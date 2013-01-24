@@ -28,3 +28,10 @@ pip-log.txt
 
 #Mac OSX
 .DS_Store
+
+#pictures
+*.png
+
+#pydev
+*.project
+*.pydevproject
