@@ -39,3 +39,7 @@ pip-log.txt
 #BAM
 *.bam
 *.bai
+*.BAM
+
+#Eclipse
+*.prefs
