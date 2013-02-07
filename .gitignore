@@ -39,3 +39,6 @@ pip-log.txt
 #BAM
 *.bam
 *.bai
+
+#R
+.Rhistory
