@@ -28,3 +28,25 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+
+#Mac OSX
+.DS_Store
+
+#pictures
+*.png
+
+#pydev
+*.project
+*.pydevproject
+
+#BAM
+*.bam
+*.bai
+*.BAM
+
+#Eclipse
+*.prefs
+
+#R
+.Rhistory

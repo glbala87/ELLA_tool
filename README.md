@@ -1,5 +1,6 @@
 genap
 =====
 
-Repository for genAP project for AMG/UiO/externals
-=======
+
+## Repository for genAP project for AMG/UiO/externals
+
