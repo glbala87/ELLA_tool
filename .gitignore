@@ -34,7 +34,7 @@ pip-log.txt
 .DS_Store
 
 #pictures
-*.png
+#*.png
 
 #pydev
 *.project
