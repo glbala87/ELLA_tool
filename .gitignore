@@ -56,3 +56,11 @@ ffi/workbench/config/workbench.conf
 ffi/workbench/config/workbench.conf
 
 ffi/workbench/config/workbench.conf
+
+annotation/splice/testdata/mut.bed
+
+annotation/splice/testdata/mut.fasta
+
+annotation/splice/testdata/wild.bed
+
+annotation/splice/testdata/wild.fasta
