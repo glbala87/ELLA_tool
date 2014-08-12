@@ -66,3 +66,5 @@ annotation/splice/testdata/wild.bed
 annotation/splice/testdata/wild.fasta
 
 annotation/splice/tmp
+
+annotation/splice/test.bed
