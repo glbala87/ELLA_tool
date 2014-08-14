@@ -1,0 +1,13 @@
+Sample: BRCA_S1
+Export time: 2014-08-14 10-04-06
+Exported by: espesko
+Gene;HGVS cDNA;Observed genotype;Effect;VarDB classification;BIC: Clinically important?;HGMD Pro;LOVD: Reported pathogenicity;ClinVar;OMIM;NORVARIOME;ESP6500;1000G;MutationTaster;PolyPhen2;SIFT;Suggested classification;Reason for classification;
+BRCA2;c.-39-12_-39-10delTCT;;intron_variant&feature_truncation;None;unknown;;;;;0;;0;;;;3;No information found ;
+BRCA2;c.-26G>T;T;5_prime_UTR_variant;None;no;;;;;0;0.103/0.263;0.2185;;;;1;BIC = no ;
+BRCA2;c.2T>G;G;initiator_codon_variant;5;yes;;;;;0;;0;;possibly_damaging(0.825);deleterious(0);5;BIC = yes ;
+BRCA2;c.6513G>C;C;synonymous_variant;None;;;;;;0;0.071/0.001;0.0257;;;;1;Frequency = 0.071 ;
+BRCA2;c.7242A>G;G;synonymous_variant;None;no;;;;;0;0.208/0.213;0.2452;;;;1;BIC = no ;
+BRCA2;c.7976+3_7976+4delAA;;splice_region_variant&intron_variant&feature_truncation;None;;DM, Breast cancer, CD119642;;;600185;0;;0;;;;3;No information found ;
+BRCA1;c.4335_4338dupAGAA;TTCT;frameshift;None;;DM, Breast and/or ovarian cancer, CI126332;;;113705;0;;0;;;;3;No information found ;
+BRCA1;c.1012A>T;A;nonsense;None;;DM, Breast cancer, CM057535;;;113705;0;;0;;;;3;No information found ;
+BRCA1;c.668A>G;C;missense_variant&splice_region_variant;None;;DM?, Breast and/or ovarian cancer, CS1211735;;;113705;0;;0;;benign(0.216);tolerated(0.09);3;No information found ;
