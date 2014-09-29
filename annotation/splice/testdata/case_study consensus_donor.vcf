@@ -1,0 +1,13 @@
+##fileformat=VCFv4.1
+##INFO=<ID=case_study,Number=1,Type=String,Description="Validated alternative splicings">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+17	38476465	cs2_1	T	C	.	.	Breast cancer predisposition
+17	7519091	cs2_2	G	C	.	.	Colorectal carcinoma
+3	15470337	cs2_3	A	G	.	.	Congenital acetylcholinesterase deficiency
+11	67565435	cs2_4	A	T	.	.	Congenital thrombotic thrombocytopenic purpura/hemolytic uremic syndrome (TTP/HUS)
+7	116958407	cs2_5	A	G	.	.	Cystic fibrosis
+12	119916591	cs2_6	G	A	.	.	Diabetes susceptibility
+6	106643017	cs2_7	G	A	.	.	Diffuse large B-cell lymphoma
+1	29311547	cs2_8	G	A	.	.	Elliptocytosis
+X	100549354	cs2_9	G	C	.	.	Fabry disease
+1	167785663	cs2_10	G	T	.	.	Factor 5 deficiency
