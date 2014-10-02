@@ -72,3 +72,5 @@ annotation/splice/test.bed
 annotation/splice/input.fasta
 
 annotation/splice/genesplicer.output
+
+*.csv
