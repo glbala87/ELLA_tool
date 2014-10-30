@@ -50,3 +50,27 @@ pip-log.txt
 
 #R
 .Rhistory
+
+ffi/workbench/config/workbench.conf
+
+ffi/workbench/config/workbench.conf
+
+ffi/workbench/config/workbench.conf
+
+annotation/splice/testdata/mut.bed
+
+annotation/splice/testdata/mut.fasta
+
+annotation/splice/testdata/wild.bed
+
+annotation/splice/testdata/wild.fasta
+
+annotation/splice/tmp
+
+annotation/splice/test.bed
+
+annotation/splice/input.fasta
+
+annotation/splice/genesplicer.output
+
+*.csv
