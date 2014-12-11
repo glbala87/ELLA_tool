@@ -74,3 +74,9 @@ annotation/splice/input.fasta
 annotation/splice/genesplicer.output
 
 
+
+ffi/workbench/lib/igv.vcf
+
+ffi/workbench/lib/mut.igv
+
+ffi/workbench/lib/wild.igv
