@@ -1,0 +1,6 @@
+psycopg2==2.5.1
+setuptools==3.6
+PyVCF==0.6.4
+SQLAlchemy==0.9.0
+Bio>=1.64
+pygr>=0.8.2
