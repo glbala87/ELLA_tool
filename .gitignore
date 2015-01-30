@@ -80,3 +80,19 @@ ffi/workbench/lib/igv.vcf
 ffi/workbench/lib/mut.igv
 
 ffi/workbench/lib/wild.igv
+
+ffi/workbench/export/igv_session.xml
+
+ffi/workbench/export/igv.vcf
+
+ffi/workbench/export/mut.igv
+
+ffi/workbench/export/wild.igv
+
+ffi/workbench/export/igv_session.xml
+
+ffi/workbench/export/igv.vcf
+
+ffi/workbench/export/mut.igv
+
+ffi/workbench/export/wild.igv
