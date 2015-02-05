@@ -1,5 +1,5 @@
 psycopg2==2.5.4, <3.0
-setuptools==3.6, <4.0
+setuptools>=6.0
 PyVCF==0.6.4, <1.0
 SQLAlchemy==0.9.8, <1.0
 biopython>=1.64, <2.0
