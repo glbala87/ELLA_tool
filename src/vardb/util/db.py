@@ -4,7 +4,7 @@ import sys
 
 class DB(object):
 
-    def __init__(self, host=None, pool_size=5, pool_max_overflow=10, pool_timeout=30):
+    def __init__(self, host=None, pool_size=5, pool_max_overflow=10, pool_timeout=30, query_cls=None):
         # Lazy load dependencies to avoid problems in code not actually using DB, but uses modules from which this module is referenced.
         from sqlalchemy import create_engine
         from sqlalchemy.orm import sessionmaker
@@ -26,4 +26,9 @@ class DB(object):
             pool_size=pool_size,
             pool_timeout=pool_timeout
         )
-        self.sessionmaker = sessionmaker(bind=self.engine)  # Class for creating session instances
+        args = {
+            'bind': self.engine
+        }
+        if query_cls:
+            args.update({'query_cls': query_cls})
+        self.sessionmaker = sessionmaker(**args)  # Class for creating session instances
