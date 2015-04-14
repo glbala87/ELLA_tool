@@ -1,0 +1,329 @@
+[
+    {
+        "mut": [
+            {
+                "pos": 32890502, 
+                "scores": {
+                    "MaxEntScan": 0.37
+                }
+            }, 
+            {
+                "pos": 32890558, 
+                "scores": {
+                    "SSFL": 94.13676009239148, 
+                    "MaxEntScan": 9.79
+                }
+            }, 
+            {
+                "pos": 32890645, 
+                "scores": {
+                    "SSFL": 79.25371462060882, 
+                    "MaxEntScan": 4.18
+                }
+            }, 
+            {
+                "pos": 32890616, 
+                "scores": {
+                    "MaxEntScan": 1.47
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "G", 
+        "pos": 32890572, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32890502, 
+                "scores": {
+                    "MaxEntScan": 0.37
+                }
+            }, 
+            {
+                "pos": 32890558, 
+                "scores": {
+                    "SSFL": 94.13676009239148, 
+                    "MaxEntScan": 9.79
+                }
+            }, 
+            {
+                "pos": 32890645, 
+                "scores": {
+                    "SSFL": 79.25371462060882, 
+                    "MaxEntScan": 4.18
+                }
+            }, 
+            {
+                "pos": 32890616, 
+                "scores": {
+                    "MaxEntScan": 1.47
+                }
+            }
+        ], 
+        "alt": "A", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Acceptor", 
+            "pos": 32890558, 
+            "strand": "+"
+        }, 
+        "ID": "HBLANK"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32914166, 
+                "scores": {
+                    "MaxEntScan": 1.87
+                }
+            }, 
+            {
+                "pos": 32914108, 
+                "scores": {
+                    "SSFL": 78.0, 
+                    "MaxEntScan": 3.64
+                }
+            }, 
+            {
+                "pos": 32914249, 
+                "scores": {
+                    "MaxEntScan": 3.43
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "C", 
+        "pos": 32914174, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32914166, 
+                "scores": {
+                    "MaxEntScan": 1.87
+                }
+            }, 
+            {
+                "pos": 32914108, 
+                "scores": {
+                    "SSFL": 78.0, 
+                    "MaxEntScan": 3.64
+                }
+            }, 
+            {
+                "pos": 32914249, 
+                "scores": {
+                    "MaxEntScan": 3.43
+                }
+            }
+        ], 
+        "alt": "G", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Donor", 
+            "pos": 32915333, 
+            "strand": "+"
+        }, 
+        "ID": "HBLANK"
+    }, 
+    {
+        "ref": "ATTAA", 
+        "alt": "A", 
+        "chrom": "13", 
+        "pos": 32915412, 
+        "ID": "H489"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 41245400, 
+                "scores": {
+                    "SSFL": 71.59004722997898, 
+                    "MaxEntScan": 0.25
+                }
+            }, 
+            {
+                "pos": 41245414, 
+                "scores": {
+                    "SSFL": 74.13124418243872, 
+                    "MaxEntScan": 3.74
+                }
+            }, 
+            {
+                "pos": 41245452, 
+                "scores": {
+                    "SSFL": 75.19736615299755, 
+                    "MaxEntScan": 2.74
+                }
+            }, 
+            {
+                "pos": 41245373, 
+                "scores": {
+                    "SSFL": 75.87909814872273, 
+                    "MaxEntScan": 2.02
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "C", 
+        "pos": 41245471, 
+        "chrom": "17", 
+        "wild": [
+            {
+                "pos": 41245400, 
+                "scores": {
+                    "SSFL": 71.59004722997898, 
+                    "MaxEntScan": 0.25
+                }
+            }, 
+            {
+                "pos": 41245414, 
+                "scores": {
+                    "SSFL": 74.13124418243872, 
+                    "MaxEntScan": 3.74
+                }
+            }, 
+            {
+                "pos": 41245452, 
+                "scores": {
+                    "SSFL": 75.19736615299755, 
+                    "MaxEntScan": 3.13
+                }
+            }, 
+            {
+                "pos": 41245373, 
+                "scores": {
+                    "SSFL": 75.87909814872273, 
+                    "MaxEntScan": 2.02
+                }
+            }
+        ], 
+        "alt": "T", 
+        "authentic": {
+            "transcript": "NM_007294", 
+            "splice_type": "Acceptor", 
+            "pos": 41246877, 
+            "strand": "-"
+        }, 
+        "ID": "H156"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 41215926, 
+                "scores": {
+                    "SSFL": 83.79701451373805, 
+                    "MaxEntScan": 7.36
+                }
+            }, 
+            {
+                "pos": 41215985, 
+                "scores": {
+                    "SSFL": 75.88513117523357
+                }
+            }, 
+            {
+                "pos": 41215968, 
+                "scores": {
+                    "SSFL": 93.37918433481573, 
+                    "MaxEntScan": 8.96
+                }
+            }, 
+            {
+                "pos": 41216073, 
+                "scores": {
+                    "MaxEntScan": 1.24
+                }
+            }, 
+            {
+                "pos": 41216028, 
+                "scores": {
+                    "MaxEntScan": 0.56
+                }
+            }, 
+            {
+                "pos": 41216096, 
+                "scores": {
+                    "SSFL": 83.71212121212122, 
+                    "MaxEntScan": 9.01
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "G", 
+        "pos": 41216021, 
+        "chrom": "17", 
+        "wild": [
+            {
+                "pos": 41215926, 
+                "scores": {
+                    "SSFL": 83.79701451373805, 
+                    "MaxEntScan": 7.36
+                }
+            }, 
+            {
+                "pos": 41215985, 
+                "scores": {
+                    "SSFL": 75.88513117523357
+                }
+            }, 
+            {
+                "pos": 41215968, 
+                "scores": {
+                    "SSFL": 93.37918433481573, 
+                    "MaxEntScan": 8.96
+                }
+            }, 
+            {
+                "pos": 41216073, 
+                "scores": {
+                    "MaxEntScan": 1.24
+                }
+            }, 
+            {
+                "pos": 41216028, 
+                "scores": {
+                    "MaxEntScan": 0.56
+                }
+            }, 
+            {
+                "pos": 41216096, 
+                "scores": {
+                    "SSFL": 83.71212121212122, 
+                    "MaxEntScan": 9.01
+                }
+            }
+        ], 
+        "alt": "A", 
+        "authentic": {
+            "transcript": "NM_007294", 
+            "splice_type": "Acceptor", 
+            "pos": 41215968, 
+            "strand": "-"
+        }, 
+        "ID": "HBLANK"
+    }
+]

@@ -1,0 +1,10 @@
+##fileformat=VCFv4.1
+##INFO=<ID=class,Number=.,Type=String,Description="class">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	H01
+13	32890572	HBLANK	G	A	.	.	class=1	GT	0/1
+13	32890587	H17	C	T	.	.	class=3	GT	0/1
+13	32911799	H285	TT	TTTT	.	.	class=4	GT	0/1
+13	32914174	HBLANK	C	G	.	.	class=5	GT	0/1
+17	41226387	H602	C	T	.	.	class=2	GT	0/1
+17	41226488	H186	C	A	.	.	class=1	GT	0/1

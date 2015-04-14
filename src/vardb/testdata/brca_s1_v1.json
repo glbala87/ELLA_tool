@@ -1,0 +1,367 @@
+[
+    {
+        "ref": "TTCT", 
+        "alt": "T", 
+        "chrom": "13", 
+        "pos": 32890546, 
+        "ID": "10105"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32890502, 
+                "scores": {
+                    "MaxEntScan": 0.37
+                }
+            }, 
+            {
+                "pos": 32890580, 
+                "scores": {
+                    "SSFL": 71.71932636949703, 
+                    "MaxEntScan": 0.02
+                }
+            }, 
+            {
+                "pos": 32890558, 
+                "scores": {
+                    "SSFL": 94.13676009239148, 
+                    "MaxEntScan": 9.79
+                }
+            }, 
+            {
+                "pos": 32890645, 
+                "scores": {
+                    "SSFL": 79.25371462060882, 
+                    "MaxEntScan": 4.18
+                }
+            }, 
+            {
+                "pos": 32890616, 
+                "scores": {
+                    "MaxEntScan": 1.47
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "scores": {
+                        "MaxEntScan": [
+                            0, 
+                            0.02
+                        ]
+                    }, 
+                    "Effect": "de_novo", 
+                    "pos": 32890580
+                }
+            ]
+        }, 
+        "ref": "G", 
+        "pos": 32890572, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32890502, 
+                "scores": {
+                    "MaxEntScan": 0.37
+                }
+            }, 
+            {
+                "pos": 32890558, 
+                "scores": {
+                    "SSFL": 94.13676009239148, 
+                    "MaxEntScan": 9.79
+                }
+            }, 
+            {
+                "pos": 32890645, 
+                "scores": {
+                    "SSFL": 79.25371462060882, 
+                    "MaxEntScan": 4.18
+                }
+            }, 
+            {
+                "pos": 32890616, 
+                "scores": {
+                    "MaxEntScan": 1.47
+                }
+            }
+        ], 
+        "alt": "T", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Acceptor", 
+            "pos": 32890558, 
+            "strand": "+"
+        }, 
+        "ID": "6247"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32890558, 
+                "scores": {
+                    "SSFL": 94.13676009239148, 
+                    "MaxEntScan": 9.79
+                }
+            }, 
+            {
+                "pos": 32890645, 
+                "scores": {
+                    "SSFL": 79.25371462060882, 
+                    "MaxEntScan": 4.18
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "T", 
+        "pos": 32890599, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32890558, 
+                "scores": {
+                    "SSFL": 94.13676009239148, 
+                    "MaxEntScan": 9.79
+                }
+            }, 
+            {
+                "pos": 32890645, 
+                "scores": {
+                    "SSFL": 79.25371462060882, 
+                    "MaxEntScan": 4.18
+                }
+            }, 
+            {
+                "pos": 32890616, 
+                "scores": {
+                    "MaxEntScan": 1.47
+                }
+            }
+        ], 
+        "alt": "G", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Acceptor", 
+            "pos": 32890558, 
+            "strand": "+"
+        }, 
+        "ID": "2942"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32915075, 
+                "scores": {
+                    "SSFL": 71.83333333333333, 
+                    "MaxEntScan": 3.23
+                }
+            }, 
+            {
+                "pos": 32914910, 
+                "scores": {
+                    "SSFL": 70.16666666666667, 
+                    "MaxEntScan": 1.96
+                }
+            }, 
+            {
+                "pos": 32915059, 
+                "scores": {
+                    "SSFL": 71.5
+                }
+            }, 
+            {
+                "pos": 32914987, 
+                "scores": {
+                    "MaxEntScan": 0.6
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "G", 
+        "pos": 32915005, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32915075, 
+                "scores": {
+                    "SSFL": 71.83333333333333, 
+                    "MaxEntScan": 3.23
+                }
+            }, 
+            {
+                "pos": 32914910, 
+                "scores": {
+                    "SSFL": 70.16666666666667, 
+                    "MaxEntScan": 1.96
+                }
+            }, 
+            {
+                "pos": 32915059, 
+                "scores": {
+                    "SSFL": 71.5
+                }
+            }, 
+            {
+                "pos": 32914987, 
+                "scores": {
+                    "MaxEntScan": 0.6
+                }
+            }
+        ], 
+        "alt": "C", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Donor", 
+            "pos": 32915333, 
+            "strand": "+"
+        }, 
+        "ID": "rs206076"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32929252, 
+                "scores": {
+                    "MaxEntScan": 2.27
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "A", 
+        "pos": 32929232, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32929252, 
+                "scores": {
+                    "MaxEntScan": 2.27
+                }
+            }
+        ], 
+        "alt": "G", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Donor", 
+            "pos": 32929425, 
+            "strand": "+"
+        }, 
+        "ID": "rs1799955"
+    }, 
+    {
+        "ref": "CAA", 
+        "alt": "C", 
+        "chrom": "13", 
+        "pos": 32936832, 
+        "ID": "CD119642"
+    }, 
+    {
+        "ref": "G", 
+        "alt": "GTTCT", 
+        "chrom": "17", 
+        "pos": 41234439, 
+        "ID": "CI126332"
+    }, 
+    {
+        "mut": [], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "T", 
+        "pos": 41246536, 
+        "chrom": "17", 
+        "wild": [], 
+        "alt": "A", 
+        "authentic": {
+            "transcript": "NM_007294", 
+            "splice_type": "Acceptor", 
+            "pos": 41246877, 
+            "strand": "-"
+        }, 
+        "ID": "CM057535"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 41247820, 
+                "scores": {
+                    "MaxEntScan": 1.31
+                }
+            }, 
+            {
+                "pos": 41247862, 
+                "scores": {
+                    "SSFL": 70.33333333333333, 
+                    "MaxEntScan": 4.85
+                }
+            }, 
+            {
+                "pos": 41247816, 
+                "scores": {
+                    "MaxEntScan": 0.38
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "T", 
+        "pos": 41247865, 
+        "chrom": "17", 
+        "wild": [
+            {
+                "pos": 41247820, 
+                "scores": {
+                    "MaxEntScan": 1.31
+                }
+            }, 
+            {
+                "pos": 41247862, 
+                "scores": {
+                    "SSFL": 73.66666666666667, 
+                    "MaxEntScan": 5.98
+                }
+            }, 
+            {
+                "pos": 41247816, 
+                "scores": {
+                    "MaxEntScan": 0.38
+                }
+            }
+        ], 
+        "alt": "C", 
+        "authentic": {
+            "transcript": "NM_007294", 
+            "splice_type": "Donor", 
+            "pos": 41247862, 
+            "strand": "-"
+        }, 
+        "ID": "CS1211735"
+    }
+]

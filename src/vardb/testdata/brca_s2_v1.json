@@ -1,0 +1,481 @@
+[
+    {
+        "mut": [
+            {
+                "pos": 32911759, 
+                "scores": {
+                    "SSFL": 70.02059847622988, 
+                    "MaxEntScan": 5.79
+                }
+            }, 
+            {
+                "pos": 32911743, 
+                "scores": {
+                    "MaxEntScan": 1.04
+                }
+            }, 
+            {
+                "pos": 32911774, 
+                "scores": {
+                    "SSFL": 78.08287654704037, 
+                    "MaxEntScan": 0.45
+                }
+            }, 
+            {
+                "pos": 32911809, 
+                "scores": {
+                    "SSFL": 70.32354259316716, 
+                    "MaxEntScan": 1.34
+                }
+            }, 
+            {
+                "pos": 32911847, 
+                "scores": {
+                    "SSFL": 81.9741786465336, 
+                    "MaxEntScan": 2.41
+                }
+            }, 
+            {
+                "pos": 32911850, 
+                "scores": {
+                    "SSFL": 71.67795704485124, 
+                    "MaxEntScan": 0.09
+                }
+            }, 
+            {
+                "pos": 32911777, 
+                "scores": {
+                    "SSFL": 90.9090909090909, 
+                    "MaxEntScan": 5.04
+                }
+            }, 
+            {
+                "pos": 32911711, 
+                "scores": {
+                    "SSFL": 81.51049746612887, 
+                    "MaxEntScan": 5.81
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "T", 
+        "pos": 32911756, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32911759, 
+                "scores": {
+                    "SSFL": 70.02059847622988, 
+                    "MaxEntScan": 5.12
+                }
+            }, 
+            {
+                "pos": 32911743, 
+                "scores": {
+                    "MaxEntScan": 1.04
+                }
+            }, 
+            {
+                "pos": 32911774, 
+                "scores": {
+                    "SSFL": 78.08287654704037, 
+                    "MaxEntScan": 0.7
+                }
+            }, 
+            {
+                "pos": 32911809, 
+                "scores": {
+                    "SSFL": 70.32354259316716, 
+                    "MaxEntScan": 1.34
+                }
+            }, 
+            {
+                "pos": 32911847, 
+                "scores": {
+                    "SSFL": 81.9741786465336, 
+                    "MaxEntScan": 2.41
+                }
+            }, 
+            {
+                "pos": 32911850, 
+                "scores": {
+                    "SSFL": 71.67795704485124, 
+                    "MaxEntScan": 0.09
+                }
+            }, 
+            {
+                "pos": 32911777, 
+                "scores": {
+                    "SSFL": 90.9090909090909, 
+                    "MaxEntScan": 5.04
+                }
+            }, 
+            {
+                "pos": 32911711, 
+                "scores": {
+                    "SSFL": 81.51049746612887, 
+                    "MaxEntScan": 5.81
+                }
+            }
+        ], 
+        "alt": "C", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Acceptor", 
+            "pos": 32910401, 
+            "strand": "+"
+        }, 
+        "ID": "rs36060526"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32911936, 
+                "scores": {
+                    "MaxEntScan": 0.14
+                }
+            }, 
+            {
+                "pos": 32911951, 
+                "scores": {
+                    "SSFL": 73.31937118626539
+                }
+            }, 
+            {
+                "pos": 32911879, 
+                "scores": {
+                    "SSFL": 79.4183300582618, 
+                    "MaxEntScan": 1.38
+                }
+            }, 
+            {
+                "pos": 32911850, 
+                "scores": {
+                    "SSFL": 71.67795704485124, 
+                    "MaxEntScan": 0.09
+                }
+            }, 
+            {
+                "pos": 32911809, 
+                "scores": {
+                    "SSFL": 70.32354259316716, 
+                    "MaxEntScan": 1.34
+                }
+            }, 
+            {
+                "pos": 32911906, 
+                "scores": {
+                    "MaxEntScan": 0.92
+                }
+            }, 
+            {
+                "pos": 32911847, 
+                "scores": {
+                    "SSFL": 81.9741786465336, 
+                    "MaxEntScan": 2.41
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "T", 
+        "pos": 32911882, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32911936, 
+                "scores": {
+                    "MaxEntScan": 0.14
+                }
+            }, 
+            {
+                "pos": 32911951, 
+                "scores": {
+                    "SSFL": 73.31937118626539
+                }
+            }, 
+            {
+                "pos": 32911879, 
+                "scores": {
+                    "SSFL": 79.4183300582618, 
+                    "MaxEntScan": 1.69
+                }
+            }, 
+            {
+                "pos": 32911850, 
+                "scores": {
+                    "SSFL": 71.67795704485124, 
+                    "MaxEntScan": 0.09
+                }
+            }, 
+            {
+                "pos": 32911809, 
+                "scores": {
+                    "SSFL": 70.32354259316716, 
+                    "MaxEntScan": 1.34
+                }
+            }, 
+            {
+                "pos": 32911906, 
+                "scores": {
+                    "MaxEntScan": 0.92
+                }
+            }, 
+            {
+                "pos": 32911847, 
+                "scores": {
+                    "SSFL": 81.9741786465336, 
+                    "MaxEntScan": 2.41
+                }
+            }
+        ], 
+        "alt": "A", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Acceptor", 
+            "pos": 32910401, 
+            "strand": "+"
+        }, 
+        "ID": null
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32911936, 
+                "scores": {
+                    "MaxEntScan": 0.14
+                }
+            }, 
+            {
+                "pos": 32911951, 
+                "scores": {
+                    "SSFL": 73.31937118626539
+                }
+            }, 
+            {
+                "pos": 32911879, 
+                "scores": {
+                    "SSFL": 79.4183300582618, 
+                    "MaxEntScan": 1.69
+                }
+            }, 
+            {
+                "pos": 32911850, 
+                "scores": {
+                    "SSFL": 71.67795704485124, 
+                    "MaxEntScan": 0.09
+                }
+            }, 
+            {
+                "pos": 32911809, 
+                "scores": {
+                    "SSFL": 70.32354259316716, 
+                    "MaxEntScan": 1.34
+                }
+            }, 
+            {
+                "pos": 32911847, 
+                "scores": {
+                    "SSFL": 81.9741786465336, 
+                    "MaxEntScan": 2.41
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "A", 
+        "pos": 32911888, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32911936, 
+                "scores": {
+                    "MaxEntScan": 0.14
+                }
+            }, 
+            {
+                "pos": 32911951, 
+                "scores": {
+                    "SSFL": 73.31937118626539
+                }
+            }, 
+            {
+                "pos": 32911879, 
+                "scores": {
+                    "SSFL": 79.4183300582618, 
+                    "MaxEntScan": 1.69
+                }
+            }, 
+            {
+                "pos": 32911850, 
+                "scores": {
+                    "SSFL": 71.67795704485124, 
+                    "MaxEntScan": 0.09
+                }
+            }, 
+            {
+                "pos": 32911809, 
+                "scores": {
+                    "SSFL": 70.32354259316716, 
+                    "MaxEntScan": 1.34
+                }
+            }, 
+            {
+                "pos": 32911906, 
+                "scores": {
+                    "MaxEntScan": 0.92
+                }
+            }, 
+            {
+                "pos": 32911847, 
+                "scores": {
+                    "SSFL": 81.9741786465336, 
+                    "MaxEntScan": 2.41
+                }
+            }
+        ], 
+        "alt": "G", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Acceptor", 
+            "pos": 32910401, 
+            "strand": "+"
+        }, 
+        "ID": "rs1801406"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32915075, 
+                "scores": {
+                    "SSFL": 71.83333333333333, 
+                    "MaxEntScan": 3.23
+                }
+            }, 
+            {
+                "pos": 32914910, 
+                "scores": {
+                    "SSFL": 70.16666666666667, 
+                    "MaxEntScan": 1.96
+                }
+            }, 
+            {
+                "pos": 32915059, 
+                "scores": {
+                    "SSFL": 71.5
+                }
+            }, 
+            {
+                "pos": 32914987, 
+                "scores": {
+                    "MaxEntScan": 0.6
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "G", 
+        "pos": 32915005, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32915075, 
+                "scores": {
+                    "SSFL": 71.83333333333333, 
+                    "MaxEntScan": 3.23
+                }
+            }, 
+            {
+                "pos": 32914910, 
+                "scores": {
+                    "SSFL": 70.16666666666667, 
+                    "MaxEntScan": 1.96
+                }
+            }, 
+            {
+                "pos": 32915059, 
+                "scores": {
+                    "SSFL": 71.5
+                }
+            }, 
+            {
+                "pos": 32914987, 
+                "scores": {
+                    "MaxEntScan": 0.6
+                }
+            }
+        ], 
+        "alt": "C", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Donor", 
+            "pos": 32915333, 
+            "strand": "+"
+        }, 
+        "ID": "rs206076"
+    }, 
+    {
+        "mut": [
+            {
+                "pos": 32929252, 
+                "scores": {
+                    "MaxEntScan": 2.27
+                }
+            }
+        ], 
+        "predict": {
+            "Houdayer": [
+                {
+                    "Effect": "no_effect"
+                }
+            ]
+        }, 
+        "ref": "A", 
+        "pos": 32929232, 
+        "chrom": "13", 
+        "wild": [
+            {
+                "pos": 32929252, 
+                "scores": {
+                    "MaxEntScan": 2.27
+                }
+            }
+        ], 
+        "alt": "G", 
+        "authentic": {
+            "transcript": "NM_000059", 
+            "splice_type": "Donor", 
+            "pos": 32929425, 
+            "strand": "+"
+        }, 
+        "ID": "rs1799955"
+    }, 
+    {
+        "ref": "G", 
+        "alt": "GTTCT", 
+        "chrom": "17", 
+        "pos": 41234439, 
+        "ID": "CI126332"
+    }
+]
