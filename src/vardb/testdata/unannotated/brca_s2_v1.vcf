@@ -1,0 +1,10 @@
+##fileformat=VCFv4.1
+##INFO=<ID=TESTDESC,Number=1,Type=String,Description="Description of testdata">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	BRCA_S2
+13	32911756	rs36060526	T	C	.	.	TESTDESC=normalvariant	GT	0/1
+13	32911882	.	T	A,G	.	.	TESTDESC=bogus_multiallelic	GT	1/2
+13	32911888	rs1801406	A	G	.	.	TESTDESC=normalvariant	GT	0/1
+13	32915005	rs206076	G	C	.	.	TESTDESC=normalvariant	GT	0/1
+13	32929232	rs1799955	A	G	.	.	TESTDESC=normalvariant	GT	0/1
+17	41234439	CI126332	G	GTTCT	.	.	.	GT	0/1
