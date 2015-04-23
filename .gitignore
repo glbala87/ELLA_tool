@@ -3,6 +3,8 @@
 *.pyc
 *~
 local_settings.py
+.cache/
+__pycache__/
 
 # Packages
 *.egg
