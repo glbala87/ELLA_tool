@@ -70,8 +70,6 @@ class Interpretation(Base):
     analysis = relationship("Analysis", uselist=False)
     guiState = Column("gui_state", MUTJSONB, default={})
     # TODO: Remove columns below and keep everything in guiState
-    interpreterName = Column("interpreter_name", String(60))  # Interpreter user name from OS
-    seqNo = Column(Integer, default=1)  # Number in a sequence of interpretations
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False, default=datetime.datetime.now)
