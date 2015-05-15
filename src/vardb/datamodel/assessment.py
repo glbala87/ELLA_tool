@@ -23,7 +23,7 @@ class Assessment(Base):
     comment = Column(String(200))
     interpreterName = Column("interpreter_name", String(50))  # A database user
     status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
-    dateLastUpdate = Column("date_late_update", DateTime)
+    dateLastUpdate = Column("date_last_update", DateTime)
     dateSuperceeded = Column("date_superceeded", DateTime)
     previousAssessment_id = Column(Integer, ForeignKey("assessment.id"))
     previousAssessment = relationship("Assessment", uselist=False)
