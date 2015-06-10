@@ -28,6 +28,8 @@ def add_cors(resp):
 
 api = Api(app)
 
+api.add_resource(apiv1.AnalysisResource, '/api/v1/analyses/<int:id>')
+api.add_resource(apiv1.AnalysisListResource, '/api/v1/analyses/')
 api.add_resource(apiv1.SampleListResource, '/api/v1/samples/')
 api.add_resource(apiv1.SampleInstanceResource, '/api/v1/samples/<string:sample_identifier>')
 api.add_resource(apiv1.AlleleListResource, '/api/v1/alleles/')

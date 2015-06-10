@@ -54,7 +54,7 @@ class Analysis(Base):
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<Analysis('%s, %s')>" % (self.sample, self.genepanel)
+        return "<Analysis('%s, %s, %s')>" % (self.sample, self.genepanelName, self.genepanelVersion)
 
 
 class Interpretation(Base):
@@ -67,7 +67,7 @@ class Interpretation(Base):
 
     id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    analysis = relationship("Analysis", uselist=False)
+    analysis = relationship("Analysis", uselist=False, backref='interpretations')
     guiState = Column("gui_state", MUTJSONB, default={})
     # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
@@ -75,5 +75,4 @@ class Interpretation(Base):
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
-        return "<Interpretation('{}', '{}', '{}', '{}')>".format(self.analysis, self.seqNo,
-                                                          self.interpreterName, self.status)
+        return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)
