@@ -47,14 +47,14 @@
 
         <div class="col-sm-3 col-md-1 sidebar" style="width: 200px;">
           <ul class="nav nav-sidebar">
-            <li><a href="#"><i class="fa fa-home icon"></i> Overview </a></li>
-            <li><a href="#"><i class="fa fa-file-text-o icon"></i> My analyses <span class="badge">3</span></a></li>
-            <li class="active"><a href="#"><i class="fa fa-pencil icon"></i> Current analysis</a></li>
+            <li><a href="#/analyses"><i class="fa fa-home icon"></i> Overview </a></li>
+            <li><a href="#/analyses"><i class="fa fa-file-text-o icon"></i> My analyses <span class="badge">3</span></a></li>
+            <li class="active"><a href="#/interpretation/1"><i class="fa fa-pencil icon"></i> Current analysis</a></li>
           </ul>
         </div>
 
         <div class="col-sm-9 col-md-10 main" style="margin-left: 230px;">
-            <analysis></analysis>
+            <div ng-view></div>
 
         </div>
       </div>
