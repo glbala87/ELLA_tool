@@ -44,6 +44,7 @@ class Analysis(Base):
     __tablename__ = "analysis"
 
     id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
+    name = Column(String(), nullable=False)
     sample_id = Column(Integer, ForeignKey("sample.id"), nullable=False)
     sample = relationship("Sample", uselist=False)
     genepanelName = Column(String)
