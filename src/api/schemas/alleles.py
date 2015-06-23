@@ -57,12 +57,3 @@ class AlleleSchema(Schema):
     annotation = fields.Nested(AnnotationSchema)
     genotype = fields.Nested(GenotypeSchema)
 
-
-# @AlleleSchema.data_handler
-# def check_secondallele(serializer, data, obj):
-#     print data
-#     if not data.get('annotation'):
-#         return None
-    # return data
-
-
