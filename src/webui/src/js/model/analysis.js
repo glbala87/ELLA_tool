@@ -28,8 +28,6 @@ class Analysis {
         this.genepanel = data.genepanel;
     }
 
-
-
     getInterpretationState() {
         var STATE_PRIORITY = ['Not started', 'Ongoing', 'Done'];
         let states = this.interpretations.map(x => x.status);
@@ -37,5 +35,4 @@ class Analysis {
             return states.sort(x => STATE_PRIORITY.indexOf(x))[0];
         }
     }
-
 }
