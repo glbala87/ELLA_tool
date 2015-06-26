@@ -8,10 +8,10 @@ class Allele {
     constructor(data) {
         Object.assign(this, data);
         this._data = data;
-        this.annotation = this._createAnnotations();
-        this.annotation_transcript = null;
+        console.log(data);
     }
 
+    /*
     setAnnotationTranscript(transcripts) {
         this.annotation_transcript = this.annotation.getByTranscripts(transcripts);
     }
@@ -22,7 +22,7 @@ class Allele {
 
     getTranscripts() {
         return this.annotation.transcripts.map(x => x.transcript);
-    }
+    }*/
 
     getReferenceData() {
         return this.annotation_transcript.getReferenceData();

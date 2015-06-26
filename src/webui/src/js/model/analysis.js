@@ -21,7 +21,7 @@ class Analysis {
         this.interpretations[1].user = {full_name: 'Developer Test'};
         console.log(this.interpretations);
         this.interpretations[1].id = this.interpretations[0].id + 100;
-        this.interpretations[1].status = 'Done';
+        this.interpretations[1].status = 'Not started';
         //
 
         this.name = data.name;
