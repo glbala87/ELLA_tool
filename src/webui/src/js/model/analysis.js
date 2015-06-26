@@ -35,4 +35,9 @@ class Analysis {
             return states.sort(x => STATE_PRIORITY.indexOf(x))[0];
         }
     }
+
+    getInterpretationId() {
+        // TODO: implement me
+        return this.interpretations[0].id;
+    }
 }

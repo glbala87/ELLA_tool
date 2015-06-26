@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 (function() {
+
     angular.module('workbench')
         .factory('Interpretation', ['InterpretationResource', function(InterpretationResource) {
             return new Interpretation(InterpretationResource);
@@ -21,6 +22,7 @@
                 }
                 else {
                     this.interpretationResource.getById(id).then(i => {
+                        i.analysis.type = 'singlesample'; // TODO: remove me
                         this.currentInterpretation = i;
                         resolve(i);
                     });
@@ -29,16 +31,15 @@
         }
 
         getCurrent() {
-            return new Promise((resolve, reject) => {
-                if (this.currentInterpretation) {
-                    resolve(this.currentInterpretation);
-                }
-                reject("No current interpretation");
-            });
+            return this.currentInterpretation;
         }
 
         hasCurrent() {
             return Boolean(this.currentInterpretation);
+        }
+
+        abortCurrent() {
+            this.currentInterpretation = null;
         }
 
 
