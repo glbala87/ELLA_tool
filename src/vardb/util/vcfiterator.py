@@ -140,6 +140,8 @@ class VEPInfoProcessor(BaseInfoProcessor):
             'EA_MAF': self._parseMAF,
             'EUR_MAF': self._parseMAF,
             'GMAF': self._parseMAF,
+            'EAS_MAF': self._parseMAF,
+            'SAS_MAF': self._parseMAF,
             'Consequence': lambda x: [i for i in x.split('&')],
             'Existing_variation': lambda x: [i for i in x.split('&')],
             'DISTANCE': int,
