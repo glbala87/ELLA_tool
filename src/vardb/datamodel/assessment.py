@@ -7,7 +7,7 @@ from sqlalchemy import Column, Sequence, Integer, String, DateTime, ForeignKey, 
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.dialects.postgresql import HSTORE
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 
 from vardb.datamodel import Base
@@ -35,7 +35,7 @@ class Assessment(Base):
     transcript = relationship("Transcript")
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
-    weightedAnnotations = Column(MutableDict.as_mutable(HSTORE))
+    weightedAnnotations = Column(MutableDict.as_mutable(JSONB))
     # association-proxy 'references' can conceal usage of AssessmentReference association objects
     references = association_proxy("assessmentReference", "reference")
 
@@ -59,7 +59,7 @@ class AssessmentReference(Base):
 
     assessment_id = Column(Integer, ForeignKey("assessment.id"), primary_key=True)
     reference_id = Column(Integer, ForeignKey("reference.id"), primary_key=True)
-    evaluation = Column(MutableDict.as_mutable(HSTORE))
+    evaluation = Column(MutableDict.as_mutable(JSONB))
 
     assessment = relationship(Assessment, backref=backref("assessmentReference", cascade="all, delete-orphan")) # TODO: Verify cascade
     reference = relationship("Reference")
