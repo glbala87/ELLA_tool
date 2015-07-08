@@ -7,25 +7,10 @@ class Allele {
      */
     constructor(data) {
         Object.assign(this, data);
-        this._data = data;
-        console.log(data);
-    }
-
-    /*
-    setAnnotationTranscript(transcripts) {
-        this.annotation_transcript = this.annotation.getByTranscripts(transcripts);
+        this._createAnnotations();
     }
 
     _createAnnotations() {
-        return new Annotation(this._data.annotation.annotations);
+        this.annotation = new Annotation(this.annotation);
     }
-
-    getTranscripts() {
-        return this.annotation.transcripts.map(x => x.transcript);
-    }*/
-
-    getReferenceData() {
-        return this.annotation_transcript.getReferenceData();
-    }
-
 }
