@@ -21,4 +21,20 @@ angular.module('workbench')
         return function(input, text) {
             return input ? input : text;
         };
+    })
+    .filter('HGVSc_short', () => {
+        return function(input) {
+            if (input) {
+                return input.split(':')[1];
+            }
+            return '';
+        };
+    })
+    .filter('HGVSp_short', () => {
+        return function(input) {
+            if (input) {
+                return input.split(':')[1];
+            }
+            return '';
+        };
     });

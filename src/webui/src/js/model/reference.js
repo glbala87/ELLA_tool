@@ -7,24 +7,25 @@ class Reference {
      */
     constructor(data) {
         Object.assign(this, data);
-        this._data = data;
-        this.allele = null;  // Metadata: Allele obj referencing this resource
-        this.sources = [];  // Metadata: Sources where this reference was found
-    }
-
-    copy() {
-        return new Reference(this._data);
-    }
-
-    setAllele(allele) {
-        this.allele = allele;
-    }
-
-    setSources(sources) {
-        this.sources = sources;
     }
 
     getShortDesc() {
         return `${this.authors} (${this.year}) ${this.journal}`;
+    }
+}
+
+
+class ReferenceAssessment {
+
+    constructor(allele, reference) {
+        this.id = allele.id.toString() + reference.id.toString();
+        this.allele = allele;
+        this.reference = reference;
+        this.evaluation = {};
+        this.sources = '';
+    }
+
+    setSources(sources) {
+        this.sources = sources;
     }
 }

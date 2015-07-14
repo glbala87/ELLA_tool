@@ -7,6 +7,7 @@ class Annotation {
      */
     constructor(data) {
         Object.assign(this, data);
+        this.filtered = [];  // Filtered transcripts
     }
 
     /**
@@ -15,24 +16,27 @@ class Annotation {
      * @param  {Transcript} transcripts Array of Transcripts or single Transcript
      * @return {[object]} List of matching data objects.
      */
-    filterTranscripts(transcripts) {
+    setFilteredTranscripts(transcripts) {
         if (!Array.isArray(transcripts)) {
             transcripts = [transcripts];
         }
 
-        let filtered = {};
+        let filtered = [];
 
-        let getTranscriptData = (t) => {
-            return this.annotations.transcripts[t.refseqName];
+        let filterTranscriptGene = (t, g) => {
+            return this.annotations.transcripts.find(el => {
+                return el.Transcript === t &&
+                       el.SYMBOL === g;
+            });
         };
 
         for (let t of transcripts) {
-            if (t.refseqName in this.annotations.transcripts &&
-                t.gene.hugoSymbol == getTranscriptData(t).CSQ.SYMBOL) {
-                filtered[t.refseqName] = getTranscriptData(t);
+            let transcript_data = filterTranscriptGene(t.refseqName, t.gene.hugoSymbol);
+            if (transcript_data) {
+                filtered.push(transcript_data);
             }
         }
-        return filtered;
+        this.filtered = filtered;
 
     }
 }

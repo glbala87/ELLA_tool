@@ -26,6 +26,10 @@ angular.module('workbench')
                         'AA',
                         'EA'
                     ]
+                },
+                freq_criteria: {
+                    'ExAC': 0.01,
+                    '1000g': 0.01
                 }
             };
 
