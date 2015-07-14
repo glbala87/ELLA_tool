@@ -10,6 +10,10 @@ class Annotation {
         this.filtered = [];  // Filtered transcripts
     }
 
+    _unversionTranscript(name) {
+        return name.split('.')[0];
+    }
+
     /**
      * Filters annotation's transcript data according to provided
      * input.
@@ -25,7 +29,7 @@ class Annotation {
 
         let filterTranscriptGene = (t, g) => {
             return this.annotations.transcripts.find(el => {
-                return el.Transcript === t &&
+                return this._unversionTranscript(el.Transcript) === this._unversionTranscript(t) &&
                        el.SYMBOL === g;
             });
         };
