@@ -31,6 +31,7 @@ api = Api(app)
 api.add_resource(apiv1.AnalysisListResource, '/api/v1/analyses/')
 api.add_resource(apiv1.InterpretationResource, '/api/v1/interpretations/<int:id>')
 api.add_resource(apiv1.InterpretationAlleleResource, '/api/v1/interpretations/<int:id>/alleles')
+api.add_resource(apiv1.ReferenceResource, '/api/v1/references/')
 
 
 if __name__ == '__main__':
