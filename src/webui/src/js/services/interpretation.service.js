@@ -3,45 +3,82 @@
 (function() {
 
     angular.module('workbench')
-        .factory('Interpretation', ['InterpretationResource', function(InterpretationResource) {
-            return new Interpretation(InterpretationResource);
+        .factory('Interpretation', ['InterpretationResource', 'ReferenceResource', function(InterpretationResource, ReferenceResource) {
+            return new Interpretation(InterpretationResource, ReferenceResource);
     }]);
 
 
     class Interpretation {
 
-        constructor(interpretationResource) {
+        constructor(interpretationResource, referenceResource) {
             this.interpretationResource = interpretationResource;
-            this.currentInterpretation = null;
+            this.referenceResource = referenceResource;
+            this.interpretation = null;
         }
 
         loadInterpretation(id) {
             return new Promise((resolve, reject) => {
-                if (this.currentInterpretation) {
+                if (this.interpretation) {
                     reject('Interpretation already loaded.');
                 }
                 else {
-                    this.interpretationResource.getById(id).then(i => {
+                    // Load main object
+                    this.interpretationResource.get(id).then(i => {
                         i.analysis.type = 'singlesample'; // TODO: remove me
-                        this.currentInterpretation = i;
-                        resolve(i);
+                        this.interpretation = i;
+
+                        // Load alleles and add to object
+                        this.interpretationResource.getAlleles(id).then(alleles => {
+                            this.interpretation.setAlleles(alleles);
+
+                            // Load references and add to object
+                            let pmids = this._getPubmedIds();
+                            this.referenceResource.getByPubMedIds(pmids).then(refs => {
+                                this.interpretation.setReferences(refs);
+
+                                // Load reference assessments and add to object
+                                return this.interpretationResource.getReferenceAssessments(this.interpretation.id).then(referenceassessments => {
+                                    this.interpretation.setReferenceAssessments(referenceassessments);
+                                    resolve(this.interpretation);
+                                });
+                            });
+
+                        });
                     });
                 }
             });
         }
 
+        /**
+         * Retrives combined PubMed IDs for all alles in the interpretation.
+         * Requires that alleles are already loaded into the interpretation.
+         * @return {Array} Array of ids.
+         */
+        _getPubmedIds() {
+            let ids = [];
+            for (let allele of this.interpretation.alleles) {
+                Array.prototype.push.apply(ids, allele.getPubmedIds());
+            }
+            return ids;
+        }
+
         getCurrent() {
-            return this.currentInterpretation;
+            return this.interpretation;
         }
 
         hasCurrent() {
-            return Boolean(this.currentInterpretation);
+            return Boolean(this.interpretation);
         }
 
         abortCurrent() {
-            this.currentInterpretation = null;
+            this.interpretation = null;
         }
 
+        createOrUpdateReferenceAssessment(ra) {
+            this.referenceResource.createOrUpdateReferenceAssessment(ra).then(updated => {
+                this.interpretation.setReferenceAssessments([updated]);
+            });
+        }
 
     }
 

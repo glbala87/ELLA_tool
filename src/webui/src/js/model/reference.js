@@ -17,11 +17,12 @@ class Reference {
 
 class ReferenceAssessment {
 
-    constructor(allele, reference) {
-        this.id = allele.id.toString() + reference.id.toString();
-        this.allele = allele;
-        this.reference = reference;
-        this.evaluation = {};
+    constructor(data) {
+        console.log(data);
+        this.id = data.allele_id.toString() + '_' + data.reference_id.toString();
+        this.allele_id = data.allele_id;
+        this.reference_id = data.reference_id;
+        this.evaluation = data.evaluation || {};
         this.sources = '';
     }
 

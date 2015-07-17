@@ -13,4 +13,12 @@ class Allele {
     _createAnnotations() {
         this.annotation = new Annotation(this.annotation);
     }
+
+    getPubmedIds() {
+        let ids = [];
+        for (let ref of this.annotation.annotations.references) {
+            ids.push(ref.pubmedID);
+        }
+        return ids;
+    }
 }
