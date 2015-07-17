@@ -11,7 +11,6 @@ class AnnotationSchema(Schema):
         fields = ('id',
                   'annotations',
                   'dateSuperceeded')
-        skip_missing = True
 
 
 class GenotypeSchema(Schema):
@@ -22,7 +21,6 @@ class GenotypeSchema(Schema):
                   'variantQuality',
                   'homozygous',
                   'genotype')
-        skip_missing = True
 
     genotype = fields.Method("get_genotype")
 
