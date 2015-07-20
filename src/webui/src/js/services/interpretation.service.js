@@ -75,7 +75,7 @@
         }
 
         createOrUpdateReferenceAssessment(ra) {
-            this.referenceResource.createOrUpdateReferenceAssessment(ra).then(updated => {
+            return this.referenceResource.createOrUpdateReferenceAssessment(ra).then(updated => {
                 this.interpretation.setReferenceAssessments([updated]);
             });
         }

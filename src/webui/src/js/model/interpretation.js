@@ -54,13 +54,14 @@ class Interpretation {
         for (let ra of referenceassessments) {
             // Insert Allele and Reference objects
             ra.allele = this.alleles.find(al => al.id === ra.allele_id);
-            ra.references = this.references.find(ref => ref.id === ra.reference_id);
+            ra.reference = this.references.find(ref => ref.id === ra.reference_id);
             let idx = this.referenceassessments.findIndex(elem => {
                 return elem.allele_id === ra.allele_id &&
                        elem.reference_id === ra.reference_id;
             });
             if (idx !== -1) {
-                this.referenceassessments[idx] = ra;
+                // Copy all values from new into old object
+                Object.assign(this.referenceassessments[idx], ra);
             }
             else {
                 this.referenceassessments.push(ra);
