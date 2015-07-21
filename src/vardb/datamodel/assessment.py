@@ -12,6 +12,7 @@ from sqlalchemy.schema import Index, ForeignKeyConstraint
 
 from vardb.datamodel import Base
 from vardb.datamodel import gene, annotation, user
+from vardb.util.mutjson import MUTJSONB
 
 
 class AlleleAssessment(Base):
@@ -20,7 +21,7 @@ class AlleleAssessment(Base):
 
     id = Column(Integer, Sequence("id_alleleassessment_seq"), primary_key=True)
     classification = Column(String(5), nullable=False)
-    comment = Column(String(), nullable=False)
+    evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
@@ -59,7 +60,7 @@ class ReferenceAssessment(Base):
 
     id = Column(Integer, Sequence("id_referenceassessment_seq"), primary_key=True)
     reference_id = Column(Integer, ForeignKey("reference.id"), nullable=False)
-    evaluation = Column(MutableDict.as_mutable(JSONB))
+    evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     genepanelName = Column(String, nullable=False)
