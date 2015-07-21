@@ -15,7 +15,7 @@ from vardb.datamodel import gene, annotation, user
 
 
 class AlleleAssessment(Base):
-    """Represents an assessment of one or more alleles."""
+    """Represents an assessment of one allele."""
     __tablename__ = "alleleassessment"
 
     id = Column(Integer, Sequence("id_alleleassessment_seq"), primary_key=True)
@@ -42,7 +42,7 @@ class AlleleAssessment(Base):
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<Assessment('%s','%s', '%s')>" % (self.classification, self.interpreterName, self.status)
+        return "<Assessment('%s','%s', '%s')>" % (self.classification, str(self.user), self.status)
 
     def __str__(self):
         return "%s, %s, %s" % (self.classification, self.status, self.dateLastUpdate)
