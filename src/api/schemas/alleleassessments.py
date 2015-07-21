@@ -1,3 +1,4 @@
+import datetime
 from flask.ext.marshmallow import Marshmallow
 from marshmallow import fields, Schema, validates_schema, ValidationError
 
@@ -22,15 +23,20 @@ class AlleleAssessmentSchema(Schema):
                   'user_id',
                   'status',
                   'classification',
-                  'comment')
+                  'daysSinceUpdate',
+                  'evaluation')
 
     user_id = fields.Integer(allow_none=True)  # Debug only
+    daysSinceUpdate = fields.Method('get_days_since_created')
+
+    def get_days_since_created(self, obj):
+        return (datetime.datetime.now() - obj.dateLastUpdate).days
 
     def make_object(self, data):
         return assessment.AlleleAssessment(**data)
 
     @validates_schema(pass_original=True)
     def validate_data(self, data, org):
-        for field in ['classification', 'status', 'comment']:
+        for field in ['classification', 'status', 'evaluation']:
             if field not in org:
                 raise ValidationError("Missing field: {}".format(field))
