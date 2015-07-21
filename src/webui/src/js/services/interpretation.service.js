@@ -37,9 +37,14 @@
                                 this.interpretation.setReferences(refs);
 
                                 // Load reference assessments and add to object
-                                return this.interpretationResource.getReferenceAssessments(this.interpretation.id).then(referenceassessments => {
+                                this.interpretationResource.getReferenceAssessments(this.interpretation.id).then(referenceassessments => {
                                     this.interpretation.setReferenceAssessments(referenceassessments);
-                                    resolve(this.interpretation);
+
+                                    // Load allele assessments and add to object
+                                    this.interpretationResource.getAlleleAssessments(this.interpretation.id).then(alleleassessments => {
+                                        this.interpretation.setAlleleAssessments(alleleassessments);
+                                        resolve(this.interpretation);
+                                    });
                                 });
                             });
 

@@ -12,8 +12,10 @@ class Interpretation {
         this.dateLastUpdate = data.dateLastUpdate;
         this.alleles = [];
         this.referenceassessments = [];
+        this.alleleassessments = [];
         this.references = [];
-        this.state = data.guiState;
+        this.userState = data.userState;
+        this.state = data.state;
 
     }
 
@@ -49,19 +51,18 @@ class Interpretation {
      */
     setReferenceAssessments(referenceassessments) {
 
-        console.log(referenceassessments.toString());
         // Refresh the existing list with updated entries.
         for (let ra of referenceassessments) {
             // Insert Allele and Reference objects
             ra.allele = this.alleles.find(al => al.id === ra.allele_id);
             ra.reference = this.references.find(ref => ref.id === ra.reference_id);
-            let idx = this.referenceassessments.findIndex(elem => {
+            let existing = this.referenceassessments.find(elem => {
                 return elem.allele_id === ra.allele_id &&
                        elem.reference_id === ra.reference_id;
             });
-            if (idx !== -1) {
+            if (existing) {
                 // Copy all values from new into old object
-                Object.assign(this.referenceassessments[idx], ra);
+                Object.assign(existing, ra);
             }
             else {
                 this.referenceassessments.push(ra);
@@ -87,6 +88,53 @@ class Interpretation {
                 }
             }
         }
+    }
+
+    _createAlleleAssessment(allele) {
+        return {
+            allele_id: allele.id,
+            allele: allele,
+            annotation_id: allele.annotation.id,
+            genepanelName: this.analysis.genepanel.name,
+            genepanelVersion: this.analysis.genepanel.version,
+            interpretation_id: this.id,
+            status: 0,
+            classification: {},
+            comment: null
+        };
+    }
+
+
+    /**
+     * Populates the internal list of AlleleAssessments with incoming data.
+     * For any missing entries (from server), we create empty ones.
+     * @param {Array} alleleassessments Array of AlleleAssessments (should originate from server)
+     */
+    setAlleleAssessments(alleleassessments) {
+        // Refresh the existing list with updated entries.
+        for (let aa of alleleassessments) {
+            aa.allele = this.alleles.find(al => al.id === aa.allele_id);
+
+            let existing = this.alleleassessments.find(elem => {
+                return elem.annotation_id === aa.annotation_id &&
+                       elem.allele_id === aa.allele_id;
+            });
+            if (existing) {
+                Object.assign(existing, aa);
+            }
+            else {
+                this.alleleassessments.push(aa);
+            }
+        }
+
+        // Create missing entries
+        for (let allele of this.alleles) {
+            let existing = this.alleleassessments.find(elem => elem.allele_id === allele.id);
+            if (!existing) {
+                this.alleleassessments.push(this._createAlleleAssessment(allele));
+            }
+        }
+        console.log(this.alleleassessments);
     }
 
 }
