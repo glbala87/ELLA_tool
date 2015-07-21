@@ -3,14 +3,28 @@
 (function() {
 
     angular.module('workbench')
-        .factory('Interpretation', ['InterpretationResource', 'ReferenceResource', function(InterpretationResource, ReferenceResource) {
-            return new Interpretation(InterpretationResource, ReferenceResource);
+        .factory('Interpretation', ['$rootScope', 'InterpretationResource', 'ReferenceResource', function($rootScope, InterpretationResource, ReferenceResource) {
+            return new Interpretation($rootScope, InterpretationResource, ReferenceResource);
     }]);
 
 
     class Interpretation {
 
-        constructor(interpretationResource, referenceResource) {
+        constructor(rootScope, interpretationResource, referenceResource) {
+
+            // Watch interpretation's state and call update whenever it changes
+            let watchFn = () => {
+                if (this.interpretation &&
+                    this.interpretation.state) {
+                    return this.interpretation.state;
+                }
+            };
+            rootScope.$watch(watchFn, () => {
+                if (this.interpretation) {
+                    this.interpretation.stateChanged();
+                }
+            }, true);  // true -> Deep watch
+
             this.interpretationResource = interpretationResource;
             this.referenceResource = referenceResource;
             this.interpretation = null;

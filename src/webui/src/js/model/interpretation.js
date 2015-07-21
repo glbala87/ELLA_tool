@@ -11,11 +11,29 @@ class Interpretation {
         this.analysis = data.analysis;
         this.dateLastUpdate = data.dateLastUpdate;
         this.alleles = [];
+        this.serverReferenceassessments = [];
         this.referenceassessments = [];
+        this.serverAlleleassessments = [];
         this.alleleassessments = [];
         this.references = [];
         this.userState = data.userState;
         this.state = data.state;
+
+    }
+
+    /**
+     * Call this function whenever the Interpretation's state has been updated.
+     * It sets up the internal structures according to the state.
+     */
+    stateChanged() {
+
+        // Insert 'Accepted' alleleassessments into generated list
+        for (let [allele_id, state] of Object.entries(this.state)) {
+            if (this.state[allele_id].vardb &&
+                this.state[allele_id].vardb.alleleassessment) {
+                this.useAlleleAssessment(this.state[allele_id].vardb.alleleassessment);
+            }
+        }
 
     }
 
@@ -46,11 +64,12 @@ class Interpretation {
 
     /**
      * Populates the internal list of ReferenceAssessments with incoming data.
-     * For the missing entries (not part of incoming data), we create empty ones.
+     * For the missing entries (not part of incoming data), we create empty ones, to be filled out by user.
      * @param {Array} referenceassessments Array of referenceassessments (should originate from server).
      */
     setReferenceAssessments(referenceassessments) {
 
+        this.serverReferenceassessments = referenceassessments;
         // Refresh the existing list with updated entries.
         for (let ra of referenceassessments) {
             // Insert Allele and Reference objects
@@ -104,26 +123,51 @@ class Interpretation {
         };
     }
 
+    /**
+     * Searches for alleleassessment in internal list matching id, setting status to 1 (curated).
+     * Id must be among alleleassessments in server list.
+     * @param  {[type]} alleleassessment_id Id of alleleassessment to use (present in server list)
+     */
+    useAlleleAssessment(alleleassessment_id) {
+        let server_aa = this.serverAlleleassessments.find(
+            elem => elem.id === alleleassessment_id
+        );
+        if (!server_aa) {
+            throw "Couldn't find alleleassessment for requested id. This is a bug or it suddenly is missing from server!";
+        }
+        let alleleassessment = this.alleleassessments.find(
+            elem => elem.id === alleleassessment_id
+        );
+        if (alleleassessment) {
+            alleleassessment.status = 1;
+        }
+    }
 
     /**
      * Populates the internal list of AlleleAssessments with incoming data.
+     * For the incoming entries, we create an non-curated copy of of the entry by
+     * copying the data and setting status to 0.
      * For any missing entries (from server), we create empty ones.
      * @param {Array} alleleassessments Array of AlleleAssessments (should originate from server)
      */
     setAlleleAssessments(alleleassessments) {
+
+        this.serverAlleleassessments = alleleassessments;
+
         // Refresh the existing list with updated entries.
         for (let aa of alleleassessments) {
             aa.allele = this.alleles.find(al => al.id === aa.allele_id);
-
+            let aa_copy = Object.assign({}, aa);
+            aa_copy.status = 0;
             let existing = this.alleleassessments.find(elem => {
-                return elem.annotation_id === aa.annotation_id &&
-                       elem.allele_id === aa.allele_id;
+                return elem.annotation_id === aa_copy.annotation_id &&
+                       elem.allele_id === aa_copy.allele_id;
             });
             if (existing) {
-                Object.assign(existing, aa);
+                Object.assign(existing, aa_copy);
             }
             else {
-                this.alleleassessments.push(aa);
+                this.alleleassessments.push(aa_copy);
             }
         }
 
@@ -134,7 +178,6 @@ class Interpretation {
                 this.alleleassessments.push(this._createAlleleAssessment(allele));
             }
         }
-        console.log(this.alleleassessments);
     }
 
 }

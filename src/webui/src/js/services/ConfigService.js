@@ -30,6 +30,9 @@ angular.module('workbench')
                 freq_criteria: {
                     'ExAC': 0.01,
                     '1000g': 0.01
+                },
+                alleleassessment: {
+                    days_since_update: 300
                 }
             };
 
