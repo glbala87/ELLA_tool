@@ -25,6 +25,8 @@ api.add_resource(apiv1.InterpretationAlleleAssessmentResource, '/api/v1/interpre
 api.add_resource(apiv1.ReferenceResource, '/api/v1/references/')
 api.add_resource(apiv1.ReferenceAssessmentResource, '/api/v1/referenceassessments/<int:ra_id>/')
 api.add_resource(apiv1.ReferenceAssessmentListResource, '/api/v1/referenceassessments/')
+api.add_resource(apiv1.UserListResource, '/api/v1/users/')
+api.add_resource(apiv1.UserResource, '/api/v1/users/<username>/')
 
 
 if __name__ == '__main__':
