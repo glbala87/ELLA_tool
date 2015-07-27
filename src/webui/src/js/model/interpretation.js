@@ -124,8 +124,9 @@ class Interpretation {
     }
 
     /**
-     * Searches for alleleassessment in internal list matching id, setting status to 1 (curated).
-     * Id must be among alleleassessments in server list.
+     * Searches for alleleassessment in internal list matching id, copying data from server one
+     * into the one in the internal list. This will set the status to curated (1) and ensure data
+     * is the same as the server one.
      * @param  {[type]} alleleassessment_id Id of alleleassessment to use (present in server list)
      */
     useAlleleAssessment(alleleassessment_id) {
@@ -138,9 +139,11 @@ class Interpretation {
         let alleleassessment = this.alleleassessments.find(
             elem => elem.id === alleleassessment_id
         );
+
         if (alleleassessment) {
-            alleleassessment.status = 1;
+            Object.assign(alleleassessment, server_aa);
         }
+
     }
 
     /**
@@ -157,7 +160,7 @@ class Interpretation {
         // Refresh the existing list with updated entries.
         for (let aa of alleleassessments) {
             aa.allele = this.alleles.find(al => al.id === aa.allele_id);
-            let aa_copy = Object.assign({}, aa);
+            let aa_copy = Object.assign({}, aa); // TODO: Perform deep copy (due to aa.evaluation)
             aa_copy.status = 0;
             let existing = this.alleleassessments.find(elem => {
                 return elem.annotation_id === aa_copy.annotation_id &&
