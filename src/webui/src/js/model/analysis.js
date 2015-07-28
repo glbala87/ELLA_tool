@@ -13,12 +13,13 @@ class Analysis {
         // DEBUG:
         for (let i of this.interpretations) {
             i.user = {
-                full_name: "Some User",
+                firstName: "First",
+                lastName: "User",
             };
         }
         this.interpretations[0].status = 'Done';
         this.interpretations.push(Object.assign({}, this.interpretations[0]));
-        this.interpretations[1].user = {full_name: 'Developer Test'};
+        this.interpretations[1].user = {firstName: 'Second', lastName: 'User'};
         console.log(this.interpretations);
         this.interpretations[1].id = this.interpretations[0].id + 100;
         this.interpretations[1].status = 'Not started';
