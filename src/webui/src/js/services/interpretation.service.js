@@ -93,6 +93,19 @@
             this.interpretation = null;
         }
 
+        /**
+         * Saves the current state to server.
+         * If the status is 'Not started', we start the interpretation by
+         * setting it to 'Ongoing'.
+         * @return {Promise} Promise that resolves upon update.
+         */
+        update() {
+            if (this.interpretation.status === 'Not started') {
+                this.interpretation.status = 'Ongoing';
+            }
+            return this.interpretationResource.updateState(this.interpretation);
+        }
+
         createOrUpdateReferenceAssessment(ra) {
             return this.referenceResource.createOrUpdateReferenceAssessment(ra).then(updated => {
                 this.interpretation.setReferenceAssessments([updated]);
