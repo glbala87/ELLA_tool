@@ -18,6 +18,7 @@ class Interpretation {
         this.references = [];
         this.userState = data.userState;
         this.state = data.state;
+        this.dirty = false; // Indicates whether any state has changed, so user should save
 
     }
 
@@ -27,6 +28,7 @@ class Interpretation {
      */
     stateChanged() {
 
+        this.dirty = true;
         // Insert 'Accepted' alleleassessments into generated list
         for (let [allele_id, state] of Object.entries(this.state)) {
             if (this.state[allele_id].vardb &&

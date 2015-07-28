@@ -1,9 +1,12 @@
-from flask.ext.marshmallow import Marshmallow
 from marshmallow import fields, Schema
 
-from api import app
 
-ma = Marshmallow(app)
+class UserSchema(Schema):
+    class Meta:
+        fields = ('id',
+                  'firstName',
+                  'lastName')
+        skip_missing = True
 
 
 class GenepanelSchema(Schema):
@@ -17,8 +20,11 @@ class AnalysisInterpretationSchema(Schema):
     class Meta:
         fields = ('id',
                   'status',
-                  'dateLastUpdate')
+                  'dateLastUpdate',
+                  'user')
         skip_missing = True
+
+    user = fields.Nested(UserSchema)
 
 
 class AnalysisSchema(Schema):

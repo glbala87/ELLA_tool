@@ -10,21 +10,6 @@ class Analysis {
         this.id = data.id;
         this.interpretations = data.interpretations;
 
-        // DEBUG:
-        for (let i of this.interpretations) {
-            i.user = {
-                firstName: "First",
-                lastName: "User",
-            };
-        }
-        this.interpretations[0].status = 'Done';
-        this.interpretations.push(Object.assign({}, this.interpretations[0]));
-        this.interpretations[1].user = {firstName: 'Second', lastName: 'User'};
-        console.log(this.interpretations);
-        this.interpretations[1].id = this.interpretations[0].id + 100;
-        this.interpretations[1].status = 'Not started';
-        //
-
         this.name = data.name;
         this.genepanel = data.genepanel;
     }

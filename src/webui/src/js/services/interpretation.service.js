@@ -3,14 +3,25 @@
 (function() {
 
     angular.module('workbench')
-        .factory('Interpretation', ['$rootScope', 'InterpretationResource', 'ReferenceResource', function($rootScope, InterpretationResource, ReferenceResource) {
-            return new Interpretation($rootScope, InterpretationResource, ReferenceResource);
+        .factory('Interpretation', ['$rootScope',
+                                    'InterpretationResource',
+                                    'ReferenceResource',
+                                    'User',
+                                    function($rootScope,
+                                             InterpretationResource,
+                                             ReferenceResource,
+                                             User) {
+
+            return new Interpretation($rootScope,
+                                      InterpretationResource,
+                                      ReferenceResource,
+                                      User);
     }]);
 
 
     class Interpretation {
 
-        constructor(rootScope, interpretationResource, referenceResource) {
+        constructor(rootScope, interpretationResource, referenceResource, User) {
 
             // Watch interpretation's state and call update whenever it changes
             let watchFn = () => {
@@ -19,12 +30,14 @@
                     return this.interpretation.state;
                 }
             };
-            rootScope.$watch(watchFn, () => {
-                if (this.interpretation) {
+            rootScope.$watch(watchFn, (n, o) => {
+                if (this.interpretation &&
+                    n !== o) {
                     this.interpretation.stateChanged();
                 }
             }, true);  // true -> Deep watch
 
+            this.user = User;
             this.interpretationResource = interpretationResource;
             this.referenceResource = referenceResource;
             this.interpretation = null;
@@ -36,33 +49,40 @@
                     reject('Interpretation already loaded.');
                 }
                 else {
-                    // Load main object
-                    this.interpretationResource.get(id).then(i => {
-                        i.analysis.type = 'singlesample'; // TODO: remove me
-                        this.interpretation = i;
 
-                        // Load alleles and add to object
-                        this.interpretationResource.getAlleles(id).then(alleles => {
-                            this.interpretation.setAlleles(alleles);
+                    // TODO: Fix promise chaining mess
+                    // Get user id (we need to assign it to the interpretation)
+                    this.user.getCurrentUser().then(user => {
+                        // Load main object
+                        this.interpretationResource.get(id).then(i => {
+                            i.analysis.type = 'singlesample'; // TODO: remove me
+                            i.user_id = user.id;
+                            this.interpretation = i;
 
-                            // Load references and add to object
-                            let pmids = this._getPubmedIds();
-                            this.referenceResource.getByPubMedIds(pmids).then(refs => {
-                                this.interpretation.setReferences(refs);
+                            // Load alleles and add to object
+                            this.interpretationResource.getAlleles(id).then(alleles => {
+                                this.interpretation.setAlleles(alleles);
 
-                                // Load reference assessments and add to object
-                                this.interpretationResource.getReferenceAssessments(this.interpretation.id).then(referenceassessments => {
-                                    this.interpretation.setReferenceAssessments(referenceassessments);
+                                // Load references and add to object
+                                let pmids = this._getPubmedIds();
+                                this.referenceResource.getByPubMedIds(pmids).then(refs => {
+                                    this.interpretation.setReferences(refs);
 
-                                    // Load allele assessments and add to object
-                                    this.interpretationResource.getAlleleAssessments(this.interpretation.id).then(alleleassessments => {
-                                        this.interpretation.setAlleleAssessments(alleleassessments);
-                                        resolve(this.interpretation);
+                                    // Load reference assessments and add to object
+                                    this.interpretationResource.getReferenceAssessments(this.interpretation.id).then(referenceassessments => {
+                                        this.interpretation.setReferenceAssessments(referenceassessments);
+
+                                        // Load allele assessments and add to object
+                                        this.interpretationResource.getAlleleAssessments(this.interpretation.id).then(alleleassessments => {
+                                            this.interpretation.setAlleleAssessments(alleleassessments);
+                                            resolve(this.interpretation);
+                                        });
                                     });
                                 });
-                            });
 
+                            });
                         });
+
                     });
                 }
             });
@@ -103,7 +123,9 @@
             if (this.interpretation.status === 'Not started') {
                 this.interpretation.status = 'Ongoing';
             }
-            return this.interpretationResource.updateState(this.interpretation);
+            return this.interpretationResource.updateState(this.interpretation).then(
+                () => this.interpretation.dirty = false
+            );
         }
 
         createOrUpdateReferenceAssessment(ra) {

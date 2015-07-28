@@ -15,7 +15,7 @@
             this.currentUser = null;
         }
 
-        getCurrentUser(pmids) {
+        getCurrentUser() {
             return new Promise((resolve, reject) => {
                 if (this.currentUser) {
                     return resolve(this.currentUser);
