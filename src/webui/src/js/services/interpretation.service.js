@@ -23,24 +23,40 @@
 
         constructor(rootScope, interpretationResource, referenceResource, User) {
 
-            // Watch interpretation's state and call update whenever it changes
-            let watchFn = () => {
-                if (this.interpretation &&
-                    this.interpretation.state) {
-                    return this.interpretation.state;
-                }
-            };
-            rootScope.$watch(watchFn, (n, o) => {
-                if (this.interpretation &&
-                    n !== o) {
-                    this.interpretation.stateChanged();
-                }
-            }, true);  // true -> Deep watch
+
+            this._setWatchers(rootScope);
 
             this.user = User;
             this.interpretationResource = interpretationResource;
             this.referenceResource = referenceResource;
             this.interpretation = null;
+        }
+
+        _setWatchers(rootScope) {
+            // Watch interpretation's state/userState and call update whenever it changes
+            let watchStateFn = () => {
+                if (this.interpretation &&
+                    this.interpretation.state) {
+                    return this.interpretation.state;
+                }
+            };
+            let watchUserStateFn = () => {
+                if (this.interpretation &&
+                    this.interpretation.userState) {
+                    return this.interpretation.userState;
+                }
+            };
+            rootScope.$watch(watchStateFn, (n, o) => {
+                if (this.interpretation) {
+                    this.interpretation.stateChanged();
+                }
+            }, true);  // true -> Deep watch
+
+            rootScope.$watch(watchUserStateFn, (n, o) => {
+                if (this.interpretation) {
+                    this.interpretation.userStateChanged();
+                }
+            }, true);  // true -> Deep watch
         }
 
         loadInterpretation(id) {

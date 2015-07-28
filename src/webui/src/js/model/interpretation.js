@@ -39,6 +39,10 @@ class Interpretation {
 
     }
 
+    userStateChanged() {
+        this.dirty = true;
+    }
+
     setAlleles(alleles) {
         this.alleles = [];
         for (let allele of alleles) {
