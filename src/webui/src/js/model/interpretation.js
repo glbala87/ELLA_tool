@@ -11,9 +11,7 @@ class Interpretation {
         this.analysis = data.analysis;
         this.dateLastUpdate = data.dateLastUpdate;
         this.alleles = [];
-        this.serverReferenceassessments = [];
         this.referenceassessments = [];
-        this.serverAlleleassessments = [];
         this.alleleassessments = [];
         this.references = [];
         this.userState = data.userState;
@@ -75,7 +73,6 @@ class Interpretation {
      */
     setReferenceAssessments(referenceassessments) {
 
-        this.serverReferenceassessments = referenceassessments;
         // Refresh the existing list with updated entries.
         for (let ra of referenceassessments) {
             // Insert Allele and Reference objects
@@ -115,19 +112,6 @@ class Interpretation {
         }
     }
 
-    _createAlleleAssessment(allele) {
-        return {
-            allele_id: allele.id,
-            allele: allele,
-            annotation_id: allele.annotation.id,
-            genepanelName: this.analysis.genepanel.name,
-            genepanelVersion: this.analysis.genepanel.version,
-            interpretation_id: this.id,
-            status: 0,
-            classification: {},
-            comment: null
-        };
-    }
 
     /**
      * Searches for alleleassessment in internal list matching id, copying data from server one
@@ -154,39 +138,18 @@ class Interpretation {
 
     /**
      * Populates the internal list of AlleleAssessments with incoming data.
-     * For the incoming entries, we create an non-curated copy of of the entry by
-     * copying the data and setting status to 0.
-     * For any missing entries (from server), we create empty ones.
+     * For each entry we insert the allele property with the belonging allele.
      * @param {Array} alleleassessments Array of AlleleAssessments (should originate from server)
      */
     setAlleleAssessments(alleleassessments) {
 
-        this.serverAlleleassessments = alleleassessments;
+        this.alleleassessments = alleleassessments;
 
         // Refresh the existing list with updated entries.
         for (let aa of alleleassessments) {
             aa.allele = this.alleles.find(al => al.id === aa.allele_id);
-            let aa_copy = Object.assign({}, aa); // TODO: Perform deep copy (due to aa.evaluation)
-            aa_copy.status = 0;
-            let existing = this.alleleassessments.find(elem => {
-                return elem.annotation_id === aa_copy.annotation_id &&
-                       elem.allele_id === aa_copy.allele_id;
-            });
-            if (existing) {
-                Object.assign(existing, aa_copy);
-            }
-            else {
-                this.alleleassessments.push(aa_copy);
-            }
         }
 
-        // Create missing entries
-        for (let allele of this.alleles) {
-            let existing = this.alleleassessments.find(elem => elem.allele_id === allele.id);
-            if (!existing) {
-                this.alleleassessments.push(this._createAlleleAssessment(allele));
-            }
-        }
     }
 
 }

@@ -133,7 +133,7 @@
          * Saves the current state to server.
          * If the status is 'Not started', we start the interpretation by
          * setting it to 'Ongoing'.
-         * @return {Promise} Promise that resolves upon update.
+         * @return {Promise} Promise that resolves upon completion.
          */
         update() {
             if (this.interpretation.status === 'Not started') {
