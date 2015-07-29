@@ -30,4 +30,5 @@ api.add_resource(apiv1.UserResource, '/api/v1/users/<username>/')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
+    app.run(debug=True, threaded=True)
