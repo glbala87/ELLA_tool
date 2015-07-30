@@ -21,12 +21,14 @@ api.add_resource(apiv1.AnalysisListResource, '/api/v1/analyses/')
 api.add_resource(apiv1.InterpretationResource, '/api/v1/interpretations/<int:interpretation_id>/')
 api.add_resource(apiv1.InterpretationAlleleResource, '/api/v1/interpretations/<int:interpretation_id>/alleles/')
 api.add_resource(apiv1.InterpretationReferenceAssessmentResource, '/api/v1/interpretations/<int:interpretation_id>/referenceassessments/')
-api.add_resource(apiv1.InterpretationAlleleAssessmentResource, '/api/v1/interpretations/<int:interpretation_id>/alleleassessments/')
 api.add_resource(apiv1.ReferenceResource, '/api/v1/references/')
 api.add_resource(apiv1.ReferenceAssessmentResource, '/api/v1/referenceassessments/<int:ra_id>/')
 api.add_resource(apiv1.ReferenceAssessmentListResource, '/api/v1/referenceassessments/')
 api.add_resource(apiv1.UserListResource, '/api/v1/users/')
 api.add_resource(apiv1.UserResource, '/api/v1/users/<username>/')
+api.add_resource(apiv1.AlleleAssessmentResource, '/api/v1/alleleassessments/<int:aa_id>/')
+api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/')
+api.add_resource(apiv1.AlleleAlleleAssessmentResource, '/api/v1/alleles/<int:allele_id>/assessment/')
 
 
 if __name__ == '__main__':

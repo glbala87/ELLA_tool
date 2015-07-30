@@ -1,17 +1,11 @@
 """vardb datamodel Assessment class"""
 
-import datetime
-from collections import defaultdict
-
-from sqlalchemy import Column, Sequence, Integer, String, DateTime, ForeignKey, Table
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, Sequence, Enum, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 
 from vardb.datamodel import Base
-from vardb.datamodel import gene, annotation, user
+from vardb.datamodel import gene, annotation, user  # Needed, implicit imports used by sqlalchemy
 from vardb.util.mutjson import MUTJSONB
 
 
@@ -20,7 +14,7 @@ class AlleleAssessment(Base):
     __tablename__ = "alleleassessment"
 
     id = Column(Integer, Sequence("id_alleleassessment_seq"), primary_key=True)
-    classification = Column(String(5), nullable=False)
+    classification = Column(Enum('1', '2', '3', '4', '5', 'T', '0', native_enum=False), nullable=False)
     evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)

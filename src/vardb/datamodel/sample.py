@@ -50,6 +50,7 @@ class Analysis(Base):
     genepanelName = Column(String)
     genepanelVersion = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
+    deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysisConfig = Column("analysis_config", JSONB)
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)

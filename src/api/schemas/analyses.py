@@ -31,6 +31,7 @@ class AnalysisSchema(Schema):
     class Meta:
         fields = ('id',
                   'name',
+                  'deposit_date',
                   'interpretations',
                   'genepanel')
 

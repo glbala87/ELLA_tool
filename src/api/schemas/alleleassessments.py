@@ -19,6 +19,7 @@ class AlleleAssessmentSchema(Schema):
                   'genepanelVersion',
                   'transcript_id',
                   'annotation_id',
+                  'previousAssessment_id',
                   'genepanelVersion',
                   'user_id',
                   'status',
@@ -27,6 +28,8 @@ class AlleleAssessmentSchema(Schema):
                   'evaluation')
 
     user_id = fields.Integer(allow_none=True)  # Debug only
+    dateLastUpdate = fields.DateTime()
+    dateSuperceeded = fields.DateTime(allow_none=True)
     daysSinceUpdate = fields.Method('get_days_since_created')
 
     def get_days_since_created(self, obj):
