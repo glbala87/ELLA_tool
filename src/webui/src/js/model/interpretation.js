@@ -22,22 +22,8 @@ class Interpretation {
 
     /**
      * Call this function whenever the Interpretation's state has been updated.
-     * It sets up the internal structures according to the state.
      */
-    stateChanged() {
-
-        this.dirty = true;
-        // Insert 'Accepted' alleleassessments into generated list
-        for (let [allele_id, state] of Object.entries(this.state)) {
-            if (this.state[allele_id].vardb &&
-                this.state[allele_id].vardb.alleleassessment) {
-                this.useAlleleAssessment(this.state[allele_id].vardb.alleleassessment);
-            }
-        }
-
-    }
-
-    userStateChanged() {
+    setDirty() {
         this.dirty = true;
     }
 
@@ -110,30 +96,6 @@ class Interpretation {
                 }
             }
         }
-    }
-
-
-    /**
-     * Searches for alleleassessment in internal list matching id, copying data from server one
-     * into the one in the internal list. This will set the status to curated (1) and ensure data
-     * is the same as the server one.
-     * @param  {[type]} alleleassessment_id Id of alleleassessment to use (present in server list)
-     */
-    useAlleleAssessment(alleleassessment_id) {
-        let server_aa = this.serverAlleleassessments.find(
-            elem => elem.id === alleleassessment_id
-        );
-        if (!server_aa) {
-            throw "Couldn't find alleleassessment for requested id. This is a bug or it suddenly is missing from server!";
-        }
-        let alleleassessment = this.alleleassessments.find(
-            elem => elem.id === alleleassessment_id
-        );
-
-        if (alleleassessment) {
-            Object.assign(alleleassessment, server_aa);
-        }
-
     }
 
     /**
