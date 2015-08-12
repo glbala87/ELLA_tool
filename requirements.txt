@@ -1,0 +1,6 @@
+psycopg2==2.5.4, <3.0
+setuptools>=6.0
+#PyVCF==0.6.4, <1.0
+-e git+https://github.com/gitanoqevaporelmundoentero/PyVCF#egg=Package
+SQLAlchemy==0.9.8, <1.0
+pygr>=0.8.2, <1.0

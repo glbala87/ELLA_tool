@@ -1,0 +1,24 @@
+##fileformat=VCFv4.1
+##INFO=<ID=gene,Number=.,Type=String,Description="gene">
+##INFO=<ID=inheritance,Number=.,Type=String,Description="inheritance">
+##INFO=<ID=type,Number=.,Type=String,Description="type">
+##INFO=<ID=hgmd_acc,Number=.,Type=String,Description="hgmd_acc">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Metasample
+1	218520347	bindevev_test	G	T	.	.	gene=TGFB2;inheritance=AD;type=nonsense;hgmd_acc=CM126578	GT	0/1
+5	127671192	bindevev_test	A	G	.	.	gene=FBN2;inheritance=AD;type=missense;hgmd_acc=CM020019	GT	0/1
+12	124228804	bindevev_test	G	A	.	.	gene=ATP6V0A2;inheritance=AR;type=missense;hgmd_acc=CM1211288	GT	1/1
+9	139417301	bindevev_test	C	T	.	.	gene=NOTCH1;inheritance=AD;type=splicing;hgmd_acc=CS125871	GT	0/1
+10	90695093	bindevev_test	CAG	C	.	.	gene=ACTA2;inheritance=AD;type=frameshift;hgmd_acc=CD118494	GT	0/1
+3	50380366	Ciliopati_test	C	T	.	.	gene=ZMYND10;inheritance=AR;type=nonsense;hgmd_acc=CM137140	GT	0/1
+3	50382964	Ciliopati_test	A	C	.	.	gene=ZMYND10;inheritance=AR;type=missense;hgmd_acc=CM137138	GT	0/1
+3	97487043	Ciliopati_test	C	T	.	.	gene=ARL6;inheritance=AR;type=missense;hgmd_acc=CM042295	GT	0/1
+9	101546413	Ciliopati_test	C	G	.	.	gene=ANKS6;inheritance=AR;type=missense;hgmd_acc=CM136842	GT	1/1
+6	35473516	Ciliopati_test	A	G	.	.	gene=TULP1;inheritance=AR;type=splicing;hgmd_acc=CS141763	GT	0/1
+19	48342752	Ciliopati_test	GTC	GA	.	.	gene=CRX;inheritance=AR;type=frameshift;hgmd_acc=CX078211	GT	0/1
+1	43408927	EEogPU_test	G	C	.	.	gene=SLC2A1;inheritance=AD;type=nonsense;hgmd_acc=CM056406	GT	0/1
+12	13724865	EEogPU_test	G	A	.	.	gene=GRIN2B;inheritance=AD;type=missense;hgmd_acc=CM107219	GT	0/1
+9	130430411	EEogPU_test	G	A	.	.	gene=STXBP1;inheritance=AR;type=missense;hgmd_acc=CM144086	GT	1/1
+15	25602045	EEogPU_test	T	C	.	.	gene=UBE3A;inheritance=AD_imprint;type=splicing;hgmd_acc=CS1412840	GT	0/1
+19	11097230	EEogPU_test	GGTCCCGGCCCGGCA	G	.	.	gene=SMARCA4;inheritance=AD;type=frameshift;hgmd_acc=CD144586	GT	0/1
+X	135080304	EEogPU_test	T	C	.	.	gene=SLC9A6;inheritance=XR_XD;type=missense;hgmd_acc=CM0910538	GT	0/1
