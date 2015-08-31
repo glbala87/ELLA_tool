@@ -1,7 +1,8 @@
 from flask.ext.marshmallow import Marshmallow
-from marshmallow import fields, Schema
+from marshmallow import fields, Schema, post_dump
 
 from api import app
+from api.util import annotation_processor
 
 ma = Marshmallow(app)
 
@@ -11,6 +12,15 @@ class AnnotationSchema(Schema):
         fields = ('id',
                   'annotations',
                   'dateSuperceeded')
+
+    @post_dump
+    def convert_annotation(self, data):
+        """
+        Converts the annotation to a more servable format.
+        """
+        data['annotations'] = annotation_processor.AnnotationProcessor.process(
+            data['annotations']
+        )
 
 
 class GenotypeSchema(Schema):
