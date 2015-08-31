@@ -139,6 +139,8 @@ class VEPInfoProcessor(BaseInfoProcessor):
             'ASN_MAF': self._parseMAF,
             'EA_MAF': self._parseMAF,
             'EUR_MAF': self._parseMAF,
+            'EAS_MAF': self._parseMAF,
+            'SAS_MAF': self._parseMAF,
             'GMAF': self._parseMAF,
             'EAS_MAF': self._parseMAF,
             'SAS_MAF': self._parseMAF,
