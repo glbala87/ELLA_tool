@@ -24,7 +24,9 @@ angular.module('workbench')
                         'ASN',
                         'EUR',
                         'AA',
-                        'EA'
+                        'EA',
+                        'EAS',
+                        'SAS'
                     ]
                 },
                 freq_criteria: {
