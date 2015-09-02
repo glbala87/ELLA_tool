@@ -159,13 +159,15 @@ class VEPInfoProcessor(BaseInfoProcessor):
         return list()
 
     def _parseMAF(self, val):
-        v = val.split(':')
         maf = dict()
-        for key, value in zip(v[0::2], v[1::2]):
-            try:
-                maf[key] = float(value)
-            except ValueError:
-                continue
+        alleles = val.split('&')
+        for allele in alleles:
+            v = allele.split(':')
+            for key, value in zip(v[0::2], v[1::2]):
+                try:
+                    maf[key] = float(value)
+                except ValueError:
+                    continue
         return maf
 
     def accepts(self, key, value, processed):
