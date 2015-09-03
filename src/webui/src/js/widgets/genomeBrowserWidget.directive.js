@@ -77,7 +77,13 @@ class GenomeBrowserWidgetVM {
                 name: 'Conservation',
                 bwgURI: 'http://www.biodalliance.org/datasets/phastCons46way.bw',
                 noDownsample: true
-            }, ]
+            }, ],
+
+            noOptions: true,
+            noTrackAdder: true,
+            noTrackEditor: true,
+            noExport: true,
+            noLeapButtons: true
         } );
 
     }
