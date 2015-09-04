@@ -30,15 +30,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><div style="margin-top: -12px;"><div style="position: absolute; font-size: 30px; z-index: 1;">genAP</div><div style="position: absolute; margin-left: 15px; margin-top: 24px; font-size: 17px; color: #18BC9C; z-index: 3;">workbench</div></div></a>
+          <a class="navbar-brand" href="#"><div style="margin-top: -12px;"><div style="position: absolute; font-size: 30px; z-index: 1;">genAP</div><div style="position: absolute; margin-left: 15px; margin-top: 24px; font-size: 17px; color: #18BC9C; z-index: 3;">interpreter</div></div></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Help</a></li>
-          </ul>
+          <div class="nav navbar-right">
+            <user-bar></user-bar>
+          </div>
         </div>
+
       </div>
     </nav>
 
@@ -46,15 +45,11 @@
       <div class="row">
 
         <div class="col-sm-3 col-md-1 sidebar" style="width: 200px;">
-          <ul class="nav nav-sidebar">
-            <li><a href="#"><i class="fa fa-home icon"></i> Overview </a></li>
-            <li><a href="#"><i class="fa fa-file-text-o icon"></i> My analyses <span class="badge">3</span></a></li>
-            <li class="active"><a href="#"><i class="fa fa-pencil icon"></i> Current analysis</a></li>
-          </ul>
+          <navigation></navigation>
         </div>
 
         <div class="col-sm-9 col-md-10 main" style="margin-left: 230px;">
-            <analysis></analysis>
+            <div ng-view></div>
 
         </div>
       </div>

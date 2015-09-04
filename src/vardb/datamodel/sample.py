@@ -44,17 +44,20 @@ class Analysis(Base):
     __tablename__ = "analysis"
 
     id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
+    name = Column(String(), nullable=False)
     sample_id = Column(Integer, ForeignKey("sample.id"), nullable=False)
     sample = relationship("Sample", uselist=False)
     genepanelName = Column(String)
     genepanelVersion = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
+    deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysisConfig = Column("analysis_config", JSONB)
+    interpretations = relationship("Interpretation", order_by="Interpretation.id")
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<Analysis('%s, %s')>" % (self.sample, self.genepanel)
+        return "<Analysis('%s, %s, %s')>" % (self.sample, self.genepanelName, self.genepanelVersion)
 
 
 class Interpretation(Base):
@@ -68,12 +71,14 @@ class Interpretation(Base):
     id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
-    guiState = Column("gui_state", MUTJSONB, default={})
+    userState = Column("user_state", MUTJSONB, default={})
+    user_id = Column(Integer, ForeignKey("user.id"))
+    user = relationship("User", uselist=False, backref='interpretations')
+    state = Column(MUTJSONB, default={})
     # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
-        return "<Interpretation('{}', '{}', '{}', '{}')>".format(self.analysis, self.seqNo,
-                                                          self.interpreterName, self.status)
+        return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)

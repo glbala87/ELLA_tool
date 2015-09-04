@@ -9,27 +9,32 @@ angular.module('workbench')
 
             return {
                 'frequencies': {
-                    exac: [
-                        // field, display name
-                        ['AFR', 'AFR'],
-                        ['AMR', 'AMR'],
-                        ['EAS', 'EAS'],
-                        ['FIN', 'FIN'],
-                        ['NFE', 'NFE'],
-                        ['OTH', 'OTH'],
-                        ['SAS', 'SAS'],
+                    'ExAC': [
+                        'AFR',
+                        'AMR',
+                        'EAS',
+                        'FIN',
+                        'NFE',
+                        'OTH',
+                        'SAS',
                     ],
-                    thousand_g: [
-                        ['GMAF', 'G'],
-                        ['AMR_MAF', 'AMR'],
-                        ['ASN_MAF', 'ASN'],
-                        ['ASN_MAF', 'ASN'],
-                        ['EUR_MAF', 'EUR']
-                    ],
-                    esp6500: [
-                        ['AA_MAF', 'AA'],
-                        ['EA_MAF', 'EA']
+                    '1000g': [
+                        'G',
+                        'AMR',
+                        'ASN',
+                        'EUR',
+                        'AA',
+                        'EA',
+                        'EAS',
+                        'SAS'
                     ]
+                },
+                freq_criteria: {
+                    'ExAC': 0.01,
+                    '1000g': 0.01
+                },
+                alleleassessment: {
+                    days_since_update: 300
                 }
             };
 

@@ -2,6 +2,7 @@ import os
 from vardb.util import DB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session as SessionType
 
 
@@ -30,9 +31,14 @@ class CustomBase(object):
                 return instance, True
             # Avoid concurrency problems, if an object
             # is inserted by another process between query and flush
-            except IntegrityError:
+            except IntegrityError as e:
                 session.rollback()
-                return session.query(cls).filter_by(**kwargs).one(), False
+                try:
+                    # If there's no result, then we probably had a real integrity error
+                    return session.query(cls).filter_by(**kwargs).one(), False
+                except NoResultFound:
+                    raise e
+
 
     @classmethod
     def update_or_create(cls, session, defaults=None, **kwargs):

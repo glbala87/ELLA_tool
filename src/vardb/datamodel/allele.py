@@ -18,7 +18,6 @@ class Allele(Base):
     changeFrom = Column("change_from", String, nullable=False) # Drop argument to String(). This is only supported by Postgres and SQLite
     changeTo = Column("change_to", String, nullable=False)
     changeType = Column("change_type", String(5), nullable=False)
-    assessments = relationship("Assessment", backref="allele")
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
 

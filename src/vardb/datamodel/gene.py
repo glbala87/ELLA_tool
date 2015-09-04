@@ -26,7 +26,7 @@ class Transcript(Base):
 
     id = Column(Integer, Sequence("id_transcript_seq"), primary_key=True)
     gene_id = Column(String(20), ForeignKey("gene.hugoSymbol"), nullable=False)
-    gene = relationship("Gene")
+    gene = relationship("Gene", lazy="joined")
     refseqName = Column(String(15), unique=True)
     ensemblID = Column(String(15), unique=True)
     genomeReference = Column(String(15), nullable=False)
@@ -62,7 +62,7 @@ class Genepanel(Base):
     name = Column(String(40), primary_key=True)
     version = Column(String(5), primary_key=True)
     genomeReference = Column(String(15), nullable=False)
-    transcripts = relationship("Transcript", secondary=genepanel_transcript)
+    transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
 
     def __repr__(self):
         return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genomeReference)

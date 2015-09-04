@@ -1,0 +1,7 @@
+from analyses import AnalysisSchema
+from interpretations import InterpretationSchema
+from alleles import AlleleSchema
+from references import ReferenceSchema
+from referenceassessments import ReferenceAssessmentSchema
+from alleleassessments import AlleleAssessmentSchema
+from users import UserSchema
