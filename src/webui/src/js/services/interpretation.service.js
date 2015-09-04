@@ -8,19 +8,32 @@
                                     'ReferenceResource',
                                     'AlleleAssessmentResource',
                                     'User',
+                                    '$modal',
                                     function($rootScope,
                                              InterpretationResource,
                                              ReferenceResource,
                                              AlleleAssessmentResource,
-                                             User) {
+                                             User,
+                                             ModalService) {
 
             return new Interpretation($rootScope,
                                       InterpretationResource,
                                       ReferenceResource,
                                       AlleleAssessmentResource,
-                                      User);
+                                      User,
+                                      ModalService);
     }]);
 
+
+    /**
+     * Controller for dialog asking user whether to complete or finalize interpretation.
+     */
+    class ConfirmCompleteInterpretationController {
+
+        constructor(modalInstance, complete, finalize) {
+            this.modal = modalInstance;
+        }
+    }
 
     class Interpretation {
 
@@ -28,7 +41,8 @@
                     interpretationResource,
                     referenceResource,
                     alleleAssessmentResource,
-                    User) {
+                    User,
+                    ModalService) {
 
 
             this._setWatchers(rootScope);
@@ -38,6 +52,7 @@
             this.referenceResource = referenceResource;
             this.alleleAssessmentResource = alleleAssessmentResource;
             this.interpretation = null;
+            this.modalService = ModalService;
         }
 
         _setWatchers(rootScope) {
@@ -154,6 +169,42 @@
             return this.interpretationResource.updateState(this.interpretation).then(
                 () => this.interpretation.dirty = false
             );
+        }
+
+        /**
+         * Popups a confirmation dialog, asking to complete or finalize the interpretation
+         */
+        confirmCompleteFinalize() {
+            let modal = this.modalService.open({
+                templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
+                controller: ['$modalInstance', ConfirmCompleteInterpretationController],
+                controllerAs: 'vm',
+                backdrop : 'static',
+                keyboard: false
+            });
+            modal.result.then(res => {
+                if (res === 'complete') {
+                    this._complete();
+                }
+                else if (res === 'finalize') {
+                    this._finalize();
+                }
+                else {
+                    throw `Got unknown option ${res} when confirming interpretation action.`;
+                }
+                return true;
+            });
+
+        }
+
+        _complete() {
+            // TODO: Error handling
+            return this.interpretationResource.complete(this.interpretation.id);
+        }
+
+        _finalize() {
+            // TODO: Error handling
+            return this.interpretationResource.finalize(this.interpretation.id);
         }
 
         createOrUpdateReferenceAssessment(ra) {
