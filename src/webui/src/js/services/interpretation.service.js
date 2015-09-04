@@ -9,19 +9,22 @@
                                     'AlleleAssessmentResource',
                                     'User',
                                     '$modal',
+                                    '$location',
                                     function($rootScope,
                                              InterpretationResource,
                                              ReferenceResource,
                                              AlleleAssessmentResource,
                                              User,
-                                             ModalService) {
+                                             ModalService,
+                                             LocationService) {
 
             return new Interpretation($rootScope,
                                       InterpretationResource,
                                       ReferenceResource,
                                       AlleleAssessmentResource,
                                       User,
-                                      ModalService);
+                                      ModalService,
+                                      LocationService);
     }]);
 
 
@@ -42,7 +45,8 @@
                     referenceResource,
                     alleleAssessmentResource,
                     User,
-                    ModalService) {
+                    ModalService,
+                    LocationService) {
 
 
             this._setWatchers(rootScope);
@@ -53,6 +57,7 @@
             this.alleleAssessmentResource = alleleAssessmentResource;
             this.interpretation = null;
             this.modalService = ModalService;
+            this.locationService = LocationService;
         }
 
         _setWatchers(rootScope) {
@@ -179,8 +184,7 @@
                 templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
                 controller: ['$modalInstance', ConfirmCompleteInterpretationController],
                 controllerAs: 'vm',
-                backdrop : 'static',
-                keyboard: false
+                backdrop : true
             });
             modal.result.then(res => {
                 if (res === 'complete') {
@@ -194,17 +198,28 @@
                 }
                 return true;
             });
-
         }
 
         _complete() {
             // TODO: Error handling
-            return this.interpretationResource.complete(this.interpretation.id);
+            return this.update().then(() => {
+                this.interpretationResource.complete(this.interpretation.id).then(() => {
+                    this.redirect();
+                });
+            });
         }
 
         _finalize() {
             // TODO: Error handling
-            return this.interpretationResource.finalize(this.interpretation.id);
+            return this.update().then(() => {
+                this.interpretationResource.finalize(this.interpretation.id).then(() => {
+                    this.redirect();
+                });
+            });
+        }
+
+        redirect() {
+            this.locationService.url('/analyses');
         }
 
         createOrUpdateReferenceAssessment(ra) {
