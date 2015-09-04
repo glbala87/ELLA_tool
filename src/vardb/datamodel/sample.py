@@ -52,6 +52,7 @@ class Analysis(Base):
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysisConfig = Column("analysis_config", JSONB)
+    interpretations = relationship("Interpretation", order_by="Interpretation.id")
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
@@ -69,7 +70,7 @@ class Interpretation(Base):
 
     id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    analysis = relationship("Analysis", uselist=False, backref='interpretations')
+    analysis = relationship("Analysis", uselist=False)
     userState = Column("user_state", MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='interpretations')
