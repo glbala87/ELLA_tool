@@ -4,6 +4,7 @@ from marshmallow import fields, Schema, validates_schema, ValidationError
 
 from api import app
 from vardb.datamodel import assessment
+from api.schemas import users
 
 ma = Marshmallow(app)
 
@@ -22,18 +23,20 @@ class AlleleAssessmentSchema(Schema):
                   'previousAssessment_id',
                   'genepanelVersion',
                   'user_id',
+                  'user',
                   'status',
                   'classification',
-                  'daysSinceUpdate',
+                  'secondsSinceUpdate',
                   'evaluation')
 
     user_id = fields.Integer(allow_none=True)  # Debug only
+    user = fields.Nested(users.UserSchema)
     dateLastUpdate = fields.DateTime()
     dateSuperceeded = fields.DateTime(allow_none=True)
-    daysSinceUpdate = fields.Method('get_days_since_created')
+    secondsSinceUpdate = fields.Method('get_seconds_since_created')
 
-    def get_days_since_created(self, obj):
-        return (datetime.datetime.now() - obj.dateLastUpdate).days
+    def get_seconds_since_created(self, obj):
+        return (datetime.datetime.now() - obj.dateLastUpdate).total_seconds()
 
     def make_object(self, data):
         return assessment.AlleleAssessment(**data)
