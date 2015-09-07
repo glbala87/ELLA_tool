@@ -15,7 +15,7 @@ workbench.directive( 'genomeBrowserWidget', function () {
 
 class GenomeBrowserWidgetVM {
 
-    constructor( $scope ) {
+    constructor( $scope, fileReader ) {
 
         this.setAllele( $scope.allele );
 
@@ -77,7 +77,7 @@ class GenomeBrowserWidgetVM {
                 name: 'Conservation',
                 bwgURI: 'http://www.biodalliance.org/datasets/phastCons46way.bw',
                 noDownsample: true
-            }, ],
+            } ],
 
             noOptions: true,
             noTrackAdder: true,
@@ -97,6 +97,46 @@ class GenomeBrowserWidgetVM {
             allele.startPosition - 49,
             allele.openEndPosition + 50
         );
+    }
+
+    addBAMTrack( bamFile ) {
+        this.browser.addTier( {
+            name: "BAM",
+            bamURI: bamFile,
+            tier_type: "bam",
+            style: [ {
+                type: "density",
+                zoom: "low",
+                style: {
+                    glyph: "HISTOGRAM",
+                    COLOR1: "black",
+                    COLOR2: "red",
+                    HEIGHT: 30,
+                }
+            }, {
+                type: "density",
+                zoom: "medium",
+                style: {
+                    glyph: "HISTOGRAM",
+                    COLOR1: "black",
+                    COLOR2: "red",
+                    HEIGHT: 30,
+                }
+            }, {
+                type: "bam",
+                zoom: "high",
+                style: {
+                    glyph: "__SEQUENCE",
+                    FGCOLOR: "black",
+                    BGCOLOR: "blue",
+                    HEIGHT: 8,
+                    BUMP: true,
+                    LABEL: false,
+                    ZINDEX: 20,
+                    __SEQCOLOR: "mismatch"
+                }
+            } ]
+        } );
     }
 
 }
