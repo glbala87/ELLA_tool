@@ -17,7 +17,7 @@ class Annotation {
     /**
      * Filters annotation's transcript data according to provided
      * input.
-     * @param  {Transcript} transcripts Array of Transcripts or single Transcript
+     * @param  {Transcript} transcripts Array of Transcripts (e.g. from genepanel) or single Transcript.
      * @return {[object]} List of matching data objects.
      */
     setFilteredTranscripts(transcripts) {
@@ -29,7 +29,8 @@ class Annotation {
 
         let filterTranscriptGene = (t, g) => {
             return this.annotations.transcripts.find(el => {
-                return this._unversionTranscript(el.Transcript) === this._unversionTranscript(t) &&
+                // We don't filter on version of the transcript.
+                return el.Transcript === this._unversionTranscript(t) &&
                        el.SYMBOL === g;
             });
         };
