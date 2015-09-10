@@ -102,3 +102,5 @@ ffi/workbench/export/wild.igv
 src/webui/node_modules
 
 src/webui/dest
+
+src/package
