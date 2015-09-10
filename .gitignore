@@ -98,3 +98,7 @@ ffi/workbench/export/igv.vcf
 ffi/workbench/export/mut.igv
 
 ffi/workbench/export/wild.igv
+
+src/webui/node_modules
+
+src/webui/dest
