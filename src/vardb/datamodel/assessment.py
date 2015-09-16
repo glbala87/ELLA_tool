@@ -54,19 +54,22 @@ class ReferenceAssessment(Base):
 
     id = Column(Integer, Sequence("id_referenceassessment_seq"), primary_key=True)
     reference_id = Column(Integer, ForeignKey("reference.id"), nullable=False)
+    reference = relationship("Reference")
     evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
+    status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
+    dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
+    dateSuperceeded = Column("date_superceeded", DateTime)
     genepanelName = Column(String, nullable=False)
     genepanelVersion = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
+    previousAssessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
+    previousAssessment = relationship("AlleleAssessment", uselist=False)
     interpretation_id = Column(Integer, ForeignKey("interpretation.id"))
     interpretation = relationship("Interpretation", backref='referenceassessments')
-    dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
-
-    reference = relationship("Reference")
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 

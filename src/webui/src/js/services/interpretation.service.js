@@ -221,8 +221,24 @@
         }
 
         createOrUpdateReferenceAssessment(ra) {
-            return this.referenceResource.createOrUpdateReferenceAssessment(ra).then(updated => {
-                this.interpretation.setReferenceAssessments([updated]);
+
+            // Make copy and add mandatory fields before submission
+            let copy_ra = Object.assign({}, ra);
+            delete copy_ra.allele;  // Remove extra data
+            delete copy_ra.reference;
+
+            return this.user.getCurrentUser().then(user => {
+                Object.assign(copy_ra, {
+                    genepanelName: this.interpretation.analysis.genepanel.name,
+                    genepanelVersion: this.interpretation.analysis.genepanel.version,
+                    interpretation_id: this.interpretation.id,
+                    status: 0,  // Status is set to 0. Finalization happens in another step.
+                    user_id: user.id
+                });
+
+                return this.referenceResource.createOrUpdateReferenceAssessment(copy_ra).then(updated_ra => {
+                    this.interpretation.setReferenceAssessments([updated_ra]);
+                });
             });
         }
 
