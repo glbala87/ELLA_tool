@@ -14,7 +14,7 @@ class AlleleAssessment(Base):
     __tablename__ = "alleleassessment"
 
     id = Column(Integer, Sequence("id_alleleassessment_seq"), primary_key=True)
-    classification = Column(Enum('1', '2', '3', '4', '5', 'T', '0', native_enum=False), nullable=False)
+    classification = Column(Enum('1', '2', '3', '4', '5', 'T', native_enum=False), nullable=False)
     evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
@@ -56,6 +56,7 @@ class ReferenceAssessment(Base):
     reference_id = Column(Integer, ForeignKey("reference.id"), nullable=False)
     reference = relationship("Reference")
     evaluation = Column(MUTJSONB, default={})
+    #status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
@@ -70,7 +71,6 @@ class ReferenceAssessment(Base):
     previousAssessment = relationship("AlleleAssessment", uselist=False)
     interpretation_id = Column(Integer, ForeignKey("interpretation.id"))
     interpretation = relationship("Interpretation", backref='referenceassessments')
-
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __str__(self):

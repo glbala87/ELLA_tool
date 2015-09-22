@@ -183,8 +183,7 @@
             let modal = this.modalService.open({
                 templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
                 controller: ['$modalInstance', ConfirmCompleteInterpretationController],
-                controllerAs: 'vm',
-                backdrop: true
+                controllerAs: 'vm'
             });
             modal.result.then(res => {
                 if (res === 'complete') {

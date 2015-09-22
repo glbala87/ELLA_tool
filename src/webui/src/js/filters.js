@@ -46,9 +46,15 @@ angular.module('workbench')
             var hours = Math.floor((seconds % 86400) / 3600);
             var minutes = Math.floor(((seconds % 86400) % 3600) / 60);
             var timeString = '';
-            if (days > 0) timeString += (days > 1) ? (days + " days ") : (days + " day ");
-            if (hours > 0) timeString += (hours > 1) ? (hours + " h ") : (hours + " h ");
-            if (minutes >= 0) timeString += (minutes > 1) ? (minutes + " min ") : (minutes + " min ");
+            if(days > 0) timeString += (days > 1) ? (days + " days ") : (days + " day ");
+            if(hours > 0) timeString += (hours > 1) ? (hours + "h ") : (hours + "h ");
+            if(minutes >= 0) timeString += (minutes > 1) ? (minutes + " min ") : (minutes + " min ");
             return timeString;
         };
+    })
+    .filter('prettyJSON', function () {
+        function syntaxHighlight(json) {
+          return JSON ? JSON.stringify(json, null, '  ') : 'your browser doesnt support JSON so cant pretty print';
+        }
+        return syntaxHighlight;
     });
