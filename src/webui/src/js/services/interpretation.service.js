@@ -114,13 +114,15 @@
                                 let pmids = this._getPubmedIds();
                                 this.referenceResource.getByPubMedIds(pmids).then(refs => {
                                     this.interpretation.setReferences(refs);
+                                    console.log(refs);
+                                    let reference_ids = refs.map(r => r.id);
+                                    let allele_ids = alleles.map(a => a.id);
 
-                                    // Load reference assessments and add to object
-                                    this.interpretationResource.getReferenceAssessments(this.interpretation.id).then(referenceassessments => {
+                                    // Load existing ReferenceAssessments for matching alleles/references.
+                                    this.referenceResource.getReferenceAssessments(allele_ids, reference_ids).then(referenceassessments => {
                                         this.interpretation.setReferenceAssessments(referenceassessments);
 
-                                        // Load allele assessments and add to object
-                                        let allele_ids = alleles.map(al => al.id);
+                                        // Load existing AlleleAssessments for matching alleles
                                         this.alleleAssessmentResource.getByAlleleIds(allele_ids).then(alleleassessments => {
                                             this.interpretation.setAlleleAssessments(alleleassessments);
                                             resolve(this.interpretation);
@@ -172,7 +174,7 @@
                 this.interpretation.status = 'Ongoing';
             }
             return this.interpretationResource.updateState(this.interpretation).then(
-                () => this.interpretation.dirty = false
+                () => this.interpretation.setClean()
             );
         }
 
@@ -219,15 +221,15 @@
             this.locationService.url('/analyses');
         }
 
-        createOrUpdateReferenceAssessment(ra) {
+        createOrUpdateReferenceAssessment(state_ra, allele, reference) {
 
             // Make copy and add mandatory fields before submission
-            let copy_ra = Object.assign({}, ra);
-            delete copy_ra.allele;  // Remove extra data
-            delete copy_ra.reference;
+            let copy_ra = Object.assign({}, state_ra);
 
             return this.user.getCurrentUser().then(user => {
                 Object.assign(copy_ra, {
+                    allele_id: allele.id,
+                    reference_id: reference.id,
                     genepanelName: this.interpretation.analysis.genepanel.name,
                     genepanelVersion: this.interpretation.analysis.genepanel.version,
                     interpretation_id: this.interpretation.id,
@@ -235,17 +237,24 @@
                     user_id: user.id
                 });
 
+                // Update the interpretation's state with the response to include the updated fields into relevant referenceassessment
+                // We set 'evaluation' again to ensure frontend is synced with server.
+                // Then we update the interpretation state on the server, in order to make sure everything is in sync.
                 return this.referenceResource.createOrUpdateReferenceAssessment(copy_ra).then(updated_ra => {
-                    this.interpretation.setReferenceAssessments([updated_ra]);
+                    state_ra.id = updated_ra.id;
+                    state_ra.evaluation = updated_ra.evaluation;
+
+                    // Update interpretation on server to reflect state changes made.
+                    return this.update();
                 });
             });
         }
 
-        createOrUpdateAlleleAssessment(aa, allele) {
+        createOrUpdateAlleleAssessment(state_aa, allele) {
 
             // Make copy and add mandatory fields before submission
-            let copy_aa = Object.assign({}, aa);
-            delete copy_aa.user; // Remove extra data
+            let copy_aa = Object.assign({}, state_aa);
+            delete copy_aa.user;  // Remove extra data
             delete copy_aa.secondsSinceUpdate;
             // TODO: Add transcript
             return this.user.getCurrentUser().then(user => {
@@ -263,7 +272,6 @@
                 // We set 'evaluation' and 'classification' again to ensure frontend is synced with server.
                 // Then we update the interpretation state on the server, in order to make sure everything is in sync.
                 return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(copy_aa).then(aa => {
-                    let state_aa = this.interpretation.state.alleleassessment[aa.allele_id];
                     state_aa.id = aa.id;
                     state_aa.classification = aa.classification;
                     state_aa.evaluation = aa.evaluation;
