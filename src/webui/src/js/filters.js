@@ -37,4 +37,19 @@ angular.module('workbench')
             }
             return '';
         };
+    })
+    .filter('secondsToTimeString', () => {
+          return function(seconds) {
+            if (!seconds) {
+                return '';
+            }
+            var days = Math.floor(seconds / 86400);
+            var hours = Math.floor((seconds % 86400) / 3600);
+            var minutes = Math.floor(((seconds % 86400) % 3600) / 60);
+            var timeString = '';
+            if(days > 0) timeString += (days > 1) ? (days + " days ") : (days + " day ");
+            if(hours > 0) timeString += (hours > 1) ? (hours + " h ") : (hours + " h ");
+            if(minutes >= 0) timeString += (minutes > 1) ? (minutes + " min ") : (minutes + " min ");
+            return timeString;
+        };
     });

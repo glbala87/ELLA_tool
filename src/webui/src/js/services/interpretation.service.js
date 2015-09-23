@@ -232,27 +232,33 @@
 
             // Make copy and add mandatory fields before submission
             let copy_aa = Object.assign({}, aa);
+            delete copy_aa.user;  // Remove extra data
+            delete copy_aa.secondsSinceUpdate;
             // TODO: Add transcript
-            Object.assign(copy_aa, {
-                allele_id: allele.id,
-                annotation_id: allele.annotation.id,
-                genepanelName: this.interpretation.analysis.genepanel.name,
-                genepanelVersion: this.interpretation.analysis.genepanel.version,
-                interpretation_id: this.interpretation.id,
-                status: 0  // Status is set to 0. Finalization happens in another step.
-            });
+            return this.user.getCurrentUser().then(user => {
+                Object.assign(copy_aa, {
+                    allele_id: allele.id,
+                    annotation_id: allele.annotation.id,
+                    genepanelName: this.interpretation.analysis.genepanel.name,
+                    genepanelVersion: this.interpretation.analysis.genepanel.version,
+                    interpretation_id: this.interpretation.id,
+                    status: 0,  // Status is set to 0. Finalization happens in another step.
+                    user_id: user.id
+                });
 
-            // Update the interpretation's state with the response to include the updated fields into relevant alleleassessment
-            // We set 'evaluation' and 'classification' again to ensure frontend is synced with server.
-            // Then we update the interpretation state on the server, in order to make sure everything is in sync.
-            return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(copy_aa).then(aa => {
-                let state_aa = this.interpretation.state.alleleassessment[aa.allele_id];
-                state_aa.id = aa.id;
-                state_aa.classification = aa.classification;
-                state_aa.evaluation = aa.evaluation;
+                // Update the interpretation's state with the response to include the updated fields into relevant alleleassessment
+                // We set 'evaluation' and 'classification' again to ensure frontend is synced with server.
+                // Then we update the interpretation state on the server, in order to make sure everything is in sync.
+                return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(copy_aa).then(aa => {
+                    let state_aa = this.interpretation.state.alleleassessment[aa.allele_id];
+                    state_aa.id = aa.id;
+                    state_aa.classification = aa.classification;
+                    state_aa.evaluation = aa.evaluation;
 
-                // Update interpretation on server to reflect state changes made.
-                this.update();
+                    // Update interpretation on server to reflect state changes made.
+                    return this.update();
+                });
+
             });
 
         }
