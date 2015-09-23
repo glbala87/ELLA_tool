@@ -1,31 +1,32 @@
 /* jshint esnext: true */
 
-(function() {
+(function () {
 
     angular.module('workbench')
         .factory('Interpretation', ['$rootScope',
-                                    'InterpretationResource',
-                                    'ReferenceResource',
-                                    'AlleleAssessmentResource',
-                                    'User',
-                                    '$modal',
-                                    '$location',
-                                    function($rootScope,
-                                             InterpretationResource,
-                                             ReferenceResource,
-                                             AlleleAssessmentResource,
-                                             User,
-                                             ModalService,
-                                             LocationService) {
+            'InterpretationResource',
+            'ReferenceResource',
+            'AlleleAssessmentResource',
+            'User',
+            '$modal',
+            '$location',
+            function ($rootScope,
+                InterpretationResource,
+                ReferenceResource,
+                AlleleAssessmentResource,
+                User,
+                ModalService,
+                LocationService) {
 
-            return new Interpretation($rootScope,
-                                      InterpretationResource,
-                                      ReferenceResource,
-                                      AlleleAssessmentResource,
-                                      User,
-                                      ModalService,
-                                      LocationService);
-    }]);
+                return new Interpretation($rootScope,
+                    InterpretationResource,
+                    ReferenceResource,
+                    AlleleAssessmentResource,
+                    User,
+                    ModalService,
+                    LocationService);
+            }
+        ]);
 
 
     /**
@@ -41,12 +42,12 @@
     class Interpretation {
 
         constructor(rootScope,
-                    interpretationResource,
-                    referenceResource,
-                    alleleAssessmentResource,
-                    User,
-                    ModalService,
-                    LocationService) {
+            interpretationResource,
+            referenceResource,
+            alleleAssessmentResource,
+            User,
+            ModalService,
+            LocationService) {
 
 
             this._setWatchers(rootScope);
@@ -80,21 +81,20 @@
                 if (this.interpretation && o) {
                     this.interpretation.setDirty();
                 }
-            }, true);  // true -> Deep watch
+            }, true); // true -> Deep watch
 
             rootScope.$watch(watchUserStateFn, (n, o) => {
                 if (this.interpretation && o) {
                     this.interpretation.setDirty();
                 }
-            }, true);  // true -> Deep watch
+            }, true); // true -> Deep watch
         }
 
         loadInterpretation(id) {
             return new Promise((resolve, reject) => {
                 if (this.interpretation) {
                     reject('Interpretation already loaded.');
-                }
-                else {
+                } else {
 
                     // TODO: Fix promise chaining mess
                     // Get user id (we need to assign it to the interpretation)
@@ -184,16 +184,14 @@
                 templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
                 controller: ['$modalInstance', ConfirmCompleteInterpretationController],
                 controllerAs: 'vm',
-                backdrop : true
+                backdrop: true
             });
             modal.result.then(res => {
                 if (res === 'complete') {
                     this._complete();
-                }
-                else if (res === 'finalize') {
+                } else if (res === 'finalize') {
                     this._finalize();
-                }
-                else {
+                } else {
                     throw `Got unknown option ${res} when confirming interpretation action.`;
                 }
                 return true;
@@ -232,7 +230,7 @@
 
             // Make copy and add mandatory fields before submission
             let copy_aa = Object.assign({}, aa);
-            delete copy_aa.user;  // Remove extra data
+            delete copy_aa.user; // Remove extra data
             delete copy_aa.secondsSinceUpdate;
             // TODO: Add transcript
             return this.user.getCurrentUser().then(user => {
@@ -242,7 +240,7 @@
                     genepanelName: this.interpretation.analysis.genepanel.name,
                     genepanelVersion: this.interpretation.analysis.genepanel.version,
                     interpretation_id: this.interpretation.id,
-                    status: 0,  // Status is set to 0. Finalization happens in another step.
+                    status: 0, // Status is set to 0. Finalization happens in another step.
                     user_id: user.id
                 });
 
@@ -267,4 +265,3 @@
 
 
 })();
-

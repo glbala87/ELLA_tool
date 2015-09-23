@@ -66,13 +66,12 @@ class Interpretation {
             ra.reference = this.references.find(ref => ref.id === ra.reference_id);
             let existing = this.referenceassessments.find(elem => {
                 return elem.allele_id === ra.allele_id &&
-                       elem.reference_id === ra.reference_id;
+                    elem.reference_id === ra.reference_id;
             });
             if (existing) {
                 // Copy all values from new into old object
                 Object.assign(existing, ra);
-            }
-            else {
+            } else {
                 this.referenceassessments.push(ra);
             }
         }
@@ -80,14 +79,14 @@ class Interpretation {
         // Create missing entries if not created already
         for (let allele of this.alleles) {
             let pmids = allele.getPubmedIds();
-            let reference = this.references.find(ref =>{
+            let reference = this.references.find(ref => {
                 return pmids.indexOf(ref.pubmedID) !== -1;
             });
             if (reference) {
                 // Check if we have data for this entry already
                 let match = this.referenceassessments.find(ra => {
                     return ra.allele_id === allele.id &&
-                           ra.reference_id === reference.id;
+                        ra.reference_id === reference.id;
                 });
                 if (!match) {
                     this.referenceassessments.push(
