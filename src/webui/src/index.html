@@ -1,7 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,46 +17,51 @@
     <link href='app.css' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 
-  </head>
+</head>
 
-  <body ng-app="workbench">
+<body ng-app="workbench">
 
     <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#"><div style="margin-top: -12px;"><div style="position: absolute; font-size: 30px; z-index: 1;">genAP</div><div style="position: absolute; margin-left: 15px; margin-top: 24px; font-size: 17px; color: #18BC9C; z-index: 3;">interpreter</div></div></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <div class="nav navbar-right">
-            <user-bar></user-bar>
-          </div>
-        </div>
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <div style="margin-top: -12px;">
+                        <div style="position: absolute; font-size: 30px; z-index: 1;">genAP</div>
+                        <div style="position: absolute; margin-left: 15px; margin-top: 24px; font-size: 17px; color: #18BC9C; z-index: 3;">interpreter</div>
+                    </div>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <div class="nav navbar-right">
+                    <user-bar></user-bar>
+                </div>
+            </div>
 
-      </div>
+        </div>
     </nav>
 
     <div class="container-fluid">
-      <div class="row">
+        <div class="row">
 
-        <div class="col-sm-3 col-md-1 sidebar" style="width: 200px;">
-          <navigation></navigation>
+            <div class="col-sm-3 col-md-1 sidebar" style="width: 200px;">
+                <navigation></navigation>
+            </div>
+
+            <div class="col-sm-9 col-md-10 main" style="margin-left: 230px;">
+                <div ng-view></div>
+
+            </div>
         </div>
-
-        <div class="col-sm-9 col-md-10 main" style="margin-left: 230px;">
-            <div ng-view></div>
-
-        </div>
-      </div>
     </div>
 
-  </body>
-  <script type="text/javascript" src="thirdparty.js"></script>
-  <script type="text/javascript" src="app.js"></script>
+</body>
+<script type="text/javascript" src="thirdparty.js"></script>
+<script type="text/javascript" src="app.js"></script>
 
 </html>

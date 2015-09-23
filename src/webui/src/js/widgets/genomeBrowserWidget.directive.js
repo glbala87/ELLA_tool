@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-workbench.directive( 'genomeBrowserWidget', function () {
+workbench.directive('genomeBrowserWidget', function () {
     return {
         restrict: 'E',
         scope: {
@@ -10,23 +10,23 @@ workbench.directive( 'genomeBrowserWidget', function () {
         controller: GenomeBrowserWidgetVM,
         controllerAs: 'vm'
     };
-} );
+});
 
 
 class GenomeBrowserWidgetVM {
 
-    constructor( $scope, fileReader ) {
+    constructor($scope, fileReader) {
 
-        this.setAllele( $scope.allele );
+        this.setAllele($scope.allele);
 
-        $scope.$watch( 'allele', allele => {
-            if ( allele ) {
-                this.setAllele( allele );
-                this.setLocation( allele );
+        $scope.$watch('allele', allele => {
+            if (allele) {
+                this.setAllele(allele);
+                this.setLocation(allele);
             }
-        } );
+        });
 
-        this.browser = new Browser( {
+        this.browser = new Browser({
             pageName: 'dalliance-holder', // Target element ID.
 
             chr: '22',
@@ -42,7 +42,7 @@ class GenomeBrowserWidgetVM {
                 ucscName: 'hg19',
             },
 
-            sources: [ {
+            sources: [{
                 name: 'Genome',
                 twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
                 tier_type: 'sequence',
@@ -65,46 +65,46 @@ class GenomeBrowserWidgetVM {
                 tier_type: 'ensembl',
                 species: 'human',
                 type: 'variation',
-                featureInfoPlugin: function ( f, info ) {
-                    if ( f.id ) {
-                        info.add( 'SNP', makeElement( 'a', f.id, {
+                featureInfoPlugin: function (f, info) {
+                    if (f.id) {
+                        info.add('SNP', makeElement('a', f.id, {
                             href: 'http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + f.id,
                             target: '_newtab'
-                        } ) );
+                        }));
                     }
                 }
             }, {
                 name: 'Conservation',
                 bwgURI: 'http://www.biodalliance.org/datasets/phastCons46way.bw',
                 noDownsample: true
-            } ],
+            }],
 
             noOptions: true,
             noTrackAdder: true,
             noTrackEditor: true,
             noExport: true,
             noLeapButtons: true
-        } );
+        });
 
     }
 
-    setAllele( allele ) {
+    setAllele(allele) {
         this.allele = allele;
     }
 
-    setLocation( allele ) {
-        this.browser.setLocation( allele.chromosome,
+    setLocation(allele) {
+        this.browser.setLocation(allele.chromosome,
             allele.startPosition - 49,
             allele.openEndPosition + 50
         );
     }
 
-    addBAMTrack( bamFile ) {
-        this.browser.addTier( {
+    addBAMTrack(bamFile) {
+        this.browser.addTier({
             name: "BAM",
             bamURI: bamFile,
             tier_type: "bam",
-            style: [ {
+            style: [{
                 type: "density",
                 zoom: "low",
                 style: {
@@ -135,10 +135,10 @@ class GenomeBrowserWidgetVM {
                     ZINDEX: 20,
                     __SEQCOLOR: "mismatch"
                 }
-            } ]
-        } );
+            }]
+        });
     }
 
 }
 
-GenomeBrowserWidgetVM.$inject = [ '$scope' ];
+GenomeBrowserWidgetVM.$inject = ['$scope'];
