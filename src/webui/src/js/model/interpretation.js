@@ -49,6 +49,10 @@ class Interpretation {
 
     setAlleleAssessments(alleleassessments) {
         this.alleleassessments = alleleassessments;
+
+        for (let aa of this.alleleassessments) {
+            aa.allele = this.alleles.find(a => aa.allele_id === a.id);
+        }
     }
 
 }
