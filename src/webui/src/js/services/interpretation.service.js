@@ -223,7 +223,7 @@
 
         createOrUpdateReferenceAssessment(state_ra, allele, reference) {
 
-            // Make copy and add mandatory fields before submission
+            // Make copy and add/update mandatory fields before submission
             let copy_ra = Object.assign({}, state_ra);
 
             return this.user.getCurrentUser().then(user => {
@@ -243,6 +243,7 @@
                 return this.referenceResource.createOrUpdateReferenceAssessment(copy_ra).then(updated_ra => {
                     state_ra.id = updated_ra.id;
                     state_ra.evaluation = updated_ra.evaluation;
+                    state_ra.interpretation_id = updated_ra.interpretation_id;
 
                     // Update interpretation on server to reflect state changes made.
                     return this.update();
@@ -275,6 +276,7 @@
                     state_aa.id = aa.id;
                     state_aa.classification = aa.classification;
                     state_aa.evaluation = aa.evaluation;
+                    state_aa.interpretation_id = aa.interpretation_id;
 
                     // Update interpretation on server to reflect state changes made.
                     return this.update();
