@@ -30,7 +30,6 @@ api.add_resource(apiv1.UserListResource, '/api/v1/users/')
 api.add_resource(apiv1.UserResource, '/api/v1/users/<username>/')
 api.add_resource(apiv1.AlleleAssessmentResource, '/api/v1/alleleassessments/<int:aa_id>/')
 api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/')
-api.add_resource(apiv1.AlleleAlleleAssessmentResource, '/api/v1/alleles/<int:allele_id>/assessment/')
 
 
 if __name__ == '__main__':

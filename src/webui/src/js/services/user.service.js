@@ -1,10 +1,10 @@
 /* jshint esnext: true */
 
-(function() {
+(function () {
     angular.module('workbench')
-        .factory('User', ['$resource', function($resource) {
+        .factory('User', ['$resource', function ($resource) {
             return new UserService($resource);
-    }]);
+        }]);
 
 
     class UserService {
