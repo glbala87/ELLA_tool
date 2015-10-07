@@ -11,7 +11,7 @@
 
         constructor(resource) {
             this.resource = resource;
-            this.base = 'http://localhost:5000/api/v1';
+            this.base = '/api/v1';
             this.currentUser = null;
         }
 
