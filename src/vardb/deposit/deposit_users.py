@@ -1,8 +1,11 @@
 import json
 import argparse
+import logging
 
 import vardb.datamodel
 from vardb.datamodel import user
+
+log = logging.getLogger(__name__)
 
 
 def import_users(users):
@@ -11,10 +14,9 @@ def import_users(users):
     for u in users:
         new_user = user.User(**u)
         session.add(new_user)
-        print "Adding user {}".format(u['username'])
+        log.info("Adding user {}".format(u['username']))
 
     session.commit()
-    print "Complete!"
 
 
 if __name__ == "__main__":
