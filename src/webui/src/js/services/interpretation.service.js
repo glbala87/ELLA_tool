@@ -96,44 +96,64 @@
                     reject('Interpretation already loaded.');
                 } else {
 
-                    // TODO: Fix promise chaining mess
-                    // Get user id (we need to assign it to the interpretation)
-                    this.user.getCurrentUser().then(user => {
+                    let puser = this.user.getCurrentUser();
+                    let pint = this.interpretationResource.get(id);
 
-                        // Load main interpretation object
-                        this.interpretationResource.get(id).then(i => {
-                            i.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
-                            i.user_id = user.id;
-                            this.interpretation = i;
-
-                            // Load alleles and add to object
-                            this.interpretationResource.getAlleles(id).then(alleles => {
-                                this.interpretation.setAlleles(alleles);
-
-                                // Load references and add to object
-                                let pmids = this._getPubmedIds();
-                                this.referenceResource.getByPubMedIds(pmids).then(refs => {
-                                    this.interpretation.setReferences(refs);
-                                    console.log(refs);
-                                    let reference_ids = refs.map(r => r.id);
-                                    let allele_ids = alleles.map(a => a.id);
-
-                                    // Load existing ReferenceAssessments for matching alleles/references.
-                                    this.referenceResource.getReferenceAssessments(allele_ids, reference_ids).then(referenceassessments => {
-                                        this.interpretation.setReferenceAssessments(referenceassessments);
-
-                                        // Load existing AlleleAssessments for matching alleles
-                                        this.alleleAssessmentResource.getByAlleleIds(allele_ids).then(alleleassessments => {
-                                            this.interpretation.setAlleleAssessments(alleleassessments);
-                                            resolve(this.interpretation);
-                                        });
-                                    });
-                                });
-
-                            });
-                        });
-
+                    // Prepare interpretation and assign user
+                    Promise.all([puser, pint]).spread((user, interpretation) => {
+                        this.interpretation = interpretation;
+                        interpretation.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
+                        interpretation.user_id = user.id;
                     });
+
+                    // Fetch alleles for this interpretation id
+                    let palleles = this.interpretationResource.getAlleles(id).then(alleles => {
+                        let alleles_obj = [];
+                        for (let allele of alleles) {
+                            alleles_obj.push(new Allele(allele));
+                        }
+                        return alleles_obj;
+                    });
+
+
+                    // Load references
+                    let prefs = Promise.all([pint, palleles]).spread((interpretation, alleles) =>{
+                        // Add alleles to interpretation object
+                        interpretation.setAlleles(alleles);
+                        let pmids = this._getPubmedIds(interpretation.alleles);
+                        return this.referenceResource.getByPubMedIds(pmids);
+                    });
+
+
+                    // Assign references to interpretation
+                    prefs.then(refs => {
+                        this.interpretation.setReferences(refs);
+                    });
+
+                    // Load ReferenceAssessments
+                    let prefassm = Promise.all([prefs, palleles]).spread((refs, alleles) => {
+                        let reference_ids = refs.map(r => r.id);
+                        let allele_ids = alleles.map(a => a.id);
+                        return this.referenceResource.getReferenceAssessments(allele_ids, reference_ids);
+                    });
+
+                    // Load AlleleAssessments
+                    let palleleassm = palleles.then(alleles => {
+                        let allele_ids = alleles.map(a => a.id);
+                        return this.alleleAssessmentResource.getByAlleleIds(allele_ids);
+                    });
+
+                    // Assign ReferenceAsessments/AlleleAssessments to interpretation
+                    Promise.all([pint, prefassm, palleleassm]).spread((interpretation, refassm, alleleassm) => {
+                        interpretation.setReferenceAssessments(refassm);
+                        interpretation.setAlleleAssessments(alleleassm);
+                    });
+
+                    // Resolve final promise
+                    Promise.all([puser, pint, palleles, prefs, prefassm, palleleassm]).then(() => {
+                        resolve(this.interpretation);
+                    });
+
                 }
             });
         }
@@ -143,9 +163,9 @@
          * Requires that alleles are already loaded into the interpretation.
          * @return {Array} Array of ids.
          */
-        _getPubmedIds() {
+        _getPubmedIds(alleles) {
             let ids = [];
-            for (let allele of this.interpretation.alleles) {
+            for (let allele of alleles) {
                 Array.prototype.push.apply(ids, allele.getPubmedIds());
             }
             return ids;

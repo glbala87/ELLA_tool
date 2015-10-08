@@ -32,11 +32,7 @@ class Interpretation {
     }
 
     setAlleles(alleles) {
-        this.alleles = [];
-        for (let allele of alleles) {
-            this.alleles.push(new Allele(allele));
-        }
-        console.log(this);
+        this.alleles = alleles;
     }
 
     setReferences(references) {
