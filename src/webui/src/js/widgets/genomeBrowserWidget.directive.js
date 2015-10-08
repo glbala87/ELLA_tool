@@ -17,15 +17,20 @@ class GenomeBrowserWidgetVM {
 
     constructor($scope, fileReader) {
 
-        this.setAllele($scope.allele);
-
         $scope.$watch('allele', allele => {
             if (allele) {
-                this.setAllele(allele);
-                this.setLocation(allele);
+                this.refresh();
             }
         });
 
+        setTimeout(() => {
+            this.setupBrowser();
+            this.refresh();
+        }, 500);
+
+    }
+
+    setupBrowser() {
         this.browser = new Browser({
             pageName: 'dalliance-holder', // Target element ID.
 
@@ -85,11 +90,12 @@ class GenomeBrowserWidgetVM {
             noExport: true,
             noLeapButtons: true
         });
-
     }
 
-    setAllele(allele) {
-        this.allele = allele;
+    refresh() {
+        if (this.browser && this.allele) {
+            this.setLocation(allele);
+        }
     }
 
     setLocation(allele) {
