@@ -60,7 +60,7 @@ GENEPANELS = [
 ]
 
 
-VCFS = [
+VCF_SMALL = [
     {
         'path': '../testdata/brca_s1_v1.vcf',
         'gp': 'HBOC',
@@ -86,6 +86,9 @@ VCFS = [
         'gp': 'HBOC',
         'gp_version': 'v00'
     },
+]
+
+VCF_LARGE = [
     {
         'path': '../testdata/na12878.bindevev.transcripts.annotated.vcf',
         'gp': 'Bindevev',
@@ -131,8 +134,11 @@ class DepositTestdata(object):
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
             import_users(json.load(f))
 
-    def deposit_vcfs(self):
-        for vcfdata in VCFS:
+    def deposit_vcfs(self, small_only=False):
+        vcfs = VCF_SMALL
+        if not small_only:
+            vcfs += VCF_LARGE
+        for vcfdata in vcfs:
             importer = Importer(self.session)
             try:
                 importer.importVcf(
@@ -160,12 +166,12 @@ class DepositTestdata(object):
     def deposit_references(self):
         import_references()
 
-    def deposit_all(self):
+    def deposit_all(self, small_only=False):
         self.remake_db()
         self.deposit_users()
         self.deposit_genepanels()
         self.deposit_references()
-        self.deposit_vcfs()
+        self.deposit_vcfs(small_only=small_only)
 
 
 if __name__ == "__main__":

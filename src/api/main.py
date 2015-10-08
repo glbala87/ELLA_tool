@@ -1,7 +1,10 @@
 import os
+
 from flask import send_from_directory
 from flask.ext.restful import Api
 from api import app, apiv1, session
+
+from vardb.deposit.deposit_testdata import DepositTestdata
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -33,6 +36,13 @@ def download_file(path=None):
     return send_from_directory(STATIC_FILE_DIR,
                                path)
 
+
+# TODO: !!!!!!!!!!Remove before production!!!!!!!!!
+@app.route('/reset')
+def reset_testdata():
+    dt = DepositTestdata()
+    dt.deposit_all(small_only=True)
+    return "Database reset!"
 
 # Serve static
 
