@@ -3,12 +3,13 @@
 workbench.directive('genomeBrowserWidget', function () {
     return {
         restrict: 'E',
-        scope: {
+        scope: {},
+        bindToController: {
             allele: '='
         },
         templateUrl: 'ngtmpl/genomeBrowserWidget.ngtmpl.html',
         controller: GenomeBrowserWidgetVM,
-        controllerAs: 'vm'
+        controllerAs: 'vm',
     };
 });
 
@@ -34,9 +35,9 @@ class GenomeBrowserWidgetVM {
         this.browser = new Browser({
             pageName: 'dalliance-holder', // Target element ID.
 
-            chr: '22',
-            viewStart: 30000000,
-            viewEnd: 30030000,
+            chr: '1',
+            viewStart: 0,
+            viewEnd: 10,
             cookieKey: 'human-grc_h37',
 
             coordSystem: {
@@ -94,7 +95,7 @@ class GenomeBrowserWidgetVM {
 
     refresh() {
         if (this.browser && this.allele) {
-            this.setLocation(allele);
+            this.setLocation(this.allele);
         }
     }
 
