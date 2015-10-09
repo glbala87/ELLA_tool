@@ -25,6 +25,7 @@ You'll need to run two processes when developing: the build system and the API.
 
 #### Build system
 
+To run the build system, simply run the command:
 ```
 gulp
 ```
