@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import argparse
 
 from flask import send_from_directory
@@ -82,6 +84,7 @@ if __name__ == '__main__':
         app.run(debug=True, threaded=True)
     else:
         # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
+        port = os.getenv('VCAP_APP_PORT', '5000')
         app.add_url_rule('/', 'index', serve_static_factory())
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory())
-        app.run(threaded=True)
+        app.run(threaded=True,host='0.0.0.0', port=int(port))
