@@ -8,7 +8,7 @@ from vardb.deposit.deposit_testdata import DepositTestdata
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dest')
+STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/prod')
 
 
 @app.teardown_appcontext
@@ -16,6 +16,7 @@ def shutdown_session(exception=None):
     session.remove()
 
 
+# Serve static files
 @app.route('/<path:path>')
 @app.route('/')
 def download_file(path=None):
@@ -43,8 +44,6 @@ def reset_testdata():
     dt = DepositTestdata()
     dt.deposit_all(small_only=True)
     return "Database reset!"
-
-# Serve static
 
 
 # Add API resources
