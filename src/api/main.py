@@ -1,4 +1,5 @@
 import os
+import argparse
 
 from flask import send_from_directory
 from flask.ext.restful import Api
@@ -8,7 +9,8 @@ from vardb.deposit.deposit_testdata import DepositTestdata
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/prod')
+PROD_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/prod')
+DEV_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dev')
 
 
 @app.teardown_appcontext
@@ -16,26 +18,30 @@ def shutdown_session(exception=None):
     session.remove()
 
 
-# Serve static files
-@app.route('/<path:path>')
-@app.route('/')
-def download_file(path=None):
-    if not path:
-        path = 'index.html'
+def serve_static_factory(dev=False):
+    static_path = PROD_STATIC_FILE_DIR
+    if dev:
+        static_path = DEV_STATIC_FILE_DIR
 
-    valid_files = [
-        'app.css',
-        'app.js',
-        'thirdparty.js',
-        'fonts',
-        'ngtmpl'
-    ]
+    def serve_static(path=None):
+        if not path:
+            path = 'index.html'
 
-    if not any(v == path or path.startswith(v) for v in valid_files):
-        path = 'index.html'
+        valid_files = [
+            'app.css',
+            'app.js',
+            'thirdparty.js',
+            'fonts',
+            'ngtmpl'
+        ]
 
-    return send_from_directory(STATIC_FILE_DIR,
-                               path)
+        if not any(v == path or path.startswith(v) for v in valid_files):
+            path = 'index.html'
+
+        return send_from_directory(static_path,
+                                   path)
+
+    return serve_static
 
 
 # TODO: !!!!!!!!!!Remove before production!!!!!!!!!
@@ -64,5 +70,18 @@ api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/
 
 
 if __name__ == '__main__':
-    # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
-    app.run(debug=True, threaded=True)
+
+    parser = argparse.ArgumentParser(description='API server')
+    parser.add_argument('--dev', required=False, action="store_true", help='Serves dev files instead of production', dest='dev')
+
+    args = parser.parse_args()
+
+    if args.dev:
+        app.add_url_rule('/', 'index', serve_static_factory(dev=True))
+        app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
+        app.run(debug=True, threaded=True)
+    else:
+        # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
+        app.add_url_rule('/', 'index', serve_static_factory())
+        app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory())
+        app.run(threaded=True)
