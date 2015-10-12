@@ -82,11 +82,11 @@ class Reference(Base):
     __tablename__ = "reference"
 
     id = Column(Integer, Sequence("id_reference_seq"), primary_key=True)
-    authors = Column(String(150))
-    title = Column(String(400))
-    journal = Column(String(200))
+    authors = Column(String())
+    title = Column(String())
+    journal = Column(String())
     year = Column(Integer)
-    URL = Column(String(200))
+    URL = Column(String())
     pubmedID = Column(Integer, unique=True)
 
     __table_args__ = (Index("ix_pubmedid", "pubmedID", unique=True), )

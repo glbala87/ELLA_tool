@@ -74,7 +74,8 @@ VCF_SMALL = [
     {
         'path': '../testdata/brca_HDepositFirst.vcf',
         'gp': 'HBOC',
-        'gp_version': 'v00'
+        'gp_version': 'v00',
+        'import_assessments': True
     },
     {
         'path': '../testdata/brca_H01.vcf',
@@ -141,10 +142,14 @@ class DepositTestdata(object):
         for vcfdata in vcfs:
             importer = Importer(self.session)
             try:
+                kwargs = {
+                    'genepanel_name': vcfdata['gp'],
+                    'genepanel_version': vcfdata['gp_version'],
+                    'import_assessments': vcfdata.get('import_assessments', False)
+                }
                 importer.importVcf(
                     os.path.join(SCRIPT_DIR, vcfdata['path']),
-                    genepanel_name=vcfdata['gp'],
-                    genepanel_version=vcfdata['gp_version']
+                    **kwargs
                 )
                 log.info("Deposited {}".format(vcfdata['path']))
                 self.session.commit()
