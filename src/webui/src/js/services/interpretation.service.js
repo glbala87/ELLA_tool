@@ -115,7 +115,6 @@
                         return alleles_obj;
                     });
 
-
                     // Load references
                     let prefs = Promise.all([pint, palleles]).spread((interpretation, alleles) =>{
                         // Add alleles to interpretation object
@@ -123,7 +122,6 @@
                         let pmids = this._getPubmedIds(interpretation.alleles);
                         return this.referenceResource.getByPubMedIds(pmids);
                     });
-
 
                     // Assign references to interpretation
                     prefs.then(refs => {
