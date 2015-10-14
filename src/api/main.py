@@ -1,3 +1,4 @@
+import threading
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -49,9 +50,14 @@ def serve_static_factory(dev=False):
 # TODO: !!!!!!!!!!Remove before production!!!!!!!!!
 @app.route('/reset')
 def reset_testdata():
-    dt = DepositTestdata()
-    dt.deposit_all(small_only=True)
-    return "Database reset!"
+    def worker():
+        dt = DepositTestdata()
+        dt.deposit_all(small_only=True)
+
+    t = threading.Thread(target=worker)
+    t.start()
+
+    return "Test database is resetting. It should be ready in a minute."
 
 
 # Add API resources
