@@ -30,7 +30,8 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-0.13.4.min.js',
         'src/webui/src/thirdparty/color-hash/color-hash.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
-        'src/webui/src/thirdparty/dalliance/release-0.13/dalliance-compiled.js'
+        'src/webui/src/thirdparty/dalliance/release-0.13/dalliance-compiled.js',
+        'src/webui/src/thirdparty/thenby/thenBy.min.js'
     ];
 
     return gulp.src(sourcePaths)
