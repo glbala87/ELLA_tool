@@ -70,6 +70,7 @@
                     <th class="variant-column">Variant</th>
                     <th>ExAC</th>
                     <th>1000G</th>
+                    <th>inDB</th>
                     <th>Consequence</th>
                     <th style="min-width: 50px;"></th>
                 </tr>
@@ -91,19 +92,13 @@
                         </div>
                     </td>
                     <td>
-                        <div class="frequency-item" ng-repeat="freq in ::vm.frequencies['ExAC']" ng-if="al.annotation.annotations.frequencies['ExAC'][freq]">
-                            <table>
-                                <td><b>{{::freq}}:</b> </td>
-                                <td> {{::al.annotation.annotations.frequencies['ExAC'][freq] | number:4}}</td>
-                            </table>
+                        <frequency-details group="ExAC" allele="al"></frequency-details>
                     </td>
                     <td>
-                        <div class="frequency-item" ng-repeat="freq in ::vm.frequencies['1000g']" ng-if="al.annotation.annotations.frequencies['1000g'][freq]">
-                            <table>
-                                <td><b>{{::freq}}: </b></td>
-                                <td>{{::al.annotation.annotations.frequencies['1000g'][freq] | number:4}}</td>
-                            </table>
-                        </div>
+                        <frequency-details group="1000g" allele="al"></frequency-details>
+                    </td>
+                    <td>
+                        <frequency-details group="inDB" allele="al"></frequency-details>
                     </td>
                     <td>
                         <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript">

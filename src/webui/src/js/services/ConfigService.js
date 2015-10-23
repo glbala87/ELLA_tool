@@ -8,7 +8,7 @@ angular.module('workbench')
             getConfig: function () {
 
                 return {
-                    'frequencies': {
+                    frequencies: {
                         'ExAC': [
                             'G',
                             'AFR',
@@ -28,6 +28,9 @@ angular.module('workbench')
                             'EA',
                             'EAS',
                             'SAS'
+                        ],
+                        'inDB': [
+                            'alleleFreq',
                         ]
                     },
                     freq_criteria: {
