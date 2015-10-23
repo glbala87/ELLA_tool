@@ -19,11 +19,13 @@
             let included = [];
             for (let a of alleles) {
                 let exclude = false;
-                for (let [key, criteria] of Object.entries(this.config.freq_criteria)) {
-                    if (!exclude && key in a.annotation.annotations.frequencies) {
-                        exclude = Object.values(a.annotation.annotations.frequencies[key]).some(elem => {
-                            return elem > criteria;
-                        });
+                for (let [key, subkeys] of Object.entries(this.config.freq_criteria)) {
+                    for (let [subkey, criteria] of Object.entries(subkeys)) {
+                        if (!exclude &&
+                            key in a.annotation.annotations.frequencies &&
+                            subkey in a.annotation.annotations.frequencies[key]) {
+                            exclude = a.annotation.annotations.frequencies[key][subkey] > criteria;
+                        }
                     }
                 }
                 if (!exclude) {

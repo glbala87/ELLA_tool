@@ -10,6 +10,7 @@ angular.module('workbench')
                 return {
                     'frequencies': {
                         'ExAC': [
+                            'G',
                             'AFR',
                             'AMR',
                             'EAS',
@@ -30,8 +31,15 @@ angular.module('workbench')
                         ]
                     },
                     freq_criteria: {
-                        'ExAC': 0.01,
-                        '1000g': 0.01
+                        'ExAC': {
+                            'G': 0.01
+                        },
+                        '1000g': {
+                            'G': 0.01
+                        },
+                        'inDB': {
+                            'alleleFreq': 0.05
+                        }
                     },
                     alleleassessment: {
                         days_since_update: 300
