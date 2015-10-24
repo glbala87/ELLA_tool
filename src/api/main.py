@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import argparse
 
-from flask import send_from_directory
+from flask import send_from_directory, request
 from flask.ext.restful import Api
 from api import app, apiv1, session
 
@@ -50,9 +50,11 @@ def serve_static_factory(dev=False):
 # TODO: !!!!!!!!!!Remove before production!!!!!!!!!
 @app.route('/reset')
 def reset_testdata():
+    small_only = not request.args.get('all') in ['True', 'true']
+
     def worker():
         dt = DepositTestdata()
-        dt.deposit_all(small_only=True)
+        dt.deposit_all(small_only=small_only)
 
     t = threading.Thread(target=worker)
     t.start()
