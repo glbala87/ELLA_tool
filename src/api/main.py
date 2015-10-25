@@ -92,6 +92,7 @@ if __name__ == '__main__':
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
         app.run(debug=True, threaded=True)
     elif args.docker:
+        os.environ['DB_URL'] = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
         app.add_url_rule('/', 'index', serve_static_factory(dev=True))
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
         app.run(debug=True, threaded=True, host='0.0.0.0')
