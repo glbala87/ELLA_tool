@@ -50,11 +50,11 @@ PostgreSQL needs to be running. To use a different user/db than the default, you
 
 #### Docker
 
-The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and spawn an environment that satisfies these requirements. All Python requirements are installed globally, no virtualenv needed since we're already in an isolated container. Gulp and nodejs make absolutely no sense, so...
-- All nodejs requirements are installed to `/dist/node_modules`, when running inside the container for the first time, run `/genap/exe/dev/docker_gulp_setup.sh` and this will symlink the requirements folder into `/genap` which makes Gulp happy.
-- Gulp itself is now installed both globally and locally, so after the above step you can just run `gulp` as described above in the Gulp section.
+**To start developpment inside docker, run `./dev.sh`**
 
-**Note:** Currently the Docker setup won't spawn a PostgreSQL instance. Nor does it have an easy way to run both gulp and flask at the same time.
+The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and spawn an environment that satisfies these requirements. All Python requirements are installed globally, no virtualenv needed since we're already in an isolated container. Node things are installed to `/dist/node_modules`, gulp is installed both there and globally.
+
+**Note:** Currently the Docker setup won't spawn a PostgreSQL instance, this is WIP.
 
 ## Production
 
