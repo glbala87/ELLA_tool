@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
+    autoprefixer = require('gulp-autoprefixer');
     flatten = require('gulp-flatten'),
     babel = require("gulp-babel"),
     livereload = require('gulp-livereload'),
@@ -89,6 +90,7 @@ gulp.task('less', function () {
         .pipe(plumber())
         .pipe(less())
         .pipe(concat('app.css'))
+        .pipe(autoprefixer('last 2 versions'))
         .pipe(gulp.dest(__dirname))
         .pipe(livereload());
 });
