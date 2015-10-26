@@ -123,11 +123,6 @@
                         return this.referenceResource.getByPubMedIds(pmids);
                     });
 
-                    // Assign references to interpretation
-                    prefs.then(refs => {
-                        this.interpretation.setReferences(refs);
-                    });
-
                     // Load ReferenceAssessments
                     let prefassm = Promise.all([prefs, palleles]).spread((refs, alleles) => {
                         let reference_ids = refs.map(r => r.id);
@@ -142,9 +137,8 @@
                     });
 
                     // Assign ReferenceAsessments/AlleleAssessments to interpretation
-                    Promise.all([pint, prefassm, palleleassm]).spread((interpretation, refassm, alleleassm) => {
-                        interpretation.setReferenceAssessments(refassm);
-                        interpretation.setAlleleAssessments(alleleassm);
+                    Promise.all([pint, prefs, prefassm, palleleassm]).spread((interpretation, references, refassm, alleleassm) => {
+                        interpretation.prepareAlleles(references, refassm, alleleassm);
                     });
 
                     // Resolve final promise
