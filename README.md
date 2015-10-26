@@ -48,6 +48,11 @@ This is done by launching, in another terminal:
 
 PostgreSQL needs to be running. To use a different user/db than the default, you may set the DB_URL environment variable.
 
+#### Docker
+
+**To start development env with Docker, run `docker-compose up`**
+
+The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and spawn an environment that satisfies these requirements. All Python requirements are installed globally, no virtualenv needed since we're already in an isolated container. Node things are installed to `/dist/node_modules`, gulp is installed both there and globally.
 
 ## Production
 

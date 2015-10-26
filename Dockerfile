@@ -1,15 +1,39 @@
 FROM debian:jessie
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
+# Standard OUSAMG Docker boilerplate
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update -q && apt-get upgrade -q
-RUN apt-get install -f -y python2.7 python2.7-dev python-pip python-setuptools curl build-essential libpq-dev git
-RUN curl --silent --location https://deb.nodesource.com/setup_4.x | bash - && apt-get install -y nodejs
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
-ADD ./requirements.txt /dist/requirements.txt
-ADD ./gulpfile.js /dist/gulpfile.js
-RUN cd /dist && pip install -r requirements.txt
-RUN cd /dist && npm install gulp gulpfile-install
-RUN cd /dist && /dist/node_modules/.bin/gulpfile-install
+RUN apt-get update -qq \
+    && apt-get upgrade -qq \
+    && apt-get install -y locales apt-utils \
+    && locale-gen C.UTF-8 \
+    && /usr/sbin/update-locale LANG=C.UTF-8 \
+    && apt-get remove -y locales \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
+ENV LANG C.UTF-8
 
+# Our essential packages for this build go here
+RUN apt-get update -qq \
+    && apt-get install -f -y -q python2.7 python2.7-dev python-setuptools curl libpq-dev git build-essential postgresql-client \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
+# NodeJS install process - this has to all run in one batch for some weird reason related to the setup app
+RUN curl --silent --location https://deb.nodesource.com/setup_4.x | bash - && apt-get install -y -q nodejs \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
+
+# Get pip and gulp
+RUN curl -SL 'https://bootstrap.pypa.io/get-pip.py' | python
+RUN npm install -g gulp
+
+# Add our requirements files - honcho is a foreman clone that runs our Procfile
+ADD ./requirements.txt /dist/requirements.txt
+RUN echo "honcho" >> /dist/requirements.txt
+ADD ./gulpfile.js /dist/gulpfile.js
+
+# Install all our requirements for python and gulp/js
+WORKDIR /dist
+RUN pip install --no-cache-dir -r requirements.txt
+RUN npm install gulp gulpfile-install
+RUN /dist/node_modules/.bin/gulpfile-install
+
+EXPOSE 5000
 WORKDIR /genap

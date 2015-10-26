@@ -83,6 +83,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='API server')
     parser.add_argument('--dev', required=False, action="store_true", help='Serves dev files instead of production', dest='dev')
+    parser.add_argument('--docker', required=False, action="store_true", help='Serves dev files instead of production, exposes host for Docker use', dest='docker')
 
     args = parser.parse_args()
 
@@ -90,6 +91,11 @@ if __name__ == '__main__':
         app.add_url_rule('/', 'index', serve_static_factory(dev=True))
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
         app.run(debug=True, threaded=True)
+    elif args.docker:
+        os.environ['DB_URL'] = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
+        app.add_url_rule('/', 'index', serve_static_factory(dev=True))
+        app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
+        app.run(debug=True, threaded=True, host='0.0.0.0')
     else:
         # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
         port = os.getenv('VCAP_APP_PORT', '5000')
