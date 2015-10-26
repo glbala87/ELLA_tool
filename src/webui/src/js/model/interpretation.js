@@ -11,9 +11,6 @@ class Interpretation {
         this.analysis = data.analysis;
         this.dateLastUpdate = data.dateLastUpdate;
         this.alleles = [];
-        this.referenceassessments = [];
-        this.alleleassessments = [];
-        this.references = [];
         this.userState = data.userState;
         this.state = data.state;
         this.dirty = false; // Indicates whether any state has changed, so user should save
@@ -35,20 +32,31 @@ class Interpretation {
         this.alleles = alleles;
     }
 
-    setReferences(references) {
-        this.references = references;
-    }
+    /**
+     * Helper method for preparing the Allele objects.
+     */
+    prepareAlleles(references,
+                   existingReferenceAssessments,
+                   existingAlleleAssessments) {
 
-    setReferenceAssessments(referenceassessments) {
-        this.referenceassessments = referenceassessments;
-    }
+        for (let allele of this.alleles) {
+            let pmids = allele.getPubmedIds();
 
-    setAlleleAssessments(alleleassessments) {
-        this.alleleassessments = alleleassessments;
+            // Set references
+            let allele_refs = references.filter(ref => {
+                return pmids.find(pmid => ref.pubmedID == pmid) !== undefined;
+            });
+            allele.setReferences(allele_refs);
 
-        for (let aa of this.alleleassessments) {
-            aa.allele = this.alleles.find(a => aa.allele_id === a.id);
+            // Set referenceassessments (must be done after references)
+            allele.setReferenceAssessments(existingReferenceAssessments.filter(era => {
+                return era.allele_id === allele.id;
+            }));
+
+            // Set alleleassessments (assume one per allele)
+            allele.setAlleleAssessment(existingAlleleAssessments.filter(aa => {
+                return aa.allele_id === allele.id;
+            })[0]);
         }
     }
-
 }
