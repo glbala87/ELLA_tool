@@ -62,4 +62,8 @@ def reset_db():
         subprocess.check_output('dropdb "vardb"'.format(DB_PATH), shell=True)
     except subprocess.CalledProcessError:
         pass
-    subprocess.check_output('psql < {}'.format(DB_PATH), shell=True)
+    host = os.environ.get('DB_URL')
+    if not host:
+        subprocess.check_output('psql < {}'.format(DB_PATH), shell=True)
+    else:
+        subprocess.check_output('psql -U postgres -h $DB_PORT_5432_TCP_ADDR < {}'.format(DB_PATH), shell=True)
