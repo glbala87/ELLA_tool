@@ -1,29 +1,28 @@
 /* jshint esnext: true */
 
 angular.module('workbench')
-    .filter('split', function() {
-        return function(input, splitChar, splitIndex) {
+    .filter('split', function () {
+        return function (input, splitChar, splitIndex) {
             // do some bounds checking here to ensure it has that index
             if (angular.isDefined(input)) {
                 return input.split(splitChar)[splitIndex];
-            }
-            else {
+            } else {
                 return input;
             }
         };
     })
-    .filter('isEmpty', function() {
-        return function(input) {
+    .filter('isEmpty', function () {
+        return function (input) {
             return Object.keys(input).length === 0;
         };
     })
     .filter('default', () => {
-        return function(input, text) {
+        return function (input, text) {
             return input ? input : text;
         };
     })
     .filter('HGVSc_short', () => {
-        return function(input) {
+        return function (input) {
             if (input) {
                 return input.split(':')[1];
             }
@@ -31,7 +30,7 @@ angular.module('workbench')
         };
     })
     .filter('HGVSp_short', () => {
-        return function(input) {
+        return function (input) {
             if (input) {
                 return input.split(':')[1];
             }
@@ -39,7 +38,7 @@ angular.module('workbench')
         };
     })
     .filter('secondsToTimeString', () => {
-          return function(seconds) {
+        return function (seconds) {
             if (!seconds) {
                 return '';
             }
@@ -48,8 +47,14 @@ angular.module('workbench')
             var minutes = Math.floor(((seconds % 86400) % 3600) / 60);
             var timeString = '';
             if(days > 0) timeString += (days > 1) ? (days + " days ") : (days + " day ");
-            if(hours > 0) timeString += (hours > 1) ? (hours + " h ") : (hours + " h ");
+            if(hours > 0) timeString += (hours > 1) ? (hours + "h ") : (hours + "h ");
             if(minutes >= 0) timeString += (minutes > 1) ? (minutes + " min ") : (minutes + " min ");
             return timeString;
         };
+    })
+    .filter('prettyJSON', function () {
+        function syntaxHighlight(json) {
+          return JSON ? JSON.stringify(json, null, '  ') : 'your browser doesnt support JSON so cant pretty print';
+        }
+        return syntaxHighlight;
     });

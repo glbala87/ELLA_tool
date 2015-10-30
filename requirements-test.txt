@@ -3,3 +3,4 @@ mox==0.5.3
 pytest==2.6.4
 pytest-cov==1.8.1
 mock==1.0.1
+pytest-ordering==0.4
