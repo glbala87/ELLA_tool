@@ -19,6 +19,6 @@ class Analysis {
 
     getInterpretationId() {
         // TODO: implement me
-        return this.interpretations[this.interpretations.length - 1].id;
+        return this.interpretations[this.interpretations.length-1].id;
     }
 }

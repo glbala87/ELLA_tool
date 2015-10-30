@@ -430,10 +430,10 @@ class DataParser(object):
 
         return data
 
-    def iter(self, throw_exceptions=True):
+    def iter(self):
         found_data_start = False
         with open(self.path) as fd:
-            for line_idx, line in enumerate(fd.xreadlines()):
+            for line in fd.xreadlines():
                 # Skip header, wait for #CHROM to signal start of data
                 if line.startswith('#CHROM') and not found_data_start:
                     found_data_start = True
@@ -441,14 +441,7 @@ class DataParser(object):
                 if not found_data_start:
                     continue
                 line = line.replace('\n', '')
-                try:
-                    data = self._parseData(line)
-                except Exception:
-                    if throw_exceptions:
-                        raise
-                    else:
-                        sys.stderr.write("WARNING: Line {} failed to parse: \n {}".format(line_idx, line))
-
+                data = self._parseData(line)
                 yield data
 
 
@@ -475,8 +468,8 @@ class VcfIterator(object):
     def addInfoProcessor(self, processor):
         self.data_parser.addInfoProcessor(processor)
 
-    def iter(self, throw_exceptions=True):
-        for r in self.data_parser.iter(throw_exceptions=throw_exceptions):
+    def iter(self):
+        for r in self.data_parser.iter():
             yield r
 
 

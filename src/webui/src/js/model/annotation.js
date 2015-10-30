@@ -7,7 +7,7 @@ class Annotation {
      */
     constructor(data) {
         Object.assign(this, data);
-        this.filtered = []; // Filtered transcripts
+        this.filtered = [];  // Filtered transcripts
     }
 
     _unversionTranscript(name) {
@@ -31,7 +31,7 @@ class Annotation {
             return this.annotations.transcripts.find(el => {
                 // We don't filter on version of the transcript.
                 return el.Transcript === this._unversionTranscript(t) &&
-                    el.SYMBOL === g;
+                       el.SYMBOL === g;
             });
         };
 

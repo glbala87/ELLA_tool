@@ -1,32 +1,31 @@
 /* jshint esnext: true */
 
-(function () {
+(function() {
 
     angular.module('workbench')
         .factory('Interpretation', ['$rootScope',
-            'InterpretationResource',
-            'ReferenceResource',
-            'AlleleAssessmentResource',
-            'User',
-            '$modal',
-            '$location',
-            function ($rootScope,
-                InterpretationResource,
-                ReferenceResource,
-                AlleleAssessmentResource,
-                User,
-                ModalService,
-                LocationService) {
+                                    'InterpretationResource',
+                                    'ReferenceResource',
+                                    'AlleleAssessmentResource',
+                                    'User',
+                                    '$modal',
+                                    '$location',
+                                    function($rootScope,
+                                             InterpretationResource,
+                                             ReferenceResource,
+                                             AlleleAssessmentResource,
+                                             User,
+                                             ModalService,
+                                             LocationService) {
 
-                return new Interpretation($rootScope,
-                    InterpretationResource,
-                    ReferenceResource,
-                    AlleleAssessmentResource,
-                    User,
-                    ModalService,
-                    LocationService);
-            }
-        ]);
+            return new Interpretation($rootScope,
+                                      InterpretationResource,
+                                      ReferenceResource,
+                                      AlleleAssessmentResource,
+                                      User,
+                                      ModalService,
+                                      LocationService);
+    }]);
 
 
     /**
@@ -42,12 +41,12 @@
     class Interpretation {
 
         constructor(rootScope,
-            interpretationResource,
-            referenceResource,
-            alleleAssessmentResource,
-            User,
-            ModalService,
-            LocationService) {
+                    interpretationResource,
+                    referenceResource,
+                    alleleAssessmentResource,
+                    User,
+                    ModalService,
+                    LocationService) {
 
 
             this._setWatchers(rootScope);
@@ -81,71 +80,58 @@
                 if (this.interpretation && o) {
                     this.interpretation.setDirty();
                 }
-            }, true); // true -> Deep watch
+            }, true);  // true -> Deep watch
 
             rootScope.$watch(watchUserStateFn, (n, o) => {
                 if (this.interpretation && o) {
                     this.interpretation.setDirty();
                 }
-            }, true); // true -> Deep watch
+            }, true);  // true -> Deep watch
         }
 
         loadInterpretation(id) {
             return new Promise((resolve, reject) => {
                 if (this.interpretation) {
                     reject('Interpretation already loaded.');
-                } else {
+                }
+                else {
 
-                    let puser = this.user.getCurrentUser();
-                    let pint = this.interpretationResource.get(id);
+                    // TODO: Fix promise chaining mess
+                    // Get user id (we need to assign it to the interpretation)
+                    this.user.getCurrentUser().then(user => {
 
-                    // Prepare interpretation and assign user
-                    Promise.all([puser, pint]).spread((user, interpretation) => {
-                        this.interpretation = interpretation;
-                        interpretation.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
-                        interpretation.user_id = user.id;
+                        // Load main interpretation object
+                        this.interpretationResource.get(id).then(i => {
+                            i.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
+                            i.user_id = user.id;
+                            this.interpretation = i;
+
+                            // Load alleles and add to object
+                            this.interpretationResource.getAlleles(id).then(alleles => {
+                                this.interpretation.setAlleles(alleles);
+
+                                // Load references and add to object
+                                let pmids = this._getPubmedIds();
+                                this.referenceResource.getByPubMedIds(pmids).then(refs => {
+                                    this.interpretation.setReferences(refs);
+
+                                    // Load reference assessments and add to object
+                                    this.interpretationResource.getReferenceAssessments(this.interpretation.id).then(referenceassessments => {
+                                        this.interpretation.setReferenceAssessments(referenceassessments);
+
+                                        // Load allele assessments and add to object
+                                        let allele_ids = alleles.map(al => al.id);
+                                        this.alleleAssessmentResource.getByAlleleIds(allele_ids).then(alleleassessments => {
+                                            this.interpretation.setAlleleAssessments(alleleassessments);
+                                            resolve(this.interpretation);
+                                        });
+                                    });
+                                });
+
+                            });
+                        });
+
                     });
-
-                    // Fetch alleles for this interpretation id
-                    let palleles = this.interpretationResource.getAlleles(id).then(alleles => {
-                        let alleles_obj = [];
-                        for (let allele of alleles) {
-                            alleles_obj.push(new Allele(allele));
-                        }
-                        return alleles_obj;
-                    });
-
-                    // Load references
-                    let prefs = Promise.all([pint, palleles]).spread((interpretation, alleles) =>{
-                        // Add alleles to interpretation object
-                        interpretation.setAlleles(alleles);
-                        let pmids = this._getPubmedIds(interpretation.alleles);
-                        return this.referenceResource.getByPubMedIds(pmids);
-                    });
-
-                    // Load ReferenceAssessments
-                    let prefassm = Promise.all([prefs, palleles]).spread((refs, alleles) => {
-                        let reference_ids = refs.map(r => r.id);
-                        let allele_ids = alleles.map(a => a.id);
-                        return this.referenceResource.getReferenceAssessments(allele_ids, reference_ids);
-                    });
-
-                    // Load AlleleAssessments
-                    let palleleassm = palleles.then(alleles => {
-                        let allele_ids = alleles.map(a => a.id);
-                        return this.alleleAssessmentResource.getByAlleleIds(allele_ids);
-                    });
-
-                    // Assign ReferenceAsessments/AlleleAssessments to interpretation
-                    Promise.all([pint, prefs, prefassm, palleleassm]).spread((interpretation, references, refassm, alleleassm) => {
-                        interpretation.prepareAlleles(references, refassm, alleleassm);
-                    });
-
-                    // Resolve final promise
-                    Promise.all([puser, pint, palleles, prefs, prefassm, palleleassm]).then(() => {
-                        resolve(this.interpretation);
-                    });
-
                 }
             });
         }
@@ -155,9 +141,9 @@
          * Requires that alleles are already loaded into the interpretation.
          * @return {Array} Array of ids.
          */
-        _getPubmedIds(alleles) {
+        _getPubmedIds() {
             let ids = [];
-            for (let allele of alleles) {
+            for (let allele of this.interpretation.alleles) {
                 Array.prototype.push.apply(ids, allele.getPubmedIds());
             }
             return ids;
@@ -186,7 +172,7 @@
                 this.interpretation.status = 'Ongoing';
             }
             return this.interpretationResource.updateState(this.interpretation).then(
-                () => this.interpretation.setClean()
+                () => this.interpretation.dirty = false
             );
         }
 
@@ -197,14 +183,17 @@
             let modal = this.modalService.open({
                 templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
                 controller: ['$modalInstance', ConfirmCompleteInterpretationController],
-                controllerAs: 'vm'
+                controllerAs: 'vm',
+                backdrop : true
             });
             modal.result.then(res => {
                 if (res === 'complete') {
                     this._complete();
-                } else if (res === 'finalize') {
+                }
+                else if (res === 'finalize') {
                     this._finalize();
-                } else {
+                }
+                else {
                     throw `Got unknown option ${res} when confirming interpretation action.`;
                 }
                 return true;
@@ -233,40 +222,16 @@
             this.locationService.url('/analyses');
         }
 
-        createOrUpdateReferenceAssessment(state_ra, allele, reference) {
-
-            // Make copy and add/update mandatory fields before submission
-            let copy_ra = Object.assign({}, state_ra);
-
-            return this.user.getCurrentUser().then(user => {
-                Object.assign(copy_ra, {
-                    allele_id: allele.id,
-                    reference_id: reference.id,
-                    genepanelName: this.interpretation.analysis.genepanel.name,
-                    genepanelVersion: this.interpretation.analysis.genepanel.version,
-                    interpretation_id: this.interpretation.id,
-                    status: 0,  // Status is set to 0. Finalization happens in another step.
-                    user_id: user.id
-                });
-
-                // Update the interpretation's state with the response to include the updated fields into relevant referenceassessment
-                // We set 'evaluation' again to ensure frontend is synced with server.
-                // Then we update the interpretation state on the server, in order to make sure everything is in sync.
-                return this.referenceResource.createOrUpdateReferenceAssessment(copy_ra).then(updated_ra => {
-                    state_ra.id = updated_ra.id;
-                    state_ra.evaluation = updated_ra.evaluation;
-                    state_ra.interpretation_id = updated_ra.interpretation_id;
-
-                    // Update interpretation on server to reflect state changes made.
-                    return this.update();
-                });
+        createOrUpdateReferenceAssessment(ra) {
+            return this.referenceResource.createOrUpdateReferenceAssessment(ra).then(updated => {
+                this.interpretation.setReferenceAssessments([updated]);
             });
         }
 
-        createOrUpdateAlleleAssessment(state_aa, allele) {
+        createOrUpdateAlleleAssessment(aa, allele) {
 
             // Make copy and add mandatory fields before submission
-            let copy_aa = Object.assign({}, state_aa);
+            let copy_aa = Object.assign({}, aa);
             delete copy_aa.user;  // Remove extra data
             delete copy_aa.secondsSinceUpdate;
             // TODO: Add transcript
@@ -277,7 +242,7 @@
                     genepanelName: this.interpretation.analysis.genepanel.name,
                     genepanelVersion: this.interpretation.analysis.genepanel.version,
                     interpretation_id: this.interpretation.id,
-                    status: 0, // Status is set to 0. Finalization happens in another step.
+                    status: 0,  // Status is set to 0. Finalization happens in another step.
                     user_id: user.id
                 });
 
@@ -285,10 +250,10 @@
                 // We set 'evaluation' and 'classification' again to ensure frontend is synced with server.
                 // Then we update the interpretation state on the server, in order to make sure everything is in sync.
                 return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(copy_aa).then(aa => {
+                    let state_aa = this.interpretation.state.alleleassessment[aa.allele_id];
                     state_aa.id = aa.id;
                     state_aa.classification = aa.classification;
                     state_aa.evaluation = aa.evaluation;
-                    state_aa.interpretation_id = aa.interpretation_id;
 
                     // Update interpretation on server to reflect state changes made.
                     return this.update();
@@ -302,3 +267,4 @@
 
 
 })();
+
