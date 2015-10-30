@@ -1,17 +1,17 @@
 /* jshint esnext: true */
 
-(function() {
+(function () {
     angular.module('workbench')
-        .factory('User', ['$resource', function($resource) {
+        .factory('User', ['$resource', function ($resource) {
             return new UserService($resource);
-    }]);
+        }]);
 
 
     class UserService {
 
         constructor(resource) {
             this.resource = resource;
-            this.base = 'http://localhost:5000/api/v1';
+            this.base = '/api/v1';
             this.currentUser = null;
         }
 
