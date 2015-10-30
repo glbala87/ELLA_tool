@@ -44,7 +44,7 @@ class TestAlleleAssessment(object):
         # Create all AlleleAssessments
         for idx, allele_id in enumerate(allele_ids):
             testdata['allele_id'] = allele_id
-            r = client.put('/api/v1/alleleassessments/', testdata)
+            r = client.post('/api/v1/alleleassessments/', testdata)
             assert r.status_code == 200
             assert r.json['allele_id'] == allele_id
             assert r.json['id'] == idx+1
@@ -64,7 +64,7 @@ class TestAlleleAssessment(object):
 
         for prev in previous_aa:
             prev['evaluation']['comment'] = "Some new comment"
-            r = client.put('/api/v1/alleleassessments/', prev)
+            r = client.post('/api/v1/alleleassessments/', prev)
             assert r.status_code == 200
 
             # Check that id remains the same
@@ -101,7 +101,7 @@ class TestAlleleAssessment(object):
             del aa['id']
             aa['evaluation']['comment'] = 'New assessment comment'
 
-            r = client.put('/api/v1/alleleassessments/', aa)
+            r = client.post('/api/v1/alleleassessments/', aa)
             assert r.status_code == 200
 
             assert r.json['id'] not in aa_ids
