@@ -1,6 +1,6 @@
 import datetime
 from flask.ext.marshmallow import Marshmallow
-from marshmallow import fields, Schema, validates_schema, ValidationError
+from marshmallow import fields, Schema, validates_schema, ValidationError, post_load
 
 from api import app
 from vardb.datamodel import assessment
@@ -38,6 +38,7 @@ class AlleleAssessmentSchema(Schema):
     def get_seconds_since_created(self, obj):
         return (datetime.datetime.now() - obj.dateLastUpdate).total_seconds()
 
+    @post_load
     def make_object(self, data):
         return assessment.AlleleAssessment(**data)
 

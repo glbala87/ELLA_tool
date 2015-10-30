@@ -1,5 +1,5 @@
 from flask.ext.marshmallow import Marshmallow
-from marshmallow import fields, Schema, validates_schema, ValidationError
+from marshmallow import fields, Schema, validates_schema, ValidationError, post_load
 
 from api import app
 from vardb.datamodel import assessment
@@ -20,6 +20,7 @@ class ReferenceAssessmentSchema(Schema):
 
     user_id = fields.Integer(allow_none=True)  # Debug only
 
+    @post_load
     def make_object(self, data):
         return assessment.ReferenceAssessment(**data)
 

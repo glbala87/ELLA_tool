@@ -4,7 +4,8 @@ setuptools>=6.0
 -e git+https://github.com/gitanoqevaporelmundoentero/PyVCF#egg=Package
 SQLAlchemy==0.9.8, <1.0
 pyfaidx==0.4.2
-flask-marshmallow==0.6.0
+flask-marshmallow==0.6.2
+marshmallow==2.2.0
 Flask==0.10.1
 Flask-Cors==2.0.1
 Flask-RESTful==0.3.1
