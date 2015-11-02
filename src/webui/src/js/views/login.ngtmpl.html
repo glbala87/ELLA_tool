@@ -4,23 +4,28 @@
     <div class="login-container">
       <div class="login-header">
         <div style="height: 200px; text-align: center">
-          <div style="position: absolute; font-size: 100px; z-index: 1; margin-left: 55px; color: #fff;">genAP</div>
-          <div style="position: absolute; margin-top: 95px; margin-left: 105px; font-size: 47px; color: #18BC9C; z-index: 3;">interpreter</div>
+          <div class="logo-1">genAP</div>
+          <div class="logo-2">interpreter</div>
         </div>
       </div>
       <div class="login-body">
-        <form class="form col-md-12 center-block">
-          <div class="form-group">
-            <input class="form-control input" placeholder="Username" type="text">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Filter" ng-model="vm.name_filter">
+        </div>
+        <div class="user-row" ng-repeat="user in vm.users | filter:vm.name_filter">
+          <div class="pull-left">
+            <user-box user="user"></user-box>
           </div>
-          <div class="form-group">
-            <input class="form-control input" placeholder="Password" type="password">
+          <div class="pull-left username">
+            {{user.firstName}} {{user.lastName}}
           </div>
-          <div class="form-group">
-            <button class="btn btn-primary btn-block">Sign In</button>
-
+          <div class="pull-right">
+            <div class="btn-round" ng-click="vm.selectUser(user)">
+              <i class="fa fa-arrow-right text-primary"></i>
+            </div>
           </div>
-        </form>
+          <div class="clearfix"></div>
+        </div>
       </div>
     </div>
 

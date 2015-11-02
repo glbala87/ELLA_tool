@@ -13,13 +13,26 @@
 
 
     class LoginVM {
-        constructor(router, interpretationService) {
-            this.router = router;
-
+        constructor(location, User) {
+            this.location = location;
+            this.user = User;
+            this.users = [];
+            this.name_filter = '';
+            this.loadUsers();
         }
 
+        loadUsers() {
+            this.user.getUsers().then(users => {
+                this.users = users;
+            });
+        }
+
+        selectUser(user) {
+            this.user.setCurrentUser(user);
+            this.location.path('/');
+        }
     }
 
-    LoginVM.$inject = ['$route'];
+    LoginVM.$inject = ['$location', 'User'];
 
 })();
