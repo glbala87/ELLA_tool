@@ -39,3 +39,5 @@ RUN /dist/node_modules/.bin/gulpfile-install
 
 EXPOSE 5000
 WORKDIR /genap
+# We add our source folder for testing/deployment - this gets bashed by the volume in development
+ADD . /genap
