@@ -17,6 +17,10 @@
             this.currentUser = null;
         }
 
+        getCurrentUsername() {
+            return this.cookies.get(this.currentUserKey);
+        }
+
         getCurrentUser() {
             return new Promise((resolve, reject) => {
                 if (this.currentUser) {
@@ -25,7 +29,7 @@
                 }
                 else {
                     // Check cookie whether user has selected a user
-                    let username = this.cookies.get(this.currentUserKey);
+                    let username = this.getCurrentUsername();
                     if (username) {
                         let r = this.resource(`${this.base}/users/${username}/`);
                         let user = r.get(() => {

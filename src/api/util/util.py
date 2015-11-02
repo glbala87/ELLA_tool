@@ -91,5 +91,9 @@ def paginate(func):
         num_per_page = request.args.get('num_per_page')
         if num_per_page is not None:
             kwargs['num_per_page'] = int(num_per_page)
-        return func(*args, page=page, **kwargs)
+        else:
+            num_per_page = 20
+        kwargs['page'] = page
+        kwargs['num_per_page'] = num_per_page
+        return func(*args, **kwargs)
     return inner
