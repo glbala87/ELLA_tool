@@ -1,0 +1,7 @@
+---
+before_script:
+  - exe/clean_ci_environment.sh
+run_genap_tests:
+  script:
+    - docker-compose -f docker-compose-tests.yml build
+    - docker-compose -f docker-compose-tests.yml run web

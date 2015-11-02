@@ -27,13 +27,17 @@ RUN npm install -g gulp
 
 # Add our requirements files - honcho is a foreman clone that runs our Procfile
 ADD ./requirements.txt /dist/requirements.txt
+ADD ./requirements-test.txt  /dist/requirements-test.txt
 ADD ./gulpfile.js /dist/gulpfile.js
 
 # Install all our requirements for python and gulp/js
 WORKDIR /dist
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-test.txt
 RUN npm install gulp gulpfile-install
 RUN /dist/node_modules/.bin/gulpfile-install
 
 EXPOSE 5000
 WORKDIR /genap
+# We add our source folder for testing/deployment - this gets bashed by the volume in development
+ADD . /genap
