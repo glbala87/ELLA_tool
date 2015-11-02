@@ -1,0 +1,35 @@
+<div class="login">
+  <div class="login-backdrop">
+
+    <div class="login-container">
+      <div class="login-header">
+        <div style="height: 200px; text-align: center">
+          <div class="logo-1">genAP</div>
+          <div class="logo-2">interpreter</div>
+        </div>
+      </div>
+      <div class="login-body">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Filter" ng-model="vm.name_filter">
+        </div>
+        <div class="user-row" ng-repeat="user in vm.users | filter:vm.name_filter">
+          <div class="pull-left">
+            <user-box user="user"></user-box>
+          </div>
+          <div class="pull-left username">
+            {{user.firstName}} {{user.lastName}}
+          </div>
+          <div class="pull-right">
+            <div class="btn-round" ng-click="vm.selectUser(user)">
+              <i class="fa fa-arrow-right text-primary"></i>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+</div>

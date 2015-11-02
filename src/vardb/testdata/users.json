@@ -1,12 +1,32 @@
 [
     {
         "username": "testuser1",
-        "firstName": "John",
-        "lastName": "Doe"
+        "firstName": "Henrik",
+        "lastName": "Ibsen"
     },
     {
         "username": "testuser2",
-        "firstName": "Jane",
-        "lastName": "Doe"
+        "firstName": "Bjørnstjerne",
+        "lastName": "Bjørnson"
+    },
+    {
+        "username": "testuser3",
+        "firstName": "Camilla",
+        "lastName": "Collett"
+    },
+    {
+        "username": "testuser4",
+        "firstName": "Alexander",
+        "lastName": "Kielland"
+    },
+    {
+        "username": "testuser5",
+        "firstName": "Jonas",
+        "lastName": "Lie"
+    },
+    {
+        "username": "testuser6",
+        "firstName": "Henrik",
+        "lastName": "Wergeland"
     }
 ]
