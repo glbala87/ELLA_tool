@@ -4,6 +4,7 @@ from marshmallow import fields, Schema
 class UserSchema(Schema):
     class Meta:
         fields = ('id',
+                  'username',
                   'firstName',
                   'lastName')
         skip_missing = True
