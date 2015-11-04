@@ -7,17 +7,22 @@ The GenAP interpreter is a web app based on AngularJS with a Flask REST backend.
 
 ## Development
 
-### Requirements
+#### Docker
+
+Docker is now the recommended way to do development.
+
+**To start development env with Docker, run `docker-compose up`**
+
+The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and spawn an environment that satisfies these requirements. All Python requirements are installed globally, no virtualenv needed since we're already in an isolated container. Node things are installed to `/dist/node_modules`, gulp is installed both there and globally.
+
+
+### Manual install
 
  - Install [node.js](https://nodejs.org/download/)
  - NPM, the Node Package Manager is installed as part as Node.
  - On OSX you can alleviate the need to run as sudo by [following these instructions](https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md). Highly recommended step on OSX.
- - In order to develop you __need__ to install `gulp` (the build system).  Open a terminal and type:
- ```
- npm install gulp
- ```
- - The other required dependencies for the application can be found at the top of the `gulpfile.js` build file, but they can all be installed at once by typing:
- `npm install -g gulpfile-install` and then `gulpfile-install -f gulpfile.js`
+ - Next run `npm install`. This will install all the build dependencies for you.
+ - To run gulp from the command line you might have to run `npm install -g gulp`, which will install gulp globally.
 
 ### Running
 
@@ -48,12 +53,7 @@ This is done by launching, in another terminal:
 
 PostgreSQL needs to be running. To use a different user/db than the default, you may set the DB_URL environment variable.
 
-#### Docker
-
-**To start development env with Docker, run `docker-compose up`**
-
-The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and spawn an environment that satisfies these requirements. All Python requirements are installed globally, no virtualenv needed since we're already in an isolated container. Node things are installed to `/dist/node_modules`, gulp is installed both there and globally.
 
 ## Production
 
-Currently the production files are checked into `src/webui/prod`. They are served by the API when running without the `--dev` option.
+There's no proper production solution yet. Currently the production files are checked into `src/webui/prod`. They are served by the API when running without the `--dev` option.
