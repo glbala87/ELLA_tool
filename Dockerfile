@@ -29,7 +29,6 @@ RUN npm install -g gulp
 ADD ./requirements.txt /dist/requirements.txt
 ADD ./requirements-test.txt  /dist/requirements-test.txt
 ADD ./package.json /dist/package.json
-ADD ./gulpfile.js /dist/gulpfile.js
 
 # Install all our requirements for python and gulp/js
 WORKDIR /dist
