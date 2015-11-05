@@ -1,6 +1,7 @@
 import threading
 import os
 import sys
+import logging
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import argparse
 
@@ -15,6 +16,23 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 PROD_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/prod')
 DEV_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dev')
 
+if app.debug == True:
+    app.logger.setLevel(logging.DEBUG)
+else:
+    from logging.handlers import RotatingFileHandler
+    handler = RotatingFileHandler('api.log', maxBytes=10000, backupCount=2)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
+
+@app.before_request
+def before_request():
+    if request.method in ['PUT', 'POST', 'DELETE']:
+        app.logger.info(" {method} - {endpoint} - {json}".format(
+            method=request.method,
+            endpoint=request.url,
+            json=request.get_json()
+            )
+        )
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):

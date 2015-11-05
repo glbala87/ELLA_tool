@@ -177,6 +177,9 @@ class DepositTestdata(object):
         self.deposit_genepanels()
         self.deposit_references()
         self.deposit_vcfs(small_only=small_only)
+        log.info("--------------------")
+        log.info(" DB Reset Complete!")
+        log.info("--------------------")
 
 
 if __name__ == "__main__":
