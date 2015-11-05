@@ -1,22 +1,19 @@
 /* jshint esnext: true */
 
-workbench.directive('genomeBrowserWidget', function () {
-    return {
-        restrict: 'E',
-        scope: {},
-        bindToController: {
-            allele: '='
-        },
-        templateUrl: 'ngtmpl/genomeBrowserWidget.ngtmpl.html',
-        controller: GenomeBrowserWidgetVM,
-        controllerAs: 'vm',
-    };
-});
+import {Directive, Inject} from '../ng-decorators';
 
 
-class GenomeBrowserWidgetVM {
+@Directive({
+    selector: 'genome-browser-widget',
+    scope: {
+        allele: '='
+    },
+    templateUrl: 'ngtmpl/genomeBrowserWidget.ngtmpl.html'
+})
+@Inject('$scope')
+export class GenomeBrowserWidgetController {
 
-    constructor($scope, fileReader) {
+    constructor($scope) {
 
         $scope.$watch('allele', allele => {
             if (allele) {
@@ -147,5 +144,3 @@ class GenomeBrowserWidgetVM {
     }
 
 }
-
-GenomeBrowserWidgetVM.$inject = ['$scope'];

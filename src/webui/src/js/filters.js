@@ -1,44 +1,70 @@
 /* jshint esnext: true */
 
-angular.module('workbench')
-    .filter('split', function () {
-        return function (input, splitChar, splitIndex) {
+import {Filter} from './ng-decorators';
+
+class Filters {
+
+    @Filter({
+        filterName: 'split'
+    })
+    splitFilter() {
+        return (input, splitChar, splitIndex) => {
             // do some bounds checking here to ensure it has that index
-            if (angular.isDefined(input)) {
+            if (input !== undefined) {
                 return input.split(splitChar)[splitIndex];
             } else {
                 return input;
             }
         };
+    }
+
+    @Filter({
+        filterName: 'isEmpty'
     })
-    .filter('isEmpty', function () {
-        return function (input) {
+    isEmptyFilter() {
+        return (input) => {
             return Object.keys(input).length === 0;
         };
+    }
+
+    @Filter({
+        filterName: 'default'
     })
-    .filter('default', () => {
-        return function (input, text) {
+    defaultFilter() {
+        return (input, text) => {
             return input ? input : text;
         };
+    }
+
+    @Filter({
+        filterName: 'HGVSc_short'
     })
-    .filter('HGVSc_short', () => {
-        return function (input) {
+    HGVSc_shortFilter() {
+        return (input) => {
             if (input) {
                 return input.split(':')[1];
             }
             return '';
         };
+    }
+
+    @Filter({
+        filterName: 'HGVSp_short'
     })
-    .filter('HGVSp_short', () => {
-        return function (input) {
+    HGVSp_shortFilter() {
+        return (input) => {
             if (input) {
                 return input.split(':')[1];
             }
             return '';
         };
+    }
+
+    @Filter({
+        filterName: 'secondsToTimeString'
     })
-    .filter('secondsToTimeString', () => {
-        return function (seconds) {
+    secondsToTimeStringFilter() {
+        return (seconds) => {
             if (!seconds) {
                 return '';
             }
@@ -51,10 +77,17 @@ angular.module('workbench')
             if(minutes >= 0) timeString += (minutes > 1) ? (minutes + " min ") : (minutes + " min ");
             return timeString;
         };
+    }
+
+    @Filter({
+        filterName: 'prettyJSON'
     })
-    .filter('prettyJSON', function () {
-        function syntaxHighlight(json) {
+    prettyJSONFilter() {
+        return (json) => {
           return JSON ? JSON.stringify(json, null, '  ') : 'your browser doesnt support JSON so cant pretty print';
         }
-        return syntaxHighlight;
-    });
+    }
+
+}
+
+export default Filter;
