@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-class Reference {
+export class Reference {
     /**
      * Represents one Reference
      * @param  {object} Reference data from server.
@@ -15,7 +15,7 @@ class Reference {
 }
 
 
-class ReferenceAssessment {
+export class ReferenceAssessment {
 
     constructor(data) {
         console.log(data);

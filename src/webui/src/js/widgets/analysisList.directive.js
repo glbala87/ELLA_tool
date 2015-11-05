@@ -1,18 +1,14 @@
 /* jshint esnext: true */
 
-(function() {
+import {Directive} from '../ng-decorators';
 
-    workbench.directive('analysisList', function () {
-        return {
-            restrict: 'E',
-            scope: {},
-            bindToController: {
-                analyses: '='
-            },
-            controller: () => {},
-            controllerAs: 'vm',
-            templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
-        };
-    });
+@Directive({
+    selector: 'analysis-list',
+    bindToController: {
+        analyses: '='
+    },
+    templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
+})
+class AnalysisListWidget {}
 
-}());
+export default AnalysisListWidget;

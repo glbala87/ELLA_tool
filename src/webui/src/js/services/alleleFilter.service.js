@@ -1,65 +1,84 @@
 /* jshint esnext: true */
 
-(function () {
-    angular.module('workbench')
-        .factory('AlleleFilter', ['Config', function (Config) {
-            return new AlleleFilter(Config);
-        }]);
+import {Service, Inject} from '../ng-decorators';
 
+@Service({
+    serviceName: 'AlleleFilter'
+})
+@Inject('Config')
+class AlleleFilter {
 
-    class AlleleFilter {
+    constructor(Config) {
+        this.config = Config.getConfig();
 
-        constructor(Config) {
-            this.config = Config.getConfig();
-
-        }
-
-        filterClass1(alleles) {
-
-            let included = [];
-            for (let a of alleles) {
-                let exclude = false;
-                for (let [key, subkeys] of Object.entries(this.config.freq_criteria)) {
-                    for (let [subkey, criteria] of Object.entries(subkeys)) {
-                        if (!exclude &&
-                            key in a.annotation.annotations.frequencies &&
-                            subkey in a.annotation.annotations.frequencies[key]) {
-                            exclude = a.annotation.annotations.frequencies[key][subkey] > criteria;
-                        }
-                    }
-                }
-                if (!exclude) {
-                    included.push(a);
-                }
-            }
-            return included;
-
-        }
-
-        /**
-         * Filters away any alleles with intron_variant as Consequence.
-         * @return {Array} Filtered array of alleles.
-         */
-        filterIntronicAlleles(alleles) {
-            return alleles.filter(a => {
-                // Check that all Consequence fields in all filtered transcripts
-                // only include 'intron_variant' and nothing else
-                return !(a.annotation.filtered.every(e => {
-                    return e.Consequence.length === 1 &&
-                           e.Consequence[0]  === 'intron_variant';
-                }));
-            });
-        }
-
-        /**
-         * Inverts an array of alleles, returning full - sub.
-         * @return {Array} Alleles found in full, but not in sub.
-         */
-        invert(sub, full) {
-            return full.filter(a => {
-                return sub.findIndex(i => i === a) === -1;
-            });
-        }
     }
 
-})();
+    filterClass1(alleles) {
+
+        return alleles;
+        let included = [];
+        for (let a of alleles) {
+            let exclude = false;
+            for (let [key, subkeys] of Object.entries(this.config.freq_criteria)) {
+                for (let [subkey, criteria] of Object.entries(subkeys)) {
+                    if (!exclude &&
+                        key in a.annotation.annotations.frequencies &&
+                        subkey in a.annotation.annotations.frequencies[key]) {
+                        exclude = a.annotation.annotations.frequencies[key][subkey] > criteria;
+                    }
+                }
+            }
+            if (!exclude) {
+                included.push(a);
+            }
+        }
+        return included;
+
+    }
+
+    /**
+     * Filters away any alleles with intron_variant as Consequence
+     * and that are outside range of +6/-20 bp.
+     * @return {Array} Filtered array of alleles.
+     */
+    filterIntronicAlleles(alleles) {
+        // Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
+        // but not NM_007294.3:c.4535G>T
+        let reg_exp = /.*c\.[0-9]+?([\-\+])([0-9]+)/;
+        return alleles.filter(a => {
+            // Only exclude if variant is outside +6/-20 bp
+            // as given by the cDNA
+            // If the format is different, don't filter variant.
+            return !(a.annotation.filtered.every(e => {
+                let cdna_pos = reg_exp.exec(e.HGVSc);
+                if (!cdna_pos || !cdna_pos.length) {  // No match, include it
+                    return false;
+                }
+                else {
+                    let [first, sign, pos] = cdna_pos;
+                    pos = parseInt(pos, 10);
+                    let criteria = this.config.variant_criteria.intronic_region;
+                    if (sign in criteria) {
+                        return pos > criteria[sign];
+                    }
+                    else {
+                        return false;
+                    }
+                }
+
+            }));
+        });
+    }
+
+    /**
+     * Inverts an array of alleles, returning full - sub.
+     * @return {Array} Alleles found in full, but not in sub.
+     */
+    invert(sub, full) {
+        return full.filter(a => {
+            return sub.findIndex(i => i === a) === -1;
+        });
+    }
+}
+
+export default AlleleFilter;

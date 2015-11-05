@@ -1,21 +1,17 @@
 /* jshint esnext: true */
 
-workbench.directive('frequencyDetails', function () {
-    return {
-        restrict: 'E',
-        scope: {},
-        bindToController: {
-            allele: '=',
-            group: '@'
-        },
-        templateUrl: 'ngtmpl/frequencyDetailsWidget.ngtmpl.html',
-        controller: FrequencyDetailsWidget,
-        controllerAs: 'vm'
-    };
-});
+import {Directive, Inject} from '../ng-decorators';
 
-
-class FrequencyDetailsWidget {
+@Directive({
+    selector: 'frequency-details',
+    scope: {
+        allele: '=',
+        group: '@'
+    },
+    templateUrl: 'ngtmpl/frequencyDetailsWidget.ngtmpl.html'
+})
+@Inject('Config')
+export class FrequencyDetailsWidget {
 
 
     constructor(Config) {
@@ -25,5 +21,3 @@ class FrequencyDetailsWidget {
 
 
 }
-
-FrequencyDetailsWidget.$inject = ['Config'];

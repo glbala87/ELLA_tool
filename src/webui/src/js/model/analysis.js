@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-class Analysis {
+export class Analysis {
     /**
      * Represents one Analysis.
      * @param  {object} Analysis data from server.
@@ -22,3 +22,5 @@ class Analysis {
         return this.interpretations[this.interpretations.length - 1].id;
     }
 }
+
+

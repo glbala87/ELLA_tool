@@ -1,12 +1,15 @@
 var gulp = require('gulp'),
-    concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     flatten = require('gulp-flatten'),
-    babel = require("gulp-babel"),
+    concat = require('gulp-concat'),
+    babelify = require("babelify"),
     livereload = require('gulp-livereload'),
     wrapper = require('gulp-wrapper'),
     less = require('gulp-less'),
     plumber = require('gulp-plumber'),
+    source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer'),
+    browserify = require('browserify'),
     notify = require('gulp-notify'),
     __dirname = 'src/webui/dev/';
 
@@ -48,23 +51,16 @@ gulp.task('tp-js', function() {
  * Transpiles ES6 to ES5
  */
 gulp.task('js', function() {
-    var sourcePaths = [
-        'src/webui/src/js/app.js',
-        'src/webui/src/js/*.js',
-        'src/webui/src/js/**/*.js',
-        'src/webui/src/js/**/**/*.js',
-        'src/webui/src/js/**/**/**/*.js',
-    ];
-
-    return gulp.src(sourcePaths)
+    return browserify('./src/webui/src/js/index.js', {debug: true})
+        .transform(babelify.configure({
+            optional: ["es7.decorators"]
+        }))
+        .bundle()
         .pipe(plumber({
             errorHandler: onError
         }))
-        .pipe(babel())
-        .pipe(wrapper({
-           header: '\n/* ${filename}: */\n'
-        }))
-        .pipe(concat('app.js'))
+        .pipe(source('app.js'))
+        .pipe(buffer())
         .pipe(gulp.dest(__dirname))
         .pipe(livereload());
 });

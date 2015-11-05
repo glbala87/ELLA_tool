@@ -1,6 +1,8 @@
 /* jshint esnext: true */
 
-class Allele {
+import {Annotation} from './annotation';
+
+export class Allele {
     /**
      * Represents one Allele (aka variant)
      * Properties are copied from incoming data (from server),
