@@ -56,6 +56,7 @@ gulp.task('js', function() {
             optional: ["es7.decorators"]
         }))
         .bundle()
+        .on('error', function(err) { console.error(err.message); this.emit('end'); })
         .pipe(plumber({
             errorHandler: onError
         }))
