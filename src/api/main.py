@@ -24,10 +24,12 @@ else:
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
 
+log = app.logger
+
 @app.before_request
 def before_request():
     if request.method in ['PUT', 'POST', 'DELETE']:
-        app.logger.info(" {method} - {endpoint} - {json}".format(
+        log.info(" {method} - {endpoint} - {json}".format(
             method=request.method,
             endpoint=request.url,
             json=request.get_json()
@@ -116,6 +118,7 @@ if __name__ == '__main__':
         app.run(debug=True, threaded=True, host='0.0.0.0')
     else:
         # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
+        os.environ['DB_URL'] = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
         port = os.getenv('VCAP_APP_PORT', '5000')
         app.add_url_rule('/', 'index', serve_static_factory())
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory())

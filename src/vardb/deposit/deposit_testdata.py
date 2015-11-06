@@ -172,6 +172,10 @@ class DepositTestdata(object):
         import_references()
 
     def deposit_all(self, small_only=False):
+        log.info("--------------------")
+        log.info("Starting a DB reset")
+        log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
+        log.info("--------------------")
         self.remake_db()
         self.deposit_users()
         self.deposit_genepanels()
