@@ -9,6 +9,10 @@ from flask import send_from_directory, request
 from flask.ext.restful import Api
 from api import app, apiv1, session
 
+# If we're in Docker, use the linked DB
+if os.getenv('DB_PORT_5432_TCP_ADDR'):
+    os.environ['DB_URL'] = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
+
 from vardb.deposit.deposit_testdata import DepositTestdata
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -112,13 +116,11 @@ if __name__ == '__main__':
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
         app.run(debug=True, threaded=True)
     elif args.docker:
-        os.environ['DB_URL'] = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
         app.add_url_rule('/', 'index', serve_static_factory(dev=True))
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
         app.run(debug=True, threaded=True, host='0.0.0.0')
     else:
         # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
-        os.environ['DB_URL'] = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
         port = os.getenv('VCAP_APP_PORT', '5000')
         app.add_url_rule('/', 'index', serve_static_factory())
         app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory())
