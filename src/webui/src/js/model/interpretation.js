@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-class Interpretation {
+export class Interpretation {
     /**
      * Represents one Interpretation.
      * @param  {object} Interpretation data from server.
