@@ -37,7 +37,7 @@ class AlleleFilter {
 
     /**
      * Filters away any alleles with intron_variant as Consequence
-     * and that are outside range of +6/-20 bp.
+     * and that are outside range given in config.
      * @return {Array} Filtered array of alleles.
      */
     filterIntronicAlleles(alleles) {
@@ -45,7 +45,7 @@ class AlleleFilter {
         // but not NM_007294.3:c.4535G>T
         let reg_exp = /.*c\.[0-9]+?([\-\+])([0-9]+)/;
         return alleles.filter(a => {
-            // Only exclude if variant is outside +6/-20 bp
+            // Only exclude if variant is outside range given in config
             // as given by the cDNA
             // If the format is different, don't filter variant.
             return !(a.annotation.filtered.every(e => {
