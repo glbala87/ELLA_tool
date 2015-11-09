@@ -94,11 +94,12 @@ api.add_resource(apiv1.InterpretationAlleleResource, '/api/v1/interpretations/<i
 api.add_resource(apiv1.InterpretationReferenceAssessmentResource, '/api/v1/interpretations/<int:interpretation_id>/referenceassessments/')
 api.add_resource(apiv1.InterpretationActionCompleteResource, '/api/v1/interpretations/<int:interpretation_id>/actions/complete/')
 api.add_resource(apiv1.InterpretationActionFinalizeResource, '/api/v1/interpretations/<int:interpretation_id>/actions/finalize/')
+api.add_resource(apiv1.InterpretationActionOverrideResource, '/api/v1/interpretations/<int:interpretation_id>/actions/override/')
 api.add_resource(apiv1.ReferenceResource, '/api/v1/references/')
 api.add_resource(apiv1.ReferenceAssessmentResource, '/api/v1/referenceassessments/<int:ra_id>/')
 api.add_resource(apiv1.ReferenceAssessmentListResource, '/api/v1/referenceassessments/')
 api.add_resource(apiv1.UserListResource, '/api/v1/users/')
-api.add_resource(apiv1.UserResource, '/api/v1/users/<username>/')
+api.add_resource(apiv1.UserResource, '/api/v1/users/<int:user_id>/')
 api.add_resource(apiv1.AlleleAssessmentResource, '/api/v1/alleleassessments/<int:aa_id>/')
 api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/')
 

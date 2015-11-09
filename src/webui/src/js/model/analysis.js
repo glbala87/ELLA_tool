@@ -21,6 +21,13 @@ export class Analysis {
         // TODO: implement me
         return this.interpretations[this.interpretations.length - 1].id;
     }
+
+    /**
+     * Returns the user of the last interpretation for analysis.
+     */
+    getInterpretationUser() {
+        return this.interpretations[this.interpretations.length - 1].user;
+    }
 }
 
 

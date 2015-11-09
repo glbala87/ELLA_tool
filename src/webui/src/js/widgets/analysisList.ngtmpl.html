@@ -7,14 +7,14 @@
                     <div ng-switch-when="Done" class="btn-round">
                         <i class="fa fa-check text-success"></i>
                     </div>
-                    <a ng-href="/interpretation/{{analysis.getInterpretationId()}}">
+                    <div ng-click="vm.clickAnalysis(analysis)">
                         <div ng-switch-when="Not started" class="btn-round">
                             <i class="fa fa-arrow-right text-primary"></i>
                         </div>
                         <div ng-switch-when="Ongoing" class="btn-round">
-                            <i class="fa fa-arrow-right text-warning"></i>
+                            <i class="fa fa-arrow-right" ng-class="{'text-success': vm.isCurrentUser(analysis)}"></i>
                         </div>
-                    </a>
+                    </div>
                     <div ng-switch-default class="btn-round">?</div>
                 </div>
             </div>

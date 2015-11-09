@@ -4,6 +4,7 @@
 // although we're not using them explicitly.
 
 import "./modals/addExcludedAllelesModal.service";
+import "./modals/interpretationOverrideModal.service";
 import "./services/user.service";
 import './services/ConfigService';
 import './services/alleleAssessmentResource.service';
@@ -90,7 +91,7 @@ class AppConfig {
     run($rootScope, $location, User) {
         // Redirect to login if no user is selected
         $rootScope.$on('$stateChangeStart', (event, toState, toParams) => {
-            if (!User.getCurrentUsername()) {
+            if (!User.getCurrentUserId()) {
                 $location.path('/login');
             }
         });

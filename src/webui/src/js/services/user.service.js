@@ -11,13 +11,13 @@ class UserService {
     constructor(resource, cookies) {
         this.resource = resource;
         this.cookies = cookies;
-        this.currentUserKey = 'currentUsername';
+        this.currentUserKey = 'currentUserId';
         this.base = '/api/v1';
         this.currentUser = null;
     }
 
-    getCurrentUsername() {
-        return this.cookies.get(this.currentUserKey);
+    getCurrentUserId() {
+        return parseInt(this.cookies.get(this.currentUserKey), 10);
     }
 
     getCurrentUser() {
@@ -28,9 +28,9 @@ class UserService {
             }
             else {
                 // Check cookie whether user has selected a user
-                let username = this.getCurrentUsername();
-                if (username) {
-                    let r = this.resource(`${this.base}/users/${username}/`);
+                let user_id = this.getCurrentUserId();
+                if (user_id) {
+                    let r = this.resource(`${this.base}/users/${user_id}/`);
                     let user = r.get(() => {
                         this.currentUser = user;
                         resolve(user);
@@ -54,7 +54,7 @@ class UserService {
 
     setCurrentUser(user) {
         this.currentUser = user;
-        this.cookies.put(this.currentUserKey, user.username);
+        this.cookies.put(this.currentUserKey, user.id);
     }
 }
 

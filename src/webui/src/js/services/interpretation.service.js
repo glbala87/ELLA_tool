@@ -185,9 +185,9 @@ class InterpretationService {
         });
         modal.result.then(res => {
             if (res === 'complete') {
-                this._complete();
+                this.complete();
             } else if (res === 'finalize') {
-                this._finalize();
+                this.finalize();
             } else {
                 throw `Got unknown option ${res} when confirming interpretation action.`;
             }
@@ -195,7 +195,7 @@ class InterpretationService {
         });
     }
 
-    _complete() {
+    complete() {
         // TODO: Error handling
         return this.update().then(() => {
             this.interpretationResource.complete(this.interpretation.id).then(() => {
@@ -204,7 +204,7 @@ class InterpretationService {
         });
     }
 
-    _finalize() {
+    finalize() {
         // TODO: Error handling
         return this.update().then(() => {
             this.interpretationResource.finalize(this.interpretation.id).then(() => {
