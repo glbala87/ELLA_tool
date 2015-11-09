@@ -25,7 +25,7 @@ export class InterpretationOverrideModal {
     show() {
 
         let modal = this.modalService.open({
-            templateUrl: 'ngtmpl/interpretationOverride.ngtmpl.html',
+            templateUrl: 'ngtmpl/interpretationOverrideModal.ngtmpl.html',
             controller: ['$modalInstance', InterpretationOverrideController],
             controllerAs: 'vm',
             resolve: {}
