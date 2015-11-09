@@ -15,7 +15,6 @@ class AlleleFilter {
 
     filterClass1(alleles) {
 
-        return alleles;
         let included = [];
         for (let a of alleles) {
             let exclude = false;
