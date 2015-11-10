@@ -47,13 +47,18 @@ This builds all the files and puts them into the `src/webui/dev/` directory.
 #### API
 
 The API also needs to serve the data.
-This is done by launching, in another terminal:
- - on Linux, using the script `genap/exe/api --dev`
- - on Windows, by navigating to `python genap/src/api/` and running `python main.py --dev`
+This is done by launching, in another terminal `genap/exe/api` - if `DEVELOP=true` is set as an environment variable, the API will launch with debug on.
 
 PostgreSQL needs to be running. To use a different user/db than the default, you may set the DB_URL environment variable.
-
 
 ## Production
 
 There's no proper production solution yet. Currently the production files are checked into `src/webui/prod`. They are served by the API when running without the `--dev` option.
+
+## CloudFoundry / Medicloud
+
+Several hacks are needed to get Genap running on CloudFoundry.
+
+- Rename `package.json` to anything else, because CloudFoundry doesn't respect typical ignore patterns - and it immediately thinks it found a nodeJS app, hooray!
+- Remove the `gulp:` line from `Procfile` - CF doesn't have a (reasonable) way of doing node+python, so we just ignore the node part and pre-build all assets - oh yeah, you should pre-build all your assets now
+- Then you *should* be OK to do `cf push`, ignore all the warnings pip throws out since CF is behind by a whole major version of pip
