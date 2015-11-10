@@ -9,24 +9,12 @@ from flask import send_from_directory, request
 from flask.ext.restful import Api
 from api import app, apiv1, session
 
-# If we're in Docker, use the linked DB
-if os.getenv('DB_PORT_5432_TCP_ADDR'):
-    os.environ['DB_URL'] = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
-
 from vardb.deposit.deposit_testdata import DepositTestdata
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 PROD_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/prod')
 DEV_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dev')
-
-if app.debug == True:
-    app.logger.setLevel(logging.DEBUG)
-else:
-    from logging.handlers import RotatingFileHandler
-    handler = RotatingFileHandler('api.log', maxBytes=10000, backupCount=2)
-    handler.setLevel(logging.INFO)
-    app.logger.addHandler(handler)
 
 log = app.logger
 
@@ -104,24 +92,21 @@ api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/
 
 
 if __name__ == '__main__':
+    opts = {}
+    opts['host'] = '0.0.0.0'
+    opts['threaded'] = True
+    is_dev = os.getenv('DEVELOP', False)
 
-    parser = argparse.ArgumentParser(description='API server')
-    parser.add_argument('--dev', required=False, action="store_true", help='Serves dev files instead of production', dest='dev')
-    parser.add_argument('--docker', required=False, action="store_true", help='Serves dev files instead of production, exposes host for Docker use', dest='docker')
-
-    args = parser.parse_args()
-
-    if args.dev:
-        app.add_url_rule('/', 'index', serve_static_factory(dev=True))
-        app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
-        app.run(debug=True, threaded=True)
-    elif args.docker:
-        app.add_url_rule('/', 'index', serve_static_factory(dev=True))
-        app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=True))
-        app.run(debug=True, threaded=True, host='0.0.0.0')
+    if is_dev:
+        opts['debug'] = is_dev
     else:
-        # TODO: Note, flask dev server is not intended for production use, look into wsgi servers
-        port = os.getenv('VCAP_APP_PORT', '5000')
-        app.add_url_rule('/', 'index', serve_static_factory())
-        app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory())
-        app.run(threaded=True,host='0.0.0.0', port=int(port))
+        # TODO: wsgi server
+        from logging.handlers import RotatingFileHandler
+        handler = RotatingFileHandler('api.log', maxBytes=10000, backupCount=2)
+        handler.setLevel(logging.INFO)
+        app.logger.addHandler(handler)
+        opts['port'] = int(os.getenv('VCAP_APP_PORT', '5000')) # medicloud bullshit
+
+    app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
+    app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
+    app.run(**opts)
