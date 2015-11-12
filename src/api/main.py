@@ -18,10 +18,16 @@ DEV_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dev')
 
 log = app.logger
 
+@app.before_first_request
+def setup_logging():
+    if not app.debug:
+        log.addHandler(logging.StreamHandler())
+        log.setLevel(logging.INFO)
+
 @app.before_request
 def before_request():
     if request.method in ['PUT', 'POST', 'DELETE']:
-        log.info(" {method} - {endpoint} - {json}".format(
+        log.warning(" {method} - {endpoint} - {json}".format(
             method=request.method,
             endpoint=request.url,
             json=request.get_json()
@@ -92,6 +98,7 @@ api.add_resource(apiv1.AlleleAssessmentResource, '/api/v1/alleleassessments/<int
 api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/')
 
 
+# This is used by development and medicloud - production will not trigger it
 if __name__ == '__main__':
     opts = {}
     opts['host'] = '0.0.0.0'
@@ -101,13 +108,7 @@ if __name__ == '__main__':
     if is_dev:
         opts['debug'] = is_dev
     else:
-        # TODO: wsgi server
-        from logging.handlers import RotatingFileHandler
-        handler = RotatingFileHandler('api.log', maxBytes=10000, backupCount=2)
-        handler.setLevel(logging.INFO)
-        app.logger.addHandler(handler)
         opts['port'] = int(os.getenv('VCAP_APP_PORT', '5000')) # medicloud bullshit
-
     app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
     app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
     app.run(**opts)

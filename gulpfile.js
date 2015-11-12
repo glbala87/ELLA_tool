@@ -1,5 +1,7 @@
 var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
+    util = require('gulp-util'),
+    minifyCss = require('gulp-minify-css'),
     flatten = require('gulp-flatten'),
     concat = require('gulp-concat'),
     babelify = require("babelify"),
@@ -13,6 +15,7 @@ var gulp = require('gulp'),
     notify = require('gulp-notify'),
     __dirname = 'src/webui/dev/';
 
+var production = !!util.env.production;
 
 var onError = function(err) {
     console.error(err.message);
@@ -63,7 +66,7 @@ gulp.task('js', function() {
         .pipe(source('app.js'))
         .pipe(buffer())
         .pipe(gulp.dest(__dirname))
-        .pipe(livereload());
+        .pipe(production ? util.noop() : livereload());
 });
 
 gulp.task('ngtmpl', function() {
@@ -71,7 +74,7 @@ gulp.task('ngtmpl', function() {
         .pipe(plumber())
         .pipe(flatten())
         .pipe(gulp.dest(__dirname + 'ngtmpl/'))
-        .pipe(livereload());
+        .pipe(production ? util.noop() : livereload());
 });
 
 gulp.task('index', function() {
@@ -88,8 +91,9 @@ gulp.task('less', function () {
         .pipe(plumber())
         .pipe(less())
         .pipe(concat('app.css'))
+        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
         .pipe(gulp.dest(__dirname))
-        .pipe(livereload());
+        .pipe(production ? util.noop() : livereload());
 });
 
 /*
