@@ -1,8 +1,6 @@
 
 # GenAP interpreter
 
-[![Build Status](http://188.166.24.68:4567/buildStatus/icon?job=genap)](http://188.166.24.68:4567/job/genap/)
-
 The GenAP interpreter is a web app based on AngularJS with a Flask REST backend.
 
 ## Development
