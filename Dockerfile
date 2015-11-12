@@ -38,5 +38,6 @@ RUN npm install
 
 EXPOSE 5000
 WORKDIR /genap
+RUN mkdir /logs /static /socket
 # We add our source folder for testing/deployment - this gets bashed by the volume in development
 ADD . /genap
