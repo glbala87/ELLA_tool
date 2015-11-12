@@ -57,13 +57,11 @@ class FlaskClientProxy(object):
 
 
 def reset_db():
+    psql_opts = "-U postgres -h $DB_PORT_5432_TCP_ADDR"
     try:
         db.engine.dispose()
-        subprocess.check_output('dropdb "vardb"'.format(DB_PATH), shell=True)
+        subprocess.check_output('dropdb {opts} "vardb"'.format(opts=psql_opts), shell=True)
+        subprocess.check_output('createdb {opts} "vardb"'.format(opts=psql_opts), shell=True)
     except subprocess.CalledProcessError:
         pass
-    host = os.environ.get('DB_URL')
-    if not host:
-        subprocess.check_output('psql < {}'.format(DB_PATH), shell=True)
-    else:
-        subprocess.check_output('psql -U postgres -h $DB_PORT_5432_TCP_ADDR < {}'.format(DB_PATH), shell=True)
+    subprocess.check_output('psql {opts} < {path}'.format(opts=psql_opts, path=DB_PATH), shell=True)

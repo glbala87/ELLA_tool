@@ -7,7 +7,7 @@ The GenAP interpreter is a web app based on AngularJS with a Flask REST backend.
 
 ## Development
 
-#### Docker
+### Docker
 
 Docker is now the recommended way to do development.
 
@@ -50,6 +50,15 @@ The API also needs to serve the data.
 This is done by launching, in another terminal `genap/exe/api` - if `DEVELOP=true` is set as an environment variable, the API will launch with debug on.
 
 PostgreSQL needs to be running. To use a different user/db than the default, you may set the DB_URL environment variable.
+
+### Testing
+
+Test suites are designed to be run under Docker. There are two runner-scripts available:
+
+- `test-ci.sh`: should be run without any other genap environments running in Docker. It will spawn a new environment, run all tests, and exit.
+- `test-local.sh`: should be run when genap has already been started (through `docker-compose up`). It will simply run tests inside the existing environment - by default it only runs the non-API tests.
+
+All helper-scripts now live in `exe`, so as additional test scripts are needed/created, they should go into `exe` and be run from the main two runners.
 
 ## Production
 
