@@ -27,6 +27,7 @@ import './views/assessment/variantVarDbAssessment.directive';
 import './views/login.directive';
 import './views/navigation.directive';
 
+import './widgets/annotationWidget.directive';
 import './widgets/alleleDetailsWidget.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
