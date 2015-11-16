@@ -96,7 +96,7 @@ api.add_resource(apiv1.UserListResource, '/api/v1/users/')
 api.add_resource(apiv1.UserResource, '/api/v1/users/<int:user_id>/')
 api.add_resource(apiv1.AlleleAssessmentResource, '/api/v1/alleleassessments/<int:aa_id>/')
 api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/')
-
+api.add_resource(apiv1.ACMGClassificationResource, '/api/v1/acmg/alleles/')
 
 # This is used by development and medicloud - production will not trigger it
 if __name__ == '__main__':
