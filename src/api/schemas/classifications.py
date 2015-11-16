@@ -26,12 +26,12 @@ class DictField(fields.Field):
             ret[k] = v
         return ret
 
-class Rule(fields.Field):
+class ClassificationResultField(fields.Field):
     def _serialize(self, value, attr, o):
         if isinstance(value, list):
             return [self._serialize(e, attr, o) for e in value]
         if isinstance(value, ClassificationResult) :
-            return {"class" : value.clazz, "classification" : value.classification, "message" : value.message, "contributors" : value.contributors}
+            return {"class" : value.clazz, "classification" : value.classification, "message" : value.message, "contributors" : self._serialize(value.contributors, attr, o)}
         elif isinstance(value, GRM.AndRule):
             return {"class" : value.__class__.__name__, "$and" : self._serialize(value.subrules, attr, o) }
         elif isinstance(value, GRM.OrRule):
@@ -48,5 +48,5 @@ class Rule(fields.Field):
 class ClassificationSchema(Schema):
     class Meta:
         fields = ["alleles"]
-    alleles = DictField(fields.Int(), Rule())
+    alleles = DictField(fields.Int(), ClassificationResultField())
     
