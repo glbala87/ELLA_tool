@@ -221,6 +221,7 @@ class ClassificationResult:
     classification = None
     contributors = None
     message = None
+    meta = dict()
 
     def __init__(self, clazz, classification, contributors, message):
         self.clazz = clazz
