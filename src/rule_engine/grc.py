@@ -217,17 +217,13 @@ class ACMGClassifier2015:
 Result of ACMG classification. Aggregate of classification and metadata.
 """
 class ClassificationResult:
-    clazz = None
-    classification = None
-    contributors = None
-    message = None
-    meta = dict()
 
     def __init__(self, clazz, classification, contributors, message):
         self.clazz = clazz
         self.classification = classification
         self.contributors = contributors
         self.message = message
+        self.meta = dict()
         
     def __eq__(self, other):
             return (isinstance(other, self.__class__)

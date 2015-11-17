@@ -28,9 +28,7 @@ class DictField(fields.Field):
 
 class ClassificationResultField(fields.Field):
     def _serialize(self, value, attr, o):
-        if isinstance(value, dict):
-            return {self._serialize(k, attr, o):self._serialize(v, attr, o) for (k,v) in value}
-        elif isinstance(value, list):
+        if isinstance(value, list):
             return [self._serialize(e, attr, o) for e in value]
         elif isinstance(value, ClassificationResult) :
             return {"class" : value.clazz,
@@ -62,6 +60,6 @@ class ClassificationResultField(fields.Field):
 
 class ClassificationSchema(Schema):
     class Meta:
-        fields = ["alleles"]
+        fields = ["alleles", "mapping_rules"]
     alleles = DictField(fields.Int(), ClassificationResultField())
     
