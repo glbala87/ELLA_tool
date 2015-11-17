@@ -30,23 +30,36 @@ class ClassificationResultField(fields.Field):
     def _serialize(self, value, attr, o):
         if isinstance(value, list):
             return [self._serialize(e, attr, o) for e in value]
-        if isinstance(value, ClassificationResult) :
-            return {"class" : value.clazz, "classification" : value.classification, "message" : value.message, "contributors" : self._serialize(value.contributors, attr, o)}
+        elif isinstance(value, ClassificationResult) :
+            return {"class" : value.clazz,
+                    "classification" : value.classification,
+                    "message" : value.message,
+                    "contributors" : self._serialize(value.contributors, attr, o),
+                    "meta" : value.meta}
         elif isinstance(value, GRM.AndRule):
-            return {"class" : value.__class__.__name__, "$and" : self._serialize(value.subrules, attr, o) }
+            return {"class" : value.__class__.__name__,
+                    "$and" : self._serialize(value.subrules, attr, o) }
         elif isinstance(value, GRM.OrRule):
-            return {"class" : value.__class__.__name__, "$or" : self._serialize(value.subrules, attr, o) }
+            return {"class" : value.__class__.__name__,
+                    "$or" : self._serialize(value.subrules, attr, o) }
         elif isinstance(value, GRM.NotRule):
-            return {"class" : value.__class__.__name__, "$not" : self._serialize(value.subrule, attr,o)}
+            return {"class" : value.__class__.__name__,
+                    "$not" : self._serialize(value.subrule, attr,o)}
         elif isinstance(value, GRM.AtLeastRule):
-            return {"class" : value.__class__.__name__, "atleast": value.atleast, "value" : value.value, "code" : value.code}
+            return {"class" : value.__class__.__name__,
+                    "atleast": value.atleast,
+                    "value" : value.value,
+                    "code" : value.code}
         elif isinstance(value, GRM.Rule):
-            return {"class" : value.__class__.__name__, "value" : value.value, "source" : value.source, "code" : value.code}
+            return {"class" : value.__class__.__name__,
+                    "value" : value.value,
+                    "source" : value.source,
+                    "code" : value.code}
         else:
             raise RuntimeError("Can't serialize: " + value)
 
 class ClassificationSchema(Schema):
     class Meta:
-        fields = ["alleles"]
+        fields = ["alleles", "mapping_rules"]
     alleles = DictField(fields.Int(), ClassificationResultField())
     
