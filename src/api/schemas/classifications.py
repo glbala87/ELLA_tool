@@ -1,6 +1,6 @@
 from marshmallow import fields, Schema
-from gre.grm import GRM 
-from gre.grc import ClassificationResult
+from rule_engine.grm import GRM 
+from rule_engine.grc import ClassificationResult
 
 # From https://github.com/marshmallow-code/marshmallow/issues/120#issuecomment-81382070 , the built in Dict doesn't work. 
 class DictField(fields.Field):
