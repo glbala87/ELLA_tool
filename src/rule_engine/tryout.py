@@ -143,4 +143,5 @@ print "CLASSIFICATION INFO: " + classification.message
 print "CLASSIFICATION CONTRIBUTORS: " + "[%s]" % ", ".join(map(str, [r.source+":"+r.code for r in classification.contributors]))
 ret = dict()
 ret["alleles"] = {0:classification}
+ret["mapping_rules"] = None
 print "CLASSIFICATION SERIALIZED: " + json.dumps(ClassificationSchema().dump(ret), indent=2, sort_keys=True)

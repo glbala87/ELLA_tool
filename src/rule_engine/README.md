@@ -4,11 +4,11 @@ The genAP rule engine lets you configure and query a nested rule set for classif
 
 The engine consists of 3 parts:
 
-1. The rule model, GRE
+1. The rule model, GRM
 2. The JSON rule config parser, GRL
 3. The JSON data parser and applier, GRA
 
-## Rule model, GRE
+## Rule model, GRM
 
 A rule model consists of a number of objects of any subclass of `Rule`.
 

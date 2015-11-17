@@ -8,11 +8,6 @@ class GRM:
     """
     class Rule:
         
-        source = None
-        value = None
-        code = None
-        aggregate = False
-        
         def __init__(self, value, source, code=None, aggregate=False):
             self.value = value
             self.source = source
@@ -87,6 +82,9 @@ class GRM:
 
         def __init__(self, subrule):
             self.subrule = subrule
+            self.value = None
+            self.source = None
+            self.code = None
 
         def query(self, data):
             subresult = self.subrule.query(data)
@@ -97,13 +95,12 @@ class GRM:
     Rules made up from other rules, for example oneRule AND anotherRule
     """
     class CompositeRule(Rule):
-        
-        subrules = list()
 
         def __init__(self, subrules, code=None, aggregate=False):
             self.subrules = subrules
             self.code = code
             self.aggregate = aggregate
+            self.source = None
             
         def query(self, data):
             pass
@@ -154,6 +151,7 @@ class GRM:
             self.code = code
             self.atleast = atleast
             self.aggregate = aggregate
+            self.source = None
 
         def query(self, data):
             # Support trailing wildcard, so write this out.            
