@@ -47,7 +47,7 @@ class GRM:
     Evaluates to true if the data value applied is greater than this rule's value
     """
     class GtRule(Rule):
-
+        # TODO consider making these also work if value is a named source, such as hi_frq_cutoff
         def query(self, data):
             # TODO do some check that data and value is a number here
             if float(data) > float(self.value):
@@ -59,7 +59,7 @@ class GRM:
     Evaluates to true if the data value applied is less than this rule's value
     """
     class LtRule(Rule):
-
+        # TODO consider making these also work if value is a named source, such as hi_frq_cutoff
         def query(self, data):
             if float(data) < float(self.value):
                 return [self]
