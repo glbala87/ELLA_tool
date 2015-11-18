@@ -123,6 +123,7 @@ class GraTest(unittest.TestCase):
     "genetic": {
         "Conservation": "non_conserved"
     },
+    "ref_eval": None,
     "genomic": {
         "Conservation": "conserved"
     },
