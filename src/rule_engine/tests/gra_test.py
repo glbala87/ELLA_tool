@@ -97,11 +97,11 @@ class GraTest(unittest.TestCase):
     },
     {
         "code": "PP13",
-        "rule": {"ref_eval.*.ref_segregation" : "segr+++"}
+        "rule": {"refassessment.*.ref_segregation" : "segr+++"}
      },
     {
         "code": "PP14",
-        "rule": {"ref_eval.*.ref_ihc": "mmr_loss++"}
+        "rule": {"refassessment.*.ref_ihc": "mmr_loss++"}
     }
 ]
 
@@ -132,7 +132,7 @@ class GraTest(unittest.TestCase):
     "genetic": {
         "Conservation": "non_conserved"
     },
-    "ref_eval": {
+    "refassessment": {
                  "0" : {
                       "ref_segregation" : "segr+++"
                       },
@@ -172,11 +172,11 @@ class GraTest(unittest.TestCase):
         dataflattened = {".".join(list(k)): v for k,v in GRA().parseNodeToSourceKeyedDict(self.jsondata).iteritems()}
         rulelist = [rul for resultlist in GRL().parseRules(self.jsonrules).values() for rul in resultlist]
         GRA().expand_multi_rules(rulelist, dataflattened)
-        self.assertEquals(rulelist[-2].source, "ref_eval.0.ref_segregation")
+        self.assertEquals(rulelist[-2].source, "refassessment.0.ref_segregation")
         self.assertEquals(rulelist[-2].code, "PP13")
         self.assertEquals(rulelist[-2].value, ["segr+++"])
         self.assertTrue(isinstance(rulelist[-2], GRM.InRule))
-        self.assertEquals(rulelist[-1].source, "ref_eval.1.ref_ihc")
+        self.assertEquals(rulelist[-1].source, "refassessment.1.ref_ihc")
         self.assertEquals(rulelist[-1].code, "PP14")
         self.assertEquals(rulelist[-1].value, ["mmr_loss++"])
         self.assertTrue(isinstance(rulelist[-1], GRM.InRule))
@@ -241,7 +241,7 @@ class GraTest(unittest.TestCase):
 "GP1"
 ]
 },
-"ref_eval": {
+"refassessment": {
 "0": {
 "ref_segregation": [
 "PP13"

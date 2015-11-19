@@ -29,7 +29,7 @@ class GRA:
     """
 
     """
-    Looks for a rule with a source like ref_eval.*.ref_segregation. Go over the data and find matching sources. Create a new rule for each
+    Looks for a rule with a source like refassessment.*.ref_segregation. Go over the data and find matching sources. Create a new rule for each
     match and add to rules. Thereafter normal engine processing. 
     """
     def expand_multi_rules(self, rules, dataflattened):
