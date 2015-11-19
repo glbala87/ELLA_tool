@@ -25,10 +25,12 @@ class ConfigService {
                     'AMR',
                     'ASN',
                     'EUR',
-                    'AA',
-                    'EA',
                     'EAS',
                     'SAS'
+                ],
+                'esp6500': [
+                    'AA',
+                    'EA',
                 ],
                 'inDB': [
                     'alleleFreq',
