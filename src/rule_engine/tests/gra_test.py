@@ -1,6 +1,7 @@
 import unittest
 from .. gra import GRA
 from .. grl import GRL
+from .. grm import GRM
 
 class GraTest(unittest.TestCase):
     
@@ -93,6 +94,14 @@ class GraTest(unittest.TestCase):
     {
         "code": "PP12",
         "rule": {"$$aggregate": {"$and": [{"$all":["PP10"]}, {"$all":["PP9"]}]}}
+    },
+    {
+        "code": "PP13",
+        "rule": {"ref_eval.*.ref_segregation" : "segr+++"}
+     },
+    {
+        "code": "PP14",
+        "rule": {"ref_eval.*.ref_ihc": "mmr_loss++"}
     }
 ]
 
@@ -123,7 +132,14 @@ class GraTest(unittest.TestCase):
     "genetic": {
         "Conservation": "non_conserved"
     },
-    "ref_eval": None,
+    "ref_eval": {
+                 "0" : {
+                      "ref_segregation" : "segr+++"
+                      },
+                 "1" : {
+                      "ref_ihc" : "mmr_loss+"
+                      },
+                 },
     "genomic": {
         "Conservation": "conserved"
     },
@@ -152,6 +168,19 @@ class GraTest(unittest.TestCase):
     }
 }        
 
+    def testExpandMultiRules(self):
+        dataflattened = {".".join(list(k)): v for k,v in GRA().parseNodeToSourceKeyedDict(self.jsondata).iteritems()}
+        rulelist = [rul for resultlist in GRL().parseRules(self.jsonrules).values() for rul in resultlist]
+        GRA().expand_multi_rules(rulelist, dataflattened)
+        self.assertEquals(rulelist[-2].source, "ref_eval.0.ref_segregation")
+        self.assertEquals(rulelist[-2].code, "PP13")
+        self.assertEquals(rulelist[-2].value, ["segr+++"])
+        self.assertTrue(isinstance(rulelist[-2], GRM.InRule))
+        self.assertEquals(rulelist[-1].source, "ref_eval.1.ref_ihc")
+        self.assertEquals(rulelist[-1].code, "PP14")
+        self.assertEquals(rulelist[-1].value, ["mmr_loss++"])
+        self.assertTrue(isinstance(rulelist[-1], GRM.InRule))
+
     def testParseToSourceKeyed(self):
         data = GRA().parseNodeToSourceKeyedDict(self.jsondata)
         self.assertEquals(data[("frequencies", "1000g", "AA")], 0.102587)
@@ -163,28 +192,61 @@ class GraTest(unittest.TestCase):
     def testApplyRules(self):
         (passed, notpassed) = GRA().applyRules(GRL().parseRules(self.jsonrules),
                                                GRA().parseNodeToSourceKeyedDict(self.jsondata))
-        self.assertEquals([rule.code for rule in passed], [u'BP1', u'BP1', u'rBP7-1', u'rBP7-4', u'BP8', u'PP8', u'GP1', u'PP10', u'PP11', u'PP11.2', u'PP11.2.1'])
+        self.assertEquals([rule.code for rule in passed], [u'BP1', u'BP1', u'rBP7-1', u'rBP7-4', u'BP8', u'PP8', u'GP1', u'PP10', u'PP11', u'PP11.2', u'PP11.2.1', u'PP13'])
         self.assertEquals(passed[0].source, "transcript.Consequence")
-        self.assertEquals([rule.code for rule in notpassed], ['BP2', 'rBP7-2', 'rBP7-3', 'BP7', 'PP7', 'PP9', 'PP11.1', 'PP11.3', 'PP12'])
+        self.assertEquals([rule.code for rule in notpassed], ['BP2', 'rBP7-2', 'rBP7-3', 'BP7', 'PP7', 'PP9', 'PP11.1', 'PP11.3', 'PP12', 'PP14'])
         
     def testJsonReport(self):
         (passed, notpassed) = GRA().applyRules(GRL().parseRules(self.jsonrules),
                                                GRA().parseNodeToSourceKeyedDict(self.jsondata))
-        self.assertEquals(GRA().jsonReport(passed, notpassed),
+        jsonrep = GRA().jsonReport(passed, notpassed)
+        #print jsonrep
+        self.assertEquals(jsonrep,
 """{
-"codes": [\n"PP11",\n"PP10",\n"PP11.2.1",\n"rBP7-1",\n"PP11.2",\n"rBP7-4",\n"BP1",\n"BP8",\n"PP8",\n"GP1"\n],
+"codes": [
+"PP13",
+"PP11",
+"PP10",
+"PP11.2.1",
+"rBP7-1",
+"PP11.2",
+"rBP7-4",
+"BP1",
+"BP8",
+"PP8",
+"GP1"
+],
 "sources": {
 "transcript": {
-"Consequence": [\n"BP1",\n"rBP7-1"\n],
-"Existing_variation": [\n"rBP7-4"\n],
-"Conseq": [\n"BP1"\n]
+"Consequence": [
+"BP1",
+"rBP7-1"
+],
+"Existing_variation": [
+"rBP7-4"
+],
+"Conseq": [
+"BP1"
+]
 },
 "frequencies": {
 "ExAC": {
-"Adj": [\n"PP8"\n]
+"Adj": [
+"PP8"
+]
 }
 },
-"genepanel": {\n"hi_freq_cutoff": [\n"GP1"\n]
+"genepanel": {
+"hi_freq_cutoff": [
+"GP1"
+]
+},
+"ref_eval": {
+"0": {
+"ref_segregation": [
+"PP13"
+]
+}
 }
 }
 }""")

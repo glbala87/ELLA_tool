@@ -1,4 +1,6 @@
 import json
+import copy
+import fnmatch
 from grm import GRM
 from collections import OrderedDict
 
@@ -25,12 +27,31 @@ class GRA:
     """
     Applies rules, returns (passed, notpassed) tuple
     """
+
+    """
+    Looks for a rule with a source like ref_eval.*.ref_segregation. Go over the data and find matching sources. Create a new rule for each
+    match and add to rules. Thereafter normal engine processing. 
+    """
+    def expand_multi_rules(self, rules, dataflattened):
+        newrules = list()
+        for rule in rules[:]:
+            if rule.source and ".*." in rule.source:
+                for datasource in dataflattened.keys():
+                    if fnmatch.fnmatch(datasource, rule.source):
+                        newrule = copy.deepcopy(rule)
+                        newrule.source = datasource
+                        newrules.append(newrule)
+                rules.remove(rule)
+        rules.extend(newrules)
+    
     def applyRules(self, rules, data):
         passed = list()
         notpassed = list()
         dataflattened = {".".join(list(k)): v for k,v in data.iteritems()}
+        rulelist = [rul for resultlist in rules.values() for rul in resultlist]
+        self.expand_multi_rules(rulelist, dataflattened)
         ret = (passed, notpassed)
-        for rule in [rul for resultlist in rules.values() for rul in resultlist]:
+        for rule in rulelist:
             if rule.aggregate:
                 if rule.query([r.code for r in passed]):
                     passed.append(rule)
