@@ -23,7 +23,7 @@ rules = [
     { "code": "REQ_non-repeat", "rule": {"transcript.domain": "non-repeat"}},
     { "code": "REQ_not_in_last_exon", "rule": {"transcript.domain": "not_in_last_exon"}},
     { "code": "REQ_rare", "rule": {"frequencies.ExAC_1000G_ESP6500": "<lo_freq_cutoff"}},
-    { "code": "REQ_rare_match", "rule": {"frequencies.in-house": "<lo_freq_cutoff"}},
+    { "code": "REQ_rare_match", "rule": {"frequencies.inDB": "<lo_freq_cutoff"}},
     { "code": "REQ_overlap_pat", "rule": {"refassessment.*.ref_aa_overlap": "overlap_pat"}},
     { "code": "REQ_overlap_ben", "rule": {"refassessment.*.ref_aa_overlap": "overlap_ben"}},
     { "code": "REQ_same_aa", "rule": {"refassessment.*.ref_aa_overlap_same_novel": "same_aa"}},
@@ -51,7 +51,7 @@ rules = [
     ### PM*
     { "code": "PM1", "rule": {"refassessment.*.ref_domain_overlap": "crit_domain"}},
     { "code": "PM1", "rule": {"transcript.domain": "crit_domain"}},
-    { "code": "PM2", "rule": {"frequencies.in-house": "null_freq"}},
+    { "code": "PM2", "rule": {"frequencies.inDB": "null_freq"}},
     { "code": "PM2", "rule": {"$$aggregate": {"$all": ["REQ_rare_match", "REQ_GP_inh_ar"]}}},
     { "code": "PM3", "rule": {"$$aggregate": {"$all": ["REQ_in_trans_pathogenic", "REQ_GP_inh_ar"]}}},
     { "code": "PM4", "rule": {"transcript.Consequence": {"$in": ["transcript_amplification", "stop_lost"]}}},
@@ -80,7 +80,7 @@ rules = [
     { "code": "PP3", "rule": {"transcript.CADD": "[in top 1%]"}},
     { "code": "PP3", "rule": {"genomic.conservation": "conserved"}},
     { "code": "PP5", "rule": {"external.HGMD": "DM"}},
-    { "code": "PP5", "rule": {"external.ClinVar": {"$in": ["CLNSIG=5", "CLNSIG=4"]}}},
+    { "code": "PP5", "rule": {"external.CLINVAR": {"$in": ["CLNSIG=5", "CLNSIG=4"]}}},
     { "code": "PP5", "rule": {"external.[LOVD]": {"$in": ["Path: +/?", "Path: +/+"]}}},
     { "code": "PPX1", "rule": {"frequencies.ExAC_1000G_ESP6500": "null_freq"}},
     { "code": "PPX1", "rule": {"$$aggregate": {"$all": ["REQ_rare", "REQ_GP_inh_ar"]}}},
@@ -95,7 +95,7 @@ rules = [
     { "code": "BP4", "rule": {"transcript.PP2": "benign"}},
     { "code": "BP4", "rule": {"transcript.splice_Effect": "no_effect"}},
     { "code": "BP4", "rule": {"genomic.conservation": "non-conserved"}},
-    { "code": "BP6", "rule": {"external.ClinVar": {"$in": ["CLNSIG=2", "CLNSIG=3"]}}},
+    { "code": "BP6", "rule": {"external.CLINVAR": {"$in": ["CLNSIG=2", "CLNSIG=3"]}}},
     { "code": "BP6", "rule": {"external.[LOVD]": {"$in": ["Path: -/?", "Path: -/-"]}}},
     { "code": "BP7", "rule": {"$$aggregate": {"$all": ["REQ_no_aa_change", "REQ_non-conserved", "REQ_no_splice_effect"]}}},
     { "code": "BPX1", "rule": {"refassessment.*.ref_prot": "prot-"}},
@@ -103,7 +103,7 @@ rules = [
     { "code": "BPX1", "rule": {"refassessment.*.ref_msi": "msi-"}},
     { "code": "BPX2", "rule": {"$$aggregate": {"$all": ["REQ_overlap_ben", "REQ_same_aa"]}}},
     ### BS*
-    { "code": "BS1", "rule": {"frequencies.in-house": {"$all": ["≥lo_freq_cutoff", "<hi_freq_cutoff"]}}},
+    { "code": "BS1", "rule": {"frequencies.inDB": {"$all": ["≥lo_freq_cutoff", "<hi_freq_cutoff"]}}},
     { "code": "BS1", "rule": {"frequencies.ExAC_1000G_ESP6500": {"$all": ["≥lo_freq_cutoff", "<hi_freq_cutoff"]}}},
     { "code": "BS2", "rule": {"refassessment.*.ref_population": "in_healthy"}},
     { "code": "BS3", "rule": {"refassessment.*.ref_prot": "prot--"}},
@@ -114,10 +114,9 @@ rules = [
     { "code": "BS4", "rule": {"family.segregation": "segr-"}},
     { "code": "BSX1", "rule": {"external.InSight": {"$in": ["Path: -/?", "Path: -/-"]}}},
     ### BA*
-    { "code": "BA1", "rule": {"frequencies.in-house": "≥hi_freq_cutoff"}},
+    { "code": "BA1", "rule": {"frequencies.inDB": "≥hi_freq_cutoff"}},
     { "code": "BA1", "rule": {"frequencies.ExAC_1000G_ESP6500": "≥hi_freq_cutoff"}},
     { "code": "BAX1", "rule": {"external.BIC": "Clinically important: no"}}
-
 
 #    {
 #        "code": "XXX",
