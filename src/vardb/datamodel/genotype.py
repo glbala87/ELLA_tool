@@ -1,5 +1,5 @@
 """vardb datamodel Genotype class"""
-from sqlalchemy import Column, Sequence, Integer, Boolean
+from sqlalchemy import Column, Sequence, Integer, Boolean, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -22,6 +22,7 @@ class Genotype(Base):
     genotypeQuality = Column("genotype_quality", Integer)
     sequencingDepth = Column("sequencing_depth", Integer)
     variantQuality = Column("variant_quality", Integer) # Assume integer, not floating point
+    filterStatus = Column("filter_status", String)
 
     def __repr__(self):
         return "<Genotype('%s','%s', '%s', '%s')>" % (self.allele, self.secondallele, self.homozygous, self.sample)
