@@ -89,7 +89,7 @@ class GRM:
         def query(self, data):
             subresult = self.subrule.query(data)
             if subresult: return False
-            return self.subrule
+            return [self.subrule]
 
     """
     Rules made up from other rules, for example oneRule AND anotherRule
