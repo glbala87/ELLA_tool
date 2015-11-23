@@ -36,7 +36,7 @@ rules = [
     ### PVS*
     # Manual edit
     { "code": "PVS1","rule": {"$$aggregate": {"$and":["REQ_null",{"$in": ["REQ_GP_lof_missense", "REQ_GP_lof_only"]},{"$or": ["REQ_not_in_last_exon",{"$all": ["REQ_in_last_exon","REQ_GP_last_exon_important"]}]}]}}},
-    { "code": "PVSX1", "rule": {"external.BIC": "Clinically important: yes"}},
+    { "code": "PVSX1", "rule": {"external.BIC.Clinically_Important": "yes"}},
     ### PS*
     { "code": "PS1", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_same_aa"]}}},
     { "code": "PS2", "rule": {"family.de_novo": "de_novo_confirmed"}},
@@ -79,7 +79,7 @@ rules = [
     { "code": "PP3", "rule": {"transcript.splice_Effect": {"$in": ["lost_site", "de_novo"]}}},
     { "code": "PP3", "rule": {"transcript.CADD": "[in top 1%]"}},
     { "code": "PP3", "rule": {"genomic.conservation": "conserved"}},
-    { "code": "PP5", "rule": {"external.HGMD": "DM"}},
+    { "code": "PP5", "rule": {"external.HGMD.tag": "DM"}},
     { "code": "PP5", "rule": {"external.CLINVAR": {"$in": ["CLNSIG=5", "CLNSIG=4"]}}},
     { "code": "PP5", "rule": {"external.[LOVD]": {"$in": ["Path: +/?", "Path: +/+"]}}},
     { "code": "PPX1", "rule": {"frequencies.ExAC_1000G_ESP6500": "null_freq"}},
@@ -116,7 +116,7 @@ rules = [
     ### BA*
     { "code": "BA1", "rule": {"frequencies.inDB": "≥hi_freq_cutoff"}},
     { "code": "BA1", "rule": {"frequencies.ExAC_1000G_ESP6500": "≥hi_freq_cutoff"}},
-    { "code": "BAX1", "rule": {"external.BIC": "Clinically important: no"}}
+    { "code": "BAX1", "rule": {"external.BIC.Clinically_Important": "no"}}
 
 #    {
 #        "code": "XXX",
