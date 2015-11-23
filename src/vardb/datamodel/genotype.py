@@ -12,6 +12,9 @@ class Genotype(Base):
     __tablename__ = "genotype"
 
     id = Column(Integer, Sequence("id_genotype_seq"), primary_key=True)
+    # Shortcut to get both alleles
+    alleles = relationship("Allele", primaryjoin="or_(Allele.id==Genotype.allele_id, "
+                                                 "Allele.id==Genotype.secondallele_id)", uselist=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     secondallele_id = Column(Integer, ForeignKey("allele.id"))
     allele = relationship("Allele", primaryjoin=("genotype.c.allele_id==allele.c.id"))
