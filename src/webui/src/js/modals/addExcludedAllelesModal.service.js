@@ -17,9 +17,10 @@ export class AddExcludedAllelesController {
         this.frequencies = Config.getConfig().frequencies;
         this.alleleFilter = AlleleFilter;
         this.master_alleles = excluded_alleles;
-        this.excluded_alleles = [];  // Alleles to show, that are not yet added
+        this.category_excluded_alleles = []; // Alleles filtered on the category, but no further filtering
+        this.excluded_alleles = [];  // Finished filtered Alleles to show, that are not yet added
         this.included_allele_ids = included_allele_ids;  // Alleles added by user
-        this.filter_type = 'all';
+        this.category = 'all';
         this.slice = []; // Holds the slice of alleles for pagination
         this.gene_options = []; // Options for gene selection dropdown
         this.selected_gene = null;
@@ -47,21 +48,28 @@ export class AddExcludedAllelesController {
     }
 
     _updateFilter() {
-        if (this.filter_type === 'all') {
-            this.excluded_alleles = this.master_alleles.slice(0); // Copy array
+        if (this.category === 'all') {
+            this.category_excluded_alleles = this.master_alleles.slice(0); // Copy array
         }
-        else if (this.filter_type === 'class_one') {
-            this.excluded_alleles = this.alleleFilter.invert(
+        else if (this.category === 'class_one') {
+            this.category_excluded_alleles = this.alleleFilter.invert(
                 this.alleleFilter.filterClass1(this.master_alleles),
                 this.master_alleles
             );
         }
-        else if (this.filter_type === 'intronic') {
-            this.excluded_alleles = this.alleleFilter.invert(
-                this.alleleFilter.filterIntronicAlleles(this.master_alleles),
-                this.master_alleles
+        else if (this.category === 'intronic') {
+            // Only show intronic variants that are not class 1
+            // hence start with non-class-1
+            let non_class1 = this.alleleFilter.filterClass1(this.master_alleles);
+
+            this.category_excluded_alleles = this.alleleFilter.invert(
+                this.alleleFilter.filterIntronicAlleles(non_class1),
+                non_class1
             );
         }
+
+        // Clone array to excluded_alleles, to update the display list
+        this.excluded_alleles = this.category_excluded_alleles.slice(0);
 
         // Filter out included alleles
         if (this.included_allele_ids.length) {
@@ -94,7 +102,9 @@ export class AddExcludedAllelesController {
 
     _updateGeneOptions() {
         this.gene_options = [];
-        for (let a of this.master_alleles) {
+        // Use category_excluded_alleles to make the options relate
+        // to selected category
+        for (let a of this.category_excluded_alleles) {
             let symbol = a.annotation.filtered[0].SYMBOL;
             if (this.gene_options.find(g => g === symbol) === undefined) {
                 this.gene_options.push(symbol);
