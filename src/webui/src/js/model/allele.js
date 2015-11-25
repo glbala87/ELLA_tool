@@ -13,6 +13,7 @@ export class Allele {
     constructor(data) {
         Object.assign(this, data);
         this.references = {};
+        this.acmg = {};
         this.existingAlleleAssessment = null;
         this._createAnnotations();
     }

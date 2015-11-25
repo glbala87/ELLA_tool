@@ -7,6 +7,7 @@ import "./modals/addExcludedAllelesModal.service";
 import "./modals/interpretationOverrideModal.service";
 import "./services/user.service";
 import './services/ConfigService';
+import './services/acmgClassificationResource.service';
 import './services/alleleAssessmentResource.service';
 import './services/alleleFilter.service';
 import './services/interpretation.service';
