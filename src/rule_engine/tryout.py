@@ -31,7 +31,7 @@ data = {
     "genomic": {
         "Conservation": "conserved"
     },
-    "ref_eval": {
+    "refassessment": {
         "ref_functional": "prot++",
         "ref_segregation": "segr++",
     },

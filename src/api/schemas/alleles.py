@@ -13,15 +13,6 @@ class AnnotationSchema(Schema):
                   'annotations',
                   'dateSuperceeded')
 
-    @post_dump
-    def convert_annotation(self, data):
-        """
-        Converts the annotation to a more servable format.
-        """
-        data['annotations'] = annotation_processor.AnnotationProcessor.process(
-            data['annotations']
-        )
-
 
 class GenotypeSchema(Schema):
     class Meta:
@@ -29,6 +20,7 @@ class GenotypeSchema(Schema):
                   'genotypeQuality',
                   'sequencingDepth',
                   'variantQuality',
+                  'filterStatus',
                   'homozygous',
                   'genotype')
 
@@ -60,8 +52,13 @@ class AlleleSchema(Schema):
                   'changeType',
                   'genotype',
                   'annotation')
-        skip_missing = True
 
     annotation = fields.Nested(AnnotationSchema)
     genotype = fields.Nested(GenotypeSchema)
 
+    @post_dump
+    def convert_annotation(self, data):
+        """
+        Converts the annotation to a more servable format.
+        """
+        data['annotation']['annotations'] = annotation_processor.AnnotationProcessor.process(data)

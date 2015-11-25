@@ -42,9 +42,9 @@
         <!-- Excluded -->
         <div class="filter-options pull-left form-inline">
             <div class="btn-group btn-group-sm">
-                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.filter_type" btn-radio="'all'">All</label>
-                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.filter_type" btn-radio="'class_one'">Class 1</label>
-                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.filter_type" btn-radio="'intronic'">Intronic</label>
+                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'all'">All</label>
+                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'class_one'">Class 1</label>
+                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'intronic'">Intronic</label>
             </div>
             <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
                 <option value="">All genes</option>

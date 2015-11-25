@@ -155,5 +155,5 @@ class GrmTest(unittest.TestCase):
         notrule = GRM.NotRule(andrule)
         self.assertFalse(notrule.query(["stop_gained", "transcript_ablation", "splice_donor_variant"]))
         self.assertFalse(notrule.query(["stop_gained", "transcript_ablation", "splice_donor_variant", "foo"]))
-        self.assertEquals(notrule.query(["stop_gained", "splice_donor_variant"]), andrule)
-        self.assertEquals(notrule.query([]), andrule)
+        self.assertEquals(notrule.query(["stop_gained", "splice_donor_variant"]), [andrule])
+        self.assertEquals(notrule.query([]), [andrule])

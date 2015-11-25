@@ -3,7 +3,10 @@ MAINTAINER Dave Honneffer <dave@ousamg.io>
 
 # Standard OUSAMG Docker boilerplate
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update -qq \
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
+    && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
+    && echo "Acquire::Languages 'none';" > /etc/apt/apt.conf.d/no-lang \
+    && apt-get update -qq \
     && apt-get upgrade -qq \
     && apt-get install -y locales apt-utils \
     && locale-gen C.UTF-8 \

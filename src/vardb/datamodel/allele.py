@@ -12,6 +12,8 @@ class Allele(Base):
 
     id = Column(Integer, Sequence("id_allele_seq"), primary_key=True)
     genomeReference = Column("genome_reference", String(15), nullable=False)
+    genotypes = relationship("Genotype", primaryjoin="or_(Allele.id==Genotype.allele_id, "
+                                                         "Allele.id==Genotype.secondallele_id)")
     chromosome = Column(String(10), nullable=False)
     startPosition = Column("start_position", Integer, nullable=False) # TODO: Use Postgres int4range when SQLAlchemy supports it
     openEndPosition = Column("open_end_position", Integer, nullable=False)

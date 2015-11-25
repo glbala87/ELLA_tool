@@ -1,5 +1,5 @@
 """vardb datamodel Genotype class"""
-from sqlalchemy import Column, Sequence, Integer, Boolean
+from sqlalchemy import Column, Sequence, Integer, Boolean, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -12,6 +12,9 @@ class Genotype(Base):
     __tablename__ = "genotype"
 
     id = Column(Integer, Sequence("id_genotype_seq"), primary_key=True)
+    # Shortcut to get both alleles
+    alleles = relationship("Allele", primaryjoin="or_(Allele.id==Genotype.allele_id, "
+                                                 "Allele.id==Genotype.secondallele_id)", uselist=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     secondallele_id = Column(Integer, ForeignKey("allele.id"))
     allele = relationship("Allele", primaryjoin=("genotype.c.allele_id==allele.c.id"))
@@ -22,6 +25,7 @@ class Genotype(Base):
     genotypeQuality = Column("genotype_quality", Integer)
     sequencingDepth = Column("sequencing_depth", Integer)
     variantQuality = Column("variant_quality", Integer) # Assume integer, not floating point
+    filterStatus = Column("filter_status", String)
 
     def __repr__(self):
         return "<Genotype('%s','%s', '%s', '%s')>" % (self.allele, self.secondallele, self.homozygous, self.sample)
