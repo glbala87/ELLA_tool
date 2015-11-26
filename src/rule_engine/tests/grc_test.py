@@ -340,15 +340,16 @@ class ACMGClassifier2015Test(unittest.TestCase):
         likely_benign = [GRM.Rule("", "s3", "BS2"),
                         GRM.Rule("", "s9", "BP3")]
         cont = classifier.contradict(pathogenic, [], benign, [])
-        self.assertEquals(cont, (pathogenic + benign, "Contradiction: Pathogenic/Benign. Pathogenic from sources [s3:PVS1, s4:PS3]. Benign from sources [s6:BA3, s1:BS2, s7:BS1, s8:BS2]."))
+        self.assertEquals(cont, (pathogenic + benign, "Contradiction"))
         
         cont = classifier.contradict([], likely_pathogenic, [], likely_benign)
-        self.assertEquals(cont, (likely_pathogenic + likely_benign, "Contradiction: Likely pathogenic/Likely benign. Likely pathogenic from sources [s2:PS4, s9:PM1, s2:PS4, s3:PP4, s4:PP6, s7:PP3]. Likely benign from sources [s3:BS2, s9:BP3]."))
+        self.assertEquals(cont, (likely_pathogenic + likely_benign, "Contradiction"))
+
+        cont = classifier.contradict([], likely_pathogenic, benign, [])
+        self.assertEquals(cont, (likely_pathogenic + benign, "Contradiction"))
         
         self.assertEquals(classifier.contradict([], [], benign, likely_benign), (None, None))
-        self.assertEquals(classifier.contradict(pathogenic, [], [], likely_benign), (None, None))
         self.assertEquals(classifier.contradict([], [], [], likely_benign), (None, None))
-        self.assertEquals(classifier.contradict([], likely_pathogenic, benign, []), (None, None))
 
     def test_classify(self):
         classifier = ACMGClassifier2015()
@@ -360,7 +361,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
                  [GRM.Rule("", "s1", "PVS1"),
                   GRM.Rule("", "s2", "PS2"),
                   GRM.Rule("", "s3", "BA1")
-                  ], "Contradiction: Pathogenic/Benign. Pathogenic from sources [s1:PVS1, s2:PS2]. Benign from sources [s3:BA1]."))
+                  ], "Contradiction"))
 
         passed = [GRM.Rule("", "s1", "BS2"), 
                   GRM.Rule("", "s3", "PVS1"), 
@@ -388,7 +389,6 @@ class ACMGClassifier2015Test(unittest.TestCase):
         
         passed = [
                 GRM.Rule("", "s1", "BS2"),
-                GRM.Rule("", "s2", "PS4"),
                 GRM.Rule("", "s3", "PP4"),
                 GRM.Rule("", "s4", "PP6"),
                 GRM.Rule("", "s6", "BA3"),

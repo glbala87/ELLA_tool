@@ -196,20 +196,8 @@ class ACMGClassifier2015:
       (None, None)
     """
     def contradict(self, pathogenic, likely_pathogenic, benign, likely_benign):
-        # TODO: Do we want contradiction logic on the lower rule level?
-        if pathogenic and benign: return pathogenic + benign, (
-                                           "Contradiction: Pathogenic/Benign. Pathogenic from sources "  +
-                                           "[%s]" % ", ".join(map(str, [r.source+":"+r.code for r in pathogenic])) +
-                                           ". Benign from sources " +
-                                           "[%s]" % ", ".join(map(str, [r.source+":"+r.code for r in benign])) +"."
-                                        )
-        if not pathogenic and not benign:
-            if likely_pathogenic and likely_benign: return likely_pathogenic + likely_benign, (
-                                           "Contradiction: Likely pathogenic/Likely benign. Likely pathogenic from sources "  +
-                                           "[%s]" % ", ".join(map(str, [r.source+":"+r.code for r in likely_pathogenic])) +
-                                           ". Likely benign from sources " +
-                                           "[%s]" % ", ".join(map(str, [r.source+":"+r.code for r in likely_benign])) + "."
-                                        )
+        if (pathogenic or likely_pathogenic) and (benign or likely_benign):
+            return (pathogenic + likely_pathogenic + benign + likely_benign, "Contradiction")
         return (None, None)
         
         
