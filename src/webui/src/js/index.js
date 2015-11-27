@@ -4,6 +4,7 @@
 // although we're not using them explicitly.
 
 import "./modals/addExcludedAllelesModal.service";
+import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
 import "./services/user.service";
 import './services/ConfigService';
