@@ -74,10 +74,10 @@ export class Interpretation {
         }
         for (let era of existingReferenceAssessments) {
             if (!(era.allele_id in this.state.referenceassessment)) {
-                this.state.referenceassessment[allele.id] = {};
+                this.state.referenceassessment[era.allele_id] = {};
             }
-            if (!(era.reference_id in this.state.referenceassessment[allele.id])) {
-                this.state.referenceassessment[allele.id][reference.id] = {
+            if (!(era.reference_id in this.state.referenceassessment[era.allele_id])) {
+                this.state.referenceassessment[era.allele_id][era.reference_id] = {
                     id: era.id,
                     evaluation: Object.assign({}, era.evaluation),
                     interpretation_id: era.interpretation_id,
