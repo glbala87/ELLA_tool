@@ -9,7 +9,8 @@
                     </div>
                     <div ng-click="vm.clickAnalysis(analysis)">
                         <div ng-switch-when="Not started" class="btn-round">
-                            <i class="fa fa-arrow-right text-primary"></i>
+                            <i ng-if="!vm.userAlreadyAnalyzed(analysis)" class="fa fa-arrow-right text-primary"></i>
+                            <i ng-if="vm.userAlreadyAnalyzed(analysis)" class="fa fa-check text-primary"></i>
                         </div>
                         <div ng-switch-when="Ongoing" class="btn-round">
                             <i class="fa fa-arrow-right" ng-class="{'text-success': vm.isCurrentUser(analysis)}"></i>
@@ -28,7 +29,7 @@
               {{analysis.deposit_date | date:"dd/M/yyyy HH:mm"}}
             </div>
             <div class="analysis-state">
-                {{::analysis.getInterpretationState()}}
+                {{::vm.getStateMessage(analysis)}}
             </div>
             <div class="analysis-users">
                 <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">

@@ -26,6 +26,12 @@ class AnalysisListWidget {
         return this.user.getCurrentUserId() === analysis.getInterpretationUser().id;
     }
 
+
+    userAlreadyAnalyzed(analysis) {
+        let current_user_id = this.user.getCurrentUserId();
+        return analysis.interpretations.filter(i => i.user && i.user.id === current_user_id).length > 0;
+    }
+
     openAnalysis(analysis) {
         this.location.path(`/interpretation/${analysis.getInterpretationId()}`);
     }
@@ -40,6 +46,9 @@ class AnalysisListWidget {
     }
 
     clickAnalysis(analysis) {
+        if (this.userAlreadyAnalyzed(analysis)) {
+            return;
+        }
         let iuser = analysis.getInterpretationUser();
         if (iuser &&
             iuser.id !== this.user.getCurrentUserId()) {
@@ -56,6 +65,14 @@ class AnalysisListWidget {
         else {
             this.openAnalysis(analysis);
         }
+    }
+
+    getStateMessage(analysis) {
+        if (analysis.getInterpretationState() === 'Not started' &&
+            analysis.interpretations.length > 1) {
+            return 'Needs review';
+        }
+        return analysis.getInterpretationState();
     }
 }
 
