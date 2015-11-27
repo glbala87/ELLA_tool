@@ -59,4 +59,30 @@ export class Interpretation {
             })[0]);
         }
     }
+
+    /**
+     * Copy the existing ReferenceAssessment data into interpretation's state.
+     * This is not very pretty, but it's easier overall to work on the state
+     * as the master object, since the user should be able to update the
+     * assessments. Drawback is the copying of data.
+     * @param  {[type]} existingReferenceAssessments [description]
+     * @return {[type]}                              [description]
+     */
+    copyReferenceAssessmentsToState(existingReferenceAssessments) {
+        if (!('referenceassessment' in this.state)) {
+            this.state.referenceassessment = {};
+        }
+        for (let era of existingReferenceAssessments) {
+            if (!(era.allele_id in this.state.referenceassessment)) {
+                this.state.referenceassessment[allele.id] = {};
+            }
+            if (!(era.reference_id in this.state.referenceassessment[allele.id])) {
+                this.state.referenceassessment[allele.id][reference.id] = {
+                    id: era.id,
+                    evaluation: Object.assign({}, era.evaluation),
+                    interpretation_id: era.interpretation_id,
+                };
+            }
+        }
+    }
 }
