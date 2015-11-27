@@ -1,6 +1,6 @@
 # coding=utf-8
 rules = [
-    #### JSON (copy/paste entire column between [] in "rules = []", remove last ",")
+    #### JSON rules (copy/paste entire column between [] in "rules = []", remove last ",")
     ### GP_REQ
     { "code": "REQ_GP_inh_ad", "rule": {"genepanel.gp_inheritance": "autosomal_dominant"}},
     { "code": "REQ_GP_inh_ar", "rule": {"genepanel.gp_inheritance": "autosomal_recessive"}},
@@ -22,8 +22,8 @@ rules = [
     { "code": "REQ_non-conserved", "rule": {"genomic.conservation": "non-conserved"}},
     { "code": "REQ_non-repeat", "rule": {"transcript.domain": "non-repeat"}},
     { "code": "REQ_not_in_last_exon", "rule": {"transcript.domain": "not_in_last_exon"}},
-    { "code": "REQ_rare", "rule": {"frequencies.ExAC_1000G_ESP6500": "<lo_freq_cutoff"}},
-    { "code": "REQ_rare_match", "rule": {"frequencies.inDB": "<lo_freq_cutoff"}},
+    { "code": "REQ_rare", "rule": {"frequencies.ExAC_1000G_ESP6500_cutoff": "<lo_freq_cutoff"}},
+    { "code": "REQ_rare_match", "rule": {"frequencies.inDB_cutoff": "<lo_freq_cutoff"}},
     { "code": "REQ_overlap_pat", "rule": {"refassessment.*.ref_aa_overlap": "overlap_pat"}},
     { "code": "REQ_overlap_ben", "rule": {"refassessment.*.ref_aa_overlap": "overlap_ben"}},
     { "code": "REQ_same_aa", "rule": {"refassessment.*.ref_aa_overlap_same_novel": "same_aa"}},
@@ -51,7 +51,7 @@ rules = [
     ### PM*
     { "code": "PM1", "rule": {"refassessment.*.ref_domain_overlap": "crit_domain"}},
     { "code": "PM1", "rule": {"transcript.domain": "crit_domain"}},
-    { "code": "PM2", "rule": {"frequencies.inDB": "null_freq"}},
+    { "code": "PM2", "rule": {"frequencies.inDB_cutoff": "null_freq"}},
     { "code": "PM2", "rule": {"$$aggregate": {"$all": ["REQ_rare_match", "REQ_GP_inh_ar"]}}},
     { "code": "PM3", "rule": {"$$aggregate": {"$all": ["REQ_in_trans_pathogenic", "REQ_GP_inh_ar"]}}},
     { "code": "PM4", "rule": {"transcript.Consequence": {"$in": ["transcript_amplification", "stop_lost"]}}},
@@ -82,7 +82,7 @@ rules = [
     { "code": "PP5", "rule": {"external.HGMD.tag": "DM"}},
     { "code": "PP5", "rule": {"external.CLINVAR": {"$in": ["CLNSIG=5", "CLNSIG=4"]}}},
     { "code": "PP5", "rule": {"external.[LOVD]": {"$in": ["Path: +/?", "Path: +/+"]}}},
-    { "code": "PPX1", "rule": {"frequencies.ExAC_1000G_ESP6500": "null_freq"}},
+    { "code": "PPX1", "rule": {"frequencies.ExAC_1000G_ESP6500_cutoff": "null_freq"}},
     { "code": "PPX1", "rule": {"$$aggregate": {"$all": ["REQ_rare", "REQ_GP_inh_ar"]}}},
     { "code": "PPX2", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_novel_aa", "REQ_aa_diff"]}}},
     ### BP*
@@ -103,8 +103,8 @@ rules = [
     { "code": "BPX1", "rule": {"refassessment.*.ref_msi": "msi-"}},
     { "code": "BPX2", "rule": {"$$aggregate": {"$all": ["REQ_overlap_ben", "REQ_same_aa"]}}},
     ### BS*
-    { "code": "BS1", "rule": {"frequencies.inDB": {"$all": ["≥lo_freq_cutoff", "<hi_freq_cutoff"]}}},
-    { "code": "BS1", "rule": {"frequencies.ExAC_1000G_ESP6500": {"$all": ["≥lo_freq_cutoff", "<hi_freq_cutoff"]}}},
+    { "code": "BS1", "rule": {"frequencies.inDB_cutoff": {"$all": ["≥lo_freq_cutoff", "<hi_freq_cutoff"]}}},
+    { "code": "BS1", "rule": {"frequencies.ExAC_1000G_ESP6500_cutoff": {"$all": ["≥lo_freq_cutoff", "<hi_freq_cutoff"]}}},
     { "code": "BS2", "rule": {"refassessment.*.ref_population": "in_healthy"}},
     { "code": "BS3", "rule": {"refassessment.*.ref_prot": "prot--"}},
     { "code": "BS3", "rule": {"refassessment.*.ref_rna": "rna--"}},
@@ -114,8 +114,8 @@ rules = [
     { "code": "BS4", "rule": {"family.segregation": "segr-"}},
     { "code": "BSX1", "rule": {"external.InSight": {"$in": ["Path: -/?", "Path: -/-"]}}},
     ### BA*
-    { "code": "BA1", "rule": {"frequencies.inDB": "≥hi_freq_cutoff"}},
-    { "code": "BA1", "rule": {"frequencies.ExAC_1000G_ESP6500": "≥hi_freq_cutoff"}},
+    { "code": "BA1", "rule": {"frequencies.inDB_cutoff": "≥hi_freq_cutoff"}},
+    { "code": "BA1", "rule": {"frequencies.ExAC_1000G_ESP6500_cutoff": "≥hi_freq_cutoff"}},
     { "code": "BAX1", "rule": {"external.BIC.Clinically_Important": "no"}}
 
 #    {
