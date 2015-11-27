@@ -19,7 +19,7 @@ class ConfirmCompleteInterpretationController {
 @Inject('$rootScope',
         'InterpretationResource',
         'ReferenceResource',
-        'ACMGClassificationResource',
+        'ACMG',
         'AlleleAssessmentResource',
         'User',
         '$modal',
@@ -29,7 +29,7 @@ class InterpretationService {
     constructor(rootScope,
         interpretationResource,
         referenceResource,
-        ACMGClassificationResource,
+        ACMG,
         alleleAssessmentResource,
         User,
         ModalService,
@@ -41,7 +41,7 @@ class InterpretationService {
         this.user = User;
         this.interpretationResource = interpretationResource;
         this.referenceResource = referenceResource;
-        this.acmgClassificationResource = ACMGClassificationResource;
+        this.acmg = ACMG;
         this.alleleAssessmentResource = alleleAssessmentResource;
         this.interpretation = null;
         this.modalService = ModalService;
@@ -129,18 +129,7 @@ class InterpretationService {
                     interpretation.copyReferenceAssessmentsToState(refassm);
                 });
 
-                // Load ACMG codes for all alleles.
-                let pacmg = Promise.all([pint_prepared]).then(() => {
-                    // Load all referenceassessments from state (either copied in pint_prepared or
-                    // actually part of the interpretation's state)
-                    let referenceassessment_ids = Object.values(
-                        this.interpretation.state.referenceassessment
-                    ).map(obj => obj.id).filter(id => id !== undefined);
-                    return this.updateACMGCodes(this.interpretation.alleles, referenceassessment_ids);
-                });
-
                 // Resolve final promise
-                // We don't need to wait for ACMG codes, they can load async
                 Promise.all([puser, pint, pint_prepared]).then(() => {
                     resolve(this.interpretation);
                 });
@@ -232,22 +221,6 @@ class InterpretationService {
         this.locationService.url('/analyses');
     }
 
-    /**
-     * Updates the ACMG classifications for all filtered_alleles.
-     * To do this we need gather all the allele ids,
-     * and also the reference assessment ids for the assessments
-     * stored on the server.
-     */
-    updateACMGCodes(alleles, referenceassessment_ids) {
-        let allele_ids = alleles.map(a => a.id);
-        return this.acmgClassificationResource.getByAlleleIdsAndRefAssessmentIds(allele_ids, referenceassessment_ids).then(res => {
-            for (let [a_id, a_acmg] of Object.entries(res.alleles)) {
-                // Assign result to related allele
-                alleles.find(a => a.id.toString() === a_id).acmg = a_acmg;
-            }
-        });
-    }
-
     createOrUpdateReferenceAssessment(state_ra, allele, reference) {
 
         // Make copy and add/update mandatory fields before submission
@@ -280,7 +253,7 @@ class InterpretationService {
                 let referenceassessment_ids = Object.values(this.interpretation.state.referenceassessment[allele.id])
                                               .map(e => e.id)
                                               .filter(e => e !== undefined);
-                this.updateACMGCodes([allele], referenceassessment_ids);
+                this.acmg.updateACMGCodes([allele], referenceassessment_ids);
             });
         });
     }

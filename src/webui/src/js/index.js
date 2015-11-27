@@ -8,6 +8,7 @@ import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
 import "./services/user.service";
 import './services/ConfigService';
+import './services/acmg.service';
 import './services/acmgClassificationResource.service';
 import './services/alleleAssessmentResource.service';
 import './services/alleleFilter.service';
