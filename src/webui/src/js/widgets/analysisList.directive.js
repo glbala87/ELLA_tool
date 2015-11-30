@@ -29,7 +29,11 @@ class AnalysisListWidget {
 
     userAlreadyAnalyzed(analysis) {
         let current_user_id = this.user.getCurrentUserId();
-        return analysis.interpretations.filter(i => i.user && i.user.id === current_user_id).length > 0;
+        return analysis.interpretations.filter(
+            i => i.user &&
+                 i.user.id === current_user_id &&
+                 i.status === 'Done'
+        ).length > 0;
     }
 
     openAnalysis(analysis) {
