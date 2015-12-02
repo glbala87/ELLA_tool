@@ -82,7 +82,20 @@ class ACMGClassifier2015Test(unittest.TestCase):
                                                                  GRM.Rule("", "ban", "BP4")]),                    
                                                                 [GRM.Rule("", "foo", "BP4"),
                                                                  GRM.Rule("", "baz", "BP3")])                
-    
+
+        self.assertListEqual(classifier.occurences(re.compile("BS.*"), [GRM.Rule("", "foo", "BS1"),
+                                                                 GRM.Rule("", "bar", "BS1"),
+                                                                 GRM.Rule("", "baz", "BP4"),
+                                                                 GRM.Rule("", "baz", "PVS3"),
+                                                                 GRM.Rule("", "baz", "PVS3"),
+                                                                 GRM.Rule("", "baz", "PM3"),
+                                                                 GRM.Rule("", "baz", "BP3"),                                                                    
+                                                                 GRM.Rule("", "bav", "PP1"),
+                                                                 GRM.Rule("", "baz", "PP1"),                                                                    
+                                                                 GRM.Rule("", "bav", "BP4"),
+                                                                 GRM.Rule("", "ban", "BP4")]),                    
+                                                                [GRM.Rule("", "foo", "BS1")])   
+                                                                 
     def test_classify_pathogenic(self):
         classifier = ACMGClassifier2015()
         path_res = classifier.pathogenic([GRM.Rule("", "s1", "BS2"),

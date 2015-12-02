@@ -174,6 +174,7 @@ class ACMGClassifier2015:
         # These to be counted only once each:
         n_PP3 = 0
         n_BP4 = 0
+        n_BS1 = 0
         for rule in rules:
             code = rule.code
             if pattern.match(code):
@@ -185,6 +186,10 @@ class ACMGClassifier2015:
                     if not n_BP4:
                         occ.append(rule)
                         n_BP4 += 1
+                elif code == "BS1":
+                    if not n_BS1:
+                        occ.append(rule)
+                        n_BS1 += 1
                 else:
                     occ.append(rule)                    
         return occ
