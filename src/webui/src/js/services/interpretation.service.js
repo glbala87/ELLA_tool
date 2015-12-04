@@ -91,7 +91,6 @@ class InterpretationService {
 
                 // Prepare interpretation and assign user
                 Promise.all([puser, pint]).spread((user, interpretation) => {
-                    this.interpretation = interpretation;
                     interpretation.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
                 });
 
@@ -110,7 +109,7 @@ class InterpretationService {
                     // Add alleles to interpretation object
                     interpretation.setAlleles(alleles);
                     // Filter transcripts based on genepanel
-                    for (let allele of this.interpretation.alleles) {
+                    for (let allele of interpretation.alleles) {
                         allele.annotation.setFilteredTranscripts(interpretation.analysis.genepanel.transcripts);
                     }
 
@@ -139,7 +138,9 @@ class InterpretationService {
                 });
 
                 // Resolve final promise
-                Promise.all([puser, pint, pint_prepared]).then(() => {
+                Promise.all([puser, pint, pint_prepared]).spread((user, interpretation) => {
+                    this.interpretation = interpretation;
+                    console.log("Interpretation loaded", this.interpretation);
                     resolve(this.interpretation);
                 });
 
