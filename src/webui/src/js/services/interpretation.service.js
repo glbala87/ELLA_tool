@@ -78,6 +78,9 @@ class InterpretationService {
     }
 
     loadInterpretation(id) {
+        if (id === undefined) {
+            throw Error("You must provide an id");
+        }
         return new Promise((resolve, reject) => {
             if (this.interpretation) {
                 reject('Interpretation already loaded.');
@@ -90,7 +93,6 @@ class InterpretationService {
                 Promise.all([puser, pint]).spread((user, interpretation) => {
                     this.interpretation = interpretation;
                     interpretation.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
-                    interpretation.user_id = user.id;
                 });
 
                 // Fetch alleles for this interpretation id
@@ -102,10 +104,17 @@ class InterpretationService {
                     return alleles_obj;
                 });
 
-                // Load references
+                // Add alleles and load references
                 let prefs = Promise.all([pint, palleles]).spread((interpretation, alleles) =>{
+
                     // Add alleles to interpretation object
                     interpretation.setAlleles(alleles);
+                    // Filter transcripts based on genepanel
+                    for (let allele of this.interpretation.alleles) {
+                        allele.annotation.setFilteredTranscripts(interpretation.analysis.genepanel.transcripts);
+                    }
+
+                    // Load references
                     let pmids = this._getPubmedIds(interpretation.alleles);
                     return this.referenceResource.getByPubMedIds(pmids);
                 });
@@ -165,17 +174,38 @@ class InterpretationService {
 
     /**
      * Saves the current state to server.
-     * If the status is 'Not started', we start the interpretation by
-     * setting it to 'Ongoing'.
+     * If the status is 'Not started',
+     * we start the interpretation before saving.
      * @return {Promise} Promise that resolves upon completion.
      */
     save() {
         if (this.interpretation.status === 'Not started') {
-            this.interpretation.status = 'Ongoing';
+            if (this.interpretation.user_id === null) {
+                this.interpretation.user_id = this.user.getCurrentUserId();
+            }
+            return this.interpretationResource.start(this.interpretation.id,
+                                                     this.user.getCurrentUserId()).then(
+                () => {
+                    this.interpretation.status = 'Ongoing';
+                    // Update on server in case user made any changes
+                    // before starting analysis.
+                    return this.save();
+                },
+                // Rejected:
+                () => {
+                    // If an error when starting, reload interpretation as someone
+                    // else might have started the interpretation already.
+                    let int_id = this.interpretation.id;
+                    this.abortCurrent();
+                    return this.loadInterpretation(int_id);
+                }
+            );
         }
-        return this.interpretationResource.updateState(this.interpretation).then(
-            () => this.interpretation.setClean()
-        );
+        else {
+            return this.interpretationResource.updateState(this.interpretation).then(
+                () => this.interpretation.setClean()
+            );
+        }
     }
 
     /**

@@ -13,6 +13,7 @@ export class Interpretation {
         this.alleles = [];
         this.userState = data.userState;
         this.state = data.state;
+        this.user_id = data.user_id;
         this.dirty = false; // Indicates whether any state has changed, so user should save
 
     }
