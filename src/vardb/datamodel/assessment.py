@@ -1,12 +1,18 @@
 """vardb datamodel Assessment class"""
 
-from sqlalchemy import Column, Sequence, Enum, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Sequence, Enum, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 
 from vardb.datamodel import Base
 from vardb.datamodel import gene, annotation, user  # Needed, implicit imports used by sqlalchemy
 from vardb.util.mutjson import MUTJSONB
+
+
+AlleleAssessmentReferenceAssessment = Table('alleleassessmentreferenceassessment', Base.metadata,
+    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id')),
+    Column('referenceassessment_id', Integer, ForeignKey('referenceassessment.id'))
+)
 
 
 class AlleleAssessment(Base):
@@ -33,6 +39,8 @@ class AlleleAssessment(Base):
     transcript = relationship("Transcript")
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
+    referenceAssessments = relationship("ReferenceAssessment",
+                                        secondary=AlleleAssessmentReferenceAssessment)
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
@@ -56,7 +64,6 @@ class ReferenceAssessment(Base):
     reference_id = Column(Integer, ForeignKey("reference.id"), nullable=False)
     reference = relationship("Reference")
     evaluation = Column(MUTJSONB, default={})
-    #status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
