@@ -1,6 +1,8 @@
 FROM ousamg/gin:latest
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
+EXPOSE 5000
+
 # Get gulp
 RUN npm install -g gulp
 
@@ -15,8 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
 RUN npm install
 
-EXPOSE 5000
-WORKDIR /genap
-RUN mkdir /logs /static /socket
 # We add our source folder for testing/deployment - this gets bashed by the volume in development
 ADD . /genap
+WORKDIR /genap
