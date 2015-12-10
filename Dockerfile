@@ -1,8 +1,6 @@
 FROM ousamg/gin:latest
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
-EXPOSE 5000
-
 # Get gulp
 RUN npm install -g gulp
 
