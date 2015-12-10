@@ -1,4 +1,4 @@
 ---
 run_genap_tests:
   script:
-    - test-ci.sh
+    - bin/test-ci
