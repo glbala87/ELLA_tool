@@ -1,11 +1,6 @@
-
-# GenAP interpreter
-
 The GenAP interpreter is a web app based on AngularJS with a Flask REST backend.
 
-## Development
-
-Docker is now the recommended way to do development.
+# Development
 
 To start development env with Docker, run **`bin/dev`**
 
@@ -13,28 +8,25 @@ The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and sp
 
 A postgresql instance will also spawn and be automatically linked to the application. To populate the database you can visit the `/reset` route or click on one of the reset buttons in the UI.
 
-## Testing
+# Testing
 
 Test suites are designed to be run under Docker. There are two runner-scripts available:
 
-- **`bin/test-ci`**: should be run without any other genap environments running in Docker. It will spawn a new environment, run all tests, and exit.
-- **`bin/test-local`**: should be run when genap has already been started (through `bin/dev`). It will simply run tests inside the existing environment - by default it only runs the non-API tests.
+- **`bin/test-ci`**: should be run *without* any other genap environments running in Docker. It will spawn a new environment, run all tests, and exit.
+- **`bin/test-local`**: should be run when genap has already been started (through `bin/dev`). It will simply run tests inside the existing environment - *by default it only runs the non-API tests*.
 
-All helper-scripts now live in `bin/helpers`, so as additional test scripts are needed/created, they should go into `bin` and be run from the main two runners.
+# Production
 
-## Production
+### gunicorn + nginx
 
-#### gunicorn + nginx
+To start a pseudo-production instance you can use **`bin/production`**.
 
-To start a production instance you can use **`bin/production`**.
-
-This will start a postgresql database instance and link it to the genap container - which you probably don't want - so you can set the location of your postgresql database in the above YAML file (there's a commented line).
-
+- Compose automatically calls `bin/helpers/start-wsgi`
 - Logs will be placed in the genap directory, these should be changed to suit the production environment
-- nginx and gunicorn will communicate using a unix socket
-- Compose automatically calls `bin/helpers/start-wsgi` - see that file for other production setup details
+- The `/reset` route will automatically be called after server boot
+- To reboot/reload changes, simply run `bin/production` again
 
-#### CloudFoundry / Medicloud
+### CloudFoundry / Medicloud
 
 Several hacks are needed to get Genap running on CloudFoundry.
 
@@ -44,9 +36,9 @@ Several hacks are needed to get Genap running on CloudFoundry.
 - Then you *should* be OK to do `cf push`, ignore all the warnings pip throws out since CF is behind by a whole major version of pip
 
 
-## Running outside of Docker
+# Running outside of Docker
 
-#### Manual install
+### Manual install
 
  - Install [node.js](https://nodejs.org/download/)
  - NPM, the Node Package Manager is installed as part as Node.
@@ -56,13 +48,13 @@ Several hacks are needed to get Genap running on CloudFoundry.
 
 You'll need to run two processes when developing: the build system and the API.
 
-#### Build system
+### Build system
 
 To run the build system, simply run the command: `gulp` - this will build the application, add watchers for any file changes, and automatically reload the browser page when you make a change (requires the `livereload` plugin for Firefox/Chrome).
 
 To just build the application, run: `gulp build` - this builds all the files and puts them into the `src/webui/dev/` directory.
 
-#### API
+### API
 
 The API also is needed to serve the data.
 
