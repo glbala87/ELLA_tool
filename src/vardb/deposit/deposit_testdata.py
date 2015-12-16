@@ -61,32 +61,78 @@ GENEPANELS = [
 
 
 VCF_SMALL = [
+    # {
+    #     'path': '../testdata/brca_s1_v1.vcf',
+    #     'gp': 'HBOC',
+    #     'gp_version': 'v00'
+    # },
+    # {
+    #     'path': '../testdata/brca_s2_v1.vcf',
+    #     'gp': 'HBOC',
+    #     'gp_version': 'v00'
+    # },
+    # {
+    #     'path': '../testdata/brca_HDepositFirst.vcf',
+    #     'gp': 'HBOC',
+    #     'gp_version': 'v00',
+    #     'import_assessments': True
+    # },
+    # {
+    #     'path': '../testdata/brca_H01.vcf',
+    #     'gp': 'HBOC',
+    #     'gp_version': 'v00'
+    # },
+    # {
+    #     'path': '../testdata/brca_H02.vcf',
+    #     'gp': 'HBOC',
+    #     'gp_version': 'v00'
+    # },
     {
-        'path': '../testdata/brca_s1_v1.vcf',
+        'path': '../testdata/brca_sample_1.vcf',
         'gp': 'HBOC',
         'gp_version': 'v00'
     },
     {
-        'path': '../testdata/brca_s2_v1.vcf',
+        'path': '../testdata/brca_sample_2.vcf',
         'gp': 'HBOC',
         'gp_version': 'v00'
     },
     {
-        'path': '../testdata/brca_HDepositFirst.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00',
-        'import_assessments': True
-    },
-    {
-        'path': '../testdata/brca_H01.vcf',
+        'path': '../testdata/brca_sample_3.vcf',
         'gp': 'HBOC',
         'gp_version': 'v00'
     },
     {
-        'path': '../testdata/brca_H02.vcf',
+        'path': '../testdata/brca_sample_4.vcf',
         'gp': 'HBOC',
         'gp_version': 'v00'
     },
+    {
+        'path': '../testdata/brca_sample_5.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
+    {
+        'path': '../testdata/brca_sample_6.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
+    {
+        'path': '../testdata/brca_sample_7.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
+    {
+        'path': '../testdata/brca_sample_8.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
+    {
+        'path': '../testdata/brca_sample_master.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
+
 ]
 
 VCF_LARGE = [
