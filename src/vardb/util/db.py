@@ -9,15 +9,13 @@ class DB(object):
         from sqlalchemy import create_engine
         from sqlalchemy.orm import sessionmaker
 
+        host = host or os.environ.get('DB_URL')
+
         if not host:
-            host = os.environ.get('DB_URL')
-            if not host:
-                # Keep backwards compatibility for now (but this should be changed!)
-                if sys.platform.startswith('win'):
-                    host = 'postgresql+psycopg2://vardb:heterozygous@localhost/vardb'
-                else:
-                    host = 'postgresql+psycopg2://localhost/vardb'
-                # raise RuntimeError("Got no hostname as input and environment variable DB_URL is not set. Either set env, or fix the code.")
+            if os.getenv('DB_PORT_5432_TCP_ADDR'):
+                host = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
+            else:
+                host = 'postgresql+psycopg2://localhost/vardb'
 
         self.host = host
         self.engine = create_engine(

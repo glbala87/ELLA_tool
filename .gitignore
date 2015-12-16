@@ -23,6 +23,7 @@ pip-log.txt
 
 # Unit test / coverage reports
 .coverage
+coverage.xml
 .tox
 
 #Translations
@@ -98,3 +99,13 @@ ffi/workbench/export/igv.vcf
 ffi/workbench/export/mut.igv
 
 ffi/workbench/export/wild.igv
+
+src/webui/node_modules
+
+node_modules
+
+src/webui/dest
+
+src/package
+
+src/webui/dev
