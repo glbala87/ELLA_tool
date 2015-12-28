@@ -13,6 +13,7 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     browserify = require('browserify'),
     notify = require('gulp-notify'),
+    KarmaServer = require('karma').Server;
     __dirname = 'src/webui/dev/';
 
 var production = !!util.env.production;
@@ -108,6 +109,16 @@ gulp.task('fonts', function () {
         .pipe(gulp.dest(__dirname + 'fonts/'));
 });
 
+
+/**
+ * Run test once and exit
+ */
+gulp.task('test', function (done) {
+    new KarmaServer({
+	configFile: '/genap/karma.conf.js',
+	singleRun: true
+    }, done).start();
+});
 
 gulp.task('watch', function() {
     livereload.listen();
