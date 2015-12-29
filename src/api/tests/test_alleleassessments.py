@@ -97,6 +97,7 @@ class TestAlleleAssessment(object):
         for aa in interpretation_aa:
             # remove id, as we're simulating creating a new one
             del aa['id']
+            del aa['status']
             aa['evaluation']['comment'] = 'New assessment comment'
 
             r = client.post('/api/v1/alleleassessments/', aa)
