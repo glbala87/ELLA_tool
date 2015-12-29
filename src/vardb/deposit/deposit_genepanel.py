@@ -33,7 +33,6 @@ class DepositGenepanel(object):
                 self.session.rollback()
                 return -1
 
-        continue_input = ''
         db_transcripts = []
         transcripts = self.load_transcripts(transcripts_path)
         for t in transcripts:
@@ -46,35 +45,27 @@ class DepositGenepanel(object):
             if not created:
                 log.info('Updated gene {}'.format(gene))
 
-            db_transcript = self.session.query(gm.Transcript).filter(
-                gm.Transcript.refseqName == t.refseq
-            ).first()
-            if db_transcript:
-                log.warning('An {} transcript is already in database! Will not add/update this.'.format(t.refseq))
-                if not force_yes and not continue_input == 'A':
-                    continue_input = raw_input('Continue anyway? [Y] Yes, [A] Yes to All, [n] No) ?')
-                if not force_yes and continue_input not in ['Y', 'A']:
-                    log.warning('Aborting and rolling back.')
-                    self.session.rollback()
-                    return -1
-            else:
-                db_transcript, _ = gm.Transcript.update_or_create(
-                    self.session,
-                    gene=gene,
-                    refseqName=t.refseq,
-                    ensemblID=t.eTranscript,
-                    genomeReference=genomeRef,
-                    # Could wrap the rest in defaults{} for updating
-                    chromosome=t.chromosome,
-                    txStart=t.txStart,
-                    txEnd=t.txEnd,
-                    strand=t.strand,
-                    cdsStart=t.cdsStart,
-                    cdsEnd=t.cdsEnd,
-                    exonStarts=t.exonStarts,
-                    exonEnds=t.exonEnds
-                )
+            db_transcript, created = gm.Transcript.update_or_create(
+                self.session,
+                gene=gene,
+                refseqName=t.refseq,
+                ensemblID=t.eTranscript,
+                genomeReference=genomeRef,
+                # Could wrap the rest in defaults{} for updating
+                chromosome=t.chromosome,
+                txStart=t.txStart,
+                txEnd=t.txEnd,
+                strand=t.strand,
+                cdsStart=t.cdsStart,
+                cdsEnd=t.cdsEnd,
+                exonStarts=t.exonStarts,
+                exonEnds=t.exonEnds
+            )
             db_transcripts.append(db_transcript)
+
+            if not created:
+                log.info('Updated transcript {}'.format(db_transcript))
+
 
         genepanel = gm.Genepanel(
             name=genepanelName,
