@@ -68,11 +68,11 @@ def serve_static_factory(dev=False):
 # TODO: !!!!!!!!!!Remove before production!!!!!!!!!
 @app.route('/reset')
 def reset_testdata():
-    small_only = not request.args.get('all') in ['True', 'true']
+    test_set = 'small' if not request.args.get('all') in ['True', 'true'] else 'large'
 
     def worker():
         dt = DepositTestdata()
-        dt.deposit_all(small_only=small_only)
+        dt.deposit_all(test_set=test_set)
 
     t = threading.Thread(target=worker)
     t.start()

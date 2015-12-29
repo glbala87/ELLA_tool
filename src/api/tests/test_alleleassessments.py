@@ -2,7 +2,7 @@ import json
 import copy
 import pytest
 
-from util import FlaskClientProxy, reset_db
+from util import FlaskClientProxy
 
 
 @pytest.fixture
@@ -30,12 +30,10 @@ def client():
 
 class TestAlleleAssessment(object):
 
-    @classmethod
-    def setup_class(cls):
-        reset_db()
-
     @pytest.mark.aa(order=0)
-    def test_create_new(self, testdata, client):
+    def test_create_new(self, test_database, testdata, client):
+        test_database.refresh()  # Reset db
+
         # Retrieve alleles for interpretation for which
         # to create new AlleleAssessments
         alleles = client.get('/api/v1/interpretations/1/alleles/').json
