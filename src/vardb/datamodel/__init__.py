@@ -19,7 +19,7 @@ class CustomBase(object):
         """
         instance = session.query(cls).filter_by(**kwargs).first()
         # Facilitate mock testing by creating new object if session is mocked.
-        if isinstance(session, SessionType) and instance:
+        if isinstance(instance, cls) and instance:
             return instance, False
         else:
             params = dict(kwargs)
