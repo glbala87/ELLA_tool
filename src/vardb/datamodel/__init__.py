@@ -58,10 +58,4 @@ class CustomBase(object):
         return instance, created
 
 
-# Host can be set with DB_URL in env, or by passing in host to DB(host='url')
-
-if 'TEST' not in os.environ:
-    db = DB()
-    Engine = db.engine
-    Session = db.sessionmaker
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.

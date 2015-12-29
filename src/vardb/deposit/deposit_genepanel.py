@@ -17,8 +17,8 @@ log = logging.getLogger(__name__)
 
 class DepositGenepanel(object):
 
-    def __init__(self):
-        self.session = vardb.datamodel.Session()
+    def __init__(self, session):
+        self.session = session
 
     def load_transcripts(self, transcripts_path):
         with open(os.path.abspath(os.path.normpath(transcripts_path))) as f:

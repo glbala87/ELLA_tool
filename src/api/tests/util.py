@@ -2,7 +2,7 @@ import subprocess
 import json
 import os
 
-from api import app, db
+from api import app
 from api.main import api
 
 import vardb.datamodel

@@ -5,13 +5,13 @@ Code for adding or modifying gene panels in varDB.
 
 import os
 import sys
-import argparse
 import logging
 import json
 
 logging.basicConfig(level=logging.DEBUG)
 
 import vardb.datamodel
+from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users
@@ -185,19 +185,20 @@ VCF_TESTSET = [
 
 class DepositTestdata(object):
 
-    def __init__(self):
-        self.session = vardb.datamodel.Session()
+    def __init__(self, db):
+        self.engine = db.engine
+        self.session = db.session
 
     def remake_db(self):
         # We must import all models before recreating database
         from vardb.datamodel import allele, genotype, assessment, sample, patient, disease, gene, annotation  # needed
 
-        vardb.datamodel.Base.metadata.drop_all(vardb.datamodel.Engine)
-        vardb.datamodel.Base.metadata.create_all(vardb.datamodel.Engine)
+        vardb.datamodel.Base.metadata.drop_all(self.engine)
+        vardb.datamodel.Base.metadata.create_all(self.engine)
 
     def deposit_users(self):
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
-            import_users(json.load(f))
+            import_users(self.session, json.load(f))
 
     def deposit_vcfs(self, test_set=None):
         """
@@ -232,7 +233,7 @@ class DepositTestdata(object):
                 sys.exit()
 
     def deposit_genepanels(self):
-        dg = DepositGenepanel()
+        dg = DepositGenepanel(self.session)
         for gpdata in GENEPANELS:
             dg.add_genepanel(
                 os.path.join(SCRIPT_DIR, gpdata['path']),
@@ -242,7 +243,7 @@ class DepositTestdata(object):
             )
 
     def deposit_references(self):
-        import_references()
+        import_references(self.session)
 
     def deposit_all(self, test_set=None):
         log.info("--------------------")
@@ -260,5 +261,7 @@ class DepositTestdata(object):
 
 
 if __name__ == "__main__":
-    dt = DepositTestdata()
+    db = DB()
+    db.connect()
+    dt = DepositTestdata(db)
     dt.deposit_all()
