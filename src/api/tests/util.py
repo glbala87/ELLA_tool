@@ -54,14 +54,3 @@ class FlaskClientProxy(object):
     def delete(self, url, data):
         with self.app.test_client() as client:
             return client.delete(url, data=json.dumps(data), content_type='application/json')
-
-
-def reset_db():
-    psql_opts = "-U postgres -h $DB_PORT_5432_TCP_ADDR"
-    try:
-        db.engine.dispose()
-        subprocess.check_output('dropdb {opts} "vardb"'.format(opts=psql_opts), shell=True)
-        subprocess.check_output('createdb {opts} "vardb"'.format(opts=psql_opts), shell=True)
-    except subprocess.CalledProcessError:
-        pass
-    subprocess.check_output('psql {opts} < {path}'.format(opts=psql_opts, path=DB_PATH), shell=True)
