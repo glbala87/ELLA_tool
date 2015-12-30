@@ -8,8 +8,7 @@ from vardb.datamodel import user
 log = logging.getLogger(__name__)
 
 
-def import_users(users):
-    session = vardb.datamodel.Session()
+def import_users(session, users):
 
     for u in users:
         new_user = user.User(**u)

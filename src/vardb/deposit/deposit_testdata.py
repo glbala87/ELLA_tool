@@ -5,13 +5,13 @@ Code for adding or modifying gene panels in varDB.
 
 import os
 import sys
-import argparse
 import logging
 import json
 
 logging.basicConfig(level=logging.DEBUG)
 
 import vardb.datamodel
+from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users
@@ -135,7 +135,7 @@ VCF_SMALL = [
 
 ]
 
-VCF_LARGE = [
+VCF_LARGE = VCF_SMALL + [
     {
         'path': '../testdata/na12878.bindevev.transcripts.annotated.vcf',
         'gp': 'Bindevev',
@@ -164,27 +164,55 @@ VCF_LARGE = [
 
 ]
 
+VCF_TESTSET = [
+    {
+        'path': '../testdata/brca_sample_1.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
+    {
+        'path': '../testdata/brca_sample_2.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
+    {
+        'path': '../testdata/brca_sample_master.vcf',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    }
+]
+
 
 class DepositTestdata(object):
 
-    def __init__(self):
-        self.session = vardb.datamodel.Session()
+    def __init__(self, db):
+        self.engine = db.engine
+        self.session = db.session
 
     def remake_db(self):
         # We must import all models before recreating database
         from vardb.datamodel import allele, genotype, assessment, sample, patient, disease, gene, annotation  # needed
 
-        vardb.datamodel.Base.metadata.drop_all(vardb.datamodel.Engine)
-        vardb.datamodel.Base.metadata.create_all(vardb.datamodel.Engine)
+        vardb.datamodel.Base.metadata.drop_all(self.engine)
+        vardb.datamodel.Base.metadata.create_all(self.engine)
 
     def deposit_users(self):
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
-            import_users(json.load(f))
+            import_users(self.session, json.load(f))
 
-    def deposit_vcfs(self, small_only=False):
-        vcfs = VCF_SMALL
-        if not small_only:
-            vcfs += VCF_LARGE
+    def deposit_vcfs(self, test_set=None):
+        """
+        :param test_set: Which set to import. Valid values: 'small', 'large', 'test'. Default: 'small'
+        """
+
+        test_sets = {
+            'small': VCF_SMALL,
+            'large': VCF_LARGE,
+            'test': VCF_TESTSET
+        }
+
+        vcfs = test_sets.get(test_set, VCF_SMALL)
+
         for vcfdata in vcfs:
             importer = Importer(self.session)
             try:
@@ -205,7 +233,7 @@ class DepositTestdata(object):
                 sys.exit()
 
     def deposit_genepanels(self):
-        dg = DepositGenepanel()
+        dg = DepositGenepanel(self.session)
         for gpdata in GENEPANELS:
             dg.add_genepanel(
                 os.path.join(SCRIPT_DIR, gpdata['path']),
@@ -215,9 +243,9 @@ class DepositTestdata(object):
             )
 
     def deposit_references(self):
-        import_references()
+        import_references(self.session)
 
-    def deposit_all(self, small_only=False):
+    def deposit_all(self, test_set=None):
         log.info("--------------------")
         log.info("Starting a DB reset")
         log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
@@ -226,12 +254,14 @@ class DepositTestdata(object):
         self.deposit_users()
         self.deposit_genepanels()
         self.deposit_references()
-        self.deposit_vcfs(small_only=small_only)
+        self.deposit_vcfs(test_set=test_set)
         log.info("--------------------")
         log.info(" DB Reset Complete!")
         log.info("--------------------")
 
 
 if __name__ == "__main__":
-    dt = DepositTestdata()
+    db = DB()
+    db.connect()
+    dt = DepositTestdata(db)
     dt.deposit_all()

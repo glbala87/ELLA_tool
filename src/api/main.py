@@ -7,7 +7,7 @@ import argparse
 
 from flask import send_from_directory, request
 from flask.ext.restful import Api
-from api import app, apiv1, session
+from api import app, apiv1, db
 
 from vardb.deposit.deposit_testdata import DepositTestdata
 
@@ -18,11 +18,13 @@ DEV_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dev')
 
 log = app.logger
 
+
 @app.before_first_request
 def setup_logging():
     if not app.debug:
         log.addHandler(logging.StreamHandler())
         log.setLevel(logging.INFO)
+
 
 @app.before_request
 def before_request():
@@ -34,9 +36,10 @@ def before_request():
             )
         )
 
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    session.remove()
+    db.session.remove()
 
 
 def serve_static_factory(dev=False):
@@ -68,11 +71,11 @@ def serve_static_factory(dev=False):
 # TODO: !!!!!!!!!!Remove before production!!!!!!!!!
 @app.route('/reset')
 def reset_testdata():
-    small_only = not request.args.get('all') in ['True', 'true']
+    test_set = 'small' if not request.args.get('all') in ['True', 'true'] else 'large'
 
     def worker():
-        dt = DepositTestdata()
-        dt.deposit_all(small_only=small_only)
+        dt = DepositTestdata(db)
+        dt.deposit_all(test_set=test_set)
 
     t = threading.Thread(target=worker)
     t.start()
