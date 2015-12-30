@@ -14,7 +14,7 @@ var gulp = require('gulp'),
     browserify = require('browserify'),
     notify = require('gulp-notify'),
     KarmaServer = require('karma').Server;
-    __dirname = 'src/webui/dev/';
+    __basedir = 'src/webui/dev/';
 
 var production = !!util.env.production;
 
@@ -47,7 +47,7 @@ gulp.task('tp-js', function() {
         .pipe(plumber())
         .pipe(concat('thirdparty.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(__dirname));
+        .pipe(gulp.dest(__basedir));
 });
 
 /*
@@ -66,7 +66,7 @@ gulp.task('js', function() {
         }))
         .pipe(source('app.js'))
         .pipe(buffer())
-        .pipe(gulp.dest(__dirname))
+        .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
 
@@ -74,14 +74,14 @@ gulp.task('ngtmpl', function() {
     return gulp.src('**/*.ngtmpl.html')
         .pipe(plumber())
         .pipe(flatten())
-        .pipe(gulp.dest(__dirname + 'ngtmpl/'))
+        .pipe(gulp.dest(__basedir + 'ngtmpl/'))
         .pipe(production ? util.noop() : livereload());
 });
 
 gulp.task('index', function() {
     return gulp.src('src/webui/src/index.html')
         .pipe(plumber())
-        .pipe(gulp.dest(__dirname));
+        .pipe(gulp.dest(__basedir));
 });
 
 /*
@@ -93,7 +93,7 @@ gulp.task('less', function () {
         .pipe(less())
         .pipe(concat('app.css'))
         .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
-        .pipe(gulp.dest(__dirname))
+        .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
 
@@ -106,7 +106,7 @@ gulp.task('fonts', function () {
             'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*.{woff,woff2,eot,svg,ttf,otf}'
         ])
         .pipe(plumber())
-        .pipe(gulp.dest(__dirname + 'fonts/'));
+        .pipe(gulp.dest(__basedir + 'fonts/'));
 });
 
 
@@ -115,7 +115,7 @@ gulp.task('fonts', function () {
  */
 gulp.task('test', function (done) {
     new KarmaServer({
-	configFile: '/genap/karma.conf.js',
+	configFile: __dirname + '/karma.conf.js',
 	singleRun: true
     }, done).start();
 });
