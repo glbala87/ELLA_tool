@@ -13,7 +13,8 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     browserify = require('browserify'),
     notify = require('gulp-notify'),
-    KarmaServer = require('karma').Server;
+    protractor = require('gulp-protractor').protractor,
+    KarmaServer = require('karma').Server,
     __basedir = 'src/webui/dev/';
 
 var production = !!util.env.production;
@@ -109,14 +110,44 @@ gulp.task('fonts', function () {
         .pipe(gulp.dest(__basedir + 'fonts/'));
 });
 
+''
+/**
+ * Run end-2-end tests
+ */
+
+gulp.task('e2e', function(done) {
+    var args = ['--baseUrl', 'http://172.16.250.128:5000', // our app running in docker. The IP will change!
+                '--seleniumAddress', 'http://172.16.250.128:4444/wd/hub', // selenium server
+    ];
+    gulp.src(["./src/webui/tests/e2e/spec.js"])
+        .pipe(protractor({
+            configFile: "./src/webui/tests/protractor.conf.js",
+            args: args
+        }))
+        .on('error', function(e) { throw e; });
+});
 
 /**
- * Run test once and exit
+ * Run unit test once and exit
  */
-gulp.task('test', function (done) {
+gulp.task('unit', function (done) {
     new KarmaServer({
-	configFile: __dirname + '/karma.conf.js',
-	singleRun: true
+	configFile: __dirname + '/src/webui/tests/karma.conf.js',
+	singleRun: true,
+    autoWatch: false
+
+    }, done).start();
+});
+
+/**
+ * Rerun unit tests as they change
+ */
+
+gulp.task('unit-forever', function (done) {
+    new KarmaServer({
+        configFile: __dirname + '/src/webui/tests/karma.conf.js',
+        singleRun: false,
+        autoWatch: true
     }, done).start();
 });
 

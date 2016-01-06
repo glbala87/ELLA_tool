@@ -1,8 +1,9 @@
 FROM ousamg/gin:latest
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
-# Get gulp
+# Install gulp and karma-cli globally
 RUN npm install -g gulp
+RUN npm install -g karma-cli
 
 # Add our requirements files
 ADD ./requirements.txt /dist/requirements.txt
