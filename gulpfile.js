@@ -83,6 +83,21 @@ gulp.task('index', function() {
         .pipe(gulp.dest(__dirname));
 });
 
+// SASS
+gulp.task('less', function () {
+    gulp.src('src/webui/src/sass/*.sass')
+        .pipe(plumber())
+        .pipe(sass().sync().on('error', sass.logError))
+        .pipe(concat('app.css'))
+        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
+        .pipe(gulp.dest(__dirname))
+        .pipe(production ? util.noop() : livereload());
+});
+
+gulp.task('sass:watch', function () {
+  gulp.watch('src/webui/src/sass/*.sass', ['sass']);
+});
+
 /*
  * Compile css from less files
  */
