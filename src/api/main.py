@@ -108,12 +108,9 @@ if __name__ == '__main__':
     opts = {}
     opts['host'] = '0.0.0.0'
     opts['threaded'] = True
+    opts['port'] = int(os.getenv('API_PORT', '5000'))
     is_dev = os.getenv('DEVELOP', False)
-
-    if is_dev:
-        opts['debug'] = is_dev
-    else:
-        opts['port'] = int(os.getenv('VCAP_APP_PORT', '5000')) # medicloud bullshit
+    opts['debug'] = is_dev
     app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
     app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
     app.run(**opts)
