@@ -15,7 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser (relative to karma.conf.js)
       files: [
-          "../../../node_modules/js-polyfills/es6.js",
+          "../../../node_modules/babel-es6-polyfill/browser-polyfill.js",
           "../src/thirdparty/angular/1.4.0/angular.js",
           "../src/thirdparty/angular/1.4.0/angular-mocks.js",
           "../src/thirdparty/angular/1.4.0/angular-animate.js",
