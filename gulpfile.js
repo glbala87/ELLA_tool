@@ -140,10 +140,10 @@ gulp.task('unit', function (done) {
 });
 
 /**
- * Rerun unit tests as they change
+ * Rerun unit tests as code change
  */
 
-gulp.task('unit-forever', function (done) {
+gulp.task('unit-auto', function (done) {
     new KarmaServer({
         configFile: __dirname + '/src/webui/tests/karma.conf.js',
         singleRun: false,

@@ -15,6 +15,34 @@ Test suites are designed to be run under Docker. There are two runner-scripts av
 - **`bin/test-ci`**: should be run *without* any other genap environments running in Docker. It will spawn a new environment, run all tests, and exit.
 - **`bin/test-local`**: should be run when genap has already been started (through `bin/dev`). It will simply run tests inside the existing environment - *by default it only runs the non-API tests*.
 
+Testing without runner-scripts (yet):
+
+- start application locally using `bin/dev`
+- enter the container `docker -it <container id> bash`
+- run test
+    - `gulp unit`, to run unit tests using karma
+    - `gulp unit-auto`, continually run unit tests as file changes
+    - `gulp e2e`, runs end-to-end test using real browser(s). Requires a running Selenium server and a running application. See below.
+
+
+# End-to-end testing
+Running tests against a real environment (meaning your application running in a browser) requires:
+- your application is up and running
+- a Selenium server
+
+The address of the application and the selenium server is configured in protractor.conf.js.
+There is a Docker image for Selenium, try `docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2`
+This image has both Selenium and Chrome installed, see https://github.com/SeleniumHQ/docker-selenium.
+The mentioned Docker image has a vnc server so it can be accessed using a VNC client. On OS X there is Screen Sharing in /System/Library/CoreServices/Applications,
+most easily started by entering 'vnc://172.16.250.128:5900' in Safari.
+
+
+# Test framework
+- Karma (http://karma-runner.github.io/)
+- Jasmine (http://jasmine.github.io/2.4/introduction.html)
+- Protractor (https://angular.github.io/protractor/#/)
+- Selenium (http://docs.seleniumhq.org/, https://hub.docker.com/r/selenium/)
+
 # Production
 
 ### gunicorn + nginx
