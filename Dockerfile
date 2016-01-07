@@ -1,6 +1,11 @@
 FROM ousamg/gin:latest
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
+# For PhantomJS:
+RUN apt-get update
+RUN apt-get -y install build-essential chrpath libssl-dev libxft-dev \
+  libfreetype6 libfreetype6-dev libfontconfig1 libfontconfig1-dev
+  
 # Install gulp and karma-cli globally
 RUN npm install -g gulp
 RUN npm install -g karma-cli
