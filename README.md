@@ -8,6 +8,7 @@ The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and sp
 
 A postgresql instance will also spawn and be automatically linked to the application. To populate the database you can visit the `/reset` route or click on one of the reset buttons in the UI.
 
+After changing package.json, a new Docker image must be created using `docker-compose build` and then `bin/dev`.
 # Testing
 
 Test suites are designed to be run under Docker. There are two runner-scripts available:
@@ -35,6 +36,11 @@ There is a Docker image for Selenium, try `docker run -d -p 4444:4444 -p 5900:59
 This image has both Selenium and Chrome installed, see https://github.com/SeleniumHQ/docker-selenium.
 The mentioned Docker image has a vnc server so it can be accessed using a VNC client. On OS X there is Screen Sharing in /System/Library/CoreServices/Applications,
 most easily started by entering 'vnc://172.16.250.128:5900' in Safari.
+
+# Application structure
+Info about AngualarJS and the build system. Ecmascript version.... Choice of tools and so on.
+
+Uses babel-es6-polyfill to get ES6 support, see https://www.npmjs.com/package/babel-es6-polyfill.
 
 
 # Test framework
