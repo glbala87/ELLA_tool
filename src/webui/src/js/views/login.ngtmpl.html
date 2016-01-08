@@ -1,34 +1,26 @@
 <div class="login">
   <div class="login-backdrop">
 
+
     <div class="login-container">
       <div class="login-header">
-        <div style="height: 200px; text-align: center">
-          <div class="logo-1">genAP</div>
-          <div class="logo-2">interpreter</div>
-        </div>
+        <svg width="20%" height="20%" viewBox="0 0 194 280" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.41421;"><g id="Layer1"><g><path d="M40.244,121.534c0,0 18.938,-20.199 28.406,-20.199c9.469,0 18.937,20.199 28.406,20.199c9.468,0 18.937,-20.199 28.406,-20.199c9.468,0 28.405,20.199 28.405,20.199" style="fill:none;stroke-width:2.5px;stroke:#4a7a9b;stroke-opacity:0.498039;"/><path d="M153.867,101.335c0,0 -18.937,20.199 -28.405,20.199c-9.469,0 -18.938,-20.199 -28.406,-20.199c-9.469,0 -18.937,20.199 -28.406,20.199c-9.468,0 -28.406,-20.199 -28.406,-20.199" style="fill:none;stroke-width:2.5px;stroke:#4a7a9b;stroke-opacity:0.498039;"/></g><g><path d="M40.244,240.838c0,0 18.938,-20.199 28.406,-20.199c9.469,0 18.937,20.199 28.406,20.199c9.468,0 18.937,-20.199 28.406,-20.199c9.468,0 28.405,20.199 28.405,20.199" style="fill:none;stroke-width:2.5px;stroke:#4a7a9b;stroke-opacity:0.498039;"/><path d="M153.867,220.639c0,0 -18.937,20.199 -28.405,20.199c-9.469,0 -18.938,-20.199 -28.406,-20.199c-9.469,0 -18.937,20.199 -28.406,20.199c-9.468,0 -28.406,-20.199 -28.406,-20.199" style="fill:none;stroke-width:2.5px;stroke:#4a7a9b;stroke-opacity:0.498039;"/></g><g><path d="M40.244,181.186c0,0 18.938,-20.199 28.406,-20.199c9.469,0 18.937,20.199 28.406,20.199c9.468,0 18.937,-20.199 28.406,-20.199c9.468,0 28.405,20.199 28.405,20.199" style="fill:none;stroke-width:2.5px;stroke:#4a7a9b;stroke-opacity:0.498039;"/><path d="M153.867,160.987c0,0 -18.937,20.199 -28.405,20.199c-9.469,0 -18.938,-20.199 -28.406,-20.199c-9.469,0 -18.937,20.199 -28.406,20.199c-9.468,0 -28.406,-20.199 -28.406,-20.199" style="fill:none;stroke-width:2.5px;stroke:#4a7a9b;stroke-opacity:0.498039;"/></g><rect x="39.747" y="48.375" width="113.623" height="23.175" style="fill:#d8d8d8;"/><path d="M105.206,27.994l18.937,0l0,33.456l-54.286,0l0,-33.456l18.937,0c0,4.529 3.677,8.206 8.206,8.206c4.529,0 8.206,-3.677 8.206,-8.206Z" style="fill:#d8d8d8;"/><path d="M97.056,0.535c14.981,0 27.143,12.163 27.143,27.143c0,14.981 -12.162,27.144 -27.143,27.144c-14.981,0 -27.143,-12.163 -27.143,-27.144c0,-14.98 12.162,-27.143 27.143,-27.143ZM97.056,19.472c4.529,0 8.206,3.677 8.206,8.206c0,4.529 -3.677,8.206 -8.206,8.206c-4.529,0 -8.206,-3.677 -8.206,-8.206c0,-4.529 3.677,-8.206 8.206,-8.206Z" style="fill:#d8d8d8;"/><path d="M1.064,278.715l0,-251.79l2.5,0l0,249.29l186.872,0l0,-249.29l2.5,0l0,251.79l-191.872,0Z" style="fill:#4a7a9b;fill-opacity:0.498039;"/><rect x="1.064" y="26.925" width="47.493" height="2.5" style="fill:#4a7a9b;fill-opacity:0.498039;"/><rect x="145.443" y="26.925" width="47.493" height="2.5" style="fill:#4a7a9b;fill-opacity:0.498039;"/></g></svg>
+        <h1>G:N</h1>
       </div>
       <div class="login-body">
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Filter" ng-model="vm.name_filter">
         </div>
         <div class="user-row" ng-repeat="user in vm.users | filter:vm.name_filter">
-          <div class="pull-left">
+          <div class="icon cell">
             <user-box user="user"></user-box>
           </div>
-          <div class="pull-left username">
+          <div class="name cell" ng-click="vm.selectUser(user)">
             {{user.firstName}} {{user.lastName}}
           </div>
-          <div class="pull-right">
-            <div class="btn-round" ng-click="vm.selectUser(user)">
-              <i class="fa fa-arrow-right text-primary"></i>
-            </div>
-          </div>
-          <div class="clearfix"></div>
         </div>
       </div>
     </div>
-
 
 
   </div>
