@@ -8,6 +8,7 @@ var gulp = require('gulp'),
     livereload = require('gulp-livereload'),
     wrapper = require('gulp-wrapper'),
     less = require('gulp-less'),
+    sass = require('gulp-sass'),
     plumber = require('gulp-plumber'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
@@ -84,27 +85,10 @@ gulp.task('index', function() {
 });
 
 // SASS
-gulp.task('less', function () {
+gulp.task('sass', function () {
     gulp.src('src/webui/src/sass/*.sass')
         .pipe(plumber())
-        .pipe(sass().sync().on('error', sass.logError))
-        .pipe(concat('app.css'))
-        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
-        .pipe(gulp.dest(__dirname))
-        .pipe(production ? util.noop() : livereload());
-});
-
-gulp.task('sass:watch', function () {
-  gulp.watch('src/webui/src/sass/*.sass', ['sass']);
-});
-
-/*
- * Compile css from less files
- */
-gulp.task('less', function () {
-    gulp.src('src/webui/src/less/styles.less')
-        .pipe(plumber())
-        .pipe(less())
+        .pipe(sass().on('error', sass.logError))
         .pipe(concat('app.css'))
         .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
         .pipe(gulp.dest(__dirname))
@@ -117,7 +101,7 @@ gulp.task('less', function () {
 gulp.task('fonts', function () {
     gulp.src(
         [
-            'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*.{woff,woff2,eot,svg,ttf,otf}'
+            'src/webui/src/thirdparty/fonts/*.woff2'
         ])
         .pipe(plumber())
         .pipe(gulp.dest(__dirname + 'fonts/'));
@@ -127,11 +111,11 @@ gulp.task('fonts', function () {
 gulp.task('watch', function() {
     livereload.listen();
     gulp.watch('src/webui/src/js/**/*.js', ['js']);
-    gulp.watch('src/webui/src/less/**/*.less', ['less']);
+    gulp.watch('src/webui/src/sass/*.sass', ['sass']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
 
 
-gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'less']);
+gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass']);
 
 gulp.task('default', ['build', 'watch']);
