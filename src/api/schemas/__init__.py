@@ -6,3 +6,4 @@ from referenceassessments import ReferenceAssessmentSchema
 from alleleassessments import AlleleAssessmentSchema
 from users import UserSchema
 from classifications import ClassificationSchema
+from genepanels import GenepanelSchema

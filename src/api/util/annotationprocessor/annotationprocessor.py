@@ -48,7 +48,7 @@ class References(object):
                 'sources': ['HGMD']
             })
 
-        return references
+        return {'references': references}
 
 
 class TranscriptAnnotation(object):
@@ -115,18 +115,47 @@ class TranscriptAnnotation(object):
 
         return transcripts
 
+    def _get_genepanel_transcripts(self, transcripts, genepanel):
+        """
+        Searches input transcripts for matching transcript names in the genepanel,
+        and returns the list of matches. If no matches are done, returns all RefSeq
+        transcripts.
 
-    def process(self, annotation):
+        *The transcript version is stripped off during matching.*
 
+        :param transcripts: List of transcript names (without version) to search for
+        :param genepanel: Genepanel data loaded from marshmallow schema
+        :return: list of genepanel transcript names, without version: ['NM_13423', ...]
+        """
+
+        no_ver_transcripts = list()
+        for t in transcripts:
+            if '.' in t:
+                no_ver_transcripts.append(t.split('.', 1)[0])
+            else:
+                no_ver_transcripts.append(t)
+        gp_transcripts = list()
+        for elem in genepanel['transcripts']:
+            for k in ['refseqName', 'ensemblID']:
+                gp_transcripts.append(elem[k])
+        no_ver_gp_transcripts = [t.split('.', 1)[0] for t in gp_transcripts]
+
+        return list(set(no_ver_transcripts).intersection(set(no_ver_gp_transcripts)))
+
+    def process(self, annotation, genepanel=None):
+        """
+        :param genepanel: If provided, adds filtered_transcript to output,
+                          containing the name of the transcripts found in
+                          genepanel.
+        """
         csq_transcripts = self._csq_transcripts(annotation)
         splice_transcripts = self._splice_transcripts(annotation)
-
 
         # Merge transcripts and restructure to list
         transcripts = list()
 
         for transcript_name in list(set(csq_transcripts.keys() +
-                                        splice_transcripts.keys() )):
+                                        splice_transcripts.keys())):
             t = dict()
             for x in [csq_transcripts,
                       splice_transcripts]:
@@ -140,7 +169,14 @@ class TranscriptAnnotation(object):
 
             transcripts.append(t)
 
-        return sorted(transcripts, key=lambda x: x['Transcript'])
+        final_transcripts = sorted(transcripts, key=lambda x: x['Transcript'])
+        result = {'transcripts': final_transcripts}
+
+        if genepanel:
+            final_transcript_names = [t['Transcript'] for t in final_transcripts]
+            result['filtered_transcripts'] = self._get_genepanel_transcripts(final_transcript_names, genepanel)
+
+        return result
 
 
 class FrequencyAnnotation(object):
@@ -285,7 +321,9 @@ class FrequencyAnnotation(object):
         frequencies.update(self._csq_frequencies(annotation))
         frequencies.update(self._indb_frequencies(annotation))
         frequencies.update(self._cutoff_frequencies(frequencies))
-        return frequencies
+
+        return {'frequencies': frequencies}
+
 
 class ExternalAnnotation(object):
 
@@ -334,53 +372,53 @@ class ExternalAnnotation(object):
         data = {k: annotation['HGMD'][k] for k in ExternalAnnotation.HGMD_FIELDS if k in annotation['HGMD']}
         return {'HGMD': data}
 
-
     def process(self, annotation):
         data = dict()
 
         data.update(self._bic(annotation))
         data.update(self._clinvar(annotation))
         data.update(self._hgmd(annotation))
-        return data
+        return {'external': data}
 
 
 class GeneticAnnotation(object):
 
     def process(self, annotation):
-        pass
+        return {}
         # print annotation.get('RepeatMasker')
 
 
 class QualityAnnotation(object):
 
-    def process(self, allele):
-        if 'genotype' in allele:
-            return {
-                'QUAL': allele['genotype']['variantQuality'],
-                'GQ': allele['genotype']['genotypeQuality'],
-                'DP': allele['genotype']['sequencingDepth'],
-                'FILTER': allele['genotype']['filterStatus']
-            }
-        else:
-            return {}
+    def process(self, genotype):
+        data = {
+            'QUAL': genotype.get('variantQuality'),
+            'GQ': genotype.get('genotypeQuality'),
+            'DP': genotype.get('sequencingDepth'),
+            'FILTER': genotype.get('filterStatus')
+        }
+        return {'quality': data}
 
 
 class AnnotationProcessor(object):
 
     @staticmethod
-    def process(allele):
+    def process(allele, genotype=None, genepanel=None):
         """
         Creates/converts annotation data from input Allele dictionary data.
         """
 
         native_annotations = allele['annotation']['annotations']
-        data = {
-            'transcripts': TranscriptAnnotation().process(native_annotations),
-            'frequencies': FrequencyAnnotation().process(native_annotations),
-            'references': References().process(native_annotations),
-            'genetic': GeneticAnnotation().process(native_annotations),
-            'external': ExternalAnnotation().process(native_annotations),
-            'quality': QualityAnnotation().process(allele)
-        }
+        data = dict()
+        data.update(TranscriptAnnotation().process(native_annotations, genepanel=genepanel)),
+        data.update(FrequencyAnnotation().process(native_annotations)),
+        data.update(References().process(native_annotations)),
+        data.update(GeneticAnnotation().process(native_annotations)),
+        data.update(ExternalAnnotation().process(native_annotations)),
+
+        if genotype:
+            data.update({
+                'quality': QualityAnnotation().process(genotype)
+            })
 
         return data

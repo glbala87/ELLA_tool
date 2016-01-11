@@ -284,7 +284,12 @@ class InterpretationService {
                 let referenceassessment_ids = Object.values(this.interpretation.state.referenceassessment[allele.id])
                                               .map(e => e.id)
                                               .filter(e => e !== undefined);
-                this.acmg.updateACMGCodes([allele], referenceassessment_ids);
+                this.acmg.updateACMGCodes(
+                    [allele],
+                    referenceassessment_ids,
+                    this.interpretation.analysis.genepanel.name,
+                    this.interpretation.analysis.genepanel.version
+                );
             });
         });
     }
