@@ -108,10 +108,6 @@ class InterpretationService {
 
                     // Add alleles to interpretation object
                     interpretation.setAlleles(alleles);
-                    // Filter transcripts based on genepanel
-                    for (let allele of interpretation.alleles) {
-                        allele.annotation.setFilteredTranscripts(interpretation.analysis.genepanel.transcripts);
-                    }
 
                     // Load references
                     let pmids = this._getPubmedIds(interpretation.alleles);
