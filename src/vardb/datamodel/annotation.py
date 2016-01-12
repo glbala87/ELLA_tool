@@ -1,9 +1,6 @@
 """varDB datamodel Annotation class"""
-import datetime
-
-from sqlalchemy import Column, Sequence, Integer, String, DateTime
+from sqlalchemy import Column, Sequence, Integer, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -15,6 +12,8 @@ class Annotation(Base):
     __tablename__ = "annotation"
 
     id = Column(Integer, Sequence("id_annotation_seq"), primary_key=True)
+    allele_id = Column(Integer, ForeignKey("allele.id"))
+    allele = relationship("Allele", uselist=False)
     annotations = Column(JSONB)
     previousAnnotation_id = Column("previous_annotation_id", Integer,
                                    ForeignKey("annotation.id"))
