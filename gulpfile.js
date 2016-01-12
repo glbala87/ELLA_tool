@@ -95,6 +95,17 @@ gulp.task('sass', function () {
         .pipe(production ? util.noop() : livereload());
 });
 
+gulp.task('less', function () {
+    gulp.src('src/webui/src/less/styles.less')
+        .pipe(plumber())
+        .pipe(less())
+        .pipe(concat('base.css'))
+        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
+        .pipe(gulp.dest(__dirname))
+        .pipe(production ? util.noop() : livereload());
+});
+
+
 /*
  * Copy required fonts
  */
@@ -112,10 +123,11 @@ gulp.task('watch', function() {
     livereload.listen();
     gulp.watch('src/webui/src/js/**/*.js', ['js']);
     gulp.watch('src/webui/src/sass/*.sass', ['sass']);
+    gulp.watch('src/webui/src/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
 
 
-gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass']);
+gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'less']);
 
 gulp.task('default', ['build', 'watch']);
