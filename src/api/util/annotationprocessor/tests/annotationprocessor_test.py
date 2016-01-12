@@ -1,6 +1,6 @@
 # coding=utf-8
 import unittest
-from annotation_processor import FrequencyAnnotation, References, TranscriptAnnotation
+from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
 
 class TestReferences(unittest.TestCase):
 
@@ -18,7 +18,7 @@ class TestReferences(unittest.TestCase):
 
         }
 
-        pubmeds = References().process(data)
+        pubmeds = References().process(data)['references']
         self.assertEqual(
             pubmeds[0],
             {
@@ -50,7 +50,7 @@ class TestReferences(unittest.TestCase):
 
         }
 
-        pubmeds = References().process(data)
+        pubmeds = References().process(data)['references']
         self.assertEqual(
             pubmeds[0],
             {
@@ -97,7 +97,7 @@ class TestReferences(unittest.TestCase):
 
         }
 
-        pubmeds = References().process(data)
+        pubmeds = References().process(data)['references']
         self.assertEqual(
             pubmeds[0],
             {
@@ -142,7 +142,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation().process(data)
+        freq = FrequencyAnnotation().process(data)['frequencies']
         self.assertFalse('GMAF' in freq['1000g'])
 
     def test_frequency_strip_maf_from_name(self):
@@ -164,7 +164,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation().process(data)
+        freq = FrequencyAnnotation().process(data)['frequencies']
         self.assertIn('G', freq['1000g'])
         self.assertNotIn('GMAF', freq['1000g'])
         self.assertIn('EUR', freq['1000g'])
@@ -181,7 +181,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation().process(data)
+        freqs = FrequencyAnnotation().process(data)['frequencies']
         self.assertIn('TEST', freqs['ExAC'])
         self.assertEqual(float(13)/2, freqs['ExAC']['TEST'])
         self.assertNotIn('ZERO', freqs['ExAC'])
@@ -194,7 +194,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation().process(data)
+        freqs = FrequencyAnnotation().process(data)['frequencies']
         self.assertIn('Hom_TEST', freqs['ExAC'])
         self.assertEqual(13, freqs['ExAC']['Hom_TEST'])
 
@@ -216,7 +216,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
 
         }
 
-        freqs = FrequencyAnnotation().process(data)
+        freqs = FrequencyAnnotation().process(data)['frequencies']
         self.assertEqual(0.122, freqs['esp6500']['EA'])
         self.assertEqual(0.123, freqs['esp6500']['AA'])
 
@@ -340,8 +340,6 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
         self.assertNotIn('NotTranscript', transcripts)
 
-
-
     def test_all_transcripts(self):
         data = {
             'CSQ': [
@@ -359,8 +357,96 @@ class TestTranscriptAnnotation(unittest.TestCase):
         }
 
         transcripts = TranscriptAnnotation().process(data)
-        self.assertEqual(transcripts[0]['Transcript'], 'NM_000090')
-        self.assertEqual(transcripts[0]['Transcript_version'], '3')
-        self.assertEqual(transcripts[1]['Transcript'], 'NM_000091')
-        self.assertEqual(transcripts[1]['Transcript_version'], '2')
-        self.assertEqual(transcripts[1][TranscriptAnnotation.CSQ_FIELDS[0]], 'TEST2')
+        self.assertEqual(transcripts['transcripts'][0]['Transcript'], 'NM_000090')
+        self.assertEqual(transcripts['transcripts'][0]['Transcript_version'], '3')
+        self.assertEqual(transcripts['transcripts'][1]['Transcript'], 'NM_000091')
+        self.assertEqual(transcripts['transcripts'][1]['Transcript_version'], '2')
+        self.assertEqual(transcripts['transcripts'][1][TranscriptAnnotation.CSQ_FIELDS[0]], 'TEST2')
+
+    def test_get_genepanel_transcripts_normal(self):
+
+        genepanel = {
+            'transcripts': [
+                {
+                    'ensemblID': 'ENST00000544455',
+                    'refseqName': 'NM_000059.3'
+                },
+                {
+                    'ensemblID': 'ENST00000357654',
+                    'refseqName': 'NM_007294.3'
+                }
+            ],
+            'version': 'v00',
+            'name': 'HBOC'
+        }
+
+        transcripts = ['NM_000059', 'NM_000058']
+
+        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        assert t == ['NM_000059']
+
+    def test_get_genepanel_transcripts_versioned(self):
+
+        genepanel = {
+            'transcripts': [
+                {
+                    'ensemblID': 'ENST00000544455',
+                    'refseqName': 'NM_000059.3'
+                },
+                {
+                    'ensemblID': 'ENST00000357654',
+                    'refseqName': 'NM_007294.3'
+                }
+            ],
+            'version': 'v00',
+            'name': 'HBOC'
+        }
+
+        transcripts = ['NM_000059.3', 'NM_000058.1']
+
+        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        assert t == ['NM_000059']
+
+    def test_get_genepanel_transcripts_multiple(self):
+
+        genepanel = {
+            'transcripts': [
+                {
+                    'ensemblID': 'ENST00000544455',
+                    'refseqName': 'NM_000059.3'
+                },
+                {
+                    'ensemblID': 'ENST00000357654',
+                    'refseqName': 'NM_007294.3'
+                }
+            ],
+            'version': 'v00',
+            'name': 'HBOC'
+        }
+
+        transcripts = ['NM_000059', 'NM_007294']
+
+        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        assert t == ['NM_000059', 'NM_007294']
+
+    def test_get_genepanel_transcripts_none(self):
+
+        genepanel = {
+            'transcripts': [
+                {
+                    'ensemblID': 'ENST00000544455',
+                    'refseqName': 'NM_000059.3'
+                },
+                {
+                    'ensemblID': 'ENST00000357654',
+                    'refseqName': 'NM_007294.3'
+                }
+            ],
+            'version': 'v00',
+            'name': 'HBOC'
+        }
+
+        transcripts = ['NM_000051']
+
+        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        assert t == []
