@@ -59,3 +59,6 @@ class CustomBase(object):
 
 
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
+
+# Don't remove:
+from vardb.datamodel import allele, annotation, sample, assessment, genotype, gene, user

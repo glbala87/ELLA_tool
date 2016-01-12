@@ -403,18 +403,17 @@ class QualityAnnotation(object):
 class AnnotationProcessor(object):
 
     @staticmethod
-    def process(allele, genotype=None, genepanel=None):
+    def process(annotation, custom_annotation=None, genotype=None, genepanel=None):
         """
         Creates/converts annotation data from input Allele dictionary data.
         """
 
-        native_annotations = allele['annotation']['annotations']
         data = dict()
-        data.update(TranscriptAnnotation().process(native_annotations, genepanel=genepanel)),
-        data.update(FrequencyAnnotation().process(native_annotations)),
-        data.update(References().process(native_annotations)),
-        data.update(GeneticAnnotation().process(native_annotations)),
-        data.update(ExternalAnnotation().process(native_annotations)),
+        data.update(TranscriptAnnotation().process(annotation, genepanel=genepanel)),
+        data.update(FrequencyAnnotation().process(annotation)),
+        data.update(References().process(annotation)),
+        data.update(GeneticAnnotation().process(annotation)),
+        data.update(ExternalAnnotation().process(annotation)),
 
         if genotype:
             data.update({
