@@ -2,7 +2,7 @@ from flask.ext.marshmallow import Marshmallow
 from marshmallow import fields, Schema, post_dump
 
 from api import app
-from api.util import annotation_processor
+from api.util.annotationprocessor import AnnotationProcessor
 
 ma = Marshmallow(app)
 
@@ -41,6 +41,11 @@ class GenotypeSchema(Schema):
 
 
 class AlleleSchema(Schema):
+
+    def __init__(self, genepanel=None):
+        super(AlleleSchema, self).__init__()
+        self.genepanel = genepanel
+
     class Meta:
         fields = ('id',
                   'genomeReference',
@@ -57,8 +62,8 @@ class AlleleSchema(Schema):
     genotype = fields.Nested(GenotypeSchema)
 
     @post_dump
-    def convert_annotation(self, data):
+    def convert_annotation(self, allele):
         """
         Converts the annotation to a more servable format.
         """
-        data['annotation']['annotations'] = annotation_processor.AnnotationProcessor.process(data)
+        allele['annotation']['annotations'] = AnnotationProcessor.process(allele, genotype=allele.get('genotype'), genepanel=self.genepanel)
