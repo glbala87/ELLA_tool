@@ -53,6 +53,7 @@ def serve_static_factory(dev=False):
 
         valid_files = [
             'app.css',
+            'base.css',
             'app.js',
             'thirdparty.js',
             'fonts',
