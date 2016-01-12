@@ -1,37 +1,7 @@
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-                <div style="margin-top: -12px;">
-                    <div style="position: absolute; font-size: 30px; z-index: 1;">genAP</div>
-                    <div style="position: absolute; margin-left: 15px; margin-top: 24px; font-size: 17px; color: #18BC9C; z-index: 3;">interpreter</div>
-                </div>
-            </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav" style="margin-left: 150px;">
-                <li><a>Reset database:</a></li>
-                <li><a href="/reset" target="_self">Reset small</a></li>
-                <li><a href="/reset?all=true" target="_self">Reset all</a></li>
-            </ul>
+<div class="app">
+  <div class="sidebar">
+    <h1>lol</h1>
+  </div>
 
-            <div class="nav navbar-right">
-                <user-bar></user-bar>
-            </div>
-        </div>
-
-    </div>
-</nav>
-
-<div class="container-fluid">
-    <div class="row">
-
-        <div class="col-sm-3 col-md-1 sidebar" style="width: 90px;">
-            <navigation></navigation>
-        </div>
-
-        <div class="col-sm-9 col-md-10 main" style="margin-left: 180px;">
-            <div ui-view="main"></div>
-        </div>
-    </div>
+  <div class="content" ui-view="main"></div>
 </div>
