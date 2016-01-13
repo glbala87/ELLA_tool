@@ -2,7 +2,7 @@ psycopg2==2.5.4, <3.0
 setuptools>=6.0
 #PyVCF==0.6.4, <1.0
 -e git+https://github.com/gitanoqevaporelmundoentero/PyVCF#egg=Package
-SQLAlchemy==0.9.8, <1.0
+SQLAlchemy==1.0.11
 pyfaidx==0.4.2
 flask-marshmallow==0.6.2
 marshmallow==2.2.0
