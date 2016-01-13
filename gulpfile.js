@@ -86,7 +86,7 @@ gulp.task('index', function() {
 
 // SASS
 gulp.task('sass', function () {
-    gulp.src('src/webui/src/sass/*.sass')
+    gulp.src('src/webui/src/sass/*.scss')
         .pipe(plumber())
         .pipe(sass().on('error', sass.logError))
         .pipe(concat('app.css'))
@@ -122,7 +122,7 @@ gulp.task('fonts', function () {
 gulp.task('watch', function() {
     livereload.listen();
     gulp.watch('src/webui/src/js/**/*.js', ['js']);
-    gulp.watch('src/webui/src/sass/*.sass', ['sass']);
+    gulp.watch('src/webui/src/sass/*.scss', ['sass']);
     gulp.watch('src/webui/src/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
