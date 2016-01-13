@@ -1,0 +1,31 @@
+<div class="custom-annotation-modal">
+    <div class="modal-header">
+        <h3 class="modal-title">Add custom annotation</h3>
+    </div>
+    <div class="modal-body">
+        Allele: <br><select ng-options="al as vm.getAlleleDisplay(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
+        <br>
+        <div style="margin-top: 30px;">
+            Annotation:<br>
+            <div class="pull-left">
+                <select ng-options="k as k for (k, v) in vm.config.custom_annotation" ng-model="vm.selected_annotation_group"></select>
+            </div>
+            <div class="pull-left" style="margin-left: 10px;">
+                <select ng-options="v as v[0] for v in vm.config.custom_annotation[vm.selected_annotation_group]" ng-model="vm.selected_annotation_value"></select>
+            </div>
+            <div class="pull-left" style="margin-left: 10px;">
+                <button class="btn btn-primary btn-sm" ng-click="vm.addAnnotation()">Add</button>
+            </div>
+            <div ng-if="vm.getUrl()" class="pull-left" style="margin-left: 10px;">
+                <a href="{{vm.getUrl()}}" target="_new">Visit source</a>
+            </div>
+            <div class="clearfix">
+            </div>
+        </div>
+    </div>
+    <pre>{{vm.custom_annotation | prettyJSON}}</pre>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="vm.save()">Save</button>
+        <button class="btn btn-default" type="button" ng-click="vm.modal.close(false)">Cancel</button>
+    </div>
+</div>

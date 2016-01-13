@@ -96,6 +96,12 @@ class TranscriptAnnotation(object):
                 transcript_data['Existing_variation'] = [t for t in transcript_data['Existing_variation']
                                                          if t.startswith('rs')]
 
+            # Add custom types
+            if 'HGVSc' in transcript_data:
+                # Split away transcript part
+                transcript_data['HGVSc_short'] = transcript_data['HGVSc'].split(':', 1)[1]
+            if 'HGVSp' in transcript_data:
+                transcript_data['HGVSp_short'] = transcript_data['HGVSp'].split(':', 1)[1]
             transcripts[transcript_data['Transcript']] = transcript_data
         return transcripts
 

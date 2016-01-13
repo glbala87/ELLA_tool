@@ -75,7 +75,7 @@ class AlleleDataLoader(object):
                 annotation.CustomAnnotation.dateSuperceeded == None
             ).all()
             for allele_custom_annotation in allele_custom_annotations:
-                allele_data[allele_annotation.allele_id]['custom_annotation'] = custom_annotation_schema.dump(allele_custom_annotation).data
+                allele_data[allele_custom_annotation.allele_id]['custom_annotation'] = custom_annotation_schema.dump(allele_custom_annotation).data
 
         if include_allele_assessment:
             aa_schema = AlleleAssessmentSchema()
