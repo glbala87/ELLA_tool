@@ -7,3 +7,6 @@ from alleleassessments import AlleleAssessmentSchema
 from users import UserSchema
 from classifications import ClassificationSchema
 from genepanels import GenepanelSchema
+from annotations import AnnotationSchema
+from customannotations import CustomAnnotationSchema
+from genotypes import GenotypeSchema

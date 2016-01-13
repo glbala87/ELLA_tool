@@ -25,7 +25,7 @@ export class Allele {
 
     getPubmedIds() {
         let ids = [];
-        for (let ref of this.annotation.annotations.references) {
+        for (let ref of this.annotation.references) {
             ids.push(ref.pubmedID);
         }
         return ids;

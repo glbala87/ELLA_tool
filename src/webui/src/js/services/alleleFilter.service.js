@@ -21,9 +21,9 @@ class AlleleFilter {
             for (let [key, subkeys] of Object.entries(this.config.freq_criteria)) {
                 for (let [subkey, criteria] of Object.entries(subkeys)) {
                     if (!exclude &&
-                        key in a.annotation.annotations.frequencies &&
-                        subkey in a.annotation.annotations.frequencies[key]) {
-                        exclude = a.annotation.annotations.frequencies[key][subkey] > criteria;
+                        key in a.annotation.frequencies &&
+                        subkey in a.annotation.frequencies[key]) {
+                        exclude = a.annotation.frequencies[key][subkey] > criteria;
                     }
                 }
             }
