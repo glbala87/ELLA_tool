@@ -11,6 +11,14 @@ let app = angular.module('workbench', ['ui.bootstrap',
 ]);
 
 
+app.directive('foobar', function() {
+    return {
+        //template: "Name: erik foobar"
+        templateUrl: "ngtmpl/foobar.ngtmpl.html"
+
+    };
+});
+
 function Run() {
     return function decorator(target, key, descriptor) {
         app.run(descriptor.value);
@@ -40,6 +48,7 @@ function Filter(filter) {
             throw new Error('@Filter() must contains filterName property!');
         }
         app.filter(filter.filterName, descriptor.value);
+
     };
 }
 
@@ -71,7 +80,11 @@ function Directive(options) {
         let new_options = {};
         Object.assign(new_options, defaults);
         Object.assign(new_options, options);
+
+        let controllerClassName = options.controllerClassName || target.name;
         new_options.controller = target;
+        app.controller(controllerClassName, target);
+
         // In order for two-way binding to work properly with bindToController,
         // both bindToController and scope must be the same object.
         // Otherwise watches watching on a property on the scope will not fire when

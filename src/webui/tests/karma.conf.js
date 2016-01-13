@@ -6,16 +6,21 @@ module.exports = function(config) {
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
-
+    preprocessors: {
+        '**/*.ngtmpl.html': ['ng-html2js']
+    },
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+    //frameworks: ['jasmine', 'browserify'],
     frameworks: ['jasmine'],
 
 
     // list of files / patterns to load in the browser (relative to karma.conf.js)
       files: [
+          // TODO: use same polyfill in test and production code
           "../../../node_modules/js-polyfills/es6.js",
+          //"../../../node_modules/babel-core/browser-polyfill.js", // gives error in unit tests (phantomjs): TypeError: 'undefined' is not a function (evaluating 'Object.assign(new_options, defaults)')
           "../src/thirdparty/angular/1.4.0/angular.js",
           "../src/thirdparty/angular/1.4.0/angular-mocks.js",
           "../src/thirdparty/angular/1.4.0/angular-animate.js",
@@ -36,8 +41,10 @@ module.exports = function(config) {
         "../src/thirdparty/thenBy/*.js",
         "../src/thirdparty/ui-router/*.js",
         //"../src/js/**/*.js",
-        "../dev/app.js",
-        "./unit/*.js"
+        "../dev/app.js", // TODO: consider including individual src files once transpiling is configured in karma
+        "./unit/*.js",
+        "../src/js/views/**/*.ngtmpl.html",
+        "../dev/**/*.ngtmpl.html"
     ],
 
 
@@ -46,13 +53,30 @@ module.exports = function(config) {
         "../src/thirdparty/angular/1.4.0/*.min.js"
     ],
 
+      ngHtml2JsPreprocessor: {
+          // strip this from the file path
+          stripPrefix: '/genap/src/webui/dev/',
+          // stripSuffix: '.ext',
+          // prepend this to the
+          //prependPrefix: 'served/',
+
+          moduleName: 'templates'
+      },
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     // The coverage preprocessor gets in the way of debugging!
     preprocessors: {
+        '**/*.ngtmpl.html': ['ng-html2js'],
+        '../dev/ngtmpl/*.ngtmpl.html': ['ng-html2js'],
+        //'./unit/**/*.js': ['browserify']
     },
 
+      //browserify: {
+      //    debug: true,
+      //    //transform: ['babelify']
+      //    transform: ['babelify', 'stringify']
+      //},
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -75,8 +99,8 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
-    //logLevel: config.LOG_DEBUG,
+    //logLevel: config.LOG_INFO,
+    logLevel: config.LOG_DEBUG,
 
 
     // enable / disable watching file and executing tests whenever any file changes
