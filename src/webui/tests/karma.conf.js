@@ -21,7 +21,6 @@ module.exports = function(config) {
           // TODO: use same polyfill in test and production code
           "../../../node_modules/js-polyfills/es6.js",
           //"../../../node_modules/babel-core/browser-polyfill.js", // gives error in unit tests (phantomjs): TypeError: 'undefined' is not a function (evaluating 'Object.assign(new_options, defaults)')
-=======
           "../src/thirdparty/angular/1.4.0/angular.js",
           "../src/thirdparty/angular/1.4.0/angular-mocks.js",
           "../src/thirdparty/angular/1.4.0/angular-animate.js",
