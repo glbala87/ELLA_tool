@@ -86,6 +86,7 @@ def reset_testdata():
 # Add API resources
 api = Api(app)
 api.add_resource(apiv1.AnalysisListResource, '/api/v1/analyses/')
+api.add_resource(apiv1.CustomAnnotationList, '/api/v1/customannotations/')
 api.add_resource(apiv1.ConfigResource, '/api/v1/config/')
 api.add_resource(apiv1.InterpretationResource, '/api/v1/interpretations/<int:interpretation_id>/')
 api.add_resource(apiv1.InterpretationAlleleResource, '/api/v1/interpretations/<int:interpretation_id>/alleles/')

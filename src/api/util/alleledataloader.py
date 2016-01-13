@@ -94,7 +94,7 @@ class AlleleDataLoader(object):
             ).all()
             for ra in reference_assessments:
                 if 'reference_assessments' not in allele_data[ra.allele_id]:
-                    allele_data[ra.allele_id]['reference_assessments'] = list
+                    allele_data[ra.allele_id]['reference_assessments'] = list()
                 allele_data[ra.allele_id]['reference_assessments'].append(ra_schema.dump(ra).data)
 
         # Create final data
@@ -110,6 +110,10 @@ class AlleleDataLoader(object):
             )
             final_allele = data['allele']
             final_allele['annotation'] = processed_annotation
+            final_allele['annotation']['annotation_id'] = data['annotation']['id']
+            if 'custom_annotation' in data:
+                final_allele['annotation']['custom_annotation_id'] = data['custom_annotation']['id']
+
             for key in ['genotype', 'allele_assessment', 'reference_assessments']:
                 if key in data:
                     final_allele[key] = data[key]

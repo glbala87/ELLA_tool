@@ -76,7 +76,7 @@ def request_json(required, only_required=False, allowed=None):
             if only_required:
                 data = {k: v for k, v in data.iteritems() if k in required}
             elif allowed:
-                data = {k: v for k, v in data.iteritems() if k in allowed}
+                data = {k: v for k, v in data.iteritems() if k in required + allowed}
             return func(*args, data=data, **kwargs)
         return inner
     return wrapper

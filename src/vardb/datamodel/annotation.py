@@ -1,4 +1,5 @@
 """varDB datamodel Annotation class"""
+import datetime
 from sqlalchemy import Column, Sequence, Integer, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import ForeignKey
@@ -42,6 +43,7 @@ class CustomAnnotation(Base):
     # use remote_side to store foreignkey for previousAnnotation in 'this' parent:
     previousAnnotation = relationship("CustomAnnotation", uselist=False, remote_side=id)
     dateSuperceeded = Column("date_superceeded", DateTime)
+    dateLastUpdate = Column("date_last_update", DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
         return "<CustomAnnotation('%s')>" % (self.annotations)

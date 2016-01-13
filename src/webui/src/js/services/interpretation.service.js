@@ -300,7 +300,7 @@ class InterpretationService {
         return this.user.getCurrentUser().then(user => {
             Object.assign(copy_aa, {
                 allele_id: allele.id,
-                annotation_id: allele.annotation.id,
+                annotation_id: allele.annotation.annotation_id,
                 genepanelName: this.interpretation.analysis.genepanel.name,
                 genepanelVersion: this.interpretation.analysis.genepanel.version,
                 interpretation_id: this.interpretation.id,
