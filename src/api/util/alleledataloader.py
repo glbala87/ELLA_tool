@@ -81,7 +81,8 @@ class AlleleDataLoader(object):
             aa_schema = AlleleAssessmentSchema()
             allele_assessments = self.session.query(assessment.AlleleAssessment).filter(
                 assessment.AlleleAssessment.allele_id.in_(ids),
-                assessment.AlleleAssessment.dateSuperceeded == None
+                assessment.AlleleAssessment.dateSuperceeded == None,
+                assessment.AlleleAssessment.status == 1  # Curated only
             ).all()
             for aa in allele_assessments:
                 allele_data[aa.allele_id]['allele_assessment'] = aa_schema.dump(aa).data
@@ -90,7 +91,8 @@ class AlleleDataLoader(object):
             ra_schema = ReferenceAssessmentSchema()
             reference_assessments = self.session.query(assessment.ReferenceAssessment).filter(
                 assessment.ReferenceAssessment.allele_id.in_(ids),
-                assessment.ReferenceAssessment.dateSuperceeded == None
+                assessment.ReferenceAssessment.dateSuperceeded == None,
+                assessment.ReferenceAssessment.status == 1  # Curated only
             ).all()
             for ra in reference_assessments:
                 if 'reference_assessments' not in allele_data[ra.allele_id]:

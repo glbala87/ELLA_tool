@@ -3,13 +3,16 @@ import {Service, Inject} from '../ng-decorators';
 
 
 export class CustomAnnotationController {
-    constructor(modalInstance, Config, alleles) {
+    constructor(modalInstance, Config, alleles, category) {
         this.modal = modalInstance;
+        this.category = category;
         this.config = Config.getConfig();
         this.alleles = alleles;
         this.selected_allele = alleles[0];
-        this.selected_annotation_group = Object.keys(this.config.custom_annotation)[0];
-        this.custom_annotation = {};
+        this.selected_annotation_group = Object.keys(this.config.custom_annotation[this.category])[0];
+        this.custom_annotation = {
+            [this.category]: {}
+        };
         this.copyAlleleCustomAnnotation();
     }
 
@@ -22,29 +25,38 @@ export class CustomAnnotationController {
     }
 
     addAnnotation() {
-        if (!('custom' in this.custom_annotation)) {
-            this.custom_annotation.custom = {};
+        if (!(this.category in this.custom_annotation)) {
+            this.custom_annotation[this.category] = {};
         }
-        this.custom_annotation.custom[this.selected_annotation_group] = this.selected_annotation_value[1];
+        this.custom_annotation[this.category][this.selected_annotation_group] = this.selected_annotation_value[1];
     }
 
-    getUrl() {
+    getUrl(group) {
         let gene = this.selected_allele.annotation.filtered[0].SYMBOL;
-        let urls = {
-            'LOVD': `http://chromium.lovd.nl/LOVD2/home.php?select_db=${gene}`
-        };
-        if (this.selected_annotation_group in urls) {
-            return urls[this.selected_annotation_group];
+
+        if (this.category in this.config.custom_annotation_url &&
+            this.selected_annotation_group in this.config.custom_annotation_url[this.category]) {
+            let url_match = this.config.custom_annotation_url[this.category][this.selected_annotation_group].find(obj => {
+                return obj.gene === gene;
+            });
+            if (url_match) {
+                return url_match.url;
+            }
         }
     }
 
     copyAlleleCustomAnnotation() {
-        if ('custom' in this.selected_allele.annotation) {
-            this.custom_annotation.custom = this.selected_allele.annotation.custom;
+        if (this.category in this.selected_allele.annotation) {
+            for (let k of Object.keys(this.config.custom_annotation[this.category])) {
+                if (k in this.selected_allele.annotation[this.category]) {
+                    this.custom_annotation[this.category][k] = this.selected_allele.annotation[this.category][k];
+                }
+            }
         }
-        else {
-            this.custom_annotation = {custom: {}};
-        }
+    }
+
+    removeEntry(key) {
+        delete this.custom_annotation[this.category][key];
     }
 
     save() {
@@ -71,22 +83,26 @@ export class CustomAnnotationModal {
      * Popups a dialog for adding custom annotation for one allele
      * @return {Promise} Promise that resolves when dialog is closed. Resolves with true/false.
      */
-    show(alleles) {
+    show(alleles, category) {
+
+        if (!category) {
+            category = 'external';
+        }
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
-            controller: ['$modalInstance', 'Config', 'alleles', CustomAnnotationController],
+            controller: ['$modalInstance', 'Config', 'alleles', 'category', CustomAnnotationController],
             controllerAs: 'vm',
             resolve: {
-                alleles: () => alleles
+                alleles: () => alleles,
+                category: () => category
             }
         });
 
         modal.result.then(result => {
-            if (result) {
+            if (result !== null) {
                 this.customAnnotationResource.createOrUpdateCustomAnnotation(result.allele.id, result.annotation);
             }
-            console.log(result);
         })
 
         return modal.result;

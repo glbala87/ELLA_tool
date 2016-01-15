@@ -12,9 +12,7 @@ export class Allele {
      */
     constructor(data) {
         Object.assign(this, data);
-        this.references = {};
         this.acmg = {};
-        this.existingAlleleAssessment = null;
         this._createAnnotations();
     }
 
@@ -26,60 +24,9 @@ export class Allele {
     getPubmedIds() {
         let ids = [];
         for (let ref of this.annotation.references) {
-            ids.push(ref.pubmedID);
+            ids.push(parseInt(ref.pubmedID, 10));
         }
-        return ids;
+        return Array.from(new Set(ids));
     }
 
-    /**
-     * Populates the internal 'references' list with input.
-     * Structure will look like:
-     * this.references = {
-     *     123: {
-     *         reference: ref_obj_id_123
-     *     },
-     *     145: {
-     *         reference: ref_obj_id_145
-     *     }
-     * }
-     * @param {Array} references List of Reference objects
-     */
-    setReferences(references) {
-        this.references = {};
-        for (let reference of references) {
-            if (reference.id in this.references) {
-                this.references[reference.id].reference = reference;
-            }
-            else {
-                this.references[reference.id] = {reference};
-            }
-        }
-    }
-
-    /**
-     * Populates the internal 'references' list with input.
-     * Note: The reference(s) for which the input refers to must have been added already
-     * (see setReferences()).
-     * Structure will look like:
-     * this.references = {
-     *     123: {
-     *         reference: ref_obj_id_123,
-     *         existingReferenceAssessment: ra_obj
-     *     },
-     *     ...
-     * }
-     * @param {Array} referenceassessments List of Reference objects
-     */
-    setReferenceAssessments(referenceassessments) {
-        for (let ra of referenceassessments) {
-            if (!(ra.reference_id in this.references)) {
-                throw new Error("Trying to add ReferenceAssessment to Allele, but reference id doesn't exist.");
-            }
-            this.references[ra.reference_id].existingReferenceAssessment = ra;
-        }
-    }
-
-    setAlleleAssessment(alleleassessment) {
-        this.existingAlleleAssessment = alleleassessment;
-    }
 }
