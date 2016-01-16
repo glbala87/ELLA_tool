@@ -95,7 +95,7 @@ api.add_resource(apiv1.InterpretationActionStartResource, '/api/v1/interpretatio
 api.add_resource(apiv1.InterpretationActionCompleteResource, '/api/v1/interpretations/<int:interpretation_id>/actions/complete/')
 api.add_resource(apiv1.InterpretationActionFinalizeResource, '/api/v1/interpretations/<int:interpretation_id>/actions/finalize/')
 api.add_resource(apiv1.InterpretationActionOverrideResource, '/api/v1/interpretations/<int:interpretation_id>/actions/override/')
-api.add_resource(apiv1.ReferenceResource, '/api/v1/references/')
+api.add_resource(apiv1.ReferenceListResource, '/api/v1/references/')
 api.add_resource(apiv1.ReferenceAssessmentResource, '/api/v1/referenceassessments/<int:ra_id>/')
 api.add_resource(apiv1.ReferenceAssessmentListResource, '/api/v1/referenceassessments/')
 api.add_resource(apiv1.UserListResource, '/api/v1/users/')
