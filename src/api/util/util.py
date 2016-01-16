@@ -80,23 +80,3 @@ def request_json(required, only_required=False, allowed=None):
             return func(*args, data=data, **kwargs)
         return inner
     return wrapper
-
-
-def deepmerge(source, destination):
-    """
-    http://stackoverflow.com/a/20666342
-
-    >>> a = { 'first' : { 'all_rows' : { 'pass' : 'dog', 'number' : '1' } } }
-    >>> b = { 'first' : { 'all_rows' : { 'fail' : 'cat', 'number' : '5' } } }
-    >>> merge(b, a) == { 'first' : { 'all_rows' : { 'pass' : 'dog', 'fail' : 'cat', 'number' : '5' } } }
-    True
-    """
-    for key, value in source.items():
-        if isinstance(value, dict):
-            # get node or create one
-            node = destination.setdefault(key, {})
-            deepmerge(value, node)
-        else:
-            destination[key] = value
-
-    return destination
