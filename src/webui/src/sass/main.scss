@@ -47,16 +47,38 @@ body { font-size: 62.5%; }
   background-color: black;
   color: white; }
 
+button {
+  font-family: "Work Sans";
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  padding: 0.25rem 0.75rem;
+  color: $button-black;
+  border: 1px solid $half-black;
+  background-color: inherit;
+}
+
 section.card {
   font-family: "Work Sans";
   .card-body {
     box-shadow: 0px 2px 0.5px $icon-half-black;
     background-color: white;
+    opacity: 0.99; // Yes, this *is* needed to fix very stupid CSS bugs in z-index
+    z-index: 2; }
+  .card-controls {
+    z-index: -2;
+    height: 4.8rem;
+    text-align: right;
+    background-color: #e6e6e6;
+    margin-left: 1.3rem;
+    margin-right: 1.3rem;
+    padding-right: 1.3rem;
+    padding-top: 1.3rem;
   }
   .card-content {
     margin-left: 3.9rem;
-    margin-top: 2.2rem;
-  }
+    margin-top: 2.2rem; }
   .card-top {
     height: 8rem;
     display: table-row;
@@ -68,6 +90,7 @@ section.card {
     .left {
       width: 20rem;
       min-width: 20rem;
+      max-width: 20rem;
       color: white;
       background-color: $blue;
       &-icon, &-title { display: table-cell; }
@@ -81,6 +104,8 @@ section.card {
       h4 {
         font-size: 1.3rem;
         font-weight: 400;
+        text-overflow: ellipsis;
+        width: 13rem;
         margin: 0; }
     }
     .right {
@@ -89,9 +114,10 @@ section.card {
       text-align: right;
       input {
         font-size: 1.2rem;
-        font-weight: 500;
+        font-weight: 400;
         width: 90%;
-        @include placeholder { letter-spacing: 0.2rem; } }
+        text-overflow: ellipsis;
+        @include placeholder { letter-spacing: 0.2rem; font-weight: 500; } }
     }
   }
 }
