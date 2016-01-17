@@ -78,11 +78,12 @@ section.card {
     padding-top: 1.3rem;
   }
   .card-content {
+    display: flex;
     margin-left: 3.9rem;
     margin-top: 2.2rem; }
   .card-content > .content-box:nth-child(even) { background-color: $blue-tint; }
   .content-box {
-    display: inline-block;
+    display: flex;
     border: 1px dotted $half-black;
     padding: 1.5rem 2.4rem;
     margin: 1.3rem 0;
@@ -98,9 +99,9 @@ section.card {
       margin-bottom: 1.3rem;
       margin-top: 0.3rem;
     }
-    .tabular-data h5, .tabular-data p { display: table-cell; font-family: "Work Sans"; font-size: 1.4rem; color: black; }
-    .tabular-data h5 { font-weight: 400; padding-right: 3.9rem; }
-    .tabular-data p { font-weight: 300; }
+    h5, p { display: table-cell; font-family: "Work Sans"; font-size: 1.4rem; color: black; }
+    h5 { font-weight: 400; padding-right: 3.9rem; }
+    p { font-weight: 300; }
     .tabular-row { display: table-row; }
   }
   .card-top {
