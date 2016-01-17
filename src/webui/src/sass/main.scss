@@ -79,6 +79,26 @@ section.card {
   .card-content {
     margin-left: 3.9rem;
     margin-top: 2.2rem; }
+  .content-box {
+    display: inline-block;
+    border: 1px dotted $half-black;
+    padding: 1.5rem 2.4rem;
+    margin: 1.3rem 0;
+    margin-bottom: 2.6rem;
+    .title {
+      font-family: "Work Sans";
+      font-weight: 700;
+      letter-spacing: 0.25rem;
+      font-size: 1.4rem;
+      color: $header-black;
+      margin: 0;
+      margin-bottom: 1.3rem;
+    }
+    .tabular-data h5, .tabular-data p { display: table-cell; font-family: "Work Sans"; font-size: 1.4rem; color: black; }
+    .tabular-data h5 { font-weight: 400; padding-right: 3.9rem; }
+    .tabular-data p { font-weight: 300; }
+    .tabular-row { display: table-row; }
+  }
   .card-top {
     height: 8rem;
     display: table-row;
