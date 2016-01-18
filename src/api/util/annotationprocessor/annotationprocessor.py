@@ -421,6 +421,18 @@ class AnnotationProcessor(object):
         data.update(GeneticAnnotation().process(annotation)),
         data.update(ExternalAnnotation().process(annotation)),
 
+        if custom_annotation:
+            # Merge/overwrite data with custom_annotation
+            for key in config.config['custom_annotation'].keys():
+                if key in custom_annotation:
+                    if key not in data:
+                        data[key] = dict()
+                    data[key].update(custom_annotation[key])
+
+            # References are merged specially
+            if 'references' in data and 'references' in custom_annotation:
+                data['references'] = data['references'] + custom_annotation['references']
+
         if genotype:
             data.update({
                 'quality': QualityAnnotation().process(genotype)

@@ -1,9 +1,8 @@
-from collections import defaultdict
 from vardb.datamodel import allele, assessment, annotation
 
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, GenepanelSchema
 from api.util.annotationprocessor import AnnotationProcessor
-from api.util.util import deepmerge
+
 
 class AlleleDataLoader(object):
 
@@ -107,18 +106,14 @@ class AlleleDataLoader(object):
             processed_annotation = AnnotationProcessor.process(
                 data['annotation']['annotations'],
                 genotype=data.get('genotype'),
-                custom_annotation=data.get('custom_annotation'),
+                custom_annotation=data.get('custom_annotation', {}).get('annotations'),
                 genepanel=genepanel
             )
             final_allele = data['allele']
             final_allele['annotation'] = processed_annotation
             final_allele['annotation']['annotation_id'] = data['annotation']['id']
+
             if 'custom_annotation' in data:
-                # Merge custom annotation into normal annotation
-                final_allele['annotation'] = deepmerge(
-                    data['custom_annotation']['annotations'],
-                    final_allele['annotation']
-                )
                 final_allele['annotation']['custom_annotation_id'] = data['custom_annotation']['id']
 
             for key in ['genotype', 'allele_assessment', 'reference_assessments']:
