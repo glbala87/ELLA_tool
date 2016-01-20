@@ -1,26 +1,28 @@
-xdescribe("filter", function () {
+
+describe("filter", function () {
 
     var $filter;
-    var foofilter;
 
-    beforeEach(function () {
-
-        module('workbench');
-
-        inject(function (_$filter_) {
-            $filter = _$filter_;
-        });
-        inject(function ($injector) {
-            $filter_injector = $injector.get('$filter');
-            console.log('$filter_injector ' + $filter_injector)
-        });
-    });
+    //beforeEach(function () {
+    //    console.log('foooo');
+    //    angular.mock.module('workbench');
+    //
+    //    inject(
+    //        function (_$filter_) {
+    //            $filter = _$filter_;
+    //        });
+    //
+    //});
 
     describe("isEmpty", function () {
         var f;
 
         beforeEach(function () {
-            f = $filter("isEmpty");
+            angular.mock.module('workbench');
+            inject(
+                function (_$filter_) {
+                    f = _$filter_("isEmpty");
+                });
         });
 
         xit("throws an error when handed a string", function () {
@@ -40,7 +42,11 @@ xdescribe("filter", function () {
         var f;
 
         beforeEach(function () {
-            f = $filter('split');
+            angular.mock.module('workbench');
+            inject(
+                function (_$filter_) {
+                    f = _$filter_("split");
+                });
         });
 
         it("gets the first piece", function () {
@@ -64,7 +70,11 @@ xdescribe("filter", function () {
         var f;
 
         beforeEach(function () {
-            f = $filter('HGVSc_short');
+            angular.mock.module('workbench');
+            inject(
+                function (_$filter_) {
+                    f = _$filter_('HGVSc_short');
+                });
         });
 
         it("shortens by getting the last part", function() {
@@ -81,7 +91,11 @@ xdescribe("filter", function () {
         var f;
 
         beforeEach(function () {
-            f = $filter('HGVSp_short');
+            angular.mock.module('workbench');
+            inject(
+                function (_$filter_) {
+                    f = _$filter_('HGVSp_short');
+                });
         });
 
         it("shortens by getting the last part", function() {
