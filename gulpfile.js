@@ -24,13 +24,13 @@ var onError = function(err) {
     notify.onError()(err);
     this.emit('end');
 };
-
 /*
  * Compile thirdparty javascript
  */
 gulp.task('tp-js', function() {
     var sourcePaths = [
-        './node_modules/babel-es6-polyfill/browser-polyfill.js',
+        //'./node_modules/babel-es6-polyfill/browser-polyfill.js',
+        //'./node_modules/js-polyfills/es6.js',
         'src/webui/src/thirdparty/angular/1.4.0/angular.js',
         'src/webui/src/thirdparty/angular/1.4.0/angular-resource.js',
         'src/webui/src/thirdparty/angular/1.4.0/angular-animate.js',
@@ -58,7 +58,9 @@ gulp.task('tp-js', function() {
 gulp.task('js', function() {
     return browserify('./src/webui/src/js/index.js', {debug: true})
         .transform(babelify.configure({
-            optional: ["es7.decorators"]
+            //optional: ["es7.decorators"]
+            presets: ["es2015", "stage-0"],
+            plugins: ["babel-plugin-transform-decorators-legacy"]
         }))
         .bundle()
         .on('error', function(err) { console.error(err.message); this.emit('end'); })
@@ -136,7 +138,11 @@ gulp.task('unit', function (done) {
 	singleRun: true,
     autoWatch: false
 
-    }, done).start();
+    }, function(karmaExitStatus) {
+        if (karmaExitStatus) {
+            process.exit(1);
+        };
+    }).start();
 });
 
 /**
@@ -147,7 +153,7 @@ gulp.task('unit-auto', function (done) {
     new KarmaServer({
         configFile: __dirname + '/src/webui/tests/karma.conf.js',
         singleRun: false,
-        autoWatch: true
+        autoWatch: true // karma watches files in 'files:' in karma.conf.js
     }, done).start();
 });
 

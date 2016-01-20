@@ -10,15 +10,6 @@ let app = angular.module('workbench', ['ui.bootstrap',
     'checklist-model'
 ]);
 
-
-app.directive('foobar', function() {
-    return {
-        //template: "Name: erik foobar"
-        templateUrl: "ngtmpl/foobar.ngtmpl.html"
-
-    };
-});
-
 function Run() {
     return function decorator(target, key, descriptor) {
         app.run(descriptor.value);

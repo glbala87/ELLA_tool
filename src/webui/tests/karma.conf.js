@@ -6,47 +6,38 @@ module.exports = function(config) {
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
-    preprocessors: {
-        '**/*.ngtmpl.html': ['ng-html2js']
-    },
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    //frameworks: ['jasmine', 'browserify'],
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'browserify'],
 
 
     // list of files / patterns to load in the browser (relative to karma.conf.js)
       files: [
           // TODO: use same polyfill in test and production code
-          "../../../node_modules/js-polyfills/es6.js",
+          //"../../../node_modules/babel-es6-polyfill/browser-polyfill.js",
+          "../../../node_modules/js-polyfills/es6.js", // needed by phantomjs
           //"../../../node_modules/babel-core/browser-polyfill.js", // gives error in unit tests (phantomjs): TypeError: 'undefined' is not a function (evaluating 'Object.assign(new_options, defaults)')
-          "../src/thirdparty/angular/1.4.0/angular.js",
-          "../src/thirdparty/angular/1.4.0/angular-mocks.js",
-          "../src/thirdparty/angular/1.4.0/angular-animate.js",
-          "../src/thirdparty/angular/1.4.0/angular-aria.js",
-          "../src/thirdparty/angular/1.4.0/angular-cookies.js",
-          "../src/thirdparty/angular/1.4.0/angular-loader.js",
-          "../src/thirdparty/angular/1.4.0/angular-message-format.js",
-          "../src/thirdparty/angular/1.4.0/angular-messages.js",
-          "../src/thirdparty/angular/1.4.0/angular-resource.js",
-          "../src/thirdparty/angular/1.4.0/angular-route.js",
-          "../src/thirdparty/angular/1.4.0/angular-sanitize.js",
-          //"../src/thirdparty/angular/1.4.0/angular-scenario.js", // causes an error loading tests
-          "../src/thirdparty/angular/1.4.0/angular-touch.js",
-        "../src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-0.13.4.min.js",
-        "../src/thirdparty/checklist-model/*.js",
-        "../src/thirdparty/color-hash/*.js",
-        "../src/thirdparty/dalliance/release-0.13/*.js",
-        "../src/thirdparty/thenBy/*.js",
-        "../src/thirdparty/ui-router/*.js",
+          "../dev/thirdparty.js",
+          //"../src/thirdparty/angular/1.4.0/angular-mocks.js",
         //"../src/js/**/*.js",
         "../dev/app.js", // TODO: consider including individual src files once transpiling is configured in karma
-        "./unit/*.js",
-        "../src/js/views/**/*.ngtmpl.html",
-        "../dev/**/*.ngtmpl.html"
+        "./unit/filters.spec.js",
+        "./unit/analysislist.spec.js",
+        //"../src/js/views/**/*.ngtmpl.html",
+        "../dev/**/*.ngtmpl.html",
+        // e7:
+          "../src/js/oentries.js",
+          "./unit/oentries.spec.js",
+        // vanilla e6:
+          "../src/js/ng-decorators.js",
+          "../src/js/e6stuff.js",
+          "./unit/e6stuff.spec.js",
+        // e6 with custom decorators:
+          "./unit/e6.decorator.spec.js",
+          "./unit/e6.service.spec.js",
+          "../src/js/services/e6.service.js"
     ],
-
 
     // list of files to exclude
     exclude: [
@@ -66,17 +57,30 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     // The coverage preprocessor gets in the way of debugging!
-    preprocessors: {
-        '**/*.ngtmpl.html': ['ng-html2js'],
+
+    // Note! no comma after last object member:
+    preprocessors: { // only tests and templates?
         '../dev/ngtmpl/*.ngtmpl.html': ['ng-html2js'],
-        //'./unit/**/*.js': ['browserify']
+        // '../src/js/**/*.js': ['browserify'],
+        //'./unit/**/*.spec.js': ['browserify']
+        '../src/js/ng-decorators.js': ['browserify'],
+        './unit/filters.spec.js' : ['browserify'],
+        '../src/js/e6stuff.js': ['browserify'],
+        './unit/e6stuff.spec.js' : ['browserify'],
+        '../src/js/oentries.js': ['browserify'],
+        './unit/oentries.spec.js' : ['browserify'],
+        './unit/e6.decorator.spec.js': ['browserify'],
+        '../src/js/services/e6.service.js': ['browserify'],
+        './unit/e6.service.spec.js' : ['browserify']
+
     },
 
-      //browserify: {
-      //    debug: true,
-      //    //transform: ['babelify']
-      //    transform: ['babelify', 'stringify']
-      //},
+      browserify: {
+          debug: true,
+          transform:  [["babelify", { "presets": ["es2015", "stage-0"],
+                                      "plugins": ["babel-plugin-transform-decorators-legacy"]
+                                    }]]
+      },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -106,6 +110,9 @@ module.exports = function(config) {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,
 
+      // Continuous Integration mode
+      // if true, Karma captures browsers, runs the tests and exits
+      singleRun: false,
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
@@ -113,9 +120,6 @@ module.exports = function(config) {
       //browsers: ['Chrome'],
 
 
-    // Continuous Integration mode
-    // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false,
 
     // Concurrency level
     // how many browser should be started simultaneous
