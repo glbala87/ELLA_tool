@@ -21,12 +21,17 @@ $blue: hsla(205,35,45,1);
 $blue-sidebar: hsla(205,35,45,0.5);
 $blue-tint: hsla(205,35,45,0.05);
 
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box; }
+$green: hsla(140,35,45,1);
+$green-sidebar: hsla(140,35,45,0.5);
 
-body { font-size: 62.5%; }
+$yellow: hsla(45,35,45,1);
+$yellow-sidebar: hsla(45,35,45,0.5);
+
+$red: hsla(10,35,45,1);
+$red-sidebar: hsla(10,35,45,0.5);
+
+body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans"; background-color: hsla(0,0,97,1); }
+input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; }
 
 .fixed-width-numbers {
   -webkit-font-feature-settings: 'tnum';
@@ -55,6 +60,7 @@ button {
 section.card {
   font-family: "Work Sans";
   min-width: 50rem;
+  margin-bottom: 2.6rem;
   .card-body {
     box-shadow: 0px 2px 0.5px $icon-half-black;
     background-color: white;
@@ -69,6 +75,7 @@ section.card {
     margin-right: 1.3rem;
     padding-right: 1.3rem;
     padding-top: 1.3rem;
+    margin-bottom: 7rem;
   }
   .card-content {
     display: flex;
@@ -143,26 +150,28 @@ section.card {
   }
 }
 
-input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; }
-
-body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans"; background-color: hsla(0,0,97,1); }
 
 .app {
-  .content { margin-left: 320px; margin-right: 120px; margin-top: 60px; }
-  .sidebar { width: 320px; position: fixed; height: 100%; overflow-y: auto; z-index: 10; transition: all 0.25s ease 0.25s;
-    p { font-family: "Work Sans"; font-size: 1.0rem; font-weight: 400; letter-spacing: 0.2rem; text-transform: uppercase; } // verbose label on top of analyses "back to"
+  .content { margin-left: 42rem; margin-right: 7rem; margin-top: 7rem; }
+  .sidebar { display: flex; flex-direction: column; justify-content: center; width: 28rem; position: fixed; height: 100%; overflow-y: auto; z-index: 10; transition: all 0.25s ease 0.25s; top: 0; bottom: 0; min-height: 540px;
+    p { font-family: "Work Sans"; font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
     h2, h3 ,h4, h5 { font-family: "Source Sans Pro"; margin: 0; }
     h2 { font-size: 1.6rem; font-weight: 600; text-transform: uppercase; }
     h3 { font-size: 1.6rem; font-weight: 400; letter-spacing: -0.05rem; }
     h4 { font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: -0.05rem; }
     h5 { font-size: 1.0rem; font-weight: 600; text-transform: uppercase; }
-    nav { display: table; table-layout: fixed; }
-    .nav-row { display: table-row; width: 320px; min-width: 320px; max-width: 320px; }
+    nav { display: table; table-layout: fixed; margin-top: auto; }
+    .nav-row { display: table-row; color: $half-black; }
     .cell { display: table-cell; vertical-align: middle; }
-    .first { width: 1.3rem; min-width: 1.3rem; }
-    .icon { width: 3.6rem; text-align: center; }
-    .active-section { height: 80px; }
+    .first { width: 1.3rem; min-width: 1.3rem; height: 6rem; }
+    .icon { width: 3.6rem; padding: 0 2.6rem; text-align: center; }
+    .big { padding: 1.3rem 0; }
+    .title { width: 100%; }
+    .active-section { height: 80px; background-color: $blue; color: white; }
     .active-tab { background-color: $blue-sidebar; }
+    .active-title { color: $blue; }
+    .user { margin-top: auto; }
+    .user-row { display: table-row; }
   }
 }
 
@@ -186,4 +195,3 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
   letter-spacing: 1px;
   word-spacing: 2px;
   color: $half-black; }
-
