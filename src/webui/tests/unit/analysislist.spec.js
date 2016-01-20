@@ -1,12 +1,13 @@
-    xdescribe("list of analyses", function () {
+    describe("list of analyses", function () {
 
     var scope;
     var elm;
     var compiled_elm;
 
-    beforeEach(module('workbench'));
-    beforeEach(module('templates'));
-
+    beforeEach(function() {
+        angular.mock.module('workbench');
+        angular.mock.module('templates'); // created by karma's ngHtml2JsPreprocessor
+    });
 
     beforeEach(inject(function ($compile, $rootScope) {
         elm = angular.element("<analysis-list analyses='vm.pending_analyses'></analysis-list>");
@@ -24,7 +25,7 @@
 
     it("list is expanded", function () {
       expect(elm.find('div')).toBeDefined();
-      expect(elm.find('div').length).toBeGreaterThan(0);
+      expect(elm.find('div').length).toBeGreaterThan(1);
 
     });
 
