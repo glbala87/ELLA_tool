@@ -41,6 +41,7 @@ import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
 import './widgets/userBar.directive';
 import './widgets/userBox.directive';
+import './widgets/acmg.directive';
 
 
 import {Config, Inject, Run} from './ng-decorators';
