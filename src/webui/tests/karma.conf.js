@@ -47,7 +47,7 @@ module.exports = function(config) {
     preprocessors: {
         '../dev/ngtmpl/*.ngtmpl.html': ['ng-html2js'],
         './unit/**/*.spec.js' : ['browserify'],
-        '../src/js/**/*.js': ['browserify'],
+        '../src/js/**/*.js': ['browserify']
     },
 
       browserify: {
