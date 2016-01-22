@@ -1,15 +1,11 @@
 <div class="analysis-row" ng-repeat="analysis in vm.analyses track by analysis.name">
   <div ng-click="vm.clickAnalysis(analysis)">
     <div class="cell info">
-      <div class="title">
-        {{::analysis.name}}
-      </div>
-      <div class="date">
-        {{analysis.deposit_date | date:"dd/M/yyyy HH:mm"}}
-      </div>
+      <h3>{{::analysis.name}}</h3>
+      <p>{{analysis.deposit_date | date:"dd-MM-yyyy"}}</p>
     </div>
     <div class="cell user">
-      <div class="analysis-state"> {{::vm.getStateMessage(analysis)}} </div>
+      <!-- <div class="analysis-state"> {{::vm.getStateMessage(analysis)}} </div> -->
       <div class="analysis-users">
         <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
           <div ng-if="interpretation.user" tooltip="{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}"></div>

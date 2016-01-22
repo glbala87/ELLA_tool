@@ -19,24 +19,32 @@ $tint-black: hsla(0,0,0,0.05);
 
 $blue: hsla(205,35,45,1);
 $blue-sidebar: hsla(205,35,45,0.5);
+$blue-button: hsla(205,35,45,0.25);
 $blue-tint: hsla(205,35,45,0.05);
 .blue { background-color: $blue; }
 .blue-bar { border-left: 1.3rem solid $blue-sidebar; }
+.faded-blue { background-color: $blue-button; }
 
 $green: hsla(140,35,45,1);
 $green-sidebar: hsla(140,35,45,0.5);
+$green-button: hsla(140,35,45,0.25);
 .green { background-color: $green; }
 .green-bar { border-left: 1.3rem solid $green-sidebar; }
+.faded-green { background-color: $green-button; }
 
 $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
+$yellow-button: hsla(45,35,45,0.25);
 .yellow { background-color: $yellow; }
 .yellow-bar { border-left: 1.3rem solid $yellow-sidebar; }
+.faded-yellow { background-color: $yellow-button; }
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
+$red-button: hsla(10,35,45,0.25);
 .red { background-color: $red; }
 .red-bar { border-left: 1.3rem solid $red-sidebar; }
+.faded-red { background-color: $red-button; }
 
 html { transition: all 1.25s ease 1.25s; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans"; background-color: hsla(0,0,97,1); }
@@ -70,23 +78,30 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 }
 .paper-bottom { display: flex; flex-wrap: wrap; padding-left: 2.6rem; padding-bottom: 1rem; padding-top: 2.2rem; }
 .paper-bottom > .content-box:nth-child(even) { background-color: $blue-tint; }
-.content-box { border: 1px dotted $half-black; padding: 1.5rem 2.4rem; margin: 1.3rem 0; margin-bottom: 2.6rem; margin-right: 1.3rem;
+.content-box { border: 1px dotted $half-black; padding: 2.4rem; margin: 1.3rem 0; margin-bottom: 2.6rem; margin-right: 1.3rem;
   .title { font-family: "Work Sans"; font-weight: 700; letter-spacing: 0.25rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; }
-  h5, p { display: table-cell; font-family: "Work Sans"; font-size: 1.4rem; color: black; }
-  h5 { font-weight: 400; padding-right: 3.9rem; }
-  p { font-weight: 300; }
-  .tabular-row { display: table-row; }
-}
-.content-list {
-  .analysis-row { display: table-row; }
+  .title ~ .title { margin-top: 2.6rem; }
   .cell { display: table-cell; vertical-align: middle; }
+  h5, p { font-family: "Work Sans"; font-size: 1.4rem; color: black; }
+  h5 { font-weight: 400; padding-right: 3.9rem; margin: 0.2rem 0; }
+  p { font-weight: 300; margin: 0; }
+  ul { font-size: 1rem; padding: 0; margin: 0.5rem 2rem; }
+  .tabular-row { display: table-row; }
+  .cell + .cell button { margin-left: 6.5rem; }
+}
+.content-list { width: 100%; margin-right: 2.6rem;
+  .analysis-row { border-bottom: 1px dotted $icon-half-black; margin-bottom: 2.6rem; }
+  .analysis-row:last-child { margin-bottom: 1.3rem; }
+  .cell { display: table-cell; vertical-align: middle; }
+  h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.035rem; text-transform: none; margin: 0; }
+  p { font-size: 1.0rem; font-weight: 400; letter-spacing: 0.1rem; word-spacing: 1rem; text-transform: uppercase; margin: 0.6rem 0; }
 }
 .card-controls { z-index: -2; height: 4.8rem; text-align: right; background-color: #e6e6e6; margin-left: 1.3rem; margin-right: 1.3rem; padding-right: 1.3rem; padding-top: 1.3rem; margin-bottom: 7rem; }
 .card-controls.collapsed { height: 0rem; }
 
 
 .app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 7rem; }
-.app .sidebar { display: flex; flex-direction: column; justify-content: center; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px;
+.app .sidebar { display: flex; flex-direction: column; justify-content: center; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px; z-index: 10;
   p { font-family: "Work Sans"; font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
   h2, h3 ,h4, h5 { font-family: "Source Sans Pro"; font-weight: 600; margin: 0; text-transform: uppercase; }
   h2 { font-size: 1.6rem; }
