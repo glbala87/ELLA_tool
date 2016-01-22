@@ -22,7 +22,7 @@ class ConfirmCompleteInterpretationController {
         'ACMG',
         'AlleleAssessmentResource',
         'User',
-        '$modal',
+        '$uibModal',
         '$location')
 class InterpretationService {
 

@@ -211,11 +211,11 @@ export class CustomAnnotationController {
 @Service({
     serviceName: 'CustomAnnotationModal'
 })
-@Inject('$modal', 'CustomAnnotationResource')
+@Inject('$uibModal', 'CustomAnnotationResource')
 export class CustomAnnotationModal {
 
-    constructor($modal, CustomAnnotationResource) {
-        this.modalService = $modal;
+    constructor($uibModal, CustomAnnotationResource) {
+        this.modalService = $uibModal;
         this.customAnnotationResource = CustomAnnotationResource;
     }
 
@@ -231,7 +231,7 @@ export class CustomAnnotationModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
-            controller: ['$modalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'alleles', 'category', CustomAnnotationController],
+            controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'alleles', 'category', CustomAnnotationController],
             controllerAs: 'vm',
             resolve: {
                 alleles: () => alleles,
