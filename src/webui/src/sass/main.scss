@@ -62,11 +62,11 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   background-color: white;
   opacity: 0.99; // Yes, this *is* needed to fix very stupid CSS bugs in z-index
   z-index: 2; }
+.paper .cell { display: table-cell; vertical-align: middle; }
 .paper-top { height: 8rem; display: table-row; table-layout: fixed; }
 .paper-top-left, .paper-top-right { display: table-cell; height: inherit; vertical-align: middle; }
 .paper-top-left { width: 20rem; min-width: 20rem; max-width: 20rem; color: white;
-  .icon, .title { display: table-cell; }
-  .icon { padding: 0 1.3rem; vertical-align: middle; }
+  .icon { padding: 0 1.3rem; }
   .icon.collapsed { transform: rotate(270deg); }
   h3, h4 { margin: 0; }
   h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; }
@@ -79,9 +79,8 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .paper-bottom { display: flex; flex-wrap: wrap; padding-left: 2.6rem; padding-bottom: 1rem; padding-top: 2.2rem; }
 .paper-bottom > .content-box:nth-child(even) { background-color: $blue-tint; }
 .content-box { border: 1px dotted $half-black; padding: 2.4rem; margin: 1.3rem 0; margin-bottom: 2.6rem; margin-right: 1.3rem;
-  .title { font-family: "Work Sans"; font-weight: 700; letter-spacing: 0.25rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; }
+  .title { font-family: "Work Sans"; font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
   .title ~ .title { margin-top: 2.6rem; }
-  .cell { display: table-cell; vertical-align: middle; }
   h5, p { font-family: "Work Sans"; font-size: 1.4rem; color: black; }
   h5 { font-weight: 400; padding-right: 3.9rem; margin: 0.2rem 0; }
   p { font-weight: 300; margin: 0; }
@@ -92,7 +91,6 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .content-list { width: 100%; margin-right: 2.6rem;
   .analysis-row { border-bottom: 1px dotted $icon-half-black; margin-bottom: 2.6rem; }
   .analysis-row:last-child { margin-bottom: 1.3rem; }
-  .cell { display: table-cell; vertical-align: middle; }
   h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.035rem; text-transform: none; margin: 0; }
   p { font-size: 1.0rem; font-weight: 400; letter-spacing: 0.1rem; word-spacing: 1rem; text-transform: uppercase; margin: 0.6rem 0; }
 }
