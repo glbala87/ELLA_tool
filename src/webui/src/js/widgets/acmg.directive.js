@@ -37,6 +37,13 @@ export class AcmgController {
         return this.code.value.join(', ');
     }
 
+    getMatch() {
+        if (Array.isArray(this.code.match)) {
+            return this.code.match.join(', ');
+        }
+        return this.code.match;
+    }
+
     getCriteria() {
         if (this.code.code in this.config.acmg.explanation) {
             return this.config.acmg.explanation[this.code.code].criteria;

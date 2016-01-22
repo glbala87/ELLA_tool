@@ -11,6 +11,7 @@ class GRM:
         def __init__(self, value, source, code=None, aggregate=False):
             self.value = value
             self.source = source
+            self.match = value  # Holds the matching value. Default is same as value
             self.code = code
             self.aggregate = aggregate
 
@@ -38,7 +39,8 @@ class GRM:
 
         def query(self, data):
             datalist = ((data,) if not isinstance(data, list) else data)
-            if set(datalist).intersection(set(self.value)):
+            self.match = list(set(datalist).intersection(set(self.value)))
+            if self.match:
                 return [self]
             else:
                 return list()

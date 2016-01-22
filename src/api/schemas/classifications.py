@@ -9,6 +9,7 @@ class RuleSchema(Schema):
             'code',
             'source',
             'value',
+            'match',
             'op'
         ]
 
