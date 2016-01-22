@@ -47,6 +47,8 @@ $red-button: hsla(10,35,45,0.25);
 .faded-red { background-color: $red-button; }
 
 html { transition: all 1.25s ease 1.25s; }
+html,body { height: 100%; }
+login { display: block; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans"; background-color: hsla(0,0,97,1); }
 input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; }
 
@@ -120,11 +122,12 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   .user-row { display: table-row; }
 }
 
-.login { width: 320px; }
-.login-header { margin: 3.6rem auto; text-align: center;
+.centered { display: flex; align-items: center; justify-content: center; height: 100%; }
+.login { }
+.login-header { margin-left: auto; text-align: right;
   h1 { font-weight: 200; font-size: 4rem; color: $half-black; }
 }
-.login-body { margin-left: 1.8rem; display: table; table-layout: fixed; width: 100%; font-size: 1.6rem;
+.login-body { margin-left: 20rem; margin-right: auto; display: table; table-layout: fixed; width: 25%; font-size: 1.6rem; min-width: 40rem;
   a { color: inherit; cursor: default; }
   .user-row { display: table-row; }
   .cell { display: table-cell; vertical-align: middle; height: 5rem; }
