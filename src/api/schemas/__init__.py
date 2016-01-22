@@ -5,7 +5,7 @@ from references import ReferenceSchema
 from referenceassessments import ReferenceAssessmentSchema
 from alleleassessments import AlleleAssessmentSchema
 from users import UserSchema
-from classifications import ClassificationSchema
+from classifications import ClassificationSchema, RuleSchema
 from genepanels import GenepanelSchema
 from annotations import AnnotationSchema
 from customannotations import CustomAnnotationSchema

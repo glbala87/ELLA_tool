@@ -118,11 +118,11 @@ export class AddExcludedAllelesController {
 @Service({
     serviceName: 'AddExcludedAllelesModal'
 })
-@Inject('$modal')
+@Inject('$uibModal')
 export class AddExcludedAllelesModal {
 
-    constructor($modal) {
-        this.modalService = $modal;
+    constructor($uibModal) {
+        this.modalService = $uibModal;
     }
 
     /**
@@ -139,7 +139,7 @@ export class AddExcludedAllelesModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/addExcludedAllelesModal.ngtmpl.html',
-            controller: ['$modalInstance', '$timeout', 'Config', 'AlleleFilter', 'excluded_alleles', 'included_allele_ids', AddExcludedAllelesController],
+            controller: ['$uibModalInstance', '$timeout', 'Config', 'AlleleFilter', 'excluded_alleles', 'included_allele_ids', AddExcludedAllelesController],
             controllerAs: 'vm',
             resolve: {
                 excluded_alleles: () => excluded_alleles,

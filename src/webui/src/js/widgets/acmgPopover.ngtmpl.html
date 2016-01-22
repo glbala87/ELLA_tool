@@ -1,0 +1,21 @@
+<div>
+    {{vm.getShortCriteria()}}
+    <br>
+    <div ng-show="vm.getRequiredFor().length">
+        <br>
+        <b>Required for:</b><br>
+        <span class="badge" ng-repeat="r in vm.getRequiredFor()">{{r}}</span>
+    </div>
+    <br>
+    <b>Details:</b><br>
+    {{vm.getCriteria()}}
+    <br><br>
+    <div ng-show="vm.getNotes()">
+        <b>Notes:</b><br>
+        {{vm.getNotes()}}
+        <br><br>
+    </div>
+    <b>Match:</b><br>
+    {{vm.getSource()}} {{vm.getOperator()}} {{vm.getMatch()}}
+
+</div>
