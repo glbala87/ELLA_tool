@@ -1,1 +1,8 @@
-<span class="acmg badge" tooltip="{{vm.getSource(code)}} {{vm.getOperator(code)}} {{vm.getValue(code)}}" ng-class="vm.getACMGclass(code)" ng-repeat="code in vm.getCodes()">{{code.code}}</span>
+<span class="acmg badge"
+    ng-class="vm.getACMGclass()"
+    uib-popover-template="vm.popover.templateUrl"
+    popover-title="{{vm.code.code}}"
+    popover-trigger="outsideClick"
+    popover-placement="auto top">
+    {{vm.code.code}}
+</span>

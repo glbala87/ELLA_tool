@@ -5,48 +5,60 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'acmg',
     scope: {
-        codes: '=',
-        selector: '@'
+        code: '='
     },
     templateUrl: 'ngtmpl/acmg.ngtmpl.html'
 })
 @Inject('Config')
 export class AcmgController {
 
-
     constructor(Config) {
         this.config = Config.getConfig();
+        this.popover = {
+            templateUrl: 'ngtmpl/acmgPopover.ngtmpl.html'
+        };
     }
 
-    getSource(code) {
-        return code.source.split('.').slice(1).join('->');
+    getSource() {
+        return this.code.source.split('.').slice(1).join('->');
     }
 
-    getACMGclass(code) {
-        return code.code.substring(0, 2).toLowerCase();
-    }
-
-    getOperator(code) {
-        return this.config.acmg.formatting.operators[code.op];
-    }
-
-    getValue(code) {
-        return code.value.join(',');
-    }
-
-    getCodes() {
-        if (this.selector) {
-            if (this.codes) {
-                return this.codes.filter(c => {
-                    return c.source === this.selector;
-                });
-            }
-            else {
-                return [];
-            }
+    getACMGclass() {
+        if (this.code) {
+            return this.code.code.substring(0, 2).toLowerCase();
         }
-        else {
-            return this.codes;
+    }
+
+    getOperator() {
+        return this.config.acmg.formatting.operators[this.code.op];
+    }
+
+    getValue() {
+        return this.code.value.join(', ');
+    }
+
+    getCriteria() {
+        if (this.code.code in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.code.code].criteria;
+        }
+    }
+
+    getShortCriteria() {
+        if (this.code.code in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.code.code].short_criteria;
+        }
+    }
+
+    getRequiredFor() {
+        if (this.code.code in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.code.code].sources;
+        }
+    }
+
+    getNotes() {
+        if (this.code.code in this.config.acmg.explanation &&
+            'notes' in this.config.acmg.explanation[this.code.code]) {
+            return this.config.acmg.explanation[this.code.code].notes;
         }
     }
 
