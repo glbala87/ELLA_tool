@@ -28,7 +28,7 @@ Testing without runner-scripts (yet):
 **Note** The auto running of tests in Docker when files are changed in the host OS, doesn't work. The files
 changes are detected and the rebundling is done by the tools (karma-browserify, watchify), but the bundle is stale and doesn't have
 your changes. You must run 'gulp unit' or 'gulp unit-auto' again. When the source files are changed inside
-Docker the rebundling works. This happens on OS X. 
+Docker the rebundling works. This happens on OS X. Karma says 'serving (cached)'; unknown where the root error is.
 
 # End-to-end testing
 Running tests against a real environment (meaning your application running in a browser) requires:
