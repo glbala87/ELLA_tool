@@ -55,6 +55,9 @@ class ApiV1(object):
         api.add_resource(r.referenceassessment.ReferenceAssessmentListResource,
                          '/api/v1/referenceassessments/')
 
+        api.add_resource(r.search.SearchResource,
+                         '/api/v1/search/')
+
         api.add_resource(r.user.UserListResource,
                          '/api/v1/users/')
 
