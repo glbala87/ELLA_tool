@@ -243,7 +243,7 @@ class DepositTestdata(object):
             )
 
     def deposit_references(self):
-        import_references(self.session)
+        import_references(self.engine)
 
     def deposit_all(self, test_set=None):
         log.info("--------------------")

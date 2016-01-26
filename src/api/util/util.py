@@ -1,6 +1,6 @@
 import json
 from flask import request
-from api import db
+from api import db, ApiError
 
 
 def error(msg, code):
@@ -53,3 +53,30 @@ def paginate(func):
         kwargs['num_per_page'] = num_per_page
         return func(*args, **kwargs)
     return inner
+
+
+def request_json(required, only_required=False, allowed=None):
+    """
+    Decorator: Checks flasks's request json object for 'required'
+    fields before passing on the data to the function.
+
+    If 'only_required', the json input is "washed" so only
+    the fields in required are passed on.
+
+    If 'allowed' is set, the json input is "washed" so only
+    those fields are passed on.
+    """
+    def wrapper(func):
+        def inner(*args, **kwargs):
+            data = request.get_json()
+            for field in required:
+                if not data.get(field):
+                    raise ApiError("Missing or empty required field {} in provided data.".format(field))
+
+            if only_required:
+                data = {k: v for k, v in data.iteritems() if k in required}
+            elif allowed:
+                data = {k: v for k, v in data.iteritems() if k in required + allowed}
+            return func(*args, data=data, **kwargs)
+        return inner
+    return wrapper

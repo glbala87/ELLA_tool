@@ -21,15 +21,12 @@ export class ReferenceEvalModalController {
 @Service({
     serviceName: 'ReferenceEvalModal'
 })
-@Inject('$modal')
+@Inject('$uibModal')
 export class ReferenceEvalModal {
 
-    constructor($modal) {
-        this.modalService = $modal;
+    constructor($uibModal) {
+        this.modalService = $uibModal;
     }
-
-    /**
-    */
 
     /**
      * Popups a dialog for doing reference evaluation
@@ -42,7 +39,7 @@ export class ReferenceEvalModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/referenceEvalModal.ngtmpl.html',
-            controller: ['$modalInstance', 'allele', 'reference', 'referenceAssessment', ReferenceEvalModalController],
+            controller: ['$uibModalInstance', 'allele', 'reference', 'referenceAssessment', ReferenceEvalModalController],
             controllerAs: 'vm',
             resolve: {
                 allele: () => allele,

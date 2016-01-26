@@ -1,6 +1,6 @@
-<div class="tabular-row" ng-repeat="freq in ::vm.config.frequencies[vm.group]" ng-if="vm.allele.annotation.annotations.frequencies[vm.group][freq]">
+<div class="tabular-row" ng-repeat="freq in ::vm.config.frequencies[vm.group]" ng-if="vm.allele.annotation.frequencies[vm.group][freq]">
   <div class="cell"><h5>{{::freq}}:</h5></div>
-  <div class="cell"><p>{{::vm.allele.annotation.annotations.frequencies[vm.group][freq] | number:vm.precision}}</p></div>
+  <div class="cell"><p>{{::vm.allele.annotation.frequencies[vm.group][freq] | number:vm.precision}}</p></div>
 </div>
 
 <!-- FIXME: sveint says this should be refactored - essentially the UI needs the next div to not be present because it breaks the 'row context' of the table -->
@@ -8,15 +8,15 @@
   <!-- how do we toggle this section without affecting page markup? -->
   <div class="tabular-row">
     <div class="cell"><h5>noMutInd:</h5></div>
-    <div class="cell"> <p>{{vm.allele.annotation.annotations.frequencies['inDB']['noMutInd']}}</p> </div>
+    <div class="cell"> <p>{{vm.allele.annotation.frequencies['inDB']['noMutInd']}}</p> </div>
   </div>
-  <div ng-if="vm.allele.annotation.annotations.frequencies['inDB']['noMutInd'] < 10">
+  <div ng-if="vm.allele.annotation.frequencies['inDB']['noMutInd'] < 10">
       <!-- FIXME: others - can we hide indb completely when there's no data? -->
     <div class="tabular-row">
       <div class="cell"><h5>Indications:</h5></div>
       <div class="cell"></div>
     </div>
-    <div class="tabular-row" ng-repeat="(k, v) in vm.allele.annotation.annotations.frequencies['inDB']['indications']">
+    <div class="tabular-row" ng-repeat="(k, v) in vm.allele.annotation.frequencies['inDB']['indications']">
       <div class="cell"><p>- {{k}}:</p></div>
       <div class="cell"><p>{{v}}</p></div>
     </div>

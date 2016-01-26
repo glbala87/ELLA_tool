@@ -1,0 +1,57 @@
+<div class="custom-annotation-modal">
+    <div class="modal-header">
+        <h3 class="modal-title">Add custom annotation</h3>
+    </div>
+    <div class="modal-body">
+        <div style="padding: 10px;">
+            Allele: <br><select ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
+            <hr>
+            <div ng-if="vm.category == 'external' || vm.category == 'prediction'">
+                <div style="margin-top: 30px;">
+                    Annotation:<br>
+                    <div class="pull-left">
+                        <select ng-options="k as k for (k, v) in vm.config.custom_annotation[vm.category]" ng-model="vm.selected_annotation_group"></select>
+                    </div>
+                    <div class="pull-left" style="margin-left: 10px;">
+                        <select ng-options="v as v[0] for v in vm.config.custom_annotation[vm.category][vm.selected_annotation_group]" ng-model="vm.selected_annotation_value"></select>
+                    </div>
+                    <div class="pull-left" style="margin-left: 10px;">
+                        <button class="btn btn-primary btn-xs" ng-click="vm.addAnnotation()">Add</button>
+                    </div>
+                    <div ng-if="vm.getUrl()" class="pull-left" style="margin-left: 10px;">
+                        <a href="{{vm.getUrl()}}" target="_new">Visit database</a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <table class="table">
+                    <tr ng-repeat="(k, v) in vm.config.custom_annotation[vm.category]" ng-if="vm.getCurrent()[k]">
+                        <td style="padding-right: 5px;">{{k}}: </td>
+                        <td>{{vm.getCurrent()[k]}}</td>
+                        <td><button class="btn btn-xs btn-danger" ng-click="vm.removeEntry(k)"><i class="fa fa-trash"></i></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div ng-if="vm.category == 'references'">
+                <h4>Import XML format</h4>
+                Find reference on PubMed (ensure only one reference is displayed) and select XML from the dropdown menu labeled <i>Abstract</i>. Copy the entire contents of the page and paste it here:<br><br>
+                <textarea ng-model="vm.reference_xml" style="height: 160px; width: 100% ;"></textarea><br>
+                <span ng-if="vm.reference_error" style="color: red;">The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</span><br>
+                <button class="btn btn-sm btn-primary" ng-click="vm.addReference()"><i class="fa fa-plus" ng-disabled="vm.reference_xml === ''"> </i> Add reference</button><br>
+                <br>
+                <h4>Added references:</h4>
+                <table class="table">
+                    <tr ng-repeat="ref in vm.getCurrent()">
+                        <td style="padding-left: 5px;">{{vm.getReference(ref.pubmedID).getShortDesc()}}</td>
+                        <td><button class="btn btn-xs btn-danger" ng-click="vm.removeReference(ref)"><i class="fa fa-trash"></i></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="vm.save()">Save</button>
+        <button class="btn btn-default" type="button" ng-click="vm.modal.close(false)">Cancel</button>
+    </div>
+</div>

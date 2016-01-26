@@ -3,11 +3,10 @@ import os
 import sys
 import logging
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-import argparse
 
 from flask import send_from_directory, request
-from flask.ext.restful import Api
-from api import app, apiv1, db
+from api import app, db
+from api.v1 import ApiV1
 
 from vardb.deposit.deposit_testdata import DepositTestdata
 
@@ -84,25 +83,11 @@ def reset_testdata():
     return "Test database is resetting. It should be ready in a minute."
 
 
-# Add API resources
-api = Api(app)
-api.add_resource(apiv1.AnalysisListResource, '/api/v1/analyses/')
-api.add_resource(apiv1.ConfigResource, '/api/v1/config/')
-api.add_resource(apiv1.InterpretationResource, '/api/v1/interpretations/<int:interpretation_id>/')
-api.add_resource(apiv1.InterpretationAlleleResource, '/api/v1/interpretations/<int:interpretation_id>/alleles/')
-api.add_resource(apiv1.InterpretationReferenceAssessmentResource, '/api/v1/interpretations/<int:interpretation_id>/referenceassessments/')
-api.add_resource(apiv1.InterpretationActionStartResource, '/api/v1/interpretations/<int:interpretation_id>/actions/start/')
-api.add_resource(apiv1.InterpretationActionCompleteResource, '/api/v1/interpretations/<int:interpretation_id>/actions/complete/')
-api.add_resource(apiv1.InterpretationActionFinalizeResource, '/api/v1/interpretations/<int:interpretation_id>/actions/finalize/')
-api.add_resource(apiv1.InterpretationActionOverrideResource, '/api/v1/interpretations/<int:interpretation_id>/actions/override/')
-api.add_resource(apiv1.ReferenceResource, '/api/v1/references/')
-api.add_resource(apiv1.ReferenceAssessmentResource, '/api/v1/referenceassessments/<int:ra_id>/')
-api.add_resource(apiv1.ReferenceAssessmentListResource, '/api/v1/referenceassessments/')
-api.add_resource(apiv1.UserListResource, '/api/v1/users/')
-api.add_resource(apiv1.UserResource, '/api/v1/users/<int:user_id>/')
-api.add_resource(apiv1.AlleleAssessmentResource, '/api/v1/alleleassessments/<int:aa_id>/')
-api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/')
-api.add_resource(apiv1.ACMGClassificationResource, '/api/v1/acmg/alleles/')
+def init_v1(app):
+    v1 = ApiV1()
+    v1.init_app(app)
+
+init_v1(app)
 
 # This is used by development and medicloud - production will not trigger it
 if __name__ == '__main__':

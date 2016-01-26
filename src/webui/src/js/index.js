@@ -4,6 +4,7 @@
 // although we're not using them explicitly.
 
 import "./modals/addExcludedAllelesModal.service";
+import "./modals/customAnnotationModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
 import "./services/user.service";
@@ -11,11 +12,13 @@ import './services/ConfigService';
 import './services/acmg.service';
 import './services/acmgClassificationResource.service';
 import './services/alleleAssessmentResource.service';
+import './services/customAnnotationResource.service';
 import './services/alleleFilter.service';
 import './services/interpretation.service';
 import './services/analysisResource.service';
 import './services/interpretationResource.service';
 import './services/ReferenceResource.service';
+import './services/searchResource.service';
 import './filters';
 
 import './views/analysis/analysis.directive';
@@ -39,6 +42,8 @@ import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
 import './widgets/userBar.directive';
 import './widgets/userBox.directive';
+import './widgets/acmg.directive';
+import './widgets/searchResults.directive';
 
 
 import {Config, Inject, Run} from './ng-decorators';
@@ -52,8 +57,28 @@ class AppConfig {
         $stateProvider.state('app', {
             views: {
                 app: {
-                    templateUrl: 'ngtmpl/main.ngtmpl.html'
-                }
+                    templateUrl: 'ngtmpl/main.ngtmpl.html',
+                    // TODO: Temporary solution until redesign.
+                    // Move me somewhere logical
+                    controller: ['$scope', 'SearchResource', ($scope, SearchResource) => {
+                        $scope.results = null;
+                        $scope.search_query = '';
+                        $scope.updateSearch = () => {
+                            if ($scope.search_query && $scope.search_query.length > 2) {
+                                SearchResource.get($scope.search_query).then(r => {
+                                    $scope.results = r;
+                                });
+                            }
+                            else {
+                                $scope.results = null;
+                            }
+                        };
+                        $scope.hasResults = () => {
+                            return $scope.results || false;
+                        };
+                    }],
+                    controllerAs: 'vm'
+                },
             }
         })
         .state('app.analyses', {
