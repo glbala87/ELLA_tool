@@ -1,5 +1,6 @@
 import re
 from flask import request
+from sqlalchemy.sql import text
 from vardb.datamodel import sample, assessment, allele
 
 from api import schemas
@@ -111,13 +112,16 @@ class SearchResource(Resource):
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in query:
-            where_clause = "csq->>'HGVSp' ILIKE :query"
+            where_clause = "csq->>'HGVSp' ~* :query"
         elif 'c.' in query:
-            where_clause = "csq->>'HGVSc' ILIKE :query"
+            where_clause = "csq->>'HGVSc' ~* :query"
 
         if where_clause:
-            allele_query = allele_query.format(where_clause=where_clause)
-            result = session.execute(allele_query, {'query': '%'+query+'%'})
+            allele_query = text(allele_query.format(where_clause=where_clause))
+            # Use execute and bind parameters to avoid injection risk.
+            # If you considered changing this to Python's format() function,
+            # please stop coding and take a course on SQL injections.
+            result = session.execute(allele_query, {'query': '.*'+query+'.*'})
             allele_ids = [r[0] for r in result]
             return allele_ids
         return None
@@ -201,7 +205,7 @@ class SearchResource(Resource):
             query = query.replace(t, '\\' + t)
 
         analyses = session.query(sample.Analysis).filter(
-            sample.Analysis.name.match('"{}"'.format(query))
+            sample.Analysis.name.op('~*')('.*{}.*'.format(query))
         ).limit(SearchResource.ANALYSIS_LIMIT).all()
         if analyses:
             return schemas.AnalysisSchema().dump(analyses, many=True).data
