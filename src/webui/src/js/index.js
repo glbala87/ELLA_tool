@@ -19,6 +19,7 @@ import './services/analysisResource.service';
 import './services/interpretationResource.service';
 import './services/ReferenceResource.service';
 import './services/searchResource.service';
+import './services/sidebar.service';
 import './filters';
 
 import './views/analysis/analysis.directive';
@@ -30,8 +31,9 @@ import './views/assessment/variantPredictionAssessment.directive';
 import './views/assessment/variantReferenceAssessment.directive';
 import './views/assessment/variantReport.directive';
 import './views/assessment/variantVarDbAssessment.directive';
+import './views/main.directive';
 import './views/login.directive';
-import './views/navigation.directive';
+import './views/sidebar.directive';
 
 import './widgets/annotationWidget.directive';
 import './widgets/alleleDetailsWidget.directive';
@@ -57,7 +59,7 @@ class AppConfig {
         $stateProvider.state('app', {
             views: {
                 app: {
-                    templateUrl: 'ngtmpl/main.ngtmpl.html',
+                    template: '<main></main>',
                     // TODO: Temporary solution until redesign.
                     // Move me somewhere logical
                     controller: ['$scope', 'SearchResource', ($scope, SearchResource) => {
@@ -84,7 +86,7 @@ class AppConfig {
         .state('app.analyses', {
             url: '/analyses',
             views: {
-                main: {
+                content: {
                     template: '<analysis-selection></analysis-selection>'
                 }
             }
@@ -92,7 +94,7 @@ class AppConfig {
         .state('app.interpretation', {
             url: '/interpretation/:interId',
             views: {
-                main: {
+                content: {
                     template: '<analysis interpretation-id="{{interId}}"></analysis>',
                     controller: ['$scope', '$stateParams', function($scope, $stateParams) {
                         $scope.interId = $stateParams.interId;
@@ -103,7 +105,7 @@ class AppConfig {
         .state('login', {
             url: '/login',
             views: {
-                login: {
+                app: {
                     template: '<login></login>'
                 }
             }

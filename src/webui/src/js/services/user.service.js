@@ -37,7 +37,7 @@ class UserService {
                     });
                 }
                 else {
-                    return resolve(null);
+                    reject("No user id selected");
                 }
             }
         });
