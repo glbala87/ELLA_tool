@@ -15,8 +15,10 @@ export class Annotation {
      * and data from 'transcripts'
      */
     setFilteredTranscripts() {
-        this.filtered = this.transcripts.filter(t => {
-            return this.filtered_transcripts.includes(t.Transcript);
-        });
+        if (this.filtered_transcripts) {
+            this.filtered = this.transcripts.filter(t => {
+                return this.filtered_transcripts.includes(t.Transcript);
+            });
+        }
     }
 }
