@@ -13,7 +13,7 @@ ADD ./package.json /dist/package.json
 WORKDIR /dist
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
-RUN npm install
+RUN npm set progress=false && npm install
 
 # We add our source folder for testing/deployment - this gets bashed by the volume in development
 ADD . /genap
