@@ -35,7 +35,7 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/angular/1.4.9/angular-animate.js',
         'src/webui/src/thirdparty/angular/1.4.9/angular-route.js',
         'src/webui/src/thirdparty/angular/1.4.9/angular-cookies.js',
-        'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.js',
+        'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
         'src/webui/src/thirdparty/ui-router/angular-ui-router.min.js',
         'src/webui/src/thirdparty/color-hash/color-hash.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
