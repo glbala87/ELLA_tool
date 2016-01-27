@@ -36,14 +36,11 @@ import './views/login.directive';
 import './views/sidebar.directive';
 
 import './widgets/annotationWidget.directive';
-import './widgets/alleleDetailsWidget.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
-import './widgets/userBar.directive';
-import './widgets/userBox.directive';
 import './widgets/acmg.directive';
 import './widgets/searchResults.directive';
 
