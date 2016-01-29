@@ -5,7 +5,7 @@ module.exports = function(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
+    basePath: '../dev/',
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -19,7 +19,7 @@ module.exports = function(config) {
           "../src/thirdparty/angular/1.4.0/angular-mocks.js",
           "../dev/app.js",
           "../src/js/**/*.js",
-          "./unit/**/*.spec.js",
+          "../tests/unit/**/*.spec.js",
           "../dev/**/*.ngtmpl.html"
     ],
 
@@ -29,9 +29,11 @@ module.exports = function(config) {
         "../src/js/widgets/noAllelesWidget.directive.js" // refers to a non-existing workbench variable
     ],
 
+
       ngHtml2JsPreprocessor: {
-          // strip this from the file path
-          stripPrefix: '/genap/src/webui/dev/',
+          // Karma's web server loads templates using an absolute url.
+          // In some cases the url must be transformed to match the templateUrl given in the angular directive
+          //stripPrefix: 'something',
           // stripSuffix: '.ext',
           // prepend this to the
           //prependPrefix: 'served/',
@@ -46,7 +48,7 @@ module.exports = function(config) {
     // Note! no comma after last object member:
     preprocessors: {
         '../dev/ngtmpl/*.ngtmpl.html': ['ng-html2js'],
-        './unit/**/*.spec.js' : ['browserify'],
+        '../tests//unit/**/*.spec.js' : ['browserify'],
         '../src/js/**/*.js': ['browserify']
     },
 
@@ -100,5 +102,5 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  })
-}
+  });
+};
