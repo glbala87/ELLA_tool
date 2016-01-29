@@ -44,7 +44,8 @@ export class FrequencyDetailsWidget {
     }
 
     setInDb() {
-        if (this.group === 'inDB') {
+        if (this.group === 'inDB' &&
+            'inDB' in this.allele.annotation.frequencies) {
             let group_data = this.allele.annotation.frequencies[this.group];
             if ('noMutInd' in group_data &&
                 group_data.noMutInd < this.config.frequencies.inDB.noMutInd_threshold) {
