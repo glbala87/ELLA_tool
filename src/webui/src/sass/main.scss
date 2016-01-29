@@ -46,7 +46,6 @@ $red-button: hsla(10,35,45,0.25);
 .red-bar { border-left: 1.3rem solid $red-sidebar; }
 .faded-red { background-color: $red-button; }
 
-html { transition: all 1.25s ease 1.25s; }
 login { display: block; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans"; background-color: hsla(0,0,97,1); }
 input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; }
@@ -103,12 +102,12 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .interpretation-status { margin-bottom: 3.9rem; display: flex; justify-content: flex-end;
   button { margin-left: 1.3rem; }
 }
-.no-alleles { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column;
+.no-alleles { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h4 { font-size: 1.7rem; font-family: "Source Sans Pro"; font-weight: 300; word-spacing: 0.1rem; }
 }
 .app .sidebar { display: flex; flex-direction: column; justify-content: center; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px; z-index: 10;
-  a { color: inherit; }
+  a { color: inherit;  &:hover { text-decoration: none; } }
   p { font-family: "Work Sans"; font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
   h2, h3 ,h4, h5 { font-family: "Source Sans Pro"; font-weight: 600; margin: 0; text-transform: uppercase; }
   h2 { font-size: 1.5rem; }
@@ -118,10 +117,10 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   h4 { font-size: 1.4rem; letter-spacing: -0.05rem; }
   h5 { font-size: 1.0rem; color: $half-black; }
   nav { display: table; table-layout: fixed; margin-top: auto; }
-  .nav-row { display: table-row; color: $half-black;
-    &:hover { text-decoration: underline; cursor: pointer; }
+  .nav-row { display: table-row; color: $half-black; background-color: inherit;
+    &:hover { background-color: #e6e6e6; cursor: pointer; }
   }
-  .active-section.nav-row:hover { text-decoration: none; cursor: default; }
+  .active-section.nav-row:hover { cursor: default; background-color: $blue; }
   .cell { display: table-cell; vertical-align: middle; }
   .top-align { vertical-align: top; }
   .first { width: 1.3rem; min-width: 1.3rem; height: 6rem; }
@@ -133,7 +132,7 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   .active-title { color: $blue; }
   .user { margin-top: auto; }
   .user-row { display: table-row; cursor: pointer;
-    &:hover { text-decoration: underline; }
+    &:hover { background-color: #e6e6e6; }
   }
 }
 
