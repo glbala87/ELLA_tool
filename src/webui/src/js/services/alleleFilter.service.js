@@ -18,7 +18,7 @@ class AlleleFilter {
         let included = [];
         for (let a of alleles) {
             let exclude = false;
-            for (let [key, subkeys] of Object.entries(this.config.freq_criteria)) {
+            for (let [key, subkeys] of Object.entries(this.config.frequencies.criterias)) {
                 for (let [subkey, criteria] of Object.entries(subkeys)) {
                     if (!exclude &&
                         key in a.annotation.frequencies &&
