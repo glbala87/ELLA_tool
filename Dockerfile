@@ -1,4 +1,4 @@
-FROM ousamg/gin:latest
+FROM ousamg/gin-exp:latest
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
 # Get gulp

@@ -36,6 +36,7 @@ class DB(object):
 
         self.engine = create_engine(
             self.host,
+            client_encoding='utf8',
             **engine_kwargs
         )
         args = {
