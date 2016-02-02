@@ -80,7 +80,7 @@ describe("AlleleFilter service", function () {
         expect(res[0]).toEqual(jasmine.objectContaining({id: 2}));
 
     });
-    
+
     it("no filtering when intron config is missing sign", function () {
         let service = new AlleleFilter(makeConfig(null, {'+': 60}));
         let someAlleles = [
