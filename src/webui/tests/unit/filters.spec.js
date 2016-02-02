@@ -3,16 +3,6 @@ describe("filter", function () {
 
     var $filter;
 
-    //beforeEach(function () {
-    //    console.log('foooo');
-    //    angular.mock.module('workbench');
-    //
-    //    inject(
-    //        function (_$filter_) {
-    //            $filter = _$filter_;
-    //        });
-    //
-    //});
 
     describe("isEmpty", function () {
         var f;
