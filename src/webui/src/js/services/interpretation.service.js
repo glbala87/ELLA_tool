@@ -180,7 +180,7 @@ class InterpretationService {
     confirmCompleteFinalize() {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
-            controller: ['$modalInstance', ConfirmCompleteInterpretationController],
+            controller: ['$uibModalInstance', ConfirmCompleteInterpretationController],
             controllerAs: 'vm'
         });
         modal.result.then(res => {

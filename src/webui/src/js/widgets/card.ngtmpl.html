@@ -1,0 +1,23 @@
+<section class="card">
+  <div class="paper">
+    <div class="paper-top">
+      <div class="paper-top-left" ng-class="vm.color">
+        <div class="icon cell">
+          <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
+        </div>
+        <div class="cell" ng-transclude="topLeft">
+        </div>
+      </div>
+      <div class="paper-top-right" ng-transclude="topRight">
+      </div>
+    </div>
+    <div class="paper-bottom" ng-class="vm.color">
+      <div ng-transclude="content">
+      </div>
+      <div  ng-transclude="expanded" ng-if="vm.expanded == 'true'">
+      </div>
+    </div>
+  </div>
+  <div class="card-controls" ng-class="{'collapse': vm.controlscollapse}" ng-transclude="controls">
+  </div>
+</section>

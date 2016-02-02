@@ -11,6 +11,7 @@ export class Interpretation {
         this.analysis = data.analysis;
         this.dateLastUpdate = data.dateLastUpdate;
         this.alleles = [];
+        this.references = [];
         this.userState = data.userState;
         this.state = data.state;
         this.user_id = data.user_id;
