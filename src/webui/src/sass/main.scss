@@ -94,6 +94,7 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   p { font-weight: 300; margin: 0; }
   ul { font-size: 1rem; padding: 0; margin: 0.5rem 2rem; }
   .tabular-row { display: table-row; }
+  .top-align { vertical-align: top; }
   .cell + .cell button { margin-left: 6.5rem; }
 }
 .content-box.full-width { width: 100%; display: flex; justify-content: space-between; align-items: center; }
@@ -139,13 +140,12 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   }
   h4 { font-size: 1.4rem; }
   h5 { font-size: 1.0rem; color: $half-black; }
-  nav { display: table; table-layout: fixed; margin-top: auto; }
+  nav { display: table; table-layout: fixed; margin-top: auto; position: absolute; top: 25vh; }
   .nav-row { display: table-row; color: $half-black; background-color: inherit;
     &:hover { background-color: #e6e6e6; cursor: pointer; }
   }
   .active-section.nav-row:hover { cursor: default; background-color: $blue; }
   .cell { display: table-cell; vertical-align: middle; }
-  .top-align { vertical-align: top; }
   .first { width: 1.3rem; min-width: 1.3rem; height: 6rem; }
   .icon { width: 3.6rem; padding: 0 2.6rem; text-align: center; }
   .big { padding: 1.3rem 0; }
