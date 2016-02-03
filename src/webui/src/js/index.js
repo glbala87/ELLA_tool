@@ -51,6 +51,8 @@ import './widgets/allelecard/externalsection.directive';
 import './widgets/allelecard/predictionsection.directive';
 import './widgets/allelecard/referencesection.directive';
 import './widgets/allelecard/vardbsection.directive';
+import './widgets/allelecard/classificationsection.directive';
+
 
 
 import {Config, Inject, Run} from './ng-decorators';
