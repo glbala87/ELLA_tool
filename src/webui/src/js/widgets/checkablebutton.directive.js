@@ -14,10 +14,6 @@ import {Directive, Inject} from '../ng-decorators';
 })
 export class CheckableButtonController {
 
-    constructor() {
-        this.ngModel = false;
-    }
-
     check() {
         this.ngModel = !this.ngModel;
     }
