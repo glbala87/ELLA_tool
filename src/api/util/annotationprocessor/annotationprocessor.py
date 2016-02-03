@@ -434,8 +434,6 @@ class AnnotationProcessor(object):
                 data['references'] = data['references'] + custom_annotation['references']
 
         if genotype:
-            data.update({
-                'quality': QualityAnnotation().process(genotype)
-            })
+            data.update(QualityAnnotation().process(genotype))
 
         return data
