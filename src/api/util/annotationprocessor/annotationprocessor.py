@@ -189,7 +189,7 @@ class FrequencyAnnotation(object):
 
     def _hi_cutoff_in_dataset(self, annotation, dataset):
         if dataset in annotation:
-            for freq in config.config['frequencies'][dataset]:
+            for freq in config.config['frequencies']['groups'][dataset]:
                 if freq in annotation[dataset] and \
                    annotation[dataset][freq] >= config.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"]:
                     return True
@@ -197,7 +197,7 @@ class FrequencyAnnotation(object):
 
     def _med_cutoff_in_dataset(self, annotation, dataset):
         if dataset in annotation:
-            for freq in config.config['frequencies'][dataset]:
+            for freq in config.config['frequencies']['groups'][dataset]:
                 if freq in annotation[dataset] and \
                    annotation[dataset][freq] < config.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"] and \
                    annotation[dataset][freq] >= config.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
@@ -206,7 +206,7 @@ class FrequencyAnnotation(object):
 
     def _lo_cutoff_in_dataset(self, annotation, dataset):
         if dataset in annotation:
-            for freq in config.config['frequencies'][dataset]:
+            for freq in config.config['frequencies']['groups'][dataset]:
                 if freq in annotation[dataset] and \
                    annotation[dataset][freq] < config.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
                     return True

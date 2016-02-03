@@ -30,11 +30,11 @@ var onError = function(err) {
 gulp.task('tp-js', function() {
     var sourcePaths = [
         './node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
-        'src/webui/src/thirdparty/angular/1.4.9/angular.js',
-        'src/webui/src/thirdparty/angular/1.4.9/angular-resource.js',
-        'src/webui/src/thirdparty/angular/1.4.9/angular-animate.js',
-        'src/webui/src/thirdparty/angular/1.4.9/angular-route.js',
-        'src/webui/src/thirdparty/angular/1.4.9/angular-cookies.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-resource.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-animate.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-route.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-cookies.js',
         'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
         'src/webui/src/thirdparty/ui-router/angular-ui-router.min.js',
         'src/webui/src/thirdparty/color-hash/color-hash.js',

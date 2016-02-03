@@ -21,29 +21,29 @@ $blue: hsla(205,35,45,1);
 $blue-sidebar: hsla(205,35,45,0.5);
 $blue-button: hsla(205,35,45,0.25);
 $blue-tint: hsla(205,35,45,0.05);
-.blue { background-color: $blue; }
-.blue-bar { border-left: 1.3rem solid $blue-sidebar; }
+.paper-top-left.blue { background-color: $blue; }
+.paper-bottom.blue { border-left: 1.3rem solid $blue-sidebar; }
 .faded-blue { background-color: $blue-button; }
 
 $green: hsla(140,35,45,1);
 $green-sidebar: hsla(140,35,45,0.5);
 $green-button: hsla(140,35,45,0.25);
-.green { background-color: $green; }
-.green-bar { border-left: 1.3rem solid $green-sidebar; }
+.paper-top-left.green { background-color: $green; }
+.paper-bottom.green { border-left: 1.3rem solid $green-sidebar; }
 .faded-green { background-color: $green-button; }
 
 $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
 $yellow-button: hsla(45,35,45,0.25);
-.yellow { background-color: $yellow; }
-.yellow-bar { border-left: 1.3rem solid $yellow-sidebar; }
+.paper-top-left.yellow { background-color: $yellow; }
+.paper-bottom.yellow { border-left: 1.3rem solid $yellow-sidebar; }
 .faded-yellow { background-color: $yellow-button; }
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
 $red-button: hsla(10,35,45,0.25);
-.red { background-color: $red; }
-.red-bar { border-left: 1.3rem solid $red-sidebar; }
+.paper-top-left.red { background-color: $red; }
+.paper-bottom.red { border-left: 1.3rem solid $red-sidebar; }
 .faded-red { background-color: $red-button; }
 
 login { display: block; }
@@ -84,8 +84,9 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   .paper-top-left .icon.cell { display: none; }
   .paper-bottom { border-top: 1px dotted $half-black; }
 }
-.paper-bottom { display: flex; flex-wrap: wrap; padding-left: 2.6rem; padding-bottom: 1rem; padding-top: 2.2rem; padding-right: 2.6rem; }
+.paper-bottom { padding-left: 2.6rem; padding-bottom: 1rem; padding-top: 2.2rem; padding-right: 2.6rem; }
 .paper-bottom > .content-box:nth-child(even) { background-color: $blue-tint; }
+.content-wrapper { display: flex; flex-wrap: wrap; }
 .content-box { border: 1px dotted $half-black; padding: 2.4rem; margin: 1.3rem 0; margin-bottom: 2.6rem; margin-right: 1.3rem;
   .title { font-family: "Work Sans"; font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
   .title ~ .title { margin-top: 2.6rem; }

@@ -36,16 +36,21 @@ import './views/login.directive';
 import './views/sidebar.directive';
 
 import './widgets/annotationWidget.directive';
-import './widgets/alleleDetailsWidget.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
-import './widgets/userBar.directive';
-import './widgets/userBox.directive';
 import './widgets/acmg.directive';
+import './widgets/checkablebutton.directive';
 import './widgets/searchResults.directive';
+import './widgets/card.directive';
+import './widgets/allelecard/allelecard.directive';
+import './widgets/allelecard/frequencysection.directive';
+import './widgets/allelecard/externalsection.directive';
+import './widgets/allelecard/predictionsection.directive';
+import './widgets/allelecard/referencesection.directive';
+import './widgets/allelecard/vardbsection.directive';
 
 
 import {Config, Inject, Run} from './ng-decorators';
