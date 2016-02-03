@@ -246,7 +246,7 @@ class InterpretationService {
 
                 // Update the ACMG code for allele in question.
                 // Need to get all ReferenceAssessment for allele, not just the updated one
-                let referenceassessment_ids = Object.values(this.interpretation.state.referenceassessment[allele.id])
+                let referenceassessment_ids = Object.values(this.interpretation.state.allele[allele.id].referenceassessment)
                                               .map(e => e.id)
                                               .filter(e => e !== undefined);
                 this.acmg.updateACMGCodes(
