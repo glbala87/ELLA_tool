@@ -1,4 +1,11 @@
 ---
-run_genap_tests:
+before_script:
+- npm install
+
+#run_genap_tests:
+#  script:
+#    - bin/test-ci
+
+unit_tests:
   script:
-    - bin/test-ci
+    - gulp unit
