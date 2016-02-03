@@ -100,11 +100,13 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 }
 .content-box.full-width { width: 100%; display: flex; justify-content: space-between; align-items: center; }
 .question-set > .row:nth-child(even) { background-color: $blue-tint; }
-.question-set { margin: 3.9rem auto;
+.question-set { margin: 3.9rem auto; table-layout: fixed;
   .row { margin: 0; display: table-row; height: 8rem; }
-  .title { padding-right: 2rem; text-align: right; }
-  .check { padding-right: 0.7rem; }
+  .title { padding-right: 2rem; text-align: right; width: 50%; }
+  .check { padding-right: 0.7rem; width: 3.9rem; min-width: 3.9rem; }
+  .controls { width: 50%; }
   .btn { border-radius: 0; }
+  .btn.active { box-shadow: none; background-color: $blue-button; }
   .btn-success { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
