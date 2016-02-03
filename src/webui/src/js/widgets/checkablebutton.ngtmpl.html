@@ -1,0 +1,8 @@
+<button ng-click="vm.check()">
+    <span ng-transclude="checked" ng-if="vm.ngModel">
+
+    </span>
+    <span ng-if="!vm.ngModel" ng-transclude>
+
+    </span>
+</button>
