@@ -28,7 +28,7 @@ class AnalysisListWidget {
 
     setupSidebar() {
         this.sidebar.setBackLink(null, null);
-        this.sidebar.setTitle('Analyses', false);
+        this.sidebar.setTitle('Analyses List', false);
         this.sidebar.clearItems();
     }
 

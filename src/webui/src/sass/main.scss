@@ -48,11 +48,13 @@ $red-button: hsla(10,35,45,0.25);
 
 login { display: block; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans"; background-color: hsla(0,0,97,1); }
-input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; }
+input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis;
+    @include placeholder { letter-spacing: 0.2rem; font-weight: 500; } }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 
 .btn-round { height: 50px; width: 50px; background-color: black; color: white; } //todo: kill me i'm stupid bootstrap stuff
+.add-alleles { position: absolute; top: 0; } //todo: kill me i'm a hack until we move the button
 
 button { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
 
@@ -75,8 +77,7 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .paper-top-right { width: 100%; padding: 0 3.9rem; text-align: right; color: black;
   h5 { font-weight: 400; font-size: 1.4rem; }
   p { font-weight: 300; font-size: 1.4rem; }
-  input { font-size: 1.2rem; font-weight: 400; width: 90%; text-overflow: ellipsis;
-    @include placeholder { letter-spacing: 0.2rem; font-weight: 500; } }
+  input { width: 90%; }
 }
 .modal-content .card {
   .paper-top-left { padding-left: 2.6rem; color: $blue; }
@@ -108,6 +109,8 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   .btn { border-radius: 0; }
   .btn.active { box-shadow: none; background-color: $blue-button; }
   .btn-success { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
+  .centered { text-align: center; }
+  h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
   textarea { width: 100%; font-size: 1.2rem; }
@@ -127,6 +130,8 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .modal { background-color: $icon-half-black; }
 .modal-dialog, .modal-lg { width: inherit; }
 .interpretation-status { margin-bottom: 3.9rem; display: flex; justify-content: flex-end;
+  input { width: 20rem; }
+  .left { margin-right: auto; }
   button { margin-left: 1.3rem; }
 }
 .no-alleles { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
@@ -137,8 +142,8 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   a { color: inherit;  &:hover { text-decoration: none; } }
   p { font-family: "Work Sans"; font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
   h2, h3 ,h4, h5 { font-family: "Source Sans Pro"; font-weight: 600; margin: 0; text-transform: uppercase; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.5rem; font-weight: 400; letter-spacing: -0.05rem; text-transform: none; width: 21.5rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; transition: all 0.3s ease-in-out;
+  h2, h3 { font-size: 1.5rem; }
+  h3.lowercase { font-size: 1.5rem; font-weight: 400; letter-spacing: -0.05rem; text-transform: none; width: 21.5rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; transition: all 0.3s ease-in-out;
     &:hover { width: 100%; padding-right: 2.6rem; }
   }
   h4 { font-size: 1.4rem; }
@@ -152,7 +157,7 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   .cell { display: table-cell; vertical-align: middle; }
   .first { width: 1.3rem; min-width: 1.3rem; height: 6rem; }
   .icon { width: 3.6rem; padding: 0 2.6rem; text-align: center; }
-  .big { padding: 1.3rem 0; }
+  .big { padding: 2rem 0; }
   .title { width: 100%; }
   .active-section { height: 80px; background-color: $blue; color: white; }
   .active-tab { background-color: $blue-sidebar; }
