@@ -97,9 +97,13 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   ul { font-size: 1rem; padding: 0; margin: 0.5rem 2rem; }
   .tabular-row { display: table-row; }
   .top-align { vertical-align: top; }
+  .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
 }
 .content-box.full-width { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+.content-box.full-width.vertical { display: block;
+  .cell { padding-top: 0.7rem; }
+}
 .question-set > .row:nth-child(even) { background-color: $blue-tint; }
 .question-set { margin: 3.9rem auto; table-layout: fixed;
   .row { margin: 0; display: table-row; height: 8rem; }
