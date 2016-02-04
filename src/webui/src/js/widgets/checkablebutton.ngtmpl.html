@@ -1,6 +1,6 @@
 <button ng-click="vm.check()">
     <span ng-if="vm.ngModel">
-        <i class="fa fa-check"> </i> <span ng-transclude="checked"></span>
+        <i ng-if="::vm.showMark == 'true'" class="fa fa-check"> </i> <span ng-transclude="checked"></span>
     </span>
     <span ng-if="!vm.ngModel" ng-transclude>
 

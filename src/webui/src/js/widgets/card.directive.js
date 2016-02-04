@@ -14,19 +14,32 @@ import {Directive, Inject} from '../ng-decorators';
     },
     scope: {
         color: '@',
-        expanded: '@'
+        expanded: '@',
+        collapsed: '@'
     }
 })
 @Inject('$transclude')
 export class CardController {
 
     constructor($transclude) {
-        // Collapse card-controls if no content
-        this.controlscollapse = !$transclude.isSlotFilled('controls');
+        this.hasexpand = $transclude.isSlotFilled('expanded');
+        // Collapse card-controls if no content to show there
+        this.controlscollapse = !$transclude.isSlotFilled('controls') &&
+                                !this.hasexpand;
     }
 
+    /**
+     * Expands the <expanded> section
+     */
     expand() {
-        this.expanded = this.expanded === 'true' ? 'false' : 'true';
+        this.expanded = !this.expanded;
+    }
+
+    /**
+     * Collapses the whole card area, except the header part.
+     */
+    collapse() {
+        this.collapsed = !this.collapsed;
     }
 
 }

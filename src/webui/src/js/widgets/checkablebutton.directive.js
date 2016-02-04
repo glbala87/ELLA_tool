@@ -8,7 +8,8 @@ import {Directive, Inject} from '../ng-decorators';
         checked: 'checked'
     },
     scope: {
-        ngModel: '=' // Bit of a hack, but works. Use ngModel for consistant naming
+        ngModel: '=', // Bit of a hack, but works. Use ngModel for consistant naming
+        showMark: '@'
     },
     templateUrl: 'ngtmpl/checkablebutton.ngtmpl.html'
 })
