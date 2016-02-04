@@ -125,15 +125,16 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .card-controls.collapsed { height: 0rem; }
 
 
-.app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 3.9rem; }
+.app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 8rem; }
 .modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; width: 80vw; margin: 0 10vw; }
 .modal { background-color: $icon-half-black; }
 .modal-dialog, .modal-lg { width: inherit; }
-.interpretation-status { margin-bottom: 3.9rem; display: flex; justify-content: flex-end;
+.interpretation-bar { margin-bottom: 3.9rem; margin-top: -2.4rem; display: flex; justify-content: flex-end;
   input { width: 20rem; }
   .left { margin-right: auto; }
   button { margin-left: 1.3rem; }
 }
+.interpretation { margin-top: 8rem; }
 .no-alleles { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }

@@ -1,10 +1,26 @@
-<div class="modal-header">
-    <h3 class="modal-title">Analysis complete!</h3>
-</div>
-<div class="modal-body">
-    You have finished the current analysis. Would you like to mark the analysis for confirmation, or finalize it?
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="vm.modal.close('complete')">Mark for confirmation</button>
-    <button class="btn btn-danger" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
-</div>
+<section class="card">
+  <div class="paper">
+    <div class="paper-top">
+      <div class="paper-top-left">
+        <div class="icon cell">
+          <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
+        </div>
+        <div class="cell">
+          <h3>FINISHED</h3>
+          <h4>Analysis Complete!</h4>
+        </div>
+      </div>
+      <div class="paper-top-right">
+      </div>
+    </div>
+    <div class="paper-bottom">
+      <div class='question-set'>
+        <h2 class="centered">You have finished the current analysis. Would you like to mark the analysis for confirmation, or finalize it?</h2>
+      </div>
+    </div>
+  </div>
+  <div class="card-controls">
+    <button type="button" ng-click="vm.modal.close('complete')">Mark for confirmation</button>
+    <button class="faded-red" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
+  </div>
+</section>
