@@ -19,7 +19,7 @@ $tint-black: hsla(0,0,0,0.05);
 
 $blue: hsla(205,35,45,1);
 $blue-sidebar: hsla(205,35,45,0.5);
-$blue-button: hsla(205,35,45,0.25);
+$blue-button: hsla(205,35,70,1);
 $blue-tint: hsla(205,35,45,0.05);
 .paper-top-left.blue { background-color: $blue; }
 .paper-bottom.blue { border-left: 1.3rem solid $blue-sidebar; }
@@ -27,21 +27,21 @@ $blue-tint: hsla(205,35,45,0.05);
 
 $green: hsla(140,35,45,1);
 $green-sidebar: hsla(140,35,45,0.5);
-$green-button: hsla(140,35,45,0.25);
+$green-button: hsla(140,35,65,1);
 .paper-top-left.green { background-color: $green; }
 .paper-bottom.green { border-left: 1.3rem solid $green-sidebar; }
 .faded-green { background-color: $green-button; }
 
 $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
-$yellow-button: hsla(45,35,45,0.25);
+$yellow-button: hsla(45,35,70,1);
 .paper-top-left.yellow { background-color: $yellow; }
 .paper-bottom.yellow { border-left: 1.3rem solid $yellow-sidebar; }
 .faded-yellow { background-color: $yellow-button; }
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
-$red-button: hsla(10,35,45,0.25);
+$red-button: hsla(10,35,70,1);
 .paper-top-left.red { background-color: $red; }
 .paper-bottom.red { border-left: 1.3rem solid $red-sidebar; }
 .faded-red { background-color: $red-button; }
