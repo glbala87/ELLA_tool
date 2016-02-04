@@ -102,6 +102,7 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 }
 .content-box.full-width { width: 100%; display: flex; justify-content: space-between; align-items: center; }
 .content-box.full-width.vertical { display: block;
+  .cell.top-align { width: 15rem; }
   .cell { padding-top: 0.7rem; }
 }
 .question-set > .row:nth-child(even) { background-color: $blue-tint; }
