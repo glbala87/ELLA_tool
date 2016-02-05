@@ -6,8 +6,8 @@
           <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
         </div>
         <div class="cell">
-          <h3>WARNING</h3>
-          <h4>Ongoing Analysis</h4>
+          <h3 class="red-text">WARNING</h3>
+          <h4 class="red-text">Ongoing Analysis</h4>
         </div>
       </div>
       <div class="paper-top-right">
@@ -20,7 +20,9 @@
     </div>
   </div>
   <div class="card-controls">
-    <button class="faded-red" type="button" ng-click="vm.modal.close(true)">Yes</button>
-    <button type="button" ng-click="vm.modal.close(false)">No</button>
+    <div>
+      <button class="faded-red" type="button" ng-click="vm.modal.close(true)">Yes</button>
+      <button type="button" ng-click="vm.modal.close(false)">No</button>
+    </div>
   </div>
 </section>
