@@ -13,9 +13,8 @@ import {Directive, Inject} from '../ng-decorators';
         controls: '?controls'
     },
     scope: {
-        color: '@',
-        expanded: '@',
-        collapsed: '@'
+        options: '=', // {collapsed: bool, expanded: bool}
+        color: '@'
     }
 })
 @Inject('$transclude')
@@ -32,14 +31,14 @@ export class CardController {
      * Expands the <expanded> section
      */
     expand() {
-        this.expanded = !this.expanded;
+        this.options.expanded = !this.options.expanded;
     }
 
     /**
      * Collapses the whole card area, except the header part.
      */
     collapse() {
-        this.collapsed = !this.collapsed;
+        this.options.collapsed = !this.options.collapsed;
     }
 
 }
