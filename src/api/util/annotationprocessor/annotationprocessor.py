@@ -259,31 +259,44 @@ class FrequencyAnnotation(object):
         hom = {}
         het = {}
         for key, value in annotation['EXAC'].iteritems():
-            if 'AC_' in key:
+            # Be careful if rearranging!
+            if key == 'AC':
+                assert len(value) == 1
+                count['G'] = value[0]
+            elif key == 'AC_Het':
+                assert len(value) == 1
+                het['G'] = value[0]
+            elif key == 'AC_Hom':
+                assert len(value) == 1
+                hom['G'] = value[0]
+            elif key == 'AN':
+                num['G'] = value
+            elif key.startswith('AC_'):
                 pop = key.split('AC_')[1]
                 assert len(value) == 1
                 count[pop] = value[0]
-            elif 'AN_' in key:
+            elif key.startswith('AN_'):
                 pop = key.split('AN_')[1]
                 num[pop] = value
-            elif 'Hom_' in key:
-                hom[key] = value[0]
-            elif 'Het_' in key:
-                het[key] = value[0]
-            elif key == 'AC':
-                assert len(value) == 1
-                count['G'] = value[0]
-            elif key == 'AN':
-                num['G'] = value
+            elif key.startswith('Hom_'):
+                pop = key.split('Hom_')[1]
+                hom[pop] = value[0]
+            elif key.startswith('Het_'):
+                pop = key.split('Het_')[1]
+                het[pop] = value[0]
 
         for key in count:
             if key in num and num[key]:
                 frequencies['ExAC'][key] = float(count[key]) / num[key]
 
         if hom:
-            frequencies['ExAC'].update(hom)
+            frequencies['ExAC'].update({'hom': hom})
         if het:
-            frequencies['ExAC'].update(het)
+            frequencies['ExAC'].update({'het': het})
+        if num:
+            frequencies['ExAC'].update({'num': num})
+        if count:
+            frequencies['ExAC'].update({'count': count})
         return dict(frequencies)
 
     def _csq_frequencies(self, annotation):

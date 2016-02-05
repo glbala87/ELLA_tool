@@ -1,9 +1,9 @@
 <div class="tabular-row" ng-repeat="freq_data in ::vm.frequencies">
   <div class="cell"><h5>{{::freq_data.name}}:</h5></div>
-  <div class="cell"><p>{{::freq_data.freq | number:vm.precision}}</p></div>
+  <div class="cell"><p>{{::vm.getFreqValue(freq_data)}}</p></div>
 </div>
 <div class="tabular-row" ng-if="::vm.inDb.noMutInd">
-    <div class="cell"><h5>noMutInd:</h5></div>
+    <div class="cell"><h5>Individuals:</h5></div>
     <div class="cell"> <p>{{::vm.inDb.noMutInd}}</p> </div>
 </div>
 <div class="tabular-row" ng-if="::vm.inDb.indications">

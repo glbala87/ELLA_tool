@@ -32,10 +32,19 @@ export class FrequencyDetailsWidget {
         for (let freq of freqs) {
             if (this.group in this.allele.annotation.frequencies) {
                 let group_data = this.allele.annotation.frequencies[this.group];
+                // Filter based on frequencies group names from config, since we
+                // might not want to show everything
                 if (freq in group_data) {
                     let freq_data = {
                         name: freq,
                         freq: group_data[freq]
+                    }
+                    // Add ExAC specific values
+                    for (let group of ['het', 'hom', 'count', 'num']) {
+                        if (group in group_data &&
+                            freq in group_data[group]) {
+                            freq_data[group] = group_data[group][freq];
+                        }
                     }
                     this.frequencies.push(freq_data);
                 }
@@ -43,16 +52,30 @@ export class FrequencyDetailsWidget {
         }
     }
 
+    /**
+     * Gets the value to display for the fiven freq data.
+     * ExAC has more information, so we include that as well.
+     * @return {string} Value to display for this freq data
+     */
+    getFreqValue(freq_data) {
+        let value = parseFloat(freq_data.freq).toFixed(this.precision);
+        if ('hom' in freq_data) {
+            value += ` (hom: ${freq_data['hom']} of ${freq_data['count']})`
+        }
+        return value;
+    }
+
     setInDb() {
         if (this.group === 'inDB' &&
             'inDB' in this.allele.annotation.frequencies) {
             let group_data = this.allele.annotation.frequencies[this.group];
-            if ('noMutInd' in group_data &&
-                group_data.noMutInd < this.config.frequencies.inDB.noMutInd_threshold) {
+            if ('noMutInd' in group_data) {
                 this.inDb.noMutInd = group_data.noMutInd;
-            }
-            if ('indications' in group_data) {
-                this.inDb.indications = group_data.indications;
+
+                if(group_data.noMutInd < this.config.frequencies.inDB.noMutInd_threshold &&
+                   'indications' in group_data) {
+                    this.inDb.indications = group_data.indications;
+                }
             }
         }
     }
