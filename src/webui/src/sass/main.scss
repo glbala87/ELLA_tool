@@ -87,10 +87,10 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   .paper-top-left .icon.cell { display: none; }
   .paper-bottom { border-top: 1px dotted $half-black; }
 }
-.paper-bottom { padding-left: 2.6rem; padding-bottom: 1rem; padding-top: 2.2rem; padding-right: 2.6rem; }
+.paper-bottom { padding-left: 2.6rem; padding-bottom: 2.0rem; padding-top: 1.0rem; padding-right: 2.6rem; }
 .paper-bottom > .content-box:nth-child(even) { background-color: $blue-tint; }
 .content-wrapper { display: flex; flex-wrap: wrap; }
-.content-box { border: 1px dotted $half-black; padding: 2.4rem; margin: 1.3rem 0; margin-bottom: 2.6rem; margin-right: 1.3rem;
+.content-box { border: 1px dotted $half-black; padding: 2.0rem; margin: 1.3rem 0; margin-bottom: 0.3rem; margin-right: 1.3rem; min-width: 10rem; min-height: 8rem;
   .title { font-family: "Work Sans"; font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
   .title ~ .title { margin-top: 2.6rem; }
   h5, p { font-family: "Work Sans"; font-size: 1.4rem; color: black; }
