@@ -70,8 +70,8 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .paper-top { height: 8rem; display: table-row; table-layout: fixed; }
 .paper-top-left, .paper-top-right { display: table-cell; height: inherit; vertical-align: middle; }
 .paper-top-left { width: 20rem; min-width: 20rem; max-width: 20rem; color: white;
-  .icon { padding: 0 1.3rem; }
-  .icon.collapsed { transform: rotate(270deg); }
+  .icon { padding: 0 1.3rem; transition: all 0.3s ease-in-out; }
+  .icon.collapsed { transform: rotate(-90deg); }
   h3, h4 { margin: 0; }
   h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; }
   h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; }
