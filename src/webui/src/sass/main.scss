@@ -62,7 +62,9 @@ input { border: none; border-bottom: 1px solid $icon-half-black; background-colo
 .btn-round { height: 50px; width: 50px; background-color: black; color: white; } //todo: kill me i'm stupid bootstrap stuff
 .add-alleles { position: absolute; top: 0; } //todo: kill me i'm a hack until we move the button
 
-button { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
+button { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
+  &:disabled { opacity: 0.6 }
+}
 .badge { border-radius: 0; background-color: hsla(0,0,45,1); padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; }
 
 section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem; }
