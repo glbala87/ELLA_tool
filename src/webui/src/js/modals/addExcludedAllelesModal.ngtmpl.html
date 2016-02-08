@@ -13,16 +13,16 @@
       <div class="paper-top-right">
         <div class="form-inline">
             <div class="btn-group btn-group-sm">
-                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" btn-radio="'all'">All</label>
-                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" btn-radio="'class_one'">Class 1</label>
-                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" btn-radio="'intronic'">Intronic</label>
+                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
+                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
+                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
             </div>
             <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
                 <option value="">All genes</option>
             </select>
         </div>
         <div>
-            <pagination total-items="vm.excluded_alleles.length"
+            <uib-pagination total-items="vm.excluded_alleles.length"
                         ng-model="vm.page_idx"
                         class="pagination-sm"
                         items-per-page="vm.number_per_page"
@@ -30,7 +30,7 @@
                         boundary-links="true"
                         max-size="5"
                         rotate="false">
-            </pagination>
+            </uib-pagination>
         </div>
       </div>
     </div>
