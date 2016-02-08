@@ -62,12 +62,12 @@ input { border: none; border-bottom: 1px solid $icon-half-black; background-colo
 .btn-round { height: 50px; width: 50px; background-color: black; color: white; } //todo: kill me i'm stupid bootstrap stuff
 .add-alleles { position: absolute; top: 0; } //todo: kill me i'm a hack until we move the button
 
-button { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
+button { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
   &:disabled { opacity: 0.6 }
 }
 .badge { border-radius: 0; background-color: hsla(0,0,45,1); padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; }
 
-section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem; }
+section.card { min-width: 50rem; margin-bottom: 2.6rem; }
 .paper {
   box-shadow: 0px 2px 0.5px $icon-half-black;
   background-color: white;
@@ -88,7 +88,7 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   p { font-weight: 300; font-size: 1.4rem; }
   input { width: 90%; }
   .btn { border-radius: 0; }
-  .btn-success { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
+  .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
 }
 .modal-content .card {
   .paper-top-left { padding-left: 2.6rem; color: $blue; }
@@ -105,9 +105,9 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; }
 }
 .content-box { border: 1px dotted $half-black; padding: 2.0rem; margin: 1.3rem 0; margin-bottom: 0.3rem; margin-right: 1.3rem; min-width: 10rem; min-height: 8rem;
-  .title { font-family: "Work Sans"; font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
+  .title { font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
   .title ~ .title { margin-top: 2.6rem; }
-  h5, p { font-family: "Work Sans"; font-size: 1.4rem; color: black; }
+  h5, p { font-size: 1.4rem; color: black; }
   h5 { font-weight: 400; padding-right: 3.9rem; margin: 0.2rem 0; }
   p { font-weight: 300; margin: 0; }
   ul { font-size: 1rem; padding: 0; margin: 0.5rem 2rem; }
@@ -129,7 +129,7 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   .controls { width: 50%; }
   .btn { border-radius: 0; }
   .btn.active { box-shadow: none; background-color: $blue-button; }
-  .btn-success { font-family: "Work Sans"; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
+  .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
   .centered { text-align: center; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
@@ -165,8 +165,8 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 }
 .app .sidebar { display: flex; flex-direction: column; justify-content: space-between; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px; z-index: 10;
   a { color: inherit;  &:hover { text-decoration: none; } }
-  p { font-family: "Work Sans"; font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
-  h2, h3 ,h4, h5 { font-family: "Source Sans Pro"; font-weight: 600; margin: 0; text-transform: uppercase; }
+  p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
+  h2, h3 ,h4, h5 { font-family: "Source Sans Pro", sans-serif; font-weight: 600; margin: 0; text-transform: uppercase; }
   h2, h3 { font-size: 1.5rem; }
   h3.lowercase { font-size: 1.5rem; font-weight: 400; letter-spacing: -0.05rem; text-transform: none; max-width: 21.5rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; transition: max-width 0.3s ease-in-out;
     &:hover { max-width: 42rem; padding-right: 2.6rem; }
@@ -205,5 +205,5 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
   }
   .cell { display: table-cell; vertical-align: middle; height: 5rem; }
   .icon { text-align: right; padding-right: 2.4rem; min-width: 4.8rem; width: 4.8rem; }
-  .name { width: 100%; font-family: "Work Sans"; font-weight: 500; text-transform: uppercase; }
+  .name { width: 100%; font-weight: 500; text-transform: uppercase; }
 }
