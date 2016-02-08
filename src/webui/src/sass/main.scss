@@ -52,7 +52,7 @@ $red-button: hsla(10,35,70,1);
 
 button[class^="faded-"], button[class*="faded-"], .question-set .btn.active { text-shadow: 0px 0px 6px rgba(255,255,255,1); }
 login { display: block; }
-body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans"; background-color: hsla(0,0,97,1); }
+body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans", sans-serif; background-color: hsla(0,0,97,1); }
 input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis;
   @include placeholder { letter-spacing: 0.2rem; font-weight: 500; }
 }
