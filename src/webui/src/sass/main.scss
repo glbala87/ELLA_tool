@@ -104,7 +104,7 @@ section.card { min-width: 50rem; margin-bottom: 2.6rem; }
 .modal .paper .content-wrapper ~ .content-wrapper { border-top: 1px dotted $half-black; }
 .modal .paper .content-wrapper:nth-child(even) { background-color: $blue-tint; }
 .excluded-allele { min-width: 18rem; display: flex; flex-direction: column;
-  h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; }
+  h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; margin-top: 3.8rem; }
   h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; }
   .checkbox { padding-left: 0; margin-top: 1.3rem; }
 }
