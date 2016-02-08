@@ -19,6 +19,7 @@ export class AddExcludedAllelesController {
         this.master_alleles = excluded_alleles;
         this.category_excluded_alleles = []; // Alleles filtered on the category, but no further filtering
         this.excluded_alleles = [];  // Finished filtered Alleles to show, that are not yet added
+        this.included_alleles = [];  // Alleles added by user (internal use)
         this.included_allele_ids = included_allele_ids;  // Alleles added by user
         this.category = 'all';
         this.slice = []; // Holds the slice of alleles for pagination
@@ -30,13 +31,10 @@ export class AddExcludedAllelesController {
     }
 
     update() {
-        // use timeout due to checkbox-model not updating
-        // model before triggering
-        this.timeout(() => {
-            this._updateFilter();
-            this._updateSlice();
-            this._updateGeneOptions();
-        });
+        this._updateFilter();
+        this._updateSlice();
+        this._updateGeneOptions();
+        this._updateIncludedAlleles();
     }
 
     close() {
@@ -111,6 +109,12 @@ export class AddExcludedAllelesController {
             }
         }
         this.gene_options.sort();
+    }
+
+    _updateIncludedAlleles() {
+        this.included_alleles = this.included_allele_ids.map(
+            aid => this.master_alleles.find(ma => ma.id === aid)
+        );
     }
 }
 

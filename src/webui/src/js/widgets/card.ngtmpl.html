@@ -20,7 +20,7 @@
   </div>
   <div class="card-controls" ng-show="!vm.options.collapsed" ng-class="{'collapse': vm.controlscollapse}">
     <div class="left" ng-if="vm.hasexpand">
-      <checkable-button ng-model="vm.options.expanded">
+      <checkable-button check-model="vm.options.expanded">
         <checked>Show less</checked>
         Show more
       </checkable-button>
