@@ -149,9 +149,10 @@ section.card { font-family: "Work Sans"; min-width: 50rem; margin-bottom: 2.6rem
 .card-controls.collapsed { height: 0rem; }
 
 .app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 8rem; }
-.modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; width: 80vw; margin: 0 10vw; }
-.modal { background-color: $icon-half-black; }
-.modal-dialog, .modal-lg { width: inherit; }
+.modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
+.modal-dialog { margin: 5vh 10vw; }
+.modal-lg { width: inherit; }
+.modal-backdrop { bottom: 0; }
 .interpretation-bar { margin-bottom: 3.9rem; margin-top: -2.4rem; display: flex; justify-content: flex-end;
   input { width: 20rem; }
   .left { margin-right: auto; }
