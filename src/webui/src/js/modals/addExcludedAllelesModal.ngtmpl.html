@@ -36,7 +36,7 @@
     </div>
     <div class="paper-bottom">
       <article class="content-wrapper" ng-repeat="al in vm.slice track by al.id">
-        <div class="excluded-allele cell">
+        <div class="excluded-allele">
           <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3> {{::t.SYMBOL}} </h3></transcript-wrapper> </div>
           <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h4> {{::t.HGVSc | HGVSc_short}} </h4></transcript-wrapper> </div>
           <div class="checkbox checkbox-big checkbox-default">
