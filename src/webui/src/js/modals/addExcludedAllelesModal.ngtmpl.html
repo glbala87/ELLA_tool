@@ -11,27 +11,6 @@
         </div>
       </div>
       <div class="paper-top-right">
-        <div class="form-inline">
-            <div class="btn-group btn-group-sm">
-                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
-                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
-                <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
-            </div>
-            <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
-                <option value="">All genes</option>
-            </select>
-        </div>
-        <div>
-            <uib-pagination total-items="vm.excluded_alleles.length"
-                        ng-model="vm.page_idx"
-                        class="pagination-sm"
-                        items-per-page="vm.number_per_page"
-                        ng-change="vm.update()"
-                        boundary-links="true"
-                        max-size="5"
-                        rotate="false">
-            </uib-pagination>
-        </div>
       </div>
     </div>
     <div class="paper-bottom">
@@ -49,26 +28,33 @@
             </checkable-button>
           </div>
         </div>
-        <!-- <div class="content-box fixed-width-numbers"> -->
-        <!--   <h3 class="title">EXAC</h3> -->
-        <!--   <frequency-details group="ExAC" allele="al"></frequency-details> -->
-        <!-- </div> -->
-        <!-- <div class="content-box fixed-width-numbers"> -->
-        <!--   <h3 class="title">1000G</h3> -->
-        <!--   <frequency-details group="1000g" allele="al"></frequency-details> -->
-        <!-- </div> -->
-        <!-- <div class="content-box fixed-width-numbers"> -->
-        <!--   <h3 class="title">inDB</h3> -->
-        <!--   <frequency-details group="inDB" allele="al"></frequency-details> -->
-        <!-- </div> -->
-        <!-- <div class="content-box fixed-width-numbers"> -->
-        <!--   <h3 class="title">Consequence</h3> -->
-        <!--   <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> <span class="badge" ng-repeat="c in ::t.Consequence">{{::c}}</span> </transcript-wrapper> </div> -->
-        <!-- </div> -->
       </article>
       </div>
       <hr ng-if="vm.included_alleles.length">
       <h2 class="allele-title">excluded alleles</h2>
+      <div class="allele-controls">
+        <div class="form-inline">
+          <div class="btn-group btn-group-sm">
+            <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
+            <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
+            <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
+          </div>
+          <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
+            <option value="">All genes</option>
+          </select>
+        </div>
+        <div>
+          <uib-pagination total-items="vm.excluded_alleles.length"
+            ng-model="vm.page_idx"
+            class="pagination-sm"
+            items-per-page="vm.number_per_page"
+            ng-change="vm.update()"
+            boundary-links="true"
+            max-size="5"
+            rotate="false">
+          </uib-pagination>
+        </div>
+      </div>
       <!-- Excluded -->
       <article class="content-wrapper" ng-repeat="al in vm.slice track by al.id">
         <div class="excluded-allele">
@@ -106,60 +92,3 @@
     <div>
   </div>
 </section>
-        <!-- <div class="form-inline"> -->
-        <!--     <div class="btn-group btn-group-sm"> -->
-        <!--         <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'all'">All</label> -->
-        <!--         <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'class_one'">Class 1</label> -->
-        <!--         <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'intronic'">Intronic</label> -->
-        <!--     </div> -->
-        <!--     <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options"> -->
-        <!--         <option value="">All genes</option> -->
-        <!--     </select> -->
-        <!-- </div> -->
-        <!-- <div> -->
-        <!--     <pagination total-items="vm.excluded_alleles.length" -->
-        <!--                 ng-model="vm.page_idx" -->
-        <!--                 class="pagination-sm" -->
-        <!--                 items-per-page="vm.number_per_page" -->
-        <!--                 ng-change="vm.update()" -->
-        <!--                 boundary-links="true" -->
-        <!--                 max-size="5" -->
-        <!--                 rotate="false"> -->
-        <!--     </pagination> -->
-        <!-- </div> -->
-        <!-- <div class="clearfix"></div> -->
-
-        <!-- <table class="table table-striped"> -->
-        <!--     <thead> -->
-        <!--         <tr> -->
-        <!--             <th class="gene-column">Gene</th> -->
-        <!--             <th class="variant-column">Variant</th> -->
-        <!--             <th>ExAC</th> -->
-        <!--             <th>1000G</th> -->
-        <!--             <th>inDB</th> -->
-        <!--             <th>Consequence</th> -->
-        <!--             <th style="min-width: 50px;"></th> -->
-        <!--         </tr> -->
-        <!--     </thead> -->
-        <!--     <tbody> -->
-        <!--         <div ng-repeat="al in vm.slice track by al.id"> -->
-        <!--             <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> {{::t.SYMBOL}} </transcript-wrapper> </div> -->
-        <!--             <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> {{::t.HGVSc | HGVSc_short}} </transcript-wrapper> </div> -->
-        <!--             <div class="content-box fixed-width-numbers"> -->
-        <!--               <frequency-details group="ExAC" allele="al"></frequency-details> -->
-        <!--             </div> -->
-        <!--             <div class="content-box fixed-width-numbers"> -->
-        <!--                 <frequency-details group="1000g" allele="al"></frequency-details> -->
-        <!--             </div> -->
-        <!--             <div class="content-box fixed-width-numbers"> -->
-        <!--                 <frequency-details group="inDB" allele="al"></frequency-details> -->
-        <!--             </div> -->
-        <!--             <div class="content-box fixed-width-numbers"> -->
-        <!--               <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> <span class="badge" ng-repeat="c in ::t.Consequence">{{::c}}</span> </transcript-wrapper> </div> -->
-        <!--             </div> -->
-        <!--             <div class="checkbox checkbox-big checkbox-default"> -->
-        <!--               <button>ADD</button> -->
-                      <!-- <input type="checkbox" checklist-model="vm.included_allele_ids" checklist-value="al.id" ng-change="vm.update()"> -->
-                      <!-- <label></label> -->
-        <!--             </div> -->
-        <!--         </div> -->
