@@ -153,16 +153,16 @@ $green: hsla(140,35,75,1);
 $seafoam: hsla(195,35,75,1);
 $purple: hsla(250,35,75,1);
 $pink: hsla(295,35,75,1);
-.acmg { text-align: center; cursor: pointer; margin: 0 -2rem; color: white; opacity: 0.6; margin-bottom: -2rem; margin-top: 2rem;
+.acmg { text-align: center; cursor: pointer; margin: 0 -2rem; color: white; opacity: 0.75; margin-bottom: -2rem; margin-top: 2rem;
   h4 { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1rem; padding: 0.7rem 0; margin: 0; }
-  &.ba {  background-color: $blue; }
-  &.bs {  background-color: $blue; }
-  &.bp {  background-color: $blue; }
-  &.re {  background-color: $blue; }
-  &.pp {  background-color: $blue; }
-  &.pm {  background-color: $blue; }
-  &.ps {  background-color: $blue; }
-  &.pvs { background-color: $blue; }
+  &.ba {  background-color: hsla(350,75,25,1); }
+  &.bs {  background-color: hsla(300,75,25,1); }
+  &.bp {  background-color: hsla(250,75,25,1); }
+  &.re {  background-color: hsla(200,75,25,1); }
+  &.pp {  background-color: hsla(150,75,25,1); }
+  &.pm {  background-color: hsla(100,75,25,1); }
+  &.ps {  background-color: hsla(50,75,25,1); }
+  &.pvs { background-color: hsla(0,75,25,1); }
   &:hover { opacity: 0.99; transition: all 0.3s ease-in-out; }
 }
 .content-list { width: 100%; margin-right: 2.6rem;
