@@ -23,7 +23,7 @@ $blue-button: hsla(205,35,70,1);
 $blue-tint: hsla(205,35,45,0.05);
 .blue-text { color: $blue; }
 .paper-top-left.blue { background-color: $blue; }
-.paper-bottom.blue { border-left: 1.3rem solid $blue-sidebar; }
+.paper-bottom.blue { border-left: 0.7rem solid $blue-sidebar; }
 .faded-blue { background-color: $blue-button; }
 
 $green: hsla(140,35,45,1);
@@ -31,7 +31,7 @@ $green-sidebar: hsla(140,35,45,0.5);
 $green-button: hsla(140,35,65,1);
 .green-text { color: $green; }
 .paper-top-left.green { background-color: $green; }
-.paper-bottom.green { border-left: 1.3rem solid $green-sidebar; }
+.paper-bottom.green { border-left: 0.7rem solid $green-sidebar; }
 .faded-green { background-color: $green-button; }
 
 $yellow: hsla(45,35,45,1);
@@ -39,7 +39,7 @@ $yellow-sidebar: hsla(45,35,45,0.5);
 $yellow-button: hsla(45,35,70,1);
 .yellow-text { color: $yellow; }
 .paper-top-left.yellow { background-color: $yellow; }
-.paper-bottom.yellow { border-left: 1.3rem solid $yellow-sidebar; }
+.paper-bottom.yellow { border-left: 0.7rem solid $yellow-sidebar; }
 .faded-yellow { background-color: $yellow-button; }
 
 $red: hsla(10,35,45,1);
@@ -47,7 +47,7 @@ $red-sidebar: hsla(10,35,45,0.5);
 $red-button: hsla(10,35,70,1);
 .red-text { color: $red; }
 .paper-top-left.red { background-color: $red; }
-.paper-bottom.red { border-left: 1.3rem solid $red-sidebar; }
+.paper-bottom.red { border-left: 0.7rem solid $red-sidebar; }
 .faded-red { background-color: $red-button; }
 
 button[class^="faded-"], button[class*="faded-"], .question-set .btn.active { text-shadow: 0px 0px 6px rgba(255,255,255,1); }
@@ -103,11 +103,16 @@ section.card { min-width: 50rem; margin-bottom: 2.6rem; }
 .modal .paper .content-wrapper { padding: 3.9rem; }
 .modal .paper .content-wrapper ~ .content-wrapper { border-top: 1px dotted $half-black; }
 .modal .paper .content-wrapper:nth-child(even) { background-color: $blue-tint; }
+h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem; letter-spacing: 0.1rem; margin: 1.3rem 0; }
+.included-allele { display: flex; flex-wrap: wrap; }
+.included-allele .content-box { border: none; }
+.included-allele .content-box:nth-child(odd) { background-color: $blue-tint; }
 .excluded-allele { min-width: 18rem; display: flex; flex-direction: column;
   h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; margin-top: 3.8rem; }
   h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; }
   .checkbox { padding-left: 0; margin-top: 1.3rem; }
 }
+.content-box .excluded-allele h3 { margin-top: 0.7rem; }
 .content-box { border: 1px dotted $half-black; padding: 2.0rem; margin: 1.3rem 0; margin-bottom: 0.3rem; margin-right: 1.3rem; min-width: 10rem; min-height: 8rem;
   .title { font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
   .title ~ .title { margin-top: 2.6rem; }
@@ -150,7 +155,7 @@ $seafoam: hsla(195,35,75,1);
 $purple: hsla(250,35,75,1);
 $pink: hsla(295,35,75,1);
 // .acmg ~ .acmg { border-top: 1px dotted rgba(255,255,255,0.5); }
-.acmg { text-align: center;
+.acmg { text-align: center; cursor: pointer;
   h4 { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1rem; padding: 1.3rem 0; margin: 0; }
   .ba { background-color: rgb(120, 169, 124); }
   .bs { background-color: rgb(173, 203, 175); }
@@ -178,7 +183,7 @@ $pink: hsla(295,35,75,1);
 .modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
 .modal-dialog { margin: 5vh 10vw; }
 .modal-lg { width: inherit; }
-.modal-backdrop { bottom: 0; }
+.modal-backdrop { bottom: 0; position: fixed; }
 .interpretation-bar { margin-bottom: 3.9rem; margin-top: -2.4rem; display: flex; justify-content: flex-end;
   input { width: 20rem; }
   .left { margin-right: auto; }
@@ -189,6 +194,7 @@ $pink: hsla(295,35,75,1);
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }
 }
+.search-results { padding: 2.6rem; height: 50vh; margin-left: 42rem; background-color: $button-black; color: white; font-size: 1.3rem; font-family: "Source Sans Pro", sans-serif; }
 .app .sidebar { display: flex; flex-direction: column; justify-content: space-between; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px; z-index: 10;
   a { color: inherit;  &:hover { text-decoration: none; } }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
@@ -206,7 +212,7 @@ $pink: hsla(295,35,75,1);
   header .title.cell { padding-left: 2.6rem; }
   .active-section.nav-row:hover { cursor: default; background-color: $blue; }
   .cell { display: table-cell; vertical-align: middle; }
-  .first { width: 1.3rem; min-width: 1.3rem; height: 6rem; }
+  .first { width: 0.7rem; min-width: 0.7rem; height: 6rem; }
   .icon { width: 3.6rem; padding: 0 2.6rem; text-align: center; }
   .big { padding: 2rem 0; }
   .title { width: 100%; }
