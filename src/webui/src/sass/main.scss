@@ -65,7 +65,7 @@ input { border: none; border-bottom: 1px solid $icon-half-black; background-colo
 button { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
   &:disabled { opacity: 0.6 }
 }
-.badge { border-radius: 0; background-color: hsla(0,0,45,1); padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; }
+.badge { border-radius: 0; background-color: $blue; color: white; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; }
 
 section.card { min-width: 50rem; margin-bottom: 2.6rem; }
 .paper {
@@ -140,6 +140,27 @@ section.card { min-width: 50rem; margin-bottom: 2.6rem; }
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
   textarea { width: 100%; font-size: 1.2rem; }
 }
+.popover { font-family: "Source Sans Pro", sans-serif; border-radius: 0; }
+.popover * { border-radius: 0; }
+.popover-title { background-color: $blue-tint; font-weight: 600; text-transform: uppercase; }
+.acmg-body { display: flex; flex-direction: column; margin-top: 1.3rem; }
+$boring: hsla(50,35,75,1);
+$green: hsla(140,35,75,1);
+$seafoam: hsla(195,35,75,1);
+$purple: hsla(250,35,75,1);
+$pink: hsla(295,35,75,1);
+// .acmg ~ .acmg { border-top: 1px dotted rgba(255,255,255,0.5); }
+.acmg { text-align: center;
+  h4 { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1rem; padding: 1.3rem 0; margin: 0; }
+  .ba { background-color: rgb(120, 169, 124); }
+  .bs { background-color: rgb(173, 203, 175); }
+  .bp { background-color: rgb(227, 238, 228); }
+  .re { background-color: rgb(252, 245, 208);  }
+  .pp {  background-color: rgb(245, 218, 223); }
+  .pm {  background-color: rgb(236, 181, 190); }
+  .ps {  background-color: rgb(226, 146, 159); }
+  .pvs { background-color: rgb(208, 73, 95); }
+}
 .content-list { width: 100%; margin-right: 2.6rem;
   .analysis-row { border-bottom: 1px dotted $icon-half-black; margin-bottom: 2.6rem; }
   .analysis-row:last-child { margin-bottom: 1.3rem; }
@@ -153,6 +174,7 @@ section.card { min-width: 50rem; margin-bottom: 2.6rem; }
 .card-controls.collapsed { height: 0rem; }
 
 .app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 8rem; }
+.app .search-area { margin-left: 42rem; }
 .modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
 .modal-dialog { margin: 5vh 10vw; }
 .modal-lg { width: inherit; }

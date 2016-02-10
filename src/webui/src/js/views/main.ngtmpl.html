@@ -1,4 +1,8 @@
 <div class="app">
   <sidebar items="vm.test_items"></sidebar>
+  <div class="search-area">
+    <input type="text" placeholder="SEARCH" ng-model="vm.state.alleles[al.id].frequency['comment']"></input>
+    <div class="search-results"> </div>
+  </div>
   <div class="content" ui-view="content"></div>
 </div>
