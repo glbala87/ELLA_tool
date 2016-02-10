@@ -203,7 +203,7 @@ $pink: hsla(295,35,75,1);
   &:hover { opacity: 0.99; transition: all 0.3s ease-in-out; }
 }
 .content-list { width: 100%; margin-right: 2.6rem;
-  .analysis-row { border-bottom: 1px dotted $icon-half-black; margin-bottom: 2.6rem; }
+  .analysis-row { cursor: pointer; border-bottom: 1px dotted $icon-half-black; margin-bottom: 2.6rem; }
   .analysis-row:last-child { margin-bottom: 1.3rem; }
   h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.035rem; text-transform: none; margin: 0; }
   p { font-size: 1.0rem; font-weight: 400; letter-spacing: 0.1rem; word-spacing: 1rem; text-transform: uppercase; margin: 0.6rem 0; }
@@ -229,11 +229,11 @@ $pink: hsla(295,35,75,1);
   button { margin-left: 1.3rem; }
 }
 .interpretation { margin-top: 8rem; }
-.no-alleles { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
+.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }
 }
-.search-results { padding: 2.6rem; height: 50vh; margin-left: 42rem; background-color: $button-black; color: white; font-size: 1.3rem; font-family: "Source Sans Pro", sans-serif; }
+.search-results { padding: 2.6rem; height: 50vh; border-bottom: 1px solid $blue; font-size: 1.3rem; }
 .app .sidebar { display: flex; flex-direction: column; justify-content: space-between; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px; z-index: 10;
   a { color: inherit;  &:hover { text-decoration: none; } }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }

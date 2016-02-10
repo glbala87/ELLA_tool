@@ -1,0 +1,28 @@
+<div class="search-area">
+    <input type="text" placeholder="SEARCH" ng-model="vm.search_text" ng-change="vm.updateSearch()"></input>
+  <div class="search-results" uib-collapse="!vm.results">
+    <h4 ng-if="vm.results.alleleassessments.length">Classifications:</h4>
+    <div ng-repeat="aa in vm.results.alleleassessments">
+        {{aa}}
+    </div>
+
+    <h4 ng-if="vm.results.alleles.length">Alleles:</h4>
+    <div class="content-list">
+      <div class="analysis-row" ng-repeat="allele in vm.results.alleles" ng-click="vm.openAllele(allele)">
+        <h3 ng-repeat="t in allele.annotation.transcripts.slice(0, 1)">{{t.HGVSc}}</h3>
+        <p ng-repeat="t in allele.annotation.transcripts.slice(0, 1)">{{t.Consequence}}</p>
+      </div>
+    </div>
+
+
+    <h4 ng-if="vm.results.analyses.length">Analyses:</h4>
+    <div class="content-list">
+      <analysis-list analyses="vm.results.analyses"></analysis-list>
+    </div>
+
+    <div class="no-results" ng-if="vm.results.analyses.length == 0 && vm.results.alleles.length == 0 && vm.results.alleleassessments.length == 0">
+        <h2>No results.</h2>
+        <h4>Search examples: c.198A>G, NM_000059.3:c.1275A>G, 5:16451845, 13:32893296-32893415</h4>
+    </div>
+  </div>
+</div>

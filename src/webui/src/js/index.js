@@ -40,7 +40,7 @@ import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
-import './widgets/searchResults.directive';
+import './widgets/search.directive';
 import './widgets/card.directive';
 import './widgets/interpretationbar.directive';
 import './widgets/allelecard/allelecard.directive';
