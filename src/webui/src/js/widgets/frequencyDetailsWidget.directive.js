@@ -60,7 +60,7 @@ export class FrequencyDetailsWidget {
     getFreqValue(freq_data) {
         let value = parseFloat(freq_data.freq).toFixed(this.precision);
         if ('hom' in freq_data) {
-            value += ` (hom: ${freq_data['hom']} of ${freq_data['count']})`
+            value += ` (count: ${freq_data['count']}, num: ${freq_data['num']}, hom: ${freq_data['hom']})`
         }
         return value;
     }
