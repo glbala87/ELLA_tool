@@ -10,4 +10,4 @@ class AnalysisListResource(Resource):
     @paginate
     @rest_filter
     def get(self, session, rest_filter=None, page=None, num_per_page=None):
-        return self.list_query(session, sample.Analysis, schemas.AnalysisSchema())
+        return self.list_query(session, sample.Analysis, schema=schemas.AnalysisSchema(), rest_filter=rest_filter)

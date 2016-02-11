@@ -14,6 +14,9 @@ class ApiV1(object):
         api.add_resource(r.alleleassessment.AlleleAssessmentListResource,
                          '/api/v1/alleleassessments/')
 
+        api.add_resource(r.allele.AlleleListResource,
+                         '/api/v1/alleles/')
+
         api.add_resource(r.analysis.AnalysisListResource,
                          '/api/v1/analyses/')
 
@@ -25,9 +28,6 @@ class ApiV1(object):
 
         api.add_resource(r.interpretation.InterpretationResource,
                          '/api/v1/interpretations/<int:interpretation_id>/')
-
-        api.add_resource(r.interpretation.InterpretationAlleleResource,
-                         '/api/v1/interpretations/<int:interpretation_id>/alleles/')
 
         api.add_resource(r.interpretation.InterpretationReferenceAssessmentResource,
                          '/api/v1/interpretations/<int:interpretation_id>/referenceassessments/')

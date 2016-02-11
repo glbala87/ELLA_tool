@@ -1,4 +1,5 @@
 import acmg
+import allele
 import alleleassessment
 import analysis
 import config

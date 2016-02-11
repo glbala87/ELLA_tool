@@ -36,11 +36,10 @@ class TestAlleleAssessment(object):
 
         # Retrieve alleles for interpretation for which
         # to create new AlleleAssessments
-        alleles = client.get('/api/v1/interpretations/1/alleles/').json
-        allele_ids = [a['id'] for a in alleles]
+        interpretation = client.get('/api/v1/interpretations/1/').json
 
         # Create all AlleleAssessments
-        for idx, allele_id in enumerate(allele_ids):
+        for idx, allele_id in enumerate(interpretation['allele_ids']):
             testdata['allele_id'] = allele_id
             r = client.post('/api/v1/alleleassessments/', testdata)
             assert r.status_code == 200
@@ -54,10 +53,9 @@ class TestAlleleAssessment(object):
         It should result in the AlleleAssessment being updated, while the id remains the same.
         """
 
-        alleles = client.get('/api/v1/interpretations/1/alleles/').json
-        allele_ids = [a['id'] for a in alleles]
+        interpretation = client.get('/api/v1/interpretations/1/').json
 
-        q = {'allele_id': allele_ids, 'dateSuperceeded': None, 'status': 0}
+        q = {'allele_id': interpretation['allele_ids'], 'dateSuperceeded': None, 'status': 0}
         previous_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
 
         for prev in previous_aa:

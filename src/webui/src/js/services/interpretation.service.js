@@ -1,6 +1,5 @@
 /* jshint esnext: true */
 
-import {Allele} from '../model/allele';
 import {Service, Inject} from '../ng-decorators';
 /**
  * Controller for dialog asking user whether to complete or finalize interpretation.
@@ -17,32 +16,28 @@ class ConfirmCompleteInterpretationController {
     serviceName: 'Interpretation'
 })
 @Inject('$rootScope',
+        'Allele',
         'InterpretationResource',
-        'ReferenceResource',
         'ACMG',
-        'AlleleAssessmentResource',
         'User',
         '$uibModal',
         '$location')
 class InterpretationService {
 
     constructor(rootScope,
+        Allele,
         interpretationResource,
-        referenceResource,
         ACMG,
-        alleleAssessmentResource,
         User,
         ModalService,
         LocationService) {
 
 
         this._setWatchers(rootScope);
-
+        this.alleleService = Allele;
         this.user = User;
         this.interpretationResource = interpretationResource;
-        this.referenceResource = referenceResource;
         this.acmg = ACMG;
-        this.alleleAssessmentResource = alleleAssessmentResource;
         this.interpretation = null;
         this.modalService = ModalService;
         this.locationService = LocationService;
@@ -111,18 +106,19 @@ class InterpretationService {
         if (!this.interpretation) {
             throw new Error("Interpretation not loaded yet.");
         }
-        this._reloadAlleles(this.interpretation);
+        return this._reloadAlleles(this.interpretation);
     }
 
     _reloadAlleles(interpretation) {
-        // Fetch alleles for this interpretation id
-        return this.interpretationResource.getAlleles(interpretation.id).then(alleles => {
-            let alleles_obj = [];
-            for (let allele of alleles) {
-                alleles_obj.push(new Allele(allele));
-            }
-            interpretation.setAlleles(alleles_obj);
-            return alleles_obj;
+        console.log(interpretation)
+        return this.alleleService.getAlleles(
+            interpretation.allele_ids,
+            interpretation.analysis.sample.id,
+            interpretation.analysis.genepanel.name,
+            interpretation.analysis.genepanel.version
+        ).then(alleles => {
+            interpretation.setAlleles(alleles);
+            return alleles;
         });
     }
 
@@ -222,76 +218,42 @@ class InterpretationService {
         // Make copy and add/update mandatory fields before submission
         let copy_ra = Object.assign({}, state_ra);
 
-        return this.user.getCurrentUser().then(user => {
-            Object.assign(copy_ra, {
-                allele_id: allele.id,
-                reference_id: reference.id,
-                genepanelName: this.interpretation.analysis.genepanel.name,
-                genepanelVersion: this.interpretation.analysis.genepanel.version,
-                interpretation_id: this.interpretation.id,
-                status: 0,  // Status is set to 0. Finalization happens in another step.
-                user_id: user.id
-            });
 
-            // Update the interpretation's state with the response to include the updated fields into relevant referenceassessment
-            // We set 'evaluation' again to ensure frontend is synced with server.
-            // Then we update the interpretation state on the server, in order to make sure everything is in sync.
-            return this.referenceResource.createOrUpdateReferenceAssessment(copy_ra).then(updated_ra => {
-                state_ra.id = updated_ra.id;
-                state_ra.evaluation = updated_ra.evaluation;
-                state_ra.interpretation_id = updated_ra.interpretation_id;
 
-                // Update interpretation on server to reflect state changes made.
-                this.save();
+        // Update the interpretation state on the server, in order to make sure everything is in sync.
+        return this.alleleService.createOrUpdateReferenceAssessment(copy_ra).then(updated_ra => {
 
-                // Update the ACMG code for allele in question.
-                // Need to get all ReferenceAssessment for allele, not just the updated one
-                let referenceassessment_ids = Object.values(this.interpretation.state.allele[allele.id].referenceassessment)
-                                              .map(e => e.id)
-                                              .filter(e => e !== undefined);
-                this.acmg.updateACMGCodes(
-                    [allele],
-                    referenceassessment_ids,
-                    this.interpretation.analysis.genepanel.name,
-                    this.interpretation.analysis.genepanel.version
-                );
-            });
+            // Update interpretation on server to reflect state changes made.
+            this.save();
+
+            // Update the ACMG code for allele in question.
+            // Need to get all ReferenceAssessment for allele, not just the updated one
+            let referenceassessment_ids = Object.values(
+                this.interpretation.state.allele[allele.id].referenceassessment
+            ).map(e => e.id).filter(e => e !== undefined);
+
+            this.alleleService.updateACMG(
+                [allele],
+                referenceassessment_ids,
+                this.interpretation.analysis.genepanel.name,
+                this.interpretation.analysis.genepanel.version
+            );
         });
     }
 
     createOrUpdateAlleleAssessment(state_aa, allele) {
-
-        // Make copy and add mandatory fields before submission
-        let copy_aa = Object.assign({}, state_aa);
-        delete copy_aa.user;  // Remove extra data
-        delete copy_aa.secondsSinceUpdate;
-        // TODO: Add transcript
-        return this.user.getCurrentUser().then(user => {
-            Object.assign(copy_aa, {
-                allele_id: allele.id,
-                annotation_id: allele.annotation.annotation_id,
-                genepanelName: this.interpretation.analysis.genepanel.name,
-                genepanelVersion: this.interpretation.analysis.genepanel.version,
-                interpretation_id: this.interpretation.id,
-                status: 0, // Status is set to 0. Finalization happens in another step.
-                user_id: user.id
-            });
-
-            // Update the interpretation's state with the response to include the updated fields into relevant alleleassessment
-            // We set 'evaluation' and 'classification' again to ensure frontend is synced with server.
-            // Then we update the interpretation state on the server, in order to make sure everything is in sync.
-            return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(copy_aa).then(aa => {
-                state_aa.id = aa.id;
-                state_aa.classification = aa.classification;
-                state_aa.evaluation = aa.evaluation;
-                state_aa.interpretation_id = aa.interpretation_id;
-
-                // Update interpretation on server to reflect state changes made.
-                return this.save();
-            });
-
+        return this.alleleService.createOrUpdateAlleleAssessment(
+            state_aa,
+            allele,
+            this.interpretation.analysis.genepanel.name,
+            this.interpretation.analysis.genepanel.version,
+            this.interpretation.id
+        ).then(state_aa => {
+            // Update interpretation on server to reflect state changes made.
+            // (state_aa object is updated by the function, and is
+            // part of interpretation's state)
+            return this.save();
         });
-
     }
 
 }
