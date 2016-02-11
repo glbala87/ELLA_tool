@@ -8,9 +8,11 @@
 
     <h4 ng-if="vm.results.alleles.length">Alleles:</h4>
     <div class="content-list">
-      <div class="analysis-row" ng-repeat="allele in vm.results.alleles" ng-click="vm.openAllele(allele)">
-        <h3 ng-repeat="t in allele.annotation.transcripts.slice(0, 1)">{{t.HGVSc}}</h3>
-        <p ng-repeat="t in allele.annotation.transcripts.slice(0, 1)">{{t.Consequence}}</p>
+      <div ng-repeat="item in vm.results.alleles">
+
+        <div class="analysis-row" ng-click="vm.openAllele(allele)" ng-repeat="allele in item.alleles">
+          <h3 ng-repeat="t in allele.annotation.filtered">{{t.SYMBOL}} {{t.HGVSc}} ({{::item.name}}_{{::item.version}})</h3>
+        </div>
       </div>
     </div>
 

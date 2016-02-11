@@ -1,12 +1,16 @@
+from collections import defaultdict
 import re
 from flask import request
 from sqlalchemy.sql import text
-from vardb.datamodel import sample, assessment, allele
+from sqlalchemy.orm import contains_eager
+from vardb.datamodel import sample, assessment, allele, gene, genotype
 
 from api import schemas
 
 from api.v1.resource import Resource
 from api.util.alleledataloader import AlleleDataLoader
+
+from api.util.annotationprocessor.annotationprocessor import TranscriptAnnotation
 
 
 class SearchResource(Resource):
@@ -168,6 +172,62 @@ class SearchResource(Resource):
 
         return allele_ids
 
+    def _alleles_by_genepanel(self, session, alleles):
+        """
+        Structures the alleles according the the genepanel(s)
+        they belong to, and filters the transcripts
+        (sets allele.annotation.filtered to genepanel transcripts)
+
+        Alleles must already be dumped using AlleleDataLoader.
+        """
+        allele_ids = [a['id'] for a in alleles]
+
+        # Get genepanels for the alleles
+        genepanel_alleles = session.query(
+            gene.Genepanel.name,
+            gene.Genepanel.version,
+            allele.Allele.id
+        ).join(
+            genotype.Genotype.alleles,
+            sample.Sample,
+            sample.Analysis,
+            gene.Genepanel
+        ).filter(
+            genotype.Genotype.sample_id == sample.Sample.id,
+            allele.Allele.id.in_(allele_ids)
+        ).all()
+
+
+        # Load all genepanels
+        # TODO: Optimize to load only relevant ones
+        genepanels = session.query(gene.Genepanel).all()
+
+        # Iterate, filter transcripts and add to final data
+        alleles_by_genepanel = list()
+        for gp_name, gp_version, allele_id in genepanel_alleles:
+            al = next(a for a in alleles if a['id'] == allele_id)
+            genepanel = next(gp for gp in genepanels if gp.name == gp_name and gp.version == gp_version)
+
+            transcripts = [t['Transcript'] for t in al['annotation']['transcripts']]
+            al['annotation']['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(
+                transcripts,
+                schemas.GenepanelSchema().dump(genepanel).data
+            )
+
+            # Add allele to genepanel -> allele list
+            item = next((a for a in alleles_by_genepanel if a['name'] == gp_name and a['version'] == gp_version), None)
+            if item is None:
+                item = {
+                    'name': gp_name,
+                    'version': gp_version,
+                    'alleles': list()
+                }
+                alleles_by_genepanel.append(item)
+
+            item['alleles'].append(al)
+
+        return alleles_by_genepanel
+
     def _search_allele(self, session, query):
         allele_ids = self._search_allele_ids(session, query)
 
@@ -223,9 +283,16 @@ class SearchResource(Resource):
         matches['analyses'] = self._search_analysis(session, query)
 
         # Search alleles
-        matches['alleles'] = self._search_allele(session, query)
+        matches['alleles'] = self._alleles_by_genepanel(
+            session,
+            self._search_allele(session, query)
+        )
 
         # Search alleleassessments
-        matches['alleleassessments'] = self._search_alleleassessment(session, query)
+        # TODO: THIS DOESN'T WORK, THERE'S NO ALLELE!
+        matches['alleleassessments'] = self._alleles_by_genepanel(
+            session,
+            self._search_alleleassessment(session, query)
+        )
 
         return matches
