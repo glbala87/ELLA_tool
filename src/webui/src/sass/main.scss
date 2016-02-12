@@ -81,7 +81,7 @@ section.card { min-width: 50rem; margin-bottom: 2.6rem; }
   .icon.collapsed { transform: rotate(-90deg); }
   h3, h4 { margin: 0; }
   h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; }
-  h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; }
+  h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; overflow-x: hidden; }
 }
 .paper-top-right { width: 100%; padding: 0 3.9rem; text-align: right; color: black;
   h5 { font-weight: 400; font-size: 1.4rem; }
@@ -112,7 +112,7 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
   h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; }
   .checkbox { padding-left: 0; margin-top: 1.3rem; }
 }
-.allele-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.3rem;
+.allele-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.3rem; margin-top: -1.3rem;
   .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: none; height: 2.6rem; box-shadow: none; border-radius: 0; margin-left: 0.7rem; margin-top: 2px; }
   .btn { border-radius: 0; }
   .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
