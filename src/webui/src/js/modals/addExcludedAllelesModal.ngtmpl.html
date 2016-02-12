@@ -17,18 +17,18 @@
       <!-- Included -->
       <h2 class="allele-title" ng-if="vm.included_alleles.length">included alleles</h2>
       <div class="included-allele">
-      <article class="content-box" ng-repeat="al in vm.included_alleles track by al.id">
-        <div class="excluded-allele">
-          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3> {{::t.SYMBOL}} </h3></transcript-wrapper> </div>
-          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h4> {{::t.HGVSc | HGVSc_short}} </h4></transcript-wrapper> </div>
-          <div class="checkbox checkbox-big checkbox-default">
-            <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()" show-mark="true">
-              <checked>ADDED</checked>
-              ADD
-            </checkable-button>
+        <article class="content-box" ng-repeat="al in vm.included_alleles track by al.id">
+          <div class="excluded-allele">
+            <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3> {{::t.SYMBOL}} </h3></transcript-wrapper> </div>
+            <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h4> {{::t.HGVSc | HGVSc_short}} </h4></transcript-wrapper> </div>
+            <div class="checkbox checkbox-big checkbox-default">
+              <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()" show-mark="true">
+                <checked>ADDED</checked>
+                ADD
+              </checkable-button>
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
       </div>
       <hr ng-if="vm.included_alleles.length">
       <h2 class="allele-title">excluded alleles</h2>

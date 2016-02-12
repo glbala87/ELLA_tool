@@ -116,8 +116,11 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
 .included-allele .content-box:nth-child(odd) { background-color: $blue-tint; }
 .excluded-allele { min-width: 18rem; display: flex; flex-direction: column;
   h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; margin-top: 3.8rem; }
-  h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; }
+  h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; overflow-x: hidden; }
   .checkbox { padding-left: 0; margin-top: 1.3rem; }
+}
+.annotation-title { margin-bottom: 1.3rem;
+  b { font-weight: 500; }
 }
 .allele-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.3rem; margin-top: -1.3rem;
   .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: none; height: 2.6rem; box-shadow: none; border-radius: 0; margin-left: 0.7rem; margin-top: 2px; }
@@ -157,7 +160,9 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
   .row { margin: 0; display: table-row; height: 8rem; }
   .title { padding-right: 2rem; text-align: right; width: 50%; }
   .check { padding-right: 0.7rem; width: 3.9rem; min-width: 3.9rem; }
-  .controls { width: 50%; }
+  .controls { width: 50%;
+    button { margin-left: 1.3rem; margin-top: 0.7rem; }
+  }
   .btn { border-radius: 0; }
   .btn.active { box-shadow: none; background-color: $blue-button; }
   .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
@@ -166,7 +171,14 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
   textarea { width: 100%; font-size: 1.2rem; }
+  .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: none; height: 2.6rem; box-shadow: none; border-radius: 0; margin-left: 0.7rem; margin-top: 2px; }
 }
+textarea.big { height: 25vh; margin: 2.6rem 0; }
+.small.question-set { margin: 1.3rem auto;
+  .non-cell { margin-bottom: 0.7rem; margin-top: 2.6rem; }
+  .row { height: 4rem; }
+}
+.small.question-set > .row:nth-child(even) { background-color: white; }
 .popover { font-family: "Source Sans Pro", sans-serif; border-radius: 0; }
 .popover * { border-radius: 0; }
 .popover-title { background-color: $blue-tint; font-weight: 600; text-transform: uppercase; }
@@ -205,7 +217,7 @@ $pink: hsla(295,35,75,1);
 .app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 8rem; }
 .app .search-area { margin-left: 42rem; }
 .modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
-.modal-dialog { margin: 5vh 10vw; }
+.modal-dialog { margin: 5vh 10vw; width: auto; }
 .modal-lg { width: inherit; }
 .modal-backdrop { bottom: 0; position: fixed; }
 .interpretation-bar { margin-bottom: 3.9rem; margin-top: -2.4rem; display: flex; justify-content: flex-end;
