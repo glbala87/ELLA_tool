@@ -102,19 +102,21 @@ class AlleleDataLoader(object):
         genepanel = GenepanelSchema().dump(genepanel).data
         final_alleles = list()
         for allele_id, data in allele_data.iteritems():
-            # Convert annotation using annotationprocessor
-            processed_annotation = AnnotationProcessor.process(
-                data['annotation']['annotations'],
-                genotype=data.get('genotype'),
-                custom_annotation=data.get('custom_annotation', {}).get('annotations'),
-                genepanel=genepanel
-            )
             final_allele = data['allele']
-            final_allele['annotation'] = processed_annotation
-            final_allele['annotation']['annotation_id'] = data['annotation']['id']
 
-            if 'custom_annotation' in data:
-                final_allele['annotation']['custom_annotation_id'] = data['custom_annotation']['id']
+            if 'annotation' in data:
+                # Convert annotation using annotationprocessor
+                processed_annotation = AnnotationProcessor.process(
+                    data['annotation']['annotations'],
+                    genotype=data.get('genotype'),
+                    custom_annotation=data.get('custom_annotation', {}).get('annotations'),
+                    genepanel=genepanel
+                )
+                final_allele['annotation'] = processed_annotation
+                final_allele['annotation']['annotation_id'] = data['annotation']['id']
+
+                if 'custom_annotation' in data:
+                    final_allele['annotation']['custom_annotation_id'] = data['custom_annotation']['id']
 
             for key in ['genotype', 'allele_assessment', 'reference_assessments']:
                 if key in data:
