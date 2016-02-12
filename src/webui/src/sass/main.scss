@@ -117,8 +117,16 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
   .btn { border-radius: 0; }
   .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
   .btn.active { box-shadow: none; background-color: $blue-button; }
-  li.active a { background-color: $blue-button; border-color: $blue-button; }
+  li.active a { background-color: $blue-button; border-color: $button-black; color: $button-black; }
+  li.active a:hover { background-color: $blue-button; border-color: $button-black; color: $button-black; }
 }
+.pagination { font-family: inherit; font-size: 1.2rem; text-transform: uppercase; margin-top: 2.8rem; margin-bottom: 2.6rem;
+  .disabled { opacity: 0.5; }
+  li { transition: all 0.3s ease-in-out; }
+  li a { padding: 0.25rem 0.75rem; color: $button-black; border-color: $button-black; line-height: 1.8rem; }
+  li a:hover { color: $button-black; border-color: $button-black; background-color: Transparent; }
+}
+.pagination * { border-radius: 0 !important; }
 .content-box .excluded-allele h3 { margin-top: 0.7rem; }
 .content-box { border: 1px dotted $half-black; padding: 2.0rem; margin: 1.3rem 0; margin-bottom: 0.3rem; margin-right: 1.3rem; min-width: 10rem; min-height: 8rem;
   .title { font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
@@ -181,6 +189,9 @@ $pink: hsla(295,35,75,1);
 .card-controls { z-index: -2; height: 4.8rem; text-align: right; background-color: #e6e6e6; margin-left: 1.3rem; margin-right: 1.3rem; padding-left: 2.6rem; padding-right: 2.6rem; padding-top: 1.3rem; margin-bottom: 7rem; display: flex; justify-content: flex-end;
   .left { margin-right: auto; }
   button ~ button { margin-left: 1.3rem; }
+  .grouped-controls { display: flex; }
+  .control-outline { margin-right: 0.7rem; border: 1px solid $half-black; }
+  .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; background-color: Transparent; color: $button-black; border: none; height: 2.5rem; box-shadow: none; border-radius: 0; }
 }
 .card-controls.collapsed { height: 0rem; }
 
