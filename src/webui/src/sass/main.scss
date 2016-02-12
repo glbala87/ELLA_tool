@@ -23,6 +23,7 @@ $blue-button: hsla(205,35,70,1);
 $blue-tint: hsla(205,35,45,0.05);
 .blue-text { color: $blue; }
 .paper-top-left.blue { background-color: $blue; }
+.classification-number.blue { background-color: $blue; }
 .paper-bottom.blue { border-left: 0.7rem solid $blue-sidebar; }
 .faded-blue { background-color: $blue-button; }
 
@@ -31,6 +32,7 @@ $green-sidebar: hsla(140,35,45,0.5);
 $green-button: hsla(140,35,65,1);
 .green-text { color: $green; }
 .paper-top-left.green { background-color: $green; }
+.classification-number.green { background-color: $green; }
 .paper-bottom.green { border-left: 0.7rem solid $green-sidebar; }
 .faded-green { background-color: $green-button; }
 
@@ -39,6 +41,7 @@ $yellow-sidebar: hsla(45,35,45,0.5);
 $yellow-button: hsla(45,35,70,1);
 .yellow-text { color: $yellow; }
 .paper-top-left.yellow { background-color: $yellow; }
+.classification-number.yellow { background-color: $yellow; }
 .paper-bottom.yellow { border-left: 0.7rem solid $yellow-sidebar; }
 .faded-yellow { background-color: $yellow-button; }
 
@@ -47,6 +50,7 @@ $red-sidebar: hsla(10,35,45,0.5);
 $red-button: hsla(10,35,70,1);
 .red-text { color: $red; }
 .paper-top-left.red { background-color: $red; }
+.classification-number.red { background-color: $red; }
 .paper-bottom.red { border-left: 0.7rem solid $red-sidebar; }
 .faded-red { background-color: $red-button; }
 
@@ -86,7 +90,10 @@ section.card { min-width: 50rem; margin-bottom: 2.6rem; }
 .paper-top-right { width: 100%; padding: 0 3.9rem; text-align: right; color: black;
   h5 { font-weight: 400; font-size: 1.4rem; }
   p { font-weight: 300; font-size: 1.4rem; }
-  input { width: 90%; }
+  input { width: 90%; margin-left: auto; }
+  status { display: flex; justify-content: space-between; align-items: center; }
+  status h2 { margin: 0; font-size: 3rem; font-weight: 500; color: white; line-height: 8rem; }
+  .classification-number { position: relative; left: -3.9rem; padding: 0 2.6rem; height: 8rem; }
 }
 .modal-content .card {
   .paper-top-left { padding-left: 2.6rem; color: $blue; }
