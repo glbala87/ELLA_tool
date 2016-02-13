@@ -156,8 +156,8 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
   .cell { padding-top: 0.7rem; }
 }
 .question-set > .row:nth-child(even) { background-color: $blue-tint; }
-.question-set { margin: 3.9rem auto; table-layout: fixed;
-  .row { margin: 0; display: table-row; height: 8rem; }
+.question-set { margin: 3.9rem auto; table-layout: fixed; display: table;
+  .trow { margin: 0; display: table-row; height: 8rem; } // this is 'trow' instead of 'row' to avoid collision with bootstrap
   .title { padding-right: 2rem; text-align: right; width: 50%; }
   .check { padding-right: 0.7rem; width: 3.9rem; min-width: 3.9rem; }
   .controls { width: 50%;
@@ -175,8 +175,11 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
 }
 textarea.big { height: 25vh; margin: 2.6rem 0; }
 .small.question-set { margin: 1.3rem auto;
+  .check { width: 0.1rem; min-width: 0.1rem; padding-right: 0rem; }
+  .title { width: 42%; }
+  .controls { width: 56%; }
   .non-cell { margin-bottom: 0.7rem; margin-top: 2.6rem; }
-  .row { height: 4rem; }
+  .trow { height: 4rem; }
 }
 .small.question-set > .row:nth-child(even) { background-color: white; }
 .popover { font-family: "Source Sans Pro", sans-serif; border-radius: 0; }
