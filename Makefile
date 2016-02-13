@@ -13,6 +13,8 @@ test-common:
 	py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api
 
 test-js:
+	rm -f /genap/node_modules
+	ln -s /dist/node_modules/ /genap/node_modules
 	gulp unit
 
 cleanup-ownership:
