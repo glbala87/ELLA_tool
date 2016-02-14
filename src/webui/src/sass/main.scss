@@ -40,7 +40,7 @@ $green-radio: hsla(140,35,75,1);
 
 $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
-$yellow-button: hsla(45,35,70,1);
+$yellow-button: hsla(45,35,45,1);
 $yellow-radio: hsla(45,35,75,1);
 .yellow-text { color: $yellow; }
 .paper-top-left.yellow { background-color: $yellow; }
@@ -50,7 +50,7 @@ $yellow-radio: hsla(45,35,75,1);
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
-$red-button: hsla(10,35,70,1);
+$red-button: hsla(10,35,45,1);
 $red-radio: hsla(10,35,75,1);
 .red-text { color: $red; }
 .paper-top-left.red { background-color: $red; }
@@ -212,7 +212,7 @@ $pink: hsla(295,35,75,1);
   .left { margin-right: auto; }
   button ~ button { margin-left: 1.3rem; }
   .grouped-controls { display: flex; }
-  .control-outline { margin-right: 0.7rem; border: 1px solid $half-black; }
+  .form-control-outline { margin-right: 0.7rem; border: 1px solid $half-black; }
   .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; background-color: Transparent; color: $button-black; border: none; height: 2.5rem; box-shadow: none; border-radius: 0; }
 }
 .card-controls.collapsed { height: 0rem; }
