@@ -26,7 +26,7 @@ $blue-tint: hsla(205,35,45,0.05);
 .paper-top-left.blue { background-color: $blue; }
 .classification-number.blue { background-color: $blue; }
 .paper-bottom.blue { border-left: 0.7rem solid $blue-sidebar; }
-.faded-blue { background-color: $blue-button; }
+.faded-blue { background-color: $blue-button; color:white; font-weight: 500; }
 
 $green: hsla(140,35,45,1);
 $green-sidebar: hsla(140,35,45,0.5);
@@ -46,7 +46,7 @@ $yellow-radio: hsla(45,35,75,1);
 .paper-top-left.yellow { background-color: $yellow; }
 .classification-number.yellow { background-color: $yellow; }
 .paper-bottom.yellow { border-left: 0.7rem solid $yellow-sidebar; }
-.faded-yellow { background-color: $yellow-button; }
+.faded-yellow { background-color: $yellow-button; color:white; font-weight: 500; }
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
@@ -56,7 +56,7 @@ $red-radio: hsla(10,35,75,1);
 .paper-top-left.red { background-color: $red; }
 .classification-number.red { background-color: $red; }
 .paper-bottom.red { border-left: 0.7rem solid $red-sidebar; }
-.faded-red { background-color: $red-button; }
+.faded-red { background-color: $red-button; color:white; font-weight: 500; }
 
 login { display: block; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans", sans-serif; background-color: hsla(0,0,97,1); }
