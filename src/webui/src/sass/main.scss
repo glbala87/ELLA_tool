@@ -19,7 +19,8 @@ $tint-black: hsla(0,0,0,0.05);
 
 $blue: hsla(205,35,45,1);
 $blue-sidebar: hsla(205,35,45,0.5);
-$blue-button: hsla(205,35,70,1);
+$blue-button: hsla(205,35,45,1);
+$blue-radio: hsla(205,35,75,1);
 $blue-tint: hsla(205,35,45,0.05);
 .blue-text { color: $blue; }
 .paper-top-left.blue { background-color: $blue; }
@@ -29,16 +30,18 @@ $blue-tint: hsla(205,35,45,0.05);
 
 $green: hsla(140,35,45,1);
 $green-sidebar: hsla(140,35,45,0.5);
-$green-button: hsla(140,35,65,1);
+$green-button: hsla(140,35,45,1);
+$green-radio: hsla(140,35,75,1);
 .green-text { color: $green; }
 .paper-top-left.green { background-color: $green; }
 .classification-number.green { background-color: $green; }
 .paper-bottom.green { border-left: 0.7rem solid $green-sidebar; }
-.faded-green { background-color: $green-button; }
+.faded-green { background-color: $green-button; color:white; font-weight: 500; }
 
 $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
 $yellow-button: hsla(45,35,70,1);
+$yellow-radio: hsla(45,35,75,1);
 .yellow-text { color: $yellow; }
 .paper-top-left.yellow { background-color: $yellow; }
 .classification-number.yellow { background-color: $yellow; }
@@ -48,13 +51,13 @@ $yellow-button: hsla(45,35,70,1);
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
 $red-button: hsla(10,35,70,1);
+$red-radio: hsla(10,35,75,1);
 .red-text { color: $red; }
 .paper-top-left.red { background-color: $red; }
 .classification-number.red { background-color: $red; }
 .paper-bottom.red { border-left: 0.7rem solid $red-sidebar; }
 .faded-red { background-color: $red-button; }
 
-button[class^="faded-"], button[class*="faded-"], .question-set .btn.active { text-shadow: 0px 0px 6px rgba(255,255,255,1); }
 login { display: block; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans", sans-serif; background-color: hsla(0,0,97,1); }
 input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis;
@@ -62,9 +65,6 @@ input { border: none; border-bottom: 1px solid $icon-half-black; background-colo
 }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
-
-.btn-round { height: 50px; width: 50px; background-color: black; color: white; } //todo: kill me i'm stupid bootstrap stuff
-.add-alleles { position: absolute; top: 0; } //todo: kill me i'm a hack until we move the button
 
 button { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
   &:disabled { opacity: 0.6 }
@@ -164,7 +164,7 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
     button { margin-left: 1.3rem; margin-top: 0.7rem; }
   }
   .btn { border-radius: 0; }
-  .btn.active { box-shadow: none; background-color: $blue-button; }
+  .btn.active { box-shadow: none; background-color: $blue-radio; }
   .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
   .centered { text-align: center; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
