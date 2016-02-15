@@ -19,7 +19,10 @@ docker-run-dev:
 	supervisord -c /genap/ops/dev/supervisor.cfg
 
 docker-run-tests:
-	docker run -v `pwd`:/genap local/gin-test make all-tests
+	docker run -v `pwd`:/genap local/gin-$(BRANCH) make all-tests
+
+docker-run-single-test:
+	docker run -v `pwd`:/genap local/gin-$(BRANCH) make test-$(TEST_NAME)
 
 restart:
 	docker restart $(CONTAINER_NAME)
@@ -33,7 +36,7 @@ build: docker-build
 
 dev: docker-run-dev
 
-all-tests: test-js test-common test-api cleanup-ownership
+all-tests: test-js test-common test-api
 
 test-api: export DB_URL=postgres:///postgres
 test-api: export PYTHONPATH=/genap/src
@@ -49,7 +52,3 @@ test-js:
 	rm -f /genap/node_modules
 	ln -s /dist/node_modules/ /genap/node_modules
 	gulp unit
-
-cleanup-ownership:
-	chown -R $(USER) .
-
