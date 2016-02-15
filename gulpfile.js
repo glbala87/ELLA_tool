@@ -8,6 +8,7 @@ var gulp = require('gulp'),
     livereload = require('gulp-livereload'),
     wrapper = require('gulp-wrapper'),
     less = require('gulp-less'),
+    sass = require('gulp-sass'),
     plumber = require('gulp-plumber'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
@@ -31,12 +32,13 @@ gulp.task('tp-js', function() {
     var sourcePaths = [
         //'./node_modules/babel-es6-polyfill/browser-polyfill.js',
         //'./node_modules/js-polyfills/es6.js',
-        'src/webui/src/thirdparty/angular/1.4.0/angular.js',
-        'src/webui/src/thirdparty/angular/1.4.0/angular-resource.js',
-        'src/webui/src/thirdparty/angular/1.4.0/angular-animate.js',
-        'src/webui/src/thirdparty/angular/1.4.0/angular-route.js',
-        'src/webui/src/thirdparty/angular/1.4.0/angular-cookies.js',
-        'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.0.min.js',
+        //'./node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-resource.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-animate.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-route.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-cookies.js',
+        'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
         'src/webui/src/thirdparty/ui-router/angular-ui-router.min.js',
         'src/webui/src/thirdparty/color-hash/color-hash.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
@@ -87,18 +89,27 @@ gulp.task('index', function() {
         .pipe(gulp.dest(__basedir));
 });
 
-/*
- * Compile css from less files
- */
+// SASS
+gulp.task('sass', function () {
+    gulp.src('src/webui/src/sass/*.scss')
+        .pipe(plumber())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(concat('app.css'))
+        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
+        .pipe(gulp.dest(__dirname))
+        .pipe(production ? util.noop() : livereload());
+});
+
 gulp.task('less', function () {
     gulp.src('src/webui/src/less/styles.less')
         .pipe(plumber())
         .pipe(less())
-        .pipe(concat('app.css'))
+        .pipe(concat('base.css'))
         .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
         .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
+
 
 /*
  * Copy required fonts
@@ -106,7 +117,7 @@ gulp.task('less', function () {
 gulp.task('fonts', function () {
     gulp.src(
         [
-            'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*.{woff,woff2,eot,svg,ttf,otf}'
+            'src/webui/src/thirdparty/fonts/*.woff2'
         ])
         .pipe(plumber())
         .pipe(gulp.dest(__basedir + 'fonts/'));
@@ -160,11 +171,12 @@ gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
 gulp.task('watch', function() {
     livereload.listen();
     gulp.watch('src/webui/src/js/**/*.js', ['js']);
+    gulp.watch('src/webui/src/sass/*.scss', ['sass']);
     gulp.watch('src/webui/src/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
 
 
-gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'less']);
+gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'less']);
 
 gulp.task('default', ['build', 'watch']);

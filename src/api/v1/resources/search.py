@@ -6,7 +6,7 @@ from vardb.datamodel import sample, assessment, allele
 from api import schemas
 
 from api.v1.resource import Resource
-from util.alleledataloader import AlleleDataLoader
+from api.util.alleledataloader import AlleleDataLoader
 
 
 class SearchResource(Resource):

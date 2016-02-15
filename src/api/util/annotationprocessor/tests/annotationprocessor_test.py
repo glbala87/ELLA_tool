@@ -195,8 +195,8 @@ class TestFrequencyAnnotation(unittest.TestCase):
         }
 
         freqs = FrequencyAnnotation().process(data)['frequencies']
-        self.assertIn('Hom_TEST', freqs['ExAC'])
-        self.assertEqual(13, freqs['ExAC']['Hom_TEST'])
+        self.assertIn('TEST', freqs['ExAC']['hom'])
+        self.assertEqual(13, freqs['ExAC']['hom']['TEST'])
 
     def test_esp_hom_count_inclusion(self):
 

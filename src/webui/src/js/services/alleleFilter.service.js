@@ -18,7 +18,7 @@ class AlleleFilter {
         let included = [];
         for (let a of alleles) {
             let exclude = false;
-            for (let [key, subkeys] of Object.entries(this.config.freq_criteria)) {
+            for (let [key, subkeys] of Object.entries(this.config.frequencies.criterias)) {
                 for (let [subkey, criteria] of Object.entries(subkeys)) {
                     if (!exclude &&
                         key in a.annotation.frequencies &&
@@ -67,6 +67,39 @@ class AlleleFilter {
 
             }));
         });
+    }
+
+
+    /**
+     * Filters away alleles that doesn't have any frequency data.
+     * @return {Array} Alleles with frequency data.
+     */
+    filterFrequency(alleles) {
+        let included = [];
+        for (let allele of alleles) {
+            if (Object.keys(allele.annotation.frequencies).filter(k => {
+                    return Object.keys(this.config.frequencies.groups).includes(k);
+                }).length) {
+                included.push(allele);
+            }
+        }
+        return included;
+    }
+
+    /**
+     * Filters away alleles that doesn't have any references.
+     * @return {Array} Alleles with references as given by it's annotation.
+     */
+    filterReferences(alleles) {
+        return alleles.filter(a => a.getPubmedIds().length > 0);
+    }
+
+    /**
+     * Filters away alleles that doesn't have any existing allele assessment.
+     * @return {Array} Alleles with references as given by it's annotation.
+     */
+    filterAlleleAssessment(alleles) {
+        return alleles.filter(a => a.allele_assessment);
     }
 
     /**

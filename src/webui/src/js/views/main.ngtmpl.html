@@ -1,53 +1,11 @@
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-                <div style="margin-top: -12px;">
-                    <div style="position: absolute; font-size: 30px; z-index: 1;">genAP</div>
-                    <div style="position: absolute; margin-left: 15px; margin-top: 24px; font-size: 17px; color: #18BC9C; z-index: 3;">interpreter</div>
-                </div>
-            </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav" style="margin-left: 150px;">
-                <li><a>Reset database:</a></li>
-                <li><a href="/reset" target="_self">Reset small</a></li>
-                <li><a href="/reset?all=true" target="_self">Reset all</a></li>
-            </ul>
-
-            <div class="col-sm-3 col-md-3">
-                <form class="navbar-form" role="search">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search" name="q" ng-model="search_query" ng-change="updateSearch()">
-                        <div class="input-group-btn">
-                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div class="nav navbar-nav navbar-right">
-                <user-bar></user-bar>
-            </div>
-        </div>
-
-    </div>
-</nav>
-
-<!-- Temporary throwaway solution until redesign -->
-<div ng-if="results" class="container-fluid" style="color: white; background-color: #4c5265; padding-left: 150px; min-height: 300px; margin-top: 10px">
-<search-results results="results"></search-results>
-</div>
-
-<div class="container-fluid">
-    <div class="row">
-
-        <div class="col-sm-3 col-md-1 sidebar" style="width: 90px;">
-            <navigation></navigation>
-        </div>
-
-        <div class="col-sm-9 col-md-10 main" style="margin-left: 180px;">
-            <div ui-view="main"></div>
-        </div>
-    </div>
+<div class="app">
+  <sidebar items="vm.test_items"></sidebar>
+  <!-- <div class="search-area"> -->
+  <!--   <input type="text" placeholder="SEARCH" ng-model="vm.state.alleles[al.id].frequency['comment']"></input> -->
+  <!-- <div class="search-results"> -->
+  <!--   <p>Bacon ipsum dolor amet andouille alcatra beef ribs chuck.</p> -->
+  <!--   <p>Picanha short loin tail, turducken capicola sausage meatball shank jerky kielbasa.</p> -->
+  <!-- </div> -->
+  <!-- </div> -->
+  <div class="content" ui-view="content"></div>
 </div>

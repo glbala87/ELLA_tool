@@ -5,9 +5,9 @@ import logging
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request
+from flask.ext.restful import Api
 from api import app, db
 from api.v1 import ApiV1
-
 from vardb.deposit.deposit_testdata import DepositTestdata
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -52,6 +52,7 @@ def serve_static_factory(dev=False):
 
         valid_files = [
             'app.css',
+            'base.css',
             'app.js',
             'thirdparty.js',
             'fonts',
@@ -82,23 +83,22 @@ def reset_testdata():
     return "Test database is resetting. It should be ready in a minute."
 
 
-def init_v1(app):
-    v1 = ApiV1()
-    v1.init_app(app)
+api = Api(app)
 
-init_v1(app)
+def init_v1(api):
+    v1 = ApiV1()
+    return v1.init_app(api)
+
+init_v1(api)
 
 # This is used by development and medicloud - production will not trigger it
 if __name__ == '__main__':
     opts = {}
     opts['host'] = '0.0.0.0'
     opts['threaded'] = True
+    opts['port'] = int(os.getenv('API_PORT', '5000'))
     is_dev = os.getenv('DEVELOP', False)
-
-    if is_dev:
-        opts['debug'] = is_dev
-    else:
-        opts['port'] = int(os.getenv('VCAP_APP_PORT', '5000')) # medicloud bullshit
+    opts['debug'] = is_dev
     app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
     app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
     app.run(**opts)

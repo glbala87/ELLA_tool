@@ -4,7 +4,7 @@ from api import schemas
 from api.util.util import paginate, rest_filter, request_json
 
 
-from util.pubmedxml import PubmedXmlParser
+from api.util.pubmedxml import PubmedXmlParser
 
 from api.v1.resource import Resource
 

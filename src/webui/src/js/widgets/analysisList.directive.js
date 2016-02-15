@@ -9,15 +9,27 @@ import {Directive, Inject} from '../ng-decorators';
     },
     templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
 })
-@Inject('$location', 'User', 'InterpretationResource', 'InterpretationOverrideModal')
+@Inject('$location',
+        'Sidebar',
+        'User',
+        'InterpretationResource',
+        'InterpretationOverrideModal')
 class AnalysisListWidget {
 
-
-    constructor(location, User, InterpretationResource, InterpretationOverrideModal) {
+    constructor(location, Sidebar, User, InterpretationResource, InterpretationOverrideModal) {
         this.location = location;
+        this.sidebar = Sidebar;
         this.user = User;
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
+
+        this.setupSidebar();
+    }
+
+    setupSidebar() {
+        this.sidebar.setBackLink(null, null);
+        this.sidebar.setTitle('Analyses List', false);
+        this.sidebar.clearItems();
     }
 
     /**

@@ -1,11 +1,9 @@
-from flask.ext.restful import Api
 from . import resources as r
 
 
 class ApiV1(object):
 
-    def init_app(self, app):
-        api = Api(app)
+    def init_app(self, api):
 
         api.add_resource(r.acmg.ACMGClassificationResource,
                          '/api/v1/acmg/alleles/')
@@ -63,3 +61,5 @@ class ApiV1(object):
 
         api.add_resource(r.user.UserResource,
                          '/api/v1/users/<int:user_id>/')
+
+        return api

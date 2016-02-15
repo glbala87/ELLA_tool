@@ -1,4 +1,4 @@
 ---
 run_genap_tests:
   script:
-    - bin/test-ci
+    - make test BRANCH=test

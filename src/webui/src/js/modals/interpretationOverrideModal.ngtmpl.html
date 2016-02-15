@@ -1,12 +1,28 @@
-<div class="add-excluded-alleles-modal">
-    <div class="modal-header">
-        <h3 class="modal-title">Warning: ongoing analysis</h3>
+<section class="card">
+  <div class="paper">
+    <div class="paper-top">
+      <div class="paper-top-left">
+        <div class="icon cell">
+          <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
+        </div>
+        <div class="cell">
+          <h3 class="red-text">WARNING</h3>
+          <h4 class="red-text">Ongoing Analysis</h4>
+        </div>
+      </div>
+      <div class="paper-top-right">
+      </div>
     </div>
-    <div class="modal-body">
-        This analysis is currently assigned to another user. Do you want to unassign this user and assign yourself instead?
+    <div class="paper-bottom">
+      <div class='question-set'>
+        <h2 class="centered">This analysis is currently assigned to another user. Do you want to unassign this user and assign yourself instead?</h2>
+      </div>
     </div>
-    <div class="modal-footer">
-        <button class="btn btn-danger" type="button" ng-click="vm.modal.close(true)">Yes</button>
-        <button class="btn" type="button" ng-click="vm.modal.close(false)">No</button>
+  </div>
+  <div class="card-controls">
+    <div>
+      <button class="faded-red" type="button" ng-click="vm.modal.close(true)">Yes</button>
+      <button type="button" ng-click="vm.modal.close(false)">No</button>
     </div>
-</div>
+  </div>
+</section>

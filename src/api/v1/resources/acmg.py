@@ -3,7 +3,7 @@ from vardb.datamodel import assessment, allele, gene
 
 from api import ApiError
 
-from util.acmgdataloader import ACMGDataLoader
+from api.util.acmgdataloader import ACMGDataLoader
 
 from api.v1.resource import Resource
 
