@@ -20,6 +20,24 @@ class ApiV1(object):
         api.add_resource(r.analysis.AnalysisListResource,
                          '/api/v1/analyses/')
 
+        api.add_resource(r.analysis.AnalysisResource,
+                         '/api/v1/analyses/<int:analysis_id>/')
+
+        api.add_resource(r.analysis.AnalysisActionStartResource,
+                         '/api/v1/analyses/<int:analysis_id>/actions/start/')
+
+        api.add_resource(r.analysis.AnalysisActionMarkReviewResource,
+                         '/api/v1/analyses/<int:analysis_id>/actions/markreview/')
+
+        api.add_resource(r.analysis.AnalysisActionFinalizeResource,
+                         '/api/v1/analyses/<int:analysis_id>/actions/finalize/')
+
+        api.add_resource(r.analysis.AnalysisActionOverrideResource,
+                         '/api/v1/analyses/<int:analysis_id>/actions/override/')
+
+        api.add_resource(r.analysis.AnalysisActionReopenResource,
+                         '/api/v1/analyses/<int:analysis_id>/actions/reopen/')
+
         api.add_resource(r.config.ConfigResource,
                          '/api/v1/config/')
 
@@ -31,18 +49,6 @@ class ApiV1(object):
 
         api.add_resource(r.interpretation.InterpretationReferenceAssessmentResource,
                          '/api/v1/interpretations/<int:interpretation_id>/referenceassessments/')
-
-        api.add_resource(r.interpretation.InterpretationActionStartResource,
-                         '/api/v1/interpretations/<int:interpretation_id>/actions/start/')
-
-        api.add_resource(r.interpretation.InterpretationActionCompleteResource,
-                         '/api/v1/interpretations/<int:interpretation_id>/actions/complete/')
-
-        api.add_resource(r.interpretation.InterpretationActionFinalizeResource,
-                         '/api/v1/interpretations/<int:interpretation_id>/actions/finalize/')
-
-        api.add_resource(r.interpretation.InterpretationActionOverrideResource,
-                         '/api/v1/interpretations/<int:interpretation_id>/actions/override/')
 
         api.add_resource(r.reference.ReferenceListResource,
                          '/api/v1/references/')
