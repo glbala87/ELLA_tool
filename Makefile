@@ -5,6 +5,21 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 API_PORT ?= 8000-9999
 CONTAINER_NAME = gin-$(BRANCH)-$(USER)
+IMAGE_NAME = local/gin-$(BRANCH)
+
+help :
+	@echo ""
+	@echo "-- GENERAL COMMANDS --"
+	@echo "make build		- build image $(IMAGE_NAME)"
+	@echo ""
+	@echo "-- DEV COMMANDS --"
+	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and GIN_OPTS available as variables"
+	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
+	@echo "make restart		- restart container $(CONTAINER_NAME)"
+	@echo ""
+	@echo "-- TEST COMMANDS --"
+	@echo "make test		- build image $(IMAGE_NAME), then run all tests in a new container"
+	@echo "make single-test	- run image $(IMAGE_NAME) :: TEST_NAME={api | common | js} available as variable"
 
 docker-build:
 	docker build -t local/gin-$(BRANCH) .
@@ -15,14 +30,14 @@ docker-run-dev:
 	-p $(API_PORT):5000 \
 	$(GIN_OPTS) \
 	-v $(shell pwd):/genap \
-	local/gin-$(BRANCH) \
+	$(IMAGE_NAME) \
 	supervisord -c /genap/ops/dev/supervisor.cfg
 
 docker-run-tests:
-	docker run -v `pwd`:/genap local/gin-$(BRANCH) make all-tests
+	docker run -v `pwd`:/genap $(IMAGE_NAME) make all-tests
 
 docker-run-single-test:
-	docker run -v `pwd`:/genap local/gin-$(BRANCH) make test-$(TEST_NAME)
+	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
 
 restart:
 	docker restart $(CONTAINER_NAME)
