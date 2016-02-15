@@ -21,7 +21,7 @@ import './services/interpretation.service';
 import './services/analysisResource.service';
 import './services/interpretationResource.service';
 import './services/ReferenceResource.service';
-import './services/searchResource.service';
+//import './services/searchResource.service';
 import './filters';
 
 import './views/analysis/analysis.directive';
@@ -46,7 +46,7 @@ import './widgets/transcriptWrapper.directive';
 import './widgets/userBar.directive';
 import './widgets/userBox.directive';
 import './widgets/acmg.directive';
-import './widgets/searchResults.directive';
+//import './widgets/searchResults.directive';
 
 
 import {Config, Inject, Run} from './ng-decorators';

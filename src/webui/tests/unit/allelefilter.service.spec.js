@@ -35,9 +35,9 @@ describe("AlleleFilter service", function () {
         let cutoff = 4;
         let service = new AlleleFilter(makeConfig({a: {suba: cutoff}}));
         let someAlleles = [
-            {id: 1, annotation: {annotations: {frequencies: {a: {suba: cutoff-1}}}}},
-            {id: 2, annotation: {annotations: {frequencies: {a: {suba: cutoff}}}}},
-            {id: 3, annotation: {annotations: {frequencies: {a: {suba: cutoff+1}}}}}
+            {id: 1, annotation:  {frequencies: {a: {suba: cutoff-1}}}},
+            {id: 2, annotation:  {frequencies: {a: {suba: cutoff}}}},
+            {id: 3, annotation:  {frequencies: {a: {suba: cutoff+1}}}}
         ];
 
         expect(service.filterClass1([someAlleles[2]])).toEqual([]);
