@@ -1,14 +1,8 @@
-FROM ousamg/gin:latest
+FROM ousamg/gin-core
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
-# For PhantomJS:
-RUN apt-get update
-RUN apt-get -y install build-essential chrpath libssl-dev libxft-dev \
-  libfreetype6 libfreetype6-dev libfontconfig1 libfontconfig1-dev
-  
-# Install gulp and karma-cli globally
+# Get gulp
 RUN npm install -g gulp
-RUN npm install -g karma-cli
 
 # Add our requirements files
 ADD ./requirements.txt /dist/requirements.txt
@@ -19,8 +13,8 @@ ADD ./package.json /dist/package.json
 WORKDIR /dist
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
-RUN npm install
+RUN npm set progress=false && npm config set loglevel warn && npm install
 
 # We add our source folder for testing/deployment - this gets bashed by the volume in development
-ADD . /genap
+# ADD . /genap
 WORKDIR /genap
