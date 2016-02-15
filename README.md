@@ -2,19 +2,17 @@ The GenAP interpreter is a web app based on AngularJS with a Flask REST backend.
 
 # Development
 
-To start development env with Docker, run **`bin/dev`**
+To start development env with Docker, run **`make dev`** - you may need to do `make build` first
 
 The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and spawn an environment that satisfies these requirements. All Python requirements are installed globally, no virtualenv needed since we're already in an isolated container. Node things are installed to `/dist/node_modules`, gulp is installed both there and globally.
 
-A postgresql instance will also spawn and be automatically linked to the application. To populate the database you can visit the `/reset` route or click on one of the reset buttons in the UI.
+A postgresql instance will also spawn and be automatically linked to the application. To populate the database you can visit the `/reset` route or do `/reset?all=true` to get an expanded data set.
 
-After changing package.json, a new Docker image must be created using `docker-compose build` and then `bin/dev`.
+After changing package.json, a new Docker image must be created using `make build` and then `make dev`.
+
 # Testing
 
-Test suites are designed to be run under Docker. There are two runner-scripts available:
-
-- **`bin/test-ci`**: should be run *without* any other genap environments running in Docker. It will spawn a new environment, run all tests, and exit.
-- **`bin/test-local`**: should be run when genap has already been started (through `bin/dev`). It will simply run tests inside the existing environment - *by default it only runs the non-API tests*.
+Test suites are designed to be run under Docker. All tests are run via the `Makefile`, with `make test` being what GitLab-CI invokes.
 
 Local testing (outside CI):
 If not using Docker do `gulp unit` in root of project (All libs must be installed using `npm install` first)
