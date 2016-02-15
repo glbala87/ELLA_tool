@@ -18,7 +18,7 @@ docker-run-dev:
 	supervisord -c /genap/ops/dev/supervisor.cfg
 
 docker-run-tests:
-	docker run -v `pwd`:/genap local/gin-test make all-tests
+	docker run -v `pwd`:/genap local/gin-$(BRANCH) make all-tests
 
 test: build docker-run-tests
 
