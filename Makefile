@@ -1,16 +1,17 @@
 # This file should be in charge of any short-lived processes
 # Anything long-running should be controlled by supervisord
-.PHONY: build test-api test-common test-js cleanup-ownership test dev
+.PHONY: docker-build docker-run-dev docker-run-tests restart logs test build dev all-tests test-api test-common test-js
 
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 API_PORT ?= 8000-9999
+CONTAINER_NAME = gin-$(BRANCH)-$(USER)
 
 docker-build:
 	docker build -t local/gin-$(BRANCH) .
 
 docker-run-dev:
 	docker run -d \
-	--name gin-$(BRANCH)-$(USER) \
+	--name $(CONTAINER_NAME) \
 	-p $(API_PORT):5000 \
 	$(GIN_OPTS) \
 	-v $(shell pwd):/genap \
@@ -19,6 +20,12 @@ docker-run-dev:
 
 docker-run-tests:
 	docker run -v `pwd`:/genap local/gin-test make all-tests
+
+restart:
+	docker restart $(CONTAINER_NAME)
+
+logs:
+	docker logs -f $(CONTAINER_NAME)
 
 test: build docker-run-tests
 
