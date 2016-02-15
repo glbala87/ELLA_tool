@@ -12,6 +12,7 @@ import {Directive, Inject} from '../ng-decorators';
 @Inject('$location', 'User', 'InterpretationResource', 'InterpretationOverrideModal')
 class AnalysisListWidget {
 
+
     constructor(location, User, InterpretationResource, InterpretationOverrideModal) {
         this.location = location;
         this.user = User;
@@ -72,6 +73,9 @@ class AnalysisListWidget {
     }
 
     getStateMessage(analysis) {
+        if (!analysis) {
+            return "Analysis is null";
+        }
         if (analysis.getInterpretationState() === 'Not started' &&
             analysis.interpretations.length > 1) {
             return 'Needs review';

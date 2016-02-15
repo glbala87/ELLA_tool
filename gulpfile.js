@@ -13,7 +13,9 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     browserify = require('browserify'),
     notify = require('gulp-notify'),
-    __dirname = 'src/webui/dev/';
+    protractor = require('gulp-protractor').protractor,
+    KarmaServer = require('karma').Server,
+    __basedir = 'src/webui/dev/';
 
 var production = !!util.env.production;
 
@@ -22,13 +24,13 @@ var onError = function(err) {
     notify.onError()(err);
     this.emit('end');
 };
-
 /*
  * Compile thirdparty javascript
  */
 gulp.task('tp-js', function() {
     var sourcePaths = [
-        './node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
+        //'./node_modules/babel-es6-polyfill/browser-polyfill.js',
+        //'./node_modules/js-polyfills/es6.js',
         'src/webui/src/thirdparty/angular/1.4.0/angular.js',
         'src/webui/src/thirdparty/angular/1.4.0/angular-resource.js',
         'src/webui/src/thirdparty/angular/1.4.0/angular-animate.js',
@@ -46,7 +48,7 @@ gulp.task('tp-js', function() {
         .pipe(plumber())
         .pipe(concat('thirdparty.js'))
         .pipe(uglify())
-        .pipe(gulp.dest(__dirname));
+        .pipe(gulp.dest(__basedir));
 });
 
 /*
@@ -56,7 +58,9 @@ gulp.task('tp-js', function() {
 gulp.task('js', function() {
     return browserify('./src/webui/src/js/index.js', {debug: true})
         .transform(babelify.configure({
-            optional: ["es7.decorators"]
+            //optional: ["es7.decorators"]
+            presets: ["es2015", "stage-0"],
+            plugins: ["babel-plugin-transform-decorators-legacy"]
         }))
         .bundle()
         .on('error', function(err) { console.error(err.message); this.emit('end'); })
@@ -65,7 +69,7 @@ gulp.task('js', function() {
         }))
         .pipe(source('app.js'))
         .pipe(buffer())
-        .pipe(gulp.dest(__dirname))
+        .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
 
@@ -73,14 +77,14 @@ gulp.task('ngtmpl', function() {
     return gulp.src('**/*.ngtmpl.html')
         .pipe(plumber())
         .pipe(flatten())
-        .pipe(gulp.dest(__dirname + 'ngtmpl/'))
+        .pipe(gulp.dest(__basedir + 'ngtmpl/'))
         .pipe(production ? util.noop() : livereload());
 });
 
 gulp.task('index', function() {
     return gulp.src('src/webui/src/index.html')
         .pipe(plumber())
-        .pipe(gulp.dest(__dirname));
+        .pipe(gulp.dest(__basedir));
 });
 
 /*
@@ -92,7 +96,7 @@ gulp.task('less', function () {
         .pipe(less())
         .pipe(concat('app.css'))
         .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
-        .pipe(gulp.dest(__dirname))
+        .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
 
@@ -105,9 +109,53 @@ gulp.task('fonts', function () {
             'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*.{woff,woff2,eot,svg,ttf,otf}'
         ])
         .pipe(plumber())
-        .pipe(gulp.dest(__dirname + 'fonts/'));
+        .pipe(gulp.dest(__basedir + 'fonts/'));
 });
 
+''
+/**
+ * Run end-2-end tests
+ */
+
+gulp.task('e2e', function(done) {
+    var args = ['--baseUrl', 'http://172.16.250.128:5000', // our app running in docker. The IP will change!
+                '--seleniumAddress', 'http://172.16.250.128:4444/wd/hub', // selenium server
+    ];
+    gulp.src(["./src/webui/tests/e2e/spec.js"])
+        .pipe(protractor({
+            configFile: "./src/webui/tests/protractor.conf.js",
+            args: args
+        }))
+        .on('error', function(e) { throw e; });
+});
+
+/**
+ * Run unit test once and exit
+ */
+gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
+    new KarmaServer({
+	configFile: __dirname + '/src/webui/tests/karma.conf.js',
+	singleRun: true,
+    autoWatch: false
+
+    }, function(karmaExitStatus) {
+        if (karmaExitStatus) {
+            process.exit(1);
+        };
+    }).start();
+});
+
+/**
+ * Rerun unit tests as code change
+ */
+
+gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
+    new KarmaServer({
+        configFile: __dirname + '/src/webui/tests/karma.conf.js',
+        singleRun: false,
+        autoWatch: true // karma watches files in 'files:' in karma.conf.js
+    }, done).start();
+});
 
 gulp.task('watch', function() {
     livereload.listen();

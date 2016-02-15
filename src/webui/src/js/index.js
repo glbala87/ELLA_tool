@@ -1,5 +1,8 @@
 /* jshint esnext: true */
 
+// Support for Object.entries. See https://www.npmjs.com/package/core-js
+require('core-js/fn/object/entries');
+
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
 

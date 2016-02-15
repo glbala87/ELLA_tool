@@ -8,12 +8,55 @@ The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and sp
 
 A postgresql instance will also spawn and be automatically linked to the application. To populate the database you can visit the `/reset` route or click on one of the reset buttons in the UI.
 
+After changing package.json, a new Docker image must be created using `docker-compose build` and then `bin/dev`.
 # Testing
 
 Test suites are designed to be run under Docker. There are two runner-scripts available:
 
 - **`bin/test-ci`**: should be run *without* any other genap environments running in Docker. It will spawn a new environment, run all tests, and exit.
 - **`bin/test-local`**: should be run when genap has already been started (through `bin/dev`). It will simply run tests inside the existing environment - *by default it only runs the non-API tests*.
+
+Local testing (outside CI):
+If not using Docker do `gulp unit` in root of project (All libs must be installed using `npm install` first)
+If using Docker, we must first start the docker container and then do `gulp unit` inside it:
+- start Docker container using `bin/dev`
+- enter the container `docker -it <container id> bash`
+- run `gulp unit` inside the container
+
+There are actually several test commands:
+    - `gulp unit` runs all unit tests (using Karma). Tests are executed inside a browser, all managed by Karma (see karma.conf.js)
+    - `gulp unit-auto`, Similar to `gulp unit-auto` but tests are automatically rerun as test or code is changed.
+    - `gulp e2e`, runs end-to-end test using real browser(s). Requires a running Selenium server and a running application. See below.
+
+**Note** The auto running of tests in Docker when files are changed in the host OS, doesn't work. The files
+changes are detected and the rebundling is done by the tools (karma-browserify, watchify), but the bundle is stale and doesn't have
+your changes. You must run 'gulp unit' or 'gulp unit-auto' again. When the source files are changed inside
+Docker the rebundling works. This happens on OS X. When looking at the Karma logs, the message 'serving (cached)' is an indication
+of the staleness. When tests are run on the host (eg. not Docker) the auto thing is working.
+
+# End-to-end testing
+Running tests against a real environment (meaning your application is running in a browser) requires:
+- your application is up and running (something to serving html/js/css and something running the python api)
+- a Selenium server
+
+The address of the application and the selenium server is configured in protractor.conf.js.
+There is a Docker image for Selenium, try `docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2`
+This image has both Selenium and Chrome installed, see https://github.com/SeleniumHQ/docker-selenium.
+The mentioned Docker image has a vnc server so it can be accessed using a VNC client. On OS X there is Screen Sharing in /System/Library/CoreServices/Applications,
+most easily started by entering 'vnc://172.16.250.128:5900' in Safari.
+
+
+# Application structure
+Info about AngualarJS and the build system. Ecmascript version.... Choice of tools and so on.
+
+Uses babel-es6-polyfill to get ES6 support, see https://www.npmjs.com/package/babel-es6-polyfill.
+
+
+# Test framework
+- Karma (http://karma-runner.github.io/)
+- Jasmine (http://jasmine.github.io/2.4/introduction.html)
+- Protractor (https://angular.github.io/protractor/#/)
+- Selenium (http://docs.seleniumhq.org/, https://hub.docker.com/r/selenium/)
 
 # Production
 
