@@ -16,6 +16,7 @@ class ReferenceAssessmentSchema(Schema):
                   'genepanelName',
                   'genepanelVersion',
                   'user_id',
+                  'status',
                   'evaluation')
 
     user_id = fields.Integer(allow_none=True)  # Debug only

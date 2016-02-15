@@ -4,7 +4,6 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 from vardb.datamodel import Base
-from vardb.datamodel import allele, sample, assessment
 
 
 class Genotype(Base):

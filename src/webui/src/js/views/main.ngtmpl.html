@@ -15,13 +15,29 @@
                 <li><a href="/reset?all=true" target="_self">Reset all</a></li>
             </ul>
 
-            <div class="nav navbar-right">
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" ng-model="search_query" ng-change="updateSearch()">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="nav navbar-nav navbar-right">
                 <user-bar></user-bar>
             </div>
         </div>
 
     </div>
 </nav>
+
+<!-- Temporary throwaway solution until redesign -->
+<div ng-if="results" class="container-fluid" style="color: white; background-color: #4c5265; padding-left: 150px; min-height: 300px; margin-top: 10px">
+<search-results results="results"></search-results>
+</div>
 
 <div class="container-fluid">
     <div class="row">

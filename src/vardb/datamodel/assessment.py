@@ -93,7 +93,6 @@ class Reference(Base):
     title = Column(String())
     journal = Column(String())
     year = Column(Integer)
-    URL = Column(String())
     pubmedID = Column(Integer, unique=True)
 
     __table_args__ = (Index("ix_pubmedid", "pubmedID", unique=True), )

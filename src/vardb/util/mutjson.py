@@ -89,7 +89,7 @@ class _MUTJSONBExtractPathTestFunction(sqlfunc.GenericFunction):
     name = 'jsonb_extract_path_test'
 
 
-PGTypeCompiler.visit_MUTJSONB = lambda self, type_: 'JSONB'
+PGTypeCompiler.visit_MUTJSONB = lambda self, type_, type_expression=None: 'JSONB'
 
 
 class JSONMutableDict(MutableDict):

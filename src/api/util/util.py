@@ -1,50 +1,6 @@
 import json
 from flask import request
-from api import session
-
-
-def schema(cls):
-    def embed(func):
-        def inner(*args, **kwargs):
-            """
-            A bit messy code. It converts embed=:id:identifier,genotypes:id:homozygous,genotypes.allele to:
-            {'embed': {u'genotypes': {'embed': {u'allele': {'embed': {}}},
-                          'fields': [u'id', u'homozygous']}},
-            'fields': [u'id', u'identifier']}
-            for use in EmbedSchema, which uses the structure to nest and include specified fields.
-            """
-            embed = {'embed': {}}  # Holds track of schemas to embed (nest) and fields to include
-            relations = request.args.get('embed')
-            if relations:
-                relations = relations.split(',')
-                for relation in relations:
-                    r = relation.split('.')
-                    current_level = embed
-                    for part in r:
-                        fields = None
-                        if ':' in part:
-                            p = part.split(':')
-                            part = p[0]
-                            fields = p[1:]
-                        if part and part not in current_level['embed']:
-                            current_level['embed'][part] = {
-                                'embed': {}
-                            }
-                            if fields:
-                                current_level['embed'][part]['fields'] = fields
-                        else:
-                            if part and fields:
-                                current_level['embed'][part]['fields'] = current_level['embed'][part].get('fields', []) + fields
-                            elif not part and fields:
-                                current_level['fields'] = fields
-                        if part:
-                            current_level = current_level['embed'][part]
-
-            schema = cls(embed=embed)
-
-            return func(*args, schema=schema, **kwargs)
-        return inner
-    return embed
+from api import db, ApiError
 
 
 def error(msg, code):
@@ -69,13 +25,13 @@ def rest_filter(func):
 def provide_session(func):
     def inner(*args, **kwargs):
         try:
-            return func(session, *args, **kwargs)
+            return func(db.session, *args, **kwargs)
         except Exception:
-            session.rollback()
-            session.remove()
+            db.session.rollback()
+            db.session.remove()
             raise
         finally:
-            session.remove()
+            db.session.remove()
 
     return inner
 
@@ -97,3 +53,30 @@ def paginate(func):
         kwargs['num_per_page'] = num_per_page
         return func(*args, **kwargs)
     return inner
+
+
+def request_json(required, only_required=False, allowed=None):
+    """
+    Decorator: Checks flasks's request json object for 'required'
+    fields before passing on the data to the function.
+
+    If 'only_required', the json input is "washed" so only
+    the fields in required are passed on.
+
+    If 'allowed' is set, the json input is "washed" so only
+    those fields are passed on.
+    """
+    def wrapper(func):
+        def inner(*args, **kwargs):
+            data = request.get_json()
+            for field in required:
+                if not data.get(field):
+                    raise ApiError("Missing or empty required field {} in provided data.".format(field))
+
+            if only_required:
+                data = {k: v for k, v in data.iteritems() if k in required}
+            elif allowed:
+                data = {k: v for k, v in data.iteritems() if k in required + allowed}
+            return func(*args, data=data, **kwargs)
+        return inner
+    return wrapper
