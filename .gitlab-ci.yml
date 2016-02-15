@@ -1,4 +1,4 @@
 ---
 run_genap_tests:
   script:
-    - bin/test
+    - make test BRANCH=test
