@@ -37,6 +37,7 @@ build: docker-build
 dev: docker-run-dev
 
 all-tests: test-js test-common test-api
+single-test: docker-run-single-test
 
 test-api: export DB_URL=postgres:///postgres
 test-api: export PYTHONPATH=/genap/src
