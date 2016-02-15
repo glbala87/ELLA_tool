@@ -30,7 +30,7 @@ var onError = function(err) {
  */
 gulp.task('tp-js', function() {
     var sourcePaths = [
-        //'./node_modules/babel-es6-polyfill/browser-polyfill.js',
+        './node_modules/js-polyfills/polyfill.min.js',
         //'./node_modules/js-polyfills/es6.js',
         //'./node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular.js',
