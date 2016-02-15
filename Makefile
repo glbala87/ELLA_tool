@@ -43,6 +43,7 @@ test-api: export DB_URL=postgres:///postgres
 test-api: export PYTHONPATH=/genap/src
 test-api:
 	supervisord -c /genap/ops/test/supervisor.cfg
+	sleep 5
 	py.test "/genap/src/api" -s
 
 test-common: export PYTHONPATH=/genap/src
