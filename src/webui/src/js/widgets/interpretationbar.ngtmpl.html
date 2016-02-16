@@ -1,0 +1,5 @@
+<div class="interpretation-bar">
+  <button ng-click="vm.modalAddExcludedAlleles()"><i class="fa fa-plus"> </i> <span> {{vm.includedAlleles.length || 0}}/{{vm.excludedAlleles.length}}</span></button>
+  <button ng-click="vm.completeInterpretation()">Finish analysis</button>
+  <button ng-class="vm.getSaveBtnClass()" ng-click="vm.updateInterpretation()">{{vm.getSaveBtnText()}}</button>
+</div>

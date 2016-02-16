@@ -67,7 +67,7 @@ class ACMGDataLoader(object):
             # Add extra data/keys that the rule engine expects to be there
             annotation_data = a['annotation']
             annotation_data["genepanel"] = gp_annotation_data
-            annotation_data["refassessment"] = [r.annotation for r in reference_assessments if r.allele_id == a['id']]
+            annotation_data["refassessment"] = {str(r.id): r.evaluation for r in reference_assessments if r.allele_id == a['id']}
             self._set_transcript_annotation(annotation_data)
 
             classification_data, passed_data = self._classify(annotation_data)

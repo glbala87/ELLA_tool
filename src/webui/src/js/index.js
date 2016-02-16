@@ -21,32 +21,36 @@ import './services/interpretation.service';
 import './services/analysisResource.service';
 import './services/interpretationResource.service';
 import './services/ReferenceResource.service';
-//import './services/searchResource.service';
+import './services/searchResource.service';
+import './services/sidebar.service';
 import './filters';
 
 import './views/analysis/analysis.directive';
 import './views/analysis/analysisSelection.directive';
 import './views/analysis/interpretationSingleSample.directive';
-import './views/assessment/variantExternalDbAssessment.directive';
-import './views/assessment/variantFrequencyAssessment.directive';
-import './views/assessment/variantPredictionAssessment.directive';
-import './views/assessment/variantReferenceAssessment.directive';
-import './views/assessment/variantReport.directive';
-import './views/assessment/variantVarDbAssessment.directive';
+import './views/main.directive';
 import './views/login.directive';
-import './views/navigation.directive';
+import './views/sidebar.directive';
 
 import './widgets/annotationWidget.directive';
-import './widgets/alleleDetailsWidget.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
-import './widgets/userBar.directive';
-import './widgets/userBox.directive';
 import './widgets/acmg.directive';
-//import './widgets/searchResults.directive';
+import './widgets/checkablebutton.directive';
+import './widgets/searchResults.directive';
+import './widgets/card.directive';
+import './widgets/interpretationbar.directive';
+import './widgets/allelecard/allelecard.directive';
+import './widgets/allelecard/frequencysection.directive';
+import './widgets/allelecard/externalsection.directive';
+import './widgets/allelecard/predictionsection.directive';
+import './widgets/allelecard/referencesection.directive';
+import './widgets/allelecard/vardbsection.directive';
+import './widgets/allelecard/classificationsection.directive';
+
 
 
 import {Config, Inject, Run} from './ng-decorators';
@@ -60,7 +64,7 @@ class AppConfig {
         $stateProvider.state('app', {
             views: {
                 app: {
-                    templateUrl: 'ngtmpl/main.ngtmpl.html',
+                    template: '<main></main>',
                     // TODO: Temporary solution until redesign.
                     // Move me somewhere logical
                     controller: ['$scope', 'SearchResource', ($scope, SearchResource) => {
@@ -87,7 +91,7 @@ class AppConfig {
         .state('app.analyses', {
             url: '/analyses',
             views: {
-                main: {
+                content: {
                     template: '<analysis-selection></analysis-selection>'
                 }
             }
@@ -95,7 +99,7 @@ class AppConfig {
         .state('app.interpretation', {
             url: '/interpretation/:interId',
             views: {
-                main: {
+                content: {
                     template: '<analysis interpretation-id="{{interId}}"></analysis>',
                     controller: ['$scope', '$stateParams', function($scope, $stateParams) {
                         $scope.interId = $stateParams.interId;
@@ -106,7 +110,7 @@ class AppConfig {
         .state('login', {
             url: '/login',
             views: {
-                login: {
+                app: {
                     template: '<login></login>'
                 }
             }

@@ -1,0 +1,8 @@
+<button ng-click="vm.check()">
+    <span ng-if="vm.isChecked()">
+        <i ng-if="::vm.showMark == 'true'" class="fa fa-check"> </i> <span ng-transclude="checked"></span>
+    </span>
+    <span ng-if="!vm.isChecked()" ng-transclude>
+
+    </span>
+</button>

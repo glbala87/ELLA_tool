@@ -16,7 +16,7 @@ module.exports = function(config) {
       files: [
           "../../../node_modules/js-polyfills/es6.js", // needed by phantomjs
           "../dev/thirdparty.js",
-          "../src/thirdparty/angular/1.4.0/angular-mocks.js",
+          "../src/thirdparty/angular/1.5.0-rc2/angular-mocks.js",
           "../dev/app.js",
           "../src/js/**/*.js",
           "../tests/unit/**/*.spec.js",
@@ -25,7 +25,7 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-        "../src/thirdparty/angular/1.4.0/*.min.js",
+        "../src/thirdparty/angular/1.5.0-rc2/*.min.js",
         "../src/js/widgets/noAllelesWidget.directive.js" // refers to a non-existing workbench variable
     ],
 
