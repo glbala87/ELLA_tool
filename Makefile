@@ -58,7 +58,8 @@ dev: docker-run-dev
 all-tests: test-js test-common test-api
 single-test: docker-run-single-test
 
-test-api: export DB_URL=postgres:///postgres
+test-api: export PGDATABASE=vardb-test
+test-api: export DB_URL=postgres:///vardb-test
 test-api: export PYTHONPATH=/genap/src
 test-api:
 	supervisord -c /genap/ops/test/supervisor.cfg
