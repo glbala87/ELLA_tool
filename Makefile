@@ -24,6 +24,9 @@ help :
 docker-build:
 	docker build -t $(IMAGE_NAME) .
 
+docker-build-self-contained:
+	docker build -t $(IMAGE_NAME) -f Dockerfile.ci .
+
 docker-run-dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \
@@ -45,9 +48,10 @@ restart:
 logs:
 	docker logs -f $(CONTAINER_NAME)
 
-test: build docker-run-tests
+test: ci-build docker-run-tests
 
 build: docker-build
+ci-build: docker-build-self-contained
 
 dev: docker-run-dev
 

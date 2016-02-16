@@ -96,7 +96,7 @@ gulp.task('sass', function () {
         .pipe(sass().on('error', sass.logError))
         .pipe(concat('app.css'))
         .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
-        .pipe(gulp.dest(__dirname))
+        .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
 
@@ -145,7 +145,7 @@ gulp.task('e2e', function(done) {
  */
 gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
     new KarmaServer({
-	configFile: __dirname + '/src/webui/tests/karma.conf.js',
+	configFile: __basedir + '/src/webui/tests/karma.conf.js',
 	singleRun: true,
     autoWatch: false
 
@@ -162,7 +162,7 @@ gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
 
 gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
     new KarmaServer({
-        configFile: __dirname + '/src/webui/tests/karma.conf.js',
+        configFile: __basedir + '/src/webui/tests/karma.conf.js',
         singleRun: false,
         autoWatch: true // karma watches files in 'files:' in karma.conf.js
     }, done).start();
