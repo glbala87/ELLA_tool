@@ -1,4 +1,4 @@
-FROM ousamg/gin-core
+FROM ousamg/gin-core:0.9
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
 # Get gulp
