@@ -37,7 +37,7 @@ docker-run-dev:
 	supervisord -c /genap/ops/dev/supervisor.cfg
 
 docker-run-tests:
-	docker run -v `pwd`:/genap $(IMAGE_NAME) make all-tests
+	docker run $(IMAGE_NAME) make all-tests
 
 docker-run-single-test:
 	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
