@@ -190,6 +190,7 @@ class SearchResource(Resource):
         ).join(
             genotype.Genotype.alleles,
             sample.Sample,
+            sample.AnalysisSampleTable,
             sample.Analysis,
             gene.Genepanel
         ).filter(

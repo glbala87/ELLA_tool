@@ -110,10 +110,9 @@ class InterpretationService {
     }
 
     _reloadAlleles(interpretation) {
-        console.log(interpretation)
         return this.alleleService.getAlleles(
             interpretation.allele_ids,
-            interpretation.analysis.sample.id,
+            interpretation.analysis.samples[0].id,
             interpretation.analysis.genepanel.name,
             interpretation.analysis.genepanel.version
         ).then(alleles => {

@@ -4,7 +4,7 @@
 
 import datetime
 
-from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum
+from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -13,6 +13,13 @@ from sqlalchemy.dialects.postgresql import JSONB # For non-mutable values
 from vardb.datamodel import Base
 from vardb.datamodel import patient, gene
 from vardb.util.mutjson import MUTJSONB
+
+
+AnalysisSampleTable = Table('analysissample', Base.metadata,
+    Column('analysis_id', Integer, ForeignKey('analysis.id')),
+    Column('sample_id', Integer, ForeignKey('sample.id'))
+)
+
 
 class Sample(Base):
     """Represents a sample (aka one sequencing run of 1 biological sample)
@@ -45,8 +52,7 @@ class Analysis(Base):
 
     id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
     name = Column(String(), nullable=False)
-    sample_id = Column(Integer, ForeignKey("sample.id"), nullable=False)
-    sample = relationship("Sample", uselist=False)
+    samples = relationship("Sample", secondary=AnalysisSampleTable)
     genepanelName = Column(String)
     genepanelVersion = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
@@ -54,10 +60,11 @@ class Analysis(Base):
     analysisConfig = Column("analysis_config", JSONB)
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
 
+
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<Analysis('%s, %s, %s')>" % (self.sample, self.genepanelName, self.genepanelVersion)
+        return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanelName, self.genepanelVersion)
 
 
 class Interpretation(Base):
