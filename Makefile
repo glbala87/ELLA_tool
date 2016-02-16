@@ -22,7 +22,7 @@ help :
 	@echo "make single-test	- run image $(IMAGE_NAME) :: TEST_NAME={api | common | js} available as variable"
 
 docker-build:
-	docker build -t local/gin-$(BRANCH) .
+	docker build -t $(IMAGE_NAME) .
 
 docker-run-dev:
 	docker run -d \
