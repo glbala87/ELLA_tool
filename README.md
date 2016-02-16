@@ -43,6 +43,9 @@ This image has both Selenium and Chrome installed, see https://github.com/Seleni
 The mentioned Docker image has a vnc server so it can be accessed using a VNC client. On OS X there is Screen Sharing in /System/Library/CoreServices/Applications,
 most easily started by entering 'vnc://172.16.250.128:5900' in Safari.
 
+Run e2e test locally with `make test-e2e-main API_HOST='172.16.250.128' API_PORT=9999 SELENIUM_ADDRESS=http://172.16.250.128:4444/wd/hub`
+with ports and urls adapted to your environment.
+
 
 # Application structure
 Info about AngualarJS and the build system. Ecmascript version.... Choice of tools and so on.

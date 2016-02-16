@@ -129,15 +129,16 @@ gulp.task('fonts', function () {
  */
 
 gulp.task('e2e', function(done) {
-    var args = ['--baseUrl', 'http://172.16.250.128:5000', // our app running in docker. The IP will change!
-                '--seleniumAddress', 'http://172.16.250.128:4444/wd/hub', // selenium server
+    var args = ['--baseUrl', 'http://' + (util.env.e2e_ip || '172.16.250.128') + ':' + (util.env.e2e_port || 8000),
+                '--seleniumAddress', (util.env.selenium_address || 'http://172.16.250.128:4444/wd/hub')
     ];
+    console.log(args);
     gulp.src(["./src/webui/tests/e2e/spec.js"])
         .pipe(protractor({
             configFile: "./src/webui/tests/protractor.conf.js",
             args: args
         }))
-        .on('error', function(e) { throw e; });
+        .on('error', function(e) { console.error(e.message); });
 });
 
 /**

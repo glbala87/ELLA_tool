@@ -2,3 +2,7 @@
 run_genap_tests:
   script:
     - make test BRANCH=test
+
+run_genap_e2e_tests:
+  script:
+    - make test-e2e-main API_HOST='localhost' API_PORT=9999 SELENIUM_ADDRESS=http://localhost:4444/wd/hub
