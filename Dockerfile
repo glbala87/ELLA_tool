@@ -1,4 +1,4 @@
-FROM ousamg/gin-core:0.9
+FROM ousamg/gin-core:0.9.1
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
 # Get gulp
@@ -13,7 +13,7 @@ ADD ./package.json /dist/package.json
 WORKDIR /dist
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
-RUN npm set progress=false && npm config set loglevel warn && npm install
+RUN npm install
 
 # We add our source folder for testing/deployment - this gets bashed by the volume in development
 # ADD . /genap
