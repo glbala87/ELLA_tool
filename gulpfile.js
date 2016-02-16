@@ -145,7 +145,7 @@ gulp.task('e2e', function(done) {
  */
 gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
     new KarmaServer({
-	configFile: __basedir + '/src/webui/tests/karma.conf.js',
+	configFile: __dirname + '/src/webui/tests/karma.conf.js',
 	singleRun: true,
     autoWatch: false
 
@@ -162,7 +162,7 @@ gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
 
 gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
     new KarmaServer({
-        configFile: __basedir + '/src/webui/tests/karma.conf.js',
+        configFile: __dirname + '/src/webui/tests/karma.conf.js',
         singleRun: false,
         autoWatch: true // karma watches files in 'files:' in karma.conf.js
     }, done).start();
