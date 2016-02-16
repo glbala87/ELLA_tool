@@ -47,9 +47,6 @@ class ApiV1(object):
         api.add_resource(r.interpretation.InterpretationResource,
                          '/api/v1/interpretations/<int:interpretation_id>/')
 
-        api.add_resource(r.interpretation.InterpretationReferenceAssessmentResource,
-                         '/api/v1/interpretations/<int:interpretation_id>/referenceassessments/')
-
         api.add_resource(r.reference.ReferenceListResource,
                          '/api/v1/references/')
 

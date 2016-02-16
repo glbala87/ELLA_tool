@@ -41,31 +41,12 @@ class InterpretationResource {
         });
     }
 
-    _getReferenceAssessments(id) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/:id/referenceassessments/`, {}, {
-                get: {
-                    isArray: true
-                }
-            });
-            let referenceassessments = r.get({
-                id: id
-            }, () => {
-                resolve(referenceassessments);
-            });
-        });
-    }
-
     get(id) {
         return this._getInterpretation(id);
     }
 
     getAlleles(id) {
         return this._getAlleles(id);
-    }
-
-    getReferenceAssessments(id) {
-        return this._getReferenceAssessments(id);
     }
 
     updateState(interpretation) {
