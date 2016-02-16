@@ -106,7 +106,7 @@ class AnalysisActionStartResource(Resource):
 
 class AnalysisActionMarkReviewResource(Resource):
 
-    def put(self, session, analysis_id):
+    def post(self, session, analysis_id):
         # TODO: Validate that user is same as user on interpretation
         # TODO: Consider some way to validate that it should be completable
 
@@ -135,7 +135,7 @@ class AnalysisActionMarkReviewResource(Resource):
 
 class AnalysisActionReopenResource(Resource):
 
-    def put(self, session, analysis_id):
+    def post(self, session, analysis_id):
         a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
         analysis = schemas.AnalysisSchema().dump(a).data
         if get_current_interpretation(analysis) is not None:
@@ -157,7 +157,7 @@ class AnalysisActionReopenResource(Resource):
 
 class AnalysisActionFinalizeResource(Resource):
 
-    def put(self, session, analysis_id):
+    def post(self, session, analysis_id):
         # TODO: Validate that user is same as user on interpretation via internal auth
         # when that is ready
 

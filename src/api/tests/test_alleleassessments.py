@@ -79,7 +79,7 @@ class TestAlleleAssessment(object):
         """
         Finalize the connected interpretation for this AlleleAssessment, in order to mark it as curated.
         """
-        r = client.put('/api/v1/analyses/1/actions/finalize/', data={})
+        r = client.post('/api/v1/analyses/1/actions/finalize/', data={})
         assert r.status_code == 200
 
         # Check that all alleleassessments are set as curated
