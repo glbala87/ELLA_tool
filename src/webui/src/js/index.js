@@ -85,7 +85,7 @@ class AppConfig {
                         };
                     }],
                     controllerAs: 'vm'
-                },
+                }
             }
         })
         .state('app.analyses', {
