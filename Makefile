@@ -16,6 +16,7 @@ help :
 	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and GIN_OPTS available as variables"
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
 	@echo "make restart		- restart container $(CONTAINER_NAME)"
+	@echo "make peek		- enter container $(CONTAINER_NAME)"
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image $(IMAGE_NAME), then run all tests in a new container"
@@ -41,6 +42,9 @@ docker-run-tests:
 
 docker-run-single-test:
 	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
+
+peek:
+	docker exec -it $(CONTAINER_NAME) bash
 
 restart:
 	docker restart $(CONTAINER_NAME)
