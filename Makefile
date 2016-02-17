@@ -40,6 +40,7 @@ docker-run-e2e-app:
 	$(GIN_OPTS) \
 	$(IMAGE_NAME) \
 	supervisord -c /genap/ops/dev/supervisor.cfg
+	sleep 10
 
 docker-run-dev:
 	docker run -d \
