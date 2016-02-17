@@ -50,7 +50,7 @@ class AnalysisListWidget {
     }
 
     openAnalysis(analysis) {
-        this.location.path(`/interpretation/${analysis.getInterpretationId()}`);
+        this.location.path(`/analyses/${analysis.id}`);
     }
 
     overrideInterpretation(analysis, username) {

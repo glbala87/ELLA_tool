@@ -34,9 +34,11 @@ export class InterpretationBarController {
 
     updateInterpretation() {
         this.interpretationUpdateInProgress = true;
-        this.interpretationService.save().then(() => {
+        this.interpretationService.save(this.interpretation).then(() => {
             this.interpretationUpdateInProgress = false;
         });
+        // FIXME: Handle exception case as it can mean another user started
+        // the interpretation right before our user.
     }
 
     completeInterpretation() {
@@ -44,8 +46,8 @@ export class InterpretationBarController {
     }
 
     _getSaveStatus() {
-        if (this.interpretationService.hasCurrent()) {
-            return this.interpretationService.getCurrent().status === 'Not started' ? 'start' : 'save';
+        if (this.interpretation) {
+            return this.interpretation.status === 'Not started' ? 'start' : 'save';
         }
         return 'start';
     }
@@ -56,12 +58,12 @@ export class InterpretationBarController {
 
     getSaveBtnClass() {
         let classes = [];
-        if (this.interpretationService.hasCurrent()) {
+        if (this.interpretation) {
             if (this._getSaveStatus() === 'start') {
                 classes.push('faded-green');
             }
             else {
-                if (this.interpretationService.getCurrent().dirty) {
+                if (this.interpretation.dirty) {
                     classes.push('faded-red');
                 }
                 else {

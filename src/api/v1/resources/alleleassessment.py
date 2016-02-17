@@ -41,7 +41,7 @@ class AlleleAssessmentListResource(Resource):
             'evaluation',
             'genepanelName',
             'genepanelVersion',
-            'interpretation_id',
+            'analysis_id',
             'user_id',
             # 'transcript_id'  # TODO: Require when support in frontend
         ],

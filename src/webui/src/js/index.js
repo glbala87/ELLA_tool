@@ -24,6 +24,7 @@ import "./services/user.service";
 import './services/ConfigService';
 import './services/acmg.service';
 import './services/alleleFilter.service';
+import './services/analysis.service';
 import './services/interpretation.service';
 import './services/sidebar.service';
 import './filters';
@@ -100,12 +101,12 @@ class AppConfig {
             }
         })
         .state('app.interpretation', {
-            url: '/interpretation/:interId',
+            url: '/analyses/:analysisId',
             views: {
                 content: {
-                    template: '<analysis interpretation-id="{{interId}}"></analysis>',
+                    template: '<analysis analysis-id="{{analysisId}}"></analysis>',
                     controller: ['$scope', '$stateParams', function($scope, $stateParams) {
-                        $scope.interId = $stateParams.interId;
+                        $scope.analysisId = $stateParams.analysisId;
                     }]
                 }
             }

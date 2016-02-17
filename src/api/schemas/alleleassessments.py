@@ -15,7 +15,7 @@ class AlleleAssessmentSchema(Schema):
                   'dateLastUpdate',
                   'dateSuperceeded',
                   'allele_id',
-                  'interpretation_id',
+                  'analysis_id',
                   'genepanelName',
                   'genepanelVersion',
                   'transcript_id',

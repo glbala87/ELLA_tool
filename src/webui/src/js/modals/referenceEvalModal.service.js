@@ -7,9 +7,11 @@ export class ReferenceEvalModalController {
      */
 
     constructor(modalInstance,
+                analysis,
                 allele,
                 reference,
                 referenceAssessment) {
+        this.analysis = analysis;
         this.modal = modalInstance;
         this.allele = allele;
         this.reference = reference;
@@ -35,13 +37,14 @@ export class ReferenceEvalModal {
      * @param  {Object} Data for reference assessment
      * @return {Promise} Promise that resolves when dialog is closed.
      */
-    show(allele, reference, referenceAssessment) {
+    show(analysis, allele, reference, referenceAssessment) {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/referenceEvalModal.ngtmpl.html',
-            controller: ['$uibModalInstance', 'allele', 'reference', 'referenceAssessment', ReferenceEvalModalController],
+            controller: ['$uibModalInstance', 'analysis', 'allele', 'reference', 'referenceAssessment', ReferenceEvalModalController],
             controllerAs: 'vm',
             resolve: {
+                analysis: analysis,
                 allele: () => allele,
                 reference: () => reference,
                 referenceAssessment: () => referenceAssessment,

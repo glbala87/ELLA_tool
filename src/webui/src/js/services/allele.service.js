@@ -9,16 +9,19 @@ import {Service, Inject} from '../ng-decorators';
 @Inject('User',
         'AlleleResource',
         'AlleleAssessmentResource',
+        'ACMGClassificationResource',
         'ReferenceResource')
 export class AlleleService {
 
     constructor(User,
                 AlleleResource,
                 AlleleAssessmentResource,
+                ACMGClassificationResource,
                 ReferenceResource) {
         this.user = User;
         this.alleleResource = AlleleResource;
         this.alleleAssessmentResource = AlleleAssessmentResource;
+        this.acmgClassificationResource = ACMGClassificationResource;
         this.referenceResource = ReferenceResource;
     }
 
@@ -31,7 +34,7 @@ export class AlleleService {
         );
     }
 
-    createOrUpdateReferenceAssessment(data, allele, reference, gp_name=null, gp_version=null, interpretation_id=null) {
+    createOrUpdateReferenceAssessment(data, allele, reference, gp_name=null, gp_version=null, analysis_id=null) {
 
         // Make copy and add/update mandatory fields before submission
         let copy_ra = Object.assign({}, data);
@@ -42,7 +45,7 @@ export class AlleleService {
                 reference_id: reference.id,
                 genepanelName: gp_name,
                 genepanelVersion: gp_version,
-                interpretation_id: interpretation_id,
+                analysis_id: analysis_id,
                 status: 0,  // Status is set to 0. Finalization happens in another step.
                 user_id: user.id
             });
@@ -52,13 +55,13 @@ export class AlleleService {
             return this.referenceResource.createOrUpdateReferenceAssessment(copy_ra).then(updated_ra => {
                 data.id = updated_ra.id;
                 data.evaluation = updated_ra.evaluation;
-                data.interpretation_id = updated_ra.interpretation_id;
+                data.analysis_id = updated_ra.analysis_id;
                 return data;
             });
         });
     }
 
-    createOrUpdateAlleleAssessment(data, allele, gp_name=null, gp_version=null, interpretation_id=null) {
+    createOrUpdateAlleleAssessment(data, allele, gp_name=null, gp_version=null, analysis_id=null) {
 
         // Make copy and add mandatory fields before submission
         let copy_aa = Object.assign({}, data);
@@ -71,7 +74,7 @@ export class AlleleService {
                 annotation_id: allele.annotation.annotation_id,
                 genepanelName: gp_name,
                 genepanelVersion: gp_version,
-                interpretation_id: interpretation_id,
+                analysis_id: analysis_id,
                 status: 0, // Status is set to 0. Finalization happens in another step.
                 user_id: user.id
             });
@@ -83,7 +86,7 @@ export class AlleleService {
                 data.id = aa.id;
                 data.classification = aa.classification;
                 data.evaluation = aa.evaluation;
-                data.interpretation_id = aa.interpretation_id;
+                data.analysis_id = aa.analysis_id;
                 return data;
             });
 
@@ -95,11 +98,10 @@ export class AlleleService {
      * Updates the ACMG classifications for all alleles.
      * To do this we need gather all the allele ids.
      */
-    updateACMG(alleles, referenceassessment_ids, gp_name, gp_version) {
+    updateACMG(alleles, gp_name, gp_version) {
         let allele_ids = alleles.map(a => a.id);
         return this.acmgClassificationResource.getByAlleleIdsAndRefAssessmentIds(
                 allele_ids,
-                referenceassessment_ids,
                 gp_name,
                 gp_version
             ).then(res => {

@@ -77,8 +77,7 @@ class AnalysisActionStartResource(Resource):
     @request_json(['user_id'])
     def post(self, session, analysis_id, data=None):
         """
-        Lets an start an interpretation,
-        setting it's status to 'In progress'
+        Start an interpretation, setting it's status to 'In progress'
         """
         # Get user by username
         start_user = session.query(user.User).filter(

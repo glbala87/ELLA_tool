@@ -8,7 +8,7 @@
       <!-- <div class="analysis-state"> {{::vm.getStateMessage(analysis)}} </div> -->
       <div class="analysis-users">
         <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
-          <div ng-if="interpretation.user" tooltip="{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}"></div>
+          <div ng-if="interpretation.user" tooltip="{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}">{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}</div>
         </div>
       </div>
     </div>

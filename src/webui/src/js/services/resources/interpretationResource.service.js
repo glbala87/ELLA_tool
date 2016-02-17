@@ -71,73 +71,7 @@ class InterpretationResource {
         });
     }
 
-    complete(id) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/${id}/actions/complete/`, {}, {
-                complete: {
-                    method: 'PUT'
-                }
-            });
-            r.complete(
-                {
-                    id: id
-                },
-                resolve(),
-                reject()
-            );
-        });
-    }
 
-    finalize(id) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/${id}/actions/finalize/`, {}, {
-                finalize: {
-                    method: 'PUT'
-                }
-            });
-            r.finalize(
-                {
-                    id: id
-                },
-                resolve(),
-                reject()
-            );
-        });
-    }
-
-    override(id, user_id) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/${id}/actions/override/`, {}, {
-                override: {
-                    method: 'POST'
-                }
-            });
-            r.override(
-                {
-                    id: user_id
-                },
-                resolve,
-                reject
-            );
-        });
-    }
-
-    start(id, user_id) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/${id}/actions/start/`, {}, {
-                start: {
-                    method: 'POST'
-                }
-            });
-            r.start(
-                {
-                    user_id: user_id
-                },
-                resolve,
-                reject
-            );
-        });
-    }
 
 }
 
