@@ -161,13 +161,6 @@ class AnalysisActionFinalizeResource(Resource):
         # when that is ready
 
 
-        # We need to make sure we mark all connected interpretations as done,
-        # and also that we curate all Reference/AlleleAssessments connected
-        # to either interpretation.
-        connected_interpretations = session.query(sample.Interpretation).filter(
-            sample.Interpretation.analysis_id == analysis_id
-        ).all()
-
         def curate_and_replace(noncurated_assessments, previous_assessments, compare_func):
             """
             Curates noncurated [Allele|Reference]Assessments and marks previous ones as
@@ -186,11 +179,11 @@ class AnalysisActionFinalizeResource(Resource):
                 noncurated.status = 1
 
         noncurated_aa = session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.interpretation_id.in_([i.id for i in connected_interpretations])
+            assessment.AlleleAssessment.analysis_id == analysis_id
         ).all()
 
         noncurated_ra = session.query(assessment.ReferenceAssessment).filter(
-            assessment.ReferenceAssessment.interpretation_id.in_([i.id for i in connected_interpretations])
+            assessment.ReferenceAssessment.analysis_id == analysis_id
         ).all()
 
 
@@ -225,6 +218,8 @@ class AnalysisActionFinalizeResource(Resource):
         # Attach ReferenceAssessments to AlleleAssessments
 
         # Get all relevant (curated) ReferenceAssessments (based on allele_id)
+        # Don't filter on analysis_id, since there can be RAs that are reused from
+        # previous analyses.
         relevant_ra = session.query(assessment.ReferenceAssessment).filter(
             assessment.ReferenceAssessment.allele_id.in_([a.allele_id for a in noncurated_aa]),
             assessment.ReferenceAssessment.dateSuperceeded == None,
@@ -233,7 +228,11 @@ class AnalysisActionFinalizeResource(Resource):
         for aa in noncurated_aa:
             aa.referenceAssessments = [ra for ra in relevant_ra if ra.allele_id == aa.allele_id]
 
-        # Mark all interpretations as done (_all_ just in case)
+        # Mark all analysis' interpretations as done (we do all just in case)
+        connected_interpretations = session.query(sample.Interpretation).filter(
+            sample.Interpretation.analysis_id == analysis_id
+        ).all()
+
         for i in connected_interpretations:
             i.status = 'Done'
         session.commit()
