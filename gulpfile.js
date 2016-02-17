@@ -146,9 +146,38 @@ gulp.task('fonts', function () {
  */
 
 gulp.task('e2e', function(done) {
-    var args = ['--baseUrl', 'http://' + (util.env.e2e_ip || '172.16.250.128') + ':' + (util.env.e2e_port || 8000),
-                '--seleniumAddress', (util.env.selenium_address || 'http://172.16.250.128:4444/wd/hub')
+    var base = util.env.e2e_ip || '172.16.250.128';
+    var basePort = util.env.e2e_port || 8000
+    var seleniumAddress = util.env.selenium_address || 'http://172.16.250.128:4444/wd/hub';
+    var args = ['--baseUrl', 'http://' + base + ':' + basePort,
+                '--seleniumAddress', seleniumAddress
     ];
+
+
+    var http = require('http');
+    var options = {
+        host: base,
+        port: basePort,
+        path: '/analyses'
+    };
+
+    callback = function(response) {
+        var str = '';
+
+        //another chunk of data has been recieved, so append it to `str`
+        response.on('data', function (chunk) {
+            str += chunk;
+        });
+
+        //the whole response has been recieved, so we just print it out here
+        response.on('end', function () {
+            console.log(str);
+        });
+    }
+
+    console.log('Checking connection to ' + base + ':' + basePort);
+    http.request(options, callback).end();
+
     gulp.src(["./src/webui/tests/e2e/spec.js"])
         .pipe(protractor({
             configFile: "./src/webui/tests/protractor.conf.js",
