@@ -58,7 +58,7 @@ class AnalysisListWidget {
         this.analysisService.override(
             analysis.id,
         ).then(() => {
-            this.openAnalysis(analysis.id);
+            this.openAnalysis(analysis);
         })
     }
 

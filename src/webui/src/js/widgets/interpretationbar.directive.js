@@ -11,11 +11,12 @@ import {Directive, Inject} from '../ng-decorators';
     },
     templateUrl: 'ngtmpl/interpretationbar.ngtmpl.html'
 })
-@Inject('AddExcludedAllelesModal', 'Interpretation', 'Config', 'User')
+@Inject('AddExcludedAllelesModal', 'Analysis', 'Interpretation', 'Config', 'User')
 export class InterpretationBarController {
-    constructor(AddExcludedAllelesModal, interpretationService, Config, User) {
+    constructor(AddExcludedAllelesModal, Analysis, Interpretation, Config, User) {
         this.addExcludedAllelesModal = AddExcludedAllelesModal;
-        this.interpretationService = interpretationService;
+        this.analysisService = Analysis;
+        this.interpretationService = Interpretation;
         this.config = Config;
         this.user = User;
         this.interpretationUpdateInProgress = false;
@@ -42,7 +43,9 @@ export class InterpretationBarController {
     }
 
     completeInterpretation() {
-        this.interpretationService.confirmCompleteFinalize(this.interpretation);
+        this.interpretationService.confirmCompleteFinalize(this.interpretation).then(() => {
+            this.analysisService.openAnalysisList();
+        });
     }
 
     _getSaveStatus() {

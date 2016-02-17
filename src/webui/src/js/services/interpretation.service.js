@@ -145,7 +145,7 @@ class InterpretationService {
             controller: ['$uibModalInstance', ConfirmCompleteInterpretationController],
             controllerAs: 'vm'
         });
-        modal.result.then(res => {
+        return modal.result.then(res => {
             if (res === 'markreview') {
                 this.analysisService.markreview(interpretation.analysis.id);
             } else if (res === 'finalize') {
