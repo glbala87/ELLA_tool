@@ -57,7 +57,8 @@ docker-run-single-test:
 	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
 
 docker-run-e2e-test:
-	docker run --rm $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=$(API_HOST) SELENIUM_ADDRESS=$(SELENIUM_ADDRESS)
+	docker run --link $(E2E_CONTAINER_NAME):app --link selenium:selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=app SELENIUM_ADDRESS=http://selenium:4444/wd/hub
+#	docker run --link $(E2E_CONTAINER_NAME):app --link selenium:selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=$(API_HOST) SELENIUM_ADDRESS=$(SELENIUM_ADDRESS)
 
 restart:
 	docker restart $(CONTAINER_NAME)
@@ -102,6 +103,7 @@ test-e2e:
 
 docker-selenium-start:
 	docker run --name $(SELENIUM_CONTAINER_NAME) -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
+	sleep 5
 
 test-e2e-main: ci-build docker-run-e2e-app docker-selenium-start docker-run-e2e-test
 	docker stop $(SELENIUM_CONTAINER_NAME)

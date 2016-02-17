@@ -16,7 +16,24 @@ var gulp = require('gulp'),
     notify = require('gulp-notify'),
     protractor = require('gulp-protractor').protractor,
     KarmaServer = require('karma').Server,
+    os = require('os'),
     __basedir = 'src/webui/dev/';
+
+function getIpAddress() {
+    var ipAddress = null;
+    var ifaces = os.networkInterfaces();
+
+    function processDetails(details) {
+        if (details.family === 'IPv4' && details.address !== '127.0.0.1' && !ipAddress) {
+            ipAddress = details.address;
+        }
+    }
+
+    for (var dev in ifaces) {
+        ifaces[dev].forEach(processDetails);
+    }
+    return ipAddress;
+}
 
 var production = !!util.env.production;
 
