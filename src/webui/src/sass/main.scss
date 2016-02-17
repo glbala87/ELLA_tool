@@ -242,7 +242,7 @@ nav.skinny { z-index: 10; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; j
   p { font-size: 1.0rem; margin-bottom: 0.35rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
   h2, h3 ,h4, h5 { font-family: "Source Sans Pro", sans-serif; font-size: 1.3rem; font-weight: 600; margin: 0; text-transform: uppercase; }
   input { position: absolute; width: calc(20vw - 3.9rem); top: 0; right: 3.9rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
-    @include placeholder { color: rgba(255,255,255,0.8); }
+    // @include placeholder { color: rgba(255,255,255,0.8); } // TODO: fix the mixin making this global
   }
   .search-section { position: relative; width: 0%; min-width: 2.6rem; overflow: hidden; height: 2.6rem; }
   .search-section:hover { width: 20vw; }
