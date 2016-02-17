@@ -175,8 +175,8 @@ gulp.task('e2e', function(done) {
         });
     }
 
-    console.log('Checking connection to ' + base + ':' + basePort);
-    http.request(options, callback).end();
+    //console.log('Checking connection to ' + base + ':' + basePort);
+    //http.request(options, callback).end();
 
     gulp.src(["./src/webui/tests/e2e/spec.js"])
         .pipe(protractor({
