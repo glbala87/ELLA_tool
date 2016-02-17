@@ -42,7 +42,7 @@ export class InterpretationBarController {
     }
 
     completeInterpretation() {
-        this.interpretationService.confirmCompleteFinalize();
+        this.interpretationService.confirmCompleteFinalize(this.interpretation);
     }
 
     _getSaveStatus() {

@@ -2,11 +2,11 @@
 
 import {Service, Inject} from '../ng-decorators';
 /**
- * Controller for dialog asking user whether to complete or finalize interpretation.
+ * Controller for dialog asking user whether to markreview or finalize interpretation.
  */
 class ConfirmCompleteInterpretationController {
 
-    constructor(modalInstance, complete, finalize) {
+    constructor(modalInstance) {
         this.modal = modalInstance;
     }
 }
@@ -139,17 +139,17 @@ class InterpretationService {
     /**
      * Popups a confirmation dialog, asking to complete or finalize the interpretation
      */
-    confirmCompleteFinalize() {
+    confirmCompleteFinalize(interpretation) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
             controller: ['$uibModalInstance', ConfirmCompleteInterpretationController],
             controllerAs: 'vm'
         });
         modal.result.then(res => {
-            if (res === 'complete') {
-                this.complete();
+            if (res === 'markreview') {
+                this.analysisService.markreview(interpretation.analysis.id);
             } else if (res === 'finalize') {
-                this.finalize();
+                this.analysisService.finalize(interpretation.analysis.id);
             } else {
                 throw `Got unknown option ${res} when confirming interpretation action.`;
             }
