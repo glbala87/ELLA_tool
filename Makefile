@@ -34,11 +34,13 @@ docker-build:
 docker-build-self-contained:
 	docker build -t $(IMAGE_NAME) -f Dockerfile.ci .
 
-docker-run-e2e-app: e2e-config docker-run-dev
-
-e2e-config:
-	$(eval CONTAINER_NAME :=$(E2E_CONTAINER_NAME))
-
+docker-run-e2e-app:
+	docker run -d \
+	--name $(E2E_CONTAINER_NAME) \
+	-p $(API_PORT):5000 \
+	$(GIN_OPTS) \
+	$(IMAGE_NAME) \
+	supervisord -c /genap/ops/dev/supervisor.cfg
 
 docker-run-dev:
 	docker run -d \
@@ -56,7 +58,7 @@ docker-run-single-test:
 	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
 
 docker-run-e2e-test:
-	docker run --rm -v `pwd`:/genap $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=$(API_HOST) SELENIUM_ADDRESS=$(SELENIUM_ADDRESS)
+	docker run --rm $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=$(API_HOST) SELENIUM_ADDRESS=$(SELENIUM_ADDRESS)
 
 restart:
 	docker restart $(CONTAINER_NAME)
@@ -102,7 +104,7 @@ test-e2e:
 docker-selenium-start:
 	docker run --name $(SELENIUM_CONTAINER_NAME) -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
 
-test-e2e-main: docker-run-e2e-app docker-selenium-start docker-run-e2e-test
+test-e2e-main: ci-build docker-run-e2e-app docker-selenium-start docker-run-e2e-test
 	docker stop $(SELENIUM_CONTAINER_NAME)
 	docker rm $(SELENIUM_CONTAINER_NAME)
 	docker stop $(E2E_CONTAINER_NAME)
