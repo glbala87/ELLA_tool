@@ -1,5 +1,37 @@
 <div class="app">
-  <sidebar items="vm.test_items"></sidebar>
+  <sidebar class="sidebar" items="vm.test_items"></sidebar>
+  <nav class="skinny">
+    <div class="breadcrumbs">
+      <div class="crumb">
+        <p>logged in as</p>
+        <h3>DAVID JACOB HONNEFFER</h3>
+      </div>
+      <div class="crumb">
+        <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.35;"/></svg>
+      </div>
+      <div class="crumb">
+        <p>go to</p>
+        <h3>Analysis List</h3>
+      </div>
+      <div class="crumb">
+        <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.35;"/></svg>
+      </div>
+      <div class="active crumb">
+        <p>this is</p>
+        <h3>NA12878_bindevev_test-Bindevev-v02</h3>
+      </div>
+    </div>
+      <input type="text" placeholder="SEARCH"></input>
+      <svg class="magnify" width="26px" height="26px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path class="m" id="708-search@2x.png" d="M11.711,11.711c-0.073,0.072 -0.191,0.072 -0.264,0l-2.965,-2.966c-0.77,0.707 -1.794,1.142 -2.921,1.142c-2.389,0 -4.326,-1.937 -4.326,-4.326c0,-2.389 1.937,-4.326 4.326,-4.326c2.389,0 4.326,1.937 4.326,4.326c0,1.127 -0.435,2.151 -1.142,2.921l2.966,2.965c0.072,0.073 0.072,0.191 0,0.264ZM9.511,5.561c0,-2.182 -1.769,-3.95 -3.95,-3.95c-2.182,0 -3.95,1.768 -3.95,3.95c0,2.181 1.768,3.95 3.95,3.95c2.181,0 3.95,-1.769 3.95,-3.95Z" style="fill:none;stroke-width:1px;stroke:#000;stroke-opacity:0.5;"/></svg>
+    </div>
+  </nav>
   <search></search>
+
   <div class="content" ui-view="content"></div>
 </div>
+
+    <!-- <div class="nav-row" ng-if="vm.getBackLink().title"> -->
+      <!-- <div class="big title cell"><a ng-href="vm.getBackLink().url"><p>back to</p> <h2>{{vm.getBackLink().title}}</h2> </a></div> -->
+    <!-- </div> -->
+        <!-- <p ng-if="vm.showHeader()">this is</p> -->
+        <!-- <h3 ng-class="{'lowercase': vm.showHeader()}">{{vm.getTitle()}}</h3> -->

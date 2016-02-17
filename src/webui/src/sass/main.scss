@@ -217,24 +217,41 @@ $pink: hsla(295,35,75,1);
 }
 .card-controls.collapsed { height: 0rem; }
 
-.app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 8rem; }
+.app .content { margin-left: 30.5rem; margin-right: 3.9rem; margin-top: 6.5rem; }
 .app .search-area { margin-left: 42rem; }
 .modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
 .modal-dialog { margin: 5vh 10vw; width: auto; }
 .modal-lg { width: inherit; }
 .modal-backdrop { bottom: 0; position: fixed; }
-.interpretation-bar { margin-bottom: 3.9rem; margin-top: -2.4rem; display: flex; justify-content: flex-end;
+.interpretation-bar { margin: 6.5rem 0; display: flex; justify-content: flex-end;
   input { width: 20rem; }
   .left { margin-right: auto; }
   button { margin-left: 1.3rem; }
 }
-.interpretation { margin-top: 8rem; }
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }
 }
-.search-results { padding: 2.6rem; height: 50vh; border-bottom: 1px solid $blue; font-size: 1.3rem; }
-.app .sidebar { display: flex; flex-direction: column; justify-content: space-between; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px; z-index: 10;
+nav.skinny * { transition: all 0.3s ease-in-out; }
+nav.skinny { z-index: 10; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white;
+  .breadcrumbs { display: flex; align-items: center; }
+  .crumb { margin-right: 1.3rem; opacity: 0.5;
+    svg { transform: rotate(-90deg); }
+  }
+  .crumb.active, .crumb:hover { opacity: 1; }
+  p { font-size: 1.0rem; margin-bottom: 0.35rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
+  h2, h3 ,h4, h5 { font-family: "Source Sans Pro", sans-serif; font-size: 1.3rem; font-weight: 600; margin: 0; text-transform: uppercase; }
+  input { position: absolute; width: calc(20vw - 3.9rem); top: 0; right: 3.9rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
+    @include placeholder { color: rgba(255,255,255,0.8); }
+  }
+  .search-section { position: relative; width: 0%; min-width: 2.6rem; overflow: hidden; height: 2.6rem; }
+  .search-section:hover { width: 20vw; }
+  .search-section.active { width: 20vw; }
+  .magnify { position: absolute; top: 0; right: 0; }
+  .magnify:hover * { stroke: white !important; }
+}
+.search-results { padding: 2.6rem; height: 50vh; margin-left: 42rem; background-color: $button-black; color: white; font-size: 1.3rem; font-family: "Source Sans Pro", sans-serif; }
+.app .sidebar { z-index: 2; display: flex; flex-direction: column; justify-content: center; width: 24rem; position: fixed; top: 6rem; bottom: 0; min-height: 540px;
   a { color: inherit;  &:hover { text-decoration: none; } }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
   h2, h3 ,h4, h5 { font-family: "Source Sans Pro", sans-serif; font-weight: 600; margin: 0; text-transform: uppercase; }
@@ -252,13 +269,14 @@ $pink: hsla(295,35,75,1);
   .active-section.nav-row:hover { cursor: default; background-color: $blue; }
   .cell { display: table-cell; vertical-align: middle; }
   .first { width: 0.7rem; min-width: 0.7rem; height: 6rem; }
-  .icon { width: 3.6rem; padding: 0 2.6rem; text-align: center; }
+  .icon { width: 1.3rem; padding: 0 1.3rem; text-align: center; }
   .big { padding: 2rem 0; }
   .title { width: 100%; }
   .active-section { height: 80px; background-color: $blue; color: white; }
   .active-tab { background-color: $blue-sidebar; }
   .active-icon { stroke: $blue; }
   .active-title { color: $blue; }
+  nav, .user { margin-top: auto; }
   .user-row { display: table-row; cursor: pointer;
     &:hover { background-color: #e6e6e6; }
   }
