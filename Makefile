@@ -5,7 +5,6 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 API_PORT ?= 8000-9999
 API_HOST ?= 'http://localhost'
-SELENIUM_ADDRESS ?= 'http://172.16.250.128:4444/wd/hub'
 
 CONTAINER_NAME = gin-$(BRANCH)-$(USER)
 E2E_CONTAINER_NAME = gin-e2e-$(BRANCH)-$(USER)
@@ -94,10 +93,10 @@ test-js:
 	gulp unit
 
 test-e2e:
-	@echo $(API_HOST) $(API_PORT)
+	@echo $(API_HOST) $(API_PORT) $(SELENIUM_ADDRESS)
 	rm -f /genap/node_modules
 	ln -s /dist/node_modules/ /genap/node_modules
-	gulp --e2e_ip=$(API_HOST) --e2e_port=$(API_PORT) e2e
+	gulp --e2e_ip=$(API_HOST) --e2e_port=$(API_PORT) --selenium_address=$(SELENIUM_ADDRESS) e2e
 #	gulp --e2e_ip=localhost --e2e_port=$(API_PORT) --selenium_address=$(SELENIUM_ADDRESS) e2e
 #	gulp e2e
 

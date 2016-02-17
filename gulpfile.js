@@ -132,13 +132,12 @@ gulp.task('e2e', function(done) {
     var args = ['--baseUrl', 'http://' + (util.env.e2e_ip || '172.16.250.128') + ':' + (util.env.e2e_port || 8000),
                 '--seleniumAddress', (util.env.selenium_address || 'http://172.16.250.128:4444/wd/hub')
     ];
-    console.log(args);
     gulp.src(["./src/webui/tests/e2e/spec.js"])
         .pipe(protractor({
             configFile: "./src/webui/tests/protractor.conf.js",
             args: args
         }))
-        .on('error', function(e) { console.error(e.message); });
+        .on('error', function(e) { console.error(e.message); throw e;});
 });
 
 /**
