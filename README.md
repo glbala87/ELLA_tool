@@ -37,15 +37,16 @@ Running tests against a real environment (meaning your application is running in
 - your application is up and running (something to serving html/js/css and something running the python api)
 - a Selenium server
 
-The address of the application and the selenium server is configured in protractor.conf.js.
-There is a Docker image for Selenium, try `docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2`
-This image has both Selenium and Chrome installed, see https://github.com/SeleniumHQ/docker-selenium.
-The mentioned Docker image has a vnc server so it can be accessed using a VNC client. On OS X there is Screen Sharing in /System/Library/CoreServices/Applications,
-most easily started by entering 'vnc://172.16.250.128:5900' in Safari.
+Protractor calls out to selenium to the actual tests. Selenium then access our application. There is a bunch of docker required for this, see Makefile.
+Container linking (see https://docs.docker.com/engine/userguide/networking/) is used for inter-container communaction independent of container IP.
+The protractor container is linked to the selenium container, which is linked to the application container. With the link feature they talk on the internal ports.
 
-Run e2e test locally with `make test-e2e-main API_HOST='172.16.250.128' API_PORT=9999 SELENIUM_ADDRESS=http://172.16.250.128:4444/wd/hub`
-with ports and urls adapted to your environment.
+This chosen Selenium image has both Selenium and Chrome installed, see https://github.com/SeleniumHQ/docker-selenium.
+It has a vnc server so it can be accessed using a VNC client. On OS X there is Screen Sharing in /System/Library/CoreServices/Applications,
+most easily started by entering 'vnc://<docker host ip>:5900' in Safari.
 
+Run e2e test locally with `make e2e-test-main API_HOST='genapp' API_PORT=5000 SELENIUM_ADDRESS=http://selenium:4444/wd/hub`
+with ports as defined in the various 'docker run' command.
 
 # Application structure
 Info about AngualarJS and the build system. Ecmascript version.... Choice of tools and so on.

@@ -1,10 +1,10 @@
 # This file should be in charge of any short-lived processes
 # Anything long-running should be controlled by supervisord
-.PHONY: docker-build docker-run-dev docker-run-tests restart logs test build dev all-tests test-api test-common test-js
+.PHONY: docker-build docker-run-dev docker-run-tests e2e-test-main restart logs test build dev all-tests test-api test-common test-js
 
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 API_PORT ?= 8000-9999
-API_HOST ?= 'http://localhost'
+API_HOST ?= 'localhost'
 
 CONTAINER_NAME = gin-$(BRANCH)-$(USER)
 E2E_CONTAINER_NAME = gin-e2e-$(BRANCH)-$(USER)
@@ -25,7 +25,7 @@ help :
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image $(IMAGE_NAME), then run all tests in a new container"
 	@echo "make single-test	- run image $(IMAGE_NAME) :: TEST_NAME={api | common | js } available as variable"
-	@echo "make test-e2e-main - starts/stops selenium container, run test against a running app"
+	@echo "make test-e2e-main - run e2e tests using a running g:n app. Starts/stops containers for app, selenium and protractor (test runner)"
 
 docker-build:
 	docker build -t $(IMAGE_NAME) .
@@ -33,16 +33,15 @@ docker-build:
 docker-build-self-contained:
 	docker build -t $(IMAGE_NAME) -f Dockerfile.ci .
 
-docker-run-e2e-app:
+docker-run-e2e-app: # container used when doing e2e tests
 	docker run -d \
 	--name $(E2E_CONTAINER_NAME) \
 	-p $(API_PORT):5000 \
 	$(GIN_OPTS) \
 	$(IMAGE_NAME) \
 	supervisord -c /genap/ops/dev/supervisor.cfg
-	sleep 10
 
-docker-run-dev:
+docker-run-dev: #
 	docker run -d \
 	--name $(CONTAINER_NAME) \
 	-p $(API_PORT):5000 \
@@ -57,10 +56,11 @@ docker-run-tests:
 docker-run-single-test:
 	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
 
-docker-run-e2e-test:
-	docker run --link selenium:selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:4444/wd/hub
-#	docker run --link $(E2E_CONTAINER_NAME):genapp --link selenium:selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:4444/wd/hub
-#	docker run --link $(E2E_CONTAINER_NAME):genapp --link selenium:selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=$(API_HOST) SELENIUM_ADDRESS=$(SELENIUM_ADDRESS)
+docker-run-e2e-test: docker-selenium-start # test runner (protractor) for e2e tests
+	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:4444/wd/hub
+
+docker-selenium-start:
+	docker run --name $(SELENIUM_CONTAINER_NAME) --link $(E2E_CONTAINER_NAME):genapp -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
 
 restart:
 	docker restart $(CONTAINER_NAME)
@@ -74,6 +74,13 @@ build: docker-build
 ci-build: docker-build-self-contained
 
 dev: docker-run-dev
+
+
+e2e-test-main: ci-build docker-run-e2e-app docker-run-e2e-test # starts containers and cleans up
+	docker stop $(SELENIUM_CONTAINER_NAME)
+	docker rm $(SELENIUM_CONTAINER_NAME)
+	docker stop $(E2E_CONTAINER_NAME)
+	docker rm $(E2E_CONTAINER_NAME)
 
 all-tests: test-js test-common test-api
 single-test: docker-run-single-test
@@ -96,19 +103,8 @@ test-js:
 	gulp unit
 
 test-e2e:
-	@echo $(API_HOST) $(API_PORT) $(SELENIUM_ADDRESS)
+	@echo "Running e2e tests against $(API_HOST):$(API_PORT) using selenium server $(SELENIUM_ADDRESS)"
 	rm -f /genap/node_modules
 	ln -s /dist/node_modules/ /genap/node_modules
 	gulp --e2e_ip=$(API_HOST) --e2e_port=$(API_PORT) --selenium_address=$(SELENIUM_ADDRESS) e2e
-#	gulp --e2e_ip=localhost --e2e_port=$(API_PORT) --selenium_address=$(SELENIUM_ADDRESS) e2e
-#	gulp e2e
 
-docker-selenium-start:
-	docker run --name $(SELENIUM_CONTAINER_NAME) --link $(E2E_CONTAINER_NAME):genapp -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
-	sleep 5
-
-test-e2e-main: ci-build docker-run-e2e-app docker-selenium-start docker-run-e2e-test
-	docker stop $(SELENIUM_CONTAINER_NAME)
-	docker rm $(SELENIUM_CONTAINER_NAME)
-	docker stop $(E2E_CONTAINER_NAME)
-	docker rm $(E2E_CONTAINER_NAME)
