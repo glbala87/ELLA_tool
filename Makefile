@@ -58,7 +58,9 @@ docker-run-single-test:
 	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
 
 docker-run-e2e-test: docker-selenium-start # test runner (protractor) for e2e tests
-	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:4444/wd/hub
+	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:4444/wd/hub \
+	|| (ret=$$?; echo "Failure. Will remove containers" && make cleanup-e2e && exit $$ret)
+
 
 docker-selenium-start:
 	docker run --name $(SELENIUM_CONTAINER_NAME) --link $(E2E_CONTAINER_NAME):genapp -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
@@ -79,6 +81,9 @@ dev: docker-run-dev
 
 
 e2e-test-main: ci-build docker-run-e2e-app docker-run-e2e-test # starts containers and cleans up
+	make cleanup-e2e
+
+cleanup-e2e:
 	docker stop $(SELENIUM_CONTAINER_NAME)
 	docker rm $(SELENIUM_CONTAINER_NAME)
 	docker stop $(E2E_CONTAINER_NAME)
