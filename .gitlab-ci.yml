@@ -5,6 +5,6 @@ run_genap_tests:
 
 run_genap_e2e_tests:
   script:
-    - make test-e2e-main API_HOST='genapp' API_PORT=5000 SELENIUM_ADDRESS=http://selenium:4444/wd/hub BRANCH=test
+    - make e2e-test-main API_HOST='genapp' API_PORT=5000 SELENIUM_ADDRESS=http://selenium:4444/wd/hub BRANCH=test
   only:
     - 533-e2e
