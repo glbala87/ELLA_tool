@@ -40,6 +40,7 @@ docker-run-e2e-app: # container used when doing e2e tests
 	$(GIN_OPTS) \
 	$(IMAGE_NAME) \
 	supervisord -c /genap/ops/dev/supervisor.cfg
+	sleep 2
 
 docker-run-dev: #
 	docker run -d \
@@ -61,6 +62,7 @@ docker-run-e2e-test: docker-selenium-start # test runner (protractor) for e2e te
 
 docker-selenium-start:
 	docker run --name $(SELENIUM_CONTAINER_NAME) --link $(E2E_CONTAINER_NAME):genapp -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
+	sleep 2
 
 restart:
 	docker restart $(CONTAINER_NAME)
