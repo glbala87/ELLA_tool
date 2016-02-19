@@ -71,7 +71,7 @@ section.card { min-width: 50rem; margin-bottom: 2.6rem; }
 .paper .cell { display: table-cell; vertical-align: middle; }
 .paper-top { height: 8rem; display: table-row; table-layout: fixed; }
 .paper-top-left, .paper-top-right { display: table-cell; height: inherit; vertical-align: middle; }
-.paper-top-left { width: 20rem; min-width: 20rem; max-width: 20rem; color: white; transition: background-color 0.2s ease-in-out;
+.paper-top-left { width: 20rem; min-width: 20rem; max-width: 20rem; color: white; cursor: pointer; transition: background-color 0.2s ease-in-out;
   .icon { padding: 0 1.3rem; transition: all 0.3s ease-in-out; }
   .icon.collapsed { transform: rotate(-90deg); }
   h3, h4 { margin: 0; }
@@ -176,11 +176,6 @@ textarea.big { height: 25vh; margin: 2.6rem 0; }
 .popover { font-family: "Source Sans Pro", sans-serif; border-radius: 0; }
 .popover * { border-radius: 0; }
 .popover-title { background-color: $blue-tint; font-weight: 600; text-transform: uppercase; }
-$boring: hsla(50,35,75,1);
-$green: hsla(140,35,75,1);
-$seafoam: hsla(195,35,75,1);
-$purple: hsla(250,35,75,1);
-$pink: hsla(295,35,75,1);
 .acmg { text-align: center; cursor: pointer; margin: 0 -2rem; color: white; opacity: 0.75; margin-bottom: -2rem; margin-top: 2rem;
   h4 { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1rem; padding: 0.7rem 0; margin: 0; }
   &.ba {  background-color: hsla(350,75,25,1); }
