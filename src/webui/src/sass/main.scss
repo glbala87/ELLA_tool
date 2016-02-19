@@ -244,7 +244,7 @@ nav.skinny { z-index: 10; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; j
   .magnify { position: absolute; top: 0; right: 0; }
   .magnify:hover * { stroke: white !important; }
 }
-nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem;
+nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; top: 0; right: 0; left: 0;
   p { opacity: 0; position: absolute; }
   .crumb.arrow { opacity: 0; }
   .magnify { width: 18px !important; }
