@@ -1,14 +1,5 @@
 @charset 'utf-8';
 @import 'fonts';
-@mixin optional-at-root($sel) {
-  @at-root #{if(not &, $sel, selector-append(&, $sel))} { @content; }
-}
-@mixin placeholder {
-  @include optional-at-root('::-webkit-input-placeholder') { @content; }
-  @include optional-at-root(':-moz-placeholder') { @content; }
-  @include optional-at-root('::-moz-placeholder') { @content; }
-  @include optional-at-root(':-ms-input-placeholder') { @content; }
-}
 
 $content-black: hsla(0,0,0,1);
 $header-black: hsla(0,0,0,0.9);
@@ -61,7 +52,7 @@ $red-radio: hsla(10,35,75,1);
 login { display: block; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans", sans-serif; background-color: hsla(0,0,97,1); }
 input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis;
-  @include placeholder { letter-spacing: 0.2rem; font-weight: 500; }
+  &::placeholder { letter-spacing: 0.2rem; font-weight: 500; }
 }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
@@ -242,7 +233,7 @@ nav.skinny { z-index: 10; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; j
   p { font-size: 1.0rem; margin-bottom: 0.35rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
   h2, h3 ,h4, h5 { font-family: "Source Sans Pro", sans-serif; font-size: 1.3rem; font-weight: 600; margin: 0; text-transform: uppercase; }
   input { position: absolute; width: calc(20vw - 3.9rem); top: 0; right: 3.9rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
-    // @include placeholder { color: rgba(255,255,255,0.8); } // TODO: fix the mixin making this global
+    &::placeholder { color: rgba(255,255,255,0.8); }
   }
   .search-section { position: relative; width: 0%; min-width: 2.6rem; overflow: hidden; height: 2.6rem; }
   .search-section:hover { width: 20vw; }
