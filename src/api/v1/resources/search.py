@@ -196,7 +196,7 @@ class SearchResource(Resource):
         ).filter(
             genotype.Genotype.sample_id == sample.Sample.id,
             allele.Allele.id.in_(allele_ids)
-        ).all()
+        ).distinct().all()
 
 
         # Load all genepanels
