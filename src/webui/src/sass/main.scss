@@ -117,11 +117,11 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
   .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: none; height: 2.6rem; box-shadow: none; border-radius: 0; margin-left: 0.7rem; margin-top: 2px; }
   .btn { border-radius: 0; }
   .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
-  .btn.active { box-shadow: none; background-color: $blue-button; }
-  li.active a { background-color: $blue-button; border-color: $button-black; color: $button-black; }
-  li.active a:hover { background-color: $blue-button; border-color: $button-black; color: $button-black; }
+  .btn.active { box-shadow: none; background-color: $blue-radio; }
+  li.active a { background-color: $blue-radio; border-color: $button-black; color: $button-black; }
+  li.active a:hover { background-color: $blue-radio; border-color: $button-black; color: $button-black; }
 }
-.pagination { font-family: inherit; font-size: 1.2rem; text-transform: uppercase; margin-top: 2.8rem; margin-bottom: 2.6rem;
+.pagination { font-family: inherit; font-weight: 500; font-size: 1.2rem; text-transform: uppercase; margin-top: 2.8rem; margin-bottom: 2.6rem;
   .disabled { opacity: 0.5; }
   li { transition: all 0.3s ease-in-out; }
   li a { padding: 0.25rem 0.75rem; color: $button-black; border-color: $button-black; line-height: 1.8rem; }
