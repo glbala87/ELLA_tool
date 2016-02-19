@@ -4,8 +4,9 @@ import {Directive, Inject} from '../ng-decorators';
 
 @Directive({
     selector: 'analysis-list',
-    bindToController: {
-        analyses: '='
+    scope: {
+        analyses: '=',
+        onSelect: '&?' // Selection callback. Used to clear search
     },
     templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
 })
@@ -51,6 +52,9 @@ class AnalysisListWidget {
     }
 
     openAnalysis(analysis) {
+        if (this.onSelect) {
+            this.onSelect(analysis);
+        }
         this.analysisService.openAnalysis(analysis.id);
     }
 

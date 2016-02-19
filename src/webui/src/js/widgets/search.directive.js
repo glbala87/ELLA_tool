@@ -15,8 +15,12 @@ export class SearchController {
         this.search_text = '';
         this.results = null;
         this.error = false;
-        this.search_text = 'c.1300_1303delAAAA';
+        this.search_text = 'c.1444';
         this.updateSearch();
+    }
+
+    clear() {
+        this.search_text = '';
     }
 
     updateSearch() {

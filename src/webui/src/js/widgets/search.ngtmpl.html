@@ -1,17 +1,22 @@
 <div class="search-area">
-    <input type="text" placeholder="SEARCH" ng-model="vm.search_text" ng-change="vm.updateSearch()"></input>
-  <div class="search-results" uib-collapse="!vm.results">
+    <input type="text" placeholder="SEARCH" ng-model="vm.search_text" ng-change="vm.updateSearch()"></input><button ng-click="vm.clear()">CLEAR</button>
+  <div class="search-results" uib-collapse="!vm.results || !vm.search_text">
     <h4 ng-if="vm.results.alleleassessments.length">Classifications:</h4>
-    <div ng-repeat="aa in vm.results.alleleassessments">
-        {{aa}}
+    <div class="content-list">
+      <div ng-repeat="item in vm.results.alleleassessments">
+        <h2>{{::item.name}}_{{::item.version}}:</h2>
+        <div class="analysis-row" ng-click="vm.openAllele(allele)" ng-repeat="allele in item.alleles">
+          <h3 ng-repeat="t in allele.annotation.filtered">{{t.SYMBOL}} {{t.HGVSc}}</h3> <h3>made by {{::allele.allele_assessment.user.firstName}} {{::allele.allele_assessment.user.lastName}}, {{::allele.allele_assessment.secondsSinceUpdate | secondsToTimeString}} ago for {{::allele.allele_assessment.genepanelName}}_{{::allele.allele_assessment.genepanelVersion}}</h3>
+        </div>
+      </div>
     </div>
 
     <h4 ng-if="vm.results.alleles.length">Alleles:</h4>
     <div class="content-list">
       <div ng-repeat="item in vm.results.alleles">
-
+        <h2>{{::item.name}}_{{::item.version}}:</h2>
         <div class="analysis-row" ng-click="vm.openAllele(allele)" ng-repeat="allele in item.alleles">
-          <h3 ng-repeat="t in allele.annotation.filtered">{{t.SYMBOL}} {{t.HGVSc}} ({{::item.name}}_{{::item.version}})</h3>
+          <h3 ng-repeat="t in allele.annotation.filtered">{{t.SYMBOL}} {{t.HGVSc}}</h3>
         </div>
       </div>
     </div>
@@ -19,7 +24,7 @@
 
     <h4 ng-if="vm.results.analyses.length">Analyses:</h4>
     <div class="content-list">
-      <analysis-list analyses="vm.results.analyses"></analysis-list>
+      <analysis-list analyses="vm.results.analyses" on-select="vm.clear()"></analysis-list>
     </div>
 
     <div class="no-results" ng-if="vm.results.analyses.length == 0 && vm.results.alleles.length == 0 && vm.results.alleleassessments.length == 0">

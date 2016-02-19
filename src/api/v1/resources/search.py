@@ -122,7 +122,7 @@ class SearchResource(Resource):
 
         if where_clause:
             allele_query = text(allele_query.format(where_clause=where_clause))
-            # Use execute and bind parameters to avoid injection risk.
+            # Use session.execute() and bind parameters to avoid injection risk.
             # If you considered changing this to Python's format() function,
             # please stop coding and take a course on SQL injections.
             result = session.execute(allele_query, {'query': '.*'+query+'.*'})
@@ -246,18 +246,21 @@ class SearchResource(Resource):
 
     def _search_alleleassessment(self, session, query):
         """
-        Searches for AlleleAssessments for Alleles matching
+        Searches for Alleles with curated AlleleAssessments matching
         the query.
         """
         allele_ids = self._search_allele_ids(session, query)
         if allele_ids:
-            aa = session.query(assessment.AlleleAssessment).join(allele.Allele).filter(
+            alleles = session.query(allele.Allele).join(assessment.AlleleAssessment).filter(
                 allele.Allele.id.in_(allele_ids),
+                assessment.AlleleAssessment.allele_id.in_(allele_ids),
                 assessment.AlleleAssessment.dateSuperceeded == None,
                 assessment.AlleleAssessment.status == 1
-            ).limit(SearchResource.ALLELE_ASSESSMENT_LIMIT).all()
-            if aa:
-                return schemas.AlleleAssessmentSchema().dump(aa, many=True).data
+            ).limit(SearchResource.ALLELE_LIMIT).all()
+            return AlleleDataLoader(session).from_objs(
+                alleles,
+                include_reference_assessments=False
+            )
         return []
 
     def _search_analysis(self, session, query):
@@ -290,7 +293,6 @@ class SearchResource(Resource):
         )
 
         # Search alleleassessments
-        # TODO: THIS DOESN'T WORK, THERE'S NO ALLELE!
         matches['alleleassessments'] = self._alleles_by_genepanel(
             session,
             self._search_alleleassessment(session, query)
