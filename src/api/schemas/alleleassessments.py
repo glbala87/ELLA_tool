@@ -29,11 +29,12 @@ class AlleleAssessmentSchema(Schema):
                   'secondsSinceUpdate',
                   'evaluation')
 
-    user_id = fields.Integer(allow_none=True)  # Debug only
+    user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
     dateLastUpdate = fields.DateTime()
     dateSuperceeded = fields.DateTime(allow_none=True)
     secondsSinceUpdate = fields.Method('get_seconds_since_created')
+    status = fields.Integer()
 
     def get_seconds_since_created(self, obj):
         return (datetime.datetime.now() - obj.dateLastUpdate).total_seconds()

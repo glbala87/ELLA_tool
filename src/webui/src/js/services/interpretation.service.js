@@ -19,7 +19,6 @@ class ConfirmCompleteInterpretationController {
         'Allele',
         'Analysis',
         'InterpretationResource',
-        'ACMG',
         'User',
         '$uibModal',
         '$location')
@@ -29,7 +28,6 @@ class InterpretationService {
         Allele,
         Analysis,
         interpretationResource,
-        ACMG,
         User,
         ModalService,
         LocationService) {

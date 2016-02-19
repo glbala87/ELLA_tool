@@ -1,8 +1,8 @@
-import datetime
 from vardb.datamodel import sample, user, assessment
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json
+from api.util.assessmentcreator import AssessmentCreator
 from api.v1.resource import Resource
 
 
@@ -160,24 +160,8 @@ class AnalysisActionFinalizeResource(Resource):
         # TODO: Validate that user is same as user on interpretation via internal auth
         # when that is ready
 
-
-        def curate_and_replace(noncurated_assessments, previous_assessments, compare_func):
-            """
-            Curates noncurated [Allele|Reference]Assessments and marks previous ones as
-            superceeded. The newly curated assessment is linked to the previous one.
-            """
-            for noncurated in noncurated_assessments:
-                # Normally there should be just one previous,
-                # but it is safer to check as if there were many
-                for previous in previous_assessments:
-                    if compare_func(noncurated, previous):
-                        previous.dateSuperceeded = datetime.datetime.now()
-                        noncurated.previousAssessment_id = previous.id
-
-            # Set status as curated
-            for noncurated in noncurated_assessments:
-                noncurated.status = 1
-
+        # Curate all the [allele|reference]assessments for the alleles
+        # given in this analysis
         noncurated_aa = session.query(assessment.AlleleAssessment).filter(
             assessment.AlleleAssessment.analysis_id == analysis_id
         ).all()
@@ -186,47 +170,10 @@ class AnalysisActionFinalizeResource(Resource):
             assessment.ReferenceAssessment.analysis_id == analysis_id
         ).all()
 
-
-        # Curate and replace AlleleAssessments
-        previous_aa = session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.allele_id.in_([a.allele_id for a in noncurated_aa]),
-            assessment.AlleleAssessment.dateSuperceeded == None,
-            assessment.AlleleAssessment.status == 1
-        ).all()
-
-        curate_and_replace(
-            noncurated_aa,
-            previous_aa,
-            lambda n, p: n.allele_id == p.allele_id
+        AssessmentCreator(session).curate_and_replace(
+            alleleassessments=noncurated_aa,
+            referenceassessments=noncurated_ra
         )
-
-        # Curate and replace ReferenceAssessments
-        previous_ra = session.query(assessment.ReferenceAssessment).filter(
-            assessment.ReferenceAssessment.allele_id.in_([a.allele_id for a in noncurated_ra]),
-            assessment.ReferenceAssessment.reference_id.in_([a.reference_id for a in noncurated_ra]),
-            assessment.ReferenceAssessment.dateSuperceeded == None,
-            assessment.ReferenceAssessment.status == 1
-        ).all()
-
-        curate_and_replace(
-            noncurated_ra,
-            previous_ra,
-            lambda n, p: n.allele_id == p.allele_id and
-            n.reference.id == p.reference_id
-        )
-
-        # Attach ReferenceAssessments to AlleleAssessments
-
-        # Get all relevant (curated) ReferenceAssessments (based on allele_id)
-        # Don't filter on analysis_id, since there can be RAs that are reused from
-        # previous analyses.
-        relevant_ra = session.query(assessment.ReferenceAssessment).filter(
-            assessment.ReferenceAssessment.allele_id.in_([a.allele_id for a in noncurated_aa]),
-            assessment.ReferenceAssessment.dateSuperceeded == None,
-            assessment.ReferenceAssessment.status == 1
-        )
-        for aa in noncurated_aa:
-            aa.referenceAssessments = [ra for ra in relevant_ra if ra.allele_id == aa.allele_id]
 
         # Mark all analysis' interpretations as done (we do all just in case)
         connected_interpretations = session.query(sample.Interpretation).filter(

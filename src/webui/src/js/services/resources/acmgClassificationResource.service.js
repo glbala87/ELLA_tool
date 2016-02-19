@@ -14,7 +14,7 @@ class ACMGClassificationResource {
         this.base = '/api/v1';
     }
 
-   getByAlleleIdsAndRefAssessmentIds(allele_ids, gp_name, gp_version, refassessment_ids=null) {
+   getByAlleleIds(allele_ids, gp_name, gp_version, refassessment_ids=null) {
         let uri = `${this.base}/acmg/alleles/?allele_ids=${allele_ids}&gp_name=${gp_name}&gp_version=${gp_version}`;
         if (refassessment_ids) {
             uri += `&reference_assessment_ids=${refassessment_ids}`;

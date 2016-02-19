@@ -243,6 +243,7 @@ export class CustomAnnotationModal {
             for (let allele_id of Object.keys(custom_annotation)) {
                 this.customAnnotationResource.createOrUpdateCustomAnnotation(allele_id, custom_annotation[allele_id]);
             }
+            return custom_annotation;
         });
 
     }

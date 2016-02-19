@@ -34,6 +34,15 @@ export class AlleleService {
         );
     }
 
+    getAllelesByAnalysis(allele_ids, analysis) {
+        return this.getAlleles(
+            allele_ids,
+            analysis.samples[0].id, // TODO: Handle multiple samples
+            analysis.genepanel.name,
+            analysis.genepanel.version
+        )
+    }
+
     createOrUpdateReferenceAssessment(data, allele, reference, gp_name=null, gp_version=null, analysis_id=null) {
 
         // Make copy and add/update mandatory fields before submission
@@ -75,7 +84,6 @@ export class AlleleService {
                 genepanelName: gp_name,
                 genepanelVersion: gp_version,
                 analysis_id: analysis_id,
-                status: 0, // Status is set to 0. Finalization happens in another step.
                 user_id: user.id
             });
 
@@ -87,6 +95,7 @@ export class AlleleService {
                 data.classification = aa.classification;
                 data.evaluation = aa.evaluation;
                 data.analysis_id = aa.analysis_id;
+                data.status = aa.status;
                 return data;
             });
 
@@ -100,11 +109,11 @@ export class AlleleService {
      */
     updateACMG(alleles, gp_name, gp_version) {
         let allele_ids = alleles.map(a => a.id);
-        return this.acmgClassificationResource.getByAlleleIdsAndRefAssessmentIds(
-                allele_ids,
-                gp_name,
-                gp_version
-            ).then(res => {
+        return this.acmgClassificationResource.getByAlleleIds(
+            allele_ids,
+            gp_name,
+            gp_version
+        ).then(res => {
             for (let [a_id, a_acmg] of Object.entries(res)) {
                 // Assign result to related allele
                 let allele = alleles.find(a => a.id.toString() === a_id);

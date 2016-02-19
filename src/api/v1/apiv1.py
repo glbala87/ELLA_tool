@@ -17,6 +17,9 @@ class ApiV1(object):
         api.add_resource(r.allele.AlleleListResource,
                          '/api/v1/alleles/')
 
+        api.add_resource(r.allele.AlleleAnalysisListResource,
+                         '/api/v1/alleles/<int:allele_id>/analyses/')
+
         api.add_resource(r.analysis.AnalysisListResource,
                          '/api/v1/analyses/')
 

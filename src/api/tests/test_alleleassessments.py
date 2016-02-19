@@ -19,7 +19,8 @@ def testdata():
         "user_id": 1,
         "transcript_id": 1,
         "annotation_id": 1,
-        "status": 0
+        "status": 0,
+        "analysis_id": 1
     }
 
 
@@ -83,9 +84,9 @@ class TestAlleleAssessment(object):
         assert r.status_code == 200
 
         # Check that all alleleassessments are set as curated
-        q = {'interpretation_id': self._get_interpretation_id(client)}
-        interpretation_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
-        assert all(aa['status'] == 1 for aa in interpretation_aa)
+        q = {'analysis_id': 1}
+        analysis_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
+        assert all(aa['status'] == 1 for aa in analysis_aa)
 
     @pytest.mark.aa(order=3)
     def test_update_assessment_2(self, client):
@@ -94,15 +95,15 @@ class TestAlleleAssessment(object):
         It should result in new AlleleAssessments being created, with new ids.
         """
 
-        q = {'interpretation_id': self._get_interpretation_id(client)}
-        interpretation_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
-        aa_ids = [aa['id'] for aa in interpretation_aa]
+        q = {'analysis_id': 1}
+        analysis_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
+        aa_ids = [aa['id'] for aa in analysis_aa]
 
         # Create new AlleleAssessments and check their ids
-        for aa in interpretation_aa:
+        for aa in analysis_aa:
             # remove id, as we're simulating creating a new one
             del aa['id']
-            del aa['status']
+            aa['status'] = 0
             aa['evaluation']['comment'] = 'New assessment comment'
 
             r = client.post('/api/v1/alleleassessments/', aa)

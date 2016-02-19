@@ -22,7 +22,6 @@ import './services/resources/searchResource.service';
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
-import './services/acmg.service';
 import './services/alleleFilter.service';
 import './services/analysis.service';
 import './services/interpretation.service';
