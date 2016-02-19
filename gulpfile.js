@@ -153,31 +153,6 @@ gulp.task('e2e', function(done) {
                 '--seleniumAddress', seleniumAddress
     ];
 
-
-    var http = require('http');
-    var options = {
-        host: base,
-        port: basePort,
-        path: '/analyses'
-    };
-
-    callback = function(response) {
-        var str = '';
-
-        //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function (chunk) {
-            str += chunk;
-        });
-
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function () {
-            console.log(str);
-        });
-    }
-
-    //console.log('Checking connection to ' + base + ':' + basePort);
-    //http.request(options, callback).end();
-
     gulp.src(["./src/webui/tests/e2e/spec.js"])
         .pipe(protractor({
             configFile: "./src/webui/tests/protractor.conf.js",
@@ -190,16 +165,24 @@ gulp.task('e2e', function(done) {
  * Run unit test once and exit
  */
 gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
-    new KarmaServer({
-	configFile: __dirname + '/src/webui/tests/karma.conf.js',
-	singleRun: true,
-    autoWatch: false
+    var server = new KarmaServer({
+    	configFile: __dirname + '/src/webui/tests/karma.conf.js',
+	    singleRun: true,
+        autoWatch: false
+    }, karmaCompleted);
 
-    }, function(karmaExitStatus) {
-        if (karmaExitStatus) {
-            process.exit(1);
-        };
-    }).start();
+    server.start();
+
+    function karmaCompleted(karmaResult) {
+        if (karmaResult === 1) {
+            done('Karma: tests failed with code ' + karmaResult);
+        } else {
+            done();
+        }
+    }
+
+  return;
+
 });
 
 /**
