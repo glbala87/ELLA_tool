@@ -9,7 +9,7 @@ import {Directive, Inject} from '../ng-decorators';
         topLeft: '?header',
         topRight: '?status',
         content: 'content',
-        expanded: 'expanded',
+        expanded: '?expanded',
         controls: '?controls'
     },
     scope: {

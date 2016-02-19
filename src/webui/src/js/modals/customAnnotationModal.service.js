@@ -239,13 +239,13 @@ export class CustomAnnotationModal {
             }
         });
 
-        modal.result.then(custom_annotation => {
+        return modal.result.then(custom_annotation => {
             for (let allele_id of Object.keys(custom_annotation)) {
                 this.customAnnotationResource.createOrUpdateCustomAnnotation(allele_id, custom_annotation[allele_id]);
             }
-        })
+            return custom_annotation;
+        });
 
-        return modal.result;
     }
 
 }

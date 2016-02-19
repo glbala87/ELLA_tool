@@ -18,7 +18,7 @@ class Resource(flask_resource):
             query = query.filter(*args)
         return query
 
-    def list_query(self, session, model, schema, **kwargs):
+    def list_query(self, session, model, schema=None, **kwargs):
         query = session.query(model)
         if kwargs.get('rest_filter'):
             query = self._filter(query, model, kwargs['rest_filter'])
@@ -27,5 +27,8 @@ class Resource(flask_resource):
         if 'page' in kwargs and 'num_per_page' in kwargs:
             query = query.offset((kwargs['page']-1)*kwargs['num_per_page'])
         s = query.all()
-        result = schema.dump(s, many=True)
-        return result.data
+        if schema:
+            result = schema.dump(s, many=True)
+            return result.data
+        else:
+            return s

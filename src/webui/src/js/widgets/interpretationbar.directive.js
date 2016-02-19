@@ -11,11 +11,12 @@ import {Directive, Inject} from '../ng-decorators';
     },
     templateUrl: 'ngtmpl/interpretationbar.ngtmpl.html'
 })
-@Inject('AddExcludedAllelesModal', 'Interpretation', 'Config', 'User')
+@Inject('AddExcludedAllelesModal', 'Analysis', 'Interpretation', 'Config', 'User')
 export class InterpretationBarController {
-    constructor(AddExcludedAllelesModal, interpretationService, Config, User) {
+    constructor(AddExcludedAllelesModal, Analysis, Interpretation, Config, User) {
         this.addExcludedAllelesModal = AddExcludedAllelesModal;
-        this.interpretationService = interpretationService;
+        this.analysisService = Analysis;
+        this.interpretationService = Interpretation;
         this.config = Config;
         this.user = User;
         this.interpretationUpdateInProgress = false;
@@ -34,18 +35,22 @@ export class InterpretationBarController {
 
     updateInterpretation() {
         this.interpretationUpdateInProgress = true;
-        this.interpretationService.save().then(() => {
+        this.interpretationService.save(this.interpretation).then(() => {
             this.interpretationUpdateInProgress = false;
         });
+        // FIXME: Handle exception case as it can mean another user started
+        // the interpretation right before our user.
     }
 
     completeInterpretation() {
-        this.interpretationService.confirmCompleteFinalize();
+        this.interpretationService.confirmCompleteFinalize(this.interpretation).then(() => {
+            this.analysisService.openAnalysisList();
+        });
     }
 
     _getSaveStatus() {
-        if (this.interpretationService.hasCurrent()) {
-            return this.interpretationService.getCurrent().status === 'Not started' ? 'start' : 'save';
+        if (this.interpretation) {
+            return this.interpretation.status === 'Not started' ? 'start' : 'save';
         }
         return 'start';
     }
@@ -56,12 +61,12 @@ export class InterpretationBarController {
 
     getSaveBtnClass() {
         let classes = [];
-        if (this.interpretationService.hasCurrent()) {
+        if (this.interpretation) {
             if (this._getSaveStatus() === 'start') {
                 classes.push('faded-green');
             }
             else {
-                if (this.interpretationService.getCurrent().dirty) {
+                if (this.interpretation.dirty) {
                     classes.push('faded-red');
                 }
                 else {

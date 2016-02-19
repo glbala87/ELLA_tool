@@ -12,7 +12,7 @@ class ReferenceAssessmentSchema(Schema):
         fields = ('id',
                   'allele_id',
                   'reference_id',
-                  'interpretation_id',
+                  'analysis_id',
                   'genepanelName',
                   'genepanelVersion',
                   'user_id',

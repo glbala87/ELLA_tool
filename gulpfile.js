@@ -38,9 +38,7 @@ function getIpAddress() {
 var production = !!util.env.production;
 
 var onError = function(err) {
-    console.error(err.message);
-    notify.onError()(err);
-    this.emit('end');
+    console.error('\033[31m ERROR:' + err.message + '\033[91m');
 };
 /*
  * Compile thirdparty javascript
@@ -82,7 +80,7 @@ gulp.task('js', function() {
             plugins: ["babel-plugin-transform-decorators-legacy"]
         }))
         .bundle()
-        .on('error', function(err) { console.error(err.message); this.emit('end'); })
+        .on('error', function(err) { onError(err); this.emit('end'); })
         .pipe(plumber({
             errorHandler: onError
         }))

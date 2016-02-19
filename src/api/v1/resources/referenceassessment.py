@@ -39,7 +39,7 @@ class ReferenceAssessmentListResource(Resource):
             'evaluation',
             'genepanelName',
             'genepanelVersion',
-            'interpretation_id',
+            'analysis_id',
             'user_id'
         ],
         True

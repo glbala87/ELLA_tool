@@ -121,7 +121,8 @@ class TranscriptAnnotation(object):
 
         return transcripts
 
-    def _get_genepanel_transcripts(self, transcripts, genepanel):
+    @staticmethod
+    def get_genepanel_transcripts(transcripts, genepanel):
         """
         Searches input transcripts for matching transcript names in the genepanel,
         and returns the list of matches. If no matches are done, returns all RefSeq
@@ -180,7 +181,7 @@ class TranscriptAnnotation(object):
 
         if genepanel:
             final_transcript_names = [t['Transcript'] for t in final_transcripts]
-            result['filtered_transcripts'] = self._get_genepanel_transcripts(final_transcript_names, genepanel)
+            result['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(final_transcript_names, genepanel)
 
         return result
 
