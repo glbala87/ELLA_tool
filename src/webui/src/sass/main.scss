@@ -226,17 +226,18 @@ $pink: hsla(295,35,75,1);
 nav.skinny * { transition: all 0.3s ease-in-out; }
 nav.skinny { z-index: 10; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white;
   .breadcrumbs { display: flex; align-items: center; }
-  .crumb { margin-right: 1.3rem; opacity: 0.5;
+  .crumb { margin-right: 1.3rem; opacity: 0.5; cursor: pointer;
     svg { transform: rotate(-90deg); }
   }
   .crumb.active, .crumb:hover { opacity: 1; }
+  .crumb.active { cursor: default; }
   p { font-size: 1.0rem; margin-bottom: 0.35rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
   h2, h3 ,h4, h5 { font-family: "Source Sans Pro", sans-serif; font-size: 1.3rem; font-weight: 600; margin: 0; text-transform: uppercase; }
   input { position: absolute; width: calc(20vw - 3.9rem); top: 0; right: 3.9rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
     &::placeholder { color: rgba(255,255,255,0.8); }
   }
   .search-section { position: relative; width: 0%; min-width: 2.6rem; overflow: hidden; height: 2.6rem; }
-  .search-section:hover { width: 20vw; }
+  .search-section:hover { width: 20vw; cursor: pointer; }
   .search-section.active { width: 20vw; }
   .magnify { position: absolute; top: 0; right: 0; }
   .magnify:hover * { stroke: white !important; }
