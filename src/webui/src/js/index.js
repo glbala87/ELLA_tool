@@ -7,21 +7,24 @@ require('core-js/fn/object/entries');
 // although we're not using them explicitly.
 
 import "./modals/addExcludedAllelesModal.service";
+import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
+import './services/resources/acmgClassificationResource.service';
+import './services/resources/alleleResource.service';
+import './services/resources/alleleAssessmentResource.service';
+import './services/resources/customAnnotationResource.service';
+import './services/resources/analysisResource.service';
+import './services/resources/interpretationResource.service';
+import './services/resources/ReferenceResource.service';
+import './services/resources/searchResource.service';
+import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
-import './services/acmg.service';
-import './services/acmgClassificationResource.service';
-import './services/alleleAssessmentResource.service';
-import './services/customAnnotationResource.service';
 import './services/alleleFilter.service';
+import './services/analysis.service';
 import './services/interpretation.service';
-import './services/analysisResource.service';
-import './services/interpretationResource.service';
-import './services/ReferenceResource.service';
-import './services/searchResource.service';
 import './services/sidebar.service';
 import './filters';
 
@@ -40,7 +43,7 @@ import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
-import './widgets/searchResults.directive';
+import './widgets/search.directive';
 import './widgets/card.directive';
 import './widgets/interpretationbar.directive';
 import './widgets/allelecard/allelecard.directive';
@@ -97,12 +100,12 @@ class AppConfig {
             }
         })
         .state('app.interpretation', {
-            url: '/interpretation/:interId',
+            url: '/analyses/:analysisId',
             views: {
                 content: {
-                    template: '<analysis interpretation-id="{{interId}}"></analysis>',
+                    template: '<analysis analysis-id="{{analysisId}}"></analysis>',
                     controller: ['$scope', '$stateParams', function($scope, $stateParams) {
-                        $scope.interId = $stateParams.interId;
+                        $scope.analysisId = $stateParams.analysisId;
                     }]
                 }
             }

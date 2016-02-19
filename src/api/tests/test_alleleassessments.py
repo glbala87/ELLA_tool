@@ -19,7 +19,8 @@ def testdata():
         "user_id": 1,
         "transcript_id": 1,
         "annotation_id": 1,
-        "status": 0
+        "status": 0,
+        "analysis_id": 1
     }
 
 
@@ -30,17 +31,23 @@ def client():
 
 class TestAlleleAssessment(object):
 
+    def _get_interpretation_id(self, client):
+        r = client.get('/api/v1/analyses/1/').json
+        return r['interpretations'][0]['id']
+
+    def _get_interpretation(self, client):
+        return client.get('/api/v1/interpretations/{}/'.format(self._get_interpretation_id(client))).json
+
     @pytest.mark.aa(order=0)
     def test_create_new(self, test_database, testdata, client):
         test_database.refresh()  # Reset db
 
         # Retrieve alleles for interpretation for which
         # to create new AlleleAssessments
-        alleles = client.get('/api/v1/interpretations/1/alleles/').json
-        allele_ids = [a['id'] for a in alleles]
+        interpretation = self._get_interpretation(client)
 
         # Create all AlleleAssessments
-        for idx, allele_id in enumerate(allele_ids):
+        for idx, allele_id in enumerate(interpretation['allele_ids']):
             testdata['allele_id'] = allele_id
             r = client.post('/api/v1/alleleassessments/', testdata)
             assert r.status_code == 200
@@ -54,10 +61,9 @@ class TestAlleleAssessment(object):
         It should result in the AlleleAssessment being updated, while the id remains the same.
         """
 
-        alleles = client.get('/api/v1/interpretations/1/alleles/').json
-        allele_ids = [a['id'] for a in alleles]
+        interpretation = self._get_interpretation(client)
 
-        q = {'allele_id': allele_ids, 'dateSuperceeded': None, 'status': 0}
+        q = {'allele_id': interpretation['allele_ids'], 'dateSuperceeded': None, 'status': 0}
         previous_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
 
         for prev in previous_aa:
@@ -74,13 +80,13 @@ class TestAlleleAssessment(object):
         """
         Finalize the connected interpretation for this AlleleAssessment, in order to mark it as curated.
         """
-        r = client.put('/api/v1/interpretations/1/actions/finalize/', data={})
+        r = client.post('/api/v1/analyses/1/actions/finalize/', data={})
         assert r.status_code == 200
 
         # Check that all alleleassessments are set as curated
-        q = {'interpretation_id': 1}
-        interpretation_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
-        assert all(aa['status'] == 1 for aa in interpretation_aa)
+        q = {'analysis_id': 1}
+        analysis_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
+        assert all(aa['status'] == 1 for aa in analysis_aa)
 
     @pytest.mark.aa(order=3)
     def test_update_assessment_2(self, client):
@@ -89,15 +95,15 @@ class TestAlleleAssessment(object):
         It should result in new AlleleAssessments being created, with new ids.
         """
 
-        q = {'interpretation_id': 1}
-        interpretation_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
-        aa_ids = [aa['id'] for aa in interpretation_aa]
+        q = {'analysis_id': 1}
+        analysis_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
+        aa_ids = [aa['id'] for aa in analysis_aa]
 
         # Create new AlleleAssessments and check their ids
-        for aa in interpretation_aa:
+        for aa in analysis_aa:
             # remove id, as we're simulating creating a new one
             del aa['id']
-            del aa['status']
+            aa['status'] = 0
             aa['evaluation']['comment'] = 'New assessment comment'
 
             r = client.post('/api/v1/alleleassessments/', aa)

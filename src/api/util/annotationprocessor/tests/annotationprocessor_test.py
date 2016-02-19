@@ -382,7 +382,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
         transcripts = ['NM_000059', 'NM_000058']
 
-        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
         assert t == ['NM_000059']
 
     def test_get_genepanel_transcripts_versioned(self):
@@ -404,7 +404,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
         transcripts = ['NM_000059.3', 'NM_000058.1']
 
-        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
         assert t == ['NM_000059']
 
     def test_get_genepanel_transcripts_multiple(self):
@@ -426,7 +426,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
         transcripts = ['NM_000059', 'NM_007294']
 
-        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
         assert t == ['NM_000059', 'NM_007294']
 
     def test_get_genepanel_transcripts_none(self):
@@ -448,5 +448,5 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
         transcripts = ['NM_000051']
 
-        t = TranscriptAnnotation()._get_genepanel_transcripts(transcripts, genepanel)
+        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
         assert t == []

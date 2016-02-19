@@ -4,22 +4,24 @@ import {Directive, Inject} from '../ng-decorators';
 
 @Directive({
     selector: 'analysis-list',
-    bindToController: {
-        analyses: '='
+    scope: {
+        analyses: '=',
+        onSelect: '&?' // Selection callback. Used to clear search
     },
     templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
 })
-@Inject('$location',
-        'Sidebar',
+@Inject('Sidebar',
         'User',
+        'Analysis',
         'InterpretationResource',
         'InterpretationOverrideModal')
 class AnalysisListWidget {
 
-    constructor(location, Sidebar, User, InterpretationResource, InterpretationOverrideModal) {
+    constructor(Sidebar, User, Analysis, InterpretationResource, InterpretationOverrideModal) {
         this.location = location;
         this.sidebar = Sidebar;
         this.user = User;
+        this.analysisService = Analysis;
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
 
@@ -50,13 +52,15 @@ class AnalysisListWidget {
     }
 
     openAnalysis(analysis) {
-        this.location.path(`/interpretation/${analysis.getInterpretationId()}`);
+        if (this.onSelect) {
+            this.onSelect(analysis);
+        }
+        this.analysisService.openAnalysis(analysis.id);
     }
 
-    overrideInterpretation(analysis, username) {
-        this.interpretationResource.override(
-            analysis.getInterpretationId(),
-            username
+    overrideAnalysis(analysis) {
+        this.analysisService.override(
+            analysis.id,
         ).then(() => {
             this.openAnalysis(analysis);
         })
@@ -71,13 +75,9 @@ class AnalysisListWidget {
             iuser.id !== this.user.getCurrentUserId()) {
             this.interpretationOverrideModal.show().then(result => {
                 if (result) {
-                    this.overrideInterpretation(
-                        analysis,
-                        this.user.getCurrentUserId()
-                    );
+                    this.overrideAnalysis(analysis);
                 }
-            })
-
+            });
         }
         else {
             this.openAnalysis(analysis);

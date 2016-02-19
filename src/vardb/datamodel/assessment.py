@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 
 from vardb.datamodel import Base
-from vardb.datamodel import gene, annotation, user  # Needed, implicit imports used by sqlalchemy
+from vardb.datamodel import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
 from vardb.util.mutjson import MUTJSONB
 
 
@@ -34,7 +34,7 @@ class AlleleAssessment(Base):
     genepanelName = Column(String, nullable=False)
     genepanelVersion = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
-    interpretation_id = Column(Integer, ForeignKey("interpretation.id"))
+    analysis_id = Column(Integer, ForeignKey("analysis.id"))
     transcript_id = Column(Integer, ForeignKey("transcript.id"))
     transcript = relationship("Transcript")
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
@@ -74,10 +74,9 @@ class ReferenceAssessment(Base):
     genepanel = relationship("Genepanel", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
-    previousAssessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
-    previousAssessment = relationship("AlleleAssessment", uselist=False)
-    interpretation_id = Column(Integer, ForeignKey("interpretation.id"))
-    interpretation = relationship("Interpretation", backref='referenceassessments')
+    previousAssessment_id = Column(Integer, ForeignKey("referenceassessment.id"))
+    previousAssessment = relationship("ReferenceAssessment", uselist=False)
+    analysis_id = Column(Integer, ForeignKey("analysis.id"))
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __str__(self):
