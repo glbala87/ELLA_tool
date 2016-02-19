@@ -7,46 +7,53 @@ require('core-js/fn/object/entries');
 // although we're not using them explicitly.
 
 import "./modals/addExcludedAllelesModal.service";
+import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
+import './services/resources/acmgClassificationResource.service';
+import './services/resources/alleleResource.service';
+import './services/resources/alleleAssessmentResource.service';
+import './services/resources/customAnnotationResource.service';
+import './services/resources/analysisResource.service';
+import './services/resources/interpretationResource.service';
+import './services/resources/ReferenceResource.service';
+import './services/resources/searchResource.service';
+import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
-import './services/acmg.service';
-import './services/acmgClassificationResource.service';
-import './services/alleleAssessmentResource.service';
-import './services/customAnnotationResource.service';
 import './services/alleleFilter.service';
+import './services/analysis.service';
 import './services/interpretation.service';
-import './services/analysisResource.service';
-import './services/interpretationResource.service';
-import './services/ReferenceResource.service';
-//import './services/searchResource.service';
+import './services/sidebar.service';
 import './filters';
 
 import './views/analysis/analysis.directive';
 import './views/analysis/analysisSelection.directive';
 import './views/analysis/interpretationSingleSample.directive';
-import './views/assessment/variantExternalDbAssessment.directive';
-import './views/assessment/variantFrequencyAssessment.directive';
-import './views/assessment/variantPredictionAssessment.directive';
-import './views/assessment/variantReferenceAssessment.directive';
-import './views/assessment/variantReport.directive';
-import './views/assessment/variantVarDbAssessment.directive';
+import './views/main.directive';
 import './views/login.directive';
-import './views/navigation.directive';
+import './views/sidebar.directive';
 
 import './widgets/annotationWidget.directive';
-import './widgets/alleleDetailsWidget.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
-import './widgets/userBar.directive';
-import './widgets/userBox.directive';
 import './widgets/acmg.directive';
-//import './widgets/searchResults.directive';
+import './widgets/checkablebutton.directive';
+import './widgets/search.directive';
+import './widgets/card.directive';
+import './widgets/interpretationbar.directive';
+import './widgets/allelecard/allelecard.directive';
+import './widgets/allelecard/frequencysection.directive';
+import './widgets/allelecard/externalsection.directive';
+import './widgets/allelecard/predictionsection.directive';
+import './widgets/allelecard/referencesection.directive';
+import './widgets/allelecard/vardbsection.directive';
+import './widgets/allelecard/classificationsection.directive';
+
 
 
 import {Config, Inject, Run} from './ng-decorators';
@@ -60,45 +67,31 @@ class AppConfig {
         $stateProvider.state('app', {
                 views: {
                     app: {
-                        templateUrl: 'ngtmpl/main.ngtmpl.html',
-                        // TODO: Temporary solution until redesign.
-                        // Move me somewhere logical
-                        controller: ['$scope', 'SearchResource', ($scope, SearchResource) => {
-                            $scope.results = null;
-                            $scope.search_query = '';
-                            $scope.updateSearch = () => {
-                                if ($scope.search_query && $scope.search_query.length > 2) {
-                                    SearchResource.get($scope.search_query).then(r => {
-                                        $scope.results = r;
-                                    });
-                                }
-                                else {
-                                    $scope.results = null;
-                                }
-                            };
-                            $scope.hasResults = () => {
-                                return $scope.results || false;
-                            };
-                        }],
-                        controllerAs: 'vm'
-                    },
+                        template: '<main></main>'
+                    }
+                },
+                resolve: {
+                    // Preload global config before app starts
+                    config: ['Config', (Config) => {
+                        return Config.loadConfig();
+                    }]
                 }
             })
             .state('app.analyses', {
                 url: '/analyses',
                 views: {
-                    main: {
+                    content: {
                         template: '<analysis-selection></analysis-selection>'
                     }
                 }
             })
             .state('app.interpretation', {
-                url: '/interpretation/:interId',
+                url: '/analyses/:analysisId',
                 views: {
-                    main: {
-                        template: '<analysis interpretation-id="{{interId}}"></analysis>',
+                    content: {
+                        template: '<analysis analysis-id="{{analysisId}}"></analysis>',
                         controller: ['$scope', '$stateParams', function($scope, $stateParams) {
-                            $scope.interId = $stateParams.interId;
+                            $scope.analysisId = $stateParams.analysisId;
                         }]
                     }
                 }
@@ -106,7 +99,7 @@ class AppConfig {
             .state('login', {
                 url: '/login',
                 views: {
-                    login: {
+                    app: {
                         template: '<login></login>'
                     }
                 }
