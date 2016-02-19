@@ -68,27 +68,13 @@ class AppConfig {
             views: {
                 app: {
                     template: '<main></main>',
-                    // TODO: Temporary solution until redesign.
-                    // Move me somewhere logical
-                    controller: ['$scope', 'SearchResource', ($scope, SearchResource) => {
-                        $scope.results = null;
-                        $scope.search_query = '';
-                        $scope.updateSearch = () => {
-                            if ($scope.search_query && $scope.search_query.length > 2) {
-                                SearchResource.get($scope.search_query).then(r => {
-                                    $scope.results = r;
-                                });
-                            }
-                            else {
-                                $scope.results = null;
-                            }
-                        };
-                        $scope.hasResults = () => {
-                            return $scope.results || false;
-                        };
-                    }],
-                    controllerAs: 'vm'
-                },
+                }
+            },
+            resolve: {
+                // Preload global config before app starts
+                config: ['Config', (Config) => {
+                    return Config.loadConfig();
+                }]
             }
         })
         .state('app.analyses', {
