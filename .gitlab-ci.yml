@@ -1,24 +1,24 @@
 ---
 run_genap_api_tests:
   script:
-    - make test-single-ci TEST_NAME=api BRANCH=test
+    - make ci-single-test TEST_NAME=api BRANCH=test
   only:
     - 533-e2e
 
 run_genap_js_tests:
   script:
-    - make test-single-ci TEST_NAME=js BRANCH=test
+    - make ci-single-test TEST_NAME=js BRANCH=test
   only:
     - 533-e2e
 
 run_genap_python_tests:
   script:
-    - make test-single-ci TEST_NAME=common BRANCH=test
+    - make ci-single-test TEST_NAME=common BRANCH=test
   only:
     - 533-e2e
 
 run_genap_e2e_tests:
   script:
-    - make e2e-test-main BRANCH=test
+    - make ci-e2e-test BRANCH=test
   only:
     - 533-e2e
