@@ -134,7 +134,7 @@ h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem
   .title ~ .title { margin-top: 2.6rem; }
   h5, p { font-size: 1.4rem; color: black; }
   h5 { font-weight: 400; padding-right: 3.9rem; margin: 0.2rem 0; }
-  p { font-weight: 300; margin: 0; }
+  p { font-weight: 300; margin: 0; word-wrap: break-word; word-break: break-word; }
   ul { font-size: 1rem; padding: 0; margin: 0.5rem 2rem; }
   .tabular-row { display: table-row; }
   .top-align { vertical-align: top; }
