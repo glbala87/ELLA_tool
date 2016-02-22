@@ -27,6 +27,7 @@ import './services/analysis.service';
 import './services/interpretation.service';
 import './services/search.service';
 import './services/sidebar.service';
+import './services/navbar.service';
 import './filters';
 
 import './views/analysis/analysis.directive';
@@ -35,6 +36,7 @@ import './views/analysis/interpretationSingleSample.directive';
 import './views/main.directive';
 import './views/login.directive';
 import './views/sidebar.directive';
+import './views/navbar.directive';
 
 import './widgets/annotationWidget.directive';
 import './widgets/analysisList.directive';

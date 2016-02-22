@@ -29,7 +29,8 @@ button { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-
 nav.skinny, nav.skinny * { transition: all 0.3s ease-in-out; }
 nav.skinny { z-index: 10; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white;
   .breadcrumbs { display: flex; align-items: center; }
-  .crumb { margin-right: 1.3rem; opacity: 0.5; cursor: pointer; }
+  .crumb { margin-right: 3.0rem; opacity: 0.5; cursor: pointer; }
+  //.crumb:after { content: '▶'; font-size: 1.5rem; }
   .crumb.active, .crumb:hover { opacity: 1; }
   .crumb.active { cursor: default; }
   .crumb.arrow { transform: rotate(-90deg); }

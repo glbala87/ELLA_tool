@@ -1,0 +1,11 @@
+<nav class="skinny">
+  <div class="breadcrumbs">
+    <div class="crumb" ng-click="vm.goToLogin()">
+      <p>logged in as</p> <h3>{{vm.user.firstName}} {{vm.user.lastName}}</h3>
+    </div>
+    <div ng-click="vm.goToItem(item)" class="crumb" ng-class="{'active': vm.isLastItem(item)}" ng-repeat="item in vm.getItems()">
+      <p ng-if="item.header">{{item.header}}</p> <h3>{{item.title}}</h3>
+    </div>
+  </div>
+  <search></search>
+</nav>
