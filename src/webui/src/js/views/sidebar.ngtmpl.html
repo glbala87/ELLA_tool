@@ -1,12 +1,12 @@
 <nav>
   <div class="nav-row" ng-repeat="item in vm.getItems()" ng-click="vm.activate(item)">
-    <div class="first cell" ng-class="{'active-tab': item.active}"> </div>
+    <div class="tab cell" ng-class="{'active-tab': item.active}"> </div>
     <div class="icon cell" ng-class="{'active-icon': item.active}"> </div>
     <div class="title cell" ng-class="{'active-title': item.active}"> <h4>{{item.title}}</h4> </div>
   </div>
 </nav>
 <div class="user">
-  <div class="first cell"> </div>
+  <div class="tab cell"> </div>
   <div class="icon cell"> </div>
   <div class="title cell">
     <h2 style="color: #999;">Your app title here</h2>

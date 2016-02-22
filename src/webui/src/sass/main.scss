@@ -1,6 +1,9 @@
 @charset 'utf-8';
 @import 'fonts';
 
+$full: "Work Sans", sans-serif;
+$slim: "Source Sans Pro", sans-serif;
+
 $content-black: hsla(0,0,0,1);
 $header-black: hsla(0,0,0,0.9);
 $button-black: hsla(0,0,0,0.75);
@@ -48,8 +51,6 @@ $red-radio: hsla(10,35,75,1);
 .classification-number.red { background-color: $red; }
 .paper-bottom.red { border-left: 0.7rem solid $red-sidebar; }
 .faded-red { background-color: $red-button; color:white; font-weight: 500; }
-
-
 
 @import 'general-layout';
 @import 'card';
