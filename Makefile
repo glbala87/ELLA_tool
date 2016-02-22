@@ -11,9 +11,11 @@ help :
 	@echo ""
 	@echo "-- GENERAL COMMANDS --"
 	@echo "make build		- build image $(IMAGE_NAME)"
+	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo ""
 	@echo "-- DEV COMMANDS --"
 	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and GIN_OPTS available as variables"
+	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
 	@echo "make restart		- restart container $(CONTAINER_NAME)"
 	@echo ""
@@ -47,6 +49,13 @@ restart:
 
 logs:
 	docker logs -f $(CONTAINER_NAME)
+
+shell:
+	docker exec -it $(CONTAINER_NAME) bash
+
+kill:
+	docker stop $(CONTAINER_NAME)
+	docker rm $(CONTAINER_NAME)
 
 test: ci-build docker-run-tests
 

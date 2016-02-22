@@ -1,7 +1,8 @@
 var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     util = require('gulp-util'),
-    minifyCss = require('gulp-minify-css'),
+    cssnano = require('gulp-cssnano'),
+    autoprefixer = require('gulp-autoprefixer'),
     flatten = require('gulp-flatten'),
     concat = require('gulp-concat'),
     babelify = require("babelify"),
@@ -93,7 +94,11 @@ gulp.task('sass', function () {
         .pipe(plumber())
         .pipe(sass().on('error', sass.logError))
         .pipe(concat('app.css'))
-        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
+        .pipe(autoprefixer({
+          browsers: ['last 2 versions'],
+          cascade: false
+          }))
+        .pipe(production ? cssnano() : util.noop())
         .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
@@ -115,6 +120,7 @@ gulp.task('less', function () {
 gulp.task('fonts', function () {
     gulp.src(
         [
+            'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*',
             'src/webui/src/thirdparty/fonts/*.woff2'
         ])
         .pipe(plumber())

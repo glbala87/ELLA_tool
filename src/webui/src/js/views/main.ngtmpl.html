@@ -1,5 +1,12 @@
 <div class="app">
-  <sidebar items="vm.test_items"></sidebar>
-  <search></search>
+  <sidebar class="sidebar" items="vm.test_items"></sidebar>
+  <navbar></navbar>
+  <search-results></search-results>
   <div class="content" ui-view="content"></div>
 </div>
+
+    <!-- <div class="nav-row" ng-if="vm.getBackLink().title"> -->
+      <!-- <div class="big title cell"><a ng-href="vm.getBackLink().url"><p>back to</p> <h2>{{vm.getBackLink().title}}</h2> </a></div> -->
+    <!-- </div> -->
+        <!-- <p ng-if="vm.showHeader()">this is</p> -->
+        <!-- <h3 ng-class="{'lowercase': vm.showHeader()}">{{vm.getTitle()}}</h3> -->

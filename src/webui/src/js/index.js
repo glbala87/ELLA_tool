@@ -25,7 +25,9 @@ import './services/ConfigService';
 import './services/alleleFilter.service';
 import './services/analysis.service';
 import './services/interpretation.service';
+import './services/search.service';
 import './services/sidebar.service';
+import './services/navbar.service';
 import './filters';
 
 import './views/analysis/analysis.directive';
@@ -34,6 +36,7 @@ import './views/analysis/interpretationSingleSample.directive';
 import './views/main.directive';
 import './views/login.directive';
 import './views/sidebar.directive';
+import './views/navbar.directive';
 
 import './widgets/annotationWidget.directive';
 import './widgets/analysisList.directive';
@@ -44,6 +47,7 @@ import './widgets/transcriptWrapper.directive';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
 import './widgets/search.directive';
+import './widgets/searchResults.directive';
 import './widgets/card.directive';
 import './widgets/interpretationbar.directive';
 import './widgets/allelecard/allelecard.directive';
