@@ -25,6 +25,7 @@ import './services/ConfigService';
 import './services/alleleFilter.service';
 import './services/analysis.service';
 import './services/interpretation.service';
+import './services/search.service';
 import './services/sidebar.service';
 import './filters';
 
@@ -44,6 +45,7 @@ import './widgets/transcriptWrapper.directive';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
 import './widgets/search.directive';
+import './widgets/searchResults.directive';
 import './widgets/card.directive';
 import './widgets/interpretationbar.directive';
 import './widgets/allelecard/allelecard.directive';
