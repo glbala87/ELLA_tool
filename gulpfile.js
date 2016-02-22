@@ -120,6 +120,7 @@ gulp.task('less', function () {
 gulp.task('fonts', function () {
     gulp.src(
         [
+            'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*',
             'src/webui/src/thirdparty/fonts/*.woff2'
         ])
         .pipe(plumber())
