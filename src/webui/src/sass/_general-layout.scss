@@ -9,7 +9,7 @@ input { border: none; border-bottom: 1px solid $icon-half-black; background-colo
 button { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
   &:disabled { opacity: 0.6 }
 }
-.badge { border-radius: 0; background-color: $blue; color: white; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
+.badge { border-radius: 0; background-color: #ddd; color: black; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
 
 .app .content { margin-left: 30.5rem; margin-right: 3.9rem; margin-top: 6.5rem; }
 .app .search-area { margin-left: 42rem; }
