@@ -7,7 +7,6 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-bl
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 
 button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
-  .fa-plus { vertical-align: middle; }
   &:disabled { opacity: 0.6 }
 }
 .badge { border-radius: 0; background-color: #ddd; color: black; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
@@ -52,10 +51,12 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
 .search-results:before { content: "Search Results"; color: $header-black; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: relative; left: -17.3rem; top: 4rem; opacity: 0.75; }
 .search-results:before {  animation: 2s fade-in; }
 .search-results .ng-enter { animation: 1s fade-in; }
-.search-results { margin-top: -4rem; z-index: -1; padding: 2.6rem; background-color: $blue; color: white; font-size: 1.3rem; font-family: $slim; width: 50vw; margin-left: auto;
+.search-results { padding: 2.6rem; background-color: $blue; color: white; font-size: 1.3rem; font-family: $slim; width: 50vw; margin-left: auto; position: relative;
   .analysis-row { margin-left: 2rem; }
   .section-title { font-weight: 400; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1rem; }
   .element-title { font-size: 1.6rem; font-weight: 600; }
+  .close-results { position: absolute; right: 3.9rem; color: hsla(0,0,100,0.75); border-color: hsla(0,0,100,0.5); }
+  .close-results .fa { margin-right: 0.5rem; }
 }
 
 
