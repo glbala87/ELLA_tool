@@ -32,9 +32,9 @@ button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transfor
 nav.skinny .crumb.ng-enter, nav.skinny .crumb.ng-leave { transition: none; }
 nav.skinny { z-index: 99; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white;
   .breadcrumbs { display: flex; align-items: center; }
-  .crumb { margin-right: 3.0rem; color: hsla(0,0,100,0.5); cursor: pointer; }
+  .crumb { margin-right: 2vw; color: hsla(0,0,100,0.5); cursor: pointer; display: flex; align-items: center; }
   .crumb { transition: color 0.3s ease-in-out;  }
-  //.crumb:after { content: '▶'; font-size: 1.5rem; }
+  .crumb ~ .crumb:before { content: '▶'; font-size: 1.3rem; color: $icon-half-black !important; margin-right: 2vw; }
   .crumb.active, .crumb:hover { color: hsla(0,0,100,1); }
   .crumb.active { cursor: default; }
   .crumb.arrow { transform: rotate(-90deg); }
