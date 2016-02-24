@@ -1,16 +1,14 @@
 <nav>
-  <div class="nav-row" ng-repeat="item in vm.getItems()" ng-click="vm.activate(item)">
-    <div class="tab cell" ng-class="{'active-tab': item.active}"> </div>
-    <div class="icon cell" ng-class="{'active-icon': item.active}"> </div>
-    <div class="title cell" ng-class="{'active-title': item.active}"> <h4>{{item.title}}</h4> </div>
+  <div class="nav-row" ng-class="{'active': item.active}" ng-repeat="item in vm.getItems()" ng-click="vm.activate(item)">
+    <div class="tab" ng-class="{'active': item.active}"> </div>
+    <!-- <div class="icon cell" ng-class="{'active-icon': item.active}"> </div> -->
+    <h4 class="title" ng-class="{'active': item.active}">{{item.title}}</h4>
   </div>
 </nav>
 <div class="user">
-  <div class="tab cell"> </div>
-  <div class="icon cell"> </div>
-  <div class="title cell">
-    <h2 style="color: #999;">Your app title here</h2>
-  </div>
+  <div class="tab"> </div>
+  <!-- <div class="icon cell"> </div> -->
+  <h2 class="title" style="color: #999;">Your app title here</h2>
 </div>
 <!-- <div class="user"> -->
 <!--   <div class="user-row"> -->
