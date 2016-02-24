@@ -1,7 +1,7 @@
 login { display: block; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsla(0,0,97,1); }
-input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis;
-  &::placeholder { letter-spacing: 0.2rem; font-weight: 500; }
+input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
+  &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; }
 }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
@@ -12,13 +12,13 @@ button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transfor
 }
 .badge { border-radius: 0; background-color: #ddd; color: black; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
 
-.app .content { margin-left: 30.5rem; margin-right: 3.9rem; margin-top: 6.5rem; }
+.app .content { margin-left: 30.5rem; margin-right: 3.9rem; margin-top: 3.9vh; }
 .app .search-area { margin-left: 42rem; }
 .modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
 .modal-dialog { margin: 5vh 10vw; width: auto; }
 .modal-lg { width: inherit; }
 .modal-backdrop { bottom: 0; position: fixed; }
-.interpretation-bar { margin: 6.5rem 0; display: flex; justify-content: flex-end;
+.interpretation-bar { margin: 3.9vh 0; display: flex; justify-content: flex-end;
   input { width: 20rem; }
   .left { margin-right: auto; }
   button { margin-left: 1.3rem; }
