@@ -59,7 +59,7 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
 }
 
 
-.sidebar .nav-row.ng-enter { animation: 0.7s fade-in; }
+.sidebar .nav-row.ng-enter { animation: 1s fade-in; }
 .sidebar .nav-row.ng-leave, .sidebar .nav-row .ng-leave { transition: none; }
 .sidebar { z-index: 2; display: flex; flex-direction: column; justify-content: center; width: 24rem; position: fixed; top: 6rem; bottom: 0; min-height: 540px;
   a { color: inherit;  &:hover { text-decoration: none; } }
@@ -67,19 +67,19 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   h2 ,h4 { font-family: $slim; font-weight: 600; margin: 0; text-transform: uppercase; }
   h2 { font-size: 1.5rem; }
   h4 { font-size: 1.4rem; }
-  nav { display: table; table-layout: fixed; }
-  .nav-row, .nav-row * { transition: all 0.3s ease-in-out; }
-  .nav-row { display: table-row; color: $half-black; background-color: inherit;
-    &:hover { background-color: #e6e6e6; cursor: pointer; }
+  .nav-row, .user { display: flex; align-items: center; color: $half-black; background-color: inherit;
+    & .tab, & .title { transition: background-color 0.3s ease-in-out; }
+    &:hover { cursor: pointer; }
     &:hover .tab { background-color: $blue-sidebar; }
+    &:hover .title { background-color: #e6e6e6; }
+    &.active:hover { cursor: default; }
+    &.active:hover .tab { background-color: $blue; }
+    &.active:hover .title { background-color: inherit; }
   }
-  .cell { display: table-cell; vertical-align: middle; }
   .tab { width: 0.7rem; min-width: 0.7rem; height: 6rem; background-color: inherit; }
-  .icon { width: 1.3rem; padding: 0 1.3rem; text-align: center; }
-  .title { width: 100%; }
-  .active-tab { background-color: $blue; }
-  .active-icon { stroke: $blue; }
-  .active-title { color: $blue; }
+  .title { width: 100%; padding-left: 1.9rem; height: 6rem; line-height: 6rem; }
+  .tab.active { background-color: $blue; }
+  .title.active { color: $blue; }
   nav, .user { margin-top: auto; }
   .user-row { display: table-row; cursor: pointer;
     &:hover { background-color: #e6e6e6; }
