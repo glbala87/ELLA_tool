@@ -28,7 +28,10 @@ export class SearchService {
     updateSearch() {
         if (this.model.query.length > 2) {
             this.searchResource.get(this.model.query).then(r => {
-                this.results = r;
+                // Recheck length in case it changed while request was inflight
+                if (this.model.query.length > 2) {
+                    this.results = r;
+                }
                 this.error = false;
             }).catch(e => {
                 this.error = true;
