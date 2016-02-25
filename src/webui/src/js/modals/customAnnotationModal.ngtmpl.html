@@ -15,16 +15,14 @@
     </div>
     <div class="paper-bottom">
       <section ng-if="vm.category == 'references'">
-        <!-- FIXME: can haz if? -->
-        <h2 class="allele-title">added references</h2>
+        <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added references</h2>
         <div class="included-allele">
           <article class="content-box" ng-repeat="ref in vm.getCurrent()">
             <div class="annotation-title"><h5>{{vm.getReference(ref.pubmedID).getShortDesc()}}</h5></div>
             <div><button ng-click="vm.removeReference(ref)">REMOVE</button></div>
           </article>
         </div>
-        <!-- FIXME: can haz if? -->
-        <hr ng-if="">
+        <hr ng-if="vm.hasAddedAnnotations()">
         <h2 class="allele-title">add reference - import xml format</h2>
         <article class="small question-set">
           <h5 class="non-cell">Instructions</h5>
@@ -36,8 +34,7 @@
       </section>
 
       <section ng-if="vm.category == 'external' || vm.category == 'prediction'">
-        <!-- FIXME: oops, broken if -->
-        <h2 class="allele-title" ng-if="vm.config.custom_annotation[vm.category]">added annotations</h2>
+        <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added annotations</h2>
         <div class="included-allele">
           <article class="content-box" ng-repeat="(k, v) in vm.config.custom_annotation[vm.category]" ng-if="vm.getCurrent()[k]">
             <div class="excluded-allele">
@@ -46,8 +43,7 @@
             </div>
           </article>
         </div>
-        <!-- FIXME: oops, broken if -->
-        <hr ng-if="vm.config.custom_annotation[vm.category]">
+        <hr ng-if="vm.hasAddedAnnotations()">
         <h2 class="allele-title">add annotation</h2>
         <article class="small question-set">
           <div class="trow">
