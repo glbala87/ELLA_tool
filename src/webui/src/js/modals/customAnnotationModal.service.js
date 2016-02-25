@@ -111,7 +111,6 @@ export class CustomAnnotationController {
     hasAddedAnnotations() {
         let current = this.getCurrent();
         if (current) {
-            console.log(current);
             if (this.category === 'references') {
                 return current.length > 0;
             }

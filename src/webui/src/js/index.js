@@ -49,7 +49,7 @@ import './widgets/checkablebutton.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
 import './widgets/card.directive';
-import './widgets/interpretationbar.directive';
+import './widgets/interpretationbutton.directive';
 import './widgets/allelecard/allelecard.directive';
 import './widgets/allelecard/frequencysection.directive';
 import './widgets/allelecard/externalsection.directive';

@@ -102,8 +102,15 @@ class InterpretationService {
             interpretation.analysis.genepanel.name,
             interpretation.analysis.genepanel.version
         ).then(alleles => {
-            interpretation.setAlleles(alleles);
-            return alleles;
+            this.alleleService.updateACMG(
+                alleles,
+                interpretation.analysis.genepanel.name,
+                interpretation.analysis.genepanel.version
+            )
+            .then(() => {
+                interpretation.setAlleles(alleles);
+                return alleles;
+            });
         });
     }
 
