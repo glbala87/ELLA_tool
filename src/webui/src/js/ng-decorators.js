@@ -7,7 +7,9 @@ let app = angular.module('workbench', ['ui.bootstrap',
     'ngAnimate',
     'ngRoute',
     'ngCookies',
-    'checklist-model'
+    'checklist-model',
+    'angular-clipboard',
+    'toastr'
 ]);
 
 function Run() {

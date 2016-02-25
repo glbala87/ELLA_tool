@@ -123,4 +123,18 @@ export class AlleleService {
             }
         });
     }
+
+    /**
+     * Returns a string formatted for pasting into Alamut.
+     * @param  {Allele} alleles List of alleles to include
+     * @return {[type]}         String to paste into Alamut
+     */
+    formatAlamut(alleles) {
+        // Alamut format: Chr11(GRCh37):g.66285951C>T
+        let result = '';
+        for (let allele of alleles) {
+            result += `Chr${allele.chromosome}(${allele.genomeReference}):g.${allele.startPosition}${allele.changeFrom}>${allele.changeTo}\n`;
+        }
+        return result;
+    }
 }
