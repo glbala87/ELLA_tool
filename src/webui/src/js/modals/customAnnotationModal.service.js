@@ -104,6 +104,24 @@ export class CustomAnnotationController {
         return this.custom_annotation[this.selected_allele.id][this.category];
     }
 
+    /**
+     * Returns whether there are any added annotations.
+     * @return {Boolean}
+     */
+    hasAddedAnnotations() {
+        let current = this.getCurrent();
+        if (current) {
+            console.log(current);
+            if (this.category === 'references') {
+                return current.length > 0;
+            }
+            else {
+                return Object.keys(current).length > 0;
+            }
+        }
+        return false;
+    }
+
     formatAllele(allele) {
         let result = '';
         for (let f of allele.annotation.filtered) {
