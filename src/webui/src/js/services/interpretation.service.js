@@ -42,35 +42,7 @@ class InterpretationService {
         this.modalService = ModalService;
         this.locationService = LocationService;
     }
-/*
-    _setWatchers(rootScope) {
-        // Watch interpretation's state/userState and call update whenever it changes
-        let watchStateFn = () => {
-            if (this.interpretation &&
-                this.interpretation.state) {
-                return this.interpretation.state;
-            }
-        };
-        let watchUserStateFn = () => {
-            if (this.interpretation &&
-                this.interpretation.userState) {
-                return this.interpretation.userState;
-            }
-        };
-        rootScope.$watch(watchStateFn, (n, o) => {
-            // If no old object, we're on the first iteration
-            // -> don't set dirty
-            if (this.interpretation && o) {
-                this.interpretation.setDirty();
-            }
-        }, true); // true -> Deep watch
 
-        rootScope.$watch(watchUserStateFn, (n, o) => {
-            if (this.interpretation && o) {
-                this.interpretation.setDirty();
-            }
-        }, true); // true -> Deep watch
-    }*/
 
     loadInterpretation(id) {
         if (id === undefined) {
