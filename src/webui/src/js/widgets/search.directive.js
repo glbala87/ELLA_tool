@@ -17,7 +17,7 @@ export class SearchController {
     }
 
     clear() {
-        this.searchService.clear()
+        this.searchService.clear();
     }
 
     updateSearch() {
