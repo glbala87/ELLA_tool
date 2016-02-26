@@ -42,7 +42,6 @@ import './widgets/annotationWidget.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
-import './widgets/referenceEvalWidget.directive';
 import './widgets/transcriptWrapper.directive';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';

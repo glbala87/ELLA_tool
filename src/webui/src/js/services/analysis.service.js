@@ -78,7 +78,8 @@ export class AnalysisService {
                 [allele],
                 analysis.genepanel.name,
                 analysis.genepanel.version
-            )
+            );
+            return o;
         });
     }
 

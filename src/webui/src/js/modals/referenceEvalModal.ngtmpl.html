@@ -1,1 +1,66 @@
-<reference-eval-widget analysis="vm.analysis" allele="vm.allele" reference="vm.reference" reference-assessment="vm.referenceAssessment"></reference-eval-widget>
+<div ng-show="!vm.reference">
+    <h3>No reference selected.</h3>
+</div>
+<div ng-if="vm.reference">
+<section class="modal-card">
+  <div class="paper">
+    <div class="paper-top">
+      <div class="paper-top-left">
+        <div class="icon cell">
+          <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
+        </div>
+        <div class="cell">
+          <h3 ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> {{::t.SYMBOL}} </transcript-wrapper> </h3>
+          <h4 ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> {{::t.HGVSc | HGVSc_short}} </transcript-wrapper> </h4>
+        </div>
+      </div>
+      <div class="paper-top-right">
+        <h5>{{vm.reference.title}}</h5>
+        <p>{{vm.reference.getShortDesc()}}</p>
+      </div>
+    </div>
+    <div class="paper-bottom">
+      <div class='question-set'>
+        <div class='trow'>
+          <div class="cell title"> <h5> Relevance </h5> <p> Is the reference relevant? </p> </div>
+          <div class="cell check"></div>
+          <div class="cell controls">
+            <div class="btn-group btn-group-sm">
+                <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].options">{{item}}</label>
+            </div>
+          </div>
+        </div>
+        <article class='trow' ng-repeat="source in vm.getSources() track by source" ng-if="vm.shouldShow(source)">
+          <div class="cell title"> <h5> {{vm.sources[source].title}} </h5> <p> {{vm.sources[source].desc}} </p> </div>
+          <div class="cell check">
+            <span ng-if="vm.sources[source].optional">
+              <div class="checkbox checkbox-big checkbox-default">
+                <input type="checkbox" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
+                <label></label>
+              </div>
+            </span>
+          </div>
+          <div class="cell controls">
+            <div class="btn-group btn-group-sm" ng-if="vm.sources[source].options">
+                <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation[vm.sources[source].store]" uib-btn-radio="item[1]" ng-repeat="item in vm.sources[source].options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
+            </div>
+          </div>
+        </article>
+        <article class="trow">
+          <div class="cell title"> <h5> Comments </h5></div>
+          <div class="cell check"></div>
+          <div class="cell controls"><textarea class="verdict-comment" ng-model="vm.referenceAssessment.evaluation['comment']"></textarea></div>
+        </article>
+      </div>
+    </div>
+  </div>
+  <div class="card-controls">
+    <div>
+      <button type="button" ng-click="vm.modal.close()">Cancel</button>
+      <button ng-click="vm.save()">
+        Save
+      </button>
+    </div>
+  </div>
+</section>
+</div>
