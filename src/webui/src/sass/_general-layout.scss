@@ -1,13 +1,15 @@
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsla(0,0,97,1); }
 input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
+  &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; }
 }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 
-button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out;
+button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
   &:disabled { opacity: 0.6 }
-  &:hover { background-color: $hover-black; }
+  &:focus { outline: none; }
+  &:hover { box-shadow: 0px 0px 2px $button-black; background-color: $hover-black; }
   &.white:hover { background-color: hsla(0,0,100,0.1); }
 }
 .badge { border-radius: 0; background-color: #ddd; color: black; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
@@ -43,6 +45,7 @@ nav.skinny { z-index: 99; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; j
   h2, h3 ,h4, h5 { font-family: $slim; font-size: 1.3rem; font-weight: 600; margin: 0; text-transform: uppercase; }
   input { font-size: 1.2rem; width: 15vw; color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
     &::placeholder { color: rgba(255,255,255,0.8); }
+    &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
   }
 }
 nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; top: 0; right: 0; left: 0;
@@ -56,7 +59,7 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   .analysis-row { margin-left: 2rem; }
   .section-title { font-weight: 400; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1rem; }
   .element-title { font-size: 1.6rem; font-weight: 600; }
-  .close-results { position: absolute; right: 3.9rem; color: hsla(0,0,100,0.75); border-color: hsla(0,0,100,0.5); }
+  .close-results { position: absolute; right: 3.9rem; top: 0.7rem; color: hsla(0,0,100,0.75); border-color: hsla(0,0,100,0.5); }
   .close-results .fa { margin-right: 0.5rem; }
 }
 
