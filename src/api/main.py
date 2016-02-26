@@ -55,8 +55,8 @@ def serve_static_factory(dev=False):
             'base.css',
             'app.js',
             'thirdparty.js',
-            'fonts',
-            'ngtmpl'
+            'templates.js',
+            'fonts'
         ]
 
         if not any(v == path or path.startswith(v) for v in valid_files):

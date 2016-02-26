@@ -2,6 +2,7 @@
 
 
 let app = angular.module('workbench', ['ui.bootstrap',
+    'templates',
     'ui.router',
     'ngResource',
     'ngAnimate',

@@ -11,10 +11,10 @@
       <div class="paper-top-right" ng-transclude="topRight">
       </div>
     </div>
-    <div class="paper-bottom" ng-class="vm.color" uib-collapse="vm.options.collapsed">
+    <div class="paper-bottom" ng-class="vm.color" ng-if="!vm.options.collapsed">
       <div ng-transclude="content">
       </div>
-      <div ng-transclude="expanded" uib-collapse="!vm.options.expanded">
+      <div class="card-collapse" ng-transclude="expanded" ng-if="vm.options.expanded">
       </div>
     </div>
   </div>
