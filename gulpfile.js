@@ -17,6 +17,8 @@ var gulp = require('gulp'),
     notify = require('gulp-notify'),
     protractor = require('gulp-protractor').protractor,
     KarmaServer = require('karma').Server,
+    templateCache = require('gulp-angular-templatecache'),
+    path = require('path'),
     __basedir = 'src/webui/dev/';
 
 var production = !!util.env.production;
@@ -78,9 +80,11 @@ gulp.task('js', function() {
 
 gulp.task('ngtmpl', function() {
     return gulp.src('**/*.ngtmpl.html')
-        .pipe(plumber())
-        .pipe(flatten())
-        .pipe(gulp.dest(__basedir + 'ngtmpl/'))
+        .pipe(templateCache('templates.js', {
+            transformUrl: function(file) {return 'ngtmpl/' + path.basename(file)},
+            standalone: true
+        }))
+        .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
 
