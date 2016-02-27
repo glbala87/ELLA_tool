@@ -11,7 +11,7 @@
       <div class="paper-top-right" ng-transclude="topRight">
       </div>
     </div>
-    <div class="paper-bottom" ng-class="vm.color" ng-if="!vm.options.collapsed">
+    <div class="paper-bottom card-collapse" ng-class="vm.color" ng-if="!vm.options.collapsed">
       <div ng-transclude="content">
       </div>
       <div class="card-collapse" ng-transclude="expanded" ng-if="vm.options.expanded">
