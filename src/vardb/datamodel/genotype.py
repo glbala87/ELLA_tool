@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 
 from vardb.datamodel import Base
 
+from vardb.util.mutjson import MUTJSONB
 
 class Genotype(Base):
     """Represent an observed diploid geneotype (i.e. an instance of a pair of alleles.)"""
@@ -24,6 +25,7 @@ class Genotype(Base):
     genotypeQuality = Column("genotype_quality", Integer)
     sequencingDepth = Column("sequencing_depth", Integer)
     variantQuality = Column("variant_quality", Integer) # Assume integer, not floating point
+    alleleDepth = Column(MUTJSONB, default={})  # {'A': 23, 'G': 32}  Gives depth per allele
     filterStatus = Column("filter_status", String)
 
     def __repr__(self):

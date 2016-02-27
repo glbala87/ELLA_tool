@@ -415,7 +415,8 @@ class QualityAnnotation(object):
             'QUAL': genotype.get('variantQuality'),
             'GQ': genotype.get('genotypeQuality'),
             'DP': genotype.get('sequencingDepth'),
-            'FILTER': genotype.get('filterStatus')
+            'FILTER': genotype.get('filterStatus'),
+            'AD': genotype.get('alleleDepth')
         }
         return {'quality': data}
 

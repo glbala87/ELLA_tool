@@ -7,6 +7,7 @@ class GenotypeSchema(Schema):
                   'genotypeQuality',
                   'sequencingDepth',
                   'variantQuality',
+                  'alleleDepth',
                   'filterStatus',
                   'homozygous',
                   'genotype')
