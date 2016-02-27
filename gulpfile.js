@@ -52,7 +52,7 @@ gulp.task('tp-js', function() {
     return gulp.src(sourcePaths)
         .pipe(plumber())
         .pipe(concat('thirdparty.js'))
-        .pipe(uglify())
+        .pipe(production ? uglify() : util.noop())
         .pipe(gulp.dest(__basedir));
 });
 
