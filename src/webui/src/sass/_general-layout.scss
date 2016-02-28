@@ -5,26 +5,24 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-bl
 }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
+.centered { display: flex; align-items: center; justify-content: center; height: 100%; }
 
 button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
+  b.plusmark { font-weight: 600; font-size: 1.3rem; }
+  &.ng-leave { transition: none; }
+  // &.green-add, &.blue-add, &.red-add, &.yellow-add { transition: background-color 0.3s ease-in-out; }
+  &.ng-enter { animation: fade-in 0.6s; }
   &:disabled { opacity: 0.6 }
   &:focus { outline: none; }
   &:hover { box-shadow: 0px 0px 2px $button-black; background-color: $hover-black; }
   &.white { color: hsla(0,0,100,0.75); border-color: hsla(0,0,100,0.5);
     &:hover { background-color: hsla(0,0,100,0.1); }
   }
-  &.blue { background-color: $blue-button; color: hsla(0,0,100,0.9);
-    &:hover { background-color: lighten($blue-button,10); }
-  }
-  &.green { background-color: $green-button; color: hsla(0,0,100,0.9);
-    &:hover { background-color: lighten($green-button,10); }
-  }
-  &.yellow { background-color: $yellow-button; color: hsla(0,0,100,0.9);
-    &:hover { background-color: lighten($yellow-button,10); }
-  }
-  &.red { background-color: $red-button; color: hsla(0,0,100,0.9);
-    &:hover { background-color: lighten($red-button,10); }
-  }
+  &.full-color { color: hsla(0,0,100,0.9); }
+  &.blue { background-color: $blue-button; &:hover { background-color: lighten($blue-button,10); } }
+  &.green { background-color: $green-button; &:hover { background-color: lighten($green-button,10); } }
+  &.yellow { background-color: $yellow-button; &:hover { background-color: lighten($yellow-button,10); } }
+  &.red { background-color: $red-button; &:hover { background-color: lighten($red-button,10); } }
 }
 
 .badge { border-radius: 0; background-color: #ddd; color: black; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
@@ -39,7 +37,7 @@ button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transfor
 .interpretation-bar { margin: 3.9vh 0; display: flex; justify-content: flex-end;
   input { width: 20rem; }
   .left { margin-right: auto; }
-  button { margin-left: 1.3rem; }
+  button ~ button, button ~ interpretation-button  { margin-left: 1.3rem; }
 }
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
@@ -50,8 +48,7 @@ button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transfor
 nav.skinny .crumb.ng-enter, nav.skinny .crumb.ng-leave { transition: none; }
 nav.skinny { z-index: 99; padding: 1.3rem 3.9rem 1.3rem 2.6rem; display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white;
   .breadcrumbs { display: flex; align-items: center; }
-  .crumb { margin-right: 2vw; color: hsla(0,0,100,0.5); cursor: pointer; display: flex; align-items: center; }
-  .crumb { transition: color 0.3s ease-in-out;  }
+  .crumb { margin-right: 2vw; color: hsla(0,0,100,0.5); cursor: pointer; display: flex; align-items: center; transition: color 0.3s ease-in-out;  }
   .crumb ~ .crumb:before { content: '▶'; font-size: 1.3rem; color: $icon-half-black !important; margin-right: 2vw; }
   .crumb.active, .crumb:hover { color: hsla(0,0,100,1); }
   .crumb.active { cursor: default; }
@@ -67,8 +64,8 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   p { opacity: 0; position: absolute; }
   input { padding: 0.1rem 0; margin-bottom: 1px; font-size: 1rem; }
 }
-.search-results:before { content: "Search Results"; color: $header-black; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: relative; left: -17.3rem; top: 3rem; opacity: 0.75; }
-.search-results:before {  animation: 2s fade-in; }
+.search-results:before { content: "Search Results"; color: $half-black; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: absolute; left: -15rem; top: 3.4rem; }
+.search-results:before.ng-enter {  animation: 1s fade-in; }
 .search-results .ng-enter { animation: 1s fade-in; }
 .search-results { padding: 2.6rem; background-color: $blue; color: white; font-size: 1.3rem; font-family: $slim; width: 50vw; margin-left: auto; position: relative;
   .analysis-row { margin-left: 2rem; }
@@ -79,15 +76,17 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
 }
 
 
-.sidebar .nav-row.ng-enter { animation: 1s fade-in; }
+.sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
+.sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .sidebar .nav-row .ng-leave { transition: none; }
 .sidebar { z-index: 2; display: flex; flex-direction: column; justify-content: center; width: 24rem; position: fixed; top: 6rem; bottom: 0; min-height: 540px;
   a { color: inherit;  &:hover { text-decoration: none; } }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
+  h1 { font-size: 2.6rem; font-weight: 600; }
   h2 ,h4 { font-family: $slim; font-weight: 600; margin: 0; text-transform: uppercase; }
   h2 { font-size: 1.5rem; }
   h4 { font-size: 1.4rem; }
-  .nav-row, .user { display: flex; align-items: center; color: $half-black; background-color: inherit;
+  .nav-row { display: flex; align-items: center; color: $half-black; background-color: inherit;
     & .tab, & .title { transition: all 0.3s ease-in-out; }
     &:hover { cursor: pointer; }
     &:hover .tab { background-color: $blue-sidebar; }
@@ -100,23 +99,32 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   .title { width: 100%; padding-left: 1.9rem; height: 6rem; line-height: 6rem; }
   .tab.active { background-color: $blue; }
   .title.active { color: $blue; }
-  nav, .user { margin-top: auto; }
-  .user-row { display: table-row; cursor: pointer;
-    &:hover { background-color: #e6e6e6; }
-  }
+  nav, .hero { margin-top: auto; }
+  .hero { color: hsla(0,0,97,1); padding-left: 2.6rem; text-shadow: 1px 1px 1px hsla(0,0,0,0.25); }
 }
 
-.centered { display: flex; align-items: center; justify-content: center; height: 100%; }
-// .login { }
-// .login-header { margin-left: auto; text-align: right;
-//   h1 { font-weight: 200; font-size: 4rem; color: $half-black; }
-// }
-// .login-body { margin-left: 20rem; margin-right: auto; display: table; table-layout: fixed; width: 25%; font-size: 1.6rem; min-width: 40rem;
-//   a { color: inherit; }
-//   .user-row { display: table-row; cursor: pointer; color: $half-black;
-//     &:hover { color: $blue; }
-//   }
-//   .cell { display: table-cell; vertical-align: middle; height: 5rem; }
-//   .icon { text-align: right; padding-right: 2.4rem; min-width: 4.8rem; width: 4.8rem; }
-//   .name { width: 100%; font-weight: 500; text-transform: uppercase; }
-// }
+#toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;
+  & > :hover { cursor: pointer; }
+  .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
+  .toast { background-color: #030303; }
+  .toast:before { color: white; font-size: 1.1rem; font-family: $full; letter-spacing: 0.1rem; }
+  .toast-success { background-color: $green; &:before { content: "HOORAY"; } }
+  .toast-error { background-color: $red; &:before { content: "ERROR"; } }
+  .toast-info { background-color: $blue; &:before { content: "INFORMATION"; } }
+  .toast-warning { background-color: $yellow; &:before { content: "WARNING"; } }
+  .toast-message { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; text-transform: uppercase; color: white; padding-top: 0.3rem; }
+}
+
+/*Animations*/
+.toast { opacity: 1 !important; }
+.toast.ng-enter { opacity: 0 !important; transition: opacity 0.3s ease-in-out; }
+.toast.ng-enter.ng-enter-active { opacity: 1 !important; }
+.toast.ng-leave { opacity: 1; transition: opacity 0.3s ease-in-out; }
+.toast.ng-leave.ng-leave-active { opacity: 0 !important; }
+
+button.toast-close-button { padding: 0; cursor: pointer; background: transparent; border: 0; -webkit-appearance: none; }
+.toast-title { font-weight: bold; }
+.toast-message a, .toast-message label { color: #FFFFFF; }
+.toast-message a:hover { color: #CCCCCC; text-decoration: none; }
+.toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: #FFFFFF; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
+.toast-close-button:hover, .toast-close-button:focus { color: #000000; text-decoration: none; cursor: pointer; opacity: 0.4; }
