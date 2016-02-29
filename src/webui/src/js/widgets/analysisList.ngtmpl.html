@@ -1,53 +1,11 @@
-<div class="analysis-row" ng-repeat="analysis in vm.analyses track by analysis.name">
-  <div ng-click="vm.clickAnalysis(analysis)">
-    <div class="cell info">
-      <h3>{{::analysis.name}}</h3>
-      <p>{{analysis.deposit_date | date:"dd-MM-yyyy"}}</p>
-    </div>
-    <div class="cell user">
-      <!-- <div class="analysis-state"> {{::vm.getStateMessage(analysis)}} </div> -->
-      <div class="analysis-users">
-        <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
-          <div ng-if="interpretation.user" tooltip="{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}">{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}</div>
-        </div>
-      </div>
+<div class="analysis-row"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in vm.analyses track by analysis.name">
+  <div>
+    <h3>{{::analysis.name}}</h3>
+    <p>{{analysis.deposit_date | date:"dd-MM-yyyy"}}</p>
+  </div>
+  <div class="analysis-users">
+    <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
+      <div ng-if="interpretation.user" tooltip="{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}"><h3>{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}</h3></div>
     </div>
   </div>
 </div>
-<!-- <user-box user="interpretation.user"></user-box> -->
-        <!-- <div class="bar-right"> -->
-        <!--     <div class="analysis-action"> -->
-                <!-- <div ng-switch="analysis.getInterpretationState()"> -->
-                <!--     <div ng-switch-when="Done" class="btn-round"> <i class="fa fa-check text-success"></i> </div> -->
-                    <!-- <div ng-click="vm.clickAnalysis(analysis)"> -->
-                        <!-- <div ng-switch-when="Not started" class="btn-round"> -->
-                        <!--     <i ng-if="!vm.userAlreadyAnalyzed(analysis)" class="fa fa-arrow-right text-primary"></i> -->
-                        <!--     <i ng-if="vm.userAlreadyAnalyzed(analysis)" class="fa fa-check text-primary"></i> -->
-                        <!-- </div> -->
-                        <!-- <div ng-switch-when="Ongoing" class="btn-round"> -->
-                            <!-- <i class="fa fa-arrow-right" ng-class="{'text-success': vm.isCurrentUser(analysis)}"></i> -->
-                        <!-- </div> -->
-                    <!-- </div> -->
-                    <!-- <div ng-switch-default class="btn-round">?</div> -->
-                <!-- </div> -->
-            <!-- </div> -->
-        <!-- </div> -->
-        <!-- <div class="bar-middle"> -->
-
-        <!--     <div class="analysis-title"> -->
-        <!--         {{::analysis.name}} -->
-        <!--     </div> -->
-        <!--     <div class="analysis-date"> -->
-        <!--       {{analysis.deposit_date | date:"dd/M/yyyy HH:mm"}} -->
-        <!--     </div> -->
-        <!--     <div class="analysis-state"> -->
-        <!--         {{::vm.getStateMessage(analysis)}} -->
-        <!--     </div> -->
-        <!--     <div class="analysis-users"> -->
-        <!--         <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id"> -->
-        <!--               <div ng-if="interpretation.user" tooltip="{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}"></div> -->
-        <!--         </div> -->
-<!-- <user-box user="interpretation.user"></user-box> -->
-        <!--     </div> -->
-        <!-- </div> -->
-

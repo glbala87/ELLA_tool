@@ -1,280 +1,46 @@
 @charset 'utf-8';
 @import 'fonts';
-@mixin optional-at-root($sel) {
-  @at-root #{if(not &, $sel, selector-append(&, $sel))} { @content; }
-}
-@mixin placeholder {
-  @include optional-at-root('::-webkit-input-placeholder') { @content; }
-  @include optional-at-root(':-moz-placeholder') { @content; }
-  @include optional-at-root('::-moz-placeholder') { @content; }
-  @include optional-at-root(':-ms-input-placeholder') { @content; }
-}
+
+$full: "Work Sans", sans-serif;
+$slim: "Source Sans Pro", sans-serif;
 
 $content-black: hsla(0,0,0,1);
 $header-black: hsla(0,0,0,0.9);
 $button-black: hsla(0,0,0,0.75);
 $half-black: hsla(0,0,0,0.5);
 $icon-half-black: hsla(0,0,0,0.25);
+$hover-black: hsla(0,0,0,0.1);
 $tint-black: hsla(0,0,0,0.05);
 
 $blue: hsla(205,35,45,1);
 $blue-sidebar: hsla(205,35,45,0.5);
 $blue-button: hsla(205,35,45,1);
 $blue-radio: hsla(205,35,75,1);
+$blue-button-tint: hsla(205,35,45,0.25);
 $blue-tint: hsla(205,35,45,0.05);
 .blue-text { color: $blue; }
-.paper-top-left.blue { background-color: $blue; }
-.classification-number.blue { background-color: $blue; }
-.paper-bottom.blue { border-left: 0.7rem solid $blue-sidebar; }
-.faded-blue { background-color: $blue-button; color:white; font-weight: 500; }
 
 $green: hsla(140,35,45,1);
 $green-sidebar: hsla(140,35,45,0.5);
 $green-button: hsla(140,35,45,1);
 $green-radio: hsla(140,35,75,1);
 .green-text { color: $green; }
-.paper-top-left.green { background-color: $green; }
-.classification-number.green { background-color: $green; }
-.paper-bottom.green { border-left: 0.7rem solid $green-sidebar; }
-.faded-green { background-color: $green-button; color:white; font-weight: 500; }
 
 $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
 $yellow-button: hsla(45,35,45,1);
 $yellow-radio: hsla(45,35,75,1);
 .yellow-text { color: $yellow; }
-.paper-top-left.yellow { background-color: $yellow; }
-.classification-number.yellow { background-color: $yellow; }
-.paper-bottom.yellow { border-left: 0.7rem solid $yellow-sidebar; }
-.faded-yellow { background-color: $yellow-button; color:white; font-weight: 500; }
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
 $red-button: hsla(10,35,45,1);
 $red-radio: hsla(10,35,75,1);
 .red-text { color: $red; }
-.paper-top-left.red { background-color: $red; }
-.classification-number.red { background-color: $red; }
-.paper-bottom.red { border-left: 0.7rem solid $red-sidebar; }
-.faded-red { background-color: $red-button; color:white; font-weight: 500; }
 
-login { display: block; }
-body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: "Work Sans", sans-serif; background-color: hsla(0,0,97,1); }
-input { border: none; border-bottom: 1px solid $icon-half-black; background-color: inherit; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis;
-  @include placeholder { letter-spacing: 0.2rem; font-weight: 500; }
-}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
 
-.fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
-
-button { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent;
-  &:disabled { opacity: 0.6 }
-}
-.badge { border-radius: 0; background-color: $blue; color: white; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
-
-section.card { min-width: 50rem; margin-bottom: 2.6rem; }
-.paper {
-  box-shadow: 0px 2px 0.5px $icon-half-black;
-  background-color: white;
-  opacity: 0.99; // Yes, this *is* needed to fix very stupid CSS bugs in z-index
-  z-index: 2; }
-.paper .cell { display: table-cell; vertical-align: middle; }
-.paper-top { height: 8rem; display: table-row; table-layout: fixed; }
-.paper-top-left, .paper-top-right { display: table-cell; height: inherit; vertical-align: middle; }
-.paper-top-left { width: 20rem; min-width: 20rem; max-width: 20rem; color: white; transition: background-color 0.2s ease-in-out;
-  .icon { padding: 0 1.3rem; transition: all 0.3s ease-in-out; }
-  .icon.collapsed { transform: rotate(-90deg); }
-  h3, h4 { margin: 0; }
-  h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; }
-  h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; overflow-x: hidden; }
-}
-.paper-top-right { width: 100%; padding: 0 3.9rem; text-align: right; color: black;
-  h5 { font-weight: 400; font-size: 1.4rem; }
-  p { font-weight: 300; font-size: 1.4rem; }
-  input { width: 90%; margin-left: auto; }
-  status { display: flex; justify-content: space-between; align-items: center; }
-  status h2 { margin: 0; font-size: 3rem; font-weight: 500; color: white; line-height: 8rem; }
-  .classification-number { position: relative; left: -3.9rem; padding: 0 2.6rem; height: 8rem; }
-}
-.modal-content .card {
-  .paper-top-left { padding-left: 2.6rem; color: $blue; }
-  .paper-top-right { color: $half-black; }
-  .paper-top-left .icon.cell { display: none; }
-  .paper-bottom { border-top: 1px dotted $half-black; }
-}
-.paper-bottom { padding-left: 2.6rem; padding-bottom: 2.0rem; padding-top: 1.0rem; padding-right: 2.6rem; }
-.paper-bottom > .content-box:nth-child(even) { background-color: $blue-tint; }
-.content-wrapper > .content-box:nth-child(even) { background-color: $blue-tint; }
-.content-wrapper { display: flex; flex-wrap: wrap; }
-.modal .paper .content-wrapper { padding: 3.9rem; }
-.modal .paper .content-wrapper ~ .content-wrapper { border-top: 1px dotted $half-black; }
-.modal .paper .content-wrapper:nth-child(even) { background-color: $blue-tint; 
-  & > .content-box:nth-child(even) { background-color: white; }
-}
-h2.allele-title { font-weight: 300; text-transform: uppercase; font-size: 1.6rem; letter-spacing: 0.1rem; margin: 1.3rem 0; }
-.included-allele { display: flex; flex-wrap: wrap; }
-.included-allele .content-box { border: none; }
-.included-allele .content-box:nth-child(odd) { background-color: $blue-tint; }
-.excluded-allele { min-width: 18rem; display: flex; flex-direction: column;
-  h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.15rem; margin-bottom: 1.2rem; margin-top: 3.8rem; }
-  h4 { font-size: 1.3rem; font-weight: 400; text-overflow: ellipsis; width: 13rem; overflow-x: hidden; }
-  .checkbox { padding-left: 0; margin-top: 1.3rem; }
-}
-.annotation-title { margin-bottom: 1.3rem;
-  b { font-weight: 500; }
-}
-.allele-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.3rem; margin-top: -1.3rem;
-  .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: none; height: 2.6rem; box-shadow: none; border-radius: 0; margin-left: 0.7rem; margin-top: 2px; }
-  .btn { border-radius: 0; }
-  .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
-  .btn.active { box-shadow: none; background-color: $blue-button; }
-  li.active a { background-color: $blue-button; border-color: $button-black; color: $button-black; }
-  li.active a:hover { background-color: $blue-button; border-color: $button-black; color: $button-black; }
-}
-.pagination { font-family: inherit; font-size: 1.2rem; text-transform: uppercase; margin-top: 2.8rem; margin-bottom: 2.6rem;
-  .disabled { opacity: 0.5; }
-  li { transition: all 0.3s ease-in-out; }
-  li a { padding: 0.25rem 0.75rem; color: $button-black; border-color: $button-black; line-height: 1.8rem; }
-  li a:hover { color: $button-black; border-color: $button-black; background-color: Transparent; }
-}
-.pagination * { border-radius: 0 !important; }
-.content-box .excluded-allele h3 { margin-top: 0.7rem; }
-.content-box { border: 1px dotted $half-black; padding: 2.0rem; margin: 1.3rem 0; margin-bottom: 0.3rem; margin-right: 1.3rem; min-width: 10rem; min-height: 8rem;
-  .title { font-weight: 700; letter-spacing: 0.25rem; word-spacing: 0.5rem; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 1.3rem; margin-top: 0.3rem; text-transform: uppercase; }
-  .title ~ .title { margin-top: 2.6rem; }
-  h5, p { font-size: 1.4rem; color: black; }
-  h5 { font-weight: 400; padding-right: 3.9rem; margin: 0.2rem 0; }
-  p { font-weight: 300; margin: 0; }
-  ul { font-size: 1rem; padding: 0; margin: 0.5rem 2rem; }
-  .tabular-row { display: table-row; }
-  .top-align { vertical-align: top; }
-  .comment-title { width: 15rem; }
-  .cell + .cell button { margin-left: 6.5rem; }
-}
-.content-box.full-width { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-.content-box.full-width.vertical { display: block;
-  .cell.top-align { width: 15rem; }
-  .cell { padding-top: 0.7rem; }
-}
-.question-set > .row:nth-child(even) { background-color: $blue-tint; }
-.question-set { margin: 3.9rem auto; table-layout: fixed; display: table;
-  .trow { margin: 0; display: table-row; height: 8rem; } // this is 'trow' instead of 'row' to avoid collision with bootstrap
-  .title { padding-right: 2rem; text-align: right; width: 50%; }
-  .check { padding-right: 0.7rem; width: 3.9rem; min-width: 3.9rem; }
-  .controls { width: 50%;
-    button { margin-left: 1.3rem; margin-top: 0.7rem; }
-  }
-  .btn { border-radius: 0; }
-  .btn.active { box-shadow: none; background-color: $blue-radio; }
-  .btn-success { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; }
-  .centered { text-align: center; }
-  h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
-  h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
-  p { font-size: 1.4rem; font-weight: 400; margin: 0; }
-  textarea { width: 100%; font-size: 1.2rem; }
-  .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: none; height: 2.6rem; box-shadow: none; border-radius: 0; margin-left: 0.7rem; margin-top: 2px; }
-}
-textarea.big { height: 25vh; margin: 2.6rem 0; }
-.small.question-set { margin: 1.3rem auto;
-  .check { width: 0.1rem; min-width: 0.1rem; padding-right: 0rem; }
-  .title { width: 42%; }
-  .controls { width: 56%; }
-  .non-cell { margin-bottom: 0.7rem; margin-top: 2.6rem; }
-  .trow { height: 4rem; }
-}
-.small.question-set > .row:nth-child(even) { background-color: white; }
-.popover { font-family: "Source Sans Pro", sans-serif; border-radius: 0; }
-.popover * { border-radius: 0; }
-.popover-title { background-color: $blue-tint; font-weight: 600; text-transform: uppercase; }
-$boring: hsla(50,35,75,1);
-$green: hsla(140,35,75,1);
-$seafoam: hsla(195,35,75,1);
-$purple: hsla(250,35,75,1);
-$pink: hsla(295,35,75,1);
-.acmg { text-align: center; cursor: pointer; margin: 0 -2rem; color: white; opacity: 0.75; margin-bottom: -2rem; margin-top: 2rem;
-  h4 { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1rem; padding: 0.7rem 0; margin: 0; }
-  &.ba {  background-color: hsla(350,75,25,1); }
-  &.bs {  background-color: hsla(300,75,25,1); }
-  &.bp {  background-color: hsla(250,75,25,1); }
-  &.re {  background-color: hsla(200,75,25,1); }
-  &.pp {  background-color: hsla(150,75,25,1); }
-  &.pm {  background-color: hsla(100,75,25,1); }
-  &.ps {  background-color: hsla(50,75,25,1); }
-  &.pvs { background-color: hsla(0,75,25,1); }
-  &:hover { opacity: 0.99; transition: all 0.3s ease-in-out; }
-}
-.content-list { width: 100%; margin-right: 2.6rem;
-  .analysis-row { cursor: pointer; border-bottom: 1px dotted $icon-half-black; margin-bottom: 2.6rem; }
-  .analysis-row:last-child { margin-bottom: 1.3rem; }
-  h3 { font-size: 1.4rem; font-weight: 500; letter-spacing: 0.035rem; text-transform: none; margin: 0; }
-  p { font-size: 1.0rem; font-weight: 400; letter-spacing: 0.1rem; word-spacing: 1rem; text-transform: uppercase; margin: 0.6rem 0; }
-}
-.card-controls { z-index: -2; height: 4.8rem; text-align: right; background-color: #e6e6e6; margin-left: 1.3rem; margin-right: 1.3rem; padding-left: 2.6rem; padding-right: 2.6rem; padding-top: 1.3rem; margin-bottom: 7rem; display: flex; justify-content: flex-end;
-  .left { margin-right: auto; }
-  button ~ button { margin-left: 1.3rem; }
-  .grouped-controls { display: flex; }
-  .form-control-outline { margin-right: 0.7rem; border: 1px solid $half-black; }
-  .form-control { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; background-color: Transparent; color: $button-black; border: none; height: 2.5rem; box-shadow: none; border-radius: 0; }
-}
-.card-controls.collapsed { height: 0rem; }
-
-.app .content { margin-left: 42rem; margin-right: 7rem; margin-top: 8rem; }
-.app .search-area { margin-left: 42rem; }
-.modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
-.modal-dialog { margin: 5vh 10vw; width: auto; }
-.modal-lg { width: inherit; }
-.modal-backdrop { bottom: 0; position: fixed; }
-.interpretation-bar { margin-bottom: 3.9rem; margin-top: -2.4rem; display: flex; justify-content: flex-end;
-  input { width: 20rem; }
-  .left { margin-right: auto; }
-  button { margin-left: 1.3rem; }
-}
-.interpretation { margin-top: 8rem; }
-.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
-  h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
-  h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }
-}
-.search-results { padding: 2.6rem; height: 50vh; border-bottom: 1px solid $blue; font-size: 1.3rem; }
-.app .sidebar { display: flex; flex-direction: column; justify-content: space-between; width: 28rem; position: fixed; top: 0; bottom: 0; min-height: 540px; z-index: 10;
-  a { color: inherit;  &:hover { text-decoration: none; } }
-  p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
-  h2, h3 ,h4, h5 { font-family: "Source Sans Pro", sans-serif; font-weight: 600; margin: 0; text-transform: uppercase; }
-  h2, h3 { font-size: 1.5rem; }
-  h3.lowercase { font-size: 1.5rem; font-weight: 400; letter-spacing: -0.05rem; text-transform: none; max-width: 21.5rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; transition: max-width 0.3s ease-in-out;
-    &:hover { max-width: 42rem; padding-right: 2.6rem; }
-  }
-  h4 { font-size: 1.4rem; }
-  h5 { font-size: 1.0rem; color: $half-black; }
-  nav { display: table; table-layout: fixed; }
-  .nav-row { display: table-row; color: $half-black; background-color: inherit;
-    &:hover { background-color: #e6e6e6; cursor: pointer; }
-  }
-  header .title.cell { padding-left: 2.6rem; }
-  .active-section.nav-row:hover { cursor: default; background-color: $blue; }
-  .cell { display: table-cell; vertical-align: middle; }
-  .first { width: 0.7rem; min-width: 0.7rem; height: 6rem; }
-  .icon { width: 3.6rem; padding: 0 2.6rem; text-align: center; }
-  .big { padding: 2rem 0; }
-  .title { width: 100%; }
-  .active-section { height: 80px; background-color: $blue; color: white; }
-  .active-tab { background-color: $blue-sidebar; }
-  .active-icon { stroke: $blue; }
-  .active-title { color: $blue; }
-  .user-row { display: table-row; cursor: pointer;
-    &:hover { background-color: #e6e6e6; }
-  }
-}
-
-.centered { display: flex; align-items: center; justify-content: center; height: 100%; }
-.login { }
-.login-header { margin-left: auto; text-align: right;
-  h1 { font-weight: 200; font-size: 4rem; color: $half-black; }
-}
-.login-body { margin-left: 20rem; margin-right: auto; display: table; table-layout: fixed; width: 25%; font-size: 1.6rem; min-width: 40rem;
-  a { color: inherit; }
-  .user-row { display: table-row; cursor: pointer; color: $half-black;
-    &:hover { color: $blue; }
-  }
-  .cell { display: table-cell; vertical-align: middle; height: 5rem; }
-  .icon { text-align: right; padding-right: 2.4rem; min-width: 4.8rem; width: 4.8rem; }
-  .name { width: 100%; font-weight: 500; text-transform: uppercase; }
-}
+@import 'general-layout';
+@import 'card';
+@import 'card-content';

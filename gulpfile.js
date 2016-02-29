@@ -1,7 +1,8 @@
 var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     util = require('gulp-util'),
-    minifyCss = require('gulp-minify-css'),
+    cssnano = require('gulp-cssnano'),
+    autoprefixer = require('gulp-autoprefixer'),
     flatten = require('gulp-flatten'),
     concat = require('gulp-concat'),
     babelify = require("babelify"),
@@ -17,6 +18,8 @@ var gulp = require('gulp'),
     protractor = require('gulp-protractor').protractor,
     KarmaServer = require('karma').Server,
     os = require('os'),
+    templateCache = require('gulp-angular-templatecache'),
+    path = require('path'),
     __basedir = 'src/webui/dev/';
 
 function getIpAddress() {
@@ -46,8 +49,6 @@ var onError = function(err) {
 gulp.task('tp-js', function() {
     var sourcePaths = [
         './node_modules/js-polyfills/polyfill.min.js',
-        //'./node_modules/js-polyfills/es6.js',
-        //'./node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-resource.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-animate.js',
@@ -55,6 +56,8 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-cookies.js',
         'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
         'src/webui/src/thirdparty/ui-router/angular-ui-router.min.js',
+        'src/webui/src/thirdparty/angular-clipboard/angular-clipboard.js',
+        'src/webui/src/thirdparty/angular-toastr/angular-toastr.tpls.min.js',
         'src/webui/src/thirdparty/color-hash/color-hash.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
         'src/webui/src/thirdparty/dalliance/release-0.13/dalliance-compiled.js',
@@ -64,7 +67,7 @@ gulp.task('tp-js', function() {
     return gulp.src(sourcePaths)
         .pipe(plumber())
         .pipe(concat('thirdparty.js'))
-        .pipe(uglify())
+        .pipe(production ? uglify() : util.noop())
         .pipe(gulp.dest(__basedir));
 });
 
@@ -75,7 +78,6 @@ gulp.task('tp-js', function() {
 gulp.task('js', function() {
     return browserify('./src/webui/src/js/index.js', {debug: true})
         .transform(babelify.configure({
-            //optional: ["es7.decorators"]
             presets: ["es2015", "stage-0"],
             plugins: ["babel-plugin-transform-decorators-legacy"]
         }))
@@ -92,9 +94,11 @@ gulp.task('js', function() {
 
 gulp.task('ngtmpl', function() {
     return gulp.src('**/*.ngtmpl.html')
-        .pipe(plumber())
-        .pipe(flatten())
-        .pipe(gulp.dest(__basedir + 'ngtmpl/'))
+        .pipe(templateCache('templates.js', {
+            transformUrl: function(file) {return 'ngtmpl/' + path.basename(file)},
+            standalone: true
+        }))
+        .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
 
@@ -110,7 +114,11 @@ gulp.task('sass', function () {
         .pipe(plumber())
         .pipe(sass().on('error', sass.logError))
         .pipe(concat('app.css'))
-        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
+        .pipe(autoprefixer({
+          browsers: ['last 2 versions'],
+          cascade: false
+          }))
+        .pipe(production ? cssnano() : util.noop())
         .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
@@ -132,6 +140,7 @@ gulp.task('less', function () {
 gulp.task('fonts', function () {
     gulp.src(
         [
+            'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*',
             'src/webui/src/thirdparty/fonts/*.woff2'
         ])
         .pipe(plumber())

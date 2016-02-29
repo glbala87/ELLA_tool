@@ -23,13 +23,14 @@ SELENIUM_ADDRESS ?= 'http://localhost:4444/wd/hub'
 help :
 	@echo ""
 	@echo "-- GENERAL COMMANDS --"
-	@echo "make build		     - build image $(IMAGE_NAME)"
+	@echo "make build		- build image $(IMAGE_NAME)"
+	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo ""
 	@echo "-- DEV COMMANDS --"
-	@echo "make dev		         - run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and GIN_OPTS available as variables"
-	@echo "make peek		     - exec into the container $(CONTAINER_NAME)"
-	@echo "make logs		     - tail logs from $(CONTAINER_NAME)"
-	@echo "make restart		     - restart container $(CONTAINER_NAME)"
+	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and GIN_OPTS available as variables"
+	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
+	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
+	@echo "make restart		- restart container $(CONTAINER_NAME)"
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		     - build image $(IMAGE_NAME), then run all tests in a new container"
@@ -121,6 +122,16 @@ docker-run-e2e-app: # container used when doing e2e tests. No volume mounting, s
 	$(IMAGE_NAME) \
 	supervisord -c /genap/ops/dev/supervisor.cfg
 	sleep 10
+
+shell:
+	docker exec -it $(CONTAINER_NAME) bash
+
+kill:
+	docker stop $(CONTAINER_NAME)
+	docker rm $(CONTAINER_NAME)
+
+test: ci-build docker-run-tests
+
 
 check_test_name:
 		@if [ "$(TEST_NAME)" == "" ] ; then echo "Please specify TEST_NAME"; exit 1 ; fi

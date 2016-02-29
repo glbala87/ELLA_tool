@@ -2,12 +2,15 @@
 
 
 let app = angular.module('workbench', ['ui.bootstrap',
+    'templates',
     'ui.router',
     'ngResource',
     'ngAnimate',
     'ngRoute',
     'ngCookies',
-    'checklist-model'
+    'checklist-model',
+    'angular-clipboard',
+    'toastr'
 ]);
 
 function Run() {
