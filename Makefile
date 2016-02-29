@@ -26,6 +26,8 @@ help :
 docker-build:
 	docker build -t $(IMAGE_NAME) .
 
+# NOTE: you should not run this directly!
+#       see instead: ci-build
 docker-build-self-contained:
 	docker build -t $(IMAGE_NAME) -f Dockerfile.ci .
 
@@ -60,7 +62,11 @@ kill:
 test: ci-build docker-run-tests
 
 build: docker-build
-ci-build: docker-build-self-contained
+ci-build: create-ci-file docker-build-self-contained kill-ci-file
+create-ci-file:
+	sed 's/# ADD/ADD/' Dockerfile > Dockerfile.ci
+kill-ci-file:
+	rm Dockerfile.ci
 
 dev: docker-run-dev
 
