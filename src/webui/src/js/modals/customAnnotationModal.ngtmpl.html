@@ -37,7 +37,7 @@
           <p>Find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it here:</p>
           <textarea class="big" ng-model="vm.reference_xml"></textarea>
           <h5 ng-if="vm.reference_error">The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</h5>
-          <button ng-click="vm.addReference()"><i class="fa fa-plus" ng-disabled="vm.reference_xml === ''"> </i> Add reference</button>
+          <button ng-click="vm.addReference()"><b class="plusmark" ng-disabled="vm.reference_xml === ''">+</b> Add reference</button>
         </article>
       </section>
 

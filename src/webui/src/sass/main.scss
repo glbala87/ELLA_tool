@@ -19,48 +19,24 @@ $blue-radio: hsla(205,35,75,1);
 $blue-button-tint: hsla(205,35,45,0.25);
 $blue-tint: hsla(205,35,45,0.05);
 .blue-text { color: $blue; }
-.paper-top-left.blue { background-color: $blue; }
-.classification-number.blue { background-color: $blue; }
-.paper-bottom.blue { border-left: 0.7rem solid $blue-sidebar; }
-.faded-blue { background-color: $blue-button; color: hsla(0,0,100,0.9); font-weight: 500;
-  &:hover { background-color: lighten($blue-button,10); font-weight: 500; }
-}
 
 $green: hsla(140,35,45,1);
 $green-sidebar: hsla(140,35,45,0.5);
 $green-button: hsla(140,35,45,1);
 $green-radio: hsla(140,35,75,1);
 .green-text { color: $green; }
-.paper-top-left.green { background-color: $green; }
-.classification-number.green { background-color: $green; }
-.paper-bottom.green { border-left: 0.7rem solid $green-sidebar; }
-.faded-green { background-color: $green-button; color: hsla(0,0,100,0.9); font-weight: 500;
-  &:hover { background-color: lighten($green-button,10); font-weight: 500; }
-}
 
 $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
 $yellow-button: hsla(45,35,45,1);
 $yellow-radio: hsla(45,35,75,1);
 .yellow-text { color: $yellow; }
-.paper-top-left.yellow { background-color: $yellow; }
-.classification-number.yellow { background-color: $yellow; }
-.paper-bottom.yellow { border-left: 0.7rem solid $yellow-sidebar; }
-.faded-yellow { background-color: $yellow-button; color: hsla(0,0,100,0.9); font-weight: 500;
-  &:hover { background-color: lighten($yellow-button,10); font-weight: 500; }
-}
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
 $red-button: hsla(10,35,45,1);
 $red-radio: hsla(10,35,75,1);
 .red-text { color: $red; }
-.paper-top-left.red { background-color: $red; }
-.classification-number.red { background-color: $red; }
-.paper-bottom.red { border-left: 0.7rem solid $red-sidebar; }
-.faded-red { background-color: $red-button; color: hsla(0,0,100,0.9); font-weight: 500;
-  &:hover { background-color: lighten($red-button,10); font-weight: 500; }
-}
 
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
