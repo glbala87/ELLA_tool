@@ -7,10 +7,9 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-bl
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 .centered { display: flex; align-items: center; justify-content: center; height: 100%; }
 
-button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
+button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: background-color 0.3s ease-in-out; outline: none;
   b.plusmark { font-weight: 600; font-size: 1.3rem; }
   &.ng-leave { transition: none; }
-  // &.green-add, &.blue-add, &.red-add, &.yellow-add { transition: background-color 0.3s ease-in-out; }
   &.ng-enter { animation: fade-in 0.6s; }
   &:disabled { opacity: 0.6 }
   &:focus { outline: none; }
@@ -113,15 +112,13 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   .toast-info { background-color: $blue; &:before { content: "INFORMATION"; } }
   .toast-warning { background-color: $yellow; &:before { content: "WARNING"; } }
   .toast-message { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; text-transform: uppercase; color: white; padding-top: 0.3rem; }
+  .toast.ng-enter { max-height: 0px ; transition: all 0.6s ease-in-out; }
+  .toast.ng-enter.ng-enter-active { max-height: 1000px; }
+  .toast.ng-leave { max-height: 1000px; transition: all 0.6s ease-in-out; }
+  .toast.ng-leave.ng-leave-active { max-height: 0px; }
 }
 
-/*Animations*/
-.toast { opacity: 1 !important; }
-.toast.ng-enter { opacity: 0 !important; transition: opacity 0.3s ease-in-out; }
-.toast.ng-enter.ng-enter-active { opacity: 1 !important; }
-.toast.ng-leave { opacity: 1; transition: opacity 0.3s ease-in-out; }
-.toast.ng-leave.ng-leave-active { opacity: 0 !important; }
-
+// all initial styling from toastr, probably needs fixed
 button.toast-close-button { padding: 0; cursor: pointer; background: transparent; border: 0; -webkit-appearance: none; }
 .toast-title { font-weight: bold; }
 .toast-message a, .toast-message label { color: #FFFFFF; }
