@@ -2,3 +2,15 @@
 run_genap_tests:
   script:
     - make test BRANCH=test
+
+build_dev_image:
+  script:
+    - make image
+  only:
+    - build-dev
+
+build_release_image:
+  script:
+    - make image BUILD_TYPE=prod
+  only:
+    - build-release
