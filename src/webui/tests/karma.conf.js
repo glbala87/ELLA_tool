@@ -20,7 +20,7 @@ module.exports = function(config) {
           "../dev/app.js",
           "../src/js/**/*.js",
           "../tests/unit/**/*.spec.js",
-          "../dev/**/*.ngtmpl.html"
+          "../dev/templates.js"
     ],
 
     // list of files to exclude

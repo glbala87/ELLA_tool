@@ -11,7 +11,7 @@ describe("AlleleFilter service", function () {
     function makeConfig(freq, signed_cutoffs) {
         var mockConfig = function() {};
         mockConfig.getConfig = function() {
-            return {freq_criteria: freq,
+            return {frequencies: {criterias: freq},
                     variant_criteria: {
                         intronic_region: signed_cutoffs
             }};

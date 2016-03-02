@@ -69,45 +69,45 @@ class AppConfig {
     @Inject('$urlRouterProvider', '$stateProvider', '$resourceProvider', '$locationProvider')
     configFactory($urlRouterProvider, $stateProvider, $resourceProvider, $locationProvider) {
         $stateProvider.state('app', {
-            views: {
-                app: {
-                    template: '<main></main>',
-                }
-            },
-            resolve: {
-                // Preload global config before app starts
-                config: ['Config', (Config) => {
-                    return Config.loadConfig();
-                }]
-            }
-        })
-        .state('app.analyses', {
-            url: '/analyses',
-            views: {
-                content: {
-                    template: '<analysis-selection></analysis-selection>'
-                }
-            }
-        })
-        .state('app.interpretation', {
-            url: '/analyses/:analysisId',
-            views: {
-                content: {
-                    template: '<analysis analysis-id="{{analysisId}}"></analysis>',
-                    controller: ['$scope', '$stateParams', function($scope, $stateParams) {
-                        $scope.analysisId = $stateParams.analysisId;
+                views: {
+                    app: {
+                        template: '<main></main>'
+                    }
+                },
+                resolve: {
+                    // Preload global config before app starts
+                    config: ['Config', (Config) => {
+                        return Config.loadConfig();
                     }]
                 }
-            }
-        })
-        .state('login', {
-            url: '/login',
-            views: {
-                app: {
-                    template: '<login></login>'
+            })
+            .state('app.analyses', {
+                url: '/analyses',
+                views: {
+                    content: {
+                        template: '<analysis-selection></analysis-selection>'
+                    }
                 }
-            }
-        });
+            })
+            .state('app.interpretation', {
+                url: '/analyses/:analysisId',
+                views: {
+                    content: {
+                        template: '<analysis analysis-id="{{analysisId}}"></analysis>',
+                        controller: ['$scope', '$stateParams', function($scope, $stateParams) {
+                            $scope.analysisId = $stateParams.analysisId;
+                        }]
+                    }
+                }
+            })
+            .state('login', {
+                url: '/login',
+                views: {
+                    app: {
+                        template: '<login></login>'
+                    }
+                }
+            });
 
         // when there is an empty route, redirect to /analyses
         $urlRouterProvider.otherwise('/analyses');
@@ -124,7 +124,7 @@ class AppConfig {
                 $location.path('/login');
             }
         });
-   }
+    }
 }
 
 

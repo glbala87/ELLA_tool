@@ -17,9 +17,26 @@ var gulp = require('gulp'),
     notify = require('gulp-notify'),
     protractor = require('gulp-protractor').protractor,
     KarmaServer = require('karma').Server,
+    os = require('os'),
     templateCache = require('gulp-angular-templatecache'),
     path = require('path'),
     __basedir = 'src/webui/dev/';
+
+function getIpAddress() {
+    var ipAddress = null;
+    var ifaces = os.networkInterfaces();
+
+    function processDetails(details) {
+        if (details.family === 'IPv4' && details.address !== '127.0.0.1' && !ipAddress) {
+            ipAddress = details.address;
+        }
+    }
+
+    for (var dev in ifaces) {
+        ifaces[dev].forEach(processDetails);
+    }
+    return ipAddress;
+}
 
 var production = !!util.env.production;
 
@@ -32,8 +49,6 @@ var onError = function(err) {
 gulp.task('tp-js', function() {
     var sourcePaths = [
         './node_modules/js-polyfills/polyfill.min.js',
-        //'./node_modules/js-polyfills/es6.js',
-        //'./node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-resource.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-animate.js',
@@ -63,7 +78,6 @@ gulp.task('tp-js', function() {
 gulp.task('js', function() {
     return browserify('./src/webui/src/js/index.js', {debug: true})
         .transform(babelify.configure({
-            //optional: ["es7.decorators"]
             presets: ["es2015", "stage-0"],
             plugins: ["babel-plugin-transform-decorators-legacy"]
         }))
@@ -139,31 +153,43 @@ gulp.task('fonts', function () {
  */
 
 gulp.task('e2e', function(done) {
-    var args = ['--baseUrl', 'http://172.16.250.128:5000', // our app running in docker. The IP will change!
-                '--seleniumAddress', 'http://172.16.250.128:4444/wd/hub', // selenium server
+    var base = util.env.e2e_ip || '172.16.250.128';
+    var basePort = util.env.e2e_port || 8000
+    var seleniumAddress = util.env.selenium_address || 'http://172.16.250.128:4444/wd/hub';
+    var args = ['--baseUrl', 'http://' + base + ':' + basePort,
+                '--seleniumAddress', seleniumAddress
     ];
+
     gulp.src(["./src/webui/tests/e2e/spec.js"])
         .pipe(protractor({
             configFile: "./src/webui/tests/protractor.conf.js",
             args: args
         }))
-        .on('error', function(e) { throw e; });
+        .on('error', function(e) { console.error(e.message); throw e;});
 });
 
 /**
  * Run unit test once and exit
  */
 gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
-    new KarmaServer({
-	configFile: __dirname + '/src/webui/tests/karma.conf.js',
-	singleRun: true,
-    autoWatch: false
+    var server = new KarmaServer({
+    	configFile: __dirname + '/src/webui/tests/karma.conf.js',
+	    singleRun: true,
+        autoWatch: false
+    }, karmaCompleted);
 
-    }, function(karmaExitStatus) {
-        if (karmaExitStatus) {
-            process.exit(1);
-        };
-    }).start();
+    server.start();
+
+    function karmaCompleted(karmaResult) {
+        if (karmaResult === 1) {
+            done('Karma: tests failed with code ' + karmaResult);
+        } else {
+            done();
+        }
+    }
+
+  return;
+
 });
 
 /**
