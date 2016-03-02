@@ -19,6 +19,8 @@ E2E_CONTAINER_NAME = gin-e2e-$(BRANCH)-$(USER)
 SELENIUM_CONTAINER_NAME = selenium
 IMAGE_NAME = local/gin-$(BRANCH)
 SELENIUM_ADDRESS ?= 'http://localhost:4444/wd/hub'
+BUILD_TYPE ?= core
+BUILD_VERSION ?= 0.9.1
 
 help :
 	@echo ""
@@ -37,6 +39,7 @@ help :
 	@echo "make single-test	     - run image $(IMAGE_NAME) :: TEST_NAME={api | common | js } available as variable"
 	@echo ""
 	@echo "-- CI TEST COMMANDS --"
+	@echo "make ci-test          - runs all tests (except e2e)"
 	@echo "make ci-single-test          - runs a single type of test :: TEST_NAME={ api | common | js } available as variable"
 	@echo "make ci-e2e-test             - runs e2e tests using a running g:n app. Starts/stops containers for app, selenium and protractor (test runner)"
 	
@@ -47,13 +50,22 @@ help :
 
 build: docker-build
 
-ci-build: docker-build-self-contained
+ci-build: create-ci-file docker-build-self-contained kill-ci-file
+
+create-ci-file:
+	sed 's/# ADD/ADD/' Dockerfile > Dockerfile.ci
+
+kill-ci-file:
+	rm Dockerfile.ci
 
 docker-build:
 	docker build -t $(IMAGE_NAME) .
 
+# NOTE: you should not run this directly!
+#       see instead: ci-build
 docker-build-self-contained:
 	docker build -t $(IMAGE_NAME) -f Dockerfile.ci .
+
 
 #---------------------------------------------
 # Local development
@@ -67,8 +79,6 @@ restart:
 logs:
 	docker logs -f $(CONTAINER_NAME)
 
-peek:
-	docker exec -it $(CONTAINER_NAME) bash
 # the following targets are to be called by other targets only:
 
 docker-run-dev:
@@ -85,26 +95,31 @@ docker-run-dev:
 # Start containers to run tests
 #---------------------------------------------
 
+ci-test: ci-build ci-docker-run-all-tests
+
 ci-single-test: check_test_name ci-build ci-docker-run-single-test # run a specific test type in ci (common, js, api): make test-$(TEST_NAME)
 
 ci-e2e-test: ci-build docker-run-e2e-app ci-docker-run-e2e-test # starts containers and cleans up
 	make docker-cleanup-e2e
 
-single-test: docker-run-single-test
 
+single-test: docker-run-single-test
 test: docker-run-all-tests
 
 
 # the following targets are to be called by other targets only:
  
 docker-run-all-tests:
-	docker run $(IMAGE_NAME) make all-tests
+	docker run -v `pwd`:/genap $(IMAGE_NAME) make all-tests
+
+docker-run-single-test: check_test_name
+	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
 
 ci-docker-run-single-test: check_test_name
 	docker run $(IMAGE_NAME) make test-$(TEST_NAME)
 
-docker-run-single-test: check_test_name
-	docker run -v `pwd`:/genap $(IMAGE_NAME) make test-$(TEST_NAME)
+ci-docker-run-all-tests:
+	docker run $(IMAGE_NAME) make all-tests
 
 ci-docker-run-e2e-test: ci-docker-selenium # test runner (protractor) for e2e tests
 	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(INTERNAL_API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:$(INTERNAL_SELENIUM_PORT)/wd/hub \
@@ -123,16 +138,6 @@ docker-run-e2e-app: # container used when doing e2e tests. No volume mounting, s
 	supervisord -c /genap/ops/dev/supervisor.cfg
 	sleep 10
 
-shell:
-	docker exec -it $(CONTAINER_NAME) bash
-
-kill:
-	docker stop $(CONTAINER_NAME)
-	docker rm $(CONTAINER_NAME)
-
-test: ci-build docker-run-tests
-
-
 check_test_name:
 		@if [ "$(TEST_NAME)" == "" ] ; then echo "Please specify TEST_NAME"; exit 1 ; fi
 
@@ -143,11 +148,22 @@ docker-cleanup-e2e:
 	docker rm $(E2E_CONTAINER_NAME)
 
 #---------------------------------------------
+# Containers misc:
+#---------------------------------------------
+
+shell:
+	docker exec -it $(CONTAINER_NAME) bash
+
+kill:
+	docker stop $(CONTAINER_NAME)
+	docker rm $(CONTAINER_NAME)
+
+#---------------------------------------------
 # Test targets inside containers:
 #---------------------------------------------
 
 # the following targets are to be called by other targets only:
- 
+
 all-tests: test-js test-common test-api
 
 test-api: export PGDATABASE=vardb-test
@@ -169,10 +185,31 @@ test-js:
 	ln -s /dist/node_modules/ /genap/node_modules
 	gulp unit
 
-
 test-e2e: # preq: app and selenium are already started
 	@echo "Running e2e tests against $(API_HOST):$(API_PORT) using selenium server $(SELENIUM_ADDRESS)"
 	rm -f /genap/node_modules
 	ln -s /dist/node_modules/ /genap/node_modules
 	gulp --e2e_ip=$(API_HOST) --e2e_port=$(API_PORT) --selenium_address=$(SELENIUM_ADDRESS) e2e
 
+
+#---------------------------------------------
+# Provisioning:
+#---------------------------------------------
+
+image: start-provision get-ansible run-ansible commit-provision stop-provision clean-ansible
+get-ansible:
+	virtualenv ops/builder/venv
+	ops/builder/venv/bin/pip install --upgrade ansible
+run-ansible:
+	ops/builder/venv/bin/ansible-playbook -i provision, -c docker ops/builder/builder.yml --tags=$(BUILD_TYPE)
+clean-ansible:
+	rm -rf ops/builder/venv
+start-provision:
+	docker ps | grep -q provision && docker stop -t 0 provision && docker rm provision || exit 0
+	docker build -t init -f ops/builder/Dockerfile .
+	docker run -d --name provision init sleep infinity
+commit-provision:
+	docker commit provision ousamg/gin-$(BUILD_TYPE):$(BUILD_VERSION)
+stop-provision:
+	docker ps | grep -q provision && docker stop -t 0 provision && docker rm provision
+	docker rmi -f init
