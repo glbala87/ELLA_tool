@@ -81,7 +81,7 @@
         </div>
         <div class="content-box fixed-width-numbers">
           <h3 class="title">Consequence</h3>
-          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> <span class="badge" ng-repeat="c in ::t.Consequence">{{::c}}</span> </transcript-wrapper> </div>
+          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> <p ng-repeat="c in ::t.Consequence">{{::c}}</p> </transcript-wrapper> </div>
         </div>
       </article>
     </div>
