@@ -2,6 +2,7 @@
 
 // Support for Object.entries. See https://www.npmjs.com/package/core-js
 require('core-js/fn/object/entries');
+require('core-js/fn/array/includes');
 
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
