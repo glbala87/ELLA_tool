@@ -8,7 +8,7 @@ textarea:focus { border: 1px solid $blue; box-shadow: 0px 1px 0px $blue, 0px -1p
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 .centered { display: flex; align-items: center; justify-content: center; height: 100%; }
 
-button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: background-color 0.3s ease-in-out; outline: none;
+button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
   b.plusmark { font-weight: 600; font-size: 1.3rem; }
   b.x-mark { font-weight: 400; font-size: 1.1rem; margin-right: 0.7rem; }
   &.ng-leave { transition: none; }
@@ -26,7 +26,7 @@ button { font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transfor
   &.red { background-color: $red-button; &:hover { background-color: lighten($red-button,10); } }
 }
 
-.badge { border-radius: 0; background-color: #ddd; color: black; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
+// .badge { border-radius: 0; background-color: #ddd; color: black; padding: 0.25rem 0.75rem; line-height: 1.5; font-weight: 600; letter-spacing: 0.05rem; display: block; }
 
 .container { width: auto; }
 .app .content, .container { margin-left: 30.5rem; margin-right: 3.9rem; margin-top: 3.9vh; }
@@ -83,7 +83,7 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
 .sidebar { z-index: 2; display: flex; flex-direction: column; justify-content: center; width: 24rem; position: fixed; top: 6rem; bottom: 0; min-height: 540px;
   a { color: inherit;  &:hover { text-decoration: none; } }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
-  h1 { font-size: 2.6rem; font-weight: 600; }
+  h1 { font-size: 2.6rem; line-height: 2.6rem; font-weight: 600; width: auto; }
   h2 ,h4 { font-family: $slim; font-weight: 600; margin: 0; text-transform: uppercase; }
   h2 { font-size: 1.5rem; }
   h4 { font-size: 1.4rem; }
@@ -101,8 +101,15 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   .tab.active { background-color: $blue; }
   .title.active { color: $blue; }
   nav, .hero { margin-top: auto; }
-  .hero { color: hsla(0,0,97,1); padding-left: 2.6rem; text-shadow: 1px 1px 1px hsla(0,0,0,0.25); }
+  .hero { color: hsla(0,0,97,1); padding-left: 2.6rem; text-shadow: 1px 1px 1px hsla(0,0,0,0.25); cursor: pointer; text-transform: uppercase; }
+  .hero h1 { transition: color 0.6s ease-in-out; margin: 0; margin-bottom: 1.3rem; }
+  .hero p { margin-bottom: 0.3rem; }
+  .hero:hover h1 { color: $blue; }
 }
+.sidebar.login .hero { color: $blue; text-shadow: none; }
+// .hero { color: $blue; padding-left: 2.6rem; display: flex; }
+// .hero:hover h1 { transform: scaleX(-1); }
+// .flip { color: hsla(0,0,97,1); display: inline-block; transform: scaleX(-1); text-shadow: 0px 0px 3px hsla(0,0,0,0.25); }
 
 #toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;
   & > :hover { cursor: pointer; }
