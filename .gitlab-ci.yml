@@ -2,22 +2,30 @@
 run_genap_api_tests:
   script:
     - make ci-single-test TEST_NAME=api BRANCH=test
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
 
 run_genap_js_tests:
   script:
     - make ci-single-test TEST_NAME=js BRANCH=test
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
 
 run_genap_python_tests:
   script:
     - make ci-single-test TEST_NAME=common BRANCH=test
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
 
 run_genap_e2e_tests:
   script:
     - make ci-e2e-test BRANCH=test
-
-#run_genap_tests:
-#  script:
-#    - make ci-test BRANCH=test
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
 
 build_dev_image:
   script:
