@@ -55,6 +55,7 @@ $red-tint: hsla(10,35,45,0.05);
   html { font-size: 9px; }
   .app .content, .container { margin-left: 20.8rem; }
   .sidebar { width: 20rem; 
+    .nav-row { color: $icon-half-black; }
     .tab { display: none; }
     .title { padding-left: 0.7rem; }
   }
