@@ -40,6 +40,7 @@ import './views/sidebar.directive';
 import './views/navbar.directive';
 
 import './widgets/annotationWidget.directive';
+import './widgets/acmgSelection.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';

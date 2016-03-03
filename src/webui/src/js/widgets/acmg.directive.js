@@ -5,7 +5,10 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'acmg',
     scope: {
-        code: '='
+        code: '=',
+        commentModel: '=?',
+        onToggle: '&?',
+        toggleText: '@?'
     },
     templateUrl: 'ngtmpl/acmg.ngtmpl.html'
 })
@@ -17,6 +20,12 @@ export class AcmgController {
         this.popover = {
             templateUrl: 'ngtmpl/acmgPopover.ngtmpl.html'
         };
+    }
+
+    toggle() {
+        if (this.onToggle) {
+            this.onToggle({code: this.code});
+        }
     }
 
     getSource() {
@@ -38,6 +47,9 @@ export class AcmgController {
     }
 
     getMatch() {
+        if (this.code.source === 'user') {
+            return 'Added by user';
+        }
         if (Array.isArray(this.code.match)) {
             return this.code.match.join(', ');
         }
