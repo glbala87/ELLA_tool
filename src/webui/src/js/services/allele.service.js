@@ -130,10 +130,40 @@ export class AlleleService {
      * @return {[type]}         String to paste into Alamut
      */
     formatAlamut(alleles) {
-        // Alamut format: Chr11(GRCh37):g.66285951C>T
+
+        // (Alamut also support dup, but we treat them as indels)
+        // (dup: Chr13(GRCh37):g.32912008_3291212dup )
+
         let result = '';
         for (let allele of alleles) {
-            result += `Chr${allele.chromosome}(${allele.genomeReference}):g.${allele.startPosition}${allele.changeFrom}>${allele.changeTo}\n`;
+            result += `Chr${allele.chromosome}(${allele.genomeReference}):g.`;
+
+            // Database is 0-based, alamut uses 1-based index
+            let start = allele.startPosition + 1;
+            let end = allele.openEndPosition + 1;
+
+            if (allele.changeType === 'SNP') {
+                // snp: Chr11(GRCh37):g.66285951C>Tdel:
+                // Add one since startPosition is 0-based
+                result += `${start}${allele.changeFrom}>${allele.changeTo}\n`;
+            }
+            else if (allele.changeType === 'del') {
+                // del: Chr13(GRCh37):g.32912008_32912011del
+                result += `${start}_${end}del\n`;
+            }
+            else if (allele.changeType === 'ins') {
+                // ins: Chr13(GRCh37):g.32912008_3291209insCGT
+                result += `${start}_${end}ins${allele.changeTo}\n`;
+            }
+            else if (allele.changeType === 'indel') {
+                // delins: Chr13(GRCh37):g.32912008_32912011delinsGGG
+                result += `${start}_${end}delins${allele.changeTo}\n`;
+            }
+            else {
+                // edge case, shouldn't happen, but this is valid format as well
+                result += `${start}\n`;
+            }
+
         }
         return result;
     }
