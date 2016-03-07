@@ -1,4 +1,4 @@
-<card color="blue" collapsible="false" options="{}">
+<card collapsible="false" options="{}"> <!-- FIXME: text color for neutral cards...only works in modal currently -->
   <header>
     <div class="cell">
       <h3>Create report</h3>
@@ -9,20 +9,24 @@
   </status>
   <content>
     <h3>Included</h3>
+    (should be displayed per line?)
     <div ng-repeat="al in vm.getIncludedAlleles() track by al.id">
       <checkable-button show-mark="true" check-model="vm.state.allele[al.id].report.included">
         <checked>Included</checked>
         Include
-      </checkable-button>
-      <h4 ng-click="1" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> {{::t.SYMBOL}} {{::t.HGVSc | HGVSc_short}}</transcript-wrapper> </h4>
+      </checkable-button> <!-- FIXME: Not meant to be on separate lines, but one line per allele -->
+      <h4>{{vm.getClassification(al)}} {{al.toString()}}</h4>
     </div>
     <h3>Excluded</h3>
-    <div ng-repeat="al in vm.getExcludedAlleles() track by al.id">
-      <checkable-button check-model="vm.state.allele[al.id].report.included">
-        Include
-      </checkable-button>
-      <h4 ng-click="1" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t">{{vm.getAlleleAssessment(allele).classification}} {{::t.SYMBOL}} {{::t.HGVSc | HGVSc_short}}</transcript-wrapper> </h4>
-    </div>
+    <select style="font-size: 2rem;" ng-options="al as al for al in vm.getExcludedAlleles()" ng-model="vm.selected_excluded"></select>
+    <button ng-click="vm.includeSelectedExcluded()">Include</button>
 
+    <h3>Needs verification</h3>
+    <h4>TDB</h4>
+
+    <h3>Report</h3>
+    <div ng-repeat="al in vm.getIncludedAlleles() track by al.id">
+      <h5>{{vm.formatHGVS(al)}}</h5>
+    </div>
   </content>
 </card>
