@@ -1,0 +1,28 @@
+<card color="blue" collapsible="false" options="{}">
+  <header>
+    <div class="cell">
+      <h3>Create report</h3>
+    </div>
+  </header>
+  <status>
+
+  </status>
+  <content>
+    <h3>Included</h3>
+    <div ng-repeat="al in vm.getIncludedAlleles() track by al.id">
+      <checkable-button show-mark="true" check-model="vm.state.allele[al.id].report.included">
+        <checked>Included</checked>
+        Include
+      </checkable-button>
+      <h4 ng-click="1" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> {{::t.SYMBOL}} {{::t.HGVSc | HGVSc_short}}</transcript-wrapper> </h4>
+    </div>
+    <h3>Excluded</h3>
+    <div ng-repeat="al in vm.getExcludedAlleles() track by al.id">
+      <checkable-button check-model="vm.state.allele[al.id].report.included">
+        Include
+      </checkable-button>
+      <h4 ng-click="1" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t">{{vm.getAlleleAssessment(allele).classification}} {{::t.SYMBOL}} {{::t.HGVSc | HGVSc_short}}</transcript-wrapper> </h4>
+    </div>
+
+  </content>
+</card>

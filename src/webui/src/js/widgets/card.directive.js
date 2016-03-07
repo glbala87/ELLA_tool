@@ -14,6 +14,7 @@ import {Directive, Inject} from '../ng-decorators';
     },
     scope: {
         options: '=', // {collapsed: bool, expanded: bool}
+        collapsible: '=?', // bool: whether card can collapse
         color: '@'
     }
 })
@@ -34,11 +35,17 @@ export class CardController {
         this.options.expanded = !this.options.expanded;
     }
 
+    isCollapsible() {
+        return this.collapsible === undefined || this.collapsible;
+    }
+
     /**
      * Collapses the whole card area, except the header part.
      */
     collapse() {
-        this.options.collapsed = !this.options.collapsed;
+        if (this.isCollapsible()) {
+            this.options.collapsed = !this.options.collapsed;
+        }
     }
 
 }
