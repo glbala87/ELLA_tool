@@ -1,108 +1,42 @@
-The GenAP interpreter is a web app based on AngularJS with a Flask REST backend.
+ella is a web app based on AngularJS with a Flask REST backend.
+
+Most functionality is now baked into a Makefile, run `make help` to see a quick overview of available commands
 
 # Development
 
-To start development env with Docker, run **`make dev`** - you may need to do `make build` first
+### Getting started:
+- Start a development environment in Docker, run **`make dev`** - you may need to do `make build` first
+- Populate the database by visiting the `/reset` route _or do `/reset?all=true` to get an expanded data set_.
 
-The Dockerfile will read the current `gulpfile.js` and `requirements.txt` and spawn an environment that satisfies these requirements. All Python requirements are installed globally, no virtualenv needed since we're already in an isolated container. Node things are installed to `/dist/node_modules`, gulp is installed both there and globally.
-
-A postgresql instance will also spawn and be automatically linked to the application. To populate the database you can visit the `/reset` route or do `/reset?all=true` to get an expanded data set.
-
-After changing package.json, a new Docker image must be created using `make build` and then `make dev`.
+### More info:
+- All *system* dependencies - as in apt-packages
+  - are kept in core images (e.g. `ousamg/ella-core:0.9.1`)
+  - are managed via the build system `ops/builder/builder.yml`
+- All *application* dependencies - nodejs, python, etc.
+  - are kept in local images (e.g. `local/ella-dev`)
+  - are managed via their respective dependency files
+  - are baked in when you do `make build`, so if you change a dependency file you need to do `make build` again!
 
 # Testing
 
-Test suites are designed to be run under Docker. All tests are run via the `Makefile`, with `make test` being what GitLab-CI invokes.
+### Getting started:
+- `make test` will run all (js, api, and common) tests _excluding e2e tests_
+- `make e2e-test` will run e2e tests
+- `make single-test` will run a single _non-e2e_ test
 
-Local testing (outside CI):
-If not using Docker do `gulp unit` in root of project (All libs must be installed using `npm install` first)
-If using Docker, we must first start the docker container and then do `gulp unit` inside it:
-- start Docker container using `bin/dev`
-- enter the container `docker -it <container id> bash`
-- run `gulp unit` inside the container
-
-There are actually several test commands:
-    - `gulp unit` runs all unit tests (using Karma). Tests are executed inside a browser, all managed by Karma (see karma.conf.js)
-    - `gulp unit-auto`, Similar to `gulp unit-auto` but tests are automatically rerun as test or code is changed.
-    - `gulp e2e`, runs end-to-end test using real browser(s). Requires a running Selenium server and a running application. See below.
-
-**Note** The auto running of tests in Docker when files are changed in the host OS, doesn't work. The files
-changes are detected and the rebundling is done by the tools (karma-browserify, watchify), but the bundle is stale and doesn't have
-your changes. You must run 'gulp unit' or 'gulp unit-auto' again. When the source files are changed inside
-Docker the rebundling works. This happens on OS X. When looking at the Karma logs, the message 'serving (cached)' is an indication
-of the staleness. When tests are run on the host (eg. not Docker) the auto thing is working.
-
-# End-to-end testing
-Running tests against a real environment (meaning your application is running in a browser) requires:
-- your application is up and running (something to serving html/js/css and something running the python api)
-- a Selenium server
-
-Protractor calls out to selenium to the actual tests. Selenium then access our application. There is a bunch of docker required for this, see Makefile.
-Container linking (see https://docs.docker.com/engine/userguide/networking/) is used for inter-container communaction independent of container IP.
-The protractor container is linked to the selenium container, which is linked to the application container. With the link feature they talk on the internal ports.
-
-This chosen Selenium image has both Selenium and Chrome installed, see https://github.com/SeleniumHQ/docker-selenium.
-It has a vnc server so it can be accessed using a VNC client. On OS X there is Screen Sharing in /System/Library/CoreServices/Applications,
-most easily started by entering 'vnc://<docker host ip>:5900' in Safari.
-
-Run e2e test locally with `make e2e-test-main API_HOST='genapp' API_PORT=5000 SELENIUM_ADDRESS=http://selenium:4444/wd/hub`
-with ports as defined in the various 'docker run' command.
-
-# Application structure
-Info about AngualarJS and the build system. Ecmascript version.... Choice of tools and so on.
-
-Uses babel-es6-polyfill to get ES6 support, see https://www.npmjs.com/package/babel-es6-polyfill.
-
-
-# Test framework
-- Karma (http://karma-runner.github.io/)
-- Jasmine (http://jasmine.github.io/2.4/introduction.html)
-- Protractor (https://angular.github.io/protractor/#/)
-- Selenium (http://docs.seleniumhq.org/, https://hub.docker.com/r/selenium/)
+### More info:
+- For more information please see [the wiki](https://git.ousamg.io/docs/wiki/wikis/ella/testing)
 
 # Production
 
-### gunicorn + nginx
+### Getting started:
+- Start the app using `docker run -p 80:80 -d ousamg/ella`
+- You may also want to mount the following folders:
+  - `/logs` - application logs
+  - `/data` - database storage
 
-To start a pseudo-production instance you can use **`bin/production`**.
-
-- Compose automatically calls `bin/helpers/start-wsgi`
-- Logs will be placed in the genap directory, these should be changed to suit the production environment
-- The `/reset` route will automatically be called after server boot
-- To reboot/reload changes, simply run `bin/production` again
-
-### CloudFoundry / Medicloud
-
-Several hacks are needed to get Genap running on CloudFoundry.
-
-- Rename `package.json` to anything else, because CloudFoundry doesn't respect typical ignore patterns - and it immediately thinks it found a nodeJS app, hooray!
-- Remove the `gulp:` line from `Procfile` - CF doesn't have a (reasonable) way of doing node+python, so we just ignore the node part and pre-build all assets - oh yeah, you should pre-build all your assets now
-- `cp ./ops/prod-GIN/manifest.yml .` from the project root
-- Then you *should* be OK to do `cf push`, ignore all the warnings pip throws out since CF is behind by a whole major version of pip
-
-
-# Running outside of Docker
-
-### Manual install
-
- - Install [node.js](https://nodejs.org/download/)
- - NPM, the Node Package Manager is installed as part as Node.
- - On OSX you can alleviate the need to run as sudo by [following these instructions](https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md). Highly recommended step on OSX.
- - Next run `npm install`. This will install all the build dependencies for you.
- - To run gulp from the command line you might have to run `npm install -g gulp`, which will install gulp globally.
-
-You'll need to run two processes when developing: the build system and the API.
-
-### Build system
-
-To run the build system, simply run the command: `gulp` - this will build the application, add watchers for any file changes, and automatically reload the browser page when you make a change (requires the `livereload` plugin for Firefox/Chrome).
-
-To just build the application, run: `gulp build` - this builds all the files and puts them into the `src/webui/dev/` directory.
-
-### API
-
-The API also is needed to serve the data.
-
-This is done by launching, in another terminal `PYTHONPATH=/genap/src python /genap/src/api/main.py` - if `DEVELOP=true` is set as an environment variable, the API will launch with debug on.
-
-PostgreSQL needs to be running. To use a different user/db than the default, you may set the `DB_URL` environment variable.
+### More info:
+- nginx is used to serve both the API and static assets
+  - Static assets are pre-built and stored at `/static`
+  - Gunicorn runs the API, it stores its socket at `/socket`
+- All relevant configuration files are in `ops/prod`

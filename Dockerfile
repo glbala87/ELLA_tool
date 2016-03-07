@@ -1,4 +1,4 @@
-FROM ousamg/gin-core:0.9.1
+FROM ousamg/ella-core:0.9.1
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
 # Get gulp
@@ -15,6 +15,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
 RUN npm install
 
-# We add our source folder for testing/deployment - this gets bashed by the volume in development
-# ADD . /genap
-WORKDIR /genap
+# ADD . /ella
+WORKDIR /ella
