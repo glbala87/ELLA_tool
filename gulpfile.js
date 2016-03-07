@@ -128,7 +128,11 @@ gulp.task('less', function () {
         .pipe(plumber())
         .pipe(less())
         .pipe(concat('base.css'))
-        .pipe(production ? minifyCss({compatibility: 'ie8'}) : util.noop())
+        .pipe(autoprefixer({
+          browsers: ['last 2 versions'],
+          cascade: false
+          }))
+        .pipe(production ? cssnano() : util.noop())
         .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });
