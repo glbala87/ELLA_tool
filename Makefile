@@ -158,6 +158,7 @@ create-dockerfile-runnable:
 	echo "$$DOCKERFILE" > ops/builder/Dockerfile.runnable
 build-dockerfile-runnable:
 	docker build -t ousamg/ella:$(BUILD_VERSION) -f ops/builder/Dockerfile.runnable .
+	docker tag ousamg/ella:$(BUILD_VERSION) ousamg/ella:latest
 remove-dockerfile-runnable:
 	rm -rf ops/builder/Dockerfile.runnable
 
