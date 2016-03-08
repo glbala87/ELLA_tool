@@ -22,7 +22,7 @@
     <button ng-click="vm.includeSelectedExcluded()">Include</button>
 
     <h3>Needs verification</h3>
-    <h4>TDB</h4>
+    <h4 ng-repeat="al in vm.getIncludedNeedsVerification()">{{al.toString()}}</h4>
 
     <h3>Report</h3>
     <pre><div ng-repeat="al in vm.getIncludedAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>

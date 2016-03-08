@@ -55,6 +55,12 @@ export class ReportCardController {
         });
     }
 
+    getIncludedNeedsVerification() {
+        return this.getIncludedAlleles().filter(al => {
+            return al.annotation.quality.needs_verification;
+        });
+    }
+
     includeSelectedExcluded() {
         if (this.selected_excluded) {
             if (!('report' in this.state.allele[this.selected_excluded.id])) {
