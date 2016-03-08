@@ -54,6 +54,6 @@ class SangerVerification(object):
 
         return criteria_check
 
-    def process(self, allele):
+    def needs_verification(self, allele):
         criteria_check = self.check_criterias(allele)
-        return {'needs_verification': not all(criteria_check.values())}
+        return not all(criteria_check.values())
