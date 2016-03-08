@@ -35,4 +35,4 @@ build_dev_image:
 
 build_release:
   script:
-    - if [ -n "${CREATE_RELEASE}" ]; then make release && docker save ousamg/ella -o /builds/$(date +'%s'); fi
+    - if [ -n "${CREATE_RELEASE}" ]; then make release && docker save ousamg/ella > /builds/ella-`date +'%s'`.tar; fi
