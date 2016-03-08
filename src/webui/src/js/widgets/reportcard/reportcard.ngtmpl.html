@@ -18,15 +18,13 @@
       <h4>{{vm.getClassification(al)}} {{al.toString()}}</h4>
     </div>
     <h3>Excluded</h3>
-    <select style="font-size: 2rem;" ng-options="al as al for al in vm.getExcludedAlleles()" ng-model="vm.selected_excluded"></select>
+    <select style="font-size: 2rem;" ng-options="al as vm.getClassification(al) + ' ' + al for al in vm.getExcludedAlleles()" ng-model="vm.selected_excluded"></select>
     <button ng-click="vm.includeSelectedExcluded()">Include</button>
 
     <h3>Needs verification</h3>
     <h4>TDB</h4>
 
     <h3>Report</h3>
-    <div ng-repeat="al in vm.getIncludedAlleles() track by al.id">
-      <h5>{{vm.formatHGVS(al)}}</h5>
-    </div>
+    <pre><div ng-repeat="al in vm.getIncludedAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>
   </content>
 </card>
