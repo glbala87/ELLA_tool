@@ -82,6 +82,7 @@ class Interpretation(Base):
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='interpretations')
     state = Column(MUTJSONB, default={})
+    stateHistory = Column(MUTJSONB, default={})
     # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
