@@ -1,12 +1,11 @@
-<!-- FIXME: Remove style -->
-<div class='acmg' ng-class="vm.getACMGclass()" style="display: flex;">
-    <button ng-if="::vm.toggleText" ng-click="vm.toggle()">{{::vm.toggleText}}</button>
-    <h4 uib-popover-template="vm.popover.templateUrl"
-        popover-append-to-body=true
-        popover-title="{{::vm.code.code}}"
-        popover-trigger="outsideClick"
-        popover-placement="auto top">
-        {{vm.code.code}}
-    </h4>
-    <input ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel">
+<div class='acmg' ng-class="vm.getACMGclass()">
+  <button class="white" ng-if="::vm.toggleText" ng-click="vm.toggle()">{{::vm.toggleText}}</button>
+  <h4 uib-popover-template="vm.popover.templateUrl"
+    popover-append-to-body=true
+    popover-title="{{::vm.code.code}}"
+    popover-trigger="outsideClick"
+    popover-placement="auto top">
+    {{vm.code.code}}
+  </h4>
+  <input class="white" placeholder="ACMG-COMMENT" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel">
 </div>
