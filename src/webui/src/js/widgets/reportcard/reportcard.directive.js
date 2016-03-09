@@ -36,13 +36,25 @@ export class ReportCardController {
     }
 
     getIncludedAlleles() {
-        return this.alleles.filter(allele => {
+        let included = this.alleles.filter(allele => {
             if ('report' in this.state.allele[allele.id] &&
                 'included' in this.state.allele[allele.id].report) {
                 return this.state.allele[allele.id].report.included;
             }
             return false;
         });
+        included.sort((a, b) => {
+            let ac = this.getClassification(a);
+            let bc = this.getClassification(b);
+            let aci = this.config.classification.options.findIndex(elem => {
+                return elem.value === ac;
+            });
+            let bci = this.config.classification.options.findIndex(elem => {
+                return elem.value === bc;
+            });
+            return bci - aci;
+        });
+        return included;
     }
 
     getExcludedAlleles() {
