@@ -32,7 +32,3 @@ build_dev_image:
     - make dev-release
   only:
     - build-dev
-
-build_release:
-  script:
-    - if [ -n "${CREATE_RELEASE}" ]; then make release && docker save ousamg/ella > /builds/ella-`date +'%s'`.tar; fi
