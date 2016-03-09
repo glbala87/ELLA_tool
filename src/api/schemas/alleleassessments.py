@@ -45,6 +45,6 @@ class AlleleAssessmentSchema(Schema):
 
     @validates_schema(pass_original=True)
     def validate_data(self, data, org):
-        for field in ['classification', 'evaluation']:
+        for field in ['classification']:
             if field not in org:
                 raise ValidationError("Missing field: {}".format(field))

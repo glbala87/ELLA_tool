@@ -38,7 +38,6 @@ class AlleleAssessmentListResource(Resource):
             'allele_id',
             'annotation_id',
             'classification',
-            'evaluation',
             'genepanelName',
             'genepanelVersion',
             'analysis_id',
@@ -46,6 +45,7 @@ class AlleleAssessmentListResource(Resource):
             # 'transcript_id'  # TODO: Require when support in frontend
         ],
         allowed=[
+            'evaluation',
             'status'
         ]
     )
