@@ -158,7 +158,6 @@ create-dockerfile-runnable:
 	echo "$$DOCKERFILE" > ops/builder/Dockerfile.runnable
 build-dockerfile-runnable:
 	docker build -t ousamg/ella:$(BUILD_VERSION) -f ops/builder/Dockerfile.runnable .
-	docker tag ousamg/ella:$(BUILD_VERSION) ousamg/ella:latest
 remove-dockerfile-runnable:
 	rm -rf ops/builder/Dockerfile.runnable
 
@@ -193,3 +192,14 @@ commit-provision:
 stop-provision:
 	docker ps | grep -q provision && docker stop -t 0 provision && docker rm provision
 	docker rmi -f init
+
+#---------------------------------------------
+# DEPLOY
+#---------------------------------------------
+
+deploy-release: release deploy-reboot
+
+deploy-reboot:
+	-docker stop ella
+	-docker rm ella
+	docker run -d --name ella -p 80:80 ousamg/ella:$(BUILD_VERSION)
