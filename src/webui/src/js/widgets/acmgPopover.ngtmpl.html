@@ -2,7 +2,9 @@
   <p>{{vm.getShortCriteria()}}</p>
   <div ng-show="vm.getRequiredFor().length">
     <h3>Required for:</h3>
-    <div class="acmg grey" ng-repeat="r in vm.getRequiredFor()"><h4>{{r}}</h4></div>
+    <div class="suggested disabled">
+      <div class="acmg grey" ng-repeat="r in vm.getRequiredFor()"><h4>{{r}}</h4></div>
+    </div>
   </div>
   <h3>Details:</h3>
   <p>{{vm.getCriteria()}}</p>
