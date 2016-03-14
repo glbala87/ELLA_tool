@@ -1,7 +1,7 @@
 <div class='acmg-selection-popover'>
-  <div class="acmg-popover-row" ng-repeat="r in vm.arrayThing">
+  <div class="acmg-popover-row" ng-repeat="r in vm.acmgCandidates">
     <div class="suggested disabled" ng-repeat="v in r">
-      <div class="acmg grey"><h4>{{::v}}</h4></div>
+      <div class="acmg" ng-class="::vm.getACMGClass(v)"><h4>{{::v}}</h4></div>
     </div>
   </div>
   <!-- <div ng-click="vm.addACMGCode(c)" ng-class="vm.getACMGClass(c)" class="acmg" ng-repeat="c in vm.getACMGCandidates()"><h4>{{::c}}</h4></div> -->
