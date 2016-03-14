@@ -13,6 +13,7 @@ $hover-black: hsla(0,0,0,0.1);
 $tint-black: hsla(0,0,0,0.05);
 
 $blue: hsla(205,35,45,1);
+$blue-75: hsla(205,35,45,0.75);
 $blue-sidebar: hsla(205,35,45,0.5);
 $blue-button: hsla(205,35,45,1);
 $blue-radio: hsla(205,35,75,1);
@@ -31,12 +32,14 @@ $yellow: hsla(45,35,45,1);
 $yellow-sidebar: hsla(45,35,45,0.5);
 $yellow-button: hsla(45,35,45,1);
 $yellow-radio: hsla(45,35,75,1);
+$yellow-tint: hsla(45,35,45,0.05);
 .yellow-text { color: $yellow; }
 
 $red: hsla(10,35,45,1);
 $red-sidebar: hsla(10,35,45,0.5);
 $red-button: hsla(10,35,45,1);
 $red-radio: hsla(10,35,75,1);
+$red-tint: hsla(10,35,45,0.05);
 .red-text { color: $red; }
 
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }

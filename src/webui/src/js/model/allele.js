@@ -29,4 +29,15 @@ export class Allele {
         return Array.from(new Set(ids));
     }
 
+    toString() {
+        let hgvs = '';
+        for (let t of this.annotation.filtered) {
+            if (hgvs !== '') {
+                hgvs += '|'
+            }
+            hgvs += `${t.Transcript}.${t.Transcript_version}(${t.SYMBOL}):${t.HGVSc_short}`;
+        }
+        return hgvs;
+    }
+
 }

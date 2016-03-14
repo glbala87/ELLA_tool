@@ -2,6 +2,7 @@ from vardb.datamodel import allele, assessment, annotation
 
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, GenepanelSchema
 from api.util.annotationprocessor import AnnotationProcessor
+from api.util.sanger_verification import SangerVerification
 
 
 class AlleleDataLoader(object):
@@ -104,6 +105,10 @@ class AlleleDataLoader(object):
         for allele_id, data in allele_data.iteritems():
             final_allele = data['allele']
 
+            for key in ['genotype', 'allele_assessment', 'reference_assessments']:
+                if key in data:
+                    final_allele[key] = data[key]
+
             if 'annotation' in data:
                 # Convert annotation using annotationprocessor
                 processed_annotation = AnnotationProcessor.process(
@@ -118,9 +123,10 @@ class AlleleDataLoader(object):
                 if 'custom_annotation' in data:
                     final_allele['annotation']['custom_annotation_id'] = data['custom_annotation']['id']
 
-            for key in ['genotype', 'allele_assessment', 'reference_assessments']:
-                if key in data:
-                    final_allele[key] = data[key]
+                # Add sanger verification check
+                if 'genotype' in data:
+                    final_allele['annotation']['quality']['needs_verification'] = SangerVerification().needs_verification(final_allele)
+
 
             final_alleles.append(final_allele)
 
