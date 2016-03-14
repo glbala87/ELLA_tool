@@ -73,6 +73,28 @@ class TranscriptAnnotation(object):
         'pos' # akwardly relevant for for 'de novo' only
     ]
 
+    def __init__(self, config):
+        self.config = config
+
+    def _get_worst_consequence(self, transcripts):
+        """
+        Finds the transcript with the worst consequence.
+        :param transcripts: List of transcripts with data
+        :return: List of transcript names.
+        """
+        # Get minimum index for each item (since each have several consequences), then sort by that index
+        consequences = self.config['transcripts']['consequences']
+        sorted_transcripts = sorted(transcripts, key=lambda x: (min(consequences.index(c) for c in x.get('Consequence', []))))
+
+        worst_consequence = sorted_transcripts[0]['Consequence']
+        worst_consequences = list()
+        for t in sorted_transcripts:
+            if any(c in t.get('Consequence', []) for c in worst_consequence):
+                worst_consequences.append(t['Transcript'])
+            else:
+                break
+
+        return worst_consequences
 
     def _csq_transcripts(self, annotation):
         if 'CSQ' not in annotation:
@@ -183,33 +205,37 @@ class TranscriptAnnotation(object):
             final_transcript_names = [t['Transcript'] for t in final_transcripts]
             result['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(final_transcript_names, genepanel)
 
+        result['worst_consequence'] = self._get_worst_consequence(final_transcripts)
         return result
 
 
 class FrequencyAnnotation(object):
 
+    def __init__(self, config):
+        self.config = config
+
     def _hi_cutoff_in_dataset(self, annotation, dataset):
         if dataset in annotation:
-            for freq in config.config['frequencies']['groups'][dataset]:
+            for freq in self.config['frequencies']['groups'][dataset]:
                 if freq in annotation[dataset] and \
-                   annotation[dataset][freq] >= config.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"]:
+                   annotation[dataset][freq] >= self.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"]:
                     return True
         return False
 
     def _med_cutoff_in_dataset(self, annotation, dataset):
         if dataset in annotation:
-            for freq in config.config['frequencies']['groups'][dataset]:
+            for freq in self.config['frequencies']['groups'][dataset]:
                 if freq in annotation[dataset] and \
-                   annotation[dataset][freq] < config.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"] and \
-                   annotation[dataset][freq] >= config.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
+                   annotation[dataset][freq] < self.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"] and \
+                   annotation[dataset][freq] >= self.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
                     return True
         return False
 
     def _lo_cutoff_in_dataset(self, annotation, dataset):
         if dataset in annotation:
-            for freq in config.config['frequencies']['groups'][dataset]:
+            for freq in self.config['frequencies']['groups'][dataset]:
                 if freq in annotation[dataset] and \
-                   annotation[dataset][freq] < config.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
+                   annotation[dataset][freq] < self.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
                     return True
         return False
 
@@ -430,8 +456,8 @@ class AnnotationProcessor(object):
         """
 
         data = dict()
-        data.update(TranscriptAnnotation().process(annotation, genepanel=genepanel)),
-        data.update(FrequencyAnnotation().process(annotation)),
+        data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel)),
+        data.update(FrequencyAnnotation(config.config).process(annotation)),
         data.update(References().process(annotation)),
         data.update(GeneticAnnotation().process(annotation)),
         data.update(ExternalAnnotation().process(annotation)),
