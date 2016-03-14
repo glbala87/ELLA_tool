@@ -46,7 +46,11 @@ class SangerVerification(object):
         # This only works for SNP, for indels the changeTo has the REF part stripped off
         # by the deposit script, so we can't find the right alleleDepth.
         # We only need to support SNPs right now
-        if allele['changeType'] == 'SNP':
+
+        # If no allele depth data, fail check
+        if not allele['genotype']['alleleDepth']:
+            criteria_check['AD'] = False
+        elif allele['changeType'] == 'SNP':
             allele_depth = allele['genotype']['alleleDepth'][allele['changeTo']]
             total_depth = sum(allele['genotype']['alleleDepth'].values())
             ratio = float(allele_depth)/total_depth
