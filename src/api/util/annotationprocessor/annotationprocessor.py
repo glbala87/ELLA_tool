@@ -80,11 +80,20 @@ class TranscriptAnnotation(object):
         """
         Finds the transcript with the worst consequence.
         :param transcripts: List of transcripts with data
-        :return: List of transcript names.
+        :return: List of transcript names with the worst consequence.
         """
+        if not self.config.get('transcripts', {}).get('consequences'):
+            return list()
+
         # Get minimum index for each item (since each have several consequences), then sort by that index
         consequences = self.config['transcripts']['consequences']
-        sorted_transcripts = sorted(transcripts, key=lambda x: (min(consequences.index(c) for c in x.get('Consequence', []))))
+
+        def sort_func(x):
+            if 'Consequence' in x and x['Consequence']:
+                return min(consequences.index(c) for c in x['Consequence'])
+            else:
+                return 9999999
+        sorted_transcripts = sorted(transcripts, key=sort_func)
 
         worst_consequence = sorted_transcripts[0]['Consequence']
         worst_consequences = list()
