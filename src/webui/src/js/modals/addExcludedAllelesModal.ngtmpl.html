@@ -81,7 +81,7 @@
         </div>
         <div class="content-box fixed-width-numbers">
           <h3 class="title">Consequence</h3>
-          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> <p ng-repeat="c in ::t.Consequence">{{::c}}</p> </transcript-wrapper> </div>
+          <annotation type="csq_consequence" allele="al"></annotation>
         </div>
       </article>
     </div>
