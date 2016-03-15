@@ -81,7 +81,7 @@ run-test:
 
 # test runner (protractor) for e2e tests
 run-e2e-test:
-	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(INTERNAL_API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:$(INTERNAL_SELENIUM_PORT)/wd/hub; test "$$?" -ne 0
+	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(INTERNAL_API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:$(strip $(INTERNAL_SELENIUM_PORT))/wd/hub; test "$$?" -ne 0
 	make cleanup-e2e BRANCH=$(BRANCH)
 	false
 
