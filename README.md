@@ -1,6 +1,6 @@
 ella is a web app based on AngularJS with a Flask REST backend.
 
-Most functionality is now baked into a Makefile, run `make help` to see a quick overview of available commands
+Most functionality is now baked into a Makefile, run `make help` to see a quick overview of available commands.
 
 # Development
 

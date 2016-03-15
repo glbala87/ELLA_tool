@@ -1,6 +1,8 @@
 # coding=utf-8
 import unittest
 from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
+from api import config
+
 
 class TestReferences(unittest.TestCase):
 
@@ -142,7 +144,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation().process(data)['frequencies']
+        freq = FrequencyAnnotation(config.config).process(data)['frequencies']
         self.assertFalse('GMAF' in freq['1000g'])
 
     def test_frequency_strip_maf_from_name(self):
@@ -164,7 +166,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation().process(data)['frequencies']
+        freq = FrequencyAnnotation(config.config).process(data)['frequencies']
         self.assertIn('G', freq['1000g'])
         self.assertNotIn('GMAF', freq['1000g'])
         self.assertIn('EUR', freq['1000g'])
@@ -181,7 +183,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation().process(data)['frequencies']
+        freqs = FrequencyAnnotation(config.config).process(data)['frequencies']
         self.assertIn('TEST', freqs['ExAC'])
         self.assertEqual(float(13)/2, freqs['ExAC']['TEST'])
         self.assertNotIn('ZERO', freqs['ExAC'])
@@ -194,7 +196,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation().process(data)['frequencies']
+        freqs = FrequencyAnnotation(config.config).process(data)['frequencies']
         self.assertIn('TEST', freqs['ExAC']['hom'])
         self.assertEqual(13, freqs['ExAC']['hom']['TEST'])
 
@@ -216,16 +218,16 @@ class TestFrequencyAnnotation(unittest.TestCase):
 
         }
 
-        freqs = FrequencyAnnotation().process(data)['frequencies']
+        freqs = FrequencyAnnotation(config.config).process(data)['frequencies']
         self.assertEqual(0.122, freqs['esp6500']['EA'])
         self.assertEqual(0.123, freqs['esp6500']['AA'])
 
     def test_frequency_cutoffs(self):
-        frequencies = FrequencyAnnotation()._cutoff_frequencies(None)
+        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(None)
         self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "null_freq")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
-        frequencies = FrequencyAnnotation()._cutoff_frequencies({})
+        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies({})
         self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "null_freq")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
@@ -246,7 +248,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
                 "EA": 0.0003
             }
         }
-        frequencies = FrequencyAnnotation()._cutoff_frequencies(frequencies)
+        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
         self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "≥hi_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
@@ -267,7 +269,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
                 "EA": 0.0003
             }
         }
-        frequencies = FrequencyAnnotation()._cutoff_frequencies(frequencies)
+        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
         self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
@@ -291,7 +293,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
                     "alleleFreq": 0.0022323
             }
         }
-        frequencies = FrequencyAnnotation()._cutoff_frequencies(frequencies)
+        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
         self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
 
@@ -321,7 +323,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
             ]
         }
 
-        transcripts = TranscriptAnnotation()._csq_transcripts(data)
+        transcripts = TranscriptAnnotation({})._csq_transcripts(data)
 
         self.assertIn('NM_000090', transcripts)
         self.assertIn('NM_000091', transcripts)
@@ -356,7 +358,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
             ]
         }
 
-        transcripts = TranscriptAnnotation().process(data)
+        transcripts = TranscriptAnnotation({}).process(data)
         self.assertEqual(transcripts['transcripts'][0]['Transcript'], 'NM_000090')
         self.assertEqual(transcripts['transcripts'][0]['Transcript_version'], '3')
         self.assertEqual(transcripts['transcripts'][1]['Transcript'], 'NM_000091')
@@ -450,3 +452,49 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
         t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
         assert t == []
+        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
+
+    def test_get_worse_consequence(self):
+        config = {
+            'transcripts': {
+                'consequences': [  # Gives order of severity
+                    'consequence1',
+                    'consequence2',
+                    'consequence3'
+                ]
+            }
+        }
+
+        transcripts = [
+            {
+                'Transcript': 'NM_12300',
+                'Consequence': ['consequence3', 'consequence2']
+            },
+            {
+                'Transcript': 'NM_12301',
+                'Consequence': ['consequence1']
+            },
+            {
+                'Transcript': 'NM_12302',
+                'Consequence': ['consequence3', 'consequence1']
+            }
+        ]
+
+        # Test several worst consequences
+        c = TranscriptAnnotation(config)._get_worst_consequence(transcripts)
+        assert c == ['NM_12301', 'NM_12302']
+
+        transcripts = [
+            {
+                'Transcript': 'NM_12300',
+                'Consequence': ['consequence1']
+            },
+            {
+                'Transcript': 'NM_12301',
+                'Consequence': ['consequence2']
+            }
+        ]
+
+        # Test single worst
+        c = TranscriptAnnotation(config)._get_worst_consequence(transcripts)
+        assert c == ['NM_12300']
