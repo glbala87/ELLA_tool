@@ -72,6 +72,10 @@ class Interpretation(Base):
 
     This corresponds to one 'round' in the workbench.
     The table stores GUI-state.
+
+    :note: The stateHistory column can potentially be heavy in extreme cases,
+    so you can defer loading it when you don't need it.
+    (TODO: defer by default?)
     """
     __tablename__ = "interpretation"
 
