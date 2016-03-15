@@ -1,5 +1,10 @@
 ---
+stages:
+  - test
+  - cleanup
+
 test_api:
+  stage: test
   script:
     - make single-test TEST_NAME=api
   except:
@@ -7,6 +12,7 @@ test_api:
     - /^ops-.*$/
 
 test_js:
+  stage: test
   script:
     - make single-test TEST_NAME=js
   except:
@@ -14,6 +20,7 @@ test_js:
     - /^ops-.*$/
 
 test_python:
+  stage: test
   script:
     - make single-test TEST_NAME=common
   except:
@@ -21,11 +28,18 @@ test_python:
     - /^ops-.*$/
 
 test_e2e:
+  stage: test
   script:
     - make e2e-test
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+
+cleanup_e2e:
+  stage: cleanup
+  script:
+    - make cleanup-e2e BRANCH=test
+  when: on_failure
 
 build_dev_image:
   script:

@@ -81,9 +81,7 @@ run-test:
 
 # test runner (protractor) for e2e tests
 run-e2e-test:
-	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(INTERNAL_API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:$(strip $(INTERNAL_SELENIUM_PORT))/wd/hub; test "$$?" -ne 0
-	make cleanup-e2e BRANCH=$(BRANCH)
-	false
+	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(INTERNAL_API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:$(strip $(INTERNAL_SELENIUM_PORT))/wd/hub
 
 run-e2e-selenium:
 	docker run --name $(SELENIUM_CONTAINER_NAME) --link $(E2E_CONTAINER_NAME):genapp -d -p 4444:$(INTERNAL_SELENIUM_PORT) -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
@@ -100,10 +98,10 @@ run-e2e-app:
 	sleep 10
 
 cleanup-e2e:
-	docker stop $(SELENIUM_CONTAINER_NAME)
-	docker rm $(SELENIUM_CONTAINER_NAME)
-	docker stop $(E2E_CONTAINER_NAME)
-	docker rm $(E2E_CONTAINER_NAME)
+	-docker stop $(SELENIUM_CONTAINER_NAME)
+	-docker rm $(SELENIUM_CONTAINER_NAME)
+	-docker stop $(E2E_CONTAINER_NAME)
+	-docker rm $(E2E_CONTAINER_NAME)
 
 #---------------------------------------------
 # TESTING - INSIDE CONTAINER ONLY
