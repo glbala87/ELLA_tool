@@ -15,6 +15,7 @@ import {Directive, Inject} from '../ng-decorators';
     template: '<textarea rows=1 class="comment" placeholder="{{vm.placeholder}}" ng-model="vm.ngModel">LOL</textarea>',
     link: (scope, elem, attrs) => {
       autosize(elem.children()[0]);
+      scope.$watch( () => scope.ngModel, () => autosize(elem.children()[0]).update() );
     }
 })
 export class AutosizeTextareaController { }
