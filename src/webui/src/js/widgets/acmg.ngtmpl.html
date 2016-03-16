@@ -1,5 +1,7 @@
 <div class='acmg' ng-class="vm.getACMGclass()">
-  <button class="white" ng-if="::vm.toggleText" ng-click="vm.toggle()">{{::vm.toggleText}}</button>
+  <div class="button-wrapper" ng-click="vm.toggle()">
+    <button class="white" ng-if="::vm.toggleText">{{::vm.toggleText}}</button>
+  </div>
   <h4 uib-popover-template="vm.popover.templateUrl"
     popover-append-to-body=true
     popover-title="{{::vm.code.code}}"
