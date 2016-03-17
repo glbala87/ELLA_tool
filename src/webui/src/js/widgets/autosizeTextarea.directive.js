@@ -12,7 +12,7 @@ import {Directive, Inject} from '../ng-decorators';
         placeholder: '@?',
         ngModel: '='
     },
-    template: '<textarea rows=1 class="comment" placeholder="{{vm.placeholder}}" ng-model="vm.ngModel">LOL</textarea>',
+    template: '<textarea rows=1 placeholder="{{vm.placeholder}}" ng-model="vm.ngModel">LOL</textarea>',
     link: (scope, elem, attrs) => {
       autosize(elem.children()[0]);
       scope.$watch( () => scope.ngModel, () => autosize.update(elem.children()[0]) );
