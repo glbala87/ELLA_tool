@@ -156,24 +156,84 @@ class AnalysisActionReopenResource(Resource):
 
 class AnalysisActionFinalizeResource(Resource):
 
-    def post(self, session, analysis_id):
-        # TODO: Validate that user is same as user on interpretation via internal auth
-        # when that is ready
+    @request_json(
+        [
+            'alleleassessments',
+            'referenceassessments'
+        ]
+    )
+    def post(self, session, analysis_id, data=None):
+        """
+        Finalizes an analysis.
 
-        # Curate all the [allele|reference]assessments for the alleles
-        # given in this analysis
-        noncurated_aa = session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.analysis_id == analysis_id
-        ).all()
+        The user must provide a list of alleleassessments and referenceassessments.
+        For each assessment, if an 'id' field is not part of the data, it will create
+        a new assessment in the database. It will then link the analysis to this assessment.
+        If an 'id' field does exist, it will check if the assessment with this id
+        exists in the database, then link the analysis to this assessment. If the 'id' doesn't
+        exists, and ApiError is given.
 
-        noncurated_ra = session.query(assessment.ReferenceAssessment).filter(
-            assessment.ReferenceAssessment.analysis_id == analysis_id
-        ).all()
+        In other words, if reusing a preexisting assessment, you can pass in just it's 'id',
+        otherwise pass in all the data needed to create a new assessment (without an 'id' field).
 
-        AssessmentCreator(session).curate_and_replace(
-            alleleassessments=noncurated_aa,
-            referenceassessments=noncurated_ra
-        )
+        Example data:
+
+        {
+            "referenceassessments": [
+                {
+                    # New assessment will be created, superceding any old one
+                    "user_id": 1,
+                    "analysis_id": 3,
+                    "reference_id": 123
+                    "evaluation": {...data...},
+                    "analysis_id": 3,
+                    "allele_id": 14,
+                    "reference_id": 2
+                },
+                {
+                    # Reusing assessment
+                    "id": 13,
+                    "allele_id": 13,
+                    "reference_id": 1
+                }
+            ],
+            "alleleassessments": [
+                {
+                    # New assessment will be created, superceding any old one
+                    "user_id": 1,
+                    "allele_id": 2,
+                    "classification": "3",
+                    "evaluation": {...data...},
+                    "analysis_id": 3,
+                },
+                {
+                    # Reusing assessment
+                    "id": 9
+                    "allele_id": 6
+                }
+            ]
+        }
+
+        """
+
+
+        # AssessmentCreator(session).curate_and_replace(
+        #     alleleassessments=noncurated_aa,
+        #     referenceassessments=noncurated_ra
+        # )
+
+        # Attach reported used alleleassessments to analysis
+        # print data['alleleassessments']
+        # reported_aa = session.query(assessment.AlleleAssessment).filter(
+        #     assessment.AlleleAssessment.id.in_(data['alleleassessments'])
+        # ).all()
+
+        # if len(reported_aa) != len(data['alleleassessments']):
+        #     raise ApiError("Some 'alleleassessments' id's are not valid.")
+        # analysis = session.query(sample.Analysis).filter(
+        #     sample.Analysis.id == analysis_id
+        # ).one()
+        # analysis.alleleAssessments = reported_aa
 
         # Mark all analysis' interpretations as done (we do all just in case)
         connected_interpretations = session.query(sample.Interpretation).filter(

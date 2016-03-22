@@ -15,17 +15,13 @@ class ReferenceAssessmentSchema(Schema):
                   'analysis_id',
                   'genepanelName',
                   'genepanelVersion',
+                  'dateLastUpdate',
                   'user_id',
-                  'status',
                   'evaluation')
 
     user_id = fields.Integer(allow_none=True)  # Debug only
+    evaluation = fields.Field(required=True)
 
     @post_load
     def make_object(self, data):
         return assessment.ReferenceAssessment(**data)
-
-    @validates_schema(pass_original=True)
-    def validate_data(self, data, org):
-        if 'evaluation' not in org:
-            raise ValidationError("Missing field: 'evaluation'")

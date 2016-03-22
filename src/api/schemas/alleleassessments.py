@@ -4,7 +4,7 @@ from marshmallow import fields, Schema, validates_schema, ValidationError, post_
 
 from api import app
 from vardb.datamodel import assessment
-from api.schemas import users
+from api.schemas import users, referenceassessments
 
 ma = Marshmallow(app)
 
@@ -18,23 +18,24 @@ class AlleleAssessmentSchema(Schema):
                   'analysis_id',
                   'genepanelName',
                   'genepanelVersion',
-                  'transcript_id',
                   'annotation_id',
                   'previousAssessment_id',
                   'genepanelVersion',
                   'user_id',
                   'user',
-                  'status',
                   'classification',
                   'secondsSinceUpdate',
-                  'evaluation')
+                  'evaluation',
+                  'referenceAssessments')
 
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
+    evaluation = fields.Field(required=False, default=dict)
+    classification = fields.Field(required=True)
     dateLastUpdate = fields.DateTime()
     dateSuperceeded = fields.DateTime(allow_none=True)
+    referenceAssessments = fields.Nested(referenceassessments.ReferenceAssessmentSchema, many=True)
     secondsSinceUpdate = fields.Method('get_seconds_since_created')
-    status = fields.Integer()
 
     def get_seconds_since_created(self, obj):
         return (datetime.datetime.now() - obj.dateLastUpdate).total_seconds()
@@ -42,9 +43,3 @@ class AlleleAssessmentSchema(Schema):
     @post_load
     def make_object(self, data):
         return assessment.AlleleAssessment(**data)
-
-    @validates_schema(pass_original=True)
-    def validate_data(self, data, org):
-        for field in ['classification']:
-            if field not in org:
-                raise ValidationError("Missing field: {}".format(field))

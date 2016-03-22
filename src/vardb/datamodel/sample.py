@@ -21,6 +21,15 @@ AnalysisSampleTable = Table('analysissample', Base.metadata,
 )
 
 
+# Tracks which alleleassessments was ultimately used for an analysis
+# This is not to be confused with the analysis_id in AlleleAssessment table,
+# which tells which analysis the AlleleAssessment was *created* for.
+AnalysisAlleleAssessment = Table('analysisalleleassessment', Base.metadata,
+    Column('analysis_id', Integer, ForeignKey('analysis.id')),
+    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id'))
+)
+
+
 class Sample(Base):
     """Represents a sample (aka one sequencing run of 1 biological sample)
 
@@ -59,6 +68,7 @@ class Analysis(Base):
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysisConfig = Column("analysis_config", JSONB)
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
+    alleleAssessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
 
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)

@@ -3,6 +3,7 @@ import copy
 import pytest
 
 from util import FlaskClientProxy
+from api import ApiError
 
 
 @pytest.fixture
@@ -13,14 +14,9 @@ def testdata():
         "evaluation": {
             "comment": "Some comment",
         },
-        "genepanelName": "HBOC",
-        "genepanelVersion": "v00",
-        "interpretation_id": 1,
         "user_id": 1,
-        "transcript_id": 1,
-        "annotation_id": 1,
-        "status": 0,
-        "analysis_id": 1
+        "analysis_id": 1,
+        "referenceassessments": []
     }
 
 
@@ -46,69 +42,101 @@ class TestAlleleAssessment(object):
         # to create new AlleleAssessments
         interpretation = self._get_interpretation(client)
 
-        # Create all AlleleAssessments
+        # Create all AlleleAssessments objects
         for idx, allele_id in enumerate(interpretation['allele_ids']):
-            testdata['allele_id'] = allele_id
-            r = client.post('/api/v1/alleleassessments/', testdata)
+
+            # Prepare
+            aa = copy.deepcopy(testdata)
+            aa['allele_id'] = allele_id
+            aa['referenceassessments'] = [
+                {
+                    'allele_id': allele_id,
+                    'reference_id': 43248,
+                    'user_id': 1,
+                    'evaluation': {
+                        'comment': 'Some comment'
+                    },
+                    'analysis_id': 1
+                }
+            ]
+
+            # POST data
+            r = client.post('/api/v1/alleleassessments/', aa)
+
+            # Check response
             assert r.status_code == 200
-            assert r.json['allele_id'] == allele_id
-            assert r.json['id'] == idx+1
+            aa = r.json[0]
+            assert len(aa['referenceAssessments']) == 1
+            assert 'id' in aa['referenceAssessments'][0]
+            assert aa['referenceAssessments'][0]['allele_id'] == allele_id
+            assert aa['allele_id'] == allele_id
+            assert aa['id'] == idx + 1
 
     @pytest.mark.aa(order=1)
-    def test_update_assessment_1(self, client):
+    def test_update_assessment(self, client):
         """
         Simulate updating the AlleleAssessment created in create_new().
-        It should result in the AlleleAssessment being updated, while the id remains the same.
+        It should result in a new AlleleAssessment being created,
+        while the existing should be superceded.
         """
 
         interpretation = self._get_interpretation(client)
 
-        q = {'allele_id': interpretation['allele_ids'], 'dateSuperceeded': None, 'status': 0}
-        previous_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
+        q = {'allele_id': interpretation['allele_ids'], 'dateSuperceeded': None}
+        previous_aa = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
 
+        previous_ids = []
         for prev in previous_aa:
+            # Prepare
+            prev_id = prev['id']
+            previous_ids.append(prev_id)
+            # Delete the id, to make the backend create a new assessment
+            del prev['id']
             prev['evaluation']['comment'] = "Some new comment"
-            r = client.post('/api/v1/alleleassessments/', prev)
-            assert r.status_code == 200
 
-            # Check that id remains the same
-            assert r.json['id'] == prev['id']
-            assert r.json['evaluation']['comment'] == 'Some new comment'
+            # Update referenceassessment
+            prev_ra_id = prev['referenceAssessments'][0]['id']
+            del prev['referenceAssessments'][0]['id']
+            prev['referenceAssessments'][0]['evaluation'] = {'comment': 'Some new comment'}
+
+            # POST data
+            r = client.post('/api/v1/alleleassessments/', prev)
+
+            # Check response
+            assert r.status_code == 200
+            aa = r.json[0]
+            assert aa['id'] != prev_id
+            assert aa['evaluation']['comment'] == 'Some new comment'
+
+            # Check that a new referenceassessment was created
+            assert aa['referenceAssessments'][0]['id'] != prev_ra_id
+            assert aa['referenceAssessments'][0]['evaluation']['comment'] == 'Some new comment'
+
+        # Reload the previous alleleassessments and make sure
+        # they're marked as superceded
+        q = {'id': previous_ids}
+        previous_aa = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
+
+        assert all([p['dateSuperceeded'] is not None for p in previous_aa])
 
     @pytest.mark.aa(order=2)
-    def test_finalize_interpretation(self, client):
+    def test_fail_cases(self, client, testdata):
         """
-        Finalize the connected interpretation for this AlleleAssessment, in order to mark it as curated.
-        """
-        r = client.post('/api/v1/analyses/1/actions/finalize/', data={})
-        assert r.status_code == 200
-
-        # Check that all alleleassessments are set as curated
-        q = {'analysis_id': 1}
-        analysis_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
-        assert all(aa['status'] == 1 for aa in analysis_aa)
-
-    @pytest.mark.aa(order=3)
-    def test_update_assessment_2(self, client):
-        """
-        Simulate updating the AlleleAssessments created in create_new().
-        It should result in new AlleleAssessments being created, with new ids.
+        Test cases where it should fail to create assessments.
         """
 
-        q = {'analysis_id': 1}
-        analysis_aa = client.get('/api/v1/alleleassessments/?{}'.format(json.dumps(q))).json
-        aa_ids = [aa['id'] for aa in analysis_aa]
+        # Test without allele_id
+        data = copy.deepcopy(testdata)
+        del data['allele_id']
 
-        # Create new AlleleAssessments and check their ids
-        for aa in analysis_aa:
-            # remove id, as we're simulating creating a new one
-            del aa['id']
-            aa['status'] = 0
-            aa['evaluation']['comment'] = 'New assessment comment'
+        # We don't run actual HTTP requests, everything is in python
+        # so we can catch the exceptions directly
+        with pytest.raises(ApiError):
+            client.post('/api/v1/alleleassessments/', data)
 
-            r = client.post('/api/v1/alleleassessments/', aa)
-            assert r.status_code == 200
+        # Test without analysis_id
+        data = copy.deepcopy(testdata)
+        del data['analysis_id']
 
-            assert r.json['id'] not in aa_ids
-            assert r.json['evaluation']['comment'] == 'New assessment comment'
-            assert r.json['status'] == 0
+        with pytest.raises(ApiError):
+            client.post('/api/v1/alleleassessments/', data)

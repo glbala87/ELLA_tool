@@ -36,57 +36,62 @@ class AlleleAssessmentListResource(Resource):
     @request_json(
         [
             'allele_id',
-            'annotation_id',
             'classification',
-            'genepanelName',
-            'genepanelVersion',
             'analysis_id',
             'user_id',
-            # 'transcript_id'  # TODO: Require when support in frontend
         ],
         allowed=[
+            # 'id' is not included on purpose, as the endpoint should always result in a new assessment
             'evaluation',
-            'status'
+            'referenceassessments'
         ]
     )
     def post(self, session, data=None):
         """
-        Creates or updates the existing AlleleAssessment for a provided allele_id.
+        Creates a new AlleleAssessment for a provided allele_id.
 
-        It follows the following rules:
-        1. If no entries exists already for this allele, create a new one.
-        2. If a non-curated (status=0) entry exists already, overwrite it.
-        3. If a curated entry exists, create a new one. If status is set to 1,
-           it is curated directly, otherwise it's left as non-curated.
+        Data example:
+        {
+            # New assessment will be created, superceding any old one
+            "user_id": 1,
+            "allele_id": 2,
+            "classification": "3",
+            "evaluation": {...data...},
+            "analysis_id": 3,
+            "referenceassessments": [  # Optional
+                {
+                    "allele_id": 2,
+                    "analysis_id": 3,
+                    "evaluation": {...data...}
+                },
+                {
+                    "analysis_id": 3,
+                    "allele_id": 2,
+                    "id": 3  # Reuse existing referenceassessment, but link it to this alleleassessment
+                }
+            ]
+        }
+
+        Provided data can also be a list of items.
         """
-        if 'status' not in data:
-            data['status'] = 0
+        if not isinstance(data, list):
+            data = [data]
 
-        obj = schemas.AlleleAssessmentSchema(strict=True).load(data).data
-        obj.dateLastUpdate = datetime.datetime.now()
+        # Collect any referenceassessments (they'll be matched again on allele_id inside AssessmentCreator)
+        ref_assessments = list()
+        for aa in data:
+            if 'referenceassessments' in aa:
+                for f in ['allele_id', 'analysis_id']:
+                    if not all([r[f] == aa[f] for r in aa['referenceassessments']]):
+                        raise ApiError("One of the included referenceassessments has a mismatch on {}.".format(f))
+                ref_assessments += aa['referenceassessments']
 
-        if obj.status == 0:
-            existing_ass = session.query(assessment.AlleleAssessment).filter(
-                assessment.AlleleAssessment.allele_id == obj.allele_id,
-                assessment.AlleleAssessment.dateSuperceeded == None,
-                assessment.AlleleAssessment.status == 0
-            ).one_or_none()
-            if existing_ass:
-                # If there exists an assessment already for this allele_id which is not yet curated,
-                # we update that one instead.
-                obj.id = existing_ass.id
-                session.merge(obj)
-            else:
-                session.add(obj)
-        elif obj.status == 1:
-            AssessmentCreator(session).curate_and_replace(alleleassessments=[obj])
-        else:
-            raise ApiError("Invalid status {}".format(obj.status))
+        ac = AssessmentCreator(session)
+        result = ac.create_from_data(alleleassessments=data, referenceassessments=ref_assessments)
+
+        aa = result['alleleassessments']['reused'] + result['alleleassessments']['created']
+        if not isinstance(data, list):
+            aa = aa[0]
 
         session.commit()
-
-        # Reload to fetch all data
-        new_obj = session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.id == obj.id
-        ).one()
-        return schemas.AlleleAssessmentSchema(strict=True).dump(new_obj).data, 200
+        return schemas.AlleleAssessmentSchema().dump(aa, many=isinstance(aa, list)).data
