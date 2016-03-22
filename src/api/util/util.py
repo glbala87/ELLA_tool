@@ -86,6 +86,6 @@ def request_json(required, only_required=False, allowed=None):
                 data = check_data[0]
             else:
                 data = check_data
-            return func(*args, data=check_data, **kwargs)
+            return func(*args, data=data, **kwargs)
         return inner
     return wrapper

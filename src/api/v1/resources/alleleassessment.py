@@ -41,7 +41,7 @@ class AlleleAssessmentListResource(Resource):
             'user_id',
         ],
         allowed=[
-            # 'id' is not included on purpose, as the endpoint should always result in a new assessment
+            # 'id' is excluded on purpose, as the endpoint should always result in a new assessment
             'evaluation',
             'referenceassessments'
         ]
