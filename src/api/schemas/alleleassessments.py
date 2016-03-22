@@ -26,7 +26,7 @@ class AlleleAssessmentSchema(Schema):
                   'classification',
                   'secondsSinceUpdate',
                   'evaluation',
-                  'referenceAssessments')
+                  'referenceassessments')
 
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
@@ -34,7 +34,7 @@ class AlleleAssessmentSchema(Schema):
     classification = fields.Field(required=True)
     dateLastUpdate = fields.DateTime()
     dateSuperceeded = fields.DateTime(allow_none=True)
-    referenceAssessments = fields.Nested(referenceassessments.ReferenceAssessmentSchema, many=True)
+    referenceassessments = fields.Nested(referenceassessments.ReferenceAssessmentSchema, many=True, attribute='referenceAssessments')
     secondsSinceUpdate = fields.Method('get_seconds_since_created')
 
     def get_seconds_since_created(self, obj):

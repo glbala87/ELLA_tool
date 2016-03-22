@@ -77,17 +77,8 @@ class AlleleAssessmentListResource(Resource):
         if not isinstance(data, list):
             data = [data]
 
-        # Collect any referenceassessments (they'll be matched again on allele_id inside AssessmentCreator)
-        ref_assessments = list()
-        for aa in data:
-            if 'referenceassessments' in aa:
-                for f in ['allele_id', 'analysis_id']:
-                    if not all([r[f] == aa[f] for r in aa['referenceassessments']]):
-                        raise ApiError("One of the included referenceassessments has a mismatch on {}.".format(f))
-                ref_assessments += aa['referenceassessments']
-
         ac = AssessmentCreator(session)
-        result = ac.create_from_data(alleleassessments=data, referenceassessments=ref_assessments)
+        result = ac.create_from_data(alleleassessments=data)
 
         aa = result['alleleassessments']['reused'] + result['alleleassessments']['created']
         if not isinstance(data, list):

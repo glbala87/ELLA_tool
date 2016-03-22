@@ -23,11 +23,23 @@ class AssessmentCreator(object):
         :param alleleassessments: AlleleAssessments to create or reuse (dict data)
         :param referenceassessments: ReferenceAssessments to create or reuse (dict data)
         """
-        if referenceassessments:
-            ra_created, ra_reused = self._create_or_reuse_referenceassessments(referenceassessments)
+
+        if referenceassessments is None:
+            referenceassessments = list()
 
         if alleleassessments:
             aa_created, aa_reused = self._create_or_reuse_alleleassessments(alleleassessments)
+
+            # Check for any referenceassessments included as part of alleleassessments
+            for aa in alleleassessments:
+                if 'referenceassessments' in aa:
+                    for f in ['allele_id', 'analysis_id']:
+                        if not all([r[f] == aa[f] for r in aa['referenceassessments']]):
+                            raise ApiError("One of the included referenceassessments has a mismatch on {}.".format(f))
+                    referenceassessments += aa['referenceassessments']
+
+        if referenceassessments:
+            ra_created, ra_reused = self._create_or_reuse_referenceassessments(referenceassessments)
 
         # Attach ReferenceAssessments to the AlleleAssessments
         if referenceassessments:
@@ -63,8 +75,6 @@ class AssessmentCreator(object):
         """
         for aa in alleleassessments:
             aa.referenceAssessments = [ra for ra in referenceassessments if ra.allele_id == aa.allele_id]
-            for ra in aa.referenceAssessments:
-                print ra.dateLastUpdate
 
     def _create_or_reuse_alleleassessments(self, alleleassessments):
         allele_ids = [a['allele_id'] for a in alleleassessments]
@@ -98,6 +108,7 @@ class AssessmentCreator(object):
                    (not 'genepanelName' in aa and not 'genepanelVersion' in aa):
                     raise ApiError("Missing one of the required fields. Either provide 'analysis_id' field or both 'genepanelName' and 'genepanelVersion'.")
                 assessment_obj = AlleleAssessmentSchema().load(aa).data
+                assessment_obj.referenceAssessments = []  # ReferenceAssessments must be handled separately, and not included as part of data
                 assessment_obj.dateLastUpdate = datetime.datetime.now()
 
                 # Link assessment to current valid annotation (through the allele id)

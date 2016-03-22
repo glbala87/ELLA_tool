@@ -66,9 +66,9 @@ class TestAlleleAssessment(object):
             # Check response
             assert r.status_code == 200
             aa = r.json[0]
-            assert len(aa['referenceAssessments']) == 1
-            assert 'id' in aa['referenceAssessments'][0]
-            assert aa['referenceAssessments'][0]['allele_id'] == allele_id
+            assert len(aa['referenceassessments']) == 1
+            assert 'id' in aa['referenceassessments'][0]
+            assert aa['referenceassessments'][0]['allele_id'] == allele_id
             assert aa['allele_id'] == allele_id
             assert aa['id'] == idx + 1
 
@@ -95,9 +95,9 @@ class TestAlleleAssessment(object):
             prev['evaluation']['comment'] = "Some new comment"
 
             # Update referenceassessment
-            prev_ra_id = prev['referenceAssessments'][0]['id']
-            del prev['referenceAssessments'][0]['id']
-            prev['referenceAssessments'][0]['evaluation'] = {'comment': 'Some new comment'}
+            prev_ra_id = prev['referenceassessments'][0]['id']
+            del prev['referenceassessments'][0]['id']
+            prev['referenceassessments'][0]['evaluation'] = {'comment': 'Some new comment'}
 
             # POST data
             r = client.post('/api/v1/alleleassessments/', prev)
@@ -109,8 +109,8 @@ class TestAlleleAssessment(object):
             assert aa['evaluation']['comment'] == 'Some new comment'
 
             # Check that a new referenceassessment was created
-            assert aa['referenceAssessments'][0]['id'] != prev_ra_id
-            assert aa['referenceAssessments'][0]['evaluation']['comment'] == 'Some new comment'
+            assert aa['referenceassessments'][0]['id'] != prev_ra_id
+            assert aa['referenceassessments'][0]['evaluation']['comment'] == 'Some new comment'
 
         # Reload the previous alleleassessments and make sure
         # they're marked as superceded
