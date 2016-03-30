@@ -32,9 +32,12 @@ export class AcmgController {
         return this.code.source.split('.').slice(1).join('->');
     }
 
-    getACMGclass() {
-        if (this.code) {
-            return this.code.code.substring(0, 2).toLowerCase();
+    getACMGclass(code) {
+        if (code === undefined) {
+            code = this.code.code;
+        }
+        if (code) {
+            return code.substring(0, 2).toLowerCase();
         }
     }
 
