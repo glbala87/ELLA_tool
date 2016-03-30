@@ -40,12 +40,14 @@ import './views/sidebar.directive';
 import './views/navbar.directive';
 
 import './widgets/annotationWidget.directive';
+import './widgets/acmgSelection.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/transcriptWrapper.directive';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
+import './widgets/autosizeTextarea.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
 import './widgets/card.directive';

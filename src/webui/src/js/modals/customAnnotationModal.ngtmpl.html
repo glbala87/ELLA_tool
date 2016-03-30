@@ -15,10 +15,10 @@
     </div>
     <div class="paper-bottom">
       <section ng-if="vm.category == 'references'">
-        <div class="trow">
+        <div class="trow spacing-fix">
             <div class="cell title"> <h5>Variant:</h5> </div>
             <div class="cell check"></div>
-            <div class="cell controls">
+            <div class="cell controls allele-controls">
               <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
             </div>
         </div>
