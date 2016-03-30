@@ -80,3 +80,23 @@ class Genepanel(Base):
         g = Genepanel(name, version, genomeRef, transcripts)
         g = session.merge(g)
         return g
+
+
+class Phenotype(Base):
+    """Represents a phenotype linked to a particular genepanel
+    """
+    __tablename__ = "phenotype"
+
+    id = Column(Integer, Sequence("id_phenotype_seq"), primary_key=True)
+    genepanelName = Column(String(40), ForeignKey("genepanel.name"), nullable=False)
+    genepanelVersion = Column(String(10), ForeignKey("genepanel.version"), nullable=False)
+    genepanel = relationship("Genepanel", uselist=False)
+
+    gene_id = Column(String(20), ForeignKey("gene.hugoSymbol"), nullable=False)
+    gene = relationship("Gene", lazy="joined")
+
+    description = Column(String(250), nullable=False)
+    inheritance = Column(String(10), nullable=False)
+
+    def __repr__(self):
+        return "<Phenotype('%s')>" % self.description[:20]
