@@ -8,13 +8,6 @@
 
   </status>
   <content class="report-content">
-    <h2 class="allele-title">Excluded</h2>
-    <div class="excluded-controls">
-      <div class="excluded-dropdown-wrapper">
-        <select class="excluded-dropdown" ng-options="al as vm.getClassification(al) + ' ' + al for al in vm.getExcludedAlleles()" ng-model="vm.selected_excluded"></select>
-      </div>
-      <button ng-click="vm.includeSelectedExcluded()">Include</button>
-    </div>
     <div ng-if="vm.getIncludedAlleles().length > 0" class="included-report">
       <h2 class="allele-title">Included</h2>
       <section class="report-include-group">
@@ -35,6 +28,14 @@
 
       <h2 class="allele-title">Report</h2>
       <pre><div ng-repeat="al in vm.getIncludedAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>
+      <hr/>
+    </div>
+    <h2 class="allele-title">Excluded</h2>
+    <div class="excluded-controls">
+      <div class="excluded-dropdown-wrapper">
+        <select class="excluded-dropdown" ng-options="al as vm.getClassification(al) + ' ' + al for al in vm.getExcludedAlleles()" ng-model="vm.selected_excluded"></select>
+      </div>
+      <button ng-click="vm.includeSelectedExcluded()">Include</button>
     </div>
 
 

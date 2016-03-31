@@ -53,10 +53,11 @@ $red-tint: hsla(10,35,45,0.05);
 }
 @media only screen and (max-width: 960px) {
   html { font-size: 9px; }
-  .app .content, .container { margin-left: 20.8rem; }
-  .sidebar { width: 20rem; 
+  .app .content, .container { margin-left: 20.8rem; margin-right: 1.3rem; }
+  .sidebar { width: 20rem;
     .nav-row { color: $icon-half-black; }
     .tab { display: none; }
-    .title { padding-left: 0.7rem; }
+    .title, .hero { padding-left: 0.7rem; }
   }
+  nav.skinny { padding-left: 0.7rem; padding-right: 1.3rem; }
 }

@@ -7,7 +7,7 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-bl
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
   }
 }
-textarea { font-size: 1.2rem; font-family: $slim; line-height: 2rem; padding: 0; width: 100%; min-height: 2.6rem; max-height: 8rem; border: none; background-color: transparent; border-bottom: 1px solid $icon-half-black; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
+textarea { font-size: 1.2rem; font-family: $slim; line-height: 2rem; padding: 0; width: 100%; min-height: 2.6rem; max-height: 10rem; border: none; background-color: transparent; border-bottom: 1px solid $icon-half-black; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $icon-half-black; }
 }
@@ -41,8 +41,10 @@ button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; lin
 .modal-lg { width: inherit; }
 .modal-backdrop { bottom: 0; position: fixed; }
 .interpretation-bar { margin: 3.9vh 0; display: flex; justify-content: flex-end;
+  button { white-space: nowrap; }
   input { width: 20rem; }
   .left { margin-right: auto; }
+  interpretation-button { display: flex; }
   button ~ button, button ~ interpretation-button  { margin-left: 1.3rem; }
 }
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
@@ -103,15 +105,13 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   .tab.active { background-color: $blue; }
   .title.active { color: $blue; }
   nav, .hero { margin-top: auto; }
-  .hero { color: hsla(0,0,97,1); padding-left: 2.6rem; text-shadow: 1px 1px 1px hsla(0,0,0,0.25); cursor: pointer; text-transform: uppercase; }
-  .hero h1 { transition: all 0.6s ease-in-out; margin: 0; margin-bottom: 1.3rem; }
+  .hero { color: hsla(0,0,92,1); padding-left: 2.6rem; cursor: default; text-transform: uppercase; }
+  .hero h1 { transition: all 0.6s ease-in-out; margin: 0; margin-bottom: 1.3rem; letter-spacing: 0.08rem; text-indent: -0.01rem; }
   .hero p { margin-bottom: 0.3rem; }
   .hero:hover h1 { color: $blue; }
+  .hero .l { font-size: 3.1rem; letter-spacing: 0; }
 }
-.sidebar.login .hero { color: $blue; text-shadow: none; }
-.hero { color: $blue; padding-left: 2.6rem; display: flex; }
-.hero:hover h1 { transform: scaleX(-1); transition: transform 0.6s linear; }
-.flip { color: hsla(0,0,97,1); display: inline-block; transform: scaleX(-1); text-shadow: 0px 0px 3px hsla(0,0,0,0.25); }
+.sidebar.login .hero { color: $blue; }
 
 #toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;
   & > :hover { cursor: pointer; }
