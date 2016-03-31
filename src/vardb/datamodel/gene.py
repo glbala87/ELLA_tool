@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.schema import ForeignKeyConstraint
 
 from vardb.datamodel import Base
+from vardb.util.mutjson import MUTJSONB
 
 
 class Gene(Base):
@@ -14,7 +15,6 @@ class Gene(Base):
 
     hugoSymbol = Column(String(20), primary_key=True)
     ensemblGeneID = Column(String(15), unique=True)
-    dominance = Column(String(20))
 
     def __repr__(self):
         return "<Gene('%s')>" % self.hugoSymbol
@@ -64,6 +64,9 @@ class Genepanel(Base):
     genomeReference = Column(String(15), nullable=False)
     transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
 
+    config = Column(MUTJSONB, default={})
+
+
     def __repr__(self):
         return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genomeReference)
 
@@ -83,20 +86,30 @@ class Genepanel(Base):
 
 
 class Phenotype(Base):
-    """Represents a phenotype linked to a particular genepanel
+    """Represents a phenotype linked to a particular genepanel.
+    A phenotype can have some panel specific information (like related clinical tests)
+    so we link it to specific panel. So a phenotype will typically appear mulitple times
+    in the table, each belonging to different panels.
     """
     __tablename__ = "phenotype"
 
     id = Column(Integer, Sequence("id_phenotype_seq"), primary_key=True)
-    genepanelName = Column(String(40), ForeignKey("genepanel.name"), nullable=False)
-    genepanelVersion = Column(String(10), ForeignKey("genepanel.version"), nullable=False)
+
+    genepanelName = Column(String(40), nullable=False)
+    genepanelVersion = Column(String(10), nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
 
     gene_id = Column(String(20), ForeignKey("gene.hugoSymbol"), nullable=False)
     gene = relationship("Gene", lazy="joined")
 
     description = Column(String(250), nullable=False)
-    inheritance = Column(String(10), nullable=False)
+    dominance = Column(String(20), nullable=False)  # rename to inheritance?
+
+
+
+
+    # composite foreign key:
+    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<Phenotype('%s')>" % self.description[:20]
