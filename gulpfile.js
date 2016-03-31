@@ -113,7 +113,7 @@ gulp.task('index', function() {
 gulp.task('sass', function () {
     gulp.src('src/webui/src/sass/*.scss')
         .pipe(plumber())
-        .pipe(sass().on('error', sass.logError))
+        .pipe(sass.sync().on('error', sass.logError))
         .pipe(concat('app.css'))
         .pipe(autoprefixer({
           browsers: ['last 2 versions'],
