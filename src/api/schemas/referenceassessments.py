@@ -22,6 +22,7 @@ class ReferenceAssessmentSchema(Schema):
 
     user_id = fields.Integer(allow_none=True)  # Debug only
     dateSuperceeded = fields.DateTime(allow_none=True)
+    dateLastUpdate = fields.DateTime(allow_none=True)
     evaluation = fields.Field(required=True)
 
     @post_load

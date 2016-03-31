@@ -75,7 +75,7 @@ def request_json(required, only_required=False, allowed=None):
                 check_data = data
             for idx, d in enumerate(check_data):
                 for field in required:
-                    if not d.get(field):
+                    if d.get(field) is None:
                         raise ApiError("Missing or empty required field {} in provided data.".format(field))
 
                 if only_required:

@@ -20,6 +20,11 @@ class AssessmentCreator(object):
         it's important to first create the ReferenceAssessments in order
         to properly connect them to AlleleAssessments.
 
+        You can chose whether to include referenceassessments as part of
+        alleleassessment['referenceassessments'] or by supplying them
+        through the refereassessment keyword. They will be connected correctly
+        through alleleassessments regardless.
+
         :param alleleassessments: AlleleAssessments to create or reuse (dict data)
         :param referenceassessments: ReferenceAssessments to create or reuse (dict data)
         """
@@ -27,41 +32,39 @@ class AssessmentCreator(object):
         if referenceassessments is None:
             referenceassessments = list()
 
-        if alleleassessments:
-            aa_created, aa_reused = self._create_or_reuse_alleleassessments(alleleassessments)
+        if alleleassessments is None:
+            alleleassessments = list()
 
-            # Check for any referenceassessments included as part of alleleassessments
-            for aa in alleleassessments:
-                if 'referenceassessments' in aa:
-                    for f in ['allele_id', 'analysis_id']:
-                        if not all([r[f] == aa[f] for r in aa['referenceassessments']]):
-                            raise ApiError("One of the included referenceassessments has a mismatch on {}.".format(f))
-                    referenceassessments += aa['referenceassessments']
+        aa_created, aa_reused = self._create_or_reuse_alleleassessments(alleleassessments)
 
-        if referenceassessments:
-            ra_created, ra_reused = self._create_or_reuse_referenceassessments(referenceassessments)
+        # Check for any referenceassessments included as part of alleleassessments
+        for aa in alleleassessments:
+            if 'referenceassessments' in aa:
+                for f in ['allele_id', 'analysis_id']:
+                    if not all([r[f] == aa[f] for r in aa['referenceassessments']]):
+                        raise ApiError("One of the included referenceassessments has a mismatch on {}.".format(f))
+                referenceassessments += aa['referenceassessments']
+
+        ra_created, ra_reused = self._create_or_reuse_referenceassessments(referenceassessments)
 
         # Attach ReferenceAssessments to the AlleleAssessments
-        if referenceassessments:
-            ref_total = ra_created + ra_reused
-            if ref_total and aa_created:
-                self._attach_referenceassessments(ref_total, aa_created)
+        ref_total = ra_created + ra_reused
+        if ref_total and aa_created:
+            self._attach_referenceassessments(ref_total, aa_created)
 
         result = dict()
-        if referenceassessments:
-            result.update({
-                'referenceassessments': {
-                    'reused': ra_reused,
-                    'created': ra_created
-                }
-            })
-        if alleleassessments:
-            result.update({
-                'alleleassessments': {
-                    'reused': aa_reused,
-                    'created': aa_created
-                }
-            })
+        result.update({
+            'referenceassessments': {
+                'reused': ra_reused,
+                'created': ra_created
+            }
+        })
+        result.update({
+            'alleleassessments': {
+                'reused': aa_reused,
+                'created': aa_created
+            }
+        })
 
         return result
 
@@ -106,7 +109,7 @@ class AssessmentCreator(object):
             else:
                 if not 'analysis_id' in aa:
                     raise ApiError("Missing required field 'analysis_id' in alleleassessment.")
-                assessment_obj = AlleleAssessmentSchema().load(aa).data
+                assessment_obj = AlleleAssessmentSchema(strict=True).load(aa).data
                 assessment_obj.referenceAssessments = []  # ReferenceAssessments must be handled separately, and not included as part of data
                 assessment_obj.dateLastUpdate = datetime.datetime.now()
 
@@ -162,7 +165,7 @@ class AssessmentCreator(object):
             else:
                 if not 'analysis_id' in ra:
                     raise ApiError("Missing required field 'analysis_id' in referenceassessment.")
-                assessment_obj = ReferenceAssessmentSchema().load(ra).data
+                assessment_obj = ReferenceAssessmentSchema(strict=True).load(ra).data
                 assessment_obj.dateLastUpdate = datetime.datetime.now()
 
                 # Link assessment to genepanel through analysis
