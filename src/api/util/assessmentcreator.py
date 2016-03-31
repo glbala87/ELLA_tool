@@ -104,9 +104,8 @@ class AssessmentCreator(object):
                     raise ApiError("Found no matching alleleassessment for allele_id: {}, id: {}. Either the assessment is outdated or it doesn't exist.".format(aa['allele_id'], aa['id']))
                 reused.append(to_reuse)
             else:
-                if not 'analysis_id' in aa and \
-                   (not 'genepanelName' in aa and not 'genepanelVersion' in aa):
-                    raise ApiError("Missing one of the required fields. Either provide 'analysis_id' field or both 'genepanelName' and 'genepanelVersion'.")
+                if not 'analysis_id' in aa:
+                    raise ApiError("Missing required field 'analysis_id' in alleleassessment.")
                 assessment_obj = AlleleAssessmentSchema().load(aa).data
                 assessment_obj.referenceAssessments = []  # ReferenceAssessments must be handled separately, and not included as part of data
                 assessment_obj.dateLastUpdate = datetime.datetime.now()
@@ -144,8 +143,7 @@ class AssessmentCreator(object):
 
         allele_ids = [ra['allele_id'] for ra in referenceassessments]
         reference_ids = [ra['reference_id'] for ra in referenceassessments]
-        # TODO: Performance: Look into WHERE clause pairing, right now we get more entries than we
-        # strictly need. Probably will never be an issue in practice though.
+
         existing = self.session.query(assessment.ReferenceAssessment).filter(
             assessment.ReferenceAssessment.allele_id.in_(allele_ids),
             assessment.ReferenceAssessment.reference_id.in_(reference_ids),
@@ -162,9 +160,8 @@ class AssessmentCreator(object):
                     raise ApiError("Found no matching referenceassessment for allele_id: {}, reference_id: {}, id: {}. Either the assessment is outdated or it doesn't exist.".format(ra['allele_id'], ra['reference_id'], ra['id']))
                 reused.append(to_reuse)
             else:
-                if not 'analysis_id' in ra and \
-                   (not 'genepanelName' in ra and not 'genepanelVersion' in ra):
-                    raise ApiError("Missing one of the required fields. Either provide 'analysis_id' field or both 'genepanelName' and 'genepanelVersion'.")
+                if not 'analysis_id' in ra:
+                    raise ApiError("Missing required field 'analysis_id' in referenceassessment.")
                 assessment_obj = ReferenceAssessmentSchema().load(ra).data
                 assessment_obj.dateLastUpdate = datetime.datetime.now()
 

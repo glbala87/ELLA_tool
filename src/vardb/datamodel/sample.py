@@ -38,12 +38,12 @@ class Sample(Base):
     __tablename__ = "sample"
 
     id = Column(Integer, Sequence("id_sample_seq"), primary_key=True)
-    identifier = Column(String(), nullable=False) # SampleID in Swisslab
+    identifier = Column(String(), nullable=False)
     sampleType = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     patient_id = Column(Integer, ForeignKey("patient.id"))
     patient = relationship("Patient", backref=backref("samples", order_by=id))
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    sampleConfig = Column("sample_config", JSONB) # includes capturekit and more
+    sampleConfig = Column("sample_config", JSONB)  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier", unique=True), )
 

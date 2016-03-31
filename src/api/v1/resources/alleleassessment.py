@@ -14,7 +14,7 @@ class AlleleAssessmentResource(Resource):
         a = session.query(assessment.AlleleAssessment).filter(
             assessment.AlleleAssessment.id == aa_id
         ).one()
-        result = schemas.AlleleAssessmentSchema(strict=True).dump(a)
+        result = schemas.AlleleAssessmentSchema(strict=True).dump(a).data
         return result
 
 

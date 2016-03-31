@@ -14,7 +14,7 @@ class ReferenceAssessmentResource(Resource):
         a = session.query(assessment.ReferenceAssessment).filter(
             assessment.ReferenceAssessment.id == ra_id
         ).one()
-        result = schemas.ReferenceAssessmentSchema(strict=True).dump(a)
+        result = schemas.ReferenceAssessmentSchema(strict=True).dump(a).data
         return result
 
 
@@ -22,14 +22,14 @@ class ReferenceAssessmentListResource(Resource):
 
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=100000):
+    def get(self, session, rest_filter=None, page=None, num_per_page=None):
         return self.list_query(
             session,
             assessment.ReferenceAssessment,
             schemas.ReferenceAssessmentSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            num_per_page=num_per_page
+            num_per_page=100000  # FIXME: Fix proper pagination...
         )
 
     @request_json(
@@ -54,6 +54,8 @@ class ReferenceAssessmentListResource(Resource):
         2. If a non-curated (status=0) entry exists already, overwrite it.
         3. If a curated entry exists, create a new non-curated one.
         """
+
+        raise RuntimeError("FIXME! REMOVE RESOURCE?")
 
         obj = schemas.ReferenceAssessmentSchema(strict=True).load(data).data
         obj.dateLastUpdate = datetime.datetime.now()

@@ -1,3 +1,5 @@
+from sqlalchemy import desc
+
 from vardb.datamodel import sample, user, assessment
 
 from api import schemas, ApiError
@@ -142,7 +144,7 @@ class AnalysisActionReopenResource(Resource):
 
         i = session.query(sample.Interpretation).filter(
             sample.Analysis.id == analysis_id
-        ).order_by(sample.Interpretation.id).first()
+        ).order_by(desc(sample.Interpretation.id)).first()
 
         # Create next interpretation
         next_i = sample.Interpretation()
@@ -216,24 +218,15 @@ class AnalysisActionFinalizeResource(Resource):
 
         """
 
+        ac = AssessmentCreator(session)
 
-        # AssessmentCreator(session).curate_and_replace(
-        #     alleleassessments=noncurated_aa,
-        #     referenceassessments=noncurated_ra
-        # )
+        result = ac.create_from_data(
+            data['alleleassessments'],
+            data['referenceassessments'],
+        )
 
-        # Attach reported used alleleassessments to analysis
-        # print data['alleleassessments']
-        # reported_aa = session.query(assessment.AlleleAssessment).filter(
-        #     assessment.AlleleAssessment.id.in_(data['alleleassessments'])
-        # ).all()
-
-        # if len(reported_aa) != len(data['alleleassessments']):
-        #     raise ApiError("Some 'alleleassessments' id's are not valid.")
-        # analysis = session.query(sample.Analysis).filter(
-        #     sample.Analysis.id == analysis_id
-        # ).one()
-        # analysis.alleleAssessments = reported_aa
+        aa = result['alleleassessments']['reused'] + result['alleleassessments']['created']
+        ra = result['referenceassessments']['reused'] + result['referenceassessments']['created']
 
         # Mark all analysis' interpretations as done (we do all just in case)
         connected_interpretations = session.query(sample.Interpretation).filter(
@@ -244,4 +237,7 @@ class AnalysisActionFinalizeResource(Resource):
             i.status = 'Done'
         session.commit()
 
-        return None, 200
+        return {
+            'alleleassessments': schemas.AlleleAssessmentSchema().dump(aa, many=True).data,
+            'referenceassessments': schemas.ReferenceAssessmentSchema().dump(ra, many=True).data,
+        }, 200
