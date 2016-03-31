@@ -128,49 +128,16 @@ class InterpretationService {
                         let alleleassessments = [];
                         let referenceassessments = [];
                         for (let [allele_id, allele_state] of Object.entries(interpretation.state.allele)) {
-                            // If id is included, we're reusing an existing one.
-                            if ('id' in allele_state.alleleassessment) {
-                                alleleassessments.push({
-                                    allele_id: parseInt(allele_id),
-                                    id: allele_state.alleleassessment.id,
-                                    analysis_id: interpretation.analysis.id
-                                });
-                            }
-                            else {
-                                // Fill in fields expected by backend
-                                alleleassessments.push({
-                                    allele_id: parseInt(allele_id),
-                                    analysis_id: interpretation.analysis.id,
-                                    user_id: this.user.getCurrentUserId(),
-                                    classification: allele_state.alleleassessment.classification,
-                                    evaluation: allele_state.alleleassessment.evaluation
-                                });
-                            }
-                            // Referenceassessment
-                            if ('referenceassessment' in allele_state) {
-                                // Iterate over all referenceassessments for this allele
-                                for (let [reference_id, reference_state] of Object.entries(allele_state.referenceassessment)) {
-                                    // If id is included, we're reusing an existing one.
-                                    if ('id' in reference_state) {
-                                        referenceassessments.push({
-                                            allele_id: parseInt(allele_id),
-                                            reference_id: parseInt(reference_id),
-                                            id: reference_state.id,
-                                            analysis_id: interpretation.analysis.id
-                                        });
-                                    }
-                                    else {
-                                        // Fill in fields expected by backend
-                                        referenceassessments.push({
-                                            allele_id: parseInt(allele_id),
-                                            reference_id: parseInt(reference_id),
-                                            analysis_id: interpretation.analysis.id,
-                                            evaluation: reference_state.evaluation || {},
-                                            user_id: this.user.getCurrentUserId()
-                                        });
-                                    }
-                                }
-                            }
+                            alleleassessments.push(this.prepareAlleleAssessmentsFromAlleleState(
+                                parseInt(allele_id),
+                                interpretation.analysis.id,
+                                allele_state
+                                ));
+                            referenceassessments += this.prepareReferenceAssessmentsFromAlleleState(
+                                parseInt(allele_id),
+                                interpretation.analysis.id,
+                                allele_state
+                            );
                         }
 
                         return this.analysisService.finalize(
@@ -186,6 +153,57 @@ class InterpretationService {
             }
             return true;
         });
+    }
+
+    prepareAlleleAssessmentsFromAlleleState(allele_id, analysis_id, allelestate) {
+        // If id is included, we're reusing an existing one.
+        if ('id' in allelestate.alleleassessment) {
+            return {
+                allele_id: allele_id,
+                id: allelestate.alleleassessment.id,
+                analysis_id: analysis_id
+            };
+        }
+        else {
+            // Fill in fields expected by backend
+            return {
+                allele_id: allele_id,
+                analysis_id: analysis_id,
+                user_id: this.user.getCurrentUserId(),
+                classification: allelestate.alleleassessment.classification,
+                evaluation: allelestate.alleleassessment.evaluation
+            };
+        }
+
+    }
+
+    prepareReferenceAssessmentsFromAlleleState(allele_id, analysis_id, allelestate) {
+        let referenceassessments = [];
+        if ('referenceassessment' in allelestate) {
+            // Iterate over all referenceassessments for this allele
+            for (let [reference_id, reference_state] of Object.entries(allelestate.referenceassessment)) {
+                // If id is included, we're reusing an existing one.
+                if ('id' in reference_state) {
+                    referenceassessments.push({
+                        allele_id: allele_id,
+                        reference_id: parseInt(reference_id),
+                        id: reference_state.id,
+                        analysis_id: analysis_id
+                    });
+                }
+                else {
+                    // Fill in fields expected by backend
+                    referenceassessments.push({
+                        allele_id: allele_id,
+                        reference_id: parseInt(reference_id),
+                        analysis_id: analysis_id,
+                        evaluation: reference_state.evaluation || {},
+                        user_id: this.user.getCurrentUserId()
+                    });
+                }
+            }
+        }
+        return referenceassessments;
     }
 
 }

@@ -66,7 +66,7 @@ export class AlleleService {
      * @return {Promise}                 Promise resolved with response from backend.
      */
     submitAlleleAssessment(alleleassessment) {
-        return this.alleleAssessmentResource.createOrUpdateAlleleassessment(alleleassessment);
+        return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(alleleassessment);
     }
 
     /**
