@@ -106,7 +106,7 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   .title.active { color: $blue; }
   nav, .hero { margin-top: auto; }
   .hero { color: hsla(0,0,92,1); padding-left: 2.6rem; cursor: default; text-transform: uppercase; }
-  .hero h1 { transition: all 0.6s ease-in-out; margin: 0; margin-bottom: 1.3rem; letter-spacing: 0.08rem; }
+  .hero h1 { transition: all 0.6s ease-in-out; margin: 0; margin-bottom: 1.3rem; letter-spacing: 0.08rem; text-indent: -0.01rem; }
   .hero p { margin-bottom: 0.3rem; }
   .hero:hover h1 { color: $blue; }
   .hero .l { font-size: 3.1rem; letter-spacing: 0; }
