@@ -116,40 +116,77 @@ class InterpretationService {
             controllerAs: 'vm'
         });
         return modal.result.then(res => {
-            if (res === 'markreview') {
-                this.analysisService.markreview(interpretation.analysis.id);
-            } else if (res === 'finalize') {
-                this.analysisService.finalize(interpretation.analysis.id);
-            } else {
-                throw `Got unknown option ${res} when confirming interpretation action.`;
+            // Save interpretation before marking as done
+            if (res) {
+                this.save(interpretation).then(() => {
+                    if (res === 'markreview') {
+                        this.analysisService.markreview(interpretation.analysis.id);
+                    }
+                    else if (res === 'finalize') {
+
+                        // Get all alleleassessments and referenceassessments used for this analysis.
+                        let alleleassessments = [];
+                        let referenceassessments = [];
+                        for (let [allele_id, allele_state] of Object.entries(interpretation.state.allele)) {
+                            // If id is included, we're reusing an existing one.
+                            if ('id' in allele_state.alleleassessment) {
+                                alleleassessments.push({
+                                    allele_id: parseInt(allele_id),
+                                    id: allele_state.alleleassessment.id,
+                                    analysis_id: interpretation.analysis.id
+                                });
+                            }
+                            else {
+                                // Fill in fields expected by backend
+                                alleleassessments.push({
+                                    allele_id: parseInt(allele_id),
+                                    analysis_id: interpretation.analysis.id,
+                                    user_id: this.user.getCurrentUserId(),
+                                    classification: allele_state.alleleassessment.classification,
+                                    evaluation: allele_state.alleleassessment.evaluation
+                                });
+                            }
+                            // Referenceassessment
+                            if ('referenceassessment' in allele_state) {
+                                // Iterate over all referenceassessments for this allele
+                                for (let [reference_id, reference_state] of Object.entries(allele_state.referenceassessment)) {
+                                    // If id is included, we're reusing an existing one.
+                                    if ('id' in reference_state) {
+                                        referenceassessments.push({
+                                            allele_id: parseInt(allele_id),
+                                            reference_id: parseInt(reference_id),
+                                            id: reference_state.id,
+                                            analysis_id: interpretation.analysis.id
+                                        });
+                                    }
+                                    else {
+                                        // Fill in fields expected by backend
+                                        referenceassessments.push({
+                                            allele_id: parseInt(allele_id),
+                                            reference_id: parseInt(reference_id),
+                                            analysis_id: interpretation.analysis.id,
+                                            evaluation: reference_state.evaluation || {},
+                                            user_id: this.user.getCurrentUserId()
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
+                        return this.analysisService.finalize(
+                            interpretation.analysis.id,
+                            alleleassessments,
+                            referenceassessments
+                        );
+                    }
+                    else {
+                        throw `Got unknown option ${res} when confirming interpretation action.`;
+                    }
+                });
             }
             return true;
         });
     }
-
-    complete() {
-        // TODO: Error handling
-        return this.save().then(() => {
-            this.interpretationResource.complete(this.interpretation.id).then(() => {
-                this.redirect();
-            });
-        });
-    }
-
-    finalize() {
-        // TODO: Error handling
-        return this.save().then(() => {
-            this.interpretationResource.finalize(this.interpretation.id).then(() => {
-                this.redirect();
-            });
-        });
-    }
-
-    redirect() {
-        this.locationService.url('/analyses');
-    }
-
-
 
 }
 
