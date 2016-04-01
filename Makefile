@@ -6,7 +6,7 @@ INTERNAL_API_PORT = 5000 # e2e testing uses linked containers, so use container 
 INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use container internal port
 API_HOST ?= 'localhost'
 TEST_NAME ?= all
-TEST_OPTIONS ?= ''
+TEST_COMMAND ?=
 CONTAINER_NAME = ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
@@ -28,6 +28,7 @@ help :
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image local/ella-test, then run all tests"
 	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js } required as variable or will default to 'all'"
+	@echo "                          optional variable TEST_COMMAND=... will override py.test arguments and run 'py.test TEST_COMMAND'"
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
@@ -78,7 +79,7 @@ single-test: test-build run-test
 e2e-test: test-build run-e2e-app run-e2e-selenium run-e2e-test cleanup-e2e
 
 run-test:
-	docker run $(IMAGE_NAME) make test-$(TEST_NAME) TEST_OPTIONS=$(TEST_OPTIONS)
+	docker run $(IMAGE_NAME) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
 
 # test runner (protractor) for e2e tests
 run-e2e-test:
@@ -116,11 +117,19 @@ test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	sleep 5
-	py.test $(TEST_OPTIONS) "/ella/src/api" -s
+	if [ "$(TEST_COMMAND)" = "" ]; then\
+        py.test "/ella/src/api/" -s;\
+    else\
+    	py.test $(TEST_COMMAND);\
+    fi
 
 test-common: export PYTHONPATH=/ella/src
 test-common:
-	py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api $(TEST_OPTIONS)
+	if [ "$(TEST_COMMAND)" = "" ]; then\
+        py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api ;\
+    else\
+    	py.test $(TEST_COMMAND);\
+    fi
 
 test-js:
 	rm -f /ella/node_modules
