@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Annotation} from './annotation';
+import Annotation from './annotation';
 
 export class Allele {
     /**
