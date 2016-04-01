@@ -69,14 +69,23 @@ def request_json(required, only_required=False, allowed=None):
     def wrapper(func):
         def inner(*args, **kwargs):
             data = request.get_json()
-            for field in required:
-                if not data.get(field):
-                    raise ApiError("Missing or empty required field {} in provided data.".format(field))
+            if not isinstance(data, list):
+                check_data = [data]
+            else:
+                check_data = data
+            for idx, d in enumerate(check_data):
+                for field in required:
+                    if d.get(field) is None:
+                        raise ApiError("Missing or empty required field {} in provided data.".format(field))
 
-            if only_required:
-                data = {k: v for k, v in data.iteritems() if k in required}
-            elif allowed:
-                data = {k: v for k, v in data.iteritems() if k in required + allowed}
+                if only_required:
+                    check_data[idx] = {k: v for k, v in d.iteritems() if k in required}
+                elif allowed:
+                    check_data[idx] = {k: v for k, v in d.iteritems() if k in required + allowed}
+            if not isinstance(data, list):
+                data = check_data[0]
+            else:
+                data = check_data
             return func(*args, data=data, **kwargs)
         return inner
     return wrapper

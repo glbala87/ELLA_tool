@@ -23,16 +23,14 @@ class AlleleAssessmentResource {
             let r = this.resource(`${this.base}/alleleassessments/?q=${encodeURIComponent(q)}`);
             let alleleassessments = r.query(() => {
                 resolve(alleleassessments);
-            });
+            }, reject);
         });
     }
 
     createOrUpdateAlleleAssessment(aa) {
-        return new Promise(resolve => {
-            let r = this.resource(`${this.base}/alleleassessments/`, {}, {createOrUpdate: {method: 'POST'}});
-            r.createOrUpdate(aa, o => {
-                resolve(o);
-            });
+        return new Promise((resolve, reject) => {
+            let r = this.resource(`${this.base}/alleleassessments/`, {}, {createOrUpdate: {method: 'POST', isArray: true}});
+            r.createOrUpdate(aa, resolve, reject);
         });
     }
 }

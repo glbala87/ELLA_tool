@@ -21,6 +21,15 @@ AnalysisSampleTable = Table('analysissample', Base.metadata,
 )
 
 
+# Tracks which alleleassessments was ultimately used for an analysis
+# This is not to be confused with the analysis_id in AlleleAssessment table,
+# which tells which analysis the AlleleAssessment was *created* for.
+AnalysisAlleleAssessment = Table('analysisalleleassessment', Base.metadata,
+    Column('analysis_id', Integer, ForeignKey('analysis.id')),
+    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id'))
+)
+
+
 class Sample(Base):
     """Represents a sample (aka one sequencing run of 1 biological sample)
 
@@ -29,12 +38,12 @@ class Sample(Base):
     __tablename__ = "sample"
 
     id = Column(Integer, Sequence("id_sample_seq"), primary_key=True)
-    identifier = Column(String(), nullable=False) # SampleID in Swisslab
+    identifier = Column(String(), nullable=False)
     sampleType = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     patient_id = Column(Integer, ForeignKey("patient.id"))
     patient = relationship("Patient", backref=backref("samples", order_by=id))
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    sampleConfig = Column("sample_config", JSONB) # includes capturekit and more
+    sampleConfig = Column("sample_config", JSONB)  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier", unique=True), )
 
@@ -59,6 +68,7 @@ class Analysis(Base):
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysisConfig = Column("analysis_config", JSONB)
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
+    alleleAssessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
 
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)

@@ -255,7 +255,6 @@ class SearchResource(Resource):
                 allele.Allele.id.in_(allele_ids),
                 assessment.AlleleAssessment.allele_id.in_(allele_ids),
                 assessment.AlleleAssessment.dateSuperceeded == None,
-                assessment.AlleleAssessment.status == 1
             ).limit(SearchResource.ALLELE_LIMIT).all()
             return AlleleDataLoader(session).from_objs(
                 alleles,

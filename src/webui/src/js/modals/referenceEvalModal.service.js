@@ -17,7 +17,7 @@ export class ReferenceEvalModalController {
         this.modal = modalInstance;
         this.allele = allele;
         this.reference = reference;
-        this.referenceAssessment = referenceAssessment;
+        this.referenceAssessment = JSON.parse(JSON.stringify(referenceAssessment));
         this.enabled_sources = [];
         this.sources = {
                 'relevance': {
@@ -326,14 +326,7 @@ export class ReferenceEvalModalController {
 
     save() {
         this.cleanup();
-        return this.analysisService.createOrUpdateReferenceAssessment(
-            this.analysis,
-            this.referenceAssessment,
-            this.allele,
-            this.reference
-        ).then(ra => {
-            return this.modal.close(ra);
-        });
+        return this.modal.close(this.referenceAssessment);
     }
 
 }

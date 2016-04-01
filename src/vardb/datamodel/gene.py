@@ -12,7 +12,7 @@ class Gene(Base):
     """Represents a gene abstraction"""
     __tablename__ = "gene"
 
-    hugoSymbol = Column(String(20), primary_key=True)
+    hugoSymbol = Column(String(), primary_key=True)
     ensemblGeneID = Column(String(15), unique=True)
     dominance = Column(String(20))
 
@@ -59,8 +59,8 @@ class Genepanel(Base):
     """Represents a gene panel"""
     __tablename__ = "genepanel"
 
-    name = Column(String(40), primary_key=True)
-    version = Column(String(5), primary_key=True)
+    name = Column(String(), primary_key=True)
+    version = Column(String(), primary_key=True)
     genomeReference = Column(String(15), nullable=False)
     transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
 
