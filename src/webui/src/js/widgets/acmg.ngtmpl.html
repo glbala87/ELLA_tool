@@ -1,5 +1,5 @@
 <div class='acmg' ng-class="vm.getACMGclass()">
-  <div class="button-wrapper" ng-click="vm.toggle()">
+  <div class="button-wrapper" ng-click="vm.toggle()" ng-if="::vm.commentModel != undefined">
     <button class="white" ng-if="::vm.toggleText">{{::vm.toggleText}}</button>
   </div>
   <h4 uib-popover-template="vm.popover.templateUrl"
