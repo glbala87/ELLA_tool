@@ -118,7 +118,7 @@ class InterpretationService {
         return modal.result.then(res => {
             // Save interpretation before marking as done
             if (res) {
-                this.save(interpretation).then(() => {
+                return this.save(interpretation).then(() => {
                     if (res === 'markreview') {
                         this.analysisService.markreview(interpretation.analysis.id);
                     }
@@ -128,16 +128,16 @@ class InterpretationService {
                         let alleleassessments = [];
                         let referenceassessments = [];
                         for (let [allele_id, allele_state] of Object.entries(interpretation.state.allele)) {
-                            alleleassessments.push(this.prepareAlleleAssessmentsFromAlleleState(
+                            alleleassessments.push(this.prepareAlleleAssessments(
                                 parseInt(allele_id),
                                 interpretation.analysis.id,
                                 allele_state
                                 ));
-                            referenceassessments += this.prepareReferenceAssessmentsFromAlleleState(
+                            referenceassessments = referenceassessments.concat(this.prepareReferenceAssessments(
                                 parseInt(allele_id),
                                 interpretation.analysis.id,
                                 allele_state
-                            );
+                            ));
                         }
 
                         return this.analysisService.finalize(
@@ -155,7 +155,7 @@ class InterpretationService {
         });
     }
 
-    prepareAlleleAssessmentsFromAlleleState(allele_id, analysis_id, allelestate) {
+    prepareAlleleAssessments(allele_id, analysis_id, allelestate) {
         // If id is included, we're reusing an existing one.
         if ('id' in allelestate.alleleassessment) {
             return {
@@ -177,7 +177,7 @@ class InterpretationService {
 
     }
 
-    prepareReferenceAssessmentsFromAlleleState(allele_id, analysis_id, allelestate) {
+    prepareReferenceAssessments(allele_id, analysis_id, allelestate) {
         let referenceassessments = [];
         if ('referenceassessment' in allelestate) {
             // Iterate over all referenceassessments for this allele
