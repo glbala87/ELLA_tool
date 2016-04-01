@@ -15,6 +15,7 @@ class Gene(Base):
 
     hugoSymbol = Column(String(20), primary_key=True)
     ensemblGeneID = Column(String(15), unique=True)
+    dominance = Column(String(20))
 
     def __repr__(self):
         return "<Gene('%s')>" % self.hugoSymbol
@@ -31,10 +32,10 @@ class Transcript(Base):
     ensemblID = Column(String(15), unique=True)
     genomeReference = Column(String(15), nullable=False)
     chromosome = Column(String(10), nullable=False)
-    txStart = Column(Integer, nullable=False) # TODO: Use Postgres int4range when SQLAlchemy supports it
+    txStart = Column(Integer, nullable=False)  # TODO: Use Postgres int4range when SQLAlchemy supports it
     txEnd = Column(Integer, nullable=False)
     strand = Column(String(1), nullable=False)
-    cdsStart = Column(Integer, nullable=False) # TODO: Use Postgres int4range when SQLAlchemy supports it
+    cdsStart = Column(Integer, nullable=False)  # TODO: Use Postgres int4range when SQLAlchemy supports it
     cdsEnd = Column(Integer, nullable=False)
     exonStarts = Column("exon_starts", ARRAY(Integer), nullable=False) # giving dimensions does not work
     exonEnds = Column("exon_ends", ARRAY(Integer), nullable=False)
@@ -63,6 +64,7 @@ class Genepanel(Base):
     version = Column(String(5), primary_key=True)
     genomeReference = Column(String(15), nullable=False)
     transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
+    phenotypes = relationship("Phenotype", lazy='joined')
 
     config = Column(MUTJSONB, default={})
 

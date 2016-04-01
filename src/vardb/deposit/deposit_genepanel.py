@@ -11,6 +11,7 @@ import logging
 import vardb.datamodel
 from vardb.datamodel import gene as gm
 from regions import transcript as tm
+from regions import phenotype as ph
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +25,11 @@ class DepositGenepanel(object):
         with open(os.path.abspath(os.path.normpath(transcripts_path))) as f:
             return tm.load_transcripts_from_genepanel_file(f)
 
-    def add_genepanel(self, transcripts_path, genepanelName, genepanelVersion, genomeRef='GRCh37', force_yes=False):
+    def load_phenotypes(self, phenotypes_path):
+        with open(os.path.abspath(os.path.normpath(phenotypes_path))) as f:
+            return ph.load_phenotypes_from_genepanel_file(f)
+
+    def add_genepanel(self, transcripts_path, phenotypes_path, genepanelName, genepanelVersion, genomeRef='GRCh37', force_yes=False):
         if self.session.query(gm.Genepanel).filter(gm.Genepanel.name == genepanelName,
                                                    gm.Genepanel.version == genepanelVersion).count():
             log.warning("{} {} already in database".format(genepanelName, genepanelVersion))
@@ -34,7 +39,9 @@ class DepositGenepanel(object):
                 return -1
 
         db_transcripts = []
+        db_phenotypes = []
         transcripts = self.load_transcripts(transcripts_path)
+        phenotypes = self.load_phenotypes(phenotypes_path) if phenotypes_path else None
         for t in transcripts:
             gene, created = gm.Gene.update_or_create(
                 self.session,
@@ -67,14 +74,26 @@ class DepositGenepanel(object):
                 log.info('Updated transcript {}'.format(db_transcript))
 
 
+        if phenotypes:
+            for ph in phenotypes:
+                gene = None
+                db_phenotype = gm.Phenotype(
+                    gene=gene,
+                    description='hardcoded',
+                    dominance='dom'
+                )
+                db_phenotypes.append(db_phenotype)
+
         genepanel = gm.Genepanel(
             name=genepanelName,
             version=genepanelVersion,
             genomeReference=genomeRef,
-            transcripts=db_transcripts)
+            transcripts=db_transcripts,
+            phenotypes=db_phenotypes)
         self.session.merge(genepanel)
         self.session.commit()
-        log.info('Added {} version {} to database'.format(genepanelName, genepanelVersion))
+        log.info('Added {} {} with {} transcripts and {} phenotypes to database'
+                 .format(genepanelName, genepanelVersion, len(db_transcripts), len(db_phenotypes)))
         return 0
 
 
@@ -106,7 +125,7 @@ def main(argv=None):
     assert genepanelVersion.startswith('v')
 
     dg = DepositGenepanel()
-    return dg.add_genepanel(args.transcriptsPath, genepanelName, genepanelVersion, genomeRef=args.genomeRef, force_yes=args.force)
+    return dg.add_genepanel(args.transcriptsPath, None, genepanelName, genepanelVersion, genomeRef=args.genomeRef, force_yes=args.force)
 
 
 if __name__ == "__main__":

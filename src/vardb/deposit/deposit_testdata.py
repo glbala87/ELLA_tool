@@ -28,7 +28,8 @@ USERS = '../testdata/users.json'
 
 GENEPANELS = [
     {
-        'path': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
+        'transcripts': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.phenotypes.csv',
         'name': 'HBOC',
         'version': 'v00'
     },
@@ -236,7 +237,8 @@ class DepositTestdata(object):
         dg = DepositGenepanel(self.session)
         for gpdata in GENEPANELS:
             dg.add_genepanel(
-                os.path.join(SCRIPT_DIR, gpdata['path']),
+                os.path.join(SCRIPT_DIR,  gpdata['transcripts'] if 'transcripts' in gpdata else gpdata['path']),
+                os.path.join(SCRIPT_DIR,  gpdata['phenotypes'] if 'phenotypes' in gpdata else None),
                 gpdata['name'],
                 gpdata['version'],
                 force_yes=True
