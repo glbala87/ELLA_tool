@@ -214,6 +214,7 @@ gulp.task('watch', function() {
     gulp.watch('src/webui/src/js/**/*.js', ['js']);
     gulp.watch('src/webui/src/sass/*.scss', ['sass']);
     gulp.watch('src/webui/src/less/**/*.less', ['less']);
+    gulp.watch('src/webui/src/thirdparty/bootstrap/bootstrap-3.3.2/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
 
