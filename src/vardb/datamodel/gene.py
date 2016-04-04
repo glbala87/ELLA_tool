@@ -110,8 +110,11 @@ class Phenotype(Base):
 
 
 
-    # composite foreign key:
-    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
+    # composite foreign key
+    # http://docs.sqlalchemy.org/en/latest/core/constraints.html#sqlalchemy.schema.ForeignKeyConstraint:
+    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion],
+                                           ["genepanel.name", "genepanel.version"],
+                                            deferrable=True))
 
     def __repr__(self):
         return "<Phenotype('%s')>" % self.description[:20]

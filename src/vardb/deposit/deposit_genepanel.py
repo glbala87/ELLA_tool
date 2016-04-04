@@ -42,6 +42,7 @@ class DepositGenepanel(object):
         db_phenotypes = []
         transcripts = self.load_transcripts(transcripts_path)
         phenotypes = self.load_phenotypes(phenotypes_path) if phenotypes_path else None
+        genes = {}
         for t in transcripts:
             gene, created = gm.Gene.update_or_create(
                 self.session,
@@ -49,6 +50,7 @@ class DepositGenepanel(object):
                 ensemblGeneID=t.eGene,
                 defaults={'dominance': t.inheritance}
             )
+            genes[gene.hugoSymbol] = gene
             if not created:
                 log.info('Updated gene {}'.format(gene))
 
@@ -73,12 +75,22 @@ class DepositGenepanel(object):
             if not created:
                 log.info('Updated transcript {}'.format(db_transcript))
 
-
         if phenotypes:
             for ph in phenotypes:
                 gene = None
-                db_phenotype = gm.Phenotype(
-                    gene=gene,
+                print "ph.geneSymbol" + ph.geneSymbol
+                # db_phenotype = gm.Phenotype(
+                #     gene_id=ph.geneSymbol,
+                #     gene=gene,  # TODO: not relevant for INSERT ?
+                #     description='hardcoded',
+                #     dominance='dom'
+                # )
+                db_phenotype, created = gm.Phenotype.update_or_create(
+                    self.session,
+                    genepanelName=genepanelName,
+                    genepanelVersion=genepanelVersion,
+                    gene_id=ph.geneSymbol,
+                    gene=genes[ph.geneSymbol],  # TODO: not relevant for INSERT ?
                     description='hardcoded',
                     dominance='dom'
                 )
@@ -90,6 +102,8 @@ class DepositGenepanel(object):
             genomeReference=genomeRef,
             transcripts=db_transcripts,
             phenotypes=db_phenotypes)
+        print db_transcript
+        print db_phenotypes
         self.session.merge(genepanel)
         self.session.commit()
         log.info('Added {} {} with {} transcripts and {} phenotypes to database'
