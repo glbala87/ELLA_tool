@@ -1,5 +1,5 @@
 <div class='acmg' ng-class="vm.getACMGclass()">
-  <div class="button-wrapper" ng-click="vm.toggle()" ng-if="::vm.commentModel != undefined">
+  <div class="button-wrapper" ng-click="vm.toggle()" ng-if="::vm.commentModel != undefined && vm.isEditable()">
     <button class="white" ng-if="::vm.toggleText">{{::vm.toggleText}}</button>
   </div>
   <h4 uib-popover-template="vm.popover.templateUrl"
@@ -9,5 +9,6 @@
     popover-placement="auto top">
     {{vm.code.code}}
   </h4>
-  <autosize-textarea class="white" placeholder="ACMG-COMMENT" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel"></autosize-textarea>
+  <autosize-textarea class="white" placeholder="ACMG-COMMENT" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
+
 </div>

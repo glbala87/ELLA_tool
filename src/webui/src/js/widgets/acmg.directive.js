@@ -7,6 +7,7 @@ import {Directive, Inject} from '../ng-decorators';
     scope: {
         code: '=',
         commentModel: '=?',
+        editable: '=?',  // Defaults to true
         onToggle: '&?',
         toggleText: '@?'
     },
@@ -23,9 +24,13 @@ export class AcmgController {
     }
 
     toggle() {
-        if (this.onToggle) {
+        if (this.onToggle && this.isEditable()) {
             this.onToggle({code: this.code});
         }
+    }
+
+    isEditable() {
+        return this.editable !== undefined ? this.editable : true;
     }
 
     getSource() {
