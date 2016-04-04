@@ -14,16 +14,23 @@ import {Directive, Inject} from '../ng-decorators';
         'User',
         'Analysis',
         'InterpretationResource',
-        'InterpretationOverrideModal')
+        'InterpretationOverrideModal',
+        'toastr')
 class AnalysisListWidget {
 
-    constructor(Sidebar, User, Analysis, InterpretationResource, InterpretationOverrideModal) {
+    constructor(Sidebar,
+                User,
+                Analysis,
+                InterpretationResource,
+                InterpretationOverrideModal,
+                toastr) {
         this.location = location;
         this.sidebar = Sidebar;
         this.user = User;
         this.analysisService = Analysis;
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
+        this.toastr = toastr;
 
         this.setupSidebar();
     }
@@ -46,9 +53,15 @@ class AnalysisListWidget {
         let current_user_id = this.user.getCurrentUserId();
         return analysis.interpretations.filter(
             i => i.user &&
-                 i.user.id === current_user_id &&
-                 i.status === 'Done'
+                 i.user.id === current_user_id
         ).length > 0;
+    }
+
+    isAnalysisDone(analysis) {
+        return analysis.interpretations.length &&
+               analysis.interpretations.every(
+                   i => i.status === 'Done'
+               );
     }
 
     openAnalysis(analysis) {
@@ -67,9 +80,15 @@ class AnalysisListWidget {
     }
 
     clickAnalysis(analysis) {
-        if (this.userAlreadyAnalyzed(analysis)) {
+        if (this.isAnalysisDone(analysis)) {
+            this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
             return;
         }
+        else if (this.userAlreadyAnalyzed(analysis)) {
+            this.toastr.info("You have already done this analysis.", null, 5000);
+            return;
+        }
+
         let iuser = analysis.getInterpretationUser();
         if (iuser &&
             iuser.id !== this.user.getCurrentUserId()) {

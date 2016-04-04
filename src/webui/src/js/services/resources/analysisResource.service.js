@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 import {Service, Inject} from '../../ng-decorators';
-import {Analysis} from '../../model/analysis';
+import Analysis from '../../model/analysis';
 
 
 @Service({
