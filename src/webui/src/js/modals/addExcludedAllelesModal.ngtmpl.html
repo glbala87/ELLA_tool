@@ -43,7 +43,9 @@
             <option value="">All genes</option>
           </select>
         </div>
+          <h5>{{vm.excluded_alleles.length}} variants for given filter</h5>
         <div>
+
           <uib-pagination total-items="vm.excluded_alleles.length"
             ng-model="vm.page_idx"
             class="pagination-sm"
