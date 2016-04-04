@@ -177,7 +177,7 @@ export class ReferenceEvalModalController {
                 },
                 'age_of_evidence': {
                     title: 'Age of evidence',
-                    desc: 'Reference <10 years?',
+                    desc: 'Reference <10 years old?',
                     options: [
                         ['Yes', 'new'],
                         ['No', 'old'],
