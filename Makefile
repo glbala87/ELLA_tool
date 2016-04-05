@@ -118,7 +118,7 @@ test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	sleep 5
-ifeq ($(TEST_COMMAND),)
+ifeq ($(TEST_COMMAND),) # empty?
 	py.test "/ella/src/api/" -s
 else
 	$(TEST_COMMAND)
@@ -126,7 +126,7 @@ endif
 
 test-common: export PYTHONPATH=/ella/src
 test-common:
-ifeq ($(TEST_COMMAND),)
+ifeq ($(TEST_COMMAND),) # empty?
 	py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api
 else
 	$(TEST_COMMAND)
