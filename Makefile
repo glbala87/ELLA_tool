@@ -6,7 +6,7 @@ INTERNAL_API_PORT = 5000 # e2e testing uses linked containers, so use container 
 INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use container internal port
 API_HOST ?= 'localhost'
 TEST_NAME ?= all
-TEST_COMMAND ?=
+TEST_COMMAND ?=''
 CONTAINER_NAME = ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
@@ -118,19 +118,19 @@ test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	sleep 5
-	if [ "$(TEST_COMMAND)" = "" ]; then\
-        py.test "/ella/src/api/" -s;\
-    else\
-    	$(TEST_COMMAND);\
-    fi
+ifeq ($(TEST_COMMAND),)
+	py.test "/ella/src/api/" -s
+else
+	$(TEST_COMMAND)
+endif
 
 test-common: export PYTHONPATH=/ella/src
 test-common:
-	if [ "$(TEST_COMMAND)" = "" ]; then\
-        py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api ;\
-    else\
-    	$(TEST_COMMAND);\
-    fi
+ifeq ($(TEST_COMMAND),)
+	py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api
+else
+	$(TEST_COMMAND)
+endif
 
 test-js:
 	rm -f /ella/node_modules
