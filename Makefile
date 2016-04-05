@@ -28,7 +28,8 @@ help :
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image local/ella-test, then run all tests"
 	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js } required as variable or will default to 'all'"
-	@echo "                          optional variable TEST_COMMAND=... will override py.test arguments and run 'py.test TEST_COMMAND'"
+	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
+	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
@@ -120,7 +121,7 @@ test-api:
 	if [ "$(TEST_COMMAND)" = "" ]; then\
         py.test "/ella/src/api/" -s;\
     else\
-    	py.test $(TEST_COMMAND);\
+    	$(TEST_COMMAND);\
     fi
 
 test-common: export PYTHONPATH=/ella/src
@@ -128,7 +129,7 @@ test-common:
 	if [ "$(TEST_COMMAND)" = "" ]; then\
         py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api ;\
     else\
-    	py.test $(TEST_COMMAND);\
+    	$(TEST_COMMAND);\
     fi
 
 test-js:
