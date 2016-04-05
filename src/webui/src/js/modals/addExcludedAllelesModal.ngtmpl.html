@@ -32,6 +32,7 @@
       </div>
       <hr ng-if="vm.included_alleles.length">
       <h2 class="allele-title">excluded alleles</h2>
+      <h5 class="allele-count"><b>{{vm.excluded_alleles.length}} variants</b> from current filter settings</h5>
       <div class="allele-controls">
         <div class="form-inline">
           <div class="btn-group btn-group-sm">
@@ -43,9 +44,7 @@
             <option value="">All genes</option>
           </select>
         </div>
-          <h5>{{vm.excluded_alleles.length}} variants for given filter</h5>
         <div>
-
           <uib-pagination total-items="vm.excluded_alleles.length"
             ng-model="vm.page_idx"
             class="pagination-sm"
