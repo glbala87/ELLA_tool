@@ -53,7 +53,8 @@ class AnalysisListWidget {
         let current_user_id = this.user.getCurrentUserId();
         return analysis.interpretations.filter(
             i => i.user &&
-                 i.user.id === current_user_id
+                 i.user.id === current_user_id &&
+                 i.status !== 'Ongoing'  // Exempt if in progress by user
         ).length > 0;
     }
 
@@ -76,7 +77,7 @@ class AnalysisListWidget {
             analysis.id,
         ).then(() => {
             this.openAnalysis(analysis);
-        })
+        });
     }
 
     clickAnalysis(analysis) {
