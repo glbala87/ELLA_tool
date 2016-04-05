@@ -107,6 +107,8 @@ class Phenotype(Base):
     description = Column(String(250), nullable=False)
     inheritance = Column(String(20), nullable=False)
     inheritance_info = Column(String(200), nullable=True)
+    omim_id = Column(Integer, nullable=True)
+    pmid = Column(Integer, nullable=True)
     comment = Column(String(200), nullable=True)
 
     # composite foreign key

@@ -160,6 +160,8 @@ class DepositGenepanel(object):
                     description=ph.description,
                     inheritance=ph.inheritance,
                     inheritance_info=ph.inheritance_info,
+                    omim_id=ph.omim,
+                    pmid=ph.pmid,
                     comment=ph.comment
                 )
                 log.info("{} phenotype '{}'".format("Created" if created else "Updated", ph.description))

@@ -31,7 +31,8 @@ class PhenotypeSchema(Schema):
                   'genepanelVersion',
                   'description',
                   'inheritance',
-                  'omim',
+                  'inheritance_info',
+                  'omim_id',
                   'pmid',
                   'comment',
                   'gene')
