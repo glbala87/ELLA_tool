@@ -16,6 +16,8 @@ class CustomBase(object):
         If an object is created, defaults are applied to object.
         Returns a tuple of (object, created), where created is a boolean
         specifying whether an object was created.
+
+        # TODO: error when querying using '' as an integer values an_integer_field = '' is illegal
         """
         instance = session.query(cls).filter_by(**kwargs).first()
         # Facilitate mock testing by creating new object if session is mocked.
