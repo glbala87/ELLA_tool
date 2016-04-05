@@ -15,7 +15,7 @@ class Gene(Base):
 
     hugoSymbol = Column(String(20), primary_key=True)
     ensemblGeneID = Column(String(15), unique=True)
-    dominance = Column(String(20))
+    # dominance = Column(String(20))
 
     def __repr__(self):
         return "<Gene('%s')>" % self.hugoSymbol
@@ -105,7 +105,9 @@ class Phenotype(Base):
     gene = relationship("Gene", lazy="joined")
 
     description = Column(String(250), nullable=False)
-    dominance = Column(String(20), nullable=False)  # rename to inheritance?
+    inheritance = Column(String(20), nullable=False)
+    inheritance_info = Column(String(200), nullable=True)
+    comment = Column(String(200), nullable=True)
 
     # composite foreign key
     # http://docs.sqlalchemy.org/en/latest/core/constraints.html#sqlalchemy.schema.ForeignKeyConstraint:

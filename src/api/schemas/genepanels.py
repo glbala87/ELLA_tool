@@ -4,8 +4,7 @@ from marshmallow import fields, Schema
 class GeneSchema(Schema):
     class Meta:
         fields = ('hugoSymbol',
-                  'ensemblGeneID',
-                  'dominance')
+                  'ensemblGeneID')
 
 
 class TranscriptSchema(Schema):
@@ -26,9 +25,24 @@ class TranscriptSchema(Schema):
     gene = fields.Nested(GeneSchema)
 
 
+class PhenotypeSchema(Schema):
+    class Meta:
+        fields = ('genepanelName',
+                  'genepanelVersion',
+                  'description',
+                  'inheritance',
+                  'omim',
+                  'pmid',
+                  'comment',
+                  'gene')
+
+    gene = fields.Nested(GeneSchema)
+
+
 class GenepanelSchema(Schema):
     class Meta:
         fields = ('name',
                   'version',
                   'transcripts')
     transcripts = fields.Nested(TranscriptSchema, many=True)
+    phenotypes = fields.Nested(PhenotypeSchema, many=True)

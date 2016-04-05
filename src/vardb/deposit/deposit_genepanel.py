@@ -10,8 +10,6 @@ import logging
 
 import vardb.datamodel
 from vardb.datamodel import gene as gm
-from regions import transcript as tm
-from regions import phenotype as ph
 
 log = logging.getLogger(__name__)
 
@@ -21,11 +19,14 @@ class Phenotype(object):
     Helper class for reading phenotype info from file. Not a model class.
     """
 
-    def __init__(self, description, geneSymbol, dominance):
-
+    def __init__(self, description, geneSymbol, inheritance, omim, pmid, inheritance_info, comment):
         self.geneSymbol = geneSymbol
         self.description = description
-        self.dominance = dominance
+        self.inheritance = inheritance
+        self.omim = omim
+        self.pmid = pmid
+        self.inheritance_info = inheritance_info
+        self.comment = comment
 
 
 class Transcript(object):
@@ -63,11 +64,9 @@ def load_phenotypes(phenotypes_path):
             if line.startswith('#') or line.isspace():
                 continue
             parts = line.strip().split('\t')
-            # TODO: read all fields from file
-            (geneSymbol, description, dominance) = parts[:3]
-
+            (geneSymbol, description, inheritance, omim, pmid, inheritance_info, comment) = parts[:7]
             phenotypes.append(
-                Phenotype(description, geneSymbol, dominance)
+                Phenotype(description, geneSymbol, inheritance, omim, pmid, inheritance_info, comment)
                            )
         return phenotypes
 
@@ -119,8 +118,7 @@ class DepositGenepanel(object):
             gene, created = gm.Gene.update_or_create(
                 self.session,
                 hugoSymbol=t.geneSymbol,
-                ensemblGeneID=t.eGene,
-                defaults={'dominance': t.inheritance}
+                ensemblGeneID=t.eGene
             )
             genes[gene.hugoSymbol] = gene
             if not created:
@@ -159,8 +157,10 @@ class DepositGenepanel(object):
                     genepanelVersion=genepanelVersion,
                     gene_id=ph.geneSymbol,
                     gene=genes[ph.geneSymbol],  # TODO: not relevant for INSERT ?
-                    description='hardcoded',
-                    dominance='dom'
+                    description=ph.description,
+                    inheritance=ph.inheritance,
+                    inheritance_info=ph.inheritance_info,
+                    comment=ph.comment
                 )
                 log.info("{} phenotype '{}'".format("Created" if created else "Updated", ph.description))
 
