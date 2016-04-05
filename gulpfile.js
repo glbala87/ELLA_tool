@@ -113,7 +113,7 @@ gulp.task('index', function() {
 gulp.task('sass', function () {
     gulp.src('src/webui/src/sass/*.scss')
         .pipe(plumber())
-        .pipe(sass.sync().on('error', sass.logError))
+        .pipe(sass().on('error', sass.logError))
         .pipe(concat('app.css'))
         .pipe(autoprefixer({
           browsers: ['last 2 versions'],
@@ -214,6 +214,7 @@ gulp.task('watch', function() {
     gulp.watch('src/webui/src/js/**/*.js', ['js']);
     gulp.watch('src/webui/src/sass/*.scss', ['sass']);
     gulp.watch('src/webui/src/less/**/*.less', ['less']);
+    gulp.watch('src/webui/src/thirdparty/bootstrap/bootstrap-3.3.2/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
 

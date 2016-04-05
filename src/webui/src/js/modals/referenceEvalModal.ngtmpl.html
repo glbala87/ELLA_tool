@@ -34,10 +34,10 @@
           <div class="cell title"> <h5> {{vm.sources[source].title}} </h5> <p> {{vm.sources[source].desc}} </p> </div>
           <div class="cell check">
             <span ng-if="vm.sources[source].optional">
-              <div class="checkbox checkbox-big checkbox-default">
-                <input type="checkbox" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
-                <label></label>
-              </div>
+              <!-- <div class="checkbox checkbox-big checkbox-default"> -->
+                <input type="checkbox" class="box" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
+                <!-- <label></label> -->
+              <!-- </div> -->
             </span>
           </div>
           <div class="cell controls">
