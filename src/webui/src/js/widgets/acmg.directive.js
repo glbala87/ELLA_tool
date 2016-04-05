@@ -33,6 +33,12 @@ export class AcmgController {
         return this.editable !== undefined ? this.editable : true;
     }
 
+    getPlaceholder() {
+        if (this.isEditable()) {
+            return 'ACMG-COMMENT';
+        }
+    }
+
     getSource() {
         return this.code.source.split('.').slice(1).join('->');
     }

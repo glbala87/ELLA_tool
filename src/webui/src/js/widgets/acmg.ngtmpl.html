@@ -9,6 +9,6 @@
     popover-placement="auto top">
     {{vm.code.code}}
   </h4>
-  <autosize-textarea class="white" placeholder="ACMG-COMMENT" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
+  <autosize-textarea class="white" placeholder="{{vm.getPlaceholder()}}" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
 
 </div>
