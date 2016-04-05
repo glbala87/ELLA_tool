@@ -16,18 +16,90 @@ from regions import phenotype as ph
 log = logging.getLogger(__name__)
 
 
+class Phenotype(object):
+    """
+    Helper class for reading phenotype info from file. Not a model class.
+    """
+
+    def __init__(self, description, geneSymbol, dominance):
+
+        self.geneSymbol = geneSymbol
+        self.description = description
+        self.dominance = dominance
+
+
+class Transcript(object):
+    """
+    Helper class for reading transcript info from file. Not a model class.
+    """
+
+    def __init__(self, chromosome, txStart, txEnd, refseqName, score, strand,
+                 geneSymbol, geneAlias, eGene, eTranscript, cdsStart, cdsEnd,
+                 exonStarts, exonEnds, inheritance, disease):
+
+        self.chromosome = chromosome
+        self.txStart = txStart
+        self.txEnd = txEnd
+        self.refseq = refseqName
+        self.strand = strand
+        self.geneSymbol = geneSymbol
+        self.geneAlias = geneAlias
+        self.eGene = eGene # Ensembl GeneID
+        self.eTranscript = eTranscript
+        self.cdsStart = cdsStart
+        self.cdsEnd = cdsEnd
+        self.exonStarts = exonStarts
+        self.exonEnds = exonEnds
+        self.inheritance = inheritance
+        self.disease = disease
+
+
+def load_phenotypes(phenotypes_path):
+    if not phenotypes_path:
+        return None
+    with open(os.path.abspath(os.path.normpath(phenotypes_path))) as f:
+        phenotypes = []
+        for line in f:
+            if line.startswith('#') or line.isspace():
+                continue
+            parts = line.strip().split('\t')
+            # TODO: read all fields from file
+            (geneSymbol, description, dominance) = parts[:3]
+
+            phenotypes.append(
+                Phenotype(description, geneSymbol, dominance)
+                           )
+        return phenotypes
+
+
+def load_transcripts(transcripts_path):
+    with open(os.path.abspath(os.path.normpath(transcripts_path))) as f:
+        transcripts = []
+        for line in f:
+            if line.startswith('#') or line.isspace():
+                continue
+            parts = line.strip().split('\t')
+            (chromosome, txStart, txEnd, refseqName, score, strand,
+             geneSymbol, geneAlias, eGene, eTranscript, cdsStart, cdsEnd,
+             exonStarts, exonEnds, inheritance, disease) = parts
+            txStart, txEnd, = int(txStart), int(txEnd)
+            cdsStart, cdsEnd = int(cdsStart), int(cdsEnd)
+            exonStarts = map(int, exonStarts.split(','))
+            exonEnds = map(int, exonEnds.split(','))
+            disease = disease.strip()
+
+            transcripts.append(
+                Transcript(chromosome, txStart, txEnd, refseqName, score, strand,
+                           geneSymbol, geneAlias, eGene, eTranscript, cdsStart, cdsEnd,
+                           exonStarts, exonEnds, inheritance, disease)
+            )
+        return transcripts
+
+
 class DepositGenepanel(object):
 
     def __init__(self, session):
         self.session = session
-
-    def load_transcripts(self, transcripts_path):
-        with open(os.path.abspath(os.path.normpath(transcripts_path))) as f:
-            return tm.load_transcripts_from_genepanel_file(f)
-
-    def load_phenotypes(self, phenotypes_path):
-        with open(os.path.abspath(os.path.normpath(phenotypes_path))) as f:
-            return ph.load_phenotypes_from_genepanel_file(f)
 
     def add_genepanel(self, transcripts_path, phenotypes_path, genepanelName, genepanelVersion, genomeRef='GRCh37', force_yes=False):
         if self.session.query(gm.Genepanel).filter(gm.Genepanel.name == genepanelName,
@@ -40,8 +112,8 @@ class DepositGenepanel(object):
 
         db_transcripts = []
         db_phenotypes = []
-        transcripts = self.load_transcripts(transcripts_path)
-        phenotypes = self.load_phenotypes(phenotypes_path) if phenotypes_path else None
+        transcripts = load_transcripts(transcripts_path)
+        phenotypes = load_phenotypes(phenotypes_path) if phenotypes_path else None
         genes = {}
         for t in transcripts:
             gene, created = gm.Gene.update_or_create(
@@ -77,14 +149,10 @@ class DepositGenepanel(object):
 
         if phenotypes:
             for ph in phenotypes:
-                gene = None
-                print "ph.geneSymbol" + ph.geneSymbol
-                # db_phenotype = gm.Phenotype(
-                #     gene_id=ph.geneSymbol,
-                #     gene=gene,  # TODO: not relevant for INSERT ?
-                #     description='hardcoded',
-                #     dominance='dom'
-                # )
+                # TODO: remove all phenotypes for the panel, we'll reinsert all
+                if ph.geneSymbol not in genes:
+                    raise Exception("Cannot add phenotype '{}' for panel {}, the gene {} wasn't found in database"
+                    .format(ph.description, genepanelName, ph.geneSymbol))
                 db_phenotype, created = gm.Phenotype.update_or_create(
                     self.session,
                     genepanelName=genepanelName,
@@ -94,6 +162,8 @@ class DepositGenepanel(object):
                     description='hardcoded',
                     dominance='dom'
                 )
+                log.info("{} phenotype '{}'".format("Created" if created else "Updated", ph.description))
+
                 db_phenotypes.append(db_phenotype)
 
         genepanel = gm.Genepanel(
@@ -144,3 +214,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
+

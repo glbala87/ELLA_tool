@@ -107,14 +107,11 @@ class Phenotype(Base):
     description = Column(String(250), nullable=False)
     dominance = Column(String(20), nullable=False)  # rename to inheritance?
 
-
-
-
     # composite foreign key
     # http://docs.sqlalchemy.org/en/latest/core/constraints.html#sqlalchemy.schema.ForeignKeyConstraint:
-    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion],
-                                           ["genepanel.name", "genepanel.version"],
-                                            deferrable=True))
+    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"],
+                                           deferrable=True, initially="DEFERRED")
+                      ,)
 
     def __repr__(self):
         return "<Phenotype('%s')>" % self.description[:20]

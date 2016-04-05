@@ -238,7 +238,7 @@ class DepositTestdata(object):
         for gpdata in GENEPANELS:
             dg.add_genepanel(
                 os.path.join(SCRIPT_DIR,  gpdata['transcripts'] if 'transcripts' in gpdata else gpdata['path']),
-                os.path.join(SCRIPT_DIR,  gpdata['phenotypes'] if 'phenotypes' in gpdata else None),
+                os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
                 force_yes=True
