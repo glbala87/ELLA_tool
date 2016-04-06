@@ -9,3 +9,4 @@ import reference
 import referenceassessment
 import search
 import user
+import genepanel

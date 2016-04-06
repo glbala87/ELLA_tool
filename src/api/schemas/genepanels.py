@@ -19,7 +19,7 @@ class TranscriptSchema(Schema):
                   'cdsStart',
                   'cdsEnd',
                   'exonStarts',
-                  # 'exonEndsname', # TODO: <-- why not working?
+                  'exonEnds',
                   'gene')
 
     gene = fields.Nested(GeneSchema)
@@ -27,7 +27,8 @@ class TranscriptSchema(Schema):
 
 class PhenotypeSchema(Schema):
     class Meta:
-        fields = ('genepanelName',
+        fields = ('id',
+                  'genepanelName',
                   'genepanelVersion',
                   'description',
                   'inheritance',
@@ -44,6 +45,7 @@ class GenepanelSchema(Schema):
     class Meta:
         fields = ('name',
                   'version',
-                  'transcripts')
+                  'transcripts',
+                  'phenotypes')
     transcripts = fields.Nested(TranscriptSchema, many=True)
     phenotypes = fields.Nested(PhenotypeSchema, many=True)
