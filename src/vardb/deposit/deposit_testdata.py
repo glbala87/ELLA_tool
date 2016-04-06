@@ -7,6 +7,7 @@ import os
 import sys
 import logging
 import json
+import glob
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -60,126 +61,33 @@ GENEPANELS = [
 ]
 
 
-VCF_SMALL = [
-    # {
-    #     'path': '../testdata/brca_s1_v1.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    # {
-    #     'path': '../testdata/brca_s2_v1.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    # {
-    #     'path': '../testdata/brca_HDepositFirst.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00',
-    #     'import_assessments': True
-    # },
-    # {
-    #     'path': '../testdata/brca_H01.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    # {
-    #     'path': '../testdata/brca_H02.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    {
-        'path': '../testdata/brca_sample_1.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_2.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_3.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_4.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_5.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_6.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_7.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_8.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_master.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
+VCF = [
 
-]
-
-VCF_LARGE = VCF_SMALL + [
     {
-        'path': '../testdata/na12878.bindevev.transcripts.annotated.vcf',
-        'gp': 'Bindevev',
-        'gp_version': 'v02'
-    },
-    {
-        'path': '../testdata/na12878.Ciliopati.transcripts.annotated.vcf',
-        'gp': 'Ciliopati',
-        'gp_version': 'v03'
-    },
-    {
-        'path': '../testdata/na12878.EEogPU.transcripts.annotated.vcf',
-        'gp': 'EEogPU',
-        'gp_version': 'v02'
-    },
-    {
-        'path': '../testdata/na12878.Iktyose.transcripts.annotated.vcf',
-        'gp': 'Iktyose',
-        'gp_version': 'v02'
-    },
-    {
-        'path': '../testdata/na12878.Joubert.transcripts.annotated.vcf',
-        'gp': 'Joubert',
-        'gp_version': 'v02'
-    }
-
-]
-
-VCF_TESTSET = [
-    {
-        'path': '../testdata/brca_sample_1.vcf',
+        'path': '../testdata/vcf/all',
+        'name': 'all',
         'gp': 'HBOC',
         'gp_version': 'v00'
     },
     {
-        'path': '../testdata/brca_sample_2.vcf',
+        'path': '../testdata/vcf/small',
+        'name': 'small',
+        'default': True,
         'gp': 'HBOC',
         'gp_version': 'v00'
     },
     {
-        'path': '../testdata/brca_sample_master.vcf',
+        'path': '../testdata/vcf/integration_testing',
+        'name': 'integration_testing',
         'gp': 'HBOC',
         'gp_version': 'v00'
-    }
+    },
+    {
+        'path': '../testdata/vcf/custom',
+        'name': 'custom',
+        'gp': 'HBOC',
+        'gp_version': 'v00'
+    },
 ]
 
 
@@ -202,30 +110,30 @@ class DepositTestdata(object):
 
     def deposit_vcfs(self, test_set=None):
         """
-        :param test_set: Which set to import. Valid values: 'small', 'large', 'test'. Default: 'small'
+        :param test_set: Which set to import.
         """
 
-        test_sets = {
-            'small': VCF_SMALL,
-            'large': VCF_LARGE,
-            'test': VCF_TESTSET
-        }
+        if test_set is None:
+            testset = next(v for v in VCF if v.get('default'))
+        else:
+            print test_set
+            testset = next(v for v in VCF if v['name'] == test_set)
 
-        vcfs = test_sets.get(test_set, VCF_SMALL)
+        vcf_paths = glob.glob(os.path.join(SCRIPT_DIR, testset['path'], '*.vcf'))
 
-        for vcfdata in vcfs:
+        for vcf_path in vcf_paths:
             importer = Importer(self.session)
             try:
                 kwargs = {
-                    'genepanel_name': vcfdata['gp'],
-                    'genepanel_version': vcfdata['gp_version'],
-                    'import_assessments': vcfdata.get('import_assessments', False)
+                    'genepanel_name': testset['gp'],
+                    'genepanel_version': testset['gp_version'],
+                    'import_assessments': testset.get('import_assessments', False)
                 }
                 importer.importVcf(
-                    os.path.join(SCRIPT_DIR, vcfdata['path']),
+                    os.path.join(SCRIPT_DIR, vcf_path),
                     **kwargs
                 )
-                log.info("Deposited {}".format(vcfdata['path']))
+                log.info("Deposited {}".format(vcf_path))
                 self.session.commit()
 
             except UserWarning as e:
@@ -261,7 +169,13 @@ class DepositTestdata(object):
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="small")
+
+    args = parser.parse_args()
+
     db = DB()
     db.connect()
     dt = DepositTestdata(db)
-    dt.deposit_all()
+    dt.deposit_all(test_set=args.testset)
