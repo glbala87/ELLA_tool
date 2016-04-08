@@ -37,9 +37,11 @@ export class ReportCardController {
 
     getIncludedAlleles() {
         let included = this.alleles.filter(allele => {
-            if ('report' in this.state.allele[allele.id] &&
-                'included' in this.state.allele[allele.id].report) {
-                return this.state.allele[allele.id].report.included;
+            let allele_state = this.getAlleleState(allele);
+            if (allele_state &&
+                'report' in allele_state &&
+                'included' in allele_state.report) {
+                return allele_state.report.included;
             }
             return false;
         });
@@ -59,9 +61,11 @@ export class ReportCardController {
 
     getExcludedAlleles() {
         return this.alleles.filter(allele => {
-            if ('report' in this.state.allele[allele.id] &&
-                'included' in this.state.allele[allele.id].report) {
-                return !this.state.allele[allele.id].report.included;
+            let allele_state = this.state.allele.find(al => al.allele_id === allele.id);
+            if (allele_state &&
+                'report' in allele_state &&
+                'included' in allele_state.report) {
+                return !allele_state.report.included;
             }
             return true;
         });
@@ -75,22 +79,24 @@ export class ReportCardController {
 
     includeSelectedExcluded() {
         if (this.selected_excluded) {
-            if (!('report' in this.state.allele[this.selected_excluded.id])) {
-                this.state.allele[this.selected_excluded.id].report = {};
+            let allele_state = this.getAlleleState(this.selected_excluded);
+            if (!('report' in allele_state)) {
+                allele_state.report = {};
             };
-            this.state.allele[this.selected_excluded.id].report.included = true;
+            allele_state.report.included = true;
         }
         this.selected_excluded = null;
     }
 
     getAlleleState(allele) {
-        return this.state.allele[allele.id];
+        return this.state.allele.find(al => al.allele_id === allele.id);
     }
 
     getClassification(allele) {
-        if ('alleleassessment' in this.getAlleleState(allele) &&
-            'classification' in this.getAlleleState(allele).alleleassessment) {
-            return this.getAlleleState(allele).alleleassessment.classification;
+        let allele_state = this.getAlleleState(allele);
+        if ('alleleassessment' in allele_state &&
+            'classification' in allele_state.alleleassessment) {
+            return allele_state.alleleassessment.classification;
         }
     }
 
