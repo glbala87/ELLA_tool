@@ -40,13 +40,6 @@ class ACMGDataLoader(object):
             "gp_disease_mode": "lof_missense"
         }.update(config.config['acmg']['freq_cutoff_defaults'])
 
-    def _classify(self, annotation_data):
-        passed, nonpassed = GRE().query(rules, annotation_data)
-        passed_data = schemas.RuleSchema().dump(passed, many=True).data
-        classification = ACMGClassifier2015().classify(passed)
-        classification_data = schemas.ClassificationSchema().dump(classification).data
-        return classification_data, passed_data
-
     def get_classification(self, codes):
         """
         Gets the final classification based on a given list of ACMG codes.
@@ -107,9 +100,8 @@ class ACMGDataLoader(object):
                 annotation_data["refassessment"] = {str('_'.join([str(r['allele_id']), str(r['reference_id'])])): r['evaluation'] for r in ra_per_allele[a['id']]}
             self._set_transcript_annotation(annotation_data)
 
-            classification_data, passed_data = self._classify(annotation_data)
+            passed_data = self.get_acmg_codes(annotation_data)
             allele_classifications[a['id']] = {
-                'classification': classification_data,
                 'codes': passed_data
             }
         return allele_classifications

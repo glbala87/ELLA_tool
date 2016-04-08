@@ -9,7 +9,7 @@ from api.util.util import request_json
 from api.v1.resource import Resource
 
 
-class ACMGClassificationResource(Resource):
+class ACMGAlleleResource(Resource):
 
     def get_alleles(self, session, allele_ids):
         if allele_ids:
@@ -77,3 +77,14 @@ class ACMGClassificationResource(Resource):
             data.get('referenceassessments'),
             genepanel
         )
+
+
+class ACMGClassificationResource(Resource):
+
+    def get(self, session):
+        codes_raw = request.args.get('codes')
+        if not codes_raw:
+            raise RuntimeError("Missing required field 'codes'")
+        codes = codes_raw.split(',')
+
+        return ACMGDataLoader(session).get_classification(codes)

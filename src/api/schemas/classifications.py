@@ -43,8 +43,6 @@ class ClassificationSchema(Schema):
             'meta'
         ]
 
-    contributors = fields.Nested(RuleSchema, many=True)
-
     @post_dump()
     def rename_class(self, data):
         data['class'] = data['clazz']
