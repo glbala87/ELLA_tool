@@ -127,14 +127,13 @@ class InterpretationService {
                         // Get all alleleassessments and referenceassessments used for this analysis.
                         let alleleassessments = [];
                         let referenceassessments = [];
-                        for (let [allele_id, allele_state] of Object.entries(interpretation.state.allele)) {
+                        for (let allele_state of interpretation.state.allele) {
                             alleleassessments.push(this.prepareAlleleAssessments(
-                                parseInt(allele_id),
+                                allele_state.allele_id,
                                 interpretation.analysis.id,
                                 allele_state
                                 ));
                             referenceassessments = referenceassessments.concat(this.prepareReferenceAssessments(
-                                parseInt(allele_id),
                                 interpretation.analysis.id,
                                 allele_state
                             ));
@@ -177,16 +176,19 @@ class InterpretationService {
 
     }
 
-    prepareReferenceAssessments(allele_id, analysis_id, allelestate) {
+    prepareReferenceAssessments(analysis_id, allelestate) {
         let referenceassessments = [];
-        if ('referenceassessment' in allelestate) {
+        if ('referenceassessments' in allelestate) {
             // Iterate over all referenceassessments for this allele
-            for (let [reference_id, reference_state] of Object.entries(allelestate.referenceassessment)) {
+            for (let reference_state of allelestate.referenceassessments) {
+                if (!reference_state.evaluation) {
+                    continue;
+                }
                 // If id is included, we're reusing an existing one.
                 if ('id' in reference_state) {
                     referenceassessments.push({
-                        allele_id: allele_id,
-                        reference_id: parseInt(reference_id),
+                        allele_id: reference_state.allele_id,
+                        reference_id: reference_state.reference_id,
                         id: reference_state.id,
                         analysis_id: analysis_id
                     });
@@ -194,8 +196,8 @@ class InterpretationService {
                 else {
                     // Fill in fields expected by backend
                     referenceassessments.push({
-                        allele_id: allele_id,
-                        reference_id: parseInt(reference_id),
+                        allele_id: reference_state.allele_id,
+                        reference_id: reference_state.reference_id,
                         analysis_id: analysis_id,
                         evaluation: reference_state.evaluation || {},
                         user_id: this.user.getCurrentUserId()

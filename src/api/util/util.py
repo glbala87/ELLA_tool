@@ -74,14 +74,18 @@ def request_json(required, only_required=False, allowed=None):
             else:
                 check_data = data
             for idx, d in enumerate(check_data):
-                for field in required:
-                    if d.get(field) is None:
-                        raise ApiError("Missing or empty required field {} in provided data.".format(field))
+                if required:
+                    for field in required:
+                        if d.get(field) is None:
+                            raise ApiError("Missing or empty required field {} in provided data.".format(field))
 
-                if only_required:
-                    check_data[idx] = {k: v for k, v in d.iteritems() if k in required}
-                elif allowed:
-                    check_data[idx] = {k: v for k, v in d.iteritems() if k in required + allowed}
+                    if only_required:
+                        check_data[idx] = {k: v for k, v in d.iteritems() if k in required}
+                    elif allowed:
+                        check_data[idx] = {k: v for k, v in d.iteritems() if k in required + allowed}
+                else:
+                    if allowed:
+                        check_data[idx] = {k: v for k, v in d.iteritems() if k in allowed}
             if not isinstance(data, list):
                 data = check_data[0]
             else:

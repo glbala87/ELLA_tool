@@ -70,15 +70,16 @@ export class AlleleService {
     }
 
     /**
-     * Updates the ACMG classifications for all alleles.
-     * To do this we need gather all the allele ids.
+     * Updates the ACMG classifications for provided alleles.
+     * referenceassessments is optional.
      */
-    updateACMG(alleles, gp_name, gp_version) {
+    updateACMG(alleles, gp_name, gp_version, referenceassessments) {
         let allele_ids = alleles.map(a => a.id);
         return this.acmgClassificationResource.getByAlleleIds(
             allele_ids,
             gp_name,
-            gp_version
+            gp_version,
+            referenceassessments
         ).then(res => {
             for (let [a_id, a_acmg] of Object.entries(res)) {
                 // Assign result to related allele

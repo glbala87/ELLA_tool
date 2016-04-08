@@ -16,10 +16,10 @@
             <div class="allele-code-wrapper"> <h3 ng-repeat="t in al.annotation.filtered track by t.Transcript">{{::t.SYMBOL}}</h3> <h4 ng-repeat="t in al.annotation.filtered track by t.Transcript">{{t.HGVSc_short}}</h4> </div>
             <div class="classification-number fixed-width-numbers"><h2>{{vm.getClassification(al)}}</h2></div>
           </div>
-          <checkable-button class="include-button checkable-white" show-mark="true" check-model="vm.state.allele[al.id].report.included"> <checked>Included</checked> Include </checkable-button>
+          <checkable-button class="include-button checkable-white" show-mark="true" check-model="vm.getAlleleState(al).report.included"> <checked>Included</checked> Include </checkable-button>
         </div>
       </section>
-      <div ng-if="vm.getIncludedNeedsVerification().length > 0">
+      <div>
         <h2 class="allele-title">Needs verification</h2>
         <div class="verify">
           <h4 ng-repeat="al in vm.getIncludedNeedsVerification()">{{al.toString()}}</h4>
