@@ -166,24 +166,6 @@ export class ReferenceEvalModalController {
                     store: 'ref_population',
                     optional: true
                 },
-                'gene_coverage': {
-                    title: 'Gene coverage',
-                    desc: '≥90% of gene covered?',
-                    options: [
-                        ['Yes', 'adequate'],
-                        ['No', 'inadequate'],
-                    ],
-                    store: 'ref_gene_coverage',
-                },
-                'age_of_evidence': {
-                    title: 'Age of evidence',
-                    desc: 'Reference <10 years old?',
-                    options: [
-                        ['Yes', 'new'],
-                        ['No', 'old'],
-                    ],
-                    store: 'ref_age',
-                },
                 'quality': {
                     title: 'Overall quality',
                     desc: '',
