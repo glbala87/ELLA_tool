@@ -45,6 +45,9 @@ class AlleleFilter {
         // but not NM_007294.3:c.4535G>T
         let reg_exp = /.*c\.[0-9]+?([\-\+])([0-9]+)/;
         return alleles.filter(a => {
+            if (!a.annotation.filtered.length) {
+                return true;  // Always include if no filtered transcripts
+            }
             // Only exclude if variant is outside range given in config
             // as given by the cDNA
             // If the format is different, don't filter variant.
