@@ -30,7 +30,7 @@
       <pre><div ng-repeat="al in vm.getIncludedAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>
       <hr/>
     </div>
-    <h2 class="allele-title">Excluded</h2>
+    <h2 class="allele-title">Available</h2>
     <div class="excluded-controls">
       <div class="excluded-dropdown-wrapper">
         <select class="excluded-dropdown" ng-options="al as vm.getClassification(al) + ' ' + al for al in vm.getExcludedAlleles()" ng-model="vm.selected_excluded"></select>
