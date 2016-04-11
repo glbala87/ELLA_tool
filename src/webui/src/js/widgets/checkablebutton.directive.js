@@ -19,6 +19,7 @@ import {Directive, Inject} from '../ng-decorators';
         listValue: '=?',
         showMark: '@?',
         onChange: '&?',
+        ngDisabled: '=',
         oneWay: '=?' // Don't update model upon clicking.
     },
     templateUrl: 'ngtmpl/checkablebutton.ngtmpl.html',
