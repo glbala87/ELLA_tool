@@ -66,27 +66,19 @@ VCF = [
     {
         'path': '../testdata/vcf/all',
         'name': 'all',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
     },
     {
         'path': '../testdata/vcf/small',
         'name': 'small',
         'default': True,
-        'gp': 'HBOC',
-        'gp_version': 'v00'
     },
     {
         'path': '../testdata/vcf/integration_testing',
         'name': 'integration_testing',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
     },
     {
         'path': '../testdata/vcf/custom',
         'name': 'custom',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
     },
 ]
 
@@ -120,13 +112,16 @@ class DepositTestdata(object):
             testset = next(v for v in VCF if v['name'] == test_set)
 
         vcf_paths = glob.glob(os.path.join(SCRIPT_DIR, testset['path'], '*.vcf'))
-
+        vcf_paths.sort()
         for vcf_path in vcf_paths:
             importer = Importer(self.session)
             try:
+                filename = os.path.basename(vcf_path)
+                # Get last part of filename before ext 'sample.HBOC_v00.vcf'
+                gp_part = os.path.splitext(filename)[0].split('.')[-1].split('_')
                 kwargs = {
-                    'genepanel_name': testset['gp'],
-                    'genepanel_version': testset['gp_version'],
+                    'genepanel_name': gp_part[0],
+                    'genepanel_version': gp_part[1],
                     'import_assessments': testset.get('import_assessments', False)
                 }
                 importer.importVcf(
