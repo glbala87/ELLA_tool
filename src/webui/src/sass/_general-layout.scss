@@ -92,6 +92,7 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   h2 { font-size: 1.5rem; }
   h4 { font-size: 1.4rem; }
   .nav-row { display: flex; align-items: center; color: $half-black; background-color: inherit;
+    &.disabled { color: $icon-half-black; }
     & .tab, & .title { transition: all 0.3s ease-in-out; }
     &:hover { cursor: pointer; }
     &:hover .tab { background-color: $blue-sidebar; }
