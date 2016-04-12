@@ -253,7 +253,7 @@ class FrequencyAnnotation(object):
         cutoffs = [
             ('ExAC', 'ExAC_cutoff'),
             ('1000g', '1000G_cutoff'),
-            ('ESP6500', 'ESP6500_cutoff'),
+            ('esp6500', 'ESP6500_cutoff'),
             ('inDB', 'inDB_cutoff')
         ]
         # Init values with null_freq
