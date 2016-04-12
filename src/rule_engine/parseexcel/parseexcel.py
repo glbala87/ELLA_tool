@@ -43,6 +43,7 @@ def print_metadata(input):
             data[code]['notes'] = row[3].value
         if row[5].value:
             data[code]['sources'] = [v.strip() for v in row[5].value.split(',')]
+            data[code]['sources'] = [c for c in data[code]['sources'] for r in CODES if c.startswith(r)]
 
     print json.dumps(data, indent=4)
 

@@ -250,33 +250,26 @@ class FrequencyAnnotation(object):
 
     def _cutoff_frequencies(self, annotation):
         frequencies = dict()
-        frequencies["ExAC_1000G_ESP6500_cutoff"] = "null_freq"
-        frequencies["inDB_cutoff"] = "null_freq"
+        cutoffs = [
+            ('ExAC', 'ExAC_cutoff'),
+            ('1000g', '1000G_cutoff'),
+            ('ESP6500', 'ESP6500_cutoff'),
+            ('inDB', 'inDB_cutoff')
+        ]
+        # Init values with null_freq
+        for c in cutoffs:
+            frequencies[c[1]] = "null_freq"
 
         if not annotation:
             return frequencies
 
-        if (self._hi_cutoff_in_dataset(annotation, "ExAC") or
-            self._hi_cutoff_in_dataset(annotation, "1000g") or
-            self._hi_cutoff_in_dataset(annotation, "esp6500")):
-            frequencies["ExAC_1000G_ESP6500_cutoff"] = "≥hi_freq_cutoff"
-        elif (
-            self._med_cutoff_in_dataset(annotation, "ExAC") or
-            self._med_cutoff_in_dataset(annotation, "1000g") or
-            self._med_cutoff_in_dataset(annotation, "esp6500")):
-            frequencies["ExAC_1000G_ESP6500_cutoff"] = ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
-        elif (
-            self._lo_cutoff_in_dataset(annotation, "ExAC") or
-            self._lo_cutoff_in_dataset(annotation, "1000g") or
-            self._lo_cutoff_in_dataset(annotation, "esp6500")):
-            frequencies["ExAC_1000G_ESP6500_cutoff"] = "<lo_freq_cutoff"
-
-        if self._hi_cutoff_in_dataset(annotation, "inDB"):
-            frequencies["inDB_cutoff"] = "≥hi_freq_cutoff"
-        elif self._med_cutoff_in_dataset(annotation, "inDB"):
-            frequencies["inDB_cutoff"] = ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
-        elif self._lo_cutoff_in_dataset(annotation, "inDB"):
-            frequencies["inDB_cutoff"] = "<lo_freq_cutoff"
+        for c in cutoffs:
+            if (self._hi_cutoff_in_dataset(annotation, c[0])):
+                frequencies[c[1]] = "≥hi_freq_cutoff"
+            elif (self._med_cutoff_in_dataset(annotation, c[0])):
+                frequencies[c[1]] = ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
+            elif (self._lo_cutoff_in_dataset(annotation, c[0])):
+                frequencies[c[1]] = "<lo_freq_cutoff"
 
         return frequencies
 
