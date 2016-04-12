@@ -238,9 +238,9 @@ class TestFrequencyAnnotation(unittest.TestCase):
         frequencies = {
             "1000g":
             {
-                "AFR": 0.0005,
+                "ASN": 0.0005,
                 "AMR": 0.000000001,
-                "FOO": 0.004
+                "NOT_VALID": 1.0
             },
             "ExAC":
             {
@@ -261,9 +261,9 @@ class TestFrequencyAnnotation(unittest.TestCase):
         frequencies = {
             "1000g":
             {
-                "AFR": 0.001, # Lower edge case
+                "ASN": 0.001, # Lower edge case
                 "AMR": 0.000000001,
-                "FOO": 0.004
+                "NOT_VALID": 1.0
             },
             "ExAC":
             {
@@ -284,9 +284,9 @@ class TestFrequencyAnnotation(unittest.TestCase):
         frequencies = {
             "1000g":
             {
-                "AFR": 0.000001,
+                "ASN": 0.000001,
                 "AMR": 0.00002,
-                "FOO": 0.000002
+                "NOT_VALID": 1.0
             },
             "ExAC":
             {
