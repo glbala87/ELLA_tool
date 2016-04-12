@@ -20,7 +20,7 @@ class References(object):
         if 'pmid' in annotation['HGMD']:
             total.append(annotation['HGMD']['pmid'])
         if 'extrarefs' in annotation['HGMD']:
-            total.extend([e['pmid'] for e in annotation['HGMD']['extrarefs']])
+            total.extend([e['pmid'] for e in annotation['HGMD']['extrarefs'] if 'pmid' in e])
         return total
 
     def process(self, annotation):
