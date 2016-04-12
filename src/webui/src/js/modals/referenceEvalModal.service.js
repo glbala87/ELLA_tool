@@ -188,8 +188,6 @@ export class ReferenceEvalModalController {
                     'rna',
                     'prediction',
                     'population',
-                    'gene_coverage',
-                    'age_of_evidence',
                     'quality'
                 ],
                 'Indirectly': [
@@ -200,7 +198,6 @@ export class ReferenceEvalModalController {
                     'domain_overlap',
                     'repeat_overlap',
                     'other',
-                    'age_of_evidence',
                     'quality'
                 ],
                 'No': [],
