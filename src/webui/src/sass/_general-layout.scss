@@ -94,9 +94,9 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   .nav-row { display: flex; align-items: center; color: $half-black; background-color: inherit;
     &.disabled { color: $icon-half-black; }
     & .tab, & .title { transition: all 0.3s ease-in-out; }
-    &:hover { cursor: pointer; }
-    &:hover .tab { background-color: $blue-sidebar; }
-    &:hover .title { background-color: $hover-black; }
+    &:not(.disabled):hover { cursor: pointer; }
+    &:not(.disabled):hover .tab { background-color: $blue-sidebar; }
+    &:not(.disabled):hover .title { background-color: $hover-black; }
     &.active:hover { cursor: default; }
     &.active:hover .tab { background-color: $blue; }
     &.active:hover .title { background-color: inherit; color: $blue; }
