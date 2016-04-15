@@ -41,7 +41,9 @@ export class Allele {
     }
 
     getExACUrl() {
-        return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcfPos}-${this.vcfRef}-${this.vcfAlt}`;
+        if ('ExAC' in this.annotation.frequencies) {
+            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcfPos}-${this.vcfRef}-${this.vcfAlt}`;
+        }
     }
 
     getDbSNPUrl(dbsnp) {
@@ -62,6 +64,19 @@ export class Allele {
             let search_term = this.annotation.external.CLINVAR.CLNACC.split('|').map(s => s.split('.')[0]).join(' OR ');
             return `http://www.ncbi.nlm.nih.gov/clinvar?term=${search_term}`;
         }
+    }
+
+    get1000gUrl() {
+        if ('1000g' in this.annotation.frequencies) {
+            return `http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=${this.chromosome}:${this.startPosition+1}-${this.openEndPosition}`
+        }
+    }
+
+    getESP6500Url() {
+        if ('esp6500' in this.annotation.frequencies) {
+            return `http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome&chromosome=${this.chromosome}&chromoStart=${this.startPosition+1}&chromoEnd=${this.openEndPosition}&x=0&y=0`
+        }
+
     }
 
 }
