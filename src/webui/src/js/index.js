@@ -47,6 +47,7 @@ import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/transcriptWrapper.directive';
+import './widgets/aclip.directive.js';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
 import './widgets/autosizeTextarea.directive';
