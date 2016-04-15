@@ -40,4 +40,28 @@ export class Allele {
         return hgvs;
     }
 
+    getExACUrl() {
+        return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcfPos}-${this.vcfRef}-${this.vcfAlt}`;
+    }
+
+    getDbSNPUrl(dbsnp) {
+        return `http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${dbsnp}`;
+    }
+
+    getHGMDUrl() {
+        if ('HGMD' in this.annotation.external &&
+            'acc_num' in this.annotation.external.HGMD) {
+            let acc_num = this.annotation.external.HGMD.acc_num;
+            return `https://portal.biobase-international.com/hgmd/pro/mut.php?accession=${acc_num}`
+        }
+    }
+
+    getClinvarUrl() {
+        if ('CLINVAR' in this.annotation.external &&
+            'CLNACC' in this.annotation.external.CLINVAR) {
+            let search_term = this.annotation.external.CLINVAR.CLNACC.split('|').map(s => s.split('.')[0]).join(' OR ');
+            return `http://www.ncbi.nlm.nih.gov/clinvar?term=${search_term}`;
+        }
+    }
+
 }

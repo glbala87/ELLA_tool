@@ -382,7 +382,8 @@ class ExternalAnnotation(object):
     CLINVAR_FIELDS = [
         'CLNSIG',
         'CLNDBN',
-        'CLNREVSTAT'
+        'CLNREVSTAT',
+        'CLNACC'
     ]
 
     HGMD_FIELDS = [
