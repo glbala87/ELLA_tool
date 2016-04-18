@@ -5,8 +5,11 @@ class ApiV1(object):
 
     def init_app(self, api):
 
-        api.add_resource(r.acmg.ACMGClassificationResource,
+        api.add_resource(r.acmg.ACMGAlleleResource,
                          '/api/v1/acmg/alleles/')
+
+        api.add_resource(r.acmg.ACMGClassificationResource,
+                         '/api/v1/acmg/classifications/')
 
         api.add_resource(r.alleleassessment.AlleleAssessmentResource,
                          '/api/v1/alleleassessments/<int:aa_id>/')

@@ -14,7 +14,7 @@
           <h4 ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> {{::t.HGVSc | HGVSc_short}} </transcript-wrapper> </h4>
         </div>
       </div>
-      <div class="paper-top-right">
+      <div class="paper-top-right vertical">
         <h5>{{vm.reference.title}}</h5>
         <p>{{vm.reference.getShortDesc()}}</p>
       </div>
@@ -34,10 +34,10 @@
           <div class="cell title"> <h5> {{vm.sources[source].title}} </h5> <p> {{vm.sources[source].desc}} </p> </div>
           <div class="cell check">
             <span ng-if="vm.sources[source].optional">
-              <div class="checkbox checkbox-big checkbox-default">
-                <input type="checkbox" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
-                <label></label>
-              </div>
+              <!-- <div class="checkbox checkbox-big checkbox-default"> -->
+                <input type="checkbox" class="box" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
+                <!-- <label></label> -->
+              <!-- </div> -->
             </span>
           </div>
           <div class="cell controls">
@@ -49,7 +49,7 @@
         <article class="trow">
           <div class="cell title"> <h5> Comments </h5></div>
           <div class="cell check"></div>
-          <div class="cell controls"><textarea class="verdict-comment" ng-model="vm.referenceAssessment.evaluation['comment']"></textarea></div>
+          <div class="cell controls"><autosize-textarea placeholder="COMMENTS" ng-model="vm.referenceAssessment.evaluation['comment']"></autosize-textarea></div>
         </article>
       </div>
     </div>

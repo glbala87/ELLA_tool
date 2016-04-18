@@ -51,6 +51,11 @@ class FlaskClientProxy(object):
             return client.put(url, data=json.dumps(data), content_type='application/json')
 
     @json_out
+    def patch(self, url, data):
+        with self.app.test_client() as client:
+            return client.patch(url, data=json.dumps(data), content_type='application/json')
+
+    @json_out
     def delete(self, url, data):
         with self.app.test_client() as client:
             return client.delete(url, data=json.dumps(data), content_type='application/json')

@@ -1,6 +1,7 @@
-.PHONY: help build dev kill shell logs restart test-build test single-test run-test e2e-test run-e2e-test run-e2e-selenium run-e2e-app cleanup-e2e test-all test-api test-common test-js test-e2e set-release-var release dev-release create-release get-ansible run-ansible commit-provision stop-provision clean-ansible
+.PHONY: any help build dev kill shell logs restart test-build test single-test run-test e2e-test run-e2e-test run-e2e-selenium run-e2e-app cleanup-e2e test-all test-api test-common test-js test-e2e set-release-var release dev-release create-release get-ansible run-ansible commit-provision stop-provision clean-ansible
 
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
+ANY = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}')
 API_PORT ?= 8000-9999
 INTERNAL_API_PORT = 5000 # e2e testing uses linked containers, so use container internal port
 INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use container internal port
@@ -24,6 +25,7 @@ help :
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
 	@echo "make restart		- restart container $(CONTAINER_NAME)"
+	@echo "make any		- can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image local/ella-test, then run all tests"
@@ -39,6 +41,10 @@ help :
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
+
+any:
+	$(eval CONTAINER_NAME = $(ANY))
+	@true
 
 build:
 	docker build -t $(IMAGE_NAME) .
@@ -146,7 +152,7 @@ test-e2e:
 
 
 #---------------------------------------------
-# RELEASES
+# BUILD / RELEASE
 #---------------------------------------------
 
 set-release-var:

@@ -2,6 +2,8 @@
 
 // Support for Object.entries. See https://www.npmjs.com/package/core-js
 require('core-js/fn/object/entries');
+require('core-js/fn/object/keys');
+require('core-js/fn/object/values');
 require('core-js/fn/array/includes');
 
 // We must import all the modules using Angular for them to register
@@ -40,12 +42,15 @@ import './views/sidebar.directive';
 import './views/navbar.directive';
 
 import './widgets/annotationWidget.directive';
+import './widgets/acmgSelection.directive';
 import './widgets/analysisList.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/transcriptWrapper.directive';
+import './widgets/aclip.directive.js';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
+import './widgets/autosizeTextarea.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
 import './widgets/card.directive';

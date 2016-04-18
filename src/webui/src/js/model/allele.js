@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Annotation} from './annotation';
+import Annotation from './annotation';
 
 export class Allele {
     /**
@@ -38,6 +38,45 @@ export class Allele {
             hgvs += `${t.Transcript}.${t.Transcript_version}(${t.SYMBOL}):${t.HGVSc_short}`;
         }
         return hgvs;
+    }
+
+    getExACUrl() {
+        if ('ExAC' in this.annotation.frequencies) {
+            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcfPos}-${this.vcfRef}-${this.vcfAlt}`;
+        }
+    }
+
+    getDbSNPUrl(dbsnp) {
+        return `http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${dbsnp}`;
+    }
+
+    getHGMDUrl() {
+        if ('HGMD' in this.annotation.external &&
+            'acc_num' in this.annotation.external.HGMD) {
+            let acc_num = this.annotation.external.HGMD.acc_num;
+            return `https://portal.biobase-international.com/hgmd/pro/mut.php?accession=${acc_num}`
+        }
+    }
+
+    getClinvarUrl() {
+        if ('CLINVAR' in this.annotation.external &&
+            'CLNACC' in this.annotation.external.CLINVAR) {
+            let search_term = this.annotation.external.CLINVAR.CLNACC.split('|').map(s => s.split('.')[0]).join(' OR ');
+            return `http://www.ncbi.nlm.nih.gov/clinvar?term=${search_term}`;
+        }
+    }
+
+    get1000gUrl() {
+        if ('1000g' in this.annotation.frequencies) {
+            return `http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=${this.chromosome}:${this.startPosition+1}-${this.openEndPosition}`
+        }
+    }
+
+    getESP6500Url() {
+        if ('esp6500' in this.annotation.frequencies) {
+            return `http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome&chromosome=${this.chromosome}&chromoStart=${this.startPosition+1}&chromoEnd=${this.openEndPosition}&x=0&y=0`
+        }
+
     }
 
 }

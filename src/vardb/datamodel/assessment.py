@@ -24,7 +24,6 @@ class AlleleAssessment(Base):
     evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
     dateSuperceeded = Column("date_superceeded", DateTime)
     previousAssessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
@@ -35,8 +34,6 @@ class AlleleAssessment(Base):
     genepanelVersion = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
-    transcript_id = Column(Integer, ForeignKey("transcript.id"))
-    transcript = relationship("Transcript")
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
     referenceAssessments = relationship("ReferenceAssessment",
@@ -45,7 +42,7 @@ class AlleleAssessment(Base):
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<Assessment('%s','%s', '%s')>" % (self.classification, str(self.user), self.status)
+        return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.classification, str(self.user))
 
     def __str__(self):
         return "%s, %s, %s" % (self.classification, self.status, self.dateLastUpdate)
@@ -66,7 +63,6 @@ class ReferenceAssessment(Base):
     evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    status = Column(Integer, nullable=False, default=0)  # Intended usage: 0 = non-curated 1 = curated
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
     dateSuperceeded = Column("date_superceeded", DateTime)
     genepanelName = Column(String, nullable=False)

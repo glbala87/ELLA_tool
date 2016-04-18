@@ -1,17 +1,18 @@
 /* jshint esnext: true */
 
 import {Service, Inject} from '../../ng-decorators';
-import {Analysis} from '../../model/analysis';
+import Analysis from '../../model/analysis';
 
 
 @Service({
     serviceName: 'AnalysisResource'
 })
-@Inject('$resource')
+@Inject('$resource', 'User')
 class AnalysisResource {
 
-    constructor(resource) {
+    constructor(resource, User) {
         this.base = '/api/v1';
+        this.user = User;
         this.resource = resource;
     }
 
@@ -58,7 +59,7 @@ class AnalysisResource {
         });
     }
 
-    finalize(id) {
+    finalize(id, alleleassessments, referenceassessments) {
         return new Promise((resolve, reject) => {
             let r = this.resource(`${this.base}/analyses/${id}/actions/finalize/`, {}, {
                 finalize: {
@@ -67,10 +68,12 @@ class AnalysisResource {
             });
             r.finalize(
                 {
-                    id: id
+                    user_id: this.user.getCurrentUserId(),
+                    alleleassessments: alleleassessments,
+                    referenceassessments: referenceassessments
                 },
-                resolve(),
-                reject()
+                resolve,
+                reject
             );
         });
     }

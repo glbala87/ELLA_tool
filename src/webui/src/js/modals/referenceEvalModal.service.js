@@ -17,7 +17,7 @@ export class ReferenceEvalModalController {
         this.modal = modalInstance;
         this.allele = allele;
         this.reference = reference;
-        this.referenceAssessment = referenceAssessment;
+        this.referenceAssessment = JSON.parse(JSON.stringify(referenceAssessment));
         this.enabled_sources = [];
         this.sources = {
                 'relevance': {
@@ -166,24 +166,6 @@ export class ReferenceEvalModalController {
                     store: 'ref_population',
                     optional: true
                 },
-                'gene_coverage': {
-                    title: 'Gene coverage',
-                    desc: '≥90% of gene covered?',
-                    options: [
-                        ['Yes', 'adequate'],
-                        ['No', 'inadequate'],
-                    ],
-                    store: 'ref_gene_coverage',
-                },
-                'age_of_evidence': {
-                    title: 'Age of evidence',
-                    desc: 'Reference <10 years?',
-                    options: [
-                        ['Yes', 'new'],
-                        ['No', 'old'],
-                    ],
-                    store: 'ref_age',
-                },
                 'quality': {
                     title: 'Overall quality',
                     desc: '',
@@ -206,8 +188,6 @@ export class ReferenceEvalModalController {
                     'rna',
                     'prediction',
                     'population',
-                    'gene_coverage',
-                    'age_of_evidence',
                     'quality'
                 ],
                 'Indirectly': [
@@ -218,7 +198,6 @@ export class ReferenceEvalModalController {
                     'domain_overlap',
                     'repeat_overlap',
                     'other',
-                    'age_of_evidence',
                     'quality'
                 ],
                 'No': [],
@@ -326,14 +305,7 @@ export class ReferenceEvalModalController {
 
     save() {
         this.cleanup();
-        return this.analysisService.createOrUpdateReferenceAssessment(
-            this.analysis,
-            this.referenceAssessment,
-            this.allele,
-            this.reference
-        ).then(ra => {
-            return this.modal.close(ra);
-        });
+        return this.modal.close(this.referenceAssessment);
     }
 
 }

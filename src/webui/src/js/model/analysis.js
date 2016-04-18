@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-export class Analysis {
+export default class Analysis {
     /**
      * Represents one Analysis.
      * @param  {object} Analysis data from server.

@@ -32,6 +32,7 @@
       </div>
       <hr ng-if="vm.included_alleles.length">
       <h2 class="allele-title">excluded alleles</h2>
+      <h5 class="allele-count"><b>{{vm.excluded_alleles.length}} variants</b> from current filter settings</h5>
       <div class="allele-controls">
         <div class="form-inline">
           <div class="btn-group btn-group-sm">
@@ -81,7 +82,7 @@
         </div>
         <div class="content-box fixed-width-numbers">
           <h3 class="title">Consequence</h3>
-          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"> <p ng-repeat="c in ::t.Consequence">{{::c}}</p> </transcript-wrapper> </div>
+          <annotation type="csq_consequence" allele="al"></annotation>
         </div>
       </article>
     </div>

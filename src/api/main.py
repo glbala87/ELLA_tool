@@ -71,7 +71,9 @@ def serve_static_factory(dev=False):
 # TODO: !!!!!!!!!!Remove before production!!!!!!!!!
 @app.route('/reset')
 def reset_testdata():
-    test_set = 'small' if not request.args.get('all') in ['True', 'true'] else 'large'
+    test_set = 'small'
+    if request.args.get('testset'):
+        test_set = request.args.get('testset')
 
     def worker():
         dt = DepositTestdata(db)

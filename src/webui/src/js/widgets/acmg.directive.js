@@ -5,7 +5,11 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'acmg',
     scope: {
-        code: '='
+        code: '=',
+        commentModel: '=?',
+        editable: '=?',  // Defaults to true
+        onToggle: '&?',
+        toggleText: '@?'
     },
     templateUrl: 'ngtmpl/acmg.ngtmpl.html'
 })
@@ -19,13 +23,32 @@ export class AcmgController {
         };
     }
 
+    toggle() {
+        if (this.onToggle && this.isEditable()) {
+            this.onToggle({code: this.code});
+        }
+    }
+
+    isEditable() {
+        return this.editable !== undefined ? this.editable : true;
+    }
+
+    getPlaceholder() {
+        if (this.isEditable()) {
+            return 'ACMG-COMMENT';
+        }
+    }
+
     getSource() {
         return this.code.source.split('.').slice(1).join('->');
     }
 
-    getACMGclass() {
-        if (this.code) {
-            return this.code.code.substring(0, 2).toLowerCase();
+    getACMGclass(code) {
+        if (code === undefined) {
+            code = this.code.code;
+        }
+        if (code) {
+            return code.substring(0, 2).toLowerCase();
         }
     }
 
@@ -38,6 +61,9 @@ export class AcmgController {
     }
 
     getMatch() {
+        if (this.code.source === 'user') {
+            return 'Added by user';
+        }
         if (Array.isArray(this.code.match)) {
             return this.code.match.join(', ');
         }

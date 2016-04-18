@@ -58,6 +58,7 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/ui-router/angular-ui-router.min.js',
         'src/webui/src/thirdparty/angular-clipboard/angular-clipboard.js',
         'src/webui/src/thirdparty/angular-toastr/angular-toastr.tpls.min.js',
+        'src/webui/src/thirdparty/autosize-textarea/autosize.min.js',
         'src/webui/src/thirdparty/color-hash/color-hash.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
         'src/webui/src/thirdparty/dalliance/release-0.13/dalliance-compiled.js',
@@ -213,6 +214,7 @@ gulp.task('watch', function() {
     gulp.watch('src/webui/src/js/**/*.js', ['js']);
     gulp.watch('src/webui/src/sass/*.scss', ['sass']);
     gulp.watch('src/webui/src/less/**/*.less', ['less']);
+    gulp.watch('src/webui/src/thirdparty/bootstrap/bootstrap-3.3.2/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
 

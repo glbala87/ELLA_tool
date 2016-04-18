@@ -29,7 +29,7 @@ class TestDatabase(object):
         """
         with open(os.devnull, "w") as f:
             subprocess.call('createdb vardb-test', shell=True, stdout=f)
-        DepositTestdata(db).deposit_all(test_set='test')
+        DepositTestdata(db).deposit_all(test_set='integration_testing')
         subprocess.check_call('pg_dumpall --file={path} --clean'.format(path=self.dump_path), shell=True)
         print "Temporary database file created at {}.".format(self.dump_path)
 

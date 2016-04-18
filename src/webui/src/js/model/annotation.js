@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-export class Annotation {
+export default class Annotation {
     /**
      * Represents one Annotation
      * @param  {object} Annotation data.

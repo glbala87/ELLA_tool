@@ -1,0 +1,7 @@
+<div class='acmg-selection-popover'>
+  <div class="acmg-popover-row" ng-repeat="r in vm.acmgCandidates">
+    <div class="suggested disabled" ng-repeat="v in r">
+      <div class="acmg" ng-class="::vm.getACMGClass(v)" ng-click="vm.addACMGCode(v)"><h4>{{::v}}</h4></div>
+    </div>
+  </div>
+</div>

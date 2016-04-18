@@ -224,19 +224,23 @@ class TestFrequencyAnnotation(unittest.TestCase):
 
     def test_frequency_cutoffs(self):
         frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(None)
-        self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "null_freq")
+        self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
+        self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
+        self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
         frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies({})
-        self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "null_freq")
+        self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
+        self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
+        self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
         frequencies = {
             "1000g":
             {
-                "AFR": 0.0005,
+                "ASN": 0.0005,
                 "AMR": 0.000000001,
-                "FOO": 0.004
+                "NOT_VALID": 1.0
             },
             "ExAC":
             {
@@ -249,15 +253,17 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
         frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
-        self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "≥hi_freq_cutoff")
+        self.assertEquals(frequencies["ExAC_cutoff"], "≥hi_freq_cutoff")
+        self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
         frequencies = {
             "1000g":
             {
-                "AFR": 0.0005,
+                "ASN": 0.001, # Lower edge case
                 "AMR": 0.000000001,
-                "FOO": 0.004
+                "NOT_VALID": 1.0
             },
             "ExAC":
             {
@@ -270,15 +276,17 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
         frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
-        self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
+        self.assertEquals(frequencies["ExAC_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
+        self.assertEquals(frequencies["1000G_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
+        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
         frequencies = {
             "1000g":
             {
-                "AFR": 0.000001,
+                "ASN": 0.000001,
                 "AMR": 0.00002,
-                "FOO": 0.000002
+                "NOT_VALID": 1.0
             },
             "ExAC":
             {
@@ -294,7 +302,9 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
         frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
-        self.assertEquals(frequencies["ExAC_1000G_ESP6500_cutoff"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies["ExAC_cutoff"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
 
 

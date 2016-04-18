@@ -15,13 +15,6 @@
     </div>
     <div class="paper-bottom">
       <section ng-if="vm.category == 'references'">
-        <div class="trow">
-            <div class="cell title"> <h5>Variant:</h5> </div>
-            <div class="cell check"></div>
-            <div class="cell controls">
-              <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
-            </div>
-        </div>
         <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added references</h2>
         <div class="included-allele">
           <article class="content-box" ng-repeat="ref in vm.getCurrent()">
@@ -31,12 +24,20 @@
         </div>
         <hr ng-if="vm.hasAddedAnnotations()">
         <h2 class="allele-title">add reference - import xml format</h2>
-        <article class="small question-set">
-
+        <div class="instructions">
           <h5 class="non-cell">Instructions</h5>
-          <p>Find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it here:</p>
-          <textarea class="big" ng-model="vm.reference_xml"></textarea>
-          <h5 ng-if="vm.reference_error">The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</h5>
+          <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
+        </div>
+        <div class="trow spacing-fix">
+            <div class="cell title"> <h5>VARIANT:</h5> </div>
+            <div class="cell check"></div>
+            <div class="cell controls allele-controls">
+              <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
+            </div>
+        </div>
+        <article class="instructions">
+          <autosize-textarea class="big" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea>
+          <h5 class="error" ng-if="vm.reference_error">The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</h5>
           <button ng-click="vm.addReference()"><b class="plusmark" ng-disabled="vm.reference_xml === ''">+</b> Add reference</button>
         </article>
       </section>

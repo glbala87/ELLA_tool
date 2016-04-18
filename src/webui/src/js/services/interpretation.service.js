@@ -116,40 +116,97 @@ class InterpretationService {
             controllerAs: 'vm'
         });
         return modal.result.then(res => {
-            if (res === 'markreview') {
-                this.analysisService.markreview(interpretation.analysis.id);
-            } else if (res === 'finalize') {
-                this.analysisService.finalize(interpretation.analysis.id);
-            } else {
-                throw `Got unknown option ${res} when confirming interpretation action.`;
+            // Save interpretation before marking as done
+            if (res) {
+                return this.save(interpretation).then(() => {
+                    if (res === 'markreview') {
+                        this.analysisService.markreview(interpretation.analysis.id);
+                    }
+                    else if (res === 'finalize') {
+
+                        // Get all alleleassessments and referenceassessments used for this analysis.
+                        let alleleassessments = [];
+                        let referenceassessments = [];
+                        for (let allele_state of interpretation.state.allele) {
+                            alleleassessments.push(this.prepareAlleleAssessments(
+                                allele_state.allele_id,
+                                interpretation.analysis.id,
+                                allele_state
+                                ));
+                            referenceassessments = referenceassessments.concat(this.prepareReferenceAssessments(
+                                interpretation.analysis.id,
+                                allele_state
+                            ));
+                        }
+
+                        return this.analysisService.finalize(
+                            interpretation.analysis.id,
+                            alleleassessments,
+                            referenceassessments
+                        );
+                    }
+                    else {
+                        throw `Got unknown option ${res} when confirming interpretation action.`;
+                    }
+                });
             }
             return true;
         });
     }
 
-    complete() {
-        // TODO: Error handling
-        return this.save().then(() => {
-            this.interpretationResource.complete(this.interpretation.id).then(() => {
-                this.redirect();
-            });
-        });
+    prepareAlleleAssessments(allele_id, analysis_id, allelestate) {
+        // If id is included, we're reusing an existing one.
+        if ('id' in allelestate.alleleassessment) {
+            return {
+                allele_id: allele_id,
+                id: allelestate.alleleassessment.id,
+                analysis_id: analysis_id
+            };
+        }
+        else {
+            // Fill in fields expected by backend
+            return {
+                allele_id: allele_id,
+                analysis_id: analysis_id,
+                user_id: this.user.getCurrentUserId(),
+                classification: allelestate.alleleassessment.classification,
+                evaluation: allelestate.alleleassessment.evaluation
+            };
+        }
+
     }
 
-    finalize() {
-        // TODO: Error handling
-        return this.save().then(() => {
-            this.interpretationResource.finalize(this.interpretation.id).then(() => {
-                this.redirect();
-            });
-        });
+    prepareReferenceAssessments(analysis_id, allelestate) {
+        let referenceassessments = [];
+        if ('referenceassessments' in allelestate) {
+            // Iterate over all referenceassessments for this allele
+            for (let reference_state of allelestate.referenceassessments) {
+                if (!reference_state.evaluation) {
+                    continue;
+                }
+                // If id is included, we're reusing an existing one.
+                if ('id' in reference_state) {
+                    referenceassessments.push({
+                        allele_id: reference_state.allele_id,
+                        reference_id: reference_state.reference_id,
+                        id: reference_state.id,
+                        analysis_id: analysis_id
+                    });
+                }
+                else {
+                    // Fill in fields expected by backend
+                    referenceassessments.push({
+                        allele_id: reference_state.allele_id,
+                        reference_id: reference_state.reference_id,
+                        analysis_id: analysis_id,
+                        evaluation: reference_state.evaluation || {},
+                        user_id: this.user.getCurrentUserId()
+                    });
+                }
+            }
+        }
+        return referenceassessments;
     }
-
-    redirect() {
-        this.locationService.url('/analyses');
-    }
-
-
 
 }
 

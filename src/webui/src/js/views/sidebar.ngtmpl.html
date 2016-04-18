@@ -1,9 +1,9 @@
 <nav>
-  <div class="nav-row" ng-class="{'active': item.active}" ng-repeat="item in vm.getItems()" ng-click="vm.activate(item)">
+  <div class="nav-row" ng-class="{'active': item.active, 'disabled': item.disabled}" ng-repeat="item in vm.getItems()" ng-click="vm.activate(item)">
     <div class="tab" ng-class="{'active': item.active}"> </div>
     <h4 class="title" ng-class="{'active': item.active}">{{item.title}}</h4>
   </div>
 </nav>
 <div class="hero">
-  <h1>ella</h1>
+  <h1>e<span class="l">||</span>a</h1>
 </div>

@@ -18,7 +18,9 @@ import {Directive, Inject} from '../ng-decorators';
         listModel: '=?',
         listValue: '=?',
         showMark: '@?',
-        onChange: '&?'
+        onChange: '&?',
+        ngDisabled: '=',
+        oneWay: '=?' // Don't update model upon clicking.
     },
     templateUrl: 'ngtmpl/checkablebutton.ngtmpl.html',
     link: (scope, elem, attrs) => {
@@ -51,6 +53,9 @@ export class CheckableButtonController {
     }
 
     check() {
+        if (this.oneWay) {
+            return;
+        }
         if (this.isListModel) {
             let idx = this.listModel.indexOf(this.listValue);
             if (idx > -1) {
