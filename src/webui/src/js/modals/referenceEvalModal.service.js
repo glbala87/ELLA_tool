@@ -41,6 +41,7 @@ export class ReferenceEvalModalController {
                     desc: 'Effect of amino acid change?',
                     options: [
                         ['Pathogenic', 'overlap_pat'],
+                        ['VUS', 'overlap_vus'],
                         ['Benign', 'overlap_ben'],
                     ],
                     store: 'ref_aa_overlap',
@@ -115,6 +116,7 @@ export class ReferenceEvalModalController {
                     options: [
                         ['Strong', 'segr+++'],
                         ['Moderate', 'segr++'],
+                        ['Non-informative', 'segr_non-informative'],
                         ['Weak', 'segr+'],
                         ['No', 'segr-'],
                     ],
@@ -127,6 +129,7 @@ export class ReferenceEvalModalController {
                     options: [
                         ['++', 'prot++'],
                         ['+', 'prot+'],
+                        ['Unknown', 'prot_unknown'],
                         ['-', 'prot-'],
                         ['--', 'prot--'],
                     ],
@@ -139,6 +142,7 @@ export class ReferenceEvalModalController {
                     options: [
                         ['++', 'rna++'],
                         ['+', 'rna+'],
+                        ['Unknown', 'rna_unknown'],
                         ['-', 'rna-'],
                         ['--', 'rna--'],
                     ],
