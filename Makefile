@@ -180,7 +180,7 @@ get-ansible:
 	ops/builder/venv/bin/pip install --upgrade ansible
 
 run-ansible:
-	ops/builder/venv/bin/ansible-playbook -i provision, -c docker ops/builder/builder.yml --tags=$(BUILD_TYPE)
+	ops/builder/venv/bin/ansible-playbook -i provision, -c docker -u root ops/builder/builder.yml --tags=$(BUILD_TYPE)
 
 clean-ansible:
 	rm -rf ops/builder/venv
