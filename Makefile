@@ -21,6 +21,7 @@ help :
 	@echo "-- DEV COMMANDS --"
 	@echo "make build		- build image $(IMAGE_NAME)"
 	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
@@ -57,6 +58,10 @@ dev:
 	-v $(shell pwd):/ella \
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
+	@$(MAKE) url
+
+url:
+	@./ops/dev/show-url.sh
 
 kill:
 	docker stop $(CONTAINER_NAME)
