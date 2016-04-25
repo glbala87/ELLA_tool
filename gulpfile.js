@@ -165,7 +165,8 @@ gulp.task('e2e', function(done) {
                 '--seleniumAddress', seleniumAddress
     ];
 
-    gulp.src(["./src/webui/tests/e2e/spec.js"])
+    gulp.src(['./src/webui/tests/e2e/spec.js',
+              './src/webui/tests/e2e/allele-popup-spec.js'])
         .pipe(protractor({
             configFile: "./src/webui/tests/protractor.conf.js",
             args: args
