@@ -33,6 +33,7 @@
     "core-js": "^2.0.3",
     "gulp-angular-templatecache": "^1.8.0",
     "gulp-protractor": "^2.1.0",
+    "jasmine-spec-reporter": "^2.4.0",
     "jasmine-core": "^2.4.1",
     "js-polyfills": "^0.1.12",
     "karma": "^0.13.16",
