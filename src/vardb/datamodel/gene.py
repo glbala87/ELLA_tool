@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.schema import ForeignKeyConstraint
 
 from vardb.datamodel import Base
+from vardb.util.mutjson import MUTJSONB
 
 
 class Gene(Base):
@@ -14,7 +15,7 @@ class Gene(Base):
 
     hugoSymbol = Column(String(), primary_key=True)
     ensemblGeneID = Column(String(15), unique=True)
-    dominance = Column(String(20))
+    # dominance = Column(String(20))
 
     def __repr__(self):
         return "<Gene('%s')>" % self.hugoSymbol
@@ -31,10 +32,10 @@ class Transcript(Base):
     ensemblID = Column(String(15), unique=True)
     genomeReference = Column(String(15), nullable=False)
     chromosome = Column(String(10), nullable=False)
-    txStart = Column(Integer, nullable=False) # TODO: Use Postgres int4range when SQLAlchemy supports it
+    txStart = Column(Integer, nullable=False)  # TODO: Use Postgres int4range when SQLAlchemy supports it
     txEnd = Column(Integer, nullable=False)
     strand = Column(String(1), nullable=False)
-    cdsStart = Column(Integer, nullable=False) # TODO: Use Postgres int4range when SQLAlchemy supports it
+    cdsStart = Column(Integer, nullable=False)  # TODO: Use Postgres int4range when SQLAlchemy supports it
     cdsEnd = Column(Integer, nullable=False)
     exonStarts = Column("exon_starts", ARRAY(Integer), nullable=False) # giving dimensions does not work
     exonEnds = Column("exon_ends", ARRAY(Integer), nullable=False)
@@ -63,6 +64,10 @@ class Genepanel(Base):
     version = Column(String(), primary_key=True)
     genomeReference = Column(String(15), nullable=False)
     transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
+    phenotypes = relationship("Phenotype", lazy='joined')
+
+    config = Column(MUTJSONB, default={})
+
 
     def __repr__(self):
         return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genomeReference)
@@ -80,3 +85,37 @@ class Genepanel(Base):
         g = Genepanel(name, version, genomeRef, transcripts)
         g = session.merge(g)
         return g
+
+
+class Phenotype(Base):
+    """Represents a phenotype linked to a particular genepanel.
+    A phenotype can have some panel specific information (like related clinical tests)
+    so we link it to specific panel. So a phenotype will typically appear mulitple times
+    in the table, each belonging to different panels.
+    """
+    __tablename__ = "phenotype"
+
+    id = Column(Integer, Sequence("id_phenotype_seq"), primary_key=True)
+
+    genepanelName = Column(String(40), nullable=False)
+    genepanelVersion = Column(String(10), nullable=False)
+    genepanel = relationship("Genepanel", uselist=False)
+
+    gene_id = Column(String(20), ForeignKey("gene.hugoSymbol"), nullable=False)
+    gene = relationship("Gene", lazy="joined")
+
+    description = Column(String(250), nullable=False)
+    inheritance = Column(String(20), nullable=False)
+    inheritance_info = Column(String(200), nullable=True)
+    omim_id = Column(Integer, nullable=True)
+    pmid = Column(Integer, nullable=True)
+    comment = Column(String(200), nullable=True)
+
+    # composite foreign key
+    # http://docs.sqlalchemy.org/en/latest/core/constraints.html#sqlalchemy.schema.ForeignKeyConstraint:
+    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"],
+                                           deferrable=True, initially="DEFERRED")
+                      ,)
+
+    def __repr__(self):
+        return "<Phenotype('%s')>" % self.description[:20]
