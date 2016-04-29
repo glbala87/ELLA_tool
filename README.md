@@ -24,6 +24,8 @@ Most functionality is now baked into a Makefile, run `make help` to see a quick 
 - `make e2e-test` will run e2e tests
 - `make single-test` will run a single _non-e2e_ test
 
+To clean up docker containers when e2e tests fail: `make cleanup-e2e BRANCH=test`
+
 ### More info:
 - For more information please see [the wiki](https://git.ousamg.io/docs/wiki/wikis/ella/testing)
 
