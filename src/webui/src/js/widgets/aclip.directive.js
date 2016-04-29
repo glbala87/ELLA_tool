@@ -33,7 +33,6 @@ export class HrefController {
 
     shouldCopy() {
         if (this.toClipboard === undefined) {
-            console.log(this.config.app.links_to_clipboard);
             return this.config.app.links_to_clipboard;
         }
         return this.toClipboard === 'true';
