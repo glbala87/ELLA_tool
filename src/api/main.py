@@ -70,7 +70,7 @@ def serve_static_factory(dev=False):
 
 # Only enabled on "DEVELOP=true"
 def reset_testdata():
-    if os.environ.get('DEVELOP').upper() != 'TRUE':
+    if os.environ.get('DEVELOP', '').upper() != 'TRUE':
         raise RuntimeError("Tried to access reset resource, but not running in development mode")
 
     test_set = 'small'
@@ -91,7 +91,7 @@ api = Api(app)
 
 def init_v1(api):
     v1 = ApiV1()
-    if os.environ.get('DEVELOP').upper() == 'TRUE':
+    if os.environ.get('DEVELOP', '').upper() == 'TRUE':
         app.add_url_rule('/reset', 'reset', reset_testdata)
     return v1.init_app(api)
 
