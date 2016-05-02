@@ -68,9 +68,11 @@ def serve_static_factory(dev=False):
     return serve_static
 
 
-# TODO: !!!!!!!!!!Remove before production!!!!!!!!!
-@app.route('/reset')
+# Only enabled on "DEVELOP=true"
 def reset_testdata():
+    if os.environ.get('DEVELOP').upper() != 'TRUE':
+        raise RuntimeError("Tried to access reset resource, but not running in development mode")
+
     test_set = 'small'
     if request.args.get('testset'):
         test_set = request.args.get('testset')
@@ -89,6 +91,8 @@ api = Api(app)
 
 def init_v1(api):
     v1 = ApiV1()
+    if os.environ.get('DEVELOP').upper() == 'TRUE':
+        app.add_url_rule('/reset', 'reset', reset_testdata)
     return v1.init_app(api)
 
 init_v1(api)
