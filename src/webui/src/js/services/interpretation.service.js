@@ -49,16 +49,16 @@ class InterpretationService {
             throw Error("You must provide an id");
         }
         return new Promise((resolve, reject) => {
-            let puser = this.user.getCurrentUser();
-            let pint = this.interpretationResource.get(id);
+            let userPromise = this.user.getCurrentUser();
+            let interpretationPromise = this.interpretationResource.get(id);
 
             // Prepare interpretation and assign user
-            Promise.all([puser, pint]).spread((user, interpretation) => {
+            Promise.all([userPromise, interpretationPromise]).spread((user, interpretation) => {
                 interpretation.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
             });
 
             // Resolve final promise
-            Promise.all([puser, pint]).spread((user, interpretation) => {
+            Promise.all([userPromise, interpretationPromise]).spread((user, interpretation) => {
                 return this.reloadAlleles(interpretation).then(alleles => {
                     console.log("Interpretation loaded", interpretation);
                     resolve(interpretation);
