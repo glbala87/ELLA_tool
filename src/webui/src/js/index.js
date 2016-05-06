@@ -63,6 +63,7 @@ import './widgets/allelecard/referencesection.directive';
 import './widgets/allelecard/vardbsection.directive';
 import './widgets/allelecard/classificationsection.directive';
 import './widgets/reportcard/reportcard.directive';
+import './widgets/isolateclick.directive';
 
 
 
