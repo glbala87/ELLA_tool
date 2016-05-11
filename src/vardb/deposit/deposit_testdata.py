@@ -29,6 +29,7 @@ USERS = '../testdata/users.json'
 
 GENEPANELS = [
     {
+        'config': {'source': 'deposit_testdata.py'},
         'transcripts': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.phenotypes.csv',
         'name': 'HBOC',
@@ -144,6 +145,7 @@ class DepositTestdata(object):
                 os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
+                config=gpdata['config'] if 'config' in gpdata else None,
                 force_yes=True
             )
 

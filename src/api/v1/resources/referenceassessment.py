@@ -71,7 +71,7 @@ class ReferenceAssessmentListResource(Resource):
 
         if existing_ass:
             obj.id = existing_ass.id
-            session.merge(obj)
+            session.resolve(obj)
         else:
             session.add(obj)
 

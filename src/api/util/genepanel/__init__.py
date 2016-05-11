@@ -1,0 +1,1 @@
+from genepanel import GenepanelCutoffsAnnotationProcessor

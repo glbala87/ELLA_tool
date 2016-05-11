@@ -100,7 +100,8 @@ class DepositGenepanel(object):
     def __init__(self, session):
         self.session = session
 
-    def add_genepanel(self, transcripts_path, phenotypes_path, genepanelName, genepanelVersion, genomeRef='GRCh37', force_yes=False):
+    def add_genepanel(self, transcripts_path, phenotypes_path, genepanelName, genepanelVersion, genomeRef='GRCh37',
+                      config=None, force_yes=False):
         if self.session.query(gm.Genepanel).filter(gm.Genepanel.name == genepanelName,
                                                    gm.Genepanel.version == genepanelVersion).count():
             log.warning("{} {} already in database".format(genepanelName, genepanelVersion))
@@ -173,9 +174,12 @@ class DepositGenepanel(object):
             version=genepanelVersion,
             genomeReference=genomeRef,
             transcripts=db_transcripts,
-            phenotypes=db_phenotypes)
+            phenotypes=db_phenotypes,
+            config=config)
         print db_transcript
         print db_phenotypes
+        print "genepanel.config: "
+        print genepanel.config
         self.session.merge(genepanel)
         self.session.commit()
         log.info('Added {} {} with {} transcripts and {} phenotypes to database'

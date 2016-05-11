@@ -6,6 +6,7 @@ from api import schemas, config
 from rule_engine.gre import GRE
 from rule_engine.grc import ACMGClassifier2015
 from rule_engine.mapping_rules import rules
+from api.genepanelconfig import GenepanelConfigResolver
 
 
 class ACMGDataLoader(object):
@@ -13,8 +14,9 @@ class ACMGDataLoader(object):
     def __init__(self, session):
         self.session = session
 
-    def _set_transcript_annotation(self, annotation_data):
-        # Set the default transcript to use. Normally this one
+    @staticmethod
+    def _find_single_transcript(annotation_data):
+        # Find default transcript to use. Normally this one
         # transcript from filtered_transcripts in the annotation data
         # which is set using the genepanel as a filter.
         # If there is more than one transcript, or no transcript,
@@ -24,21 +26,9 @@ class ACMGDataLoader(object):
         if len(filtered_transcripts) == 1:
             # Fetch transcript data from 'transcripts' key, given transcript
             # name from filtered_transcripts[0].
-            transcript = next((t for t in annotation_data['transcripts'] if t['Transcript'] == filtered_transcripts[0]), None)
-            annotation_data["transcript"] = transcript
+            return next((t for t in annotation_data['transcripts'] if t['Transcript'] == filtered_transcripts[0]), None)
         else:
-            annotation_data['transcript'] = None
-
-    def _get_genepanel_annotation(self, genepanel):
-        """
-        :param genepanel: Genepanel in dumped schema format
-        """
-        # Currently just using default values
-        return {
-            "gp_inheritance": "autosomal_dominant",
-            "gp_last_exon": "last_exon_important",
-            "gp_disease_mode": "lof_missense"
-        }.update(config.config['acmg']['freq_cutoff_defaults'])
+            return None
 
     def get_classification(self, codes):
         """
@@ -70,10 +60,10 @@ class ACMGDataLoader(object):
         passed_data = schemas.RuleSchema().dump(passed, many=True).data
         return passed_data
 
-    def from_data(self,
-                  alleles,
-                  reference_assessments,
-                  genepanel):
+    def _from_data(self,
+                   alleles,
+                   reference_assessments,
+                   genepanel):
         """
         Calculates ACMG codes for a list of alleles already preloaded using the AlleleDataLoader.
         They must have been loaded with include_annotation and include_custom_annotation.
@@ -82,10 +72,12 @@ class ACMGDataLoader(object):
         :param alleles: List of allele data from AlleleDataLoader.
         :param reference_assessments: List of referenceassessments (dicts) to use.
         :param genepanel: Genepanel to be used in annotationprocessor.
+        :type genepanel: vardb.datamodel.gene.Genepanel
         :returns: dict with converted data using schema data.
         """
 
-        gp_annotation_data = self._get_genepanel_annotation(genepanel)
+        genepanel_config = GenepanelConfigResolver(genepanel).resolve()
+
         allele_classifications = dict()
 
         ra_per_allele = defaultdict(list)
@@ -95,10 +87,10 @@ class ACMGDataLoader(object):
         for a in alleles:
             # Add extra data/keys that the rule engine expects to be there
             annotation_data = a['annotation']
-            annotation_data["genepanel"] = gp_annotation_data
+            annotation_data["genepanel"] = genepanel_config
             if a['id'] in ra_per_allele:
                 annotation_data["refassessment"] = {str('_'.join([str(r['allele_id']), str(r['reference_id'])])): r['evaluation'] for r in ra_per_allele[a['id']]}
-            self._set_transcript_annotation(annotation_data)
+                annotation_data['transcript'] = ACMGDataLoader._find_single_transcript(annotation_data)
 
             passed_data = self.get_acmg_codes(annotation_data)
             allele_classifications[a['id']] = {
@@ -117,11 +109,15 @@ class ACMGDataLoader(object):
         Annotation data will be loaded automatically, using the AlleleDataLoader. If you already
         have alleles loaded with the AlleleDataLoader, see from_data().
 
-        :param alleles: List of allele objects.
+        :param alleles: List
+        :type alleles: vardb.datamodel.allele.Allele
         :param reference_assessments: List of referenceassessments (dicts) to use.
         :param genepanel: Genepanel to be used.
+        :type genepanel: vardb.datamodel.gene.Genepanel
         :returns: dict with converted data using schema data.
         """
+
+        loaded_alleles = None
         if alleles:
             loaded_alleles = AlleleDataLoader(self.session).from_objs(
                 alleles,
@@ -129,7 +125,7 @@ class ACMGDataLoader(object):
                 include_allele_assessment=False,
                 include_reference_assessments=False
             )
-        return self.from_data(
+        return self._from_data(
             loaded_alleles,
             reference_assessments,
             genepanel

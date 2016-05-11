@@ -31,6 +31,8 @@ class AlleleListResource(Resource):
         annotation = request.args.get('annotation', 'true') == 'true'
 
         genotypes = None
+        allele_genotypes = None
+
         if sample_id:
             genotypes = session.query(genotype.Genotype).join(sample.Sample).filter(
                 sample.Sample.id == sample_id,

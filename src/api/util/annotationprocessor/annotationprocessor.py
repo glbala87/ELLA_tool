@@ -1,9 +1,12 @@
 # coding=utf-8
 from collections import defaultdict
 from api import config
+from genepanel import GenepanelCutoffsAnnotationProcessor
+from vardb.datamodel.gene import Transcript
 
 
 class References(object):
+    CONTRIBUTION_KEY = 'references'
 
     def _csq_pubmeds(self, annotation):
         if 'CSQ' not in annotation:
@@ -48,13 +51,15 @@ class References(object):
                 'sources': ['HGMD']
             })
 
-        return {'references': references}
+        return {References.CONTRIBUTION_KEY: references}
 
 
 class TranscriptAnnotation(object):
     """
     Fetch out and restructure data that is transcript dependant.
     """
+
+    CONTRIBUTION_KEY = 'transcripts'
 
     CSQ_FIELDS = [
         'Consequence',
@@ -153,7 +158,7 @@ class TranscriptAnnotation(object):
         return transcripts
 
     @staticmethod
-    def get_genepanel_transcripts(transcripts, genepanel):
+    def get_genepanel_transcripts(transcript_names, genepanel):
         """
         Searches input transcripts for matching transcript names in the genepanel,
         and returns the list of matches. If no matches are done, returns all RefSeq
@@ -161,30 +166,30 @@ class TranscriptAnnotation(object):
 
         *The transcript version is stripped off during matching.*
 
-        :param transcripts: List of transcript names (without version) to search for
-        :param genepanel: Genepanel data loaded from marshmallow schema
+        :param transcript_names: List of transcript names (without version) to search for
+        :param genepanel:
+        :type genepanel: vardb.datamodel.gene.Genepanel
         :return: list of genepanel transcript names, without version: ['NM_13423', ...]
         """
 
-        no_ver_transcripts = list()
-        for t in transcripts:
-            if '.' in t:
-                no_ver_transcripts.append(t.split('.', 1)[0])
-            else:
-                no_ver_transcripts.append(t)
-        gp_transcripts = list()
-        for elem in genepanel['transcripts']:
-            for k in ['refseqName', 'ensemblID']:
-                gp_transcripts.append(elem[k])
-        no_ver_gp_transcripts = [t.split('.', 1)[0] for t in gp_transcripts]
+        transcript_names = [Transcript.get_name(t) for t in transcript_names]
 
-        return list(set(no_ver_transcripts).intersection(set(no_ver_gp_transcripts)))
+        gp_transcripts = list()
+        for transcript in genepanel.transcripts:
+            gp_transcripts.append(transcript.refseqName)
+            gp_transcripts.append(transcript.ensemblID)  # TODO: necessary to add ensembleId as well?
+
+        transcript_names_in_genepanel = [Transcript.get_name(t) for t in gp_transcripts]
+
+        return list(set(transcript_names).intersection(set(transcript_names_in_genepanel)))
 
     def process(self, annotation, genepanel=None):
         """
+        :param annotation
         :param genepanel: If provided, adds filtered_transcript to output,
                           containing the name of the transcripts found in
                           genepanel.
+        :type genepanel: vardb.datamodel.gene.Genepanel
         """
         csq_transcripts = self._csq_transcripts(annotation)
         splice_transcripts = self._splice_transcripts(annotation)
@@ -208,7 +213,7 @@ class TranscriptAnnotation(object):
             transcripts.append(t)
 
         final_transcripts = sorted(transcripts, key=lambda x: x['Transcript'])
-        result = {'transcripts': final_transcripts}
+        result = {TranscriptAnnotation.CONTRIBUTION_KEY: final_transcripts}
 
         if genepanel:
             final_transcript_names = [t['Transcript'] for t in final_transcripts]
@@ -219,63 +224,26 @@ class TranscriptAnnotation(object):
 
 
 class FrequencyAnnotation(object):
+    CONTRIBUTION_KEY='frequencies'
 
-    def __init__(self, config):
+    def __init__(self, config, genepanel=None):
         self.config = config
+        self.genepanel = genepanel
 
-    def _hi_cutoff_in_dataset(self, annotation, dataset):
-        if dataset in annotation:
-            for freq in self.config['frequencies']['groups'][dataset]:
-                if freq in annotation[dataset] and \
-                   annotation[dataset][freq] >= self.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"]:
-                    return True
-        return False
-
-    def _med_cutoff_in_dataset(self, annotation, dataset):
-        if dataset in annotation:
-            for freq in self.config['frequencies']['groups'][dataset]:
-                if freq in annotation[dataset] and \
-                   annotation[dataset][freq] < self.config['acmg']['freq_cutoff_defaults']["hi_freq_cutoff"] and \
-                   annotation[dataset][freq] >= self.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
-                    return True
-        return False
-
-    def _lo_cutoff_in_dataset(self, annotation, dataset):
-        if dataset in annotation:
-            for freq in self.config['frequencies']['groups'][dataset]:
-                if freq in annotation[dataset] and \
-                   annotation[dataset][freq] < self.config['acmg']['freq_cutoff_defaults']["lo_freq_cutoff"]:
-                    return True
-        return False
-
-    def _cutoff_frequencies(self, annotation):
-        frequencies = dict()
-        cutoffs = [
-            ('ExAC', 'ExAC_cutoff'),
-            ('1000g', '1000G_cutoff'),
-            ('esp6500', 'ESP6500_cutoff'),
-            ('inDB', 'inDB_cutoff')
-        ]
-        # Init values with null_freq
-        for c in cutoffs:
-            frequencies[c[1]] = "null_freq"
-
-        if not annotation:
-            return frequencies
-
-        for c in cutoffs:
-            if (self._hi_cutoff_in_dataset(annotation, c[0])):
-                frequencies[c[1]] = "≥hi_freq_cutoff"
-            elif (self._med_cutoff_in_dataset(annotation, c[0])):
-                frequencies[c[1]] = ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
-            elif (self._lo_cutoff_in_dataset(annotation, c[0])):
-                frequencies[c[1]] = "<lo_freq_cutoff"
-
-        return frequencies
+    # def _cutoff_frequencies(self, annotation_frequency):
+    #     """
+    #     :param: annotation_frequency, a dict of cutoffs for various databases (extracted from vcf annotation?)
+    #     :returns: dict k:v, where k is [database]_cutoff and v describes the matching cutoffs
+    #     """
+    #     processor = GenepanelCutoffsAnnotationProcessor(self.config, self.genepanel)
+    #     return processor.cutoff_frequencies(annotation_frequency)
 
     def _exac_frequencies(self, annotation):
         """
         Manually calculate frequencies from raw ExAC data.
+
+        :param: annotation: a dict with key 'EXAC'
+        :returns: dict with key 'ExAC'
         """
 
         if 'EXAC' not in annotation:
@@ -363,17 +331,25 @@ class FrequencyAnnotation(object):
 
         return {'inDB': annotation['inDB']}
 
-    def process(self, annotation):
+    def process(self, annotation, genepanel=None):
+        """
 
+        :param annotation:
+        :param genepanel:
+        :type genepanel: vardb.datamodel.gene.Genepanel
+        :return:
+        """
+        processor = GenepanelCutoffsAnnotationProcessor(self.config, genepanel)
         frequencies = self._exac_frequencies(annotation)
         frequencies.update(self._csq_frequencies(annotation))
         frequencies.update(self._indb_frequencies(annotation))
-        frequencies.update(self._cutoff_frequencies(frequencies))
+        frequencies.update(processor.cutoff_frequencies(frequencies))
 
-        return {'frequencies': frequencies}
+        return {FrequencyAnnotation.CONTRIBUTION_KEY: frequencies}
 
 
 class ExternalAnnotation(object):
+    CONTRIBUTION_KEY = 'external'
 
     BIC_FIELDS = [
         ('Clinically_Important', lambda x: x.lower())
@@ -427,7 +403,7 @@ class ExternalAnnotation(object):
         data.update(self._bic(annotation))
         data.update(self._clinvar(annotation))
         data.update(self._hgmd(annotation))
-        return {'external': data}
+        return {ExternalAnnotation.CONTRIBUTION_KEY: data}
 
 
 class GeneticAnnotation(object):
@@ -438,6 +414,7 @@ class GeneticAnnotation(object):
 
 
 class QualityAnnotation(object):
+    CONTRIBUTION_KEY='quality'
 
     def process(self, genotype):
         data = {
@@ -447,7 +424,7 @@ class QualityAnnotation(object):
             'FILTER': genotype.get('filterStatus'),
             'AD': genotype.get('alleleDepth')
         }
-        return {'quality': data}
+        return {QualityAnnotation.CONTRIBUTION_KEY: data}
 
 
 class AnnotationProcessor(object):
@@ -456,11 +433,23 @@ class AnnotationProcessor(object):
     def process(annotation, custom_annotation=None, genotype=None, genepanel=None):
         """
         Creates/converts annotation data from input Allele dictionary data.
+
+        :param annotation:
+        :param custom_annotation:
+        :param genotype:
+        :param genepanel:
+        :type genepanel: vardb.datamodel.gene.Genepanel
+        :return: a dict with one key for each "class" of annotation: 'transcripts', 'frequency', 'references'
+        'external', 'quality' (only if genotype)
         """
+
+        print "processes annotations:"
+        print annotation
+        print genepanel
 
         data = dict()
         data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel)),
-        data.update(FrequencyAnnotation(config.config).process(annotation)),
+        data.update(FrequencyAnnotation(config.config).process(annotation, genepanel=genepanel)),
         data.update(References().process(annotation)),
         data.update(GeneticAnnotation().process(annotation)),
         data.update(ExternalAnnotation().process(annotation)),

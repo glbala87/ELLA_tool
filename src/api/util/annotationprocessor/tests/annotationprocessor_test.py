@@ -1,7 +1,10 @@
 # coding=utf-8
 import unittest
-from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
+
+# from util.annotationprocessor.genepanel import GenepanelCutoffsAnnotationProcessor
+from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation, GenepanelCutoffsAnnotationProcessor
 from api import config
+from vardb.datamodel.gene import Transcript, Genepanel
 
 
 class TestReferences(unittest.TestCase):
@@ -20,7 +23,7 @@ class TestReferences(unittest.TestCase):
 
         }
 
-        pubmeds = References().process(data)['references']
+        pubmeds = References().process(data)[References.CONTRIBUTION_KEY]
         self.assertEqual(
             pubmeds[0],
             {
@@ -52,7 +55,7 @@ class TestReferences(unittest.TestCase):
 
         }
 
-        pubmeds = References().process(data)['references']
+        pubmeds = References().process(data)[References.CONTRIBUTION_KEY]
         self.assertEqual(
             pubmeds[0],
             {
@@ -99,7 +102,7 @@ class TestReferences(unittest.TestCase):
 
         }
 
-        pubmeds = References().process(data)['references']
+        pubmeds = References().process(data)[References.CONTRIBUTION_KEY]
         self.assertEqual(
             pubmeds[0],
             {
@@ -144,7 +147,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation(config.config).process(data)['frequencies']
+        freq = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertFalse('GMAF' in freq['1000g'])
 
     def test_frequency_strip_maf_from_name(self):
@@ -166,7 +169,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation(config.config).process(data)['frequencies']
+        freq = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('G', freq['1000g'])
         self.assertNotIn('GMAF', freq['1000g'])
         self.assertIn('EUR', freq['1000g'])
@@ -183,7 +186,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)['frequencies']
+        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('TEST', freqs['ExAC'])
         self.assertEqual(float(13)/2, freqs['ExAC']['TEST'])
         self.assertNotIn('ZERO', freqs['ExAC'])
@@ -196,7 +199,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)['frequencies']
+        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('TEST', freqs['ExAC']['hom'])
         self.assertEqual(13, freqs['ExAC']['hom']['TEST'])
 
@@ -218,24 +221,33 @@ class TestFrequencyAnnotation(unittest.TestCase):
 
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)['frequencies']
+        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertEqual(0.122, freqs['esp6500']['EA'])
         self.assertEqual(0.123, freqs['esp6500']['AA'])
 
-    def test_frequency_cutoffs(self):
-        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(None)
+    def test_frequency_cutoffs_from_none(self):
+
+        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+        frequencies = processor.cutoff_frequencies(None)
+
         self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
         self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
         self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
-        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies({})
+    def test_frequency_cutoffs_from_empty(self):
+
+        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+        frequencies = processor.cutoff_frequencies({})
+
         self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
         self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
         self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
-        frequencies = {
+    def test_frequency_cutoffs_1(self):
+
+        annotation = {
             "1000g":
             {
                 "ASN": 0.0005,
@@ -252,13 +264,17 @@ class TestFrequencyAnnotation(unittest.TestCase):
                 "EA": 0.0003
             }
         }
-        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
+        processor = GenepanelCutoffsAnnotationProcessor(config.config, None)
+        frequencies = processor.cutoff_frequencies(annotation)
+
         self.assertEquals(frequencies["ExAC_cutoff"], "≥hi_freq_cutoff")
         self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
-        frequencies = {
+    def test_frequency_cutoffs_2(self):
+
+        annotation = {
             "1000g":
             {
                 "ASN": 0.001, # Lower edge case
@@ -275,13 +291,16 @@ class TestFrequencyAnnotation(unittest.TestCase):
                 "EA": 0.0003
             }
         }
-        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
+        processor = GenepanelCutoffsAnnotationProcessor(config.config, None)
+        frequencies = processor.cutoff_frequencies(annotation)
+
         self.assertEquals(frequencies["ExAC_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
         self.assertEquals(frequencies["1000G_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
         self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
-        frequencies = {
+    def test_frequency_cutoffs_3(self):
+        annotation = {
             "1000g":
             {
                 "ASN": 0.000001,
@@ -301,7 +320,9 @@ class TestFrequencyAnnotation(unittest.TestCase):
                     "alleleFreq": 0.0022323
             }
         }
-        frequencies = FrequencyAnnotation(config.config)._cutoff_frequencies(frequencies)
+        processor = GenepanelCutoffsAnnotationProcessor(config.config, None)
+        frequencies = processor.cutoff_frequencies(annotation)
+
         self.assertEquals(frequencies["ExAC_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
@@ -368,29 +389,18 @@ class TestTranscriptAnnotation(unittest.TestCase):
             ]
         }
 
-        transcripts = TranscriptAnnotation({}).process(data)
-        self.assertEqual(transcripts['transcripts'][0]['Transcript'], 'NM_000090')
-        self.assertEqual(transcripts['transcripts'][0]['Transcript_version'], '3')
-        self.assertEqual(transcripts['transcripts'][1]['Transcript'], 'NM_000091')
-        self.assertEqual(transcripts['transcripts'][1]['Transcript_version'], '2')
-        self.assertEqual(transcripts['transcripts'][1][TranscriptAnnotation.CSQ_FIELDS[0]], 'TEST2')
+        transcripts = TranscriptAnnotation({}).process(data)[TranscriptAnnotation.CONTRIBUTION_KEY]
+        self.assertEqual(transcripts[0]['Transcript'], 'NM_000090')
+        self.assertEqual(transcripts[0]['Transcript_version'], '3')
+        self.assertEqual(transcripts[1]['Transcript'], 'NM_000091')
+        self.assertEqual(transcripts[1]['Transcript_version'], '2')
+        self.assertEqual(transcripts[1][TranscriptAnnotation.CSQ_FIELDS[0]], 'TEST2')
 
     def test_get_genepanel_transcripts_normal(self):
-
-        genepanel = {
-            'transcripts': [
-                {
-                    'ensemblID': 'ENST00000544455',
-                    'refseqName': 'NM_000059.3'
-                },
-                {
-                    'ensemblID': 'ENST00000357654',
-                    'refseqName': 'NM_007294.3'
-                }
-            ],
-            'version': 'v00',
-            'name': 'HBOC'
-        }
+        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
+                                           Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+                              version='v00',
+                              name='HBOC')
 
         transcripts = ['NM_000059', 'NM_000058']
 
@@ -398,21 +408,10 @@ class TestTranscriptAnnotation(unittest.TestCase):
         assert t == ['NM_000059']
 
     def test_get_genepanel_transcripts_versioned(self):
-
-        genepanel = {
-            'transcripts': [
-                {
-                    'ensemblID': 'ENST00000544455',
-                    'refseqName': 'NM_000059.3'
-                },
-                {
-                    'ensemblID': 'ENST00000357654',
-                    'refseqName': 'NM_007294.3'
-                }
-            ],
-            'version': 'v00',
-            'name': 'HBOC'
-        }
+        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
+                                    Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+                       version='v00',
+                       name='HBOC')
 
         transcripts = ['NM_000059.3', 'NM_000058.1']
 
@@ -421,48 +420,25 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_multiple(self):
 
-        genepanel = {
-            'transcripts': [
-                {
-                    'ensemblID': 'ENST00000544455',
-                    'refseqName': 'NM_000059.3'
-                },
-                {
-                    'ensemblID': 'ENST00000357654',
-                    'refseqName': 'NM_007294.3'
-                }
-            ],
-            'version': 'v00',
-            'name': 'HBOC'
-        }
+        gp = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
+                                    Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+                       version='v00',
+                       name='HBOC')
 
         transcripts = ['NM_000059', 'NM_007294']
 
-        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
+        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, gp)
         assert t == ['NM_000059', 'NM_007294']
 
     def test_get_genepanel_transcripts_none(self):
-
-        genepanel = {
-            'transcripts': [
-                {
-                    'ensemblID': 'ENST00000544455',
-                    'refseqName': 'NM_000059.3'
-                },
-                {
-                    'ensemblID': 'ENST00000357654',
-                    'refseqName': 'NM_007294.3'
-                }
-            ],
-            'version': 'v00',
-            'name': 'HBOC'
-        }
+        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455')],
+                       version='v00',
+                       name='HBOC')
 
         transcripts = ['NM_000051']
 
         t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
         assert t == []
-        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
 
     def test_get_worse_consequence(self):
         config = {

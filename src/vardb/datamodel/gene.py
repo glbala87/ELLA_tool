@@ -40,6 +40,18 @@ class Transcript(Base):
     exonStarts = Column("exon_starts", ARRAY(Integer), nullable=False) # giving dimensions does not work
     exonEnds = Column("exon_ends", ARRAY(Integer), nullable=False)
 
+    @staticmethod
+    def get_name(name):
+        """
+
+        :param name:
+        :return: the name with version stripped off
+        """
+        return name.split('.', 1)[0] if '.' in name else name
+
+    def get_unversioned_name(self):
+        return Transcript.get_name(self.refseqName)
+
     def __repr__(self):
         return "<Transcript('%s','%s', '%s', '%s', '%s', '%s')>" % (self.gene, self.refseqName, self.chromosome, self.txStart, self.txEnd, self.strand)
 
