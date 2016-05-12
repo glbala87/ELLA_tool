@@ -13,7 +13,7 @@ from api.v1.resource import Resource
 class AlleleListResource(Resource):
 
     @rest_filter
-    def get(self, session, rest_filter=None):
+    def get(self, session, rest_filter=None, allele_ids=None):
         """
         Loads alleles based on q={} filter.
         Additional parameters:
@@ -21,6 +21,9 @@ class AlleleListResource(Resource):
             - genepanel: Enables the annotation to filter transcripts to only show the relevant ones.
             -
         """
+
+        if allele_ids and not rest_filter:
+            rest_filter = {'id': allele_ids}
 
         alleles = self.list_query(session, allele.Allele, rest_filter=rest_filter)
         allele_ids = [a.id for a in alleles]

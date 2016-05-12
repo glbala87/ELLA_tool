@@ -5,7 +5,7 @@ import logging
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request
-from flask.ext.restful import Api
+from flask_restful import Api
 from api import app, db
 from api.v1 import ApiV1
 from vardb.deposit.deposit_testdata import DepositTestdata
