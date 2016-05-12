@@ -1,8 +1,8 @@
 # coding=utf-8
 import unittest
 
-# from util.annotationprocessor.genepanel import GenepanelCutoffsAnnotationProcessor
-from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation, GenepanelCutoffsAnnotationProcessor
+from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
+from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor
 from api import config
 from vardb.datamodel.gene import Transcript, Genepanel
 
@@ -264,7 +264,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
                 "EA": 0.0003
             }
         }
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, None)
+        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
         frequencies = processor.cutoff_frequencies(annotation)
 
         self.assertEquals(frequencies["ExAC_cutoff"], "≥hi_freq_cutoff")

@@ -230,14 +230,6 @@ class FrequencyAnnotation(object):
         self.config = config
         self.genepanel = genepanel
 
-    # def _cutoff_frequencies(self, annotation_frequency):
-    #     """
-    #     :param: annotation_frequency, a dict of cutoffs for various databases (extracted from vcf annotation?)
-    #     :returns: dict k:v, where k is [database]_cutoff and v describes the matching cutoffs
-    #     """
-    #     processor = GenepanelCutoffsAnnotationProcessor(self.config, self.genepanel)
-    #     return processor.cutoff_frequencies(annotation_frequency)
-
     def _exac_frequencies(self, annotation):
         """
         Manually calculate frequencies from raw ExAC data.
@@ -294,6 +286,7 @@ class FrequencyAnnotation(object):
             frequencies['ExAC'].update({'num': num})
         if count:
             frequencies['ExAC'].update({'count': count})
+
         return dict(frequencies)
 
     def _csq_frequencies(self, annotation):
