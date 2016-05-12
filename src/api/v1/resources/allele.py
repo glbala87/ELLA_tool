@@ -15,7 +15,7 @@ class AlleleListResource(Resource):
     @rest_filter
     def get(self, session, rest_filter=None, allele_ids=None):
         """
-        Loads alleles based on q={} filter.
+        Loads alleles based on q={} filter or  allele ids directly
         Additional parameters:
             - sample_id: Includes genotypes into the result and enables quality data in the annotation
             - genepanel: Enables the annotation to filter transcripts to only show the relevant ones.
