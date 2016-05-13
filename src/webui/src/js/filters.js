@@ -37,6 +37,18 @@ class Filters {
     }
 
     @Filter({
+        filterName: 'HGVS_firsthalf'
+    })
+    HGVS_firsthalfFilter() {
+        return (input) => {
+            if (input) {
+                return input.split(':')[0];
+            }
+            return '';
+        };
+    }
+
+    @Filter({
         filterName: 'HGVSc_short'
     })
     HGVSc_shortFilter() {
