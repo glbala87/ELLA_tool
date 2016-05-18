@@ -1,21 +1,19 @@
-<section class="card">
-  <div class="paper">
-    <div class="paper-top">
-      <div class="paper-top-left" ng-class="vm.color" ng-class="{'collapsed': vm.options.collapsed}" ng-click="vm.collapse()">
-        <div class="icon" ng-class="{'collapsed': vm.options.collapsed}" ng-if="vm.isCollapsible()">
-          <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
-        </div>
-        <div ng-transclude="topLeft">
-        </div>
-      </div>
-      <div class="paper-top-right" ng-transclude="topRight">
-      </div>
+<section class="card" ng-class="vm.color" >
+  <div class="card-top">
+    <div class="card-top-primary" ng-class="vm.color" ng-class="{'collapsed': vm.options.collapsed}">
+      <span class="corner-icon hoverable" ng-click="vm.collapse()" ng-class="{'disabled': ! vm.isCollapsible()}">
+        <svg class="icon" ng-class="{'collapsed': vm.options.collapsed}" ng-if="vm.isCollapsible()" width="1.3rem" height="1.3rem" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
+      </span>
+      <div ng-transclude="primary"> </div>
     </div>
-    <div class="paper-bottom card-collapse" ng-class="vm.color" ng-if="!vm.options.collapsed">
-      <div ng-transclude="content">
-      </div>
-      <div class="card-collapse" ng-transclude="expanded" ng-if="vm.options.expanded">
-      </div>
+    <div class="card-top-secondary">
+      <div ng-transclude="secondary"></div>
+    </div>
+  </div>
+  <div class="card-bottom card-collapse"ng-if="!vm.options.collapsed">
+    <div ng-transclude="bottom">
+    </div>
+    <div class="card-collapse" ng-transclude="expanded" ng-if="vm.options.expanded">
     </div>
   </div>
   <div class="card-controls" ng-show="!vm.options.collapsed" ng-class="{'collapsed': vm.controlscollapse}">

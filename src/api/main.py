@@ -77,6 +77,13 @@ def reset_testdata():
     if request.args.get('testset'):
         test_set = request.args.get('testset')
 
+    return do_testdata_reset(test_set)
+
+def reset_testdata_from_cli():
+    test_set = os.getenv('RESET_DB', 'small')
+    do_testdata_reset(test_set)
+
+def do_testdata_reset(test_set):
     def worker():
         dt = DepositTestdata(db)
         dt.deposit_all(test_set=test_set)
@@ -99,6 +106,8 @@ init_v1(api)
 
 # This is used by development and medicloud - production will not trigger it
 if __name__ == '__main__':
+    if os.getenv('RESET_DB', False):
+        reset_testdata_from_cli()
     opts = {}
     opts['host'] = '0.0.0.0'
     opts['threaded'] = True

@@ -6,9 +6,9 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'card',
     templateUrl: 'ngtmpl/card.ngtmpl.html',
     transclude: {
-        topLeft: '?header',
-        topRight: '?status',
-        content: 'content',
+        primary: '?primary',
+        secondary: '?secondary',
+        bottom: 'bottom',
         expanded: '?expanded',
         controls: '?controls'
     },
