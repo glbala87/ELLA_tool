@@ -108,6 +108,7 @@ init_v1(api)
 if __name__ == '__main__':
     if os.getenv('RESET_DB', False):
         reset_testdata_from_cli()
+        exit(0)
     opts = {}
     opts['host'] = '0.0.0.0'
     opts['threaded'] = True

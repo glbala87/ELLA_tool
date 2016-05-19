@@ -58,7 +58,6 @@ dev:
 	-v $(shell pwd):/ella \
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
-	@$(MAKE) url
 
 url:
 	@./ops/dev/show-url.sh
