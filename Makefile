@@ -217,6 +217,9 @@ stop-provision:
 # DEPLOY
 #---------------------------------------------
 
+dbreset:
+	DB_URL="postgresql:///postgres" PYTHONIOENCODING="utf-8" RESET_DB="small" python src/api/main.py
+
 deploy-release: release deploy-reboot
 
 deploy-reboot:
