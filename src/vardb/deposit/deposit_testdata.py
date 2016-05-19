@@ -28,8 +28,13 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 USERS = '../testdata/users.json'
 
 GENEPANELS = [
-    {
-        'config': {'source': 'deposit_testdata.py'},
+    { # TODO: see LA-631 for format of config
+        'config': {'source': 'deposit_testdata.py',
+                   "freq_cutoff_defaults": {
+                       "hi_freq_cutoff": 0.00001,
+                       "lo_freq_cutoff": 0.001
+                   },
+                   },
         'transcripts': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.phenotypes.csv',
         'name': 'HBOC',

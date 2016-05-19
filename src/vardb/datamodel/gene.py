@@ -87,6 +87,14 @@ class Genepanel(Base):
     def __str__(self):
         return '_'.join((self.name, "OUS", "medGen", self.version, self.genomeReference))
 
+    def find_inheritance(self, symbol):
+        if not self.phenotypes:
+            return None
+
+        return map(lambda ph: ph.inheritance, filter(lambda ph: symbol == ph.gene_id, self.phenotypes))
+
+
+
     @staticmethod
     def create_or_update_genepanel(session, name, version, genomeRef, transcripts):
         """Add or update an existing gene panel.

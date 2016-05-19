@@ -1,1 +1,1 @@
-from genepanel import GenepanelCutoffsAnnotationProcessor
+from genepanelprocessor import GenepanelCutoffsAnnotationProcessor

@@ -176,10 +176,6 @@ class DepositGenepanel(object):
             transcripts=db_transcripts,
             phenotypes=db_phenotypes,
             config=config)
-        print db_transcript
-        print db_phenotypes
-        print "genepanel.config: "
-        print genepanel.config
         self.session.merge(genepanel)
         self.session.commit()
         log.info('Added {} {} with {} transcripts and {} phenotypes to database'

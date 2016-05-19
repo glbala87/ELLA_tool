@@ -1,7 +1,8 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+
 from collections import defaultdict
 from api import config
-from genepanel import GenepanelCutoffsAnnotationProcessor
+from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
 from vardb.datamodel.gene import Transcript
 
 
@@ -60,6 +61,8 @@ class TranscriptAnnotation(object):
     """
 
     CONTRIBUTION_KEY = 'transcripts'
+    CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS = 'filtered_transcripts'
+
 
     CSQ_FIELDS = [
         'Consequence',
@@ -217,7 +220,8 @@ class TranscriptAnnotation(object):
 
         if genepanel:
             final_transcript_names = [t['Transcript'] for t in final_transcripts]
-            result['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(final_transcript_names, genepanel)
+            result[TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS] \
+                = TranscriptAnnotation.get_genepanel_transcripts(final_transcript_names, genepanel)
 
         result['worst_consequence'] = self._get_worst_consequence(final_transcripts)
         return result
@@ -324,10 +328,11 @@ class FrequencyAnnotation(object):
 
         return {'inDB': annotation['inDB']}
 
-    def process(self, annotation, genepanel=None):
+    def process(self, annotation, symbol=None, genepanel=None):
         """
 
         :param annotation:
+        :param symbol: the gene symbol
         :param genepanel:
         :type genepanel: vardb.datamodel.gene.Genepanel
         :return:
@@ -336,7 +341,7 @@ class FrequencyAnnotation(object):
         frequencies = self._exac_frequencies(annotation)
         frequencies.update(self._csq_frequencies(annotation))
         frequencies.update(self._indb_frequencies(annotation))
-        frequencies.update(processor.cutoff_frequencies(frequencies))
+        frequencies.update(processor.cutoff_frequencies(frequencies, symbol))
 
         return {FrequencyAnnotation.CONTRIBUTION_KEY: frequencies}
 
@@ -420,6 +425,20 @@ class QualityAnnotation(object):
         return {QualityAnnotation.CONTRIBUTION_KEY: data}
 
 
+def find_symbol(annotation):
+    transcripts = annotation[TranscriptAnnotation.CONTRIBUTION_KEY]
+    filtered_transcripts = annotation[TranscriptAnnotation.CONTRIBUTION_KEY]
+    if filtered_transcripts:
+        symbols = filtered_transcripts.map(lambda t: t['SYMBOL'])
+    else:
+        symbols = transcripts.map(lambda t: t['SYMBOL'])
+
+    if len(set(symbols)) > 1:
+        raise Exception("Expected a single gene symbol in the transcripts, found {}".format(','.join(symbols)))
+
+    return symbols.pop()
+
+
 class AnnotationProcessor(object):
 
     @staticmethod
@@ -436,16 +455,15 @@ class AnnotationProcessor(object):
         'external', 'quality' (only if genotype)
         """
 
-        print "processes annotations:"
-        print annotation
-        print genepanel
+
 
         data = dict()
-        data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel)),
-        data.update(FrequencyAnnotation(config.config).process(annotation, genepanel=genepanel)),
-        data.update(References().process(annotation)),
-        data.update(GeneticAnnotation().process(annotation)),
-        data.update(ExternalAnnotation().process(annotation)),
+        data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
+        gene_symbol = find_symbol(data)
+        data.update(FrequencyAnnotation(config.config).process(annotation, genepanel=genepanel))
+        data.update(References().process(annotation))
+        data.update(GeneticAnnotation().process(annotation))
+        data.update(ExternalAnnotation().process(annotation))
 
         if custom_annotation:
             # Merge/overwrite data with custom_annotation

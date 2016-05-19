@@ -1,12 +1,11 @@
 from collections import defaultdict
-from .alleledataloader import AlleleDataLoader
 
-from api import schemas, config
-
-from rule_engine.gre import GRE
+from api import schemas
 from rule_engine.grc import ACMGClassifier2015
+from rule_engine.gre import GRE
 from rule_engine.mapping_rules import rules
-from api.genepanelconfig import GenepanelConfigResolver
+from util.genepanelconfig import GenepanelConfigResolver
+from .alleledataloader import AlleleDataLoader
 
 
 class ACMGDataLoader(object):
