@@ -1,3 +1,5 @@
+import logging
+
 # Global config values that can be overridden by gene panels.
 KEY_INHERITANCE = 'inheritance'
 KEY_LO = "lo_freq_cutoff"
@@ -5,6 +7,7 @@ KEY_HI = "hi_freq_cutoff"
 KEY_CUTOFFS = "freq_cutoffs"
 
 DEFAULT_CUTOFFS = {KEY_HI: 0.01, KEY_LO: 1.0}
+# DEFAULT_CUTOFFS = {KEY_HI: 0.01, KEY_LO: 0.001}
 AD_CUTOFFS = {KEY_HI: 0.0005, KEY_LO: 0.0001}
 
 COMMON_GENEPANEL_CONFIG = {
@@ -12,7 +15,7 @@ COMMON_GENEPANEL_CONFIG = {
         "AD": AD_CUTOFFS,
         "Other": DEFAULT_CUTOFFS
     },
-    "inheritance": "AD",
+    KEY_INHERITANCE: "AD",
     "disease_mode": "ANY",
     "in_last_exon": True,
 }
@@ -48,21 +51,32 @@ def _find_cutoffs(inheritance_code):
 
 
 class GenepanelConfigResolver(object):
-    def __init__(self, genepanel=None):
+    def __init__(self, genepanel=None, genepanel_default=None):
         """
 
         :param genepanel:
         :type genepanel: vardb.datamodel.gene.Genepanel
+        :param genepanel_default: the default for all panels. If None use the hardcoded defaults
         """
         super(GenepanelConfigResolver, self).__init__()
         self.genepanel = genepanel
+        self.genepanel_default = COMMON_GENEPANEL_CONFIG if not genepanel_default else genepanel_default
 
     def resolve(self, symbol):
-        genepanel_annotations = dict(COMMON_GENEPANEL_CONFIG)
-        genepanel_annotations.pop(KEY_CUTOFFS, None) # cutoffs is handled specially below
+
+        genepanel_annotations = dict(self.genepanel_default)
+        genepanel_annotations.pop(KEY_CUTOFFS, None)  # cutoffs is handled specially below
+
+        # resolve frequency cutoffs:
+        if not symbol:  # for tests where either symbol is undefined or the default config needs to be set
+            logging.warn("Symbol not defined when resolving genepanel config values")
+            genepanel_annotations[KEY_CUTOFFS] = self.genepanel_default[KEY_CUTOFFS]['Other'] if self.genepanel_default else DEFAULT_CUTOFFS
+            return genepanel_annotations
 
         if not self.genepanel:
-            raise Exception("Genepanel is required when finding config that depends on genepanel")
+            logging.warn("Genepanel not defined when resolving genepanel config values")
+            genepanel_annotations[KEY_CUTOFFS] = DEFAULT_CUTOFFS
+            return genepanel_annotations
 
         if self.genepanel.config and symbol in self.genepanel.config:
             genepanel_config = self.genepanel.config[symbol]

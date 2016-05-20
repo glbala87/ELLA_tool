@@ -1,8 +1,11 @@
 # coding=utf-8
 import unittest
+import pytest
 
 from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
-from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor
+from ..annotationprocessor import TranscriptAnnotation
+from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor, find_symbol
+from util.genepanelconfig import KEY_LO, KEY_HI, KEY_CUTOFFS
 from api import config
 from vardb.datamodel.gene import Transcript, Genepanel
 
@@ -272,34 +275,39 @@ class TestFrequencyAnnotation(unittest.TestCase):
         self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
 
-    def test_frequency_cutoffs_2(self):
 
-        annotation = {
-            "1000g":
-            {
-                "ASN": 0.001, # Lower edge case
-                "AMR": 0.000000001,
-                "NOT_VALID": 1.0
-            },
-            "ExAC":
-            {
-                "AFR": 0.005,
-            },
-            "esp6500":
-            {
-                "AA": 0.00002,
-                "EA": 0.0003
-            }
+def test_frequency_cutoffs_2():
+
+    annotation = {
+        "1000g":
+        {
+            "ASN": 0.001, # Lower edge case
+            "AMR": 0.000000001,
+            "NOT_VALID": 1.0
+        },
+        "ExAC":
+        {
+            "AFR": 0.005,
+        },
+        "esp6500":
+        {
+            "AA": 0.00002,
+            "EA": 0.0003
         }
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, None)
-        frequencies = processor.cutoff_frequencies(annotation)
+    }
 
-        self.assertEquals(frequencies["ExAC_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
-        self.assertEquals(frequencies["1000G_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
-        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
+    defaults = {KEY_CUTOFFS: {'Other': {KEY_HI: 0.01, KEY_LO: 0.001}}}
+    processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None, genepanel_default=defaults)
+
+    frequencies = processor.cutoff_frequencies(annotation)
+
+    assert frequencies["ExAC_cutoff"] == ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies["1000G_cutoff"] == ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies["ESP6500_cutoff"] == "<lo_freq_cutoff"
+    assert frequencies["inDB_cutoff"] =="null_freq"
 
     def test_frequency_cutoffs_3(self):
+
         annotation = {
             "1000g":
             {
@@ -320,13 +328,14 @@ class TestFrequencyAnnotation(unittest.TestCase):
                     "alleleFreq": 0.0022323
             }
         }
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, None)
+        defaults = {KEY_CUTOFFS: {'Other': {KEY_HI: 0.01, KEY_LO: 0.001}}}
+        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None, genepanel_default=defaults)
         frequencies = processor.cutoff_frequencies(annotation)
 
         self.assertEquals(frequencies["ExAC_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
         self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["inDB_cutoff"], ["≥lo_freq_cutoff", "<hi_freq_cutoff"])
+        self.assertEquals(frequencies["inDB_cutoff"], "<lo_freq_cutoff")
 
 
 class TestTranscriptAnnotation(unittest.TestCase):
@@ -484,3 +493,23 @@ class TestTranscriptAnnotation(unittest.TestCase):
         # Test single worst
         c = TranscriptAnnotation(config)._get_worst_consequence(transcripts)
         assert c == ['NM_12300']
+
+
+@pytest.mark.parametrize("annotation, symbol", [
+    ({
+      TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'x'}, {'SYMBOL': 'x'}]
+     }, 'x'),
+
+    pytest.mark.xfail(
+        ({
+          TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'x'}, {'SYMBOL': 'y'}]
+         }, 'y'),
+        reason="transcripts with different symbols"),
+
+    ({
+      TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS: ['NM_2'],
+      TranscriptAnnotation.CONTRIBUTION_KEY: [{'Transcript': 'NM_1', 'SYMBOL': 'x'}, {'Transcript': 'NM_2', 'SYMBOL': 'x'}]
+     }, 'x')
+])
+def test_find_symbol_from_transcripts(annotation, symbol):
+    assert find_symbol(annotation) == symbol

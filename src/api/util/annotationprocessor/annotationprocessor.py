@@ -426,15 +426,22 @@ class QualityAnnotation(object):
 
 
 def find_symbol(annotation):
-    transcripts = annotation[TranscriptAnnotation.CONTRIBUTION_KEY]
-    filtered_transcripts = annotation[TranscriptAnnotation.CONTRIBUTION_KEY]
-    if filtered_transcripts:
-        symbols = filtered_transcripts.map(lambda t: t['SYMBOL'])
-    else:
-        symbols = transcripts.map(lambda t: t['SYMBOL'])
+    print annotation
+    transcripts = annotation.get(TranscriptAnnotation.CONTRIBUTION_KEY, None)
+    filtered_transcripts = annotation.get(TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS, None)
+
+    # filtered contains only the refSeq ID, must find full transcript:
+    found = None
+    if filtered_transcripts and len(filtered_transcripts) > 1:
+        look_for = filtered_transcripts[0]
+        found = filter(lambda t: t['Transcript'] == look_for, transcripts)
+
+    # prefer filtered transcripts:
+    symbols = map(lambda t: t['SYMBOL'], found if found else transcripts)
 
     if len(set(symbols)) > 1:
-        raise Exception("Expected a single gene symbol in the transcripts, found {}".format(','.join(symbols)))
+        raise Exception("Expected the same gene symbol in the transcripts, found {} when looking at annotation {}"
+                        .format(','.join(symbols)), annotation['annotation_id'])
 
     return symbols.pop()
 
@@ -460,7 +467,7 @@ class AnnotationProcessor(object):
         data = dict()
         data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
         gene_symbol = find_symbol(data)
-        data.update(FrequencyAnnotation(config.config).process(annotation, genepanel=genepanel))
+        data.update(FrequencyAnnotation(config.config).process(annotation, symbol=gene_symbol, genepanel=genepanel))
         data.update(References().process(annotation))
         data.update(GeneticAnnotation().process(annotation))
         data.update(ExternalAnnotation().process(annotation))

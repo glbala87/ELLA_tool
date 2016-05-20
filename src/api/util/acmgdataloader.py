@@ -4,7 +4,7 @@ from api import schemas
 from rule_engine.grc import ACMGClassifier2015
 from rule_engine.gre import GRE
 from rule_engine.mapping_rules import rules
-from util.genepanelconfig import GenepanelConfigResolver
+from api.util.genepanelconfig import GenepanelConfigResolver
 from .alleledataloader import AlleleDataLoader
 
 
