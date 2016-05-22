@@ -20,7 +20,7 @@ Test the response of /alleles endpoint
 class TestAlleleList(object):
 
     # Maybe not a permanent test. Useful when changing unknown code base
-    def xtest_get_alleles(self, client):
+    def test_get_alleles(self, client):
 
         # ids = [1, 2, 3, 4, 5, 6]
         ids = [1]

@@ -500,12 +500,6 @@ class TestTranscriptAnnotation(unittest.TestCase):
       TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'x'}, {'SYMBOL': 'x'}]
      }, 'x'),
 
-    pytest.mark.xfail(
-        ({
-          TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'x'}, {'SYMBOL': 'y'}]
-         }, 'y'),
-        reason="transcripts with different symbols"),
-
     ({
       TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS: ['NM_2'],
       TranscriptAnnotation.CONTRIBUTION_KEY: [{'Transcript': 'NM_1', 'SYMBOL': 'x'}, {'Transcript': 'NM_2', 'SYMBOL': 'x'}]
@@ -513,6 +507,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
 ])
 def test_find_symbol_from_transcripts(annotation, symbol):
     assert find_symbol(annotation) == symbol
+
 
 def test_find_symbol_raise_exception():
     with pytest.raises(Exception) as exc:
