@@ -68,13 +68,22 @@ def serve_static_factory(dev=False):
     return serve_static
 
 
-# TODO: !!!!!!!!!!Remove before production!!!!!!!!!
-@app.route('/reset')
+# Only enabled on "DEVELOP=true"
 def reset_testdata():
+    if os.environ.get('DEVELOP', '').upper() != 'TRUE':
+        raise RuntimeError("Tried to access reset resource, but not running in development mode")
+
     test_set = 'small'
     if request.args.get('testset'):
         test_set = request.args.get('testset')
 
+    return do_testdata_reset(test_set)
+
+def reset_testdata_from_cli():
+    test_set = os.getenv('RESET_DB', 'small')
+    do_testdata_reset(test_set)
+
+def do_testdata_reset(test_set):
     def worker():
         dt = DepositTestdata(db)
         dt.deposit_all(test_set=test_set)
@@ -89,12 +98,17 @@ api = Api(app)
 
 def init_v1(api):
     v1 = ApiV1()
+    if os.environ.get('DEVELOP', '').upper() == 'TRUE':
+        app.add_url_rule('/reset', 'reset', reset_testdata)
     return v1.init_app(api)
 
 init_v1(api)
 
 # This is used by development and medicloud - production will not trigger it
 if __name__ == '__main__':
+    if os.getenv('RESET_DB', False):
+        reset_testdata_from_cli()
+        exit(0)
     opts = {}
     opts['host'] = '0.0.0.0'
     opts['threaded'] = True

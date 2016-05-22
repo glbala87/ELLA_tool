@@ -58,7 +58,6 @@ dev:
 	-v $(shell pwd):/ella \
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
-	@$(MAKE) url
 
 url:
 	@./ops/dev/show-url.sh
@@ -196,7 +195,7 @@ get-ansible:
 	ops/builder/venv/bin/pip install --upgrade ansible
 
 run-ansible:
-	ops/builder/venv/bin/ansible-playbook -i provision, -c docker ops/builder/builder.yml --tags=$(BUILD_TYPE)
+	ops/builder/venv/bin/ansible-playbook -i provision, -c docker -u root ops/builder/builder.yml --tags=$(BUILD_TYPE)
 
 clean-ansible:
 	rm -rf ops/builder/venv
@@ -216,6 +215,9 @@ stop-provision:
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
+
+dbreset:
+	DB_URL="postgresql:///postgres" PYTHONIOENCODING="utf-8" RESET_DB="small" python src/api/main.py
 
 deploy-release: release deploy-reboot
 

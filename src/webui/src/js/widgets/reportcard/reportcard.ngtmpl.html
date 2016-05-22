@@ -1,13 +1,11 @@
-<card collapsible="false" options="{}">
-  <header>
+<card color="blue" collapsible="false" options="{}">
+  <primary>
     <div class="cell">
       <h3>Create report</h3>
     </div>
-  </header>
-  <status>
-
-  </status>
-  <content class="report-content">
+  </primary>
+  <secondary></secondary>
+  <bottom class="report-content">
     <div ng-if="vm.getIncludedAlleles().length > 0" class="included-report">
       <h2 class="allele-title">Included</h2>
       <section class="report-include-group">
@@ -37,7 +35,5 @@
       </div>
       <button ng-click="vm.includeSelectedExcluded()">Include</button>
     </div>
-
-
-  </content>
+  </bottom>
 </card>

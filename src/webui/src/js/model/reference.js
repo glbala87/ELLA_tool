@@ -12,6 +12,12 @@ export class Reference {
     getShortDesc() {
         return `${this.authors} (${this.year}) ${this.journal}`;
     }
+
+    getPubmedUrl() {
+        if ('pubmedID' in this) {
+            return `http://www.ncbi.nlm.nih.gov/pubmed/${this.pubmedID}`;
+        }
+    }
 }
 
 

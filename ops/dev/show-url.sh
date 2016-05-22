@@ -4,8 +4,6 @@
 branch=$(git rev-parse --abbrev-ref HEAD)
 port=$(docker port "ella-$branch-$USER" | cut -d: -f2)
 
-OUR_DOCKER_MACHINE="osxdocker"
-
 if [[ "$port" == "" ]]
 then
     echo "Docker error. I'm out!"

@@ -14,30 +14,19 @@
   </div>
 </nav>
 <article class="container">
-  <section class="card">
-    <div class="paper">
-      <div class="paper-top">
-        <div class="paper-top-left blue">
-          <div class="icon cell">
-            <svg width="13px" height="13px" viewBox="0 0 13 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
-          </div>
-          <div class="cell">
-            <h3>AVAILABLE</h3>
-            <h4>USERS</h4>
-          </div>
+  <card color="blue" options="{ collapsed: false }">
+    <primary>
+      <h3 class="header">AVAILABLE USERS</h3>
+    </primary>
+    <secondary>
+      <input type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
+    </secondary>
+    <bottom>
+      <section class="content-list">
+        <div class="analysis-row" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
+          <h3>{{user.firstName}} {{user.lastName}}</h3>
         </div>
-        <div class="paper-top-right">
-          <input type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
-        </div>
-      </div>
-      <div class="paper-bottom blue">
-        <section class="content-list">
-          <div class="analysis-row" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
-            <h3>{{user.firstName}} {{user.lastName}}</h3>
-          </div>
-        </section>
-      </div>
-    </div>
-    <div class="card-controls collapsed"> <!-- <button>Test</button> --> </div>
-  </section>
+      </section>
+    </bottom>
+  </card>
 </article>
