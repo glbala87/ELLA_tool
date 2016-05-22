@@ -426,7 +426,6 @@ class QualityAnnotation(object):
 
 
 def find_symbol(annotation):
-    print annotation
     transcripts = annotation.get(TranscriptAnnotation.CONTRIBUTION_KEY, None)
     filtered_transcripts = annotation.get(TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS, None)
 
@@ -440,8 +439,10 @@ def find_symbol(annotation):
     symbols = map(lambda t: t['SYMBOL'], found if found else transcripts)
 
     if len(set(symbols)) > 1:
-        raise Exception("Expected the same gene symbol in the transcripts, found {} when looking at annotation {}"
-                        .format(','.join(symbols)), annotation['annotation_id'])
+        raise Exception("Expected the same gene symbol in the transcripts, found {}"
+                        .format(','.join(symbols)))
+        # raise Exception("Expected the same gene symbol in the transcripts, found {} when looking at annotation {}"
+        #                 .format(','.join(symbols), annotation['annotation_id']))
 
     return symbols.pop()
 
@@ -461,8 +462,6 @@ class AnnotationProcessor(object):
         :return: a dict with one key for each "class" of annotation: 'transcripts', 'frequency', 'references'
         'external', 'quality' (only if genotype)
         """
-
-
 
         data = dict()
         data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))

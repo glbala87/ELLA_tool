@@ -1,4 +1,5 @@
 import logging
+import copy
 
 # Global config values that can be overridden by gene panels.
 KEY_INHERITANCE = 'inheritance'
@@ -6,8 +7,8 @@ KEY_LO = "lo_freq_cutoff"
 KEY_HI = "hi_freq_cutoff"
 KEY_CUTOFFS = "freq_cutoffs"
 
+# values defined in Excel file WebUI_config_rules
 DEFAULT_CUTOFFS = {KEY_HI: 0.01, KEY_LO: 1.0}
-# DEFAULT_CUTOFFS = {KEY_HI: 0.01, KEY_LO: 0.001}
 AD_CUTOFFS = {KEY_HI: 0.0005, KEY_LO: 0.0001}
 
 COMMON_GENEPANEL_CONFIG = {
@@ -63,32 +64,46 @@ class GenepanelConfigResolver(object):
         self.genepanel_default = COMMON_GENEPANEL_CONFIG if not genepanel_default else genepanel_default
 
     def resolve(self, symbol):
+        """
+        Find the config values using any overrides that might be defined on the genepanel.
 
-        genepanel_annotations = dict(self.genepanel_default)
-        genepanel_annotations.pop(KEY_CUTOFFS, None)  # cutoffs is handled specially below
+        Uses deepcopy to avoid any mutation of the "constants" of this module.
+
+        :param symbol:
+        :return: the values to be used by the rules engine. The genepanel can have gene specfic values
+         that will override the global defaults.
+        """
+
+        result = copy.deepcopy(self.genepanel_default)
+        result.pop(KEY_CUTOFFS, None)  # cutoffs is handled specially below
 
         # resolve frequency cutoffs:
-        if not symbol:  # for tests where either symbol is undefined or the default config needs to be set
+        if not symbol:  # relevant for tests only. In tests either symbol is undefined or the default config needs to be set
             logging.warn("Symbol not defined when resolving genepanel config values")
-            genepanel_annotations[KEY_CUTOFFS] = self.genepanel_default[KEY_CUTOFFS]['Other'] if self.genepanel_default else DEFAULT_CUTOFFS
-            return genepanel_annotations
+            result[KEY_CUTOFFS] = copy.deepcopy(self.genepanel_default[KEY_CUTOFFS]['Other'] if self.genepanel_default else DEFAULT_CUTOFFS)
+            return result
 
         if not self.genepanel:
             logging.warn("Genepanel not defined when resolving genepanel config values")
-            genepanel_annotations[KEY_CUTOFFS] = DEFAULT_CUTOFFS
-            return genepanel_annotations
+            result[KEY_CUTOFFS] = copy.deepcopy(DEFAULT_CUTOFFS)
+            return result
 
-        if self.genepanel.config and symbol in self.genepanel.config:
-            genepanel_config = self.genepanel.config[symbol]
-            genepanel_annotations.update(genepanel_config)
-            if KEY_CUTOFFS in genepanel_config:
-                genepanel_annotations[KEY_CUTOFFS] = genepanel_config[KEY_CUTOFFS]
-            else:  # use inheritance to choose set of cutoffs
-                if KEY_INHERITANCE in genepanel_config:
-                    genepanel_annotations[KEY_CUTOFFS] = _find_cutoffs(genepanel_config[KEY_INHERITANCE])
-                else:
-                    genepanel_annotations[KEY_CUTOFFS] = _find_cutoffs(self.genepanel.find_inheritance(symbol))
+        if self.genepanel.config and 'data' in self.genepanel.config and symbol in self.genepanel.config['data']:
+            gene_config = self.genepanel.config['data'][symbol]
+            result.update(gene_config)
+
+            # use inheritance to choose default set of cutoffs
+            if KEY_INHERITANCE in gene_config:
+                result[KEY_CUTOFFS] = copy.deepcopy(_find_cutoffs(gene_config[KEY_INHERITANCE]))
+            else:
+                result[KEY_CUTOFFS] = copy.deepcopy(_find_cutoffs(self.genepanel.find_inheritance(symbol)))
+
+            if KEY_HI in gene_config:
+                result[KEY_CUTOFFS][KEY_HI] = gene_config[KEY_HI]
+            if KEY_LO in gene_config:
+                result[KEY_CUTOFFS][KEY_LO] = gene_config[KEY_LO]
+
         else:
-            genepanel_annotations[KEY_CUTOFFS] = DEFAULT_CUTOFFS
+            result[KEY_CUTOFFS] = copy.deepcopy(DEFAULT_CUTOFFS)
 
-        return genepanel_annotations
+        return result

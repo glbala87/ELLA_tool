@@ -29,12 +29,20 @@ USERS = '../testdata/users.json'
 
 GENEPANELS = [
     { # TODO: see LA-631 for format of config
-        'config': {'source': 'deposit_testdata.py',
-                   "freq_cutoff_defaults": {
-                       "hi_freq_cutoff": 0.00001,
-                       "lo_freq_cutoff": 0.001
-                   },
-                   },
+        'config': {
+            'meta':
+                    {
+                       'source': 'deposit_testdata.py',
+                       'version': '1.0'
+                     },
+            'data':
+                   {
+                     'BRCA2': {
+                            "hi_freq_cutoff": 0.008,
+                            "lo_freq_cutoff": 0.0005
+                             }
+                   }
+               },
         'transcripts': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.phenotypes.csv',
         'name': 'HBOC',

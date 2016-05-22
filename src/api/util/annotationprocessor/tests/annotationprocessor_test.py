@@ -5,7 +5,7 @@ import pytest
 from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
 from ..annotationprocessor import TranscriptAnnotation
 from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor, find_symbol
-from util.genepanelconfig import KEY_LO, KEY_HI, KEY_CUTOFFS
+from api.util.genepanelconfig import KEY_LO, KEY_HI, KEY_CUTOFFS
 from api import config
 from vardb.datamodel.gene import Transcript, Genepanel
 
@@ -513,3 +513,13 @@ class TestTranscriptAnnotation(unittest.TestCase):
 ])
 def test_find_symbol_from_transcripts(annotation, symbol):
     assert find_symbol(annotation) == symbol
+
+def test_find_symbol_raise_exception():
+    with pytest.raises(Exception) as exc:
+         find_symbol({
+          TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'x'}, {'SYMBOL': 'y'}],
+          'annotation_id': 1
+         })
+    assert exc
+    assert "Expected the same gene symbol" in exc.value.message
+    assert "x,y" in exc.value.message
