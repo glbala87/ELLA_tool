@@ -200,10 +200,11 @@ run-ansible:
 clean-ansible:
 	rm -rf ops/builder/venv
 
-start-provision:
+clean-provision:
 	docker ps | grep -q provision && docker stop -t 0 provision && docker rm provision || exit 0
-	docker build -t init -f ops/builder/Dockerfile .
-	docker run -d --name provision init sleep infinity
+
+start-provision: clean-provision
+	docker run -d --name provision ousamg/baseimage:latest sleep infinity
 
 commit-provision:
 	docker commit provision ousamg/ella-$(BUILD_TYPE):$(BUILD_VERSION)
