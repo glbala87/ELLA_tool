@@ -128,7 +128,8 @@ test-api: export DB_URL=postgres:///vardb-test
 test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
-	sleep 5
+	# Wait for postgres to get started (or timeout is reached)
+	/ella/ops/test/check_postgres.sh
 ifeq ($(TEST_COMMAND),) # empty?
 	py.test "/ella/src/api/" -s
 else
