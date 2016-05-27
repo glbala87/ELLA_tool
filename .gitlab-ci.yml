@@ -2,6 +2,7 @@
 stages:
   - test
   - cleanup
+  - deploy
 
 test_api:
   stage: test
