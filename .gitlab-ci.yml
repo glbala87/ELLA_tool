@@ -41,8 +41,16 @@ cleanup_e2e:
     - make cleanup-e2e BRANCH=test
   when: on_failure
 
-build_dev_image:
+build_core:
+  stage: deploy
   script:
-    - make dev-release
+    - make core push
   only:
     - build-dev
+
+build_release:
+  stage: deploy
+  script:
+    - make release
+  only:
+    - triggers
