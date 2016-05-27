@@ -1,4 +1,4 @@
-FROM ousamg/ella-core:0.9.1
+FROM ousamg/ella.core:0.9.2
 MAINTAINER Dave Honneffer <dave@ousamg.io>
 
 # Get gulp
@@ -15,5 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
 RUN npm install
 
+# Test builds depend on the next line
 # ADD . /ella
 WORKDIR /ella
