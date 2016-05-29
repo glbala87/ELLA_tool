@@ -184,7 +184,7 @@ copy:
 	docker cp . provision:/ella
 
 run-ansible:
-	docker exec -it provision ansible-playbook -i localhost, -c local /ella/ops/builder/builder.yml --tags=$(BUILD_TYPE)
+	docker exec -i provision ansible-playbook -i localhost, -c local /ella/ops/builder/builder.yml --tags=$(BUILD_TYPE)
 
 clean-provision stop-provision:
 	-docker stop -t 0 provision && docker rm provision
