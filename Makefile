@@ -196,6 +196,10 @@ start-provision: clean-provision
 commit-provision:
 	docker commit provision $(BUILD_NAME)
 
+save-and-notify:
+	docker save ousamg/ella.release > /builds/ella.tar
+	curl '127.0.0.1:8080/ella/deploy'
+
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
