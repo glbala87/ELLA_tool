@@ -203,8 +203,10 @@ save-and-notify:
 # DEPLOY
 #---------------------------------------------
 
-dbreset:
-	docker exec -it $(CONTAINER_NAME) bash -c "make dbsleep && DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
+dbreset: dbsleep dbreset-inner
+
+dbreset-inner:
+	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
 
 dbsleep:
 	while ! pg_isready; do sleep 5; done
