@@ -8,7 +8,7 @@ INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use conta
 API_HOST ?= 'localhost'
 TEST_NAME ?= all
 TEST_COMMAND ?=''
-CONTAINER_NAME = ella-$(BRANCH)-$(USER)
+CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
 SELENIUM_CONTAINER_NAME = selenium
@@ -128,7 +128,7 @@ test-api: export DB_URL=postgres:///vardb-test
 test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
-	while ! pg_isready; do sleep 5; done
+	make dbsleep
 ifeq ($(TEST_COMMAND),) # empty?
 	py.test "/ella/src/api/" -s
 else
@@ -204,7 +204,10 @@ save-and-notify:
 #---------------------------------------------
 
 dbreset:
-	DB_URL="postgresql:///postgres" PYTHONIOENCODING="utf-8" RESET_DB="small" python src/api/main.py
+	docker exec -it $(CONTAINER_NAME) bash -c "make dbsleep && DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
+
+dbsleep:
+	while ! pg_isready; do sleep 5; done
 
 deploy-release: release deploy-reboot
 
