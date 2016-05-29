@@ -197,7 +197,7 @@ commit-provision:
 
 save-and-notify:
 	docker save ousamg/ella.release > /builds/ella.tar
-	curl '127.0.0.1:8080/ella/deploy'
+	nohup curl '127.0.0.1:8080/ella/deploy' &>/dev/null &
 
 #---------------------------------------------
 # DEPLOY
