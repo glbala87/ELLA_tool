@@ -49,13 +49,6 @@ build_core:
   only:
     - build-dev
 
-build_release:
-  stage: deploy
-  script:
-    - make release
-  only:
-    - triggers
-
 bot_build:
   stage: deploy
   script:
