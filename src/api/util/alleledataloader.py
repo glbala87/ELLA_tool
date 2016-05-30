@@ -24,7 +24,7 @@ class AlleleDataLoader(object):
     def from_objs(self,
                   alleles,
                   genotypes=None,
-                  genepanel=None,
+                  genepanel=None,  # Make genepanel mandatory?
                   include_annotation=True,
                   include_custom_annotation=True,
                   include_allele_assessment=True,

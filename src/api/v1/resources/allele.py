@@ -66,7 +66,7 @@ class AlleleListResource(Resource):
         }
         if allele_genotypes:
             kwargs['genotypes'] = allele_genotypes
-        if genepanel:
+        if genepanel:  # TODO: make genepanel required?
             kwargs['genepanel'] = genepanel
         if annotation:
             kwargs['include_annotation'] = True

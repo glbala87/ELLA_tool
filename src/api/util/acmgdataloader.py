@@ -75,7 +75,7 @@ class ACMGDataLoader(object):
         :returns: dict with converted data using schema data.
         """
 
-        genepanel_config = GenepanelConfigResolver(genepanel).resolve()
+        resolver = GenepanelConfigResolver(genepanel)
 
         allele_classifications = dict()
 
@@ -86,10 +86,14 @@ class ACMGDataLoader(object):
         for a in alleles:
             # Add extra data/keys that the rule engine expects to be there
             annotation_data = a['annotation']
-            annotation_data["genepanel"] = genepanel_config
             if a['id'] in ra_per_allele:
                 annotation_data["refassessment"] = {str('_'.join([str(r['allele_id']), str(r['reference_id'])])): r['evaluation'] for r in ra_per_allele[a['id']]}
-                annotation_data['transcript'] = ACMGDataLoader._find_single_transcript(annotation_data)
+                transcript = ACMGDataLoader._find_single_transcript(annotation_data)
+                annotation_data['transcript'] = transcript
+                if transcript:
+                    annotation_data["genepanel"] = resolver.resolve(transcript['SYMBOL'])
+                else:
+                    annotation_data["genepanel"] = resolver.resolve(None)  # TODO: should not happen. Raise exception?
 
             passed_data = self.get_acmg_codes(annotation_data)
             allele_classifications[a['id']] = {

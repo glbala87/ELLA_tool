@@ -143,7 +143,8 @@ class DepositTestdata(object):
                     os.path.join(SCRIPT_DIR, vcf_path),
                     **kwargs
                 )
-                log.info("Deposited {}".format(vcf_path))
+                log.info("Deposited {} using panel {} {}".
+                         format(vcf_path, kwargs['genepanel_name'], kwargs['genepanel_version']))
                 self.session.commit()
 
             except UserWarning as e:

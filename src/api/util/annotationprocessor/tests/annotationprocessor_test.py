@@ -497,13 +497,13 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
 @pytest.mark.parametrize("annotation, symbol", [
     ({
-      TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'x'}, {'SYMBOL': 'x'}]
-     }, 'x'),
+      TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'Gene X'}, {'SYMBOL': 'Gene X'}]
+     }, 'Gene X'),
 
     ({
       TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS: ['NM_2'],
-      TranscriptAnnotation.CONTRIBUTION_KEY: [{'Transcript': 'NM_1', 'SYMBOL': 'x'}, {'Transcript': 'NM_2', 'SYMBOL': 'x'}]
-     }, 'x')
+      TranscriptAnnotation.CONTRIBUTION_KEY: [{'Transcript': 'NM_1', 'SYMBOL': 'Gene X'}, {'Transcript': 'NM_2', 'SYMBOL': 'Gene Y'}]
+     }, 'Gene Y')
 ])
 def test_find_symbol_from_transcripts(annotation, symbol):
     assert find_symbol(annotation) == symbol
@@ -512,9 +512,8 @@ def test_find_symbol_from_transcripts(annotation, symbol):
 def test_find_symbol_raise_exception():
     with pytest.raises(Exception) as exc:
          find_symbol({
-          TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'x'}, {'SYMBOL': 'y'}],
+          TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'Gene X'}, {'SYMBOL': 'Gene Y'}],
           'annotation_id': 1
          })
     assert exc
-    assert "Expected the same gene symbol" in exc.value.message
-    assert "x,y" in exc.value.message
+    assert "Gene X,Gene Y" in exc.value.message

@@ -431,7 +431,7 @@ def find_symbol(annotation):
 
     # filtered contains only the refSeq ID, must find full transcript:
     found = None
-    if filtered_transcripts and len(filtered_transcripts) > 1:
+    if filtered_transcripts and len(filtered_transcripts) > 0:
         look_for = filtered_transcripts[0]
         found = filter(lambda t: t['Transcript'] == look_for, transcripts)
 
@@ -439,10 +439,8 @@ def find_symbol(annotation):
     symbols = map(lambda t: t['SYMBOL'], found if found else transcripts)
 
     if len(set(symbols)) > 1:
-        raise Exception("Expected the same gene symbol in the transcripts, found {}"
+        raise Exception("The transcript(s) selected don't have the same gene symbol, found genes {}"
                         .format(','.join(symbols)))
-        # raise Exception("Expected the same gene symbol in the transcripts, found {} when looking at annotation {}"
-        #                 .format(','.join(symbols), annotation['annotation_id']))
 
     return symbols.pop()
 
