@@ -21,6 +21,11 @@ class Resource(flask_resource):
     def list_query(self, session, model, schema=None, **kwargs):
         query = session.query(model)
         if kwargs.get('rest_filter'):
+            # Check if any of the requested filters are empty list, if so user has requested an empty
+            # set so we should return nothing.
+            # TODO: Review behavior
+            if any((isinstance(v, list) and not v) for v in kwargs['rest_filter'].values()):
+                return list()
             query = self._filter(query, model, kwargs['rest_filter'])
         if 'num_per_page' in kwargs:
             query = query.limit(kwargs['num_per_page'])

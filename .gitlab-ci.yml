@@ -2,6 +2,7 @@
 stages:
   - test
   - cleanup
+  - deploy
 
 test_api:
   stage: test
@@ -41,8 +42,16 @@ cleanup_e2e:
     - make cleanup-e2e BRANCH=test
   when: on_failure
 
-build_dev_image:
+build_core:
+  stage: deploy
   script:
-    - make dev-release
+    - make core push
   only:
     - build-dev
+
+bot_build:
+  stage: deploy
+  script:
+    - make release save-and-notify
+  only:
+    - triggers
