@@ -1,8 +1,9 @@
 <section class="card" ng-class="vm.color" >
   <div class="card-top">
-    <div class="card-top-primary" ng-class="vm.color" ng-class="{'collapsed': vm.options.collapsed}">
-      <span class="corner-icon hoverable" ng-click="vm.collapse()" ng-class="{'disabled': ! vm.isCollapsible()}">
+    <div class="card-top-primary" ng-class="{'collapsed': vm.options.collapsed}">
+      <span class="corner-icon hoverable" ng-click="vm.collapse()" ng-class="{'disabled': ! (! vm.isCollapsible() || vm.isModal()) }">
         <svg class="icon" ng-class="{'collapsed': vm.options.collapsed}" ng-if="vm.isCollapsible()" width="13px" height="13px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><path d="M6.5,13l-6.5,-13l13,0l-6.5,13Z" style="fill:#000;fill-opacity:0.498039;"/></svg>
+        <h5 class="close-icon" ng-click="vm.modal.close(false)" ng-if="vm.isModal()">X</h5>
       </span>
       <div ng-transclude="primary"> </div>
     </div>
