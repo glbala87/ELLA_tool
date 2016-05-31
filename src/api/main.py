@@ -27,6 +27,8 @@ def setup_logging():
 
 @app.before_request
 def before_request():
+    if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
+        return
     if request.method in ['PUT', 'POST', 'DELETE']:
         log.warning(" {method} - {endpoint} - {json}".format(
             method=request.method,
