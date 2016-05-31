@@ -31,7 +31,6 @@ describe("Annotation model", function () {
     }
 
     it("can be constructed", function () {
-        console.log(Annotation);
         expect(new Annotation(getData())).toBeDefined();
     });
 

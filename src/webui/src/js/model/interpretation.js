@@ -6,7 +6,7 @@ import Analysis from './analysis';
 export class Interpretation {
     /**
      * Represents one Interpretation.
-     * @param  {object} Interpretation data from server.
+     * @param  {object} Interpretation data from server, see InterpretationResource
      */
     constructor(data) {
         console.log('Constructor for Interpretation with id=' + data.id);

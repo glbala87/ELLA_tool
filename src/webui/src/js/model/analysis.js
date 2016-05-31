@@ -5,7 +5,7 @@ export default class Analysis {
      * Represents one Analysis.
      * 
      * Also holds the genepanel (which should be model.Genepanel in the future)
-     * @param  {object} Analysis data from server.
+     * @param  {object} Analysis data from server, see api/v1/interpretations/
      */
     constructor(data) {
         console.log('Constructor for Analysis with id=' + data.id);
@@ -20,12 +20,24 @@ export default class Analysis {
             return states.sort(x => STATE_PRIORITY.indexOf(x))[0];
         }
     }
+
+    findGeneConfig(geneSymbol) {
+        let panelConfig = this.genepanel.config;
+        if (panelConfig && panelConfig.data && geneSymbol in panelConfig.data) {
+            return panelConfig.data[geneSymbol];
+        }
+    }
+
     getInheritanceCodes(geneSymbol) {
         if (! this.genepanel) {
             return '';
         }
 
         let source = this.genepanel.phenotypes;
+        let config = this.findGeneConfig(geneSymbol);
+        if (config && 'inheritance' in config) {
+            return config['inheritance'];
+        }
 
         if (source) {
             let codes = source.filter(ph => ph.gene.hugoSymbol == geneSymbol)
