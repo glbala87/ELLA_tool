@@ -16,7 +16,8 @@ import {Directive, Inject} from '../ng-decorators';
         options: '=', // {collapsed: bool, expanded: bool}
         collapsible: '=?', // bool: whether card can collapse
         modal: '=?', // bool: whether card is part of a modal
-        color: '@'
+        color: '@',
+        onClose: '&'
     }
 })
 @Inject('$transclude')
@@ -42,6 +43,10 @@ export class CardController {
 
     isModal() {
         return this.modal != undefined || this.modal;
+    }
+
+    close() {
+      this.onClose()();
     }
 
     /**
