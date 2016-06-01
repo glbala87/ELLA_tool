@@ -80,13 +80,13 @@ class GenepanelConfigResolver(object):
         # resolve frequency cutoffs:
         if not symbol:  # relevant for tests only. In tests either symbol is undefined or the default config needs to be set
             logging.warn("Symbol not defined when resolving genepanel config values")
-            result[KEY_CUTOFFS] = copy.deepcopy(self.genepanel_default[KEY_CUTOFFS]['Other'] if self.genepanel_default else DEFAULT_CUTOFFS)
-            return result
+            result[KEY_CUTOFFS] = self.genepanel_default[KEY_CUTOFFS]['Other'] if self.genepanel_default else DEFAULT_CUTOFFS
+            return copy.deepcopy(result)
 
         if not self.genepanel:
             logging.warn("Genepanel not defined when resolving genepanel config values")
-            result[KEY_CUTOFFS] = copy.deepcopy(DEFAULT_CUTOFFS)
-            return result
+            result[KEY_CUTOFFS] = DEFAULT_CUTOFFS
+            return copy.deepcopy(result)
 
         if self.genepanel.config and 'data' in self.genepanel.config and symbol in self.genepanel.config['data']:
             gene_config = self.genepanel.config['data'][symbol]
@@ -104,6 +104,6 @@ class GenepanelConfigResolver(object):
                 result[KEY_CUTOFFS][KEY_LO] = gene_config[KEY_LO]
 
         else:
-            result[KEY_CUTOFFS] = copy.deepcopy(DEFAULT_CUTOFFS)
+            result[KEY_CUTOFFS] = DEFAULT_CUTOFFS
 
-        return result
+        return copy.deepcopy(result)
