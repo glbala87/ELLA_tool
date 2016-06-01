@@ -78,7 +78,7 @@ class Genepanel(Base):
     transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
     phenotypes = relationship("Phenotype", lazy='joined')
 
-    config = Column(MUTJSONB, default={})
+    config = Column(MUTJSONB, default={})  # format defined by
 
 
     def __repr__(self):

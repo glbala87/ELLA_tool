@@ -28,6 +28,24 @@ export default class Analysis {
         }
     }
 
+    // a dict whose keys are the possible properties of a genepanel and the value
+    // is either a primitive or an object. The latter of form {'_type': 'genepanel_override', value: primitive}
+    calculateGenepanelConfig(geneSymbol, default_genepanel_config) {
+        let result = {};
+        let props = ['last_exon', 'disease_mode']; // see api/util/genepanelconfig.py#COMMON_GENEPANEL_CONFIG
+        let overrides = this.findGeneConfig(geneSymbol);
+        for (let p of props) {
+                result[p] = p in overrides ?
+                    {'_type': 'genepanel_override', 'value': overrides[p]} : default_genepanel_config[p];
+        }
+
+        result['inheritance'] = this.getInheritanceCodes(geneSymbol); // no object wrapper
+        // TODO: look deeper into struct to find cutoffs
+
+        console.log(result);
+        return result;
+    }
+
     getInheritanceCodes(geneSymbol) {
         if (! this.genepanel) {
             return '';

@@ -18,7 +18,7 @@ COMMON_GENEPANEL_CONFIG = {
     },
     KEY_INHERITANCE: "AD",
     "disease_mode": "ANY",
-    "in_last_exon": True,
+    "last_exon": True,
 }
 
 """
