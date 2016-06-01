@@ -8,7 +8,7 @@ class Filters {
         filterName: 'gp_values'
     })
     showGenepanelValues() {
-        let last_exon_vales = {'lei': ['LEI', 'Important'], 'leni': ['LENI', 'Not important']};
+        let last_exon_values = {'lei': ['LEI', 'Important'], 'leni': ['LENI', 'Not important']};
         let use_short_version = true;
 
         return (input, values_to_display) => {
@@ -25,22 +25,23 @@ class Filters {
                 if (typeof input[k] == 'object') {
                     if (k == 'last_exon') { // special handling for short/long version
                         if (input[k]) {
-                            result.push('*' + last_exon_vales['lei'][use_short_version ? 0 : 1] + '*');
+                            result.push('*' + last_exon_values['lei'][use_short_version ? 0 : 1] + '*');
                         } else {
-                            result.push('*' + last_exon_vales['leni'][use_short_version ? 0 : 1] + '*');
+                            result.push('*' + last_exon_values['leni'][use_short_version ? 0 : 1] + '*');
                         }
                     } else {
                         result.push('*' + input[k]['value'] + '*');
                     }
                 } else {
                     if (k == 'last_exon') { // special handling for short/long version
-                        if (input[k]) {
-                            result.push(last_exon_vales['lei'][use_short_version ? 0 : 1]);
+                        if (input[k]) { // last_exon: true
+                            result.push(last_exon_values['lei'][use_short_version ? 0 : 1]);
                         } else {
-                            result.push(last_exon_vales['leni'][use_short_version ? 0 : 1]);
+                            result.push(last_exon_values['leni'][use_short_version ? 0 : 1]);
                         }
+                    } else {
+                        result.push(input[k]);
                     }
-                    result.push(input[k]);
                 }
             }
             return result.join('|');
