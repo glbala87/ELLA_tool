@@ -38,8 +38,8 @@ GENEPANELS = [
             'data':
                    {
                      'BRCA2': {
-                            "hi_freq_cutoff": 0.008,
-                            "lo_freq_cutoff": 0.0005
+                            "lo_freq_cutoff": 0.0005,
+                            "last_exon": False
                              }
                    }
                },

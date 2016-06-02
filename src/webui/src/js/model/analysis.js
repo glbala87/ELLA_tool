@@ -28,6 +28,19 @@ export default class Analysis {
         }
     }
 
+    find_cutoff(key, inheritance, overrides, default_values) {
+        if (key in overrides) {
+            return {'_type': 'genepanel_override', 'value': overrides[key]};
+        } else {
+            if (inheritance == 'AD') {
+                return default_values['freq_cutoffs']['AD'][key];
+            } else {
+                return default_values['freq_cutoffs']['Other'][key];
+            }
+        }
+    }
+
+
     // a dict whose keys are the possible properties of a genepanel and the value
     // is either a primitive or an object. The latter of form {'_type': 'genepanel_override', value: primitive}
     calculateGenepanelConfig(geneSymbol, default_genepanel_config) {
@@ -39,8 +52,11 @@ export default class Analysis {
                     {'_type': 'genepanel_override', 'value': overrides[p]} : default_genepanel_config[p];
         }
 
-        result['inheritance'] = this.getInheritanceCodes(geneSymbol); // no object wrapper
-        // TODO: look deeper into struct to find cutoffs
+        let inheritanceCodes = this.getInheritanceCodes(geneSymbol); // no object wrapper
+        result['inheritance'] = inheritanceCodes;
+
+        result['hi_freq_cutoff'] = this.find_cutoff('hi_freq_cutoff', inheritanceCodes, overrides, default_genepanel_config);
+        result['lo_freq_cutoff'] = this.find_cutoff('lo_freq_cutoff', inheritanceCodes, overrides, default_genepanel_config);
 
         console.log(result);
         return result;
