@@ -1,0 +1,6 @@
+<table>
+    <tr ng-repeat="(k, v) in vm.config.custom_annotation.external" ng-if="vm.allele.annotation.external[k]">
+        <td style="padding-right: 5px;"><p>{{k}}: </p></td>
+        <td><p>{{vm.allele.annotation.external[k]}}</p></td>
+    </tr>
+</table>

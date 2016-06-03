@@ -1,0 +1,24 @@
+<div ng-repeat="ref in vm.allele_references">
+
+  <div>
+    <h5 class="wrap"><a-clip href="{{ref.getPubmedUrl()}}">{{ref.title}}</a-clip></h5>
+    <p>{{ref.getShortDesc()}}</p>
+    <!-- FIXME: hide this title if all(false)...or is it good enough to show/hide along with "Relevant" field? -->
+    <h3 class="title" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">Evaluation</h3>
+    <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">
+      <div class="cell"><h5>Relevant:</h5></div>
+      <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.relevance}}</p></div>
+    </div>
+    <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.hq">
+      <div class="cell"><h5>HQ:</h5></div>
+      <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.hq}}</p></div>
+    </div>
+    <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.comment">
+      <div class="cell top-align"><h5>Comment:</h5></div>
+      <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.comment}}</p></div>
+    </div>
+  </div>
+  <div>
+    <button ng-click="vm.showReferenceEval(ref)">Evaluate</button>
+  </div>
+</div>

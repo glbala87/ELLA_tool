@@ -1,0 +1,26 @@
+<div class="tabular-row" ng-if="vm.showSuggested">
+    <div class="cell"><h5>Suggested class: </h5></div>
+    <div class="cell"><p>{{vm.getSuggestedClassification()}}</p></div>
+</div>
+
+<!-- Included codes -->
+<acmg code="code" class="wide" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.included track by $index" on-toggle="vm.excludeACMG(code)" toggle-text="✓" comment-model="code.comment" editable="::vm.isEditable()"></acmg>
+
+<!-- Suggested codes (sans REQ) -->
+<acmg class="suggested wide" code="code" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.suggested track by $index" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)" editable="::vm.isEditable()"></acmg>
+
+<!-- REQ codes -->
+<acmg class="suggested wide" code="code" ng-repeat="code in vm.getREQCodes() track by $index" editable="::vm.isEditable()" ng-if="vm.show_req"></acmg>
+
+<div>
+  <button class="acmg-add" ng-if="::vm.isEditable()" uib-popover-template="vm.popover.templateUrl"
+          popover-append-to-body=true
+          popover-title="Add ACMG code"
+          popover-trigger="outsideClick"
+          popover-placement="auto right">Add code</button>
+
+  <checkable-button class="acmg-add" ng-if="::vm.isEditable()" check-model="vm.show_req">
+      <checked>Hide REQ</checked>
+      Show REQ ({{vm.getREQCodeCount()}})
+  </checkable-button>
+</div>
