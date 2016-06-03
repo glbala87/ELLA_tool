@@ -39,7 +39,8 @@ GENEPANELS = [
                    {
                      'BRCA2': {
                             "lo_freq_cutoff": 0.0005,
-                            "last_exon": False
+                            "last_exon": False,
+                            "comment": "a comment from the genepanel config"
                              }
                    }
                },

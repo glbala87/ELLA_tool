@@ -3,6 +3,8 @@ describe("filter", function () {
 
     var $filter;
 
+    // '_'  never any decoration
+    // '?' show only when overridden in genepanel config
     describe("gp_values", function () {
         var f;
 
@@ -17,11 +19,16 @@ describe("filter", function () {
         it("shows default values without decoration", function () {
             expect(f({'inheritance': 'AD', 'hi_freq_cutoff': 0.1, 'lo_freq_cutoff': 0.005},
             ['freq_cutoff','inheritance'])).toBe('0.1/0.005|AD');
-        })
+        });
 
-        it("shows overriden values with decoration", function () {
+        it("shows overridden values with decoration", function () {
             expect(f({'inheritance': {'_type': 'genepanel_value','value': 'AD'}, 'hi_freq_cutoff': 0.1, 'lo_freq_cutoff': 0.005},
             ['freq_cutoff','inheritance'])).toBe('0.1/0.005|*AD*');
+        })
+
+        it("shows value depending on mode", function () {
+            expect(f({'inheritance': {'_type': 'genepanel_value','value': 'AD'}, 'hi_freq_cutoff': 0.1, 'lo_freq_cutoff': 0.005},
+                ['freq_cutoff!','inheritance:_'])).toBe('AD');
         })
 
     });

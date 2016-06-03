@@ -41,8 +41,10 @@ export default class Analysis {
     }
 
 
-    // a dict whose keys are the possible properties of a genepanel and the value
-    // is either a primitive or an object. The latter of form {'_type': 'genepanel_override', value: primitive}
+    // a dict whose keys are the possible properties of a genepanel and their values
+    // The values are either a primitive or an object. The object form indicates the value
+    // is "hardcoded" in the genepanel config, as opposed to being calculated from
+    // the panels phenotypes/transcripts. The object form looks like {'_type': 'genepanel_override', value: primitive}
     calculateGenepanelConfig(geneSymbol, default_genepanel_config) {
         let result = {};
         let props = ['last_exon', 'disease_mode']; // see api/util/genepanelconfig.py#COMMON_GENEPANEL_CONFIG
@@ -58,10 +60,14 @@ export default class Analysis {
         result['hi_freq_cutoff'] = this.find_cutoff('hi_freq_cutoff', inheritanceCodes, overrides, default_genepanel_config);
         result['lo_freq_cutoff'] = this.find_cutoff('lo_freq_cutoff', inheritanceCodes, overrides, default_genepanel_config);
 
-        console.log(result);
+        if ('comment' in overrides) {
+            result['comment'] = overrides['comment'];
+        }
+
         return result;
     }
 
+    // Return inheritance from relevant phenotypes, or the hardcoded value defined in the genepanel config
     getInheritanceCodes(geneSymbol) {
         if (! this.genepanel) {
             return '';
