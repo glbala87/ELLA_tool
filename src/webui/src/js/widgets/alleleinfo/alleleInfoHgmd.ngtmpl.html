@@ -1,4 +1,4 @@
-<div class="content-box">
+<div class="content-box" ng-class="{'no-content': !vm.hasContent()}">
   <h3 class="title"><a-clip href="{{::vm.allele.getUrl('HGMD Pro')}}" ng-if="::vm.allele.getUrl('HGMD Pro')">HGMD Pro</a-clip><span ng-if="::!vm.allele.getUrl('HGMD Pro')">HGMD Pro</span></h3>
   <h5>{{::vm.allele.annotation.external.HGMD.tag}}</h5>
   <h5>{{::vm.allele.annotation.external.HGMD.disease}}</h5>

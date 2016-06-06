@@ -14,4 +14,8 @@ export class AlleleInfoFrequencyEsp6500 {
 
     constructor() {}
 
+    hasContent() {
+        return 'esp6500' in this.allele.annotation.frequencies;
+    }
+
 }

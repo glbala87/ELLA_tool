@@ -1,4 +1,4 @@
-<div class="content-box">
+<div class="content-box" ng-class="{'no-content': !vm.hasContent()}">
   <h3 class="title"><a-clip href="{{::vm.allele.getUrl('ExAC')" ng-if="::vm.allele.getUrl('ExAC')">ExAC</a-clip><span ng-if="::!vm.allele.getUrl('ExAC')">ExAC</span></h3>
   <frequency-details group="ExAC" allele="vm.allele"></frequency-details>
   <acmg class="suggested disabled" code="c" editable="::false" ng-repeat="c in ::vm.allele.getACMGCodes('frequencies.ExAC_cutoff')"></acmg>

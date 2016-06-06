@@ -34,4 +34,7 @@ export class AlleleInfoClinvar {
         return result;
     }
 
+    hasContent() {
+        return 'CLINVAR' in this.allele.annotation.external;
+    }
 }

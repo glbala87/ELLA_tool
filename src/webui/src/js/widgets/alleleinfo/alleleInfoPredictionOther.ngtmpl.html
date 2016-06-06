@@ -1,4 +1,4 @@
-<div class="content-box">
+<div class="content-box" ng-class="{'no-content': !vm.hasContent()}">
   <h3 class="title">Other</h3>
   <table>
         <tr ng-repeat="(k, v) in vm.config.custom_annotation.prediction" ng-if="vm.allele.annotation.prediction[k]">

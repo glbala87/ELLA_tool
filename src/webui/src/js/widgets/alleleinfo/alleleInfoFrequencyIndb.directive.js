@@ -14,4 +14,8 @@ export class AlleleInfoFrequencyIndb {
 
     constructor() {}
 
+    hasContent() {
+        return 'inDB' in this.allele.annotation.frequencies;
+    }
+
 }

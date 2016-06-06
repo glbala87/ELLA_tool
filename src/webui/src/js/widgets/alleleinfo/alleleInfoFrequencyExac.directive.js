@@ -14,4 +14,7 @@ export class AlleleInfoFrequencyExac {
 
     constructor() {}
 
+    hasContent() {
+        return 'ExAC' in this.allele.annotation.frequencies;
+    }
 }

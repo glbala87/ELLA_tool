@@ -18,4 +18,8 @@ export class AlleleInfoDbsnp {
         return `http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${dbsnp}`;
     }
 
+    hasContent() {
+        return this.allele.annotation.filtered.some(t => 'Existing_variation' in t);
+    }
+
 }

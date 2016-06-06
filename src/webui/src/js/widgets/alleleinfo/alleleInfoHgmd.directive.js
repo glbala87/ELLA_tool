@@ -14,4 +14,7 @@ export class AlleleInfoHgmd {
 
     constructor() {}
 
+    hasContent() {
+        return 'HGMD' in this.allele.annotation.external;
+    }
 }
