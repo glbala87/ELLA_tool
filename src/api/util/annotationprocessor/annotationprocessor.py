@@ -144,7 +144,7 @@ class TranscriptAnnotation(object):
             if 'HGVSp' in transcript_data:
                 transcript_data['HGVSp_short'] = transcript_data['HGVSp'].split(':', 1)[1]
             is_last_exon = self._get_is_last_exon(transcript_data)
-            transcript_data['is_last_exon'] = 'yes' if is_last_exon else 'no'
+            transcript_data['in_last_exon'] = 'yes'
             transcripts[transcript_data['Transcript']] = transcript_data
         return transcripts
 
