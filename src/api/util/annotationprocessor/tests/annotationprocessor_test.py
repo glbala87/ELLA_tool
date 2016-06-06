@@ -310,6 +310,27 @@ class TestFrequencyAnnotation(unittest.TestCase):
 
 class TestTranscriptAnnotation(unittest.TestCase):
 
+    def test_get_is_last_exon(self):
+
+        # Test for last exon
+        self.assertTrue(
+            TranscriptAnnotation({})._get_is_last_exon({'EXON': '20/20'})
+        )
+
+        # Test for not last exon
+        self.assertFalse(
+            TranscriptAnnotation({})._get_is_last_exon({'EXON': '1/20'})
+        )
+
+        # Test for missing field
+        self.assertFalse(
+            TranscriptAnnotation({})._get_is_last_exon({})
+        )
+
+        # Test for broken data
+        with self.assertRaises(IndexError):
+            TranscriptAnnotation({})._get_is_last_exon({'EXON': '20___20'}),
+
     def test_csq_transcripts(self):
         data = {
             'CSQ': [
