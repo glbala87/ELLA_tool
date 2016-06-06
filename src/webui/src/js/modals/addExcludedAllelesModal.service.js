@@ -41,6 +41,12 @@ export class AddExcludedAllelesController {
         this.modal.close(this.included_allele_ids);
     }
 
+    onClose() {
+        // Workaround for when calling class functions
+        // losing context of this...used by X in corner.
+        return this.close.bind(this);
+    }
+
     fromId(id) {
         return this.master_alleles.find(a => a.id === id);
     }

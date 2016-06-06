@@ -1,0 +1,4 @@
+<div class="content-box" ng-class="{'no-content': !vm.hasContent()}">
+  <h3 class="title"><a-clip href="{{::vm.allele.getUrl('Clinvar')}}" ng-if="::vm.allele.getUrl('Clinvar')">Clinvar</a-clip><span ng-if="::!vm.allele.getUrl('Clinvar')">Clinvar</span></h3>
+  <p ng-repeat="c in ::vm.formatClinvar() track by $index">{{c}}<br></p>
+</div>
