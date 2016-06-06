@@ -1,28 +1,31 @@
-<div class="tabular-row">
-  <div class="cell"><h5>Verify:</h5></div>
-  <div class="cell"><p>{{::vm.getVerificationText()}}</p></div>
-</div>
-<div class="tabular-row">
-  <div class="cell"><h5>Filter:</h5></div>
-  <div class="cell"><p>{{::vm.allele.annotation.quality.FILTER}}</p></div>
-</div>
-<div class="tabular-row">
-  <div class="cell"><h5>Quality:</h5></div>
-  <div class="cell"><p>{{::vm.allele.annotation.quality.QUAL}}</p></div>
-</div>
-<div class="tabular-row">
-  <div class="cell"><h5>GQ:</h5></div>
-  <div class="cell"><p>{{::vm.allele.annotation.quality.GQ}}</p></div>
-</div>
-<div class="tabular-row">
-  <div class="cell"><h5>DP:</h5></div>
-  <div class="cell"><p>{{::vm.allele.annotation.quality.DP}}</p></div>
-</div>
-<div class="tabular-row">
-  <div class="cell"><h5>AD:</h5></div>
-  <div class="cell"></div>
-</div>
-<div class="tabular-row" ng-repeat="(k, v) in ::vm.allele.annotation.quality.AD">
-  <div class="cell"><p> - {{::k}}:</p></div>
-  <div class="cell"><p>{{::v}}</p></div>
+<div class="content-box">
+  <h3 class="title">Quality</h3>
+  <div class="tabular-row">
+    <div class="cell"><h5>Verify:</h5></div>
+    <div class="cell"><p>{{::vm.getVerificationText()}}</p></div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell"><h5>Filter:</h5></div>
+    <div class="cell"><p>{{::vm.allele.annotation.quality.FILTER}}</p></div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell"><h5>Quality:</h5></div>
+    <div class="cell"><p>{{::vm.allele.annotation.quality.QUAL}}</p></div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell"><h5>GQ:</h5></div>
+    <div class="cell"><p>{{::vm.allele.annotation.quality.GQ}}</p></div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell"><h5>DP:</h5></div>
+    <div class="cell"><p>{{::vm.allele.annotation.quality.DP}}</p></div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell"><h5>AD:</h5></div>
+    <div class="cell"></div>
+  </div>
+  <div class="tabular-row" ng-repeat="(k, v) in ::vm.allele.annotation.quality.AD">
+    <div class="cell"><p> - {{::k}}:</p></div>
+    <div class="cell"><p>{{::v}}</p></div>
+  </div>
 </div>
