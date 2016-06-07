@@ -160,10 +160,7 @@ class TranscriptAnnotation(object):
                 continue
 
             transcript_data = {'splice_' + k.replace('-', '_'): data[k] for k in TranscriptAnnotation.SPLICE_FIELDS if k in data}
-            try:
-                transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
-            except ValueError:
-                transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'], "0"
+            transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
             transcripts[transcript_data['Transcript']] = transcript_data
 
         return transcripts
