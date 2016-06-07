@@ -72,7 +72,8 @@ class TranscriptAnnotation(object):
         'Effect',
         'MaxEntScan-mut',
         'MaxEntScan-wild',
-        'pos' # akwardly relevant for for 'de novo' only
+        'closest-MaxEntScan',  # relevant for 'de novo'
+        'closest-dist'  # relevant for 'de novo'
     ]
 
     def __init__(self, config):
@@ -159,7 +160,10 @@ class TranscriptAnnotation(object):
                 continue
 
             transcript_data = {'splice_' + k.replace('-', '_'): data[k] for k in TranscriptAnnotation.SPLICE_FIELDS if k in data}
-            transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
+            try:
+                transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
+            except ValueError:
+                transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'], "0"
             transcripts[transcript_data['Transcript']] = transcript_data
 
         return transcripts
