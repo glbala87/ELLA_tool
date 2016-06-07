@@ -72,7 +72,8 @@ class TranscriptAnnotation(object):
         'Effect',
         'MaxEntScan-mut',
         'MaxEntScan-wild',
-        'pos' # akwardly relevant for for 'de novo' only
+        'closest-MaxEntScan',  # relevant for 'de novo'
+        'closest-dist'  # relevant for 'de novo'
     ]
 
     def __init__(self, config):
