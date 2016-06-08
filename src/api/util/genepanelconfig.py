@@ -70,7 +70,7 @@ class GenepanelConfigResolver(object):
         Uses deepcopy to avoid any mutation of the "constants" of this module.
 
         :param symbol:
-        :return: the values to be used by the rules engine. The genepanel can have gene specfic values
+        :return: the values to be used by the rules engine. The genepanel can have gene specific values
          that will override the global defaults.
         """
 

@@ -7,8 +7,9 @@ import os
 import sys
 import argparse
 import logging
+from jsonschema import validate
+import json
 
-import vardb.datamodel
 from vardb.datamodel import gene as gm
 
 log = logging.getLogger(__name__)
@@ -95,6 +96,16 @@ def load_transcripts(transcripts_path):
         return transcripts
 
 
+def config_valid(config):
+    filename = 'src/vardb/datamodel/genap-genepanel-config-schema.json'
+
+    if config:
+        with open(filename) as schema_file:
+            my_schema = json.load(schema_file)
+            validate(config, my_schema)
+
+    return True
+
 class DepositGenepanel(object):
 
     def __init__(self, session):
@@ -109,6 +120,9 @@ class DepositGenepanel(object):
                 log.warning("Aborting and rolling back")
                 self.session.rollback()
                 return -1
+
+        if not config_valid(config):
+            log.error("Genepanel config not valid according to JSON schema")
 
         db_transcripts = []
         db_phenotypes = []

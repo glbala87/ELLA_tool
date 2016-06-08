@@ -24,26 +24,18 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # Paths are relative to script dir
+# see vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 
+config_hboc = {"meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "some date"},
+               "data": {"BRCA2": {
+                                  "lo_freq_cutoff": 0.0005,
+                                  "hi_freq_cutoff": 0.008,
+                                  "last_exon": False,
+                                  "comment": "a comment from the genepanel config"}}}
 GENEPANELS = [
-    { # TODO: see LA-631 for format of config
-        'config': {
-            'meta':
-                    {
-                       'source': 'deposit_testdata.py',
-                       'version': '1.0'
-                     },
-            'data':
-                   {
-                     'BRCA2': {
-                            "lo_freq_cutoff": 0.0005,
-                            "last_exon": False,
-                            "comment": "a comment from the genepanel config"
-                             }
-                   }
-               },
+    {   'config': config_hboc,
         'transcripts': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.phenotypes.csv',
         'name': 'HBOC',
