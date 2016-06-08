@@ -22,6 +22,7 @@ export class ReferenceEvalModalController {
         this.referenceAssessment = JSON.parse(JSON.stringify(referenceAssessment));
         this.enabled_sources = [];
         this.sources = {
+                // 'relevance' is a special case, so it has no 'elements' block like the others
                 'relevance': {
                     title: 'Relevance',
                     desc: 'Is reference relevant?',
@@ -41,41 +42,59 @@ export class ReferenceEvalModalController {
                 'aa_overlap': {
                     title: 'Overlapping amino acid',
                     desc: 'Effect of amino acid change?',
-                    buttons: [
-                        ['Pathogenic', 'overlap_pat'],
-                        ['VUS', 'overlap_vus'],
-                        ['Benign', 'overlap_ben'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Pathogenic', 'overlap_pat'],
+                                ['VUS', 'overlap_vus'],
+                                ['Benign', 'overlap_ben'],
+                            ],
+                            store: 'ref_aa_overlap'
+                        },
+                        {
+                            type: 'dropdown',
+                            options: [
+                                ['Quality: Strong', 'overlap_HQ'],
+                                ['Quality: Moderate', 'overlap_MQ'],
+                                ['Quality: Weak', 'overlap_WQ'],
+                                ['Quality: Unknown', 'overlap_UQ']
+                            ],
+                            store: 'ref_aa_overlap_quality'
+                        }
                     ],
-                    buttons_store: 'ref_aa_overlap',
-                    dropdown: [
-                        ['Quality: Strong', 'overlap_HQ'],
-                        ['Quality: Moderate', 'overlap_MQ'],
-                        ['Quality: Weak', 'overlap_WQ'],
-                        ['Quality: Unknown', 'overlap_UQ']
-                    ],
-                    dropdown_store: 'ref_aa_overlap_quality',
                     optional: true,
                     hide_when_source: 'review'
                 },
                 'aa_overlap_same_novel': {
                     title: '',
                     desc: 'Changes to same or novel amino acid?',
-                    buttons: [
-                        ['Same aa', 'same_aa'],
-                        ['Novel aa', 'novel_aa'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Same aa', 'same_aa'],
+                                ['Novel aa', 'novel_aa'],
+                            ],
+                            store: 'ref_aa_overlap_same_novel'
+                        }
                     ],
-                    buttons_store: 'ref_aa_overlap_same_novel',
                     optional_dep: 'aa_overlap',
                     hide_when_source: 'review'
                 },
                 'aa_overlap_sim': {
                     title: '',
                     desc: 'Similar amino acid properties?',
-                    buttons: [
-                        ['= property', 'sim_prop'],
-                        ['≠ property', 'diff_prop']
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['= property', 'sim_prop'],
+                                ['≠ property', 'diff_prop']
+                            ],
+                            store: 'ref_aa_overlap_sim'
+                        }
                     ],
-                    buttons_store: 'ref_aa_overlap_sim',
                     optional_dep: 'aa_overlap',
                     hide_when_source: 'review',
                     show_when_selection: ['ref_aa_overlap_same_novel', 'novel_aa']
@@ -83,10 +102,16 @@ export class ReferenceEvalModalController {
                 'domain_overlap': {
                     title: 'Critical domain',
                     desc: 'Does the domain have known benign variation?',
-                    buttons: [
-                        ['Yes', 'crit_domain_ben'],
-                        ['No', 'crit_domain'],
-                        ['Unknown', 'crit_domain_unknown'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'crit_domain_ben'],
+                                ['No', 'crit_domain'],
+                                ['Unknown', 'crit_domain_unknown'],
+                            ],
+                            store: 'ref_domain_overlap'
+                        }
                     ],
                     buttons_store: 'ref_domain_overlap',
                     optional: true,
@@ -95,34 +120,50 @@ export class ReferenceEvalModalController {
                 'crit_site': {
                     title: '',
                     desc: 'In amino acid with a critical function?',
-                    buttons: [
-                        ['Yes', 'crit_site'],
-                        ['No', 'crit_site_no'],
-                        ['Unknown', 'crit_site_unknown'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'crit_site'],
+                                ['No', 'crit_site_no'],
+                                ['Unknown', 'crit_site_unknown'],
+                            ],
+                            store: 'crit_site'
+                        }
                     ],
-                    buttons_store: 'crit_site',
                     optional_dep: 'domain_overlap',
                     hide_when_source: 'review'
                 },
                 'domain_overlap': {
                     title: 'Overlapping critical domain',
                     desc: 'Does the domain have known benign variation?',
-                    buttons: [
-                        ['Yes', 'crit_domain_ben'],
-                        ['No', 'crit_domain'],
-                        ['Unknown', 'crit_domain_unknown'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'crit_domain_ben'],
+                                ['No', 'crit_domain'],
+                                ['Unknown', 'crit_domain_unknown'],
+                            ],
+                            store: 'ref_domain_overlap'
+                        }
                     ],
-                    buttons_store: 'ref_domain_overlap',
                     optional: true,
                     hide_when_source: 'review'
                 },
                 'repeat_overlap': {
                     title: 'Overlapping repeat region',
                     desc: 'Does the repeat have any known function?',
-                    buttons: [
-                        ['Yes', 'repeat_funct'],
-                        ['No', 'repeat'],
-                        ['Unknown', 'repeat_unknown'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'repeat_funct'],
+                                ['No', 'repeat'],
+                                ['Unknown', 'repeat_unknown'],
+                            ],
+                            store: 'ref_repeat_overlap'
+                        }
                     ],
                     buttons_store: 'ref_repeat_overlap',
                     optional: true,
@@ -131,9 +172,15 @@ export class ReferenceEvalModalController {
                 'mutational_hotspot': {
                     title: 'Mutational hot spot',
                     desc: '',
-                    buttons: [
-                        ['Yes', 'mut_hotspot'],
-                        ['Unknown', 'mut_hotspot_unknown'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'mut_hotspot'],
+                                ['Unknown', 'mut_hotspot_unknown'],
+                            ],
+                            store: 'ref_mut_hotspot'
+                        }
                     ],
                     buttons_store: 'ref_mut_hotspot',
                     optional: true,
@@ -147,136 +194,199 @@ export class ReferenceEvalModalController {
                 'auth_classification': {
                     title: 'Conclusion',
                     desc: 'Author variant classification',
-                    buttons: [
-                        ['Pathogenic', 'pathogenic'],
-                        ['VUS', 'vus'],
-                        ['Neutral', 'neutral']
-                    ],
-                    buttons_store: 'ref_auth_classification'
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Pathogenic', 'pathogenic'],
+                                ['VUS', 'vus'],
+                                ['Neutral', 'neutral']
+                            ],
+                            store: 'ref_auth_classification'
+                        }
+                    ]
                 },
                 'segregation': {
                     title: 'Segregation',
                     desc: 'Variant segregates with disease?',
-                    buttons: [
-                        ['Yes', 'segr'],
-                        ['No', 'no_segr']
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'segr'],
+                                ['No', 'no_segr']
+                            ],
+                            store: 'ref_segregation'
+                        },
+                        {
+                            type: 'dropdown',
+                            options: [
+                                ['Quality: Strong', 'segr_HQ'],
+                                ['Quality: Moderate', 'segr_MQ'],
+                                ['Quality: Weak', 'segr_WQ'],
+                                ['Quality: Unknown', 'segr_UQ']
+                            ],
+                            store: 'ref_segregation_quality'
+                        }
                     ],
-                    buttons_store: 'ref_segregation',
-                    dropdown: [
-                        ['Quality: Strong', 'segr_HQ'],
-                        ['Quality: Moderate', 'segr_MQ'],
-                        ['Quality: Weak', 'segr_WQ'],
-                        ['Quality: Unknown', 'segr_UQ']
-                    ],
-                    dropdown_store: 'ref_segregation_quality',
                     optional: true
                 },
                 'protein': {
                     title: 'Protein',
                     desc: 'Abnormal protein function?',
-                    buttons: [
-                        ['Yes', 'prot_abnormal'],
-                        ['No', 'prot_normal']
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'prot_abnormal'],
+                                ['No', 'prot_normal']
+                            ],
+                            store: 'ref_prot'
+                        },
+                        {
+                            type: 'dropdown',
+                            options: [
+                                ['Quality: Strong', 'prot_HQ'],
+                                ['Quality: Moderate', 'prot_MQ'],
+                                ['Quality: Weak', 'prot_WQ'],
+                                ['Quality: Unknown', 'prot_UQ']
+                            ],
+                            store: 'ref_prot_quality'
+                        }
                     ],
-                    buttons_store: 'ref_prot',
-                    dropdown: [
-                        ['Quality: Strong', 'prot_HQ'],
-                        ['Quality: Moderate', 'prot_MQ'],
-                        ['Quality: Weak', 'prot_WQ'],
-                        ['Quality: Unknown', 'prot_UQ']
-                    ],
-                    dropdown_store: 'ref_prot_quality',
                     optional: true
                 },
                 'rna': {
                     title: 'RNA',
                     desc: 'Abnormal splicing/protein expression?',
-                    buttons: [
-                        ['Yes', 'rna_abnormal'],
-                        ['No', 'rna_normal']
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'rna_abnormal'],
+                                ['No', 'rna_normal']
+                            ],
+                            store: 'ref_rna'
+                        },
+                        {
+                            type: 'dropdown',
+                            options: [
+                                ['Quality: Strong', 'rna_HQ'],
+                                ['Quality: Moderate', 'rna_MQ'],
+                                ['Quality: Weak', 'rna_WQ'],
+                                ['Quality: Unknown', 'rna_UQ']
+                            ],
+                            store: 'ref_rna_quality'
+                        }
                     ],
-                    buttons_store: 'ref_rna',
-                    dropdown: [
-                        ['Quality: Strong', 'rna_HQ'],
-                        ['Quality: Moderate', 'rna_MQ'],
-                        ['Quality: Weak', 'rna_WQ'],
-                        ['Quality: Unknown', 'rna_UQ']
-                    ],
-                    dropdown_store: 'ref_rna_quality',
                     optional: true
                 },
                 'msi': {
                     title: 'MSI',
                     desc: 'Instability demonstrated?',
-                    buttons: [
-                        ['Yes', 'msi'],
-                        ['No', 'no_msi']
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'msi'],
+                                ['No', 'no_msi']
+                            ],
+                            store: 'ref_msi'
+                        },
+                        {
+                            type: 'dropdown',
+                            options: [
+                                ['Quality: Strong', 'msi_HQ'],
+                                ['Quality: Moderate', 'msi_MQ'],
+                                ['Quality: Weak', 'msi_WQ'],
+                                ['Quality: Unknown', 'msi_UQ']
+                            ],
+                            store: 'ref_msi_quality'
+                        }
                     ],
-                    buttons_store: 'ref_msi',
-                    dropdown: [
-                        ['Quality: Strong', 'msi_HQ'],
-                        ['Quality: Moderate', 'msi_MQ'],
-                        ['Quality: Weak', 'msi_WQ'],
-                        ['Quality: Unknown', 'msi_UQ']
-                    ],
-                    dropdown_store: 'ref_msi_quality',
                     optional: true,
                     gene_group_only: 'MMR'
                 },
                 'ihc': {
                     title: 'IHC',
                     desc: 'Instability demonstrated?',
-                    buttons: [
-                        ['Yes', 'mmr_loss'],
-                        ['No', 'mmr_noloss']
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'mmr_loss'],
+                                ['No', 'mmr_noloss']
+                            ],
+                            store: 'ref_ihc'
+                        },
+                        {
+                            type: 'dropdown',
+                            options: [
+                                ['Quality: Strong', 'ihc_HQ'],
+                                ['Quality: Moderate', 'ihc_MQ'],
+                                ['Quality: Weak', 'ihc_WQ'],
+                                ['Quality: Unknown', 'ihc_UQ']
+                            ],
+                            store: 'ref_ihc_quality',
+                            when_selection: ['ref_ihc', 'mmr_loss']
+                        }
                     ],
-                    buttons_store: 'ref_ihc',
-                    dropdown: [
-                        ['Quality: Strong', 'ihc_HQ'],
-                        ['Quality: Moderate', 'ihc_MQ'],
-                        ['Quality: Weak', 'ihc_WQ'],
-                        ['Quality: Unknown', 'ihc_UQ']
-                    ],
-                    dropdown_store: 'ref_ihc_quality',
-                    dropdown_when_selection: ['ref_ihc', 'mmr_loss'],
                     optional: true,
                     gene_group_only: 'MMR'
                 },
                 'prediction': {
                     title: 'In silico',
                     desc: 'Results of prediction tools?',
-                    buttons: [
-                        ['Pathogenic', 'pat'],
-                        ['Neutral', 'neu'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Pathogenic', 'pat'],
+                                ['Neutral', 'neu'],
+                            ],
+                            store: 'ref_prediction'
+                        },
+                        {
+                            type: 'text',
+                            placeholder: 'Enter tool...',
+                            store: 'ref_prediction_tool'
+                        }
                     ],
-                    buttons_store: 'ref_prediction',
-                    textfield: "Enter tool...",
-                    textfield_store: "ref_prediction_tool",
                     optional: true
                 },
                 'population': {
                     title: 'Population',
                     desc: 'Observed in unrelated affecteds or present in healthy?',
-                    buttons: [
-                        ['>=4 affected', 'in_many_aff'],
-                        ['3 affected', 'in_more_ff'],
-                        ['2 affected', 'in_few_affected'],
-                        ['Healthy', 'in_healthy'],
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['>=4 affected', 'in_many_aff'],
+                                ['3 affected', 'in_more_ff'],
+                                ['2 affected', 'in_few_affected'],
+                                ['Healthy', 'in_healthy'],
+                            ],
+                            store: 'ref_population'
+                        }
                     ],
-                    buttons_store: 'ref_population',
                     optional: true
                 },
                 'quality': {
                     title: 'Overall quality',
                     desc: '',
-                    buttons: [
-                        ['Excellent', 'excellent'],
-                        ['Good', 'good'],
-                        ['Passable', 'passable'],
-                        ['Lacking', 'lacking'],
-                        ['Poor', 'poor'],
-                    ],
-                    buttons_store: 'ref_quality'
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Excellent', 'excellent'],
+                                ['Good', 'good'],
+                                ['Passable', 'passable'],
+                                ['Lacking', 'lacking'],
+                                ['Poor', 'poor'],
+                            ],
+                            store: 'ref_quality'
+                        }
+                    ]
                 }
             };
 
@@ -387,6 +497,10 @@ export class ReferenceEvalModalController {
         }
     }
 
+    isDropdownDisabled(source) {
+
+    }
+
     /**
      * Cleans up the evaluation, removing all data that is not
      * selected or not shown in the UI.
@@ -404,16 +518,14 @@ export class ReferenceEvalModalController {
             if (!this.getSources().includes(source) ||
                 this.isDisabled(source) ||
                 (this.getSources().includes(source) && !this.shouldShow(source))) {
+
                 // Clean up evaluation
-                if ('buttons_store' in source_data) {
-                    delete this.referenceAssessment.evaluation[source_data.buttons_store];
+                if ('elements' in source_data) {
+                    for (let elem of source_data.elements) {
+                        delete this.referenceAssessment.evaluation[elem.store];
+                    }
                 }
-                if ('dropdown_store' in source_data) {
-                    delete this.referenceAssessment.evaluation[source_data.dropdown_store];
-                }
-                if ('textfield_store' in source_data) {
-                    delete this.referenceAssessment.evaluation[source_data.textfield_store];
-                }
+
                 // Clean up enabled sources
                 let idx = this.referenceAssessment.evaluation.sources.findIndex(e => e === source);
                 if (idx >= 0) {
