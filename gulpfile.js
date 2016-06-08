@@ -168,7 +168,7 @@ gulp.task('e2e', function(done) {
     // spec orders matter until we can handle the alert popup when swithcing pages
     gulp.src([
              './src/webui/tests/e2e/misc.spec.js',
-             './src/webui/tests/e2e/allele-popup-spec.js'
+             './src/webui/tests/e2e/allele-popup.spec.js'
         ])
         .pipe(protractor({
             configFile: "./src/webui/tests/protractor.conf.js",
