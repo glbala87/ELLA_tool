@@ -65,7 +65,8 @@ class TranscriptAnnotation(object):
         'Amino_acids',
         'Existing_variation',
         'EXON',
-        'INTRON'
+        'INTRON',
+        'Codons'
     ]
 
     SPLICE_FIELDS = [

@@ -87,6 +87,60 @@ export class ReferenceEvalModalController {
                     desc: 'Similar amino acid properties?',
                     elements: [
                         {
+                            type: 'dropdown',
+                            options: [
+                                ['Ala', 'Ala'],
+                                ['Cys', 'Cys'],
+                                ['Asp', 'Asp'],
+                                ['Glu', 'Glu'],
+                                ['Phe', 'Phe'],
+                                ['Gly', 'Gly'],
+                                ['His', 'His'],
+                                ['Ile', 'Ile'],
+                                ['Lys', 'Lys'],
+                                ['Leu', 'Leu'],
+                                ['Met', 'Met'],
+                                ['Asn', 'Asn'],
+                                ['Pro', 'Pro'],
+                                ['Gln', 'Gln'],
+                                ['Arg', 'Arg'],
+                                ['Ser', 'Ser'],
+                                ['Thr', 'Thr'],
+                                ['Val', 'Val'],
+                                ['Trp', 'Trp'],
+                                ['Tyr', 'Tyr'],
+                                ['*', '*']
+                            ],
+                            store: 'ref_aa_overlap_aa'
+                        },
+                        {
+                            type: 'dropdown',
+                            options: [
+                                ['Ala', 'Ala'],
+                                ['Cys', 'Cys'],
+                                ['Asp', 'Asp'],
+                                ['Glu', 'Glu'],
+                                ['Phe', 'Phe'],
+                                ['Gly', 'Gly'],
+                                ['His', 'His'],
+                                ['Ile', 'Ile'],
+                                ['Lys', 'Lys'],
+                                ['Leu', 'Leu'],
+                                ['Met', 'Met'],
+                                ['Asn', 'Asn'],
+                                ['Pro', 'Pro'],
+                                ['Gln', 'Gln'],
+                                ['Arg', 'Arg'],
+                                ['Ser', 'Ser'],
+                                ['Thr', 'Thr'],
+                                ['Val', 'Val'],
+                                ['Trp', 'Trp'],
+                                ['Tyr', 'Tyr'],
+                                ['*', '*']
+                            ],
+                            store: 'ref_aa_overlap_aa_ref'
+                        },
+                        {
                             type: 'button',
                             options: [
                                 ['= property', 'sim_prop'],
@@ -429,7 +483,7 @@ export class ReferenceEvalModalController {
         }
     }
 
-    _alleleInGeneGroup(group) {
+    _isAlleleInGeneGroup(group) {
         let genes = this.allele.annotation.filtered.map(a => a.SYMBOL);
         return this.config.classification.gene_groups[group].some(g => genes.includes(g));
     }
@@ -450,7 +504,7 @@ export class ReferenceEvalModalController {
         let should_show = true;
 
         if ('gene_group_only' in this.sources[source]) {
-            return this._alleleInGeneGroup(this.sources[source].gene_group_only);
+            return this._isAlleleInGeneGroup(this.sources[source].gene_group_only);
         }
 
         if ('hide_when_source' in this.sources[source]) {
@@ -573,7 +627,8 @@ export class ReferenceEvalModal {
                 reference: () => reference,
                 referenceAssessment: () => referenceAssessment,
             },
-            size: 'lg'
+            size: 'lg',
+            backdrop: 'static', // Disallow closing by clicking outside
         });
 
         return modal.result;
