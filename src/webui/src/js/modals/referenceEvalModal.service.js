@@ -182,7 +182,7 @@ export class ReferenceEvalModalController {
                                 ['No', 'crit_site_no'],
                                 ['Unknown', 'crit_site_unknown'],
                             ],
-                            store: 'crit_site'
+                            store: 'ref_crit_site'
                         }
                     ],
                     optional_dep: 'domain_overlap',
