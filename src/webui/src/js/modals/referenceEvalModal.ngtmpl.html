@@ -33,7 +33,7 @@
         <div class="cell check middle"></div>
         <div class="cell controls middle">
           <div class="btn-group btn-group-sm">
-            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].options">{{item}}</label>
+            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].buttons">{{item}}</label>
           </div>
         </div>
       </div>
@@ -45,8 +45,12 @@
           </span>
         </div>
         <div class="cell controls middle">
-          <div class="btn-group btn-group-sm" ng-if="vm.sources[source].options">
-            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation[vm.sources[source].store]" uib-btn-radio="item[1]" ng-repeat="item in vm.sources[source].options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
+          <div class="btn-group btn-group-sm" ng-if="vm.sources[source].buttons">
+            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation[vm.sources[source].buttons_store]" uib-btn-radio="item[1]" ng-repeat="item in vm.sources[source].buttons" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
+          </div>
+          <div >
+            <select ng-options="v[1] as v[0] for v in vm.sources[source].dropdown" ng-model="vm.referenceAssessment.evaluation[vm.sources[source].dropdown_store]" ng-disabled="vm.isDisabled(source)" ng-if="vm.sources[source].dropdown"></select>
+            <input type="text" placeholder="{{vm.sources[source].textfield}}" ng-if="vm.sources[source].textfield" ng-disabled="vm.isDisabled(source)" ng-model="vm.referenceAssessment.evaluation[vm.sources[source].textfield_store]">
           </div>
         </div>
       </article>
@@ -56,6 +60,7 @@
         <div class="cell controls middle"><autosize-textarea placeholder="COMMENTS" ng-model="vm.referenceAssessment.evaluation['comment']"></autosize-textarea></div>
       </article>
     </div>
+    <pre>{{vm.referenceAssessment}}</pre>
   </bottom>
   <controls>
     <button type="button" ng-click="vm.modal.close()">Cancel</button>
