@@ -1,0 +1,7 @@
+<div ng-class="{'no-content': !vm.hasContent()}">
+    <ul>
+    <li ng-repeat="c in ::t.Splice">
+        {{::c.splice_Effect}} - {{::vm.getText(c)}}
+    </li>
+</ul>
+</div>

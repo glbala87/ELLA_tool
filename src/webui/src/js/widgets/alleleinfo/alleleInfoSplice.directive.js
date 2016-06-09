@@ -15,6 +15,6 @@ export class AlleleInfoSplice {
     constructor() {}
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'splice_Effect' in t);
+        return this.allele.annotation.filtered.some(t => 'Splice' in t);
     }
 }
