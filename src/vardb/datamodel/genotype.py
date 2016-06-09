@@ -22,6 +22,8 @@ class Genotype(Base):
     homozygous = Column(Boolean, nullable=False)
     sample_id = Column(Integer, ForeignKey("sample.id"), index=True, nullable=False)
     sample = relationship("Sample", backref='genotypes')
+    analysis_id = Column(Integer, ForeignKey("analysis.id"), index=True, nullable=False)
+    analysis = relationship("Analysis", backref='genotypes')
     genotypeQuality = Column("genotype_quality", Integer)
     sequencingDepth = Column("sequencing_depth", Integer)
     variantQuality = Column("variant_quality", Integer) # Assume integer, not floating point
