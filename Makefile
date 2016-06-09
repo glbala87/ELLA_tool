@@ -108,7 +108,7 @@ run-e2e-app:
 	-p $(API_PORT):$(INTERNAL_API_PORT) \
 	$(ELLA_OPTS) \
 	$(IMAGE_NAME) \
-	supervisord -c /ella/ops/dev/supervisor.cfg
+	supervisord -c /ella/ops/ci/supervisor.cfg
 	sleep 10
 
 cleanup-e2e:
