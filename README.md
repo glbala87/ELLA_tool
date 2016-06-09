@@ -6,7 +6,7 @@ Most functionality is now baked into a Makefile, run `make help` to see a quick 
 
 ### Getting started:
 - Start a development environment in Docker, run **`make dev`** - you may need to do `make build` first
-- Populate the database by visiting the `/reset` route _or do `/reset?all=true` to get an expanded data set_.
+- Populate the database by visiting the `/reset` route _or do `/reset?testset=all` to get an expanded data set_.
 
 ### More info:
 - All *system* dependencies - as in apt-packages
