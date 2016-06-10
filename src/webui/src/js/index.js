@@ -48,7 +48,7 @@ import './widgets/alleleinfo/alleleInfoClassificationComments.directive';
 import './widgets/alleleinfo/alleleInfoConsequence.directive';
 import './widgets/alleleinfo/alleleInfoReferences.directive';
 import './widgets/alleleinfo/alleleInfoSplice.directive';
-import './widgets/alleleinfo/alleleInfoSplicePopover.directive';
+import './widgets/alleleinfo/alleleInfoSplicePopoverContent.directive';
 import './widgets/alleleinfo/alleleInfoPredictionOther.directive';
 import './widgets/alleleinfo/alleleInfoFrequencyExac.directive';
 import './widgets/alleleinfo/alleleInfoFrequency1000g.directive';
