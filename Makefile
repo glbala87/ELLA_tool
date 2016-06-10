@@ -51,6 +51,8 @@ any:
 build:
 	docker build -t $(IMAGE_NAME) .
 
+dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
+dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
 dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \
@@ -102,13 +104,15 @@ run-e2e-selenium:
 	sleep 5
 
 # not re-using dev runner here because we don't want image mounting
+run-e2e-app: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
+run-e2e-app: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
 run-e2e-app:
 	docker run -d \
 	--name $(E2E_CONTAINER_NAME) \
 	-p $(API_PORT):$(INTERNAL_API_PORT) \
 	$(ELLA_OPTS) \
 	$(IMAGE_NAME) \
-	supervisord -c /ella/ops/ci/supervisor.cfg
+	supervisord -c /ella/ops/dev/supervisor.cfg
 	sleep 10
 
 cleanup-e2e:
