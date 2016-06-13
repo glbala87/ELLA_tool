@@ -15,12 +15,6 @@ from vardb.datamodel import patient, gene
 from vardb.util.mutjson import MUTJSONB
 
 
-AnalysisSampleTable = Table('analysissample', Base.metadata,
-    Column('analysis_id', Integer, ForeignKey('analysis.id')),
-    Column('sample_id', Integer, ForeignKey('sample.id'))
-)
-
-
 # Tracks which alleleassessments was ultimately used for an analysis
 # This is not to be confused with the analysis_id in AlleleAssessment table,
 # which tells which analysis the AlleleAssessment was *created* for.
@@ -34,18 +28,24 @@ class Sample(Base):
     """Represents a sample (aka one sequencing run of 1 biological sample)
 
     Can represent samples from two types of technologies, Sanger and HTS.
+
+    Note: there can be multiple samples with same name in database, and they might differ in genotypes.
+    This happens when multiple analyses, using the same sample data in pipeline, is imported.
+    They can have been run on different regions.
     """
     __tablename__ = "sample"
 
     id = Column(Integer, Sequence("id_sample_seq"), primary_key=True)
     identifier = Column(String(), nullable=False)
+    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
+    analysis = relationship('Analysis', backref='samples')
     sampleType = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     patient_id = Column(Integer, ForeignKey("patient.id"))
     patient = relationship("Patient", backref=backref("samples", order_by=id))
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     sampleConfig = Column("sample_config", JSONB)  # includes capturekit and more
 
-    __table_args__ = (Index("ix_sampleidentifier", "identifier", unique=True), )
+    __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
     def __repr__(self):
         return "<Sample('%s', '%s','%s')>" % (self.identifier, self.patient, self.sampleType)
@@ -60,8 +60,7 @@ class Analysis(Base):
     __tablename__ = "analysis"
 
     id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
-    name = Column(String(), nullable=False)
-    samples = relationship("Sample", secondary=AnalysisSampleTable)
+    name = Column(String(), nullable=False, unique=True)
     genepanelName = Column(String)
     genepanelVersion = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
