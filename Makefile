@@ -190,6 +190,7 @@ clean-provision stop-provision:
 	-docker stop -t 0 provision && docker rm provision
 
 start-provision: clean-provision
+	docker pull ousamg/baseimage:latest
 	docker run -d --name provision ousamg/baseimage:latest sleep infinity
 
 commit-provision:
