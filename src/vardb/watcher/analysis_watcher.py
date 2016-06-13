@@ -171,3 +171,4 @@ class AnalysisWatcher(object):
             # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
             except Exception:
                 log.exception("An exception occured while import a new analysis. Skipping...")
+                self.session.rollback()

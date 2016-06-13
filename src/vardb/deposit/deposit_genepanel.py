@@ -101,13 +101,11 @@ class DepositGenepanel(object):
         self.session = session
 
     def add_genepanel(self, transcripts_path, phenotypes_path, genepanelName, genepanelVersion, genomeRef='GRCh37', force_yes=False):
-        if self.session.query(gm.Genepanel).filter(gm.Genepanel.name == genepanelName,
-                                                   gm.Genepanel.version == genepanelVersion).count():
-            log.warning("{} {} already in database".format(genepanelName, genepanelVersion))
-            if not force_yes and not raw_input("Update this genepanel (Y/n)?") == 'Y':
-                log.warning("Aborting and rolling back")
-                self.session.rollback()
-                return -1
+        if self.session.query(gm.Genepanel).filter(
+            gm.Genepanel.name == genepanelName,
+            gm.Genepanel.version == genepanelVersion
+        ).count():
+            raise RuntimeError("Genepanel {} {} already in database".format(genepanelName, genepanelVersion))
 
         db_transcripts = []
         db_phenotypes = []
@@ -115,35 +113,39 @@ class DepositGenepanel(object):
         phenotypes = load_phenotypes(phenotypes_path) if phenotypes_path else None
         genes = {}
         for t in transcripts:
-            gene, created = gm.Gene.update_or_create(
+            db_gene, created = gm.Gene.get_or_create(
                 self.session,
                 hugoSymbol=t.geneSymbol,
                 ensemblGeneID=t.eGene
             )
-            genes[gene.hugoSymbol] = gene
-            if not created:
-                log.info('Updated gene {}'.format(gene))
+            genes[db_gene.hugoSymbol] = db_gene
+            if created:
+                log.info('Gene {} created.'.format(db_gene))
+            else:
+                log.debug("Gene {} already in database, not creating/updating.".format(db_gene))
 
-            db_transcript, created = gm.Transcript.update_or_create(
+            db_transcript, created = gm.Transcript.get_or_create(
                 self.session,
-                gene=gene,
+                gene=db_gene,
                 refseqName=t.refseq,
                 ensemblID=t.eTranscript,
                 genomeReference=genomeRef,
-                # Could wrap the rest in defaults{} for updating
-                chromosome=t.chromosome,
-                txStart=t.txStart,
-                txEnd=t.txEnd,
-                strand=t.strand,
-                cdsStart=t.cdsStart,
-                cdsEnd=t.cdsEnd,
-                exonStarts=t.exonStarts,
-                exonEnds=t.exonEnds
+                defaults={
+                    'chromosome': t.chromosome,
+                    'txStart': t.txStart,
+                    'txEnd': t.txEnd,
+                    'strand': t.strand,
+                    'cdsStart': t.cdsStart,
+                    'cdsEnd': t.cdsEnd,
+                    'exonStarts': t.exonStarts,
+                    'exonEnds': t.exonEnds
+                }
             )
+            if created:
+                log.info("Transcript {} created".format(db_transcript))
+            else:
+                log.debug("Transcript {} already in database, not creating/updating.".format(db_transcript))
             db_transcripts.append(db_transcript)
-
-            if not created:
-                log.info('Updated transcript {}'.format(db_transcript))
 
         if phenotypes:
             for ph in phenotypes:

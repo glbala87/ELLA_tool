@@ -4,26 +4,32 @@ import logging
 
 from vardb.datamodel import DB
 from analysis_watcher import AnalysisWatcher
+from genepanel_watcher import GenepanelWatcher
 
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-ANALYSIS_POLL_INTERVAL = 30
+POLL_INTERVAL = 30
 
 
 def start_polling(session, analyses_path, destination_path, genepanels_path):
 
+    gw = GenepanelWatcher(session, genepanels_path)
     aw = AnalysisWatcher(session, analyses_path, destination_path)
 
     while True:
         try:
+            gw.check_and_import()
+        except Exception:
+            log.exception("An exception occurred while checking for new genepanels.")
+        try:
             aw.check_and_import()
-
         except Exception:
             log.exception("An exception occurred while checking for new analyses.")
 
-        time.sleep(ANALYSIS_POLL_INTERVAL)
+        time.sleep(POLL_INTERVAL)
+
 
 if __name__ == '__main__':
 
@@ -37,7 +43,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    log.info("Polling for new analyses every: {} seconds".format(ANALYSIS_POLL_INTERVAL))
+    log.info("Polling for new analyses every: {} seconds".format(POLL_INTERVAL))
+    log.info("Polling for new genepanels every: {} seconds".format(POLL_INTERVAL))
 
     db = DB()
     db.connect()
