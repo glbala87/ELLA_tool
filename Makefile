@@ -204,6 +204,12 @@ save-and-notify:
 # DEPLOY
 #---------------------------------------------
 
+tsd-assets:
+	docker run -d --name ella-assets ousamg/ella.release
+	docker cp ella-assets:/static .
+	docker stop ella-assets
+	docker rm ella-assets
+
 dbreset: dbsleep dbreset-inner
 
 dbreset-inner:
