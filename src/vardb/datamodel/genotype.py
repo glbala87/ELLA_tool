@@ -27,7 +27,7 @@ class Genotype(Base):
     genotypeQuality = Column("genotype_quality", Integer)
     sequencingDepth = Column("sequencing_depth", Integer)
     variantQuality = Column("variant_quality", Integer) # Assume integer, not floating point
-    alleleDepth = Column(MUTJSONB, default={})  # {'A': 23, 'G': 32}  Gives depth per allele
+    alleleDepth = Column("allele_depth", MUTJSONB, default={})  # {'A': 23, 'G': 32}  Gives depth per allele
     filterStatus = Column("filter_status", String)
 
     def __repr__(self):
