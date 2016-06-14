@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 """varDB datamodel classes for entities that relate to samples."""
 
@@ -11,7 +10,7 @@ from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB # For non-mutable values
 
 from vardb.datamodel import Base
-from vardb.datamodel import patient, gene
+from vardb.datamodel import gene
 from vardb.util.mutjson import MUTJSONB
 
 
@@ -40,15 +39,13 @@ class Sample(Base):
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
     sampleType = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
-    patient_id = Column(Integer, ForeignKey("patient.id"))
-    patient = relationship("Patient", backref=backref("samples", order_by=id))
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     sampleConfig = Column("sample_config", JSONB)  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
     def __repr__(self):
-        return "<Sample('%s', '%s','%s')>" % (self.identifier, self.patient, self.sampleType)
+        return "<Sample('%s', '%s')>" % (self.identifier, self.sampleType)
 
 
 class Analysis(Base):
@@ -68,7 +65,6 @@ class Analysis(Base):
     analysisConfig = Column("analysis_config", JSONB)
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
     alleleAssessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
-
 
     __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
