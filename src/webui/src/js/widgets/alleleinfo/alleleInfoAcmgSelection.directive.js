@@ -29,6 +29,8 @@ export class ACMGSelectionController {
             templateUrl: 'ngtmpl/acmgSelectionPopover.ngtmpl.html'
         };
 
+        this.show_req = true;
+
         $scope.$watch(() => this.allele.acmg, () => {
             if (this.allele.acmg) {
                 this.setupSuggestedACMG();
