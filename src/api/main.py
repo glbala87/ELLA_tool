@@ -5,7 +5,7 @@ import logging
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request
-from flask.ext.restful import Api
+from flask_restful import Api
 from api import app, db
 from api.v1 import ApiV1
 from vardb.deposit.deposit_testdata import DepositTestdata
@@ -27,6 +27,8 @@ def setup_logging():
 
 @app.before_request
 def before_request():
+    if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
+        return
     if request.method in ['PUT', 'POST', 'DELETE']:
         log.warning(" {method} - {endpoint} - {json}".format(
             method=request.method,

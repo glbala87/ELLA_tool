@@ -75,6 +75,8 @@ import './widgets/allelecard/allelecard.directive';
 import './widgets/allelecard/allelecardcontent.directive';
 import './widgets/reportcard/reportcard.directive';
 import './widgets/isolateclick.directive';
+import './widgets/genepanelvalue/genepanelvalue.directive.js';
+
 
 
 

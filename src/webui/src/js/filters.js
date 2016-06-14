@@ -2,7 +2,12 @@
 
 import {Filter} from './ng-decorators';
 
+
 class Filters {
+
+    /*
+    Convert one or several gene panel values to a string value
+    */
 
     @Filter({
         filterName: 'split'

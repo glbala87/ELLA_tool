@@ -7,8 +7,9 @@ import os
 import sys
 import argparse
 import logging
+from jsonschema import validate
+import json
 
-import vardb.datamodel
 from vardb.datamodel import gene as gm
 
 log = logging.getLogger(__name__)
@@ -95,17 +96,38 @@ def load_transcripts(transcripts_path):
         return transcripts
 
 
+def config_valid(config):
+    filename = 'src/vardb/datamodel/genap-genepanel-config-schema.json'
+
+    with open(filename) as schema_file:
+        my_schema = json.load(schema_file)
+        validate(config, my_schema)
+
+    return True
+
+
 class DepositGenepanel(object):
 
     def __init__(self, session):
         self.session = session
 
-    def add_genepanel(self, transcripts_path, phenotypes_path, genepanelName, genepanelVersion, genomeRef='GRCh37', force_yes=False):
+    def add_genepanel(self,
+                      transcripts_path,
+                      phenotypes_path,
+                      genepanelName,
+                      genepanelVersion,
+                      genomeRef='GRCh37',
+                      config=None,
+                      force_yes=False):
+
         if self.session.query(gm.Genepanel).filter(
             gm.Genepanel.name == genepanelName,
             gm.Genepanel.version == genepanelVersion
         ).count():
             raise RuntimeError("Genepanel {} {} already in database".format(genepanelName, genepanelVersion))
+
+        if config and not config_valid(config):
+            log.error("Genepanel config not valid according to JSON schema")
 
         db_transcripts = []
         db_phenotypes = []
@@ -152,7 +174,7 @@ class DepositGenepanel(object):
                 # TODO: remove all phenotypes for the panel, we'll reinsert all
                 if ph.geneSymbol not in genes:
                     raise Exception("Cannot add phenotype '{}' for panel {}, the gene {} wasn't found in database"
-                    .format(ph.description, genepanelName, ph.geneSymbol))
+                                    .format(ph.description, genepanelName, ph.geneSymbol))
                 db_phenotype, created = gm.Phenotype.update_or_create(
                     self.session,
                     genepanelName=genepanelName,
@@ -175,9 +197,8 @@ class DepositGenepanel(object):
             version=genepanelVersion,
             genomeReference=genomeRef,
             transcripts=db_transcripts,
-            phenotypes=db_phenotypes)
-        print db_transcript
-        print db_phenotypes
+            phenotypes=db_phenotypes,
+            config=config)
         self.session.merge(genepanel)
         self.session.commit()
         log.info('Added {} {} with {} transcripts and {} phenotypes to database'
