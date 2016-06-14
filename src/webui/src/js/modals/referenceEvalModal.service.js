@@ -417,7 +417,7 @@ export class ReferenceEvalModalController {
                             options: [
                                 ['>=4 affected', 'in_many_aff'],
                                 ['3 affected', 'in_more_ff'],
-                                ['2 affected', 'in_few_affected'],
+                                ['1-2 affected', 'in_few_affected'],
                                 ['Healthy', 'in_healthy'],
                             ],
                             store: 'ref_population'
