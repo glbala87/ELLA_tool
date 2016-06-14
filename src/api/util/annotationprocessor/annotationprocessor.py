@@ -73,8 +73,8 @@ class TranscriptAnnotation(object):
         'Effect',
         'MaxEntScan-mut',
         'MaxEntScan-wild',
-        'closest-MaxEntScan',  # relevant for 'de novo'
-        'closest-dist'  # relevant for 'de novo'
+        'MaxEntScan-closest',  # relevant for 'de novo'
+        'dist'  # relevant for 'de novo'
     ]
 
     def __init__(self, config):
@@ -156,13 +156,19 @@ class TranscriptAnnotation(object):
             return dict()
 
         transcripts = dict()
+
         for data in annotation['splice']:
             if 'Transcript' not in data:
                 continue
 
             transcript_data = {'splice_' + k.replace('-', '_'): data[k] for k in TranscriptAnnotation.SPLICE_FIELDS if k in data}
             transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
-            transcripts[transcript_data['Transcript']] = transcript_data
+
+
+            if transcript_data['Transcript'] in transcripts:
+                transcripts[transcript_data['Transcript']].append(transcript_data)
+            else:
+                transcripts[transcript_data['Transcript']] = [transcript_data]
 
         return transcripts
 
@@ -208,16 +214,18 @@ class TranscriptAnnotation(object):
 
         for transcript_name in list(set(csq_transcripts.keys() +
                                         splice_transcripts.keys())):
+
             t = dict()
-            for x in [csq_transcripts,
-                      splice_transcripts]:
+            for x in [csq_transcripts]:
                 t.update(x.get(transcript_name, {}))
+            for x in [splice_transcripts]:
+                t['Splice'] = x.get(transcript_name, [])
 
             # As CSQ transcripts are treated as master,
             # promote others if CSQ is not available
             if 'Transcript_version' not in t:
-                if 'splice_Transcript_version' in t:
-                    t['Transcript_version'] = t['splice_Transcript_version']
+                if ('Splice' in t) and (len(t['Splice'])) and ('splice_Transcript_version' in t['Splice'][0]):
+                        t['Transcript_version'] = t['Splice'][0]['splice_Transcript_version']
 
             transcripts.append(t)
 
