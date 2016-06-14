@@ -1,11 +1,11 @@
 import os
+import sys
 import glob
 import json
 import openpyxl
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-EXCELSEARCH = os.path.join(SCRIPT_PATH, '../../../docs/WebUI_config_rules*.xlsx')
-EXCELDOC = glob.glob(EXCELSEARCH)[0]
+EXCELDOC = sys.argv[1]
 
 
 CODES = [
