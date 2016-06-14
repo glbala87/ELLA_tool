@@ -1,5 +1,5 @@
 """varDB datamodel classes for Gene and Transcript"""
-from sqlalchemy import Column, Sequence, Integer, String, Table, Enum
+from sqlalchemy import Column, Sequence, Integer, String, Table, Enum, UniqueConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -24,12 +24,16 @@ class Gene(Base):
 class Transcript(Base):
     """Represents a gene transcript"""
     __tablename__ = "transcript"
+    __table_args__ = (
+        UniqueConstraint('refseqName', 'ensemblID', name='transcript_unique'),
+
+    )
 
     id = Column(Integer, Sequence("id_transcript_seq"), primary_key=True)
     gene_id = Column(String(20), ForeignKey("gene.hugoSymbol"), nullable=False)
     gene = relationship("Gene", lazy="joined")
-    refseqName = Column(String(15), unique=True)
-    ensemblID = Column(String(15), unique=True)
+    refseqName = Column(String(15))
+    ensemblID = Column(String(15))
     genomeReference = Column(String(15), nullable=False)
     chromosome = Column(String(10), nullable=False)
     txStart = Column(Integer, nullable=False)  # TODO: Use Postgres int4range when SQLAlchemy supports it

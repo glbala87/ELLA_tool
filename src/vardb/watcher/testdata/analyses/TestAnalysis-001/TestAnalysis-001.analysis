@@ -1,0 +1,12 @@
+{
+    "params": {
+        "genepanel": "EEogPU_v02"
+    },
+    "type": "exome",
+    "name": "TestAnalysis-001",
+    "samples": [
+        "TestSample-001",
+        "TestSample-002",
+        "TestSample-003"
+    ]
+}
