@@ -93,7 +93,7 @@ class ACMGDataLoader(object):
                 if transcript:
                     annotation_data["genepanel"] = resolver.resolve(transcript['SYMBOL'])
                 else:
-                    annotation_data["genepanel"] = resolver.resolve(None)  # TODO: should not happen. Raise exception?
+                    annotation_data["genepanel"] = resolver.resolve(None)
 
             passed_data = self.get_acmg_codes(annotation_data)
             allele_classifications[a['id']] = {

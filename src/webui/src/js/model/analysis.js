@@ -40,11 +40,16 @@ export default class Analysis {
         }
     }
 
-
-    // a dict whose keys are the possible properties of a genepanel and their values
-    // The values are either a primitive or an object. The object form indicates the value
-    // is "hardcoded" in the genepanel config, as opposed to being calculated from
-    // the panels phenotypes/transcripts. The object form looks like {'_type': 'genepanel_override', value: primitive}
+    /**
+     *
+     * The values in the object are either a primitive or an object. The object form indicates the value
+     * is "hardcoded"/overridden in the genepanel config, as opposed to being calculated from
+     * the panels phenotypes/transcripts. The object form looks like {'_type': 'genepanel_override', value: primitive}
+     *
+     * @param geneSymbol
+     * @param default_genepanel_config
+     * @returns {object} the keys are the possible properties of a genepanel and the value is the value of the property
+     */
     calculateGenepanelConfig(geneSymbol, default_genepanel_config) {
         let result = {};
         let props = ['last_exon', 'disease_mode']; // see api/util/genepanelconfig.py#COMMON_GENEPANEL_CONFIG
