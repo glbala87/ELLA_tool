@@ -126,8 +126,8 @@ class DepositGenepanel(object):
         ).count():
             raise RuntimeError("Genepanel {} {} already in database".format(genepanelName, genepanelVersion))
 
-        if config and not config_valid(config):
-            log.error("Genepanel config not valid according to JSON schema")
+        if config:
+            config_valid(config)  # raises exception
 
         db_transcripts = []
         db_phenotypes = []
