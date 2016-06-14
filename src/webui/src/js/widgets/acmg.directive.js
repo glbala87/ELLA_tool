@@ -40,7 +40,10 @@ export class AcmgController {
     }
 
     getSource() {
-        return this.code.source.split('.').slice(1).join('->');
+        if (this.code.source) {
+            return this.code.source.split('.').slice(1).join('->');
+        }
+        return 'N/A';
     }
 
     getACMGclass(code) {

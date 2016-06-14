@@ -71,18 +71,29 @@ class TranscriptAnnotation(object):
         'HGVSp',
         'STRAND',
         'Amino_acids',
-        'Existing_variation'
+        'Existing_variation',
+        'EXON',
+        'INTRON'
     ]
 
     SPLICE_FIELDS = [
         'Effect',
         'MaxEntScan-mut',
         'MaxEntScan-wild',
-        'pos' # akwardly relevant for for 'de novo' only
+        'closest-MaxEntScan',  # relevant for 'de novo'
+        'closest-dist'  # relevant for 'de novo'
     ]
 
     def __init__(self, config):
         self.config = config
+
+    def _get_is_last_exon(self, transcript_data):
+
+        exon = transcript_data.get('EXON')
+        if exon:
+            parts = exon.split('/')
+            return parts[0] == parts[1]
+        return False
 
     def _get_worst_consequence(self, transcripts):
         """
@@ -141,6 +152,8 @@ class TranscriptAnnotation(object):
                 transcript_data['HGVSc_short'] = transcript_data['HGVSc'].split(':', 1)[1]
             if 'HGVSp' in transcript_data:
                 transcript_data['HGVSp_short'] = transcript_data['HGVSp'].split(':', 1)[1]
+            is_last_exon = self._get_is_last_exon(transcript_data)
+            transcript_data['in_last_exon'] = 'yes' if is_last_exon else 'no'
             transcripts[transcript_data['Transcript']] = transcript_data
         return transcripts
 

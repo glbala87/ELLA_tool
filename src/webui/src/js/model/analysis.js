@@ -3,12 +3,11 @@
 export default class Analysis {
     /**
      * Represents one Analysis.
-     * 
+     *
      * Also holds the genepanel (which should be model.Genepanel in the future)
      * @param  {object} Analysis data from server, see api/v1/interpretations/
      */
     constructor(data) {
-        console.log('Constructor for Analysis with id=' + data.id);
         Object.assign(this, data);
 
     }
@@ -97,7 +96,7 @@ export default class Analysis {
 
     }
 
-    
+
     getInterpretationId() {
         // TODO: implement me
         return this.interpretations[this.interpretations.length - 1].id;

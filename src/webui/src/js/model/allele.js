@@ -46,10 +46,6 @@ export class Allele {
         }
     }
 
-    getDbSNPUrl(dbsnp) {
-        return `http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${dbsnp}`;
-    }
-
     getHGMDUrl() {
         if ('HGMD' in this.annotation.external &&
             'acc_num' in this.annotation.external.HGMD) {
@@ -76,7 +72,44 @@ export class Allele {
         if ('esp6500' in this.annotation.frequencies) {
             return `http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome&chromosome=${this.chromosome}&chromoStart=${this.startPosition+1}&chromoEnd=${this.openEndPosition}&x=0&y=0`
         }
-
     }
 
+    /**
+     * Convenience function for getting the urls dynamically.
+     * Used by allelecardcontent to get the header links.
+     */
+    getUrl(type) {
+        let types = {
+            'ExAC': () => this.getExACUrl(),
+            'HGMD Pro': () => this.getHGMDUrl(),
+            'Clinvar': () => this.getClinvarUrl(),
+            '1000g': () => this.get1000gUrl(),
+            'ESP6500': () => this.getESP6500Url()
+        }
+        if (type in types) {
+            return types[type]();
+        }
+        return '';
+    }
+
+    /**
+     * Filters the list of ACMG codes based on the selector.
+     * Selector example: 'frequencies.ExAC'
+     */
+    getACMGCodes(selector) {
+        if (selector) {
+            if (this.acmg &&
+                this.acmg.codes) {
+                return this.acmg.codes.filter(c => {
+                    return c.source === selector;
+                });
+            }
+            else {
+                return [];
+            }
+        }
+        else {
+            return this.acmg.codes;
+        }
+    }
 }
