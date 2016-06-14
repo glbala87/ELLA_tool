@@ -27,35 +27,41 @@
     <p>{{vm.reference.getShortDesc()}}</p>
   </secondary>
   <bottom>
-    <div class='question-set'>
-      <div class='trow'>
-        <div class="cell title middle"> <h5> Relevance </h5> <p> Is the reference relevant? </p> </div>
-        <div class="cell check middle"></div>
-        <div class="cell controls middle">
-          <div class="btn-group btn-group-sm">
-            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].options">{{item}}</label>
+    <article class='line-wrapper question'>
+      <div class="left"> <h5> Relevance </h5> <p> Is the reference relevant? </p> </div>
+      <div class="middle"></div>
+      <div class="right">
+        <div class="btn-group btn-group-sm">
+          <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].buttons">{{item}}</label>
+        </div>
+      </div>
+    </article>
+    <article class='line-wrapper question' ng-repeat="source in vm.getSources() track by source" ng-if="vm.shouldShow(source)">
+      <div class="left"> <h5> {{vm.sources[source].title}} </h5> <p> {{vm.sources[source].desc}} </p> </div>
+      <div class="middle">
+        <span ng-if="vm.sources[source].optional">
+          <input type="checkbox" class="box" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
+        </span>
+      </div>
+      <div class="right line-wrapper">
+        <div class="multiple-question-element" ng-repeat="elem in vm.sources[source].elements">
+          <div class="btn-group btn-group-sm" ng-if="::elem.type == 'button'">
+            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation[elem.store]" uib-btn-radio="item[1]" ng-repeat="item in elem.options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
+          </div>
+          <div ng-if="::elem.type == 'dropdown'">
+            <select class="form-control" ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]" ng-disabled="vm.isDisabled(source)"></select>
+          </div>
+          <div ng-if="::elem.type == 'text'">
+            <input type="text" placeholder="{{elem.placeholder || ''}}" ng-disabled="vm.isDisabled(source)" ng-model="vm.referenceAssessment.evaluation[elem.store]">
           </div>
         </div>
       </div>
-      <article class='trow' ng-repeat="source in vm.getSources() track by source" ng-if="vm.shouldShow(source)">
-        <div class="cell title middle"> <h5> {{vm.sources[source].title}} </h5> <p> {{vm.sources[source].desc}} </p> </div>
-        <div class="cell check middle">
-          <span ng-if="vm.sources[source].optional">
-            <input type="checkbox" class="box" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
-          </span>
-        </div>
-        <div class="cell controls middle">
-          <div class="btn-group btn-group-sm" ng-if="vm.sources[source].options">
-            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation[vm.sources[source].store]" uib-btn-radio="item[1]" ng-repeat="item in vm.sources[source].options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
-          </div>
-        </div>
-      </article>
-      <article class="trow">
-        <div class="cell title middle"> <h5> Comments </h5></div>
-        <div class="cell check middle"></div>
-        <div class="cell controls middle"><autosize-textarea placeholder="COMMENTS" ng-model="vm.referenceAssessment.evaluation['comment']"></autosize-textarea></div>
-      </article>
-    </div>
+    </article>
+    <article class="line-wrapper question">
+      <div class="left"> <h5> Comments </h5></div>
+      <div class="middle"></div>
+      <div class="right"><autosize-textarea placeholder="COMMENTS" ng-model="vm.referenceAssessment.evaluation['comment']"></autosize-textarea></div>
+    </article>
   </bottom>
   <controls>
     <button type="button" ng-click="vm.modal.close()">Cancel</button>
