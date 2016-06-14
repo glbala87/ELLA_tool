@@ -15,8 +15,8 @@
   <acmg class="suggested wide" code="code" ng-repeat="code in vm.getREQCodes() track by $index" ng-if="vm.show_req"></acmg>
 
   <div>
-    <button class="acmg-add" ng-if="::vm.isEditable()" uib-popover-template="vm.popover.templateUrl"
-            popover-append-to-body=true
+    <button class="acmg-add" uib-popover-template="vm.popover.templateUrl"
+            popover-append-to-body="true"
             popover-title="Add ACMG code"
             popover-trigger="outsideClick"
             popover-placement="auto right">Add code</button>
