@@ -19,9 +19,9 @@ module.exports = function(config) {
           "../src/thirdparty/angular/1.5.0-rc2/angular-mocks.js",
           "../dev/app.js",
           "../src/js/**/*.js",
-          // "../tests/unit/**/*.spec.js",
+          "../tests/unit/**/*.spec.js",
           // "../tests/unit/**/analysis.spec.js",
-          "../tests/unit/**/filters.spec.js",
+          // "../tests/unit/**/filters.spec.js",
           "../dev/templates.js"
     ],
 
