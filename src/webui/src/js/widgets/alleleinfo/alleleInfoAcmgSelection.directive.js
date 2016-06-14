@@ -6,9 +6,7 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-acmg-selection',
     scope: {
         allele: '=',
-        alleleState: '=',
-        editable: '=?', // Tells whether the widget as a whole is editable.
-        showSuggested: '=?' // Whether to show suggested classification
+        alleleState: '='
     },
     templateUrl: 'ngtmpl/alleleInfoAcmgSelection.ngtmpl.html'
 })
@@ -55,13 +53,11 @@ export class ACMGSelectionController {
     }
 
     updateSuggestedClassification() {
-        if (!this.showSuggested) {
-            return;
-        }
         // Clear current in case something goes wrong
         // Having no result is better than wrong result
         this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = null;
         let codes = this.alleleState.alleleassessment.evaluation.acmg.included.map(i => i.code);
+
         if (codes.length) {
             this.acmgClassificationResource.getClassification(codes).then(result => {
                 this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = result.class;
@@ -116,11 +112,6 @@ export class ACMGSelectionController {
     isIncludable(code) {
         return !code.startsWith('REQ');
     }
-
-    isEditable() {
-        return this.editable !== undefined ? this.editable : true;
-    }
-
 
     /**
      * Lets user include a code not provided by backend.
