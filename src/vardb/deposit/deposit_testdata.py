@@ -98,7 +98,7 @@ class DepositTestdata(object):
 
     def remake_db(self):
         # We must import all models before recreating database
-        from vardb.datamodel import allele, genotype, assessment, sample, patient, disease, gene, annotation  # needed
+        from vardb.datamodel import allele, genotype, assessment, sample, gene, annotation  # needed
 
         vardb.datamodel.Base.metadata.drop_all(self.engine)
         vardb.datamodel.Base.metadata.create_all(self.engine)
