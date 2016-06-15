@@ -1,5 +1,5 @@
 """varDB datamodel classes for Gene and Transcript"""
-from sqlalchemy import Column, Sequence, Integer, String, Table, Enum
+from sqlalchemy import Column, Sequence, Integer, String, Table, Enum, UniqueConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -24,12 +24,16 @@ class Gene(Base):
 class Transcript(Base):
     """Represents a gene transcript"""
     __tablename__ = "transcript"
+    __table_args__ = (
+        UniqueConstraint('refseqName', 'ensemblID', name='transcript_unique'),
+
+    )
 
     id = Column(Integer, Sequence("id_transcript_seq"), primary_key=True)
     gene_id = Column(String(20), ForeignKey("gene.hugoSymbol"), nullable=False)
     gene = relationship("Gene", lazy="joined")
-    refseqName = Column(String(15), unique=True)
-    ensemblID = Column(String(15), unique=True)
+    refseqName = Column(String(15))
+    ensemblID = Column(String(15))
     genomeReference = Column(String(15), nullable=False)
     chromosome = Column(String(10), nullable=False)
     txStart = Column(Integer, nullable=False)  # TODO: Use Postgres int4range when SQLAlchemy supports it
@@ -39,6 +43,18 @@ class Transcript(Base):
     cdsEnd = Column(Integer, nullable=False)
     exonStarts = Column("exon_starts", ARRAY(Integer), nullable=False) # giving dimensions does not work
     exonEnds = Column("exon_ends", ARRAY(Integer), nullable=False)
+
+    @staticmethod
+    def get_name(name):
+        """
+
+        :param name:
+        :return: the name with version stripped off
+        """
+        return name.split('.', 1)[0] if '.' in name else name
+
+    def get_unversioned_name(self):
+        return Transcript.get_name(self.refseqName)
 
     def __repr__(self):
         return "<Transcript('%s','%s', '%s', '%s', '%s', '%s')>" % (self.gene, self.refseqName, self.chromosome, self.txStart, self.txEnd, self.strand)
@@ -66,7 +82,7 @@ class Genepanel(Base):
     transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
     phenotypes = relationship("Phenotype", lazy='joined')
 
-    config = Column(MUTJSONB, default={})
+    config = Column(MUTJSONB, default={})  # format defined by
 
 
     def __repr__(self):
@@ -74,6 +90,14 @@ class Genepanel(Base):
 
     def __str__(self):
         return '_'.join((self.name, "OUS", "medGen", self.version, self.genomeReference))
+
+    def find_inheritance(self, symbol):
+        if not self.phenotypes:
+            return None
+
+        return map(lambda ph: ph.inheritance, filter(lambda ph: symbol == ph.gene_id, self.phenotypes))
+
+
 
     @staticmethod
     def create_or_update_genepanel(session, name, version, genomeRef, transcripts):

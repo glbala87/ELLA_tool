@@ -13,14 +13,17 @@ from api.v1.resource import Resource
 class AlleleListResource(Resource):
 
     @rest_filter
-    def get(self, session, rest_filter=None):
+    def get(self, session, rest_filter=None, allele_ids=None):
         """
-        Loads alleles based on q={} filter.
+        Loads alleles based on q={} filter or  allele ids directly
         Additional parameters:
             - sample_id: Includes genotypes into the result and enables quality data in the annotation
             - genepanel: Enables the annotation to filter transcripts to only show the relevant ones.
             -
         """
+
+        if allele_ids and not rest_filter:
+            rest_filter = {'id': allele_ids}
 
         alleles = self.list_query(session, allele.Allele, rest_filter=rest_filter)
         allele_ids = [a.id for a in alleles]
@@ -31,6 +34,8 @@ class AlleleListResource(Resource):
         annotation = request.args.get('annotation', 'true') == 'true'
 
         genotypes = None
+        allele_genotypes = None
+
         if sample_id:
             genotypes = session.query(genotype.Genotype).join(sample.Sample).filter(
                 sample.Sample.id == sample_id,
@@ -61,7 +66,7 @@ class AlleleListResource(Resource):
         }
         if allele_genotypes:
             kwargs['genotypes'] = allele_genotypes
-        if genepanel:
+        if genepanel:  # TODO: make genepanel required?
             kwargs['genepanel'] = genepanel
         if annotation:
             kwargs['include_annotation'] = True

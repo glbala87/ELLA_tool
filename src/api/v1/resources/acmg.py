@@ -12,6 +12,13 @@ from api.v1.resource import Resource
 class ACMGAlleleResource(Resource):
 
     def get_alleles(self, session, allele_ids):
+        """
+
+        :param session:
+        :param allele_ids:
+        :return: alleles
+        :rtype: allele.Allele
+        """
         if allele_ids:
             return session.query(allele.Allele).filter(
                 allele.Allele.id.in_(allele_ids)
@@ -20,6 +27,17 @@ class ACMGAlleleResource(Resource):
             return []
 
     def get_genepanel(self, session, gp_name, gp_version):
+        """
+        Look up a genepanel
+
+        :param session:
+        :param gp_name:
+        :type gp_name: str
+        :param gp_version:
+        :type gp_version: str
+        :return: gene panel
+        :rtype:  vardb.datamodel.gene.Genepanel
+        """
         return session.query(gene.Genepanel).filter(
             gene.Genepanel.name == gp_name,
             gene.Genepanel.version == gp_version
@@ -70,7 +88,7 @@ class ACMGAlleleResource(Resource):
             if 'gp_name' in data and 'gp_version' in data:
                 genepanel = self.get_genepanel(session, data['gp_name'], data['gp_version'])
             else:
-                raise ApiError("You need to provide either 'analysis_id' or both 'gp_name' and 'gp_version'")
+                raise ApiError("You need to provide both 'gp_name' and 'gp_version' when 'allele_ids' is given")
 
         return ACMGDataLoader(session).from_objs(
             alleles,

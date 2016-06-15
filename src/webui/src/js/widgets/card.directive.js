@@ -6,16 +6,18 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'card',
     templateUrl: 'ngtmpl/card.ngtmpl.html',
     transclude: {
-        topLeft: '?header',
-        topRight: '?status',
-        content: 'content',
+        primary: '?primary',
+        secondary: '?secondary',
+        bottom: 'bottom',
         expanded: '?expanded',
         controls: '?controls'
     },
     scope: {
         options: '=', // {collapsed: bool, expanded: bool}
         collapsible: '=?', // bool: whether card can collapse
-        color: '@'
+        modal: '=?', // bool: whether card is part of a modal
+        color: '@',
+        onClose: '&'
     }
 })
 @Inject('$transclude')
@@ -37,6 +39,14 @@ export class CardController {
 
     isCollapsible() {
         return this.collapsible === undefined || this.collapsible;
+    }
+
+    isModal() {
+        return this.modal != undefined || this.modal;
+    }
+
+    close() {
+      this.onClose()();
     }
 
     /**

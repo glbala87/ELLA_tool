@@ -46,6 +46,7 @@ class GenepanelSchema(Schema):
         fields = ('name',
                   'version',
                   'transcripts',
-                  'phenotypes')
+                  'phenotypes',
+                  'config')
     transcripts = fields.Nested(TranscriptSchema, many=True)
     phenotypes = fields.Nested(PhenotypeSchema, many=True)

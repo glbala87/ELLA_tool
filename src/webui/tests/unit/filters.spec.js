@@ -3,7 +3,6 @@ describe("filter", function () {
 
     var $filter;
 
-
     describe("isEmpty", function () {
         var f;
 

@@ -7,8 +7,9 @@ import os
 import sys
 import argparse
 import logging
+from jsonschema import validate
+import json
 
-import vardb.datamodel
 from vardb.datamodel import gene as gm
 
 log = logging.getLogger(__name__)
@@ -61,19 +62,38 @@ def load_transcripts(transcripts_path):
         return transcripts
 
 
+def config_valid(config):
+    filename = 'src/vardb/datamodel/genap-genepanel-config-schema.json'
+
+    with open(filename) as schema_file:
+        my_schema = json.load(schema_file)
+        validate(config, my_schema)
+
+    return True
+
+
 class DepositGenepanel(object):
 
     def __init__(self, session):
         self.session = session
 
-    def add_genepanel(self, transcripts_path, phenotypes_path, genepanelName, genepanelVersion, genomeRef='GRCh37', force_yes=False):
-        if self.session.query(gm.Genepanel).filter(gm.Genepanel.name == genepanelName,
-                                                   gm.Genepanel.version == genepanelVersion).count():
-            log.warning("{} {} already in database".format(genepanelName, genepanelVersion))
-            if not force_yes and not raw_input("Update this genepanel (Y/n)?") == 'Y':
-                log.warning("Aborting and rolling back")
-                self.session.rollback()
-                return -1
+    def add_genepanel(self,
+                      transcripts_path,
+                      phenotypes_path,
+                      genepanelName,
+                      genepanelVersion,
+                      genomeRef='GRCh37',
+                      config=None,
+                      force_yes=False):
+
+        if self.session.query(gm.Genepanel).filter(
+            gm.Genepanel.name == genepanelName,
+            gm.Genepanel.version == genepanelVersion
+        ).count():
+            raise RuntimeError("Genepanel {} {} already in database".format(genepanelName, genepanelVersion))
+
+        if config:
+            config_valid(config)  # raises exception
 
         db_transcripts = []
         db_phenotypes = []
@@ -81,42 +101,47 @@ class DepositGenepanel(object):
         phenotypes = load_phenotypes(phenotypes_path) if phenotypes_path else None
         genes = {}
         for t in transcripts:
-            gene, created = gm.Gene.update_or_create(
+            db_gene, created = gm.Gene.get_or_create(
                 self.session,
                 hugoSymbol=t['geneSymbol'],
                 ensemblGeneID=t['eGeneID']
             )
-            genes[gene.hugoSymbol] = gene
-            if not created:
-                log.info('Updated gene {}'.format(gene))
+            genes[db_gene.hugoSymbol] = db_gene
+            if created:
+                log.info('Gene {} created.'.format(db_gene))
+            else:
+                log.debug("Gene {} already in database, not creating/updating.".format(db_gene))
 
-            db_transcript, created = gm.Transcript.update_or_create(
+
+            db_transcript, created = gm.Transcript.get_or_create(
                 self.session,
-                gene=gene,
+                gene=db_gene,
                 refseqName=t['refseq'],
                 ensemblID=t['eTranscriptID'],
                 genomeReference=genomeRef,
-                # Could wrap the rest in defaults{} for updating
-                chromosome=t['chromosome'],
-                txStart=t['txStart'],
-                txEnd=t['txEnd'],
-                strand=t['strand'],
-                cdsStart=t['cdsStart'],
-                cdsEnd=t['cdsEnd'],
-                exonStarts=t['exonsStarts'],
-                exonEnds=t['exonEnds']
+                defaults={
+                    'chromosome': t['chromosome'],
+                    'txStart': t['txStart'],
+                    'txEnd': t['txEnd'],
+                    'strand': t['strand'],
+                    'cdsStart': t['cdsStart'],
+                    'cdsEnd': t['cdsEnd'],
+                    'exonStarts': t['exonsStarts'],
+                    'exonEnds': t['exonEnds']
+                }
             )
+            if created:
+                log.info("Transcript {} created".format(db_transcript))
+            else:
+                log.debug("Transcript {} already in database, not creating/updating.".format(db_transcript))
             db_transcripts.append(db_transcript)
-
-            if not created:
-                log.info('Updated transcript {}'.format(db_transcript))
 
         if phenotypes:
             for ph in phenotypes:
                 # TODO: remove all phenotypes for the panel, we'll reinsert all
                 if ph['gene symbol'] not in genes:
                     raise Exception("Cannot add phenotype '{}' for panel {}, the gene {} wasn't found in database"
-                    .format(ph['phenotype'], genepanelName, ph['gene symbol']))
+                                    .format(ph.description, genepanelName, ph.geneSymbol))
                 db_phenotype, created = gm.Phenotype.update_or_create(
                     self.session,
                     genepanelName=genepanelName,
@@ -139,7 +164,8 @@ class DepositGenepanel(object):
             version=genepanelVersion,
             genomeReference=genomeRef,
             transcripts=db_transcripts,
-            phenotypes=db_phenotypes)
+            phenotypes=db_phenotypes,
+            config=config)
         self.session.merge(genepanel)
         self.session.commit()
         log.info('Added {} {} with {} transcripts and {} phenotypes to database'
@@ -175,7 +201,7 @@ def main(argv=None):
     assert genepanelVersion.startswith('v')
 
     dg = DepositGenepanel()
-    return dg.add_genepanel(args.transcriptsPath, None, genepanelName, genepanelVersion, genomeRef=args.genomeRef, force_yes=args.force)
+    return dg.add_genepanel(args.transcriptsPath, None, genepanelName, genepanelVersion, genomeRef=args.genomeRef, config=None, force_yes=args.force)
 
 
 if __name__ == "__main__":

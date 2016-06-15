@@ -18,17 +18,26 @@ from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users
 from vardb.deposit.deposit import Importer
 
+from vardb.util import vcfiterator
+
 log = logging.getLogger(__name__)
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # Paths are relative to script dir
+# see vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 
+config_hboc = {"meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "some date"},
+               "data": {"BRCA2": {
+                                  "lo_freq_cutoff": 0.0005,
+                                  "hi_freq_cutoff": 0.008,
+                                  "last_exon": False,
+                                  "comment": "a comment from the genepanel config"}}}
 GENEPANELS = [
-    {
+    {   'config': config_hboc,
         'transcripts': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv',
         'name': 'HBOCUTV',
@@ -90,9 +99,13 @@ class DepositTestdata(object):
         self.engine = db.engine
         self.session = db.session
 
+    def _get_vcf_samples(self, vcf_path):
+        vi = vcfiterator.VcfIterator(vcf_path)
+        return vi.getSamples()
+
     def remake_db(self):
         # We must import all models before recreating database
-        from vardb.datamodel import allele, genotype, assessment, sample, patient, disease, gene, annotation  # needed
+        from vardb.datamodel import allele, genotype, assessment, sample, gene, annotation  # needed
 
         vardb.datamodel.Base.metadata.drop_all(self.engine)
         vardb.datamodel.Base.metadata.create_all(self.engine)
@@ -109,7 +122,6 @@ class DepositTestdata(object):
         if test_set is None:
             testset = next(v for v in VCF if v.get('default'))
         else:
-            print test_set
             testset = next(v for v in VCF if v['name'] == test_set)
 
         vcf_paths = glob.glob(os.path.join(SCRIPT_DIR, testset['path'], '*.vcf'))
@@ -117,19 +129,35 @@ class DepositTestdata(object):
         for vcf_path in vcf_paths:
             importer = Importer(self.session)
             try:
+                vcf_path = os.path.join(SCRIPT_DIR, vcf_path)
                 filename = os.path.basename(vcf_path)
                 # Get last part of filename before ext 'sample.HBOC_v00.vcf'
                 gp_part = os.path.splitext(filename)[0].split('.')[-1].split('_')
+
+                sample_name = os.path.splitext(filename)[0].split('.')[-1].split('_')
                 kwargs = {
                     'genepanel_name': gp_part[0],
                     'genepanel_version': gp_part[1],
-                    'import_assessments': testset.get('import_assessments', False)
+                    'import_assessments': testset.get('import_assessments', False),
+                    'sample_configs': [{
+                        'name': self._get_vcf_samples(vcf_path)[0]
+                    }],
+                    'analysis_config': {
+                        'name': '{}-{}-{}'.format(
+                            self._get_vcf_samples(vcf_path)[0],
+                            *gp_part
+                        ),
+                        'params': {
+                            'genepanel': '_'.join(gp_part)
+                        }
+                    }
                 }
                 importer.importVcf(
-                    os.path.join(SCRIPT_DIR, vcf_path),
+                    vcf_path,
                     **kwargs
                 )
-                log.info("Deposited {}".format(vcf_path))
+                log.info("Deposited {} using panel {} {}".
+                         format(vcf_path, kwargs['genepanel_name'], kwargs['genepanel_version']))
                 self.session.commit()
 
             except UserWarning as e:
@@ -144,6 +172,7 @@ class DepositTestdata(object):
                 os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
+                config=gpdata['config'] if 'config' in gpdata else None,
                 force_yes=True
             )
 

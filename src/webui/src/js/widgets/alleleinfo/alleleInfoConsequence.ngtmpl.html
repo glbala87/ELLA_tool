@@ -1,0 +1,15 @@
+<div class="content-box">
+  <h3 class="title">Consequence</h3>
+  <div ng-if="::vm.allele.annotation.hasWorseConsequence()">
+    <h5>Worse consequences found in:</h5>
+    <ul>
+      <li ng-repeat="t in ::vm.allele.annotation.getWorseConsequenceTranscripts()">{{::t.Consequence.join(',')}} in {{::t.Transcript}}.{{::t.Transcript_version}}</li>
+    </ul>
+  </div>
+  <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript">
+      <transcript-wrapper transcript="t">
+          <p ng-repeat="c in ::t.Consequence">{{::c}}</p>
+      </transcript-wrapper>
+  </div>
+  <acmg class="suggested disabled" ng-repeat="code in vm.allele.getACMGCodes('transcript.Consequence')" code="code"></acmg>
+</div>

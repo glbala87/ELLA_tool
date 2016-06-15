@@ -1,7 +1,16 @@
-<div class='acmg-selection-popover'>
-  <div class="acmg-popover-row" ng-repeat="r in vm.acmgCandidates">
-    <div class="suggested disabled" ng-repeat="v in r">
-      <div class="acmg" ng-class="::vm.getACMGClass(v)" ng-click="vm.addACMGCode(v)"><h4>{{::v}}</h4></div>
+<div class="acmg-selection-popover">
+  <div class="acmg-popover-column">
+    <div class="acmg-popover-row" ng-repeat="r in vm.acmgCandidates.pathogenic">
+      <div class="suggested disabled">
+        <div class="acmg" ng-class="::vm.getACMGClass(r)" ng-click="vm.addACMGCode(r)"><h4>{{::r}}</h4> <div class="note">{{::vm.getExplanationForCode(r).short_criteria}}</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="acmg-popover-column">
+    <div class="acmg-popover-row" ng-repeat="r in vm.acmgCandidates.benign">
+      <div class="suggested disabled">
+        <div class="acmg" ng-class="::vm.getACMGClass(r)" ng-click="vm.addACMGCode(r)"><h4>{{::r}}</h4> <div class="note">{{::vm.getExplanationForCode(r).short_criteria}}</div></div>
+      </div>
     </div>
   </div>
 </div>

@@ -2,7 +2,12 @@
 
 import {Filter} from './ng-decorators';
 
+
 class Filters {
+
+    /*
+    Convert one or several gene panel values to a string value
+    */
 
     @Filter({
         filterName: 'split'
@@ -33,6 +38,18 @@ class Filters {
     defaultFilter() {
         return (input, text) => {
             return input ? input : text;
+        };
+    }
+
+    @Filter({
+        filterName: 'HGVS_firsthalf'
+    })
+    HGVS_firsthalfFilter() {
+        return (input) => {
+            if (input) {
+                return input.split(':')[0];
+            }
+            return '';
         };
     }
 

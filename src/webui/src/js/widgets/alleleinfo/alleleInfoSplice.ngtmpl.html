@@ -1,0 +1,16 @@
+<div class="content-box" ng-class="{'no-content': !vm.hasContent()}">
+  <h3 class="title">Splice</h3>
+  <div class="hoverable" ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript"
+    popover-trigger="outsideClick"
+    uib-popover-template="'ngtmpl/alleleInfoSplicePopover.ngtmpl.html'"
+    popover-title="Splice predictions"
+    popover-placement="auto top"
+  >
+    <transcript-wrapper  transcript="t">
+
+                         <p ng-repeat="c in ::t.Splice">
+                             {{::c.splice_Effect}}
+                         </p>
+    </transcript-wrapper>
+  </div>
+</div>

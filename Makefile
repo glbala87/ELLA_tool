@@ -1,4 +1,4 @@
-.PHONY: any help build dev kill shell logs restart test-build test single-test run-test e2e-test run-e2e-test run-e2e-selenium run-e2e-app cleanup-e2e test-all test-api test-common test-js test-e2e set-release-var release dev-release create-release get-ansible run-ansible commit-provision stop-provision clean-ansible
+.PHONY: any help build dev kill shell logs restart test-build test single-test run-test e2e-test run-e2e-test run-e2e-selenium run-e2e-app cleanup-e2e test-all test-api test-common test-js test-e2e release core create-release run-ansible commit-provision setup-release ensure-clean clean-provision stop-provision add-production-elements copy start-provision
 
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 ANY = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}')
@@ -8,19 +8,21 @@ INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use conta
 API_HOST ?= 'localhost'
 TEST_NAME ?= all
 TEST_COMMAND ?=''
-CONTAINER_NAME = ella-$(BRANCH)-$(USER)
+CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
 SELENIUM_CONTAINER_NAME = selenium
 SELENIUM_ADDRESS ?= 'http://localhost:4444/wd/hub'
-BUILD_TYPE ?= core
-BUILD_VERSION ?= 0.9.1
+BUILD_TYPE ?=core
+BUILD_VERSION ?=0.9.2
+BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
 
 help :
 	@echo ""
 	@echo "-- DEV COMMANDS --"
 	@echo "make build		- build image $(IMAGE_NAME)"
 	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
@@ -35,8 +37,8 @@ help :
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make dev-release	- builds a development image named ousamg/ella-$(BUILD_TYPE):$(BUILD_VERSION)"
-	@echo "make release		- builds a production image named ousamg/ella-release:$(BUILD_VERSION)"
+	@echo "make core		- builds a core (development) image named ousamg/ella-core"
+	@echo "make release		- builds a production image named ousamg/ella-release"
 
 #---------------------------------------------
 # DEVELOPMENT
@@ -49,6 +51,8 @@ any:
 build:
 	docker build -t $(IMAGE_NAME) .
 
+dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
+dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
 dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \
@@ -57,6 +61,9 @@ dev:
 	-v $(shell pwd):/ella \
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
+
+url:
+	@./ops/dev/show-url.sh
 
 kill:
 	docker stop $(CONTAINER_NAME)
@@ -97,6 +104,8 @@ run-e2e-selenium:
 	sleep 5
 
 # not re-using dev runner here because we don't want image mounting
+run-e2e-app: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
+run-e2e-app: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
 run-e2e-app:
 	docker run -d \
 	--name $(E2E_CONTAINER_NAME) \
@@ -123,9 +132,9 @@ test-api: export DB_URL=postgres:///vardb-test
 test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
-	sleep 5
+	make dbsleep
 ifeq ($(TEST_COMMAND),) # empty?
-	py.test "/ella/src/api/" -s
+	py.test --color=yes "/ella/src/api/" -s
 else
 	$(TEST_COMMAND)
 endif
@@ -133,7 +142,7 @@ endif
 test-common: export PYTHONPATH=/ella/src
 test-common:
 ifeq ($(TEST_COMMAND),) # empty?
-	py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api
+	py.test src -k 'not test_ui' --color=yes --cov src --cov-report xml --ignore src/api
 else
 	$(TEST_COMMAND)
 endif
@@ -155,62 +164,63 @@ test-e2e:
 # BUILD / RELEASE
 #---------------------------------------------
 
-set-release-var:
-	$(eval BUILD_TYPE = release)
+setup-release: ensure-clean
+	$(eval BUILD_TYPE =release)
+	$(eval BUILD_VERSION =latest)
 
-ensure-clean: clean-ansible
+ensure-clean:
 	rm -rf node_modules
 
-define DOCKERFILE
-FROM ousamg/ella-release:$(BUILD_VERSION)
-RUN ln -sf /dev/stdout /var/log/nginx.access
-EXPOSE 80
-WORKDIR /ella
-ENTRYPOINT ["supervisord", "-c", "/ella/ops/prod/supervisor.cfg"]
-endef
-export DOCKERFILE
-create-dockerfile-runnable:
-	echo "$$DOCKERFILE" > ops/builder/Dockerfile.runnable
-build-dockerfile-runnable:
-	docker build -t ousamg/ella:$(BUILD_VERSION) -f ops/builder/Dockerfile.runnable .
-remove-dockerfile-runnable:
-	rm -rf ops/builder/Dockerfile.runnable
+add-production-elements:
+	docker build -t $(BUILD_NAME) -f ops/builder/Dockerfile.runnable .
 
-release: set-release-var ensure-clean create-prod-file start-provision remove-prod-file create-release create-dockerfile-runnable build-dockerfile-runnable remove-dockerfile-runnable
-dev-release: start-provision create-release
-create-release: get-ansible run-ansible commit-provision stop-provision clean-ansible
+release: setup-release build-image squash stop-provision add-production-elements
+build-image: start-provision create-release copy run-ansible
+core: build-image commit-provision stop-provision
 
-create-prod-file:
-	sed -i 's/# ADD/ADD/' ops/builder/Dockerfile
+push:
+	docker push $(BUILD_NAME)
 
-remove-prod-file:
-	git checkout ops/builder/Dockerfile
+squash:
+	docker export provision | docker import - $(BUILD_NAME)
 
-get-ansible:
-	virtualenv ops/builder/venv
-	ops/builder/venv/bin/pip install --upgrade ansible
+copy:
+	docker cp . provision:/ella
 
 run-ansible:
-	ops/builder/venv/bin/ansible-playbook -i provision, -c docker -u root ops/builder/builder.yml --tags=$(BUILD_TYPE)
+	docker exec -i provision ansible-playbook -i localhost, -c local /ella/ops/builder/builder.yml --tags=$(BUILD_TYPE)
 
-clean-ansible:
-	rm -rf ops/builder/venv
+clean-provision stop-provision:
+	-docker stop -t 0 provision && docker rm provision
 
-start-provision:
-	docker ps | grep -q provision && docker stop -t 0 provision && docker rm provision || exit 0
-	docker build -t init -f ops/builder/Dockerfile .
-	docker run -d --name provision init sleep infinity
+start-provision: clean-provision
+	docker pull ousamg/baseimage:latest
+	docker run -d --name provision ousamg/baseimage:latest sleep infinity
 
 commit-provision:
-	docker commit provision ousamg/ella-$(BUILD_TYPE):$(BUILD_VERSION)
+	docker commit provision $(BUILD_NAME)
 
-stop-provision:
-	docker ps | grep -q provision && docker stop -t 0 provision && docker rm provision
-	docker rmi -f init
+save-and-notify:
+	docker save ousamg/ella.release > /builds/ella.tar
+	nohup curl '127.0.0.1:8080/ella/deploy' &>/dev/null &
 
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
+
+tsd-assets:
+	docker run -d --name ella-assets ousamg/ella.release
+	docker cp ella-assets:/static .
+	docker stop ella-assets
+	docker rm ella-assets
+
+dbreset: dbsleep dbreset-inner
+
+dbreset-inner:
+	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
+
+dbsleep:
+	while ! pg_isready; do sleep 5; done
 
 deploy-release: release deploy-reboot
 
