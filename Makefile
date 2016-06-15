@@ -134,7 +134,7 @@ test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
 ifeq ($(TEST_COMMAND),) # empty?
-	py.test "/ella/src/api/" -s
+	py.test --color=yes "/ella/src/api/" -s
 else
 	$(TEST_COMMAND)
 endif
@@ -142,7 +142,7 @@ endif
 test-common: export PYTHONPATH=/ella/src
 test-common:
 ifeq ($(TEST_COMMAND),) # empty?
-	py.test src -k 'not test_ui' --cov src --cov-report xml --ignore src/api
+	py.test src -k 'not test_ui' --color=yes --cov src --cov-report xml --ignore src/api
 else
 	$(TEST_COMMAND)
 endif

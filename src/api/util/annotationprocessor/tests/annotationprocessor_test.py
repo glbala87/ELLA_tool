@@ -429,8 +429,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
     def test_get_genepanel_transcripts_normal(self):
         genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
                                            Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
-                              version='v00',
-                              name='HBOC')
+                              version='v01',
+                              name='HBOCUTV')
 
         transcripts = ['NM_000059', 'NM_000058']
 
@@ -440,8 +440,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
     def test_get_genepanel_transcripts_versioned(self):
         genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
                                     Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
-                       version='v00',
-                       name='HBOC')
+                       version='v01',
+                       name='HBOCUTV')
 
         transcripts = ['NM_000059.3', 'NM_000058.1']
 
@@ -452,8 +452,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
         gp = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
                                     Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
-                       version='v00',
-                       name='HBOC')
+                       version='v01',
+                       name='HBOCUTV')
 
         transcripts = ['NM_000059', 'NM_007294']
 
@@ -462,8 +462,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_none(self):
         genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455')],
-                       version='v00',
-                       name='HBOC')
+                       version='v01',
+                       name='HBOCUTV')
 
         transcripts = ['NM_000051']
 

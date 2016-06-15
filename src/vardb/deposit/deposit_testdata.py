@@ -38,10 +38,10 @@ config_hboc = {"meta": {"source": "deposit_testdata.py", "version": "1.0", "upda
                                   "comment": "a comment from the genepanel config"}}}
 GENEPANELS = [
     {   'config': config_hboc,
-        'transcripts': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.phenotypes.csv',
-        'name': 'HBOC',
-        'version': 'v00'
+        'transcripts': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv',
+        'name': 'HBOCUTV',
+        'version': 'v01'
     },
     {
         'path': '../testdata/clinicalGenePanels/Bindevev_v02.transcripts.csv',
