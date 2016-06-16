@@ -20,10 +20,12 @@ export default class Analysis {
         }
     }
 
-    findGeneConfig(geneSymbol) {
+    findGeneConfigOverrides(geneSymbol) {
         let panelConfig = this.genepanel.config;
         if (panelConfig && panelConfig.data && geneSymbol in panelConfig.data) {
             return panelConfig.data[geneSymbol];
+        } else {
+            return {};
         }
     }
 
@@ -52,7 +54,7 @@ export default class Analysis {
     calculateGenepanelConfig(geneSymbol, default_genepanel_config) {
         let result = {};
         let props = ['last_exon', 'disease_mode']; // see api/util/genepanelconfig.py#COMMON_GENEPANEL_CONFIG
-        let overrides = this.findGeneConfig(geneSymbol);
+        let overrides = this.findGeneConfigOverrides(geneSymbol);
         for (let p of props) {
                 result[p] = p in overrides ?
                     {'_type': 'genepanel_override', 'value': overrides[p]} : default_genepanel_config[p];
@@ -78,7 +80,7 @@ export default class Analysis {
         }
 
         let source = this.genepanel.phenotypes;
-        let config = this.findGeneConfig(geneSymbol);
+        let config = this.findGeneConfigOverrides(geneSymbol);
         if (config && 'inheritance' in config) {
             return config['inheritance'];
         }
