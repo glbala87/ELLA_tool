@@ -86,17 +86,16 @@ export default class Analysis {
         if (source) {
             let codes = source.filter(ph => ph.gene.hugoSymbol == geneSymbol)
                 .map( ph => ph.inheritance)
-                .filter(i => i) // remove empty
-                .sort();
+                .filter(i => i && i.length > 0); // remove empty
 
-            return codes.join('/');
+            let uniqueCodes = new Set(codes);
+            return Array.from(uniqueCodes.values()).sort().join('/');
         } else {
             return '';
         }
 
     }
-
-
+    
     getInterpretationId() {
         // TODO: implement me
         return this.interpretations[this.interpretations.length - 1].id;
