@@ -6,13 +6,16 @@
   </div>
 
   <!-- Included codes -->
-  <acmg code="code" class="wide" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.included track by $index" on-toggle="vm.excludeACMG(code)" toggle-text="✓" comment-model="code.comment"></acmg>
+  <!-- Don't use 'track by $index' -->
+  <acmg code="code" class="wide" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.included" on-toggle="vm.excludeACMG(code)" toggle-text="✓" comment-model="code.comment"></acmg>
 
   <!-- Suggested codes (sans REQ) -->
-  <acmg class="suggested wide" code="code" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.suggested track by $index" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)"></acmg>
+  <!-- Don't use 'track by $index' -->
+  <acmg class="suggested wide" code="code" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.suggested" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)"></acmg>
 
   <!-- REQ codes -->
-  <acmg class="suggested wide" code="code" ng-repeat="code in vm.getREQCodes() track by $index" ng-if="vm.show_req"></acmg>
+  <!-- Don't use 'track by $index' -->
+  <acmg class="suggested wide" code="code" ng-repeat="code in vm.getREQCodes()" ng-if="vm.show_req"></acmg>
 
   <div>
     <button class="acmg-add" uib-popover-template="vm.popover.templateUrl"
