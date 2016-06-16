@@ -180,7 +180,7 @@ gulp.task('e2e', function(done) {
 /**
  * Run unit test once and exit
  */
-gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
+gulp.task('unit', ['tp-js', 'js'], function (done) {
     var server = new KarmaServer({
     	configFile: __dirname + '/src/webui/tests/karma.conf.js',
 	    singleRun: true,
