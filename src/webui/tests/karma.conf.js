@@ -20,8 +20,6 @@ module.exports = function(config) {
           "../dev/app.js",
           "../src/js/**/*.js",
           "../tests/unit/**/*.spec.js",
-          // "../tests/unit/**/analysis.spec.js",
-          // "../tests/unit/**/filters.spec.js",
           "../dev/templates.js"
     ],
 

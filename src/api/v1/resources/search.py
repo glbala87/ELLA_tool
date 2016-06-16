@@ -211,7 +211,7 @@ class SearchResource(Resource):
             transcripts = [t['Transcript'] for t in al['annotation']['transcripts']]
             al['annotation']['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(
                 transcripts,
-                schemas.GenepanelSchema().dump(genepanel).data
+                genepanel
             )
 
             # Add allele to genepanel -> allele list
