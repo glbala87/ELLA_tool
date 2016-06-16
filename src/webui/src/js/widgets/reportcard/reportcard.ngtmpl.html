@@ -17,12 +17,12 @@
           <checkable-button class="include-button checkable-white" show-mark="true" check-model="vm.getAlleleState(al).report.included"> <checked>Included</checked> Include </checkable-button>
         </div>
       </section>
-      <div>
+      <!-- <div>
         <h2 class="allele-title">Needs verification</h2>
         <div class="verify">
           <h4 ng-repeat="al in vm.getIncludedNeedsVerification()">{{al.toString()}}</h4>
         </div>
-      </div>
+      </div> -->
 
       <h2 class="allele-title">Report</h2>
       <pre><div ng-repeat="al in vm.getIncludedAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>
