@@ -25,24 +25,31 @@ log = logging.getLogger(__name__)
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
-# Paths are relative to script dir
-# see vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
+# Paths are relative to script dir.
+# See vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 
-config_hboc = {"meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "some date"},
-               "data": {"BRCA2": {
-                                  "lo_freq_cutoff": 0.0005,
-                                  "hi_freq_cutoff": 0.008,
-                                  "last_exon": False,
-                                  "comment": "a comment from the genepanel config"}}}
 GENEPANELS = [
-    {   'config': config_hboc,
+    {
         'transcripts': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv',
         'name': 'HBOCUTV',
         'version': 'v01'
     },
+    {'config': {
+        "meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "some date"},
+        "data": {"BRCA2": {
+            "lo_freq_cutoff": 0.0005,
+            "hi_freq_cutoff": 0.008,
+            "last_exon": False,
+            "disease_mode": "MISS",
+            "comment": "a comment from the genepanel config"}}},
+     'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
+     'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
+     'name': 'HBOC',
+     'version': 'v01'
+     },
     {
         'path': '../testdata/clinicalGenePanels/Bindevev_v02.transcripts.csv',
         'name': 'Bindevev',
