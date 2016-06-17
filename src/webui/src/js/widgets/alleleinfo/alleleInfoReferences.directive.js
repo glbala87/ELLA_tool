@@ -16,9 +16,14 @@ import {Directive, Inject} from '../../ng-decorators';
 @Inject('$scope', 'ReferenceEvalModal', 'Interpretation')
 export class AlleleInfoReferences {
     constructor($scope, ReferenceEvalModal, Interpretation) {
+        this.allele_references = [];
+        // If we have PMID in annotation,
+        // but not the reference in the database.
+        // Used in order to ask the user to add it manually.
+        this.missing_references = [];
         $scope.$watchCollection(
             () => this.references,
-            () => this.allele_references = this.getReferences()
+            () => this.setAlleleReferences()
         );
         this.refEvalModal = ReferenceEvalModal;
         this.interpretationService = Interpretation;
@@ -36,22 +41,30 @@ export class AlleleInfoReferences {
         return ids;
     }
 
+    getPubmedUrl(pmid) {
+        return `http://www.ncbi.nlm.nih.gov/pubmed/${pmid}`;
+    }
 
     /**
      * Returns a list of references for this.allele
      * @return {Array} List of [Reference, ...].
      */
-    getReferences() {
-        let references = [];
-        if (this.references) {
-            for (let pmid of this.allele.getPubmedIds()) {
+    setAlleleReferences() {
+        this.allele_references = [];
+        this.missing_references = [];
+        for (let pmid of this.allele.getPubmedIds()) {
+            let reference_found = false;
+            if (this.references) {
                 let reference = this.references.find(r => r.pubmedID === pmid);
                 if (reference) {
-                    references.push(reference);
+                    this.allele_references.push(reference);
+                    reference_found = true;
                 }
             }
+            if (!reference_found) {
+                this.missing_references.push(pmid);
+            }
         }
-        return references;
     }
 
     _getExistingReferenceAssessment(reference) {

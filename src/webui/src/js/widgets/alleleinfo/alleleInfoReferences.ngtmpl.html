@@ -1,7 +1,7 @@
 <div class="content-box full-width" ng-if="vm.allele_references.length" ng-repeat="ref in vm.allele_references">
     <div>
       <h3 class="title">Reference</h3>
-      <h5 class="wrap"><a-clip href="{{ref.getPubmedUrl()}}">{{ref.title}}</a-clip></h5>
+      <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmedID)}}">{{ref.title}}</a-clip></h5>
       <p>{{ref.getShortDesc()}}</p>
       <!-- FIXME: hide this title if all(false)...or is it good enough to show/hide along with "Relevant" field? -->
       <h3 class="title" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">Evaluation</h3>
@@ -21,4 +21,11 @@
     <div>
       <button ng-click="vm.showReferenceEval(ref)">Evaluate</button>
     </div>
+</div>
+
+<!-- Display missing references (where annotation has pmid, but it's not in the DB) -->
+<div class="content-box full-width" ng-if="vm.missing_references.length" ng-repeat="ref in vm.missing_references">
+      <h3 class="title">Reference</h3>
+      <p></p>
+      <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref)}}">{{ref}}</a-clip> in database. Please add the reference manually.</h5>
 </div>
