@@ -10,7 +10,10 @@ class GenotypeSchema(Schema):
                   'alleleDepth',
                   'filterStatus',
                   'homozygous',
-                  'genotype')
+                  'genotype',
+                  'vcfPos',
+                  'vcfRef',
+                  'vcfAlt')
 
     genotype = fields.Method("get_genotype")
 

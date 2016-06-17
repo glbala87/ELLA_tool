@@ -29,6 +29,9 @@ class Genotype(Base):
     variantQuality = Column("variant_quality", Integer) # Assume integer, not floating point
     alleleDepth = Column("allele_depth", MUTJSONB, default={})  # {'A': 23, 'G': 32}  Gives depth per allele
     filterStatus = Column("filter_status", String)
+    vcfPos = Column("vcf_pos", Integer, nullable=False)
+    vcfRef = Column("vcf_ref", String, nullable=False)
+    vcfAlt = Column("vcf_alt", String, nullable=False)
 
     def __repr__(self):
         return "<Genotype('%s','%s', '%s', '%s')>" % (self.allele, self.secondallele, self.homozygous, self.sample)

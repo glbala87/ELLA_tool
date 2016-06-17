@@ -20,9 +20,6 @@ class Allele(Base):
     changeFrom = Column("change_from", String, nullable=False) # Drop argument to String(). This is only supported by Postgres and SQLite
     changeTo = Column("change_to", String, nullable=False)
     changeType = Column("change_type", String(5), nullable=False)
-    vcfRef = Column("vcf_ref", String, nullable=False)
-    vcfAlt = Column("vcf_alt", String, nullable=False)
-    vcfPos = Column("vcf_pos", Integer, nullable=False)
 
     __table_args__ = (Index("ix_alleleloci", "chromosome", "start_position", "open_end_position"),
                       UniqueConstraint("chromosome", "start_position", "open_end_position", "change_from", "change_to", "change_type", name="ucAllele"), )

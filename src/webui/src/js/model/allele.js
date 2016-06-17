@@ -42,7 +42,7 @@ export class Allele {
 
     getExACUrl() {
         if ('ExAC' in this.annotation.frequencies) {
-            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcfPos}-${this.vcfRef}-${this.vcfAlt}`;
+            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.genotype.vcfPos}-${this.genotype.vcfRef}-${this.genotype.vcfAlt}`;
         }
     }
 
