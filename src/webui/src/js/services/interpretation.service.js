@@ -108,8 +108,11 @@ class InterpretationService {
 
     /**
      * Popups a confirmation dialog, asking to complete or finalize the interpretation
+     * @param  {Interpretation} interpretation
+     * @param  {Array(Allele)} alleles  Alleles to include allele/referenceassessments for.
+     * @return {Promise}  Resolves upon completed submission.
      */
-    confirmCompleteFinalize(interpretation) {
+    confirmCompleteFinalize(interpretation, alleles) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
             controller: ['$uibModalInstance', ConfirmCompleteInterpretationController],
@@ -128,17 +131,21 @@ class InterpretationService {
                         let alleleassessments = [];
                         let referenceassessments = [];
                         for (let allele_state of interpretation.state.allele) {
-                            alleleassessments.push(this.prepareAlleleAssessments(
-                                allele_state.allele_id,
-                                interpretation.analysis.id,
-                                allele_state
+                            // Only include assessments for alleles part of the supplied list.
+                            // This is to avoid submitting assessments for alleles that have been
+                            // removed from classification during interpretation process.
+                            if (alleles.find(a => a.id === allele_state.allele_id)) {
+                                alleleassessments.push(this.prepareAlleleAssessments(
+                                    allele_state.allele_id,
+                                    interpretation.analysis.id,
+                                    allele_state
+                                    ));
+                                referenceassessments = referenceassessments.concat(this.prepareReferenceAssessments(
+                                    interpretation.analysis.id,
+                                    allele_state
                                 ));
-                            referenceassessments = referenceassessments.concat(this.prepareReferenceAssessments(
-                                interpretation.analysis.id,
-                                allele_state
-                            ));
+                            }
                         }
-
                         return this.analysisService.finalize(
                             interpretation.analysis.id,
                             alleleassessments,
