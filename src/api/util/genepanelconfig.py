@@ -9,7 +9,7 @@ KEY_CUTOFFS = "freq_cutoffs"
 
 # values defined in Excel file WebUI_config_rules
 DEFAULT_CUTOFFS = {KEY_HI: 0.01, KEY_LO: 1.0}
-AD_CUTOFFS = {KEY_HI: 0.0005, KEY_LO: 0.0001}
+AD_CUTOFFS = {KEY_HI: 0.005, KEY_LO: 0.001}
 
 COMMON_GENEPANEL_CONFIG = {
     KEY_CUTOFFS: {
