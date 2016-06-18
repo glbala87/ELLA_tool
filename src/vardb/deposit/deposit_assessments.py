@@ -14,14 +14,14 @@ from sqlalchemy import and_
 import sqlalchemy.orm.exc
 
 import vardb.datamodel
-from vardb.datamodel import gene
+from vardb.datamodel import gene, DB
 from vardb.util import vcfiterator
-from vardb.deposit.importers import AnnotationImporter, \
+from vardb.deposit.importers import AnnotationImporter, AssessmentImporter, \
                                     GenotypeImporter, AlleleImporter, InterpretationImporter, \
                                     inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor
 
-
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
@@ -30,6 +30,7 @@ class DepositAssessments(object):
     def __init__(self, session):
         self.session = session
         self.annotation_importer = AnnotationImporter(self.session)
+        self.assessment_importer = AssessmentImporter(self.session)
         self.allele_importer = AlleleImporter(self.session)
         self.counter = defaultdict(int)
 
@@ -109,21 +110,22 @@ def main(argv=None):
                         default=["NS", "DP", "AN", "CIGAR"],
                         help="The VCF INFO fields that should NOT be added as annotation to varDB.")
     parser.add_argument("--genepanel-name", action="store", dest="gp_name", required=True, help="Name of genepanel for assessments")
-    parser.add_argument("--genepanel-version", action="store", dest="gp_name", required=True, help="Version of genepanel for assessments")
+    parser.add_argument("--genepanel-version", action="store", dest="gp_version", required=True, help="Version of genepanel for assessments")
 
     parser.add_argument("-f", action="store_true", dest="nonInteractive", required=False,
                         default=False, help="Do not ask for confirmation before deposit")
 
     args = parser.parse_args(argv)
 
-    session = vardb.datamodel.Session()
-    da = DepositAssessments(session)
+    db = DB()
+    db.connect()
+    da = DepositAssessments(db.session)
     try:
         da.import_vcf(
             args.vcfPath,
             skip_anno=args.skipInfoFields,
-            genepanel_name=args.genepanel,
-            genepanel_version=args.genepanelVersion,
+            genepanel_name=args.gp_name,
+            genepanel_version=args.gp_version,
         )
     except UserWarning as e:
         log.error(str(e))
@@ -135,10 +137,10 @@ def main(argv=None):
         print "Proceed? (Y/n)"
         if not raw_input() == "Y":
             log.warning("Aborting deposit! Rolling back changes.")
-            session.rollback()
+            db.session.rollback()
             return -1
 
-    session.commit()
+    db.session.commit()
     print "Deposit complete."
     return 0
 
