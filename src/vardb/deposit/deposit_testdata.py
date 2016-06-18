@@ -16,7 +16,7 @@ from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users
-from vardb.deposit.deposit import Importer
+from vardb.deposit.deposit_analysis import DepositAnalysis
 
 from vardb.util import vcfiterator
 
@@ -127,18 +127,14 @@ class DepositTestdata(object):
         vcf_paths = glob.glob(os.path.join(SCRIPT_DIR, testset['path'], '*.vcf'))
         vcf_paths.sort()
         for vcf_path in vcf_paths:
-            importer = Importer(self.session)
+            da = DepositAnalysis(self.session)
             try:
                 vcf_path = os.path.join(SCRIPT_DIR, vcf_path)
                 filename = os.path.basename(vcf_path)
                 # Get last part of filename before ext 'sample.HBOC_v00.vcf'
                 gp_part = os.path.splitext(filename)[0].split('.')[-1].split('_')
 
-                sample_name = os.path.splitext(filename)[0].split('.')[-1].split('_')
                 kwargs = {
-                    'genepanel_name': gp_part[0],
-                    'genepanel_version': gp_part[1],
-                    'import_assessments': testset.get('import_assessments', False),
                     'sample_configs': [{
                         'name': self._get_vcf_samples(vcf_path)[0]
                     }],
@@ -152,12 +148,12 @@ class DepositTestdata(object):
                         }
                     }
                 }
-                importer.importVcf(
+                da.import_vcf(
                     vcf_path,
                     **kwargs
                 )
                 log.info("Deposited {} using panel {} {}".
-                         format(vcf_path, kwargs['genepanel_name'], kwargs['genepanel_version']))
+                         format(vcf_path, gp_part[0], gp_part[1]))
                 self.session.commit()
 
             except UserWarning as e:
@@ -195,6 +191,8 @@ class DepositTestdata(object):
 
 
 if __name__ == "__main__":
+
+    import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="small")
