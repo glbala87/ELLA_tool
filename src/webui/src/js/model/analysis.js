@@ -79,17 +79,16 @@ export default class Analysis {
             return '';
         }
 
-        let source = this.genepanel.phenotypes;
         let config = this.findGeneConfigOverrides(geneSymbol);
         if (config && 'inheritance' in config) {
             return config['inheritance'];
         }
 
-        if (source) {
-            let codes = source.filter(ph => ph.gene.hugoSymbol == geneSymbol)
-                .map( ph => ph.inheritance)
+        let phenotypes = this.phenotypesBy(geneSymbol);
+        if (phenotypes) {
+            let codes = phenotypes
+                .map(ph => ph.inheritance)
                 .filter(i => i && i.length > 0); // remove empty
-
             let uniqueCodes = new Set(codes);
             return Array.from(uniqueCodes.values()).sort().join('/');
         } else {
@@ -97,7 +96,16 @@ export default class Analysis {
         }
 
     }
-    
+
+    phenotypesBy(geneSymbol) {
+        let phenotypes = this.genepanel.phenotypes;
+        if (phenotypes) {
+            return phenotypes.filter(ph => ph.gene.hugoSymbol == geneSymbol);
+        } else {
+            return null;
+        }
+    }
+
     getInterpretationId() {
         // TODO: implement me
         return this.interpretations[this.interpretations.length - 1].id;
