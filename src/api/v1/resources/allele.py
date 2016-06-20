@@ -83,7 +83,6 @@ class AlleleAnalysisListResource(Resource):
         analyses = session.query(sample.Analysis).join(
             genotype.Genotype.alleles,
             sample.Sample,
-            sample.AnalysisSampleTable,
             sample.Analysis
         ).filter(
             allele.Allele.id == allele_id

@@ -45,7 +45,7 @@ class AlleleAssessment(Base):
         return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.classification, str(self.user))
 
     def __str__(self):
-        return "%s, %s, %s" % (self.classification, self.status, self.dateLastUpdate)
+        return "%s, %s" % (self.classification, self.dateLastUpdate)
 
 
 class ReferenceAssessment(Base):
