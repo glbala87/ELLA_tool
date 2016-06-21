@@ -1,7 +1,7 @@
 <div class="content-box full-width vertical" ng-if="::vm.allele.allele_assessment">
   <h3 class="title">Existing classification</h3>
   <h4>{{::vm.getClassName()}}</h4>
-  <h5>made by {{::vm.allele.allele_assessment.user.firstName}} {{::vm.allele.allele_assessment.user.lastName}}, {{::vm.allele.allele_assessment.secondsSinceUpdate | secondsToTimeString}}ago for {{::vm.allele.allele_assessment.genepanelName}}_{{::vm.allele.allele_assessment.genepanelVersion}}<span class="faded-red" ng-if="::vm.isOutdated()">(Outdated)</span></h5>
+  <h5>made by {{::vm.allele.allele_assessment.user.firstName}} {{::vm.allele.allele_assessment.user.lastName}}, {{::vm.allele.allele_assessment.secondsSinceUpdate | secondsToTimeString}}ago for {{::vm.allele.allele_assessment.genepanelName}}_{{::vm.allele.allele_assessment.genepanelVersion}}<span class="faded-red" ng-if="::vm.isOutdated()"> (Outdated)</span></h5>
 
   <acmg class="included disabled" code="code" ng-repeat="code in vm.allele.allele_assessment.evaluation.acmg.included track by $index" comment-model="code.comment" editable="false"></acmg>
 
