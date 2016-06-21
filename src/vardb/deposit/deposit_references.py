@@ -1,7 +1,7 @@
 import csv
 import os
 import logging
-from vardb.datamodel import allele, sample, assessment
+from vardb.datamodel import DB, allele, sample, assessment
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -43,4 +43,7 @@ def import_references(engine):
     log.info("References successfully imported!")
 
 if __name__ == '__main__':
-    import_references()
+
+    db = DB()
+    db.connect()
+    import_references(db.engine)
