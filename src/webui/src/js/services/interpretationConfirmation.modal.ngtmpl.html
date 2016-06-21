@@ -1,10 +1,17 @@
-<div class="modal-header">
-    <h3 class="modal-title">Analysis complete!</h3>
-</div>
-<div class="modal-body">
-    You have finished the current analysis. Would you like to mark the analysis for confirmation, or finalize it?
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="vm.modal.close('complete')">Mark for confirmation</button>
-    <button class="btn btn-danger" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
-</div>
+<card color="aqua" modal="true" on-close="vm.modal.close" collapsible="false" options="{}">
+  <primary>
+    <h3 class="header">FINISHED: ANALYSIS COMPLETE</h3>
+  </primary>
+  <bottom>
+    <div class='question-set'>
+      <h2 class="centered">You have finished the current analysis.</h2>
+      <h5 class="centered">Would you like to mark the analysis for review, or finalize it?</h5>
+    </div>
+  </bottom>
+  <controls>
+    <div>
+      <button type="button" ng-click="vm.modal.close('markreview')">Mark for review</button>
+      <button class="faded-red" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
+    </div>
+  </controls>
+</card>

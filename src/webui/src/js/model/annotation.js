@@ -1,47 +1,43 @@
 /* jshint esnext: true */
 
-export class Annotation {
+export default class Annotation {
     /**
      * Represents one Annotation
      * @param  {object} Annotation data.
      */
     constructor(data) {
         Object.assign(this, data);
-        this.filtered = []; // Filtered transcripts
-    }
-
-    _unversionTranscript(name) {
-        return name.split('.')[0];
+        this.setFilteredTranscripts();
     }
 
     /**
-     * Filters annotation's transcript data according to provided
-     * input.
-     * @param  {Transcript} transcripts Array of Transcripts (e.g. from genepanel) or single Transcript.
-     * @return {[object]} List of matching data objects.
+     * Set 'filtered' property based on key from 'filtered_transcripts'
+     * and data from 'transcripts'
      */
-    setFilteredTranscripts(transcripts) {
-        if (!Array.isArray(transcripts)) {
-            transcripts = [transcripts];
-        }
-
-        let filtered = [];
-
-        let filterTranscriptGene = (t, g) => {
-            return this.annotations.transcripts.find(el => {
-                // We don't filter on version of the transcript.
-                return el.Transcript === this._unversionTranscript(t) &&
-                    el.SYMBOL === g;
+    setFilteredTranscripts() {
+        if (this.filtered_transcripts) {
+            this.filtered = this.transcripts.filter(t => {
+                return this.filtered_transcripts.includes(t.Transcript);
             });
-        };
-
-        for (let t of transcripts) {
-            let transcript_data = filterTranscriptGene(t.refseqName, t.gene.hugoSymbol);
-            if (transcript_data) {
-                filtered.push(transcript_data);
-            }
         }
-        this.filtered = filtered;
+    }
 
+    /**
+     * Checks whether the allele has a transcript with worse consequence than
+     * the filtered ones. We use the 'worst_consequence' array from backend
+     * and match it against our list of filtered transcripts. If there is no overlap,
+     * there are other transcripts with worse consequence.
+     * @return {Boolean} True if 'worse_consequence' contains transcripts not in 'filtered_transcripts'
+     */
+    hasWorseConsequence() {
+        return !this.worst_consequence.some(n => {
+            return this.filtered_transcripts.includes(n);
+        });
+    }
+
+    getWorseConsequenceTranscripts() {
+        return this.worst_consequence.map(name => {
+            return this.transcripts.find(t => t.Transcript === name);
+        });
     }
 }

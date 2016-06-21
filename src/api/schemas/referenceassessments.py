@@ -1,5 +1,5 @@
 from flask.ext.marshmallow import Marshmallow
-from marshmallow import fields, Schema, validates_schema, ValidationError, post_load
+from marshmallow import fields, Schema, post_load
 
 from api import app
 from vardb.datamodel import assessment
@@ -12,19 +12,19 @@ class ReferenceAssessmentSchema(Schema):
         fields = ('id',
                   'allele_id',
                   'reference_id',
-                  'interpretation_id',
+                  'analysis_id',
                   'genepanelName',
                   'genepanelVersion',
+                  'dateLastUpdate',
+                  'dateSuperceeded',
                   'user_id',
                   'evaluation')
 
     user_id = fields.Integer(allow_none=True)  # Debug only
+    dateSuperceeded = fields.DateTime(allow_none=True)
+    dateLastUpdate = fields.DateTime(allow_none=True)
+    evaluation = fields.Field(required=True)
 
     @post_load
     def make_object(self, data):
         return assessment.ReferenceAssessment(**data)
-
-    @validates_schema(pass_original=True)
-    def validate_data(self, data, org):
-        if 'evaluation' not in org:
-            raise ValidationError("Missing field: 'evaluation'")

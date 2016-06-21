@@ -3,13 +3,12 @@ import argparse
 import logging
 
 import vardb.datamodel
-from vardb.datamodel import user
+from vardb.datamodel import DB, user
 
 log = logging.getLogger(__name__)
 
 
-def import_users(users):
-    session = vardb.datamodel.Session()
+def import_users(session, users):
 
     for u in users:
         new_user = user.User(**u)
@@ -33,4 +32,7 @@ if __name__ == "__main__":
     if not users:
         raise RuntimeError("No users found in file {}".format(args.userPath))
 
-    import_users(users)
+    db = DB()
+    db.connect()
+
+    import_users(db.session, users)

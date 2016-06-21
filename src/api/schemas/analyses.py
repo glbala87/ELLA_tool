@@ -1,6 +1,14 @@
 from marshmallow import fields, Schema
 
 
+class SampleSchema(Schema):
+    class Meta:
+        fields = ('id',
+                  'identifier',
+                  'sampleType',
+                  'deposit_date',
+                  'sampleConfig')
+
 class UserSchema(Schema):
     class Meta:
         fields = ('id',
@@ -34,7 +42,9 @@ class AnalysisSchema(Schema):
                   'name',
                   'deposit_date',
                   'interpretations',
-                  'genepanel')
+                  'genepanel',
+                  'samples')
 
+    samples = fields.Nested(SampleSchema, many=True)
     genepanel = fields.Nested(GenepanelSchema)
     interpretations = fields.Nested(AnalysisInterpretationSchema, many=True)

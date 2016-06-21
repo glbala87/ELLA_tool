@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Annotation} from './annotation';
+import Annotation from './annotation';
 
 export class Allele {
     /**
@@ -12,9 +12,7 @@ export class Allele {
      */
     constructor(data) {
         Object.assign(this, data);
-        this.references = {};
         this.acmg = {};
-        this.existingAlleleAssessment = null;
         this._createAnnotations();
     }
 
@@ -25,61 +23,93 @@ export class Allele {
 
     getPubmedIds() {
         let ids = [];
-        for (let ref of this.annotation.annotations.references) {
-            ids.push(ref.pubmedID);
+        for (let ref of this.annotation.references) {
+            ids.push(parseInt(ref.pubmedID, 10));
         }
-        return ids;
+        return Array.from(new Set(ids));
+    }
+
+    toString() {
+        let hgvs = '';
+        for (let t of this.annotation.filtered) {
+            if (hgvs !== '') {
+                hgvs += '|'
+            }
+            hgvs += `${t.Transcript}.${t.Transcript_version}(${t.SYMBOL}):${t.HGVSc_short}`;
+        }
+        return hgvs;
+    }
+
+    getExACUrl() {
+        if ('ExAC' in this.annotation.frequencies) {
+            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.genotype.vcfPos}-${this.genotype.vcfRef}-${this.genotype.vcfAlt}`;
+        }
+    }
+
+    getHGMDUrl() {
+        if ('HGMD' in this.annotation.external &&
+            'acc_num' in this.annotation.external.HGMD) {
+            let acc_num = this.annotation.external.HGMD.acc_num;
+            return `https://portal.biobase-international.com/hgmd/pro/mut.php?accession=${acc_num}`
+        }
+    }
+
+    getClinvarUrl() {
+        if ('CLINVAR' in this.annotation.external &&
+            'CLNACC' in this.annotation.external.CLINVAR) {
+            let search_term = this.annotation.external.CLINVAR.CLNACC.split('|').map(s => s.split('.')[0]).join(' OR ');
+            return `http://www.ncbi.nlm.nih.gov/clinvar?term=${search_term}`;
+        }
+    }
+
+    get1000gUrl() {
+        if ('1000g' in this.annotation.frequencies) {
+            return `http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=${this.chromosome}:${this.startPosition+1}-${this.openEndPosition}`
+        }
+    }
+
+    getESP6500Url() {
+        if ('esp6500' in this.annotation.frequencies) {
+            return `http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome&chromosome=${this.chromosome}&chromoStart=${this.startPosition+1}&chromoEnd=${this.openEndPosition}&x=0&y=0`
+        }
     }
 
     /**
-     * Populates the internal 'references' list with input.
-     * Structure will look like:
-     * this.references = {
-     *     123: {
-     *         reference: ref_obj_id_123
-     *     },
-     *     145: {
-     *         reference: ref_obj_id_145
-     *     }
-     * }
-     * @param {Array} references List of Reference objects
+     * Convenience function for getting the urls dynamically.
+     * Used by allelecardcontent to get the header links.
      */
-    setReferences(references) {
-        this.references = {};
-        for (let reference of references) {
-            if (reference.id in this.references) {
-                this.references[reference.id].reference = reference;
+    getUrl(type) {
+        let types = {
+            'ExAC': () => this.getExACUrl(),
+            'HGMD Pro': () => this.getHGMDUrl(),
+            'Clinvar': () => this.getClinvarUrl(),
+            '1000g': () => this.get1000gUrl(),
+            'ESP6500': () => this.getESP6500Url()
+        }
+        if (type in types) {
+            return types[type]();
+        }
+        return '';
+    }
+
+    /**
+     * Filters the list of ACMG codes based on the selector.
+     * Selector example: 'frequencies.ExAC'
+     */
+    getACMGCodes(selector) {
+        if (selector) {
+            if (this.acmg &&
+                this.acmg.codes) {
+                return this.acmg.codes.filter(c => {
+                    return c.source === selector;
+                });
             }
             else {
-                this.references[reference.id] = {reference};
+                return [];
             }
         }
-    }
-
-    /**
-     * Populates the internal 'references' list with input.
-     * Note: The reference(s) for which the input refers to must have been added already
-     * (see setReferences()).
-     * Structure will look like:
-     * this.references = {
-     *     123: {
-     *         reference: ref_obj_id_123,
-     *         existingReferenceAssessment: ra_obj
-     *     },
-     *     ...
-     * }
-     * @param {Array} referenceassessments List of Reference objects
-     */
-    setReferenceAssessments(referenceassessments) {
-        for (let ra of referenceassessments) {
-            if (!(ra.reference_id in this.references)) {
-                throw new Error("Trying to add ReferenceAssessment to Allele, but reference id doesn't exist.");
-            }
-            this.references[ra.reference_id].existingReferenceAssessment = ra;
+        else {
+            return this.acmg.codes;
         }
-    }
-
-    setAlleleAssessment(alleleassessment) {
-        this.existingAlleleAssessment = alleleassessment;
     }
 }

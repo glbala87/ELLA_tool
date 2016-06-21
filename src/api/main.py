@@ -3,12 +3,11 @@ import os
 import sys
 import logging
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-import argparse
 
 from flask import send_from_directory, request
-from flask.ext.restful import Api
-from api import app, apiv1, session
-
+from flask_restful import Api
+from api import app, db
+from api.v1 import ApiV1
 from vardb.deposit.deposit_testdata import DepositTestdata
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -18,14 +17,18 @@ DEV_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dev')
 
 log = app.logger
 
+
 @app.before_first_request
 def setup_logging():
     if not app.debug:
         log.addHandler(logging.StreamHandler())
         log.setLevel(logging.INFO)
 
+
 @app.before_request
 def before_request():
+    if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
+        return
     if request.method in ['PUT', 'POST', 'DELETE']:
         log.warning(" {method} - {endpoint} - {json}".format(
             method=request.method,
@@ -34,9 +37,10 @@ def before_request():
             )
         )
 
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    session.remove()
+    db.session.remove()
 
 
 def serve_static_factory(dev=False):
@@ -50,10 +54,11 @@ def serve_static_factory(dev=False):
 
         valid_files = [
             'app.css',
+            'base.css',
             'app.js',
             'thirdparty.js',
-            'fonts',
-            'ngtmpl'
+            'templates.js',
+            'fonts'
         ]
 
         if not any(v == path or path.startswith(v) for v in valid_files):
@@ -65,14 +70,25 @@ def serve_static_factory(dev=False):
     return serve_static
 
 
-# TODO: !!!!!!!!!!Remove before production!!!!!!!!!
-@app.route('/reset')
+# Only enabled on "DEVELOP=true"
 def reset_testdata():
-    small_only = not request.args.get('all') in ['True', 'true']
+    if os.environ.get('DEVELOP', '').upper() != 'TRUE':
+        raise RuntimeError("Tried to access reset resource, but not running in development mode")
 
+    test_set = 'small'
+    if request.args.get('testset'):
+        test_set = request.args.get('testset')
+
+    return do_testdata_reset(test_set)
+
+def reset_testdata_from_cli():
+    test_set = os.getenv('RESET_DB', 'small')
+    do_testdata_reset(test_set)
+
+def do_testdata_reset(test_set):
     def worker():
-        dt = DepositTestdata()
-        dt.deposit_all(small_only=small_only)
+        dt = DepositTestdata(db)
+        dt.deposit_all(test_set=test_set)
 
     t = threading.Thread(target=worker)
     t.start()
@@ -80,37 +96,27 @@ def reset_testdata():
     return "Test database is resetting. It should be ready in a minute."
 
 
-# Add API resources
 api = Api(app)
-api.add_resource(apiv1.AnalysisListResource, '/api/v1/analyses/')
-api.add_resource(apiv1.ConfigResource, '/api/v1/config/')
-api.add_resource(apiv1.InterpretationResource, '/api/v1/interpretations/<int:interpretation_id>/')
-api.add_resource(apiv1.InterpretationAlleleResource, '/api/v1/interpretations/<int:interpretation_id>/alleles/')
-api.add_resource(apiv1.InterpretationReferenceAssessmentResource, '/api/v1/interpretations/<int:interpretation_id>/referenceassessments/')
-api.add_resource(apiv1.InterpretationActionStartResource, '/api/v1/interpretations/<int:interpretation_id>/actions/start/')
-api.add_resource(apiv1.InterpretationActionCompleteResource, '/api/v1/interpretations/<int:interpretation_id>/actions/complete/')
-api.add_resource(apiv1.InterpretationActionFinalizeResource, '/api/v1/interpretations/<int:interpretation_id>/actions/finalize/')
-api.add_resource(apiv1.InterpretationActionOverrideResource, '/api/v1/interpretations/<int:interpretation_id>/actions/override/')
-api.add_resource(apiv1.ReferenceResource, '/api/v1/references/')
-api.add_resource(apiv1.ReferenceAssessmentResource, '/api/v1/referenceassessments/<int:ra_id>/')
-api.add_resource(apiv1.ReferenceAssessmentListResource, '/api/v1/referenceassessments/')
-api.add_resource(apiv1.UserListResource, '/api/v1/users/')
-api.add_resource(apiv1.UserResource, '/api/v1/users/<int:user_id>/')
-api.add_resource(apiv1.AlleleAssessmentResource, '/api/v1/alleleassessments/<int:aa_id>/')
-api.add_resource(apiv1.AlleleAssessmentListResource, '/api/v1/alleleassessments/')
-api.add_resource(apiv1.ACMGClassificationResource, '/api/v1/acmg/alleles/')
+
+def init_v1(api):
+    v1 = ApiV1()
+    if os.environ.get('DEVELOP', '').upper() == 'TRUE':
+        app.add_url_rule('/reset', 'reset', reset_testdata)
+    return v1.init_app(api)
+
+init_v1(api)
 
 # This is used by development and medicloud - production will not trigger it
 if __name__ == '__main__':
+    if os.getenv('RESET_DB', False):
+        reset_testdata_from_cli()
+        exit(0)
     opts = {}
     opts['host'] = '0.0.0.0'
     opts['threaded'] = True
+    opts['port'] = int(os.getenv('API_PORT', '5000'))
     is_dev = os.getenv('DEVELOP', False)
-
-    if is_dev:
-        opts['debug'] = is_dev
-    else:
-        opts['port'] = int(os.getenv('VCAP_APP_PORT', '5000')) # medicloud bullshit
+    opts['debug'] = is_dev
     app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
     app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
     app.run(**opts)

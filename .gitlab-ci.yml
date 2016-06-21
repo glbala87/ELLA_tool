@@ -1,4 +1,57 @@
 ---
-run_genap_tests:
+stages:
+  - test
+  - cleanup
+  - deploy
+
+test_api:
+  stage: test
   script:
-    - bin/test-ci
+    - make single-test TEST_NAME=api
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+test_js:
+  stage: test
+  script:
+    - make single-test TEST_NAME=js
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+test_python:
+  stage: test
+  script:
+    - make single-test TEST_NAME=common
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+test_e2e:
+  stage: test
+  script:
+    - make e2e-test
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+cleanup_e2e:
+  stage: cleanup
+  script:
+    - make cleanup-e2e BRANCH=test
+  when: on_failure
+
+build_core:
+  stage: deploy
+  script:
+    - make core push
+  only:
+    - build-dev
+
+bot_build:
+  stage: deploy
+  script:
+    - make release save-and-notify
+  only:
+    - triggers

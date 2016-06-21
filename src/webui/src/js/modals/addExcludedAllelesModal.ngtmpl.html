@@ -1,123 +1,73 @@
-<div class="add-excluded-alleles-modal">
-    <div class="modal-header">
-        <h3 class="modal-title">Add excluded variants</h3>
-    </div>
-    <div class="modal-body">
-        <!-- Included -->
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th class="gene-column">Gene</th>
-                    <th class="variant-column" style="width: 90%;">Variant</th>
-                    <th style="min-width: 50px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="al_id in vm.included_allele_ids track by al_id">
-                    <td class="gene-column">
-                        <div ng-repeat="t in ::vm.fromId(al_id).annotation.filtered track by t.Transcript">
-                            <transcript-wrapper transcript="t">
-                                {{::t.SYMBOL}}
-                            </transcript-wrapper>
-                        </div>
-                    </td>
-                    <td class="variant-column">
-                        <div ng-repeat="t in ::vm.fromId(al_id).annotation.filtered track by t.Transcript">
-                            <transcript-wrapper transcript="t">
-                                {{::t.HGVSc | HGVSc_short}}
-                            </transcript-wrapper>
-                        </div>
-                    </td>
-                    <td class="check-column">
-                        <div class="checkbox checkbox-big checkbox-default">
-                            <input type="checkbox" checklist-model="vm.included_allele_ids" checklist-value="al_id" ng-change="vm.update()">
-                            <label></label>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <hr>
-
-        <!-- Excluded -->
-        <div class="filter-options pull-left form-inline">
-            <div class="btn-group btn-group-sm">
-                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'all'">All</label>
-                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'class_one'">Class 1</label>
-                <label class="btn btn-primary" ng-change="vm.update()" ng-model="vm.category" btn-radio="'intronic'">Intronic</label>
-            </div>
-            <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
-                <option value="">All genes</option>
-            </select>
+<card color="aqua" modal="true" on-close="vm.onClose()" collapsible="false" options="{}">
+  <primary>
+    <h3 class="header">ADD EXCLUDED VARIANTS</h3>
+  </primary>
+  <secondary>
+  </secondary>
+  <bottom>
+    <!-- Included -->
+    <h2 class="allele-title" ng-if="vm.included_alleles.length">included alleles</h2>
+    <div class="included-allele">
+      <article class="content-box" ng-repeat="al in vm.included_alleles track by al.id">
+        <div class="excluded-allele">
+          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3> {{::t.SYMBOL}} </h3></transcript-wrapper> </div>
+          <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h4> {{::t.HGVSc | HGVSc_short}} </h4></transcript-wrapper> </div>
+          <div class="checkbox checkbox-big checkbox-default">
+            <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()" show-mark="true">
+              <checked>ADDED</checked>
+              ADD
+            </checkable-button>
+          </div>
         </div>
-        <div class="pull-right">
-            <pagination total-items="vm.excluded_alleles.length"
-                        ng-model="vm.page_idx"
-                        class="pagination-sm"
-                        items-per-page="vm.number_per_page"
-                        ng-change="vm.update()"
-                        boundary-links="true"
-                        max-size="5"
-                        rotate="false">
-            </pagination>
+      </article>
+    </div>
+    <hr ng-if="vm.included_alleles.length">
+    <h2 class="allele-title">excluded alleles</h2>
+    <h5 class="allele-count"><b>{{vm.excluded_alleles.length}} variants</b> from current filter settings</h5>
+    <div class="allele-controls">
+      <div class="form-inline">
+        <div class="btn-group btn-group-sm">
+          <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
+          <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
+          <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
         </div>
-        <div class="clearfix"></div>
-
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th class="gene-column">Gene</th>
-                    <th class="variant-column">Variant</th>
-                    <th>ExAC</th>
-                    <th>1000G</th>
-                    <th>inDB</th>
-                    <th>Consequence</th>
-                    <th style="min-width: 50px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="al in vm.slice track by al.id">
-                    <td class="gene-column">
-                        <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript">
-                            <transcript-wrapper transcript="t">
-                                {{::t.SYMBOL}}
-                            </transcript-wrapper>
-                        </div>
-                    </td>
-                    <td class="variant-column">
-                        <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript">
-                            <transcript-wrapper transcript="t">
-                                {{::t.HGVSc | HGVSc_short}}
-                            </transcript-wrapper>
-                        </div>
-                    </td>
-                    <td>
-                        <frequency-details group="ExAC" allele="al"></frequency-details>
-                    </td>
-                    <td>
-                        <frequency-details group="1000g" allele="al"></frequency-details>
-                    </td>
-                    <td>
-                        <frequency-details group="inDB" allele="al"></frequency-details>
-                    </td>
-                    <td>
-                        <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript">
-                            <transcript-wrapper transcript="t">
-                                <span class="badge" ng-repeat="c in ::t.Consequence">{{::c}}</span>
-                            </transcript-wrapper>
-                        </div>
-                    </td>
-                    <td class="check-column">
-                        <div class="checkbox checkbox-big checkbox-default">
-                            <input type="checkbox" checklist-model="vm.included_allele_ids" checklist-value="al.id" ng-change="vm.update()">
-                            <label></label>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
+          <option value="">All genes</option>
+        </select>
+      </div>
+      <div>
+        <uib-pagination total-items="vm.excluded_alleles.length"
+          ng-model="vm.page_idx"
+          class="pagination-sm"
+          items-per-page="vm.number_per_page"
+          ng-change="vm.update()"
+          boundary-links="true"
+          max-size="5"
+          rotate="false">
+        </uib-pagination>
+      </div>
     </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" type="button" ng-click="vm.close()">Close</button>
+    <!-- Excluded -->
+    <article class="content-wrapper" ng-repeat="al in vm.slice track by al.id">
+      <div class="excluded-allele">
+        <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3> {{::t.SYMBOL}} </h3></transcript-wrapper> </div>
+        <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h4> {{::t.HGVSc | HGVSc_short}} </h4></transcript-wrapper> </div>
+        <div class="checkbox checkbox-big checkbox-default">
+          <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
+            <checked>ADDED</checked>
+            ADD
+          </checkable-button>
+        </div>
+      </div>
+      <allele-info-frequency-exac allele="al"></allele-info-frequency-exac>
+      <allele-info-frequency-thousandg allele="al"></allele-info-frequency-thousandg>
+      <allele-info-frequency-indb allele="al"></allele-info-frequency-indb>
+      <allele-info-consequence allele="al"></allele-info-consequence>
+    </article>
+  </bottom>
+  <controls>
+    <div>
+      <button type="button" ng-click="vm.close()">Close</button>
     </div>
-</div>
+  </controls>
+</card>

@@ -18,12 +18,12 @@ class AlleleFilter {
         let included = [];
         for (let a of alleles) {
             let exclude = false;
-            for (let [key, subkeys] of Object.entries(this.config.freq_criteria)) {
+            for (let [key, subkeys] of Object.entries(this.config.frequencies.criterias)) {
                 for (let [subkey, criteria] of Object.entries(subkeys)) {
                     if (!exclude &&
-                        key in a.annotation.annotations.frequencies &&
-                        subkey in a.annotation.annotations.frequencies[key]) {
-                        exclude = a.annotation.annotations.frequencies[key][subkey] > criteria;
+                        key in a.annotation.frequencies &&
+                        subkey in a.annotation.frequencies[key]) {
+                        exclude = a.annotation.frequencies[key][subkey] > criteria;
                     }
                 }
             }
@@ -45,6 +45,9 @@ class AlleleFilter {
         // but not NM_007294.3:c.4535G>T
         let reg_exp = /.*c\.[0-9]+?([\-\+])([0-9]+)/;
         return alleles.filter(a => {
+            if (!a.annotation.filtered.length) {
+                return true;  // Always include if no filtered transcripts
+            }
             // Only exclude if variant is outside range given in config
             // as given by the cDNA
             // If the format is different, don't filter variant.
@@ -67,6 +70,39 @@ class AlleleFilter {
 
             }));
         });
+    }
+
+
+    /**
+     * Filters away alleles that doesn't have any frequency data.
+     * @return {Array} Alleles with frequency data.
+     */
+    filterFrequency(alleles) {
+        let included = [];
+        for (let allele of alleles) {
+            if (Object.keys(allele.annotation.frequencies).filter(k => {
+                    return Object.keys(this.config.frequencies.groups).includes(k);
+                }).length) {
+                included.push(allele);
+            }
+        }
+        return included;
+    }
+
+    /**
+     * Filters away alleles that doesn't have any references.
+     * @return {Array} Alleles with references as given by it's annotation.
+     */
+    filterReferences(alleles) {
+        return alleles.filter(a => a.getPubmedIds().length > 0);
+    }
+
+    /**
+     * Filters away alleles that doesn't have any existing allele assessment.
+     * @return {Array} Alleles with references as given by it's annotation.
+     */
+    filterAlleleAssessment(alleles) {
+        return alleles.filter(a => a.allele_assessment);
     }
 
     /**

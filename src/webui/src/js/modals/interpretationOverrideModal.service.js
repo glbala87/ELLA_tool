@@ -11,11 +11,11 @@ export class InterpretationOverrideController {
 @Service({
     serviceName: 'InterpretationOverrideModal'
 })
-@Inject('$modal')
+@Inject('$uibModal')
 export class InterpretationOverrideModal {
 
-    constructor($modal) {
-        this.modalService = $modal;
+    constructor($uibModal) {
+        this.modalService = $uibModal;
     }
 
     /**
@@ -26,7 +26,7 @@ export class InterpretationOverrideModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationOverrideModal.ngtmpl.html',
-            controller: ['$modalInstance', InterpretationOverrideController],
+            controller: ['$uibModalInstance', InterpretationOverrideController],
             controllerAs: 'vm',
             resolve: {}
         });

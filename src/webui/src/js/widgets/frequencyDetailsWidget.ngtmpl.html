@@ -1,19 +1,16 @@
-<div class="frequency-item" ng-repeat="freq in ::vm.config.frequencies[vm.group]" ng-if="vm.allele.annotation.annotations.frequencies[vm.group][freq]">
-<table>
-    <td><b>{{::freq}}:</b> </td>
-    <td> {{::vm.allele.annotation.annotations.frequencies[vm.group][freq] | number:vm.precision}}</td>
-</table>
-
-<div class="frequency-item" ng-if="vm.group === 'inDB'">
-    <table>
-        <td><b>noMutInd:</b> </td>
-        <td> {{vm.allele.annotation.annotations.frequencies['inDB']['noMutInd']}}</td>
-    </table>
-    <div ng-if="vm.allele.annotation.annotations.frequencies['inDB']['noMutInd'] < 10">
-        <table>
-            <td><b>Indications:</b><br>
-                <div ng-repeat="(k, v) in vm.allele.annotation.annotations.frequencies['inDB']['indications']">{{k}}: {{v}}</div>
-            </td>
-        </table>
-    </div>
+<div class="tabular-row" ng-repeat="freq_data in ::vm.frequencies">
+  <div class="cell"><h5>{{::freq_data.name}}:</h5></div>
+  <div class="cell"><p>{{::vm.getFreqValue(freq_data)}}</p></div>
+</div>
+<div class="tabular-row" ng-if="::vm.inDb.noMutInd">
+    <div class="cell"><h5>Individuals:</h5></div>
+    <div class="cell"> <p>{{::vm.inDb.noMutInd}}</p> </div>
+</div>
+<div class="tabular-row" ng-if="::vm.inDb.indications">
+    <div class="cell"><h5>Indications:</h5></div>
+    <div class="cell"></div>
+</div>
+<div class="tabular-row" ng-repeat="(k, v) in ::vm.inDb.indications">
+  <div class="cell"><p>- {{::k}}:</p></div>
+  <div class="cell"><p>{{::v}}</p></div>
 </div>

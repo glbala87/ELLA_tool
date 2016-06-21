@@ -5,17 +5,20 @@ Code for adding or modifying gene panels in varDB.
 
 import os
 import sys
-import argparse
 import logging
 import json
+import glob
 
 logging.basicConfig(level=logging.DEBUG)
 
 import vardb.datamodel
+from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users
-from vardb.deposit.deposit import Importer
+from vardb.deposit.deposit_analysis import DepositAnalysis
+
+from vardb.util import vcfiterator
 
 log = logging.getLogger(__name__)
 
@@ -23,14 +26,22 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # Paths are relative to script dir
+# see vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 
+config_hboc = {"meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "some date"},
+               "data": {"BRCA2": {
+                                  "lo_freq_cutoff": 0.0005,
+                                  "hi_freq_cutoff": 0.008,
+                                  "last_exon": False,
+                                  "comment": "a comment from the genepanel config"}}}
 GENEPANELS = [
-    {
-        'path': '../testdata/clinicalGenePanels/HBOC_OUS_medGen_v00_b37/HBOC_OUS_medGen_v00_b37.transcripts.csv',
-        'name': 'HBOC',
-        'version': 'v00'
+    {   'config': config_hboc,
+        'transcripts': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv',
+        'name': 'HBOCUTV',
+        'version': 'v01'
     },
     {
         'path': '../testdata/clinicalGenePanels/Bindevev_v02.transcripts.csv',
@@ -60,144 +71,89 @@ GENEPANELS = [
 ]
 
 
-VCF_SMALL = [
-    # {
-    #     'path': '../testdata/brca_s1_v1.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    # {
-    #     'path': '../testdata/brca_s2_v1.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    # {
-    #     'path': '../testdata/brca_HDepositFirst.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00',
-    #     'import_assessments': True
-    # },
-    # {
-    #     'path': '../testdata/brca_H01.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    # {
-    #     'path': '../testdata/brca_H02.vcf',
-    #     'gp': 'HBOC',
-    #     'gp_version': 'v00'
-    # },
-    {
-        'path': '../testdata/brca_sample_1.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_2.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_3.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_4.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_5.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_6.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_7.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_8.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
-    {
-        'path': '../testdata/brca_sample_master.vcf',
-        'gp': 'HBOC',
-        'gp_version': 'v00'
-    },
+VCF = [
 
-]
-
-VCF_LARGE = [
     {
-        'path': '../testdata/na12878.bindevev.transcripts.annotated.vcf',
-        'gp': 'Bindevev',
-        'gp_version': 'v02'
+        'path': '../testdata/vcf/all',
+        'name': 'all',
     },
     {
-        'path': '../testdata/na12878.Ciliopati.transcripts.annotated.vcf',
-        'gp': 'Ciliopati',
-        'gp_version': 'v03'
+        'path': '../testdata/vcf/small',
+        'name': 'small',
+        'default': True,
     },
     {
-        'path': '../testdata/na12878.EEogPU.transcripts.annotated.vcf',
-        'gp': 'EEogPU',
-        'gp_version': 'v02'
+        'path': '../testdata/vcf/integration_testing',
+        'name': 'integration_testing',
     },
     {
-        'path': '../testdata/na12878.Iktyose.transcripts.annotated.vcf',
-        'gp': 'Iktyose',
-        'gp_version': 'v02'
+        'path': '../testdata/vcf/custom',
+        'name': 'custom',
     },
-    {
-        'path': '../testdata/na12878.Joubert.transcripts.annotated.vcf',
-        'gp': 'Joubert',
-        'gp_version': 'v02'
-    }
-
 ]
 
 
 class DepositTestdata(object):
 
-    def __init__(self):
-        self.session = vardb.datamodel.Session()
+    def __init__(self, db):
+        self.engine = db.engine
+        self.session = db.session
+
+    def _get_vcf_samples(self, vcf_path):
+        vi = vcfiterator.VcfIterator(vcf_path)
+        return vi.getSamples()
 
     def remake_db(self):
         # We must import all models before recreating database
-        from vardb.datamodel import allele, genotype, assessment, sample, patient, disease, gene, annotation  # needed
+        from vardb.datamodel import allele, genotype, assessment, sample, gene, annotation  # needed
 
-        vardb.datamodel.Base.metadata.drop_all(vardb.datamodel.Engine)
-        vardb.datamodel.Base.metadata.create_all(vardb.datamodel.Engine)
+        vardb.datamodel.Base.metadata.drop_all(self.engine)
+        vardb.datamodel.Base.metadata.create_all(self.engine)
 
     def deposit_users(self):
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
-            import_users(json.load(f))
+            import_users(self.session, json.load(f))
 
-    def deposit_vcfs(self, small_only=False):
-        vcfs = VCF_SMALL
-        if not small_only:
-            vcfs += VCF_LARGE
-        for vcfdata in vcfs:
-            importer = Importer(self.session)
+    def deposit_vcfs(self, test_set=None):
+        """
+        :param test_set: Which set to import.
+        """
+
+        if test_set is None:
+            testset = next(v for v in VCF if v.get('default'))
+        else:
+            testset = next(v for v in VCF if v['name'] == test_set)
+
+        vcf_paths = glob.glob(os.path.join(SCRIPT_DIR, testset['path'], '*.vcf'))
+        vcf_paths.sort()
+        for vcf_path in vcf_paths:
+            da = DepositAnalysis(self.session)
             try:
+                vcf_path = os.path.join(SCRIPT_DIR, vcf_path)
+                filename = os.path.basename(vcf_path)
+                # Get last part of filename before ext 'sample.HBOC_v00.vcf'
+                gp_part = os.path.splitext(filename)[0].split('.')[-1].split('_')
+
                 kwargs = {
-                    'genepanel_name': vcfdata['gp'],
-                    'genepanel_version': vcfdata['gp_version'],
-                    'import_assessments': vcfdata.get('import_assessments', False)
+                    'sample_configs': [{
+                        'name': self._get_vcf_samples(vcf_path)[0]
+                    }],
+                    'analysis_config': {
+                        'name': '{}-{}-{}'.format(
+                            self._get_vcf_samples(vcf_path)[0],
+                            *gp_part
+                        ),
+                        'params': {
+                            'genepanel': '_'.join(gp_part)
+                        }
+                    }
                 }
-                importer.importVcf(
-                    os.path.join(SCRIPT_DIR, vcfdata['path']),
+                da.import_vcf(
+                    vcf_path,
                     **kwargs
                 )
-                log.info("Deposited {}".format(vcfdata['path']))
+                log.info("Deposited {} using panel {} {}".
+                         format(vcf_path, gp_part[0], gp_part[1]))
                 self.session.commit()
 
             except UserWarning as e:
@@ -205,19 +161,21 @@ class DepositTestdata(object):
                 sys.exit()
 
     def deposit_genepanels(self):
-        dg = DepositGenepanel()
+        dg = DepositGenepanel(self.session)
         for gpdata in GENEPANELS:
             dg.add_genepanel(
-                os.path.join(SCRIPT_DIR, gpdata['path']),
+                os.path.join(SCRIPT_DIR,  gpdata['transcripts'] if 'transcripts' in gpdata else gpdata['path']),
+                os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
+                config=gpdata['config'] if 'config' in gpdata else None,
                 force_yes=True
             )
 
     def deposit_references(self):
-        import_references()
+        import_references(self.engine)
 
-    def deposit_all(self, small_only=False):
+    def deposit_all(self, test_set=None):
         log.info("--------------------")
         log.info("Starting a DB reset")
         log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
@@ -226,12 +184,22 @@ class DepositTestdata(object):
         self.deposit_users()
         self.deposit_genepanels()
         self.deposit_references()
-        self.deposit_vcfs(small_only=small_only)
+        self.deposit_vcfs(test_set=test_set)
         log.info("--------------------")
         log.info(" DB Reset Complete!")
         log.info("--------------------")
 
 
 if __name__ == "__main__":
-    dt = DepositTestdata()
-    dt.deposit_all()
+
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="small")
+
+    args = parser.parse_args()
+
+    db = DB()
+    db.connect()
+    dt = DepositTestdata(db)
+    dt.deposit_all(test_set=args.testset)

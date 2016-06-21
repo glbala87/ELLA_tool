@@ -13,5 +13,4 @@ class ReferenceSchema(Schema):
                   'title',
                   'journal',
                   'year',
-                  'URL',
                   'pubmedID')

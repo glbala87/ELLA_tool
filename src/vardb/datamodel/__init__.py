@@ -16,10 +16,12 @@ class CustomBase(object):
         If an object is created, defaults are applied to object.
         Returns a tuple of (object, created), where created is a boolean
         specifying whether an object was created.
+
+        # TODO: error when querying using '' as an integer values an_integer_field = '' is illegal
         """
         instance = session.query(cls).filter_by(**kwargs).first()
         # Facilitate mock testing by creating new object if session is mocked.
-        if isinstance(session, SessionType) and instance:
+        if isinstance(instance, cls) and instance:
             return instance, False
         else:
             params = dict(kwargs)
@@ -58,10 +60,7 @@ class CustomBase(object):
         return instance, created
 
 
-# Host can be set with DB_URL in env, or by passing in host to DB(host='url')
-
-if 'TEST' not in os.environ:
-    db = DB()
-    Engine = db.engine
-    Session = db.sessionmaker
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
+
+# Don't remove:
+from vardb.datamodel import allele, annotation, sample, assessment, genotype, gene, user
