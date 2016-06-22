@@ -332,13 +332,99 @@ def test_frequency_cutoffs_2():
         processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None, genepanel_default=defaults)
         frequencies = processor.cutoff_frequencies(annotation)
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["inDB_cutoff"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']["ExAC"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']["1000G"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']["ESP6500"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']["inDB"], "<lo_freq_cutoff")
 
 
 class TestTranscriptAnnotation(unittest.TestCase):
+
+
+    def test_get_transcript_intronic(self):
+
+        config = {
+            'variant_criteria': {
+                "intronic_region": {
+                    "-": 20,
+                    "+": 6
+                }
+            }
+        }
+
+        ta = TranscriptAnnotation(config)
+
+        # Normal positive
+        assert ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.4535-213G>T'
+        })
+
+        # Non-intronic HGVSc, yet intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.4535G>T'
+        })
+
+        # Intronic HGVSc, non-intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['stop_gained'],
+            'HGVSc': 'NM_007294.3:c.4535-213G>T'
+        })
+
+        # Non-intronic HGVSc, non-intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['stop_gained'],
+            'HGVSc': 'NM_012463.3:c.1246G>A'
+        })
+
+        # Garbage HGVSc, intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535AA+234G>T'
+        })
+
+        # HGVSc inside region
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535+5G>T'
+        })
+
+        # HGVSc inside region
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-19G>T'
+        })
+
+        # HGVSc at region (region is not inclusive)
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535+6G>T'
+        })
+
+        # HGVSc at region (region is not inclusive)
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-20G>T'
+        })
+
+        # HGVSc region +1
+        assert ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535+7G>T'
+        })
+
+        # HGVSc region +1
+        assert ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-21G>T'
+        })
+
+        # No filtering when missing config
+        assert not TranscriptAnnotation({})._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-200G>T'
+        })
 
     def test_get_is_last_exon(self):
 
