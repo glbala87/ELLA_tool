@@ -32,7 +32,7 @@ import logging
 import json
 import shutil
 
-from vardb.deposit.deposit import Importer
+from vardb.deposit.deposit_analysis import DepositAnalysis
 
 log = logging.getLogger(__name__)
 
@@ -86,12 +86,11 @@ class AnalysisWatcher(object):
         :type sample_config: list
         """
 
-        importer = Importer(self.session)
-        importer.importVcf(
+        da = DepositAnalysis(self.session)
+        da.import_vcf(
             analysis_vcf_path,
             sample_configs=sample_configs,
-            analysis_config=analysis_config,
-            import_assessments=False
+            analysis_config=analysis_config
         )
 
     def check_and_import(self):
