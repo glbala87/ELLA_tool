@@ -233,20 +233,20 @@ class TestFrequencyAnnotation(unittest.TestCase):
         processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
         frequencies = processor.cutoff_frequencies(None)
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
-        self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
-        self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["ExAC"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["1000G"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["ESP6500"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["inDB"], "null_freq")
 
     def test_frequency_cutoffs_from_empty(self):
 
         processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
         frequencies = processor.cutoff_frequencies({})
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
-        self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
-        self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["ExAC"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["1000G"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["ESP6500"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["inDB"], "null_freq")
 
     def test_frequency_cutoffs_1(self):
 
@@ -270,10 +270,10 @@ class TestFrequencyAnnotation(unittest.TestCase):
         processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
         frequencies = processor.cutoff_frequencies(annotation)
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "≥hi_freq_cutoff")
-        self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
+        self.assertEquals(frequencies['cutoff']["ExAC"], ">=hi_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']["1000G"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']["ESP6500"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']["inDB"], "null_freq")
 
 
 def test_frequency_cutoffs_2():
@@ -301,10 +301,10 @@ def test_frequency_cutoffs_2():
 
     frequencies = processor.cutoff_frequencies(annotation)
 
-    assert frequencies["ExAC_cutoff"] == ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
-    assert frequencies["1000G_cutoff"] == ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
-    assert frequencies["ESP6500_cutoff"] == "<lo_freq_cutoff"
-    assert frequencies["inDB_cutoff"] =="null_freq"
+    assert frequencies['cutoff']["ExAC"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies['cutoff']["1000G"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies['cutoff']["ESP6500"] == "<lo_freq_cutoff"
+    assert frequencies['cutoff']["inDB"] =="null_freq"
 
     def test_frequency_cutoffs_3(self):
 
