@@ -13,66 +13,6 @@ class AlleleFilter {
 
     }
 
-    filterClass1(alleles) {
-
-        let included = [];
-        for (let a of alleles) {
-            let exclude = false;
-            for (let [key, subkeys] of Object.entries(this.config.frequencies.criterias)) {
-                for (let [subkey, criteria] of Object.entries(subkeys)) {
-                    if (!exclude &&
-                        key in a.annotation.frequencies &&
-                        subkey in a.annotation.frequencies[key]) {
-                        exclude = a.annotation.frequencies[key][subkey] > criteria;
-                    }
-                }
-            }
-            if (!exclude) {
-                included.push(a);
-            }
-        }
-        return included;
-
-    }
-
-    /**
-     * Filters away any alleles with intron_variant as Consequence
-     * and that are outside range given in config.
-     * @return {Array} Filtered array of alleles.
-     */
-    filterIntronicAlleles(alleles) {
-        // Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
-        // but not NM_007294.3:c.4535G>T
-        let reg_exp = /.*c\.[0-9]+?([\-\+])([0-9]+)/;
-        return alleles.filter(a => {
-            if (!a.annotation.filtered.length) {
-                return true;  // Always include if no filtered transcripts
-            }
-            // Only exclude if variant is outside range given in config
-            // as given by the cDNA
-            // If the format is different, don't filter variant.
-            return !(a.annotation.filtered.every(e => {
-                let cdna_pos = reg_exp.exec(e.HGVSc);
-                if (!cdna_pos || !cdna_pos.length) {  // No match, include it
-                    return false;
-                }
-                else {
-                    let [first, sign, pos] = cdna_pos;
-                    pos = parseInt(pos, 10);
-                    let criteria = this.config.variant_criteria.intronic_region;
-                    if (sign in criteria) {
-                        return pos > criteria[sign];
-                    }
-                    else {
-                        return false;
-                    }
-                }
-
-            }));
-        });
-    }
-
-
     /**
      * Filters away alleles that doesn't have any frequency data.
      * @return {Array} Alleles with frequency data.

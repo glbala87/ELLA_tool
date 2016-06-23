@@ -13,7 +13,6 @@ export class Interpretation {
         if ('analysis' in data) {
             this.analysis = new Analysis(data.analysis);
         }
-        this.references = [];
         this.dirty = false; // Indicates whether any state has changed, so user should save
 
     }
@@ -29,7 +28,4 @@ export class Interpretation {
         this.dirty = false;
     }
 
-    setAlleles(alleles) {
-        this.alleles = alleles;
-    }
 }
