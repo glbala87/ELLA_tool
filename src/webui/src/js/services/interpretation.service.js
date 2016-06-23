@@ -55,27 +55,9 @@ class InterpretationService {
             // Prepare interpretation and assign user
             Promise.all([userPromise, interpretationPromise]).spread((user, interpretation) => {
                 interpretation.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
+                console.log("Interpretation loaded", interpretation);
+                resolve(interpretation);
             });
-
-            // Resolve final promise
-            Promise.all([userPromise, interpretationPromise]).spread((user, interpretation) => {
-                return this.reloadAlleles(interpretation).then(alleles => {
-                    console.log("Interpretation loaded", interpretation);
-                    resolve(interpretation);
-                });
-            });
-        });
-    }
-
-    reloadAlleles(interpretation) {
-        return this.alleleService.getAlleles(
-            interpretation.allele_ids,
-            interpretation.analysis.samples[0].id,
-            interpretation.analysis.genepanel.name,
-            interpretation.analysis.genepanel.version
-        ).then(alleles => {
-            interpretation.setAlleles(alleles);
-            return alleles;
         });
     }
 

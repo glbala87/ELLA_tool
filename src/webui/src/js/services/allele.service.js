@@ -34,15 +34,6 @@ export class AlleleService {
         );
     }
 
-    getAllelesByAnalysis(allele_ids, analysis) {
-        return this.getAlleles(
-            allele_ids,
-            analysis.samples[0].id, // TODO: Handle multiple samples
-            analysis.genepanel.name,
-            analysis.genepanel.version
-        )
-    }
-
     /**
      * POSTs an referenceassessment to the backend.
      * Note! Normally you want to use the analysis' finalize

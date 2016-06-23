@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+import re
+
 from api import config
 from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
 from vardb.datamodel.gene import Transcript
@@ -63,6 +65,9 @@ class TranscriptAnnotation(object):
     CONTRIBUTION_KEY = 'transcripts'
     CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS = 'filtered_transcripts'
 
+    # Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
+    # but not NM_007294.3:c.4535G>T
+    INTRON_CHECK_REGEX = re.compile(r'.*c\.[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
 
     CSQ_FIELDS = [
         'Consequence',
@@ -87,6 +92,31 @@ class TranscriptAnnotation(object):
 
     def __init__(self, config):
         self.config = config
+
+    def _get_transcript_intronic(self, transcript_data):
+        """
+        Checks whether variant for given transcript is considered
+        intronic according to coordinates given by configuration.
+
+        Checks first if consequence is intron_variant,
+        then parses the cDNA coordinates to check how far into
+        the intron it is.
+        """
+        criteria = self.config.get('variant_criteria', {}).get('intronic_region')
+        if criteria and 'intron_variant' in transcript_data['Consequence']:
+            hgvsc = transcript_data.get('HGVSc')
+            match = re.match(TranscriptAnnotation.INTRON_CHECK_REGEX, hgvsc)
+            if match:
+                match_data = match.groupdict()
+
+                # Regex should guarantee int conversion is possible
+                plus_minus, distance = match_data['plus_minus'], int(match_data['distance'])
+
+                # Check if distance is outside criteria
+                if plus_minus in criteria:
+                    return distance > criteria[plus_minus]
+
+        return False
 
     def _get_is_last_exon(self, transcript_data):
 
@@ -172,7 +202,6 @@ class TranscriptAnnotation(object):
             transcript_data = {'splice_' + k.replace('-', '_'): data[k] for k in TranscriptAnnotation.SPLICE_FIELDS if k in data}
             transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
 
-
             if transcript_data['Transcript'] in transcripts:
                 transcripts[transcript_data['Transcript']].append(transcript_data)
             else:
@@ -238,6 +267,11 @@ class TranscriptAnnotation(object):
             transcripts.append(t)
 
         final_transcripts = sorted(transcripts, key=lambda x: x['Transcript'])
+
+        # Add 'intronic' flag:
+        for t in final_transcripts:
+            t['intronic'] = self._get_transcript_intronic(t)
+
         result = {TranscriptAnnotation.CONTRIBUTION_KEY: final_transcripts}
 
         if genepanel:
