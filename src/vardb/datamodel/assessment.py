@@ -30,8 +30,8 @@ class AlleleAssessment(Base):
     previousAssessment = relationship("AlleleAssessment", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False, backref='assessments')
-    genepanelName = Column(String, nullable=False)
-    genepanelVersion = Column(String, nullable=False)
+    genepanel_name = Column(String, nullable=False)
+    genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
@@ -39,7 +39,7 @@ class AlleleAssessment(Base):
     referenceAssessments = relationship("ReferenceAssessment",
                                         secondary=AlleleAssessmentReferenceAssessment)
 
-    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.classification, str(self.user))
@@ -65,15 +65,15 @@ class ReferenceAssessment(Base):
     user = relationship("User", uselist=False)
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
     dateSuperceeded = Column("date_superceeded", DateTime)
-    genepanelName = Column(String, nullable=False)
-    genepanelVersion = Column(String, nullable=False)
+    genepanel_name = Column(String, nullable=False)
+    genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
     previousAssessment_id = Column(Integer, ForeignKey("referenceassessment.id"))
     previousAssessment = relationship("ReferenceAssessment", uselist=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
-    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __str__(self):
         return "%s, %s, %s" % (str(self.user), self.reference, self.evaluation)

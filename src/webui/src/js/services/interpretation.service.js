@@ -119,12 +119,12 @@ class InterpretationService {
                             if (alleles.find(a => a.id === allele_state.allele_id)) {
                                 alleleassessments.push(this.prepareAlleleAssessments(
                                     allele_state.allele_id,
-                                    interpretation.analysis.id,
-                                    allele_state
+                                    allele_state,
+                                    interpretation.analysis.id
                                     ));
                                 referenceassessments = referenceassessments.concat(this.prepareReferenceAssessments(
-                                    interpretation.analysis.id,
-                                    allele_state
+                                    allele_state,
+                                    interpretation.analysis.id
                                 ));
                             }
                         }
@@ -143,29 +143,35 @@ class InterpretationService {
         });
     }
 
-    prepareAlleleAssessments(allele_id, analysis_id, allelestate) {
+    prepareAlleleAssessments(allele_id, allelestate, analysis_id=null, genepanel_name=null, genepanel_version=null) {
         // If id is included, we're reusing an existing one.
+        let aa = {
+            allele_id: allele_id,
+
+        };
+        if (analysis_id) {
+            aa.analysis_id = analysis_id;
+        }
+        if (genepanel_name &&
+            genepanel_version) {
+            aa.genepanel_name = genepanel_name;
+            aa.genepanel_version = genepanel_version;
+        }
         if ('id' in allelestate.alleleassessment) {
-            return {
-                allele_id: allele_id,
-                id: allelestate.alleleassessment.id,
-                analysis_id: analysis_id
-            };
+            aa.id = allelestate.alleleassessment.id;
         }
         else {
             // Fill in fields expected by backend
-            return {
-                allele_id: allele_id,
-                analysis_id: analysis_id,
+            Object.assign(aa, {
                 user_id: this.user.getCurrentUserId(),
                 classification: allelestate.alleleassessment.classification,
                 evaluation: allelestate.alleleassessment.evaluation
-            };
+            });
         }
-
+        return aa;
     }
 
-    prepareReferenceAssessments(analysis_id, allelestate) {
+    prepareReferenceAssessments(allelestate, analysis_id=null, genepanel_name=null, genepanel_version=null) {
         let referenceassessments = [];
         if ('referenceassessments' in allelestate) {
             // Iterate over all referenceassessments for this allele
@@ -173,25 +179,29 @@ class InterpretationService {
                 if (!reference_state.evaluation) {
                     continue;
                 }
+                let ra = {
+                    reference_id: reference_state.reference_id,
+                    allele_id: reference_state.allele_id
+                }
+                if (analysis_id) {
+                    ra.analysis_id = analysis_id;
+                }
+                if (genepanel_name &&
+                    genepanel_version) {
+                    ra.genepanel_name = genepanel_name;
+                    ra.genepanel_version = genepanel_version;
+                }
+
                 // If id is included, we're reusing an existing one.
                 if ('id' in reference_state) {
-                    referenceassessments.push({
-                        allele_id: reference_state.allele_id,
-                        reference_id: reference_state.reference_id,
-                        id: reference_state.id,
-                        analysis_id: analysis_id
-                    });
+                    ra.id = reference_state.id;
                 }
                 else {
                     // Fill in fields expected by backend
-                    referenceassessments.push({
-                        allele_id: reference_state.allele_id,
-                        reference_id: reference_state.reference_id,
-                        analysis_id: analysis_id,
-                        evaluation: reference_state.evaluation || {},
-                        user_id: this.user.getCurrentUserId()
-                    });
+                    ra.evaluation = reference_state.evaluation || {};
+                    ra.user_id = this.user.getCurrentUserId();
                 }
+                referenceassessments.push(ra);
             }
         }
         return referenceassessments;

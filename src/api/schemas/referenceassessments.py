@@ -13,8 +13,8 @@ class ReferenceAssessmentSchema(Schema):
                   'allele_id',
                   'reference_id',
                   'analysis_id',
-                  'genepanelName',
-                  'genepanelVersion',
+                  'genepanel_name',
+                  'genepanel_version',
                   'dateLastUpdate',
                   'dateSuperceeded',
                   'user_id',
@@ -23,7 +23,7 @@ class ReferenceAssessmentSchema(Schema):
     user_id = fields.Integer(allow_none=True)  # Debug only
     dateSuperceeded = fields.DateTime(allow_none=True)
     dateLastUpdate = fields.DateTime(allow_none=True)
-    evaluation = fields.Field(required=True)
+    # evaluation = fields.Field(required=True)
 
     @post_load
     def make_object(self, data):
