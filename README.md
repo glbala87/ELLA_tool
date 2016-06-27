@@ -42,3 +42,21 @@ To clean up docker containers when e2e tests fail: `make cleanup-e2e BRANCH=test
   - Static assets are pre-built and stored at `/static`
   - Gunicorn runs the API, it stores its socket at `/socket`
 - All relevant configuration files are in `ops/prod`
+
+### Exploring with protractor
+#### Setup
+1. Create a separate folder outside Ella source folder
+2. Copy ops/dev/package-protractor.json to package.json
+3. Install node modules: `npm install`
+4. Install selenium. `npm run-script-init`
+
+A npm script 'protractor' in package.json ensures the locally installed binaries in node_modules are used.
+### Explore
+Start a Repl:	
+`npm run-script protractor --  --elementExplorer --directConnect --baseUrl <url to your running app>`
+Try out protractor/WebDriver selectors and commands before putting them in your spec files.
+This works for an Angular app only.
+
+### Run e2e test
+`npm run-script protractor -- <path to protractor conf file> --specs <path to you spec file> --baseUrl <url of your running app>`
+This automatically launches a Selenium server (the one installed through the `webdriver-manager update` command.
