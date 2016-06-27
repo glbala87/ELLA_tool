@@ -1,9 +1,9 @@
 <div class="content-box" ng-class="{'no-content': !vm.hasContent()}">
   <h3 class="title">Other</h3>
   <table>
-        <tr ng-repeat="(k, v) in vm.config.custom_annotation.prediction" ng-if="vm.allele.annotation.prediction[k]">
-            <td style="padding-right: 5px;"><p>{{k}}: </p></td>
-            <td><p>{{vm.allele.annotation.prediction[k]}}</p></td>
+        <tr ng-repeat="group in vm.config.custom_annotation.prediction" ng-if="vm.allele.annotation.prediction[group.key]">
+            <td style="padding-right: 5px;"><p>{{group.name}}: </p></td>
+            <td><p>{{vm.allele.annotation.prediction[group.key]}}</p></td>
         </tr>
     </table>
 </div>

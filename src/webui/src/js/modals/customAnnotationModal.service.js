@@ -63,6 +63,29 @@ export class CustomAnnotationController {
     }
 
     /**
+     * Returns valid group options given the selected Allele.
+     * If a group is only valid for a set of genes, the genes relevant for the Allele
+     * in question checked.
+     * @return {Array(object)} List of group objects
+     */
+    getAnnotationGroups() {
+        let valid_groups = this.config.custom_annotation[this.category].filter(c => {
+            if ('only_for_genes' in c) {
+                let genes = this.selected_allele.annotation.filtered.map(t => t.SYMBOL);
+                return c.only_for_genes.some(g => genes.includes(g));
+            }
+            // If no restriction, always include it.
+            return true;
+        });
+
+        // Select first option by default if not already selected
+        if (!valid_groups.includes(this.selected_annotation_group)) {
+            this.selected_annotation_group = valid_groups[0];
+        }
+        return valid_groups;
+    }
+
+    /**
     * Tries to get any existing CustomAnnotation for the allele in question
     * and returns a copy of it. If no CustomAnnotation is present, an empty object is returned.
     * @param  {Allele} allele Allele for which to look for existing CustonAnnotation
@@ -130,7 +153,12 @@ export class CustomAnnotationController {
     }
 
     addAnnotation() {
-        this.getCurrent()[this.selected_annotation_group] = this.selected_annotation_value[1];
+        if (Array.isArray(this.selected_annotation_value)) {
+            this.getCurrent()[this.selected_annotation_group.key] = this.selected_annotation_value[1];
+        }
+        else {
+            this.getCurrent()[this.selected_annotation_group.key] = this.selected_annotation_value;
+        }
     }
 
     /**
@@ -176,22 +204,24 @@ export class CustomAnnotationController {
     }
 
     /**
-     * Looks for whether there are any URLs for the group name.
-     * @param  {String} group Name of the group, e.g. 'LOVD'
-     * @return {String}       URL or undefined.
+     * Looks for whether there are any URLs for the selected annotation group.
+     * @return {Array(string)}       URLs
      */
-    getUrl(group) {
-        let gene = this.selected_allele.annotation.filtered[0].SYMBOL;
+    getUrls() {
+        let genes = this.selected_allele.annotation.filtered.map(t => t.SYMBOL);
 
-        if (this.category in this.config.custom_annotation_url &&
-            this.selected_annotation_group in this.config.custom_annotation_url[this.category]) {
-            let url_match = this.config.custom_annotation_url[this.category][this.selected_annotation_group].find(obj => {
-                return obj.gene === gene;
-            });
-            if (url_match) {
-                return url_match.url;
+        let urls = [];
+        if ('url_for_genes' in this.selected_annotation_group) {
+            for (let gene of genes) {
+                if (gene in this.selected_annotation_group.url_for_genes) {
+                    urls.push(this.selected_annotation_group.url_for_genes[gene]);
+                }
             }
         }
+        if ('url' in this.selected_annotation_group) {
+            urls.push(this.selected_annotation_group.url);
+        }
+        return urls;
     }
 
     removeReference(ref) {
@@ -219,7 +249,6 @@ export class CustomAnnotationController {
                 }
             }
         }
-        console.log(this.custom_annotation);
         this.modal.close(this.custom_annotation);
     }
 }
