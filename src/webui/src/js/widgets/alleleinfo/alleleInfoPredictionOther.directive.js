@@ -17,9 +17,9 @@ export class AlleleInfoPredictionOther {
     }
 
     hasContent() {
-        return Object.keys(this.config.custom_annotation.prediction).some(group => {
+        return this.config.custom_annotation.prediction.some(group => {
             return 'prediction' in this.allele.annotation &&
-                   group in this.allele.annotation.prediction
+                   group.key in this.allele.annotation.prediction
         });
     }
 }
