@@ -12,7 +12,7 @@ rules = [
     { "code": "REQ_GP_lof_only", "rule": {"genepanel.gp_disease_mode": "lof_only"}},
     { "code": "REQ_GP_missense_only", "rule": {"genepanel.gp_disease_mode": "missense_only"}},
     ### REQ
-    { "code": "REQ_≥4affected", "rule": {"refassessment.*.ref_population": "in_many_aff"}},
+    { "code": "REQ_>=4affected", "rule": {"refassessment.*.ref_population": "in_many_aff"}},
     { "code": "REQ_2affected", "rule": {"refassessment.*.ref_population": "in_few_aff"}},
     { "code": "REQ_3affected", "rule": {"refassessment.*.ref_population": "in_more_aff"}},
     { "code": "REQ_aa_diff", "rule": {"refassessment.*.ref_aa_overlap_sim": "diff_prop"}},
@@ -45,7 +45,6 @@ rules = [
     { "code": "REQ_no_segregation", "rule": {"refassessment.*.ref_segregation": "no_segr"}},
     # Manual edit
     { "code": "REQ_no_splice_effect", "rule": {"transcript.splice_Effect": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
-    { "code": "REQ_non-conserved", "rule": {"prediction.Conservation": "non-conserved"}},
     { "code": "REQ_normal_protein", "rule": {"refassessment.*.ref_prot": "prot_normal"}},
     { "code": "REQ_normal_RNA", "rule": {"refassessment.*.ref_rna": "rna_normal"}},
     { "code": "REQ_not_in_last_exon", "rule": {"transcript.in_last_exon": "no"}},
@@ -80,7 +79,7 @@ rules = [
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_abnormal_RNA", "REQ_RNA_HQ"]}}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_MSI", "REQ_MSI_HQ"]}}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_MMR_loss", "REQ_IHC_HQ"]}}},
-    { "code": "PS4", "rule": {"$$aggregate": {"$all": ["REQ_≥4affected", "REQ_null_freq"]}}},
+    { "code": "PS4", "rule": {"$$aggregate": {"$all": ["REQ_>=4affected", "REQ_null_freq"]}}},
     { "code": "PSxPM1", "rule": {"refassessment.*.ref_crit_site": "crit_site"}},
     { "code": "PSxPM1", "rule": {"prediction.Domain": "crit_site"}},
     { "code": "PSxPP1", "rule": {"refassessment.*.ref_segregation": {"$all": ["REQ_segregation", "REQ_segregation_HQ"]}}},
@@ -111,6 +110,7 @@ rules = [
     { "code": "PP2","rule": {"$$aggregate": {"$and":["REQ_missense",{"$in": ["REQ_GP_lof_missense","REQ_GP_missense_only"]}]}}},
     { "code": "PP3", "rule": {"transcript.splice_Effect": {"$in": ["predicted_lost ", "de_novo"]}}},
     { "code": "PP3", "rule": {"prediction.Conservation": "conserved"}},
+    { "code": "PP3", "rule": {"external.IARC-BRCA": {"$in": ["4", "5"]}}},
     # PP4 (not implemented)
     { "code": "PP5", "rule": {"external.[Trusted source]": "Pathogenic"}},
     # Manual edit
@@ -127,7 +127,6 @@ rules = [
     { "code": "BP4", "rule": {"prediction.Conservation": "non-conserved"}},
     # BP5 (not implemented)
     { "code": "BP6", "rule": {"external.[Trusted source]": "Benign"}},
-    { "code": "BP7", "rule": {"$$aggregate": {"$all": ["REQ_no_aa_change", "REQ_no_splice_effect"]}}},
     { "code": "BPxBS3", "rule": {"$$aggregate": {"$all": ["REQ_normal_protein", "REQ_prot_MQ"]}}},
     { "code": "BPxBS3", "rule": {"$$aggregate": {"$all": ["REQ_normal_RNA", "REQ_RNA_MQ"]}}},
     { "code": "BPxBS3", "rule": {"$$aggregate": {"$all": ["REQ_no_MSI", "REQ_MSI_MQ"]}}},
@@ -143,6 +142,8 @@ rules = [
     { "code": "BS3", "rule": {"$$aggregate": {"$all": ["REQ_MMR_loss", "REQ_IHC_HQ"]}}},
     { "code": "BS4", "rule": {"refassessment.*.ref_segregation": {"$all": ["REQ_no_segregation", "REQ_segregation_HQ"]}}},
     { "code": "BS4", "rule": {"family.segregation": {"$all": ["REQ_no_segregation", "REQ_segregation_HQ"]}}},
+    { "code": "BSxBP4", "rule": {"external.IARC-BRCA": {"$in": ["1", "2"]}}},
+    { "code": "BSxBP7", "rule": {"$$aggregate": {"$all": ["REQ_no_aa_change", "REQ_no_splice_effect"]}}},
     ### BA*
     { "code": "BA1", "rule": {"frequencies.cutoff.ExAC": ">=hi_freq_cutoff"}},
     { "code": "BA1", "rule": {"frequencies.cutoff.1000G": ">=hi_freq_cutoff"}},
