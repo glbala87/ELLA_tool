@@ -496,7 +496,7 @@ def find_symbol(annotation):
 
     if len(set(symbols)) > 1:
         raise Exception("The transcript(s) selected don't have the same gene symbol, found genes {}"
-                        .format(','.join(symbols)))
+                        .format(','.join(list(set(symbols)))))
 
     return symbols.pop()
 
