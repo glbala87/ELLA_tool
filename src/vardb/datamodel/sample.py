@@ -58,15 +58,15 @@ class Analysis(Base):
 
     id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
     name = Column(String(), nullable=False, unique=True)
-    genepanelName = Column(String)
-    genepanelVersion = Column(String)
+    genepanel_name = Column(String)
+    genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysisConfig = Column("analysis_config", JSONB)
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
     alleleAssessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
 
-    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanelName, self.genepanelVersion)

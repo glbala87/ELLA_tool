@@ -37,11 +37,11 @@ export class AlleleResource {
         });
     }
 
-    getAnalyses(allele_id) {
+    getGenepanels(allele_id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/alleles/${allele_id}/analyses/`);
-            let analyses = r.query(() => {
-                resolve(analyses);
+            let r = this.resource(`${this.base}/alleles/${allele_id}/genepanels/`);
+            let genepanels = r.query(() => {
+                resolve(genepanels);
             }, reject);
         });
     }
