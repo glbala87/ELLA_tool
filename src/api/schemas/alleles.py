@@ -9,10 +9,10 @@ class AlleleSchema(Schema):
 
     class Meta:
         fields = ('id',
-                  'genomeReference',
+                  'genome_reference',
                   'chromosome',
-                  'startPosition',
-                  'openEndPosition',
-                  'changeFrom',
-                  'changeTo',
-                  'changeType')
+                  'start_position',
+                  'open_end_position',
+                  'change_from',
+                  'change_to',
+                  'change_type')

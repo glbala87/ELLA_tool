@@ -5,16 +5,16 @@ class SampleSchema(Schema):
     class Meta:
         fields = ('id',
                   'identifier',
-                  'sampleType',
+                  'sample_type',
                   'deposit_date',
-                  'sampleConfig')
+                  'sample_config')
 
 class UserSchema(Schema):
     class Meta:
         fields = ('id',
                   'username',
-                  'firstName',
-                  'lastName')
+                  'first_name',
+                  'last_name')
         skip_missing = True
 
 
@@ -29,7 +29,7 @@ class AnalysisInterpretationSchema(Schema):
     class Meta:
         fields = ('id',
                   'status',
-                  'dateLastUpdate',
+                  'date_last_update',
                   'user')
         skip_missing = True
 

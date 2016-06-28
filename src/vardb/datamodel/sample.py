@@ -38,14 +38,14 @@ class Sample(Base):
     identifier = Column(String(), nullable=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
-    sampleType = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
-    deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    sampleConfig = Column("sample_config", JSONB)  # includes capturekit and more
+    sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
+    deposit_date = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    sample_config = Column(JSONB)  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
     def __repr__(self):
-        return "<Sample('%s', '%s')>" % (self.identifier, self.sampleType)
+        return "<Sample('%s', '%s')>" % (self.identifier, self.sample_type)
 
 
 class Analysis(Base):
@@ -62,14 +62,14 @@ class Analysis(Base):
     genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    analysisConfig = Column("analysis_config", JSONB)
+    analysis_config = Column(JSONB)
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
-    alleleAssessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
+    alleleassessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
 
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanelName, self.genepanelVersion)
+        return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanel_name, self.genepanel_version)
 
 
 class Interpretation(Base):
@@ -91,11 +91,11 @@ class Interpretation(Base):
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='interpretations')
     state = Column(MUTJSONB, default={})
-    stateHistory = Column(MUTJSONB, default={})
+    state_history = Column(MUTJSONB, default={})
     # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
-    dateLastUpdate = Column("date_last_update", DateTime, nullable=False, default=datetime.datetime.now)
+    date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
         return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)

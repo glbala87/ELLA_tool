@@ -5,4 +5,4 @@ class AnnotationSchema(Schema):
     class Meta:
         fields = ('id',
                   'annotations',
-                  'dateSuperceeded')
+                  'date_superceeded')
