@@ -110,13 +110,6 @@ class DepositTestdata(object):
         vi = vcfiterator.VcfIterator(vcf_path)
         return vi.getSamples()
 
-    def remake_db(self):
-        # We must import all models before recreating database
-        from vardb.datamodel import allele, genotype, assessment, sample, gene, annotation  # needed
-
-        vardb.datamodel.Base.metadata.drop_all(self.engine)
-        vardb.datamodel.Base.metadata.create_all(self.engine)
-
     def deposit_users(self):
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
             import_users(self.session, json.load(f))
@@ -187,7 +180,6 @@ class DepositTestdata(object):
         log.info("Starting a DB reset")
         log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
         log.info("--------------------")
-        self.remake_db()
         self.deposit_users()
         self.deposit_genepanels()
         self.deposit_references()

@@ -133,8 +133,32 @@ test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	createdb vardb-test
 ifeq ($(TEST_COMMAND),) # empty?
+
+	/ella/ella-cli database drop -f
+	/ella/ella-cli database make -f
 	py.test --color=yes "/ella/src/api/" -s
+	/ella/ella-cli database drop -f
+else
+	$(TEST_COMMAND)
+endif
+
+test-api-migration: export PGDATABASE=vardb-test
+test-api-migration: export DB_URL=postgres:///vardb-test
+test-api-migration: export PYTHONPATH=/ella/src
+test-api-migration:
+	supervisord -c /ella/ops/test/supervisor.cfg
+	make dbsleep
+	createdb vardb-test
+ifeq ($(TEST_COMMAND),) # empty?
+	# Run migration scripts test
+	/ella/ella-cli database ci-migration
+
+	# Run API test on migrated database
+	/ella/ella-cli database ci-migration-head
+	py.test --color=yes "/ella/src/api/" -s
+	/ella/ella-cli database drop -f
 else
 	$(TEST_COMMAND)
 endif
