@@ -14,12 +14,12 @@ class Allele(Base):
     genome_reference = Column(String, nullable=False)
     genotypes = relationship("Genotype", primaryjoin="or_(Allele.id==Genotype.allele_id, "
                                                          "Allele.id==Genotype.secondallele_id)")
-    chromosome = Column(nullable=False)
+    chromosome = Column(String, nullable=False)
     start_position = Column(Integer, nullable=False)
     open_end_position = Column(Integer, nullable=False)
     change_from = Column(String, nullable=False)
     change_to = Column(String, nullable=False)
-    change_type = Column(nullable=False)
+    change_type = Column(String, nullable=False)
 
     __table_args__ = (Index("ix_alleleloci", "chromosome", "start_position", "open_end_position"),
                       UniqueConstraint("chromosome", "start_position", "open_end_position", "change_from", "change_to", "change_type", name="ucAllele"), )
