@@ -12,6 +12,14 @@ test_api:
     - /^ui-.*$/
     - /^ops-.*$/
 
+test_api_migration:
+  stage: test
+  script:
+    - make single-test TEST_NAME=api-migration
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
 test_js:
   stage: test
   script:
