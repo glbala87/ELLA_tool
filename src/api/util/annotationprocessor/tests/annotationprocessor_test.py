@@ -623,4 +623,5 @@ def test_find_symbol_raise_exception():
           'annotation_id': 1
          })
     assert exc
-    assert "Gene X,Gene Y" in exc.value.message
+    assert "Gene X" in exc.value.message
+    assert "Gene Y" in exc.value.message
