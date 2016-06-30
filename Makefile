@@ -139,7 +139,6 @@ ifeq ($(TEST_COMMAND),) # empty?
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
 	py.test --color=yes "/ella/src/api/" -s
-	/ella/ella-cli database drop -f
 else
 	$(TEST_COMMAND)
 endif
@@ -158,7 +157,6 @@ ifeq ($(TEST_COMMAND),) # empty?
 	# Run API test on migrated database
 	/ella/ella-cli database ci-migration-head
 	py.test --color=yes "/ella/src/api/" -s
-	/ella/ella-cli database drop -f
 else
 	$(TEST_COMMAND)
 endif
