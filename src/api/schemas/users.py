@@ -5,5 +5,5 @@ class UserSchema(Schema):
     class Meta:
         fields = ('id',
                   'username',
-                  'firstName',
-                  'lastName')
+                  'first_name',
+                  'last_name')

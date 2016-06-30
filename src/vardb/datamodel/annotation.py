@@ -38,7 +38,7 @@ class CustomAnnotation(Base):
     allele = relationship("Allele", uselist=False)
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    previousAnnotation_id = Column("previous_annotation_id", Integer,
+    previous_annotation_id = Column("previous_annotation_id", Integer,
                                     ForeignKey("customannotation.id"))
     # use remote_side to store foreignkey for previous_annotation in 'this' parent:
     previous_annotation = relationship("CustomAnnotation", uselist=False, remote_side=id)

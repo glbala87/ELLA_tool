@@ -141,13 +141,13 @@ class SearchResource(Resource):
 
             # Specfic location (only pos1)
             if chr_pos['pos1'] is not None and chr_pos['pos2'] is None:
-                qallele = qallele.filter(allele.Allele.startPosition == chr_pos['pos1'])
+                qallele = qallele.filter(allele.Allele.start_position == chr_pos['pos1'])
 
             # Range (both pos1 and pos2)
             elif chr_pos['pos1'] is not None and chr_pos['pos2'] is not None:
                 qallele = qallele.filter(
-                    allele.Allele.startPosition >= chr_pos['pos1'],
-                    allele.Allele.openEndPosition <= chr_pos['pos2'],
+                    allele.Allele.start_position >= chr_pos['pos1'],
+                    allele.Allele.open_end_position <= chr_pos['pos2'],
                 )
 
             result = qallele.limit(SearchResource.ALLELE_LIMIT).all()
@@ -253,7 +253,7 @@ class SearchResource(Resource):
             alleles = session.query(allele.Allele).join(assessment.AlleleAssessment).filter(
                 allele.Allele.id.in_(allele_ids),
                 assessment.AlleleAssessment.allele_id.in_(allele_ids),
-                assessment.AlleleAssessment.dateSuperceeded == None,
+                assessment.AlleleAssessment.date_superceeded == None,
             ).limit(SearchResource.ALLELE_LIMIT).all()
             return AlleleDataLoader(session).from_objs(
                 alleles,

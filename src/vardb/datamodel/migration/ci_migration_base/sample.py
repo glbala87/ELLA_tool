@@ -87,7 +87,7 @@ class Interpretation(Base):
     id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
-    userState = Column("user_state", MUTJSONB, default={})
+    user_state = Column("user_state", MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='interpretations')
     state = Column(MUTJSONB, default={})

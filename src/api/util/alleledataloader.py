@@ -75,7 +75,7 @@ class AlleleDataLoader(object):
             annotation_schema = AnnotationSchema()
             allele_annotations = self.session.query(annotation.Annotation).filter(
                 annotation.Annotation.allele_id.in_(ids),
-                annotation.Annotation.dateSuperceeded == None
+                annotation.Annotation.date_superceeded == None
             ).all()
             for allele_annotation in allele_annotations:
                 allele_data[allele_annotation.allele_id][KEY_ANNOTATION] = annotation_schema.dump(allele_annotation).data
@@ -84,7 +84,7 @@ class AlleleDataLoader(object):
             custom_annotation_schema = CustomAnnotationSchema()
             allele_custom_annotations = self.session.query(annotation.CustomAnnotation).filter(
                 annotation.CustomAnnotation.allele_id.in_(ids),
-                annotation.CustomAnnotation.dateSuperceeded == None
+                annotation.CustomAnnotation.date_superceeded == None
             ).all()
             for allele_custom_annotation in allele_custom_annotations:
                 allele_data[allele_custom_annotation.allele_id][KEY_CUSTOM_ANNOTATION] = custom_annotation_schema.dump(allele_custom_annotation).data
@@ -93,7 +93,7 @@ class AlleleDataLoader(object):
             aa_schema = AlleleAssessmentSchema()
             allele_assessments = self.session.query(assessment.AlleleAssessment).filter(
                 assessment.AlleleAssessment.allele_id.in_(ids),
-                assessment.AlleleAssessment.dateSuperceeded == None
+                assessment.AlleleAssessment.date_superceeded == None
             ).all()
             for aa in allele_assessments:
                 allele_data[aa.allele_id][KEY_ALLELE_ASSESSMENT] = aa_schema.dump(aa).data
@@ -102,7 +102,7 @@ class AlleleDataLoader(object):
             ra_schema = ReferenceAssessmentSchema()
             reference_assessments = self.session.query(assessment.ReferenceAssessment).filter(
                 assessment.ReferenceAssessment.allele_id.in_(ids),
-                assessment.ReferenceAssessment.dateSuperceeded == None
+                assessment.ReferenceAssessment.date_superceeded == None
             ).all()
             for ra in reference_assessments:
                 if KEY_REFERENCE_ASSESSMENTS not in allele_data[ra.allele_id]:

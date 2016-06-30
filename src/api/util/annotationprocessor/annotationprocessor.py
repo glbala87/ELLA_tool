@@ -39,18 +39,18 @@ class References(object):
         common_pmid = set(csq_pubmeds) & set(hgmd_pubmeds)
         for common in common_pmid:
             references.append({
-                'pubmedID': common, 'sources': ['VEP', 'HGMD']
+                'pubmed_id': common, 'sources': ['VEP', 'HGMD']
             })
 
         for pmid in [p for p in csq_pubmeds if p not in common_pmid]:
             references.append({
-                'pubmedID': pmid,
+                'pubmed_id': pmid,
                 'sources': ['VEP']
             })
 
         for pmid in [p for p in hgmd_pubmeds if p not in common_pmid]:
             references.append({
-                'pubmedID': pmid,
+                'pubmed_id': pmid,
                 'sources': ['HGMD']
             })
 
@@ -228,8 +228,8 @@ class TranscriptAnnotation(object):
 
         gp_transcripts = list()
         for transcript in genepanel.transcripts:
-            gp_transcripts.append(transcript.refseqName)
-            gp_transcripts.append(transcript.ensemblID)  # TODO: necessary to add ensembleId as well?
+            gp_transcripts.append(transcript.refseq_name)
+            gp_transcripts.append(transcript.ensembl_id)  # TODO: necessary to add ensembleId as well?
 
         transcript_names_in_genepanel = [Transcript.get_name(t) for t in gp_transcripts]
 
@@ -472,11 +472,11 @@ class QualityAnnotation(object):
 
     def process(self, genotype):
         data = {
-            'QUAL': genotype.get('variantQuality'),
-            'GQ': genotype.get('genotypeQuality'),
-            'DP': genotype.get('sequencingDepth'),
-            'FILTER': genotype.get('filterStatus'),
-            'AD': genotype.get('alleleDepth')
+            'QUAL': genotype.get('variant_quality'),
+            'GQ': genotype.get('genotype_quality'),
+            'DP': genotype.get('sequencing_depth'),
+            'FILTER': genotype.get('filter_status'),
+            'AD': genotype.get('allele_depth')
         }
         return {QualityAnnotation.CONTRIBUTION_KEY: data}
 

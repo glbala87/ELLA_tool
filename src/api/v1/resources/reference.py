@@ -40,7 +40,7 @@ class ReferenceListResource(Resource):
         ref_data = PubmedXmlParser().from_string(data['xml'].encode('utf-8'))
 
         reference = session.query(assessment.Reference).filter(
-            assessment.Reference.pubmedID == ref_data['pubmedID']
+            assessment.Reference.pubmed_id == ref_data['pubmed_id']
         ).one_or_none()
 
         if not reference:
@@ -51,7 +51,7 @@ class ReferenceListResource(Resource):
             session.commit()
 
             reference = session.query(assessment.Reference).filter(
-                assessment.Reference.pubmedID == ref_data['pubmedID']
+                assessment.Reference.pubmed_id == ref_data['pubmed_id']
             ).one()
 
         return schemas.ReferenceSchema().dump(reference).data

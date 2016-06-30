@@ -77,7 +77,7 @@ class AssessmentCreator(object):
         :param alleleassessments: AlleleAssessment model objects
         """
         for aa in alleleassessments:
-            aa.referenceAssessments = [ra for ra in referenceassessments if ra.allele_id == aa.allele_id]
+            aa.referenceassessments = [ra for ra in referenceassessments if ra.allele_id == aa.allele_id]
 
     def _create_or_reuse_alleleassessments(self, alleleassessments):
         allele_ids = [a['allele_id'] for a in alleleassessments]
@@ -95,7 +95,7 @@ class AssessmentCreator(object):
 
         existing = self.session.query(assessment.AlleleAssessment).filter(
             assessment.AlleleAssessment.allele_id.in_(allele_ids),
-            assessment.AlleleAssessment.dateSuperceeded == None  # Only allowed to reuse valid assessment
+            assessment.AlleleAssessment.date_superceeded == None  # Only allowed to reuse valid assessment
         ).all()
 
         reused = list()
@@ -109,8 +109,8 @@ class AssessmentCreator(object):
                 reused.append(to_reuse)
             else:
                 assessment_obj = AlleleAssessmentSchema(strict=True).load(aa).data
-                assessment_obj.referenceAssessments = []  # ReferenceAssessments must be handled separately, and not included as part of data
-                assessment_obj.dateLastUpdate = datetime.datetime.now()
+                assessment_obj.referenceassessments = []  # ReferenceAssessments must be handled separately, and not included as part of data
+                assessment_obj.date_last_update = datetime.datetime.now()
 
                 # Link assessment to current valid annotation (through the allele id)
                 valid_annotation = next((an for an in cache['annotation'] if an.allele_id == aa['allele_id']), None)
@@ -129,7 +129,7 @@ class AssessmentCreator(object):
                 # Check if there's an existing assessment for this allele. If so, we want to supercede it
                 to_supercede = next((e for e in existing if e.allele_id == aa['allele_id']), None)
                 if to_supercede:
-                    to_supercede.dateSuperceeded = datetime.datetime.now()
+                    to_supercede.date_superceeded = datetime.datetime.now()
                     assessment_obj.previousAssessment_id = to_supercede.id
                 created.append(assessment_obj)
                 self.session.add(assessment_obj)
@@ -152,7 +152,7 @@ class AssessmentCreator(object):
         existing = self.session.query(assessment.ReferenceAssessment).filter(
             assessment.ReferenceAssessment.allele_id.in_(allele_ids),
             assessment.ReferenceAssessment.reference_id.in_(reference_ids),
-            assessment.ReferenceAssessment.dateSuperceeded == None  # Only allowed to reuse valid assessment
+            assessment.ReferenceAssessment.date_superceeded == None  # Only allowed to reuse valid assessment
         ).all()
 
         reused = list()
@@ -166,7 +166,7 @@ class AssessmentCreator(object):
                 reused.append(to_reuse)
             else:
                 assessment_obj = ReferenceAssessmentSchema(strict=True).load(ra).data
-                assessment_obj.dateLastUpdate = datetime.datetime.now()
+                assessment_obj.date_last_update = datetime.datetime.now()
 
                 # Link assessment to genepanel through analysis
                 if 'analysis_id' in ra:
@@ -179,8 +179,8 @@ class AssessmentCreator(object):
                 # Check if there's an existing assessment for this allele/reference. If so, we want to supercede it
                 to_supercede = next((e for e in existing if ra['allele_id'] == e.allele_id and ra['reference_id'] == e.reference_id), None)
                 if to_supercede:
-                    to_supercede.dateSuperceeded = datetime.datetime.now()
-                    assessment_obj.previousAssessment_id = to_supercede.id
+                    to_supercede.date_superceeded = datetime.datetime.now()
+                    assessment_obj.previous_assessment_id = to_supercede.id
                 created.append(assessment_obj)
                 self.session.add(assessment_obj)
 
