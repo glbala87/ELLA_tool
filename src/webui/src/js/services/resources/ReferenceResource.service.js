@@ -31,7 +31,7 @@ class ReferenceResource {
             if (!pmids.length) {
                 resolve([]);
             }
-            let q = JSON.stringify({'pubmedID': pmids});
+            let q = JSON.stringify({'pubmed_id': pmids});
             let r = this.resource(`${this.base}/references/?q=${encodeURIComponent(q)}`);
             let references = r.query(() => {
                 let refs = [];
@@ -45,7 +45,7 @@ class ReferenceResource {
 
     getReferenceAssessments(allele_ids, reference_ids) {
         let q = JSON.stringify({
-            dateSuperceeded: null,
+            date_superceeded: null,
             'allele_id': allele_ids,
             'reference_id': reference_ids,
             status: 1

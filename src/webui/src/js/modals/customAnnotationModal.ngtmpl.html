@@ -7,7 +7,7 @@
       <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added references</h2>
       <div class="included-allele">
         <article class="content-box" ng-repeat="ref in vm.getCurrent()">
-          <div class="annotation-title"><h5>{{vm.getReference(ref.pubmedID).getShortDesc()}}</h5></div>
+          <div class="annotation-title"><h5>{{vm.getReference(ref.pubmed_id).getShortDesc()}}</h5></div>
           <div><button ng-click="vm.removeReference(ref)">REMOVE</button></div>
         </article>
       </div>

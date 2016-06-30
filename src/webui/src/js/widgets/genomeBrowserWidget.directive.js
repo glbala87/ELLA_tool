@@ -98,8 +98,8 @@ export class GenomeBrowserWidgetController {
 
     setLocation(allele) {
         this.browser.setLocation(allele.chromosome,
-            allele.startPosition - 49,
-            allele.openEndPosition + 50
+            allele.start_position - 49,
+            allele.open_end_position + 50
         );
     }
 
