@@ -90,7 +90,8 @@ class DepositGenepanel(object):
             gm.Genepanel.name == genepanelName,
             gm.Genepanel.version == genepanelVersion
         ).count():
-            raise RuntimeError("Genepanel {} {} already in database".format(genepanelName, genepanelVersion))
+            log.info("Genepanel {} {} already in database, not updating...".format(genepanelName, genepanelVersion))
+            return
 
         if config:
             config_valid(config)  # raises exception
