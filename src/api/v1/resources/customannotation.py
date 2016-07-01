@@ -31,7 +31,7 @@ class CustomAnnotationList(Resource):
         # Check for existing CustomAnnotations
         existing_ca = session.query(annotation.CustomAnnotation).filter(
             annotation.CustomAnnotation.allele_id == allele_id,
-            annotation.CustomAnnotation.dateSuperceeded == None
+            annotation.CustomAnnotation.date_superceeded == None
         ).one_or_none()
 
         ca_data = {
@@ -42,8 +42,8 @@ class CustomAnnotationList(Resource):
 
         if existing_ca:
             # Replace current
-            ca_data['previousAnnotation_id'] = existing_ca.id
-            existing_ca.dateSuperceeded = datetime.datetime.now()
+            ca_data['previous_annotation_id'] = existing_ca.id
+            existing_ca.date_superceeded = datetime.datetime.now()
 
         ca = annotation.CustomAnnotation(**ca_data)
         session.add(ca)

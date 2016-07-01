@@ -87,7 +87,7 @@ export default class Genepanel {
     phenotypesBy(geneSymbol) {
         let phenotypes = this.phenotypes;
         if (phenotypes) {
-            return phenotypes.filter(ph => ph.gene.hugoSymbol == geneSymbol);
+            return phenotypes.filter(ph => ph.gene.hugo_symbol == geneSymbol);
         } else {
             return null;
         }

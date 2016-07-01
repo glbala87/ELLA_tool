@@ -82,7 +82,7 @@ class TestAlleleAssessment(object):
 
         interpretation = self._get_interpretation(client)
 
-        q = {'allele_id': interpretation['allele_ids'], 'dateSuperceeded': None}
+        q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
         previous_aa = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
 
         previous_ids = []
@@ -117,7 +117,7 @@ class TestAlleleAssessment(object):
         q = {'id': previous_ids}
         previous_aa = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
 
-        assert all([p['dateSuperceeded'] is not None for p in previous_aa])
+        assert all([p['date_superceeded'] is not None for p in previous_aa])
 
     @pytest.mark.aa(order=2)
     def test_fail_cases(self, client, testdata):

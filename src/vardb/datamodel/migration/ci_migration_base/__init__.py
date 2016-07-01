@@ -1,6 +1,5 @@
 import os
 from vardb.util import DB
-from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
@@ -61,19 +60,7 @@ class CustomBase(object):
         return instance, created
 
 
-# Add manual naming conventions to assist consistency when
-# writing migration scripts
-convention = {
-  "ix": 'ix_%(column_0_label)s',
-  "uq": "uq_%(table_name)s_%(column_0_name)s",
-  "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-  "pk": "pk_%(table_name)s"
-}
-
-
-
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
-Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:
-from vardb.datamodel import allele, annotation, sample, assessment, genotype, gene, user
+from . import allele, annotation, sample, assessment, genotype, gene, user

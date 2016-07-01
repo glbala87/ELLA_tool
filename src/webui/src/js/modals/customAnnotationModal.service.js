@@ -169,7 +169,7 @@ export class CustomAnnotationController {
         let pmids = [];
         for (let [allele_id, data] of Object.entries(this.custom_annotation)) {
             if ('references' in data) {
-                pmids = pmids.concat(data.references.map(r => r.pubmedID));
+                pmids = pmids.concat(data.references.map(r => r.pubmed_id));
             }
         }
         console.log(pmids);
@@ -179,14 +179,14 @@ export class CustomAnnotationController {
     }
 
     getReference(pmid) {
-        return this.references.find(r => r.pubmedID === pmid);
+        return this.references.find(r => r.pubmed_id === pmid);
     }
 
-    _addReferenceToAnnotation(pubmedID) {
-        let existing = this.getCurrent().find(r => r.pubmedID === pubmedID);
+    _addReferenceToAnnotation(pubmed_id) {
+        let existing = this.getCurrent().find(r => r.pubmed_id === pubmed_id);
         if (!existing) {
             this.getCurrent().push({
-                pubmedID: pubmedID,
+                pubmed_id: pubmed_id,
                 sources: ['User']
             });
         }
@@ -195,7 +195,7 @@ export class CustomAnnotationController {
     addReference() {
         this.referenceResource.createFromXml(this.reference_xml).then(ref => {
             this.reference_error = false;
-            this._addReferenceToAnnotation(ref.pubmedID);
+            this._addReferenceToAnnotation(ref.pubmed_id);
             this.reference_xml = '';
             this._loadReferences();  // Reload list of references to reflect possible changes
         }).catch(() => {
@@ -226,7 +226,7 @@ export class CustomAnnotationController {
 
     removeReference(ref) {
         this.custom_annotation[this.selected_allele.id].references = this.getCurrent().filter(r => {
-            return ref.pubmedID !== r.pubmedID;
+            return ref.pubmed_id !== r.pubmed_id;
         });
     }
 

@@ -30,14 +30,14 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(
             pubmeds[0],
             {
-                'pubmedID': 1,
+                'pubmed_id': 1,
                 'sources': ['VEP']
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
-                'pubmedID': 2,
+                'pubmed_id': 2,
                 'sources': ['VEP']
             }
         )
@@ -62,21 +62,21 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(
             pubmeds[0],
             {
-                'pubmedID': 1,
+                'pubmed_id': 1,
                 'sources': ['HGMD']
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
-                'pubmedID': 2,
+                'pubmed_id': 2,
                 'sources': ['HGMD']
             }
         )
         self.assertEqual(
             pubmeds[2],
             {
-                'pubmedID': 3,
+                'pubmed_id': 3,
                 'sources': ['HGMD']
             }
         )
@@ -109,21 +109,21 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(
             pubmeds[0],
             {
-                'pubmedID': 1,
+                'pubmed_id': 1,
                 'sources': ['VEP', 'HGMD']
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
-                'pubmedID': 2,
+                'pubmed_id': 2,
                 'sources': ['VEP', 'HGMD']
             }
         )
         self.assertEqual(
             pubmeds[2],
             {
-                'pubmedID': 3,
+                'pubmed_id': 3,
                 'sources': ['HGMD']
             }
         )
@@ -513,8 +513,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
         self.assertEqual(transcripts[1][TranscriptAnnotation.CSQ_FIELDS[0]], 'TEST2')
 
     def test_get_genepanel_transcripts_normal(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
-                                           Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
+                                           Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
                               version='v01',
                               name='HBOCUTV')
 
@@ -524,8 +524,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
         assert t == ['NM_000059']
 
     def test_get_genepanel_transcripts_versioned(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
-                                    Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
+                                    Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
                        version='v01',
                        name='HBOCUTV')
 
@@ -536,8 +536,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_multiple(self):
 
-        gp = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
-                                    Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+        gp = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
+                                    Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
                        version='v01',
                        name='HBOCUTV')
 
@@ -547,7 +547,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
         assert t == ['NM_000059', 'NM_007294']
 
     def test_get_genepanel_transcripts_none(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455')],
+        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455')],
                        version='v01',
                        name='HBOCUTV')
 

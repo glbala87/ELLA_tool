@@ -31,7 +31,7 @@ class TestCustomAnnotation(object):
         # Check that it's inserted
         r = client.get('/api/v1/customannotations/').json
         assert r[0]['annotations'] == testdata['annotations']
-        assert r[0]['dateLastUpdate']
+        assert r[0]['date_last_update']
 
     @pytest.mark.ca(order=1)
     def test_update_annotation_1(self, client, testdata):
@@ -47,6 +47,6 @@ class TestCustomAnnotation(object):
         # Check that it's inserted
         r = client.get('/api/v1/customannotations/').json
         assert r[1]['annotations'] == testdata['annotations']
-        assert r[0]['dateSuperceeded']
+        assert r[0]['date_superceeded']
         assert r[0]['annotations']['test'] == 1
         assert r[0]['id'] != r[1]['id']

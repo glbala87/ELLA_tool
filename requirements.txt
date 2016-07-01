@@ -11,3 +11,5 @@ Flask-Cors==2.0.1
 Flask-RESTful==0.3.1
 openpyxl==2.3.3
 jsonschema==2.5.1
+click==6.6
+alembic==0.8.6

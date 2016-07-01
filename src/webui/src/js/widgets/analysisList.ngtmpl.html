@@ -5,7 +5,7 @@
   </div>
   <div class="analysis-users">
     <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
-      <div ng-if="interpretation.user" tooltip="{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}"><h3>{{::interpretation.user.firstName}}  {{::interpretation.user.lastName}}</h3></div>
+      <div ng-if="interpretation.user" tooltip="{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}"><h3>{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}</h3></div>
     </div>
   </div>
 </div>

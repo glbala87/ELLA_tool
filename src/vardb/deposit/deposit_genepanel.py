@@ -90,7 +90,8 @@ class DepositGenepanel(object):
             gm.Genepanel.name == genepanelName,
             gm.Genepanel.version == genepanelVersion
         ).count():
-            raise RuntimeError("Genepanel {} {} already in database".format(genepanelName, genepanelVersion))
+            log.info("Genepanel {} {} already in database, not updating...".format(genepanelName, genepanelVersion))
+            return
 
         if config:
             config_valid(config)  # raises exception
@@ -103,10 +104,10 @@ class DepositGenepanel(object):
         for t in transcripts:
             db_gene, created = gm.Gene.get_or_create(
                 self.session,
-                hugoSymbol=t['geneSymbol'],
-                ensemblGeneID=t['eGeneID']
+                hugo_symbol=t['geneSymbol'],
+                ensembl_gene_id=t['eGeneID']
             )
-            genes[db_gene.hugoSymbol] = db_gene
+            genes[db_gene.hugo_symbol] = db_gene
             if created:
                 log.info('Gene {} created.'.format(db_gene))
             else:
@@ -116,18 +117,18 @@ class DepositGenepanel(object):
             db_transcript, created = gm.Transcript.get_or_create(
                 self.session,
                 gene=db_gene,
-                refseqName=t['refseq'],
-                ensemblID=t['eTranscriptID'],
-                genomeReference=genomeRef,
+                refseq_name=t['refseq'],
+                ensembl_id=t['eTranscriptID'],
+                genome_reference=genomeRef,
                 defaults={
                     'chromosome': t['chromosome'],
-                    'txStart': t['txStart'],
-                    'txEnd': t['txEnd'],
+                    'tx_start': t['txStart'],
+                    'tx_end': t['txEnd'],
                     'strand': t['strand'],
-                    'cdsStart': t['cdsStart'],
-                    'cdsEnd': t['cdsEnd'],
-                    'exonStarts': t['exonsStarts'],
-                    'exonEnds': t['exonEnds']
+                    'cds_start': t['cdsStart'],
+                    'cds_end': t['cdsEnd'],
+                    'exon_starts': t['exonsStarts'],
+                    'exon_ends': t['exonEnds']
                 }
             )
             if created:
@@ -144,8 +145,8 @@ class DepositGenepanel(object):
                                     .format(ph.description, genepanelName, ph.geneSymbol))
                 db_phenotype, created = gm.Phenotype.update_or_create(
                     self.session,
-                    genepanelName=genepanelName,
-                    genepanelVersion=genepanelVersion,
+                    genepanel_name=genepanelName,
+                    genepanel_version=genepanelVersion,
                     gene_id=ph['gene symbol'],
                     gene=genes[ph['gene symbol']],  # TODO: not relevant for INSERT ?
                     description=ph['phenotype'],
@@ -162,7 +163,7 @@ class DepositGenepanel(object):
         genepanel = gm.Genepanel(
             name=genepanelName,
             version=genepanelVersion,
-            genomeReference=genomeRef,
+            genome_reference=genomeRef,
             transcripts=db_transcripts,
             phenotypes=db_phenotypes,
             config=config)

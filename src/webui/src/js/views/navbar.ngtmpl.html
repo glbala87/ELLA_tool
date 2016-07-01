@@ -2,7 +2,7 @@
   <div class="breadcrumbs">
     <div class="crumb" ng-click="vm.goToLogin()">
       <div class="crumb-contents">
-        <p>logged in as</p> <h3>{{vm.user.firstName}} {{vm.user.lastName}}</h3>
+        <p>logged in as</p> <h3>{{vm.user.first_name}} {{vm.user.last_name}}</h3>
       </div>
     </div>
     <div ng-click="vm.goToItem(item)" class="crumb" ng-class="{'active': vm.isLastItem(item)}" ng-repeat="item in vm.getItems()">

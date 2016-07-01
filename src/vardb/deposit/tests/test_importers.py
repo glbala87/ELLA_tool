@@ -89,9 +89,9 @@ class TestGenotypeImporter():
         assert result1.secondallele is None
         assert result1.homozygous is False
         assert result1.sample == db_sample
-        assert result1.genotypeQuality is None
-        assert result1.sequencingDepth is None
-        assert result1.variantQuality is None
+        assert result1.genotype_quality is None
+        assert result1.sequencing_depth is None
+        assert result1.variant_quality is None
 
         data2 = {
             'QUAL': 456,
@@ -109,9 +109,9 @@ class TestGenotypeImporter():
         assert result2.secondallele is None
         assert result2.homozygous is True
         assert result2.sample == db_sample
-        assert result2.genotypeQuality == 234.4
-        assert result2.sequencingDepth == 12
-        assert result2.variantQuality == 456
+        assert result2.genotype_quality == 234.4
+        assert result2.sequencing_depth == 12
+        assert result2.variant_quality == 456
 
         data3 = {
             'QUAL': 456,
@@ -129,9 +129,9 @@ class TestGenotypeImporter():
         assert result3.secondallele == db_alleles[0]
         assert result3.homozygous is False
         assert result3.sample == db_sample
-        assert result3.genotypeQuality == 234.4
-        assert result3.sequencingDepth == 12
-        assert result3.variantQuality == 456
+        assert result3.genotype_quality == 234.4
+        assert result3.sequencing_depth == 12
+        assert result3.variant_quality == 456
 
 
 class TestAnnotationImporter():
@@ -185,13 +185,13 @@ class TestAlleleImporter():
             'SAMPLES': {'H01': {'GT': '0/1'}}
         })[0]
 
-        assert allele.genomeReference == ref_genome
+        assert allele.genome_reference == ref_genome
         assert allele.chromosome == '17'
-        assert allele.startPosition == 41226487
-        assert allele.openEndPosition == 41226488
-        assert allele.changeFrom == 'C'
-        assert allele.changeTo == 'A'
-        assert allele.changeType == 'SNP'
+        assert allele.start_position == 41226487
+        assert allele.open_end_position == 41226488
+        assert allele.change_from == 'C'
+        assert allele.change_to == 'A'
+        assert allele.change_type == 'SNP'
 
     def test_multi_snp(self, allele_importer, ref_genome):
         al1, al2 = allele_importer.process({
@@ -206,21 +206,21 @@ class TestAlleleImporter():
             'SAMPLES': {'H01': {'GT': '0/1'}}
         })
 
-        assert al1.genomeReference == ref_genome
+        assert al1.genome_reference == ref_genome
         assert al1.chromosome == '17'
-        assert al1.startPosition == 41226487
-        assert al1.openEndPosition == 41226488
-        assert al1.changeFrom == 'C'
-        assert al1.changeTo == 'A'
-        assert al1.changeType == 'SNP'
+        assert al1.start_position == 41226487
+        assert al1.open_end_position == 41226488
+        assert al1.change_from == 'C'
+        assert al1.change_to == 'A'
+        assert al1.change_type == 'SNP'
 
-        assert al2.genomeReference == ref_genome
+        assert al2.genome_reference == ref_genome
         assert al2.chromosome == '17'
-        assert al2.startPosition == 41226487
-        assert al2.openEndPosition == 41226488
-        assert al2.changeFrom == 'C'
-        assert al2.changeTo == 'G'
-        assert al2.changeType == 'SNP'
+        assert al2.start_position == 41226487
+        assert al2.open_end_position == 41226488
+        assert al2.change_from == 'C'
+        assert al2.change_to == 'G'
+        assert al2.change_type == 'SNP'
 
     def test_insertion(self, allele_importer, ref_genome):
         al = allele_importer.process({
@@ -235,13 +235,13 @@ class TestAlleleImporter():
             'SAMPLES': {'H01': {'GT': '0/1'}}
         })[0]
 
-        assert al.genomeReference == ref_genome
+        assert al.genome_reference == ref_genome
         assert al.chromosome == 'X'
-        assert al.startPosition == 41226488
-        assert al.openEndPosition == 41226491
-        assert al.changeFrom == ''
-        assert al.changeTo == 'GCT'
-        assert al.changeType == 'ins'
+        assert al.start_position == 41226488
+        assert al.open_end_position == 41226491
+        assert al.change_from == ''
+        assert al.change_to == 'GCT'
+        assert al.change_type == 'ins'
 
     def test_deletion(self, allele_importer, ref_genome):
         al = allele_importer.process({
@@ -256,13 +256,13 @@ class TestAlleleImporter():
             'SAMPLES': {'H01': {'GT': '0/1'}}
         })[0]
 
-        assert al.genomeReference == ref_genome
+        assert al.genome_reference == ref_genome
         assert al.chromosome == 'X'
-        assert al.startPosition == 41226488
-        assert al.openEndPosition == 41226495
-        assert al.changeFrom == 'ATATATT'
-        assert al.changeTo == ''
-        assert al.changeType == 'del'
+        assert al.start_position == 41226488
+        assert al.open_end_position == 41226495
+        assert al.change_from == 'ATATATT'
+        assert al.change_to == ''
+        assert al.change_type == 'del'
 
     def test_indel(self, allele_importer, ref_genome):
         al = allele_importer.process({
@@ -277,10 +277,10 @@ class TestAlleleImporter():
             'SAMPLES': {'H01': {'GT': '0/1'}}
         })[0]
 
-        assert al.genomeReference == ref_genome
+        assert al.genome_reference == ref_genome
         assert al.chromosome == 'X'
-        assert al.startPosition == 41226487
-        assert al.openEndPosition == 41226491
-        assert al.changeFrom == 'C'
-        assert al.changeTo == 'AGCT'
-        assert al.changeType == 'indel'
+        assert al.start_position == 41226487
+        assert al.open_end_position == 41226491
+        assert al.change_from == 'C'
+        assert al.change_to == 'AGCT'
+        assert al.change_type == 'indel'

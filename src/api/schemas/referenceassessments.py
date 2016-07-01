@@ -15,14 +15,14 @@ class ReferenceAssessmentSchema(Schema):
                   'analysis_id',
                   'genepanel_name',
                   'genepanel_version',
-                  'dateLastUpdate',
-                  'dateSuperceeded',
+                  'date_last_update',
+                  'date_superceeded',
                   'user_id',
                   'evaluation')
 
     user_id = fields.Integer(allow_none=True)  # Debug only
-    dateSuperceeded = fields.DateTime(allow_none=True)
-    dateLastUpdate = fields.DateTime(allow_none=True)
+    date_superceeded = fields.DateTime(allow_none=True)
+    date_last_update = fields.DateTime(allow_none=True)
     # evaluation = fields.Field(required=True)
 
     @post_load

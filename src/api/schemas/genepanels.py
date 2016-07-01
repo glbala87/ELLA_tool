@@ -3,23 +3,23 @@ from marshmallow import fields, Schema
 
 class GeneSchema(Schema):
     class Meta:
-        fields = ('hugoSymbol',
-                  'ensemblGeneID')
+        fields = ('hugo_symbol',
+                  'ensembl_gene_id')
 
 
 class TranscriptSchema(Schema):
     class Meta:
-        fields = ('refseqName',
-                  'ensemblID',
-                  'genomeReference',
+        fields = ('refseq_name',
+                  'ensembl_id',
+                  'genome_reference',
                   'chromosome',
-                  'txStart',
-                  'txEnd',
+                  'tx_start',
+                  'tx_end',
                   'strand',
-                  'cdsStart',
-                  'cdsEnd',
-                  'exonStarts',
-                  'exonEnds',
+                  'cds_start',
+                  'cds_end',
+                  'exon_starts',
+                  'exon_ends',
                   'gene')
 
     gene = fields.Nested(GeneSchema)
@@ -28,8 +28,8 @@ class TranscriptSchema(Schema):
 class PhenotypeSchema(Schema):
     class Meta:
         fields = ('id',
-                  'genepanelName',
-                  'genepanelVersion',
+                  'genepanel_name',
+                  'genepanel_version',
                   'description',
                   'inheritance',
                   'inheritance_info',

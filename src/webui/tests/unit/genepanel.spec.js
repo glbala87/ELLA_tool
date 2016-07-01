@@ -29,10 +29,10 @@ describe("Model Genepanel", function() {
 
         let genepanel = {
             'phenotypes': [
-                {'gene': {'hugoSymbol': 'BRCA1'}, 'inheritance': 'AD'},
-                {'gene': {'hugoSymbol': 'BRCA2'}, 'inheritance': 'AR', 'description': "a phenotype"},
-                {'gene': {'hugoSymbol': 'BRCA1'}, 'inheritance': 'AD'},
-                {'gene': {'hugoSymbol': 'BRCA1'}, 'inheritance': ''}
+                {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': 'AD'},
+                {'gene': {'hugo_symbol': 'BRCA2'}, 'inheritance': 'AR', 'description': "a phenotype"},
+                {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': 'AD'},
+                {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': ''}
             ]
         };
 

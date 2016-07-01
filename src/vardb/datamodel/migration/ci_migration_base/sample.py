@@ -9,8 +9,8 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB # For non-mutable values
 
-from vardb.datamodel import Base
-from vardb.datamodel import gene
+from . import Base
+from . import gene
 from vardb.util.mutjson import MUTJSONB
 
 
@@ -38,14 +38,14 @@ class Sample(Base):
     identifier = Column(String(), nullable=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
-    sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
-    deposit_date = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    sample_config = Column(JSONB)  # includes capturekit and more
+    sampleType = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
+    deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
+    sampleConfig = Column("sample_config", JSONB)  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
     def __repr__(self):
-        return "<Sample('%s', '%s')>" % (self.identifier, self.sample_type)
+        return "<Sample('%s', '%s')>" % (self.identifier, self.sampleType)
 
 
 class Analysis(Base):
@@ -58,18 +58,18 @@ class Analysis(Base):
 
     id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
     name = Column(String(), nullable=False, unique=True)
-    genepanel_name = Column(String)
-    genepanel_version = Column(String)
+    genepanelName = Column(String)
+    genepanelVersion = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    analysis_config = Column(JSONB)
+    analysisConfig = Column("analysis_config", JSONB)
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
-    alleleassessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
+    alleleAssessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
 
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanel_name, self.genepanel_version)
+        return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanelName, self.genepanelVersion)
 
 
 class Interpretation(Base):
@@ -91,11 +91,11 @@ class Interpretation(Base):
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='interpretations')
     state = Column(MUTJSONB, default={})
-    state_history = Column(MUTJSONB, default={})
+    stateHistory = Column(MUTJSONB, default={})
     # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
-    date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    dateLastUpdate = Column("date_last_update", DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
         return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)

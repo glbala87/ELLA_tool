@@ -72,9 +72,9 @@ class SampleImporter(object):
         for sample_idx, sample_name in enumerate(sample_names):
             db_sample = sm.Sample(
                 identifier=sample_name,
-                sampleType=sample_type,
+                sample_type=sample_type,
                 deposit_date=datetime.datetime.now(),
-                sampleConfig=sample_config
+                sample_config=sample_config
                 )
             db_samples.append(db_sample)
             self.counter['nSamplesAdded'] += 1
@@ -147,14 +147,14 @@ class GenotypeImporter(object):
             homozygous=not sample_het,
             sample=db_sample,
             analysis=db_analysis,
-            genotypeQuality=record_sample.get('GQ'),
-            sequencingDepth=record_sample.get('DP'),
-            variantQuality=qual,
-            alleleDepth=allele_depth,
-            filterStatus=record['FILTER'],
-            vcfPos=record['POS'],
-            vcfRef=record['REF'],
-            vcfAlt=','.join(record['ALT'])
+            genotype_quality=record_sample.get('GQ'),
+            sequencing_depth=record_sample.get('DP'),
+            variant_quality=qual,
+            allele_depth=allele_depth,
+            filter_status=record['FILTER'],
+            vcf_pos=record['POS'],
+            vcf_ref=record['REF'],
+            vcf_alt=','.join(record['ALT'])
         )
         if sample_het and a2 is None: self.counter["nGenotypeHetroRef"] += 1
         elif not sample_het and a2 is None: self.counter["nGenotypeHomoNonRef"] += 1
@@ -182,7 +182,7 @@ class AssessmentImporter(object):
 
         existing = self.session.query(asm.AlleleAssessment).filter(
             asm.AlleleAssessment.allele == allele,
-            asm.AlleleAssessment.dateSuperceeded == None
+            asm.AlleleAssessment.date_superceeded == None
         ).first()
 
         if not existing:
@@ -462,19 +462,19 @@ class AnnotationImporter(object):
     def create_or_update_annotation(self, session, db_allele, annotation_data, log=None):
         annotations = self.session.query(annm.Annotation).filter(
             annm.Annotation.allele_id == db_allele.id,
-            annm.Annotation.dateSuperceeded == None
+            annm.Annotation.date_superceeded == None
         ).all()
         if annotations:
             assert len(annotations) == 1
             existing_annotation = annotations[0]
             if self.diff_annotation(existing_annotation.annotations, annotation_data):
                 # Replace existing annotation
-                existing_annotation.dateSuperceeded = datetime.datetime.now()
+                existing_annotation.date_superceeded = datetime.datetime.now()
                 annotation, _ = annm.Annotation.get_or_create(
                     self.session,
                     allele=db_allele,
                     annotations=annotation_data,
-                    previousAnnotation=existing_annotation
+                    previous_annotation=existing_annotation
                 )
                 self.counter["nUpdatedAnnotation"] += 1
             else:  # Keep existing annotation
@@ -528,13 +528,13 @@ class AlleleImporter(object):
             end_pos = vcfhelper.get_end_position(record['POS'], start_offset, allele_length)
             allele, _ = am.Allele.get_or_create(
                 self.session,
-                genomeReference=self.ref_genome,
+                genome_reference=self.ref_genome,
                 chromosome=record['CHROM'],
-                startPosition=start_pos,
-                openEndPosition=end_pos,
-                changeFrom=change_from,
-                changeTo=change_to,
-                changeType=change_type
+                start_position=start_pos,
+                open_end_position=end_pos,
+                change_from=change_from,
+                change_to=change_to,
+                change_type=change_type
             )
             alleles.append(allele)
 
@@ -560,7 +560,7 @@ class AnalysisImporter(object):
             name=analysis_config['name'],
             samples=db_samples,
             genepanel=genepanel,
-            analysisConfig=analysis_config
+            analysis_config=analysis_config
         )
         self.session.add(analysis)
         return analysis

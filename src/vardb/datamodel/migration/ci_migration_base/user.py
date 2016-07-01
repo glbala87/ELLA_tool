@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Sequence, Integer, String
 
-from vardb.datamodel import Base
+from . import Base
 
 
 class User(Base):
@@ -9,5 +9,5 @@ class User(Base):
 
     id = Column(Integer, Sequence("id_user_seq"), primary_key=True)
     username = Column(String(), nullable=False)
-    first_name = Column(String(), nullable=False)
-    last_name = Column(String(), nullable=False)
+    firstName = Column(String(), nullable=False)
+    lastName = Column(String(), nullable=False)
