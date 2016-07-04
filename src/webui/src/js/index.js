@@ -39,6 +39,7 @@ import './views/analysis/interpretationSingleSample.directive';
 import './views/main.directive';
 import './views/login.directive';
 import './views/sidebar.directive';
+import './views/alleleSidebar.directive';
 import './views/navbar.directive';
 
 import './widgets/alleleinfo/alleleInfoAcmgSelection.directive';
