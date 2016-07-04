@@ -1,0 +1,28 @@
+<nav>
+  <h4>Unclassified variants</h4>
+  <div style="margin-bottom: 0.5rem;">
+  <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.unclassified.active track by allele_obj.allele.id" ng-click="vm.select(allele_obj.allele)">
+    <div class="tab" ng-class="{'active': vm.isSelected(allele_obj.allele)}"> </div>
+    <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}">{{allele_obj.allele.annotation.filtered[0].SYMBOL}} {{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</h4>
+  </div>
+  </div>
+
+  <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.unclassified.inactive track by allele_obj.allele.id" ng-click="vm.select(allele_obj.allele)">
+    <div class="tab" ng-class="{'active': vm.isSelected(allele_obj.allele)}"> </div>
+    <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}">{{allele_obj.allele.annotation.filtered[0].SYMBOL}} {{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</h4>
+  </div>
+
+  <h4>Classified variants</h4>
+  <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.classified.active track by allele_obj.allele.id" ng-click="vm.select(allele_obj.allele)">
+    <div class="tab" ng-class="{'active': vm.isSelected(allele_obj.allele)}"> </div>
+    <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}">{{allele_obj.allele.annotation.filtered[0].SYMBOL}} {{allele_obj.allele.annotation.filtered[0].HGVSc_short}} {{allele_obj.alleleState.alleleassessment.classification}}</h4>
+  </div>
+  <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.classified.inactive track by allele_obj.allele.id" ng-click="vm.select(allele_obj.allele)">
+    <div class="tab" ng-class="{'active': vm.isSelected(allele_obj.allele)}"> </div>
+    <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}">{{allele_obj.allele.annotation.filtered[0].SYMBOL}} {{allele_obj.allele.annotation.filtered[0].HGVSc_short}} {{allele_obj.alleleState.alleleassessment.classification}}</h4>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>e<span class="l">||</span>a</h1>
+</div>
