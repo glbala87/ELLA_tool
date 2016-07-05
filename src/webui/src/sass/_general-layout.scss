@@ -115,6 +115,35 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
 }
 .sidebar.login .hero { color: $blue; }
 
+
+/* TODO: Just for debugging, should be remade! */
+.allele-sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
+.allele-sidebar .ng-enter-active { opacity: 1; }
+.allele-sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
+.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; margin-right: 5rem;
+  a { color: inherit;  &:hover { text-decoration: none; } }
+  p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; }
+  h1 { font-size: 2.6rem; line-height: 2.6rem; font-weight: 600; width: auto; }
+  h2 ,h4 { font-family: $slim; font-weight: 600; margin: 0; }
+  h2 { font-size: 1.5rem; }
+  h4 { font-size: 1.4rem; }
+  .nav-row { display: flex; align-items: center; color: $half-black; background-color: inherit; width: 24rem;
+    &.disabled { color: $icon-half-black; }
+    & .tab, & .title { transition: all 0.3s ease-in-out; }
+    &:not(.disabled):hover { cursor: pointer; }
+    &:not(.disabled):hover .tab { background-color: $blue-sidebar; }
+    &:not(.disabled):hover .title { background-color: $hover-black; }
+    &.active:hover { cursor: default; }
+    &.active:hover .tab { background-color: $blue; }
+    &.active:hover .title { background-color: inherit; color: $blue; }
+  }
+  .tab { width: 0.7rem; min-width: 0.7rem; height: 2.6rem; background-color: inherit; }
+  .title { width: 100%; padding-left: 1.9rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .tab.active { background-color: $blue; }
+  .title.active { color: $blue; }
+}
+/* -- TODO end -- */
+
 #toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;
   & > :hover { cursor: pointer; }
   .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
