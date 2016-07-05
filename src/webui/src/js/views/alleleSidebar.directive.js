@@ -19,4 +19,8 @@ export class AlleleSidebarController {
     select(allele) {
         this.selected = allele;
     }
+
+    isSelected(allele) {
+        return this.selected === allele;
+    }
 }
