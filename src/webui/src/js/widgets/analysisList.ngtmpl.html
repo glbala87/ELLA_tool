@@ -7,7 +7,8 @@
       <h3>{{::analysis.name}}</h3>
       <div class="analysis-users">
         <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
-          <div ng-if="interpretation.user" tooltip="{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}"><h3>{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}</h3></div>
+          <!-- <div ng-if="interpretation.user" tooltip="{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}"><h3>{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}</h3></div> -->
+          <div ng-if="interpretation.user"><h3>{{$index+1}}. {{::interpretation.user.first_name}}  {{::interpretation.user.last_name}} ({{::interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}})</h3></div>
         </div>
       </div>
     </div>
