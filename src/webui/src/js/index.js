@@ -9,6 +9,8 @@ require('core-js/fn/array/includes');
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
 
+import "./recompile.directive";
+
 import "./modals/addExcludedAllelesModal.service";
 import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
