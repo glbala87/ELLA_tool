@@ -18,7 +18,7 @@
 
     <!-- REQ codes -->
     <!-- Don't use 'track by $index' -->
-    <acmg class="suggested wide" code="group" ng-repeat="group in vm.req_groups" ng-if="vm.show_req"></acmg>
+    <acmg class="suggested wide" code="group" ng-repeat="group in vm.req_groups" ng-if="vm.show_req" add-required-for-code="vm.addACMGCode(code)"></acmg>
 
     <div>
       <button class="acmg-add" uib-popover-template="vm.popover.templateUrl"

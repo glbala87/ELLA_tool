@@ -9,7 +9,8 @@ import {Directive, Inject} from '../ng-decorators';
         commentModel: '=?',
         editable: '=?',  // Defaults to true
         onToggle: '&?',
-        toggleText: '@?'
+        toggleText: '@?',
+        addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
     },
     templateUrl: 'ngtmpl/acmg.ngtmpl.html'
 })
@@ -116,6 +117,12 @@ export class AcmgController {
         if (this.getCodeForDisplay().code in this.config.acmg.explanation &&
             'notes' in this.config.acmg.explanation[this.getCodeForDisplay().code]) {
             return this.config.acmg.explanation[this.getCodeForDisplay().code].notes;
+        }
+    }
+
+    clickAddRequiredForCode(code) {
+        if (this.addRequiredForCode) {
+            this.addRequiredForCode({code: code});
         }
     }
 
