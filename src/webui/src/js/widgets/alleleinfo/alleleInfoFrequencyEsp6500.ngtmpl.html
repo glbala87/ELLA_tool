@@ -1,5 +1,5 @@
 <div class="content-box fixed-width-numbers" ng-class="{'no-content': !vm.hasContent()}">
   <h3 class="title"><a-clip href="{{::vm.allele.getUrl('ESP6500')}}" ng-if="::vm.allele.getUrl('ESP6500')">ESP6500</a-clip><span ng-if="::!vm.allele.getUrl('ESP6500')">ESP6500</span></h3>
   <frequency-details group="esp6500" allele="vm.allele"></frequency-details>
-  <acmg class="suggested disabled" code="c" editable="::false" ng-repeat="c in ::vm.allele.getACMGCodes('frequencies.ESP6500_cutoff')"></acmg>
+  <acmg class="suggested disabled" code="c" editable="::false" ng-repeat="c in ::vm.allele.getACMGCodes('frequencies.cutoff.ESP6500')"></acmg>
 </div>
