@@ -28,10 +28,12 @@ export class ACMGSelectionController {
         };
 
         this.show_req = true;
+        this.req_groups = []; // Updated by setREQCodes()
 
         $scope.$watch(() => this.allele.acmg, () => {
             if (this.allele.acmg) {
                 this.setupSuggestedACMG();
+                this.setREQCodes();
             }
         }, true); // Deep watch the ACMG part
 
@@ -243,8 +245,23 @@ export class ACMGSelectionController {
         }
     }
 
-    getREQCodes() {
-        return this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(c => !this.isIncludable(c.code));
+    /**
+     * Return groups of REQ codes.
+     * @return {Array(Array(Object))} Array of arrays. Same REQ codes are combined into same list.
+     */
+    setREQCodes() {
+        let req_groups = [];
+        let reqs = this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(c => !this.isIncludable(c.code));
+        for (let req of reqs) {
+            let matching_group = req_groups.find(rg => rg.find(r => r.code === req.code));
+            if (matching_group) {
+                matching_group.push(req);
+            }
+            else {
+                req_groups.push([req]);
+            }
+        }
+        this.req_groups = req_groups;
     }
 
     getREQCodeCount() {

@@ -1,13 +1,14 @@
 <div class='acmg' ng-class="vm.getACMGclass()">
   <div class="button-wrapper" ng-click="vm.toggle()">
     <button class="white" ng-if="::vm.toggleText" ng-disabled="::vm.commentModel == undefined">{{::vm.toggleText}}</button>
+    <h4 ng-if="vm.isMultiple()">{{vm.code.length}}x</h4>
   </div>
   <h4 uib-popover-template="vm.popover.templateUrl"
     popover-append-to-body=true
-    popover-title="{{::vm.code.code}}"
+    popover-title="{{::vm.getCodeForDisplay().code}}"
     popover-trigger="outsideClick"
     popover-placement="auto top">
-    {{vm.code.code}}
+    {{vm.getCodeForDisplay().code}}
   </h4>
   <autosize-textarea class="white" placeholder="{{vm.getPlaceholder()}}" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
 </div>

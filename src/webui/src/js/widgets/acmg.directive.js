@@ -5,7 +5,7 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'acmg',
     scope: {
-        code: '=',
+        code: '=',  // Single code or Array of (same) codes
         commentModel: '=?',
         editable: '=?',  // Defaults to true
         onToggle: '&?',
@@ -21,6 +21,7 @@ export class AcmgController {
         this.popover = {
             templateUrl: 'ngtmpl/acmgPopover.ngtmpl.html'
         };
+        this.matches = this.getMatches();
     }
 
     toggle() {
@@ -33,68 +34,88 @@ export class AcmgController {
         return this.editable !== undefined ? this.editable : true;
     }
 
+    isMultiple() {
+        return Array.isArray(this.code);
+    }
+
+    getCodeForDisplay() {
+        if (this.isMultiple()) {
+            return this.code[0];  // If multiple codes, they should all be the same
+        }
+        return this.code;
+    }
+
     getPlaceholder() {
         if (this.isEditable()) {
             return 'ACMG-COMMENT';
         }
     }
 
-    getSource() {
-        if (this.code.source) {
-            return this.code.source.split('.').slice(1).join('->');
+    _getMatch(code) {
+        if (code.source === 'user') {
+            return 'Added by user';
+        }
+        if (Array.isArray(code.match)) {
+            return code.match.join(', ');
+        }
+        return code.match;
+    }
+
+
+    _getOperator(code) {
+        return this.config.acmg.formatting.operators[code.op];
+    }
+
+    _getSource(code) {
+        if (code.source) {
+            return code.source.split('.').slice(1).join('->');
         }
         return 'N/A';
     }
 
+    getMatches() {
+        let codes = this.isMultiple() ? this.code : [this.code];
+        return codes.map(c => {
+            return {
+                source: this._getSource(c),
+                match: this._getMatch(c),
+                op: this._getOperator(c)
+            };
+        });
+    }
+
     getACMGclass(code) {
         if (code === undefined) {
-            code = this.code.code;
+            code = this.getCodeForDisplay().code;
         }
         if (code) {
             return code.substring(0, 2).toLowerCase();
         }
     }
 
-    getOperator() {
-        return this.config.acmg.formatting.operators[this.code.op];
-    }
-
-    getValue() {
-        return this.code.value.join(', ');
-    }
-
-    getMatch() {
-        if (this.code.source === 'user') {
-            return 'Added by user';
-        }
-        if (Array.isArray(this.code.match)) {
-            return this.code.match.join(', ');
-        }
-        return this.code.match;
-    }
 
     getCriteria() {
-        if (this.code.code in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.code.code].criteria;
+        if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.getCodeForDisplay().code].criteria;
         }
     }
 
     getShortCriteria() {
-        if (this.code.code in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.code.code].short_criteria;
+        if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.getCodeForDisplay().code].short_criteria;
         }
     }
 
     getRequiredFor() {
-        if (this.code.code in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.code.code].sources;
+        if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.getCodeForDisplay().code].sources;
         }
     }
 
     getNotes() {
-        if (this.code.code in this.config.acmg.explanation &&
-            'notes' in this.config.acmg.explanation[this.code.code]) {
-            return this.config.acmg.explanation[this.code.code].notes;
+        if (this.getCodeForDisplay().code in this.config.acmg.explanation &&
+            'notes' in this.config.acmg.explanation[this.getCodeForDisplay().code]) {
+            return this.config.acmg.explanation[this.getCodeForDisplay().code].notes;
         }
     }
 

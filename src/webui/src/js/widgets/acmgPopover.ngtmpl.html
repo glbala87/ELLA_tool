@@ -6,12 +6,14 @@
       <div class="acmg" ng-class="vm.getACMGclass(r)" ng-repeat="r in vm.getRequiredFor()"><h4>{{r}}</h4></div>
     </div>
   </div>
-  <h3>Details:</h3>
+  <h3 ng-if="vm.getCriteria()">Details:</h3>
   <p>{{vm.getCriteria()}}</p>
   <div ng-show="vm.getNotes()">
     <h3>Notes:</h3>
     <p>{{vm.getNotes()}}</p>
   </div>
   <h3>Match:</h3>
-  <p>{{vm.getSource()}} {{vm.getOperator()}} {{vm.getMatch()}}</p>
+  <div>
+    <p ng-repeat="match in vm.matches">{{match.source}} {{match.op}} {{match.match}}</p>
+  </div>
 </div>
