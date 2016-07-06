@@ -12,7 +12,6 @@ export class Allele {
      */
     constructor(data) {
         Object.assign(this, data);
-        this.acmg = {};
         this._createAnnotations();
     }
 
