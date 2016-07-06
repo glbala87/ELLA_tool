@@ -102,8 +102,7 @@ export class AlleleService {
 
             if (allele.change_type === 'SNP') {
                 // snp: Chr11(GRCh37):g.66285951C>Tdel:
-                // Add one since startPosition is 0-based
-                result += `${start}${allele.changeFrom}>${allele.change_to}\n`;
+                result += `${start}${allele.change_from}>${allele.change_to}\n`;
             }
             else if (allele.change_type === 'del') {
                 // del: Chr13(GRCh37):g.32912008_32912011del
@@ -111,7 +110,7 @@ export class AlleleService {
             }
             else if (allele.change_type === 'ins') {
                 // ins: Chr13(GRCh37):g.32912008_3291209insCGT
-                result += `${start}_${end}ins${allele.change_to}\n`;
+                result += `${start}_${start+1}ins${allele.change_to}\n`;
             }
             else if (allele.change_type === 'indel') {
                 // delins: Chr13(GRCh37):g.32912008_32912011delinsGGG
