@@ -145,15 +145,16 @@ class TranscriptAnnotation(object):
                 return 9999999
         sorted_transcripts = sorted(transcripts, key=sort_func)
 
-        worst_consequence = sorted_transcripts[0]['Consequence']
         worst_consequences = list()
-        for t in sorted_transcripts:
-            if any(c in t.get('Consequence', []) for c in worst_consequence):
-                worst_consequences.append(t['Transcript'])
-            else:
-                break
+        if sorted_transcripts:
+            worst_consequence = sorted_transcripts[0]['Consequence']
+            for t in sorted_transcripts:
+                if any(c in t.get('Consequence', []) for c in worst_consequence):
+                    worst_consequences.append(t['Transcript'])
+                else:
+                    break
 
-        return worst_consequences
+            return worst_consequences
 
     def _csq_transcripts(self, annotation):
         if 'CSQ' not in annotation:
@@ -498,7 +499,10 @@ def find_symbol(annotation):
         raise Exception("The transcript(s) selected don't have the same gene symbol, found genes {}"
                         .format(','.join(list(set(symbols)))))
 
-    return symbols.pop()
+    if symbols:
+        return symbols.pop()
+    else:
+        return None
 
 
 class AnnotationProcessor(object):
@@ -535,7 +539,15 @@ class AnnotationProcessor(object):
 
             # References are merged specially
             if 'references' in data and 'references' in custom_annotation:
-                data['references'] = data['references'] + custom_annotation['references']
+                for ca_ref in custom_annotation['references']:
+                    # A pubmed reference can exist in both, if so only merge the source
+                    if 'pubmed_id' in ca_ref:
+                        existing_ref = next((r for r in data['references'] if r.get('pubmed_id') == ca_ref['pubmed_id']), None)
+                        if existing_ref:
+                            existing_ref
+                            existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
+                            continue
+                    data['references'].append(ca_ref)
 
         if genotype:
             data.update(QualityAnnotation().process(genotype))

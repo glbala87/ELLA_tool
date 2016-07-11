@@ -3,7 +3,7 @@ import unittest
 import pytest
 
 from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
-from ..annotationprocessor import TranscriptAnnotation
+from ..annotationprocessor import TranscriptAnnotation, AnnotationProcessor
 from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor, find_symbol
 from api.util.genepanelconfig import KEY_LO, KEY_HI, KEY_CUTOFFS
 from api import config
@@ -600,6 +600,42 @@ class TestTranscriptAnnotation(unittest.TestCase):
         # Test single worst
         c = TranscriptAnnotation(config)._get_worst_consequence(transcripts)
         assert c == ['NM_12300']
+
+    def test_custom_annotation_references(self):
+
+        # Test merging references from internal and custom annotation
+
+        annotation = {
+            'CSQ': [
+                {
+                    'PUBMED': [1234, 2345]
+                }
+            ]
+        }
+        custom_annotation = {
+            'references': [
+                {
+                    'pubmed_id': 9874,
+                    'sources': ['User']
+                },
+                {
+                    'some_other_id': 845,
+                    'sources': ['Something']
+                },
+                {
+                    'pubmed_id': 1234,  # Also in annotation
+                    'sources': ['User']
+                }
+            ]
+        }
+
+        result = AnnotationProcessor.process(annotation, custom_annotation=custom_annotation)
+        assert len(result['references']) == 4
+        # Fetch the one in both annotations
+        in_both_ref = [r for r in result['references'] if r.get('pubmed_id') == 1234]
+        assert len(in_both_ref) == 1
+        assert 'User' in in_both_ref[0]['sources']
+        assert 'VEP' in in_both_ref[0]['sources']
 
 
 @pytest.mark.parametrize("annotation, symbol", [
