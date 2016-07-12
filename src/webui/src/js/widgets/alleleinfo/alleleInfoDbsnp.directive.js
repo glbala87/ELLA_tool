@@ -19,7 +19,8 @@ export class AlleleInfoDbsnp {
     }
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'Existing_variation' in t);
+        return this.allele.annotation.filtered.some(t => 'Existing_variation' in t &&
+                                                          t.Existing_variation.length);
     }
 
 }
