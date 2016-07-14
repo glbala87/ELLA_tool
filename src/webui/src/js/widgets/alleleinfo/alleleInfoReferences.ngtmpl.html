@@ -1,31 +1,42 @@
-<div class="content-box full-width" ng-if="vm.allele_references.length" ng-repeat="ref in vm.allele_references">
-    <div>
-      <h3 class="title">Reference</h3>
-      <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
-      <p>{{ref.getShortDesc()}}</p>
-      <!-- FIXME: hide this title if all(false)...or is it good enough to show/hide along with "Relevant" field? -->
-      <h3 class="title" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">Evaluation</h3>
-      <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">
-        <div class="cell"><h5>Relevant:</h5></div>
-        <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.relevance}}</p></div>
+<contentbox class="refcb" ng-if="vm.allele_references.length">
+  <cbheader>
+    <h3 class="title">Reference</h3>
+  </cbheader>
+  <cbbody>
+    <article class="reference-layout" ng-repeat="ref in vm.allele_references">
+      <div>
+        <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
+        <p>{{ref.getShortDesc()}}</p>
       </div>
-      <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.hq">
-        <div class="cell"><h5>HQ:</h5></div>
-        <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.hq}}</p></div>
+      <div>
+        <h3 class="title" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">Evaluation</h3>
+        <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">
+          <div class="cell"><h5>Relevant:</h5></div>
+          <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.relevance}}</p></div>
+        </div>
+        <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.hq">
+          <div class="cell"><h5>HQ:</h5></div>
+          <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.hq}}</p></div>
+        </div>
+        <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.comment">
+          <div class="cell top-align"><h5>Comment:</h5></div>
+          <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.comment}}</p></div>
+        </div>
       </div>
-      <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.comment">
-        <div class="cell top-align"><h5>Comment:</h5></div>
-        <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.comment}}</p></div>
+      <div>
+        <button ng-click="vm.showReferenceEval(ref)">Evaluate</button>
       </div>
-    </div>
-    <div>
-      <button ng-click="vm.showReferenceEval(ref)">Evaluate</button>
-    </div>
-</div>
+    </article>
+  </cbbody>
+</contentbox>
 
 <!-- Display missing references (where annotation has pmid, but it's not in the DB) -->
-<div class="content-box full-width" ng-if="vm.missing_references.length" ng-repeat="ref in vm.missing_references">
-      <h3 class="title">Reference</h3>
-      <p></p>
-      <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref)}}">{{ref}}</a-clip> in database. Please add the reference manually.</h5>
-</div>
+<contentbox class="refcb" ng-if="vm.missing_references.length" ng-repeat="ref in vm.missing_references">
+  <cbheader>
+    <h3 class="title">Reference</h3>
+  </cbheader>
+  <cbbody>
+    <p></p>
+    <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref)}}">{{ref}}</a-clip> in database. Please add the reference manually.</h5>
+  </cbbody>
+</contentbox>

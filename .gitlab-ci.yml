@@ -40,9 +40,8 @@ test_e2e:
   stage: test
   script:
     - make e2e-test
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
+  only:
+    - dev
 
 cleanup_e2e:
   stage: cleanup
@@ -60,6 +59,9 @@ build_core:
 bot_build:
   stage: deploy
   script:
-    - make release save-and-notify
+    - if [ -n "${DEV_CHANNEL}" ]; then make release; docker stop ella; docker rm ella; docker run -d --name ella -p 80:80 ousamg/ella.release; docker exec ella make dbreset; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make release BUILD_TYPE=beta; docker stop ella; docker rm ella; docker run -d --name ella -p 80:80 ousamg/ella.beta; docker exec ella make dbreset; fi
+  tags:
+    - web
   only:
     - triggers
