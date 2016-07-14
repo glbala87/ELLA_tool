@@ -28,10 +28,10 @@ button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; lin
     &:hover { background-color: hsla(0,0,100,0.1); }
   }
   &.full-color { color: hsla(0,0,100,0.9); border: 1px solid Transparent; }
-  &.blue { background-color: $blue; &:hover { background-color: lighten($blue,10); } }
-  &.green { background-color: $green !important; &:hover { background-color: lighten($green,10); } }
-  &.yellow { background-color: $yellow; &:hover { background-color: lighten($yellow,10); } }
-  &.red { background-color: $red; &:hover { background-color: lighten($red,10); } }
+  &.blue { background-color: $blue-button; &:hover { background-color: lighten($blue-button,10); } }
+  &.green { background-color: $green-button !important; &:hover { background-color: lighten($green-button,10); } }
+  &.yellow { background-color: $yellow-button; &:hover { background-color: lighten($yellow-button,10); } }
+  &.red { background-color: $red-button; &:hover { background-color: lighten($red-button,10); } }
 }
 
 .container { width: auto; }
