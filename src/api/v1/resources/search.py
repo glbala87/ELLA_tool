@@ -52,7 +52,7 @@ class SearchResource(Resource):
     # 465234-834234
     # 13:123456
     # 123456
-    RE_CHR_POS = re.compile(r'^(chr)?((?P<chr>[0-9XY]*):)?(?P<pos1>[0-9]+)(-(?P<pos2>[0-9]+))?')
+    RE_CHR_POS = re.compile(r'^(chr)?((?P<chr>[0-9XYM]*):)?(?P<pos1>[0-9]+)(-(?P<pos2>[0-9]+))?')
 
     TSQUERY_ESCAPE = ['&', ':', '(', ')', '*', '!', '|']
 
