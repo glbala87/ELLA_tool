@@ -5,7 +5,6 @@ import pytest
 from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
 from ..annotationprocessor import TranscriptAnnotation, AnnotationProcessor
 from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor, find_symbol
-from api.util.genepanelconfig import KEY_LO, KEY_HI, KEY_CUTOFFS
 from api import config
 from vardb.datamodel.gene import Transcript, Genepanel
 
@@ -131,6 +130,23 @@ class TestReferences(unittest.TestCase):
 
 class TestFrequencyAnnotation(unittest.TestCase):
 
+    MOCK_CONFIG = {
+        "variant_criteria": {
+            "frequencies": {  # Frequency groups to be used as part of cutoff calculation (and by extension class 1 filtering)
+                "groups": {
+                    "external": {
+                        "ExAC": ["G"],
+                        "1000g": ["G"],
+                        "esp6500": ["AA", "EA"]
+                    },
+                    "internal": {
+                        "inDB": ['alleleFreq']
+                    }
+                }
+            }
+        }
+    }
+
     def test_csq_no_gmaf(self):
         """
         Don't include GMAF if given for the REF allele only.
@@ -150,7 +166,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freq = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertFalse('GMAF' in freq['1000g'])
 
     def test_frequency_strip_maf_from_name(self):
@@ -172,7 +188,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freq = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('G', freq['1000g'])
         self.assertNotIn('GMAF', freq['1000g'])
         self.assertIn('EUR', freq['1000g'])
@@ -189,7 +205,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freqs = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('TEST', freqs['ExAC'])
         self.assertEqual(float(13)/2, freqs['ExAC']['TEST'])
         self.assertNotIn('ZERO', freqs['ExAC'])
@@ -202,7 +218,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freqs = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('TEST', freqs['ExAC']['hom'])
         self.assertEqual(13, freqs['ExAC']['hom']['TEST'])
 
@@ -224,118 +240,146 @@ class TestFrequencyAnnotation(unittest.TestCase):
 
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freqs = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertEqual(0.122, freqs['esp6500']['EA'])
         self.assertEqual(0.123, freqs['esp6500']['AA'])
 
     def test_frequency_cutoffs_from_none(self):
 
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+        processor = GenepanelCutoffsAnnotationProcessor(TestFrequencyAnnotation.MOCK_CONFIG, genepanel=None)
         frequencies = processor.cutoff_frequencies(None)
 
-        self.assertEquals(frequencies['cutoff']["ExAC"], "null_freq")
-        self.assertEquals(frequencies['cutoff']["1000G"], "null_freq")
-        self.assertEquals(frequencies['cutoff']["ESP6500"], "null_freq")
-        self.assertEquals(frequencies['cutoff']["inDB"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["ExAC"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["1000g"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["esp6500"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['internal']["inDB"], "null_freq")
 
     def test_frequency_cutoffs_from_empty(self):
 
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+        processor = GenepanelCutoffsAnnotationProcessor(TestFrequencyAnnotation.MOCK_CONFIG, genepanel=None)
         frequencies = processor.cutoff_frequencies({})
 
-        self.assertEquals(frequencies['cutoff']["ExAC"], "null_freq")
-        self.assertEquals(frequencies['cutoff']["1000G"], "null_freq")
-        self.assertEquals(frequencies['cutoff']["ESP6500"], "null_freq")
-        self.assertEquals(frequencies['cutoff']["inDB"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["ExAC"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["1000g"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["esp6500"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['internal']["inDB"], "null_freq")
 
     def test_frequency_cutoffs_1(self):
 
         annotation = {
-            "1000g":
-            {
-                "ASN": 0.0005,
-                "AMR": 0.000000001,
+            "1000g": {
+                "G": 0.0005,
                 "NOT_VALID": 1.0
             },
-            "ExAC":
-            {
-                "AFR": 0.924688995215311,
+            "ExAC": {
+                "G": 0.924688995215311,
             },
-            "esp6500":
-            {
+            "esp6500": {
                 "AA": 0.00002,
                 "EA": 0.0003
             }
         }
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+
+        processor = GenepanelCutoffsAnnotationProcessor(
+            TestFrequencyAnnotation.MOCK_CONFIG,
+            genepanel=None
+        )
         frequencies = processor.cutoff_frequencies(annotation)
 
-        self.assertEquals(frequencies['cutoff']["ExAC"], ">=hi_freq_cutoff")
-        self.assertEquals(frequencies['cutoff']["1000G"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies['cutoff']["ESP6500"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies['cutoff']["inDB"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
 
 
 def test_frequency_cutoffs_2():
 
     annotation = {
-        "1000g":
-        {
-            "ASN": 0.001, # Lower edge case
-            "AMR": 0.000000001,
-            "NOT_VALID": 1.0
+        "1000g": {
+            "G": 0.001,  # Lower edge case
+            "NOT_INCLUDED_IN_CONFIG": 1.0
         },
-        "ExAC":
-        {
-            "AFR": 0.005,
+        "ExAC": {
+            "G": 0.005,
         },
-        "esp6500":
-        {
+        "esp6500": {
             "AA": 0.00002,
             "EA": 0.0003
         }
     }
 
-    defaults = {KEY_CUTOFFS: {'Other': {KEY_HI: 0.01, KEY_LO: 0.001}}}
-    processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None, genepanel_default=defaults)
+    defaults = {
+        'freq_cutoffs': {
+            'default': {
+                'external': {
+                    'hi_freq_cutoff': 0.01,
+                    'lo_freq_cutoff': 0.001
+                },
+                'internal': {
+                    'hi_freq_cutoff': 0.01,
+                    'lo_freq_cutoff': 0.001
+                }
+            }
+        }
+    }
+    processor = GenepanelCutoffsAnnotationProcessor(
+        TestFrequencyAnnotation.MOCK_CONFIG,
+        genepanel=None,
+        genepanel_default=defaults
+    )
 
     frequencies = processor.cutoff_frequencies(annotation)
 
-    assert frequencies['cutoff']["ExAC"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
-    assert frequencies['cutoff']["1000G"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
-    assert frequencies['cutoff']["ESP6500"] == "<lo_freq_cutoff"
-    assert frequencies['cutoff']["inDB"] =="null_freq"
+    assert frequencies['cutoff']['external']["ExAC"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies['cutoff']['external']["1000g"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies['cutoff']['external']["esp6500"] == "<lo_freq_cutoff"
+    assert frequencies['cutoff']['internal']["inDB"] == "null_freq"
 
     def test_frequency_cutoffs_3(self):
 
         annotation = {
-            "1000g":
-            {
-                "ASN": 0.000001,
-                "AMR": 0.00002,
-                "NOT_VALID": 1.0
+            "1000g": {
+                "G": 0.000001,
+                "NOT_IN_CONFIG": 1.0
             },
-            "ExAC":
-            {
-                "AFR": 0.000002,
+            "ExAC": {
+                "G": 0.000002,
             },
-            "esp6500":
-            {
+            "esp6500": {
                     "AA": 0.00002,
+                    "EA": 0.00002,
             },
-             "inDB":
-             {
+             "inDB": {
                     "alleleFreq": 0.0022323
             }
         }
-        defaults = {KEY_CUTOFFS: {'Other': {KEY_HI: 0.01, KEY_LO: 0.001}}}
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None, genepanel_default=defaults)
+
+        defaults = {
+            'freq_cutoffs': {
+                'default': {
+                    'external': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    },
+                    'internal': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    }
+                }
+            }
+        }
+
+        processor = GenepanelCutoffsAnnotationProcessor(
+            TestFrequencyAnnotation.MOCK_CONFIG,
+            genepanel=None,
+            genepanel_default=defaults
+        )
         frequencies = processor.cutoff_frequencies(annotation)
 
-        self.assertEquals(frequencies['cutoff']["ExAC"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies['cutoff']["1000G"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies['cutoff']["ESP6500"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies['cutoff']["inDB"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], "<lo_freq_cutoff")
 
 
 class TestTranscriptAnnotation(unittest.TestCase):
