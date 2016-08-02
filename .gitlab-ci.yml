@@ -59,7 +59,7 @@ build_core:
 bot_build:
   stage: deploy
   script:
-    - if [ -n "${DEV_CHANNEL}" ]; then make release; docker stop ella; docker rm ella; docker run -d --name demo.allel.es VIRTUAL_HOST=demo.allel.es --expose 80 ousamg/ella.release; docker exec demo.allel.es make dbreset; fi
+    - if [ -n "${DEV_CHANNEL}" ]; then make release; docker stop ella; docker rm ella; docker run -d --name demo.allel.es -e VIRTUAL_HOST=demo.allel.es --expose 80 ousamg/ella.release; docker exec demo.allel.es make dbreset; fi
     - if [ -n "${BETA_CHANNEL}" ]; then make release BUILD_TYPE=beta; docker stop ella; docker rm ella; docker run -d --name beta.allel.es -e VIRTUAL_HOST=beta.allel.es --expose 80 ousamg/ella.beta; docker exec beta.allel.es make dbreset; fi
   tags:
     - web
