@@ -3,6 +3,7 @@ stages:
   - test
   - cleanup
   - deploy
+  - notify
 
 test_api:
   stage: test
@@ -63,5 +64,21 @@ bot_build:
     - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es; fi
   tags:
     - web
+  only:
+    - triggers
+
+bot_notify_failure:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/failure'
+  when: on_failure
+  only:
+    - triggers
+
+bot_notify_success:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/success'
+  when: on_success
   only:
     - triggers
