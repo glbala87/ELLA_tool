@@ -17,6 +17,7 @@ ANSIBLE_TAGS ?= core
 BUILD_TYPE ?=core
 BUILD_VERSION ?=0.9.2
 BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
+DEPLOY_NAME ?= test.allel.es
 
 help :
 	@echo ""
@@ -227,10 +228,6 @@ start-provision: clean-provision
 commit-provision:
 	docker commit provision $(BUILD_NAME)
 
-save-and-notify:
-	docker save ousamg/ella.release > /builds/ella.tar
-	nohup curl '127.0.0.1:8080/ella/deploy' &>/dev/null &
-
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
@@ -249,9 +246,8 @@ dbreset-inner:
 dbsleep:
 	while ! pg_isready; do sleep 5; done
 
-deploy-release: release deploy-reboot
-
-deploy-reboot:
-	-docker stop ella
-	-docker rm ella
-	docker run -d --name ella -p 80:80 ousamg/ella:$(BUILD_VERSION)
+deploy:
+	-docker stop $(DEPLOY_NAME)
+	-docker rm $(DEPLOY_NAME)
+	docker run -d --name $(DEPLOY_NAME) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE);
+	docker exec $(DEPLOY_NAME) make dbreset;

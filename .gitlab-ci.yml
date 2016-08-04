@@ -3,6 +3,7 @@ stages:
   - test
   - cleanup
   - deploy
+  - notify
 
 test_api:
   stage: test
@@ -59,9 +60,25 @@ build_core:
 bot_build:
   stage: deploy
   script:
-    - if [ -n "${DEV_CHANNEL}" ]; then make release; docker stop ella; docker rm ella; docker run -d --name ella -p 80:80 ousamg/ella.release; docker exec ella make dbreset; fi
-    - if [ -n "${BETA_CHANNEL}" ]; then make release BUILD_TYPE=beta; docker stop ella; docker rm ella; docker run -d --name ella -p 80:80 ousamg/ella.beta; docker exec ella make dbreset; fi
+    - if [ -n "${DEV_CHANNEL}" ]; then make release deploy DEPLOY_NAME=demo.allel.es; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es; fi
   tags:
     - web
+  only:
+    - triggers
+
+bot_notify_failure:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/failure'
+  when: on_failure
+  only:
+    - triggers
+
+bot_notify_success:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/success'
+  when: on_success
   only:
     - triggers
