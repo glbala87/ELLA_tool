@@ -7,7 +7,7 @@ import os
 import sys
 import argparse
 import logging
-from jsonschema import validate
+from jsonschema import validate, FormatChecker
 import json
 
 from vardb.datamodel import gene as gm
@@ -67,7 +67,8 @@ def config_valid(config):
 
     with open(filename) as schema_file:
         my_schema = json.load(schema_file)
-        validate(config, my_schema)
+        # see doc http://python-jsonschema.readthedocs.io/en/latest/validate/#validating-formats
+        validate(config, my_schema, format_checker=FormatChecker())
 
     return True
 
