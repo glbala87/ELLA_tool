@@ -13,7 +13,7 @@ import {Directive, Inject} from '../ng-decorators';
         color: '@'
     },
     transclude: { titlebar: 'titlebar', contentwrapper: 'contentwrapper' },
-    template: '<div class="sectionbox" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="sb-titlebar" ng-transclude="titlebar"></div> <div class="sb-body" ng-transclude="contentwrapper"></div> </div>',
+    template: '<div class="sectionbox" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="sb titlebar" ng-transclude="titlebar"></div> <div class="sb-body" ng-transclude="contentwrapper"></div> </div>',
     link: (scope, elem, attrs) => {
       // LEAVE FOR NOW!
       //   - fixed padding with alternate CSS rules, but might still need to alter styles here based on children

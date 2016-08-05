@@ -13,7 +13,7 @@ import {Directive, Inject} from '../ng-decorators';
         color: '@'
     },
     transclude: { cbheader: 'cbheader', cbbody: 'cbbody' },
-    template: '<div class="contentbox fixed-width-numbers" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="cb-titlebar" ng-transclude="cbheader"></div> <div class="cb-body" ng-transclude="cbbody"></div> </div>',
+    template: '<div class="contentbox fixed-width-numbers" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="cb titlebar" ng-transclude="cbheader"></div> <div class="cb-body" ng-transclude="cbbody"></div> </div>',
     link: (scope, elem, attrs) => {
       // LEAVE FOR NOW!
       //   - fixed padding with alternate CSS rules, but might still need to alter styles here based on children
