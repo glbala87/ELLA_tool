@@ -14,6 +14,41 @@
   </div>
 </nav>
 <article class="lolfix container">
+  <sectionbox color="green">
+    <titlebar>
+      <h3 class="title">available users</h3>
+    </titlebar>
+    <contentwrapper>
+      <input type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
+      <section class="content-list">
+        <div class="analysis-row" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
+          <h3>{{user.first_name}} {{user.last_name}}</h3>
+        </div>
+      </section>
+    </contentwrapper>
+  </sectionbox>
+  <div style="height: 5rem;"></div>
+  <sectionbox color="purple">
+    <titlebar>
+      <h3 class="title">some other shit</h3>
+    </titlebar>
+    <contentwrapper>
+      <contentbox color="blue">
+        <cbheader>
+          <h3 class="title">oh god another title</h3>
+        </cbheader>
+        <cbbody>
+          <h3>some stuff will probably go here</h3>
+          <section class="content-list">
+            <div class="analysis-row" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
+              <h3>{{user.first_name}} {{user.last_name}}</h3>
+            </div>
+          </section>
+        </cbbody>
+      </contentbox>
+    </contentwrapper>
+  </sectionbox>
+  <div style="height: 5rem;"></div>
   <card color="blue" options="{ collapsed: false }">
     <primary>
       <h3 class="header">AVAILABLE USERS</h3>

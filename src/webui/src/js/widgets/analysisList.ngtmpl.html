@@ -1,4 +1,4 @@
-<div class="analysis-row"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in vm.analyses track by analysis.name">
+<div class="analysis-row"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in vm.analysesByDate(vm.analyses) track by analysis.name">
   <div>
     <h3>{{::analysis.name}}</h3>
     <p>{{analysis.deposit_date | date:"dd-MM-yyyy"}}</p>

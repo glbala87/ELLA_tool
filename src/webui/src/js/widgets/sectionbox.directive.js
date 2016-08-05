@@ -3,17 +3,17 @@
 import {Directive, Inject} from '../ng-decorators';
 
 /**
- <contentbox>
- A content box element with vertical header
+ <sectionbox>
+ A section box element with vertical header
  */
 @Directive({
-    selector: 'contentbox',
+    selector: 'sectionbox',
     scope: {
         ngDisabled: '=?',
         color: '@'
     },
-    transclude: { cbheader: 'cbheader', cbbody: 'cbbody' },
-    template: '<div class="contentbox fixed-width-numbers" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="cb-titlebar" ng-transclude="cbheader"></div> <div class="cb-body" ng-transclude="cbbody"></div> </div>',
+    transclude: { titlebar: 'titlebar', contentwrapper: 'contentwrapper' },
+    template: '<div class="sectionbox" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="sb-titlebar" ng-transclude="titlebar"></div> <div class="sb-body" ng-transclude="contentwrapper"></div> </div>',
     link: (scope, elem, attrs) => {
       // LEAVE FOR NOW!
       //   - fixed padding with alternate CSS rules, but might still need to alter styles here based on children
@@ -29,4 +29,4 @@ import {Directive, Inject} from '../ng-decorators';
       // }, 0);
     }
 })
-export class ContentboxController { }
+export class SectionboxController { }
