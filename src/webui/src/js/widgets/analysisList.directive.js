@@ -81,47 +81,40 @@ class AnalysisListWidget {
     }
 
     analysesByDate(analyses) {
-      console.log(analyses);
-      var groupBy = function(xs) {
-        return xs.reduce(function(rv, x) {
-          (rv[x['deposit_date']] = rv[x['deposit_date']] || []).push(x);
-          return rv;
-        }, {});
-      };
-      console.log("GROUPED:",groupBy(analyses, 'length'));
-
-     // console.log("GROUPED:", analyses.reduce( function(rv, x) {
-     //      (rv[x[Date.parse('deposit_date')]] = rv[x[Date.parse('deposit_date')]] || []).push(x);
-     //      return rv;
-     //    });
-     //  );
-      // console.log("GROUPED:",groupBy(analyses, 'deposit_date | date:"dd-MM-yyyy"'));
-      return analyses;
+      // FIXME: Hi i'm an infinite loop in angular
+      let byday = {};
+      function groupday(value, index, array)
+      {
+        let d = value['deposit_date'].substring(0,10);
+        byday[d]=byday[d]||[];
+        byday[d].push(value);
+      }
+      analyses.map(groupday);
+      return byday;
     }
 
     clickAnalysis(analysis) {
-      console.log(analysis);
-        // if (this.isAnalysisDone(analysis)) {
-        //     this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
-        //     return;
-        // }
-        // else if (this.userAlreadyAnalyzed(analysis)) {
-        //     this.toastr.info("You have already done this analysis.", null, 5000);
-        //     return;
-        // }
+        if (this.isAnalysisDone(analysis)) {
+            this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
+            return;
+        }
+        else if (this.userAlreadyAnalyzed(analysis)) {
+            this.toastr.info("You have already done this analysis.", null, 5000);
+            return;
+        }
 
-        // let iuser = analysis.getInterpretationUser();
-        // if (iuser &&
-        //     iuser.id !== this.user.getCurrentUserId()) {
-        //     this.interpretationOverrideModal.show().then(result => {
-        //         if (result) {
-        //             this.overrideAnalysis(analysis);
-        //         }
-        //     });
-        // }
-        // else {
-        //     this.openAnalysis(analysis);
-        // }
+        let iuser = analysis.getInterpretationUser();
+        if (iuser &&
+            iuser.id !== this.user.getCurrentUserId()) {
+            this.interpretationOverrideModal.show().then(result => {
+                if (result) {
+                    this.overrideAnalysis(analysis);
+                }
+            });
+        }
+        else {
+            this.openAnalysis(analysis);
+        }
     }
 
     getStateMessage(analysis) {

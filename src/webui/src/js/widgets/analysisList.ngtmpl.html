@@ -1,11 +1,15 @@
-<div class="analysis-row"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in vm.analysesByDate(vm.analyses) track by analysis.name">
-  <div>
-    <h3>{{::analysis.name}}</h3>
-    <p>{{analysis.deposit_date | date:"dd-MM-yyyy"}}</p>
-  </div>
-  <div class="analysis-users">
-    <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
-      <div ng-if="interpretation.user" tooltip="{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}"><h3>{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}</h3></div>
+<contentbox color="blue" ng-repeat="(date, analyses) in vm.analysesByDate(vm.analyses)">
+  <cbheader>
+    <h3 class="title">{{date}}</h3>
+  </cbheader>
+  <cbbody>
+    <div class="analysis-row"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in analyses track by analysis.name">
+      <h3>{{::analysis.name}}</h3>
+      <div class="analysis-users">
+        <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
+          <div ng-if="interpretation.user" tooltip="{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}"><h3>{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}</h3></div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  </cbbody>
+</contentbox>

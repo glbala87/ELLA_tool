@@ -64,6 +64,9 @@ dev:
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
 
+db:
+	docker exec $(CONTAINER_NAME) make dbreset
+
 url:
 	@./ops/dev/show-url.sh
 
