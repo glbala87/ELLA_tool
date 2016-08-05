@@ -38,7 +38,7 @@ GENEPANELS = [
         'version': 'v01'
     },
     {'config': {
-        "meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "some date"},
+        "meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "2016-08-05T14:57:00+01:00"},
         "data": {"BRCA2": {
             "lo_freq_cutoff": 0.0005,
             "hi_freq_cutoff": 0.008,
