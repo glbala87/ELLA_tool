@@ -85,11 +85,14 @@ class AnalysisListWidget {
       let byday = {};
       function groupday(value, index, array)
       {
+        value["$$hashKey"] = index;
         let d = value['deposit_date'].substring(0,10);
         byday[d]=byday[d]||[];
         byday[d].push(value);
       }
-      analyses.map(groupday);
+      analyses.forEach(groupday);
+      console.log(byday)
+      byday["$$hashKey"] = 0;
       return byday;
     }
 

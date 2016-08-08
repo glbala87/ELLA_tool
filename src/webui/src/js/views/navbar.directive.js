@@ -18,8 +18,16 @@ export class NavbarController {
         this.location = $location;
     }
 
+    abbreviateUser() {
+      if(Object.keys(this.user).length != 0) {
+        return `${this.user.first_name.substring(0,1)}. ${this.user.last_name}`;
+      } else {
+        return "";
+      }
+    }
+
     getItems() {
-        return this.navbarService.getItems();
+      return this.navbarService.getItems();
     }
 
     isLastItem(item) {
@@ -31,6 +39,10 @@ export class NavbarController {
         if (item.url) {
             this.location.path(item.url);
         }
+    }
+
+    isLogin() {
+      return this.location.path() == '/login';
     }
 
     goToLogin() {

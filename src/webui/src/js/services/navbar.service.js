@@ -18,11 +18,15 @@ export class NavbarService {
         //  'title': 'Analysis list',
         //  'url': .. (optional)
         // }
-        this.items = [];
+        this.items = {};
     }
 
     clearItems() {
-        this.items = [];
+        this.items = {};
+    }
+
+    setAnalysis(analysis) {
+      this.items["analysis"] = analysis;
     }
 
     replaceItems(items) {
