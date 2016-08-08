@@ -26,6 +26,14 @@ export class NavbarController {
       }
     }
 
+    hasAllele() {
+      return Object.keys(this.navbarService.getAllele()).length != 0;
+    }
+
+    getAllele() {
+      return this.navbarService.getAllele();
+    }
+
     getItems() {
       return this.navbarService.getItems();
     }

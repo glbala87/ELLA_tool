@@ -14,19 +14,23 @@ export class NavbarService {
     constructor() {
         // item:
         // {
-        //  'header': 'Go to' (optional),
         //  'title': 'Analysis list',
         //  'url': .. (optional)
         // }
-        this.items = {};
+        this.items = [];
+        this.allele = {};
+    }
+
+    setAllele(allele) {
+      this.allele = allele;
+    }
+
+    getAllele() {
+      return this.allele;
     }
 
     clearItems() {
-        this.items = {};
-    }
-
-    setAnalysis(analysis) {
-      this.items["analysis"] = analysis;
+        this.items = [];
     }
 
     replaceItems(items) {

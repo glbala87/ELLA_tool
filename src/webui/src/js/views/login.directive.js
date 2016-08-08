@@ -6,14 +6,15 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'login',
     templateUrl: 'ngtmpl/login.ngtmpl.html'
 })
-@Inject('$location', 'User')
+@Inject('$location', 'User','Navbar')
 export class LoginController {
-    constructor(location, User) {
+    constructor(location, User,Navbar) {
         this.location = location;
         this.user = User;
         this.users = [];
         this.name_filter = '';
         this.loadUsers();
+        Navbar.clearItems();
     }
 
     loadUsers() {
