@@ -21,6 +21,10 @@ export class NavbarService {
         this.allele = {};
     }
 
+    clearAllele() {
+      this.allele = {}
+    }
+
     setAllele(allele) {
       this.allele = allele;
     }
@@ -30,6 +34,7 @@ export class NavbarService {
     }
 
     clearItems() {
+        this.clearAllele();
         this.items = [];
     }
 
