@@ -22,8 +22,8 @@ import Analysis from "../../src/js/model/analysis.js"
     }));
 
     it("list is expanded", function () {
-      expect(elm.find('div')).toBeDefined();
-      expect(elm.find('div').length).toBeGreaterThan(1);
+      expect(elm.find('contentbox')).toBeDefined();
+      expect(elm.find('contentbox').length).toBeGreaterThan(1);
     });
 
     describe("when user clicks an analysis", function () {
