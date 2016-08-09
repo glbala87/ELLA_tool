@@ -51,6 +51,8 @@ export class ACMGSelectionController {
     getSuggestedClassification() {
         if (this.alleleState.alleleassessment.evaluation.acmg.suggested_classification !== null) {
             return this.alleleState.alleleassessment.evaluation.acmg.suggested_classification;
+        } else {
+            return "none yet";
         }
     }
 

@@ -9,6 +9,8 @@ require('core-js/fn/array/includes');
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
 
+import "./recompile.directive";
+
 import "./modals/addExcludedAllelesModal.service";
 import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
@@ -39,6 +41,7 @@ import './views/analysis/interpretationSingleSample.directive';
 import './views/main.directive';
 import './views/login.directive';
 import './views/sidebar.directive';
+import './views/alleleSidebar.directive';
 import './views/navbar.directive';
 
 import './widgets/alleleinfo/alleleInfoAcmgSelection.directive';
@@ -67,6 +70,7 @@ import './widgets/aclip.directive.js';
 import './widgets/acmg.directive';
 import './widgets/checkablebutton.directive';
 import './widgets/autosizeTextarea.directive';
+import './widgets/contentbox.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
 import './widgets/card.directive';
