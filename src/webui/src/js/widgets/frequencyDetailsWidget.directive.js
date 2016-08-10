@@ -24,6 +24,7 @@ export class FrequencyDetailsWidget {
         }
         this.setFrequencies();
         this.setInDb();
+        this.exac_fields = ['count', 'num', 'hom', 'freq']
     }
 
     setFrequencies() {
@@ -50,6 +51,21 @@ export class FrequencyDetailsWidget {
                 }
             }
         }
+        if(this.isExAC()) {
+          this.frequencies.forEach( (e) => { e.name = this.config.frequencies.view.ExAC[e.name] } );
+        }
+    }
+
+    getExACHeaderName(name) {
+      return this.config.frequencies.view.ExAC_fields[name];
+    }
+
+    formatExACValue(freq_data, name) {
+      if(name === "freq") {
+        return parseFloat(freq_data[name]).toFixed(this.precision);
+      } else {
+        return freq_data[name];
+      }
     }
 
     /**
@@ -59,10 +75,16 @@ export class FrequencyDetailsWidget {
      */
     getFreqValue(freq_data) {
         let value = parseFloat(freq_data.freq).toFixed(this.precision);
-        if ('hom' in freq_data) {
-            value += ` (count: ${freq_data['count']}, num: ${freq_data['num']}, hom: ${freq_data['hom']})`
-        }
         return value;
+    }
+
+    exacNames(freq_data) {
+        console.log(freq_data);
+        return freq_data;
+    }
+
+    isExAC() {
+       return this.group === 'ExAC'
     }
 
     setInDb() {
