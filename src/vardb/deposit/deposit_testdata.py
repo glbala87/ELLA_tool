@@ -43,7 +43,7 @@ GENEPANELS = [
             "lo_freq_cutoff": 0.0005,
             "hi_freq_cutoff": 0.008,
             "last_exon": False,
-            "disease_mode": "MISS",
+            "disease_mode": "ANY",
             "comment": "a comment from the genepanel config"}}},
      'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
      'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
