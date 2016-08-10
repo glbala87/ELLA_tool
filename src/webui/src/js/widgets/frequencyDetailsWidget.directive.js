@@ -75,16 +75,12 @@ export class FrequencyDetailsWidget {
      */
     getFreqValue(freq_data) {
         let value = parseFloat(freq_data.freq).toFixed(this.precision);
-        // if ('hom' in freq_data) {
-        //     value += ` (count: ${freq_data['count']}, num: ${freq_data['num']}, hom: ${freq_data['hom']})`
-        // }
         return value;
     }
 
     exacNames(freq_data) {
         console.log(freq_data);
         return freq_data;
-        // return this.config.frequencies.view.ExAC[name];
     }
 
     isExAC() {
