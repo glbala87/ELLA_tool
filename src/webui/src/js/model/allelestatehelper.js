@@ -127,13 +127,15 @@ export class AlleleStateHelper {
     }
 
     /**
-     * Toggles reusing the existing classification of allele
+     * Toggles reusing the existing classification of allele.
+     * If alleleassessment is outdated, it refuse to toggle on.
      * @param  {Allele} allele   Allele to reuse alleleassessment of.
      * @param  {Object} allele_state   Allele state to modify
+     * @param  {Config}  config Application config
      * @return {Boolean}              Whether toggle is true or not
      */
 
-    static toggleReuseAlleleAssessment(allele, allele_state) {
+    static toggleReuseAlleleAssessment(allele, allele_state, config) {
         if (!('allele_assessment' in allele)) {
             throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
         }
@@ -142,6 +144,12 @@ export class AlleleStateHelper {
             return false;
         }
         else {
+            // Check whether existing allele assessment is outdated,
+            // if so refuse to toggle on.
+            if (this.isAlleleAssessmentOutdated(allele, config)) {
+                return false;
+            }
+
             if ('allele_assessment' in allele) {
                 allele_state.alleleassessment.id = allele.allele_assessment.id;
             }
@@ -153,6 +161,32 @@ export class AlleleStateHelper {
     static isAlleleAssessmentReused(allele_state) {
         return 'alleleassessment' in allele_state &&
                'id' in allele_state.alleleassessment;
+    }
+
+    /**
+     * Checks whether the allele's existing allele_assessment is outdated.
+     * TODO: Doesn't strictly belong here, but we need it in this module.
+     * @param  {Allele}  allele Allele's allele assessment to check.
+     * @param  {Config}  config Application config
+     * @return {Boolean}        Whether the assessment is outdated.
+     */
+    static isAlleleAssessmentOutdated(allele, config) {
+        if (!allele.allele_assessment) {
+            return false;
+        }
+        let classification = allele.allele_assessment.classification;
+        // Find classification from config
+        let option = config.classification.options.find(o => o.value === classification);
+        if (option === undefined) {
+            throw Error(`Classification ${classification} not found in configuration.`);
+        }
+        if ('outdated_after_days' in option) {
+            return (allele.allele_assessment.seconds_since_update / (3600 * 24)) >=
+                    option.outdated_after_days;
+        }
+        else {
+            return false;
+        }
     }
 
 }
