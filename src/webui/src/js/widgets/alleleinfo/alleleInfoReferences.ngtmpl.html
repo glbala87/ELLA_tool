@@ -20,7 +20,9 @@
         </div>
         <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.comment">
           <div class="cell top-align"><h5>Comment:</h5></div>
-          <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.comment}}</p></div>
+          <div class="cell">
+            <autosize-textarea class="card-comment" ng-disabled="true" placeholder="" ng-model="vm.getCurrentReferenceAssessment(ref).evaluation.comment"></autosize-textarea>
+          </div>
         </div>
       </div>
       <div>

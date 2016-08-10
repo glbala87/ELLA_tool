@@ -7,7 +7,7 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-bl
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
   }
 }
-textarea { font-size: 1.2rem; font-family: $slim; line-height: 2rem; padding: 0; width: 100%; min-height: 2.6rem; max-height: 10rem; border: none; background-color: transparent; border-bottom: 1px solid $icon-half-black; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
+textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0; width: 100%; min-height: 2.6rem; max-height: 20rem; border: none; background-color: transparent; border-bottom: 1px solid $icon-half-black; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $icon-half-black; }
 }
