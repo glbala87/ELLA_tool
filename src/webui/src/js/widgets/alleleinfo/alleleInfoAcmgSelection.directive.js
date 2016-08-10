@@ -105,7 +105,15 @@ export class ACMGSelectionController {
                 }
                 return a_idx - b_idx;
             });
-
+            let x_codes = [];
+            x_codes = this.acmgCandidates[t].filter( (e) => { if(e.includes('x')) { return true; } } );
+            x_codes.forEach( (e) => { this.acmgCandidates[t].splice(this.acmgCandidates[t].indexOf(e),1) } );
+            x_codes.forEach( (e) => {
+              this.acmgCandidates[t].splice(
+                (this.acmgCandidates[t].indexOf(e.split('x')[1])+1),
+                0, e
+              )
+            })
         }
     }
 
