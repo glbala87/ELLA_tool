@@ -1,4 +1,18 @@
-<div class="cb-table">
+<div class="cb-table" ng-if="::vm.isExAC()">
+  <div class="tabular-row">
+  <div class="cell"><h4>Pop</h4></div>
+  <div class="cell" ng-repeat="name in ::vm.exac_fields">
+    <h4>{{name}}</h4>
+  </div>
+  </div>
+  <div class="tabular-row exac" ng-repeat="freq_data in ::vm.frequencies | orderBy:'name'">
+    <div class="cell"><h5>{{::freq_data.name}}:</h5></div>
+    <div class="cell" ng-repeat="name in ::vm.exac_fields">
+      <p>{{::vm.formatExACValue(freq_data, name)}}</p>
+    </div>
+  </div>
+</div>
+<div class="cb-table" ng-if="::vm.isExAC() == false">
   <div class="tabular-row" ng-repeat="freq_data in ::vm.frequencies">
     <div class="cell"><h5>{{::freq_data.name}}:</h5></div>
     <div class="cell"><p>{{::vm.getFreqValue(freq_data)}}</p></div>
