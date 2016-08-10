@@ -18,13 +18,13 @@
   <section class="enabled">
     <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.classified.active track by allele_obj.allele.id" ng-click="vm.select(allele_obj.allele)">
       <div class="tab" ng-class="{'active': vm.isSelected(allele_obj.allele)}"> </div>
-      <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i> <b>{{allele_obj.alleleState.alleleassessment.classification}}</b>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</h4>
+      <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i> <b>{{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}</b>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</h4>
     </div>
   </section>
   <section class="disabled">
     <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.classified.inactive track by allele_obj.allele.id">
       <div class="tab" ng-class="{'active': vm.isSelected(allele_obj.allele)}"> </div>
-      <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i> <b>{{allele_obj.alleleState.alleleassessment.classification}}</b>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</h4>
+      <h4 class="title" ng-class="{'active': vm.isSelected(allele_obj.allele)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i> <b>{{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}</b>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</h4>
     </div>
   </section>
 </nav>

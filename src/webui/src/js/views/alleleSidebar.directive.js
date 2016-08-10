@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../ng-decorators';
+import {AlleleStateHelper} from '../model/allelestatehelper';
 
 @Directive({
     selector: 'allele-sidebar',
@@ -22,5 +23,9 @@ export class AlleleSidebarController {
 
     isSelected(allele) {
         return this.selected === allele;
+    }
+
+    getClassification(allele, allele_state) {
+        return AlleleStateHelper.getClassification(allele, allele_state);
     }
 }
