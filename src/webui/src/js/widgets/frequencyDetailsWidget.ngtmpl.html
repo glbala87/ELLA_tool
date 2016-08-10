@@ -1,4 +1,4 @@
-<div class="cb-table" ng-if="::vm.isExAC()">
+<div class="cb-table" ng-if="::vm.isExAC() && vm.frequencies.length > 0">
   <div class="tabular-row">
   <div class="cell"><h4>Pop</h4></div>
   <div class="cell" ng-repeat="name in ::vm.exac_fields">
