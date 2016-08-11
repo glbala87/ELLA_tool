@@ -29,7 +29,7 @@ export class FrequencyDetailsWidget {
 
     setFrequencies() {
         this.frequencies = [];
-        let freqs = this.config.frequencies.groups[this.group];
+        let freqs = this.config.frequencies.view.groups[this.group];
         for (let freq of freqs) {
             if (this.group in this.allele.annotation.frequencies) {
                 let group_data = this.allele.annotation.frequencies[this.group];
@@ -94,7 +94,7 @@ export class FrequencyDetailsWidget {
             if ('noMutInd' in group_data) {
                 this.inDb.noMutInd = group_data.noMutInd;
 
-                if(group_data.noMutInd < this.config.frequencies.inDB.noMutInd_threshold &&
+                if(group_data.noMutInd < this.config.frequencies.view.inDB.noMutInd_threshold &&
                    'indications' in group_data) {
                     this.inDb.indications = group_data.indications;
                 }
