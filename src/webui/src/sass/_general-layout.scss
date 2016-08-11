@@ -146,6 +146,7 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
     &.active:hover { cursor: default; }
     &.active:hover .tab { background-color: $blue; }
     &.active:hover .title { background-color: inherit; color: $blue; }
+    &.toggled { background-color: red; }  // FIXME!
   }
   .tab { width: 0.35rem; min-width: 0.35rem; height: 2.6rem; background-color: inherit; }
   .title { width: 100%; padding-left: 1.9rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
