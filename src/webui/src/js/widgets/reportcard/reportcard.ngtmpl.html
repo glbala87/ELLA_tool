@@ -6,17 +6,10 @@
   </primary>
   <secondary></secondary>
   <bottom class="report-content">
-    <div ng-if="vm.getIncludedAlleles().length > 0" class="included-report">
-      <h2 class="allele-title">Included</h2>
-      <section class="report-include-group">
-        <div class="report-include" ng-repeat="al in vm.getIncludedAlleles() track by al.id">
-          <div class="paper-top-left blue">
-            <div class="allele-code-wrapper"> <h3 ng-repeat="t in al.annotation.filtered track by t.Transcript">{{::t.SYMBOL}}</h3> <h4 ng-repeat="t in al.annotation.filtered track by t.Transcript">{{t.HGVSc_short}}</h4> </div>
-            <div class="classification-number fixed-width-numbers"><h2>{{vm.getClassification(al)}}</h2></div>
-          </div>
-          <checkable-button class="include-button checkable-white" show-mark="true" check-model="vm.getAlleleState(al).report.included"> <checked>Included</checked> Include </checkable-button>
-        </div>
-      </section>
+    <div ng-if="!vm.alleles.length" class="included-report">
+      <h4>No alleles addded. You can add alleles from the classified variants on sidebar to the left.</h4>
+    </div>
+    <div ng-if="vm.alleles.length" class="included-report">
       <!-- <div>
         <h2 class="allele-title">Needs verification</h2>
         <div class="verify">
@@ -25,15 +18,8 @@
       </div> -->
 
       <h2 class="allele-title">Report</h2>
-      <pre><div ng-repeat="al in vm.getIncludedAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>
+      <pre><div ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>
       <hr/>
-    </div>
-    <h2 class="allele-title">Available</h2>
-    <div class="excluded-controls">
-      <div class="excluded-dropdown-wrapper">
-        <select class="excluded-dropdown" ng-options="al as vm.getClassification(al) + ' ' + al for al in vm.getExcludedAlleles()" ng-model="vm.selected_excluded"></select>
-      </div>
-      <button ng-click="vm.includeSelectedExcluded()">Include</button>
     </div>
   </bottom>
 </card>
