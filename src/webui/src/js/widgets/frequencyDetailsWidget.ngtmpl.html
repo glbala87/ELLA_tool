@@ -1,8 +1,8 @@
 <div class="cb-table" ng-if="::vm.isExAC() && vm.frequencies.length > 0">
   <div class="tabular-row">
-  <div class="cell"><h4>Pop</h4></div>
+  <div class="cell"><h4 class="faded-title">Pop</h4></div>
   <div class="cell" ng-repeat="name in ::vm.exac_fields">
-    <h4>{{name}}</h4>
+    <h4 class="faded-title">{{name}}</h4>
   </div>
   </div>
   <div class="tabular-row exac" ng-repeat="freq_data in ::vm.frequencies | orderBy:'name'">
