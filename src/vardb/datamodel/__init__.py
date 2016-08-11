@@ -53,11 +53,12 @@ class CustomBase(object):
         specifying whether an object was created.
         """
         # get or create object using kwargs (filter) only
-        instance, created = cls.get_or_create(session, **kwargs)
+        instance, created = cls.get_or_create(session, defaults=defaults, **kwargs)
         # Update object with defaults
-        if defaults:
+        if not created and defaults:  # fetched an existing instance, must update
             for k, v in defaults.iteritems():
                 setattr(instance, k, v)
+
         return instance, created
 
 

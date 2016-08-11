@@ -73,6 +73,6 @@ class ApiV1(object):
                          '/api/v1/users/<int:user_id>/')
 
         api.add_resource(r.genepanel.GenepanelResource,
-                         '/api/v1/genepanels/<name>/<version>')
+                         '/api/v1/genepanels/<name>/<version>/')
 
         return api
