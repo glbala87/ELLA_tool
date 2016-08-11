@@ -31,8 +31,8 @@
       <div class="left"> <h5> Relevance </h5> <p> Is the reference relevant? </p> </div>
       <div class="middle"></div>
       <div class="right">
-        <div class="btn-group btn-group-sm">
-          <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].buttons">{{item}}</label>
+        <div class="bttn-set">
+          <label class="bttn" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].buttons">{{item}}</label>
         </div>
       </div>
     </article>
@@ -45,8 +45,8 @@
       </div>
       <div class="right line-wrapper">
         <div class="multiple-question-element" ng-repeat="elem in vm.sources[source].elements">
-          <div class="btn-group btn-group-sm" ng-if="::elem.type == 'button'">
-            <label class="btn btn-success" ng-model="vm.referenceAssessment.evaluation[elem.store]" uib-btn-radio="item[1]" ng-repeat="item in elem.options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
+          <div class="bttn-set" ng-if="::elem.type == 'button'">
+            <label class="bttn" ng-model="vm.referenceAssessment.evaluation[elem.store]" uib-btn-radio="item[1]" ng-repeat="item in elem.options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
           </div>
           <div ng-if="::elem.type == 'dropdown'">
             <select class="form-control" ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]" ng-disabled="vm.isDisabled(source)"></select>
