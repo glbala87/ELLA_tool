@@ -3,15 +3,15 @@
     <h3 class="header">FINISHED: ANALYSIS COMPLETE</h3>
   </primary>
   <bottom>
-    <div class='question-set'>
-      <h2 class="centered">You have finished the current analysis.</h2>
-      <h5 class="centered">Would you like to mark the analysis for review, or finalize it?</h5>
+    <div class='question centered'>
+      <h2>You have finished the current analysis.</h2>
+      <h5>Would you like to mark the analysis for review, or finalize it?</h5>
     </div>
   </bottom>
   <controls>
     <div>
       <button type="button" ng-click="vm.modal.close('markreview')">Mark for review</button>
-      <button class="faded-red" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
+      <button class="red full-color" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
     </div>
   </controls>
 </card>

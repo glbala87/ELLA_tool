@@ -16,7 +16,7 @@ a { color: hsla(190,35,45,1); font-weight: 500; }
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 .centered { display: flex; align-items: center; justify-content: center; height: 100%; }
 
-button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
+button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.1rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
   b.plusmark { font-weight: 600; font-size: 1.3rem; }
   b.x-mark { font-weight: 400; font-size: 1.1rem; margin-right: 0.7rem; }
   &.ng-leave { transition: none; }
@@ -28,11 +28,12 @@ button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; lin
     &:hover { background-color: hsla(0,0,100,0.1); }
   }
   &.full-color { color: hsla(0,0,100,0.9); border: 1px solid Transparent; }
-  &.blue { background-color: $blue-button; &:hover { background-color: lighten($blue-button,10); } }
-  &.green { background-color: $green-button !important; &:hover { background-color: lighten($green-button,10); } }
-  &.yellow { background-color: $yellow-button; &:hover { background-color: lighten($yellow-button,10); } }
-  &.red { background-color: $red-button; &:hover { background-color: lighten($red-button,10); } }
+  &.blue { background-color: $blue-button !important; &:hover { background-color: lighten($blue-button,10) !important; } }
+  &.green { background-color: $green-button !important; &:hover { background-color: lighten($green-button,10) !important; } }
+  &.yellow { background-color: $yellow-button !important; &:hover { background-color: lighten($yellow-button,10) !important; } }
+  &.red { background-color: $red-button !important; &:hover { background-color: lighten($red-button,10) !important; } }
 }
+// FIXME - above shouldn't have important flags
 
 .container { width: auto; }
 .app .content, .container { margin-left: 2.0rem; margin-right: 3.9rem; margin-top: 2rem; }
