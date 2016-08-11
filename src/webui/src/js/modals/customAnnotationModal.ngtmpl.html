@@ -13,22 +13,25 @@
       </div>
       <hr ng-if="vm.hasAddedAnnotations()">
       <h2 class="allele-title">add reference - import xml format</h2>
-      <div class="instructions">
-        <h5 class="non-cell">Instructions</h5>
-        <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
+      <div class="question line-wrapper">
+        <div class="right">
+          <h5>Instructions</h5>
+          <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
+        </div>
       </div>
-      <div class="trow spacing-fix">
-          <div class="cell title"> <h5>VARIANT:</h5> </div>
-          <div class="cell check"></div>
-          <div class="cell controls allele-controls">
+      <div class="question line-wrapper">
+          <div class="left"> <h5>VARIANT:</h5> </div>
+          <div class="right">
             <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
           </div>
       </div>
-      <article class="instructions">
+      <div class="question small">
         <autosize-textarea class="big" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea>
+      </div>
+      <div class="question small">
         <h5 class="error" ng-if="vm.reference_error">The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</h5>
-        <button ng-click="vm.addReference()"><b class="plusmark" ng-disabled="vm.reference_xml === ''">+</b> Add reference</button>
-      </article>
+      </div>
+      <button ng-click="vm.addReference()"><b class="plusmark" ng-disabled="vm.reference_xml === ''">+</b> Add reference</button>
     </section>
 
     <section ng-if="vm.category == 'external' || vm.category == 'prediction'">
@@ -43,40 +46,30 @@
       </div>
       <hr ng-if="vm.hasAddedAnnotations()">
       <h2 class="allele-title">add annotation</h2>
-      <article class="small question-set">
-        <div class="trow">
-          <div class="cell title"> <h5>Variant:</h5> </div>
-          <div class="cell check"></div>
-          <div class="cell controls">
-            <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
-          </div>
+      <article class="question small line-wrapper">
+        <div class="left"> <h5>Variant:</h5> </div>
+        <div class="right">
+          <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
         </div>
-        <div class="trow">
-          <div class="cell title"> <h5>Annotation:</h5>
-
-          </div>
-          <div class="cell check"></div>
-          <div class="cell controls">
-            <select class='form-control' ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"></select>
-          </div>
+      </article>
+      <article class="question small line-wrapper">
+        <div class="left"> <h5>Annotation:</h5> </div>
+        <div class="right">
+          <select class='form-control' ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"></select>
         </div>
-        <div class="trow">
-          <div class="cell title"> <h5>Value:</h5> </div>
-          <div class="cell check"></div>
-          <div class="cell controls">
-            <select ng-if="vm.selected_annotation_group.options" class='form-control' ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"></select>
-            <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.selected_annotation_value" ng-if="vm.selected_annotation_group.text">
-
-            </autosize-textarea>
-          </div>
+      </article>
+      <article class="question small line-wrapper">
+        <div class="left"> <h5>Value:</h5> </div>
+        <div class="right">
+          <select ng-if="vm.selected_annotation_group.options" class='form-control' ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"></select>
+          <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.selected_annotation_value" ng-if="vm.selected_annotation_group.text"> </autosize-textarea>
         </div>
-        <div class="trow">
-          <div class="cell title">
-            <div ng-if="vm.getUrls().length" ng-repeat="url in vm.getUrls()"> <p class="hotfix-spacing"><a-clip href="{{url}}" target="_new_{{url}}">Visit database</a-clip></p> </div>
-          </div>
-          <div class="cell check"></div>
-          <div class="cell controls"> <button ng-click="vm.addAnnotation()">Add</button> </div>
+      </article>
+      <article class="question small line-wrapper">
+        <div class="left">
+          <div ng-if="vm.getUrls().length" ng-repeat="url in vm.getUrls()"> <p class="hotfix-spacing"><a-clip href="{{url}}" target="_new_{{url}}">Visit database</a-clip></p> </div>
         </div>
+        <div class="right"> <button ng-click="vm.addAnnotation()">Add</button> </div>
       </article>
     </section>
   </bottom>
