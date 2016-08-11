@@ -11,7 +11,7 @@ export default class Genepanel {
 
     }
 
-    findGeneConfigOverrides(geneSymbol) {
+    findGeneConfigOverride(geneSymbol) {
         let panelConfig = this.config;
         if (panelConfig && panelConfig.data && geneSymbol in panelConfig.data) {
             return panelConfig.data[geneSymbol];
@@ -20,15 +20,11 @@ export default class Genepanel {
         }
     }
 
-    find_cutoff(key, inheritance, overrides, default_values) {
-        if (key in overrides) {
-            return {'_type': 'genepanel_override', 'value': overrides[key]};
+    find_cutoff(inheritance, default_values) {
+        if (inheritance == 'AD') {
+            return default_values['freq_cutoffs']['AD'];
         } else {
-            if (inheritance == 'AD') {
-                return default_values['freq_cutoffs']['AD'][key];
-            } else {
-                return default_values['freq_cutoffs']['Other'][key];
-            }
+            return default_values['freq_cutoffs']['default'];
         }
     }
 
@@ -43,30 +39,47 @@ export default class Genepanel {
      * @returns {object} the keys are the possible properties of a genepanel and the value is the value of the property
      */
     calculateGenepanelConfig(geneSymbol, default_genepanel_config) {
-        let result = {};
-        let props = ['last_exon', 'disease_mode']; // see api/util/genepanelconfig.py#COMMON_GENEPANEL_CONFIG
-        let overrides = this.findGeneConfigOverrides(geneSymbol);
+        let result = {
+            _overridden: []  // Holds keys that are overridden by genepanel config.
+        };
+        let props = ['last_exon', 'disease_mode', 'freq_cutoffs'];
+        let config_override = this.findGeneConfigOverride(geneSymbol);
         for (let p of props) {
-                result[p] = p in overrides ?
-                    {'_type': 'genepanel_override', 'value': overrides[p]} : default_genepanel_config[p];
+            if (p in config_override) {
+                result[p] = config_override[p];
+                result['_overridden'].push(p);
+            }
+            else {
+                result[p] = default_genepanel_config[p];
+            }
         }
 
-        let inheritanceCodes = this.getInheritanceCodes(geneSymbol); // no object wrapper
-        result['inheritance'] = inheritanceCodes;
+        result['inheritance'] = this.getInheritanceCodes(geneSymbol);
+        if ('inheritance' in config_override) {
+            result['_overridden'].push('inheritance');
+        }
 
-        result['hi_freq_cutoff'] = this.find_cutoff('hi_freq_cutoff', inheritanceCodes, overrides, default_genepanel_config);
-        result['lo_freq_cutoff'] = this.find_cutoff('lo_freq_cutoff', inheritanceCodes, overrides, default_genepanel_config);
+        // If 'freq_cutoffs' is defined in genepanel config, use those. Otherwise, use the default
+        // given the inheritance key
+        if (!('freq_cutoffs' in config_override)) {
+            result['freq_cutoffs'] = this.find_cutoff(result['inheritance'], default_genepanel_config);
+        }
 
-        if ('comment' in overrides) {
-            result['comment'] = overrides['comment'];
+        if ('comment' in config_override) {
+            result['comment'] = config_override['comment'];
         }
 
         return result;
     }
 
-    // Return inheritance from relevant phenotypes, or the hardcoded value defined in the genepanel config
+    /**
+     * Returns either overridden inheritance from genepanel config,
+     * or searches the gene's phenotypes to get distinct set of inheritance codes.
+     * @param  {String} geneSymbol Gene symbol
+     * @return {String}            Inheritance code formatted like 'AD/AR/XD'
+     */
     getInheritanceCodes(geneSymbol) {
-        let config = this.findGeneConfigOverrides(geneSymbol);
+        let config = this.findGeneConfigOverride(geneSymbol);
         if (config && 'inheritance' in config) {
             return config['inheritance'];
         }
