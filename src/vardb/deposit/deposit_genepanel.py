@@ -194,7 +194,7 @@ class DepositGenepanel(object):
         return 0
 
     def do_phenotype(self, genepanelName, genepanelVersion, gene, ph):
-        return gm.Phenotype.get_or_create( # phenotypes are never updated
+        return gm.Phenotype.get_or_create(  # phenotypes are never updated
             self.session,
             genepanel_name=genepanelName,
             genepanel_version=genepanelVersion,
@@ -249,9 +249,9 @@ class DepositGenepanel(object):
 def main(argv=None):
     """Example: ./deposit_genepanel.py --transcripts=./clinicalGenePanels/HBOC/HBOC.transcripts.csv"""
     argv = argv or sys.argv[1:]
-    parser = argparse.ArgumentParser(description="""Adds or updates gene panels in varDB.\n /
-                                                    Use any or all of --transcripts/phenotypes/config.\n /
-                                                     If the panel exits you must add the --replace option""")
+    parser = argparse.ArgumentParser(description="""Adds or updates gene panels in varDB.
+                                                    Use any or all of --transcripts/phenotypes/config.
+                                                    If the panel exists you must add the --replace option.""")
     parser.add_argument("--transcripts", action="store", dest="transcriptsPath",
                         required=False, default=None,
                         help="Path to gene panel transcripts file")
@@ -274,9 +274,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO)
+
     genepanelName = args.genepanelName
     genepanelVersion = args.genepanelVersion
-    print genepanelVersion
     assert genepanelVersion.startswith('v')
 
     db = DB()
