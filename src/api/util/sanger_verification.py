@@ -14,9 +14,9 @@ class SangerVerification(object):
         # If changing or removing this, review the AD code further down
         criteria_check['SNP'] = allele['change_type'] == 'SNP'
 
-        # DP > 20 x
+        # DP > 40 x
         if isinstance(allele['genotype']['sequencing_depth'], numbers.Real) and \
-           allele['genotype']['sequencing_depth'] > 20:
+           allele['genotype']['sequencing_depth'] > 40:
             criteria_check['DP'] = True
         else:
             criteria_check['DP'] = False

@@ -8,6 +8,10 @@
         <div class="cell"><p>{{::vm.getVerificationText()}}</p></div>
       </div> -->
     <div class="cb-table">
+      <div class="tabular-row" ng-if="::vm.allele.annotation.quality.needs_verification">
+        <div class="cell"><h5>Check QC:</h5></div>
+        <div class="cell"><p class="check-qc">True</p></div>
+      </div>
       <div class="tabular-row">
         <div class="cell"><h5>Filter:</h5></div>
         <div class="cell"><p>{{::vm.allele.annotation.quality.FILTER}}</p></div>
