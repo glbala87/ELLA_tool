@@ -3,13 +3,13 @@
     "meta": {
       "source": "HBOC_v01.config.json",
       "version": "1.0",
-      "updatedBy": "Foobar",
-      "updatedAt": "2016-08-11T15:31:00+01:00"
+      "updatedBy": "Erik",
+      "updatedAt": "2016-08-12T10:36:00+01:00"
     },
     "data": {
       "BRCA2": {
         "lo_freq_cutoff": 0.0005,
-        "hi_freq_cutoff": 0.007,
+        "hi_freq_cutoff": 0.008,
         "last_exon": false,
         "disease_mode": "ANY",
         "comment": "a comment from the genepanel config"
