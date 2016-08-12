@@ -336,6 +336,54 @@ def test_frequency_cutoffs_2():
     assert frequencies['cutoff']['internal']["inDB"] == "null_freq"
 
     def test_frequency_cutoffs_3(self):
+        # Test that when there's multiple items in a group (AA, EA),
+        # the highest cutoff is returned (i.e >=hi_freq_cutoff instead of <lo_freq_cutoff).
+
+        annotation = {
+            "1000g": {
+                "G": 0.1,
+                "NOT_IN_CONFIG": 1.0
+            },
+            "ExAC": {
+                "G": 0.000002,
+            },
+            "esp6500": {
+                    "AA": 0.00005,
+                    "EA": 0.99,
+            },
+             "inDB": {
+                    "alleleFreq": 0.0022323
+            }
+        }
+
+        defaults = {
+            'freq_cutoffs': {
+                'default': {
+                    'external': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    },
+                    'internal': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    }
+                }
+            }
+        }
+
+        processor = GenepanelCutoffsAnnotationProcessor(
+            TestFrequencyAnnotation.MOCK_CONFIG,
+            genepanel=None,
+            genepanel_default=defaults
+        )
+        frequencies = processor.cutoff_frequencies(annotation)
+
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], ">=hi_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], ">=hi_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], "<lo_freq_cutoff")
+
+    def test_frequency_cutoffs_4(self):
 
         annotation = {
             "1000g": {
