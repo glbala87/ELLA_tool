@@ -37,14 +37,7 @@ GENEPANELS = [
         'name': 'HBOCUTV',
         'version': 'v01'
     },
-    {'config': {
-        "meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "2016-08-05T14:57:00+01:00"},
-        "data": {"BRCA2": {
-            "lo_freq_cutoff": 0.0005,
-            "hi_freq_cutoff": 0.008,
-            "last_exon": False,
-            "disease_mode": "ANY",
-            "comment": "a comment from the genepanel config"}}},
+    {'config': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.config.json',
      'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
      'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
      'name': 'HBOC',
@@ -168,8 +161,8 @@ class DepositTestdata(object):
                 os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
-                config=gpdata['config'] if 'config' in gpdata else None,
-                force_yes=True
+                configPath=os.path.join(SCRIPT_DIR,  gpdata['config']) if 'config' in gpdata else None,
+                replace=True
             )
 
     def deposit_references(self):
