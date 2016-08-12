@@ -289,7 +289,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
         self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
         self.assertEquals(frequencies['cutoff']['external']['esp6500'], "<lo_freq_cutoff")
         self.assertEquals(frequencies['cutoff']['internal']['inDB'], "null_freq")
-        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], ">=hi_freq_cutoff")
 
 
 def test_frequency_cutoffs_2():
