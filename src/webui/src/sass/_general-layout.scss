@@ -144,7 +144,7 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   h4 { font-size: 1.4rem; display: flex; justify-content: space-between; }
   .section-title { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.05rem; color: $blue-75; text-transform: uppercase; }
   i { font-weight: 400; font-style: normal; margin-right: 1.3rem; }
-  b { font-weight: 700; color: $button-black; margin-right: auto; }
+  b { font-weight: 700; color: $button-black; margin-left: auto; }
   .nav-row { display: flex; align-items: center; color: $half-black; background-color: inherit; width: 24rem; border-left: 1px solid #eee;
     &.disabled { color: $icon-half-black; }
     & .tab, & .title { transition: all 0.3s ease-in-out; }
@@ -154,10 +154,14 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
     &.active:hover { cursor: default; }
     &.active:hover .tab { background-color: $blue; }
     &.active:hover .title { background-color: inherit; color: $blue; }
-    &.toggled { background-color: red; }  // FIXME!
+    &.toggled h4 { opacity: 0.5; }
   }
+  .indented { padding-left: 2rem; }
   .tab { width: 0.35rem; min-width: 0.35rem; height: 2.6rem; background-color: inherit; }
+  .tab.togglable { display: flex; align-items: center; justify-content: center; width: 2.6rem; }
+  .added h5 { margin: 0; font-size: 1.3rem; font-weight: 600; color: white; }
   .title { width: 100%; padding-left: 1.9rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .title span { width: 14.3rem; text-overflow: ellipsis; overflow: hidden; }
   .tab.active { background-color: $blue; }
   .title.active { color: $blue; }
 }
