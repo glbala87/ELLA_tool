@@ -21,7 +21,7 @@ class AlleleFilter {
         let included = [];
         for (let allele of alleles) {
             if (Object.keys(allele.annotation.frequencies).filter(k => {
-                    return Object.keys(this.config.frequencies.groups).includes(k);
+                    return Object.keys(this.config.frequencies.view.groups).includes(k);
                 }).length) {
                 included.push(allele);
             }

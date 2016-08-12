@@ -35,10 +35,14 @@ class TestAlleleList(object):
             assert k in alleles[0]['annotation']
 
 
+
 # Test that genepanel config (deposit_testdata.py) overrides the default cutoff frequencies
-# allele with id=1 is for BRCA2; freq of 1000g: 0.0092, of esp6500: 0.0, of ExAC: 0.0010
+# allele with id=1 is for BRCA2; freq of 1000g: 0.02, of esp6500: 0.0003, of ExAC: 0.00106
+# Current testdata config: "hi_freq_cutoff": 0.008,
+#                          "lo_freq_cutoff": 0.0005
+
 @pytest.mark.parametrize("url, expected_1000g, expected_6500, expected_exac", [
-    ('/api/v1/alleles/1?gp_name=HBOC&gp_version=v01', ABOVE_U, BELOW_U, [BETWEEN_LOWER_U, BETWEEN_UPPER_U]),
+    ('/api/v1/alleles/1?gp_name=HBOC&gp_version=v01', [BETWEEN_LOWER_U, BETWEEN_UPPER_U], BELOW_U, [BETWEEN_LOWER_U, BETWEEN_UPPER_U]),
     ('/api/v1/alleles/1', BELOW_U, BELOW_U, BELOW_U),  # panel not specified, uses default cutoffs
 ])
 def test_calculation_of_cutoffs(client, url, expected_1000g, expected_6500, expected_exac):
@@ -52,6 +56,6 @@ def test_calculation_of_cutoffs(client, url, expected_1000g, expected_6500, expe
     assert 1 == our_allele['id']
 
     frequency_annotations = our_allele['annotation']['frequencies']
-    assert expected_1000g == frequency_annotations['cutoff']['1000G']
-    assert expected_6500 == frequency_annotations['cutoff']['ESP6500']
-    assert expected_exac == frequency_annotations['cutoff']['ExAC']
+    assert expected_1000g == frequency_annotations['cutoff']['external']['1000g']
+    assert expected_6500 == frequency_annotations['cutoff']['external']['esp6500']
+    assert expected_exac == frequency_annotations['cutoff']['external']['ExAC']

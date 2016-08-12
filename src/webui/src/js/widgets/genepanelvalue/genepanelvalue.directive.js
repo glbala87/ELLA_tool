@@ -23,61 +23,47 @@ import {Directive} from '../../ng-decorators';
                       // _=always display (without override indication),
                       // ?=display only when override (default)
     },
-    template: `<ng-include src="::vm.getTemplate()"></ng-include>`
+    templateUrl: 'ngtmpl/genepanelvalue.ngtmpl.html'
 })
 export class GenepanelValueController {
 
 
 
     constructor() {
-        this.freq = null; // used when display=freq_cutoff (a composite of lo and hi values)
-        this.singleItem = null; // not composite
-
         this.mode = (typeof(this.mode) == 'undefined' ? '?' : this.mode); // make '?' the default
-        this.v = null; // null values won't be displayed
         this.gp_values = this.source(); // get the values
 
-        // calculate value
-        switch (this.display) {
-            case 'freq_cutoff':
-                const lo = this._calculate(this.gp_values['lo_freq_cutoff'], '!');
-                const hi = this._calculate(this.gp_values['hi_freq_cutoff'], '!');
-                this.freq = {
-                    'lo': lo,
-                    'hi': hi,
-                    'show': (this.mode == '!' || this.mode == '_') || (lo.override || hi.override)
-                };
-                break;
-            default:
-                this.singleItem =  this._calculate (this.gp_values[this.display], this.mode);
-                break;
-        }
-
-        // convert values
-        switch (this.display) {
-            case 'last_exon':
-                this.singleItem['v'] = (this.singleItem['v'] == null ? null : (this.singleItem['v'] ? 'LEI': 'LENI') );
-                break;
-        }
     }
 
-    // return a dict with value and boolean indicating override
-    _calculate(value, mode) {
-        if (typeof(value) == 'object') { // an override value
-            return {'override': mode != '_', 'v': value['value']}; // sometimes we don't want icing
-        } else {
-            return {'override': false, 'v': (mode == '?' ? null : value)};
+    getValue() {
+        if (this.display === 'last_exon') {
+            return this.gp_values[this.display] ? 'LEI' : 'LENI';
         }
+        else if (this.display === 'freq_cutoffs_external') {
+            return `${this.gp_values['freq_cutoffs'].external.lo_freq_cutoff}/${this.gp_values['freq_cutoffs'].external.hi_freq_cutoff}`;
+        }
+        else if (this.display === 'freq_cutoffs_internal') {
+            return `${this.gp_values['freq_cutoffs'].internal.lo_freq_cutoff}/${this.gp_values['freq_cutoffs'].internal.hi_freq_cutoff}`;
+        }
+        return this.gp_values[this.display];
     }
 
-    getTemplate() {
-        switch (this.display) {
-            case 'freq_cutoff':
-                return 'ngtmpl/genepanelvalue.freq.ngtmpl.html';
-                break;
-            default:
-                return 'ngtmpl/genepanelvalue.ngtmpl.html';
+    shouldDisplay() {
+        if (this.mode === '_' ||
+            this.mode === '!') {
+            return true;
         }
+        else if (this.mode === '?') {
+            return this.isOverridden();
+        }
+        return true;
+    }
+
+    isOverridden() {
+        if (this.mode === '_') {
+            return false;
+        }
+        return this.gp_values['_overridden'].includes(this.display);
     }
 
 }

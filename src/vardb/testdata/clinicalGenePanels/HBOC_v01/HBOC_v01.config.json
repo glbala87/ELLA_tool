@@ -8,8 +8,16 @@
     },
     "data": {
       "BRCA2": {
-        "lo_freq_cutoff": 0.0005,
-        "hi_freq_cutoff": 0.008,
+        "freq_cutoffs": {
+          "external": {
+              "hi_freq_cutoff": 0.008,
+              "lo_freq_cutoff": 0.0005
+          },
+          "internal": {
+              "hi_freq_cutoff": 0.008,
+              "lo_freq_cutoff": 0.0005
+          }
+        },
         "last_exon": false,
         "disease_mode": "ANY",
         "comment": "a comment from the genepanel config"
