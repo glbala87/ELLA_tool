@@ -158,7 +158,7 @@ class DepositGenepanel(object):
             for ph in phenotypes:
                 if ph['gene symbol'] not in genes:
                     raise Exception("Cannot add phenotype '{}' for panel {}, the gene {} wasn't found in database"
-                                    .format(ph.description, genepanelName, ph.geneSymbol))
+                                    .format(ph['phenotype'], genepanelName, ph['gene symbol']))
 
                 # always create new:
                 db_phenotype, created,  = self.do_phenotype(genepanelName,
@@ -249,9 +249,11 @@ class DepositGenepanel(object):
 def main(argv=None):
     """Example: ./deposit_genepanel.py --transcripts=./clinicalGenePanels/HBOC/HBOC.transcripts.csv"""
     argv = argv or sys.argv[1:]
-    parser = argparse.ArgumentParser(description="""Adds or updates gene panels in varDB.
-                                                    Use any or all of --transcripts/phenotypes/config.
-                                                    If the panel exists you must add the --replace option.""")
+    parser = argparse.ArgumentParser(
+        description="""Adds or updates gene panels in varDB.
+                       Use any or all of --transcripts/phenotypes/config.
+                       If the panel exists you must add the --replace option.\n
+                       When creating a new panel, use -transcripts and --phenotypes without --replace""")
     parser.add_argument("--transcripts", action="store", dest="transcriptsPath",
                         required=False, default=None,
                         help="Path to gene panel transcripts file")
