@@ -30,6 +30,20 @@ class AlleleFilter {
     }
 
     /**
+     * Filters away variants that DOESN'T need verification
+     * @param  {Array} alleles Alleles with QC data
+     */
+    filterQC(alleles) {
+        let included = [];
+        for (let allele of alleles) {
+            if (allele.annotation.quality.needs_verification) {
+                included.push(allele);
+            }
+        }
+        return included;
+    }
+
+    /**
      * Filters away alleles that doesn't have any references.
      * @return {Array} Alleles with references as given by it's annotation.
      */
