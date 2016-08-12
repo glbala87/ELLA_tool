@@ -48,7 +48,7 @@ def paginate(func):
         if num_per_page is not None:
             kwargs['num_per_page'] = int(num_per_page)
         else:
-            num_per_page = 20
+            num_per_page = 2000  # FIXME: Figure out the pagination stuff
         kwargs['page'] = page
         kwargs['num_per_page'] = num_per_page
         return func(*args, **kwargs)
