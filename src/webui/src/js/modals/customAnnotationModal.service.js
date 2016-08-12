@@ -208,6 +208,10 @@ export class CustomAnnotationController {
      * @return {Array(string)}       URLs
      */
     getUrls() {
+        if (!this.selected_annotation_group) {
+            return [];
+        }
+
         let genes = this.selected_allele.annotation.filtered.map(t => t.SYMBOL);
 
         let urls = [];
