@@ -147,7 +147,8 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
     &.active:hover { cursor: default; }
     &.active:hover .tab { background-color: $blue; }
     &.active:hover .title { background-color: inherit; color: $blue; }
-    &.toggled h4 { opacity: 0.5; }
+    &.toggled h4 { color: hsla(205,35,45,0.5); }
+    &.toggled h4 b { color: hsla(205,35,45,0.75); }
   }
   .indented { padding-left: 2rem; }
   .tab { width: 0.35rem; min-width: 0.35rem; height: 2.6rem; background-color: inherit; }
