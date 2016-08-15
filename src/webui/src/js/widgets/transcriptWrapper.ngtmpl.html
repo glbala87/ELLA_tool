@@ -1,10 +1,6 @@
 <div class="panel panel-default" ng-if="vm.showWrapper">
-    <div class="panel-heading">
-        {{vm.transcript.Transcript}}
-    </div>
-    <div class="panel-body">
+        <p>{{vm.transcript.Transcript}}.{{vm.transcript.Transcript_version}}:</p>
         <ng-transclude></ng-transclude>
-    </div>
 </div>
 
 <ng-transclude ng-if="!vm.showWrapper"></ng-transclude>
