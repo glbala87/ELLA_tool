@@ -1,6 +1,6 @@
 <card color="aqua" modal="true" on-close="vm.modal.close" collapsible="false" options="{}">
   <primary>
-    <h3 class="header">ADD CUSTOM ANNOTATION</h3>
+    <h3 class="header">{{vm.title}}</h3>
   </primary>
   <bottom>
     <section ng-if="vm.category == 'references'">
@@ -19,7 +19,7 @@
           <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
         </div>
       </div>
-      <div class="question line-wrapper">
+      <div class="question line-wrapper" ng-if="vm.alleles.length > 1">
           <div class="left"> <h5>VARIANT:</h5> </div>
           <div class="right">
             <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
@@ -46,7 +46,7 @@
       </div>
       <hr ng-if="vm.hasAddedAnnotations()">
       <h2 class="allele-title">add annotation</h2>
-      <article class="question small line-wrapper">
+      <article class="question small line-wrapper" ng-if="vm.alleles.length > 1">
         <div class="left"> <h5>Variant:</h5> </div>
         <div class="right">
           <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
