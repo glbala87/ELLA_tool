@@ -15,6 +15,7 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     browserify = require('browserify'),
     notify = require('gulp-notify'),
+    watchify   = require('watchify'),
     protractor = require('gulp-protractor').protractor,
     KarmaServer = require('karma').Server,
     os = require('os'),
@@ -72,12 +73,17 @@ gulp.task('tp-js', function() {
         .pipe(gulp.dest(__basedir));
 });
 
-/*
- * Compile app javascript
- * Transpiles ES6 to ES5
- */
-gulp.task('js', function() {
-    return browserify('./src/webui/src/js/index.js', {debug: true})
+var bundler = browserify('./src/webui/src/js/index.js', {
+    debug: production ? false : true,
+    cache: {}, packageCache: {}, fullPaths: true // for watchify
+});
+
+gulp.task('watch-js', function() {
+  var watcher  = watchify(bundler);
+  return watcher
+  .on('error', function(err) { onError(err); this.emit('end'); })
+  .on('update', function () {
+        watcher
         .transform(babelify.configure({
             presets: ["es2015", "stage-0"],
             plugins: ["babel-plugin-transform-decorators-legacy"]
@@ -91,6 +97,43 @@ gulp.task('js', function() {
         .pipe(buffer())
         .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
+  })
+  .transform(babelify.configure({
+      presets: ["es2015", "stage-0"],
+      plugins: ["babel-plugin-transform-decorators-legacy"]
+  }))
+  .bundle()
+  .on('error', function(err) { onError(err); this.emit('end'); })
+  .pipe(plumber({
+      errorHandler: onError
+  }))
+  .pipe(source('app.js'))
+  .pipe(buffer())
+  .pipe(gulp.dest(__basedir))
+  .pipe(production ? util.noop() : livereload());
+});
+
+/*
+ * Compile app javascript
+ * Transpiles ES6 to ES5
+ */
+gulp.task('js', function() {
+    // return browserify('./src/webui/src/js/index.js', {debug: true})
+    return bundler
+        .transform(babelify.configure({
+            presets: ["es2015", "stage-0"],
+            plugins: ["babel-plugin-transform-decorators-legacy"]
+        }))
+        .bundle()
+        .on('error', function(err) { onError(err); this.emit('end'); })
+        .pipe(plumber({
+            errorHandler: onError
+        }))
+        .pipe(source('app.js'))
+        .pipe(buffer())
+        .pipe(gulp.dest(__basedir))
+        .pipe(production ? util.noop() : livereload())
+        .pipe(production ? uglify() : util.noop());
 });
 
 gulp.task('ngtmpl', function() {
@@ -215,7 +258,7 @@ gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
 
 gulp.task('watch', function() {
     livereload.listen();
-    gulp.watch('src/webui/src/js/**/*.js', ['js']);
+    // gulp.watch('src/webui/src/js/**/*.js', ['js']);
     gulp.watch('src/webui/src/sass/*.scss', ['sass']);
     gulp.watch('src/webui/src/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/thirdparty/bootstrap/bootstrap-3.3.2/less/**/*.less', ['less']);
@@ -225,4 +268,4 @@ gulp.task('watch', function() {
 
 gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'less']);
 
-gulp.task('default', ['build', 'watch']);
+gulp.task('default', ['build','watch-js', 'watch']);

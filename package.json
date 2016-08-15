@@ -47,7 +47,8 @@
     "karma-phantomjs-launcher": "0.2.3",
     "object.entries": "1.0.3",
     "phantomjs": "1.9.20",
-    "protractor": "3.3.0"
+    "protractor": "3.3.0",
+    "watchify": "*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
