@@ -1,5 +1,3 @@
-.PHONY: any help build dev kill shell logs restart test-build test single-test run-test e2e-test run-e2e-test run-e2e-selenium run-e2e-app cleanup-e2e test-all test-api test-common test-js test-e2e release core create-release run-ansible commit-provision setup-release ensure-clean clean-provision stop-provision add-production-elements copy start-provision
-
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 ANY = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}')
 API_PORT ?= 8000-9999
@@ -18,6 +16,8 @@ BUILD_TYPE ?=core
 BUILD_VERSION ?=0.9.2
 BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
 DEPLOY_NAME ?= test.allel.es
+
+.PHONY: help
 
 help :
 	@echo ""
@@ -45,6 +45,7 @@ help :
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
+.PHONY: any build dev url kill shell logs restart
 
 any:
 	$(eval CONTAINER_NAME = $(ANY))
@@ -86,6 +87,7 @@ restart:
 #---------------------------------------------
 # TESTING
 #---------------------------------------------
+.PHONY: test-build test single-test e2e-test run-test run-e2e-test run-e2e-selenium run-e2e-app cleanup-e2e
 
 test-build:
 	$(eval BRANCH = test)
@@ -129,6 +131,7 @@ cleanup-e2e:
 #---------------------------------------------
 # TESTING - INSIDE CONTAINER ONLY
 #---------------------------------------------
+.PHONY: test-all test-api test-api-migration test-common test-js test-e2e
 
 test-all: test-js test-common test-api
 
@@ -190,6 +193,7 @@ test-e2e:
 #---------------------------------------------
 # BUILD / RELEASE
 #---------------------------------------------
+.PHONY: setup-release ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
 
 setup-release: ensure-clean
 	$(eval ANSIBLE_TAGS =release)
@@ -234,6 +238,7 @@ commit-provision:
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
+.PHONY: tsd-assets dbreset dbreset-inner dbsleep deploy
 
 tsd-assets:
 	docker run -d --name ella-assets ousamg/ella.release
