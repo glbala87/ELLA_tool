@@ -1,5 +1,6 @@
 import os
 from vardb.util import DB
+from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
@@ -52,15 +53,28 @@ class CustomBase(object):
         specifying whether an object was created.
         """
         # get or create object using kwargs (filter) only
-        instance, created = cls.get_or_create(session, **kwargs)
+        instance, created = cls.get_or_create(session, defaults=defaults, **kwargs)
         # Update object with defaults
-        if defaults:
+        if not created and defaults:  # fetched an existing instance, must update
             for k, v in defaults.iteritems():
                 setattr(instance, k, v)
+
         return instance, created
 
 
+# Add manual naming conventions to assist consistency when
+# writing migration scripts
+convention = {
+  "ix": 'ix_%(column_0_label)s',
+  "uq": "uq_%(table_name)s_%(column_0_name)s",
+  "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+  "pk": "pk_%(table_name)s"
+}
+
+
+
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
+Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:
 from vardb.datamodel import allele, annotation, sample, assessment, genotype, gene, user

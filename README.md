@@ -19,14 +19,16 @@ Most functionality is now baked into a Makefile, run `make help` to see a quick 
 
 # Testing
 
-### Getting started:
+Our test suites are intended to be run inside Docker. The Makefile has commands to do run setup and the tests themselves.
+
+## Getting started
 - `make test` will run all (js, api, and common) tests _excluding e2e tests_
 - `make e2e-test` will run e2e tests
 - `make single-test` will run a single _non-e2e_ test
 
 To clean up docker containers when e2e tests fail: `make cleanup-e2e BRANCH=test`
 
-### More info:
+## More info
 - For more information please see [the wiki](https://git.ousamg.io/docs/wiki/wikis/ella/testing)
 
 # Production
@@ -42,3 +44,31 @@ To clean up docker containers when e2e tests fail: `make cleanup-e2e BRANCH=test
   - Static assets are pre-built and stored at `/static`
   - Gunicorn runs the API, it stores its socket at `/socket`
 - All relevant configuration files are in `ops/prod`
+
+# Protractor - e2e testing tool
+Protractor is an Angular friendly wrapper around WebDriver. 
+See http://www.protractortest.org
+  
+## Setup
+- Create a separate folder outside the Ella source repo.
+- Copy ops/dev/package-protractor.json to package.json
+- Install node modules: `npm install`
+- Install selenium. `npm run-script init`
+
+A npm script 'protractor' in package.json ensures that the locally installed binaries in node_modules are used.
+Running bare `protractor` will use your globally installed protractor (if you have one) and could cause 'library not found'-errors.
+
+## Explore
+Start a Repl:	
+`npm run-script protractor --  --elementExplorer --directConnect --baseUrl <url to your running app>`
+
+Try out protractor/WebDriver selectors and commands before putting them in your spec files.
+This works for an Angular app only.
+
+
+## Run e2e test
+If the tests fail in CI, it can be useful to run them locally:
+`npm run-script protractor -- <path to protractor conf file> --specs <path to you spec file> --baseUrl <url of your running app>`
+This automatically launches a Selenium server (the one installed through the `run-script-init` or `webdriver-manager update` command).
+
+See https://github.com/angular/protractor/blob/master/docs/debugging.md

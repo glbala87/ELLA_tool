@@ -77,15 +77,16 @@ class AlleleListResource(Resource):
         )
 
 
-class AlleleAnalysisListResource(Resource):
+class AlleleGenepanelListResource(Resource):
 
     def get(self, session, allele_id):
-        analyses = session.query(sample.Analysis).join(
+        genepanels = session.query(gene.Genepanel).join(
             genotype.Genotype.alleles,
             sample.Sample,
-            sample.Analysis
+            sample.Analysis,
+            gene.Genepanel
         ).filter(
             allele.Allele.id == allele_id
         ).all()
 
-        return schemas.AnalysisSchema(strict=True).dump(analyses, many=True).data
+        return schemas.GenepanelSchema(strict=True).dump(genepanels, many=True).data

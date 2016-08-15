@@ -24,11 +24,12 @@ export class FrequencyDetailsWidget {
         }
         this.setFrequencies();
         this.setInDb();
+        this.exac_fields = ['count', 'num', 'hom', 'freq']
     }
 
     setFrequencies() {
         this.frequencies = [];
-        let freqs = this.config.frequencies.groups[this.group];
+        let freqs = this.config.frequencies.view.groups[this.group];
         for (let freq of freqs) {
             if (this.group in this.allele.annotation.frequencies) {
                 let group_data = this.allele.annotation.frequencies[this.group];
@@ -50,6 +51,21 @@ export class FrequencyDetailsWidget {
                 }
             }
         }
+        if(this.isExAC()) {
+          this.frequencies.forEach( (e) => { e.name = this.config.frequencies.view.ExAC[e.name] } );
+        }
+    }
+
+    getExACHeaderName(name) {
+      return this.config.frequencies.view.ExAC_fields[name];
+    }
+
+    formatExACValue(freq_data, name) {
+      if(name === "freq") {
+        return parseFloat(freq_data[name]).toFixed(this.precision);
+      } else {
+        return freq_data[name];
+      }
     }
 
     /**
@@ -59,10 +75,16 @@ export class FrequencyDetailsWidget {
      */
     getFreqValue(freq_data) {
         let value = parseFloat(freq_data.freq).toFixed(this.precision);
-        if ('hom' in freq_data) {
-            value += ` (count: ${freq_data['count']}, num: ${freq_data['num']}, hom: ${freq_data['hom']})`
-        }
         return value;
+    }
+
+    exacNames(freq_data) {
+        console.log(freq_data);
+        return freq_data;
+    }
+
+    isExAC() {
+       return this.group === 'ExAC'
     }
 
     setInDb() {
@@ -72,7 +94,7 @@ export class FrequencyDetailsWidget {
             if ('noMutInd' in group_data) {
                 this.inDb.noMutInd = group_data.noMutInd;
 
-                if(group_data.noMutInd < this.config.frequencies.inDB.noMutInd_threshold &&
+                if(group_data.noMutInd < this.config.frequencies.view.inDB.noMutInd_threshold &&
                    'indications' in group_data) {
                     this.inDb.indications = group_data.indications;
                 }

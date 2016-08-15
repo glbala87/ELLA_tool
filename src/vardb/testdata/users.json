@@ -1,32 +1,32 @@
 [
     {
         "username": "testuser1",
-        "firstName": "Henrik",
-        "lastName": "Ibsen"
+        "first_name": "Henrik",
+        "last_name": "Ibsen"
     },
     {
         "username": "testuser2",
-        "firstName": "Bjørnstjerne",
-        "lastName": "Bjørnson"
+        "first_name": "Bjørnstjerne",
+        "last_name": "Bjørnson"
     },
     {
         "username": "testuser3",
-        "firstName": "Camilla",
-        "lastName": "Collett"
+        "first_name": "Camilla",
+        "last_name": "Collett"
     },
     {
         "username": "testuser4",
-        "firstName": "Alexander",
-        "lastName": "Kielland"
+        "first_name": "Alexander",
+        "last_name": "Kielland"
     },
     {
         "username": "testuser5",
-        "firstName": "Jonas",
-        "lastName": "Lie"
+        "first_name": "Jonas",
+        "last_name": "Lie"
     },
     {
         "username": "testuser6",
-        "firstName": "Henrik",
-        "lastName": "Wergeland"
+        "first_name": "Henrik",
+        "last_name": "Wergeland"
     }
 ]

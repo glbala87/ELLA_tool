@@ -9,10 +9,11 @@ import {Service, Inject} from '../ng-decorators';
  * category === 'references'.
  */
 export class CustomAnnotationController {
-    constructor(modalInstance, Config, ReferenceResource, CustomAnnotationResource, alleles, category) {
+    constructor(modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, alleles, category) {
         this.modal = modalInstance;
         this.category = category;
         this.config = Config.getConfig();
+        this.title = title;
         this.alleles = alleles;
         this.selected_allele = alleles[0];
         this.referenceResource = ReferenceResource;
@@ -60,6 +61,29 @@ export class CustomAnnotationController {
             }
         });
 
+    }
+
+    /**
+     * Returns valid group options given the selected Allele.
+     * If a group is only valid for a set of genes, the genes relevant for the Allele
+     * in question checked.
+     * @return {Array(object)} List of group objects
+     */
+    getAnnotationGroups() {
+        let valid_groups = this.config.custom_annotation[this.category].filter(c => {
+            if ('only_for_genes' in c) {
+                let genes = this.selected_allele.annotation.filtered.map(t => t.SYMBOL);
+                return c.only_for_genes.some(g => genes.includes(g));
+            }
+            // If no restriction, always include it.
+            return true;
+        });
+
+        // Select first option by default if not already selected
+        if (!valid_groups.includes(this.selected_annotation_group)) {
+            this.selected_annotation_group = valid_groups[0];
+        }
+        return valid_groups;
     }
 
     /**
@@ -130,7 +154,12 @@ export class CustomAnnotationController {
     }
 
     addAnnotation() {
-        this.getCurrent()[this.selected_annotation_group] = this.selected_annotation_value[1];
+        if (Array.isArray(this.selected_annotation_value)) {
+            this.getCurrent()[this.selected_annotation_group.key] = this.selected_annotation_value[1];
+        }
+        else {
+            this.getCurrent()[this.selected_annotation_group.key] = this.selected_annotation_value;
+        }
     }
 
     /**
@@ -141,7 +170,7 @@ export class CustomAnnotationController {
         let pmids = [];
         for (let [allele_id, data] of Object.entries(this.custom_annotation)) {
             if ('references' in data) {
-                pmids = pmids.concat(data.references.map(r => r.pubmedID));
+                pmids = pmids.concat(data.references.map(r => r.pubmed_id));
             }
         }
         console.log(pmids);
@@ -151,14 +180,14 @@ export class CustomAnnotationController {
     }
 
     getReference(pmid) {
-        return this.references.find(r => r.pubmedID === pmid);
+        return this.references.find(r => r.pubmed_id === pmid);
     }
 
-    _addReferenceToAnnotation(pubmedID) {
-        let existing = this.getCurrent().find(r => r.pubmedID === pubmedID);
+    _addReferenceToAnnotation(pubmed_id) {
+        let existing = this.getCurrent().find(r => r.pubmed_id === pubmed_id);
         if (!existing) {
             this.getCurrent().push({
-                pubmedID: pubmedID,
+                pubmed_id: pubmed_id,
                 sources: ['User']
             });
         }
@@ -167,7 +196,7 @@ export class CustomAnnotationController {
     addReference() {
         this.referenceResource.createFromXml(this.reference_xml).then(ref => {
             this.reference_error = false;
-            this._addReferenceToAnnotation(ref.pubmedID);
+            this._addReferenceToAnnotation(ref.pubmed_id);
             this.reference_xml = '';
             this._loadReferences();  // Reload list of references to reflect possible changes
         }).catch(() => {
@@ -176,27 +205,33 @@ export class CustomAnnotationController {
     }
 
     /**
-     * Looks for whether there are any URLs for the group name.
-     * @param  {String} group Name of the group, e.g. 'LOVD'
-     * @return {String}       URL or undefined.
+     * Looks for whether there are any URLs for the selected annotation group.
+     * @return {Array(string)}       URLs
      */
-    getUrl(group) {
-        let gene = this.selected_allele.annotation.filtered[0].SYMBOL;
+    getUrls() {
+        if (!this.selected_annotation_group) {
+            return [];
+        }
 
-        if (this.category in this.config.custom_annotation_url &&
-            this.selected_annotation_group in this.config.custom_annotation_url[this.category]) {
-            let url_match = this.config.custom_annotation_url[this.category][this.selected_annotation_group].find(obj => {
-                return obj.gene === gene;
-            });
-            if (url_match) {
-                return url_match.url;
+        let genes = this.selected_allele.annotation.filtered.map(t => t.SYMBOL);
+
+        let urls = [];
+        if ('url_for_genes' in this.selected_annotation_group) {
+            for (let gene of genes) {
+                if (gene in this.selected_annotation_group.url_for_genes) {
+                    urls.push(this.selected_annotation_group.url_for_genes[gene]);
+                }
             }
         }
+        if ('url' in this.selected_annotation_group) {
+            urls.push(this.selected_annotation_group.url);
+        }
+        return urls;
     }
 
     removeReference(ref) {
         this.custom_annotation[this.selected_allele.id].references = this.getCurrent().filter(r => {
-            return ref.pubmedID !== r.pubmedID;
+            return ref.pubmed_id !== r.pubmed_id;
         });
     }
 
@@ -219,7 +254,6 @@ export class CustomAnnotationController {
                 }
             }
         }
-        console.log(this.custom_annotation);
         this.modal.close(this.custom_annotation);
     }
 }
@@ -240,7 +274,7 @@ export class CustomAnnotationModal {
      * Popups a dialog for adding custom annotation for one allele
      * @return {Promise} Promise that resolves when dialog is closed. Resolves with result data from dialog.
      */
-    show(alleles, category) {
+    show(title, alleles, category) {
 
         if (!category) {
             category = 'external';
@@ -248,9 +282,10 @@ export class CustomAnnotationModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
-            controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'alleles', 'category', CustomAnnotationController],
+            controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'alleles', 'category', CustomAnnotationController],
             controllerAs: 'vm',
             resolve: {
+                title: () => title,
                 alleles: () => alleles,
                 category: () => category
             }

@@ -8,7 +8,11 @@ from flask import send_from_directory, request
 from flask_restful import Api
 from api import app, db
 from api.v1 import ApiV1
+
+# For /reset purposes
 from vardb.deposit.deposit_testdata import DepositTestdata
+from vardb.cli.commands.database import drop_db, make_db
+
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -87,6 +91,9 @@ def reset_testdata_from_cli():
 
 def do_testdata_reset(test_set):
     def worker():
+        drop_db.drop_db()
+        make_db.make_db()
+
         dt = DepositTestdata(db)
         dt.deposit_all(test_set=test_set)
 
@@ -116,7 +123,8 @@ if __name__ == '__main__':
     opts['threaded'] = True
     opts['port'] = int(os.getenv('API_PORT', '5000'))
     is_dev = os.getenv('DEVELOP', False)
-    opts['debug'] = is_dev
+    if is_dev:
+        opts['use_reloader'] = True
     app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
     app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
     app.run(**opts)

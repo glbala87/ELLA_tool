@@ -55,7 +55,7 @@ export class AlleleInfoReferences {
         for (let pmid of this.allele.getPubmedIds()) {
             let reference_found = false;
             if (this.references) {
-                let reference = this.references.find(r => r.pubmedID === pmid);
+                let reference = this.references.find(r => r.pubmed_id === pmid);
                 if (reference) {
                     this.allele_references.push(reference);
                     reference_found = true;

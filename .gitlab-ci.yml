@@ -3,11 +3,20 @@ stages:
   - test
   - cleanup
   - deploy
+  - notify
 
 test_api:
   stage: test
   script:
     - make single-test TEST_NAME=api
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+test_api_migration:
+  stage: test
+  script:
+    - make single-test TEST_NAME=api-migration
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -19,6 +28,7 @@ test_js:
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+  allow_failure: true
 
 test_python:
   stage: test
@@ -32,9 +42,7 @@ test_e2e:
   stage: test
   script:
     - make e2e-test
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
+  allow_failure: true
 
 cleanup_e2e:
   stage: cleanup
@@ -52,6 +60,25 @@ build_core:
 bot_build:
   stage: deploy
   script:
-    - make release save-and-notify
+    - if [ -n "${DEV_CHANNEL}" ]; then make release deploy DEPLOY_NAME=demo.allel.es; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es; fi
+  tags:
+    - web
+  only:
+    - triggers
+
+bot_notify_failure:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/failure'
+  when: on_failure
+  only:
+    - triggers
+
+bot_notify_success:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/success'
+  when: on_success
   only:
     - triggers

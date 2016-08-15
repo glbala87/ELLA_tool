@@ -15,7 +15,7 @@ keys = [
     'title',
     'journal',
     'year',
-    'pubmedID'
+    'pubmed_id'
 ]
 
 

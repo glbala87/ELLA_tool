@@ -7,5 +7,5 @@ class CustomAnnotationSchema(Schema):
                   'allele_id',
                   'user_id',
                   'annotations',
-                  'dateSuperceeded',
-                  'dateLastUpdate')
+                  'date_superceeded',
+                  'date_last_update')

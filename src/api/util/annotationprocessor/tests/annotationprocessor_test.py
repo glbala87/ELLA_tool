@@ -3,9 +3,8 @@ import unittest
 import pytest
 
 from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
-from ..annotationprocessor import TranscriptAnnotation
+from ..annotationprocessor import TranscriptAnnotation, AnnotationProcessor
 from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor, find_symbol
-from api.util.genepanelconfig import KEY_LO, KEY_HI, KEY_CUTOFFS
 from api import config
 from vardb.datamodel.gene import Transcript, Genepanel
 
@@ -30,14 +29,14 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(
             pubmeds[0],
             {
-                'pubmedID': 1,
+                'pubmed_id': 1,
                 'sources': ['VEP']
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
-                'pubmedID': 2,
+                'pubmed_id': 2,
                 'sources': ['VEP']
             }
         )
@@ -62,21 +61,21 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(
             pubmeds[0],
             {
-                'pubmedID': 1,
+                'pubmed_id': 1,
                 'sources': ['HGMD']
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
-                'pubmedID': 2,
+                'pubmed_id': 2,
                 'sources': ['HGMD']
             }
         )
         self.assertEqual(
             pubmeds[2],
             {
-                'pubmedID': 3,
+                'pubmed_id': 3,
                 'sources': ['HGMD']
             }
         )
@@ -109,27 +108,44 @@ class TestReferences(unittest.TestCase):
         self.assertEqual(
             pubmeds[0],
             {
-                'pubmedID': 1,
+                'pubmed_id': 1,
                 'sources': ['VEP', 'HGMD']
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
-                'pubmedID': 2,
+                'pubmed_id': 2,
                 'sources': ['VEP', 'HGMD']
             }
         )
         self.assertEqual(
             pubmeds[2],
             {
-                'pubmedID': 3,
+                'pubmed_id': 3,
                 'sources': ['HGMD']
             }
         )
 
 
 class TestFrequencyAnnotation(unittest.TestCase):
+
+    MOCK_CONFIG = {
+        "variant_criteria": {
+            "frequencies": {  # Frequency groups to be used as part of cutoff calculation (and by extension class 1 filtering)
+                "groups": {
+                    "external": {
+                        "ExAC": ["G"],
+                        "1000g": ["G"],
+                        "esp6500": ["AA", "EA"]
+                    },
+                    "internal": {
+                        "inDB": ['alleleFreq']
+                    }
+                }
+            }
+        }
+    }
 
     def test_csq_no_gmaf(self):
         """
@@ -150,7 +166,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freq = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertFalse('GMAF' in freq['1000g'])
 
     def test_frequency_strip_maf_from_name(self):
@@ -172,7 +188,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             ]
 
         }
-        freq = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freq = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('G', freq['1000g'])
         self.assertNotIn('GMAF', freq['1000g'])
         self.assertIn('EUR', freq['1000g'])
@@ -189,7 +205,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freqs = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('TEST', freqs['ExAC'])
         self.assertEqual(float(13)/2, freqs['ExAC']['TEST'])
         self.assertNotIn('ZERO', freqs['ExAC'])
@@ -202,7 +218,7 @@ class TestFrequencyAnnotation(unittest.TestCase):
             }
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freqs = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertIn('TEST', freqs['ExAC']['hom'])
         self.assertEqual(13, freqs['ExAC']['hom']['TEST'])
 
@@ -224,121 +240,283 @@ class TestFrequencyAnnotation(unittest.TestCase):
 
         }
 
-        freqs = FrequencyAnnotation(config.config).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
+        freqs = FrequencyAnnotation(TestFrequencyAnnotation.MOCK_CONFIG).process(data)[FrequencyAnnotation.CONTRIBUTION_KEY]
         self.assertEqual(0.122, freqs['esp6500']['EA'])
         self.assertEqual(0.123, freqs['esp6500']['AA'])
 
     def test_frequency_cutoffs_from_none(self):
 
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+        processor = GenepanelCutoffsAnnotationProcessor(TestFrequencyAnnotation.MOCK_CONFIG, genepanel=None)
         frequencies = processor.cutoff_frequencies(None)
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
-        self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
-        self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["ExAC"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["1000g"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["esp6500"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['internal']["inDB"], "null_freq")
 
     def test_frequency_cutoffs_from_empty(self):
 
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+        processor = GenepanelCutoffsAnnotationProcessor(TestFrequencyAnnotation.MOCK_CONFIG, genepanel=None)
         frequencies = processor.cutoff_frequencies({})
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "null_freq")
-        self.assertEquals(frequencies["1000G_cutoff"], "null_freq")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "null_freq")
-        self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["ExAC"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["1000g"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']["esp6500"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['internal']["inDB"], "null_freq")
 
     def test_frequency_cutoffs_1(self):
 
         annotation = {
-            "1000g":
-            {
-                "ASN": 0.0005,
-                "AMR": 0.000000001,
+            "1000g": {
+                "G": 0.0005,
                 "NOT_VALID": 1.0
             },
-            "ExAC":
-            {
-                "AFR": 0.924688995215311,
+            "ExAC": {
+                "G": 0.924688995215311,
             },
-            "esp6500":
-            {
+            "esp6500": {
                 "AA": 0.00002,
                 "EA": 0.0003
             }
         }
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None)
+
+        processor = GenepanelCutoffsAnnotationProcessor(
+            TestFrequencyAnnotation.MOCK_CONFIG,
+            genepanel=None
+        )
         frequencies = processor.cutoff_frequencies(annotation)
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "≥hi_freq_cutoff")
-        self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["inDB_cutoff"], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], "null_freq")
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], ">=hi_freq_cutoff")
 
 
 def test_frequency_cutoffs_2():
 
     annotation = {
-        "1000g":
-        {
-            "ASN": 0.001, # Lower edge case
-            "AMR": 0.000000001,
-            "NOT_VALID": 1.0
+        "1000g": {
+            "G": 0.001,  # Lower edge case
+            "NOT_INCLUDED_IN_CONFIG": 1.0
         },
-        "ExAC":
-        {
-            "AFR": 0.005,
+        "ExAC": {
+            "G": 0.005,
         },
-        "esp6500":
-        {
+        "esp6500": {
             "AA": 0.00002,
             "EA": 0.0003
         }
     }
 
-    defaults = {KEY_CUTOFFS: {'Other': {KEY_HI: 0.01, KEY_LO: 0.001}}}
-    processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None, genepanel_default=defaults)
+    defaults = {
+        'freq_cutoffs': {
+            'default': {
+                'external': {
+                    'hi_freq_cutoff': 0.01,
+                    'lo_freq_cutoff': 0.001
+                },
+                'internal': {
+                    'hi_freq_cutoff': 0.01,
+                    'lo_freq_cutoff': 0.001
+                }
+            }
+        }
+    }
+    processor = GenepanelCutoffsAnnotationProcessor(
+        TestFrequencyAnnotation.MOCK_CONFIG,
+        genepanel=None,
+        genepanel_default=defaults
+    )
 
     frequencies = processor.cutoff_frequencies(annotation)
 
-    assert frequencies["ExAC_cutoff"] == ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
-    assert frequencies["1000G_cutoff"] == ["≥lo_freq_cutoff", "<hi_freq_cutoff"]
-    assert frequencies["ESP6500_cutoff"] == "<lo_freq_cutoff"
-    assert frequencies["inDB_cutoff"] =="null_freq"
+    assert frequencies['cutoff']['external']["ExAC"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies['cutoff']['external']["1000g"] == [">=lo_freq_cutoff", "<hi_freq_cutoff"]
+    assert frequencies['cutoff']['external']["esp6500"] == "<lo_freq_cutoff"
+    assert frequencies['cutoff']['internal']["inDB"] == "null_freq"
 
     def test_frequency_cutoffs_3(self):
+        # Test that when there's multiple items in a group (AA, EA),
+        # the highest cutoff is returned (i.e >=hi_freq_cutoff instead of <lo_freq_cutoff).
 
         annotation = {
-            "1000g":
-            {
-                "ASN": 0.000001,
-                "AMR": 0.00002,
-                "NOT_VALID": 1.0
+            "1000g": {
+                "G": 0.1,
+                "NOT_IN_CONFIG": 1.0
             },
-            "ExAC":
-            {
-                "AFR": 0.000002,
+            "ExAC": {
+                "G": 0.000002,
             },
-            "esp6500":
-            {
-                    "AA": 0.00002,
+            "esp6500": {
+                    "AA": 0.00005,
+                    "EA": 0.99,
             },
-             "inDB":
-             {
+             "inDB": {
                     "alleleFreq": 0.0022323
             }
         }
-        defaults = {KEY_CUTOFFS: {'Other': {KEY_HI: 0.01, KEY_LO: 0.001}}}
-        processor = GenepanelCutoffsAnnotationProcessor(config.config, genepanel=None, genepanel_default=defaults)
+
+        defaults = {
+            'freq_cutoffs': {
+                'default': {
+                    'external': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    },
+                    'internal': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    }
+                }
+            }
+        }
+
+        processor = GenepanelCutoffsAnnotationProcessor(
+            TestFrequencyAnnotation.MOCK_CONFIG,
+            genepanel=None,
+            genepanel_default=defaults
+        )
         frequencies = processor.cutoff_frequencies(annotation)
 
-        self.assertEquals(frequencies["ExAC_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["1000G_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["ESP6500_cutoff"], "<lo_freq_cutoff")
-        self.assertEquals(frequencies["inDB_cutoff"], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], ">=hi_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], ">=hi_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], "<lo_freq_cutoff")
+
+    def test_frequency_cutoffs_4(self):
+
+        annotation = {
+            "1000g": {
+                "G": 0.000001,
+                "NOT_IN_CONFIG": 1.0
+            },
+            "ExAC": {
+                "G": 0.000002,
+            },
+            "esp6500": {
+                    "AA": 0.00002,
+                    "EA": 0.00002,
+            },
+             "inDB": {
+                    "alleleFreq": 0.0022323
+            }
+        }
+
+        defaults = {
+            'freq_cutoffs': {
+                'default': {
+                    'external': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    },
+                    'internal': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    }
+                }
+            }
+        }
+
+        processor = GenepanelCutoffsAnnotationProcessor(
+            TestFrequencyAnnotation.MOCK_CONFIG,
+            genepanel=None,
+            genepanel_default=defaults
+        )
+        frequencies = processor.cutoff_frequencies(annotation)
+
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], "<lo_freq_cutoff")
 
 
 class TestTranscriptAnnotation(unittest.TestCase):
+
+
+    def test_get_transcript_intronic(self):
+
+        config = {
+            'variant_criteria': {
+                "intronic_region": {
+                    "-": 20,
+                    "+": 6
+                }
+            }
+        }
+
+        ta = TranscriptAnnotation(config)
+
+        # Normal positive
+        assert ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.4535-213G>T'
+        })
+
+        # Non-intronic HGVSc, yet intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.4535G>T'
+        })
+
+        # Intronic HGVSc, non-intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['stop_gained'],
+            'HGVSc': 'NM_007294.3:c.4535-213G>T'
+        })
+
+        # Non-intronic HGVSc, non-intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['stop_gained'],
+            'HGVSc': 'NM_012463.3:c.1246G>A'
+        })
+
+        # Garbage HGVSc, intronic Consequence
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535AA+234G>T'
+        })
+
+        # HGVSc inside region
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535+5G>T'
+        })
+
+        # HGVSc inside region
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-19G>T'
+        })
+
+        # HGVSc at region (region is not inclusive)
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535+6G>T'
+        })
+
+        # HGVSc at region (region is not inclusive)
+        assert not ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-20G>T'
+        })
+
+        # HGVSc region +1
+        assert ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535+7G>T'
+        })
+
+        # HGVSc region +1
+        assert ta._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-21G>T'
+        })
+
+        # No filtering when missing config
+        assert not TranscriptAnnotation({})._get_transcript_intronic({
+            'Consequence': ['intron_variant'],
+            'HGVSc': 'NM_007294.3:c.535-200G>T'
+        })
 
     def test_get_is_last_exon(self):
 
@@ -427,8 +605,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
         self.assertEqual(transcripts[1][TranscriptAnnotation.CSQ_FIELDS[0]], 'TEST2')
 
     def test_get_genepanel_transcripts_normal(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
-                                           Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
+                                           Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
                               version='v01',
                               name='HBOCUTV')
 
@@ -438,8 +616,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
         assert t == ['NM_000059']
 
     def test_get_genepanel_transcripts_versioned(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
-                                    Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
+                                    Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
                        version='v01',
                        name='HBOCUTV')
 
@@ -450,8 +628,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_multiple(self):
 
-        gp = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455'),
-                                    Transcript(refseqName='NM_007294.3', ensemblID='ENST00000357654')],
+        gp = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
+                                    Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
                        version='v01',
                        name='HBOCUTV')
 
@@ -461,7 +639,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
         assert t == ['NM_000059', 'NM_007294']
 
     def test_get_genepanel_transcripts_none(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseqName='NM_000059.3', ensemblID='ENST00000544455')],
+        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455')],
                        version='v01',
                        name='HBOCUTV')
 
@@ -515,6 +693,42 @@ class TestTranscriptAnnotation(unittest.TestCase):
         c = TranscriptAnnotation(config)._get_worst_consequence(transcripts)
         assert c == ['NM_12300']
 
+    def test_custom_annotation_references(self):
+
+        # Test merging references from internal and custom annotation
+
+        annotation = {
+            'CSQ': [
+                {
+                    'PUBMED': [1234, 2345]
+                }
+            ]
+        }
+        custom_annotation = {
+            'references': [
+                {
+                    'pubmed_id': 9874,
+                    'sources': ['User']
+                },
+                {
+                    'some_other_id': 845,
+                    'sources': ['Something']
+                },
+                {
+                    'pubmed_id': 1234,  # Also in annotation
+                    'sources': ['User']
+                }
+            ]
+        }
+
+        result = AnnotationProcessor.process(annotation, custom_annotation=custom_annotation)
+        assert len(result['references']) == 4
+        # Fetch the one in both annotations
+        in_both_ref = [r for r in result['references'] if r.get('pubmed_id') == 1234]
+        assert len(in_both_ref) == 1
+        assert 'User' in in_both_ref[0]['sources']
+        assert 'VEP' in in_both_ref[0]['sources']
+
 
 @pytest.mark.parametrize("annotation, symbol", [
     ({
@@ -537,4 +751,5 @@ def test_find_symbol_raise_exception():
           'annotation_id': 1
          })
     assert exc
-    assert "Gene X,Gene Y" in exc.value.message
+    assert "Gene X" in exc.value.message
+    assert "Gene Y" in exc.value.message

@@ -33,7 +33,7 @@ class GenepanelWatcher(object):
             phenotypes_path,
             genepanel_name,
             genepanel_version,
-            force_yes=True
+            replace=True
         )
 
     def check_and_import(self):

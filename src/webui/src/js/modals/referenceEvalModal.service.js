@@ -396,6 +396,7 @@ export class ReferenceEvalModalController {
                             type: 'button',
                             options: [
                                 ['Pathogenic', 'pat'],
+                                ['VUS', 'vus'],
                                 ['Neutral', 'neu'],
                             ],
                             store: 'ref_prediction'

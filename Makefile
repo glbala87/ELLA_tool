@@ -13,9 +13,11 @@ IMAGE_NAME = local/ella-$(BRANCH)
 E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
 SELENIUM_CONTAINER_NAME = selenium
 SELENIUM_ADDRESS ?= 'http://localhost:4444/wd/hub'
+ANSIBLE_TAGS ?= core
 BUILD_TYPE ?=core
 BUILD_VERSION ?=0.9.2
 BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
+DEPLOY_NAME ?= test.allel.es
 
 help :
 	@echo ""
@@ -133,7 +135,29 @@ test-api: export PYTHONPATH=/ella/src
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	createdb vardb-test
 ifeq ($(TEST_COMMAND),) # empty?
+
+	/ella/ella-cli database drop -f
+	/ella/ella-cli database make -f
+	py.test --color=yes "/ella/src/api/" -s
+else
+	$(TEST_COMMAND)
+endif
+
+test-api-migration: export PGDATABASE=vardb-test
+test-api-migration: export DB_URL=postgres:///vardb-test
+test-api-migration: export PYTHONPATH=/ella/src
+test-api-migration:
+	supervisord -c /ella/ops/test/supervisor.cfg
+	make dbsleep
+	createdb vardb-test
+ifeq ($(TEST_COMMAND),) # empty?
+	# Run migration scripts test
+	/ella/ella-cli database ci-migration
+
+	# Run API test on migrated database
+	/ella/ella-cli database ci-migration-head
 	py.test --color=yes "/ella/src/api/" -s
 else
 	$(TEST_COMMAND)
@@ -165,14 +189,18 @@ test-e2e:
 #---------------------------------------------
 
 setup-release: ensure-clean
+	$(eval ANSIBLE_TAGS =release)
 	$(eval BUILD_TYPE =release)
 	$(eval BUILD_VERSION =latest)
 
 ensure-clean:
 	rm -rf node_modules
+	git checkout ops/builder/Dockerfile.runnable
 
 add-production-elements:
+	sed -i 's substitution $(BUILD_NAME) ' ops/builder/Dockerfile.runnable
 	docker build -t $(BUILD_NAME) -f ops/builder/Dockerfile.runnable .
+	git checkout ops/builder/Dockerfile.runnable
 
 release: setup-release build-image squash stop-provision add-production-elements
 build-image: start-provision create-release copy run-ansible
@@ -188,7 +216,7 @@ copy:
 	docker cp . provision:/ella
 
 run-ansible:
-	docker exec -i provision ansible-playbook -i localhost, -c local /ella/ops/builder/builder.yml --tags=$(BUILD_TYPE)
+	docker exec -i provision ansible-playbook -i localhost, -c local /ella/ops/builder/builder.yml --tags=$(ANSIBLE_TAGS)
 
 clean-provision stop-provision:
 	-docker stop -t 0 provision && docker rm provision
@@ -199,10 +227,6 @@ start-provision: clean-provision
 
 commit-provision:
 	docker commit provision $(BUILD_NAME)
-
-save-and-notify:
-	docker save ousamg/ella.release > /builds/ella.tar
-	nohup curl '127.0.0.1:8080/ella/deploy' &>/dev/null &
 
 #---------------------------------------------
 # DEPLOY
@@ -222,9 +246,8 @@ dbreset-inner:
 dbsleep:
 	while ! pg_isready; do sleep 5; done
 
-deploy-release: release deploy-reboot
-
-deploy-reboot:
-	-docker stop ella
-	-docker rm ella
-	docker run -d --name ella -p 80:80 ousamg/ella:$(BUILD_VERSION)
+deploy:
+	-docker stop $(DEPLOY_NAME)
+	-docker rm $(DEPLOY_NAME)
+	docker run -d --name $(DEPLOY_NAME) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE);
+	docker exec $(DEPLOY_NAME) make dbreset;

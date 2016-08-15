@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+import re
+
 from api import config
 from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
 from vardb.datamodel.gene import Transcript
@@ -37,18 +39,18 @@ class References(object):
         common_pmid = set(csq_pubmeds) & set(hgmd_pubmeds)
         for common in common_pmid:
             references.append({
-                'pubmedID': common, 'sources': ['VEP', 'HGMD']
+                'pubmed_id': common, 'sources': ['VEP', 'HGMD']
             })
 
         for pmid in [p for p in csq_pubmeds if p not in common_pmid]:
             references.append({
-                'pubmedID': pmid,
+                'pubmed_id': pmid,
                 'sources': ['VEP']
             })
 
         for pmid in [p for p in hgmd_pubmeds if p not in common_pmid]:
             references.append({
-                'pubmedID': pmid,
+                'pubmed_id': pmid,
                 'sources': ['HGMD']
             })
 
@@ -63,6 +65,9 @@ class TranscriptAnnotation(object):
     CONTRIBUTION_KEY = 'transcripts'
     CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS = 'filtered_transcripts'
 
+    # Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
+    # but not NM_007294.3:c.4535G>T
+    INTRON_CHECK_REGEX = re.compile(r'.*c\.[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
 
     CSQ_FIELDS = [
         'Consequence',
@@ -87,6 +92,31 @@ class TranscriptAnnotation(object):
 
     def __init__(self, config):
         self.config = config
+
+    def _get_transcript_intronic(self, transcript_data):
+        """
+        Checks whether variant for given transcript is considered
+        intronic according to coordinates given by configuration.
+
+        Checks first if consequence is intron_variant,
+        then parses the cDNA coordinates to check how far into
+        the intron it is.
+        """
+        criteria = self.config.get('variant_criteria', {}).get('intronic_region')
+        if criteria and 'intron_variant' in transcript_data['Consequence']:
+            hgvsc = transcript_data.get('HGVSc')
+            match = re.match(TranscriptAnnotation.INTRON_CHECK_REGEX, hgvsc)
+            if match:
+                match_data = match.groupdict()
+
+                # Regex should guarantee int conversion is possible
+                plus_minus, distance = match_data['plus_minus'], int(match_data['distance'])
+
+                # Check if distance is outside criteria
+                if plus_minus in criteria:
+                    return distance > criteria[plus_minus]
+
+        return False
 
     def _get_is_last_exon(self, transcript_data):
 
@@ -115,15 +145,16 @@ class TranscriptAnnotation(object):
                 return 9999999
         sorted_transcripts = sorted(transcripts, key=sort_func)
 
-        worst_consequence = sorted_transcripts[0]['Consequence']
         worst_consequences = list()
-        for t in sorted_transcripts:
-            if any(c in t.get('Consequence', []) for c in worst_consequence):
-                worst_consequences.append(t['Transcript'])
-            else:
-                break
+        if sorted_transcripts:
+            worst_consequence = sorted_transcripts[0]['Consequence']
+            for t in sorted_transcripts:
+                if any(c in t.get('Consequence', []) for c in worst_consequence):
+                    worst_consequences.append(t['Transcript'])
+                else:
+                    break
 
-        return worst_consequences
+            return worst_consequences
 
     def _csq_transcripts(self, annotation):
         if 'CSQ' not in annotation:
@@ -172,7 +203,6 @@ class TranscriptAnnotation(object):
             transcript_data = {'splice_' + k.replace('-', '_'): data[k] for k in TranscriptAnnotation.SPLICE_FIELDS if k in data}
             transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
 
-
             if transcript_data['Transcript'] in transcripts:
                 transcripts[transcript_data['Transcript']].append(transcript_data)
             else:
@@ -199,8 +229,8 @@ class TranscriptAnnotation(object):
 
         gp_transcripts = list()
         for transcript in genepanel.transcripts:
-            gp_transcripts.append(transcript.refseqName)
-            gp_transcripts.append(transcript.ensemblID)  # TODO: necessary to add ensembleId as well?
+            gp_transcripts.append(transcript.refseq_name)
+            gp_transcripts.append(transcript.ensembl_id)  # TODO: necessary to add ensembleId as well?
 
         transcript_names_in_genepanel = [Transcript.get_name(t) for t in gp_transcripts]
 
@@ -238,6 +268,11 @@ class TranscriptAnnotation(object):
             transcripts.append(t)
 
         final_transcripts = sorted(transcripts, key=lambda x: x['Transcript'])
+
+        # Add 'intronic' flag:
+        for t in final_transcripts:
+            t['intronic'] = self._get_transcript_intronic(t)
+
         result = {TranscriptAnnotation.CONTRIBUTION_KEY: final_transcripts}
 
         if genepanel:
@@ -438,11 +473,11 @@ class QualityAnnotation(object):
 
     def process(self, genotype):
         data = {
-            'QUAL': genotype.get('variantQuality'),
-            'GQ': genotype.get('genotypeQuality'),
-            'DP': genotype.get('sequencingDepth'),
-            'FILTER': genotype.get('filterStatus'),
-            'AD': genotype.get('alleleDepth')
+            'QUAL': genotype.get('variant_quality'),
+            'GQ': genotype.get('genotype_quality'),
+            'DP': genotype.get('sequencing_depth'),
+            'FILTER': genotype.get('filter_status'),
+            'AD': genotype.get('allele_depth')
         }
         return {QualityAnnotation.CONTRIBUTION_KEY: data}
 
@@ -462,9 +497,12 @@ def find_symbol(annotation):
 
     if len(set(symbols)) > 1:
         raise Exception("The transcript(s) selected don't have the same gene symbol, found genes {}"
-                        .format(','.join(symbols)))
+                        .format(','.join(list(set(symbols)))))
 
-    return symbols.pop()
+    if symbols:
+        return symbols.pop()
+    else:
+        return None
 
 
 class AnnotationProcessor(object):
@@ -501,7 +539,15 @@ class AnnotationProcessor(object):
 
             # References are merged specially
             if 'references' in data and 'references' in custom_annotation:
-                data['references'] = data['references'] + custom_annotation['references']
+                for ca_ref in custom_annotation['references']:
+                    # A pubmed reference can exist in both, if so only merge the source
+                    if 'pubmed_id' in ca_ref:
+                        existing_ref = next((r for r in data['references'] if r.get('pubmed_id') == ca_ref['pubmed_id']), None)
+                        if existing_ref:
+                            existing_ref
+                            existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
+                            continue
+                    data['references'].append(ca_ref)
 
         if genotype:
             data.update(QualityAnnotation().process(genotype))

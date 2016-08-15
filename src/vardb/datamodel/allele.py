@@ -11,21 +11,21 @@ class Allele(Base):
     __tablename__ = "allele"
 
     id = Column(Integer, Sequence("id_allele_seq"), primary_key=True)
-    genomeReference = Column("genome_reference", String(15), nullable=False)
+    genome_reference = Column(String, nullable=False)
     genotypes = relationship("Genotype", primaryjoin="or_(Allele.id==Genotype.allele_id, "
                                                          "Allele.id==Genotype.secondallele_id)")
-    chromosome = Column(String(10), nullable=False)
-    startPosition = Column("start_position", Integer, nullable=False) # TODO: Use Postgres int4range when SQLAlchemy supports it
-    openEndPosition = Column("open_end_position", Integer, nullable=False)
-    changeFrom = Column("change_from", String, nullable=False) # Drop argument to String(). This is only supported by Postgres and SQLite
-    changeTo = Column("change_to", String, nullable=False)
-    changeType = Column("change_type", String(5), nullable=False)
+    chromosome = Column(String, nullable=False)
+    start_position = Column(Integer, nullable=False)
+    open_end_position = Column(Integer, nullable=False)
+    change_from = Column(String, nullable=False)
+    change_to = Column(String, nullable=False)
+    change_type = Column(String, nullable=False)
 
     __table_args__ = (Index("ix_alleleloci", "chromosome", "start_position", "open_end_position"),
                       UniqueConstraint("chromosome", "start_position", "open_end_position", "change_from", "change_to", "change_type", name="ucAllele"), )
 
 
     def __repr__(self):
-        return "<Allele('%s','%s', '%s', '%s', '%s', '%s')>" % (self.chromosome, self.startPosition,
-                                                                self.openEndPosition, self.changeType,
-                                                                self.changeFrom, self.changeTo)
+        return "<Allele('%s','%s', '%s', '%s', '%s', '%s')>" % (self.chromosome, self.start_position,
+                                                                self.open_end_position, self.change_type,
+                                                                self.change_from, self.change_to)

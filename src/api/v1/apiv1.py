@@ -21,8 +21,8 @@ class ApiV1(object):
                          '/api/v1/alleles/',
                          '/api/v1/alleles/<list:allele_ids>')
 
-        api.add_resource(r.allele.AlleleAnalysisListResource,
-                         '/api/v1/alleles/<int:allele_id>/analyses/')
+        api.add_resource(r.allele.AlleleGenepanelListResource,
+                         '/api/v1/alleles/<int:allele_id>/genepanels/')
 
         api.add_resource(r.analysis.AnalysisListResource,
                          '/api/v1/analyses/')
@@ -73,6 +73,6 @@ class ApiV1(object):
                          '/api/v1/users/<int:user_id>/')
 
         api.add_resource(r.genepanel.GenepanelResource,
-                         '/api/v1/genepanels/<name>/<version>')
+                         '/api/v1/genepanels/<name>/<version>/')
 
         return api

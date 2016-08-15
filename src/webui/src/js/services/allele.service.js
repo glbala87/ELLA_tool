@@ -34,15 +34,6 @@ export class AlleleService {
         );
     }
 
-    getAllelesByAnalysis(allele_ids, analysis) {
-        return this.getAlleles(
-            allele_ids,
-            analysis.samples[0].id, // TODO: Handle multiple samples
-            analysis.genepanel.name,
-            analysis.genepanel.version
-        )
-    }
-
     /**
      * POSTs an referenceassessment to the backend.
      * Note! Normally you want to use the analysis' finalize
@@ -103,28 +94,27 @@ export class AlleleService {
 
         let result = '';
         for (let allele of alleles) {
-            result += `Chr${allele.chromosome}(${allele.genomeReference}):g.`;
+            result += `Chr${allele.chromosome}(${allele.genome_reference}):g.`;
 
             // Database is 0-based, alamut uses 1-based index
-            let start = allele.startPosition + 1;
-            let end = allele.openEndPosition + 1;
+            let start = allele.start_position + 1;
+            let end = allele.open_end_position + 1;
 
-            if (allele.changeType === 'SNP') {
+            if (allele.change_type === 'SNP') {
                 // snp: Chr11(GRCh37):g.66285951C>Tdel:
-                // Add one since startPosition is 0-based
-                result += `${start}${allele.changeFrom}>${allele.changeTo}\n`;
+                result += `${start}${allele.change_from}>${allele.change_to}\n`;
             }
-            else if (allele.changeType === 'del') {
+            else if (allele.change_type === 'del') {
                 // del: Chr13(GRCh37):g.32912008_32912011del
                 result += `${start}_${end}del\n`;
             }
-            else if (allele.changeType === 'ins') {
+            else if (allele.change_type === 'ins') {
                 // ins: Chr13(GRCh37):g.32912008_3291209insCGT
-                result += `${start}_${end}ins${allele.changeTo}\n`;
+                result += `${start}_${start+1}ins${allele.change_to}\n`;
             }
-            else if (allele.changeType === 'indel') {
+            else if (allele.change_type === 'indel') {
                 // delins: Chr13(GRCh37):g.32912008_32912011delinsGGG
-                result += `${start}_${end}delins${allele.changeTo}\n`;
+                result += `${start}_${end}delins${allele.change_to}\n`;
             }
             else {
                 // edge case, shouldn't happen, but this is valid format as well

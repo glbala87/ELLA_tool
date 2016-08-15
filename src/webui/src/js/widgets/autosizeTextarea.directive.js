@@ -18,6 +18,5 @@ import {Directive, Inject} from '../ng-decorators';
         autosize(elem.children()[0]);
         scope.$watch( () => scope.ngModel, () => autosize.update(elem.children()[0]) );
     }
-
 })
 export class AutosizeTextareaController { }

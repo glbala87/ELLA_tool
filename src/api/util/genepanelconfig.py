@@ -1,25 +1,7 @@
 import logging
 import copy
+from api.config import config
 
-# Global config values that can be overridden by gene panels.
-KEY_INHERITANCE = 'inheritance'
-KEY_LO = "lo_freq_cutoff"
-KEY_HI = "hi_freq_cutoff"
-KEY_CUTOFFS = "freq_cutoffs"
-
-# values defined in Excel file WebUI_config_rules
-DEFAULT_CUTOFFS = {KEY_HI: 0.01, KEY_LO: 1.0}
-AD_CUTOFFS = {KEY_HI: 0.005, KEY_LO: 0.001}
-
-COMMON_GENEPANEL_CONFIG = {
-    KEY_CUTOFFS: {
-        "AD": AD_CUTOFFS,
-        "Other": DEFAULT_CUTOFFS
-    },
-    KEY_INHERITANCE: "AD",
-    "disease_mode": "ANY",
-    "last_exon": True,
-}
 
 """
 Reads the gene panel specific config and overrides the default values if the gene panel config
@@ -27,7 +9,7 @@ defines gene-specific values
 """
 
 
-def _find_cutoffs(inheritance_code):
+def _find_cutoffs(genepanel_config, inheritance_code):
     """
     Find the lo/hi cutoffs using inheritance if present. There are generally two sets for cutoffs, one for AD
     and for non-AD. The default cutoffs can be overridden in the genepanel, in that case the cutoffs are
@@ -36,22 +18,18 @@ def _find_cutoffs(inheritance_code):
     :return: a dict with lo and hi cutoffs
     """
 
-    if not inheritance_code:
-        return DEFAULT_CUTOFFS
+    # Unless inheritance is unambigously AD, we use the 'default' group
+    cutoff_group = 'default'
 
-    if isinstance(inheritance_code, list):
+    if inheritance_code:
+        if not isinstance(inheritance_code, list):
+            inheritance_code = [inheritance_code]
+
         codes = set(inheritance_code)
-        if len(codes) > 1:  # multiple inheritance codes. Don't look in genepanel.
-            return DEFAULT_CUTOFFS
-        if codes.pop().upper() == 'AD':
-            return COMMON_GENEPANEL_CONFIG[KEY_CUTOFFS]["AD"]
-        else:
-            return DEFAULT_CUTOFFS
-    else:
-        if inheritance_code.upper() == 'AD':
-            return COMMON_GENEPANEL_CONFIG[KEY_CUTOFFS]["AD"]
+        if len(codes) == 1 and codes.pop().upper() == 'AD':
+            cutoff_group = 'AD'
 
-    return DEFAULT_CUTOFFS
+    return genepanel_config['freq_cutoffs'][cutoff_group]
 
 
 class GenepanelConfigResolver(object):
@@ -65,7 +43,7 @@ class GenepanelConfigResolver(object):
         """
         super(GenepanelConfigResolver, self).__init__()
         self.genepanel = genepanel
-        self.genepanel_default = COMMON_GENEPANEL_CONFIG if not genepanel_default else genepanel_default
+        self.genepanel_default = config['variant_criteria']['genepanel_config'] if not genepanel_default else genepanel_default
 
     def resolve(self, symbol):
         """
@@ -73,7 +51,22 @@ class GenepanelConfigResolver(object):
         Algorithm: start with a dict with default values and mutate it if more gene-specific info
         is available.
 
+        Regarding 'freq_cutoffs':
+        One thing to be aware of it that the the configuration file has inheritance (AD or default) as
+        part of it's freq_cutoffs options, while the genepanel configs do not.
+        Reason for this is that the genepanel configuration is supposed to force thresholds, regardless
+        of inheritance mode, so inheritance is not relevant for the genepanel overrides.
+
         Uses deepcopy to avoid any mutation of the "constants" of this module.
+
+        Output will look something like:
+
+        {'disease_mode': 'ANY',
+         'freq_cutoffs': {'external': {'hi_freq_cutoff': 0.01, 'lo_freq_cutoff': 1.0},
+                          'internal': {'hi_freq_cutoff': 0.05, 'lo_freq_cutoff': 1.0}},
+         'inheritance': 'AD',
+         'last_exon': True}
+
 
         :param symbol:
         :return: the values to be used by the rules engine. The genepanel can have gene specific values
@@ -81,21 +74,23 @@ class GenepanelConfigResolver(object):
         """
 
         # init the result using the defaults. The result might be mutated further down.
-        result = copy.deepcopy(self.genepanel_default)
-        result.pop(KEY_CUTOFFS, None)  # cutoffs is handled specially below
+        result = dict(self.genepanel_default)
 
         # find frequency cutoffs when we don't have any specific info:
         # start
-        if not symbol:  # use non-AD cutoffs from either hardcoded or configured defaults. Relevant for tests only.
+        if not symbol:
             logging.warning("Symbol not defined when resolving genepanel config values")
-            result[KEY_CUTOFFS] = self.genepanel_default[KEY_CUTOFFS]['Other'] if self.genepanel_default else DEFAULT_CUTOFFS
+            result["freq_cutoffs"] = self.genepanel_default["freq_cutoffs"]['default']
             return copy.deepcopy(result)
 
         if not self.genepanel:  # no panel to find any specific info
             logging.warning("Genepanel not defined when resolving genepanel config values")
-            result[KEY_CUTOFFS] = DEFAULT_CUTOFFS
+            result["freq_cutoffs"] = self.genepanel_default["freq_cutoffs"]['default']
             return copy.deepcopy(result)
         # end
+
+        # Remove the AD/default level from freq_cutoffs {'external': {'AD': cutoffs, 'default': cutoffs}} -> {'external': AD_or_default_cutoffs}
+        result["freq_cutoffs"] = copy.deepcopy(_find_cutoffs(self.genepanel_default, self.genepanel.find_inheritance(symbol)))
 
         # replace defaults with overrides from the gene panel:
         if self.genepanel.config and 'data' in self.genepanel.config and symbol in self.genepanel.config['data']:
@@ -103,18 +98,16 @@ class GenepanelConfigResolver(object):
             result.update(gene_specific_overrides)
 
             # use inheritance to find cutoffs:
-            if KEY_INHERITANCE in gene_specific_overrides:
-                result[KEY_CUTOFFS] = copy.deepcopy(_find_cutoffs(gene_specific_overrides[KEY_INHERITANCE]))
-            else:
-                result[KEY_CUTOFFS] = copy.deepcopy(_find_cutoffs(self.genepanel.find_inheritance(symbol)))
+            if "inheritance" in gene_specific_overrides:
+                result["freq_cutoffs"] = copy.deepcopy(_find_cutoffs(self.genepanel_default, gene_specific_overrides["inheritance"]))
 
-            # the gene panel can have overrides for either lo/hi frequencies:
-            if KEY_HI in gene_specific_overrides:
-                result[KEY_CUTOFFS][KEY_HI] = gene_specific_overrides[KEY_HI]
-            if KEY_LO in gene_specific_overrides:
-                result[KEY_CUTOFFS][KEY_LO] = gene_specific_overrides[KEY_LO]
+            # copy over any freq_cutoffs overrides from genepanel config
+            # the overrides might be partial, so we need to check each group individually
+            # instead of copying all of 'freq_cutoffs'
+            if 'freq_cutoffs' in gene_specific_overrides:
+                for freq_group in config['variant_criteria']['frequencies']['groups'].keys():
+                    if freq_group in gene_specific_overrides['freq_cutoffs']:
+                        result['freq_cutoffs'][freq_group] = gene_specific_overrides['freq_cutoffs'][freq_group]
 
-        else:
-            result[KEY_CUTOFFS] = DEFAULT_CUTOFFS
 
         return copy.deepcopy(result)

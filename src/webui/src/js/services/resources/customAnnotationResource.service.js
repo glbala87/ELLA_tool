@@ -17,7 +17,7 @@ class CustomAnnotationResource {
     getByAlleleIds(allele_ids) {
         return new Promise((resolve, reject) => {
             let q = JSON.stringify({
-                dateSuperceeded: null,
+                date_superceeded: null,
                 'allele_id': allele_ids,
             });
             let r = this.resource(`${this.base}/customannotations/?q=${encodeURIComponent(q)}`);

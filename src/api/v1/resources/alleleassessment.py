@@ -37,11 +37,13 @@ class AlleleAssessmentListResource(Resource):
         [
             'allele_id',
             'classification',
-            'analysis_id',
             'user_id',
         ],
         allowed=[
             # 'id' is excluded on purpose, as the endpoint should always result in a new assessment
+            'analysis_id',
+            'genepanel_name',
+            'genepanel_version',
             'evaluation',
             'referenceassessments'
         ]
@@ -57,7 +59,9 @@ class AlleleAssessmentListResource(Resource):
             "allele_id": 2,
             "classification": "3",
             "evaluation": {...data...},
-            "analysis_id": 3,
+            "analysis_id": 3,  # Optional, should be given when assessment is made in context of analysis
+            "genepanel_name": "HBOC", # Optional only if analysis_id provided
+            "genepanel_version": "v01", # Optional only if analysis_id provided
             "referenceassessments": [  # Optional
                 {
                     "allele_id": 2,

@@ -24,22 +24,22 @@ class AlleleAssessment(Base):
     evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
-    dateSuperceeded = Column("date_superceeded", DateTime)
-    previousAssessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
-    previousAssessment = relationship("AlleleAssessment", uselist=False)
+    date_last_update = Column(DateTime, nullable=False)
+    date_superceeded = Column(DateTime)
+    previous_assessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
+    previous_assessment = relationship("AlleleAssessment", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False, backref='assessments')
-    genepanelName = Column(String, nullable=False)
-    genepanelVersion = Column(String, nullable=False)
+    genepanel_name = Column(String, nullable=False)
+    genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
-    referenceAssessments = relationship("ReferenceAssessment",
+    referenceassessments = relationship("ReferenceAssessment",
                                         secondary=AlleleAssessmentReferenceAssessment)
 
-    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.classification, str(self.user))
@@ -63,17 +63,17 @@ class ReferenceAssessment(Base):
     evaluation = Column(MUTJSONB, default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
-    dateSuperceeded = Column("date_superceeded", DateTime)
-    genepanelName = Column(String, nullable=False)
-    genepanelVersion = Column(String, nullable=False)
+    date_last_update = Column(DateTime, nullable=False)
+    date_superceeded = Column(DateTime)
+    genepanel_name = Column(String, nullable=False)
+    genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
-    previousAssessment_id = Column(Integer, ForeignKey("referenceassessment.id"))
-    previousAssessment = relationship("ReferenceAssessment", uselist=False)
+    previous_assessment_id = Column(Integer, ForeignKey("referenceassessment.id"))
+    previous_assessment = relationship("ReferenceAssessment", uselist=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
-    __table_args__ = (ForeignKeyConstraint([genepanelName, genepanelVersion], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __str__(self):
         return "%s, %s, %s" % (str(self.user), self.reference, self.evaluation)
@@ -88,9 +88,9 @@ class Reference(Base):
     title = Column(String())
     journal = Column(String())
     year = Column(Integer)
-    pubmedID = Column(Integer, unique=True)
+    pubmed_id = Column(Integer, unique=True)
 
-    __table_args__ = (Index("ix_pubmedid", "pubmedID", unique=True), )
+    __table_args__ = (Index("ix_pubmedid", "pubmed_id", unique=True), )
 
     def __repr__(self):
         return "<Reference('%s','%s', '%s')>" % (self.authors, self.title, self.year)

@@ -1,32 +1,36 @@
-<div class="content-box">
-  <h3 class="title">ACMG</h3>
-  <div class="tabular-row">
+<contentbox>
+  <cbheader>
+    <h3 class="title">ACMG</h3>
+  </cbheader>
+  <cbbody>
+    <div class="tabular-row">
       <div class="cell"><h5>Suggested class: </h5></div>
       <div class="cell"><p>{{vm.getSuggestedClassification()}}</p></div>
-  </div>
+    </div>
 
-  <!-- Included codes -->
-  <!-- Don't use 'track by $index' -->
-  <acmg code="code" class="wide" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.included" on-toggle="vm.excludeACMG(code)" toggle-text="✓" comment-model="code.comment"></acmg>
+    <!-- Included codes -->
+    <!-- Don't use 'track by $index' -->
+    <acmg code="code" class="wide" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.included" on-toggle="vm.excludeACMG(code)" toggle-text="✓" comment-model="code.comment"></acmg>
 
-  <!-- Suggested codes (sans REQ) -->
-  <!-- Don't use 'track by $index' -->
-  <acmg class="suggested wide" code="code" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.suggested" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)"></acmg>
+    <!-- Suggested codes (sans REQ) -->
+    <!-- Don't use 'track by $index' -->
+    <acmg class="suggested wide" code="code" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.suggested" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)"></acmg>
 
-  <!-- REQ codes -->
-  <!-- Don't use 'track by $index' -->
-  <acmg class="suggested wide" code="code" ng-repeat="code in vm.getREQCodes()" ng-if="vm.show_req"></acmg>
+    <!-- REQ codes -->
+    <!-- Don't use 'track by $index' -->
+    <acmg class="suggested wide" code="group" ng-repeat="group in vm.req_groups" ng-if="vm.show_req" add-required-for-code="vm.addACMGCode(code)"></acmg>
 
-  <div>
-    <button class="acmg-add" uib-popover-template="vm.popover.templateUrl"
-            popover-append-to-body="true"
-            popover-title="Add ACMG code"
-            popover-trigger="outsideClick"
-            popover-placement="auto right">Add code</button>
+    <div>
+      <button class="acmg-add" uib-popover-template="vm.popover.templateUrl"
+        popover-append-to-body="true"
+        popover-title="Add ACMG code"
+        popover-trigger="outsideClick"
+        popover-placement="auto right">Add code</button>
 
-    <checkable-button class="acmg-add" check-model="vm.show_req">
+      <checkable-button class="acmg-add" check-model="vm.show_req">
         <checked>Hide REQ</checked>
         Show REQ ({{vm.getREQCodeCount()}})
-    </checkable-button>
-  </div>
-</div>
+      </checkable-button>
+    </div>
+  </cbbody>
+</contentbox>

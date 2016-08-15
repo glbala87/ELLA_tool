@@ -63,7 +63,7 @@ class InterpretationResource {
             let data = {
                 id: interpretation.id,
                 state: interpretation.state,
-                userState: interpretation.userState,
+                user_state: interpretation.user_state,
                 status: interpretation.status,
                 user_id: interpretation.user_id
             };

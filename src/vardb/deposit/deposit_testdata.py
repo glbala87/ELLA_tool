@@ -25,24 +25,24 @@ log = logging.getLogger(__name__)
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
-# Paths are relative to script dir
-# see vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
+# Paths are relative to script dir.
+# See vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 
-config_hboc = {"meta": {"source": "deposit_testdata.py", "version": "1.0", "updatedBy": "Erik", "updatedAt": "some date"},
-               "data": {"BRCA2": {
-                                  "lo_freq_cutoff": 0.0005,
-                                  "hi_freq_cutoff": 0.008,
-                                  "last_exon": False,
-                                  "comment": "a comment from the genepanel config"}}}
 GENEPANELS = [
-    {   'config': config_hboc,
+    {
         'transcripts': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv',
         'name': 'HBOCUTV',
         'version': 'v01'
     },
+    {'config': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.config.json',
+     'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
+     'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
+     'name': 'HBOC',
+     'version': 'v01'
+     },
     {
         'path': '../testdata/clinicalGenePanels/Bindevev_v02.transcripts.csv',
         'name': 'Bindevev',
@@ -103,13 +103,6 @@ class DepositTestdata(object):
         vi = vcfiterator.VcfIterator(vcf_path)
         return vi.getSamples()
 
-    def remake_db(self):
-        # We must import all models before recreating database
-        from vardb.datamodel import allele, genotype, assessment, sample, gene, annotation  # needed
-
-        vardb.datamodel.Base.metadata.drop_all(self.engine)
-        vardb.datamodel.Base.metadata.create_all(self.engine)
-
     def deposit_users(self):
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
             import_users(self.session, json.load(f))
@@ -168,8 +161,8 @@ class DepositTestdata(object):
                 os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
-                config=gpdata['config'] if 'config' in gpdata else None,
-                force_yes=True
+                configPath=os.path.join(SCRIPT_DIR,  gpdata['config']) if 'config' in gpdata else None,
+                replace=True
             )
 
     def deposit_references(self):
@@ -180,7 +173,6 @@ class DepositTestdata(object):
         log.info("Starting a DB reset")
         log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
         log.info("--------------------")
-        self.remake_db()
         self.deposit_users()
         self.deposit_genepanels()
         self.deposit_references()

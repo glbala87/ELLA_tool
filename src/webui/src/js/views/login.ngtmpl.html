@@ -1,9 +1,9 @@
-<aside class="sidebar login">
-  <div class="hero">
-    <p>welcome to</p>
-    <h1>e<span class="l">||</span>a</h1>
-  </div>
-</aside>
+<!-- <aside class="sidebar login"> -->
+<!--   <div class="hero"> -->
+<!--     <p>welcome to</p> -->
+<!--     <h1>e<span class="l">||</span>a</h1> -->
+<!--   </div> -->
+<!-- </aside> -->
 <nav class="skinny">
   <div class="breadcrumbs">
     <div class="crumb active">
@@ -13,7 +13,7 @@
     </div>
   </div>
 </nav>
-<article class="container">
+<article class="lolfix container">
   <card color="blue" options="{ collapsed: false }">
     <primary>
       <h3 class="header">AVAILABLE USERS</h3>
@@ -24,7 +24,7 @@
     <bottom>
       <section class="content-list">
         <div class="analysis-row" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
-          <h3>{{user.firstName}} {{user.lastName}}</h3>
+          <h3>{{user.first_name}} {{user.last_name}}</h3>
         </div>
       </section>
     </bottom>

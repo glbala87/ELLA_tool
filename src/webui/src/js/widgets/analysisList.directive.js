@@ -25,21 +25,21 @@ class AnalysisListWidget {
                 InterpretationOverrideModal,
                 toastr) {
         this.location = location;
-        this.sidebar = Sidebar;
+        // this.sidebar = Sidebar;
         this.user = User;
         this.analysisService = Analysis;
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
         this.toastr = toastr;
 
-        this.setupSidebar();
+        // this.setupSidebar();
     }
 
-    setupSidebar() {
-        this.sidebar.setBackLink(null, null);
-        this.sidebar.setTitle('Analyses List', false);
-        this.sidebar.clearItems();
-    }
+    // setupSidebar() {
+    //     this.sidebar.setBackLink(null, null);
+    //     this.sidebar.setTitle('Analyses List', false);
+    //     this.sidebar.clearItems();
+    // }
 
     /**
      * Checks whether current user is working on an analysis.

@@ -37,8 +37,8 @@ class ReferenceAssessmentListResource(Resource):
             'allele_id',
             'reference_id',
             'evaluation',
-            'genepanelName',
-            'genepanelVersion',
+            'genepanel_name',
+            'genepanel_version',
             'analysis_id',
             'user_id'
         ],
@@ -58,14 +58,14 @@ class ReferenceAssessmentListResource(Resource):
         raise RuntimeError("FIXME! REMOVE RESOURCE?")
 
         obj = schemas.ReferenceAssessmentSchema(strict=True).load(data).data
-        obj.dateLastUpdate = datetime.datetime.now()
+        obj.date_last_update = datetime.datetime.now()
 
         # If there exists an assessment already for this allele_id which is not yet curated,
         # we update that one instead.
         existing_ass = session.query(assessment.ReferenceAssessment).filter(
             assessment.ReferenceAssessment.allele_id == obj.allele_id,
             assessment.ReferenceAssessment.reference_id == obj.reference_id,
-            assessment.ReferenceAssessment.dateSuperceeded == None,
+            assessment.ReferenceAssessment.date_superceeded == None,
             assessment.ReferenceAssessment.status == 0
         ).one_or_none()
 

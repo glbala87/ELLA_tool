@@ -38,11 +38,11 @@ export class CardController {
     }
 
     isCollapsible() {
-        return this.collapsible === undefined || this.collapsible;
+      return this.collapsible === undefined || this.collapsible;
     }
 
     isModal() {
-        return this.modal != undefined || this.modal;
+      return (this.modal != undefined || this.modal === true);
     }
 
     close() {
