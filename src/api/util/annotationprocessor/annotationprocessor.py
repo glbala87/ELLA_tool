@@ -36,7 +36,7 @@ class References(object):
         int_pmids = list()
         for pmid in pmids:
             try:
-                int_pmids.append(str(pmid))
+                int_pmids.append(int(pmid))
             except ValueError:
                 pass
         return int_pmids
