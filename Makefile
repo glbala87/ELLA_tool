@@ -210,7 +210,7 @@ add-production-elements:
 	git checkout ops/builder/Dockerfile.runnable
 
 release: setup-release build-image squash stop-provision add-production-elements
-build-image: start-provision create-release copy run-ansible
+build-image: start-provision copy run-ansible
 core: build-image commit-provision stop-provision
 
 push:
