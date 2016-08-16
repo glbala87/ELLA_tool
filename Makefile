@@ -45,7 +45,7 @@ help :
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev url kill shell logs restart
+.PHONY: any build dev url kill shell logs restart db
 
 any:
 	$(eval CONTAINER_NAME = $(ANY))
