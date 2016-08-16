@@ -3,30 +3,32 @@
     <h3 class="title">Reference</h3>
   </cbheader>
   <cbbody>
-    <article class="reference-layout" ng-repeat="ref in vm.allele_references">
-      <div>
-        <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
-        <p>{{ref.getShortDesc()}}</p>
-      </div>
-      <div>
-        <h3 class="title" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">Evaluation</h3>
+    <article ng-repeat="ref in vm.allele_references">
+      <section class="reference-layout">
+        <div>
+          <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
+          <p>{{ref.getShortDesc()}}</p>
+        </div>
+        <div>
+          <button ng-click="vm.showReferenceEval(ref)">Evaluate</button>
+        </div>
+      </section>
+      <div class="cb-table topfix">
+        <h4 ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">Evaluation</h4>
         <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">
           <div class="cell"><h5>Relevant:</h5></div>
-          <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.relevance}}</p></div>
+          <div class="cell max-width"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.relevance}}</p></div>
         </div>
         <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.hq">
           <div class="cell"><h5>HQ:</h5></div>
-          <div class="cell"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.hq}}</p></div>
+          <div class="cell max-width"><p>{{vm.getCurrentReferenceAssessment(ref).evaluation.hq}}</p></div>
         </div>
         <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.comment">
           <div class="cell top-align"><h5>Comment:</h5></div>
-          <div class="cell">
+          <div class="cell max-width">
             <autosize-textarea class="card-comment" ng-disabled="true" placeholder="" ng-model="vm.getCurrentReferenceAssessment(ref).evaluation.comment"></autosize-textarea>
           </div>
         </div>
-      </div>
-      <div>
-        <button ng-click="vm.showReferenceEval(ref)">Evaluate</button>
       </div>
     </article>
   </cbbody>

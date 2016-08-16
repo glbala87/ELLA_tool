@@ -106,10 +106,6 @@ class AnalysisListWidget {
             this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
             return;
         }
-        else if (this.userAlreadyAnalyzed(analysis)) {
-            this.toastr.info("You have already done this analysis.", null, 5000);
-            return;
-        }
 
         let iuser = analysis.getInterpretationUser();
         if (iuser &&
