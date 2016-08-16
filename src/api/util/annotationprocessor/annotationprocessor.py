@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 import re
+import itertools
 
 from api import config
 from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
@@ -29,10 +30,21 @@ class References(object):
             total.extend([e['pmid'] for e in annotation['HGMD']['extrarefs'] if 'pmid' in e])
         return total
 
+    def _ensure_int_pmids(self, pmids):
+        # HACK: Convert all ids to int, the annotation is sometimes messed up
+        # If it cannot be converted, ignore it...
+        int_pmids = list()
+        for pmid in pmids:
+            try:
+                int_pmids.append(str(pmid))
+            except ValueError:
+                pass
+        return int_pmids
+
     def process(self, annotation):
 
-        csq_pubmeds = self._csq_pubmeds(annotation)
-        hgmd_pubmeds = self._hgmd_pubmeds(annotation)
+        csq_pubmeds = self._ensure_int_pmids(self._csq_pubmeds(annotation))
+        hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
 
         # Merge references and restructure to list
         references = list()
