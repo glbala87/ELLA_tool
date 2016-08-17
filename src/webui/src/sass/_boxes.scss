@@ -5,28 +5,19 @@ $bar-colors: (
   pink: $pink,
   black: $black,
 );
-
-// Default contentbox color
-.contentbox { background-color: $blue-05; }
-.contentbox .cb.titlebar { background-color: $blue-50; }
-
-// no-content styling
-.no-content .contentbox { background-color: $black-25;
-  .cb.titlebar { background-color: Transparent; }
-}
-
-
 @each $name, $color in $bar-colors {
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
    .sectionbox.#{$name} .sb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.25); }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
 }
+
 .sectionbox, .contentbox { display: flex; height: calc(100% - 0.7rem);
   .titlebar { display: flex; align-items: center; justify-content: center; width: 2.8rem; }
   .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; padding: 1rem; color: hsla(0,0,0,0.5); font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; line-height: 1.3rem; margin-right: 0.15rem; text-transform: uppercase; white-space: nowrap;
     a { color: inherit; font-weight: 700; }
   }
 }
+
 contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
 .sectionbox { margin-top: 1.3rem;
   .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex: 1; }
@@ -41,7 +32,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 contentbox { display: block; margin: 0.35rem; height: 100%; }
 .contentbox {
   .title { margin-right: 0.05rem; }
-  .cb-body { padding: 1.3rem; }
+  .cb-body { padding: 1.3rem; width: 100%; }
   .cb-body .hoverable p { color: hsla(190,35,45,1); font-weight: 500; &:hover { text-decoration: underline; } }
   .title { color: white; }
   h5, p { font-size: 1.4rem; color: black; }
@@ -60,6 +51,17 @@ contentbox { display: block; margin: 0.35rem; height: 100%; }
   .cell + .cell button { margin-left: 6.5rem; }
   .top { vertical-align: top; }
 }
+// collapsed styling
+.contentbox.collapsed { display: inline-flex;
+  .cb-body { display: none; }
+}
+// no-content styling
+.no-content .contentbox { background-color: $black-25;
+  .cb.titlebar { background-color: Transparent; }
+}
+
+
+// Edge cases
 .commentcb .cb-table .tabular-row:nth-child(even) .cell { border-top: 0.35rem solid Transparent; border-bottom: 0.35rem solid Transparent; }
 .refcb { height: inherit;
   cbbody { display: flex; flex-direction: column; justify-content: center; height: 100%; }
