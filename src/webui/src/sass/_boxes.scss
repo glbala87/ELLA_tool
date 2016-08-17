@@ -1,0 +1,73 @@
+$bar-colors: (
+  blue: $blue,
+  green: $green,
+  purple: $purple,
+  pink: $pink,
+  black: $black,
+);
+
+// Default contentbox color
+.contentbox { background-color: $blue-05; }
+.contentbox .cb.titlebar { background-color: $blue-50; }
+
+// no-content styling
+.no-content .contentbox { background-color: $black-25;
+  .cb.titlebar { background-color: Transparent; }
+}
+
+
+@each $name, $color in $bar-colors {
+   .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
+   .sectionbox.#{$name} .sb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.25); }
+   .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
+}
+.sectionbox, .contentbox { display: flex; height: calc(100% - 0.7rem);
+  .titlebar { display: flex; align-items: center; justify-content: center; width: 2.8rem; }
+  .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; padding: 1rem; color: hsla(0,0,0,0.5); font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; line-height: 1.3rem; margin-right: 0.15rem; text-transform: uppercase; white-space: nowrap;
+    a { color: inherit; font-weight: 700; }
+  }
+}
+contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+.sectionbox { margin-top: 1.3rem;
+  .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex: 1; }
+  h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
+}
+// .sectionbox:hover {
+//   .sb-titlebar { width: 5.6rem; margin-left: -2.8rem; transition: all 0.3s ease-in-out; }
+// }
+
+// FIXME - need a much better way of setting margins on contentbox
+// .cb-wrapper { display: block; margin: 0.35rem; }
+contentbox { display: block; margin: 0.35rem; height: 100%; }
+.contentbox {
+  .title { margin-right: 0.05rem; }
+  .cb-body { padding: 1.3rem; }
+  .cb-body .hoverable p { color: hsla(190,35,45,1); font-weight: 500; &:hover { text-decoration: underline; } }
+  .title { color: white; }
+  h5, p { font-size: 1.4rem; color: black; }
+  .exac p { padding-right: 2.6rem; }
+  h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; }
+  h4 { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; }
+  h4.faded-title { opacity: 0.5; }
+  h5.wrap { white-space: normal; }
+  h5.normaltext { padding-right: 0; }
+  p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
+  ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
+  .cb-table { display: table; }
+  .tabular-row { display: table-row; }
+  .top-align { vertical-align: top; }
+  .comment-title { width: 15rem; }
+  .cell + .cell button { margin-left: 6.5rem; }
+  .top { vertical-align: top; }
+}
+.commentcb .cb-table .tabular-row:nth-child(even) .cell { border-top: 0.35rem solid Transparent; border-bottom: 0.35rem solid Transparent; }
+.refcb { height: inherit;
+  cbbody { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+  .cb-body { flex: 1; }
+  .reference-layout { display: flex; align-items: center; justify-content: space-between; }
+  .reference-layout ~ .reference-layout { margin-top: 0.7rem; }
+  .max-width { width: 100%; }
+  .topfix { margin-top: 2rem; }
+}
+.no-content .cb-titlebar { background-color: hsla(0,0,0,0.1); }
+.no-content .cb-body { padding: 0; }

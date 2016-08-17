@@ -1,0 +1,51 @@
+// - Primarily used in modals for user prompts and information
+// - 'middle' is optional
+.line-wrapper { display: flex; align-items: center;
+  .left { flex: 4; text-align: right; }
+  .middle { flex: 0.5; text-align: center; }
+  .right { flex: 4; }
+  .left ~ .right { margin-left: 1.3rem; }
+}
+.question { min-height: 8rem;
+  .multiple-question-element ~ .multiple-question-element { margin-left: 1.3rem; }
+  .bttn-set { display: flex; flex-wrap: wrap; }
+  .bttn-set .bttn[disabled] { opacity: 0.25; }
+  .bttn-set .bttn:hover:not([disabled]) { background-color: $blue-radio-hover; cursor: pointer; }
+  .bttn-set .bttn.active:hover { background-color: $blue-radio; cursor: default; }
+  .bttn.active { box-shadow: none; background-color: $blue-radio; }
+  .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; border-radius: 0; white-space: pre; }
+  h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
+  h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
+  p { font-size: 1.4rem; font-weight: 400; margin: 0; }
+  textarea { width: 100%; font-size: 1.2rem; font-family: $slim; }
+  .form-control { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; background-color: hsla(0,0,0,0.05); color: $button-black; border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 50%; background-repeat: no-repeat; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDZFNDEwNjlGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDZFNDEwNkFGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NkU0MTA2N0Y3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NkU0MTA2OEY3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuGsgwQAAAA5SURBVHjaYvz//z8DOYCJgUxAf42MQIzTk0D/M+KzkRGPoQSdykiKJrBGpOhgJFYTWNEIiEeAAAMAzNENEOH+do8AAAAASUVORK5CYII=); }
+  .form-control[disabled] { opacity: 0.25; }
+}
+.question.small { min-height: 4rem; }
+.question.centered { text-align: center; }
+
+// Used only in Add references (customAnnotationModal)
+.big textarea { max-height: 25vh; margin: 1.3rem 0 2.6rem; } // FIXME - find an alternate way of constraining textarea in this single case
+
+.popover { font-family: "Source Sans Pro", sans-serif; max-width: 50vw; }
+.popover, .popover * { border-radius: 0; }
+.popover-title { background-color: $blue-tint; font-weight: 600; text-transform: uppercase; font-size: 1.4rem; }
+.allele_popup .popover-title { color: black; }
+.allele_popup .popover-content { color: black; }
+.popover-content .gpv_override { color: $red; }
+// FIXME: styling of the gene information (comment) in popup
+.popover-content pre {
+  color: black;
+  word-break: normal;
+  word-wrap: normal;
+  white-space: pre-wrap;
+  background-color: white;
+  border: 0;
+  padding-left: 0;
+  font-family: "Source Sans Pro", sans-serif; max-width: 50vw;
+}
+
+.acmg-popover {
+  h3 { font-weight: 700; font-size: 1.4rem; color: $header-black; margin: 0; margin-bottom: 0.7rem; margin-top: 1.3rem; }
+  p { font-weight: 300; margin: 0; word-wrap: break-word; word-break: break-word; font-size: 1.4rem; }
+}
