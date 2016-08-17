@@ -10,11 +10,33 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'contentbox',
     scope: {
         ngDisabled: '=?',
-        color: '@'
+        color: '@',
+        collapsed: '=?',     // {collapsed: bool}
+        collapsible: '=?' // bool: whether card can collapse
     },
     transclude: { cbheader: 'cbheader', cbbody: 'cbbody' },
-    template: '<div class="contentbox fixed-width-numbers" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="cb titlebar" ng-transclude="cbheader"></div> <div class="cb-body" ng-transclude="cbbody"></div> </div>',
-    link: (scope, elem, attrs) => {
+    template: '<div class="contentbox fixed-width-numbers" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled"><div class="cb titlebar" ng-click="vm.collapse()" ng-transclude="cbheader"></div> <div class="cb-body" ng-transclude="cbbody"></div> </div>',
+})
+export class ContentboxController {
+    getClasses() {
+      let color = this.color ? this.color : "blue";
+      let collapsed = this.collapsed ? "collapsed" : "";
+      return `${color} ${collapsed}`
+    }
+    isCollapsible() {
+      return this.collapsible === undefined || this.collapsible;
+    }
+    collapse() {
+        if (this.isCollapsible()) {
+            this.collapsed === undefined ? true : this.collapsed;
+            this.collapsed = !this.collapsed;
+            console.log(this.collapsed);
+        }
+    }
+}
+
+
+    // link: (scope, elem, attrs) => {
       // LEAVE FOR NOW!
       //   - fixed padding with alternate CSS rules, but might still need to alter styles here based on children
       //
@@ -27,6 +49,4 @@ import {Directive, Inject} from '../ng-decorators';
       //     elem[0].querySelector(".cb-header").style.backgroundColor = "#4B879B";
       //   }
       // }, 0);
-    }
-})
-export class ContentboxController { }
+    // }
