@@ -12,7 +12,7 @@
   </div>
   <div class="half wide" ng-if="vm.hasAllele()">
     <h3 class="full-title" ng-click="1" ng-repeat="t in vm.getAllele().annotation.filtered track by t.Transcript">
-      <div class="allele_popup hoverable" isolate-click>
+      <div class="allele_popup clickable white" isolate-click>
         <transcript-wrapper  transcript="t"
                              popover-trigger="outsideClick"
                              uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"

@@ -7,7 +7,7 @@
   <primary>
     <h3 class="header">REFERENCE EVALUATION</h3>
     <h3 ng-click="1" ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript">
-      <div class="allele_popup hoverable" isolate-click>
+      <div class="allele_popup clickable" isolate-click>
         <transcript-wrapper  transcript="t"
                              popover-trigger="outsideClick"
                              uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"

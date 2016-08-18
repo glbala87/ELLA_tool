@@ -20,7 +20,7 @@ button, select { font-family: $full; font-size: 1.2rem; font-weight: 500; letter
 .dropdown.white { background-color: $white-50; }
 .dropdown[disabled] { opacity: 0.25; }
 
-p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.035rem; color: $black; }
+p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
 
 button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button { margin-left: 1.3rem; }
 button { border: 1px solid $black-50; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;

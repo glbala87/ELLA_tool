@@ -5,7 +5,7 @@
   <cbbody>
     <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript">
         <transcript-wrapper transcript="t">
-            <div ng-repeat="dbsnp in ::t.Existing_variation track by $index"> <h5 class="normaltext"><a-clip href="{{::vm.getUrl(dbsnp)}}" target="{{::dbsnp}}">{{::dbsnp}}</a-clip></h5> </div>
+            <div ng-repeat="dbsnp in ::t.Existing_variation track by $index"> <p><a-clip href="{{::vm.getUrl(dbsnp)}}" target="{{::dbsnp}}">{{::dbsnp}}</a-clip></p> </div>
         </transcript-wrapper>
     </div>
   </cbbody>
