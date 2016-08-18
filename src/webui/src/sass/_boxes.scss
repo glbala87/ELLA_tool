@@ -24,7 +24,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
 }
 .contentbox { margin: 0.35rem;
-  .title { margin-right: 0.05rem; }
+  .title { margin-right: 0.025rem; }
   .cb-body { padding: 1.3rem; width: 100%; }
   .cb-body .hoverable p { color: hsla(190,35,45,1); font-weight: 500; &:hover { text-decoration: underline; } }
   .title { color: white; }
@@ -37,12 +37,8 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   h5.normaltext { padding-right: 0; }
   p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
   ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
-  .cb-table { display: table; }
-  .tabular-row { display: table-row; }
-  .top-align { vertical-align: top; }
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
-  .top { vertical-align: top; }
 }
 // collapsed styling
 .contentbox.collapsed { display: inline-flex;

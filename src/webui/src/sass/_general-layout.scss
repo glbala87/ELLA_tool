@@ -29,10 +29,10 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
     &:hover { background-color: $white-05; }
   }
   &.full-color { color: $white-75; border: 1px solid Transparent; }
-  &.blue { background-color: $blue-button !important; &:hover { background-color: lighten($blue-button,10) !important; } }
-  &.green { background-color: $green-button !important; &:hover { background-color: lighten($green-button,10) !important; } }
-  &.yellow { background-color: $yellow-button !important; &:hover { background-color: lighten($yellow-button,10) !important; } }
-  &.red { background-color: $red-button !important; &:hover { background-color: lighten($red-button,10) !important; } }
+  &.blue { background-color: $blue !important; &:hover { background-color: lighten($blue,10) !important; } }
+  &.green { background-color: $green !important; &:hover { background-color: lighten($green,10) !important; } }
+  &.yellow { background-color: $yellow !important; &:hover { background-color: lighten($yellow,10) !important; } }
+  &.red { background-color: $red !important; &:hover { background-color: lighten($red,10) !important; } }
 }
 // FIXME - above shouldn't have important flags
 
@@ -76,41 +76,6 @@ nav.top { display: flex; justify-content: space-between; align-items: center; ba
   .close-results .fa { margin-right: 0.5rem; }
 }
 
-
-.sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
-.sidebar .ng-enter-active { opacity: 1; }
-.sidebar .nav-row.ng-leave, .sidebar .nav-row .ng-leave { transition: none; }
-.sidebar { z-index: 2; display: flex; flex-direction: column; justify-content: center; width: 24rem; position: fixed; bottom: 0; min-height: 540px;
-  a { color: inherit;  &:hover { text-decoration: none; } }
-  p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
-  h1 { font-size: 2.6rem; line-height: 2.6rem; font-weight: 600; width: auto; }
-  h2 ,h4 { font-family: $slim; font-weight: 600; margin: 0; text-transform: uppercase; }
-  h2 { font-size: 1.5rem; }
-  h4 { font-size: 1.4rem; }
-  .nav-row { display: flex; align-items: center; color: $black-50; background-color: inherit;
-    &.disabled { color: $black-25; }
-    & .tab, & .title { transition: all 0.3s ease-in-out; }
-    &:not(.disabled):hover { cursor: pointer; }
-    &:not(.disabled):hover .tab { background-color: $blue-sidebar; }
-    &:not(.disabled):hover .title { background-color: $black-05; }
-    &.active:hover { cursor: default; }
-    &.active:hover .tab { background-color: $blue; }
-    &.active:hover .title { background-color: inherit; color: $blue; }
-  }
-  .tab { width: 0.7rem; min-width: 0.7rem; height: 2.6rem; background-color: inherit; }
-  .title { width: 100%; padding-left: 1.9rem; height: 2.6rem; line-height: 2.6rem; }
-  .tab.active { background-color: $blue; }
-  .title.active { color: $blue; }
-  nav, .hero { margin-top: auto; }
-  .hero { color: hsla(0,0,92,1); padding-left: 2.6rem; cursor: default; text-transform: uppercase; }
-  .hero h1 { transition: all 0.6s ease-in-out; margin: 0; margin-bottom: 1.3rem; letter-spacing: 0.08rem; text-indent: -0.01rem; }
-  .hero p { margin-bottom: 0.3rem; }
-  .hero:hover h1 { color: $blue; }
-  .hero .l { font-size: 3.1rem; letter-spacing: 0; }
-}
-.sidebar.login .hero { color: $blue; }
-
-
 /* TODO: Just for debugging, should be remade! */
 .allele-sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
 .allele-sidebar .ng-enter-active { opacity: 1; }
@@ -130,7 +95,7 @@ nav.top { display: flex; justify-content: space-between; align-items: center; ba
     &.disabled { color: $black-25; }
     & .tab, & .title { transition: all 0.3s ease-in-out; }
     &:not(.disabled):hover { cursor: pointer; }
-    &:not(.disabled):hover .tab { background-color: $blue-sidebar; }
+    &:not(.disabled):hover .tab { background-color: $blue-50; }
     &:not(.disabled):hover .title { background-color: $black-05; }
     &.active:hover { cursor: default; }
     &.active:hover .tab { background-color: $blue; }
