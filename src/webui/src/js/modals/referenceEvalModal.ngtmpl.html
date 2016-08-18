@@ -7,7 +7,7 @@
   <primary>
     <h3 class="header">REFERENCE EVALUATION</h3>
     <h3 ng-click="1" ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript">
-      <div class="allele_popup hoverable" isolate-click>
+      <div class="allele_popup clickable" isolate-click>
         <transcript-wrapper  transcript="t"
                              popover-trigger="outsideClick"
                              uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
@@ -49,7 +49,7 @@
             <label class="bttn" ng-model="vm.referenceAssessment.evaluation[elem.store]" uib-btn-radio="item[1]" ng-repeat="item in elem.options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
           </div>
           <div ng-if="::elem.type == 'dropdown'">
-            <select class="form-control" ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]" ng-disabled="vm.isDisabled(source)"></select>
+            <select class="dropdown" ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]" ng-disabled="vm.isDisabled(source)"></select>
           </div>
           <div ng-if="::elem.type == 'text'">
             <input type="text" placeholder="{{elem.placeholder || ''}}" ng-disabled="vm.isDisabled(source)" ng-model="vm.referenceAssessment.evaluation[elem.store]">

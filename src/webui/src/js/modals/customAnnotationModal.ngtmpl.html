@@ -22,7 +22,7 @@
       <div class="question line-wrapper" ng-if="vm.alleles.length > 1">
           <div class="left"> <h5>VARIANT:</h5> </div>
           <div class="right">
-            <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
+            <select class='dropdown' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
           </div>
       </div>
       <div class="question small">
@@ -49,19 +49,19 @@
       <article class="question small line-wrapper" ng-if="vm.alleles.length > 1">
         <div class="left"> <h5>Variant:</h5> </div>
         <div class="right">
-          <select class='form-control' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
+          <select class='dropdown' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
         </div>
       </article>
       <article class="question small line-wrapper">
         <div class="left"> <h5>Annotation:</h5> </div>
         <div class="right">
-          <select class='form-control' ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"></select>
+          <select class='dropdown' ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"></select>
         </div>
       </article>
       <article class="question small line-wrapper">
         <div class="left"> <h5>Value:</h5> </div>
         <div class="right">
-          <select ng-if="vm.selected_annotation_group.options" class='form-control' ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"></select>
+          <select ng-if="vm.selected_annotation_group.options" class='dropdown' ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"></select>
           <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.selected_annotation_value" ng-if="vm.selected_annotation_group.text"> </autosize-textarea>
         </div>
       </article>

@@ -23,25 +23,24 @@ $pink-25: hsla(hue($pink),saturation($pink),lightness($pink),0.25);
 $pink-05: hsla(hue($pink),saturation($pink),lightness($pink),0.05);
 
 $black: hsl(0,0,0);
+$black-95: hsla(hue($black),saturation($black),lightness($black),0.95);
 $black-75: hsla(hue($black),saturation($black),lightness($black),0.75);
 $black-50: hsla(hue($black),saturation($black),lightness($black),0.50);
 $black-25: hsla(hue($black),saturation($black),lightness($black),0.25);
 $black-05: hsla(hue($black),saturation($black),lightness($black),0.05);
 
-
-$content-black: hsla(0,0,0,1);
-$header-black: hsla(0,0,0,0.8);
-$button-black: hsla(0,0,0,0.75);
-$half-black: hsla(0,0,0,0.5);
-$icon-half-black: hsla(0,0,0,0.25);
-$hover-black: hsla(0,0,0,0.1);
-$tint-black: hsla(0,0,0,0.05);
+$white: hsl(0,0,100);
+$white-95: hsla(hue($white),saturation($white),lightness($white),0.95);
+$white-75: hsla(hue($white),saturation($white),lightness($white),0.75);
+$white-50: hsla(hue($white),saturation($white),lightness($white),0.50);
+$white-25: hsla(hue($white),saturation($white),lightness($white),0.25);
+$white-05: hsla(hue($white),saturation($white),lightness($white),0.05);
 
 // $blue: hsla(205,45,35,1);
 // $blue-75: hsla(205,45,35,0.75);
 // $blue-25: hsla(205,45,35,0.25);
 // $blue-05: hsla(205,15,45,0.10);
-$blue-sidebar: hsla(205,35,45,0.5);
+// $blue-sidebar: hsla(205,35,45,0.5);
 $blue-button: hsla(205,35,45,1);
 $blue-radio: hsla(205,35,75,1);
 $blue-radio-hover: hsla(205,35,75,0.25);

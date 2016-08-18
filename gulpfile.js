@@ -90,6 +90,9 @@ gulp.task('watch-js', function() {
         }))
         .bundle()
         .on('error', function(err) { onError(err); this.emit('end'); })
+        .on('end', function() { d = new Date(); console.log(
+            '[' + d.toTimeString().split(' ')[0] + ']' + ' Finished rebuilding JS, so fast!'
+        )})
         .pipe(plumber({
             errorHandler: onError
         }))
