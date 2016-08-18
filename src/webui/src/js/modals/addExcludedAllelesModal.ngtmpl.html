@@ -31,7 +31,7 @@
           <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
           <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
         </div>
-        <select class="form-control" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
+        <select class="dropdown" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
           <option value="">All genes</option>
         </select>
       </div>
