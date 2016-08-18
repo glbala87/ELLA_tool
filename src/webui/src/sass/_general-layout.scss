@@ -1,5 +1,5 @@
-body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsla(0,0,97,1); }
-input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-black; background-color: transparent; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
+body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsl(0,0,100); }
+input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; background-color: transparent; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; }
   &.white { color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
@@ -7,27 +7,28 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $icon-half-bl
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
   }
 }
-textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0; width: 100%; min-height: 2.6rem; max-height: 20rem; border: none; background-color: transparent; border-bottom: 1px solid $icon-half-black; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
+textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0; width: 100%; min-height: 2.6rem; max-height: 20rem; border: none; background-color: transparent; border-bottom: 1px solid $black-25; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
-  &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $icon-half-black; }
+  &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
 }
-a { color: hsla(190,35,45,1); font-weight: 500; }
+a { text-decoration: none; border-bottom: 1px dotted $black-05; }
 
-.fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
-.centered { display: flex; align-items: center; justify-content: center; height: 100%; }
+button, select { font-family: $full; font-size: 1.2rem; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; padding: 0.25rem 0.75rem; color: $black-75; white-space: nowrap; }
+p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.035rem; color: $black; }
 
-button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.1rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
+button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button { margin-left: 1.3rem; }
+button { border: 1px solid $black-50; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
   b.plusmark { font-weight: 600; font-size: 1.3rem; }
   b.x-mark { font-weight: 400; font-size: 1.1rem; margin-right: 0.7rem; }
   &.ng-leave { transition: none; }
   &.ng-enter { animation: fade-in 0.6s; }
   &:disabled { opacity: 0.4; &:hover { box-shadow: none; } }
   &:focus { outline: none; }
-  &:hover { box-shadow: 0px 0px 2px $button-black; background-color: $hover-black; }
-  &.white, .checkable-white & { color: hsla(0,0,100,0.75); border-color: hsla(0,0,100,0.5);
-    &:hover { background-color: hsla(0,0,100,0.1); }
+  &:hover { box-shadow: 0px 0px 2px $black-75; background-color: $black-05; }
+  &.white, .checkable-white & { color: $white-75; border-color: $white-50;
+    &:hover { background-color: $white-05; }
   }
-  &.full-color { color: hsla(0,0,100,0.9); border: 1px solid Transparent; }
+  &.full-color { color: $white-75; border: 1px solid Transparent; }
   &.blue { background-color: $blue-button !important; &:hover { background-color: lighten($blue-button,10) !important; } }
   &.green { background-color: $green-button !important; &:hover { background-color: lighten($green-button,10) !important; } }
   &.yellow { background-color: $yellow-button !important; &:hover { background-color: lighten($yellow-button,10) !important; } }
@@ -42,13 +43,7 @@ button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; lin
 .modal-dialog { margin: 5vh 10vw; width: auto; }
 .modal-lg { width: inherit; }
 .modal-backdrop { bottom: 0; position: fixed; }
-.interpretation-bar { margin: 3.9vh 0; display: flex; justify-content: flex-end;
-  button { white-space: nowrap; }
-  input { width: 20rem; }
-  .left { margin-right: auto; }
-  interpretation-button { display: flex; }
-  button ~ button, button ~ interpretation-button  { margin-left: 1.3rem; }
-}
+
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }
@@ -59,32 +54,18 @@ button { font-family: $full !important; font-size: 1.2rem; font-weight: 500; lin
 .lolspace { width: 100%; }
 nav.lolhax { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; margin-left: -2rem; padding-left: 2rem; margin-right: -3.9rem; padding-right: 3.9rem; height: 4.5rem; margin-bottom: 2.6rem; margin-top: -2rem;
   button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
-  .form-control { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; background-color: hsla(0,0,100,0.50); color: $button-black; border: none; height: 2.1rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 50%; background-repeat: no-repeat; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDZFNDEwNjlGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDZFNDEwNkFGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NkU0MTA2N0Y3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NkU0MTA2OEY3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuGsgwQAAAA5SURBVHjaYvz//z8DOYCJgUxAf42MQIzTk0D/M+KzkRGPoQSdykiKJrBGpOhgJFYTWNEIiEeAAAMAzNENEOH+do8AAAAASUVORK5CYII=); }
+  .form-control { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; background-color: hsla(0,0,100,0.50); color: $black-75; border: none; height: 2.1rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 50%; background-repeat: no-repeat; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDZFNDEwNjlGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDZFNDEwNkFGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NkU0MTA2N0Y3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NkU0MTA2OEY3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuGsgwQAAAA5SURBVHjaYvz//z8DOYCJgUxAf42MQIzTk0D/M+KzkRGPoQSdykiKJrBGpOhgJFYTWNEIiEeAAAMAzNENEOH+do8AAAAASUVORK5CYII=); }
 }
-nav.skinny .crumb.ng-enter, nav.skinny .crumb.ng-leave { transition: none; }
-nav.skinny { z-index: 99; display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white; height: 4rem; padding: 0 1.3rem;
-  h3 { text-transform: uppercase; }
-  h3 { font-family: $full; font-size: 1.4rem; font-weight: 400; margin: 0; }
-  h3.header { font-weight: 600; }
-  b { font-weight: 500; }
-  i { opacity: 0.65; font-style: normal; }
+
+
+// nav.top .crumb.ng-enter, nav.top .crumb.ng-leave { transition: none; }
+nav.top { display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white; height: 4rem; padding: 0 1.3rem;
   .half { display: flex; align-items: center; width: 50vw; }
   .wide { justify-content: space-between; }
-  .breadcrumbs { display: flex; align-items: center; }
-  .crumb { margin-right: 2vw; color: hsla(0,0,100,0.5); cursor: pointer; display: flex; align-items: center; transition: color 0.3s ease-in-out;  }
-  .crumb ~ .crumb:before { content: '▶'; font-size: 1.3rem; color: $icon-half-black !important; margin-right: 2vw; }
-  .crumb.active, .crumb:hover { color: hsla(0,0,100,1); }
-  .crumb.active { cursor: default; }
-  .crumb.arrow { transform: rotate(-90deg); }
-  p { font-size: 1.0rem; margin-bottom: 0.35rem; font-weight: 500; letter-spacing: 0.2rem; text-transform: uppercase; }
-  // h2, h3 ,h4, h5 { font-family: $slim; font-size: 1.3rem; font-weight: 600; margin: 0; text-transform: uppercase; }
-  input.white { font-size: 1.2rem; width: 15vw; }
+  .left h3 { margin-right: 2vw; cursor: pointer; transition: color 0.3s ease-in-out;  }
 }
-nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; top: 0; right: 0; left: 0;
-  p { opacity: 0; position: absolute; }
-  input { padding: 0.1rem 0; margin-bottom: 1px; font-size: 1rem; }
-}
-.search-results:before { content: "Search Results"; color: $half-black; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: absolute; left: -15rem; top: 3.5rem; }
+
+.search-results:before { content: "Search Results"; color: $black-50; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: absolute; left: -15rem; top: 3.5rem; }
 .search-results:before.ng-enter {  animation: 1s fade-in; }
 .search-results .ng-enter { animation: 1s fade-in; }
 .search-results { padding: 2.6rem; background-color: $blue; color: white; font-size: 1.3rem; font-family: $slim; width: 50vw; margin-left: auto; position: relative;
@@ -106,12 +87,12 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   h2 ,h4 { font-family: $slim; font-weight: 600; margin: 0; text-transform: uppercase; }
   h2 { font-size: 1.5rem; }
   h4 { font-size: 1.4rem; }
-  .nav-row { display: flex; align-items: center; color: $half-black; background-color: inherit;
-    &.disabled { color: $icon-half-black; }
+  .nav-row { display: flex; align-items: center; color: $black-50; background-color: inherit;
+    &.disabled { color: $black-25; }
     & .tab, & .title { transition: all 0.3s ease-in-out; }
     &:not(.disabled):hover { cursor: pointer; }
     &:not(.disabled):hover .tab { background-color: $blue-sidebar; }
-    &:not(.disabled):hover .title { background-color: $hover-black; }
+    &:not(.disabled):hover .title { background-color: $black-05; }
     &.active:hover { cursor: default; }
     &.active:hover .tab { background-color: $blue; }
     &.active:hover .title { background-color: inherit; color: $blue; }
@@ -144,13 +125,13 @@ nav.skinny.collapsed { overflow: hidden; max-height: 2.6rem; position: fixed; to
   h4 { font-size: 1.4rem; display: flex; justify-content: space-between; }
   .section-title { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.05rem; color: $blue-75; text-transform: uppercase; }
   i { font-weight: 400; font-style: normal; margin-right: 1.3rem; }
-  b { font-weight: 700; color: $button-black; margin-left: auto; }
-  .nav-row { display: flex; align-items: center; color: $half-black; background-color: inherit; width: 24rem; border-left: 1px solid #eee;
-    &.disabled { color: $icon-half-black; }
+  b { font-weight: 700; color: $black-75; margin-left: auto; }
+  .nav-row { display: flex; align-items: center; color: $black-50; background-color: inherit; width: 24rem; border-left: 1px solid #eee;
+    &.disabled { color: $black-25; }
     & .tab, & .title { transition: all 0.3s ease-in-out; }
     &:not(.disabled):hover { cursor: pointer; }
     &:not(.disabled):hover .tab { background-color: $blue-sidebar; }
-    &:not(.disabled):hover .title { background-color: $hover-black; }
+    &:not(.disabled):hover .title { background-color: $black-05; }
     &.active:hover { cursor: default; }
     &.active:hover .tab { background-color: $blue; }
     &.active:hover .title { background-color: inherit; color: $blue; }

@@ -12,8 +12,8 @@ $bar-colors: (
 }
 
 .sectionbox, .contentbox { display: flex; height: calc(100% - 0.7rem);
-  .titlebar { display: flex; align-items: center; justify-content: center; width: 2.8rem; }
-  .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; padding: 1rem; color: hsla(0,0,0,0.5); font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; line-height: 1.3rem; margin-right: 0.15rem; text-transform: uppercase; white-space: nowrap;
+  .titlebar { display: flex; align-items: center; justify-content: center; width: 2.8rem; min-width: 2.8rem; }
+  .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; padding: 1rem 0; width: 2.8rem; line-height: 2.8rem; color: hsla(0,0,0,0.5); font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
     a { color: inherit; font-weight: 700; }
   }
 }
@@ -23,14 +23,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex: 1; }
   h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
 }
-// .sectionbox:hover {
-//   .sb-titlebar { width: 5.6rem; margin-left: -2.8rem; transition: all 0.3s ease-in-out; }
-// }
-
-// FIXME - need a much better way of setting margins on contentbox
-// .cb-wrapper { display: block; margin: 0.35rem; }
-contentbox { display: block; margin: 0.35rem; height: 100%; }
-.contentbox {
+.contentbox { margin: 0.35rem;
   .title { margin-right: 0.05rem; }
   .cb-body { padding: 1.3rem; width: 100%; }
   .cb-body .hoverable p { color: hsla(190,35,45,1); font-weight: 500; &:hover { text-decoration: underline; } }
@@ -60,6 +53,7 @@ contentbox { display: block; margin: 0.35rem; height: 100%; }
   .cb.titlebar { background-color: Transparent; }
 }
 
+section.wrap { display: flex; flex-wrap: wrap; }
 
 // Edge cases
 .commentcb .cb-table .tabular-row:nth-child(even) .cell { border-top: 0.35rem solid Transparent; border-bottom: 0.35rem solid Transparent; }
