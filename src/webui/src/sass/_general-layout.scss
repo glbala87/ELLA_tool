@@ -1,7 +1,7 @@
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsl(0,0,100); }
 input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; background-color: transparent; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
-  &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; }
+  &::placeholder { font-family: $full; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; }
   &.white { color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
     &::placeholder { color: rgba(255,255,255,0.5); }
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
@@ -46,10 +46,12 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 .container { margin-left: 1.3rem; margin-right: 1.3rem; margin-top: 2rem; }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
-.modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
-.modal-dialog { margin: 5vh 10vw; width: auto; }
-.modal-lg { width: inherit; }
-.modal-backdrop { bottom: 0; position: fixed; }
+.modal { z-index: 98 !important;
+  &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0; }
+  &-dialog { margin-left: 22rem; margin-top: 4rem; margin-bottom: 0; }
+  &-lg { width: inherit; }
+  &-backdrop { bottom: 0; position: fixed; z-index: 97 !important; }
+}
 
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
@@ -85,7 +87,7 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
 .allele-sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
 .allele-sidebar .ng-enter-active { opacity: 1; }
 .allele-sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed;
+.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem;
   a { color: inherit;  &:hover { text-decoration: none; } }
   section { margin: 1.3rem 0; }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; }
