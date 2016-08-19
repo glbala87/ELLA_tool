@@ -13,8 +13,8 @@ import Analysis from "../../src/js/model/analysis.js"
     beforeEach(inject(function ($compile, $rootScope) {
         elm = angular.element("<analysis-list analyses='vm.pending_analyses'></analysis-list>");
         let parent = $rootScope;
-        parent.vm = {
-            pending_analyses: [undefined] // a single item to kick off ng-repeat in the template
+        parent.vm = { // a single item to kick off ng-repeat in the template
+            pending_analyses: [{'deposit_date': '2016-08-10'}, {'deposit_date': '2016-08-09'}]
         };
         $compile(elm)(parent);
         parent.$digest();
@@ -22,8 +22,8 @@ import Analysis from "../../src/js/model/analysis.js"
     }));
 
     it("list is expanded", function () {
-      expect(elm.find('contentbox')).toBeDefined();
-      expect(elm.find('contentbox').length).toBeGreaterThan(1);
+        expect(elm.find('contentbox')).toBeDefined();
+        expect(elm.find('contentbox').length).toBeGreaterThan(1);
     });
 
     describe("when user clicks an analysis", function () {
@@ -32,7 +32,7 @@ import Analysis from "../../src/js/model/analysis.js"
             // Setup mocks
             scope.vm.user = {
                 getCurrentUserId: () => 1
-            }
+            };
             let analysis = {
                 interpretations: [
                     {
@@ -57,7 +57,7 @@ import Analysis from "../../src/js/model/analysis.js"
             // Setup mocks
             scope.vm.user = {
                 getCurrentUserId: () => 1
-            }
+            };
             let analysis = new Analysis({
                 interpretations: [
                     {

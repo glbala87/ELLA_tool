@@ -42,7 +42,7 @@ test_e2e:
   stage: test
   script:
     - make e2e-test
-  allow_failure: true
+  allow_failure: false
 
 cleanup_e2e:
   stage: cleanup
