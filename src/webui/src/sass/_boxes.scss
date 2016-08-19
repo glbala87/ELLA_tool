@@ -13,10 +13,14 @@ $bar-colors: (
 
 .sectionbox, .contentbox { display: flex; height: calc(100% - 0.7rem);
   .titlebar { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
-  .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; padding: 2rem 0; width: 2.8rem; line-height: 2.8rem; color: hsla(0,0,0,0.5); font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
+  .titlebar div { margin: 1.75rem 0; }
+  .titlebar div ~ div { margin-top: 0; }
+  .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; color: $black-50; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
     a { color: inherit; border-left: 1px dashed; border-bottom: none; }
     a:hover { border-left: 1px solid; border-bottom: none; }
   }
+  .close { color: $white-75; font-weight: 700; font-size: 1.2rem; transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center; }
+  .close.collapsed { transform: rotate(180deg); }
 }
 
 contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
@@ -25,6 +29,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
 }
 .contentbox { margin: 0.35rem;
+  .titlebar { justify-content: space-between; }
   .title { margin-right: 0.025rem; }
   .cb-body { padding: 1.3rem; width: 100%; }
   .title { color: white; }
@@ -47,6 +52,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 // no-content styling
 .no-content .contentbox { background-color: $black-25;
   .cb.titlebar { background-color: Transparent; }
+  .close { display: none; }
 }
 
 section.wrap { display: flex; flex-wrap: wrap; }

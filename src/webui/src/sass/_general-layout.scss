@@ -11,7 +11,7 @@ textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
 }
-a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed $black-25; }
+a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed $black-25; cursor: pointer; }
 a:hover, .clickable:hover { color: inherit; text-decoration: none; border-bottom: 1px solid $black-25; }
 a.white, .clickable.white, a.white:hover, .clickable.white:hover { border-color: $white-25; }
 
@@ -43,8 +43,9 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 // FIXME - above shouldn't have important flags
 
 .container { width: auto; }
-.app .content, .container { margin-left: 2.0rem; margin-right: 3.9rem; margin-top: 2rem; }
+.container { margin-left: 1.3rem; margin-right: 1.3rem; margin-top: 2rem; }
 .app .search-area { margin-left: 42rem; }
+.single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
 .modal-dialog { margin: 5vh 10vw; width: auto; }
 .modal-lg { width: inherit; }
@@ -58,7 +59,7 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 .no-results h4 { font-size: 1.6rem; }
 .lolfix { margin-left: 32rem; }
 .lolspace { width: 100%; }
-nav.lolhax { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; margin-left: -2rem; padding-left: 2rem; margin-right: -3.9rem; padding-right: 3.9rem; height: 4.5rem; margin-bottom: 2.6rem; margin-top: -2rem;
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 2.6rem; padding: 0 1.3rem;
   button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
 }
 
