@@ -57,18 +57,18 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 }
 .no-results { height: auto; }
 .no-results h4 { font-size: 1.6rem; }
-.lolfix { margin-left: 32rem; }
-.lolspace { width: 100%; }
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 2.6rem; padding: 0 1.3rem;
-  button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
-}
+.lolfix { margin-left: 32rem; margin-top: 12rem; }
+.lolspace { margin-left: 21rem; }
 
 
 // nav.top .crumb.ng-enter, nav.top .crumb.ng-leave { transition: none; }
-nav.top { display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white; height: 4rem; padding: 0 1.3rem;
+nav.top { display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white; height: 4rem; padding: 0 1.3rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
   .half { display: flex; align-items: center; width: 50vw; }
   .wide { justify-content: space-between; }
   .left h3 { margin-right: 2vw; cursor: pointer; transition: color 0.3s ease-in-out;  }
+}
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4rem; margin-bottom: 4rem; margin-top: 4rem; padding: 0 1.3rem;
+  button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
 }
 
 .search-results:before { content: "Search Results"; color: $black-50; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: absolute; left: -15rem; top: 3.5rem; }
@@ -82,11 +82,10 @@ nav.top { display: flex; justify-content: space-between; align-items: center; ba
   .close-results .fa { margin-right: 0.5rem; }
 }
 
-/* TODO: Just for debugging, should be remade! */
 .allele-sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
 .allele-sidebar .ng-enter-active { opacity: 1; }
 .allele-sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; margin-right: 5rem;
+.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed;
   a { color: inherit;  &:hover { text-decoration: none; } }
   section { margin: 1.3rem 0; }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; }
@@ -118,7 +117,6 @@ nav.top { display: flex; justify-content: space-between; align-items: center; ba
   .tab.active { background-color: $blue; }
   .title.active { color: $blue; }
 }
-/* -- TODO end -- */
 
 #toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;
   & > :hover { cursor: pointer; }

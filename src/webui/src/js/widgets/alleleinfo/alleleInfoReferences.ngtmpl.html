@@ -13,7 +13,7 @@
           <button ng-click="vm.showReferenceEval(ref)">{{vm.getEvaluateBtnText(ref)}}</button>
         </div>
       </section>
-      <div class="cb-table topfix">
+      <div class="cb-table topfix" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">
         <h4 ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">Evaluation</h4>
         <div class="tabular-row" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">
           <div class="cell"><h5>Relevant:</h5></div>
