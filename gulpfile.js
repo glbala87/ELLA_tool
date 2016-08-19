@@ -78,21 +78,15 @@ var bundler = browserify('./src/webui/src/js/index.js', {
     cache: {}, packageCache: {}, fullPaths: true // for watchify
 });
 
-gulp.task('watch-js', function() {
-  var watcher  = watchify(bundler);
-  return watcher
-  .on('error', function(err) { onError(err); this.emit('end'); })
-  .on('update', function () {
-        watcher
+function doBundling(watcher) {
+    console.log('starting bundling');
+
+    watcher
         .transform(babelify.configure({
             presets: ["es2015", "stage-0"],
             plugins: ["babel-plugin-transform-decorators-legacy"]
         }))
         .bundle()
-        .on('error', function(err) { onError(err); this.emit('end'); })
-        .on('end', function() { d = new Date(); console.log(
-            '[' + d.toTimeString().split(' ')[0] + ']' + ' Finished rebuilding JS, so fast!'
-        )})
         .pipe(plumber({
             errorHandler: onError
         }))
@@ -100,20 +94,21 @@ gulp.task('watch-js', function() {
         .pipe(buffer())
         .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
-  })
-  .transform(babelify.configure({
-      presets: ["es2015", "stage-0"],
-      plugins: ["babel-plugin-transform-decorators-legacy"]
-  }))
-  .bundle()
-  .on('error', function(err) { onError(err); this.emit('end'); })
-  .pipe(plumber({
-      errorHandler: onError
-  }))
-  .pipe(source('app.js'))
-  .pipe(buffer())
-  .pipe(gulp.dest(__basedir))
-  .pipe(production ? util.noop() : livereload());
+
+}
+
+gulp.task('watch-js', function() {
+    var watcher  = watchify(bundler);
+    watcher
+        .on('update', function () { doBundling(watcher); })
+        .on('error', function(err) { onError(err); this.emit('end'); })
+        .on('end', function() { d = new Date(); console.log(
+                '[' + d.toTimeString().split(' ')[0] + ']' + ' Finished rebuilding JS, so fast!'
+        )});
+
+    doBundling(watcher); // Run the bundle the first time (required for Watchify to kick in)
+
+    return watcher;
 });
 
 /*
@@ -198,7 +193,6 @@ gulp.task('fonts', function () {
         .pipe(gulp.dest(__basedir + 'fonts/'));
 });
 
-''
 /**
  * Run end-2-end tests
  */
