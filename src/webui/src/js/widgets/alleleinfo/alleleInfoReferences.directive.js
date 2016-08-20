@@ -103,6 +103,13 @@ export class AlleleInfoReferences {
         return refassessment;
     }
 
+    getEvaluateBtnText(reference) {
+        if (this._getExistingReferenceAssessment(reference)) {
+            return 'Reevaluate';
+        }
+        return 'Evaluate';
+    }
+
     showReferenceEval(reference) {
         this.refEvalModal.show(
             this.analysis,
