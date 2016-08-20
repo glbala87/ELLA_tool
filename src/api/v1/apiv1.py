@@ -72,6 +72,9 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisListResource,
                            '/api/v1/analyses/')
 
+        self._add_resource(r.analysis.AnalysisCollisionResource,
+                           '/api/v1/analyses/<int:analysis_id>/collisions/')
+
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
 

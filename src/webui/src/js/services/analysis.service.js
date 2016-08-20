@@ -74,4 +74,8 @@ export class AnalysisService {
     openAnalysisList() {
         this.location.path('/analyses');
     }
+
+    getCollisions(id) {
+        return this.analysisResource.getCollisions(id);
+    }
 }
