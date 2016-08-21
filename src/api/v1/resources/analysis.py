@@ -5,6 +5,7 @@ from vardb.datamodel import sample, user, assessment
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json
 from api.util.assessmentcreator import AssessmentCreator
+from api.util.allelereportcreator import AlleleReportCreator
 from api.v1.resource import Resource
 
 
@@ -161,22 +162,23 @@ class AnalysisActionFinalizeResource(Resource):
     @request_json(
         [
             'alleleassessments',
-            'referenceassessments'
+            'referenceassessments',
+            'allelereports'
         ]
     )
     def post(self, session, analysis_id, data=None):
         """
         Finalizes an analysis.
 
-        The user must provide a list of alleleassessments and referenceassessments.
-        For each assessment, if an 'id' field is not part of the data, it will create
-        a new assessment in the database. It will then link the analysis to this assessment.
-        If an 'id' field does exist, it will check if the assessment with this id
-        exists in the database, then link the analysis to this assessment. If the 'id' doesn't
-        exists, and ApiError is given.
+        The user must provide a list of alleleassessments, referenceassessments and allelereports.
+        For each assessment/report, if an 'id' field is not part of the data, it will create
+        a new assessment/report in the database. It will then link the analysis to this assessment/report.
+        If an 'id' field does exist, it will check if the assessment/report with this id
+        exists in the database, then link the analysis to this assessment/report. If the 'id' doesn't
+        exists, an ApiError is given.
 
-        In other words, if reusing a preexisting assessment, you can pass in just it's 'id',
-        otherwise pass in all the data needed to create a new assessment (without an 'id' field).
+        In other words, if reusing a preexisting assessment/report, you can pass in just it's 'id',
+        otherwise pass in all the data needed to create a new assessment/report (without an 'id' field).
 
         Example data:
 
@@ -213,6 +215,20 @@ class AnalysisActionFinalizeResource(Resource):
                     "id": 9
                     "allele_id": 6
                 }
+            ],
+            "allelereports": [
+                {
+                    # New report will be created, superceding any old one
+                    "user_id": 1,
+                    "allele_id": 2,
+                    "evaluation": {...data...},
+                    "analysis_id": 3,
+                },
+                {
+                    # Reusing report
+                    "id": 9
+                    "allele_id": 6
+                }
             ]
         }
 
@@ -228,6 +244,11 @@ class AnalysisActionFinalizeResource(Resource):
         aa = result['alleleassessments']['reused'] + result['alleleassessments']['created']
         ra = result['referenceassessments']['reused'] + result['referenceassessments']['created']
 
+        arc = AlleleReportCreator(session)
+        arc_result = arc.create_from_data(data['allelereports'], aa)
+
+        arc = arc_result['reused'] + arc_result['created']
+
         # Mark all analysis' interpretations as done (we do all just in case)
         connected_interpretations = session.query(sample.Interpretation).filter(
             sample.Interpretation.analysis_id == analysis_id
@@ -238,6 +259,7 @@ class AnalysisActionFinalizeResource(Resource):
         session.commit()
 
         return {
+            'allelereports': schemas.AlleleReportSchema().dump(arc, many=True).data,
             'alleleassessments': schemas.AlleleAssessmentSchema().dump(aa, many=True).data,
             'referenceassessments': schemas.ReferenceAssessmentSchema().dump(ra, many=True).data,
         }, 200

@@ -14,12 +14,21 @@ from vardb.datamodel import gene
 from vardb.util.mutjson import MUTJSONB
 
 
-# Tracks which alleleassessments was ultimately used for an analysis
+# Tracks which alleleassessments that were ultimately used for an analysis
 # This is not to be confused with the analysis_id in AlleleAssessment table,
 # which tells which analysis the AlleleAssessment was *created* for.
 AnalysisAlleleAssessment = Table('analysisalleleassessment', Base.metadata,
     Column('analysis_id', Integer, ForeignKey('analysis.id')),
     Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id'))
+)
+
+
+# Tracks which allelereports that were ultimately used for an analysis
+# This is not to be confused with the analysis_id in AlleleAssessment table,
+# which tells which analysis the AlleleAssessment was *created* for.
+AnalysisAlleleReport = Table('analysisallelereport', Base.metadata,
+    Column('analysis_id', Integer, ForeignKey('analysis.id')),
+    Column('allelereport_id', Integer, ForeignKey('allelereport.id'))
 )
 
 
