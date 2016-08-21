@@ -1,7 +1,7 @@
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsl(0,0,100); }
 input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; background-color: transparent; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
-  &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; }
+  &::placeholder { font-family: $full; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; }
   &.white { color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
     &::placeholder { color: rgba(255,255,255,0.5); }
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
@@ -11,13 +11,64 @@ textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0;
   &:focus { border-bottom: 1px solid $blue; box-shadow: 0px 1px 0px $blue; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
 }
-a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed $black-25; }
+a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed $black-25; cursor: pointer; }
 a:hover, .clickable:hover { color: inherit; text-decoration: none; border-bottom: 1px solid $black-25; }
 a.white, .clickable.white, a.white:hover, .clickable.white:hover { border-color: $white-25; }
 
 button, select { font-family: $full; font-size: 1.2rem; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; padding: 0.25rem 0.75rem; color: $black-75; white-space: nowrap; }
-.dropdown { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 50%; background-repeat: no-repeat; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDZFNDEwNjlGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDZFNDEwNkFGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NkU0MTA2N0Y3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NkU0MTA2OEY3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuGsgwQAAAA5SURBVHjaYvz//z8DOYCJgUxAf42MQIzTk0D/M+KzkRGPoQSdykiKJrBGpOhgJFYTWNEIiEeAAAMAzNENEOH+do8AAAAASUVORK5CYII=); }
-.dropdown.white { background-color: $white-50; }
+select {
+  font-size: 1.2rem;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  padding: 0.25rem 0.75rem;
+  padding-right: 2.6rem;
+  // padding-right: 35px;
+  // padding-left: 15px;
+  // border: 1px solid #a52c2c;
+  -moz-appearance: none;
+  &:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+  }
+  -webkit-appearance: none;
+  &:focus {
+    border-color: inherit;
+  }
+}
+// .dropdown { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 50%; background-repeat: no-repeat; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDZFNDEwNjlGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDZFNDEwNkFGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NkU0MTA2N0Y3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NkU0MTA2OEY3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuGsgwQAAAA5SURBVHjaYvz//z8DOYCJgUxAf42MQIzTk0D/M+KzkRGPoQSdykiKJrBGpOhgJFYTWNEIiEeAAAMAzNENEOH+do8AAAAASUVORK5CYII=); }
+// .dropdown { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 0.3rem center; background-repeat: no-repeat;
+//   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='12' height='12' fill='currentcolor' stroke='currentcolor' stroke-linecap='round' stroke-linejoin='round' stroke-width='6.25%'><path d='M30 10 L16 26 2 10 Z' /></svg>"); }
+  // background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' /></svg>")  no-repeat;
+// .dropdown { position: relative; padding: 0.25rem 0.75rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; }
+// .dropdown { position: relative; padding: 0.25rem 0.75rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; }
+.dropdown {
+  position: relative;
+  height: 2.6rem;
+  background: white;
+  box-shadow: 0 3px 0 rgba(0,0,0,.05);
+&:after {
+  content: ' ';
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  right: 10px;
+  bottom: 0;
+  margin: auto;
+  border-style: solid;
+  border-width: 5px 5px 0 5px;
+  border-color: $black-75 transparent transparent transparent;
+  pointer-events: none;
+}
+}
+// .dropdown:before { width: 1.2rem; position: absolute; top: 1px; right: 1px; bottom: 1px; background: $black-25; content: ' '; }
+// .dropdown.white { background-color: $white-50; }
 .dropdown[disabled] { opacity: 0.25; }
 
 p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
@@ -43,12 +94,15 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 // FIXME - above shouldn't have important flags
 
 .container { width: auto; }
-.app .content, .container { margin-left: 2.0rem; margin-right: 3.9rem; margin-top: 2rem; }
+.container { margin-left: 1.3rem; margin-right: 1.3rem; margin-top: 2rem; }
 .app .search-area { margin-left: 42rem; }
-.modal-content { background-color: Transparent; box-shadow: none; border-radius: 0px; border: 0; }
-.modal-dialog { margin: 5vh 10vw; width: auto; }
-.modal-lg { width: inherit; }
-.modal-backdrop { bottom: 0; position: fixed; }
+.single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
+.modal { z-index: 98 !important;
+  &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0; }
+  &-dialog { margin-left: 22rem; margin-top: 4rem; margin-bottom: 0; }
+  &-lg { width: inherit; }
+  &-backdrop { bottom: 0; position: fixed; z-index: 97 !important; }
+}
 
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
@@ -56,18 +110,18 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 }
 .no-results { height: auto; }
 .no-results h4 { font-size: 1.6rem; }
-.lolfix { margin-left: 32rem; }
-.lolspace { width: 100%; }
-nav.lolhax { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; margin-left: -2rem; padding-left: 2rem; margin-right: -3.9rem; padding-right: 3.9rem; height: 4.5rem; margin-bottom: 2.6rem; margin-top: -2rem;
-  button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
-}
+.lolfix { margin-left: 32rem; margin-top: 12rem; margin-right: 1.3rem; }
+.lolspace { margin-left: 21rem; }
 
 
 // nav.top .crumb.ng-enter, nav.top .crumb.ng-leave { transition: none; }
-nav.top { display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white; height: 4rem; padding: 0 1.3rem;
+nav.top { display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white; height: 4rem; padding: 0 1.3rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
   .half { display: flex; align-items: center; width: 50vw; }
   .wide { justify-content: space-between; }
-  .left h3 { margin-right: 2vw; cursor: pointer; transition: color 0.3s ease-in-out;  }
+  .left h3 { margin-right: 2vw; }
+}
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4rem; margin-bottom: 4rem; margin-top: 4rem; padding: 0 1.3rem;
+  button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
 }
 
 .search-results:before { content: "Search Results"; color: $black-50; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: absolute; left: -15rem; top: 3.5rem; }
@@ -81,11 +135,10 @@ nav.top { display: flex; justify-content: space-between; align-items: center; ba
   .close-results .fa { margin-right: 0.5rem; }
 }
 
-/* TODO: Just for debugging, should be remade! */
 .allele-sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
 .allele-sidebar .ng-enter-active { opacity: 1; }
 .allele-sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; margin-right: 5rem;
+.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem;
   a { color: inherit;  &:hover { text-decoration: none; } }
   section { margin: 1.3rem 0; }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; }
@@ -117,7 +170,6 @@ nav.top { display: flex; justify-content: space-between; align-items: center; ba
   .tab.active { background-color: $blue; }
   .title.active { color: $blue; }
 }
-/* -- TODO end -- */
 
 #toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;
   & > :hover { cursor: pointer; }

@@ -1,12 +1,12 @@
 <nav class="top">
   <div class="half left">
     <div ng-click="vm.goToLogin()" ng-if="! vm.isLogin()">
-      <h3 class="full-title upper"><i>{{ vm.abbreviateUser() }}</i></h3>
+      <h3 class="full-title upper clickable white"><i>{{ vm.abbreviateUser() }}</i></h3>
     </div>
     <div ng-if="vm.isLogin()">
       <h3 class="full-title">Welcome - please login</h3>
     </div>
-    <div ng-click="vm.goToItem(item)" ng-class="{'active': vm.isLastItem(item)}" ng-repeat="item in vm.getItems()">
+    <div ng-click="vm.goToItem(item)" ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">
       <h3 class="full-title"><b>{{item.title}}</b></h3>
     </div>
   </div>
