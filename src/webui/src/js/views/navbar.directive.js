@@ -43,6 +43,10 @@ export class NavbarController {
         return  idx === this.navbarService.getItems().length - 1;
     }
 
+    hasUrl(item) {
+      if (item.url) { return true; } else { return false; }
+    }
+
     goToItem(item) {
         if (item.url) {
             this.location.path(item.url);

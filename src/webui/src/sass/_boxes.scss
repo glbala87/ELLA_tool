@@ -21,8 +21,11 @@ $bar-colors: (
     a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
     a:hover { border-left: 1px solid $white-50; border-bottom: none; }
   }
-  .close { font-weight: 500; font-size: 1.2rem; transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center; }
-  .close.collapsed { transform: rotate(180deg); }
+  .close { transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center; }
+  .close svg { width: 1.2rem; height: 1.2rem; }
+  .cb .close svg { fill: $white-75; }
+  .sb .close svg { fill: $black-50; }
+  .close.collapsed { transform-style: preserve-3d; transform: rotateY(180deg); }
 }
 
 contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
@@ -52,6 +55,14 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 .contentbox.collapsed { display: inline-flex;
   .cb-body { display: none; }
 }
+
+// .contentbox * { transition: all 4.6s; }
+// .contentbox.collapsed * { transition: all 4.6s; }
+// .contentbox { max-width: 30vw; }
+// .contentbox .cb-body { max-width: 30vw; white-space: nowrap; }
+// .contentbox.collapsed { max-width: 2.8rem;
+//   .cb-body { max-width: 0; overflow: hidden; padding: 0; }
+// }
 // no-content styling
 .no-content .contentbox { background-color: $black-25;
   .cb.titlebar { background-color: Transparent; }

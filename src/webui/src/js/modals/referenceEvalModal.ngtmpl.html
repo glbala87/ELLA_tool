@@ -31,8 +31,8 @@
           <div class="bttn-set" ng-if="::elem.type == 'button'">
             <label class="bttn" ng-model="vm.referenceAssessment.evaluation[elem.store]" uib-btn-radio="item[1]" ng-repeat="item in elem.options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
           </div>
-          <div ng-if="::elem.type == 'dropdown'">
-            <select class="dropdown" ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]" ng-disabled="vm.isDisabled(source)"></select>
+          <div class="dropdown" ng-if="::elem.type == 'dropdown'" ng-disabled="vm.isDisabled(source)">
+            <select ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]"></select>
           </div>
           <div ng-if="::elem.type == 'text'">
             <input type="text" placeholder="{{elem.placeholder || ''}}" ng-disabled="vm.isDisabled(source)" ng-model="vm.referenceAssessment.evaluation[elem.store]">

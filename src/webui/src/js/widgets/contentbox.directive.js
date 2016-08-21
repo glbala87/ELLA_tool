@@ -15,7 +15,18 @@ import {Directive, Inject} from '../ng-decorators';
         collapsible: '=?' // bool: whether card can collapse
     },
     transclude: { cbheader: 'cbheader', cbbody: 'cbbody' },
-    template: '<div class="contentbox fixed-width-numbers" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled"><div class="cb titlebar"><div ng-transclude="cbheader"></div><div class="close" ng-click="vm.collapse()" ng-class="{collapsed: vm.collapsed}" ng-if="vm.isCollapsible()">></div></div> <div class="cb-body" ng-transclude="cbbody"></div> </div>',
+    template: ' \
+        <div class="contentbox fixed-width-numbers" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled"> \
+          <div class="cb titlebar"> \
+            <div ng-transclude="cbheader"></div> \
+            <div class="close" ng-click="vm.collapse()" ng-class="{collapsed: vm.collapsed}" ng-if="vm.isCollapsible()"> \
+              <svg id="i-play" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> \
+                  <path d="M10 2 L10 30 24 16 Z" /> \
+              </svg> \
+            </div> \
+          </div> \
+          <div class="cb-body" ng-transclude="cbbody"></div> \
+        </div>',
 })
 export class ContentboxController {
     getClasses() {
