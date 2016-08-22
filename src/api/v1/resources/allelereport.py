@@ -5,13 +5,14 @@ from vardb.datamodel import assessment
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json
 from api.v1.resource import Resource
+from api.util.allelereportcreator import AlleleReportCreator
 
 
 class AlleleReportResource(Resource):
 
-    def get(self, session, aa_id=None):
+    def get(self, session, ar_id=None):
         a = session.query(assessment.AlleleReport).filter(
-            assessment.AlleleReport.id == aa_id
+            assessment.AlleleReport.id == ar_id
         ).one()
         result = schemas.AlleleReportSchema(strict=True).dump(a).data
         return result
@@ -50,21 +51,38 @@ class AlleleReportListResource(Resource):
         If created as part of finalizing an analysis, check the analysis resource instead.
 
         Data example:
-        {
-            # New report will be created, superceding any old one
-            "user_id": 1,
-            "allele_id": 2,
-            "evaluation": {...data...},
-            "analysis_id": 3,  # Optional, should be given when report is made in context of analysis
-            "alleleassessment_id": 3,  # Optional, should be given when report is made in context of an alleleassessment
-        }
+        [
+            {
+                # New report will be created, superceding any old one
+                "user_id": 1,
+                "allele_id": 2,
+                "evaluation": {...data...},
+                "analysis_id": 3,  # Optional, should be given when report is made in context of analysis
+                "alleleassessment_id": 3,  # Optional, should be given when report is made in context of an alleleassessment
+            },
+            {
+                "id": 4,  # Existing will be reused, so no report will be created...
+                ...
+            }
+        ]
 
         Provided data can also be a list of items.
         """
         if not isinstance(data, list):
             data = [data]
 
-        raise NotImplementedError()
+        # Extract any alleleassessment_ids for passing into AlleleReportCreator
+        aa_ids = [d['alleleassessment_id'] for d in data if 'alleleassessment_id' in d]
+        aa = session.query(assessment.AlleleAssessment).filter(
+            assessment.AlleleAssessment.id.in_(aa_ids)
+        ).all()
+
+        arc = AlleleReportCreator(session)
+        result = arc.create_from_data(data, alleleassessments=aa)
+
+        ar = result['alleleassessments']['reused'] + result['alleleassessments']['created']
+        if not isinstance(data, list):
+            ar = ar[0]
 
         session.commit()
-        return schemas.AlleleReportSchema().dump(aa, many=isinstance(aa, list)).data
+        return schemas.AlleleReportSchema().dump(ar, many=isinstance(ar, list)).data

@@ -59,7 +59,7 @@ class AnalysisResource {
         });
     }
 
-    finalize(id, alleleassessments, referenceassessments) {
+    finalize(id, alleleassessments, referenceassessments, allelereports) {
         return new Promise((resolve, reject) => {
             let r = this.resource(`${this.base}/analyses/${id}/actions/finalize/`, {}, {
                 finalize: {
@@ -70,7 +70,8 @@ class AnalysisResource {
                 {
                     user_id: this.user.getCurrentUserId(),
                     alleleassessments: alleleassessments,
-                    referenceassessments: referenceassessments
+                    referenceassessments: referenceassessments,
+                    allelereports: allelereports
                 },
                 resolve,
                 reject

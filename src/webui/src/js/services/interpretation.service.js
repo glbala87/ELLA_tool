@@ -109,11 +109,12 @@ class InterpretationService {
                     }
                     else if (res === 'finalize') {
 
-                        // Get all alleleassessments and referenceassessments used for this analysis.
+                        // Get all alleleassessments, referenceassessments and allelereports used for this analysis.
                         let alleleassessments = [];
                         let referenceassessments = [];
+                        let allelereports = [];
                         for (let allele_state of interpretation.state.allele) {
-                            // Only include assessments for alleles part of the supplied list.
+                            // Only include assessments/reports for alleles part of the supplied list.
                             // This is to avoid submitting assessments for alleles that have been
                             // removed from classification during interpretation process.
                             if (alleles.find(a => a.id === allele_state.allele_id)) {
@@ -126,12 +127,20 @@ class InterpretationService {
                                     allele_state,
                                     interpretation.analysis.id
                                 ));
+                                allelereports.push(this.prepareAlleleReport(
+                                    allele_state.allele_id,
+                                    allele_state,
+                                    interpretation.analysis.id
+                                ));
                             }
                         }
+
+
                         return this.analysisService.finalize(
                             interpretation.analysis.id,
                             alleleassessments,
-                            referenceassessments
+                            referenceassessments,
+                            allelereports
                         );
                     }
                     else {
@@ -144,7 +153,6 @@ class InterpretationService {
     }
 
     prepareAlleleAssessments(allele_id, allelestate, analysis_id=null, genepanel_name=null, genepanel_version=null) {
-        // If id is included, we're reusing an existing one.
         let aa = {
             allele_id: allele_id,
 
@@ -157,6 +165,7 @@ class InterpretationService {
             aa.genepanel_name = genepanel_name;
             aa.genepanel_version = genepanel_version;
         }
+        // If id is included, we're reusing an existing one.
         if ('id' in allelestate.alleleassessment) {
             aa.id = allelestate.alleleassessment.id;
         }
@@ -206,6 +215,30 @@ class InterpretationService {
         }
         return referenceassessments;
     }
+
+    prepareAlleleReport(allele_id, allelestate, analysis_id=null) {
+        let ar = {
+            allele_id: allele_id,
+
+        };
+        if (analysis_id) {
+            ar.analysis_id = analysis_id;
+        }
+
+        // If id is included, we're reusing an existing one.
+        if ('id' in allelestate.allelereport) {
+            ar.id = allelestate.allelereport.id;
+        }
+        else {
+            // Fill in fields expected by backend
+            Object.assign(ar, {
+                user_id: this.user.getCurrentUserId(),
+                evaluation: allelestate.allelereport.evaluation
+            });
+        }
+        return ar;
+    }
+
 
 }
 

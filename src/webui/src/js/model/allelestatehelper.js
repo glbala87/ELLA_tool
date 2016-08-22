@@ -118,13 +118,26 @@ export class AlleleStateHelper {
      * @param  {Object} allele_state   Allele state to modify
      */
     static copyAlleleAssessmentToState(allele, allele_state) {
-        if (allele.allele_assessment) {
+        if (allele.allele_assessment && !allele_state.alleleAssessmentCopied) {
             // We need to "deepcopy" to avoid overwriting
             // JS needs a deep clone function :-(
             allele_state.alleleassessment.evaluation = JSON.parse(JSON.stringify(allele.allele_assessment.evaluation));
             allele_state.alleleAssessmentCopied = true;
         }
     }
+
+    /**
+     * Copies any existing allele's alleleassessment into the allele_state.
+     * @param  {Allele} allele   Allele to copy alleleassessment from.
+     * @param  {Object} allele_state   Allele state to modify
+     */
+    static copyAlleleReportToState(allele, allele_state) {
+        if (allele.allele_report && !allele_state.alleleReportCopied) {
+            allele_state.allelereport.evaluation = JSON.parse(JSON.stringify(allele.allele_report.evaluation));
+            allele_state.alleleReportCopied = true;
+        }
+    }
+
 
     /**
      * Toggles reusing the existing classification of allele.
@@ -141,6 +154,12 @@ export class AlleleStateHelper {
         }
         if ('id' in allele_state.alleleassessment) {
             delete allele_state.alleleassessment.id;
+
+            // TODO: allelereport reuse is now tied to alleleassessment reuse,
+            // we might want to decouple this in case user only wants to update either of them..
+            if ('id' in allele_state.allelereport) {
+                delete allele_state.allelereport.id;
+            }
             return false;
         }
         else {
@@ -153,7 +172,13 @@ export class AlleleStateHelper {
             if ('allele_assessment' in allele) {
                 allele_state.alleleassessment.id = allele.allele_assessment.id;
             }
+            if ('allele_report' in allele) {
+                allele_state.allelereport.id = allele.allele_report.id;
+            }
+
+            // TODO: This overwrites user's data, might want to add a warning...
             this.copyAlleleAssessmentToState(allele, allele_state);
+            this.copyAlleleReportToState(allele, allele_state);
             return true;
         }
     }

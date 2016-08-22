@@ -17,6 +17,12 @@ class ApiV1(object):
         api.add_resource(r.alleleassessment.AlleleAssessmentListResource,
                          '/api/v1/alleleassessments/')
 
+        api.add_resource(r.allelereport.AlleleReportListResource,
+                         '/api/v1/allelereports/')
+
+        api.add_resource(r.allelereport.AlleleReportResource,
+                         '/api/v1/allelereports/<int:ar_id>/')
+
         api.add_resource(r.allele.AlleleListResource,
                          '/api/v1/alleles/',
                          '/api/v1/alleles/<list:allele_ids>')
