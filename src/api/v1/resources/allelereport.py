@@ -40,7 +40,7 @@ class AlleleReportListResource(Resource):
             'user_id',
         ],
         allowed=[
-            # 'id' is excluded on purpose, as the endpoint should always result in a new assessment
+            # 'id' is excluded on purpose, as the endpoint should always result in a new report
             'analysis_id'
         ]
     )
@@ -80,7 +80,7 @@ class AlleleReportListResource(Resource):
         arc = AlleleReportCreator(session)
         result = arc.create_from_data(data, alleleassessments=aa)
 
-        ar = result['alleleassessments']['reused'] + result['alleleassessments']['created']
+        ar = result['reused'] + result['created']
         if not isinstance(data, list):
             ar = ar[0]
 
