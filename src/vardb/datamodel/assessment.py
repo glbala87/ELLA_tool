@@ -110,7 +110,7 @@ class AlleleReport(Base):
 
     __tablename__ = "allelereport"
 
-    id = Column(Integer, Sequence("id_allelereport_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
