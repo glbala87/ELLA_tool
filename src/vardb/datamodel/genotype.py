@@ -2,10 +2,10 @@
 from sqlalchemy import Column, Sequence, Integer, Boolean, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSONB
 
 from vardb.datamodel import Base
-
-from vardb.util.mutjson import MUTJSONB
+from vardb.util.mutjson import JSONMutableDict
 
 
 class Genotype(Base):
@@ -28,7 +28,7 @@ class Genotype(Base):
     genotype_quality = Column(Integer)
     sequencing_depth = Column(Integer)
     variant_quality = Column(Integer)  # Assume integer, not floating point
-    allele_depth = Column(MUTJSONB, default={})  # {'A': 23, 'G': 32}  Gives depth per allele
+    allele_depth = Column(JSONMutableDict.as_mutable(JSONB), default={})  # {'A': 23, 'G': 32}  Gives depth per allele
     filter_status = Column(String)
     vcf_pos = Column(Integer, nullable=False)
     vcf_ref = Column(String, nullable=False)

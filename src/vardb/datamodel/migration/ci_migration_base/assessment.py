@@ -3,10 +3,11 @@
 from sqlalchemy import Column, Sequence, Enum, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
+from sqlalchemy.dialects.postgresql import JSONB
 
 from . import Base
 from . import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
-from vardb.util.mutjson import MUTJSONB
+from vardb.util.mutjson import JSONMutableDict
 
 
 AlleleAssessmentReferenceAssessment = Table('alleleassessmentreferenceassessment', Base.metadata,
@@ -21,7 +22,7 @@ class AlleleAssessment(Base):
 
     id = Column(Integer, Sequence("id_alleleassessment_seq"), primary_key=True)
     classification = Column(Enum('1', '2', '3', '4', '5', 'T', native_enum=False), nullable=False)
-    evaluation = Column(MUTJSONB, default={})
+    evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False)
@@ -60,7 +61,7 @@ class ReferenceAssessment(Base):
     id = Column(Integer, Sequence("id_referenceassessment_seq"), primary_key=True)
     reference_id = Column(Integer, ForeignKey("reference.id"), nullable=False)
     reference = relationship("Reference")
-    evaluation = Column(MUTJSONB, default={})
+    evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     dateLastUpdate = Column("date_last_update", DateTime, nullable=False)

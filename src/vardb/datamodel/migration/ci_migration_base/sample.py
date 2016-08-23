@@ -7,11 +7,11 @@ from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Index, ForeignKeyConstraint
-from sqlalchemy.dialects.postgresql import JSONB # For non-mutable values
+from sqlalchemy.dialects.postgresql import JSONB
 
 from . import Base
 from . import gene
-from vardb.util.mutjson import MUTJSONB
+from vardb.util.mutjson import JSONMutableDict
 
 
 # Tracks which alleleassessments was ultimately used for an analysis
@@ -40,7 +40,7 @@ class Sample(Base):
     analysis = relationship('Analysis', backref='samples')
     sampleType = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    sampleConfig = Column("sample_config", JSONB)  # includes capturekit and more
+    sampleConfig = Column("sample_config", JSONMutableDict.as_mutable(JSONB))  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
@@ -62,7 +62,7 @@ class Analysis(Base):
     genepanelVersion = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    analysisConfig = Column("analysis_config", JSONB)
+    analysisConfig = Column("analysis_config", JSONMutableDict.as_mutable(JSONB))
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
     alleleAssessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
 
@@ -87,11 +87,11 @@ class Interpretation(Base):
     id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
-    user_state = Column("user_state", MUTJSONB, default={})
+    user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='interpretations')
-    state = Column(MUTJSONB, default={})
-    stateHistory = Column(MUTJSONB, default={})
+    state = Column(JSONMutableDict.as_mutable(JSONB), default={})
+    stateHistory = Column(JSONMutableDict.as_mutable(JSONB), default={})
     # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)

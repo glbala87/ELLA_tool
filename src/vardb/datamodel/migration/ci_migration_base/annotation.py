@@ -5,6 +5,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
+from vardb.util.mutjson import JSONMutableDict
+
 from . import Base
 
 
@@ -15,7 +17,7 @@ class Annotation(Base):
     id = Column(Integer, Sequence("id_annotation_seq"), primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"))
     allele = relationship("Allele", uselist=False)
-    annotations = Column(JSONB)
+    annotations = Column(JSONMutableDict.as_mutable(JSONB))
     previousAnnotation_id = Column("previous_annotation_id", Integer,
                                    ForeignKey("annotation.id"))
     # use remote_side to store foreignkey for previousAnnotation in 'this' parent:
@@ -33,7 +35,7 @@ class CustomAnnotation(Base):
     __tablename__ = "customannotation"
 
     id = Column(Integer, Sequence("id_customannotation_seq"), primary_key=True)
-    annotations = Column(JSONB)
+    annotations = Column(JSONMutableDict.as_mutable(JSONB))
     allele_id = Column(Integer, ForeignKey("allele.id"))
     allele = relationship("Allele", uselist=False)
     user_id = Column(Integer, ForeignKey("user.id"))
