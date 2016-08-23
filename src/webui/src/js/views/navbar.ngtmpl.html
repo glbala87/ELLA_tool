@@ -7,7 +7,7 @@
       <h3 class="full-title">Welcome - please login</h3>
     </div>
     <div ng-click="vm.goToItem(item)" ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">
-      <h3 class="full-title"><b>{{item.title}}</b></h3>
+      <h3 class="full-title"><b>{{item.title | noUnderscores}}</b></h3>
     </div>
   </div>
   <div class="half wide" ng-if="vm.hasAllele()">

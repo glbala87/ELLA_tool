@@ -12,7 +12,7 @@
       <transcript-wrapper  transcript="t">
 
                            <p class="clickable" ng-repeat="c in ::t.Splice">
-                               {{::c.splice_Effect}}
+                               {{::c.splice_Effect | noUnderscores}}
                            </p>
       </transcript-wrapper>
     </div>

@@ -97,6 +97,15 @@ class Filters {
     }
 
     @Filter({
+        filterName: 'noUnderscores'
+    })
+    noUnderscores() {
+        return (text) => {
+          return text.replace(/_/g, " ");
+        }
+    }
+
+    @Filter({
         filterName: 'prettyJSON'
     })
     prettyJSONFilter() {

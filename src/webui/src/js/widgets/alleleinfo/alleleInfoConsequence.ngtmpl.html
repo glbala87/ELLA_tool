@@ -16,7 +16,7 @@
       popover-title="Consequences"
       popover-placement="auto top">
         <transcript-wrapper transcript="t">
-            <p ng-repeat="c in ::t.Consequence">{{::c}}</p>
+            <p ng-repeat="c in ::t.Consequence">{{::c | noUnderscores}}</p>
         </transcript-wrapper>
     </div>
     <acmg class="suggested disabled" ng-repeat="code in vm.allele.getACMGCodes('transcript.Consequence')" code="code"></acmg>
