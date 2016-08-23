@@ -3,10 +3,10 @@
     <h3 class="title">{{date}}</h3>
   </cbheader>
   <cbbody>
-    <div class="analysis-row"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in analyses track by analysis.name">
-      <h3>{{::analysis.name}}</h3>
+    <div class="analysis-row clickable"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in analyses track by analysis.name">
+      <h3>{{::analysis.name | noUnderscores}}</h3>
       <div class="analysis-users">
-        <div class="analysis-users-box" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
+        <div ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
           <!-- <div ng-if="interpretation.user" tooltip="{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}"><h3>{{::interpretation.user.first_name}}  {{::interpretation.user.last_name}}</h3></div> -->
           <div ng-if="interpretation.user"><h3>{{$index+1}}. {{::interpretation.user.first_name}}  {{::interpretation.user.last_name}} ({{::interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}})</h3></div>
         </div>

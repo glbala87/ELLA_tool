@@ -8,7 +8,7 @@
     popover-title="{{::vm.getCodeForDisplay().code}}"
     popover-trigger="outsideClick"
     popover-placement="auto top">
-    {{vm.getCodeForDisplay().code}}
+    {{vm.getCodeForDisplay().code | noUnderscores}}
   </h4>
   <autosize-textarea class="white" placeholder="{{vm.getPlaceholder()}}" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
 </div>

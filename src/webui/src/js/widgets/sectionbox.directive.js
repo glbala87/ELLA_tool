@@ -13,8 +13,15 @@ import {Directive, Inject} from '../ng-decorators';
         modal: '=?', // bool: whether sectionbox is part of a modal
         color: '@'
     },
-    transclude: { titlebar: 'titlebar', contentwrapper: 'contentwrapper' },
-    template: '<div class="sectionbox" ng-class="vm.color" ng-disabled="vm.ngDisabled"><div class="sb titlebar"><div class="close" ng-click="vm.close()" ng-if="vm.isModal()">X</div><div ng-transclude="titlebar"></div></div> <div class="sb-body" ng-transclude="contentwrapper"></div> </div>',
+    transclude: { titlebar: 'titlebar', contentwrapper: 'contentwrapper', controls: '?controls' },
+    template: '<section class="sectionbox" ng-class="vm.color" ng-disabled="vm.ngDisabled"> \
+      <header class="sb titlebar"> \
+        <div class="close" ng-click="vm.close()" ng-if="vm.isModal()">X</div> \
+        <div ng-transclude="titlebar"></div> \
+      </header> \
+      <article class="sb-body" ng-transclude="contentwrapper"></article> \
+      <aside class="sb-controls" ng-transclude="controls"></aside> \
+    </section>',
     link: (scope, elem, attrs) => { }
 })
 export class SectionboxController {
