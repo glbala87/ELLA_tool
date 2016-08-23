@@ -79,7 +79,9 @@ var bundler = browserify('./src/webui/src/js/index.js', {
 });
 
 function doBundling(watcher) {
-    console.log('starting bundling');
+    d = new Date(); console.log(
+      '[' + d.toTimeString().split(' ')[0] + ']' + ' Started bundling...'
+    );
 
     watcher
         .transform(babelify.configure({
@@ -87,12 +89,16 @@ function doBundling(watcher) {
             plugins: ["babel-plugin-transform-decorators-legacy"]
         }))
         .bundle()
+        .on('error', function(err) { onError(err); this.emit('end'); })
         .pipe(plumber({
             errorHandler: onError
         }))
         .pipe(source('app.js'))
         .pipe(buffer())
         .pipe(gulp.dest(__basedir))
+        .on('end', function() { d = new Date(); console.log(
+                '[' + d.toTimeString().split(' ')[0] + ']' + ' Finished rebuilding JS, so fast!'
+        )})
         .pipe(production ? util.noop() : livereload());
 
 }
@@ -100,11 +106,7 @@ function doBundling(watcher) {
 gulp.task('watch-js', function() {
     var watcher  = watchify(bundler);
     watcher
-        .on('update', function () { doBundling(watcher); })
-        .on('error', function(err) { onError(err); this.emit('end'); })
-        .on('end', function() { d = new Date(); console.log(
-                '[' + d.toTimeString().split(' ')[0] + ']' + ' Finished rebuilding JS, so fast!'
-        )});
+        .on('update', function () { doBundling(watcher); });
 
     doBundling(watcher); // Run the bundle the first time (required for Watchify to kick in)
 
