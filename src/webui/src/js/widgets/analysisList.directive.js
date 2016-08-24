@@ -80,6 +80,14 @@ class AnalysisListWidget {
         });
     }
 
+    abbreviateUser(user) {
+      if(Object.keys(user).length != 0) {
+        return `${user.first_name.substring(0,1)}. ${user.last_name}`;
+      } else {
+        return "";
+      }
+    }
+
     idempoByDate() {
       let cur = this.analysesByDate();
       if(JSON.stringify(this.previous) != JSON.stringify(cur)) {

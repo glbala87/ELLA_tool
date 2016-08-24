@@ -103,6 +103,7 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
   &-lg { width: inherit; }
   &-backdrop { bottom: 0; position: fixed; z-index: 97 !important; }
 }
+.full-width { width: 100%; }
 
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
