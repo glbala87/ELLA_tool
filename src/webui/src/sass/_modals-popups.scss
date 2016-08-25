@@ -23,7 +23,7 @@
   .bttn.active { box-shadow: none; background-color: $blue-75; color: white; }
   .dropdown { background-color: $blue-05; box-shadow: none; border: 1px solid $blue-25; }
   // .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; border: 1px solid $black-50; background-color: Transparent; border-radius: 0; white-space: pre; }
-  .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; background-color: $blue-05; border: 1px solid $blue-05; border-radius: 0; white-space: pre; }
+  .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1rem; word-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; background-color: $blue-05; border: 1px solid $blue-05; border-radius: 0; white-space: pre; }
   .bttn ~ .bttn { border-left: 1px solid $blue-25; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }

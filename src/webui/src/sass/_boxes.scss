@@ -12,8 +12,8 @@ $bar-colors: (
      .sb-controls, .sb-controls.top  { background-color: hsla(hue($color),saturation($color),lightness($color),0.1); }
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
-   .#{$name} button.new { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); color: white; }
-   .#{$name} button.new:hover { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); }
+   .#{$name} .sb-controls button.new, button.#{$name}.new { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
+   .#{$name} .sb-controls button.new:hover, button.#{$name}.new:hover { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
 }
 .sectionbox .sb.titlebar { color: $black-50; }
 .contentbox .cb.titlebar { color: $white-75; }
