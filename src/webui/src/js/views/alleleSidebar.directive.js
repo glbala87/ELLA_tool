@@ -11,13 +11,17 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         selected: '=', // Selected Allele
     },
     link: (scope, element) => {
-      angular.element(window).bind("scroll", function() {
+      let scrollFunction = function() {
         let offset = parseInt(window.pageYOffset);
         if (40 <= offset) {
           element.addClass("higher");
         } else {
           element.removeClass("higher");
         }
+      };
+      angular.element(window).on("scroll", scrollFunction);
+      scope.$on('$destroy', function() {
+        angular.element(window).off('scroll', scrollFunction);
       });
     }
 })
