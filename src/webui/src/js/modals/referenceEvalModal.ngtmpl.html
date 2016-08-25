@@ -3,13 +3,21 @@
   <bottom> <h3>No reference selected.</h3> </bottom>
   <!-- <controls> <div><button type="button" ng-click="vm.modal.close(false)">Close</button></div> </controls> -->
 </card>
-<sectionbox color="green" modal="true" on-close="vm.modal.close" ng-if="vm.reference">
+<sectionbox color="green" modal="true" on-close="vm.modal.close" ng-if="vm.reference" topcontrols="true">
   <titlebar>
     <h3 class="title">REFERENCE EVALUATION</h3>
   </titlebar>
+  <controls class="reference">
+    <section>
+      <h3 class="slim"><b>{{vm.reference.title}}</b></h3>
+      <p class="slim">{{vm.reference.getShortDesc()}}</p>
+    </section>
+    <section class="control">
+      <button class="new" type="button" ng-click="vm.modal.close()">Cancel</button>
+      <button class="new" ng-click="vm.save()"> Save </button>
+    </section>
+  </controls>
   <contentwrapper>
-    <h5>{{vm.reference.title}}</h5>
-    <p>{{vm.reference.getShortDesc()}}</p>
     <article class='line-wrapper question'>
       <div class="left"> <h5> Relevance </h5> <p> Is the reference relevant? </p> </div>
       <div class="middle"></div>
@@ -46,8 +54,4 @@
       <div class="right"><autosize-textarea placeholder="COMMENTS" ng-model="vm.referenceAssessment.evaluation['comment']"></autosize-textarea></div>
     </article>
   </contentwrapper>
-  <!-- <controls> -->
-  <!--   <button type="button" ng-click="vm.modal.close()">Cancel</button> -->
-  <!--   <button ng-click="vm.save()"> Save </button> -->
-  <!-- </controls> -->
 </sectionbox>

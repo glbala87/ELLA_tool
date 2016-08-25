@@ -1,3 +1,10 @@
+.modal { z-index: 98 !important;
+  &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0; }
+  &-dialog { margin-left: 22rem; margin-top: 6.5rem; margin-bottom: 0; }
+  &-lg { width: inherit; }
+  &-backdrop { bottom: 0; position: fixed; z-index: 97 !important; }
+}
+
 // - Primarily used in modals for user prompts and information
 // - 'middle' is optional
 .line-wrapper { display: flex; align-items: center;
@@ -9,11 +16,15 @@
 .question { min-height: 8rem;
   .multiple-question-element ~ .multiple-question-element { margin-left: 1.3rem; }
   .bttn-set { display: flex; flex-wrap: wrap; }
-  .bttn-set .bttn[disabled] { opacity: 0.25; }
-  .bttn-set .bttn:hover:not([disabled]) { background-color: $blue-radio-hover; cursor: pointer; }
-  .bttn-set .bttn.active:hover { background-color: $blue-radio; cursor: default; }
-  .bttn.active { box-shadow: none; background-color: $blue-radio; }
-  .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; border: 1px solid $black-50; background-color: Transparent; border-radius: 0; white-space: pre; }
+  .bttn-set .bttn[disabled] { opacity: 0.25; border: 1px solid $blue-50; }
+  .bttn[disabled] ~ .bttn[disabled] { border-left: none; }
+  .bttn-set .bttn:hover:not([disabled]) { background-color: $blue-25; cursor: pointer; }
+  .bttn-set .bttn.active:hover { background-color: $blue-75; cursor: default; color: white; }
+  .bttn.active { box-shadow: none; background-color: $blue-75; color: white; }
+  .dropdown { background-color: $blue-05; box-shadow: none; border: 1px solid $blue-25; }
+  // .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; border: 1px solid $black-50; background-color: Transparent; border-radius: 0; white-space: pre; }
+  .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1rem; word-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; background-color: $blue-05; border: 1px solid $blue-05; border-radius: 0; white-space: pre; }
+  .bttn ~ .bttn { border-left: 1px solid $blue-25; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
@@ -47,3 +58,6 @@
   h3 { font-weight: 700; font-size: 1.4rem; color: $black-75; margin: 0; margin-bottom: 0.7rem; margin-top: 1.3rem; }
   p { font-weight: 300; margin: 0; word-wrap: break-word; word-break: break-word; font-size: 1.4rem; }
 }
+
+.reference, .reference .control { display: flex; align-items: center; justify-content: space-between; }
+.reference .control { padding-left: 0.7rem; }

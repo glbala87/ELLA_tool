@@ -10,7 +10,13 @@ h3 { font-size: 1.4rem; }
   i { opacity: 0.65; font-style: normal; }
   &.upper { text-transform: uppercase; }
 }
-.slim-title { font-family: $slim; font-weight: 700; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; }
+.slim { font-family: $slim; font-weight: 400;
+  &.title { letter-spacing: 0.1rem; word-spacing: 0.2rem; }
+  b { font-weight: 600; }
+  i { opacity: 0.65; font-style: normal; }
+  &.header { font-weight: 700; }
+  &.upper { text-transform: uppercase; }
+}
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 

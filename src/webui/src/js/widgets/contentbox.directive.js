@@ -11,7 +11,7 @@ import {Directive, Inject} from '../ng-decorators';
     scope: {
         ngDisabled: '=?',
         color: '@',
-        collapsed: '=?',     // {collapsed: bool}
+        collapsed: '=?',
         collapsible: '=?' // bool: whether card can collapse
     },
     transclude: { cbheader: 'cbheader', cbbody: 'cbbody' },
@@ -41,7 +41,6 @@ export class ContentboxController {
         if (this.isCollapsible()) {
             this.collapsed === undefined ? true : this.collapsed;
             this.collapsed = !this.collapsed;
-            console.log(this.collapsed);
         }
     }
 }

@@ -11,22 +11,38 @@ import {Directive, Inject} from '../ng-decorators';
     scope: {
         ngDisabled: '=?',
         modal: '=?', // bool: whether sectionbox is part of a modal
+        topcontrols: '=?', // bool: whether controls should live at the top of the section
+        collapsed: '=?',
         color: '@'
     },
     transclude: { titlebar: 'titlebar', contentwrapper: 'contentwrapper', controls: '?controls' },
-    template: '<section class="sectionbox" ng-class="vm.color" ng-disabled="vm.ngDisabled"> \
+    template: '<section class="sectionbox" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled"> \
       <header class="sb titlebar"> \
         <div class="close" ng-click="vm.close()" ng-if="vm.isModal()">X</div> \
-        <div ng-transclude="titlebar"></div> \
+        <div ng-transclude="titlebar" ng-click="vm.collapse()"></div> \
       </header> \
-      <article class="sb-body" ng-transclude="contentwrapper"></article> \
-      <aside class="sb-controls" ng-transclude="controls"></aside> \
+      <div class="sb-container"> \
+        <article class="sb-body" ng-transclude="contentwrapper"></article> \
+        <aside class="sb-controls" ng-class="{top: vm.onTop()}" ng-transclude="controls"></aside> \
+      </div> \
     </section>',
     link: (scope, elem, attrs) => { }
 })
 export class SectionboxController {
+    getClasses() {
+      let color = this.color ? this.color : "blue";
+      let collapsed = this.collapsed ? "collapsed" : "";
+      return `${color} ${collapsed}`
+    }
+    collapse() {
+      this.collapsed === undefined ? true : this.collapsed;
+      this.collapsed = !this.collapsed;
+    }
     isModal() {
       return (this.modal != undefined || this.modal === true);
+    }
+    onTop() {
+      return (this.topcontrols != undefined || this.topcontrols === true);
     }
     close() {
       this.onClose()();

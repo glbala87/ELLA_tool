@@ -9,6 +9,20 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     scope: {
         alleles: '=',  // Allele options: { unclassified: [ {allele: Allele, alleleState: {...}, inactive: true, checkable: true, checked: true ] }, classified: [ ... ] }
         selected: '=', // Selected Allele
+    },
+    link: (scope, element) => {
+      let scrollFunction = function() {
+        let offset = parseInt(window.pageYOffset);
+        if (40 <= offset) {
+          element.addClass("higher");
+        } else {
+          element.removeClass("higher");
+        }
+      };
+      angular.element(window).on("scroll", scrollFunction);
+      scope.$on('$destroy', function() {
+        angular.element(window).off('scroll', scrollFunction);
+      });
     }
 })
 @Inject()

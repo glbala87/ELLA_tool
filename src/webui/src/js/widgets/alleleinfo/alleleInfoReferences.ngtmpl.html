@@ -10,7 +10,7 @@
           <p>{{ref.getShortDesc()}}</p>
         </div>
         <div>
-          <button ng-click="vm.showReferenceEval(ref)">{{vm.getEvaluateBtnText(ref)}}</button>
+          <button class="blue new" ng-click="vm.showReferenceEval(ref)">{{vm.getEvaluateBtnText(ref)}}</button>
         </div>
       </section>
       <div class="cb-table topfix" ng-if="vm.getCurrentReferenceAssessment(ref).evaluation.relevance">

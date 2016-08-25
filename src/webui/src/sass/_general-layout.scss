@@ -41,55 +41,30 @@ select {
     border-color: inherit;
   }
 }
-// .dropdown { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 50%; background-repeat: no-repeat; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDZFNDEwNjlGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDZFNDEwNkFGNzFEMTFFMkJEQ0VDRTM1N0RCMzMyMkIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NkU0MTA2N0Y3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NkU0MTA2OEY3MUQxMUUyQkRDRUNFMzU3REIzMzIyQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuGsgwQAAAA5SURBVHjaYvz//z8DOYCJgUxAf42MQIzTk0D/M+KzkRGPoQSdykiKJrBGpOhgJFYTWNEIiEeAAAMAzNENEOH+do8AAAAASUVORK5CYII=); }
-// .dropdown { padding: 0.25rem 0.75rem; padding-right: 2rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; background-position: right 0.3rem center; background-repeat: no-repeat;
-//   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='12' height='12' fill='currentcolor' stroke='currentcolor' stroke-linecap='round' stroke-linejoin='round' stroke-width='6.25%'><path d='M30 10 L16 26 2 10 Z' /></svg>"); }
-  // background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' /></svg>")  no-repeat;
-// .dropdown { position: relative; padding: 0.25rem 0.75rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; }
-// .dropdown { position: relative; padding: 0.25rem 0.75rem; font-size: 1.2rem; font-weight: 500; text-transform: uppercase; background-color: hsla(0,0,0,0.05); border: none; height: 2.6rem; box-shadow: none; border-radius: 0; -webkit-appearance: none; -moz-appearance: none; }
-.dropdown {
-  position: relative;
-  height: 2.6rem;
-  background: white;
-  box-shadow: 0 3px 0 rgba(0,0,0,.05);
-&:after {
-  content: ' ';
-  position: absolute;
-  top: 0;
-  width: 0;
-  height: 0;
-  right: 10px;
-  bottom: 0;
-  margin: auto;
-  border-style: solid;
-  border-width: 5px 5px 0 5px;
-  border-color: $black-75 transparent transparent transparent;
-  pointer-events: none;
+.dropdown { position: relative; height: 2.6rem; background-color: $white-75; box-shadow: 0 3px 0 rgba(0,0,0,.05);
+  &:hover { background-color: $white; }
+  &:after { content: ' '; position: absolute; top: 0; width: 0; height: 0; right: 10px; bottom: 0; margin: auto; border-style: solid; border-width: 5px 5px 0 5px; border-color: $black-75 transparent transparent transparent; pointer-events: none; }
+  &[disabled] { opacity: 0.25; }
 }
-}
-// .dropdown:before { width: 1.2rem; position: absolute; top: 1px; right: 1px; bottom: 1px; background: $black-25; content: ' '; }
-// .dropdown.white { background-color: $white-50; }
-.dropdown[disabled] { opacity: 0.25; }
 
 p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
 
 button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button { margin-left: 1.3rem; }
 button { border: 1px solid $black-50; background-color: Transparent; transition: all 0.3s ease-in-out; outline: none;
+  &.new { box-shadow: 0 0.3rem 0 $black-05; background-color: $white-75; border: none; }
+  &.new:hover { box-shadow: 0 0.1rem 0.3rem $black-25; background-color: $white; }
+  &.new:disabled { border: 1px solid $black-50; color: $black-75; box-shadow: none; opacity: 0.5; background-color: inherit; &:hover { cursor: default; } }
+  &.new2 { letter-spacing: 0.1rem; word-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; background-color: $blue-05; border: 1px solid $blue-05; border-radius: 0; white-space: pre; }
+  &.new2.onwhite { background-color: $blue-25; }
   b.plusmark { font-weight: 600; font-size: 1.3rem; }
   b.x-mark { font-weight: 400; font-size: 1.1rem; margin-right: 0.7rem; }
-  &.ng-leave { transition: none; }
-  &.ng-enter { animation: fade-in 0.6s; }
+  &.ng-leave, &.ng-enter { transition: none; }
   &:disabled { opacity: 0.4; &:hover { box-shadow: none; } }
   &:focus { outline: none; }
   &:hover { box-shadow: 0px 0px 2px $black-75; background-color: $black-05; }
   &.white, .checkable-white & { color: $white-75; border-color: $white-50;
     &:hover { background-color: $white-05; }
   }
-  &.full-color { color: $white-75; border: 1px solid Transparent; }
-  &.blue { background-color: $blue !important; &:hover { background-color: lighten($blue,10) !important; } }
-  &.green { background-color: $green !important; &:hover { background-color: lighten($green,10) !important; } }
-  &.yellow { background-color: $yellow !important; &:hover { background-color: lighten($yellow,10) !important; } }
-  &.red { background-color: $red !important; &:hover { background-color: lighten($red,10) !important; } }
 }
 // FIXME - above shouldn't have important flags
 
@@ -97,12 +72,7 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 .container { margin-left: 1.3rem; margin-right: 1.3rem; margin-top: 2rem; }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
-.modal { z-index: 98 !important;
-  &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0; }
-  &-dialog { margin-left: 22rem; margin-top: 4rem; margin-bottom: 0; }
-  &-lg { width: inherit; }
-  &-backdrop { bottom: 0; position: fixed; z-index: 97 !important; }
-}
+.full-width { width: 100%; }
 
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
@@ -115,13 +85,25 @@ button { border: 1px solid $black-50; background-color: Transparent; transition:
 
 
 // nav.top .crumb.ng-enter, nav.top .crumb.ng-leave { transition: none; }
-nav.top { display: flex; justify-content: space-between; align-items: center; background-color: $blue; color: white; height: 4rem; padding: 0 1.3rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
-  .half { display: flex; align-items: center; width: 50vw; }
-  .wide { justify-content: space-between; }
-  .left h3 { margin-right: 2vw; }
+
+.hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 100; color: black; cursor: pointer;
+  h1 { font-size: 4rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
+  h1:hover { transform: rotateY(180deg); transform-style: preserve-3d; color: white; opacity: 0.75; }
+  h1:hover #e { transform: rotateY(180deg); }
+  #e, #a { font-size: 3.2rem; transition: all 1s; }
 }
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4rem; margin-bottom: 4rem; margin-top: 4rem; padding: 0 1.3rem;
-  button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
+nav.top { display: flex; flex-direction: column; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
+  section { display: flex; }
+  aside { display: flex; align-items: center; width: calc(50vw - 1.3rem); }
+  .up { padding-bottom: 0.7rem; }
+  .down h3 { font-size: 1.5rem; }
+  .up h3 { font-size: 1.3rem; }
+  .up .right h3 { opacity: 0.65; font-style: normal; }
+  .down { }
+  .up .right, .down .right { justify-content: space-between; }
+}
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4rem; margin-bottom: 4rem; margin-top: 6.5rem; padding: 0 1.3rem;
+  // button { border: 1px solid Transparent; background-color: hsla(0,0,100,0.50); }
 }
 
 .search-results:before { content: "Search Results"; color: $black-50; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: absolute; left: -15rem; top: 3.5rem; }
@@ -138,7 +120,8 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
 .allele-sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
 .allele-sidebar .ng-enter-active { opacity: 1; }
 .allele-sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem;
+.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem; top: 14.5rem; transition: top 0.6s;
+  &.higher { top: 7.5rem; }
   a { color: inherit;  &:hover { text-decoration: none; } }
   section { margin: 1.3rem 0; }
   p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; }
