@@ -9,9 +9,11 @@ $bar-colors: (
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
    .sectionbox.#{$name} {
      .sb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.25); }
-     .sb-controls, .sb-controls.top  { border-color: hsla(hue($color),saturation($color),lightness($color),0.25); }
+     .sb-controls, .sb-controls.top  { background-color: hsla(hue($color),saturation($color),lightness($color),0.1); }
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
+   .#{$name} button.new { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); color: white; }
+   .#{$name} button.new:hover { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); }
 }
 .sectionbox .sb.titlebar { color: $black-50; }
 .contentbox .cb.titlebar { color: $white-75; }
@@ -20,7 +22,7 @@ $bar-colors: (
   .titlebar { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
   .titlebar div { margin: 1.75rem 0; }
   .titlebar div ~ div { margin-top: 0; }
-  .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
+  .titlebar .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
     a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
     a:hover { border-left: 1px solid $white-50; border-bottom: none; }
   }
@@ -36,8 +38,8 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .sb-container { flex: 1; display: flex; flex-wrap: wrap; }
   .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; }
   .sb-controls:empty { display: none; }
-  .sb-controls { border-left: 0.7rem solid; padding: 1.65rem; border-bottom: none; }
-  .sb-controls.top { flex-basis: 100%; order: -1; border-bottom: 0.7rem solid; border-left: none; padding-left: 2.95rem; }
+  .sb-controls { padding: 1.65rem; }
+  .sb-controls.top { flex-basis: 100%; order: -1; padding-left: 2.95rem; }
   .sb.titlebar .close { margin-bottom: 2.6rem; }
   h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
   &.collapsed .sb-body { flex-grow: 0; }
