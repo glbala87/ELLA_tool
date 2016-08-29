@@ -130,7 +130,7 @@ class AssessmentCreator(object):
                 to_supercede = next((e for e in existing if e.allele_id == aa['allele_id']), None)
                 if to_supercede:
                     to_supercede.date_superceeded = datetime.datetime.now()
-                    assessment_obj.previousAssessment_id = to_supercede.id
+                    assessment_obj.previous_assessment_id = to_supercede.id
                 created.append(assessment_obj)
                 self.session.add(assessment_obj)
 
