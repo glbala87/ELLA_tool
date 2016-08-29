@@ -13,7 +13,13 @@
     </aside>
     <aside class="right" ng-if="! vm.hasAllele()"></aside>
     <aside class="right" ng-if="vm.hasAllele()">
-      <h3 class="full-title">{{::vm.getAllele().change_from}} → {{::vm.getAllele().change_to}} ({{::vm.getAllele().change_type}})</h3>
+      <h3 class="full-title">
+        {{::vm.getAllele().change_from}}
+        <svg id="i-arrow-right" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+          <path d="M22 6 L30 16 22 26 M30 16 L2 16" />
+        </svg>
+        {{::vm.getAllele().change_to}} ({{::vm.getAllele().change_type}})
+      </h3>
       <h3 class="full-title">{{::vm.getAllele().genotype.genotype}} <span ng-if="::vm.getAllele().genotype.homozygous">(homozygous)</span><span ng-if="::!vm.getAllele().genotype.homozygous">(heterozygous)</span></h3>
       <h3 class="full-title" ng-repeat="t in ::vm.getAllele().annotation.filtered track by t.Transcript">
         <transcript-wrapper  transcript="t">

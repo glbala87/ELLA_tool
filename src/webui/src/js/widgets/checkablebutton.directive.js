@@ -17,6 +17,7 @@ import {Directive, Inject} from '../ng-decorators';
         checkModel: '=?',
         listModel: '=?',
         listValue: '=?',
+        buttonclasses: '=?',
         showMark: '@?',
         onChange: '&?',
         ngDisabled: '=',
