@@ -52,6 +52,8 @@ class AlleleAssessmentListResource(Resource):
         """
         Creates a new AlleleAssessment for a provided allele_id.
 
+        If created as part of finalizing an analysis, check the analysis resource instead.
+
         Data example:
         {
             # New assessment will be created, superceding any old one

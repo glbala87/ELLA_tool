@@ -11,15 +11,24 @@ from sqlalchemy.dialects.postgresql import JSONB # For non-mutable values
 
 from vardb.datamodel import Base
 from vardb.datamodel import gene
-from vardb.util.mutjson import MUTJSONB
+from vardb.util.mutjson import JSONMutableDict
 
 
-# Tracks which alleleassessments was ultimately used for an analysis
+# Tracks which alleleassessments that were ultimately used for an analysis
 # This is not to be confused with the analysis_id in AlleleAssessment table,
 # which tells which analysis the AlleleAssessment was *created* for.
 AnalysisAlleleAssessment = Table('analysisalleleassessment', Base.metadata,
     Column('analysis_id', Integer, ForeignKey('analysis.id')),
     Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id'))
+)
+
+
+# Tracks which allelereports that were ultimately used for an analysis
+# This is not to be confused with the analysis_id in AlleleAssessment table,
+# which tells which analysis the AlleleAssessment was *created* for.
+AnalysisAlleleReport = Table('analysisallelereport', Base.metadata,
+    Column('analysis_id', Integer, ForeignKey('analysis.id')),
+    Column('allelereport_id', Integer, ForeignKey('allelereport.id'))
 )
 
 
@@ -40,7 +49,7 @@ class Sample(Base):
     analysis = relationship('Analysis', backref='samples')
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     deposit_date = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    sample_config = Column(JSONB)  # includes capturekit and more
+    sample_config = Column(JSONMutableDict.as_mutable(JSONB))  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
@@ -62,7 +71,7 @@ class Analysis(Base):
     genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    analysis_config = Column(JSONB)
+    analysis_config = Column(JSONMutableDict.as_mutable(JSONB))
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
     alleleassessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
 
@@ -87,11 +96,11 @@ class Interpretation(Base):
     id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
-    user_state = Column("user_state", MUTJSONB, default={})
+    user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='interpretations')
-    state = Column(MUTJSONB, default={})
-    state_history = Column(MUTJSONB, default={})
+    state = Column(JSONMutableDict.as_mutable(JSONB), default={})
+    state_history = Column(JSONMutableDict.as_mutable(JSONB), default={})
     # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)

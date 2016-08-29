@@ -1,6 +1,6 @@
 from vardb.datamodel import allele, assessment, annotation
 
-from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, GenepanelSchema
+from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, GenepanelSchema
 from api.util.annotationprocessor import AnnotationProcessor
 from api.util.sanger_verification import SangerVerification
 
@@ -8,6 +8,7 @@ from api.util.sanger_verification import SangerVerification
 # Top level keys:
 KEY_REFERENCE_ASSESSMENTS = 'reference_assessments'
 KEY_ALLELE_ASSESSMENT = 'allele_assessment'
+KEY_ALLELE_REPORT = 'allele_report'
 KEY_CUSTOM_ANNOTATION = 'custom_annotation'
 KEY_ANNOTATION = 'annotation'
 KEY_GENOTYPE = 'genotype'
@@ -28,7 +29,8 @@ class AlleleDataLoader(object):
                   include_annotation=True,
                   include_custom_annotation=True,
                   include_allele_assessment=True,
-                  include_reference_assessments=True):
+                  include_reference_assessments=True,
+                  include_allele_report=True):
         """
         Loads data for a list of alleles from the database, and returns a dictionary
         with the final data, loaded using the allele schema.
@@ -42,8 +44,9 @@ class AlleleDataLoader(object):
         :type genepanel: vardb.datamodel.gene.Genepanel
         :param annotation: Load current valid annotation data.
         :param custom_annotation: Load current valid custom annotation data.
-        :param allele_assessment: Load current valid allele assessment
-        :param reference_assessments: Load current valid reference assessments
+        :param include_allele_assessment: Load current valid allele assessment
+        :param include_reference_assessments: Load current valid reference assessments
+        :param include_allele_report: Load current valid allele report
         :returns: dict with converted data using schema data.
         """
 
@@ -56,7 +59,8 @@ class AlleleDataLoader(object):
         #       'annotation': {...} or not present,
         #       'custom_annotation': {...} or not present,
         #       'allele_assessment': {...} or not present,
-        #       'reference_assessment': {...} or not present
+        #       'reference_assessment': {...} or not present,
+        #       'allele_report': {...} or not present
         #    },
         #    id2: ...
         # }
@@ -109,13 +113,23 @@ class AlleleDataLoader(object):
                     allele_data[ra.allele_id][KEY_REFERENCE_ASSESSMENTS] = list()
                 allele_data[ra.allele_id][KEY_REFERENCE_ASSESSMENTS].append(ra_schema.dump(ra).data)
 
+        if include_allele_report:
+            ar_schema = AlleleReportSchema()
+            allele_reports = self.session.query(assessment.AlleleReport).filter(
+                assessment.AlleleReport.allele_id.in_(ids),
+                assessment.AlleleReport.date_superceeded == None
+            ).all()
+            for ar in allele_reports:
+                allele_data[ar.allele_id][KEY_ALLELE_REPORT] = ar_schema.dump(ar).data
+
+
         # Create final data
         # genepanel_data = GenepanelSchema().dump(genepanel).data
         final_alleles = list()
         for allele_id, data in allele_data.iteritems():
             final_allele = data[KEY_ALLELE]
 
-            for key in [KEY_GENOTYPE, KEY_ALLELE_ASSESSMENT, KEY_REFERENCE_ASSESSMENTS]:
+            for key in [KEY_GENOTYPE, KEY_ALLELE_ASSESSMENT, KEY_REFERENCE_ASSESSMENTS, KEY_ALLELE_REPORT]:
                 if key in data:
                     final_allele[key] = data[key]
 

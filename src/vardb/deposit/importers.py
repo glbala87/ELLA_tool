@@ -66,15 +66,19 @@ class SampleImporter(object):
         self.session = session
         self.counter = defaultdict(int)
 
-    def process(self, sample_names, sample_config=None):
+    def process(self, sample_names, sample_configs=None):
         db_samples = list()
         sample_type = 'HTS'  # TODO: Agree on values for Sample.sampleType enums and get from sample_config
+        if sample_configs:
+            assert isinstance(sample_names, list)
+            assert isinstance(sample_configs, list)
+            assert len(sample_names) == len(sample_configs)
         for sample_idx, sample_name in enumerate(sample_names):
             db_sample = sm.Sample(
                 identifier=sample_name,
                 sample_type=sample_type,
                 deposit_date=datetime.datetime.now(),
-                sample_config=sample_config
+                sample_config=sample_configs[sample_idx] if sample_configs else None
                 )
             db_samples.append(db_sample)
             self.counter['nSamplesAdded'] += 1

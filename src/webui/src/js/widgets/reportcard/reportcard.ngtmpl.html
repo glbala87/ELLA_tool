@@ -18,7 +18,9 @@
       </div> -->
 
       <h2 class="allele-title">Report</h2>
-      <pre><div ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5></div></pre>
+      <pre>
+        <div ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5><p>{{vm.getAlleleReport(al).evaluation.comment}}</p></div>
+      </pre>
       <hr/>
     </div>
   </bottom>

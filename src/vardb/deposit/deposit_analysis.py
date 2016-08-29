@@ -77,7 +77,7 @@ class DepositAnalysis(object):
         self.check_samples(vcf_sample_names, sample_configs)
 
         # Only import sample/analysis if not importing assessments
-        db_samples = self.sample_importer.process(vcf_sample_names, sample_configs)
+        db_samples = self.sample_importer.process(vcf_sample_names, sample_configs=sample_configs)
 
         if not db_samples or len(db_samples) != len(vcf_sample_names):
             raise RuntimeError("Couldn't import samples to database.")

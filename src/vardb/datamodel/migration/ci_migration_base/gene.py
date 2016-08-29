@@ -2,11 +2,11 @@
 from sqlalchemy import Column, Sequence, Integer, String, Table, Enum, UniqueConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.schema import ForeignKeyConstraint
 
 from . import Base
-from vardb.util.mutjson import MUTJSONB
+from vardb.util.mutjson import JSONMutableDict
 
 
 class Gene(Base):
@@ -82,7 +82,7 @@ class Genepanel(Base):
     transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
     phenotypes = relationship("Phenotype", lazy='joined')
 
-    config = Column(MUTJSONB, default={})  # format defined by
+    config = Column(JSONMutableDict.as_mutable(JSONB), default={})  # format defined by
 
 
     def __repr__(self):

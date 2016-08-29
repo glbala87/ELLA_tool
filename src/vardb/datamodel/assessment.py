@@ -3,10 +3,11 @@
 from sqlalchemy import Column, Sequence, Enum, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
+from sqlalchemy.dialects.postgresql import JSONB
 
 from vardb.datamodel import Base
 from vardb.datamodel import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
-from vardb.util.mutjson import MUTJSONB
+from vardb.util.mutjson import JSONMutableDict
 
 
 AlleleAssessmentReferenceAssessment = Table('alleleassessmentreferenceassessment', Base.metadata,
@@ -21,7 +22,7 @@ class AlleleAssessment(Base):
 
     id = Column(Integer, Sequence("id_alleleassessment_seq"), primary_key=True)
     classification = Column(Enum('1', '2', '3', '4', '5', 'T', native_enum=False), nullable=False)
-    evaluation = Column(MUTJSONB, default={})
+    evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     date_last_update = Column(DateTime, nullable=False)
@@ -60,7 +61,7 @@ class ReferenceAssessment(Base):
     id = Column(Integer, Sequence("id_referenceassessment_seq"), primary_key=True)
     reference_id = Column(Integer, ForeignKey("reference.id"), nullable=False)
     reference = relationship("Reference")
-    evaluation = Column(MUTJSONB, default={})
+    evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
     date_last_update = Column(DateTime, nullable=False)
@@ -100,3 +101,28 @@ class Reference(Base):
 
     def citation(self):
         return "%s (%s) %s %s" % (self.authors, self.year, self.title, self.journal)
+
+
+class AlleleReport(Base):
+    """Represents a report for one allele. The report is aimed at the
+       clinicians as compared to alleleassessment which is aimed at fellow
+       interpreters. The report might not change as often as the alleleassessment."""
+
+    __tablename__ = "allelereport"
+
+    id = Column(Integer, Sequence("id_allelereport_seq"), primary_key=True)
+    evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
+    user_id = Column(Integer, ForeignKey("user.id"))
+    user = relationship("User", uselist=False)
+    date_last_update = Column(DateTime, nullable=False)
+    date_superceeded = Column(DateTime)
+    previous_report_id = Column(Integer, ForeignKey("allelereport.id"))
+    previous_report = relationship("AlleleReport", uselist=False)
+    allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
+    allele = relationship("Allele", uselist=False, backref='reports')
+    analysis_id = Column(Integer, ForeignKey("analysis.id"))
+    alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
+    alleleassessment = relationship("AlleleAssessment")
+
+    def __repr__(self):
+        return "<AlleleReport('%s','%s', '%s')>" % (self.id, self.allele, str(self.user))
