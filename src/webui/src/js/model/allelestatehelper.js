@@ -322,6 +322,10 @@ export class AlleleStateHelper {
             if ('id' in allele_state.allelereport) {
                 delete allele_state.allelereport.id;
             }
+            // TODO: This overwrites user's data, might want to add a warning...
+            this.copyAlleleAssessmentToState(allele, allele_state);
+            this.copyAlleleReportToState(allele, allele_state);
+
             return false;
         }
         else {
@@ -338,9 +342,6 @@ export class AlleleStateHelper {
                 allele_state.allelereport.id = allele.allele_report.id;
             }
 
-            // TODO: This overwrites user's data, might want to add a warning...
-            this.copyAlleleAssessmentToState(allele, allele_state);
-            this.copyAlleleReportToState(allele, allele_state);
             return true;
         }
     }

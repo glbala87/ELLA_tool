@@ -40,6 +40,11 @@ export class ReportCardController {
         return this.state.allele.find(al => al.allele_id === allele.id);
     }
 
+    getAlleleReport(allele) {
+        return AlleleStateHelper.getAlleleReport(allele, this.getAlleleState(allele));
+    }
+
+
     getClassification(allele) {
         return AlleleStateHelper.getClassification(allele, this.getAlleleState(allele));
     }
