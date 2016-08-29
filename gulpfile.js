@@ -104,7 +104,9 @@ function doBundling(watcher) {
 }
 
 gulp.task('watch-js', function() {
-    var watcher  = watchify(bundler);
+    var watcher  = watchify(bundler, {
+        poll: true // because inotify don't work in Docker
+    });
     watcher
         .on('update', function () { doBundling(watcher); });
 
