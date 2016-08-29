@@ -31,7 +31,11 @@
       <div class="question small">
         <h5 class="error" ng-if="vm.reference_error">The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</h5>
       </div>
-      <button ng-click="vm.addReference()"><b class="plusmark" ng-disabled="vm.reference_xml === ''">+</b> Add reference</button>
+      <button ng-click="vm.addReference()" ng-disabled="vm.reference_xml === ''">
+        <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+            <path d="M16 2 L16 30 M2 16 L30 16" />
+        </svg>
+        Add reference</button>
     </section>
 
     <section ng-if="vm.category == 'external' || vm.category == 'prediction'">

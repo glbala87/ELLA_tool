@@ -36,35 +36,8 @@ $white-50: hsla(hue($white),saturation($white),lightness($white),0.50);
 $white-25: hsla(hue($white),saturation($white),lightness($white),0.25);
 $white-05: hsla(hue($white),saturation($white),lightness($white),0.05);
 
-// $blue: hsla(205,45,35,1);
-// $blue-75: hsla(205,45,35,0.75);
-// $blue-25: hsla(205,45,35,0.25);
-// $blue-05: hsla(205,15,45,0.10);
-// $blue-sidebar: hsla(205,35,45,0.5);
-$blue-button: hsla(205,35,45,1);
-$blue-radio: hsla(205,35,75,1);
-$blue-radio-hover: hsla(205,35,75,0.25);
-$blue-button-tint: hsla(205,35,45,0.25);
-$blue-tint: hsla(205,35,45,0.05);
-.blue-text { color: $blue; }
-
-// $green: hsla(140,35,45,1);
-$green-sidebar: hsla(140,35,45,0.5);
-$green-button: hsla(140,35,45,1);
-$green-radio: hsla(140,35,75,1);
-.green-text { color: $green; }
 
 $yellow: hsla(45,35,45,1);
-$yellow-sidebar: hsla(45,35,45,0.5);
-$yellow-button: hsla(45,35,45,1);
-$yellow-radio: hsla(45,35,75,1);
-$yellow-tint: hsla(45,35,45,0.05);
-.yellow-text { color: $yellow; }
-
 $red: hsla(10,45,35,1);
-$red-sidebar: hsla(10,45,35,0.5);
-$red-button: hsla(10,45,35,1);
-$red-radio: hsla(10,45,75,1);
 $red-tint: hsla(10,45,35,0.05);
-.red-text { color: $red; }
 
