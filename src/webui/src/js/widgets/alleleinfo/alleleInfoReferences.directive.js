@@ -1,6 +1,8 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../../ng-decorators';
+import {AlleleStateHelper} from '../../model/allelestatehelper';
+
 
 @Directive({
     selector: 'allele-info-references',
@@ -67,60 +69,53 @@ export class AlleleInfoReferences {
         }
     }
 
-    _getExistingReferenceAssessment(reference) {
-        if (this.allele.reference_assessments) {
-            return this.allele.reference_assessments.find(ra => {
-                return ra.reference_id === reference.id;
-            });
-        }
+    getReferenceAssessment(reference) {
+        return AlleleStateHelper.getReferenceAssessment(
+            this.allele,
+            reference,
+            this.alleleState
+        );
     }
 
-    getCurrentReferenceAssessment(reference) {
-        if (!('referenceassessments' in this.alleleState)) {
-            this.alleleState.referenceassessments = [];
-        }
-
-        let refassessment = this.alleleState.referenceassessments.find(
-            ra => ra.allele_id === this.allele.id &&
-                  ra.reference_id === reference.id
+    hasReferenceAssessment(reference) {
+        return AlleleStateHelper.hasReferenceAssessment(
+            this.allele,
+            reference,
+            this.alleleState
         );
-        if (!refassessment) {
-            refassessment = {
-                allele_id: this.allele.id,
-                reference_id: reference.id
-            };
-
-            // If it has existing reference_assessment, user is now going to edit it
-            // Copy it into the state since all changes user does
-            // happens on the interpretation state.
-            let existing = this._getExistingReferenceAssessment(reference)
-            if (existing) {
-                Object.assign(refassessment, JSON.parse(JSON.stringify(existing)));
-                refassessment.id = existing.id;
-            }
-            this.alleleState.referenceassessments.push(refassessment);
-        }
-        return refassessment;
     }
 
     getEvaluateBtnText(reference) {
-        if (this._getExistingReferenceAssessment(reference)) {
+        if (this.hasReferenceAssessment(reference)) {
             return 'Reevaluate';
         }
         return 'Evaluate';
     }
 
     showReferenceEval(reference) {
+        // Check for existing referenceassessment data (either from existing ra from backend
+        // or user data in the allele state)
+        let existing_ra = AlleleStateHelper.getReferenceAssessment(
+            this.allele,
+            reference,
+            this.alleleState
+        );
         this.refEvalModal.show(
             this.analysis,
             this.allele,
             reference,
-            this.getCurrentReferenceAssessment(reference)
-        ).then((ra) => {
+            existing_ra
+        ).then(ra => {
+            // If ra is an object, then the referenceassessment
+            // was changed and we should replace it in our state.
+            // If modal was canceled or no changes took place, it's 'undefined'.
             if (ra) {
-                let state_ra = this.getCurrentReferenceAssessment(reference);
-                state_ra.evaluation = ra.evaluation;
-                delete state_ra.id;  // Remove 'id' in case it was an existing assessment that's been modified
+                AlleleStateHelper.updateReferenceAssessment(
+                    this.allele,
+                    reference,
+                    this.alleleState,
+                    ra
+                );
                 if (this.onSave) {
                     this.onSave();
                 }

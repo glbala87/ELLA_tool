@@ -1,5 +1,7 @@
 /* jshint esnext: true */
 import {Service, Inject} from '../ng-decorators';
+import {deepCopy, deepEquals} from '../util';
+
 
 export class ReferenceEvalModalController {
     /**
@@ -19,7 +21,8 @@ export class ReferenceEvalModalController {
         this.modal = modalInstance;
         this.allele = allele;
         this.reference = reference;
-        this.referenceAssessment = JSON.parse(JSON.stringify(referenceAssessment));
+        this.existingReferenceAssessment = referenceAssessment;
+        this.referenceAssessment = deepCopy(referenceAssessment);
         this.enabled_sources = [];
         this.sources = {
                 // 'relevance' is a special case, so it has no 'elements' block like the others
@@ -479,7 +482,11 @@ export class ReferenceEvalModalController {
     _setup() {
         if (!this.referenceAssessment.evaluation) {
             this.referenceAssessment.evaluation = {};
+        }
+        if (!this.referenceAssessment.evaluation.sources) {
             this.referenceAssessment.evaluation.sources = [];
+        }
+        if (!this.referenceAssessment.evaluation.relevance) {
             this.referenceAssessment.evaluation.relevance = 'Yes';
         }
     }
@@ -594,7 +601,12 @@ export class ReferenceEvalModalController {
 
     save() {
         this.cleanup();
-        return this.modal.close(this.referenceAssessment);
+        if (!deepEquals(this.existingReferenceAssessment, this.referenceAssessment)) {
+            return this.modal.close(this.referenceAssessment);
+        }
+        else {
+            return this.modal.close();
+        }
     }
 
 }
@@ -610,7 +622,11 @@ export class ReferenceEvalModal {
     }
 
     /**
-     * Popups a dialog for doing reference evaluation
+     * Popups a dialog for doing reference evaluation.
+     *
+     * The returned promise will resolve with the changed data,
+     * if anything has changed, otherwise it resolves with undefined.
+     *
      * @param  {Allele} Allele for reference evaluation
      * @param  {Reference} Reference to be evaluated
      * @param  {Object} Data for reference assessment

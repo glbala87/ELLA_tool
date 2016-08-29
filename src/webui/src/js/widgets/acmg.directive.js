@@ -7,7 +7,7 @@ import {Directive, Inject} from '../ng-decorators';
     scope: {
         code: '=',  // Single code or Array of (same) codes
         commentModel: '=?',
-        editable: '=?',  // Defaults to true
+        editable: '=?',  // Defaults to false
         onToggle: '&?',
         toggleText: '@?',
         addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
@@ -32,7 +32,7 @@ export class AcmgController {
     }
 
     isEditable() {
-        return this.editable !== undefined ? this.editable : true;
+        return this.editable !== undefined ? this.editable : false;
     }
 
     isMultiple() {

@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../../ng-decorators';
+import {AlleleStateHelper} from '../../model/allelestatehelper';
 
 @Directive({
     selector: 'allele-info-acmg-selection',
@@ -43,20 +44,41 @@ export class ACMGSelectionController {
             () => this.alleleState.alleleassessment.evaluation.acmg.included,
             () => this.updateSuggestedClassification()
         );
-        this.setupStructure();
         this.setupSuggestedACMG();
         this.setACMGCandidates();
     }
 
+    isEditable() {
+        return !AlleleStateHelper.isAlleleAssessmentReused(
+            this.alleleState
+        );
+    }
+
+    getAlleleAssessment() {
+        // Call this wrapper as it will dynamically select between
+        // the existing alleleassessment (if reused)
+        // and the state alleleassessment (if not reused or not existing)
+        return AlleleStateHelper.getAlleleAssessment(
+            this.allele,
+            this.alleleState
+        )
+    }
+
     getSuggestedClassification() {
-        if (this.alleleState.alleleassessment.evaluation.acmg.suggested_classification !== null) {
-            return this.alleleState.alleleassessment.evaluation.acmg.suggested_classification;
+        if (this.getAlleleAssessment().evaluation.acmg.suggested_classification !== null) {
+            return this.getAlleleAssessment().evaluation.acmg.suggested_classification;
         } else {
-            return "none yet";
+            return "-";
         }
     }
 
     updateSuggestedClassification() {
+        // Only update data if we're modifying the allele state,
+        // we don't want to overwrite anything in any existing allele assessment
+        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
+            return;
+        }
+
         // Clear current in case something goes wrong
         // Having no result is better than wrong result
         this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = null;
@@ -146,30 +168,18 @@ export class ACMGSelectionController {
         return code.substring(0, 2).toLowerCase();
     }
 
-    setupStructure() {
-        if (!('alleleassessment' in this.alleleState)) {
-            this.alleleState.alleleassessment = {};
-        }
-        if (!('evaluation' in this.alleleState.alleleassessment)) {
-            this.alleleState.alleleassessment.evaluation = {};
-        }
-        if (!('acmg' in this.alleleState.alleleassessment.evaluation)) {
-            this.alleleState.alleleassessment.evaluation.acmg = {};
-        }
-        if (!('suggested' in this.alleleState.alleleassessment.evaluation.acmg)) {
-            this.alleleState.alleleassessment.evaluation.acmg.suggested = [];
-        }
-        if (!('included' in this.alleleState.alleleassessment.evaluation.acmg)) {
-            this.alleleState.alleleassessment.evaluation.acmg.included = [];
-        }
-    }
-
     /**
      * (Re)creates suggested codes into the 'suggested' section
      * of the alleleassessment.evaluation, if they aren't created already.
      * This is done in order to log what the user saw as suggested codes.
      */
     setupSuggestedACMG() {
+        // Only update data if we're modifying the allele state,
+        // we don't want to overwrite anything in any existing allele assessment
+        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
+            return;
+        }
+
         this.alleleState.alleleassessment.evaluation.acmg.suggested = [];
         if (this.allele.acmg) {
             for (let c of this.allele.acmg.codes) {
@@ -216,13 +226,13 @@ export class ACMGSelectionController {
      * @return {Boolean} True if it's included
      */
     isACMGInIncluded(code) {
-        return this.alleleState.alleleassessment.evaluation.acmg.included.find(elem =>  {
+        return this.getAlleleAssessment().evaluation.acmg.included.find(elem =>  {
             return this._compareACMG(elem, code);
         }) !== undefined;
     }
 
     isACMGInSuggested(code) {
-        return this.alleleState.alleleassessment.evaluation.acmg.suggested.find(elem =>  {
+        return this.getAlleleAssessment().evaluation.acmg.suggested.find(elem =>  {
             return this._compareACMG(elem, code);
         }) !== undefined;
     }
@@ -233,6 +243,12 @@ export class ACMGSelectionController {
      * @param  {[type]} state_acmg Object from 'included' section of state
      */
     includeACMG(code) {
+        // Only update data if we're modifying the allele state,
+        // we don't want to overwrite anything in any existing allele assessment
+        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
+            return;
+        }
+
         this.alleleState.alleleassessment.evaluation.acmg.included.push(code);
         // Remove from 'suggested'
         this.alleleState.alleleassessment.evaluation.acmg.suggested = this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(e => {
@@ -241,6 +257,12 @@ export class ACMGSelectionController {
     }
 
     excludeACMG(code) {
+        // Only update data if we're modifying the allele state,
+        // we don't want to overwrite anything in any existing allele assessment
+        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
+            return;
+        }
+
         // Remove first match from included array (only first match, since duplicates are allowed)
         let idx = this.alleleState.alleleassessment.evaluation.acmg.included.findIndex(e => {
             return this._compareACMG(code, e);
@@ -262,6 +284,12 @@ export class ACMGSelectionController {
      * @return {Array(Array(Object))} Array of arrays. Same REQ codes are combined into same list.
      */
     setREQCodes() {
+        // Only update data if we're modifying the allele state,
+        // we don't want to overwrite anything in any existing allele assessment
+        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
+            return;
+        }
+
         let req_groups = [];
         let reqs = this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(c => !this.isIncludable(c.code));
         for (let req of reqs) {
@@ -277,6 +305,6 @@ export class ACMGSelectionController {
     }
 
     getREQCodeCount() {
-        return this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(c => !this.isIncludable(c.code)).length;
+        return this.getAlleleAssessment().evaluation.acmg.suggested.filter(c => !this.isIncludable(c.code)).length;
     }
 }

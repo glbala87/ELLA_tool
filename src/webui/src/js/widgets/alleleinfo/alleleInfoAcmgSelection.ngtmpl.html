@@ -10,22 +10,23 @@
 
     <!-- Included codes -->
     <!-- Don't use 'track by $index' -->
-    <acmg code="code" class="wide" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.included" on-toggle="vm.excludeACMG(code)" toggle-text="✓" comment-model="code.comment"></acmg>
+    <acmg code="code" class="wide" ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.included" on-toggle="vm.excludeACMG(code)" toggle-text="✓" comment-model="code.comment" editable="vm.isEditable()"></acmg>
 
     <!-- Suggested codes (sans REQ) -->
     <!-- Don't use 'track by $index' -->
-    <acmg class="suggested wide" code="code" ng-repeat="code in vm.alleleState.alleleassessment.evaluation.acmg.suggested" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)"></acmg>
+    <acmg class="suggested wide" code="code" ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.suggested" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)" editable="vm.isEditable()"></acmg>
 
     <!-- REQ codes -->
     <!-- Don't use 'track by $index' -->
-    <acmg class="suggested wide" code="group" ng-repeat="group in vm.req_groups" ng-if="vm.show_req" add-required-for-code="vm.addACMGCode(code)"></acmg>
+    <acmg class="suggested wide" code="group" ng-repeat="group in vm.req_groups" ng-if="vm.show_req" add-required-for-code="vm.addACMGCode(code)" editable="vm.isEditable()"></acmg>
 
     <div>
       <button class="new blue acmg-add" uib-popover-template="vm.popover.templateUrl"
         popover-append-to-body="true"
         popover-title="Add ACMG code"
         popover-trigger="outsideClick"
-        popover-placement="auto right">Add code</button>
+        popover-placement="auto right"
+        ng-if="vm.isEditable()">Add code</button>
 
       <checkable-button class="acmg-add" check-model="vm.show_req">
         <checked>Hide REQ</checked>
