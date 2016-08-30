@@ -15,6 +15,13 @@ import {Directive, Inject} from '../ng-decorators';
         collapsible: '=?' // bool: whether card can collapse
     },
     transclude: { cbheader: 'cbheader', cbbody: 'cbbody' },
+    link: (scope, elem, attrs) => {
+      setTimeout(() => {
+        let e = elem[0].querySelector(".cb-body");
+        let h = e.getBoundingClientRect().width;
+        e.style.maxWidth = `${h}px`;
+      }, 0);
+    },
     template: ' \
         <div class="contentbox fixed-width-numbers" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled"> \
           <div class="cb titlebar"> \
