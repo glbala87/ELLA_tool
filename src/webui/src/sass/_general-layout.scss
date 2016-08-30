@@ -18,15 +18,16 @@ a.white, .clickable.white, a.white:hover, .clickable.white:hover { border-color:
 button, select, .question .bttn { font-family: $full; font-size: 1.2rem; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; padding: 0.25rem 0.75rem; padding-top: 0.4rem; color: $black-75; white-space: nowrap; border-radius: 0;
   &.white { color: $white-75; }
   &:focus { outline: none; box-shadow: 0 0.3rem 0 $blue-50; transition: all 0.3s; }
+  &:hover:not([disabled]) { cursor: pointer; }
 }
 button, .dropdown, .question .bttn { height: 2.6rem; box-shadow: 0 0.3rem 0 $black-05; background-color: $white-75; transition: all 0.3s;
   &.ng-leave, &.ng-enter { transition: none; }
-  &:hover { box-shadow: 0 0.3rem 0.3rem $black-25; background-color: $white; }
+  &:hover:not([disabled]) { box-shadow: 0 0.3rem 0.3rem $black-25; background-color: $white; }
 }
-select { border: none; box-shadow: none; background: transparent; height: 100%; width: 100%; cursor: pointer; outline: none; padding-right: 2.6rem; -moz-appearance: none; &:-moz-focusring { color: transparent; text-shadow: 0 0 0 #000; } -webkit-appearance: none; &:focus { border-color: inherit; } }
+select { border: none; box-shadow: none; background: transparent; height: 100%; width: 100%; outline: none; padding-right: 2.6rem; -moz-appearance: none; &:-moz-focusring { color: transparent; text-shadow: 0 0 0 #000; } -webkit-appearance: none; &:focus { border-color: inherit; } }
 .dropdown { position: relative;
   &:after { content: ' '; position: absolute; top: 0; width: 0; height: 0; right: 10px; bottom: 0; margin: auto; border-style: solid; border-width: 5px 5px 0 5px; border-color: $black-75 transparent transparent transparent; pointer-events: none; }
-  &[disabled] { border: 1px solid $black-50; color: $black-75; opacity: 0.25; background-color: inherit; &:hover { cursor: default; } }
+  &[disabled] { border: 1px solid $black-50; color: $black-75; opacity: 0.25; background-color: inherit; select:hover { cursor: default; } }
 }
 
 p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
@@ -34,7 +35,7 @@ p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.
 interpretation-button button { height: 100%; } // fixes a browser quirk
 button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
 button { outline: none; border: 1px solid Transparent;
-  &:disabled { border: 1px solid $black-50; color: $black-75; opacity: 0.25; background-color: inherit; &:hover { cursor: default; } }
+  &:disabled { border: 1px solid $black-50; box-shadow: none; color: $black-75; opacity: 0.25; background-color: inherit; &:hover { cursor: default; } }
   // We use svg in buttons for significantly more control over spacing/color/boldness, and to not rely on UTF8 chars in our markup.
   // These are awesome and extremely small: https://github.com/danklammer/bytesize-icons
 }
