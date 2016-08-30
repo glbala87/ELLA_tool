@@ -1,11 +1,13 @@
-from sqlalchemy import desc
+import itertools
+from sqlalchemy import desc, or_, and_
 
-from vardb.datamodel import sample, user, assessment
+from vardb.datamodel import sample, user, assessment, allele, annotation
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
+from api.util.interpretationdataloader import InterpretationDataLoader
 from api.v1.resource import Resource
 
 
@@ -249,13 +251,74 @@ class AnalysisActionFinalizeResource(Resource):
 
         arc = arc_result['reused'] + arc_result['created']
 
-        # Mark all analysis' interpretations as done (we do all just in case)
         connected_interpretations = session.query(sample.Interpretation).filter(
             sample.Interpretation.analysis_id == analysis_id
         ).all()
 
-        for i in connected_interpretations:
-            i.status = 'Done'
+        current_interpretation = next((i for i in connected_interpretations if i.status == 'Ongoing'), None)
+
+        if current_interpretation is None:
+            raise ApiError("Trying to finalize analysis with no 'Ongoing' interpretations")
+
+        # Create analysisfinalized objects:
+        # We need to fetch all allele ids to store info for.
+        # Allele ids are provided by the 'Ongoing' interpretation
+
+        i = InterpretationDataLoader(session).from_id(current_interpretation.id)
+
+        allele_ids = i['allele_ids']
+        excluded = i['excluded_allele_ids']
+
+        all_allele_ids = allele_ids + list(itertools.chain(*excluded.values()))
+
+        # Fetch connected annotation ids
+        allele_annotation = session.query(
+            allele.Allele.id,
+            annotation.Annotation.id,
+            annotation.CustomAnnotation.id
+        ).outerjoin(  # Outer join since not all alleles have customannotation
+            annotation.Annotation,
+            annotation.CustomAnnotation,
+        ).filter(
+            annotation.Annotation.date_superceeded == None,
+            annotation.CustomAnnotation.date_superceeded == None,
+            allele.Allele.id.in_(all_allele_ids)
+        ).all()
+
+        def create_af(allele_id, alleleassessment_id=None, allelereport_id=None, filtered=None):
+            _, annotation_id, customannotation_id = next(a for a in allele_annotation if a[0] == allele_id)
+            af_data = {
+                'analysis_id': analysis_id,
+                'allele_id': allele_id,
+                'annotation_id': annotation_id,
+                'customannotation_id': customannotation_id,
+                'alleleassessment_id': alleleassessment_id,
+                'allelereport_id': allelereport_id,
+                'filtered': filtered
+            }
+            af = sample.AnalysisFinalized(**af_data)
+            return af
+
+        for allele_id in allele_ids:
+            af = create_af(
+                allele_id,
+                alleleassessment_id=next(a.id for a in aa if a.allele_id == allele_id),
+                allelereport_id=next(a.id for a in arc if a.allele_id == allele_id),
+            )
+            session.add(af)
+
+        for allele_id in excluded['class1']:
+            af = create_af(allele_id, filtered='CLASS1')
+            session.add(af)
+
+        for allele_id in excluded['intronic']:
+            af = create_af(allele_id, filtered='INTRON')
+            session.add(af)
+
+        # Mark all analysis' interpretations as done (we do all just in case)
+        for ci in connected_interpretations:
+            ci.status = 'Done'
+
         session.commit()
 
         return {

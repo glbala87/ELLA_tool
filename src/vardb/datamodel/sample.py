@@ -3,33 +3,14 @@
 
 import datetime
 
-from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum, Table
+from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
-from sqlalchemy.dialects.postgresql import JSONB # For non-mutable values
+from sqlalchemy.dialects.postgresql import JSONB
 
 from vardb.datamodel import Base
-from vardb.datamodel import gene
 from vardb.util.mutjson import JSONMutableDict
-
-
-# Tracks which alleleassessments that were ultimately used for an analysis
-# This is not to be confused with the analysis_id in AlleleAssessment table,
-# which tells which analysis the AlleleAssessment was *created* for.
-AnalysisAlleleAssessment = Table('analysisalleleassessment', Base.metadata,
-    Column('analysis_id', Integer, ForeignKey('analysis.id')),
-    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id'))
-)
-
-
-# Tracks which allelereports that were ultimately used for an analysis
-# This is not to be confused with the analysis_id in AlleleAssessment table,
-# which tells which analysis the AlleleAssessment was *created* for.
-AnalysisAlleleReport = Table('analysisallelereport', Base.metadata,
-    Column('analysis_id', Integer, ForeignKey('analysis.id')),
-    Column('allelereport_id', Integer, ForeignKey('allelereport.id'))
-)
 
 
 class Sample(Base):
@@ -57,6 +38,29 @@ class Sample(Base):
         return "<Sample('%s', '%s')>" % (self.identifier, self.sample_type)
 
 
+class AnalysisFinalized(Base):
+    """
+    Represents a snapshot of a finalized analysis,
+    logging all relevant information for every allele
+    involved in the analysis, upon finalization.
+
+    If an allele id is given two times for same analysis id,
+    it was first served as part of the filtered data (class 1 or intron),
+    and then included by the user as part of the interpretation,
+    giving it an assessment.
+    """
+    __tablename__ = "analysisfinalized"
+
+    id = Column(Integer, Sequence("id_analysisfinalized_seq"), primary_key=True)
+    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
+    allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
+    annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=False)
+    customannotation_id = Column(Integer, ForeignKey("customannotation.id"))
+    alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
+    allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
+    filtered = Column(Enum("CLASS1", "INTRON", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
+
+
 class Analysis(Base):
     """Represents a bioinformatical pipeline analysis
 
@@ -73,7 +77,7 @@ class Analysis(Base):
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysis_config = Column(JSONMutableDict.as_mutable(JSONB))
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
-    alleleassessments = relationship("AlleleAssessment", secondary=AnalysisAlleleAssessment)
+    alleleassessments = relationship("AlleleAssessment", viewonly=True, secondary="analysisfinalized")
 
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
@@ -84,8 +88,9 @@ class Analysis(Base):
 class Interpretation(Base):
     """Represents an Interpretation by a labengineer
 
-    This corresponds to one 'round' in the workbench.
-    The table stores GUI-state.
+    This corresponds to one interpretation 'round' of an analysis.
+    The table stores both normal state and user-specific state for each round,
+    while keeping a history of the state upon update.
 
     :note: The stateHistory column can potentially be heavy in extreme cases,
     so you can defer loading it when you don't need it.
@@ -101,7 +106,6 @@ class Interpretation(Base):
     user = relationship("User", uselist=False, backref='interpretations')
     state = Column(JSONMutableDict.as_mutable(JSONB), default={})
     state_history = Column(JSONMutableDict.as_mutable(JSONB), default={})
-    # TODO: Remove columns below and keep everything in guiState
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
     date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
