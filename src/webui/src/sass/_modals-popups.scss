@@ -20,9 +20,9 @@
   .bttn[disabled] ~ .bttn[disabled] { border-left: none; }
   .bttn-set .bttn:hover:not([disabled]) { background-color: $blue-25; cursor: pointer; }
   .bttn-set .bttn.active:hover { background-color: $blue-75; cursor: default; color: white; }
-  .bttn.active { box-shadow: none; background-color: $blue-75; color: white; }
-  .dropdown { background-color: $blue-05; box-shadow: none; border: 1px solid $blue-25; }
-  .bttn { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1rem; word-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $black-75; background-color: $blue-05; border: 1px solid $blue-05; border-radius: 0; white-space: pre; }
+  .bttn.active { background-color: $blue-75; color: white; }
+  .dropdown { background-color: $blue-05; border: 1px solid $blue-25; }
+  .bttn { background-color: $blue-05; border: 1px solid $blue-05; }
   .bttn.active + .bttn { border-left: 1px solid Transparent; }
   .bttn ~ .bttn { border-left: 1px solid $blue-25; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
@@ -36,7 +36,7 @@
 // Used only in Add references (customAnnotationModal)
 .big textarea { max-height: 25vh; margin: 1.3rem 0 2.6rem; } // FIXME - find an alternate way of constraining textarea in this single case
 
-.popover { font-family: "Source Sans Pro", sans-serif; max-width: 50vw; padding: 0; border: none; box-shadow: 0 0.1rem 0.3rem $black-25; }
+.popover { font-family: "Source Sans Pro", sans-serif; max-width: 50vw; padding: 0; border: none; box-shadow: 0 0.3rem 0.3rem $black-25; }
 .popover, .popover * { border-radius: 0; }
 .popover .popover-title { @extend .slim; @extend .title; @extend .upper; background-color: $white; color: $black-75; font-weight: 600; font-size: 1.4rem !important; border: none; border-bottom: 1px solid $black-05; }
 .popover-content * { @extend .slim; color: $black; font-size: 1.3rem !important; }
