@@ -76,7 +76,10 @@ gulp.task('tp-js', function() {
 var bundler = browserify('./src/webui/src/js/index.js', {
     debug: production ? false : true,
     cache: {}, packageCache: {}, fullPaths: true // for watchify
-});
+}).transform(babelify.configure({
+    presets: ["es2015", "stage-0"],
+    plugins: ["babel-plugin-transform-decorators-legacy"]
+}));
 
 function doBundling(watcher) {
     d = new Date(); console.log(
@@ -84,10 +87,6 @@ function doBundling(watcher) {
     );
 
     watcher
-        .transform(babelify.configure({
-            presets: ["es2015", "stage-0"],
-            plugins: ["babel-plugin-transform-decorators-legacy"]
-        }))
         .bundle()
         .on('error', function(err) { onError(err); this.emit('end'); })
         .pipe(plumber({
@@ -122,10 +121,6 @@ gulp.task('watch-js', function() {
 gulp.task('js', function() {
     // return browserify('./src/webui/src/js/index.js', {debug: true})
     return bundler
-        .transform(babelify.configure({
-            presets: ["es2015", "stage-0"],
-            plugins: ["babel-plugin-transform-decorators-legacy"]
-        }))
         .bundle()
         .on('error', function(err) { onError(err); this.emit('end'); })
         .pipe(plumber({
