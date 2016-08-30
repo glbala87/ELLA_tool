@@ -60,28 +60,23 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
+  .cb-body { transform: scaleX(1); opacity: 1;  transition: all 0.6s; white-space: nowrap; }
 }
+.contentbox.collapsed .cb-body { transform: scaleX(0); transform-origin: left; transform-style: flat; opacity: 0; max-width: 0 !important; max-height: 0; overflow: hidden; padding: 0; white-space: nowrap; } // display: inline-flex;
 
 @keyframes collapse-in {
-  0% { transform: scaleX(1); transform-origin: left; white-space: nowrap; overflow: hidden; }
-  100% { transform: scaleX(0); transform-origin: left; max-width: 0; padding: 0; white-space: nowrap; overflow: hidden; }
+  0% { transform: scaleX(1); transform-origin: left; transform-style: flat; white-space: nowrap; overflow: hidden; opacity: 1; }
+  100% { transform: scaleX(0); transform-origin: left; transform-style: flat; max-width: 0; padding: 0; white-space: nowrap; overflow: hidden; max-height: 0; opacity: 0; }
 }
 @keyframes expand-out {
-  0% { transform: scaleX(0); transform-origin: left; white-space: nowrap; overflow: hidden; }
-  100% { transform: scaleX(1); transform-origin: left; max-width: inherit; white-space: nowrap; overflow: hidden; }
+  0% { transform: scaleX(0); transform-origin: left; white-space: nowrap; padding: 0;}
+  100% { transform: scaleX(1); transform-origin: left; max-width: initial; }
 }
 
 // collapsed styling
-// .contentbox .cb-body { animation-name: expand-out; animation-duration: 0.6s; animation-fill-mode: forwards; } // display: inline-flex;
-.contentbox.collapsed .cb-body { animation-name: collapse-in; animation-duration: 0.6s; animation-fill-mode: forwards; } // display: inline-flex;
+// .contentbox .cb-body { animation-name: collapse-in; animation-duration: 0.6s; animation-fill-mode: reverse; } // display: inline-flex;
+// .contentbox.collapsed .cb-body { animation-name: collapse-in; animation-duration: 1s; animation-fill-mode: forwards; } // display: inline-flex;
 
-// .contentbox * { transition: all 4.6s; }
-// .contentbox.collapsed * { transition: all 4.6s; }
-// .contentbox { max-width: 30vw; }
-// .contentbox .cb-body { max-width: 30vw; white-space: nowrap; }
-// .contentbox.collapsed { max-width: 2.8rem;
-//   .cb-body { max-width: 0; overflow: hidden; padding: 0; }
-// }
 // no-content styling
 .no-content .contentbox { background-color: $black-25;
   .cb.titlebar { background-color: Transparent; }
