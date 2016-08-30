@@ -1,0 +1,92 @@
+/* jshint esnext: true */
+
+import {Directive, Inject} from '../../ng-decorators';
+
+
+/**
+ * Directive for dynamically creating sections of content-boxes
+ * in an <allele-card>. The template is dynamically created
+ * from incoming configuration, before it's compiled and
+ * appended onto the root element of this directive.
+ *
+ * 'sections' example:
+ *
+ *     [
+ *         {
+ *         'title': 'ExAC',
+ *         'tag': 'allele-info-frequency-exac',
+ *         'class': ['some-class'],
+ *         'attr': {
+ *              'editable': 'true'
+ *         }
+ *     },
+ *     {...}
+ *     ]
+ *
+ */
+@Directive({
+    selector: 'allele-sectionbox-content',
+    template: '',
+    scope: {
+        analysis: '=',
+        allele: '=',
+        references: '=',
+        alleleState: '=',
+        onSave: '&?',
+        sections: '='  // Array of objects.
+    },
+    link: (scope, elem, attrs, ctrl) => {
+
+        // Dynamically create the html for the content-boxes
+        let html = '';
+        if (scope.sections) {
+            for (let box of scope.sections) {
+                let classes = '';
+                let attrs = '';
+                if ('class' in box) {
+                    classes = box.class.join(' ');
+                }
+
+                if ('attr' in box) {
+                    for (let [k, v] of Object.entries(box.attr)) {
+                        attrs += `${k}="${v}"`;
+                    }
+                }
+
+                let on_save = '';
+                if (scope.vm.onSave) {
+                    on_save = 'on-save="vm.onSave()"';
+                }
+                html += `
+                <${box.tag}
+                    class="cb-wrapper"
+                    analysis="vm.analysis"
+                    allele="vm.allele"
+                    references="vm.references"
+                    allele-state="vm.alleleState"
+                    ${on_save}
+                    ${attrs}
+                ></${box.tag}>`;
+            }
+            let compiled = scope.vm.compile(html)(scope);
+            elem.append(compiled);
+        }
+    }
+
+})
+@Inject(
+    'Config',
+    '$compile'
+)
+export class AlleleSectionboxContentController {
+
+
+    constructor(Config,
+                $compile) {
+        this.config = Config.getConfig();
+        this.compile = $compile;
+    }
+
+
+
+}

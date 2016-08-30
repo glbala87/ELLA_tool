@@ -1,0 +1,61 @@
+<sectionbox color="purple">
+<titlebar>
+  <h3 class="title">{{vm.title}}</h3>
+</titlebar>
+<controls>
+
+    <!-- Controls -->
+
+    <button ng-if="vm.controls.vardb && vm.isAlleleAssessmentOutdated()" disabled>Classification outdated</button>
+    <checkable-button ng-if="vm.controls.vardb && !vm.isAlleleAssessmentOutdated()" show-mark="true" ng-if="vm.controls.vardb" check-model="vm.isAlleleAssessmentReused()" ng-click="vm.toggleReuseAlleleAssessment()" one-way="true">
+      Accept classification
+      <checked>Classification accepted</checked>
+    </checkable-button>
+    <checkable-button show-mark="true" ng-if="vm.controls.class2" check-model="vm.alleleState.classT" ng-click="vm.toggleTechnical()" one-way="true" ng-disabled="vm.alleleState.class2">
+      Mark technical
+      <checked>Marked technical</checked>
+    </checkable-button>
+    <checkable-button show-mark="true" ng-if="vm.controls.class2" check-model="vm.alleleState.class2" ng-click="vm.toggleClass2()" one-way="true" ng-disabled="vm.alleleState.classT">
+      Mark class 2
+      <checked>Marked class 2</checked>
+    </checkable-button>
+    <button ng-click="vm.showAddReferenceModal()" ng-if="vm.controls.references">Add references</button>
+    <button ng-if="vm.controls.custom_external" ng-click="vm.showCustomAnnotationModal('external')">Add external DB</button>
+    <button ng-if="vm.controls.custom_prediction" ng-click="vm.showCustomAnnotationModal('prediction')">Add prediction</button>
+    <button ng-if="vm.controls.add_reference" ng-click="vm.showAddReferenceModal()">Add reference</button>
+    <button ng-if="vm.controls.skip_next" ng-click="vm.onSkip()">Go to next</button>
+    <div class="grouped-controls" ng-if="vm.controls.classification && vm.isAlleleAssessmentReused()">
+      <button ng-click="vm.toggleReuseAlleleAssessment()">
+        ✓ Classification accepted
+      </button>
+    </div>
+    <div class="grouped-controls" ng-if="vm.controls.classification && !vm.isAlleleAssessmentReused()">
+      <button ng-if="vm.alleleState.class2" ng-click="vm.toggleClass2()">
+        ✓ Marked class 2
+      </button>
+      <button ng-if="vm.alleleState.classT" ng-click="vm.toggleTechnical()">
+        ✓ Marked class T
+      </button>
+      <div class="dropdown white">
+        <select ng-if="!vm.alleleState.class2 && !vm.alleleState.classT" ng-disabled="vm.alleleStatus.reuseAlleleAssessment" ng-model="vm.selected_class" ng-options="o.value as o.name for o in vm.classificationOptions"></select>
+      </div>
+      <button ng-if="!vm.alleleState.class2 && !vm.alleleState.classT" ng-click="vm.updateClassification()" ng-disabled="!vm.selected_class">{{vm.getUpdateText()}}</button>
+    </div>
+
+      <!-- Comments -->
+      <autosize-textarea class="card-comment" ng-disabled="!vm.isEditable()" placeholder="{{comment.placeholder}}" ng-model="comment.model" ng-repeat="comment in vm.comments"></autosize-textarea>
+
+
+
+</controls>
+<contentwrapper>
+    <allele-sectionbox-content
+      analysis="vm.analysis"
+      allele="vm.allele"
+      references="vm.references"
+      allele-state="vm.alleleState"
+      sections="vm.section.content"
+      on-save="vm.onUpdate()"
+    ></allele-sectionbox-content>
+</contentwrapper>
+</sectionbox>

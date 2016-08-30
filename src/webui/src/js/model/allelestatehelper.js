@@ -15,6 +15,18 @@ export class AlleleStateHelper {
         if (!('alleleassessment' in allele_state)) {
             allele_state.alleleassessment = {
                 evaluation: {
+                    prediction: {
+                        comment: ''
+                    },
+                    classification: {
+                        comment: ''
+                    },
+                    external: {
+                        comment: ''
+                    },
+                    frequency: {
+                        comment: ''
+                    },
                     acmg: {
                         included: [],
                         suggested: []
@@ -30,7 +42,9 @@ export class AlleleStateHelper {
 
         if (!('allelereport' in allele_state)) {
             allele_state.allelereport = {
-                evaluation: {}
+                evaluation: {
+                    comment: ''
+                }
             };
         }
     }
