@@ -78,7 +78,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 // .contentbox.collapsed .cb-body { animation-name: collapse-in; animation-duration: 1s; animation-fill-mode: forwards; } // display: inline-flex;
 
 // no-content styling
-.no-content .contentbox { background-color: $black-25;
+.no-content.contentbox { background-color: $black-25;
   .cb.titlebar { background-color: Transparent; }
   .close { display: none; }
 }
