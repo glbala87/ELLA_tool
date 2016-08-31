@@ -5,7 +5,8 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-clinvar',
     scope: {
-        allele: '='
+        allele: '=',
+        cbOptions: '='
     },
     templateUrl: 'ngtmpl/alleleInfoClinvar.ngtmpl.html'
 })
@@ -14,6 +15,10 @@ export class AlleleInfoClinvar {
 
     constructor(Config) {
         this.config = Config.getConfig();
+
+        this.checkForContent();
+        this.cbOptions.title = "Clinvar";
+        this.cbOptions.url = this.allele.getClinvarUrl();
     }
 
     formatClinvar() {
@@ -33,6 +38,14 @@ export class AlleleInfoClinvar {
         }
         return result;
     }
+
+    checkForContent() {
+        if (!this.hasContent()) {
+            this.cbOptions.disabled = true;
+            this.cbOptions.collapsed = true;
+        };
+    }
+
 
     hasContent() {
         return 'CLINVAR' in this.allele.annotation.external;

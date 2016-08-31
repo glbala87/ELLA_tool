@@ -4,12 +4,12 @@ import {Directive, Inject} from '../../ng-decorators';
 
 
 /**
- * Directive for dynamically creating sections of content-boxes
+ * Directive for dynamically creating boxes of content-boxes
  * in an <allele-card>. The template is dynamically created
  * from incoming configuration, before it's compiled and
  * appended onto the root element of this directive.
  *
- * 'sections' example:
+ * 'boxes' example:
  *
  *     [
  *         {
@@ -33,14 +33,15 @@ import {Directive, Inject} from '../../ng-decorators';
         references: '=',
         alleleState: '=',
         onSave: '&?',
-        sections: '='  // Array of objects.
+        boxes: '=',  // Array of objects.
+        boxesOptions: '='
     },
     link: (scope, elem, attrs, ctrl) => {
 
         // Dynamically create the html for the content-boxes
         let html = '';
-        if (scope.sections) {
-            for (let box of scope.sections) {
+        if (scope.boxes) {
+            for (let box of scope.boxes) {
                 let classes = '';
                 let attrs = '';
                 if ('class' in box) {
@@ -57,16 +58,30 @@ import {Directive, Inject} from '../../ng-decorators';
                 if (scope.vm.onSave) {
                     on_save = 'on-save="vm.onSave()"';
                 }
+
+
+                let options = '';
+                let cb_options = '';
+                if (scope.vm.boxesOptions &&
+                    box.tag in scope.vm.boxesOptions) {
+                    options = `options="vm.boxesOptions['${box.tag}']"`;
+                    cb_options = `cb-options="vm.boxesOptions['${box.tag}']"`
+                }
                 html += `
-                <${box.tag}
-                    class="cb-wrapper"
-                    analysis="vm.analysis"
-                    allele="vm.allele"
-                    references="vm.references"
-                    allele-state="vm.alleleState"
-                    ${on_save}
-                    ${attrs}
-                ></${box.tag}>`;
+                <contentbox ${options}>
+                  <cbbody>
+                    <${box.tag}
+                        class="cb-wrapper"
+                        analysis="vm.analysis"
+                        allele="vm.allele"
+                        references="vm.references"
+                        allele-state="vm.alleleState"
+                        ${cb_options}
+                        ${on_save}
+                        ${attrs}
+                    ></${box.tag}>
+                  </cbbody>
+                </contentbox>`;
             }
             let compiled = scope.vm.compile(html)(scope);
             elem.append(compiled);
@@ -86,7 +101,5 @@ export class AlleleSectionboxContentController {
         this.config = Config.getConfig();
         this.compile = $compile;
     }
-
-
 
 }

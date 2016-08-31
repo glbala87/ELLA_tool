@@ -7,7 +7,8 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     selector: 'allele-info-acmg-selection',
     scope: {
         allele: '=',
-        alleleState: '='
+        alleleState: '=',
+        cbOptions: '='
     },
     templateUrl: 'ngtmpl/alleleInfoAcmgSelection.ngtmpl.html'
 })
@@ -24,6 +25,9 @@ export class ACMGSelectionController {
         this.config = Config.getConfig();
         this.acmgClassificationResource = ACMGClassificationResource;
         this.toastr = toastr;
+
+        this.cbOptions.title = "ACMG";
+
         this.popover = {
             templateUrl: 'ngtmpl/acmgSelectionPopover.ngtmpl.html'
         };

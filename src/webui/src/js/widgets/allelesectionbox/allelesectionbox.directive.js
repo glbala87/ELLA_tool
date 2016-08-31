@@ -43,7 +43,9 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     'Allele',
     'CustomAnnotationModal',
     'Analysis',
-    'Interpretation'
+    'Interpretation',
+    'clipboard',
+    'toastr'
 )
 export class AlleleSectionBoxController {
 
@@ -52,17 +54,42 @@ export class AlleleSectionBoxController {
                 Allele,
                 CustomAnnotationModal,
                 Analysis,
-                Interpretation) {
+                Interpretation,
+                clipboard,
+                toastr) {
         this.config = Config.getConfig();
         this.alleleService = Allele;
         this.customAnnotationModal = CustomAnnotationModal;
         this.interpretationService = Interpretation;
         this.analysisService = Analysis;
+        this.clipboard = clipboard;
+        this.toastr = toastr;
 
         this.selected_class = null; // Stores selected class in dropdown
         this.calculated_config = null; // calculated at request.
 
         this.classificationOptions = this.config.classification.options;
+
+        this.sectionOptions = {};  // {'alleleinfo-something': {collapsed: true, ...}}
+
+        this.setupSectionOptions();
+    }
+
+
+    /**
+     * Creates option objects for the <contentbox> es
+     * used as part of provided section.
+     */
+    setupSectionOptions() {
+        this.sectionOptions = {};
+        for (let s of this.section.content) {
+            this.sectionOptions[s.tag] = {
+                collapsed: false,
+                url: '', // Will be set by alleleinfo itself
+                title: '', // Likewise
+                disabled: true // Likewise
+            }
+        }
     }
 
 
@@ -110,6 +137,10 @@ export class AlleleSectionBoxController {
                 return 'yellow';
         }
         return 'blue';
+    }
+
+    hasExistingAlleleAssessment() {
+        return this.allele.allele_assessment;
     }
 
     isAlleleAssessmentReused() {
@@ -177,6 +208,11 @@ export class AlleleSectionBoxController {
 
     getUpdateText() {
         return this.updateText !== undefined ? this.updateText : 'Set class';
+    }
+
+    copyAlamut() {
+        this.clipboard.copyText(this.allele.formatAlamut());
+        this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
     }
 
 }

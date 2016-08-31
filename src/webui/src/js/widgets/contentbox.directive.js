@@ -9,12 +9,10 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'contentbox',
     scope: {
-        ngDisabled: '=?',
         color: '@',
-        collapsed: '=?',
-        collapsible: '=?' // bool: whether card can collapse
+        options: '=?', // {collapsed: bool, url: string, title: string, disabled: bool}
+        collapsible: '=?', // bool: whether box can collapse
     },
-    transclude: { cbheader: 'cbheader', cbbody: 'cbbody' },
     link: (scope, elem, attrs) => {
       setTimeout(() => {
         let e = elem[0].querySelector(".cb-body");
@@ -22,32 +20,36 @@ import {Directive, Inject} from '../ng-decorators';
         e.style.maxWidth = `${h}px`;
       }, 0);
     },
-    template: ' \
-        <div class="contentbox fixed-width-numbers" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled"> \
-          <div class="cb titlebar"> \
-            <div ng-transclude="cbheader"></div> \
-            <div class="close" ng-click="vm.collapse()" ng-class="{collapsed: vm.collapsed}" ng-if="vm.isCollapsible()"> \
-              <svg id="i-play" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> \
-                  <path d="M10 2 L10 30 24 16 Z" /> \
-              </svg> \
-            </div> \
-          </div> \
-          <div class="cb-body" ng-transclude="cbbody"></div> \
-        </div>',
+    transclude: { cbbody: 'cbbody' },
+    templateUrl: 'ngtmpl/contentbox.ngtmpl.html'
 })
 export class ContentboxController {
+
+    constructor() {
+        this.options = this.options || {};
+    }
+
     getClasses() {
-      let color = this.color ? this.color : "blue";
-      let collapsed = this.collapsed ? "collapsed" : "";
-      return `${color} ${collapsed}`
+        let color = this.color ? this.color : "blue";
+        let collapsed = this.options.collapsed ? "collapsed" : "";
+        let disabled = this.isDisabled() ? "no-content" : "";
+        return `${color} ${collapsed} ${disabled}`;
     }
+
     isCollapsible() {
-      return this.collapsible === undefined || this.collapsible;
+        return this.collapsible === undefined || this.collapsible;
     }
+
+    isDisabled() {
+        if (this.options) {
+            return this.options.disabled;
+        }
+    }
+
     collapse() {
         if (this.isCollapsible()) {
-            this.collapsed === undefined ? true : this.collapsed;
-            this.collapsed = !this.collapsed;
+            this.options.collapsed === undefined ? true : this.options.collapsed;
+            this.options.collapsed = !this.options.collapsed;
         }
     }
 }

@@ -1,26 +1,25 @@
-<div class="content-box full-width vertical" ng-if="::vm.allele.allele_assessment">
-  <h3 class="title">Existing classification</h3>
-  <h4>{{::vm.getClassName()}}</h4>
-  <h5>made by {{::vm.allele.allele_assessment.user.first_name}} {{::vm.allele.allele_assessment.user.last_name}}, {{::vm.allele.allele_assessment.seconds_since_update | secondsToTimeString}}ago for {{::vm.allele.allele_assessment.genepanel_name}}_{{::vm.allele.allele_assessment.genepanel_version}}<span class="faded-red" ng-if="::vm.isOutdated()"> (Outdated)</span></h5>
 
-  <acmg class="included disabled" code="code" ng-repeat="code in vm.allele.allele_assessment.evaluation.acmg.included track by $index" comment-model="code.comment" editable="false"></acmg>
+<h3 class="title">Existing classification</h3>
+<h4>{{::vm.getClassName()}}</h4>
+<h5>made by {{::vm.allele.allele_assessment.user.first_name}} {{::vm.allele.allele_assessment.user.last_name}}, {{::vm.allele.allele_assessment.seconds_since_update | secondsToTimeString}}ago for {{::vm.allele.allele_assessment.genepanel_name}}_{{::vm.allele.allele_assessment.genepanel_version}}<span class="faded-red" ng-if="::vm.isOutdated()"> (Outdated)</span></h5>
 
-  <div>
-    <div class="tabular-row">
-      <div class="cell top-align"> <h5>Evaluation</h5> </div>
-      <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.classification.comment}}</p> </div>
-    </div>
-    <div class="tabular-row">
-      <div class="cell top-align"> <h5>Frequency</h5> </div>
-      <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.frequency.comment}}</p> </div>
-    </div>
-    <div class="tabular-row">
-      <div class="cell top-align"> <h5>External DB</h5> </div>
-      <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.external.comment}}</p> </div>
-    </div>
-    <div class="tabular-row">
-      <div class="cell top-align"> <h5>Prediction</h5> </div>
-      <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.prediction.comment}}</p> </div>
-    </div>
+<acmg class="included disabled" code="code" ng-repeat="code in vm.allele.allele_assessment.evaluation.acmg.included track by $index" comment-model="code.comment" editable="false"></acmg>
+
+<div>
+  <div class="tabular-row">
+    <div class="cell top-align"> <h5>Evaluation</h5> </div>
+    <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.classification.comment}}</p> </div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell top-align"> <h5>Frequency</h5> </div>
+    <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.frequency.comment}}</p> </div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell top-align"> <h5>External DB</h5> </div>
+    <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.external.comment}}</p> </div>
+  </div>
+  <div class="tabular-row">
+    <div class="cell top-align"> <h5>Prediction</h5> </div>
+    <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.prediction.comment}}</p> </div>
   </div>
 </div>

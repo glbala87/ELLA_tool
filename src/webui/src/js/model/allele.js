@@ -75,22 +75,8 @@ export class Allele {
         }
     }
 
-    /**
-     * Convenience function for getting the urls dynamically.
-     * Used by allelecardcontent to get the header links.
-     */
-    getUrl(type) {
-        let types = {
-            'ExAC': () => this.getExACUrl(),
-            'HGMD Pro': () => this.getHGMDUrl(),
-            'Clinvar': () => this.getClinvarUrl(),
-            '1000g': () => this.get1000gUrl(),
-            'ESP6500': () => this.getESP6500Url()
-        }
-        if (type in types) {
-            return types[type]();
-        }
-        return '';
+    getEnsemblUrl() {
+        return `http://grch37.ensembl.org/Homo_sapiens/Location/View?r=${this.chromosome}%3A${this.start_position+1}-${this.open_end_position}`
     }
 
     /**
@@ -112,5 +98,45 @@ export class Allele {
         else {
             return this.acmg.codes;
         }
+    }
+
+    /**
+     * Returns a string formatted for pasting into Alamut.
+     * @param  {Allele} alleles List of alleles to include
+     * @return {[type]}         String to paste into Alamut
+     */
+    formatAlamut() {
+
+        // (Alamut also support dup, but we treat them as indels)
+        // (dup: Chr13(GRCh37):g.32912008_3291212dup )
+
+        let result = `Chr${this.chromosome}(${this.genome_reference}):g.`;
+
+        // Database is 0-based, alamut uses 1-based index
+        let start = this.start_position + 1;
+        let end = this.open_end_position + 1;
+
+        if (this.change_type === 'SNP') {
+            // snp: Chr11(GRCh37):g.66285951C>Tdel:
+            result += `${start}${this.change_from}>${this.change_to}`;
+        }
+        else if (this.change_type === 'del') {
+            // del: Chr13(GRCh37):g.32912008_32912011del
+            result += `${start}_${end}del`;
+        }
+        else if (this.change_type === 'ins') {
+            // ins: Chr13(GRCh37):g.32912008_3291209insCGT
+            result += `${start}_${start+1}ins${this.change_to}`;
+        }
+        else if (this.change_type === 'indel') {
+            // delins: Chr13(GRCh37):g.32912008_32912011delinsGGG
+            result += `${start}_${end}delins${this.change_to}`;
+        }
+        else {
+            // edge case, shouldn't happen, but this is valid format as well
+            result += `${start}`;
+        }
+
+        return result;
     }
 }
