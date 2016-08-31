@@ -10,6 +10,7 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'contentbox',
     scope: {
         color: '@',
+        title: '@?', // Title (can also be set through options, options takes precedence)
         options: '=?', // {collapsed: bool, url: string, title: string, disabled: bool}
         collapsible: '=?', // bool: whether box can collapse
     },
@@ -27,6 +28,9 @@ export class ContentboxController {
 
     constructor() {
         this.options = this.options || {};
+        if (!this.options.title) {
+            this.options.title = this.title ? this.title : '';
+        }
     }
 
     getClasses() {
