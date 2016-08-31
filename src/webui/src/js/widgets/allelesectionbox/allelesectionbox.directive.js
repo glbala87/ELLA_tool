@@ -19,8 +19,11 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         onUpdate: '&?',  // On-update callback function (should refresh allele)
         onSetClass: '&?',  // Callback function when clicking 'Set' button for setting class
         onSkip: '&?', // Callback function when clicking 'Skip' button. Enables skip button.
-        //controls: {
-        //   class2: bool,
+        controls: '=',
+        // possible controls: {
+        //   toggle_technical: bool,
+        //   toggle_class2: bool,
+        //   skip_next: bool,
         //   checked: bool,
         //   classification: bool,
         //   vardb: bool,
@@ -28,17 +31,11 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         //   custom_external: bool
         //}
         //
-        controls: '=',
-        // options: {
-        //    collapsed: bool,
-        //    expanded: bool
-        // }
-        options: '='
-        //
     }
 
 })
 @Inject(
+    '$rootScope',
     'Config',
     'Allele',
     'CustomAnnotationModal',
@@ -50,7 +47,8 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
 export class AlleleSectionBoxController {
 
 
-    constructor(Config,
+    constructor(rootScope,
+                Config,
                 Allele,
                 CustomAnnotationModal,
                 Analysis,
@@ -73,6 +71,15 @@ export class AlleleSectionBoxController {
         this.sectionOptions = {};  // {'alleleinfo-something': {collapsed: true, ...}}
 
         this.setupSectionOptions();
+
+        // This is a hack around the fact
+        // that <sectionbox> contains the toggle for
+        // the collapse action, so we need to watch
+        // it's collapsed state and act on that.
+        rootScope.$watch(
+            () => this.section.options.collapsed,
+            () => this.toggleCollapse()
+        );
     }
 
 
@@ -89,6 +96,16 @@ export class AlleleSectionBoxController {
                 title: '', // Likewise
                 disabled: true // Likewise
             }
+        }
+    }
+
+    /**
+     * Toggles collapse state on all child <contentbox>es through the
+     * section options.
+     */
+    toggleCollapse() {
+        for (let s of this.section.content) {
+            this.sectionOptions[s.tag].collapsed = this.section.options.collapsed;
         }
     }
 
