@@ -48,6 +48,7 @@ export class ContentboxController {
         if (this.options) {
             return this.options.disabled;
         }
+        return false;
     }
 
     collapse() {

@@ -94,7 +94,7 @@ export class AlleleSectionBoxController {
                 collapsed: false,
                 url: '', // Will be set by alleleinfo itself
                 title: '', // Likewise
-                disabled: true // Likewise
+                disabled: false // Likewise
             }
         }
     }
