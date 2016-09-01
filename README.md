@@ -17,6 +17,16 @@ Most functionality is now baked into a Makefile, run `make help` to see a quick 
   - are managed via their respective dependency files
   - are baked in when you do `make build`, so if you change a dependency file you need to do `make build` again!
 
+### Migration:
+Whenever you make changes to the database model, you need to create migration scripts, so that the production database can be upgraded to the new version. We use Alembic to assist creating those scripts. Migration scripts are stored in `src/vardb/datamodel/migration/alembic/`. The current migration base is stored in `src/vardb/datamodel/migration/ci_migration_base`. This base serves as the base for which the migration scripts will be built against, and should represent the oldest database in production.
+
+To create a new migration:
+
+1. Make all your changes to the normal datamodel in `src/vardb/datamodel/` and test them until you're satisfied. In general we don't want to make more migration scripts than necessary, so make sure things are proper.
+1. On your dev instance, run `./ella-cli database ci-migration-head` to reset the database to the migration base, then run all the upgrades to make
+1. `cd src/vardb/datamodel/migration/` and run something like this `PYTHONPATH=../../.. DB_URL=postgresql://postgres@/postgres alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel and compare it against the database state, generating a migration script from the differences.
+1. Go over the created script, clean it up and test it. The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right. Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data present in the database if necessary. The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
+
 # Testing
 
 Our test suites are intended to be run inside Docker. The Makefile has commands to do run setup and the tests themselves.
