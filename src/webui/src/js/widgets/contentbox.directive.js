@@ -17,8 +17,10 @@ import {Directive, Inject} from '../ng-decorators';
     link: (scope, elem, attrs) => {
       setTimeout(() => {
         let e = elem[0].querySelector(".cb-body");
-        let h = e.getBoundingClientRect().width;
-        e.style.maxWidth = `${h}px`;
+        if(e) {
+          let h = e.getBoundingClientRect().width;
+          e.style.maxWidth = `${h}px`;
+        }
       }, 0);
     },
     transclude: { cbbody: 'cbbody' },

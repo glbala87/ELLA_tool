@@ -1,5 +1,5 @@
 
-<h3 class="title">Existing classification</h3>
+<h3 class="slim"><b>Existing classification</b></h3>
 <h4>{{::vm.getClassName()}}</h4>
 <h5>made by {{::vm.allele.allele_assessment.user.first_name}} {{::vm.allele.allele_assessment.user.last_name}}, {{::vm.allele.allele_assessment.seconds_since_update | secondsToTimeString}}ago for {{::vm.allele.allele_assessment.genepanel_name}}_{{::vm.allele.allele_assessment.genepanel_version}}<span class="faded-red" ng-if="::vm.isOutdated()"> (Outdated)</span></h5>
 

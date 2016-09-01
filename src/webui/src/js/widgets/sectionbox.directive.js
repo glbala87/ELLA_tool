@@ -21,12 +21,20 @@ import {Directive, Inject} from '../ng-decorators';
         <div class="close" ng-click="vm.close()" ng-if="vm.isModal()">X</div> \
         <div ng-transclude="titlebar" ng-click="vm.collapse()"></div> \
       </header> \
-      <div class="sb-container"> \
+      <div class="sb-container" ng-class="{topcontrols: vm.onTop()}"> \
         <article class="sb-body" ng-transclude="contentwrapper"></article> \
-        <aside class="sb-controls" ng-class="{top: vm.onTop()}" ng-transclude="controls"></aside> \
+        <aside class="sb-controls" ng-transclude="controls"></aside> \
       </div> \
     </section>',
-    link: (scope, elem, attrs) => { }
+    link: (scope, elem, attrs) => {
+      setTimeout(() => {
+        let p = elem[0].querySelector(".sb-controls");
+        let c = p.querySelector("controls")
+        if(c) {
+          if(c.children.length == 0) { p.style.display = "none"; }
+        }
+      }, 0);
+    }
 })
 export class SectionboxController {
     getClasses() {
