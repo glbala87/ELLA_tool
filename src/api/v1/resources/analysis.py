@@ -243,17 +243,24 @@ class AnalysisActionFinalizeResource(Resource):
             data['referenceassessments'],
         )
 
-        aa = result['alleleassessments']['reused'] + result['alleleassessments']['created']
-        ra = result['referenceassessments']['reused'] + result['referenceassessments']['created']
+        all_alleleassessments = result['alleleassessments']['reused'] + result['alleleassessments']['created']
+        all_referenceassessments = result['referenceassessments']['reused'] + result['referenceassessments']['created']
 
         arc = AlleleReportCreator(session)
-        arc_result = arc.create_from_data(data['allelereports'], aa)
+        arc_result = arc.create_from_data(data['allelereports'], all_alleleassessments)
 
-        arc = arc_result['reused'] + arc_result['created']
+        all_allelereports = arc_result['reused'] + arc_result['created']
 
         connected_interpretations = session.query(sample.Interpretation).filter(
             sample.Interpretation.analysis_id == analysis_id
         ).all()
+
+        # Check that exactly one is ongoing
+        if not len([i for i in connected_interpretations if i.status == 'Ongoing']) == 1:
+            raise ApiError("There's more than one ongoing interpretation. This shouldn't happen!")
+
+        if [i for i in connected_interpretations if i.status == 'Not started']:
+            raise ApiError("One or more interpretations are marked as 'Not started'. Finalization not possible.")
 
         current_interpretation = next((i for i in connected_interpretations if i.status == 'Ongoing'), None)
 
@@ -285,7 +292,7 @@ class AnalysisActionFinalizeResource(Resource):
             allele.Allele.id.in_(all_allele_ids)
         ).all()
 
-        def create_af(allele_id, alleleassessment_id=None, allelereport_id=None, filtered=None):
+        def create_analaysisfinalize(allele_id, alleleassessment_id=None, allelereport_id=None, filtered=None):
             _, annotation_id, customannotation_id = next(a for a in allele_annotation if a[0] == allele_id)
             af_data = {
                 'analysis_id': analysis_id,
@@ -300,19 +307,19 @@ class AnalysisActionFinalizeResource(Resource):
             return af
 
         for allele_id in allele_ids:
-            af = create_af(
+            af = create_analaysisfinalize(
                 allele_id,
-                alleleassessment_id=next(a.id for a in aa if a.allele_id == allele_id),
-                allelereport_id=next(a.id for a in arc if a.allele_id == allele_id),
+                alleleassessment_id=next(a.id for a in all_alleleassessments if a.allele_id == allele_id),
+                allelereport_id=next(a.id for a in all_allelereports if a.allele_id == allele_id),
             )
             session.add(af)
 
         for allele_id in excluded['class1']:
-            af = create_af(allele_id, filtered='CLASS1')
+            af = create_analaysisfinalize(allele_id, filtered='CLASS1')
             session.add(af)
 
         for allele_id in excluded['intronic']:
-            af = create_af(allele_id, filtered='INTRON')
+            af = create_analaysisfinalize(allele_id, filtered='INTRON')
             session.add(af)
 
         # Mark all analysis' interpretations as done (we do all just in case)
@@ -322,7 +329,7 @@ class AnalysisActionFinalizeResource(Resource):
         session.commit()
 
         return {
-            'allelereports': schemas.AlleleReportSchema().dump(arc, many=True).data,
-            'alleleassessments': schemas.AlleleAssessmentSchema().dump(aa, many=True).data,
-            'referenceassessments': schemas.ReferenceAssessmentSchema().dump(ra, many=True).data,
+            'allelereports': schemas.AlleleReportSchema().dump(all_allelereports, many=True).data,
+            'alleleassessments': schemas.AlleleAssessmentSchema().dump(all_alleleassessments, many=True).data,
+            'referenceassessments': schemas.ReferenceAssessmentSchema().dump(all_referenceassessments, many=True).data,
         }, 200
