@@ -15,13 +15,18 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     browserify = require('browserify'),
     notify = require('gulp-notify'),
-    watchify   = require('watchify'),
-    protractor = require('gulp-protractor').protractor,
-    KarmaServer = require('karma').Server,
-    os = require('os'),
     templateCache = require('gulp-angular-templatecache'),
+    os = require('os'),
     path = require('path'),
     __basedir = 'src/webui/dev/';
+
+var production = !!util.env.production;
+
+if(! production) {
+    var watchify   = require('watchify'),
+        protractor = require('gulp-protractor').protractor,
+        KarmaServer = require('karma').Server;
+}
 
 function getIpAddress() {
     var ipAddress = null;
@@ -38,8 +43,6 @@ function getIpAddress() {
     }
     return ipAddress;
 }
-
-var production = !!util.env.production;
 
 var onError = function(err) {
     console.error('\033[31m ERROR:' + err.message + '\033[91m');
