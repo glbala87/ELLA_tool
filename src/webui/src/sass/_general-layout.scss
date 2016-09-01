@@ -33,7 +33,7 @@ select { border: none; box-shadow: none; background: transparent; height: 100%; 
 p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
 
 interpretation-button button { height: 100%; } // fixes a browser quirk
-button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
+.button ~ .button, button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
 button { outline: none; border: 1px solid Transparent;
   &:disabled { border: 1px solid $black-50; box-shadow: none; color: $black-75; opacity: 0.25; background-color: inherit; &:hover { cursor: default; } }
   // We use svg in buttons for significantly more control over spacing/color/boldness, and to not rely on UTF8 chars in our markup.
@@ -41,8 +41,8 @@ button { outline: none; border: 1px solid Transparent;
 }
 .buttonmark { width: 1.5rem; height: 0.8rem; stroke-width: 14%; }
 
-.container { width: auto; }
-.container { margin-left: 1.3rem; margin-right: 1.3rem; margin-top: 2rem; }
+.container { margin-left: 32rem; margin-top: 12rem; margin-right: 1.3rem; margin-bottom: 2.6rem; }
+.container.inner { margin-top: 0; width: 100%; }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
@@ -53,7 +53,6 @@ button { outline: none; border: 1px solid Transparent;
 }
 .no-results { height: auto; }
 .no-results h4 { font-size: 1.6rem; }
-.lolfix { margin-left: 32rem; margin-top: 12rem; margin-right: 1.3rem; }
 .lolspace { margin-left: 21rem; }
 
 .hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 100; color: black; cursor: pointer;

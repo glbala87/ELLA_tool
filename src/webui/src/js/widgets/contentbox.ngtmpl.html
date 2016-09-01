@@ -1,0 +1,14 @@
+<div class="contentbox fixed-width-numbers" ng-if="!vm.options.hidden" ng-class="vm.getClasses()">
+  <div class="cb titlebar">
+    <div>
+      <h3 class="title" ng-if="!vm.options.url">{{vm.options.title}}</h3>
+      <h3 class="title" ng-if="vm.options.url"> <a-clip href="{{vm.options.url}}">{{vm.options.title}}</a-clip> </h3>
+    </div>
+    <div class="close" ng-click="vm.collapse()" ng-class="{collapsed: vm.options.collapsed}" ng-if="vm.isCollapsible()">
+      <svg id="i-play" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+          <path d="M10 2 L10 30 24 16 Z" />
+      </svg>
+    </div>
+  </div>
+  <div class="cb-body" ng-transclude="cbbody"></div>
+</div>'

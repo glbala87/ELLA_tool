@@ -12,12 +12,16 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         allele: '=',
         references: '=',
         alleleState: '=',
-        onSave: '&?'
+        onSave: '&?',
+        cbOptions: '='
     }
 })
 @Inject('$scope', 'ReferenceEvalModal', 'Interpretation')
 export class AlleleInfoReferences {
     constructor($scope, ReferenceEvalModal, Interpretation) {
+
+        this.cbOptions.title = "References";
+
         this.allele_references = [];
         // If we have PMID in annotation,
         // but not the reference in the database.
@@ -25,7 +29,10 @@ export class AlleleInfoReferences {
         this.missing_references = [];
         $scope.$watchCollection(
             () => this.references,
-            () => this.setAlleleReferences()
+            () => {
+                this.setAlleleReferences();
+                this.cbOptions.hidden = !Boolean(this.allele_references.length);
+            }
         );
         this.refEvalModal = ReferenceEvalModal;
         this.interpretationService = Interpretation;

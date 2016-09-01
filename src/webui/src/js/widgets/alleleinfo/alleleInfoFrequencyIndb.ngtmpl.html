@@ -1,9 +1,2 @@
-<contentbox ng-class="{'no-content': !vm.hasContent()}">
-  <cbheader>
-    <h3 class="title">inDB</h3>
-  </cbheader>
-  <cbbody>
-    <frequency-details group="inDB" allele="vm.allele"></frequency-details>
-    <acmg class="suggested disabled" code="c" editable="::false" ng-repeat="c in ::vm.allele.getACMGCodes('frequencies.cutoff.inDB')"></acmg>
-  </cbbody>
-</contentbox>
+<frequency-details group="inDB" allele="vm.allele"></frequency-details>
+<acmg class="suggested disabled" code="c" editable="::false" ng-repeat="c in ::vm.allele.getACMGCodes('frequencies.cutoff.inDB')"></acmg>

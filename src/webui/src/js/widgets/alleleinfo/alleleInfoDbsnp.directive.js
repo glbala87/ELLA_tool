@@ -5,14 +5,27 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-dbsnp',
     scope: {
-        allele: '='
+        allele: '=',
+        cbOptions: '='
     },
     templateUrl: 'ngtmpl/alleleInfoDbsnp.ngtmpl.html'
 })
 @Inject()
 export class AlleleInfoDbsnp {
 
-    constructor() {}
+    constructor() {
+
+        this.checkForContent();
+
+        this.cbOptions.title = "dbSNP";
+    }
+
+    checkForContent() {
+        if (!this.hasContent()) {
+            this.cbOptions.disabled = true;
+            this.cbOptions.collapsed = true;
+        };
+    }
 
     getUrl(dbsnp) {
         return `http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${dbsnp}`;

@@ -81,47 +81,4 @@ export class AlleleService {
             }
         });
     }
-
-    /**
-     * Returns a string formatted for pasting into Alamut.
-     * @param  {Allele} alleles List of alleles to include
-     * @return {[type]}         String to paste into Alamut
-     */
-    formatAlamut(alleles) {
-
-        // (Alamut also support dup, but we treat them as indels)
-        // (dup: Chr13(GRCh37):g.32912008_3291212dup )
-
-        let result = '';
-        for (let allele of alleles) {
-            result += `Chr${allele.chromosome}(${allele.genome_reference}):g.`;
-
-            // Database is 0-based, alamut uses 1-based index
-            let start = allele.start_position + 1;
-            let end = allele.open_end_position + 1;
-
-            if (allele.change_type === 'SNP') {
-                // snp: Chr11(GRCh37):g.66285951C>Tdel:
-                result += `${start}${allele.change_from}>${allele.change_to}\n`;
-            }
-            else if (allele.change_type === 'del') {
-                // del: Chr13(GRCh37):g.32912008_32912011del
-                result += `${start}_${end}del\n`;
-            }
-            else if (allele.change_type === 'ins') {
-                // ins: Chr13(GRCh37):g.32912008_3291209insCGT
-                result += `${start}_${start+1}ins${allele.change_to}\n`;
-            }
-            else if (allele.change_type === 'indel') {
-                // delins: Chr13(GRCh37):g.32912008_32912011delinsGGG
-                result += `${start}_${end}delins${allele.change_to}\n`;
-            }
-            else {
-                // edge case, shouldn't happen, but this is valid format as well
-                result += `${start}\n`;
-            }
-
-        }
-        return result;
-    }
 }

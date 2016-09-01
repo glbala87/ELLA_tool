@@ -7,12 +7,12 @@
   <titlebar>
     <h3 class="title">REFERENCE EVALUATION</h3>
   </titlebar>
-  <controls class="reference">
-    <section>
-      <h3 class="slim"><b>{{vm.reference.title}}</b></h3>
-      <p class="slim">{{vm.reference.getShortDesc()}}</p>
-    </section>
-    <section class="control">
+  <controls>
+    <section class="buttons">
+      <div class="ref-title">
+        <h3 class="slim"><b>{{vm.reference.title}}</b></h3>
+        <p class="slim">{{vm.reference.getShortDesc()}}</p>
+      </div>
       <button type="button" ng-click="vm.modal.close()">Cancel</button>
       <button ng-click="vm.save()"> Save </button>
     </section>
@@ -40,7 +40,7 @@
             <label tabindex=0 class="bttn" ng-model="vm.referenceAssessment.evaluation[elem.store]" uib-btn-radio="item[1]" ng-repeat="item in elem.options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
           </div>
           <div class="dropdown" ng-if="::elem.type == 'dropdown'" ng-disabled="vm.isDisabled(source)">
-            <select ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]"></select>
+            <select ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]" ng-disabled="vm.isDisabled(source)"></select>
           </div>
           <div ng-if="::elem.type == 'text'">
             <input type="text" placeholder="{{elem.placeholder || ''}}" ng-disabled="vm.isDisabled(source)" ng-model="vm.referenceAssessment.evaluation[elem.store]">

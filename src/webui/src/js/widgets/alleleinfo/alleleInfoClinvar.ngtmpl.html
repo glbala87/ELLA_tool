@@ -1,8 +1,1 @@
-<contentbox ng-class="{'no-content': !vm.hasContent()}">
-  <cbheader>
-    <h3 class="title"><a-clip href="{{::vm.allele.getUrl('Clinvar')}}" ng-if="::vm.allele.getUrl('Clinvar')">Clinvar</a-clip><span ng-if="::!vm.allele.getUrl('Clinvar')">Clinvar</span></h3>
-  </cbheader>
-  <cbbody>
-    <p ng-repeat="c in ::vm.formatClinvar() track by $index">{{c}}<br></p>
-  </cbbody>
-</contentbox>
+<p ng-repeat="c in ::vm.formatClinvar() track by $index">{{c}}<br></p>

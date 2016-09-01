@@ -5,7 +5,8 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-prediction-other',
     scope: {
-        allele: '='
+        allele: '=',
+        cbOptions: '='
     },
     templateUrl: 'ngtmpl/alleleInfoPredictionOther.ngtmpl.html'
 })
@@ -14,6 +15,16 @@ export class AlleleInfoPredictionOther {
 
     constructor(Config) {
         this.config = Config.getConfig();
+
+        this.cbOptions.title = 'Other';
+        this.checkForContent();
+    }
+
+    checkForContent() {
+        if (!this.hasContent()) {
+            this.cbOptions.disabled = true;
+            this.cbOptions.collapsed = true;
+        };
     }
 
     hasContent() {

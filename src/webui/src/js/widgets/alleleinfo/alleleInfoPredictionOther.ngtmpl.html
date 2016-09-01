@@ -1,13 +1,6 @@
-<contentbox ng-class="{'no-content': !vm.hasContent()}">
-  <cbheader>
-    <h3 class="title">Other</h3>
-  </cbheader>
-  <cbbody>
-    <table>
-      <tr ng-repeat="group in vm.config.custom_annotation.prediction" ng-if="vm.allele.annotation.prediction[group.key]">
-        <td style="padding-right: 5px;"><p>{{group.name}}: </p></td>
-        <td><p>{{vm.allele.annotation.prediction[group.key]}}</p></td>
-      </tr>
-    </table>
-  </cbbody>
-</contentbox>
+<table>
+  <tr ng-repeat="group in vm.config.custom_annotation.prediction" ng-if="vm.allele.annotation.prediction[group.key]">
+    <td style="padding-right: 5px;"><p>{{group.name}}: </p></td>
+    <td><p>{{vm.allele.annotation.prediction[group.key]}}</p></td>
+  </tr>
+</table>

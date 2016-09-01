@@ -5,7 +5,8 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-vardb',
     scope: {
-        allele: '='
+        allele: '=',
+        cbOptions: '='
     },
     templateUrl: 'ngtmpl/alleleInfoVardb.ngtmpl.html'
 })
@@ -14,6 +15,8 @@ export class AlleleInfoVardb {
 
     constructor(Config) {
         this.config = Config.getConfig();
+
+        this.cbOptions.title = "VarDB";
     }
 
     isOutdated() {

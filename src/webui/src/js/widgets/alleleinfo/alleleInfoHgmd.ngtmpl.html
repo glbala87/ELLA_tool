@@ -1,10 +1,3 @@
-<contentbox ng-class="{'no-content': !vm.hasContent()}">
-  <cbheader>
-    <h3 class="title"><a-clip href="{{::vm.allele.getUrl('HGMD Pro')}}" ng-if="::vm.allele.getUrl('HGMD Pro')">HGMD Pro</a-clip><span ng-if="::!vm.allele.getUrl('HGMD Pro')">HGMD Pro</span></h3>
-  </cbheader>
-  <cbbody>
-    <p>{{::vm.allele.annotation.external.HGMD.tag}}</p>
-    <p>{{::vm.allele.annotation.external.HGMD.disease}}</p>
-    <p>{{::vm.allele.annotation.external.HGMD.acc_num}}</p>
-  </cbbody>
-</contentbox>
+<p>{{::vm.allele.annotation.external.HGMD.tag}}</p>
+<p>{{::vm.allele.annotation.external.HGMD.disease}}</p>
+<p>{{::vm.allele.annotation.external.HGMD.acc_num}}</p>
