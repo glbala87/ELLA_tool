@@ -50,8 +50,8 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
     .icon.collapser { margin-top: auto; }
   }
   &.collapsed {
-    .sb-container { animation: 0s flexw 0.6s forwards; }
-    .sb-body { animation: 0s flexg 0.6s forwards; }
+    .sb-container { animation: flexw; animation-delay: 0.6s; animation-duration: 0s; animation-fill-mode: forwards; }
+    .sb-body { animation: flexg; animation-delay: 0.6s; animation-duration: 0s; animation-fill-mode: forwards; }
     .sb-controls { padding: 1.65rem; padding-top: 2.6rem; padding-left: 2.95rem; flex-basis: 75%; }
     .icon.collapser { transform: rotate(-90deg); }
   }
