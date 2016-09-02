@@ -31,8 +31,8 @@ import {Directive, Inject} from '../ng-decorators';
         </div> \
       </header> \
       <div class="sb-container" ng-class="{topcontrols: vm.onTop()}"> \
-        <article class="sb-body" ng-transclude="contentwrapper"></article> \
         <aside class="sb-controls" ng-transclude="controls"></aside> \
+        <article class="sb-body" ng-transclude="contentwrapper"></article> \
       </div> \
     </section>',
     link: (scope, elem, attrs) => {
