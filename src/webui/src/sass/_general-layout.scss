@@ -42,7 +42,7 @@ button { outline: none; border: 1px solid Transparent;
 .buttonmark { width: 1.5rem; height: 0.8rem; stroke-width: 14%; }
 
 .container { margin-left: 32rem; margin-top: 12rem; margin-right: 1.3rem; margin-bottom: 2.6rem; }
-.container.inner { margin-top: 0; width: 100%; }
+.container.inner { margin-top: 0; width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; border-left: 1px dotted $blue-25; }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
@@ -99,7 +99,7 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   .section-title { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.05rem; color: $blue-75; text-transform: uppercase; }
   i { font-weight: 400; font-style: normal; margin-right: 1.3rem; }
   b { font-weight: 700; color: $black-75; margin-left: auto; }
-  .nav-row { display: flex; align-items: center; color: $black-50; background-color: inherit; width: 24rem; border-left: 1px solid #eee;
+  .nav-row { display: flex; align-items: center; color: $black-50; background-color: inherit; width: 24rem;
     &.disabled { color: $black-25; }
     & .tab, & .title { transition: all 0.3s ease-in-out; }
     &:not(.disabled):hover { cursor: pointer; }
@@ -115,7 +115,7 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   .tab { width: 0.35rem; min-width: 0.35rem; height: 2.6rem; background-color: inherit; }
   .tab.togglable { display: flex; align-items: center; justify-content: center; width: 2.6rem; }
   .added h5 { margin: 0; font-size: 1.3rem; font-weight: 600; color: white; }
-  .title { width: 100%; padding-left: 1.9rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .title { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .title span { width: 14.3rem; text-overflow: ellipsis; overflow: hidden; }
   .tab.active { background-color: $blue; }
   .title.active { color: $blue; }
