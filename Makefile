@@ -65,6 +65,12 @@ dev:
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
 
+no-poll-dev:
+	sed -i 's poll //poll ' gulpfile.js
+	$(MAKE) dev
+	sleep 10
+	git checkout gulpfile.js
+
 db:
 	docker exec $(CONTAINER_NAME) make dbreset
 
