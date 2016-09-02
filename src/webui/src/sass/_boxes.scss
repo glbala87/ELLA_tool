@@ -45,7 +45,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   &.collapsed {
     .sb-container { flex-wrap: nowrap; }
     .sb-body { flex-grow: 0; flex: 1; }
-    .sb-controls { padding: 1.65rem; padding-top: 2.6rem; order: 0; margin-left: auto; flex-basis: 75%; }
+    .sb-controls { padding: 1.65rem; padding-top: 2.6rem; padding-left: 2.95rem; flex-basis: 75%; }
   }
   section.buttons { display: flex; align-items: center; }
   section.buttons ~ section.comments { padding-top: 1.3rem; }
