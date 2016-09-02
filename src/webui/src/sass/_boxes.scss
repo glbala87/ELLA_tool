@@ -16,7 +16,7 @@ $bar-colors: (
    .#{$name} .sb-controls button:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
 }
 .sectionbox .sb.titlebar { color: $black-50; }
-.contentbox .cb.titlebar { color: $white-75; }
+.contentbox .cb.titlebar { color: $white-50; }
 
 .sectionbox, .contentbox { display: flex; height: calc(100% - 0.7rem);
   .titlebar { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
@@ -27,7 +27,7 @@ $bar-colors: (
     a:hover { border-left: 1px solid $white-50; border-bottom: none; }
   }
   .icon { transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center;
-    svg { width: 1.2rem; height: 1.2rem; }
+    svg { width: 1.2rem; height: 1.2rem; transition: all 0.3s; }
   }
 }
 
@@ -41,6 +41,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
     &:empty { display: none; }
   }
   .sb.titlebar {
+    .icon:hover svg { fill: $black-75; }
     .icon.modal-close { margin-bottom: 2.6rem;
       svg { stroke-width: 14%; width: 1rem; height: 1rem; }
     }
@@ -62,7 +63,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 .contentbox { margin: 0.35rem;
   .titlebar { justify-content: space-between; }
   .title { margin-right: 0.025rem; }
-  .cb-body { padding: 1.3rem; width: 100%; }
+  .cb-body { padding: 1.3rem; width: 100%; transform: scaleX(1); opacity: 1; transform-origin: left; transform-style: flat; transition: all 0.6s; white-space: nowrap; }
   .title { color: white; }
   h5, p { font-size: 1.4rem; color: black; }
   .exac p { padding-right: 2.6rem; }
@@ -75,7 +76,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
-  .cb-body { transform: scaleX(1); opacity: 1; transform-origin: left; transform-style: flat; transition: all 0.6s; white-space: nowrap; }
+  .icon:hover svg { fill: $white; }
   .icon.collapsed { transform-style: preserve-3d; transform: rotateY(180deg); }
 }
 .contentbox.collapsed .cb-body { transform: scaleX(0);  opacity: 0; max-width: 0 !important; max-height: 0; overflow: hidden; padding: 0; white-space: nowrap; } // display: inline-flex;
@@ -84,12 +85,13 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 .no-content.contentbox { background-color: $black-25;
   .cb.titlebar { background-color: Transparent; }
   .cb-body { padding: 0; }
-  .close { display: none; }
+  .icon { display: none; }
 }
 
 .sectionbox-content { display: flex; flex-wrap: wrap; }
 
 // Edge cases
 section.buttons .ref-title { padding-right: 1.3rem; }
+.modal .sectionbox .sb-controls section.buttons { justify-content: space-between; }
 .reference-layout { display: flex; align-items: center; justify-content: space-between; }
 .reference-layout ~ .reference-layout { margin-top: 0.7rem; }
