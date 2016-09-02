@@ -7,7 +7,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     selector: 'allele-sectionbox',
     templateUrl: 'ngtmpl/allelesectionbox.ngtmpl.html',
     scope: {
-        title: '=',
+        header: '=',
         genepanel: '=',
         allele: '=',
         references: '=',
