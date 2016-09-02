@@ -9,11 +9,11 @@ $bar-colors: (
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
    .sectionbox.#{$name} {
      .sb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.25); }
-     // .sb-controls, .sb-controls.top  { background-color: hsla(hue($color),saturation($color),lightness($color),0.1); }
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
-   .#{$name} .sb-controls button, button.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
-   .#{$name} .sb-controls button:hover, button.#{$name}:hover { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
+   .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
+   .#{$name} .sb-controls button:disabled, button.#{$name}:disabled { color: $color; border-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
+   .#{$name} .sb-controls button:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
 }
 .sectionbox .sb.titlebar { color: $black-50; }
 .contentbox .cb.titlebar { color: $white-75; }
@@ -26,32 +26,38 @@ $bar-colors: (
     a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
     a:hover { border-left: 1px solid $white-50; border-bottom: none; }
   }
-  .close { transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center; }
-  .close svg { width: 1.2rem; height: 1.2rem; }
-  .cb .close svg { fill: $white-75; }
-  .sb .close svg { fill: $black-50; }
-  .close.collapsed { transform-style: preserve-3d; transform: rotateY(180deg); }
+  .icon { transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center;
+    svg { width: 1.2rem; height: 1.2rem; }
+  }
 }
 
 contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
 .sectionbox { margin-top: 1.3rem;
-  .sb-container { flex: 1; display: flex; }
-  .sb-container { flex-wrap: wrap; }
+  .sb-container { flex: 1; display: flex; flex-wrap: wrap; }
   .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; }
-  .sb-controls { flex-basis: 100%; order: -1; padding: 1.65rem; padding-left: 2.95rem; transition: all 0.6s; }
-  .sb-controls:empty { display: none; }
-  .sb.titlebar .close { margin-bottom: 2.6rem; }
-  h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
+  .sb-controls { flex-basis: 100%; order: -1; padding: 1.65rem; padding-left: 2.95rem; transition: all 0.6s;
+    .dropdown:after { border-color: $white-75 transparent transparent transparent } 
+    .dropdown select { color: white; }
+    &:empty { display: none; }
+  }
+  .sb.titlebar {
+    .icon.modal-close { margin-bottom: 2.6rem;
+      svg { stroke-width: 14%; width: 1rem; height: 1rem; }
+    }
+    .icon.collapser { margin-top: auto; }
+  }
   &.collapsed {
     .sb-container { flex-wrap: nowrap; }
     .sb-body { flex-grow: 0; flex: 1; }
     .sb-controls { padding: 1.65rem; padding-top: 2.6rem; padding-left: 2.95rem; flex-basis: 75%; }
+    .icon.collapser { transform: rotate(-90deg); }
   }
   section.buttons { display: flex; align-items: center; }
   section.buttons ~ section.comments { padding-top: 1.3rem; }
   section.comments {
     .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
   }
+  h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
 }
 .contentbox { margin: 0.35rem;
   .titlebar { justify-content: space-between; }
@@ -70,6 +76,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
   .cb-body { transform: scaleX(1); opacity: 1; transform-origin: left; transform-style: flat; transition: all 0.6s; white-space: nowrap; }
+  .icon.collapsed { transform-style: preserve-3d; transform: rotateY(180deg); }
 }
 .contentbox.collapsed .cb-body { transform: scaleX(0);  opacity: 0; max-width: 0 !important; max-height: 0; overflow: hidden; padding: 0; white-space: nowrap; } // display: inline-flex;
 
@@ -84,14 +91,5 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 
 // Edge cases
 section.buttons .ref-title { padding-right: 1.3rem; }
-// .commentcb .cb-table .tabular-row:nth-child(even) .cell { border-top: 0.35rem solid Transparent; border-bottom: 0.35rem solid Transparent; }
-// .refcb { height: inherit;
-  // cbbody { display: flex; flex-direction: column; justify-content: center; height: 100%; }
-  // .cb-body { flex: 1; }
-  .reference-layout { display: flex; align-items: center; justify-content: space-between; }
-  .reference-layout ~ .reference-layout { margin-top: 0.7rem; }
-  // .max-width { width: 100%; }
-  // .topfix { margin-top: 2rem; }
-// }
-// .no-content .cb-titlebar { background-color: hsla(0,0,0,0.1); }
-// .no-content .cb-body { padding: 0; }
+.reference-layout { display: flex; align-items: center; justify-content: space-between; }
+.reference-layout ~ .reference-layout { margin-top: 0.7rem; }

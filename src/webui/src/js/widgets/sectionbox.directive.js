@@ -18,8 +18,17 @@ import {Directive, Inject} from '../ng-decorators';
     transclude: { titlebar: 'titlebar', contentwrapper: 'contentwrapper', controls: '?controls' },
     template: '<section class="sectionbox" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled"> \
       <header class="sb titlebar"> \
-        <div class="close" ng-click="vm.close()" ng-if="vm.isModal()">X</div> \
-        <div ng-transclude="titlebar" ng-click="vm.collapse()"></div> \
+        <div class="icon modal-close" ng-click="vm.close()" ng-if="vm.isModal()"> \
+          <svg id="i-close" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> \
+            <path d="M2 30 L30 2 M30 30 L2 2" /> \
+          </svg> \
+        </div> \
+        <div ng-transclude="titlebar"></div> \
+        <div class="icon collapser" ng-if="!vm.isModal()" ng-click="vm.collapse()"> \
+          <svg id="i-play" viewBox="0 0 32 32" width="32" height="32" fill="currentcolor" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> \
+              <path d="M10 2 L10 30 24 16 Z" /> \
+          </svg> \
+        </div> \
       </header> \
       <div class="sb-container" ng-class="{topcontrols: vm.onTop()}"> \
         <article class="sb-body" ng-transclude="contentwrapper"></article> \
