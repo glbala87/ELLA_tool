@@ -11,7 +11,7 @@ import {Directive, Inject} from '../ng-decorators';
     scope: {
         color: '@',
         title: '@?', // Title (can also be set through options, options takes precedence)
-        options: '=?', // {collapsed: bool, url: string, title: string, disabled: bool}
+        options: '=?', // {collapsed: bool, url: string, title: string, disabled: bool, hidden: bool}
         collapsible: '=?', // bool: whether box can collapse
     },
     link: (scope, elem, attrs) => {

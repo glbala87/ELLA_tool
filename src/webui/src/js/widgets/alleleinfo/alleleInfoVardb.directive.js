@@ -17,6 +17,7 @@ export class AlleleInfoVardb {
         this.config = Config.getConfig();
 
         this.cbOptions.title = "VarDB";
+        this.cbOptions.hidden = !Boolean(this.allele.allele_assessment);
     }
 
     isOutdated() {
