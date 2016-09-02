@@ -52,7 +52,7 @@
     </section>
       <!-- Comments -->
     <section class="comments" ng-if=vm.comments.length>
-      <autosize-textarea class="control-comment" ng-disabled="!vm.isEditable()" placeholder="{{comment.placeholder}}" ng-model="comment.model" ng-repeat="comment in vm.comments"></autosize-textarea>
+      <autosize-textarea class="control-comment" ng-disabled="!vm.isEditable()" placeholder="{{comment.placeholder}}" ng-model="comment.model.comment" ng-repeat="comment in vm.comments"></autosize-textarea>
     </section>
 
 
