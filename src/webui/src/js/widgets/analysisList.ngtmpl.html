@@ -1,4 +1,4 @@
-<contentbox ng-repeat="(date, analyses) in vm.idempoByDate()" options="{title: date}">
+<contentbox ng-repeat="(date, analyses) in vm.idempoByDate()" title="{{date}}">
   <cbbody>
     <div class="analysis-row clickable"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in analyses track by analysis.name">
       <h3>{{::analysis.name | noUnderscores}}</h3>
