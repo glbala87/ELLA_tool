@@ -12,6 +12,7 @@ import {Directive, Inject} from '../ng-decorators';
         ngDisabled: '=?',
         modal: '=?', // bool: whether sectionbox is part of a modal
         topcontrols: '=?', // bool: whether controls should live at the top of the section
+        collapsible: '=?', // bool: whether box can collapse
         collapsed: '=?',
         color: '@'
     },
@@ -24,7 +25,7 @@ import {Directive, Inject} from '../ng-decorators';
           </svg> \
         </div> \
         <div ng-transclude="titlebar"></div> \
-        <div class="icon collapser" ng-if="!vm.isModal()" ng-click="vm.collapse()"> \
+        <div class="icon collapser" ng-if="!vm.isModal() && vm.isCollapsible()" ng-click="vm.collapse()"> \
           <svg id="i-play" viewBox="0 0 32 32" width="32" height="32" fill="currentcolor" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> \
               <path d="M10 2 L10 30 24 16 Z" /> \
           </svg> \
@@ -54,6 +55,9 @@ export class SectionboxController {
     collapse() {
       this.collapsed === undefined ? true : this.collapsed;
       this.collapsed = !this.collapsed;
+    }
+    isCollapsible() {
+        return this.collapsible === undefined || this.collapsible;
     }
     isModal() {
       return (this.modal != undefined || this.modal === true);
