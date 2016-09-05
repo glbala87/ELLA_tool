@@ -10,11 +10,6 @@ IMAGE_NAME = local/ella-$(BRANCH)
 E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
 SELENIUM_CONTAINER_NAME = selenium
 SELENIUM_ADDRESS ?= 'http://localhost:4444/wd/hub'
-ANSIBLE_TAGS ?= core
-BUILD_TYPE ?=core
-BUILD_VERSION ?=0.9.2
-BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
-DEPLOY_NAME ?= test.allel.es
 
 .PHONY: help
 
@@ -199,7 +194,14 @@ test-e2e:
 #---------------------------------------------
 # BUILD / RELEASE
 #---------------------------------------------
+BUILD_VERSION ?= should_not_happen
+ANSIBLE_TAGS ?= core
+BUILD_TYPE ?=core
+BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
 .PHONY: setup-release ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
+
+setup-core:
+	$(eval BUILD_VERSION :=$(shell awk -F':' '/ella.core/ { print $$2 }' Dockerfile))
 
 setup-release: ensure-clean
 	$(eval ANSIBLE_TAGS =release)
@@ -217,7 +219,7 @@ add-production-elements:
 
 release: setup-release build-image squash stop-provision add-production-elements
 build-image: start-provision copy run-ansible
-core: build-image commit-provision stop-provision
+core: setup-core build-image commit-provision stop-provision
 
 push:
 	docker push $(BUILD_NAME)
@@ -235,7 +237,11 @@ clean-provision stop-provision:
 	-docker stop -t 0 provision && docker rm provision
 
 start-provision: clean-provision
+ifeq ($(BUILD_TYPE), release)
 	$(eval CORE_NAME := $(shell awk '/ella.core/ { print $$2 }' Dockerfile))
+else
+	$(eval CORE_NAME := ousamg/baseimage:latest)
+endif
 	docker pull $(CORE_NAME)
 	docker run -d --name provision $(CORE_NAME) sleep infinity
 
@@ -245,6 +251,7 @@ commit-provision:
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
+DEPLOY_NAME ?= test.allel.es
 .PHONY: tsd-assets dbreset dbreset-inner dbsleep deploy
 
 tsd-assets:
