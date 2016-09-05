@@ -196,9 +196,9 @@ test-e2e:
 #---------------------------------------------
 BUILD_VERSION ?= should_not_happen
 ANSIBLE_TAGS ?= core
-BUILD_TYPE ?=core
+BUILD_TYPE ?= core
 BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
-.PHONY: setup-release ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
+.PHONY: setup-release setup-core ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
 
 setup-core:
 	$(eval BUILD_VERSION :=$(shell awk -F':' '/ella.core/ { print $$2 }' Dockerfile))
@@ -271,5 +271,5 @@ dbsleep:
 deploy:
 	-docker stop $(DEPLOY_NAME)
 	-docker rm $(DEPLOY_NAME)
-	docker run -d --name $(DEPLOY_NAME) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE);
-	docker exec $(DEPLOY_NAME) make dbreset;
+	docker run -d --name $(DEPLOY_NAME) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE)
+	docker exec $(DEPLOY_NAME) make dbreset
