@@ -1,5 +1,4 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
-ANY = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}')
 API_PORT ?= 8000-9999
 INTERNAL_API_PORT = 5000 # e2e testing uses linked containers, so use container internal port
 INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use container internal port
@@ -48,7 +47,7 @@ help :
 .PHONY: any build dev url kill shell logs restart db
 
 any:
-	$(eval CONTAINER_NAME = $(ANY))
+	$(eval CONTAINER_NAME := $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
 	@true
 
 build:
@@ -235,8 +234,9 @@ clean-provision stop-provision:
 	-docker stop -t 0 provision && docker rm provision
 
 start-provision: clean-provision
-	docker pull ousamg/baseimage:latest
-	docker run -d --name provision ousamg/baseimage:latest sleep infinity
+	$(eval CORE_NAME := $(shell awk '/ella.core/ { print $$2 }' Dockerfile))
+	docker pull $(CORE_NAME)
+	docker run -d --name provision $(CORE_NAME) sleep infinity
 
 commit-provision:
 	docker commit provision $(BUILD_NAME)
