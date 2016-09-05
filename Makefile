@@ -23,6 +23,7 @@ help :
 	@echo "-- DEV COMMANDS --"
 	@echo "make build		- build image $(IMAGE_NAME)"
 	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make db		- populates the db with fixture data"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
@@ -44,7 +45,7 @@ help :
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev url kill shell logs restart db
+.PHONY: any build dev fancy-dev url kill shell logs restart db
 
 any:
 	$(eval CONTAINER_NAME := $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
@@ -64,10 +65,10 @@ dev:
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
 
-no-poll-dev:
+fancy-dev:
 	sed -i 's poll //poll ' gulpfile.js
 	$(MAKE) dev
-	sleep 10
+	$(MAKE) db
 	git checkout gulpfile.js
 
 db:
