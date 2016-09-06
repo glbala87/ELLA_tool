@@ -1,17 +1,18 @@
-<card color="wine" modal="true" on-close="vm.modal.close" collapsible="false" options="{}">
-  <primary>
-    <h3 class="header">WARNING: ONGOING ANALYSIS</h3>
-  </primary>
-  <bottom>
-    <div class='question centered'>
-      <h2>This analysis is currently assigned to another user.</h2>
-      <h5>Do you want to unassign this user and assign yourself instead?</h5>
-    </div>
-  </bottom>
+<sectionbox class="question" color="pink" modal="true" on-close="vm.modal.close">
+  <titlebar>
+    <h3 class="title">WARNING: ONGOING ANALYSIS</h3>
+  </titlebar>
   <controls>
-    <div>
-      <button class="new pink" type="button" ng-click="vm.modal.close(true)">Yes</button>
-      <button type="button" ng-click="vm.modal.close(false)">No</button>
-    </div>
+    <section class="buttons only">
+      <button type="button" ng-click="vm.modal.close(true)">Assign me as user</button>
+      <button type="button" class="normal" ng-click="vm.modal.close(false)">Leave as is</button>
+    </section>
   </controls>
-</card>
+  <contentwrapper>
+    <h4 class="sb-notification">
+      This analysis is currently assigned to another user.
+      <br/>
+      Do you want to unassign this user and assign yourself instead?
+    </h4>
+  </contentwrapper>
+</sectionbox>

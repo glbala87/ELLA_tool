@@ -1,10 +1,13 @@
-<card color="aqua" modal="true" on-close="vm.onClose()" collapsible="false" options="{}">
-  <primary>
-    <h3 class="header">ADD EXCLUDED VARIANTS</h3>
-  </primary>
-  <secondary>
-  </secondary>
-  <bottom>
+<sectionbox color="green" modal="true" on-close="vm.onClose()">
+  <titlebar>
+    <h3 class="title">ADD EXCLUDED VARIANTS</h3>
+  </titlebar>
+  <controls>
+    <section class="buttons">
+      <button type="button" ng-click="vm.close()">Close</button>
+    </section>
+  </controls>
+  <contentwrapper>
     <!-- Included -->
     <h2 class="allele-title" ng-if="vm.included_alleles.length">included alleles</h2>
     <div class="included-allele">
@@ -64,10 +67,5 @@
       <allele-info-frequency-indb allele="al"></allele-info-frequency-indb>
       <allele-info-consequence allele="al"></allele-info-consequence>
     </article>
-  </bottom>
-  <controls>
-    <div>
-      <button type="button" ng-click="vm.close()">Close</button>
-    </div>
-  </controls>
-</card>
+  </contentwrapper>
+</sectionbox>

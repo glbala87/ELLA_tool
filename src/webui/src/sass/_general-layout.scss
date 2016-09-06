@@ -26,6 +26,9 @@ button, .dropdown, .question .bttn { height: 2.6rem; box-shadow: 0 0.3rem 0 $bla
   &.ng-leave, &.ng-enter { transition: none; }
   &:hover:not([disabled]) { box-shadow: 0 0.3rem 0.3rem $black-25; background-color: $white; }
 }
+button.normal { background-color: $blue-05 !important; color: $black-75 !important;
+  &:hover:not([disabled]) { background-color: $white !important; }
+}
 select { border: none; box-shadow: none; background: transparent; height: 100%; width: 100%; outline: none; padding-right: 2.6rem; -moz-appearance: none; &:-moz-focusring { color: transparent; text-shadow: 0 0 0 #000; } -webkit-appearance: none; &:focus { border-color: inherit; } }
 .dropdown { position: relative;
   &:after { content: ' '; position: absolute; top: 0; width: 0; height: 0; right: 10px; bottom: 0; margin: auto; border-style: solid; border-width: 5px 5px 0 5px; border-color: $black-75 transparent transparent transparent; pointer-events: none; }

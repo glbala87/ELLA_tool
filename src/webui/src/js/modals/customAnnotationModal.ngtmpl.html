@@ -1,8 +1,14 @@
-<card color="aqua" modal="true" on-close="vm.modal.close" collapsible="false" options="{}">
-  <primary>
-    <h3 class="header">{{vm.title}}</h3>
-  </primary>
-  <bottom>
+<sectionbox color="green" modal="true" on-close="vm.modal.close">
+  <titlebar>
+    <h3 class="title">{{vm.title}}</h3>
+  </titlebar>
+  <controls>
+    <section class="buttons">
+      <button type="button" ng-click="vm.modal.close(false)">Cancel</button>
+      <button type="button" ng-click="vm.save()">Save</button>
+    </section>
+  </controls>
+  <contentwrapper>
     <section ng-if="vm.category == 'references'">
       <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added references</h2>
       <div class="included-allele">
@@ -84,9 +90,5 @@
         <div class="right"> <button ng-click="vm.addAnnotation()">Add</button> </div>
       </article>
     </section>
-  </bottom>
-  <controls>
-    <button type="button" ng-click="vm.modal.close(false)">Cancel</button>
-    <button type="button" ng-click="vm.save()">Save</button>
-  </controls>
-</card>
+  </contentwrapper>
+</sectionbox>
