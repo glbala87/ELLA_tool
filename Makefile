@@ -92,7 +92,7 @@ restart:
 
 test-build:
 	$(eval BRANCH = test)
-	sed 's/# ADD/ADD/' Dockerfile > Dockerfile.test
+	sed 's/# COPY/COPY/' Dockerfile > Dockerfile.test
 	docker build -t $(IMAGE_NAME) -f Dockerfile.test .
 	rm Dockerfile.test
 
