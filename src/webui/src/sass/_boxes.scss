@@ -98,7 +98,8 @@ section.buttons .ref-buttons { display: flex; }
 .modal .sectionbox .sb-controls section.buttons { justify-content: space-between; }
 .modal .question .sectionbox {
   .sb-container { align-items: center; }
-  .sb-controls { flex: 2; }
+  .sb-controls { flex: 1; }
+  .sb-body { flex: 2; }
   .sb-controls section.buttons { justify-content: flex-end; }
 }
 // .modal .sectionbox .sb-controls section.buttons.only { justify-content: flex-end; }
