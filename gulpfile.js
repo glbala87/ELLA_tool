@@ -8,7 +8,6 @@ var gulp = require('gulp'),
     babelify = require("babelify"),
     livereload = require('gulp-livereload'),
     wrapper = require('gulp-wrapper'),
-    less = require('gulp-less'),
     sass = require('gulp-sass'),
     plumber = require('gulp-plumber'),
     source = require('vinyl-source-stream'),
@@ -167,18 +166,9 @@ gulp.task('sass', function () {
         .pipe(production ? util.noop() : livereload());
 });
 
-gulp.task('less', function () {
-    gulp.src('src/webui/src/thirdparty/bootstrap/bootstrap-3.3.2/less/bootstrap.less')
-        .pipe(plumber())
-        .pipe(less())
-        .pipe(concat('base.css'))
-        .pipe(autoprefixer({
-          browsers: ['last 2 versions'],
-          cascade: false
-          }))
-        .pipe(production ? cssnano() : util.noop())
-        .pipe(gulp.dest(__basedir))
-        .pipe(production ? util.noop() : livereload());
+gulp.task('base-css', function () {
+  gulp.src('src/webui/src/css/base.css')
+    .pipe(gulp.dest(__basedir));
 });
 
 
@@ -259,12 +249,10 @@ gulp.task('watch', function() {
     livereload.listen();
     // gulp.watch('src/webui/src/js/**/*.js', ['js']);
     gulp.watch('src/webui/src/sass/*.scss', ['sass']);
-    gulp.watch('src/webui/src/less/**/*.less', ['less']);
-    gulp.watch('src/webui/src/thirdparty/bootstrap/bootstrap-3.3.2/less/**/*.less', ['less']);
     gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
 });
 
 
-gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'less']);
+gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'base-css']);
 
 gulp.task('default', ['build','watch-js', 'watch']);
