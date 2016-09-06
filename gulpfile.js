@@ -168,7 +168,7 @@ gulp.task('sass', function () {
 });
 
 gulp.task('less', function () {
-    gulp.src('src/webui/src/less/styles.less')
+    gulp.src('src/webui/src/thirdparty/bootstrap/bootstrap-3.3.2/less/bootstrap.less')
         .pipe(plumber())
         .pipe(less())
         .pipe(concat('base.css'))
