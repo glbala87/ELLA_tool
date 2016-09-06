@@ -47,7 +47,7 @@ any:
 	@true
 
 build:
-	docker build -t $(IMAGE_NAME) .
+	docker build --pull -t $(IMAGE_NAME) .
 
 dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
 dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
