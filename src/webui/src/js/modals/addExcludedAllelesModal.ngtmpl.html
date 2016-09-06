@@ -3,7 +3,7 @@
     <h3 class="title">ADD EXCLUDED VARIANTS</h3>
   </titlebar>
   <controls>
-    <section class="buttons">
+    <section class="buttons only">
       <button type="button" ng-click="vm.close()">Close</button>
     </section>
   </controls>
@@ -34,9 +34,11 @@
           <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
           <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
         </div>
-        <select class="dropdown" ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
-          <option value="">All genes</option>
-        </select>
+        <div class="dropdown">
+          <select ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
+            <option value="">All genes</option>
+          </select>
+        </div>
       </div>
       <div>
         <uib-pagination total-items="vm.filtered_alleles.length"

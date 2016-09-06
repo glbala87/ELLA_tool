@@ -94,7 +94,7 @@ export class AlleleInfoReferences {
 
     getEvaluateBtnText(reference) {
         if (this.hasReferenceAssessment(reference)) {
-            return 'Reevaluate';
+            return 'Re-evaluate';
         }
         return 'Evaluate';
     }

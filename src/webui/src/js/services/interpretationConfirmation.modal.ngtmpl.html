@@ -4,15 +4,12 @@
   </titlebar>
   <controls>
     <section class="buttons">
-      <button type="button" ng-click="vm.modal.close('markreview')">Mark for review</button>
-      <button class="pink" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
+      <button class="normal" type="button" ng-click="vm.modal.close('markreview')">Mark for review</button>
+      <button type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
     </section>
   </controls>
   <contentwrapper>
-    <h4 class="sb-notification">
-      You have finished the current analysis.
-      <br/>
-      Would you like to mark the analysis for review, or finalize it?
-    </h4>
+    <h4 class="sb-notification"> You have finished the current analysis. </h4>
+    <h4 class="sb-notification"> Would you like to mark the analysis for review, or finalize it? </h4>
   </contentwrapper>
 </sectionbox>
