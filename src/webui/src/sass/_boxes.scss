@@ -94,6 +94,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 
 // Edge cases
 section.buttons .ref-title { padding-right: 1.3rem; }
+section.buttons .ref-buttons { display: flex; }
 .modal .sectionbox .sb-controls section.buttons { justify-content: space-between; }
 .reference-layout { display: flex; align-items: center; justify-content: space-between; }
 .reference-layout ~ .reference-layout { margin-top: 0.7rem; }

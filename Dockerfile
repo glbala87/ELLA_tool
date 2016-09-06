@@ -5,9 +5,9 @@ MAINTAINER Dave Honneffer <dave@ousamg.io>
 RUN npm install -g gulp
 
 # Add our requirements files
-ADD ./requirements.txt /dist/requirements.txt
-ADD ./requirements-test.txt  /dist/requirements-test.txt
-ADD ./package.json /dist/package.json
+COPY ./requirements.txt /dist/requirements.txt
+COPY ./requirements-test.txt  /dist/requirements-test.txt
+COPY ./package.json /dist/package.json
 
 # Install all our requirements for python and gulp/js
 WORKDIR /dist
@@ -16,5 +16,5 @@ RUN pip install --no-cache-dir -r requirements-test.txt
 RUN npm install
 
 # Test builds depend on the next line
-# ADD . /ella
+# COPY . /ella
 WORKDIR /ella

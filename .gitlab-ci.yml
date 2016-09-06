@@ -42,6 +42,9 @@ test_e2e:
   stage: test
   script:
     - make e2e-test
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
   allow_failure: true
 
 cleanup_e2e:
@@ -53,9 +56,9 @@ cleanup_e2e:
 build_core:
   stage: deploy
   script:
-    - make core push
+    - if [ -n "${BUILD_CORE}" ]; then make core push; fi
   only:
-    - build-dev
+    - triggers
 
 bot_build:
   stage: deploy

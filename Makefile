@@ -1,5 +1,4 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
-ANY = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}')
 API_PORT ?= 8000-9999
 INTERNAL_API_PORT = 5000 # e2e testing uses linked containers, so use container internal port
 INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use container internal port
@@ -11,11 +10,6 @@ IMAGE_NAME = local/ella-$(BRANCH)
 E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
 SELENIUM_CONTAINER_NAME = selenium
 SELENIUM_ADDRESS ?= 'http://localhost:4444/wd/hub'
-ANSIBLE_TAGS ?= core
-BUILD_TYPE ?=core
-BUILD_VERSION ?=0.9.2
-BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
-DEPLOY_NAME ?= test.allel.es
 
 .PHONY: help
 
@@ -24,6 +18,7 @@ help :
 	@echo "-- DEV COMMANDS --"
 	@echo "make build		- build image $(IMAGE_NAME)"
 	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make db		- populates the db with fixture data"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
@@ -45,10 +40,10 @@ help :
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev url kill shell logs restart db
+.PHONY: any build dev fancy-dev url kill shell logs restart db
 
 any:
-	$(eval CONTAINER_NAME = $(ANY))
+	$(eval CONTAINER_NAME := $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
 	@true
 
 build:
@@ -65,10 +60,10 @@ dev:
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
 
-no-poll-dev:
+fancy-dev:
 	sed -i 's poll //poll ' gulpfile.js
 	$(MAKE) dev
-	sleep 10
+	$(MAKE) db
 	git checkout gulpfile.js
 
 db:
@@ -199,7 +194,14 @@ test-e2e:
 #---------------------------------------------
 # BUILD / RELEASE
 #---------------------------------------------
-.PHONY: setup-release ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
+BUILD_VERSION ?= should_not_happen
+ANSIBLE_TAGS ?= core
+BUILD_TYPE ?= core
+BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
+.PHONY: setup-release setup-core ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
+
+setup-core:
+	$(eval BUILD_VERSION :=$(shell awk -F':' '/ella.core/ { print $$2 }' Dockerfile))
 
 setup-release: ensure-clean
 	$(eval ANSIBLE_TAGS =release)
@@ -217,7 +219,7 @@ add-production-elements:
 
 release: setup-release build-image squash stop-provision add-production-elements
 build-image: start-provision copy run-ansible
-core: build-image commit-provision stop-provision
+core: setup-core build-image commit-provision stop-provision
 
 push:
 	docker push $(BUILD_NAME)
@@ -235,8 +237,13 @@ clean-provision stop-provision:
 	-docker stop -t 0 provision && docker rm provision
 
 start-provision: clean-provision
-	docker pull ousamg/baseimage:latest
-	docker run -d --name provision ousamg/baseimage:latest sleep infinity
+ifeq ($(BUILD_TYPE), release)
+	$(eval CORE_NAME := $(shell awk '/ella.core/ { print $$2 }' Dockerfile))
+else
+	$(eval CORE_NAME := ousamg/baseimage:latest)
+endif
+	docker pull $(CORE_NAME)
+	docker run -d --name provision $(CORE_NAME) sleep infinity
 
 commit-provision:
 	docker commit provision $(BUILD_NAME)
@@ -244,6 +251,7 @@ commit-provision:
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
+DEPLOY_NAME ?= test.allel.es
 .PHONY: tsd-assets dbreset dbreset-inner dbsleep deploy
 
 tsd-assets:
@@ -263,5 +271,5 @@ dbsleep:
 deploy:
 	-docker stop $(DEPLOY_NAME)
 	-docker rm $(DEPLOY_NAME)
-	docker run -d --name $(DEPLOY_NAME) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE);
-	docker exec $(DEPLOY_NAME) make dbreset;
+	docker run -d --name $(DEPLOY_NAME) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE)
+	docker exec $(DEPLOY_NAME) make dbreset
