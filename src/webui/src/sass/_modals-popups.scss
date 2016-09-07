@@ -63,11 +63,11 @@
 .reference, .reference .control { display: flex; align-items: center; justify-content: space-between; }
 .reference .control { padding-left: 0.7rem; }
 
-.pagination { @extend .bttn-set; list-style: none; font-family: inherit; font-weight: 500; font-size: 1.2rem; text-transform: uppercase; margin-top: 2.8rem; margin-bottom: 2.6rem;
-  li { @extend .bttn; }
+.pagination { @extend .bttn-set; list-style: none;
+  li { @extend .bttn; padding: 0; }
   li.disabled:hover { cursor: default; background-color: inherit; box-shadow: 0 0.3rem 0 $black-05; }
   li.disabled a:hover { cursor: default; }
-  li a { border-bottom: none; }
+  li a { border-bottom: none; padding: 0.25rem 0.75rem; padding-top: 0.4rem; display: block; }
   li a:hover {  }
 }
 .pagination * { border-radius: 0 !important; }
