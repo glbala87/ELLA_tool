@@ -105,6 +105,3 @@ section.buttons .ref-buttons { display: flex; }
   .sb-body { flex: 2; }
   .sb-controls section.buttons { justify-content: flex-end; }
 }
-// .modal .sectionbox .sb-controls section.buttons.only { justify-content: flex-end; }
-.reference-layout { display: flex; align-items: center; justify-content: space-between; }
-.reference-layout ~ .reference-layout { margin-top: 0.7rem; }

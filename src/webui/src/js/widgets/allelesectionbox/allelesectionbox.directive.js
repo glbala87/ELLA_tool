@@ -170,7 +170,6 @@ export class AlleleSectionBoxController {
 
     showCustomAnnotationModal(category) {
         let title = category === 'external' ? 'ADD EXTERNAL ANNOTATION' : 'ADD PREDICTION ANNOTATION';
-        title += ': ' + this.allele.toString();
         this.customAnnotationModal.show(title, [this.allele], category).then(result => {
             if (result) {
                 if (this.onUpdate) {
@@ -181,7 +180,7 @@ export class AlleleSectionBoxController {
     }
 
     showAddReferenceModal() {
-        let title = 'ADD REFERENCES: ' + this.allele.toString();
+        let title = 'ADD REFERENCES';
         this.customAnnotationModal.show(title, [this.allele], 'references').then(result => {
             if (result) {
                 if (this.onUpdate) {

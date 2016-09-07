@@ -27,13 +27,11 @@
     <hr ng-if="vm.included_alleles.length">
     <h2 class="allele-title">excluded alleles</h2>
     <h5 class="allele-count"><b>{{vm.filtered_alleles.length}} variants</b> from current filter settings</h5>
-    <div class="allele-controls">
-      <div class="form-inline">
-        <div class="btn-group btn-group-sm">
-          <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
-          <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
-          <label class="btn btn-success" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
-        </div>
+    <div class="question line-wrapper spaced">
+      <div class="bttn-set">
+        <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
+        <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
+        <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
         <div class="dropdown">
           <select ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
             <option value="">All genes</option>

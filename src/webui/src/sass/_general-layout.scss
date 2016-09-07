@@ -17,12 +17,12 @@ a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed
 a:hover, .clickable:hover { color: inherit; text-decoration: none; border-bottom: 1px solid $black-25; }
 a.white, .clickable.white, a.white:hover, .clickable.white:hover { border-color: $white-25; }
 
-button, select, .question .bttn { font-family: $full; font-size: 1.2rem; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; padding: 0.25rem 0.75rem; padding-top: 0.4rem; color: $black-75; white-space: nowrap; border-radius: 0;
+button, select { font-family: $full; font-size: 1.2rem; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; padding: 0.25rem 0.75rem; padding-top: 0.4rem; color: $black-75; white-space: nowrap; border-radius: 0;
   &.white { color: $white-75; }
   &:focus { outline: none; box-shadow: 0 0.3rem 0 $blue-50; transition: all 0.3s; }
   &:hover:not([disabled]) { cursor: pointer; }
 }
-button, .dropdown, .question .bttn { height: 2.6rem; box-shadow: 0 0.3rem 0 $black-05; background-color: $white-75; transition: all 0.3s;
+button, .dropdown { height: 2.6rem; box-shadow: 0 0.3rem 0 $black-05; background-color: $white-75; transition: all 0.3s;
   &.ng-leave, &.ng-enter { transition: none; }
   &:hover:not([disabled]) { box-shadow: 0 0.3rem 0.3rem $black-25; background-color: $white; }
 }
@@ -135,7 +135,7 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   .toast:before { color: white; font-size: 1.1rem; font-family: $full; letter-spacing: 0.1rem; }
   .toast-success { background-color: $green; &:before { content: "HOORAY"; } }
   .toast-error { background-color: $red; &:before { content: "ERROR"; } }
-  .toast-info { background-color: $blue; &:before { content: "INFORMATION"; } }
+  .toast-info { background-color: $purple-50; &:before { content: "INFORMATION"; } }
   .toast-warning { background-color: $yellow; &:before { content: "WARNING"; } }
   .toast-message { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; text-transform: uppercase; color: white; padding-top: 0.3rem; }
   .toast.ng-enter { max-height: 0px ; transition: all 0.6s ease-in-out; }
@@ -147,7 +147,7 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
 // all initial styling from toastr, probably needs fixed
 button.toast-close-button { padding: 0; cursor: pointer; background: transparent; border: 0; -webkit-appearance: none; }
 .toast-title { font-weight: bold; }
-.toast-message a, .toast-message label { color: #FFFFFF; }
-.toast-message a:hover { color: #CCCCCC; text-decoration: none; }
-.toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: #FFFFFF; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
-.toast-close-button:hover, .toast-close-button:focus { color: #000000; text-decoration: none; cursor: pointer; opacity: 0.4; }
+.toast-message a, .toast-message label { color: $white-75; }
+.toast-message a:hover { color: $white; text-decoration: none; }
+.toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: $white-75; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
+.toast-close-button:hover, .toast-close-button:focus { color: $white; text-decoration: none; cursor: pointer; opacity: 0.4; }
