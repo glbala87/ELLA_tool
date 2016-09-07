@@ -16,21 +16,21 @@
 }
 .question { min-height: 8rem;
   .multiple-question-element ~ .multiple-question-element { margin-left: 1.3rem; }
-  .bttn-set { @extend .line-wrapper; flex-wrap: wrap; }
-  .bttn { @extend button; background-color: $blue-05; border: 1px solid $blue-05;
-    & ~ & { border-left: 1px solid $blue-25; margin-left: 0; }
-    &[disabled] { opacity: 0.25; border: 1px solid $blue-50; }
-    &[disabled] ~ .bttn[disabled] { border-left: none; }
-    &:hover:not([disabled]) { background-color: $blue-25; cursor: pointer; }
-    &.active:hover { background-color: $blue-75; box-shadow: 0 0.3rem 0 $black-05; cursor: default; color: white; }
-    &.active { background-color: $blue-75; color: white; }
-    &.active + & { border-left: 1px solid Transparent; }
-  }
   .dropdown { background-color: $blue-05; border: 1px solid $blue-25; display: inline-block; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
   textarea { width: 100%; font-size: 1.2rem; font-family: $slim; }
+}
+.bttn-set { @extend .line-wrapper; flex-wrap: wrap; }
+.bttn { background-color: $blue-05; border: 1px solid $blue-05;
+  & ~ & { border-left: 1px solid $blue-25; margin-left: 0; }
+  &[disabled], &.disabled { opacity: 0.25; border: 1px solid $blue-50; }
+  &[disabled] ~ &[disabled], &.disabled ~ &.disabled { border-left: none; }
+  &:hover:not([disabled]) { background-color: $blue-25; cursor: pointer; }
+  &.active:hover { background-color: $blue-75; box-shadow: 0 0.3rem 0 $black-05; cursor: default; color: white; }
+  &.active { background-color: $blue-75; color: white; }
+  &.active + & { border-left: 1px solid Transparent; }
 }
 .question.small { min-height: 4rem; }
 .question.centered { text-align: center; }
@@ -63,11 +63,11 @@
 .reference, .reference .control { display: flex; align-items: center; justify-content: space-between; }
 .reference .control { padding-left: 0.7rem; }
 
-.pagination { font-family: inherit; font-weight: 500; font-size: 1.2rem; text-transform: uppercase; margin-top: 2.8rem; margin-bottom: 2.6rem;
-  .disabled { opacity: 0.5; }
-  li { transition: all 0.3s ease-in-out; @extend .bttn; }
-  li a { padding: 0.25rem 0.75rem; color: $black-75; border-color: $black-75; line-height: 1.8rem; }
-  li a:hover { color: $black-75; border-color: $black-75; background-color: $blue-25; }
-  &>li>a, &>li>span { float: none; }
+.pagination { @extend .bttn-set; list-style: none; font-family: inherit; font-weight: 500; font-size: 1.2rem; text-transform: uppercase; margin-top: 2.8rem; margin-bottom: 2.6rem;
+  li { @extend .bttn; }
+  li.disabled:hover { cursor: default; background-color: inherit; box-shadow: 0 0.3rem 0 $black-05; }
+  li.disabled a:hover { cursor: default; }
+  li a { border-bottom: none; }
+  li a:hover {  }
 }
 .pagination * { border-radius: 0 !important; }

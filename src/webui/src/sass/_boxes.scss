@@ -99,7 +99,7 @@ section.buttons .ref-title { padding-right: 1.3rem; }
 section.buttons .ref-buttons { display: flex; }
 .modal .sectionbox .sb-controls section.buttons { justify-content: space-between; }
 .modal .sectionbox .sb-controls section.buttons.only { justify-content: flex-end; }
-.modal .question .sectionbox {
+.modal .prompt .sectionbox {
   .sb-container { align-items: center; }
   .sb-controls { flex: 1; }
   .sb-body { flex: 2; }
