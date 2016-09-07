@@ -9,6 +9,7 @@
 // - 'middle' is optional
 .line-wrapper { display: flex; align-items: center;
   &.spaced { justify-content: space-between; }
+  &.pinned-right { justify-content: flex-end; }
   &.bottom { align-items: flex-end; }
   .left { flex: 4; text-align: right; }
   .middle { flex: 0.5; text-align: center; }
