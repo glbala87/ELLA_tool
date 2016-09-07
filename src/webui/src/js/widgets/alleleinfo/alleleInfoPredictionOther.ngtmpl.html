@@ -1,6 +1,10 @@
-<table>
-  <tr ng-repeat="group in vm.config.custom_annotation.prediction" ng-if="vm.allele.annotation.prediction[group.key]">
-    <td style="padding-right: 5px;"><p>{{group.name}}: </p></td>
-    <td><p>{{vm.allele.annotation.prediction[group.key]}}</p></td>
-  </tr>
-</table>
+<contentbox title="Other" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
+  <cbbody>
+    <table>
+      <tr ng-repeat="group in vm.config.custom_annotation.prediction" ng-if="vm.allele.annotation.prediction[group.key]">
+        <td style="padding-right: 5px;"><p>{{group.name}}: </p></td>
+        <td><p>{{vm.allele.annotation.prediction[group.key]}}</p></td>
+      </tr>
+    </table>
+  </cbbody>
+</contentbox>

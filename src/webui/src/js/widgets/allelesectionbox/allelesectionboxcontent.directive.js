@@ -34,7 +34,7 @@ import {Directive, Inject} from '../../ng-decorators';
         alleleState: '=',
         onSave: '&?',
         boxes: '=',  // Array of objects.
-        boxesOptions: '='
+        boxesOptions: '=' // {allele-info-exac: {collapsed: false}, ...}
     },
     link: (scope, elem, attrs, ctrl) => {
 
@@ -60,28 +60,22 @@ import {Directive, Inject} from '../../ng-decorators';
                 }
 
 
-                let options = '';
-                let cb_options = '';
+                let collapsed = '';
                 if (scope.vm.boxesOptions &&
                     box.tag in scope.vm.boxesOptions) {
-                    options = `options="vm.boxesOptions['${box.tag}']"`;
-                    cb_options = `cb-options="vm.boxesOptions['${box.tag}']"`
+                    collapsed = `collapsed="vm.boxesOptions['${box.tag}'].collapsed"`;
                 }
                 html += `
-                <contentbox ${options}>
-                  <cbbody>
-                    <${box.tag}
-                        class="cb-wrapper"
-                        analysis="vm.analysis"
-                        allele="vm.allele"
-                        references="vm.references"
-                        allele-state="vm.alleleState"
-                        ${cb_options}
-                        ${on_save}
-                        ${attrs}
-                    ></${box.tag}>
-                  </cbbody>
-                </contentbox>`;
+                <${box.tag}
+                    class="cb-wrapper"
+                    analysis="vm.analysis"
+                    allele="vm.allele"
+                    references="vm.references"
+                    allele-state="vm.alleleState"
+                    ${collapsed}
+                    ${on_save}
+                    ${attrs}
+                ></${box.tag}>`;
             }
             let compiled = scope.vm.compile(html)(scope);
             elem.append(compiled);

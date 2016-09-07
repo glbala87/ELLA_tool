@@ -91,10 +91,7 @@ export class AlleleSectionBoxController {
         this.sectionOptions = {};
         for (let s of this.section.content) {
             this.sectionOptions[s.tag] = {
-                collapsed: false,
-                url: '', // Will be set by alleleinfo itself
-                title: '', // Likewise
-                disabled: false // Likewise
+                collapsed: false
             }
         }
     }

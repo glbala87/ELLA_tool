@@ -6,7 +6,7 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-frequency-exac',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoFrequencyExac.ngtmpl.html'
 })
@@ -14,17 +14,9 @@ import {Directive, Inject} from '../../ng-decorators';
 export class AlleleInfoFrequencyExac {
 
     constructor() {
-
-        this.checkForContent();
-        this.cbOptions.title = "ExAC";
-        this.cbOptions.url = this.allele.getExACUrl();
-    }
-
-    checkForContent() {
         if (!this.hasContent()) {
-            this.cbOptions.disabled = true;
-            this.cbOptions.collapsed = true;
-        };
+            this.collapsed = true;
+        }
     }
 
     hasContent() {

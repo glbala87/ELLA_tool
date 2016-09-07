@@ -1,36 +1,41 @@
-<article ng-repeat="ref in vm.allele_references">
-  <section class="line-wrapper">
-    <div>
-      <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
-      <p>{{ref.getShortDesc()}}</p>
-    </div>
-    <div>
-      <button class="blue new" ng-click="vm.showReferenceEval(ref)">{{vm.getEvaluateBtnText(ref)}}</button>
-    </div>
-  </section>
-  <div class="cb-table topfix" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
-    <h4 ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">Evaluation</h4>
-    <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
-      <div class="cell"><h5>Relevant:</h5></div>
-      <div class="cell max-width"><p>{{vm.getReferenceAssessment(ref).evaluation.relevance}}</p></div>
-    </div>
-    <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.hq">
-      <div class="cell"><h5>HQ:</h5></div>
-      <div class="cell max-width"><p>{{vm.getReferenceAssessment(ref).evaluation.hq}}</p></div>
-    </div>
-    <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.comment">
-      <div class="cell top-align"><h5>Comment:</h5></div>
-      <div class="cell max-width">
-        <autosize-textarea class="card-comment" ng-disabled="true" placeholder="" ng-model="vm.getReferenceAssessment(ref).evaluation.comment"></autosize-textarea>
+<contentbox title="References" collapsed="vm.collapsed" ng-if="vm.allele_references.length">
+  <cbbody>
+    <article ng-repeat="ref in vm.allele_references">
+      <section class="line-wrapper">
+        <div>
+          <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
+          <p>{{ref.getShortDesc()}}</p>
+        </div>
+        <div>
+          <button class="blue new" ng-click="vm.showReferenceEval(ref)">{{vm.getEvaluateBtnText(ref)}}</button>
+        </div>
+      </section>
+      <div class="cb-table topfix" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
+        <h4 ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">Evaluation</h4>
+        <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
+          <div class="cell"><h5>Relevant:</h5></div>
+          <div class="cell max-width"><p>{{vm.getReferenceAssessment(ref).evaluation.relevance}}</p></div>
+        </div>
+        <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.hq">
+          <div class="cell"><h5>HQ:</h5></div>
+          <div class="cell max-width"><p>{{vm.getReferenceAssessment(ref).evaluation.hq}}</p></div>
+        </div>
+        <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.comment">
+          <div class="cell top-align"><h5>Comment:</h5></div>
+          <div class="cell max-width">
+            <autosize-textarea class="card-comment" ng-disabled="true" placeholder="" ng-model="vm.getReferenceAssessment(ref).evaluation.comment"></autosize-textarea>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</article>
+    </article>
 
-<article ng-repeat="ref in vm.missing_references">
-  <section class="line-wrapper">
-    <div>
-      <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref)}}">{{ref}}</a-clip> in database. Please add the reference manually.</h5>
-    </div>
-  </section>
-</article>
+    <article ng-repeat="ref in vm.missing_references">
+      <section class="line-wrapper">
+        <div>
+          <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref)}}">{{ref}}</a-clip> in database. Please add the reference manually.</h5>
+        </div>
+      </section>
+    </article>
+  </cbbody>
+</contentbox>
+

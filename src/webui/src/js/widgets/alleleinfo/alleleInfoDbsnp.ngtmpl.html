@@ -1,5 +1,10 @@
-<div ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript">
-    <transcript-wrapper transcript="t">
-        <div ng-repeat="dbsnp in ::t.Existing_variation track by $index"> <p><a-clip href="{{::vm.getUrl(dbsnp)}}" target="{{::dbsnp}}">{{::dbsnp}}</a-clip></p> </div>
-    </transcript-wrapper>
-</div>
+<contentbox title="dbSNP" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
+  <cbbody>
+    <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript">
+        <transcript-wrapper transcript="t">
+            <div ng-repeat="dbsnp in ::t.Existing_variation track by $index"> <p><a-clip href="{{::vm.getUrl(dbsnp)}}" target="{{::dbsnp}}">{{::dbsnp}}</a-clip></p> </div>
+        </transcript-wrapper>
+    </div>
+  </cbbody>
+</contentbox>
+

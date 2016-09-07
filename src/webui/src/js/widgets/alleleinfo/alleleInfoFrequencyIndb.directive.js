@@ -6,7 +6,7 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-frequency-indb',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoFrequencyIndb.ngtmpl.html'
 })
@@ -14,16 +14,9 @@ import {Directive, Inject} from '../../ng-decorators';
 export class AlleleInfoFrequencyIndb {
 
     constructor() {
-        this.cbOptions.title = 'inDB';
-
-        this.checkForContent();
-    }
-
-    checkForContent() {
         if (!this.hasContent()) {
-            this.cbOptions.disabled = true;
-            this.cbOptions.collapsed = true;
-        };
+            this.collapsed = true;
+        }
     }
 
     hasContent() {
