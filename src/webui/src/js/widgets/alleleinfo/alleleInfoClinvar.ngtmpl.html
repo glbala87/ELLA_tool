@@ -1,1 +1,6 @@
-<p ng-repeat="c in ::vm.formatClinvar() track by $index">{{c}}<br></p>
+<contentbox title="Clinvar" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
+  <cbbody>
+    <p ng-repeat="c in ::vm.formatClinvar() track by $index">{{c}}<br></p>
+  </cbbody>
+</contentbox>
+

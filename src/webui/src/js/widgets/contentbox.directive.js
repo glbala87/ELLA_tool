@@ -11,7 +11,9 @@ import {Directive, Inject} from '../ng-decorators';
     scope: {
         color: '@',
         title: '@?', // Title (can also be set through options, options takes precedence)
-        options: '=?', // {collapsed: bool, url: string, title: string, disabled: bool, hidden: bool}
+        titleUrl: '@?',
+        collapsed: '=?',
+        disabled: '=?',
         collapsible: '=?', // bool: whether box can collapse
     },
     link: (scope, elem, attrs) => {
@@ -29,34 +31,21 @@ import {Directive, Inject} from '../ng-decorators';
 export class ContentboxController {
 
     constructor() {
-        this.options = this.options || {};
-        if (!this.options.title) {
-            this.options.title = this.title ? this.title : '';
+        if (this.collapsible === undefined) {
+            this.collapsible = true;
         }
     }
 
     getClasses() {
         let color = this.color ? this.color : "blue";
-        let collapsed = this.options.collapsed ? "collapsed" : "";
-        let disabled = this.isDisabled() ? "no-content" : "";
+        let collapsed = this.collapsed ? "collapsed" : "";
+        let disabled = this.disabled ? "no-content" : "";
         return `${color} ${collapsed} ${disabled}`;
     }
 
-    isCollapsible() {
-        return this.collapsible === undefined || this.collapsible;
-    }
-
-    isDisabled() {
-        if (this.options) {
-            return this.options.disabled;
-        }
-        return false;
-    }
-
     collapse() {
-        if (this.isCollapsible()) {
-            this.options.collapsed === undefined ? true : this.options.collapsed;
-            this.options.collapsed = !this.options.collapsed;
+        if (this.collapsible) {
+            this.collapsed = !Boolean(this.collapsed);
         }
     }
 }

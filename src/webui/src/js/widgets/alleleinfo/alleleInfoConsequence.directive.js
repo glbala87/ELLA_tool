@@ -6,17 +6,13 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-consequence',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoConsequence.ngtmpl.html'
 })
 @Inject()
 export class AlleleInfoVariantConsequence {
 
-    constructor() {
-
-        this.cbOptions.title = 'Consequence';
-        this.cbOptions.url = this.allele.getEnsemblUrl();
-    }
+    constructor() {}
 
 }

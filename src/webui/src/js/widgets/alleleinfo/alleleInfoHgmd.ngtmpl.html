@@ -1,3 +1,9 @@
-<p>{{::vm.allele.annotation.external.HGMD.tag}}</p>
-<p>{{::vm.allele.annotation.external.HGMD.disease}}</p>
-<p>{{::vm.allele.annotation.external.HGMD.acc_num}}</p>
+<contentbox title="HGMD Pro" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
+  <cbbody>
+    <p>{{::vm.allele.annotation.external.HGMD.tag}}</p>
+    <p>{{::vm.allele.annotation.external.HGMD.disease}}</p>
+    <p>{{::vm.allele.annotation.external.HGMD.acc_num}}</p>
+  </cbbody>
+</contentbox>
+
+

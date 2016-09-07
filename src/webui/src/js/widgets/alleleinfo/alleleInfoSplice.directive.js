@@ -6,7 +6,7 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-splice',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoSplice.ngtmpl.html'
 })
@@ -14,17 +14,9 @@ import {Directive, Inject} from '../../ng-decorators';
 export class AlleleInfoSplice {
 
     constructor() {
-
-        this.cbOptions.title = "Splice";
-
-        this.checkForContent();
-    }
-
-    checkForContent() {
         if (!this.hasContent()) {
-            this.cbOptions.disabled = true;
-            this.cbOptions.collapsed = true;
-        };
+            this.collapsed = true;
+        }
     }
 
     hasContent() {

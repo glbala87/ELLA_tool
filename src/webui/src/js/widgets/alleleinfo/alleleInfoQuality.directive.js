@@ -6,16 +6,14 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-quality',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoQuality.ngtmpl.html'
 })
 @Inject()
 export class AlleleInfoQuality {
 
-    constructor() {
-        this.cbOptions.title = 'Quality';
-    }
+    constructor() {}
 
     getVerificationText() {
         return this.allele.annotation.quality.needs_verification ? 'Yes' : 'No';

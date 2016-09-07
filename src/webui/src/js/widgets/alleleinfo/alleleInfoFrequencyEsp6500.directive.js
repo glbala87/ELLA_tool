@@ -6,7 +6,7 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-frequency-esp6500',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoFrequencyEsp6500.ngtmpl.html'
 })
@@ -14,18 +14,9 @@ import {Directive, Inject} from '../../ng-decorators';
 export class AlleleInfoFrequencyEsp6500 {
 
     constructor() {
-
-        this.checkForContent();
-
-        this.cbOptions.title = "ESP6500";
-        this.cbOptions.url = this.allele.getESP6500Url();
-    }
-
-    checkForContent() {
         if (!this.hasContent()) {
-            this.cbOptions.disabled = true;
-            this.cbOptions.collapsed = true;
-        };
+            this.collapsed = true;
+        }
     }
 
     hasContent() {

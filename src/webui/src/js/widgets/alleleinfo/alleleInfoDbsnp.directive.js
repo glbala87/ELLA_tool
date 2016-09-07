@@ -6,7 +6,7 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-dbsnp',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoDbsnp.ngtmpl.html'
 })
@@ -14,17 +14,9 @@ import {Directive, Inject} from '../../ng-decorators';
 export class AlleleInfoDbsnp {
 
     constructor() {
-
-        this.checkForContent();
-
-        this.cbOptions.title = "dbSNP";
-    }
-
-    checkForContent() {
         if (!this.hasContent()) {
-            this.cbOptions.disabled = true;
-            this.cbOptions.collapsed = true;
-        };
+            this.collapsed = true;
+        }
     }
 
     getUrl(dbsnp) {

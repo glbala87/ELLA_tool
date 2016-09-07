@@ -13,14 +13,12 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         references: '=',
         alleleState: '=',
         onSave: '&?',
-        cbOptions: '='
+        collapsed: '=?'
     }
 })
 @Inject('$scope', 'ReferenceEvalModal', 'Interpretation')
 export class AlleleInfoReferences {
     constructor($scope, ReferenceEvalModal, Interpretation) {
-
-        this.cbOptions.title = "References";
 
         this.allele_references = [];
         // If we have PMID in annotation,
@@ -31,7 +29,6 @@ export class AlleleInfoReferences {
             () => this.references,
             () => {
                 this.setAlleleReferences();
-                this.cbOptions.hidden = !Boolean(this.allele_references.length);
             }
         );
         this.refEvalModal = ReferenceEvalModal;

@@ -6,7 +6,7 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-info-hgmd',
     scope: {
         allele: '=',
-        cbOptions: '='
+        collapsed: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoHgmd.ngtmpl.html'
 })
@@ -14,17 +14,9 @@ import {Directive, Inject} from '../../ng-decorators';
 export class AlleleInfoHgmd {
 
     constructor() {
-
-        this.cbOptions.title = 'HGMD Pro';
-        this.cbOptions.url = this.allele.getHGMDUrl();
-        this.checkForContent();
-    }
-
-    checkForContent() {
         if (!this.hasContent()) {
-            this.cbOptions.disabled = true;
-            this.cbOptions.collapsed = true;
-        };
+            this.collapsed = true;
+        }
     }
 
     hasContent() {
