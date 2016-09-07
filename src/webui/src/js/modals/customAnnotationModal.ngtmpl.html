@@ -1,8 +1,14 @@
-<card color="aqua" modal="true" on-close="vm.modal.close" collapsible="false" options="{}">
-  <primary>
-    <h3 class="header">{{vm.title}}</h3>
-  </primary>
-  <bottom>
+<sectionbox color="green" modal="true" on-close="vm.modal.close">
+  <titlebar>
+    <h3 class="title">{{vm.title}}</h3>
+  </titlebar>
+  <controls>
+    <section class="buttons only">
+      <button type="button" ng-click="vm.modal.close(false)">Cancel</button>
+      <button type="button" ng-click="vm.save()">Save</button>
+    </section>
+  </controls>
+  <contentwrapper>
     <section ng-if="vm.category == 'references'">
       <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added references</h2>
       <div class="included-allele">
@@ -22,7 +28,9 @@
       <div class="question line-wrapper" ng-if="vm.alleles.length > 1">
           <div class="left"> <h5>VARIANT:</h5> </div>
           <div class="right">
-            <select class='dropdown' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
+            <div class="dropdown">
+              <select class='dropdown' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"><option value="" disabled selected>Choose variant</option></select>
+            </div>
           </div>
       </div>
       <div class="question small">
@@ -42,7 +50,7 @@
       <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added annotations</h2>
       <div class="included-allele">
         <article class="content-box" ng-repeat="group in vm.config.custom_annotation[vm.category]" ng-if="vm.getCurrent()[group.key]">
-          <div class="excluded-allele">
+          <div>
             <div class="annotation-title"><h5><b>{{group.name}}:</b> {{vm.getCurrent()[group.key]}}</h5></div>
             <div><button class="" ng-click="vm.removeEntry(group.key)">REMOVE</button></div>
           </div>
@@ -53,19 +61,25 @@
       <article class="question small line-wrapper" ng-if="vm.alleles.length > 1">
         <div class="left"> <h5>Variant:</h5> </div>
         <div class="right">
-          <select class='dropdown' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"></select>
+          <div class="dropdown">
+            <select ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"><option value="" disabled selected>Choose variant</option></select>
+          </div>
         </div>
       </article>
       <article class="question small line-wrapper">
         <div class="left"> <h5>Annotation:</h5> </div>
         <div class="right">
-          <select class='dropdown' ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"></select>
+          <div class="dropdown">
+            <select ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"><option value="" disabled selected>Choose annotation</option></select>
+          </div>
         </div>
       </article>
       <article class="question small line-wrapper">
         <div class="left"> <h5>Value:</h5> </div>
         <div class="right">
-          <select ng-if="vm.selected_annotation_group.options" class='dropdown' ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"></select>
+          <div class="dropdown">
+            <select ng-if="vm.selected_annotation_group.options" ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"><option value="" disabled selected>Choose value</option></select>
+          </div>
           <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.selected_annotation_value" ng-if="vm.selected_annotation_group.text"> </autosize-textarea>
         </div>
       </article>
@@ -76,9 +90,5 @@
         <div class="right"> <button ng-click="vm.addAnnotation()">Add</button> </div>
       </article>
     </section>
-  </bottom>
-  <controls>
-    <button type="button" ng-click="vm.modal.close(false)">Cancel</button>
-    <button type="button" ng-click="vm.save()">Save</button>
-  </controls>
-</card>
+  </contentwrapper>
+</sectionbox>

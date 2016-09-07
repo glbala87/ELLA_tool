@@ -8,6 +8,8 @@
 // - Primarily used in modals for user prompts and information
 // - 'middle' is optional
 .line-wrapper { display: flex; align-items: center;
+  &.spaced { justify-content: space-between; }
+  &.bottom { align-items: flex-end; }
   .left { flex: 4; text-align: right; }
   .middle { flex: 0.5; text-align: center; }
   .right { flex: 4; }
@@ -15,20 +17,21 @@
 }
 .question { min-height: 8rem;
   .multiple-question-element ~ .multiple-question-element { margin-left: 1.3rem; }
-  .bttn-set { display: flex; flex-wrap: wrap; }
-  .bttn-set .bttn[disabled] { opacity: 0.25; border: 1px solid $blue-50; }
-  .bttn[disabled] ~ .bttn[disabled] { border-left: none; }
-  .bttn-set .bttn:hover:not([disabled]) { background-color: $blue-25; cursor: pointer; }
-  .bttn-set .bttn.active:hover { background-color: $blue-75; cursor: default; color: white; }
-  .bttn.active { background-color: $blue-75; color: white; }
-  .dropdown { background-color: $blue-05; border: 1px solid $blue-25; }
-  .bttn { background-color: $blue-05; border: 1px solid $blue-05; }
-  .bttn.active + .bttn { border-left: 1px solid Transparent; }
-  .bttn ~ .bttn { border-left: 1px solid $blue-25; }
+  .dropdown { background-color: $blue-05; border: 1px solid $blue-25; display: inline-block; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
   h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
   textarea { width: 100%; font-size: 1.2rem; font-family: $slim; }
+}
+.bttn-set { @extend .line-wrapper; flex-wrap: wrap; }
+.bttn { background-color: $blue-05; border: 1px solid $blue-05;
+  & ~ & { border-left: 1px solid $blue-25; margin-left: 0; }
+  &[disabled], &.disabled { opacity: 0.25; border: 1px solid $blue-50; }
+  &[disabled] ~ &[disabled], &.disabled ~ &.disabled { border-left: none; }
+  &:hover:not([disabled]) { background-color: $blue-25; cursor: pointer; }
+  &.active:hover { background-color: $blue-75; box-shadow: 0 0.3rem 0 $black-05; cursor: default; color: white; }
+  &.active { background-color: $blue-75; color: white; }
+  &.active + & { border-left: 1px solid Transparent; }
 }
 .question.small { min-height: 4rem; }
 .question.centered { text-align: center; }
@@ -60,3 +63,12 @@
 
 .reference, .reference .control { display: flex; align-items: center; justify-content: space-between; }
 .reference .control { padding-left: 0.7rem; }
+
+.pagination { @extend .bttn-set; list-style: none;
+  li { @extend .bttn; padding: 0; }
+  li.disabled:hover { cursor: default; background-color: inherit; box-shadow: 0 0.3rem 0 $black-05; }
+  li.disabled a:hover { cursor: default; }
+  li a { border-bottom: none; padding: 0.25rem 0.75rem; padding-top: 0.4rem; display: block; }
+  li a:hover {  }
+}
+.pagination * { border-radius: 0 !important; }

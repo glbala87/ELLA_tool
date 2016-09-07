@@ -284,6 +284,7 @@ export class CustomAnnotationModal {
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
             controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'alleles', 'category', CustomAnnotationController],
             controllerAs: 'vm',
+            size: 'lg',
             resolve: {
                 title: () => title,
                 alleles: () => alleles,

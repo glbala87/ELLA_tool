@@ -1,9 +1,11 @@
-<card color="purple" modal="true" on-close="vm.modal.close" collapsible="false" options="{}" ng-if="!vm.reference">
-  <primary> <h3 class="header">ERROR</h3> </primary>
-  <bottom> <h3>No reference selected.</h3> </bottom>
-  <!-- <controls> <div><button type="button" ng-click="vm.modal.close(false)">Close</button></div> </controls> -->
-</card>
-<sectionbox color="green" modal="true" on-close="vm.modal.close" ng-if="vm.reference" topcontrols="true">
+<sectionbox color="purple" modal="true" on-close="vm.modal.close" ng-if="!vm.reference">
+  <titlebar> <h3 class="title">ERROR</h3> </titlebar>
+  <contentwrapper>
+    <h4 class="sb-notification" ng-if="!vm.pending_analysis.length">No reference selected</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="green" modal="true" on-close="vm.modal.close" ng-if="vm.reference">
   <titlebar>
     <h3 class="title">REFERENCE EVALUATION</h3>
   </titlebar>

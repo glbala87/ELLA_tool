@@ -60,7 +60,9 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   section.comments {
     .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
   }
-  h4.sb-notification { font-family: $full; color: $black-25; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; }
+  h4.sb-notification { font-family: $full; color: $black-50; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem;
+    &.dim { color: $black-25; }
+  }
 }
 .contentbox { margin: 0.35rem;
   .titlebar { justify-content: space-between; }
@@ -71,7 +73,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .exac p { padding-right: 2.6rem; }
   h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; }
   h4 { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; }
-  h4.faded-title { opacity: 0.5; }
+  h4.faded-title { opacity: 0.5; font-family: $slim; }
   h5.wrap { white-space: normal; }
   h5.normaltext { padding-right: 0; }
   p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
@@ -96,5 +98,10 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 section.buttons .ref-title { padding-right: 1.3rem; }
 section.buttons .ref-buttons { display: flex; }
 .modal .sectionbox .sb-controls section.buttons { justify-content: space-between; }
-.reference-layout { display: flex; align-items: center; justify-content: space-between; }
-.reference-layout ~ .reference-layout { margin-top: 0.7rem; }
+.modal .sectionbox .sb-controls section.buttons.only { justify-content: flex-end; }
+.modal .prompt .sectionbox {
+  .sb-container { align-items: center; }
+  .sb-controls { flex: 1; }
+  .sb-body { flex: 2; }
+  .sb-controls section.buttons { justify-content: flex-end; }
+}

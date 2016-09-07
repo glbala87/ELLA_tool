@@ -98,6 +98,7 @@ class InterpretationService {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
             controller: ['$uibModalInstance', ConfirmCompleteInterpretationController],
+            size: 'lg',
             controllerAs: 'vm'
         });
         return modal.result.then(res => {

@@ -1,3 +1,4 @@
+<article class="sectionbox-content">
 <contentbox ng-repeat="(date, analyses) in vm.idempoByDate()" title="{{date}}">
   <cbbody>
     <div class="analysis-row clickable"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in analyses track by analysis.name">
@@ -11,3 +12,4 @@
     </div>
   </cbbody>
 </contentbox>
+</article>

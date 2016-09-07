@@ -14,6 +14,7 @@ import {Directive, Inject} from '../ng-decorators';
         topcontrols: '=?', // bool: whether controls should live at the top of the section
         collapsible: '=?', // bool: whether box can collapse
         collapsed: '=?',
+        onClose: '&',
         color: '@'
     },
     transclude: { titlebar: 'titlebar', contentwrapper: 'contentwrapper', controls: '?controls' },

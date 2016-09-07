@@ -28,6 +28,7 @@ export class InterpretationOverrideModal {
             templateUrl: 'ngtmpl/interpretationOverrideModal.ngtmpl.html',
             controller: ['$uibModalInstance', InterpretationOverrideController],
             controllerAs: 'vm',
+            size: 'lg',
             resolve: {}
         });
 
