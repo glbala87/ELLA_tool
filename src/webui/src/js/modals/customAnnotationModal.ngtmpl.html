@@ -50,7 +50,7 @@
       <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added annotations</h2>
       <div class="included-allele">
         <article class="content-box" ng-repeat="group in vm.config.custom_annotation[vm.category]" ng-if="vm.getCurrent()[group.key]">
-          <div class="excluded-allele">
+          <div>
             <div class="annotation-title"><h5><b>{{group.name}}:</b> {{vm.getCurrent()[group.key]}}</h5></div>
             <div><button class="" ng-click="vm.removeEntry(group.key)">REMOVE</button></div>
           </div>

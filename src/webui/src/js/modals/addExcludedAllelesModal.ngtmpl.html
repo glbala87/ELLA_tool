@@ -9,10 +9,10 @@
   </controls>
   <contentwrapper>
     <!-- Included -->
-    <h2 class="allele-title" ng-if="vm.included_alleles.length">included alleles</h2>
-    <div class="included-allele">
+    <h4 class="sb-notification" ng-if="vm.included_alleles.length">included alleles</h2>
+    <div class="line-wrapper">
       <article class="content-box" ng-repeat="al in vm.included_alleles track by al.id">
-        <div class="excluded-allele">
+        <div>
           <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3> {{::t.SYMBOL}} </h3></transcript-wrapper> </div>
           <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h4> {{::t.HGVSc | HGVSc_short}} </h4></transcript-wrapper> </div>
           <div class="checkbox checkbox-big checkbox-default">
@@ -25,8 +25,10 @@
       </article>
     </div>
     <hr ng-if="vm.included_alleles.length">
-    <h2 class="allele-title">excluded alleles</h2>
-    <h5 class="allele-count"><b>{{vm.filtered_alleles.length}} variants</b> from current filter settings</h5>
+    <div class="question small line-wrapper spaced bottom">
+      <h4 class="sb-notification">excluded alleles</h4>
+      <h5 class="allele-count"><b>{{vm.filtered_alleles.length}} variants</b> from current filter settings</h5>
+    </div>
     <div class="question small line-wrapper spaced">
       <section class="line-wrapper">
         <div class="bttn-set multiple-question-element">
@@ -53,8 +55,8 @@
       </div>
     </div>
     <!-- Excluded -->
-    <article class="content-wrapper" ng-repeat="al in vm.slice track by al.id">
-      <div class="excluded-allele">
+    <article class="line-wrapper" ng-repeat="al in vm.slice track by al.id">
+      <div>
         <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3> {{::t.SYMBOL}} </h3></transcript-wrapper> </div>
         <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h4> {{::t.HGVSc | HGVSc_short}} </h4></transcript-wrapper> </div>
         <div class="checkbox checkbox-big checkbox-default">
