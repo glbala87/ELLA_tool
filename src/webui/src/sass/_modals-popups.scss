@@ -73,3 +73,10 @@
   li a:hover {  }
 }
 .pagination * { border-radius: 0 !important; }
+
+.allele-control-bar { margin-bottom: 1.3rem; }
+.allele-info { @extend nav.top; position: static; color: $purple; background-color: Transparent; width: calc(100% - 13rem);
+  &.included { color: $blue; }
+  .clickable { border-color: inherit; }
+  aside { width: 100%; }
+}
