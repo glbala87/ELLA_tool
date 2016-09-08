@@ -10,15 +10,20 @@
   </controls>
   <contentwrapper>
     <section ng-if="vm.category == 'references'">
-      <h2 class="allele-title" ng-if="vm.hasAddedAnnotations()">added references</h2>
-      <div class="included-allele">
-        <article class="content-box" ng-repeat="ref in vm.getCurrent()">
-          <div class="annotation-title"><h5>{{vm.getReference(ref.pubmed_id).getShortDesc()}}</h5></div>
-          <div><button ng-click="vm.removeReference(ref)">REMOVE</button></div>
-        </article>
-      </div>
-      <hr ng-if="vm.hasAddedAnnotations()">
-      <h2 class="allele-title">add reference - import xml format</h2>
+      <article class="sectionbox-content">
+        <contentbox title="references" collapsible="false" class="max-width">
+          <cbbody>
+            <article class="content-box" ng-repeat="ref in vm.getCurrent()">
+              <section class="line-wrapper">
+                <div>
+                  <h5 class="wrap">{{vm.getReference(ref.pubmed_id).title}}</h5>
+                  <p>{{vm.getReference(ref.pubmed_id).getShortDesc()}}</p>
+                </div>
+                <div><button class="pink" ng-click="vm.removeReference(ref)">REMOVE</button></div>
+            </article>
+          </cbbody>
+        </contentbox>
+      </article>
       <div class="question line-wrapper">
         <div class="right">
           <h5>Instructions</h5>
