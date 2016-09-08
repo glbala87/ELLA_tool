@@ -10,7 +10,7 @@
   </controls>
   <contentwrapper>
     <section ng-if="vm.category == 'references'">
-      <article class="sectionbox-content">
+      <article class="sectionbox-content allele-control-bar">
         <contentbox title="references" collapsible="false" class="max-width">
           <cbbody>
             <article class="content-box" ng-repeat="ref in vm.getCurrent()">
@@ -26,7 +26,7 @@
       </article>
       <div class="question line-wrapper">
         <div class="right">
-          <h5>Instructions</h5>
+          <h5 class="slim title"><b>Instructions</b></h5>
           <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
         </div>
       </div>
@@ -52,7 +52,7 @@
     </section>
 
     <section ng-if="vm.category == 'external' || vm.category == 'prediction'">
-      <article class="sectionbox-content">
+      <article class="sectionbox-content allele-control-bar">
         <contentbox title="other" collapsible="false" class="max-width">
           <cbbody>
             <div class="cb-table">
