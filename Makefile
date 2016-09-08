@@ -43,7 +43,7 @@ help :
 .PHONY: any build dev fancy-dev url kill shell logs restart db
 
 any:
-	$(eval CONTAINER_NAME := $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
+	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
 	@true
 
 build:
@@ -201,12 +201,14 @@ BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
 .PHONY: setup-release setup-core ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
 
 setup-core:
-	$(eval BUILD_VERSION :=$(shell awk -F':' '/ella.core/ { print $$2 }' Dockerfile))
+	$(eval BUILD_VERSION = $(shell awk -F':' '/ella.core/ { print $$2 }' Dockerfile))
+	$(eval CORE_NAME := ousamg/baseimage:latest)
 
 setup-release: ensure-clean
-	$(eval ANSIBLE_TAGS =release)
-	$(eval BUILD_TYPE =release)
+	$(eval ANSIBLE_TAGS = release)
+	$(eval BUILD_TYPE = release)
 	$(eval BUILD_VERSION =latest)
+	$(eval CORE_NAME = $(shell awk '/ella.core/ { print $$2 }' Dockerfile))
 
 ensure-clean:
 	rm -rf node_modules
@@ -237,11 +239,6 @@ clean-provision stop-provision:
 	-docker stop -t 0 provision && docker rm provision
 
 start-provision: clean-provision
-ifeq ($(BUILD_TYPE), release)
-	$(eval CORE_NAME := $(shell awk '/ella.core/ { print $$2 }' Dockerfile))
-else
-	$(eval CORE_NAME := ousamg/baseimage:latest)
-endif
 	docker pull $(CORE_NAME)
 	docker run -d --name provision $(CORE_NAME) sleep infinity
 

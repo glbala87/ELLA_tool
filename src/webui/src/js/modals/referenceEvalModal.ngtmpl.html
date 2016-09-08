@@ -10,12 +10,12 @@
     <h3 class="title">REFERENCE EVALUATION</h3>
   </titlebar>
   <controls>
-    <section class="buttons">
+    <section class="line-wrapper spaced">
       <div class="ref-title">
         <h3 class="slim"><b>{{vm.reference.title}}</b></h3>
         <p class="slim">{{vm.reference.getShortDesc()}}</p>
       </div>
-      <div class="ref-buttons">
+      <div>
         <button type="button" ng-click="vm.modal.close()">Cancel</button>
         <button ng-click="vm.save()"> Save </button>
       </div>

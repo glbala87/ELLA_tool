@@ -1,6 +1,6 @@
 $bar-colors: (
-  blue: $blue,
   green: $green,
+  blue: $blue,
   purple: $purple,
   pink: $pink,
   black: $black,
@@ -55,8 +55,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
     .sb-controls { padding: 1.65rem; padding-top: 2.6rem; padding-left: 2.95rem; flex-basis: 75%; }
     .icon.collapser { transform: rotate(-90deg); }
   }
-  section.buttons { display: flex; align-items: center; }
-  section.buttons ~ section.comments { padding-top: 1.3rem; }
+  section ~ section.comments { padding-top: 1.3rem; }
   section.comments {
     .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
   }
@@ -95,13 +94,9 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 .sectionbox-content { display: flex; flex-wrap: wrap; }
 
 // Edge cases
-section.buttons .ref-title { padding-right: 1.3rem; }
-section.buttons .ref-buttons { display: flex; }
-.modal .sectionbox .sb-controls section.buttons { justify-content: space-between; }
-.modal .sectionbox .sb-controls section.buttons.only { justify-content: flex-end; }
+.ref-title { padding-right: 2.6rem; }
 .modal .prompt .sectionbox {
   .sb-container { align-items: center; }
   .sb-controls { flex: 1; }
   .sb-body { flex: 2; }
-  .sb-controls section.buttons { justify-content: flex-end; }
 }
