@@ -16,6 +16,7 @@ h3 { font-size: 1.4rem; }
   i { opacity: 0.65; font-style: normal; }
   &.header { font-weight: 700; }
   &.upper { text-transform: uppercase; }
+  &.section-top { margin-bottom: 0.35rem; }
 }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }

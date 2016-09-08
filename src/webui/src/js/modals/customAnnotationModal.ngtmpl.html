@@ -24,31 +24,38 @@
           </cbbody>
         </contentbox>
       </article>
-      <div class="question line-wrapper">
+      <div class="question line-wrapper" ng-if="vm.alleles.length > 1">
+        <div class="left"> <h5 class="slim title"> <b>VARIANT:</b> </h5> </div>
         <div class="right">
-          <h5 class="slim title"><b>Instructions</b></h5>
-          <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
+          <div class="dropdown">
+            <select class='dropdown' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"><option value="" disabled selected>Choose variant</option></select>
+          </div>
         </div>
       </div>
-      <div class="question line-wrapper" ng-if="vm.alleles.length > 1">
-          <div class="left"> <h5>VARIANT:</h5> </div>
-          <div class="right">
-            <div class="dropdown">
-              <select class='dropdown' ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"><option value="" disabled selected>Choose variant</option></select>
-            </div>
-          </div>
+      <!-- <div class="question line-wrapper"> -->
+      <!-- </div> -->
+      <div class="question line-wrapper">
+        <div class="left">
+          <h5 class="slim title section-top"><b>Instructions</b></h5>
+          <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
+        </div>
+        <div class="middle"></div>
+        <div class="right"><autosize-textarea class="big" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea></div>
       </div>
       <div class="question small">
-        <autosize-textarea class="big" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea>
+        <h5 class="slim title" ng-if="vm.reference_error"><b>The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</b></h5>
       </div>
-      <div class="question small">
-        <h5 class="error" ng-if="vm.reference_error">The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</h5>
+      <div class="question small line-wrapper">
+        <div class="left">
+        <button class="green" ng-click="vm.addReference()" ng-disabled="vm.reference_xml === ''">
+          <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+              <path d="M16 2 L16 30 M2 16 L30 16" />
+          </svg>
+          Add reference</button>
+        </div>
+        <div class="middle"></div>
+        <div class="right"></div>
       </div>
-      <button class="green" ng-click="vm.addReference()" ng-disabled="vm.reference_xml === ''">
-        <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-            <path d="M16 2 L16 30 M2 16 L30 16" />
-        </svg>
-        Add reference</button>
     </section>
 
     <section ng-if="vm.category == 'external' || vm.category == 'prediction'">
@@ -66,7 +73,7 @@
         </contentbox>
       </article>
       <article class="question small line-wrapper" ng-if="vm.alleles.length > 1">
-        <div class="left"> <h5>Variant:</h5> </div>
+        <div class="left"> <h5 class="slim title"> <b>Variant:</b> </h5> </div>
         <div class="right">
           <div class="dropdown">
             <select ng-options="al as vm.formatAllele(al) for al in vm.alleles" ng-model="vm.selected_allele" ng-change="vm.copyAlleleCustomAnnotation()"><option value="" disabled selected>Choose variant</option></select>
@@ -74,7 +81,7 @@
         </div>
       </article>
       <article class="question small line-wrapper">
-        <div class="left"> <h5>Annotation:</h5> </div>
+        <div class="left"> <h5 class="slim title"> <b>Annotation:</b> </h5> </div>
         <div class="right">
           <div class="dropdown">
             <select ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"><option value="" disabled selected>Choose annotation</option></select>
@@ -82,7 +89,7 @@
         </div>
       </article>
       <article class="question small line-wrapper">
-        <div class="left"> <h5>Value:</h5> </div>
+        <div class="left"> <h5 class="slim title"> <b>Value:</b> </h5> </div>
         <div class="right">
           <div class="dropdown">
             <select ng-if="vm.selected_annotation_group.options" ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"><option value="" disabled selected>Choose value</option></select>
