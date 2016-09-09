@@ -15,7 +15,7 @@
         <h3 class="slim"><b>{{vm.reference.title}}</b></h3>
         <p class="slim">{{vm.reference.getShortDesc()}}</p>
       </div>
-      <div>
+      <div class="line-wrapper">
         <button type="button" ng-click="vm.modal.close()">Cancel</button>
         <button ng-click="vm.save()"> Save </button>
       </div>
@@ -23,7 +23,7 @@
   </controls>
   <contentwrapper>
     <article class='line-wrapper question'>
-      <div class="left"> <h5> Relevance </h5> <p> Is the reference relevant? </p> </div>
+      <div class="left"> <h5 class="slim title"> <b>Relevance</b> </h5> <p> Is the reference relevant? </p> </div>
       <div class="middle"></div>
       <div class="right">
         <div class="bttn-set">
@@ -32,7 +32,7 @@
       </div>
     </article>
     <article class='line-wrapper question' ng-repeat="source in vm.getSources() track by source" ng-if="vm.shouldShow(source)">
-      <div class="left"> <h5> {{vm.sources[source].title}} </h5> <p> {{vm.sources[source].desc}} </p> </div>
+      <div class="left"> <h5 class="slim title"> <b>{{vm.sources[source].title}}</b> </h5> <p> {{vm.sources[source].desc}} </p> </div>
       <div class="middle">
         <span ng-if="vm.sources[source].optional">
           <input type="checkbox" class="box" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
@@ -53,7 +53,7 @@
       </div>
     </article>
     <article class="line-wrapper question">
-      <div class="left"> <h5> Comments </h5></div>
+      <div class="left"> <h5 class="slim title"> <b>Comments</b> </h5></div>
       <div class="middle"></div>
       <div class="right"><autosize-textarea placeholder="COMMENTS" ng-model="vm.referenceAssessment.evaluation['comment']"></autosize-textarea></div>
     </article>

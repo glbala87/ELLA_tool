@@ -64,6 +64,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   }
 }
 .contentbox { margin: 0.35rem;
+  .max-width & .cb-body { max-width: 100% !important; }
   .titlebar { justify-content: space-between; }
   .title { margin-right: 0.025rem; }
   .cb-body { padding: 1.3rem; width: 100%; transform: scaleX(1); opacity: 1; transform-origin: left; transform-style: flat; transition: all 0.6s; white-space: nowrap; }
@@ -79,6 +80,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
+  .remove { margin-bottom: 0.7rem; @extend .pink; }
   .icon:hover svg { fill: $white; }
   .icon.collapsed { transform-style: preserve-3d; transform: rotateY(180deg); }
 }

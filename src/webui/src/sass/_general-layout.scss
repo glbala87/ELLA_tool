@@ -37,7 +37,7 @@ select { border: none; box-shadow: none; background: transparent; height: 100%; 
 
 p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
 
-interpretation-button button { height: 100%; } // fixes a browser quirk
+// interpretation-button button { height: 100%; } // fixes a browser quirk - edit, seems to have gone away with some other changes
 .button ~ .button, button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
 button { outline: none; border: 1px solid Transparent;
   &:disabled { border: 1px solid $black-50; box-shadow: none; color: $black-75; opacity: 0.25; background-color: inherit; &:hover { cursor: default; } }
@@ -91,30 +91,27 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   .close-results .fa { margin-right: 0.5rem; }
 }
 
-.allele-sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
-.allele-sidebar .ng-enter-active { opacity: 1; }
-.allele-sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.allele-sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem; top: 14.5rem; transition: top 0.6s;
-  &.higher { top: 7.5rem; }
-  a { color: inherit;  &:hover { text-decoration: none; } }
-  section { margin: 1.3rem 0; }
-  p { font-size: 1.0rem; font-weight: 500; letter-spacing: 0.2rem; }
-  h1 { font-size: 2.6rem; line-height: 2.6rem; font-weight: 600; width: auto; }
-  h2 ,h4 { font-family: $slim; font-weight: 600; margin: 0; }
-  h2 { font-size: 1.5rem; }
-  h4 { font-size: 1.4rem; display: flex; justify-content: space-between; }
+.sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
+.sidebar .ng-enter-active { opacity: 1; }
+.sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
+.sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem; bottom: 1.3rem; top: 14.5rem; transition: top 0.6s;
+  .higher & { top: 7.5rem; }
+  section.enabled, section.disabled { flex-basis: auto; overflow-y: scroll; margin: 1.3rem 0; }
+  h4 { font-family: $slim; font-weight: 600; margin: 0; font-size: 1.4rem; display: flex; justify-content: space-between; }
   .section-title { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.05rem; color: $blue-75; text-transform: uppercase; }
-  i { font-weight: 400; font-style: normal; margin-right: 1.3rem; }
-  b { font-weight: 700; color: $black-75; }
+  .variant { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .variant span { width: 13.0rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
+  i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
+  b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
   .nav-row { display: flex; align-items: center; color: $black-50; background-color: inherit; width: 24rem;
     &.disabled { color: $black-25; }
-    & .tab, & .title { transition: all 0.3s ease-in-out; }
+    & .tab, & .variant { transition: all 0.3s ease-in-out; }
     &:not(.disabled):hover { cursor: pointer; }
     &:not(.disabled):hover .tab { background-color: $blue-50; }
-    &:not(.disabled):hover .title { background-color: $black-05; }
+    &:not(.disabled):hover .variant { background-color: $black-05; }
     &.active:hover { cursor: default; }
-    &.active:hover .tab { background-color: $blue; }
-    &.active:hover .title { background-color: inherit; color: $blue; }
+    &.active .variant, &.active:hover .variant { background-color: inherit; color: $blue; }
+    &.active .tab, &.active:hover .tab { background-color: $blue; }
     &.toggled h4 { color: hsla(205,35,45,0.5); }
     &.toggled h4 b { color: hsla(205,35,45,0.75); }
   }
@@ -122,10 +119,6 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   .tab { width: 0.35rem; min-width: 0.35rem; height: 2.6rem; background-color: inherit; }
   .tab.togglable { display: flex; align-items: center; justify-content: center; width: 2.6rem; }
   .added h5 { margin: 0; font-size: 1.3rem; font-weight: 600; color: white; }
-  .title { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .title span { width: 14.3rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
-  .tab.active { background-color: $blue; }
-  .title.active { color: $blue; }
 }
 
 #toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;

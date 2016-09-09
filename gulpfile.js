@@ -214,8 +214,8 @@ gulp.task('e2e', function(done) {
  */
 gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
     var server = new KarmaServer({
-    	configFile: __dirname + '/src/webui/tests/karma.conf.js',
-	    singleRun: true,
+      configFile: __dirname + '/src/webui/tests/karma.conf.js',
+      singleRun: true,
         autoWatch: false
     }, karmaCompleted);
 
