@@ -49,19 +49,3 @@ export class ContentboxController {
         }
     }
 }
-
-
-    // link: (scope, elem, attrs) => {
-      // LEAVE FOR NOW!
-      //   - fixed padding with alternate CSS rules, but might still need to alter styles here based on children
-      //
-      // setTimeout(() => {
-      //   let e = elem[0].querySelector(".title")
-      //   let h = (e.getBoundingClientRect().height * 1.2) + 7;
-      //   elem[0].querySelector(".neo-content-box").style.minHeight = h + "px";
-      //   if (e.querySelector("a")) {
-      //     console.log("TRIGGERED");
-      //     elem[0].querySelector(".cb-header").style.backgroundColor = "#4B879B";
-      //   }
-      // }, 0);
-    // }
