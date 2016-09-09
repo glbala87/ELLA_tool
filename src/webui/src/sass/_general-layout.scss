@@ -95,7 +95,7 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
 .sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem; bottom: 1.3rem; top: 14.5rem; transition: top 0.6s;
-  &.higher { top: 7.5rem; }
+  .higher & { top: 7.5rem; }
   section.enabled, section.disabled { flex-basis: auto; overflow-y: scroll; margin: 1.3rem 0; }
   h4 { font-family: $slim; font-weight: 600; margin: 0; font-size: 1.4rem; display: flex; justify-content: space-between; }
   .section-title { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.05rem; color: $blue-75; text-transform: uppercase; }
