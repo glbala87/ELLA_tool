@@ -11,6 +11,7 @@
   &.spaced { justify-content: space-between; }
   &.pinned-right { justify-content: flex-end; }
   &.bottom { align-items: flex-end; }
+  &.list-item { margin-bottom: 1.3rem; }
   .left { flex: 4; text-align: right; }
   .middle { flex: 0.5; text-align: center; }
   .right { flex: 4; }

@@ -59,9 +59,6 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   section.comments {
     .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
   }
-  h4.sb-notification { font-family: $full; color: $black-50; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem;
-    &.dim { color: $black-25; }
-  }
 }
 .contentbox { margin: 0.35rem;
   .max-width & .cb-body { max-width: 100% !important; }

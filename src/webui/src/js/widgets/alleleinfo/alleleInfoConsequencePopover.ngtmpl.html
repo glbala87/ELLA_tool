@@ -1,7 +1,3 @@
-<div>
-    <div>
-        <ul>
-            <li ng-repeat="t in ::vm.allele.annotation.transcripts track by t.Transcript">{{t.Transcript}}.{{t.Transcript_version}}: <span ng-repeat="c in ::t.Consequence">{{::c}}</span></li>
-        </ul>
-    </div>
-</div>
+<ul>
+  <li ng-repeat="t in ::vm.allele.annotation.transcripts track by t.Transcript">{{t.Transcript}}.{{t.Transcript_version}}: <span ng-repeat="c in ::t.Consequence">{{::c}}</span></li>
+</ul>
