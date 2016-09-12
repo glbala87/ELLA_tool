@@ -79,7 +79,10 @@ nav.top { display: flex; flex-direction: column; align-items: center; background
   .up .right, .down .right { justify-content: space-between; }
 }
 nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 4rem; margin-top: 6.5rem; padding: 0 1.3rem; }
-.search-box { margin-right: auto; margin-left: 2rem; }
+.search-box { margin-right: auto; margin-left: 2rem;
+  input { padding: 0.25rem 0.75rem; }
+  input:focus { background-color: $white-75; }
+}
 
 .search-results:before { content: "Search Results"; color: $black-25; font-size: 1.2rem; font-family: $full; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; position: absolute; }
 .search-results:before.ng-enter {  animation: 1s fade-in; }
