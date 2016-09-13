@@ -80,8 +80,10 @@ nav.top { display: flex; flex-direction: column; align-items: center; background
 }
 nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 4rem; margin-top: 6.5rem; padding: 0 1.3rem; }
 .search-box { margin-right: auto; margin-left: 2rem;
-  input { padding: 0.25rem 0.75rem; }
+  input { padding: 0.25rem 0.75rem; transition: all 0.3s; }
   input:focus { background-color: $white-75; }
+  input:hover { background-color: $white-25; }
+  input:focus:hover { background-color: $white-75; }
 }
 
 .search-results .ng-enter { animation: 1s fade-in; }
@@ -89,10 +91,12 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; }
   .element { margin: 1.3rem 0; margin-left: 2.3rem;
     &-title { @extend .full-title; margin-bottom: 0.7rem; color: $black-50; }
-    &-item { @extend .slim; @extend .line-wrapper; color: $black-50; font-size: 1.4rem; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25; transition: all 0.3s;
-      i { font-size: 1.25rem; opacity: 1; margin-right: 2.6rem; }
+    &-item { @extend .line-wrapper; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25;
+      h4 { @extend .slim; color: $black-75; font-size: 1.4rem; transition: all 0.3s; }
+      h4 i { font-size: 1.25rem; opacity: 1; }
+      h4 i, h4 b { margin-right: 2.6rem; }
     }
-    &-item:hover { color: $black-75; cursor: pointer; }
+    &-item:hover h4 { color: $black; cursor: pointer; }
   }
   .no-results { height: auto; padding-top: 3.9rem; padding-bottom: 1.3rem; }
 }
