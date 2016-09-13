@@ -1,3 +1,5 @@
+// GENERIC ELEMENT STYLES
+
 * { box-sizing: border-box; }
 html { font-size: 62.5%; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsl(0,0,100); line-height: 1.42857143; color: #333; }
@@ -46,19 +48,16 @@ button { outline: none; border: 1px solid Transparent;
 }
 .buttonmark { width: 1.5rem; height: 0.8rem; stroke-width: 14%; }
 
+
+// APP-WIDE STYLE
+
 .container { margin-left: 32rem; margin-top: 12rem; margin-right: 1.3rem; margin-bottom: 2.6rem; }
 .container.inner { margin-top: 0; width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
 
-.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
-  h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
-  h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }
-}
-.no-results { height: auto; padding-top: 3.9rem; padding-bottom: 1.3rem; }
-.no-results h4 { font-size: 1.6rem; }
-.lolspace { margin-left: 21rem; }
+.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
 
 .hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 100; color: black; cursor: pointer;
   h1 { font-size: 4rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
@@ -68,6 +67,7 @@ button { outline: none; border: 1px solid Transparent;
   #e, #a, #les { font-size: 3.2rem; transition: all 1s; }
   #les { transform: rotateY(180deg); visibility: hidden; opacity: 0; }
 }
+
 nav.top { display: flex; flex-direction: column; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
   section { display: flex; }
   aside { display: flex; align-items: center; width: calc(50vw - 1.3rem); }
@@ -84,17 +84,17 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   input:focus { background-color: $white-75; }
 }
 
-.search-results:before { content: "Search Results"; color: $black-25; font-size: 1.2rem; font-family: $full; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; position: absolute; }
-.search-results:before.ng-enter {  animation: 1s fade-in; }
 .search-results .ng-enter { animation: 1s fade-in; }
-.search-results { color: $black-75; font-size: 1.3rem; font-family: $slim; width: 100%; position: relative; margin-bottom: 3.9rem;
-  h4.sb-notification { font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; }
+.search-results { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
+  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; }
   .element { margin: 1.3rem 0; margin-left: 2.3rem;
-    &-title { @extend .full-title; margin-bottom: 0.7rem; }
-    &-item { @extend .slim; @extend .line-wrapper; font-size: 1.4rem; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25;
+    &-title { @extend .full-title; margin-bottom: 0.7rem; color: $black-50; }
+    &-item { @extend .slim; @extend .line-wrapper; color: $black-50; font-size: 1.4rem; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25; transition: all 0.3s;
       i { font-size: 1.25rem; opacity: 1; margin-right: 2.6rem; }
     }
+    &-item:hover { color: $black-75; cursor: pointer; }
   }
+  .no-results { height: auto; padding-top: 3.9rem; padding-bottom: 1.3rem; }
 }
 
 .sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
@@ -114,9 +114,9 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
     & .tab, & .variant { transition: all 0.3s ease-in-out; }
     &:not(.disabled):hover { cursor: pointer; }
     &:not(.disabled):hover .tab { background-color: $blue-50; }
-    &:not(.disabled):hover .variant { background-color: $black-05; }
+    &:not(.disabled):hover .variant { color: $black-75; }
     &.active:hover { cursor: default; }
-    &.active .variant, &.active:hover .variant { background-color: inherit; color: $blue; }
+    &.active .variant, &.active:hover .variant { color: $blue; }
     &.active .tab, &.active:hover .tab { background-color: $blue; }
     &.toggled h4 { color: hsla(205,35,45,0.5); }
     &.toggled h4 b { color: hsla(205,35,45,0.75); }
