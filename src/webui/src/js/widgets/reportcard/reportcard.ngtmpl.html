@@ -1,27 +1,11 @@
-<card color="blue" collapsible="false" options="{}">
-  <primary>
-    <div class="cell">
-      <h3>Create report</h3>
-    </div>
-  </primary>
-  <secondary></secondary>
-  <bottom class="report-content">
-    <div ng-if="!vm.alleles.length" class="included-report">
-      <h4>No alleles addded. You can add alleles from the classified variants on sidebar to the left.</h4>
-    </div>
-    <div ng-if="vm.alleles.length" class="included-report">
-      <!-- <div>
-        <h2 class="allele-title">Needs verification</h2>
-        <div class="verify">
-          <h4 ng-repeat="al in vm.getIncludedNeedsVerification()">{{al.toString()}}</h4>
-        </div>
-      </div> -->
-
-      <h2 class="allele-title">Report</h2>
-      <pre>
-        <div ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5><p>{{vm.getAlleleReport(al).evaluation.comment}}</p></div>
-      </pre>
-      <hr/>
-    </div>
-  </bottom>
-</card>
+<sectionbox color="purple" collapsible="false">
+  <titlebar>
+    <h3 class="title">Report</h3>
+  </titlebar>
+  <contentwrapper class="report">
+    <h4 ng-if="!vm.alleles.length" class="sb-notification dim">No alleles addded. You can add alleles from the classified variants on sidebar to the left.</h4>
+    <pre ng-if="vm.alleles.length" class="included-report">
+      <div ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5><p>{{vm.getAlleleReport(al).evaluation.comment}}</p></div>
+    </pre>
+  </contentwrapper>
+</sectionbox>

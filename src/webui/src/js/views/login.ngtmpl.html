@@ -8,9 +8,9 @@
       <input class="full-width" type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
     </controls>
     <contentwrapper>
-      <section class="content-list users">
-        <div class="analysis-row" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
-          <h3>{{user.first_name}} {{user.last_name}}</h3>
+      <section>
+        <div class="line-wrapper list-item clickable" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
+          <h3 class="full-title"><b>{{user.first_name}} {{user.last_name}}</b></h3>
         </div>
       </section>
     </contentwrapper>

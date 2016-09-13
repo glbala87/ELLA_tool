@@ -1,7 +1,9 @@
+// GENERIC ELEMENT STYLES
+
 * { box-sizing: border-box; }
 html { font-size: 62.5%; }
 body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsl(0,0,100); line-height: 1.42857143; color: #333; }
-input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; background-color: transparent; padding: 0.3rem 0; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
+input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; background-color: transparent; padding: 0.3rem; height: 2.6rem; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
   &:focus { border-bottom: 1px solid Transparent; box-shadow: 0px 0.3rem 0px $blue-50; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; }
   &.white { color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
@@ -9,7 +11,7 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; ba
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
   }
 }
-textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0; width: 100%; min-height: 2.6rem; max-height: 20rem; border: none; background-color: transparent; border-bottom: 1px solid $black-25; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
+textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0 0.3rem; width: 100%; min-height: 2.6rem; max-height: 20rem; border: none; background-color: transparent; border-bottom: 1px solid $black-25; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
   &:focus { border-bottom: 1px solid Transparent; box-shadow: 0px 0.3rem 0px $blue-50; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
 }
@@ -46,19 +48,16 @@ button { outline: none; border: 1px solid Transparent;
 }
 .buttonmark { width: 1.5rem; height: 0.8rem; stroke-width: 14%; }
 
+
+// APP-WIDE STYLE
+
 .container { margin-left: 32rem; margin-top: 12rem; margin-right: 1.3rem; margin-bottom: 2.6rem; }
-.container.inner { margin-top: 0; width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; border-left: 1px dotted $blue-25; }
+.container.inner { margin-top: 0; width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
 
-.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
-  h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
-  h4 { font-size: 1.7rem; font-weight: 300; word-spacing: 0.1rem; }
-}
-.no-results { height: auto; }
-.no-results h4 { font-size: 1.6rem; }
-.lolspace { margin-left: 21rem; }
+.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
 
 .hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 100; color: black; cursor: pointer;
   h1 { font-size: 4rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
@@ -68,6 +67,7 @@ button { outline: none; border: 1px solid Transparent;
   #e, #a, #les { font-size: 3.2rem; transition: all 1s; }
   #les { transform: rotateY(180deg); visibility: hidden; opacity: 0; }
 }
+
 nav.top { display: flex; flex-direction: column; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
   section { display: flex; }
   aside { display: flex; align-items: center; width: calc(50vw - 1.3rem); }
@@ -79,16 +79,26 @@ nav.top { display: flex; flex-direction: column; align-items: center; background
   .up .right, .down .right { justify-content: space-between; }
 }
 nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 4rem; margin-top: 6.5rem; padding: 0 1.3rem; }
+.search-box { margin-right: auto; margin-left: 2rem;
+  input { padding: 0.25rem 0.75rem; transition: all 0.3s; }
+  input:focus { background-color: $white-75; }
+  input:hover { background-color: $white-25; }
+  input:focus:hover { background-color: $white-75; }
+}
 
-.search-results:before { content: "Search Results"; color: $black-50; font-size: 1.4rem; font-family: $full; font-weight: 500; text-transform: uppercase; position: absolute; left: -15rem; top: 3.5rem; }
-.search-results:before.ng-enter {  animation: 1s fade-in; }
 .search-results .ng-enter { animation: 1s fade-in; }
-.search-results { padding: 2.6rem; background-color: $blue; color: white; font-size: 1.3rem; font-family: $slim; width: 50vw; margin-left: auto; position: relative;
-  .analysis-row { margin-left: 2rem; }
-  .section-title { font-weight: 400; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1rem; }
-  .element-title { font-size: 1.6rem; font-weight: 600; }
-  .close-results { position: absolute; right: 3.9rem; top: 0.7rem; }
-  .close-results .fa { margin-right: 0.5rem; }
+.search-results { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
+  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; }
+  .element { margin: 1.3rem 0; margin-left: 2.3rem;
+    &-title { @extend .full-title; margin-bottom: 0.7rem; color: $black-50; }
+    &-item { @extend .line-wrapper; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25;
+      h4 { @extend .slim; color: $black-75; font-size: 1.4rem; transition: all 0.3s; }
+      h4 i { font-size: 1.25rem; opacity: 1; }
+      h4 i, h4 b { margin-right: 2.6rem; }
+    }
+    &-item:hover h4 { color: $black; cursor: pointer; }
+  }
+  .no-results { height: auto; padding-top: 3.9rem; padding-bottom: 1.3rem; }
 }
 
 .sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
@@ -108,9 +118,9 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
     & .tab, & .variant { transition: all 0.3s ease-in-out; }
     &:not(.disabled):hover { cursor: pointer; }
     &:not(.disabled):hover .tab { background-color: $blue-50; }
-    &:not(.disabled):hover .variant { background-color: $black-05; }
+    &:not(.disabled):hover .variant { color: $black-75; }
     &.active:hover { cursor: default; }
-    &.active .variant, &.active:hover .variant { background-color: inherit; color: $blue; }
+    &.active .variant, &.active:hover .variant { color: $blue; }
     &.active .tab, &.active:hover .tab { background-color: $blue; }
     &.toggled h4 { color: hsla(205,35,45,0.5); }
     &.toggled h4 b { color: hsla(205,35,45,0.75); }

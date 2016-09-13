@@ -1,14 +1,18 @@
 <div class='acmg' ng-class="vm.getACMGclass()">
-  <div class="button-wrapper" ng-click="vm.toggle()">
-    <button class="white" ng-if="::vm.toggleText" ng-disabled="::vm.commentModel == undefined">{{::vm.toggleText}}</button>
+  <section class="acmg-upper">
+    <h4 uib-popover-template="vm.popover.templateUrl"
+      popover-append-to-body=true
+      popover-title="{{::vm.getCodeForDisplay().code | noUnderscores}}"
+      popover-trigger="outsideClick"
+      popover-placement="auto top">
+      {{vm.getCodeForDisplay().code | noUnderscores}}
+    </h4>
+    <!-- <div class="button-wrapper" ng-click="vm.toggle()"> -->
     <h4 ng-if="vm.isMultiple()">{{vm.code.length}}x</h4>
-  </div>
-  <h4 uib-popover-template="vm.popover.templateUrl"
-    popover-append-to-body=true
-    popover-title="{{::vm.getCodeForDisplay().code}}"
-    popover-trigger="outsideClick"
-    popover-placement="auto top">
-    {{vm.getCodeForDisplay().code | noUnderscores}}
-  </h4>
-  <autosize-textarea class="white" placeholder="{{vm.getPlaceholder()}}" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
+    <button class="white" ng-click="vm.toggle()" ng-if="::vm.toggleText" ng-disabled="::vm.commentModel == undefined">{{::vm.toggleText}}</button>
+    <!-- </div> -->
+  </section>
+  <section class="acmg-lower">
+    <autosize-textarea class="white" placeholder="{{vm.getPlaceholder()}}" ng-if="::vm.commentModel != undefined" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
+  </section>
 </div>

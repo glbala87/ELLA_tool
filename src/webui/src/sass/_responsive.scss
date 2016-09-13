@@ -3,11 +3,8 @@
 }
 @media only screen and (max-width: 1080px) {
   html { font-size: 8px; }
-  .app .content, .container { margin-left: 20.8rem; margin-right: 1.3rem; }
   .sidebar { width: 20rem;
     .nav-row { color: $black-25; }
     .tab { display: none; }
-    .title, .hero { padding-left: 1.3rem; }
   }
-  nav.skinny { padding-left: 1.3rem; padding-right: 1.3rem; }
 }

@@ -1,6 +1,6 @@
 .modal { z-index: 98 !important;
   &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0; }
-  &-dialog { margin-left: 22rem; margin-top: 6.5rem; margin-bottom: 0; }
+  &-dialog { margin-left: 25.3rem; margin-top: 6.5rem; margin-bottom: 0; }
   &-lg { width: inherit; }
   &-backdrop { bottom: 0; position: fixed; z-index: 97 !important; }
 }
@@ -11,6 +11,7 @@
   &.spaced { justify-content: space-between; }
   &.pinned-right { justify-content: flex-end; }
   &.bottom { align-items: flex-end; }
+  &.list-item { margin-bottom: 1.3rem; }
   .left { flex: 4; text-align: right; }
   .middle { flex: 0.5; text-align: center; }
   .right { flex: 4; }
