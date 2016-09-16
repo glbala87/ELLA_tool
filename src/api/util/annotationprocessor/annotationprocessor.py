@@ -3,6 +3,8 @@
 from collections import defaultdict
 import re
 import itertools
+import base64
+import json
 
 from api import config
 from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
@@ -423,10 +425,9 @@ class ExternalAnnotation(object):
     ]
 
     CLINVAR_FIELDS = [
-        'CLNSIG',
-        'CLNDBN',
-        'CLNREVSTAT',
-        'CLNACC'
+        'traitnames',
+        'clinical_significance_descr',
+        'clinical_significance_status',
     ]
 
     HGMD_FIELDS = [
@@ -451,10 +452,17 @@ class ExternalAnnotation(object):
         return {}
 
     def _clinvar(self, annotation):
-        if 'CLINVAR' not in annotation:
+        if 'CLINVARJSON' not in annotation:
             return dict()
 
-        data = {k: annotation['CLINVAR'][k] for k in ExternalAnnotation.CLINVAR_FIELDS if k in annotation['CLINVAR']}
+        clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
+
+        data = []
+        for rcv, val in clinvarjson["rcvs"].items():
+            item = {k: ", ".join(val[k]) for k in ExternalAnnotation.CLINVAR_FIELDS}
+            item["rcv"] = rcv
+            data.append(item)
+
         return {'CLINVAR': data}
 
     def _hgmd(self, annotation):

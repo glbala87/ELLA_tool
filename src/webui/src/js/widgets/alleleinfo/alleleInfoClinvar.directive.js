@@ -23,17 +23,12 @@ export class AlleleInfoClinvar {
 
     formatClinvar() {
         let result = [];
-        if ('CLINVAR' in this.allele.annotation.external &&
-            'CLNSIG' in this.allele.annotation.external.CLINVAR &&
-            'CLNREVSTAT' in this.allele.annotation.external.CLINVAR) {
-            let clnsigs = this.allele.annotation.external.CLINVAR.CLNSIG.split('|');
-            let clnrevstats = this.allele.annotation.external.CLINVAR.CLNREVSTAT.split('|');
-            for (let idx = 0; idx < clnsigs.length; idx++) {
-                if (clnsigs[idx] in this.config.annotation.clinvar.CLNSIG) {
-                    let sigtext = this.config.annotation.clinvar.CLNSIG[clnsigs[idx]];
-                    let revtext = this.config.annotation.clinvar.CLNREVSTAT[clnrevstats[idx]];
-                    result.push(`${sigtext} (${revtext})`);
-                }
+        if ('CLINVAR' in this.allele.annotation.external) {
+            for (let idx=0; idx<this.allele.annotation.external.CLINVAR.length; idx++) {
+                let sigtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_descr;
+                let phenotypetext = this.allele.annotation.external.CLINVAR[idx].traitnames;
+                let revtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_status;
+                result.push(`${sigtext} - ${phenotypetext} - ${revtext}`);
             }
         }
         return result;
