@@ -28,7 +28,8 @@ export class AlleleInfoClinvar {
                 let sigtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_descr;
                 let phenotypetext = this.allele.annotation.external.CLINVAR[idx].traitnames;
                 let revtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_status;
-                result.push(`${sigtext} - ${phenotypetext} - ${revtext}`);
+                let revstatus = this.config.annotation.clinvar.clinical_significance_status[revtext];
+                result.push(`${sigtext} - ${phenotypetext} - ${revstatus}`);
             }
         }
         return result;
