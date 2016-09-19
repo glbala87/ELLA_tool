@@ -15,6 +15,7 @@ export class AlleleInfoClinvar {
 
     constructor(Config) {
         this.config = Config.getConfig();
+        this.previous = {};
 
         if (!this.hasContent()) {
             this.collapsed = true;
@@ -32,13 +33,14 @@ export class AlleleInfoClinvar {
                 let revtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_status;
                 let revstatus = this.config.annotation.clinvar.clinical_significance_status[revtext];
                 let revstars = "";
+
                 for (let j=0; j<revstatus; j++) {
                     revstars += ''; // This renders as a filled star in FontAwesome font
                 }
-
                 for (let j=0; j<4-revstatus; j++) {
                     revstars += ''; // This renders as an empty star in FontAwesome font
                 }
+
                 item["sigtext"] = sigtext;
                 item["phenotypetext"] = phenotypetext;
                 item["revstars"] = revstars;
@@ -56,6 +58,15 @@ export class AlleleInfoClinvar {
     }
 
     getUrl(rcv) {
-        return "http://www.ncbi.nlm.nih.gov/clinvar/"+rcv;
+        return "http://www.ncbi.nlm.nih.gov/clinvar/" + rcv;
+    }
+
+    idempoClinvar() {
+        // Force JSON-representation to be the equal-check
+        let cur = this.formatClinvar();
+        if (angular.toJson(this.previous) != angular.toJson(cur)) {
+            this.previous = cur;
+        }
+        return this.previous;
     }
 }
