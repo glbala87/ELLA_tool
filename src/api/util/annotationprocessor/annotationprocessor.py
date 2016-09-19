@@ -32,6 +32,19 @@ class References(object):
             total.extend([e['pmid'] for e in annotation['HGMD']['extrarefs'] if 'pmid' in e])
         return total
 
+    def _clinvar_pubmeds(self, annotation):
+        if 'CLINVARJSON' not in annotation:
+            return list()
+
+        clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
+
+        total = []
+        for val in clinvarjson["rcvs"].values():
+            total += val["pubmed"]
+        total = list(set(total))
+
+        return total
+
     def _ensure_int_pmids(self, pmids):
         # HACK: Convert all ids to int, the annotation is sometimes messed up
         # If it cannot be converted, ignore it...
@@ -44,29 +57,22 @@ class References(object):
         return int_pmids
 
     def process(self, annotation):
-
         csq_pubmeds = self._ensure_int_pmids(self._csq_pubmeds(annotation))
         hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
+        clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
 
         # Merge references and restructure to list
+        all_pubmeds = csq_pubmeds+hgmd_pubmeds+clinvar_pubmeds
         references = list()
-        common_pmid = set(csq_pubmeds) & set(hgmd_pubmeds)
-        for common in common_pmid:
+        for pmid in sorted(set(all_pubmeds), key=all_pubmeds.count, reverse=True):
+            sources = []
+            sources += ["VEP"] if pmid in csq_pubmeds else []
+            sources += ["HGMD"] if pmid in hgmd_pubmeds else []
+            sources += ["CLINVAR"] if pmid in clinvar_pubmeds else []
             references.append({
-                'pubmed_id': common, 'sources': ['VEP', 'HGMD']
+                'pubmed_id': pmid, 'sources': sources
             })
 
-        for pmid in [p for p in csq_pubmeds if p not in common_pmid]:
-            references.append({
-                'pubmed_id': pmid,
-                'sources': ['VEP']
-            })
-
-        for pmid in [p for p in hgmd_pubmeds if p not in common_pmid]:
-            references.append({
-                'pubmed_id': pmid,
-                'sources': ['HGMD']
-            })
 
         return {References.CONTRIBUTION_KEY: references}
 
