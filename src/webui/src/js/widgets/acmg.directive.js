@@ -48,7 +48,7 @@ export class AcmgController {
 
     getPlaceholder() {
         if (this.isEditable()) {
-            return 'ACMG-COMMENT';
+            return `${this.getCodeForDisplay().code}-COMMENT`;
         }
     }
 

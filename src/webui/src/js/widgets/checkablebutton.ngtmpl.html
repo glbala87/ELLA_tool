@@ -1,4 +1,4 @@
-<button ng-click="vm.check()" ng-disabled="vm.ngDisabled" class="button-svg">
+<button ng-click="vm.check()" ng-disabled="vm.ngDisabled" ng-class="vm.getClasses()">
     <span ng-if="vm.isChecked()">
         <svg ng-if="::vm.showMark == 'true'" id="i-checkmark" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
             <path d="M2 20 L12 28 30 4" />

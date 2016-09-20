@@ -23,6 +23,7 @@ h3 { font-size: 1.4rem; }
 h4.sb-notification { font-family: $full; color: $black-50; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem;
   &.dim { color: $black-25; }
 }
+h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.05rem; color: $blue-50; text-transform: uppercase; }
 
 .fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
 

@@ -68,9 +68,8 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .title { color: white; }
   h5, p { font-size: 1.4rem; color: black; }
   .exac p { padding-right: 2.6rem; }
-  h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; }
-  h4 { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; }
-  h4.faded-title { opacity: 0.5; font-family: $slim; }
+  h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; font-family: $slim; }
+  h4.faded-title { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; opacity: 0.5; font-family: $slim; }
   h5.wrap { white-space: normal; }
   h5.normaltext { padding-right: 0; }
   p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
