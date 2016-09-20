@@ -17,7 +17,7 @@ import {Directive, Inject} from '../ng-decorators';
         checkModel: '=?',
         listModel: '=?',
         listValue: '=?',
-        buttonclasses: '=?',
+        buttonclass: '@',
         showMark: '@?',
         onChange: '&?',
         ngDisabled: '=',
@@ -45,6 +45,11 @@ export class CheckableButtonController {
 
     constructor() {
         this.isListModel = null; // Will be set in link function
+    }
+
+    getClasses() {
+      console.log(this.buttonclass);
+      return this.buttonclass ? this.buttonclass : "";
     }
 
     issueChange() {
