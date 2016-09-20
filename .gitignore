@@ -53,6 +53,9 @@ coverage.xml
 #Eclipse
 *.prefs
 
+# Pycharm
+.idea
+
 #R
 .Rhistory
 
