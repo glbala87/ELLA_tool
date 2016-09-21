@@ -12,15 +12,13 @@
             {{c.phenotypetext}}
           </a-clip>
         </p></div>
-        <div class="cell"><p style="font-family:FontAwesome; padding-right: 20px;">
-          <a-clip href="{{vm.getUrl(c.rcv)}}">{{c.revstars}}
-          </a-clip>
-        </p></div>
-        <div class="cell"><p>
-          <a-clip href="{{vm.getUrl(c.rcv)}}">
-            {{c.revtext}}
-          </a-clip>
-        </p></div>
+        <div class="cell">
+          <p style="font-family:FontAwesome; padding-right: 20px;">
+            <a-clip href="{{vm.getUrl(c.rcv)}}" data-toggle="tooltip" title="{{c.revtext}}">
+              {{c.revstars}}
+            </a-clip>
+          </p>
+        </div>
       </div>
     </div>
   </cbbody>
