@@ -15,6 +15,7 @@ export class AlleleInfoClinvar {
 
     constructor(Config) {
         this.config = Config.getConfig();
+        this.previous = {};
 
         if (!this.hasContent()) {
             this.collapsed = true;
@@ -23,17 +24,30 @@ export class AlleleInfoClinvar {
 
     formatClinvar() {
         let result = [];
-        if ('CLINVAR' in this.allele.annotation.external &&
-            'CLNSIG' in this.allele.annotation.external.CLINVAR &&
-            'CLNREVSTAT' in this.allele.annotation.external.CLINVAR) {
-            let clnsigs = this.allele.annotation.external.CLINVAR.CLNSIG.split('|');
-            let clnrevstats = this.allele.annotation.external.CLINVAR.CLNREVSTAT.split('|');
-            for (let idx = 0; idx < clnsigs.length; idx++) {
-                if (clnsigs[idx] in this.config.annotation.clinvar.CLNSIG) {
-                    let sigtext = this.config.annotation.clinvar.CLNSIG[clnsigs[idx]];
-                    let revtext = this.config.annotation.clinvar.CLNREVSTAT[clnrevstats[idx]];
-                    result.push(`${sigtext} (${revtext})`);
+        if (this.hasContent()) {
+            for (let idx=0; idx<this.allele.annotation.external.CLINVAR.length; idx++) {
+                let item = {};
+                let rcv = this.allele.annotation.external.CLINVAR[idx].rcv;
+                let sigtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_descr;
+                let phenotypetext = this.allele.annotation.external.CLINVAR[idx].traitnames;
+                let revtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_status;
+                let revstatus = this.config.annotation.clinvar.clinical_significance_status[revtext];
+                let revstars = "";
+
+                for (let j=0; j<revstatus; j++) {
+                    revstars += ''; // This renders as a filled star in FontAwesome font
                 }
+                for (let j=0; j<4-revstatus; j++) {
+                    revstars += ''; // This renders as an empty star in FontAwesome font
+                }
+
+                item["sigtext"] = sigtext;
+                item["phenotypetext"] = phenotypetext;
+                item["revstars"] = revstars;
+                item["revtext"] = revtext;
+                item["rcv"] = rcv;
+
+                result.push(item);
             }
         }
         return result;
@@ -41,5 +55,18 @@ export class AlleleInfoClinvar {
 
     hasContent() {
         return 'CLINVAR' in this.allele.annotation.external;
+    }
+
+    getUrl(rcv) {
+        return "http://www.ncbi.nlm.nih.gov/clinvar/" + rcv;
+    }
+
+    idempoClinvar() {
+        // Force JSON-representation to be the equal-check
+        let cur = this.formatClinvar();
+        if (angular.toJson(this.previous) != angular.toJson(cur)) {
+            this.previous = cur;
+        }
+        return this.previous;
     }
 }

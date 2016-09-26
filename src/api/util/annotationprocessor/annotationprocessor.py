@@ -3,6 +3,8 @@
 from collections import defaultdict
 import re
 import itertools
+import base64
+import json
 
 from api import config
 from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
@@ -30,6 +32,19 @@ class References(object):
             total.extend([e['pmid'] for e in annotation['HGMD']['extrarefs'] if 'pmid' in e])
         return total
 
+    def _clinvar_pubmeds(self, annotation):
+        if 'CLINVARJSON' not in annotation:
+            return list()
+
+        clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
+
+        total = []
+        for val in clinvarjson["rcvs"].values():
+            total += val["pubmed"]
+        total = list(set(total))
+
+        return total
+
     def _ensure_int_pmids(self, pmids):
         # HACK: Convert all ids to int, the annotation is sometimes messed up
         # If it cannot be converted, ignore it...
@@ -42,29 +57,22 @@ class References(object):
         return int_pmids
 
     def process(self, annotation):
-
         csq_pubmeds = self._ensure_int_pmids(self._csq_pubmeds(annotation))
         hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
+        clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
 
         # Merge references and restructure to list
+        all_pubmeds = csq_pubmeds+hgmd_pubmeds+clinvar_pubmeds
         references = list()
-        common_pmid = set(csq_pubmeds) & set(hgmd_pubmeds)
-        for common in common_pmid:
+        for pmid in sorted(set(all_pubmeds), key=all_pubmeds.count, reverse=True):
+            sources = []
+            sources += ["VEP"] if pmid in csq_pubmeds else []
+            sources += ["HGMD"] if pmid in hgmd_pubmeds else []
+            sources += ["CLINVAR"] if pmid in clinvar_pubmeds else []
             references.append({
-                'pubmed_id': common, 'sources': ['VEP', 'HGMD']
+                'pubmed_id': pmid, 'sources': sources
             })
 
-        for pmid in [p for p in csq_pubmeds if p not in common_pmid]:
-            references.append({
-                'pubmed_id': pmid,
-                'sources': ['VEP']
-            })
-
-        for pmid in [p for p in hgmd_pubmeds if p not in common_pmid]:
-            references.append({
-                'pubmed_id': pmid,
-                'sources': ['HGMD']
-            })
 
         return {References.CONTRIBUTION_KEY: references}
 
@@ -423,10 +431,9 @@ class ExternalAnnotation(object):
     ]
 
     CLINVAR_FIELDS = [
-        'CLNSIG',
-        'CLNDBN',
-        'CLNREVSTAT',
-        'CLNACC'
+        'traitnames',
+        'clinical_significance_descr',
+        'clinical_significance_status',
     ]
 
     HGMD_FIELDS = [
@@ -451,10 +458,17 @@ class ExternalAnnotation(object):
         return {}
 
     def _clinvar(self, annotation):
-        if 'CLINVAR' not in annotation:
+        if 'CLINVARJSON' not in annotation:
             return dict()
 
-        data = {k: annotation['CLINVAR'][k] for k in ExternalAnnotation.CLINVAR_FIELDS if k in annotation['CLINVAR']}
+        clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
+
+        data = []
+        for rcv, val in clinvarjson["rcvs"].items():
+            item = {k: ", ".join(val[k]) for k in ExternalAnnotation.CLINVAR_FIELDS}
+            item["rcv"] = rcv
+            data.append(item)
+
         return {'CLINVAR': data}
 
     def _hgmd(self, annotation):

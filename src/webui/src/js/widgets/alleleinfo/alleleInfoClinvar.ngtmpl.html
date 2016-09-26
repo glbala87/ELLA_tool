@@ -1,6 +1,26 @@
 <contentbox title="Clinvar" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
   <cbbody>
-    <p ng-repeat="c in ::vm.formatClinvar() track by $index">{{c}}<br></p>
+    <div class="cb-table">
+      <div class="tabular-row" ng-repeat="c in ::vm.idempoClinvar()">
+        <div class="cell"><p style="padding-right: 20px;">
+          <a-clip href="{{vm.getUrl(c.rcv)}}">
+            {{c.sigtext}}
+          </a-clip>
+        </p></div>
+        <div class="cell"><p style="padding-right: 20px;">
+          <a-clip href="{{vm.getUrl(c.rcv)}}">
+            {{c.phenotypetext}}
+          </a-clip>
+        </p></div>
+        <div class="cell">
+          <p style="font-family:FontAwesome; padding-right: 20px;">
+            <a-clip href="{{vm.getUrl(c.rcv)}}" data-toggle="tooltip" title="{{c.revtext}}">
+              {{c.revstars}}
+            </a-clip>
+          </p>
+        </div>
+      </div>
+    </div>
   </cbbody>
 </contentbox>
 
