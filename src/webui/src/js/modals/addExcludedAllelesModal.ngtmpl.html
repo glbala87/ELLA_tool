@@ -8,8 +8,8 @@
     </section>
   </controls>
   <contentwrapper>
-    <article class="content-box" ng-repeat="al in vm.included_alleles track by al.id">
-      <sectionbox color="blue" collapsible="false">
+    <article ng-repeat="al in vm.included_alleles track by al.id">
+      <sectionbox class="nobody" color="blue" collapsible="false">
         <titlebar>
           <h3 class="title">included</h3>
         </titlebar>
@@ -58,7 +58,7 @@
             </section>
             <section>
               <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
-                <checked>INCLUDED</checked>
+                <checked>EXCLUDE</checked>
                 INCLUDE
               </checkable-button>
             </section>

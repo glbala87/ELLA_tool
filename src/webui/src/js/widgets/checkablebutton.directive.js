@@ -48,7 +48,6 @@ export class CheckableButtonController {
     }
 
     getClasses() {
-      console.log(this.buttonclass);
       return this.buttonclass ? this.buttonclass : "";
     }
 

@@ -1,6 +1,7 @@
 <contentbox title="References" collapsed="vm.collapsed" ng-if="vm.allele_references.length+vm.missing_references.length">
   <cbbody>
-    <article ng-repeat="ref in vm.allele_references">
+    <article class="acmg-body" ng-repeat="ref in vm.allele_references">
+      <h4 class="faded-title">Article</h4>
       <section class="line-wrapper spaced">
         <div>
           <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
@@ -11,7 +12,7 @@
         </div>
       </section>
       <div class="cb-table topfix" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
-        <h4 ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">Evaluation</h4>
+        <h4 class="faded-title content-top" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">Evaluation</h4>
         <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
           <div class="cell"><h5>Relevant:</h5></div>
           <div class="cell max-width"><p>{{vm.getReferenceAssessment(ref).evaluation.relevance}}</p></div>

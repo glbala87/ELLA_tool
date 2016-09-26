@@ -59,6 +59,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   section.comments {
     .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
   }
+  .nobody & .sb-body { display: none; }
 }
 .contentbox { margin: 0.35rem;
   .max-width & .cb-body { max-width: 100% !important; }
@@ -70,6 +71,8 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .exac p { padding-right: 2.6rem; }
   h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; font-family: $slim; }
   h4.faded-title { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; opacity: 0.5; font-family: $slim; }
+  h4.faded-title.content-top { margin-top: 1.3rem; }
+  h4.faded-title.section-top { margin-top: 1.3rem; margin-bottom: 0.7rem; }
   h5.wrap { white-space: normal; }
   h5.normaltext { padding-right: 0; }
   p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
@@ -98,3 +101,4 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .sb-controls { flex: 1; }
   .sb-body { flex: 2; }
 }
+.full-max-width .cb-body { max-width: 100% !important; }
