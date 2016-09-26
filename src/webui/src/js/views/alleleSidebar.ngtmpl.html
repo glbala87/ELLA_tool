@@ -1,40 +1,40 @@
 <nav class="sidebar">
 
-    <h4 class="section-title">Unclassified variants</h4>
+  <h4 class="section-title">Unclassified variants</h4>
 
-    <section class="enabled">
-      <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj), 'indented': vm.isTogglable(allele_obj)}" ng-repeat="allele_obj in vm.alleles.unclassified.active track by allele_obj.allele.id" ng-click="vm.select(allele_obj)">
-        <h4 class="variant" ng-class="{'active': vm.isSelected(allele_obj)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b></b></h4>
-        <div class="tab" ng-class="{'active': vm.isSelected(allele_obj)}"> </div>
-      </div>
-    </section>
+  <section class="enabled">
+    <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj)}" ng-repeat="allele_obj in vm.alleles.unclassified.active track by allele_obj.allele.id" ng-click="vm.select(allele_obj)">
+      <h4 class="variant"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b></b></h4>
+      <div class="tab"> </div>
+    </div>
+  </section>
 
-    <section class="disabled">
-      <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj), 'indented': vm.isTogglable(allele_obj)}" ng-repeat="allele_obj in vm.alleles.unclassified.inactive track by allele_obj.allele.id">
-        <h4 class="variant" ng-class="{'active': vm.isSelected(allele_obj)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b></b></h4>
-        <div class="tab" ng-class="{'active': vm.isSelected(allele_obj)}"> </div>
-      </div>
-    </section>
+  <section class="disabled">
+    <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj)}" ng-repeat="allele_obj in vm.alleles.unclassified.inactive track by allele_obj.allele.id">
+      <h4 class="variant"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b></b></h4>
+      <div class="tab"> </div>
+    </div>
+  </section>
 
-    <h4 class="section-title">Classified variants</h4>
+  <h4 class="section-title">Classified variants</h4>
 
-    <section class="enabled">
-      <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj), 'toggled': vm.isToggled(allele_obj)}" ng-repeat="allele_obj in vm.alleles.classified.active track by allele_obj.allele.id" ng-click="vm.select(allele_obj)">
-        <h4 class="variant" ng-class="{'active': vm.isSelected(allele_obj)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b>{{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}</b></h4>
-        <div class="tab" ng-class="{'active': vm.isSelected(allele_obj) || vm.isTogglable(allele_obj), 'togglable': vm.isTogglable(allele_obj)}">
-          <div ng-if="vm.isTogglable(allele_obj)" class="added">
-            <h5 ng-if="vm.isToggled(allele_obj)">-</h5>
-            <h5 ng-if="! vm.isToggled(allele_obj)">+</h5>
-          </div>
+  <section class="enabled">
+    <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj) || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj)}" ng-repeat="allele_obj in vm.alleles.classified.active track by allele_obj.allele.id" ng-click="vm.select(allele_obj)">
+      <h4 class="variant"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b>{{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}</b></h4>
+      <div class="tab" ng-class="{'togglable': vm.isTogglable(allele_obj)}">
+        <div ng-if="vm.isTogglable(allele_obj)" class="added">
+          <h5 ng-if="vm.isToggled(allele_obj)">-</h5>
+          <h5 ng-if="! vm.isToggled(allele_obj)">+</h5>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="disabled">
-      <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj), 'toggled': vm.isToggled(allele_obj)}" ng-repeat="allele_obj in vm.alleles.classified.inactive track by allele_obj.allele.id">
-        <h4 class="variant" ng-class="{'active': vm.isSelected(allele_obj)}"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b>{{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}</b></h4>
-        <div class="tab" ng-class="{'active': vm.isSelected(allele_obj)}"> </div>
-      </div>
-    </section>
+  <section class="disabled">
+    <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj), 'toggled': vm.isToggled(allele_obj)}" ng-repeat="allele_obj in vm.alleles.classified.inactive track by allele_obj.allele.id">
+      <h4 class="variant"><i>{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i><span>{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b>{{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}</b></h4>
+      <div class="tab"> </div>
+    </div>
+  </section>
 
 </nav>

@@ -16,7 +16,7 @@
             <p ng-repeat="c in ::t.Consequence">{{::c | noUnderscores}}</p>
         </transcript-wrapper>
     </div>
-    <h4 class="section-title acmg-body">ACMG Suggested</h4>
+    <h4 ng-if="vm.allele.getACMGCodes('transcript.Consequence').length" class="section-title acmg-body">ACMG Suggested</h4>
     <acmg class="disabled" ng-repeat="code in vm.allele.getACMGCodes('transcript.Consequence')" code="code"></acmg>
   </cbbody>
 </contentbox>

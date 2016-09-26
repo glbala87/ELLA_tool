@@ -56,6 +56,11 @@ export class ACMGSelectionController {
         );
     }
 
+    has(type) {
+      let codes = type === "suggested" ? this.getAlleleAssessment().evaluation.acmg.suggested : this.getAlleleAssessment().evaluation.acmg.included
+      return codes.some((code) => this.isIncludable(code.code))
+    }
+
     getAlleleAssessment() {
         // Call this wrapper as it will dynamically select between
         // the existing alleleassessment (if reused)

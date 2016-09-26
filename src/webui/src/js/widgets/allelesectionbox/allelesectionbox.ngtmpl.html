@@ -41,8 +41,8 @@
             </svg>
             Marked technical
           </button>
-          <div class="dropdown">
-            <select ng-if="!vm.alleleState.class2 && !vm.alleleState.classT" ng-disabled="vm.alleleStatus.reuseAlleleAssessment" ng-model="vm.selected_class" ng-options="o.value as o.name for o in vm.classificationOptions"><option value="" disabled selected>Select class</option></select>
+          <div class="dropdown" ng-if="!vm.alleleState.class2 && !vm.alleleState.classT">
+            <select ng-disabled="vm.alleleStatus.reuseAlleleAssessment" ng-model="vm.selected_class" ng-options="o.value as o.name for o in vm.classificationOptions"><option value="" disabled selected>Select class</option></select>
           </div>
           <button ng-if="!vm.alleleState.class2 && !vm.alleleState.classT" ng-click="vm.updateClassification()" ng-disabled="!vm.selected_class">{{vm.getUpdateText()}}</button>
         </section>

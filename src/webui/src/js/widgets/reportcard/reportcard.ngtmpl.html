@@ -5,7 +5,7 @@
   <contentwrapper class="report">
     <h4 ng-if="!vm.alleles.length" class="sb-notification dim">No alleles addded. You can add alleles from the classified variants on sidebar to the left.</h4>
     <pre ng-if="vm.alleles.length" class="included-report">
-      <div ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5><p>{{vm.getAlleleReport(al).evaluation.comment}}</p></div>
+      <div class="report-entry" ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5><p>{{vm.getAlleleReport(al).evaluation.comment}}</p></div>
     </pre>
   </contentwrapper>
 </sectionbox>
