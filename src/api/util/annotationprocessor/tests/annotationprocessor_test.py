@@ -30,14 +30,16 @@ class TestReferences(unittest.TestCase):
             pubmeds[0],
             {
                 'pubmed_id': 1,
-                'sources': ['VEP']
+                'sources': ['VEP'],
+                'sourceInfo': {},
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
                 'pubmed_id': 2,
-                'sources': ['VEP']
+                'sources': ['VEP'],
+                'sourceInfo': {},
             }
         )
 
@@ -62,21 +64,24 @@ class TestReferences(unittest.TestCase):
             pubmeds[0],
             {
                 'pubmed_id': 1,
-                'sources': ['HGMD']
+                'sources': ['HGMD'],
+                'sourceInfo': {"HGMD": "Primary literature report. No comments."},
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
                 'pubmed_id': 2,
-                'sources': ['HGMD']
+                'sources': ['HGMD'],
+                'sourceInfo': {'HGMD': "Reftag not specified. No comments."},
             }
         )
         self.assertEqual(
             pubmeds[2],
             {
                 'pubmed_id': 3,
-                'sources': ['HGMD']
+                'sources': ['HGMD'],
+                'sourceInfo': {'HGMD': "Reftag not specified. No comments."},
             }
         )
 
@@ -109,21 +114,24 @@ class TestReferences(unittest.TestCase):
             pubmeds[0],
             {
                 'pubmed_id': 1,
-                'sources': ['VEP', 'HGMD']
+                'sources': ['VEP', 'HGMD'],
+                'sourceInfo': {"HGMD": "Primary literature report. No comments."},
             }
         )
         self.assertEqual(
             pubmeds[1],
             {
                 'pubmed_id': 2,
-                'sources': ['VEP', 'HGMD']
+                'sources': ['VEP', 'HGMD'],
+                'sourceInfo': {'HGMD': "Reftag not specified. No comments."},
             }
         )
         self.assertEqual(
             pubmeds[2],
             {
                 'pubmed_id': 3,
-                'sources': ['HGMD']
+                'sources': ['HGMD'],
+                'sourceInfo': {'HGMD': "Reftag not specified. No comments."},
             }
         )
 
