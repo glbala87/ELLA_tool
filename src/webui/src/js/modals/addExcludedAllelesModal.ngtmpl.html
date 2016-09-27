@@ -15,47 +15,7 @@
         </titlebar>
         <controls>
           <div class="line-wrapper spaced">
-            <section class="allele-info included">
-              <aside class="up">
-              <aside class="right">
-                <h3 class="full-title">
-                  {{::al.change_from}}
-                  <svg id="i-arrow-right" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                    <path d="M22 6 L30 16 22 26 M30 16 L2 16" />
-                  </svg>
-                  {{::al.change_to}} ({{::al.change_type}})
-                </h3>
-                <h3 class="full-title">{{::al.genotype.genotype}} <span ng-if="::al.genotype.homozygous">(homozygous)</span><span ng-if="::!al.genotype.homozygous">(heterozygous)</span></h3>
-                <h3 class="full-title" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper  transcript="t"> {{::t.Codons}} </transcript-wrapper> </h3>
-                <h3 class="full-title" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper  transcript="t"> {{::t.EXON}} </transcript-wrapper> </h3>
-                <h3 class="full-title">{{::al.genome_reference}} - {{::vm.getGenomicPosition()}}</h3>
-              </aside>
-              </aside>
-              <aside class="down">
-              <aside class="right">
-                <h3 class="full-title" ng-click="1" ng-repeat="t in al.annotation.filtered track by t.Transcript">
-                  <div class="allele_popup clickable" isolate-click>
-                    <transcript-wrapper  transcript="t"
-                      popover-trigger="outsideClick"
-                      uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
-                      popover-title="{{t.SYMBOL}}"
-                      popover-placement="right-top">
-
-                      {{t.SYMBOL}}
-                      <!-- <i>(<gpv source="vm.getGenepanelValues(t.SYMBOL)" display="inheritance" prefix="" mode="_"></gpv><!-- -->
-                        <!--     --1><gpv source="vm.getGenepanelValues(t.SYMBOL)" display="freq_cutoff" prefix="|"></gpv><!-- -->
-                        <!--   --1><gpv source="vm.getGenepanelValues(t.SYMBOL)" display="last_exon" prefix="|"></gpv>) -->
-                        <!-- </i> -->
-                    </transcript-wrapper>
-                  </div>
-                </h3>
-                <h3 class="full-title" ng-repeat="t in al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><i>{{t.HGVSc | HGVS_firsthalf}}:</i><b>{{t.HGVSc | HGVSc_short}}</b> </transcript-wrapper> </h3>
-                <h3 class="full-title" ng-repeat="t in al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><i>{{t.HGVSp | HGVS_firsthalf}}:</i><b>{{t.HGVSp | HGVSp_short}}</b> </transcript-wrapper> </h3>
-              </aside>
-              </aside>
-              <!-- <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3 class="full-title"> {{::t.SYMBOL}} </h3></transcript-wrapper> </div> -->
-              <!-- <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3 class="full-title"> {{::t.HGVSc | HGVSc_short}} </h3></transcript-wrapper> </div> -->
-            </section>
+            <allelebar class="allele-info" allele="al"></allelebar>
             <section>
               <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
                 <checked>EXCLUDE</checked>
@@ -114,47 +74,9 @@
         </titlebar>
         <controls>
           <div class="line-wrapper spaced">
-            <section class="allele-info">
-              <aside class="up">
-              <aside class="right">
-                <h3 class="full-title">
-                  {{::al.change_from}}
-                  <svg id="i-arrow-right" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                    <path d="M22 6 L30 16 22 26 M30 16 L2 16" />
-                  </svg>
-                  {{::al.change_to}} ({{::al.change_type}})
-                </h3>
-                <h3 class="full-title">{{::al.genotype.genotype}} <span ng-if="::al.genotype.homozygous">(homozygous)</span><span ng-if="::!al.genotype.homozygous">(heterozygous)</span></h3>
-                <h3 class="full-title" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper  transcript="t"> {{::t.Codons}} </transcript-wrapper> </h3>
-                <h3 class="full-title" ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper  transcript="t"> {{::t.EXON}} </transcript-wrapper> </h3>
-                <h3 class="full-title">{{::al.genome_reference}} - {{::vm.getGenomicPosition()}}</h3>
-              </aside>
-              </aside>
-              <aside class="down">
-              <aside class="right">
-                <h3 class="full-title" ng-click="1" ng-repeat="t in al.annotation.filtered track by t.Transcript">
-                  <div class="allele_popup clickable" isolate-click>
-                    <transcript-wrapper  transcript="t"
-                      popover-trigger="outsideClick"
-                      uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
-                      popover-title="{{t.SYMBOL}}"
-                      popover-placement="right-top">
-
-                      {{t.SYMBOL}}
-                      <!-- <i>(<gpv source="vm.getGenepanelValues(t.SYMBOL)" display="inheritance" prefix="" mode="_"></gpv><!-- -->
-                        <!--     --1><gpv source="vm.getGenepanelValues(t.SYMBOL)" display="freq_cutoff" prefix="|"></gpv><!-- -->
-                        <!--   --1><gpv source="vm.getGenepanelValues(t.SYMBOL)" display="last_exon" prefix="|"></gpv>) -->
-                        <!-- </i> -->
-                    </transcript-wrapper>
-                  </div>
-                </h3>
-                <h3 class="full-title" ng-repeat="t in al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><i>{{t.HGVSc | HGVS_firsthalf}}:</i><b>{{t.HGVSc | HGVSc_short}}</b> </transcript-wrapper> </h3>
-                <h3 class="full-title" ng-repeat="t in al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><i>{{t.HGVSp | HGVS_firsthalf}}:</i><b>{{t.HGVSp | HGVSp_short}}</b> </transcript-wrapper> </h3>
-              </aside>
-              </aside>
-              <!-- <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3 class="full-title"> {{::t.SYMBOL}} </h3></transcript-wrapper> </div> -->
-              <!-- <div ng-repeat="t in ::al.annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><h3 class="full-title"> {{::t.HGVSc | HGVSc_short}} </h3></transcript-wrapper> </div> -->
-            </section>
+            <div class="allele-info">
+              <allelebar class="allele-info" allele="al"></allelebar>
+            </div>
             <section>
               <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
                 <checked>INCLUDED</checked>
