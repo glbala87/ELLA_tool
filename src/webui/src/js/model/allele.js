@@ -139,4 +139,24 @@ export class Allele {
 
         return result;
     }
+
+    formatGenomicPosition() {
+        if (this.change_type === 'SNP') {
+            return `${this.chromosome}:${this.start_position+1}`;
+        }
+        else if (this.change_type === 'del') {
+            if (this.change_from.length > 1) {
+                return `${this.chromosome}:${this.start_position+1}-${this.open_end_position+1}`;
+            }
+            else {
+                return `${this.chromosome}:${this.start_position+1}`;
+            }
+        }
+        else if (this.change_type === 'ins') {
+            return `${this.chromosome}:${this.start_position}-${this.start_position+1}`;
+        }
+        else {
+            return `${this.chromosome}:${this.start_position+1}-${this.open_end_position+1}`;
+        }
+    }
 }

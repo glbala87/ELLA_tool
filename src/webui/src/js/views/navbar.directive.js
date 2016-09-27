@@ -27,11 +27,15 @@ export class NavbarController {
     }
 
     hasAllele() {
-      return Object.keys(this.navbarService.getAllele()).length != 0;
+      return Boolean(this.navbarService.getAllele());
     }
 
     getAllele() {
       return this.navbarService.getAllele();
+    }
+
+    getAnalysis() {
+      return this.navbarService.getAnalysis();
     }
 
     getItems() {
@@ -61,24 +65,5 @@ export class NavbarController {
         this.location.path('/login');
     }
 
-    getGenomicPosition() {
-        let allele =  this.getAllele();
-        if (allele.change_type === 'SNP') {
-            return `${allele.chromosome}:${allele.start_position+1}`;
-        }
-        else if (allele.change_type === 'del') {
-            if (allele.change_from.length > 1) {
-                return `${allele.chromosome}:${allele.start_position+1}-${allele.open_end_position+1}`;
-            }
-            else {
-                return `${allele.chromosome}:${allele.start_position+1}`;
-            }
-        }
-        else if (allele.change_type === 'ins') {
-            return `${allele.chromosome}:${allele.start_position}-${allele.start_position+1}`;
-        }
-        else {
-            return `${allele.chromosome}:${allele.start_position+1}-${allele.open_end_position+1}`;
-        }
-    }
+
 }

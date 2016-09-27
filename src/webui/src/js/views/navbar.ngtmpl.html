@@ -1,69 +1,24 @@
-<header class="hero" ng-if="! vm.hasAllele()"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
+<header class="hero" ng-if="!vm.hasAllele()"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
 <nav class="top">
-  <section class="up">
-    <aside class="left">
-
-      <div ng-click="vm.goToLogin()" ng-if="! vm.isLogin()">
+  <section class="left">
+    <row class="up">
+      <div ng-click="vm.goToLogin()" ng-if="!vm.isLogin()">
         <h3 class="full-title upper clickable white"><i>{{ vm.abbreviateUser() }}</i></h3>
       </div>
       <div ng-if="vm.isLogin()">
         <h3 class="full-title"><i>Welcome!</i></h3>
       </div>
-
-    </aside>
-    <aside class="right" ng-if="! vm.hasAllele()"></aside>
-    <aside class="right" ng-if="vm.hasAllele()">
-      <h3 class="full-title">
-        {{::vm.getAllele().change_from}}
-        <svg id="i-arrow-right" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-          <path d="M22 6 L30 16 22 26 M30 16 L2 16" />
-        </svg>
-        {{::vm.getAllele().change_to}} ({{::vm.getAllele().change_type}})
-      </h3>
-      <h3 class="full-title">{{::vm.getAllele().genotype.genotype}} <span ng-if="::vm.getAllele().genotype.homozygous">(homozygous)</span><span ng-if="::!vm.getAllele().genotype.homozygous">(heterozygous)</span></h3>
-      <h3 class="full-title" ng-repeat="t in ::vm.getAllele().annotation.filtered track by t.Transcript">
-        <transcript-wrapper  transcript="t">
-          {{::t.Codons}}
-        </transcript-wrapper>
-      </h3>
-      <h3 class="full-title" ng-repeat="t in ::vm.getAllele().annotation.filtered track by t.Transcript">
-        <transcript-wrapper  transcript="t">
-          {{::t.EXON}}
-        </transcript-wrapper>
-      </h3>
-      <h3 class="full-title">{{::vm.getAllele().genome_reference}} - {{::vm.getGenomicPosition()}}</h3>
-    </aside>
-  </section>
-  <section class="down">
-    <aside class="left">
+    </row>
+    <row class="down">
       <div ng-if="vm.isLogin()">
         <h3 class="full-title"><b>Please login</b></h3>
       </div>
       <div ng-click="vm.goToItem(item)" ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">
         <h3 class="full-title"><b>{{item.title | noUnderscores}}</b></h3>
       </div>
-    </aside>
-
-    <aside class="right" ng-if="! vm.hasAllele()"></aside>
-    <aside class="right" ng-if="vm.hasAllele()">
-        <h3 class="full-title" ng-click="1" ng-repeat="t in vm.getAllele().annotation.filtered track by t.Transcript">
-          <div class="allele_popup clickable white" isolate-click>
-            <transcript-wrapper  transcript="t"
-              popover-trigger="outsideClick"
-              uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
-              popover-title="{{t.SYMBOL}}"
-              popover-placement="right-top">
-
-              {{t.SYMBOL}}
-              <!-- <i>(<gpv source="vm.getGenepanelValues(t.SYMBOL)" display="inheritance" prefix="" mode="_"></gpv><!-- -->
-                <!--     --1><gpv source="vm.getGenepanelValues(t.SYMBOL)" display="freq_cutoff" prefix="|"></gpv><!-- -->
-                <!--   --1><gpv source="vm.getGenepanelValues(t.SYMBOL)" display="last_exon" prefix="|"></gpv>) -->
-                <!-- </i> -->
-            </transcript-wrapper>
-          </div>
-        </h3>
-        <h3 class="full-title" ng-repeat="t in vm.getAllele().annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><i>{{t.HGVSc | HGVS_firsthalf}}:</i><b>{{t.HGVSc | HGVSc_short}}</b> </transcript-wrapper> </h3>
-        <h3 class="full-title" ng-repeat="t in vm.getAllele().annotation.filtered track by t.Transcript"> <transcript-wrapper transcript="t"><i>{{t.HGVSp | HGVS_firsthalf}}:</i><b>{{t.HGVSp | HGVSp_short}}</b> </transcript-wrapper> </h3>
-    </aside>
+    </row>
+  </section>
+  <section class="right">
+      <allelebar ng-if="vm.hasAllele()" allele="vm.getAllele()" genepanel="vm.getAnalysis().genepanel"></allelebar>
   </section>
 </nav>

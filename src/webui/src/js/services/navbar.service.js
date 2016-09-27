@@ -18,15 +18,27 @@ export class NavbarService {
         //  'url': .. (optional)
         // }
         this.items = [];
-        this.allele = {};
+        this.allele = null;
     }
 
     clearAllele() {
-      this.allele = {}
+      this.allele = null;
+    }
+
+    setAnalysis(analysis) {
+        this.analysis = analysis;
+    }
+
+    getAnalysis() {
+        return this.analysis;
+    }
+
+    clearAnalysis() {
+        this.analysis = null;
     }
 
     setAllele(allele) {
-      this.allele = allele;
+        this.allele = allele;
     }
 
     getAllele() {
@@ -35,6 +47,7 @@ export class NavbarService {
 
     clearItems() {
         this.clearAllele();
+        this.clearAnalysis();
         this.items = [];
     }
 
