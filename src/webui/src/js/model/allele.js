@@ -40,8 +40,7 @@ export class Allele {
     }
 
     getExACUrl() {
-        if ('ExAC' in this.annotation.frequencies &&
-            this.chromosome &&
+        if (this.chromosome &&
             this.genotype) {
             return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.genotype.vcf_pos}-${this.genotype.vcf_ref}-${this.genotype.vcf_alt}`;
         }
@@ -64,15 +63,11 @@ export class Allele {
     }
 
     get1000gUrl() {
-        if ('1000g' in this.annotation.frequencies) {
-            return `http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=${this.chromosome}:${this.start_position+1}-${this.open_end_position}`
-        }
+        return `http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=${this.chromosome}:${this.start_position+1}-${this.open_end_position}`
     }
 
     getESP6500Url() {
-        if ('esp6500' in this.annotation.frequencies) {
-            return `http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome&chromosome=${this.chromosome}&chromoStart=${this.start_position+1}&chromoEnd=${this.open_end_position}&x=0&y=0`
-        }
+        return `http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome&chromosome=${this.chromosome}&chromoStart=${this.start_position+1}&chromoEnd=${this.open_end_position}&x=0&y=0`
     }
 
     getEnsemblUrl() {
