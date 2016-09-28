@@ -178,6 +178,14 @@ export class AlleleSectionBoxController {
         }
     }
 
+    toggleClass1() {
+        AlleleStateHelper.toggleClass1(this.alleleState);
+
+        if (this.onSkip) {
+            this.onSkip();
+        }
+    }
+
     toggleClass2() {
         AlleleStateHelper.toggleClass2(this.alleleState);
 

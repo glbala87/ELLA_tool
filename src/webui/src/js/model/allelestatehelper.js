@@ -238,6 +238,31 @@ export class AlleleStateHelper {
     }
 
     /**
+     * Toggles class 1 on/off
+     * In addition to setting 'alleleassessment.classification',
+     * a property class1 is also set as a flag to indicate
+     * that the toggle was set (to distinguish against setting it
+     * manually to same class).
+     * @param  {Object} allele_state   Allele state to modify
+     * @return {Boolean}              Whether toggle is true or not
+     */
+    static toggleClass1(allele_state) {
+        // Ignore if already set as class T or class 2
+        if (allele_state.classT || allele_state.class2) {
+            return;
+        }
+        allele_state.class1 = !Boolean(allele_state.class1);
+        if (allele_state.class1) {
+            allele_state.alleleassessment.classification = '1';
+            return true;
+        }
+        else {
+            delete allele_state.alleleassessment.classification;
+            return false;
+        }
+    }
+
+    /**
      * Toggles class 2 on/off
      * In addition to setting 'alleleassessment.classification',
      * a property class2 is also set as a flag to indicate
@@ -247,8 +272,8 @@ export class AlleleStateHelper {
      * @return {Boolean}              Whether toggle is true or not
      */
     static toggleClass2(allele_state) {
-        // Ignore if already set as class T
-        if (allele_state.classT) {
+        // Ignore if already set as class T or class 1
+        if (allele_state.classT || allele_state.class1) {
             return;
         }
         allele_state.class2 = !Boolean(allele_state.class2);
@@ -272,8 +297,8 @@ export class AlleleStateHelper {
      * @return {Boolean}              Whether toggle is true or not
      */
     static toggleTechnical(allele_state) {
-        // Ignore if set as class 2
-        if (allele_state.class2) {
+        // Ignore if set as class 1 or class 2
+        if (allele_state.class1 || allele_state.class2) {
             return;
         }
         allele_state.classT = !Boolean(allele_state.classT);
