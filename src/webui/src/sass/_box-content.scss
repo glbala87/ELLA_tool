@@ -34,6 +34,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   &.clickable { border-bottom: none; &:hover { border-bottom: none; } }
 }
 .acmg-req { cursor: pointer; }
+.acmg-req.noclick { cursor: default; }
 .acmg-req .acmg-upper { height: 100%; }
 @each $name, $color in $acmg-map {
   .acmg.#{$name}, aside.acmg-req.#{$name} { border-left: 0.3rem solid $color;

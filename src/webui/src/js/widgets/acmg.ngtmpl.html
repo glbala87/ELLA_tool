@@ -11,7 +11,8 @@
       <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
       <button class="right-item" ng-click="vm.toggle()" ng-if="::vm.toggleText" ng-disabled="::vm.commentModel == undefined">{{::vm.toggleText}}</button>
     </section>
-    <aside class="acmg-req" ng-class="vm.getACMGclass(r)" ng-repeat="r in vm.getRequiredFor()" ng-click="vm.clickAddRequiredForCode(r)"><section class="acmg-upper"><h4 class="acmg-title">+ {{r}}</h4></section></aside>
+    <aside class="acmg-req noclick" ng-if="! vm.isInACMGsection()" ng-class="vm.getACMGclass(r)" ng-repeat="r in vm.getRequiredFor()"><section class="acmg-upper"><h4 class="acmg-title">{{r}}</h4></section></aside>
+    <aside class="acmg-req" ng-if="vm.isInACMGsection()" ng-class="vm.getACMGclass(r)" ng-repeat="r in vm.getRequiredFor()" ng-click="vm.clickAddRequiredForCode(r)"><section class="acmg-upper"><h4 class="acmg-title clickable white">+ {{r}}</h4></section></aside>
   </div>
   <section class="acmg-lower" ng-if="::vm.commentModel != undefined">
     <autosize-textarea class="right-item commentbox" placeholder="{{vm.getPlaceholder()}}" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
