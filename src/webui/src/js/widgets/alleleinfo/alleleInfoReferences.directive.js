@@ -100,17 +100,15 @@ export class AlleleInfoReferences {
         let referenceDBSources = {};
         for (let key in this.allele.annotation.references) {
             let ref = this.allele.annotation.references[key];
-            let dbinfo = [];
+            referenceDBSources[ref.pubmed_id] = {};
             for (let sourceKey in ref.sources) {
                 let source = ref.sources[sourceKey];
                 let sourceStr = source;
                 if (source in ref.sourceInfo) {
                     sourceStr += " ("+ref.sourceInfo[source]+")";
                 }
-                dbinfo.push(sourceStr);
+                referenceDBSources[ref.pubmed_id][source] = sourceStr;
             }
-
-            referenceDBSources[ref.pubmed_id] = dbinfo.join(", ");
         }
         this._referenceDBSources = referenceDBSources;
     }
