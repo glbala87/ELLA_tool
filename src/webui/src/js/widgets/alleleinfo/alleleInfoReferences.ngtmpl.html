@@ -1,7 +1,7 @@
 <contentbox title="References" collapsed="vm.collapsed" ng-if="vm.allele_references.length+vm.missing_references.length">
   <cbbody>
     <article class="acmg-body" ng-repeat="ref in vm.allele_references">
-      <h4 class="faded-title">Article</h4>
+      <h4 class="faded-title">Article. Sources: {{ vm.getReferenceDBSources(ref.pubmed_id) }}</h4>
       <section class="line-wrapper spaced">
         <div>
           <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
