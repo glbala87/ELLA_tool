@@ -3,6 +3,9 @@
 .tabular-row { display: table-row; }
 .cell { display: table-cell; }
 
+.star { width: 1rem; height: 1rem; stroke-width: 3%; stroke: $black-75; }
+.star.filled { fill: $black-75; }
+
 .acmg-body { margin-top: 1.3rem; margin-bottom: 0.7rem; }
 $acmg-map: (
   ba: hsl(80,100,20),

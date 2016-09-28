@@ -2,22 +2,20 @@
   <cbbody>
     <div class="cb-table">
       <div class="tabular-row" ng-repeat="c in ::vm.idempoClinvar()">
-        <div class="cell"><p style="padding-right: 20px;">
-          <a-clip href="{{vm.getUrl(c.rcv)}}">
-            {{c.sigtext}}
-          </a-clip>
-        </p></div>
-        <div class="cell"><p style="padding-right: 20px;">
-          <a-clip href="{{vm.getUrl(c.rcv)}}">
-            {{c.phenotypetext}}
-          </a-clip>
-        </p></div>
+        <div class="cell"><h5 class="wrap"> <a-clip href="{{vm.getUrl(c.rcv)}}">
+            {{c.sigtext}} - {{c.phenotypetext}}
+        </a-clip> </h5></div>
         <div class="cell">
-          <p style="font-family:FontAwesome; padding-right: 20px;">
-            <a-clip href="{{vm.getUrl(c.rcv)}}" data-toggle="tooltip" title="{{c.revtext}}">
-              {{c.revstars}}
-            </a-clip>
-          </p>
+          <span ng-repeat="i in vm.maxstars.slice(0,c.revstars) track by $index">
+            <svg id="i-star" class="star filled" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+              <path d="M16 2 L20 12 30 12 22 19 25 30 16 23 7 30 10 19 2 12 12 12 Z" />
+            </svg>
+          </span>
+          <span ng-repeat="i in vm.maxstars.slice(0,(4 - c.revstars)) track by $index">
+            <svg id="i-star" class="star" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+              <path d="M16 2 L20 12 30 12 22 19 25 30 16 23 7 30 10 19 2 12 12 12 Z" />
+            </svg>
+          </span>
         </div>
       </div>
     </div>
