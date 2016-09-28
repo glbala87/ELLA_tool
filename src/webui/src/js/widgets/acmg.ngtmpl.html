@@ -1,17 +1,18 @@
 <div class='acmg' ng-class="vm.getACMGclass()">
-  <section class="acmg-upper">
-    <h4 class="acmg-title clickable white" uib-popover-template="vm.popover.templateUrl"
-      popover-append-to-body=true
-      popover-title="{{::vm.getCodeForDisplay().code | noUnderscores}}"
-      popover-trigger="outsideClick"
-      popover-placement="auto top">
-      {{vm.getCodeForDisplay().code | noUnderscores}}
-    </h4>
-    <!-- <div class="button-wrapper" ng-click="vm.toggle()"> -->
-    <h4 class="right-item" ng-if="vm.isMultiple()">{{vm.code.length}}x</h4>
-    <button class="right-item" ng-click="vm.toggle()" ng-if="::vm.toggleText" ng-disabled="::vm.commentModel == undefined">{{::vm.toggleText}}</button>
-    <!-- </div> -->
-  </section>
+  <div class="upper-wrapper">
+    <section class="acmg-upper">
+      <h4 class="acmg-title clickable white" uib-popover-template="vm.popover.templateUrl"
+        popover-append-to-body=true
+        popover-title="{{::vm.getCodeForDisplay().code | noUnderscores}}"
+        popover-trigger="outsideClick"
+        popover-placement="auto top">
+        {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
+      </h4>
+      <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
+      <button class="right-item" ng-click="vm.toggle()" ng-if="::vm.toggleText" ng-disabled="::vm.commentModel == undefined">{{::vm.toggleText}}</button>
+    </section>
+    <aside class="acmg-req" ng-class="vm.getACMGclass(r)" ng-repeat="r in vm.getRequiredFor()" ng-click="vm.clickAddRequiredForCode(r)"><section class="acmg-upper"><h4 class="acmg-title">+ {{r}}</h4></section></aside>
+  </div>
   <section class="acmg-lower" ng-if="::vm.commentModel != undefined">
     <autosize-textarea class="right-item commentbox" placeholder="{{vm.getPlaceholder()}}" type="text" ng-model="vm.commentModel" ng-disabled="::!vm.isEditable()"></autosize-textarea>
   </section>

@@ -248,6 +248,7 @@ commit-provision:
 #---------------------------------------------
 # DEPLOY
 #---------------------------------------------
+comma := ,
 DEPLOY_NAME ?= test.allel.es
 .PHONY: tsd-assets dbreset dbreset-inner dbsleep deploy
 
@@ -266,7 +267,7 @@ dbsleep:
 	while ! pg_isready; do sleep 5; done
 
 deploy:
-	-docker stop $(DEPLOY_NAME)
-	-docker rm $(DEPLOY_NAME)
-	docker run -d --name $(DEPLOY_NAME) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE)
-	docker exec $(DEPLOY_NAME) make dbreset
+	-docker stop $(subst $(comma),-,$(DEPLOY_NAME))
+	-docker rm $(subst $(comma),-,$(DEPLOY_NAME))
+	docker run -d --name $(subst $(comma),-,$(DEPLOY_NAME)) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE)
+	docker exec $(subst $(comma),-,$(DEPLOY_NAME)) make dbreset

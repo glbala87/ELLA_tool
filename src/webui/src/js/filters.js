@@ -104,6 +104,14 @@ class Filters {
           return text.replace(/_/g, " ");
         }
     }
+    @Filter({
+        filterName: 'dropREQ'
+    })
+    dropREQ() {
+        return (text) => {
+          return text.replace(/REQ_GP/g, "GP - ").replace(/REQ_/g, "R - ");
+        }
+    }
 
     @Filter({
         filterName: 'prettyJSON'

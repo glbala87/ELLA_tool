@@ -39,6 +39,10 @@ export class AcmgController {
         return Array.isArray(this.code);
     }
 
+    isMoreThanOne() {
+        return this.isMultiple() ? this.code.length > 1 : false;
+    }
+
     getCodeForDisplay() {
         if (this.isMultiple()) {
             return this.code[0];  // If multiple codes, they should all be the same

@@ -16,6 +16,7 @@ export class AlleleInfoClinvar {
     constructor(Config) {
         this.config = Config.getConfig();
         this.previous = {};
+        this.maxstars = new Array(4);
 
         if (!this.hasContent()) {
             this.collapsed = true;
@@ -32,18 +33,10 @@ export class AlleleInfoClinvar {
                 let phenotypetext = this.allele.annotation.external.CLINVAR[idx].traitnames;
                 let revtext = this.allele.annotation.external.CLINVAR[idx].clinical_significance_status;
                 let revstatus = this.config.annotation.clinvar.clinical_significance_status[revtext];
-                let revstars = "";
 
-                for (let j=0; j<revstatus; j++) {
-                    revstars += ''; // This renders as a filled star in FontAwesome font
-                }
-                for (let j=0; j<4-revstatus; j++) {
-                    revstars += ''; // This renders as an empty star in FontAwesome font
-                }
-
-                item["sigtext"] = sigtext;
-                item["phenotypetext"] = phenotypetext;
-                item["revstars"] = revstars;
+                item["sigtext"] = sigtext === 'not provided' ? "No classification" : sigtext;
+                item["phenotypetext"] = phenotypetext === 'not specified' ? "No phenotype" : phenotypetext;
+                item["revstars"] = revstatus;
                 item["revtext"] = revtext;
                 item["rcv"] = rcv;
 
