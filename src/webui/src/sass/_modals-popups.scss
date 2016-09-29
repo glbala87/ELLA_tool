@@ -12,6 +12,7 @@
   &.pinned-right { justify-content: flex-end; }
   &.bottom { align-items: flex-end; }
   &.list-item { margin-bottom: 1.3rem; }
+  &.only-control { height: 100%; }
   .left { flex: 4; text-align: right; }
   .middle { flex: 0.5; text-align: center; }
   .right { flex: 4; }
@@ -46,17 +47,8 @@
 .popover .popover-title { @extend .slim; @extend .title; @extend .upper; background-color: $white; color: $black-75; font-weight: 600; font-size: 1.4rem !important; border: none; border-bottom: 1px solid $black-05; }
 .popover-content * { @extend .slim; color: $black; font-size: 1.3rem !important; }
 .popover-content .gpv_override { color: $red; }
-// FIXME: styling of the gene information (comment) in popup
-.popover-content pre {
-  color: black;
-  word-break: normal;
-  word-wrap: normal;
-  white-space: pre-wrap;
-  background-color: white;
-  border: 0;
-  padding-left: 0;
-  font-family: "Source Sans Pro", sans-serif; max-width: 50vw;
-}
+.popover-list { list-style-type: none; max-width: 50vw; }
+.popover-list.indented { margin-left: 1.3rem; }
 
 .acmg-popover {
   h3 { font-weight: 700; font-size: 1.4rem; color: $black-75; margin: 0; margin: 0.7rem 0; }
@@ -76,7 +68,7 @@
 .pagination * { border-radius: 0 !important; }
 
 .allele-control-bar { margin-bottom: 1.3rem; }
-.allele-info { @extend nav.top; position: static; color: $purple; background-color: Transparent; width: calc(100% - 13rem);
+.allele-info { @extend nav.top; position: static; color: $purple; background-color: Transparent; width: calc(100% - 13rem); flex-direction: column; height: auto; padding: 0;
   &.included { color: $blue; }
   .clickable { border-color: inherit; }
   aside { width: 100%; }

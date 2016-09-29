@@ -70,12 +70,13 @@ button { outline: none; border: 1px solid Transparent;
 
 nav.top { display: flex; flex-direction: row; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
   section { display: flex; flex-direction: column; height: 100%; width: calc(50vw - 1.3rem); justify-content: space-between;
-    &.left { display: flex; justify-content: space-around; padding-bottom: 0.2rem}
+    &.left { display: flex; justify-content: space-around; padding-bottom: 0.35rem }
+    &.right { margin-left: 0.35rem; }
   }
-  row { display: flex; flex-direction: row; align-items: center;
+  .row { display: flex; flex-direction: row; align-items: center;
+    &.up h3 { font-size: 1.3rem; }
     &.up { padding-bottom: 0.7rem; }
     &.down h3 { font-size: 1.5rem; }
-    &.up h3 { font-size: 1.3rem; }
     &.up, &.down { justify-content: space-between; padding-left: 0.5rem; }
   }
 }
@@ -86,15 +87,6 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   input:focus { background-color: $white-75; }
   input:hover { background-color: $white-25; }
   input:focus:hover { background-color: $white-75; }
-}
-
-.allelebar { display: flex; flex-direction: column; width: 100%;
-  .row { display: flex; justify-content: space-between;
-    &.up h3 { font-size: 1.3rem; padding-top: 0.1rem; }
-    &.down h3 { font-size: 1.5rem; }
-    &.up { padding-bottom: 0.8rem; }
-    &.up h3 { font-size: 1.3rem; opacity: 0.65; font-style: normal; }
-  }
 }
 
 .search-results .ng-enter { animation: 1s fade-in; }

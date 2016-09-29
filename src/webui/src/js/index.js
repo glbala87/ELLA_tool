@@ -73,7 +73,7 @@ import './widgets/contentbox.directive';
 import './widgets/sectionbox.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
-import './widgets/card.directive';
+// import './widgets/card.directive';
 import './widgets/interpretationbutton.directive';
 import './widgets/allelesectionbox/allelesectionbox.directive';
 import './widgets/allelesectionbox/allelesectionboxcontent.directive';
