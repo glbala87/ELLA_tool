@@ -380,6 +380,8 @@ class DataParser(object):
         info_data['ALL'] = dict()
 
         for f in fields:
+            if not f:  # Avoid empty keys
+                continue
             if '=' in f:
                 key, value = f.split('=', 1)
             else:
