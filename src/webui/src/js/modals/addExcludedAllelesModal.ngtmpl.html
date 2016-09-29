@@ -14,7 +14,7 @@
           <h3 class="title">included</h3>
         </titlebar>
         <controls>
-          <div class="line-wrapper spaced">
+          <div class="line-wrapper spaced only-control">
             <allelebar class="allele-info" allele="al"></allelebar>
             <section>
               <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
@@ -74,9 +74,7 @@
         </titlebar>
         <controls>
           <div class="line-wrapper spaced">
-            <div class="allele-info">
-              <allelebar class="allele-info" allele="al"></allelebar>
-            </div>
+            <allelebar class="allele-info" allele="al"></allelebar>
             <section>
               <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
                 <checked>INCLUDED</checked>

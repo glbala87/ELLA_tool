@@ -12,6 +12,7 @@
   &.pinned-right { justify-content: flex-end; }
   &.bottom { align-items: flex-end; }
   &.list-item { margin-bottom: 1.3rem; }
+  &.only-control { height: 100%; }
   .left { flex: 4; text-align: right; }
   .middle { flex: 0.5; text-align: center; }
   .right { flex: 4; }
@@ -76,7 +77,8 @@
 .pagination * { border-radius: 0 !important; }
 
 .allele-control-bar { margin-bottom: 1.3rem; }
-.allele-info { @extend nav.top; position: static; color: $purple; background-color: Transparent; width: calc(100% - 13rem);
+.allele-info { @extend nav.top; position: static; color: $purple; background-color: Transparent; width: calc(100% - 13rem); flex-direction: column; height: auto; padding: 0;
+  .row { width: 100%; }
   &.included { color: $blue; }
   .clickable { border-color: inherit; }
   aside { width: 100%; }
