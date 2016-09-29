@@ -465,6 +465,7 @@ class ExternalAnnotation(object):
         'traitnames',
         'clinical_significance_descr',
         'clinical_significance_status',
+        'variant_id',
     ]
 
     HGMD_FIELDS = [
