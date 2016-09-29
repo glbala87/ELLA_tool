@@ -171,6 +171,12 @@ export class ACMGSelectionController {
         this.includeACMG(user_code);
     }
 
+    getACMGpopoverClass(code) {
+      let acmgclass = this.getACMGClass(code);
+      return code.includes('x') ? `indented ${acmgclass}` : acmgclass;
+    }
+
+
     getACMGClass(code) {
         return code.substring(0, 2).toLowerCase();
     }

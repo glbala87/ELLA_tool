@@ -1,2 +1,10 @@
-<div class="acmg clickable" ng-repeat="r in vm.acmgCandidates.pathogenic" ng-class="::vm.getACMGClass(r)" ng-click="vm.addACMGCode(r)"><section class="acmg-upper"><h4 class="acmg-title">{{::r}}</h4> <p class="right-item">{{::vm.getExplanationForCode(r).short_criteria}}</p></section></div>
-<div class="acmg clickable" ng-repeat="r in vm.acmgCandidates.benign" ng-class="::vm.getACMGClass(r)" ng-click="vm.addACMGCode(r)"><section class="acmg-upper"><h4 class="acmg-title">{{::r}}</h4> <p class="right-item">{{::vm.getExplanationForCode(r).short_criteria}}</p></section></div>
+<div class="acmg clickable" ng-repeat="r in vm.acmgCandidates.pathogenic" ng-class="::vm.getACMGpopoverClass(r)" ng-click="vm.addACMGCode(r)">
+  <section class="acmg-upper">
+    <h4 class="acmg-title">{{::r}}</h4> <p class="right-item">{{::vm.getExplanationForCode(r).short_criteria}}</p>
+  </section>
+</div>
+<div class="acmg clickable" ng-repeat="r in vm.acmgCandidates.benign" ng-class="::vm.getACMGpopoverClass(r)" ng-click="vm.addACMGCode(r)">
+  <section class="acmg-upper">
+    <h4 class="acmg-title">{{::r}}</h4> <p class="right-item">{{::vm.getExplanationForCode(r).short_criteria}}</p>
+  </section>
+</div>

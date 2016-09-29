@@ -32,6 +32,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   .right-item { padding-right: 0.7rem; }
   .commentbox { width: 100%; min-width: 75ch; }
   &.clickable { border-bottom: none; &:hover { border-bottom: none; } }
+  &.indented { margin-left: 2.6rem; }
 }
 .acmg-req { cursor: pointer; }
 .acmg-req.noclick { cursor: default; }

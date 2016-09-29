@@ -103,7 +103,6 @@ export class AcmgController {
         }
     }
 
-
     getCriteria() {
         if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
             return this.config.acmg.explanation[this.getCodeForDisplay().code].criteria;
