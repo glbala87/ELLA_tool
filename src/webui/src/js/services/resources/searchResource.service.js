@@ -2,7 +2,7 @@
 
 import {Service, Inject} from '../../ng-decorators';
 import {Allele} from '../../model/allele';
-import {Analysis} from '../../model/analysis';
+import Analysis from '../../model/analysis';
 
 
 @Service({

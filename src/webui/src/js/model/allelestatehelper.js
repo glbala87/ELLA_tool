@@ -10,7 +10,7 @@ export class AlleleStateHelper {
      * describing the state for one allele).
     */
 
-    static setupAlleleState(allele, allele_state) {
+    static setupAlleleState(allele_state) {
         // If not existing, return the object from the state, or create empty one
         if (!('alleleassessment' in allele_state)) {
             allele_state.alleleassessment = {
@@ -77,7 +77,7 @@ export class AlleleStateHelper {
      */
     static getAlleleAssessment(allele, allele_state) {
         // Ensure object is properly initialised
-        this.setupAlleleState(allele, allele_state);
+        this.setupAlleleState(allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
             if (!('allele_assessment' in allele)) {
                 throw Error("Alleleassessment set as reused, but there's no allele_assessment in provided allele.");
@@ -99,7 +99,7 @@ export class AlleleStateHelper {
     }
 
     static getStateAlleleAssessment(allele, allele_state) {
-        this.setupAlleleState(allele, allele_state);
+        this.setupAlleleState(allele_state);
         return allele_state.alleleassessment;
     }
 
@@ -352,7 +352,7 @@ export class AlleleStateHelper {
         if (!('allele_assessment' in allele)) {
             throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
         }
-        this.setupAlleleState(allele, allele_state);
+        this.setupAlleleState(allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
             delete allele_state.alleleassessment.id;
 

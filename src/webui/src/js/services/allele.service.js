@@ -61,6 +61,19 @@ export class AlleleService {
     }
 
     /**
+     * POSTs an allelereport to the backend.
+     * Note! Normally you want to use the analysis' finalize
+     * action, and provide the allelereport there.
+     * Only use this method when you have a single allelereport
+     * that is not submitted as part of the interpretation workflow.
+     * @param  {Object} allelereport Data as returned from prepareAlleleReport()
+     * @return {Promise}             Promise resolved with response from backend.
+     */
+    submitAlleleReport(allelereport) {
+        return this.alleleAssessmentResource.createOrUpdateAlleleReport(allelereport);
+    }
+
+    /**
      * Updates the ACMG classifications for provided alleles.
      * referenceassessments is optional.
      */

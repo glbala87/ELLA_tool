@@ -59,7 +59,7 @@ button { outline: none; border: 1px solid Transparent;
 
 .no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
 
-.hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 100; color: black; cursor: pointer;
+.hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 1501; color: black; cursor: pointer;
   h1 { font-size: 4rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
   h1:hover { transform: rotateY(180deg); transform-style: preserve-3d; color: white; opacity: 0.75; }
   h1:hover #e { transform: rotateY(180deg); }
@@ -68,7 +68,7 @@ button { outline: none; border: 1px solid Transparent;
   #les { transform: rotateY(180deg); visibility: hidden; opacity: 0; }
 }
 
-nav.top { display: flex; flex-direction: row; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 99;
+nav.top { display: flex; flex-direction: row; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 1500;
   section { display: flex; flex-direction: column; height: 100%; width: calc(50vw - 1.3rem); justify-content: space-between;
     &.left { display: flex; justify-content: space-around; padding-bottom: 0.35rem }
     &.right { margin-left: 0.35rem; }

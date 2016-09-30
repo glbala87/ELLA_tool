@@ -217,13 +217,16 @@ class InterpretationService {
         return referenceassessments;
     }
 
-    prepareAlleleReport(allele_id, allelestate, analysis_id=null) {
+    prepareAlleleReport(allele_id, allelestate, analysis_id=null, alleleassessment_id=null) {
         let ar = {
             allele_id: allele_id,
 
         };
         if (analysis_id) {
             ar.analysis_id = analysis_id;
+        }
+        if (alleleassessment_id) {
+            ar.alleleassessment_id = alleleassessment_id;
         }
 
         // If id is included, we're reusing an existing one.
