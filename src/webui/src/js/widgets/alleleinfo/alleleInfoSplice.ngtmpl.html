@@ -1,6 +1,7 @@
 <contentbox title="Splice" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
   <cbbody>
     <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript"
+      popover-append-to-body="true"
       popover-trigger="outsideClick"
       uib-popover-template="'ngtmpl/alleleInfoSplicePopover.ngtmpl.html'"
       popover-title="Splice predictions"
