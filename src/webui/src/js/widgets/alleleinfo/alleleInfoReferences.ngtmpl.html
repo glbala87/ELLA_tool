@@ -1,7 +1,17 @@
 <contentbox title="References" collapsed="vm.collapsed" ng-if="vm.allele_references.length+vm.missing_references.length">
   <cbbody>
     <article class="acmg-body" ng-repeat="ref in vm.allele_references">
-      <h4 class="faded-title">Article</h4>
+      <div>
+        <div class="clickable white" isolate-click>
+          <transcript-wrapper  transcript="ref"
+            popover-trigger="outsideClick"
+            uib-popover-template="'ngtmpl/abstractPopover.ngtmpl.html'"
+            popover-placement="auto right"
+            popover-append-to-body=true>
+            <h4 class="faded-title">Article</h4>
+          </transcript-wrapper>
+        </div>
+      </div>
       <section class="line-wrapper spaced">
         <div>
           <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
