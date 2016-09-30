@@ -97,8 +97,8 @@ class PubMedFetcher(object):
         :param references: list of reference dictionaries
         :return : Prints the references nicely to screen
         """
-        print_pattern = u"\n{title}\n{authors}\n{journal}\n{year}\n{URL}"
-        print_pattern_abstract = u"\n{abstract}"
+        print_pattern = u"PubMedID {pmid}\n{title}\n{authors}\n{journal}\n{year}\n"
+        print_pattern_abstract = u"{abstract}"
         for ref in references:
             print(print_pattern.format(**ref))
             print(print_pattern_abstract.format(**ref))

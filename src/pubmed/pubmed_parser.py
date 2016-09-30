@@ -11,7 +11,6 @@ NOT_IN_PUBMED = "NOT IN PUBMED"
 
 
 class PubMedParser(object):
-    BASE_URL_PUBMED = "http://www.ncbi.nlm.nih.gov/pubmed/"
 
     def parse_pubmed_article(self, pubmed_article):
         """
@@ -52,11 +51,8 @@ class PubMedParser(object):
                                                 "Abstract/AbstractText")
         abstract = self.format_abstract(abstract_parts)
 
-        URL = self.format_url(pmid)
-        # TODO: Shouldn't we include DOI as well?
-
-        return {'authors': authors, 'title': title, 'year': year,
-                'journal': journal, 'abstract': abstract, 'URL': URL}
+        return {'pmid': pmid, 'authors': authors, 'title': title,
+                'year': year, 'journal': journal, 'abstract': abstract}
 
     def get_field(self, pubmed_article, pattern):
         """
@@ -83,15 +79,6 @@ class PubMedParser(object):
             raise TypeError(type_err)
 
         return field_value
-
-    def format_url(self, pmid):
-        """
-        :param pmid: Single Pubmed ID
-        :return : PubMed URL for this Pubmed ID
-        """
-        url_pattern = "{base_url}{pmid}"
-        return url_pattern.format(base_url=self.BASE_URL_PUBMED,
-                                  pmid=pmid)
 
     def format_journal(self, pubmed_article, base_tree, patterns):
         """
