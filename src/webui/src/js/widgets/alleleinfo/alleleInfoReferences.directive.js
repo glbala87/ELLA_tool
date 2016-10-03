@@ -82,7 +82,7 @@ export class AlleleInfoReferences {
     }
 
     hasReferenceAssessment(reference) {
-        return AlleleStateHelper.hasReferenceAssessment(
+        return AlleleStateHelper.getExistingReferenceAssessment(
             this.allele,
             reference,
             this.alleleState
