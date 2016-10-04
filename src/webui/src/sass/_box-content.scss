@@ -39,7 +39,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 .acmg-req .acmg-upper { height: 100%; }
 @each $name, $color in $acmg-map {
   .acmg.#{$name}, aside.acmg-req.#{$name} { border-left: 0.3rem solid $color;
-    .acmg-upper { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); }
+    .acmg-upper { background-color: hsla(hue($color),saturation($color),lightness($color),0.6); }
     .acmg-lower { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
   }
 }
