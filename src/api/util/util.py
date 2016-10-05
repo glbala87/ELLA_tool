@@ -1,3 +1,4 @@
+from functools import wraps
 import json
 from flask import request
 from api import db, ApiError
@@ -12,6 +13,7 @@ def error(msg, code):
 
 def rest_filter(func):
 
+    @wraps(func)
     def inner(*args, **kwargs):
         q = request.args.get('q')
         rest_filter = None
@@ -23,6 +25,8 @@ def rest_filter(func):
 
 
 def provide_session(func):
+
+    @wraps(func)
     def inner(*args, **kwargs):
         try:
             return func(db.session, *args, **kwargs)
@@ -38,6 +42,7 @@ def provide_session(func):
 
 def paginate(func):
 
+    @wraps(func)
     def inner(*args, **kwargs):
         page = request.args.get('page')
         if page is None:
@@ -67,6 +72,8 @@ def request_json(required, only_required=False, allowed=None):
     those fields are passed on.
     """
     def wrapper(func):
+
+        @wraps(func)
         def inner(*args, **kwargs):
             data = request.get_json()
             if not isinstance(data, list):

@@ -24,7 +24,7 @@ class AlleleReportSchema(Schema):
 
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
-    evaluation = fields.Field(required=False, default=dict)
+    evaluation = fields.Field(required=False, default={})
     date_last_update = fields.DateTime()
     date_superceeded = fields.DateTime(allow_none=True)
     seconds_since_update = fields.Method('get_seconds_since_created')

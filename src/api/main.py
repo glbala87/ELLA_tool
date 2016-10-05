@@ -102,18 +102,13 @@ def do_testdata_reset(test_set):
 
     return "Test database is resetting. It should be ready in a minute."
 
-
 api = Api(app)
 
-def init_v1(api):
-    v1 = ApiV1()
-    if os.environ.get('DEVELOP', '').upper() == 'TRUE':
-        app.add_url_rule('/reset', 'reset', reset_testdata)
-    return v1.init_app(api)
+# Setup resources for v1
+ApiV1(app, api).setup_api()
 
-init_v1(api)
 
-# This is used by development and medicloud - production will not trigger it
+# This is used by development - production will not trigger it
 if __name__ == '__main__':
     if os.getenv('RESET_DB', False):
         reset_testdata_from_cli()
@@ -122,9 +117,14 @@ if __name__ == '__main__':
     opts['host'] = '0.0.0.0'
     opts['threaded'] = True
     opts['port'] = int(os.getenv('API_PORT', '5000'))
+
+    # Dev mode stuff
     is_dev = os.getenv('DEVELOP', False)
-    if is_dev:
+    if is_dev == 'TRUE':
         opts['use_reloader'] = True
+        app.add_url_rule('/reset', 'reset', reset_testdata)
+
     app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
     app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
+
     app.run(**opts)
