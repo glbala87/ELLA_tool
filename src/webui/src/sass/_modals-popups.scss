@@ -62,10 +62,12 @@
 .acmg-selection aside { margin-top: 3.9rem; }
 .acmg-selection aside ~ aside { margin-top: 5.2rem; }
 
-@keyframes slide-from-left { from { left: -34rem; } to { left: 0; } }
+@keyframes slide-from-left { from { left: -34rem; } to { left: 0rem; } }
+@keyframes slide-to-left { from { left: 0rem; } to { left: -34rem; } }
 .popover.left { margin: 0; top: 6.5rem !important; bottom: 0 !important; left: 0 !important; position: fixed; overflow: scroll; width: 34rem; will-change: left; }
 .popover.left.in-add { animation: slide-from-left; animation-delay: 0s; animation-duration: 0.6s; animation-fill-mode: forwards; }
-.popover.left.fade, .popover.left.fade-add { opacity: 1; }
+.popover.left.in-remove { animation: slide-to-left; animation-delay: 0s; animation-duration: 0.3s; animation-fill-mode: forwards; }
+.popover.left.fade, .popover.left.fade-add, .popover.left.in-remove { opacity: 1; display: block; visibility: visible; }
 
 .reference, .reference .control { display: flex; align-items: center; justify-content: space-between; }
 .reference .control { padding-left: 0.7rem; }
