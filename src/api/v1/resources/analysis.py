@@ -33,6 +33,28 @@ class AnalysisListResource(Resource):
     @paginate
     @rest_filter
     def get(self, session, rest_filter=None, page=None, num_per_page=None):
+        """
+        Returns a list of analyses.
+
+        * Supports `q=` filtering.
+        * Supports pagination.
+        ---
+        summary: List analyses
+        tags:
+          - Analysis
+        parameters:
+          - name: q
+            in: query
+            type: string
+            description: JSON filter query
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Analysis'
+            description: List of analyses
+        """
         analyses = self.list_query(session, sample.Analysis, schema=schemas.AnalysisSchema(), rest_filter=rest_filter)
         for analysis in analyses:
             analysis['current_interpretation'] = get_current_interpretation(analysis)
@@ -42,7 +64,23 @@ class AnalysisListResource(Resource):
 class AnalysisResource(Resource):
 
     def get(self, session, analysis_id):
-
+        """
+        Returns a single analysis.
+        ---
+        summary: Get analysis
+        tags:
+          - Analysis
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+        responses:
+          200:
+            schema:
+                $ref: '#/definitions/Analysis'
+            description: Analysis object
+        """
         a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
         analysis = schemas.AnalysisSchema().dump(a).data
         analysis['current_interpretation'] = get_current_interpretation(analysis)
@@ -55,7 +93,38 @@ class AnalysisActionOverrideResource(Resource):
     def post(self, session, analysis_id, data=None):
         """
         Lets an user take over an analysis, by replacing the
-        current interpretation's user_id with the input user_id.
+        analysis' current interpretation's user_id with the input user_id.
+
+        **Only works for analyses with a `Ongoing` current interpretation**
+        ---
+        summary: Assign analysis to another user
+        tags:
+            - Analysis
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - name: data
+            in: body
+            type: object
+            required: true
+            schema:
+              title: User id object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+                example:
+                  user_id: 1
+            description: User id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
         """
         # Get user by username
         new_user = session.query(user.User).filter(
@@ -82,7 +151,40 @@ class AnalysisActionStartResource(Resource):
     @request_json(['user_id'])
     def post(self, session, analysis_id, data=None):
         """
-        Start an interpretation, setting it's status to 'In progress'
+        Starts an analysis.
+
+        This sets the analysis' current interpretation's status to 'In progress'.
+
+        **Only works for analyses with a `Not started` current interpretation**
+        ---
+        summary: Start analysis
+        tags:
+            - Analysis
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - name: data
+            in: body
+            type: object
+            required: true
+            schema:
+              title: User id object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+              example:
+                user_id: 1
+            description: User id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
         """
         # Get user by username
         start_user = session.query(user.User).filter(
@@ -111,6 +213,42 @@ class AnalysisActionStartResource(Resource):
 class AnalysisActionMarkReviewResource(Resource):
 
     def post(self, session, analysis_id):
+        """
+        Marks an analysis for review.
+
+        This sets the analysis' current interpretation's status to `Done` and creates
+        a new current interpretation with status `Not started`.
+
+        **Only works for analyses with a `Ongoing` current interpretation**
+        ---
+        summary: Mark analysis for review
+        tags:
+          - Analysis
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - name: data
+            in: body
+            type: object
+            required: true
+            schema:
+              title: User id object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+              example:
+                user_id: 1
+            description: User id
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
         # TODO: Validate that user is same as user on interpretation
         # TODO: Consider some way to validate that it should be completable
 
@@ -140,6 +278,43 @@ class AnalysisActionMarkReviewResource(Resource):
 class AnalysisActionReopenResource(Resource):
 
     def post(self, session, analysis_id):
+        """
+        Reopens an analysis, which was previously finalized.
+
+        This creates a new current interpretation for the analysis,
+        with status set to `Not started`.
+
+
+        **Only works for analyses with a `Ongoing` current interpretation**
+        ---
+        summary: Mark analysis for review
+        tags:
+          - Analysis
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - name: data
+            in: body
+            type: object
+            required: true
+            schema:
+                title: User id object
+                required:
+                    - user_id
+                properties:
+                    user_id:
+                        type: integer
+                example:
+                    user_id: 1
+            description: User id
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
         a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
         analysis = schemas.AnalysisSchema().dump(a).data
         if get_current_interpretation(analysis) is not None:
@@ -172,15 +347,210 @@ class AnalysisActionFinalizeResource(Resource):
         """
         Finalizes an analysis.
 
-        The user must provide a list of alleleassessments, referenceassessments and allelereports.
+        This sets the analysis' current interpretation's status to `Done` and creates
+        any [alleleassessment|referenceassessment|allelereport] objects for the provided alleles,
+        unless it's specified to reuse the existing objects.
+
+        You must provide a list of assessments/reports.
         For each assessment/report, if an 'id' field is not part of the data, it will create
-        a new assessment/report in the database. It will then link the analysis to this assessment/report.
+        a new assessments/reports in the database.
+        It will then link the analysis to these assessments/reports.
+
         If an 'id' field does exist, it will check if the assessment/report with this id
         exists in the database, then link the analysis to this assessment/report. If the 'id' doesn't
         exists, an ApiError is given.
 
         In other words, if reusing a preexisting assessment/report, you can pass in just it's 'id',
         otherwise pass in all the data needed to create a new assessment/report (without an 'id' field).
+
+        **Only works for analyses with a `Ongoing` current interpretation**
+
+        ```javascript
+        Example POST data:
+        {
+            "referenceassessments": [
+                {
+                    // New assessment will be created, superceding any old one
+                    "user_id": 1,
+                    "analysis_id": 3,
+                    "reference_id": 123
+                    "evaluation": {...data...},
+                    "analysis_id": 3,
+                    "allele_id": 14,
+                },
+                {
+                    // Reusing assessment
+                    "id": 13,
+                    "allele_id": 13,
+                    "reference_id": 1
+                }
+            ],
+            "alleleassessments": [
+                {
+                    // New assessment will be created, superceding any old one
+                    "user_id": 1,
+                    "allele_id": 2,
+                    "classification": "3",
+                    "evaluation": {...data...},
+                    "analysis_id": 3,
+                },
+                {
+                    // Reusing assessment
+                    "id": 9
+                    "allele_id": 6
+                }
+            ],
+            "allelereports": [
+                {
+                    // New report will be created, superceding any old one
+                    "user_id": 1,
+                    "allele_id": 2,
+                    "evaluation": {...data...},
+                    "analysis_id": 3,
+                },
+                {
+                    // Reusing report
+                    "id": 9
+                    "allele_id": 6
+                }
+            ]
+        }
+        ```
+
+        ---
+        summary: Finalize an analysis
+        tags:
+          - Analysis
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - name: data
+            in: body
+            required: true
+            schema:
+              title: Data object
+              type: object
+              required:
+                - referenceassessments
+                - alleleassessments
+                - allelereports
+              properties:
+                referenceassessments:
+                  name: referenceassessment
+                  type: array
+                  items:
+                    title: ReferenceAssessment
+                    type: object
+                    required:
+                      - allele_id
+                      - reference_id
+                    properties:
+                      id:
+                        description: Existing referenceassessment id. If provided, existing object will be reused
+                        type: integer
+                      user_id:
+                        description: User id. Required if not reusing existing object
+                        type: integer
+                      analysis_id:
+                        description: Analysis id. Required if not reusing existing object
+                        type: integer
+                      allele_id:
+                        description: Allele id
+                        type: integer
+                      reference_id:
+                        description: Reference id
+                        type: integer
+                      evaluation:
+                        description: Evaluation data object
+                        type: object
+                alleleassessment:
+                  name: alleleassessment
+                  type: array
+                  items:
+                    title: AlleleAssessment
+                    type: object
+                    required:
+                      - allele_id
+                    properties:
+                      id:
+                        description: Existing alleleassessment id. If provided, existing object will be reused
+                        type: integer
+                      user_id:
+                        description: User id. Required if not reusing existing object
+                        type: integer
+                      analysis_id:
+                        description: Analysis id. Required if not reusing existing object
+                        type: integer
+                      allele_id:
+                        description: Allele id
+                        type: integer
+                      evaluation:
+                        description: Evaluation data object
+                        type: object
+                      classification:
+                        description: Classification
+                        type: string
+                allelereport:
+                  name: allelereport
+                  type: array
+                  items:
+                    title: AlleleReport
+                    type: object
+                    required:
+                      - allele_id
+                    properties:
+                      id:
+                        description: Existing reference id. If provided, existing object will be reused
+                        type: integer
+                      user_id:
+                        description: User id. Required if not reusing existing object
+                        type: integer
+                      analysis_id:
+                        description: Analysis id. Required if not reusing existing object
+                        type: integer
+                      allele_id:
+                        description: Allele id
+                        type: integer
+                      evaluation:
+                        description: Evaluation data object
+                        type: object
+              example:
+                referenceassessments:
+                  - user_id: 1
+                    analysis_id: 3
+                    reference_id: 123
+                    evaluation: {}
+                    allele_id: 14
+                  - id: 13
+                    allele_id: 13
+                    reference_id: 1
+                alleleassessments:
+                  - user_id: 1
+                    allele_id: 2
+                    classification: '3'
+                    evaluation: {}
+                    analysis_id: 3
+                  - id: 9
+                    allele_id: 6
+                allelereports:
+                  - user_id: 1
+                    allele_id: 2
+                    evaluation: {}
+                    analysis_id: 3
+                  - id: 9
+                    allele_id: 6
+              description: Submitted data
+
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        """
 
         Example data:
 
@@ -194,7 +564,6 @@ class AnalysisActionFinalizeResource(Resource):
                     "evaluation": {...data...},
                     "analysis_id": 3,
                     "allele_id": 14,
-                    "reference_id": 2
                 },
                 {
                     # Reusing assessment

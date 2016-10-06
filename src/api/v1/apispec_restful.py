@@ -61,15 +61,16 @@ def path_from_resource(spec, api, resource, **kwargs):
         if docstring:
             if '---' in docstring:
                 desc, doc = docstring.split('---', 1)
-                operations[method]['description'] = desc.strip()
+                desc = dedent(desc)
                 doc = dedent(doc)
+                operations[method]['description'] = desc
                 try:
                     operations[method].update(yaml.load(doc))
                 except Exception:
                     print "Error while parsing docstring for resource {}:".format(path)
                     traceback.print_exc()
             else:
-                operations[method]['description'] = docstring.strip()
+                operations[method]['description'] = dedent(docstring)
 
     return Path(path=path, operations=operations)
 
