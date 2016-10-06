@@ -9,7 +9,7 @@
   <div ng-show="vm.getNotes().length">
     <h3>Notes:</h3>
     <ul class="acmg-notes">
-      <li ng-repeat="note in vm.getNotes() track by $index">{{note}}</li>
+      <li ng-repeat="note in vm.getNotes() track by $index">{{note | killLeadingDashes}}</li>
     <ul>
   </div>
   <h3>Match:</h3>
