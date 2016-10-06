@@ -25,6 +25,7 @@ export class ACMGSelectionController {
         this.config = Config.getConfig();
         this.acmgClassificationResource = ACMGClassificationResource;
         this.toastr = toastr;
+        this.showPathogenic = false;
 
         this.popover = {
             templateUrl: 'ngtmpl/acmgSelectionPopover.ngtmpl.html'
