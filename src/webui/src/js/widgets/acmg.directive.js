@@ -124,7 +124,7 @@ export class AcmgController {
     getNotes() {
         if (this.getCodeForDisplay().code in this.config.acmg.explanation &&
             'notes' in this.config.acmg.explanation[this.getCodeForDisplay().code]) {
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].notes;
+            return this.config.acmg.explanation[this.getCodeForDisplay().code].notes.split(/\n/);
         }
     }
 

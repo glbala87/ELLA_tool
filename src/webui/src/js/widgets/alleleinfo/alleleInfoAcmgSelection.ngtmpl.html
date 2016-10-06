@@ -14,7 +14,7 @@
           popover-append-to-body="true"
           popover-title="Add ACMG code"
           popover-trigger="outsideClick"
-          popover-placement="auto right"
+          popover-placement="left"
           ng-if="vm.isEditable()">Add code</button>
       </div>
     </section>
@@ -22,7 +22,7 @@
     <!-- Included codes -->
     <!-- Don't use 'track by $index' -->
     <h4 class="section-title acmg-body" ng-if="vm.has('included')">ACMG Included</h4>
-    <section class="acmg-wrapper">
+    <section class="acmg-wrapper included">
       <acmg directreqs="true" code="code" ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.included" on-toggle="vm.excludeACMG(code)" toggle-text="-" comment-model="code.comment" editable="vm.isEditable()"></acmg>
     </section>
 

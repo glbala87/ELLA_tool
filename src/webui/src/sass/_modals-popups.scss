@@ -40,21 +40,29 @@
 .question.centered { text-align: center; }
 
 // Used only in Add references (customAnnotationModal)
-.big textarea { max-height: 25vh; margin: 1.3rem 0 2.6rem; } // FIXME - find an alternate way of constraining textarea in this single case
+.big textarea { max-height: 25vh; margin: 1.3rem 0 2.6rem; }
 
 .popover { font-family: "Source Sans Pro", sans-serif; max-width: 50vw; padding: 0; border: none; box-shadow: 0 0.3rem 0.3rem $black-25; z-index: 1600; }
 .popover, .popover * { border-radius: 0; }
 .popover .popover-title { @extend .slim; @extend .title; @extend .upper; background-color: $white; color: $black-75; font-weight: 600; font-size: 1.4rem !important; border: none; border-bottom: 1px solid $black-05; }
-.popover-content * { @extend .slim; color: $black; font-size: 1.3rem !important; }
+.popover-content * { @extend .slim; color: $black-75; font-size: 1.3rem !important; }
 .popover-content .gpv_override { color: $red; }
 .popover-list { list-style-type: none; max-width: 50vw; }
 .popover-list.indented { margin-left: 1.3rem; }
+.acmg-notes { margin-left: 2.6rem; }
 .popover h3.p-title { font-weight: 700; font-size: 1.4rem; color: $black-75; margin: 0; margin: 0.7rem 0; }
 
 .acmg-popover {
   h3 { font-weight: 700; font-size: 1.4rem; color: $black-75; margin: 0; margin: 0.7rem 0; }
-  p { font-weight: 300; margin: 0; word-wrap: break-word; word-break: break-word; font-size: 1.4rem; }
+  p { font-weight: 400; margin: 0; word-wrap: break-word; word-break: break-word; font-size: 1.4rem; }
 }
+.acmg-selection aside { margin-top: 3.9rem; }
+.acmg-selection aside ~ aside { margin-top: 5.2rem; }
+
+@keyframes slide-from-left { from { left: -34rem; } to { left: 0; } }
+.popover.left { margin: 0; top: 6.5rem !important; bottom: 0 !important; left: 0 !important; position: fixed; overflow: scroll; width: 34rem; will-change: left; }
+.popover.left.in-add { animation: slide-from-left; animation-delay: 0s; animation-duration: 0.6s; animation-fill-mode: forwards; }
+.popover.left.fade, .popover.left.fade-add { opacity: 1; }
 
 .reference, .reference .control { display: flex; align-items: center; justify-content: space-between; }
 .reference .control { padding-left: 0.7rem; }

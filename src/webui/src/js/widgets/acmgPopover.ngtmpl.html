@@ -6,9 +6,11 @@
   </div>
   <h3 ng-if="vm.getCriteria()">Details:</h3>
   <p>{{vm.getCriteria()}}</p>
-  <div ng-show="vm.getNotes()">
+  <div ng-show="vm.getNotes().length">
     <h3>Notes:</h3>
-    <p>{{vm.getNotes()}}</p>
+    <ul class="acmg-notes">
+      <li ng-repeat="note in vm.getNotes() track by $index">{{note | killLeadingDashes}}</li>
+    <ul>
   </div>
   <h3>Match:</h3>
   <div>
