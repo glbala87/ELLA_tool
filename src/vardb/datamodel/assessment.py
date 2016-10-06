@@ -88,6 +88,7 @@ class Reference(Base):
     authors = Column(String())
     title = Column(String())
     journal = Column(String())
+    abstract = Column(String())
     year = Column(Integer)
     pubmed_id = Column(Integer, unique=True)
 
