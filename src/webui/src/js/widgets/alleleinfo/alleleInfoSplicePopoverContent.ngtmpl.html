@@ -1,4 +1,4 @@
 <div ng-repeat="c in ::t.Splice">
-  <h3 class="p-title">{{::c.splice_Effect}}</h3>
+  <h3 class="p-title">{{::c.splice_Effect | noUnderscores}}</h3>
   <p>{{::vm.getText(c)}}</p>
 </div>
