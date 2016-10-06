@@ -26,6 +26,11 @@ export class ACMGSelectionController {
         this.acmgClassificationResource = ACMGClassificationResource;
         this.toastr = toastr;
 
+        this.pathogenicPopoverToggle = {
+          buttons: [ 'Pathogenic', 'Benign' ],
+          model: 'Pathogenic'
+        };
+
         this.popover = {
             templateUrl: 'ngtmpl/acmgSelectionPopover.ngtmpl.html'
         };

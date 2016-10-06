@@ -8,15 +8,18 @@
 // - Primarily used in modals for user prompts and information
 // - 'middle' is optional
 .line-wrapper { display: flex; align-items: center;
+  &.centered { justify-content: center; }
   &.spaced { justify-content: space-between; }
   &.pinned-right { justify-content: flex-end; }
   &.bottom { align-items: flex-end; }
   &.list-item { margin-bottom: 1.3rem; }
   &.only-control { height: 100%; }
   .left { flex: 4; text-align: right; }
+  .left-basic { text-align: right; }
   .middle { flex: 0.5; text-align: center; }
   .right { flex: 4; }
   .left ~ .right { margin-left: 1.3rem; }
+  .left-basic ~ .right-basic { margin-left: 1.3rem; }
 }
 .question { min-height: 8rem;
   .multiple-question-element ~ .multiple-question-element { margin-left: 1.3rem; }
