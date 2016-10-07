@@ -51,8 +51,19 @@ class PubMedParser(object):
                                                 "Abstract/AbstractText")
         abstract = self.format_abstract(abstract_parts)
 
-        return {'pmid': pmid, 'authors': authors, 'title': title,
-                'year': year, 'journal': journal, 'abstract': abstract}
+        reference = {'pmid': pmid, 'authors': authors, 'title': title,
+                     'year': year, 'journal': journal, 'abstract': abstract}
+        return self.remove_empty_keys(reference)
+
+    def remove_empty_keys(self, reference):
+        """
+        :param reference: An reference as a dictionary
+        :return : reference with empty keys removed
+        """
+        for key, value in reference.items():
+            if value == NOT_IN_PUBMED:
+                reference.pop(key, None)
+        return reference
 
     def get_field(self, pubmed_article, pattern):
         """

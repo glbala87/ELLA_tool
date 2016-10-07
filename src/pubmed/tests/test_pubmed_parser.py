@@ -69,7 +69,7 @@ def test_parse_pubmed_article(test_references):
         # Test for no volume, no issue, no pages
         assert reference['journal'] == 'J. Neurol.: .'
         # Test for no abstract
-        assert reference['abstract'] == pubmed_parser.NOT_IN_PUBMED
+        assert 'abstract' not in reference
     else:
         print(reference)
     if '23374456' in reference['pmid']:
