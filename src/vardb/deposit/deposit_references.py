@@ -5,19 +5,9 @@ import json
 from vardb.datamodel import DB, assessment
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-BATCH_SIZE = 100
+TEST_DATABASE = os.path.join(SCRIPT_DIR, '../testdata/references_test.json')
+BATCH_SIZE = 10
 log = logging.getLogger(__name__)
-
-# Load "JSON", split lines etc...
-# Take batch of N references (from JSON)
-# Use session.query(assessment.Reference).filter(assessment.Reference.pubmed_id.in_(pmids).all()
-# -> [Reference(), ... ]
-# Split your list into existing and new
-
-# Loop over json_file list objects, check whether an DB object exists.
-# If so, update the object by reassigning all the fields.
-# If not, create a new Reference (Reference(**ref_obj)) object with data and add to session (session.add(ref))
-# At the end of the full loop (or for each batch?), do session.commit()
 
 
 def get_reference_batches(f):
@@ -36,23 +26,29 @@ def get_reference_batches(f):
         yield reference_batch
 
 
-def import_references(filename, session):
+def import_references(session, filename=TEST_DATABASE):
     log.info("Importing references from %s" % filename)
     with open(filename) as f:
         for reference_batch in get_reference_batches(f):
             pmids = [ref['pubmed_id'] for ref in reference_batch]
             existing_references = session.query(assessment.Reference).\
-                                  filter(assessment.Reference.pubmed_id in
-                                         pmids).all()
+                                  filter(assessment.Reference.pubmed_id.in_(pmids)).all()
             existing_pmids = [ref.pubmed_id for ref in existing_references]
 
             for reference in reference_batch:
                 try:
-                    index_of_existing_pmid = existing_pmids.index(reference['pubmed_id'])
-                    existing_references[index_of_existing_pmid].update(**reference)
+                    pmid = reference['pubmed_id']
+                    index_of_existing_pmid = existing_pmids.index(pmid)
+                    existing_reference = existing_references[index_of_existing_pmid]
+                    for key, value in reference.iteritems():
+                        setattr(existing_reference, key, value)
+                    # session.query(assessment.Reference).\
+                    #     filter(assessment.Reference.pubmed_id == pmid)\
+                    #     .update(reference)
                 except ValueError as e:
                     log.debug("Reference did not exist: %s" % e)
                     session.add(assessment.Reference(**reference))
+
             session.commit()
 
     log.info("References successfully imported!")
@@ -70,4 +66,4 @@ if __name__ == '__main__':
     # Import argparse, add CLI for getting path to JSON file.
     db = DB()
     db.connect()
-    import_references(filename, db.session)
+    import_references(db.session, filename=filename)
