@@ -19,8 +19,8 @@ class PubMedParser(object):
 
         base_tree = "./MedlineCitation/Article/%s"
 
-        pmid = self.get_field(pubmed_article, base_tree % "../PMID")
-        log.debug('Processing %s' % pmid)
+        pmid = int(self.get_field(pubmed_article, base_tree % "../PMID"))
+        log.debug('Processing %s' % str(pmid))
 
         base_tree_year = base_tree % "Journal/JournalIssue/PubDate/%s"
         try:
