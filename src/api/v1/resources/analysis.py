@@ -70,6 +70,9 @@ class AnalysisActionOverrideResource(Resource):
             sample.Interpretation.id == int_id
         ).one()
 
+        if i.status == 'Not started':
+            raise ApiError("Interpretation hasn't started.")
+
         # db will throw exception if user_id is not a valid id
         # since it's a foreign key
         i.user = new_user
@@ -125,6 +128,10 @@ class AnalysisActionMarkReviewResource(Resource):
         i = session.query(sample.Interpretation).filter(
             sample.Interpretation.id == int_id
         ).one()
+
+        if i.status != 'Ongoing':
+            raise ApiError("Interpretation is not ongoing.")
+
         i.status = 'Done'
 
         # Create next interpretation
