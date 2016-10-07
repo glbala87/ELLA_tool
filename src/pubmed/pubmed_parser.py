@@ -51,7 +51,7 @@ class PubMedParser(object):
                                                 "Abstract/AbstractText")
         abstract = self.format_abstract(abstract_parts)
 
-        reference = {'pmid': pmid, 'authors': authors, 'title': title,
+        reference = {'pubmed_id': pmid, 'authors': authors, 'title': title,
                      'year': year, 'journal': journal, 'abstract': abstract}
         return self.remove_empty_keys(reference)
 
