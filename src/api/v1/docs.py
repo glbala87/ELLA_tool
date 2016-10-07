@@ -3,6 +3,33 @@ from apispec import APISpec
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
+title = 'Ella API v1.0'
+version = '1.0'
+desc = """
+#### **Use only with permission.**
+
+
+## General concepts:
+
+### Filtering:
+
+Some list resources support basic filtering capabilities using the `q` query parameter.
+You can supply a URI encoded JSON string containing the properties you want to filter.
+Note that filtering on nested properties are not supported.
+
+Examples:
+
+```
+q={"id":[1,3,5],"date_superceeded":null}
+q={"classification":4}
+```
+
+### Pagination:
+
+TBD: Not implemented properly at the moment...
+"""
+
+
 class ApiV1Docs:
 
     def __init__(self, app, api):
@@ -16,10 +43,10 @@ class ApiV1Docs:
         flask restful resources and marshmallow schemas.
         """
         spec = APISpec(
-            title='Ella API v1',
-            version='1.0.0',
+            title=title,
+            version=version,
             info=dict(
-                description='Ella API version 1.0. Use only with permission.'
+                description=desc
             ),
             plugins=['apispec.ext.marshmallow', 'api.v1.apispec_restful']
         )

@@ -9,6 +9,8 @@ ma = Marshmallow(app)
 
 class ReferenceAssessmentSchema(Schema):
     class Meta:
+        title = 'ReferenceAssessment'
+        description = "Represents an assessment of one reference in context of one allele."
         fields = ('id',
                   'allele_id',
                   'reference_id',

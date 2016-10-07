@@ -11,6 +11,8 @@ ma = Marshmallow(app)
 
 class AlleleAssessmentSchema(Schema):
     class Meta:
+        title = "AlleleAssessment"
+        description = 'Represents an assessment of one allele'
         fields = ('id',
                   'date_last_update',
                   'date_superceeded',

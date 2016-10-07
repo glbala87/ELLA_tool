@@ -91,6 +91,8 @@ class AlleleAssessmentListResource(Resource):
         """
         Creates a new AlleleAssessment(s) for a given allele(s).
 
+        If any AlleleAssessment exists already for the same allele, it will be marked as superceded.
+
         **If assessment should be created as part of finalizing an analysis, check the `analyses/{id}/finalize` resource instead.**
         ---
         summary: Create AlleleAssessment
