@@ -50,6 +50,10 @@ class ApiV1(object):
         self._add_resource(r.acmg.ACMGClassificationResource,
                            '/api/v1/acmg/classifications/')
 
+        self._add_resource(r.allele.AlleleListResource,
+                           '/api/v1/alleles/',
+                           '/api/v1/alleles/<list:allele_ids>')
+
         self._add_resource(r.alleleassessment.AlleleAssessmentResource,
                            '/api/v1/alleleassessments/<int:aa_id>/')
 
@@ -61,10 +65,6 @@ class ApiV1(object):
 
         self._add_resource(r.allelereport.AlleleReportResource,
                            '/api/v1/allelereports/<int:ar_id>/')
-
-        self._add_resource(r.allele.AlleleListResource,
-                           '/api/v1/alleles/',
-                           '/api/v1/alleles/<list:allele_ids>')
 
         self._add_resource(r.allele.AlleleGenepanelListResource,
                            '/api/v1/alleles/<int:allele_id>/genepanels/')
@@ -90,11 +90,14 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisActionReopenResource,
                            '/api/v1/analyses/<int:analysis_id>/actions/reopen/')
 
+        self._add_resource(r.customannotation.CustomAnnotationList,
+                           '/api/v1/customannotations/')
+
         self._add_resource(r.config.ConfigResource,
                            '/api/v1/config/')
 
-        self._add_resource(r.customannotation.CustomAnnotationList,
-                           '/api/v1/customannotations/')
+        self._add_resource(r.genepanel.GenepanelResource,
+                           '/api/v1/genepanels/<name>/<version>/')
 
         self._add_resource(r.interpretation.InterpretationResource,
                            '/api/v1/interpretations/<int:interpretation_id>/')
@@ -116,6 +119,3 @@ class ApiV1(object):
 
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
-
-        self._add_resource(r.genepanel.GenepanelResource,
-                           '/api/v1/genepanels/<name>/<version>/')

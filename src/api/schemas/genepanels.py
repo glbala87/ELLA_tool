@@ -3,12 +3,14 @@ from marshmallow import fields, Schema
 
 class GeneSchema(Schema):
     class Meta:
+        title = 'Gene'
         fields = ('hugo_symbol',
                   'ensembl_gene_id')
 
 
 class TranscriptSchema(Schema):
     class Meta:
+        title = "Transcript"
         fields = ('refseq_name',
                   'ensembl_id',
                   'genome_reference',
@@ -27,6 +29,7 @@ class TranscriptSchema(Schema):
 
 class PhenotypeSchema(Schema):
     class Meta:
+        title = "Phenotype"
         fields = ('id',
                   'genepanel_name',
                   'genepanel_version',
@@ -43,6 +46,8 @@ class PhenotypeSchema(Schema):
 
 class GenepanelSchema(Schema):
     class Meta:
+        title = "Genepanel"
+        description = 'Panel of genes connected to a certain analysis'
         fields = ('name',
                   'version',
                   'transcripts',

@@ -94,8 +94,36 @@ class AlleleAssessmentListResource(Resource):
         If any AlleleAssessment exists already for the same allele, it will be marked as superceded.
 
         **If assessment should be created as part of finalizing an analysis, check the `analyses/{id}/finalize` resource instead.**
+
+        POST data example:
+        ```
+        {
+            # New assessment will be created, superceding any old one
+            "user_id": 1,
+            "allele_id": 2,
+            "classification": "3",
+            "evaluation": {...data...},
+            "analysis_id": 3,  # Optional, should be given when assessment is made in context of analysis
+            "genepanel_name": "HBOC", # Optional only if analysis_id provided
+            "genepanel_version": "v01", # Optional only if analysis_id provided
+            "referenceassessments": [  # Optional
+                {
+                    "allele_id": 2,
+                    "analysis_id": 3,
+                    "evaluation": {...data...}
+                },
+                {
+                    "analysis_id": 3,
+                    "allele_id": 2,
+                    "id": 3  # Reuse existing referenceassessment, but link it to this alleleassessment
+                }
+            ]
+        }
+        ```
+        Provided data can also be a list of items.
+
         ---
-        summary: Create AlleleAssessment
+        summary: Create alleleassessment
         tags:
           - AlleleAssessment
         parameters:
@@ -191,37 +219,7 @@ class AlleleAssessmentListResource(Resource):
                 $ref: '#/definitions/AlleleAssessment'
             description: List of created alleleassessments
         """
-        """
-        Creates a new AlleleAssessment for a provided allele_id.
 
-        If created as part of finalizing an analysis, check the analysis resource instead.
-
-        Data example:
-        {
-            # New assessment will be created, superceding any old one
-            "user_id": 1,
-            "allele_id": 2,
-            "classification": "3",
-            "evaluation": {...data...},
-            "analysis_id": 3,  # Optional, should be given when assessment is made in context of analysis
-            "genepanel_name": "HBOC", # Optional only if analysis_id provided
-            "genepanel_version": "v01", # Optional only if analysis_id provided
-            "referenceassessments": [  # Optional
-                {
-                    "allele_id": 2,
-                    "analysis_id": 3,
-                    "evaluation": {...data...}
-                },
-                {
-                    "analysis_id": 3,
-                    "allele_id": 2,
-                    "id": 3  # Reuse existing referenceassessment, but link it to this alleleassessment
-                }
-            ]
-        }
-
-        Provided data can also be a list of items.
-        """
         if not isinstance(data, list):
             data = [data]
 

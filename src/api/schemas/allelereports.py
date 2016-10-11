@@ -11,6 +11,8 @@ ma = Marshmallow(app)
 
 class AlleleReportSchema(Schema):
     class Meta:
+        title = "AlleleReport"
+        description = 'Represents a clinical report for one allele'
         fields = ('id',
                   'date_last_update',
                   'date_superceeded',

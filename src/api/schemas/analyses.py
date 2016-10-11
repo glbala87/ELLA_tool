@@ -3,14 +3,19 @@ from marshmallow import fields, Schema
 
 class SampleSchema(Schema):
     class Meta:
+        title = "Sample"
+        description = 'Represents one sample. There can be many samples per analysis.'
         fields = ('id',
                   'identifier',
                   'sample_type',
                   'deposit_date',
                   'sample_config')
 
+
 class UserSchema(Schema):
     class Meta:
+        title = "User"
+        description = 'User data'
         fields = ('id',
                   'username',
                   'first_name',
@@ -20,6 +25,8 @@ class UserSchema(Schema):
 
 class GenepanelSchema(Schema):
     class Meta:
+        title = "Genepanel"
+        description = 'Panel of genes connected to a certain analysis'
         fields = ('name',
                   'version')
         skip_missing = True
@@ -27,6 +34,8 @@ class GenepanelSchema(Schema):
 
 class AnalysisInterpretationSchema(Schema):
     class Meta:
+        title = "Interpretation"
+        description = 'Represents one round of interpretation of an analysis'
         fields = ('id',
                   'status',
                   'date_last_update',
@@ -38,6 +47,8 @@ class AnalysisInterpretationSchema(Schema):
 
 class AnalysisSchema(Schema):
     class Meta:
+        title = "Analysis"
+        description = 'Represents one analysis'
         fields = ('id',
                   'name',
                   'deposit_date',
