@@ -10,8 +10,8 @@ updating old references.
 """
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-TEST_DATABASE = os.path.join(SCRIPT_DIR, '../testdata/references.json')
-BATCH_SIZE = 10  # Determine number of references to query at a time
+TEST_DATABASE = os.path.join(SCRIPT_DIR, '../testdata/references_test.json')
+BATCH_SIZE = 200  # Determine number of references to query at a time
 log = logging.getLogger(__name__)
 
 
