@@ -115,7 +115,7 @@ class PubMedFetcher(object):
 
         return pmids.split()
 
-    def get_references_from_file(self, pmid_file='pubmed_ids_all.txt',
+    def get_references_from_file(self, pmid_files=[],
                                  dump_json=False,
                                  replace_json=False,
                                  print_verbose=True,
@@ -130,9 +130,14 @@ class PubMedFetcher(object):
         :param return_references: Return list of refs
         :return : Return list of refs if return_references is 'True'
         """
-        pmids = self.import_pmids(pmid_file)
+        if not hasattr(pmid_files, '__iter__'):  # Ensure iterable pmid_file
+            pmid_files = [pmid_files]
 
-        return self.get_references(pmid=pmids, dump_json=dump_json,
+        pmids = set([])
+        for pmid_file in pmid_files:
+            pmids |= set(self.import_pmids(pmid_file))
+
+        return self.get_references(pmid=list(pmids), dump_json=dump_json,
                                    replace_json=replace_json,
                                    print_verbose=print_verbose,
                                    json_file=json_file,
@@ -260,7 +265,7 @@ def main(sys_args):
                         level=logging.DEBUG)
 
     parser = argparse.ArgumentParser(description="Get references for PubMed IDs")
-    parser.add_argument('-i', '--pmid_file', type=str,
+    parser.add_argument('-i', '--pmid_files', type=str, nargs='*',
                         default=argparse.SUPPRESS,
                         help='file containing PubMed IDs')
     parser.add_argument('-o', '--json_file', type=str, nargs='?',
@@ -281,7 +286,7 @@ def main(sys_args):
     logging.debug("Argparse arguments: %s" % vars(args))
 
     pm = PubMedFetcher()
-    if hasattr(args, 'pmid_file'):
+    if hasattr(args, 'pmid_files'):
         references = pm.get_references_from_file(**vars(args))
     elif hasattr(args, 'pmid'):
         references = pm.get_references(**vars(args))
