@@ -1507,4 +1507,329 @@
     </PubmedData>
 </PubmedArticle>
 
+
+<PubmedBookArticle>
+    <BookDocument>
+        <PMID Version="1">24432435</PMID>
+        <ArticleIdList>
+            <ArticleId IdType="bookaccession">NBK179201</ArticleId>
+        </ArticleIdList>
+        <Book>
+            <Publisher>
+                <PublisherName>Agency for Healthcare Research and Quality (US)</PublisherName>
+                <PublisherLocation>Rockville (MD)</PublisherLocation>
+            </Publisher>
+            <BookTitle book="es101">Risk Assessment, Genetic Counseling, and Genetic Testing for BRCA-Related Cancer: Systematic Review to Update the U.S. Preventive Services Task Force Recommendation</BookTitle>
+            <PubDate>
+                <Year>2013</Year>
+                <Month>12</Month>
+            </PubDate>
+            <AuthorList Type="authors">
+                <Author>
+                    <LastName>Nelson</LastName>
+                    <ForeName>Heidi D</ForeName>
+                    <Initials>HD</Initials>
+                </Author>
+                <Author>
+                    <LastName>Fu</LastName>
+                    <ForeName>Rongwei</ForeName>
+                    <Initials>R</Initials>
+                </Author>
+                <Author>
+                    <LastName>Goddard</LastName>
+                    <ForeName>Katrina</ForeName>
+                    <Initials>K</Initials>
+                </Author>
+                <Author>
+                    <LastName>Mitchell</LastName>
+                    <ForeName>Jennifer Priest</ForeName>
+                    <Initials>JP</Initials>
+                </Author>
+                <Author>
+                    <LastName>Okinaka-Hu</LastName>
+                    <ForeName>Leila</ForeName>
+                    <Initials>L</Initials>
+                </Author>
+                <Author>
+                    <LastName>Pappas</LastName>
+                    <ForeName>Miranda</ForeName>
+                    <Initials>M</Initials>
+                </Author>
+                <Author>
+                    <LastName>Zakher</LastName>
+                    <ForeName>Bernadette</ForeName>
+                    <Initials>B</Initials>
+                </Author>
+            </AuthorList>
+            <CollectionTitle book="hsevidsyncollect">U.S. Preventive Services Task Force Evidence Syntheses, formerly Systematic Evidence Reviews</CollectionTitle>
+            <Medium>Internet</Medium>
+            <ReportNumber>Report No.: 12-05164-EF-1</ReportNumber>
+        </Book>
+        <Language>eng</Language>
+        <PublicationType UI="D016454">Review</PublicationType>
+        <Abstract>
+            <AbstractText Label="PURPOSE">To review new evidence on the benefits and harms of risk assessment, genetic counseling, and genetic testing for BRCA-related cancer in women for the U.S. Preventive Services Task Force.</AbstractText>
+            <AbstractText Label="DATA SOURCES">MEDLINE and PsycINFO (January 2002 to December 31, 2012), Cochrane Central Register of Controlled Trials and Cochrane Database of Systematic Reviews (4th Quarter 2012), Scopus, and reference lists were searched for English-language studies of benefits and harms of risk assessment, genetic counseling, genetic testing, and interventions to reduce BRCA-related cancer and mortality.</AbstractText>
+            <AbstractText Label="DATA SYNTHESIS">Thirteen general risk models, such as the Gail model, are modest predictors of individual risk for breast cancer (c-statistic, 0.55 to 0.65). Five familial risk models for nongenetics specialists to guide referrals to genetic counseling accurately predict individual risk for BRCA mutations (c-statistic, &gt;0.80). No studies reported harms of risk assessment. Sixteen studies indicated that genetic counseling decreases cancer worry, anxiety, and depression; increases the accuracy of risk perception; and decreases intention for mutation testing. Thirty-two new studies and 38 earlier studies provided data for meta-analysis estimates of the prevalence and penetrance of BRCA mutations. Prevalence varies by population: 0.2 to 0.3 percent in general populations, 3 percent in women with breast cancer, 6 percent in women with breast cancer onset before age 40 years, 10 percent in women with ovarian cancer, and 20 percent in high-risk families. Among Ashkenazi Jewish women, prevalence is 2 percent in unselected populations and 10 percent in high-risk families. The penetrance of BRCA mutations differs by test result. Breast cancer penetrance to age 70 years if the test is positive is 46 to 71 percent for BRCA1 or BRCA2; ovarian cancer penetrance is 41 to 46 percent for BRCA1 and 17 to 23 percent for BRCA2. No estimates were available for women with variants of uncertain significance. The standardized incidence rate for breast cancer is 3.81 (95% CI, 3.06 to 4.75) for uninformative negative test results and 1.13 (95% CI, 0.81 to 1.58) for true negative results. Estimates for ovarian cancer were highly heterogeneous. Breast cancer worry and anxiety increased after testing in women with positive results and decreased in others, although results differed across studies. Risk perception improved after receiving test results. No trials of the effectiveness of intensive screening for breast or ovarian cancer in women who are mutation carriers have been published. False-positive rates, unnecessary imaging, and unneeded surgery were higher in women undergoing intensive screening. Most women experienced no anxiety after screening with magnetic resonance imaging, mammography, or clinical breast examination, although women recalled for additional testing had transient anxiety. There are no trials of risk-reducing medications specifically in women who are mutation carriers. Tamoxifen and raloxifene reduced invasive breast cancer by 30 to 68 percent in placebo-controlled trials enrolling women with various levels of risk; tamoxifen had a greater effect than raloxifene in a head-to-head trial. Results suggested that reduction was greater in women with more relatives with breast cancer, but confidence intervals overlapped and results were not specific for women who are mutation carriers. Tamoxifen and raloxifene increased thromboembolic events and tamoxifen increased endometrial cancer and cataracts. In high-risk women and women who are mutation carriers, risk-reducing mastectomy reduced breast cancer by 85 to 100 percent and breast cancer mortality by 81 to 100 percent; risk-reducing salpingo-oophorectomy reduced breast cancer by 37 to 100 percent, ovarian cancer by 69 to 100 percent, and all-cause mortality by 55 to 100 percent. Some women experienced physical complications of surgery, postsurgical symptoms, or changes in body image; some had improved anxiety.</AbstractText>
+            <AbstractText Label="LIMITATIONS">Including only English-language articles and studies applicable to the United States; varying number, quality, and applicability of studies.</AbstractText>
+            <AbstractText Label="CONCLUSIONS">Risk assessment using familial risk models to guide referrals is accurate. Genetic counseling reduces distress, improves risk perception, and reduces intention for testing. Genetic testing provides risk estimates for specific populations depending on test results. A true negative test indicates no increased risk for breast cancer. The effectiveness of intensive screening is not known, but it increases false-positive results and procedures. Tamoxifen and raloxifene reduce risk for breast cancer, but have adverse effects. Risk-reducing mastectomy and salpingo-oophorectomy are effective in reducing breast and ovarian cancer. Several evidence gaps remain and additional studies are necessary to better inform practice.</AbstractText>
+        </Abstract>
+        <Sections>
+            <Section>
+                <LocationLabel Type="chapter">1</LocationLabel>
+                <SectionTitle book="es101" part="ch1">INTRODUCTION</SectionTitle>
+            </Section>
+            <Section>
+                <LocationLabel Type="chapter">2</LocationLabel>
+                <SectionTitle book="es101" part="ch2">METHODS</SectionTitle>
+            </Section>
+            <Section>
+                <LocationLabel Type="chapter">3</LocationLabel>
+                <SectionTitle book="es101" part="ch3">RESULTS</SectionTitle>
+            </Section>
+            <Section>
+                <LocationLabel Type="chapter">4</LocationLabel>
+                <SectionTitle book="es101" part="ch4">DISCUSSION</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="references.rl1">REFERENCES</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="appa">Appendix A Referral Criteria and Definitions of Terms</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="appb">Appendix B Detailed Methods</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="appc">Appendix C Evidence Tables and Quality Tables</SectionTitle>
+            </Section>
+        </Sections>
+    </BookDocument>
+    <PubmedBookData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2014</Year>
+                <Month>1</Month>
+                <Day>17</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2014</Year>
+                <Month>1</Month>
+                <Day>17</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2014</Year>
+                <Month>1</Month>
+                <Day>17</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">24432435</ArticleId>
+        </ArticleIdList>
+    </PubmedBookData>
+</PubmedBookArticle>
+
+
+<PubmedBookArticle>
+    <BookDocument>
+        <PMID Version="1">20301425</PMID>
+        <ArticleIdList>
+            <ArticleId IdType="bookaccession">NBK1247</ArticleId>
+        </ArticleIdList>
+        <Book>
+            <Publisher>
+                <PublisherName>University of Washington, Seattle</PublisherName>
+                <PublisherLocation>Seattle (WA)</PublisherLocation>
+            </Publisher>
+            <BookTitle book="gene">GeneReviews(®)</BookTitle>
+            <PubDate>
+                <Year>1993</Year>
+            </PubDate>
+            <BeginningDate>
+                <Year>1993</Year>
+            </BeginningDate>
+            <EndingDate>
+                <Year>2016</Year>
+            </EndingDate>
+            <AuthorList Type="editors">
+                <Author>
+                    <LastName>Pagon</LastName>
+                    <ForeName>Roberta A</ForeName>
+                    <Initials>RA</Initials>
+                </Author>
+                <Author>
+                    <LastName>Adam</LastName>
+                    <ForeName>Margaret P</ForeName>
+                    <Initials>MP</Initials>
+                </Author>
+                <Author>
+                    <LastName>Ardinger</LastName>
+                    <ForeName>Holly H</ForeName>
+                    <Initials>HH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Wallace</LastName>
+                    <ForeName>Stephanie E</ForeName>
+                    <Initials>SE</Initials>
+                </Author>
+                <Author>
+                    <LastName>Amemiya</LastName>
+                    <ForeName>Anne</ForeName>
+                    <Initials>A</Initials>
+                </Author>
+                <Author>
+                    <LastName>Bean</LastName>
+                    <ForeName>Lora JH</ForeName>
+                    <Initials>LJH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Bird</LastName>
+                    <ForeName>Thomas D</ForeName>
+                    <Initials>TD</Initials>
+                </Author>
+                <Author>
+                    <LastName>Fong</LastName>
+                    <ForeName>Chin-To</ForeName>
+                    <Initials>CT</Initials>
+                </Author>
+                <Author>
+                    <LastName>Mefford</LastName>
+                    <ForeName>Heather C</ForeName>
+                    <Initials>HC</Initials>
+                </Author>
+                <Author>
+                    <LastName>Smith</LastName>
+                    <ForeName>Richard JH</ForeName>
+                    <Initials>RJH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Stephens</LastName>
+                    <ForeName>Karen</ForeName>
+                    <Initials>K</Initials>
+                </Author>
+            </AuthorList>
+            <Medium>Internet</Medium>
+        </Book>
+        <ArticleTitle book="gene" part="brca1">BRCA1 and BRCA2 Hereditary Breast and Ovarian Cancer</ArticleTitle>
+        <Language>eng</Language>
+        <AuthorList Type="authors">
+            <Author>
+                <LastName>Petrucelli</LastName>
+                <ForeName>Nancie</ForeName>
+                <Initials>N</Initials>
+            </Author>
+            <Author>
+                <LastName>Daly</LastName>
+                <ForeName>Mary B</ForeName>
+                <Initials>MB</Initials>
+            </Author>
+            <Author>
+                <LastName>Feldman</LastName>
+                <ForeName>Gerald L</ForeName>
+                <Initials>GL</Initials>
+            </Author>
+        </AuthorList>
+        <PublicationType UI="D016454">Review</PublicationType>
+        <Abstract>
+            <AbstractText Label="CLINICAL CHARACTERISTICS">Hereditary breast and ovarian cancer syndrome (HBOC), caused by a germline pathogenic variant in BRCA1 or BRCA2, is characterized by an increased risk for breast cancer, ovarian cancer, prostate cancer, and pancreatic cancer. The lifetime risk for these cancers in individuals with a pathogenic variant in BRCA1 or BRCA2: 40%-80% for breast cancer. 11%-40% for ovarian cancer. 1%-10% for male breast cancer. Up to 39% for prostate cancer. 1%-7% for pancreatic cancer. Individuals with BRCA2 pathogenic variants may also be at an increased risk for melanoma. Prognosis for BRCA1/2-related cancer depends on the stage at which the cancer is diagnosed; however, studies on survival have revealed conflicting results for individuals with germline BRCA1 or BRCA2 pathogenic variants when compared to controls.</AbstractText>
+            <AbstractText Label="DIAGNOSIS/TESTING">An increased likelihood of a BRCA1 or BRCA2 pathogenic variant is suspected on the basis of certain personal and family history characteristics and various clinical criteria. A diagnosis of HBOC is made following molecular genetic testing in an individual or family with a germline BRCA1 or BRCA2 pathogenic variant. No currently available technique can guarantee the identification of all cancer-predisposing allelic variants in BRCA1 or BRCA2. Furthermore, variants of uncertain clinical significance may be identified.</AbstractText>
+            <AbstractText Label="MANAGEMENT">Treatment of manifestations: Treatment of breast and ovarian cancer in individuals with BRCA1- or BRCA2-related tumors is similar to that for sporadic forms of these cancers; however, new classes of drugs that specifically target the BRCA1/2 signaling pathways are being studied. Prevention of primary manifestations: Prophylactic mastectomy and/or oophorectomy and chemoprevention using tamoxifen (a partial estrogen antagonist) have been used, but have not been assessed by randomized trials or case-control studies in high-risk women. Surveillance: Breast cancer screening in women and men relies on a combination of monthly breast self-examination, annual or semiannual clinical breast examination, annual mammography, and breast MRI. In 2007, the American Cancer Society (ACS) added annual breast MRI to their screening recommendations for individuals with a germline pathogenic variant in BRCA1 or BRCA2. Annual pelvic ultrasound and/or CA-125 concentration has not been effective in detecting early-stage ovarian cancer, either in high-risk or average-risk women. Prostate cancer screening relies on annual digital rectal examination and prostate-specific antigen (PSA) testing. Screening of asymptomatic individuals for pancreatic cancer is not generally recommended. In those with a germline pathogenic variant in BRCA2, annual clinical examinations of the skin and eye are recommended. Evaluation of relatives at risk: Once a cancer-predisposing BRCA1 or BRCA2 germline variant has been identified in a family, testing of at-risk relatives can identify those family members who also have the familial variant and thus need increased surveillance and early intervention when a cancer is identified.</AbstractText>
+            <AbstractText Label="GENETIC COUNSELING">Germline pathogenic variants in BRCA1 and BRCA2 are inherited in an autosomal dominant manner. The vast majority of individuals with a BRCA1 or BRCA2 pathogenic variant have inherited it from a parent. However, because of incomplete penetrance, variable age of cancer development, cancer risk reduction resulting from prophylactic surgery, or early death, not all individuals with a BRCA1 or BRCA2 pathogenic variant have a parent affected with cancer. Each offspring of an individual with a BRCA1 or BRCA2 germline pathogenic variant has a 50% chance of inheriting the variant. Prenatal testing is possible for pregnancies at increased risk if the cancer-predisposing variant in the family is known; however, requests for prenatal diagnosis of adult-onset diseases are uncommon and require careful genetic counseling.</AbstractText>
+            <CopyrightInformation>Copyright © 1993-2016, University of Washington, Seattle. All rights reserved.</CopyrightInformation>
+        </Abstract>
+        <Sections>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Summary">Summary</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Diagnosis">Diagnosis</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Clinical_Characteristics">Clinical Characteristics</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Genetically_Related_Allelic_Disord">Genetically Related (Allelic) Disorders</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Differential_Diagnosis">Differential Diagnosis</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Management">Management</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Genetic_Counseling">Genetic Counseling</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Resources">Resources</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Molecular_Genetics">Molecular Genetics</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.References">References</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Chapter_Notes">Chapter Notes</SectionTitle>
+            </Section>
+        </Sections>
+        <ContributionDate>
+            <Year>1998</Year>
+            <Month>9</Month>
+            <Day>4</Day>
+        </ContributionDate>
+        <DateRevised>
+            <Year>2013</Year>
+            <Month>9</Month>
+            <Day>26</Day>
+        </DateRevised>
+        <GrantList CompleteYN="Y">
+            <Grant>
+                <GrantID>HHSN276201400262U</GrantID>
+                <Acronym>LM</Acronym>
+                <Agency>NLM NIH HHS</Agency>
+                <Country>United States</Country>
+            </Grant>
+        </GrantList>
+        <ItemList ListType="Synonyms">
+            <Item>HBOC</Item>
+        </ItemList>
+    </BookDocument>
+    <PubmedBookData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>26</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>26</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2010</Year>
+                <Month>3</Month>
+                <Day>20</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">20301425</ArticleId>
+        </ArticleIdList>
+    </PubmedBookData>
+</PubmedBookArticle>
+
 </PubmedArticleSet>

@@ -22,8 +22,8 @@ Tested formatting:
 
 
 # The Pubmed IDs that are used for testing
-TEST_PMIDS = map(str, [11485765, 8896564, 21574009, 24122059,
-                       23374456, 21550946, 16160809, 24891336])
+TEST_PMIDS = [11485765, 8896564, 21574009, 24122059,
+              23374456, 21550946, 16160809, 24891336, 24432435, 20301425]
 # Contains xml of Entrez query for TEST_PMIDS
 TESTFILE = path.join(path.dirname(__file__),
                      'test_data/test_refs_from_pubmed.xml')
@@ -42,7 +42,7 @@ def provide_generator_of_articles():
 
     pmparser = pubmed_parser.PubMedParser()
 
-    for pubmed_article in articles_set.findall("./PubmedArticle"):
+    for pubmed_article in articles_set.findall("./*"):
         yield pmparser.parse_pubmed_article(pubmed_article)
 
 
@@ -96,3 +96,15 @@ def test_parse_pubmed_article(test_references):
         assert reference['journal'] == 'Arthritis & rheumatology (Hoboken, N.J.): 66(9), 2621-7.'
     else:
         print(reference)
+    if 24432435 == reference['pubmed_id']:
+        # Test title of entire book
+        assert reference['title'] == 'Risk Assessment, Genetic Counseling, and Genetic Testing for BRCA-Related Cancer: Systematic Review to Update the U.S. Preventive Services Task Force Recommendation'
+        # Test 'journal' name which is an entire book
+        assert reference['journal'] == 'Agency for Healthcare Research and Quality (US), Rockville (MD).'
+        # Test 'year' of Book class
+        assert reference['year'] == '2013'
+    if 24432425 == reference['pubmed_id']:
+        # Test title which is an article in a book of articles
+        assert reference['title'] == 'BRCA1 and BRCA2 Hereditary Breast and Ovarian Cancer'
+        # Test 'journal' name which is a book of articles
+        assert reference['journal'] == 'In: Pagon RA et al. (eds)., GeneReviews(\xae), University of Washington, Seattle, Seattle (WA).'
