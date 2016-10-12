@@ -14,6 +14,7 @@ import "./recompile.directive";
 import "./modals/addExcludedAllelesModal.service";
 import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
+import "./modals/annotateVCFFileModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
 import "./modals/igvModal.service";
