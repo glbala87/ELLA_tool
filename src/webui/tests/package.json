@@ -1,0 +1,23 @@
+{
+  "name": "ella-protractor-exploration",
+    "version": "0.0.2",
+    "description": "The modules needed to run protractor (in case you want to do this outside the normal Docker test setup",
+    "dependencies": {
+	"protractor": "3.0.0",
+	"babel-plugin-transform-decorators-legacy": "1.3.4",
+	"babel-preset-stage-0": "6.5.0",
+	"babel-preset-es2015": "6.5.0",
+	"babel-core": "6.9.1",
+	"jasmine-spec-reporter": "2.5.0",
+	"jasmine-core": "2.4.1"
+    },
+    "scripts": {
+	  "init": "webdriver-manager update",
+	  "protractor": "protractor",
+      "repl": "protractor --elementExplorer --directConnect",
+      "e2e": "protractor protractor.conf.standalone.js "
+    },
+  "author": "Erik Severinsen",
+  "license": "All rights reserved",
+  "private": true
+}

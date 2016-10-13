@@ -58,27 +58,34 @@ To clean up docker containers when e2e tests fail: `make cleanup-e2e BRANCH=test
 # Protractor - e2e testing tool
 Protractor is an Angular friendly wrapper around WebDriver. 
 See http://www.protractortest.org
-  
+
+The e2e tests usually run in Docker (see the Makefile) and modules are found in the node_modules folder inside Docker.
+If you want to run it outside Docker, we'll create a node_modules folder inside our src/webui/tests folder.
+This allows node to find the required modules/classes in 'node_modules' and our src/webui/tests folder.
+
 ## Setup
-- Create a separate folder outside the Ella source repo.
-- Copy ops/dev/package-protractor.json to package.json
-- Install node modules: `npm install`
-- Install selenium. `npm run-script init`
+In src/webui/tests:
+- Run `npm install` to install modules
+- Then `npm run-script init` to install selenium/webdriver
 
-A npm script 'protractor' in package.json ensures that the locally installed binaries in node_modules are used.
-Running bare `protractor` will use your globally installed protractor (if you have one) and could cause 'library not found'-errors.
+Several scripts are defined in package.json. Having this indirection ensures that the locally installed binaries in node_modules are used.
+Running bare `protractor` (as opposed to `npm run-script protractor`) will use your globally installed protractor (if you have one) and could cause 'library not found'-errors.
+There are several scripts in package.json that calls protractor with a few hardcoded arguments. Use the script `protractor` if you want to call protractor with your arguments of choice.
+All arguments after '--' are passed to the script. So `npm run-script myScript -- --myOption cool` will run 'myScript' passing it '--myOption cool'.
 
-## Explore
+
+## Interact with webpage:
 Start a Repl:	
-`npm run-script protractor --  --elementExplorer --directConnect --baseUrl <url to your running app>`
+`npm run-script repl --  --baseUrl <url to your running app>`
 
-Try out protractor/WebDriver selectors and commands before putting them in your spec files.
+This opens a new Chrome window with the baseUrl. In the terminal a repl is started where you interact with the webpage using protractor/WebDriver selectors and commands. Once you have found the proper selectors and commands
+put them in a spec file so are run in CI later.
 This works for an Angular app only.
 
 
 ## Run e2e test
 If the tests fail in CI, it can be useful to run them locally:
-`npm run-script protractor -- <path to protractor conf file> --specs <path to you spec file> --baseUrl <url of your running app>`
-This automatically launches a Selenium server (the one installed through the `run-script-init` or `webdriver-manager update` command).
+`npm run-script e2e -- --specs tests/<your spec file> --baseUrl <url of your running app>`
+This automatically launches a Selenium server (the one installed through the  above setup).
 
 See https://github.com/angular/protractor/blob/master/docs/debugging.md
