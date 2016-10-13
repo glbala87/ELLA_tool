@@ -97,7 +97,7 @@ class PubMedFetcher(object):
         :param references: list of reference dictionaries
         :return : Prints the references nicely to screen
         """
-        print_pattern = u"PubMedID {pmid}\n{title}\n{authors}\n{journal}\n{year}\n"
+        print_pattern = u"PubMedID {pubmed_id}\n{title}\n{authors}\n{journal}\n{year}\n"
         print_pattern_abstract = u"{abstract}"
         for ref in references:
             print(print_pattern.format(**ref))
@@ -245,7 +245,7 @@ class PubMedFetcher(object):
         pmids = map(str, pmids)  # In case pmids are not strings
 
         xml_pmids = [xml_pmid.text for xml_pmid in
-                     xml_tree.findall("./PubmedArticle/MedlineCitation/PMID")]
+                     xml_tree.findall(".//PMID")]
 
         pmids_not_in_db = list(set(pmids)-set(xml_pmids))
         if len(pmids_not_in_db):
