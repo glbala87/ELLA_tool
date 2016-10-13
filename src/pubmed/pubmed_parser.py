@@ -186,7 +186,7 @@ class PubMedParser(object):
         :param patterns: dict containing elements of a publisher
         :param editors: Formatted string of editors
         :param title_book: Book title of article collection
-        :return : formatted journal reference
+        :return : formatted book reference, same fields as article reference
         """
         # Determine if article is a book or in collection
         if any([editors, title_book]):

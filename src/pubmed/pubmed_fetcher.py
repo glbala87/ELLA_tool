@@ -46,7 +46,7 @@ class PubMedFetcher(object):
     def query_entrez(self, pmid):
         """
         :param pmid: One or more PubMed IDs
-        :return xml_raw: XML entries of PubMed database as string
+        :return : XML entries of PubMed database as string
         """
         url_pattern = "{base_url}efetch.fcgi?db={db}&id={pmid}&retmode=xml"
 
@@ -93,9 +93,8 @@ class PubMedFetcher(object):
                 f.write('\n')
 
     def print_references(self, references):
-        """
+        """ Prints the references nicely to screen
         :param references: list of reference dictionaries
-        :return : Prints the references nicely to screen
         """
         print_pattern = u"PubMedID {pubmed_id}\n{title}\n{authors}\n{journal}\n{year}\n"
         print_pattern_abstract = u"{abstract}"
@@ -211,7 +210,7 @@ class PubMedFetcher(object):
     def get_references_core(self, pmid):
         """
         :param pmid: Pubmed IDs (Either one or a list)
-        :return references: List of reference dictionaries
+        :return : List of references as dictionaries
         """
         try:
             xml_raw = self.query_entrez(pmid)
@@ -253,12 +252,12 @@ class PubMedFetcher(object):
             log.warning(w_msg % ', '.join(pmids_not_in_db))
 
 
-def main(sys_args):
+def main():
     """
     :param sys_args: Command line arguments
-    :return pm: instance of PubMedHandler
-    :return references: list of references (currently empty)
-    :return args: Namespace of parsed command line arguments
+    :return : tuple containing an instance of PubMedHandler,
+              a list of references (currently empty), and a
+              namespace of parsed command line arguments
     """
     LOG_FILENAME = path.join(path.dirname(__file__), 'log/fetcher.log')
     logging.basicConfig(filename=LOG_FILENAME, filemode='w',
@@ -295,5 +294,4 @@ def main(sys_args):
     return (pm, references, args)
 
 if __name__ == "__main__":
-    import sys
-    pm, references, args = main(sys.argv)
+    pm, references, args = main()

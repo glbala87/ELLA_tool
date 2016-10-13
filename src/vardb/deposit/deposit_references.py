@@ -10,7 +10,6 @@ updating old references.
 """
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-TEST_DATABASE = os.path.join(SCRIPT_DIR, '../testdata/references_test.json')
 BATCH_SIZE = 200  # Determine number of references to query at a time
 log = logging.getLogger(__name__)
 
@@ -18,24 +17,24 @@ log = logging.getLogger(__name__)
 def get_reference_batches(f):
     """
     :param f: Open file object with one json reference per line
-    :return reference_batch: list of dict references
+    :yield : list of dict references
     """
     # Initialize empty batch of references
     reference_batch = []
     # Get all full batches
-    for ref_no, reference in enumerate(f):
+    for reference in f:
         reference_as_dict = json.loads(reference)
         reference_batch.append(reference_as_dict)
-        if ref_no % BATCH_SIZE == (BATCH_SIZE-1):
+        if len(reference_batch) >= BATCH_SIZE:
             yield reference_batch
             reference_batch = []
 
     # Get partially filled batch
-    if reference_batch.__len__():
+    if reference_batch:
         yield reference_batch
 
 
-def import_references(session, filename=TEST_DATABASE):
+def import_references(session, filename):
     """
     :param session: an sqlalchemy 'session' of E||A database
     :param filename: a file with one json-formatted reference per line
@@ -51,15 +50,12 @@ def import_references(session, filename=TEST_DATABASE):
             existing_pmids = [ref.pubmed_id for ref in existing_references]
 
             for reference in reference_batch:
-                try:  # Try updating existing reference
-                    pmid = reference['pubmed_id']
-                    index_of_existing_pmid = existing_pmids.index(pmid)
-                    existing_reference = existing_references[index_of_existing_pmid]
+                existing_reference = next((er for er in existing_references if er.pubmed_id == reference['pubmed_id']), None)
+                if existing_reference:
                     log.info("Updating reference with PubmedID: %s" % reference['pubmed_id'])
                     for key, value in reference.iteritems():
                         setattr(existing_reference, key, value)
-                except ValueError as e:
-                    log.debug("Reference not in existing_pmids: %s" % e)
+                else:
                     log.info("Adding reference with PubmedID: %s" % reference['pubmed_id'])
                     session.add(assessment.Reference(**reference))
 
@@ -80,4 +76,4 @@ if __name__ == '__main__':
     # Import argparse, add CLI for getting path to JSON file.
     db = DB()
     db.connect()
-    import_references(db.session, filename=filename)
+    import_references(db.session, filename)
