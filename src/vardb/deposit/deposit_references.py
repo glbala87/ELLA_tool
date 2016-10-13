@@ -55,6 +55,7 @@ def import_references(session, filename=TEST_DATABASE):
                     pmid = reference['pubmed_id']
                     index_of_existing_pmid = existing_pmids.index(pmid)
                     existing_reference = existing_references[index_of_existing_pmid]
+                    log.info("Updating reference with PubmedID: %s" % reference['pubmed_id'])
                     for key, value in reference.iteritems():
                         setattr(existing_reference, key, value)
                 except ValueError as e:
