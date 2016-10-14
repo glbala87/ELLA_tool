@@ -1,0 +1,1835 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2016//EN" "http://www.ncbi.nlm.nih.gov/corehtml/query/DTD/pubmed_160101.dtd">
+<PubmedArticleSet>
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">11485765</PMID>
+        <DateCreated>
+            <Year>2001</Year>
+            <Month>08</Month>
+            <Day>03</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2001</Year>
+            <Month>09</Month>
+            <Day>13</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2013</Year>
+            <Month>11</Month>
+            <Day>21</Day>
+        </DateRevised>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Print">0021-5155</ISSN>
+                <JournalIssue CitedMedium="Print">
+                    <Volume>45</Volume>
+                    <Issue>4</Issue>
+                    <PubDate>
+                        <MedlineDate>2001 Jul-Aug</MedlineDate>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Japanese journal of ophthalmology</Title>
+                <ISOAbbreviation>Jpn. J. Ophthalmol.</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Peripherin/RDS gene mutation (Pro210Leu) and polymorphisms in Japanese patients with retinal dystrophies.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>355-8</MedlinePgn>
+            </Pagination>
+            <Abstract>
+                <AbstractText Label="PURPOSE" NlmCategory="OBJECTIVE">To determine the frequency of peripherin/RDS (retinal degeneration slow) gene mutations in Japanese patients with retinal dystrophies.</AbstractText>
+                <AbstractText Label="METHODS" NlmCategory="METHODS">We analyzed the peripherin/RDS gene in 54 unrelated Japanese patients with retinal dystrophies. Genomic DNA was amplified by polymerase chain reaction (PCR) and the PCR products were sequenced. We also examined 100 healthy subjects, seeking mutations or variations of the peripherin/RDS gene.</AbstractText>
+                <AbstractText Label="RESULTS" NlmCategory="RESULTS">Of the 54 Japanese patients, one with retinitis pigmentosa had a heterozygous C to T change at the second nucleotide at codon 210 of exon 2 (CCT to CTT/Pro210Leu) of the peripherin/RDS gene. None of the 100 individuals with normal fundi had the Pro210Leu mutation of the peripherin/RDS gene. Three variants of the peripherin/RDS gene (GTC to GTT/Val106Val, Glu304Gln, and Gly338Asp) were also found. The first variation (GTC to GTT/Val106Val) was silent. Two concurrent missense variations (Glu304Gln and Gly338Asp) were seen in 25.9% of the affected patients and in 29% of the healthy individuals.</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">A novel mutation (Pro210Leu) of the peripherin/RDS gene has been found in one Japanese patient with retinitis pigmentosa. The alterations of Val106Val, Glu304Gln, and Gly338Asp may be polymorphic variants in the Japanese population.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Budu</LastName>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Ophthalmology, Faculty of Medicine, Toyama Medical and Pharmaceutical University, Toyama, Japan.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hayasaka</LastName>
+                    <ForeName>S</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Matsumoto</LastName>
+                    <ForeName>M</ForeName>
+                    <Initials>M</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Yamada</LastName>
+                    <ForeName>T</ForeName>
+                    <Initials>T</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Zhang</LastName>
+                    <ForeName>X Y</ForeName>
+                    <Initials>XY</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hayasaka</LastName>
+                    <ForeName>Y</ForeName>
+                    <Initials>Y</Initials>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+            </PublicationTypeList>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>United States</Country>
+            <MedlineTA>Jpn J Ophthalmol</MedlineTA>
+            <NlmUniqueID>0044652</NlmUniqueID>
+            <ISSNLinking>0021-5155</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D005136">Eye Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D007381">Intermediate Filament Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D008562">Membrane Glycoproteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D009419">Nerve Tissue Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="C578994">PRPH protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D064531">Peripherins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="C578997">RDS protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>9DLQ4CIU6V</RegistryNumber>
+                <NameOfSubstance UI="D011392">Proline</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>GMW67QNF9C</RegistryNumber>
+                <NameOfSubstance UI="D007930">Leucine</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D004252">DNA Mutational Analysis</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D004596">Electroretinography</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005136">Eye Proteins</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005260">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D007381">Intermediate Filament Proteins</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" Type="Geographic" UI="D007564">Japan</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000453">epidemiology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D007930">Leucine</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008297">Male</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D008562">Membrane Glycoproteins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008875">Middle Aged</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D009419">Nerve Tissue Proteins</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D010375">Pedigree</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D064531">Peripherins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D017354">Point Mutation</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D016133">Polymerase Chain Reaction</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D011110">Polymorphism, Genetic</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D011392">Proline</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D012162">Retinal Degeneration</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000208">ethnology</QualifierName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2001</Year>
+                <Month>8</Month>
+                <Day>4</Day>
+                <Hour>10</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2001</Year>
+                <Month>9</Month>
+                <Day>14</Day>
+                <Hour>10</Hour>
+                <Minute>1</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2001</Year>
+                <Month>8</Month>
+                <Day>4</Day>
+                <Hour>10</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">11485765</ArticleId>
+            <ArticleId IdType="pii">S0021515501003343</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">8896564</PMID>
+        <DateCreated>
+            <Year>1996</Year>
+            <Month>12</Month>
+            <Day>16</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>1996</Year>
+            <Month>12</Month>
+            <Day>16</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2012</Year>
+            <Month>02</Month>
+            <Day>27</Day>
+        </DateRevised>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Print">1061-4036</ISSN>
+                <JournalIssue CitedMedium="Print">
+                    <Volume>14</Volume>
+                    <Issue>3</Issue>
+                    <PubDate>
+                        <Year>1996</Year>
+                        <Month>Nov</Month>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Nature genetics</Title>
+                <ISOAbbreviation>Nat. Genet.</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Positional cloning of the Fanconi anaemia group A gene.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>324-8</MedlinePgn>
+            </Pagination>
+            <Abstract>
+                <AbstractText>Fanconi anaemia (FA) is an autosomal recessive disorder associated with progressive bone-marrow failure, a variety of congenital abnormalities, and predisposition to acute myeloid leukaemia. Cells from FA patients show increased sensitivity to bifunctional DNA crosslinking agents such as diepoxybutane and mitomycin C, with characteristic chromosome breakage. FA is genetically heterogeneous, at least five different complementation groups (FA-A to FA-E) having been described. The gene for group C (FAC) was cloned by functional complementation and mapped to chromosome 9q22.3 (refs 3, 5), but the genes for the other complementation groups have not yet been identified. The group A gene (FAA) has recently been mapped to chromosome 16q24.3 by linkage analysis, and accounts for 60-65% of FA cases. We narrowed the candidate region by linkage and allelic association analysis, and have isolated a gene that is mutated in FA-A patients. The gene encodes a protein of 1,455 amino acids that has no significant homology to any other known proteins, and may therefore represent a new class of genes associated with the prevention or repair of DNA damage.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <CollectiveName>Fanconi anaemia/Breast cancer consortium</CollectiveName>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <DataBankList CompleteYN="Y">
+                <DataBank>
+                    <DataBankName>GENBANK</DataBankName>
+                    <AccessionNumberList>
+                        <AccessionNumber>R07212</AccessionNumber>
+                        <AccessionNumber>R07213</AccessionNumber>
+                        <AccessionNumber>R60950</AccessionNumber>
+                        <AccessionNumber>R61618</AccessionNumber>
+                    </AccessionNumberList>
+                </DataBank>
+            </DataBankList>
+            <GrantList CompleteYN="Y">
+                <Grant>
+                    <GrantID>E.0364</GrantID>
+                    <Agency>Telethon</Agency>
+                    <Country>Italy</Country>
+                </Grant>
+                <Grant>
+                    <GrantID>HL32987</GrantID>
+                    <Acronym>HL</Acronym>
+                    <Agency>NHLBI NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+            </GrantList>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+                <PublicationType UI="D013485">Research Support, Non-U.S. Gov't</PublicationType>
+                <PublicationType UI="D013486">Research Support, U.S. Gov't, Non-P.H.S.</PublicationType>
+                <PublicationType UI="D013487">Research Support, U.S. Gov't, P.H.S.</PublicationType>
+            </PublicationTypeList>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>UNITED STATES</Country>
+            <MedlineTA>Nat Genet</MedlineTA>
+            <NlmUniqueID>9216904</NlmUniqueID>
+            <ISSNLinking>1061-4036</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D018797">Cell Cycle Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D004268">DNA-Binding Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="C497651">FANCC protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D052218">Fanconi Anemia Complementation Group C Protein</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D051856">Fanconi Anemia Complementation Group Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D009687">Nuclear Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D011506">Proteins</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D000595">Amino Acid Sequence</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D001483">Base Sequence</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D018797">Cell Cycle Proteins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D002874">Chromosome Mapping</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D003001">Cloning, Molecular</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000379">methods</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D004268">DNA-Binding Proteins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005199">Fanconi Anemia</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000453">epidemiology</QualifierName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D052218">Fanconi Anemia Complementation Group C Protein</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D051856">Fanconi Anemia Complementation Group Proteins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D017353">Gene Deletion</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008040">Genetic Linkage</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006239">Haplotypes</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006579">Heterozygote</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008969">Molecular Sequence Data</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D009154">Mutation</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D009687">Nuclear Proteins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D016133">Polymerase Chain Reaction</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D018807">Polymorphism, Single-Stranded Conformational</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D011506">Proteins</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D017422">Sequence Analysis, DNA</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D014018">Tissue Distribution</DescriptorName>
+            </MeshHeading>
+        </MeshHeadingList>
+        <InvestigatorList>
+            <Investigator ValidYN="Y">
+                <LastName>Apostolou</LastName>
+                <ForeName>S</ForeName>
+                <Initials>S</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Whitmore</LastName>
+                <ForeName>S A</ForeName>
+                <Initials>SA</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Crawford</LastName>
+                <ForeName>J</ForeName>
+                <Initials>J</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Lennon</LastName>
+                <ForeName>G</ForeName>
+                <Initials>G</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Sutherland</LastName>
+                <ForeName>G R</ForeName>
+                <Initials>GR</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Callen</LastName>
+                <ForeName>D F</ForeName>
+                <Initials>DF</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Ianzano</LastName>
+                <ForeName>L</ForeName>
+                <Initials>L</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Savino</LastName>
+                <ForeName>M</ForeName>
+                <Initials>M</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>D'Apolito</LastName>
+                <ForeName>M</ForeName>
+                <Initials>M</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Notarangelo</LastName>
+                <ForeName>A</ForeName>
+                <Initials>A</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Memeo</LastName>
+                <ForeName>E</ForeName>
+                <Initials>E</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Piemontese</LastName>
+                <ForeName>M R</ForeName>
+                <Initials>MR</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Zelante</LastName>
+                <ForeName>L</ForeName>
+                <Initials>L</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Savino</LastName>
+                <ForeName>A</ForeName>
+                <Initials>A</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Gibson</LastName>
+                <ForeName>R A</ForeName>
+                <Initials>RA</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Tipping</LastName>
+                <ForeName>A J</ForeName>
+                <Initials>AJ</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Morgan</LastName>
+                <ForeName>N V</ForeName>
+                <Initials>NV</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Hassock</LastName>
+                <ForeName>S</ForeName>
+                <Initials>S</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Jansen</LastName>
+                <ForeName>S</ForeName>
+                <Initials>S</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>de Ravel</LastName>
+                <ForeName>T J</ForeName>
+                <Initials>TJ</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Van Berkel</LastName>
+                <ForeName>C</ForeName>
+                <Initials>C</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Pronk</LastName>
+                <ForeName>J C</ForeName>
+                <Initials>JC</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Easton</LastName>
+                <ForeName>D F</ForeName>
+                <Initials>DF</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Mathew</LastName>
+                <ForeName>C G</ForeName>
+                <Initials>CG</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Levran</LastName>
+                <ForeName>O</ForeName>
+                <Initials>O</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Verlander</LastName>
+                <ForeName>P C</ForeName>
+                <Initials>PC</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Batish</LastName>
+                <ForeName>S D</ForeName>
+                <Initials>SD</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Erlich</LastName>
+                <ForeName>T E</ForeName>
+                <Initials>TE</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Auerbach</LastName>
+                <ForeName>A D</ForeName>
+                <Initials>AD</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Cleton-Jansen</LastName>
+                <ForeName>A M</ForeName>
+                <Initials>AM</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Moerland</LastName>
+                <ForeName>E W</ForeName>
+                <Initials>EW</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Cornelisse</LastName>
+                <ForeName>C J</ForeName>
+                <Initials>CJ</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Doggett</LastName>
+                <ForeName>N A</ForeName>
+                <Initials>NA</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Deaven</LastName>
+                <ForeName>L L</ForeName>
+                <Initials>LL</Initials>
+            </Investigator>
+            <Investigator ValidYN="Y">
+                <LastName>Moyzis</LastName>
+                <ForeName>R K</ForeName>
+                <Initials>RK</Initials>
+            </Investigator>
+        </InvestigatorList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>1996</Year>
+                <Month>11</Month>
+                <Day>1</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2000</Year>
+                <Month>5</Month>
+                <Day>19</Day>
+                <Hour>9</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>1996</Year>
+                <Month>11</Month>
+                <Day>1</Day>
+                <Hour>0</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">8896564</ArticleId>
+            <ArticleId IdType="doi">10.1038/ng1196-324</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
+
+<PubmedArticle>
+    <MedlineCitation Status="Publisher" Owner="NLM">
+        <PMID Version="1">24122059</PMID>
+        <DateCreated>
+            <Year>2013</Year>
+            <Month>10</Month>
+            <Day>14</Day>
+        </DateCreated>
+        <DateRevised>
+            <Year>2015</Year>
+            <Month>4</Month>
+            <Day>12</Day>
+        </DateRevised>
+        <Article PubModel="Print-Electronic">
+            <Journal>
+                <ISSN IssnType="Electronic">1432-1459</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <PubDate>
+                        <Year>2013</Year>
+                        <Month>Oct</Month>
+                        <Day>12</Day>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Journal of neurology</Title>
+                <ISOAbbreviation>J. Neurol.</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Marked phenotypic variability in two siblings with congenital myasthenic syndrome due to mutations in MUSK.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn/>
+            </Pagination>
+            <AuthorList>
+                <Author>
+                    <LastName>Maggi</LastName>
+                    <ForeName>Lorenzo</ForeName>
+                    <Initials>L</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Neuroimmunology and Neuromuscular Diseases Unit, Foundation IRCCS Neurological Institute &quot;Carlo Besta&quot;, Via Celoria 11, 20133, Milan, Italy, lorenzo.maggi@istituto-besta.it.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author>
+                    <LastName>Brugnoni</LastName>
+                    <ForeName>R</ForeName>
+                    <Initials>R</Initials>
+                </Author>
+                <Author>
+                    <LastName>Scaioli</LastName>
+                    <ForeName>V</ForeName>
+                    <Initials>V</Initials>
+                </Author>
+                <Author>
+                    <LastName>Winden</LastName>
+                    <ForeName>T L</ForeName>
+                    <Initials>TL</Initials>
+                </Author>
+                <Author>
+                    <LastName>Morandi</LastName>
+                    <ForeName>L</ForeName>
+                    <Initials>L</Initials>
+                </Author>
+                <Author>
+                    <LastName>Engel</LastName>
+                    <ForeName>A G</ForeName>
+                    <Initials>AG</Initials>
+                </Author>
+                <Author>
+                    <LastName>Mantegazza</LastName>
+                    <ForeName>R</ForeName>
+                    <Initials>R</Initials>
+                </Author>
+                <Author>
+                    <LastName>Bernasconi</LastName>
+                    <ForeName>P</ForeName>
+                    <Initials>P</Initials>
+                </Author>
+            </AuthorList>
+            <Language>ENG</Language>
+            <GrantList>
+                <Grant>
+                    <GrantID>R01 NS006277</GrantID>
+                    <Acronym>NS</Acronym>
+                    <Agency>NINDS NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+            </GrantList>
+            <PublicationTypeList>
+                <PublicationType UI="">JOURNAL ARTICLE</PublicationType>
+            </PublicationTypeList>
+            <ArticleDate DateType="Electronic">
+                <Year>2013</Year>
+                <Month>10</Month>
+                <Day>12</Day>
+            </ArticleDate>
+        </Article>
+        <MedlineJournalInfo>
+            <MedlineTA>J Neurol</MedlineTA>
+            <NlmUniqueID>0423161</NlmUniqueID>
+            <ISSNLinking>0340-5354</ISSNLinking>
+        </MedlineJournalInfo>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="received">
+                <Year>2013</Year>
+                <Month>7</Month>
+                <Day>1</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="accepted">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>13</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="revised">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>13</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="aheadofprint">
+                <Year>2013</Year>
+                <Month>10</Month>
+                <Day>12</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2013</Year>
+                <Month>10</Month>
+                <Day>15</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2013</Year>
+                <Month>10</Month>
+                <Day>15</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2013</Year>
+                <Month>10</Month>
+                <Day>15</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>aheadofprint</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="doi">10.1007/s00415-013-7118-5</ArticleId>
+            <ArticleId IdType="pubmed">24122059</ArticleId>
+            <ArticleId IdType="pmc">PMC3984612</ArticleId>
+            <ArticleId IdType="mid">NIHMS566336</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="PubMed-not-MEDLINE">
+        <PMID Version="1">23374456</PMID>
+        <DateCreated>
+            <Year>2013</Year>
+            <Month>02</Month>
+            <Day>11</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2013</Year>
+            <Month>02</Month>
+            <Day>12</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2014</Year>
+            <Month>07</Month>
+            <Day>14</Day>
+        </DateRevised>
+        <Article PubModel="Electronic">
+            <Journal>
+                <ISSN IssnType="Electronic">1752-1947</ISSN>
+                <JournalIssue CitedMedium="Print">
+                    <Volume>7</Volume>
+                    <PubDate>
+                        <Year>2013</Year>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Journal of medical case reports</Title>
+                <ISOAbbreviation>J Med Case Rep</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Vascular-type Ehlers-Danlos syndrome caused by a hitherto unknown genetic mutation: a case report.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>35</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.1186/1752-1947-7-35</ELocationID>
+            <Abstract>
+                <AbstractText Label="UNLABELLED"/>
+                <AbstractText Label="INTRODUCTION" NlmCategory="BACKGROUND">Vascular-type Ehlers-Danlos syndrome is an autosomal dominant disease that causes arterial spurting, intestinal perforation, uterine rupture and hemopneumothorax due to decreased production of type III collagen. The average age at death is 48 years old, and it is considered to be the most severe form of Ehlers-Danlos syndrome. We report the case of a 64-year-old Japanese woman and her 38-year-old daughter who were diagnosed with this disease.</AbstractText>
+                <AbstractText Label="CASE PRESENTATION" NlmCategory="METHODS">A 64-year-old Japanese woman was referred to our hospital because of right anterior chest pain following cough and pharyngeal discomfort. Pleurisy was suspected due to the presence of right pleural effusion, so the next day she was referred to our department, where a detailed examination led to the diagnosis of hemothorax. The bleeding that caused the right hemothorax was difficult to control, so our patient was transferred to the Department of Thoracic Surgery for hemostasis control. Our patient's personal history of uterine hemorrhage and skin ulcers, as well as the finding of skin fragility during surgery, were indicative of a weak connective tissue disease; therefore, after improvement of the hemothorax, a genetic analysis was performed. This revealed a heterozygous missense mutation in COL3A1, c.2411 G&gt;T p.Gly804Val (exon 36). A detailed investigation conducted at a later date revealed that her daughter also had the same genetic mutation. This led to the diagnosis of vascular-type Ehlers-Danlos syndrome characterized by a new gene mutation.</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">We report a new genetic mutation associated with vascular-type Ehlers-Danlos syndrome. We present the clinical and imaging findings, and the disease and treatment course in this patient. We believe this information will be important in treating future cases of vascular-type Ehlers-Danlos syndrome in patients with this mutation.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Kashizaki</LastName>
+                    <ForeName>Fumihiro</ForeName>
+                    <Initials>F</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory Medicine, Yokohama Municipal Citizen's Hospital, 56 Okazawa-cho, Hodogaya-ku, Yokohama, Kanagawa, 240-8555, Japan. fk_respiratory@yahoo.co.jp.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hatamochi</LastName>
+                    <ForeName>Atsushi</ForeName>
+                    <Initials>A</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Kamiya</LastName>
+                    <ForeName>Kazunori</ForeName>
+                    <Initials>K</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Yoshizu</LastName>
+                    <ForeName>Akira</ForeName>
+                    <Initials>A</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Okamoto</LastName>
+                    <ForeName>Hiroaki</ForeName>
+                    <Initials>H</Initials>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+            </PublicationTypeList>
+            <ArticleDate DateType="Electronic">
+                <Year>2013</Year>
+                <Month>02</Month>
+                <Day>01</Day>
+            </ArticleDate>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>England</Country>
+            <MedlineTA>J Med Case Rep</MedlineTA>
+            <NlmUniqueID>101293382</NlmUniqueID>
+            <ISSNLinking>1752-1947</ISSNLinking>
+        </MedlineJournalInfo>
+        <CommentsCorrectionsList>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Histopathology. 2010 Jun;56(7):944-50</RefSource>
+                <PMID Version="1">20500229</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Am J Med Genet. 1998 Apr 28;77(1):31-7</RefSource>
+                <PMID Version="1">9557891</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Lancet. 2010 Oct 30;376(9751):1476-84</RefSource>
+                <PMID Version="1">20825986</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>N Engl J Med. 2000 Mar 9;342(10):673-80</RefSource>
+                <PMID Version="1">10706896</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Eur Respir J. 2002 Jan;19(1):195-8</RefSource>
+                <PMID Version="1">11843319</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Hum Mol Genet. 1994 Sep;3(9):1617-20</RefSource>
+                <PMID Version="1">7833919</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Intern Med. 2009;48(9):717-22</RefSource>
+                <PMID Version="1">19420820</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Intern Med. 2010;49(16):1797-800</RefSource>
+                <PMID Version="1">20720362</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>J Vasc Surg. 2005 Jul;42(1):98-106</RefSource>
+                <PMID Version="1">16012458</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Circ J. 2007 Feb;71(2):261-5</RefSource>
+                <PMID Version="1">17251678</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Orphanet J Rare Dis. 2007;2:32</RefSource>
+                <PMID Version="1">17640391</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>J Nippon Med Sch. 2008 Oct;75(5):254-61</RefSource>
+                <PMID Version="1">19023163</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Clin Genet. 1996 Dec;50(6):510-4</RefSource>
+                <PMID Version="1">9147885</PMID>
+            </CommentsCorrections>
+        </CommentsCorrectionsList>
+        <OtherID Source="NLM">PMC3567970</OtherID>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="received">
+                <Year>2012</Year>
+                <Month>8</Month>
+                <Day>1</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="accepted">
+                <Year>2012</Year>
+                <Month>11</Month>
+                <Day>28</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="aheadofprint">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>1</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>5</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>5</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>5</Day>
+                <Hour>6</Hour>
+                <Minute>1</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>epublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pii">1752-1947-7-35</ArticleId>
+            <ArticleId IdType="doi">10.1186/1752-1947-7-35</ArticleId>
+            <ArticleId IdType="pubmed">23374456</ArticleId>
+            <ArticleId IdType="pmc">PMC3567970</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">21550946</PMID>
+        <DateCreated>
+            <Year>2011</Year>
+            <Month>08</Month>
+            <Day>18</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2012</Year>
+            <Month>01</Month>
+            <Day>26</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2013</Year>
+            <Month>02</Month>
+            <Day>11</Day>
+        </DateRevised>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Electronic">1934-2403</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <Volume>17 Suppl 3</Volume>
+                    <PubDate>
+                        <MedlineDate>2011 Jul-Aug</MedlineDate>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Endocrine practice : official journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists</Title>
+                <ISOAbbreviation>Endocr Pract</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Preimplantation genetic diagnosis for hereditary endocrine disease.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>28-32</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.4158/EP11056.RA</ELocationID>
+            <Abstract>
+                <AbstractText Label="OBJECTIVE" NlmCategory="OBJECTIVE">To describe the process of preimplantation genetic diagnosis (PGD), which allows the selection of embryos without mutations for implantation, with specific application for mutations in GNAS.</AbstractText>
+                <AbstractText Label="METHODS" NlmCategory="METHODS">We identified a GNAS mutation in a patient with a severe form of Albright hereditary osteodystrophy and pseudohypoparathyroidism type 1a with phocomelia and performed PGD on embryos derived by in vitro fertilization in order to deliver an unaffected infant.</AbstractText>
+                <AbstractText Label="RESULTS" NlmCategory="RESULTS">After in vitro fertilization, embryos that were homozygous normal for GNAS were identified and implanted into the mother. Ultrasonography 34 days after embryo transfer showed a viable singleton intrauterine pregnancy. A normal-appearing male infant was born at 36.5 weeks of gestation. Newborn screening revealed normal results of thyroid function tests, and a buccal swab obtained when the child was 1 year old verified normal GNAS gene sequences.</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">PGD is an alternative that can be offered for many genetic diseases and represents a method to decrease and potentially eliminate the transmission of severe genetic diseases. Patients with multiple endocrine neoplasia (MEN) type 2 with known RET gene mutations as well as those with other heritable disorders are candidates for PGD. Successful PGD in patients with MEN has not yet been reported and has met with some early difficulties, but it is believed that this technique will eventually be successful for MEN and other hereditary endocrine disorders.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Lietman</LastName>
+                    <ForeName>Steven A</ForeName>
+                    <Initials>SA</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Orthopedic Surgery, Cleveland Clinic Foundation Department of Biomedical Engineering, Cleveland Clinic Lerner Research Institute, 9500 Euclid Avenue, Cleveland, OH 44195, USA. lietmas@ccf.org</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <GrantList CompleteYN="Y">
+                <Grant>
+                    <GrantID>K08-AR47661</GrantID>
+                    <Acronym>AR</Acronym>
+                    <Agency>NIAMS NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+                <Grant>
+                    <GrantID>R01-DE018237.</GrantID>
+                    <Acronym>DE</Acronym>
+                    <Agency>NIDCR NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+                <Grant>
+                    <GrantID>UL1 RR024989</GrantID>
+                    <Acronym>RR</Acronym>
+                    <Agency>NCRR NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+            </GrantList>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+                <PublicationType UI="D052061">Research Support, N.I.H., Extramural</PublicationType>
+                <PublicationType UI="D013485">Research Support, Non-U.S. Gov't</PublicationType>
+                <PublicationType UI="D016454">Review</PublicationType>
+            </PublicationTypeList>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>United States</Country>
+            <MedlineTA>Endocr Pract</MedlineTA>
+            <NlmUniqueID>9607439</NlmUniqueID>
+            <ISSNLinking>1530-891X</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>EC 3.6.1.-</RegistryNumber>
+                <NameOfSubstance UI="C406732">GNAS protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>EC 3.6.5.1</RegistryNumber>
+                <NameOfSubstance UI="D019205">GTP-Binding Protein alpha Subunits, Gs</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D004700">Endocrine System Diseases</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000175">diagnosis</QualifierName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005260">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D019205">GTP-Binding Protein alpha Subunits, Gs</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D011247">Pregnancy</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D019836">Preimplantation Diagnosis</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000379">methods</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2011</Year>
+                <Month>5</Month>
+                <Day>10</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2011</Year>
+                <Month>5</Month>
+                <Day>10</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2012</Year>
+                <Month>1</Month>
+                <Day>27</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pii">R38UQ1HQ9227Q5VU</ArticleId>
+            <ArticleId IdType="doi">10.4158/EP11056.RA</ArticleId>
+            <ArticleId IdType="pubmed">21550946</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">16160809</PMID>
+        <DateCreated>
+            <Year>2006</Year>
+            <Month>06</Month>
+            <Day>30</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2006</Year>
+            <Month>11</Month>
+            <Day>20</Day>
+        </DateCompleted>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Print">0017-6192</ISSN>
+                <JournalIssue CitedMedium="Print">
+                    <Volume>54</Volume>
+                    <Issue>7</Issue>
+                    <PubDate>
+                        <Year>2006</Year>
+                        <Month>Jul</Month>
+                    </PubDate>
+                </JournalIssue>
+                <Title>HNO</Title>
+                <ISOAbbreviation>HNO</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>[Unilateral sensineural deafness associated with mutations in the PAX3-gene in Waardenburg syndrome type I].</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>557-60</MedlinePgn>
+            </Pagination>
+            <Abstract>
+                <AbstractText>Waardenburg syndrome (WS) type 1 occurs due to a mutation in the PAX3-gene on the long arm of chromosome 2. It is an autosomal dominant mutation with highly variable expression and high penetrance. Symptoms include the absence of melanocytes in the skin, hair, eyes and cochlea due to an early developmental disturbance in melancoytes from the neural crest. An inner ear disturbance is characteristic. Here we present a 4 year old girl with unilateral hearing loss, dystopia canthorum and partial albinism. Screening the entire PAX 3 gene revealed C64A und T164A mutations in exon I und II, both being missense mutations. Neither mutation has not been reported previously.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Ptok</LastName>
+                    <ForeName>M</ForeName>
+                    <Initials>M</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Klinik und Poliklinik für Phoniatrie und Pädaudiologie, Medizinische Hochschule Hannover. ptok.martin@mh-hannover.de</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Morlot</LastName>
+                    <ForeName>S</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+            </AuthorList>
+            <Language>ger</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D002363">Case Reports</PublicationType>
+                <PublicationType UI="D004740">English Abstract</PublicationType>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+            </PublicationTypeList>
+            <VernacularTitle>Einseitige Innenohrschwerhörigkeit bei Mutationen im PAX3-Gen bei Waardenburg-Syndrom Typ I.</VernacularTitle>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>Germany</Country>
+            <MedlineTA>HNO</MedlineTA>
+            <NlmUniqueID>2985099R</NlmUniqueID>
+            <ISSNLinking>0017-6192</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D005819">Genetic Markers</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="C489409">PAX3 protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D051761">Paired Box Transcription Factors</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D002675">Child, Preschool</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D003638">Deafness</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000175">diagnosis</QualifierName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005260">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005819">Genetic Markers</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D020022">Genetic Predisposition to Disease</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006319">Hearing Loss, Sensorineural</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000175">diagnosis</QualifierName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D046088">Hearing Loss, Unilateral</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D009154">Mutation</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D051761">Paired Box Transcription Factors</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2005</Year>
+                <Month>9</Month>
+                <Day>15</Day>
+                <Hour>9</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2006</Year>
+                <Month>12</Month>
+                <Day>9</Day>
+                <Hour>9</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2005</Year>
+                <Month>9</Month>
+                <Day>15</Day>
+                <Hour>9</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="doi">10.1007/s00106-005-1315-1</ArticleId>
+            <ArticleId IdType="pubmed">16160809</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">24891336</PMID>
+        <DateCreated>
+            <Year>2014</Year>
+            <Month>08</Month>
+            <Day>27</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2014</Year>
+            <Month>10</Month>
+            <Day>28</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2016</Year>
+            <Month>05</Month>
+            <Day>11</Day>
+        </DateRevised>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Electronic">2326-5205</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <Volume>66</Volume>
+                    <Issue>9</Issue>
+                    <PubDate>
+                        <Year>2014</Year>
+                        <Month>Sep</Month>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Arthritis &amp; rheumatology (Hoboken, N.J.)</Title>
+            </Journal>
+            <ArticleTitle>Brief Report: Involvement of TNFRSF11A molecular defects in autoinflammatory disorders.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>2621-7</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.1002/art.38727</ELocationID>
+            <Abstract>
+                <AbstractText Label="OBJECTIVE" NlmCategory="OBJECTIVE">Autoinflammatory disorders are caused by a primary dysfunction of the innate immune system. Among these disorders are hereditary recurrent fevers, which are characterized by recurrent episodes of fever and inflammatory manifestations affecting multiple tissues. Hereditary recurrent fevers often lack objective diagnostic criteria, thereby hampering the identification of disease-causing genes. This study was undertaken to identify a gene responsible for hereditary recurrent fevers.</AbstractText>
+                <AbstractText Label="METHODS" NlmCategory="METHODS">Copy number variations and point mutations were sought by array-comparative genomic hybridization and polymerase chain reaction sequencing, respectively. Serum cytokine levels were measured using Luminex technology. The effect of TNFRSF11A molecular defects on NF-κB signaling in cells expressing wild-type and mutated forms of the receptor was evaluated by luciferase assay.</AbstractText>
+                <AbstractText Label="RESULTS" NlmCategory="RESULTS">A patient with multiple congenital anomalies and hereditary recurrent fever was found to carry a de novo heterozygous complex chromosomal rearrangement encompassing a duplication of TNFRSF11A, a gene known to regulate fever in rodents. We also identified a heterozygous frameshift mutation (p.Met416Cysfs*110) in TNFRSF11A in a mother and daughter with isolated hereditary recurrent fever. This mutation was associated with increased secretion of several inflammatory cytokines (tumor necrosis factor α [TNFα], interleukin-18 [IL-18], IL-1 receptor antagonist, interferon-γ) and altered the biologic effects of the receptor on NF-κB signaling. The disease in the patients described herein exhibits striking clinical similarities to TNF receptor-associated periodic syndrome, another hereditary recurrent fever involving a gene of the same family (TNFRSF1A).</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">The involvement of TNFRSF11A in hereditary recurrent fever highlights the key role of this receptor in innate immunity. The present results also suggest that TNFRSF11A screening could serve as a new diagnostic test for autoinflammatory disorders.</AbstractText>
+                <CopyrightInformation>Copyright © 2014 by the American College of Rheumatology.</CopyrightInformation>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Jéru</LastName>
+                    <ForeName>Isabelle</ForeName>
+                    <Initials>I</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>UMR S933, INSERM, Université Pierre et Marie Curie Paris 6, Hôpital Trousseau and AP-HP, Paris, France.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Cochet</LastName>
+                    <ForeName>Emmanuelle</ForeName>
+                    <Initials>E</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Duquesnoy</LastName>
+                    <ForeName>Philippe</ForeName>
+                    <Initials>P</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hentgen</LastName>
+                    <ForeName>Véronique</ForeName>
+                    <Initials>V</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Copin</LastName>
+                    <ForeName>Bruno</ForeName>
+                    <Initials>B</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Mitjavila-Garcia</LastName>
+                    <ForeName>Maria Teresa</ForeName>
+                    <Initials>MT</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Sheykholeslami</LastName>
+                    <ForeName>Shayan</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Le Borgne</LastName>
+                    <ForeName>Gaëlle</ForeName>
+                    <Initials>G</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Dastot-Le Moal</LastName>
+                    <ForeName>Florence</ForeName>
+                    <Initials>F</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Malan</LastName>
+                    <ForeName>Valérie</ForeName>
+                    <Initials>V</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Karabina</LastName>
+                    <ForeName>Sonia</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Mahevas</LastName>
+                    <ForeName>Mathieu</ForeName>
+                    <Initials>M</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Chantot-Bastaraud</LastName>
+                    <ForeName>Sandra</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Lecron</LastName>
+                    <ForeName>Jean-Claude</ForeName>
+                    <Initials>JC</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Faivre</LastName>
+                    <ForeName>Laurence</ForeName>
+                    <Initials>L</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Amselem</LastName>
+                    <ForeName>Serge</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+                <PublicationType UI="D013485">Research Support, Non-U.S. Gov't</PublicationType>
+            </PublicationTypeList>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>United States</Country>
+            <MedlineTA>Arthritis Rheumatol</MedlineTA>
+            <NlmUniqueID>101623795</NlmUniqueID>
+            <ISSNLinking>2326-5191</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D053246">Receptor Activator of Nuclear Factor-kappa B</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>AIM</CitationSubset>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D000328">Adult</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D002675">Child, Preschool</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D056915">DNA Copy Number Variations</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005260">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005838">Genotype</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D056660">Hereditary Autoinflammatory Diseases</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+                <QualifierName MajorTopicYN="N" UI="Q000378">metabolism</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D007113">Immunity, Innate</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008297">Male</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008875">Middle Aged</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D009154">Mutation</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D053246">Receptor Activator of Nuclear Factor-kappa B</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+                <QualifierName MajorTopicYN="N" UI="Q000378">metabolism</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="received">
+                <Year>2013</Year>
+                <Month>8</Month>
+                <Day>2</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="accepted">
+                <Year>2014</Year>
+                <Month>5</Month>
+                <Day>22</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2014</Year>
+                <Month>6</Month>
+                <Day>4</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2014</Year>
+                <Month>6</Month>
+                <Day>4</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2014</Year>
+                <Month>10</Month>
+                <Day>29</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="doi">10.1002/art.38727</ArticleId>
+            <ArticleId IdType="pubmed">24891336</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
+<PubmedBookArticle>
+    <BookDocument>
+        <PMID Version="1">24432435</PMID>
+        <ArticleIdList>
+            <ArticleId IdType="bookaccession">NBK179201</ArticleId>
+        </ArticleIdList>
+        <Book>
+            <Publisher>
+                <PublisherName>Agency for Healthcare Research and Quality (US)</PublisherName>
+                <PublisherLocation>Rockville (MD)</PublisherLocation>
+            </Publisher>
+            <BookTitle book="es101">Risk Assessment, Genetic Counseling, and Genetic Testing for BRCA-Related Cancer: Systematic Review to Update the U.S. Preventive Services Task Force Recommendation</BookTitle>
+            <PubDate>
+                <Year>2013</Year>
+                <Month>12</Month>
+            </PubDate>
+            <AuthorList Type="authors">
+                <Author>
+                    <LastName>Nelson</LastName>
+                    <ForeName>Heidi D</ForeName>
+                    <Initials>HD</Initials>
+                </Author>
+                <Author>
+                    <LastName>Fu</LastName>
+                    <ForeName>Rongwei</ForeName>
+                    <Initials>R</Initials>
+                </Author>
+                <Author>
+                    <LastName>Goddard</LastName>
+                    <ForeName>Katrina</ForeName>
+                    <Initials>K</Initials>
+                </Author>
+                <Author>
+                    <LastName>Mitchell</LastName>
+                    <ForeName>Jennifer Priest</ForeName>
+                    <Initials>JP</Initials>
+                </Author>
+                <Author>
+                    <LastName>Okinaka-Hu</LastName>
+                    <ForeName>Leila</ForeName>
+                    <Initials>L</Initials>
+                </Author>
+                <Author>
+                    <LastName>Pappas</LastName>
+                    <ForeName>Miranda</ForeName>
+                    <Initials>M</Initials>
+                </Author>
+                <Author>
+                    <LastName>Zakher</LastName>
+                    <ForeName>Bernadette</ForeName>
+                    <Initials>B</Initials>
+                </Author>
+            </AuthorList>
+            <CollectionTitle book="hsevidsyncollect">U.S. Preventive Services Task Force Evidence Syntheses, formerly Systematic Evidence Reviews</CollectionTitle>
+            <Medium>Internet</Medium>
+            <ReportNumber>Report No.: 12-05164-EF-1</ReportNumber>
+        </Book>
+        <Language>eng</Language>
+        <PublicationType UI="D016454">Review</PublicationType>
+        <Abstract>
+            <AbstractText Label="PURPOSE">To review new evidence on the benefits and harms of risk assessment, genetic counseling, and genetic testing for BRCA-related cancer in women for the U.S. Preventive Services Task Force.</AbstractText>
+            <AbstractText Label="DATA SOURCES">MEDLINE and PsycINFO (January 2002 to December 31, 2012), Cochrane Central Register of Controlled Trials and Cochrane Database of Systematic Reviews (4th Quarter 2012), Scopus, and reference lists were searched for English-language studies of benefits and harms of risk assessment, genetic counseling, genetic testing, and interventions to reduce BRCA-related cancer and mortality.</AbstractText>
+            <AbstractText Label="DATA SYNTHESIS">Thirteen general risk models, such as the Gail model, are modest predictors of individual risk for breast cancer (c-statistic, 0.55 to 0.65). Five familial risk models for nongenetics specialists to guide referrals to genetic counseling accurately predict individual risk for BRCA mutations (c-statistic, &gt;0.80). No studies reported harms of risk assessment. Sixteen studies indicated that genetic counseling decreases cancer worry, anxiety, and depression; increases the accuracy of risk perception; and decreases intention for mutation testing. Thirty-two new studies and 38 earlier studies provided data for meta-analysis estimates of the prevalence and penetrance of BRCA mutations. Prevalence varies by population: 0.2 to 0.3 percent in general populations, 3 percent in women with breast cancer, 6 percent in women with breast cancer onset before age 40 years, 10 percent in women with ovarian cancer, and 20 percent in high-risk families. Among Ashkenazi Jewish women, prevalence is 2 percent in unselected populations and 10 percent in high-risk families. The penetrance of BRCA mutations differs by test result. Breast cancer penetrance to age 70 years if the test is positive is 46 to 71 percent for BRCA1 or BRCA2; ovarian cancer penetrance is 41 to 46 percent for BRCA1 and 17 to 23 percent for BRCA2. No estimates were available for women with variants of uncertain significance. The standardized incidence rate for breast cancer is 3.81 (95% CI, 3.06 to 4.75) for uninformative negative test results and 1.13 (95% CI, 0.81 to 1.58) for true negative results. Estimates for ovarian cancer were highly heterogeneous. Breast cancer worry and anxiety increased after testing in women with positive results and decreased in others, although results differed across studies. Risk perception improved after receiving test results. No trials of the effectiveness of intensive screening for breast or ovarian cancer in women who are mutation carriers have been published. False-positive rates, unnecessary imaging, and unneeded surgery were higher in women undergoing intensive screening. Most women experienced no anxiety after screening with magnetic resonance imaging, mammography, or clinical breast examination, although women recalled for additional testing had transient anxiety. There are no trials of risk-reducing medications specifically in women who are mutation carriers. Tamoxifen and raloxifene reduced invasive breast cancer by 30 to 68 percent in placebo-controlled trials enrolling women with various levels of risk; tamoxifen had a greater effect than raloxifene in a head-to-head trial. Results suggested that reduction was greater in women with more relatives with breast cancer, but confidence intervals overlapped and results were not specific for women who are mutation carriers. Tamoxifen and raloxifene increased thromboembolic events and tamoxifen increased endometrial cancer and cataracts. In high-risk women and women who are mutation carriers, risk-reducing mastectomy reduced breast cancer by 85 to 100 percent and breast cancer mortality by 81 to 100 percent; risk-reducing salpingo-oophorectomy reduced breast cancer by 37 to 100 percent, ovarian cancer by 69 to 100 percent, and all-cause mortality by 55 to 100 percent. Some women experienced physical complications of surgery, postsurgical symptoms, or changes in body image; some had improved anxiety.</AbstractText>
+            <AbstractText Label="LIMITATIONS">Including only English-language articles and studies applicable to the United States; varying number, quality, and applicability of studies.</AbstractText>
+            <AbstractText Label="CONCLUSIONS">Risk assessment using familial risk models to guide referrals is accurate. Genetic counseling reduces distress, improves risk perception, and reduces intention for testing. Genetic testing provides risk estimates for specific populations depending on test results. A true negative test indicates no increased risk for breast cancer. The effectiveness of intensive screening is not known, but it increases false-positive results and procedures. Tamoxifen and raloxifene reduce risk for breast cancer, but have adverse effects. Risk-reducing mastectomy and salpingo-oophorectomy are effective in reducing breast and ovarian cancer. Several evidence gaps remain and additional studies are necessary to better inform practice.</AbstractText>
+        </Abstract>
+        <Sections>
+            <Section>
+                <LocationLabel Type="chapter">1</LocationLabel>
+                <SectionTitle book="es101" part="ch1">INTRODUCTION</SectionTitle>
+            </Section>
+            <Section>
+                <LocationLabel Type="chapter">2</LocationLabel>
+                <SectionTitle book="es101" part="ch2">METHODS</SectionTitle>
+            </Section>
+            <Section>
+                <LocationLabel Type="chapter">3</LocationLabel>
+                <SectionTitle book="es101" part="ch3">RESULTS</SectionTitle>
+            </Section>
+            <Section>
+                <LocationLabel Type="chapter">4</LocationLabel>
+                <SectionTitle book="es101" part="ch4">DISCUSSION</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="references.rl1">REFERENCES</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="appa">Appendix A Referral Criteria and Definitions of Terms</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="appb">Appendix B Detailed Methods</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="es101" part="appc">Appendix C Evidence Tables and Quality Tables</SectionTitle>
+            </Section>
+        </Sections>
+    </BookDocument>
+    <PubmedBookData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2014</Year>
+                <Month>1</Month>
+                <Day>17</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2014</Year>
+                <Month>1</Month>
+                <Day>17</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2014</Year>
+                <Month>1</Month>
+                <Day>17</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">24432435</ArticleId>
+        </ArticleIdList>
+    </PubmedBookData>
+</PubmedBookArticle>
+
+
+<PubmedBookArticle>
+    <BookDocument>
+        <PMID Version="1">20301425</PMID>
+        <ArticleIdList>
+            <ArticleId IdType="bookaccession">NBK1247</ArticleId>
+        </ArticleIdList>
+        <Book>
+            <Publisher>
+                <PublisherName>University of Washington, Seattle</PublisherName>
+                <PublisherLocation>Seattle (WA)</PublisherLocation>
+            </Publisher>
+            <BookTitle book="gene">GeneReviews(®)</BookTitle>
+            <PubDate>
+                <Year>1993</Year>
+            </PubDate>
+            <BeginningDate>
+                <Year>1993</Year>
+            </BeginningDate>
+            <EndingDate>
+                <Year>2016</Year>
+            </EndingDate>
+            <AuthorList Type="editors">
+                <Author>
+                    <LastName>Pagon</LastName>
+                    <ForeName>Roberta A</ForeName>
+                    <Initials>RA</Initials>
+                </Author>
+                <Author>
+                    <LastName>Adam</LastName>
+                    <ForeName>Margaret P</ForeName>
+                    <Initials>MP</Initials>
+                </Author>
+                <Author>
+                    <LastName>Ardinger</LastName>
+                    <ForeName>Holly H</ForeName>
+                    <Initials>HH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Wallace</LastName>
+                    <ForeName>Stephanie E</ForeName>
+                    <Initials>SE</Initials>
+                </Author>
+                <Author>
+                    <LastName>Amemiya</LastName>
+                    <ForeName>Anne</ForeName>
+                    <Initials>A</Initials>
+                </Author>
+                <Author>
+                    <LastName>Bean</LastName>
+                    <ForeName>Lora JH</ForeName>
+                    <Initials>LJH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Bird</LastName>
+                    <ForeName>Thomas D</ForeName>
+                    <Initials>TD</Initials>
+                </Author>
+                <Author>
+                    <LastName>Fong</LastName>
+                    <ForeName>Chin-To</ForeName>
+                    <Initials>CT</Initials>
+                </Author>
+                <Author>
+                    <LastName>Mefford</LastName>
+                    <ForeName>Heather C</ForeName>
+                    <Initials>HC</Initials>
+                </Author>
+                <Author>
+                    <LastName>Smith</LastName>
+                    <ForeName>Richard JH</ForeName>
+                    <Initials>RJH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Stephens</LastName>
+                    <ForeName>Karen</ForeName>
+                    <Initials>K</Initials>
+                </Author>
+            </AuthorList>
+            <Medium>Internet</Medium>
+        </Book>
+        <ArticleTitle book="gene" part="brca1">BRCA1 and BRCA2 Hereditary Breast and Ovarian Cancer</ArticleTitle>
+        <Language>eng</Language>
+        <AuthorList Type="authors">
+            <Author>
+                <LastName>Petrucelli</LastName>
+                <ForeName>Nancie</ForeName>
+                <Initials>N</Initials>
+            </Author>
+            <Author>
+                <LastName>Daly</LastName>
+                <ForeName>Mary B</ForeName>
+                <Initials>MB</Initials>
+            </Author>
+            <Author>
+                <LastName>Feldman</LastName>
+                <ForeName>Gerald L</ForeName>
+                <Initials>GL</Initials>
+            </Author>
+        </AuthorList>
+        <PublicationType UI="D016454">Review</PublicationType>
+        <Abstract>
+            <AbstractText Label="CLINICAL CHARACTERISTICS">Hereditary breast and ovarian cancer syndrome (HBOC), caused by a germline pathogenic variant in BRCA1 or BRCA2, is characterized by an increased risk for breast cancer, ovarian cancer, prostate cancer, and pancreatic cancer. The lifetime risk for these cancers in individuals with a pathogenic variant in BRCA1 or BRCA2: 40%-80% for breast cancer. 11%-40% for ovarian cancer. 1%-10% for male breast cancer. Up to 39% for prostate cancer. 1%-7% for pancreatic cancer. Individuals with BRCA2 pathogenic variants may also be at an increased risk for melanoma. Prognosis for BRCA1/2-related cancer depends on the stage at which the cancer is diagnosed; however, studies on survival have revealed conflicting results for individuals with germline BRCA1 or BRCA2 pathogenic variants when compared to controls.</AbstractText>
+            <AbstractText Label="DIAGNOSIS/TESTING">An increased likelihood of a BRCA1 or BRCA2 pathogenic variant is suspected on the basis of certain personal and family history characteristics and various clinical criteria. A diagnosis of HBOC is made following molecular genetic testing in an individual or family with a germline BRCA1 or BRCA2 pathogenic variant. No currently available technique can guarantee the identification of all cancer-predisposing allelic variants in BRCA1 or BRCA2. Furthermore, variants of uncertain clinical significance may be identified.</AbstractText>
+            <AbstractText Label="MANAGEMENT">Treatment of manifestations: Treatment of breast and ovarian cancer in individuals with BRCA1- or BRCA2-related tumors is similar to that for sporadic forms of these cancers; however, new classes of drugs that specifically target the BRCA1/2 signaling pathways are being studied. Prevention of primary manifestations: Prophylactic mastectomy and/or oophorectomy and chemoprevention using tamoxifen (a partial estrogen antagonist) have been used, but have not been assessed by randomized trials or case-control studies in high-risk women. Surveillance: Breast cancer screening in women and men relies on a combination of monthly breast self-examination, annual or semiannual clinical breast examination, annual mammography, and breast MRI. In 2007, the American Cancer Society (ACS) added annual breast MRI to their screening recommendations for individuals with a germline pathogenic variant in BRCA1 or BRCA2. Annual pelvic ultrasound and/or CA-125 concentration has not been effective in detecting early-stage ovarian cancer, either in high-risk or average-risk women. Prostate cancer screening relies on annual digital rectal examination and prostate-specific antigen (PSA) testing. Screening of asymptomatic individuals for pancreatic cancer is not generally recommended. In those with a germline pathogenic variant in BRCA2, annual clinical examinations of the skin and eye are recommended. Evaluation of relatives at risk: Once a cancer-predisposing BRCA1 or BRCA2 germline variant has been identified in a family, testing of at-risk relatives can identify those family members who also have the familial variant and thus need increased surveillance and early intervention when a cancer is identified.</AbstractText>
+            <AbstractText Label="GENETIC COUNSELING">Germline pathogenic variants in BRCA1 and BRCA2 are inherited in an autosomal dominant manner. The vast majority of individuals with a BRCA1 or BRCA2 pathogenic variant have inherited it from a parent. However, because of incomplete penetrance, variable age of cancer development, cancer risk reduction resulting from prophylactic surgery, or early death, not all individuals with a BRCA1 or BRCA2 pathogenic variant have a parent affected with cancer. Each offspring of an individual with a BRCA1 or BRCA2 germline pathogenic variant has a 50% chance of inheriting the variant. Prenatal testing is possible for pregnancies at increased risk if the cancer-predisposing variant in the family is known; however, requests for prenatal diagnosis of adult-onset diseases are uncommon and require careful genetic counseling.</AbstractText>
+            <CopyrightInformation>Copyright © 1993-2016, University of Washington, Seattle. All rights reserved.</CopyrightInformation>
+        </Abstract>
+        <Sections>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Summary">Summary</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Diagnosis">Diagnosis</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Clinical_Characteristics">Clinical Characteristics</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Genetically_Related_Allelic_Disord">Genetically Related (Allelic) Disorders</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Differential_Diagnosis">Differential Diagnosis</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Management">Management</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Genetic_Counseling">Genetic Counseling</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Resources">Resources</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Molecular_Genetics">Molecular Genetics</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.References">References</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Chapter_Notes">Chapter Notes</SectionTitle>
+            </Section>
+        </Sections>
+        <ContributionDate>
+            <Year>1998</Year>
+            <Month>9</Month>
+            <Day>4</Day>
+        </ContributionDate>
+        <DateRevised>
+            <Year>2013</Year>
+            <Month>9</Month>
+            <Day>26</Day>
+        </DateRevised>
+        <GrantList CompleteYN="Y">
+            <Grant>
+                <GrantID>HHSN276201400262U</GrantID>
+                <Acronym>LM</Acronym>
+                <Agency>NLM NIH HHS</Agency>
+                <Country>United States</Country>
+            </Grant>
+        </GrantList>
+        <ItemList ListType="Synonyms">
+            <Item>HBOC</Item>
+        </ItemList>
+    </BookDocument>
+    <PubmedBookData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>26</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>26</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2010</Year>
+                <Month>3</Month>
+                <Day>20</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">20301425</ArticleId>
+        </ArticleIdList>
+    </PubmedBookData>
+</PubmedBookArticle>
+
+</PubmedArticleSet>

@@ -51,7 +51,7 @@ class TestAlleleAssessment(object):
             aa['referenceassessments'] = [
                 {
                     'allele_id': allele_id,
-                    'reference_id': 43248,
+                    'reference_id': 1,
                     'user_id': 1,
                     'evaluation': {
                         'comment': 'Some comment'

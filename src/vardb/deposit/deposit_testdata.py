@@ -92,6 +92,7 @@ VCF = [
     },
 ]
 
+REFERENCES = '../testdata/references_test.json'
 
 class DepositTestdata(object):
 
@@ -166,7 +167,8 @@ class DepositTestdata(object):
             )
 
     def deposit_references(self):
-        import_references(self.engine)
+        references_path = os.path.join(SCRIPT_DIR, REFERENCES)
+        import_references(self.session, references_path)
 
     def deposit_all(self, test_set=None):
         log.info("--------------------")
