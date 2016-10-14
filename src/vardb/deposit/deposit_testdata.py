@@ -83,6 +83,10 @@ VCF = [
         'default': True,
     },
     {
+        'path': '../testdata/vcf/e2e',
+        'name': 'e2e'
+    },
+    {
         'path': '../testdata/vcf/integration_testing',
         'name': 'integration_testing',
     },

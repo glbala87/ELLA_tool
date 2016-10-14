@@ -98,36 +98,33 @@ test-build:
 
 test: test-build run-test
 single-test: test-build run-test
-e2e-test: test-build run-e2e-app run-e2e-selenium run-e2e-test cleanup-e2e
+e2e-test: e2e-network-check e2e-run-chrome test-build
+	docker run --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
+e2e-test-local: test-build
+	docker run -it -v $(shell pwd):/ella --network=local_only --link chromebox:cb $(IMAGE_NAME) /bin/bash -c "make e2e-ella; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
 
 run-test:
 	docker run $(IMAGE_NAME) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
 
-# test runner (protractor) for e2e tests
-run-e2e-test:
-	docker run --link $(SELENIUM_CONTAINER_NAME):selenium --rm --name e2e $(IMAGE_NAME) make test-e2e API_PORT=$(INTERNAL_API_PORT) API_HOST=genapp SELENIUM_ADDRESS=http://selenium:$(strip $(INTERNAL_SELENIUM_PORT))/wd/hub
+e2e-ella:
+	supervisord -c /ella/ops/test/supervisor-e2e.cfg
+	make dbsleep
 
-run-e2e-selenium:
-	docker run --name $(SELENIUM_CONTAINER_NAME) --link $(E2E_CONTAINER_NAME):genapp -d -p 4444:$(INTERNAL_SELENIUM_PORT) -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:2.48.2
-	sleep 5
+e2e-run-ci: e2e-ella wdio-chromebox
 
-# not re-using dev runner here because we don't want image mounting
-run-e2e-app: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
-run-e2e-app: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
-run-e2e-app:
-	docker run -d \
-	--name $(E2E_CONTAINER_NAME) \
-	-p $(API_PORT):$(INTERNAL_API_PORT) \
-	$(ELLA_OPTS) \
-	$(IMAGE_NAME) \
-	supervisord -c /ella/ops/dev/supervisor.cfg
-	sleep 10
+wdio-chromebox:
+	/dist/node_modules/webdriverio/bin/wdio --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
-cleanup-e2e:
-	-docker stop $(SELENIUM_CONTAINER_NAME)
-	-docker rm $(SELENIUM_CONTAINER_NAME)
-	-docker stop $(E2E_CONTAINER_NAME)
-	-docker rm $(E2E_CONTAINER_NAME)
+wdio:
+	/dist/node_modules/webdriverio/bin/wdio --host "172.17.0.1" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
+
+e2e-run-chrome:
+	-docker kill chromebox
+	-docker rm chromebox
+	docker run -d --name chromebox --network=local_only ousamg/chromebox
+
+e2e-network-check:
+	docker network ls | grep -q local_only || docker network create --subnet 172.25.0.0/16 local_only
 
 #---------------------------------------------
 # TESTING - INSIDE CONTAINER ONLY
@@ -182,14 +179,6 @@ test-js:
 	rm -f /ella/node_modules
 	ln -s /dist/node_modules/ /ella/node_modules
 	gulp unit
-
-# preq: app and selenium are already started
-test-e2e:
-	@echo "Running e2e tests against $(API_HOST):$(API_PORT) using selenium server $(SELENIUM_ADDRESS)"
-	rm -f /ella/node_modules
-	ln -s /dist/node_modules/ /ella/node_modules
-	gulp --e2e_ip=$(API_HOST) --e2e_port=$(API_PORT) --selenium_address=$(SELENIUM_ADDRESS) e2e
-
 
 #---------------------------------------------
 # BUILD / RELEASE
