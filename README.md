@@ -27,6 +27,19 @@ To create a new migration:
 1. `cd src/vardb/datamodel/migration/` and run something like this `PYTHONPATH=../../.. DB_URL=postgresql://postgres@/postgres alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel and compare it against the database state, generating a migration script from the differences.
 1. Go over the created script, clean it up and test it. The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right. Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data present in the database if necessary. The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
 
+
+### API documentation
+
+The API is documented using [apidocs](https://apispec.readthedocs.io/en/latest/) supporting the OpenAPI specification (f.k.a. Swagger 2.0).
+You can see the specification [here](http://swagger.io/specification/).
+
+You can explore the ella's API at `/api/v1/docs/` in you browser.
+
+To document your resource, have a look at the current resources to see usage examples.
+
+Under the hood, the resources and definitions (models) are loaded into `apispec` in `api/v1/docs.py`. The spec is made available at `/api/v1/specs/`.
+The definitions are generated automatically by `apispec` using it's Marshmallow plugin.
+
 # Testing
 
 Our test suites are intended to be run inside Docker. The Makefile has commands to do run setup and the tests themselves.

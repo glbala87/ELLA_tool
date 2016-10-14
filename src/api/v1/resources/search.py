@@ -14,33 +14,7 @@ from api.util.annotationprocessor.annotationprocessor import TranscriptAnnotatio
 
 
 class SearchResource(Resource):
-    """
-    Resource for providing basic search functionality.
 
-    Right now it supports taking in a free text search, which will
-    yield matches in three categories (potentially at the same time):
-    - Alleles
-    - AlleleAssessments
-    - Analysis
-
-    For Alleles and AlleleAssessments supported search queries are:
-    - HGVS c.DNA name, e.g. c.1312A>G (case insensitive) or NM_000059:c.920_921insT or
-      just NM_000059.
-    - HGVS protein name, e.g. p.Ser309PhefsTer6 or NP_000050.2:p.Ser309PhefsTer6
-      or just NP_000050.
-    - Genomic positions in the following formats:
-      - 123456  <- start position
-      - 14:234234234-123123123 <- chr, start, end
-      - 13:123456 <- chr, start
-      - chr14:143000-234234 <- alternate chr format
-      - 465234-834234 <- start, end (in any chromosome)
-
-    For analyses, it will perform a free text search on the name of
-    the Analysis.
-
-    *Search query must be longer than 2 characters.*
-    *Search results are limited to 10 per category.*
-    """
 
     ANALYSIS_LIMIT = 10
     ALLELE_LIMIT = 10
@@ -55,6 +29,95 @@ class SearchResource(Resource):
     RE_CHR_POS = re.compile(r'^(chr)?((?P<chr>[0-9XYM]*):)?(?P<pos1>[0-9]+)(-(?P<pos2>[0-9]+))?')
 
     TSQUERY_ESCAPE = ['&', ':', '(', ')', '*', '!', '|']
+
+    def get(self, session):
+        """
+        Provides basic search functionality.
+
+        ### Features
+        Right now it supports taking in a free text search, which will
+        yield matches in three categories (potentially at the same time):
+        * Alleles
+        * AlleleAssessments
+        * Analysis
+
+        ### Supported queries
+        For Alleles and AlleleAssessments supported search queries are:
+        * HGVS c.DNA name, e.g. c.1312A>G (case insensitive) or NM_000059:c.920_921insT or
+          just NM_000059.
+        * HGVS protein name, e.g. p.Ser309PhefsTer6 or NP_000050.2:p.Ser309PhefsTer6
+          or just NP_000050.
+        * Genomic positions in the following formats:
+          * 123456 (start position)
+          * 14:234234234-123123123 (chr, start, end)
+          * 13:123456 (chr, start)
+          * chr14:143000-234234 (alternate chr format)
+          * 465234-834234 (start, end) (in any chromosome)
+
+        For analyses, it will perform a free text search on the name of
+        the Analysis.
+
+        ### Limitations
+
+        * ** Search query must be longer than 2 characters. **
+        * ** Search results are limited to 10 per category for performance reasons. **
+
+        ---
+        summary: Search
+        tags:
+          - Search
+        parameters:
+          - name: q
+            in: query
+            type: string
+            description: Search string
+        responses:
+          200:
+            schema:
+                type: object
+                properties:
+                  alleles:
+                    type:
+                      object
+                    properties:
+                      name:
+                        type: string
+                        description: Genepanel name
+                      version:
+                        type: string
+                        description: Genepanel version
+                      alleles:
+                        type: array
+                        items:
+                          $ref: '#/definitions/Allele'
+                  analysis:
+                    $ref: '#/definitions/Analysis'
+                  alleleassessments:
+                    $ref: '#/definitions/AlleleAssessment'
+            description: Search result
+        """
+        query = request.args.get('q')
+        if not query or (query and len(query) < 3):
+            return {}
+
+        matches = dict()
+
+        # Search analysis
+        matches['analyses'] = self._search_analysis(session, query)
+
+        # Search alleles
+        matches['alleles'] = self._alleles_by_genepanel(
+            session,
+            self._search_allele(session, query)
+        )
+
+        # Search alleleassessments
+        matches['alleleassessments'] = self._alleles_by_genepanel(
+            session,
+            self._search_alleleassessment(session, query)
+        )
+
+        return matches
 
     def _get_chr_pos(self, query):
         """
@@ -273,27 +336,3 @@ class SearchResource(Resource):
             return schemas.AnalysisSchema().dump(analyses, many=True).data
         else:
             return []
-
-    def get(self, session):
-        query = request.args.get('q')
-        if not query or (query and len(query) < 3):
-            return {}
-
-        matches = dict()
-
-        # Search analysis
-        matches['analyses'] = self._search_analysis(session, query)
-
-        # Search alleles
-        matches['alleles'] = self._alleles_by_genepanel(
-            session,
-            self._search_allele(session, query)
-        )
-
-        # Search alleleassessments
-        matches['alleleassessments'] = self._alleles_by_genepanel(
-            session,
-            self._search_alleleassessment(session, query)
-        )
-
-        return matches

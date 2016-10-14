@@ -12,6 +12,28 @@ class CustomAnnotationList(Resource):
 
     @rest_filter
     def get(self, session, rest_filter=None, page=None, num_per_page=None):
+        """
+        Returns a list of customannotations.
+
+        * Supports `q=` filtering.
+        * Supports pagination.
+        ---
+        summary: List customannotations
+        tags:
+          - Annotation
+        parameters:
+          - name: q
+            in: query
+            type: string
+            description: JSON filter query
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/CustomAnnotation'
+            description: List of customannotations
+        """
         return self.list_query(session,
                                annotation.CustomAnnotation,
                                schemas.CustomAnnotationSchema(),
@@ -26,6 +48,45 @@ class CustomAnnotationList(Resource):
         True
     )
     def post(self, session, data=None):
+        """
+        Creates new CustomAnnotation(s) for a given allele id(s).
+
+        The new CustomAnnotation object will act as current CustomAnnotation for this
+        allele, and the old one is archived.
+        The old can be accessed via the `previous_annotation_id` field.
+
+        ---
+        summary: Create customannotation
+        tags:
+          - Annotation
+        parameters:
+          - name: data
+            in: body
+            required: true
+            schema:
+              title: CustomAnnotation data
+              type: object
+              required:
+                - user_id
+                - allele_id
+                - annotations
+              properties:
+                user_id:
+                  description: User id
+                  type: integer
+                allele_id:
+                  description: Allele id
+                  type: integer
+                annotations:
+                  description: Annotation data object
+                  type: object
+            description: Submitted data
+        responses:
+          200:
+            schema:
+              $ref: '#/definitions/CustomAnnotation'
+            description: Created customannotation
+        """
         allele_id = data['allele_id']
 
         # Check for existing CustomAnnotations

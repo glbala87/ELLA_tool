@@ -11,6 +11,8 @@ ma = Marshmallow(app)
 
 class AlleleAssessmentSchema(Schema):
     class Meta:
+        title = "AlleleAssessment"
+        description = 'Represents an assessment of one allele'
         fields = ('id',
                   'date_last_update',
                   'date_superceeded',
@@ -29,7 +31,7 @@ class AlleleAssessmentSchema(Schema):
 
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
-    evaluation = fields.Field(required=False, default=dict)
+    evaluation = fields.Field(required=False, default={})
     classification = fields.Field(required=True)
     date_last_update = fields.DateTime()
     date_superceeded = fields.DateTime(allow_none=True)

@@ -15,11 +15,41 @@ class AlleleListResource(Resource):
     @rest_filter
     def get(self, session, rest_filter=None, allele_ids=None):
         """
-        Loads alleles based on q={} filter or  allele ids directly
-        Additional parameters:
-            - sample_id: Includes genotypes into the result and enables quality data in the annotation
-            - genepanel: Enables the annotation to filter transcripts to only show the relevant ones.
-            -
+        Returns a list of alleles, with or without annotation included.
+        Specify a genepanel to get more data included.
+        Supports `q=` filtering.
+        ---
+        summary: List alleles
+        tags:
+          - Allele
+        parameters:
+          - name: allele_ids
+            in: query
+            type: string
+            description: List of comma separated allele ids to include
+          - name: q
+            in: query
+            type: string
+            description: JSON filter query
+          - name: gp_name
+            in: query
+            type: string
+            description: Genepanel name. Enables the annotation to filter transcripts to only show the relevant ones.
+          - name: gp_version
+            in: query
+            type: string
+            description: Genepanel version. Required if gp_name is provided.
+          - name: annotation
+            in: query
+            type: boolean
+            description: Whether to include annotation data or not.
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Allele'
+            description: List of alleles
         """
 
         if allele_ids and not rest_filter:
@@ -80,6 +110,25 @@ class AlleleListResource(Resource):
 class AlleleGenepanelListResource(Resource):
 
     def get(self, session, allele_id):
+        """
+        Returns a list of genepanels associated with provided allele_id.
+        ---
+        summary: List genepanels for one allele
+        tags:
+          - Allele
+        parameters:
+          - name: allele_id
+            in: path
+            type: string
+            description: Allele id
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Genepanel'
+            description: List of genepanels
+        """
         genepanels = session.query(gene.Genepanel).join(
             genotype.Genotype.alleles,
             sample.Sample,
