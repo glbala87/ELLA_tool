@@ -101,7 +101,7 @@ single-test: test-build run-test
 e2e-test: e2e-network-check e2e-run-chrome test-build
 	docker run --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
 e2e-test-local: test-build
-	docker run -it -v $(shell pwd):/ella --network=local_only --link chromebox:cb $(IMAGE_NAME) /bin/bash -c "make e2e-ella; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
+	docker run -it -v $(shell pwd):/ella --network=local_only -p 5000:5000 --link chromebox:cb $(IMAGE_NAME) /bin/bash -c "make e2e-ella; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
 
 run-test:
 	docker run $(IMAGE_NAME) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)

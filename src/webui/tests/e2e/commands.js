@@ -1,3 +1,13 @@
+function waitForAngular() {
+    browser.timeoutsAsyncScript(2000).executeAsync(function(done) {
+        if(angular && angular.getTestability) {
+            angular.getTestability(document.body).whenStable(done);
+        }
+        else {
+            done();
+        }
+    });
+}
 
 module.exports = function addCommands() {
 
@@ -10,5 +20,7 @@ module.exports = function addCommands() {
     });
 
     browser.addCommand('getClass', (selector) => browser.getAttribute(selector, 'class').split(' '));
+
+    browser.addCommand('waitForAngular', waitForAngular);
 
 }

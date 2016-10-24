@@ -175,12 +175,17 @@ exports.config = {
     // },
     //
     // Runs before a WebdriverIO command gets executed.
-    // beforeCommand: function (commandName, args) {
+    //beforeCommand: function (commandName, args) {
     // },
     //
     // Runs after a WebdriverIO command gets executed
-    // afterCommand: function (commandName, args, result, error) {
-    // },
+    afterCommand: function (commandName, args, result, error) {
+        // Wait for angular digest to finish.
+        // Naive (slow) and simple implementation, but added latency
+        // seems to be acceptable in practice
+        // One can optimise by firing only on certain commands...
+        browser.waitForAngular();
+    },
     //
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
     // afterTest: function (test) {
