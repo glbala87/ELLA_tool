@@ -82,14 +82,15 @@ def reset_testdata():
     test_set = 'small'
     if request.args.get('testset'):
         test_set = request.args.get('testset')
+    blocking = request.args.get('blocking')
 
-    return do_testdata_reset(test_set)
+    return do_testdata_reset(test_set, blocking=blocking)
 
 def reset_testdata_from_cli():
     test_set = os.getenv('RESET_DB', 'small')
     do_testdata_reset(test_set)
 
-def do_testdata_reset(test_set):
+def do_testdata_reset(test_set, blocking=True):
     def worker():
         drop_db.drop_db()
         make_db.make_db()
@@ -97,10 +98,13 @@ def do_testdata_reset(test_set):
         dt = DepositTestdata(db)
         dt.deposit_all(test_set=test_set)
 
-    t = threading.Thread(target=worker)
-    t.start()
-
-    return "Test database is resetting. It should be ready in a minute."
+    if blocking:
+        worker()
+        return "Test database reset successfully."
+    else:
+        t = threading.Thread(target=worker)
+        t.start()
+        return "Test database is resetting. It should be ready in a minute."
 
 api = Api(app)
 

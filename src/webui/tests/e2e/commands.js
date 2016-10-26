@@ -1,7 +1,8 @@
 function waitForAngular() {
-    browser.timeoutsAsyncScript(2000).executeAsync(function(done) {
-        if(angular && angular.getTestability) {
-            angular.getTestability(document.body).whenStable(done);
+    browser.timeoutsAsyncScript(5000).executeAsync(function(done) {
+        // use 'window.'' to work around weird bug when testing for undefined..
+        if(window.angular && window.angular.getTestability) {
+            window.angular.getTestability(document.body).whenStable(done);
         }
         else {
             done();
@@ -12,10 +13,8 @@ function waitForAngular() {
 module.exports = function addCommands() {
 
     browser.addCommand('resetDb', () => {
-        let wait_seconds = 15;
-        console.log(`Resetting database (waiting ${wait_seconds}s)...`);
-        browser.url('/reset?testset=e2e');
-        browser.pause(wait_seconds * 1000);
+        console.log(`Resetting database (this can take a while...)`);
+        browser.url('/reset?testset=e2e&blocking=true');
         console.log("Database reset done!");
     });
 

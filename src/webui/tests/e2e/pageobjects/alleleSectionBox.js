@@ -26,6 +26,32 @@ class AlleleSectionBox extends Page {
        browser.click('.id-mark-technical');
     }
 
+    /**
+     * @param {string} category Either 'pathogenic' or 'benign'
+     * @param {string} code ACMG code to add
+     * @param {string} comment Comment to go with added code
+     *
+     */
+    addAcmgCode(category, code, comment) {
+        browser.click('allele-sectionbox button.id-add-acmg');
+        let categories = {
+            pathogenic: 1,
+            benign: 2
+        };
+
+        browser.click(`.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`);
+
+        browser.element('.popover').scroll(`h4.acmg-title=${code}`);
+        browser.element('.popover').click(`h4.acmg-title=${code}`);
+
+        // Set code comment
+        // Newly added element will appear last in included list..
+        browser.element('allele-sectionbox allele-info-acmg-selection section.included acmg:last-child textarea').setValue(comment)
+
+        // Close sidebar
+        browser.click('allele-sectionbox button.id-add-acmg');
+    }
+
 
 }
 

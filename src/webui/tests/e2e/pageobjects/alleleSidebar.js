@@ -7,48 +7,49 @@ class AlleleSidebar extends Page {
         browser.waitForExist('allele-sidebar .nav-row');
     }
 
-    _getUnclassifiedAlleleIndex(allele) {
-        let all = browser.getText('allele-sidebar .id-unclassified.enabled .nav-row .variant span');
-        return all.findIndex(s => allele);
-    }
-
     getUnclassifiedAlleles() {
         this._ensureLoaded();
-        return browser.getText('allele-sidebar .id-unclassified.enabled .nav-row .variant span');
+        return browser.getText('allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc');
     }
 
     getClassifiedAlleles() {
         this._ensureLoaded();
-        return browser.getText('allele-sidebar .id-classified.enabled .nav-row .variant span');
+        return browser.getText('allele-sidebar .id-classified.enabled .nav-row .id-hgvsc');
     }
 
     getSelectedAllele() {
         this._ensureLoaded();
-        return browser.getText('allele-sidebar .enabled .nav-row.active .variant span');
+        return browser.getText('allele-sidebar .enabled .nav-row.active .id-hgvsc');
     }
 
-    selectAllele(allele) {
+    getSelectedAlleleClassification() {
+        return browser.getText('allele-sidebar .enabled .nav-row.active .id-classification');
+    }
+
+    _selectAllele(allele, identifier) {
         this._ensureLoaded()
 
-        let selected_idx = this._getUnclassifiedAlleleIndex(this.getSelectedAllele())
-        if (selected_idx === -1) {
-            throw Error(`Allele ${allele} not found among options ${all.join(',')}`);
-        }
+        let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`);
+        let allele_idx = all.findIndex(s => s === allele);
 
-        let allele_selector = `allele-sidebar .enabled .nav-row:nth-child(${selected_idx+1})`;
+        let allele_selector = '';
+        if (allele_idx === -1) {
+            throw Error(`Allele ${allele} not found among options ${all.join(',')}`);
+
+        }
+        allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${allele_idx+1})`;
         browser.click(allele_selector);
 
         // Check that we changed active allele
         expect(browser.getClass(allele_selector).find(a => a === 'active')).toBeDefined();
     }
 
-    selectNextAllele() {
-        this._ensureLoaded();
-        let all = browser.getText('allele-sidebar .id-unclassified.enabled .nav-row .variant span');
-        let selected_allele = this.getSelectedAllele();
-        let selected_idx = all.findIndex(s => selected_allele);
+    selectUnclassifiedAllele(allele) {
+        this._selectAllele(allele, '.id-unclassified.enabled')
+    }
 
-        this.selectAllele(all[selected_idx+1]);
+    selectClassifiedAllele(allele) {
+        this._selectAllele(allele, '.id-classified.enabled')
     }
 
     isAlleleInUnclassified(allele) {
@@ -66,6 +67,7 @@ class AlleleSidebar extends Page {
         }
         return a === allele;
     }
+
 
     open(page) {
         super.open('login');

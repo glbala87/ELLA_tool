@@ -19,6 +19,10 @@ class LoginPage extends Page {
     selectFirstUser() {
         this._selectUser(1);
     }
+
+    selectSecondUser() {
+        this._selectUser(2);
+    }
 }
 
 module.exports = LoginPage

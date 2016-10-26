@@ -1,6 +1,10 @@
 var addCommands = require('./commands');
 
+var debug = process.env.DEBUG;
+
 exports.config = {
+
+    debug: debug,
 
     //
     // ==================
@@ -127,7 +131,7 @@ exports.config = {
         //
         // Jasmine default timeout
         // We set this high, since the /reset endpoint takes some time...
-        defaultTimeoutInterval: 20000,
+        defaultTimeoutInterval: debug ? (24 * 60 * 60 * 1000) : 30000,
         //
         // The Jasmine framework allows interception of each assertion in order to log the state of the application
         // or website depending on the result. For example, it is pretty handy to take a screenshot every time
