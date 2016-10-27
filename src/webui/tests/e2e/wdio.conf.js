@@ -76,10 +76,6 @@ exports.config = {
     // Saves a screenshot to a given path if a command fails.
     screenshotPath: './errorShots/',
     //
-    // Set a base URL in order to shorten url command calls. If your url parameter starts
-    // with "/", then the base url gets prepended.
-    baseUrl: 'http://localhost:5000',
-    //
     // Default timeout for all waitFor* commands.
     waitforTimeout: 10000,
     //
@@ -130,8 +126,8 @@ exports.config = {
     jasmineNodeOpts: {
         //
         // Jasmine default timeout
-        // We set this high, since the /reset endpoint takes some time...
-        defaultTimeoutInterval: debug ? (24 * 60 * 60 * 1000) : 30000,
+        // We set this high, since some tests takes some time...
+        defaultTimeoutInterval: debug ? (24 * 60 * 60 * 1000) : 120000,
         //
         // The Jasmine framework allows interception of each assertion in order to log the state of the application
         // or website depending on the result. For example, it is pretty handy to take a screenshot every time
