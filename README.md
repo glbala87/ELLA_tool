@@ -49,8 +49,6 @@ Our test suites are intended to be run inside Docker. The Makefile has commands 
 - `make e2e-test` will run e2e tests
 - `make single-test` will run a single _non-e2e_ test
 
-To clean up docker containers when e2e tests fail: `make cleanup-e2e BRANCH=test`
-
 ## More info
 - For more information please see [the wiki](https://git.ousamg.io/docs/wiki/wikis/ella/testing)
 
@@ -68,37 +66,23 @@ To clean up docker containers when e2e tests fail: `make cleanup-e2e BRANCH=test
   - Gunicorn runs the API, it stores its socket at `/socket`
 - All relevant configuration files are in `ops/prod`
 
-# Protractor - e2e testing tool
-Protractor is an Angular friendly wrapper around WebDriver. 
-See http://www.protractortest.org
+# End to end testing (e2e)
+We use webdriver.io for testing. See http://webdriver.io .
 
-The e2e tests usually run in Docker (see the Makefile) and modules are found in the node_modules folder inside Docker.
-If you want to run it outside Docker, we'll create a node_modules folder inside our src/webui/tests folder.
-This allows node to find the required modules/classes in 'node_modules' and our src/webui/tests folder.
+In CI tests are run with `make e2e-test`. This will run Chrome in it's own container and run the test suites.
+You can run this locally to check that the tests are passing, but it's unsuitable for developing tests.
 
-## Setup
-In src/webui/tests:
-- Run `npm install` to install modules
-- Then `npm run-script init` to install selenium/webdriver
+## Local usage
+- Download and install chromedriver and Chrome/Chromium.
+- Run `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local machine.
+- Run `make e2e-test-local`. You'll be presented with a shell inside the container.
+- Run `make wdio` inside the shell to start the tests. It will connect to the locally running chromedriver.
 
-Several scripts are defined in package.json. Having this indirection ensures that the locally installed binaries in node_modules are used.
-Running bare `protractor` (as opposed to `npm run-script protractor`) will use your globally installed protractor (if you have one) and could cause 'library not found'-errors.
-There are several scripts in package.json that calls protractor with a few hardcoded arguments. Use the script `protractor` if you want to call protractor with your arguments of choice.
-All arguments after '--' are passed to the script. So `npm run-script myScript -- --myOption cool` will run 'myScript' passing it '--myOption cool'.
+## Explore
+Best way to get and test selectors in Chrome is to use the `CSS Selector Helper for Chrome` extension.
+Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools to test your selector.
 
+You can connect a debugger to Node.js instance on port `5859` to play around.
 
-## Interact with webpage:
-Start a Repl:	
-`npm run-script repl --  --baseUrl <url to your running app>`
-
-This opens a new Chrome window with the baseUrl. In the terminal a repl is started where you interact with the webpage using protractor/WebDriver selectors and commands. Once you have found the proper selectors and commands
-put them in a spec file so are run in CI later.
-This works for an Angular app only.
-
-
-## Run e2e test
-If the tests fail in CI, it can be useful to run them locally:
-`npm run-script e2e -- --specs tests/<your spec file> --baseUrl <url of your running app>`
-This automatically launches a Selenium server (the one installed through the  above setup).
-
-See https://github.com/angular/protractor/blob/master/docs/debugging.md
+Use `browser.debug()` in a test file to pause the execution of the tests.
+This let's you use the browser's console to experiment and inspect variables.

@@ -116,7 +116,7 @@ wdio-chromebox:
 	/dist/node_modules/webdriverio/bin/wdio --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 wdio:
-	/dist/node_modules/webdriverio/bin/wdio --host "172.17.0.1" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
+	DEBUG=true /dist/node_modules/webdriverio/bin/wdio --host "172.17.0.1" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 e2e-run-chrome:
 	-docker kill chromebox
