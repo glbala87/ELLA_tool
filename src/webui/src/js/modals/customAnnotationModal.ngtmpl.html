@@ -1,11 +1,11 @@
-<sectionbox color="green" modal="true" on-close="vm.modal.close">
+<sectionbox class="id-custom-annotation-modal" color="green" modal="true" on-close="vm.modal.close">
   <titlebar>
     <h3 class="title">{{vm.title}}</h3>
   </titlebar>
   <controls>
     <section class="line-wrapper pinned-right">
-      <button type="button" ng-click="vm.modal.close(false)">Cancel</button>
-      <button type="button" ng-click="vm.save()">Save</button>
+      <button class="id-cancel"  type="button" ng-click="vm.modal.close(false)">Cancel</button>
+      <button class="id-save"  type="button" ng-click="vm.save()">Save</button>
     </section>
   </controls>
   <contentwrapper>
@@ -84,7 +84,7 @@
         <div class="left"> <h5 class="slim title"> <b>Annotation:</b> </h5> </div>
         <div class="right">
           <div class="dropdown">
-            <select ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"><option value="" disabled selected>Choose annotation</option></select>
+            <select class="id-annotation-select" ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"><option value="" disabled selected>Choose annotation</option></select>
           </div>
         </div>
       </article>
@@ -92,7 +92,7 @@
         <div class="left"> <h5 class="slim title"> <b>Value:</b> </h5> </div>
         <div class="right">
           <div class="dropdown">
-            <select ng-if="vm.selected_annotation_group.options" ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"><option value="" disabled selected>Choose value</option></select>
+            <select class="id-value-select" ng-if="vm.selected_annotation_group.options" ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"><option value="" disabled selected>Choose value</option></select>
           </div>
           <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.selected_annotation_value" ng-if="vm.selected_annotation_group.text"> </autosize-textarea>
         </div>
@@ -101,7 +101,7 @@
         <div class="left">
           <div ng-if="vm.getUrls().length" ng-repeat="url in vm.getUrls()"> <p class="hotfix-spacing"><a-clip href="{{url}}" target="_new_{{url}}">Visit database</a-clip></p> </div>
         </div>
-        <div class="right"> <button class="green" ng-click="vm.addAnnotation()">Add</button> </div>
+        <div class="right"> <button class="green id-add-annotation" ng-click="vm.addAnnotation()">Add</button> </div>
       </article>
     </section>
   </contentwrapper>

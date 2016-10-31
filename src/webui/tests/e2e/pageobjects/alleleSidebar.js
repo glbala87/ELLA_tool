@@ -30,7 +30,10 @@ class AlleleSidebar extends Page {
         this._ensureLoaded()
 
         let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`);
-        let allele_idx = all.findIndex(s => s === allele);
+        let allele_idx = 0;
+        if (Array.isArray(all)) {
+            allele_idx = all.findIndex(s => s === allele);
+        }
 
         let allele_selector = '';
         if (allele_idx === -1) {

@@ -9,6 +9,9 @@ class AlleleSectionBox extends Page {
     get predictionComment() { return browser.element('allele-sectionbox textarea[placeholder="PREDICTION-COMMENTS"]'); }
     get classSelection() { return browser.element('allele-sectionbox select.id-select-classification'); }
     get setClassBtn() { return browser.element('allele-sectionbox button.id-set-class'); }
+    get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
+    get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
+    get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
 
     markAsClass1() {
        browser.click('.id-mark-class1');
@@ -51,6 +54,37 @@ class AlleleSectionBox extends Page {
         // Close sidebar
         browser.click('allele-sectionbox button.id-add-acmg');
     }
+
+    evaluateReference(index) {
+        browser.click(`allele-info-references article:nth-child(${index}) button.id-reference-evaluate`);
+    }
+
+    getReferenceComment(index) {
+        return browser.getValue(`allele-info-references article:nth-child(${index}) .id-reference-comment textarea`);
+    }
+
+    getReferenceRelevance(index) {
+        return browser.getText(`allele-info-references article:nth-child(${index}) .id-reference-relevance p`)
+    }
+
+    getExternalOtherAnnotation() {
+        browser.waitForExist('allele-info-external-other div.cell h5');
+        return browser.getText('allele-info-external-other div.cell h5');
+    }
+
+    getExternalOtherValue() {
+        return browser.getText('allele-info-external-other div.cell p');
+    }
+
+     getPredictionOtherAnnotation() {
+        browser.waitForExist('allele-info-prediction-other div.cell h5');
+        return browser.getText('allele-info-prediction-other div.cell h5');
+    }
+
+    getPredictionOtherValue() {
+        return browser.getText('allele-info-prediction-other div.cell p');
+    }
+
 
 
 }
