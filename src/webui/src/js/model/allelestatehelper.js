@@ -348,7 +348,7 @@ export class AlleleStateHelper {
      * @return {Boolean}              Whether toggle is true or not
      */
 
-    static toggleReuseAlleleAssessment(allele, allele_state, config) {
+    static toggleReuseAlleleAssessment(allele, allele_state, config, copy_on_enable=false) {
         if (!('allele_assessment' in allele)) {
             throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
         }
@@ -368,6 +368,11 @@ export class AlleleStateHelper {
             return false;
         }
         else {
+            if (copy_on_enable) {
+                this.copyAlleleAssessmentToState(allele, allele_state);
+                this.copyAlleleReportToState(allele, allele_state);
+            }
+
             // Check whether existing allele assessment is outdated,
             // if so refuse to toggle on.
             if (this.isAlleleAssessmentOutdated(allele, config)) {
@@ -380,6 +385,7 @@ export class AlleleStateHelper {
             if ('allele_report' in allele) {
                 allele_state.allelereport.id = allele.allele_report.id;
             }
+
 
             return true;
         }
