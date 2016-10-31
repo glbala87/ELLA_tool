@@ -1,3 +1,4 @@
+var http = require('http');
 var addCommands = require('./commands');
 
 var debug = process.env.DEBUG;
@@ -154,11 +155,41 @@ exports.config = {
     // variables, such as `browser`. It is the perfect place to define custom commands.
     before: function (capabilities, specs) {
         addCommands();
+
     },
     //
     // Hook that gets executed before the suite starts
-    // beforeSuite: function (suite) {
-    // },
+    beforeSuite: function (suite) {
+        browser.waitUntil(function () {
+            return new Promise(function(resolve, reject) {
+                let baseUrl = browser.options.baseUrl;
+                var host = baseUrl.substring(0, baseUrl.lastIndexOf(":"));
+                var port = baseUrl.substring(baseUrl.lastIndexOf(":") + 1, baseUrl.length);
+                let options = {
+                    host: host,
+                    port: port,
+                    path: '/app.js'
+                }
+                let data = '';
+                let callback = function(response) {
+                    response.on('data', function (chunk) {
+                        data += chunk;
+                    });
+                    response.on('end', function () {
+                        if (data.length) {
+                            console.log("App is compiled, moving on...")
+                            resolve(true);
+                        }
+                        else {
+                            console.log("app.js is still compiling, waiting...")
+                            resolve(false);
+                        }
+                    });
+                }
+                http.request(options, callback).end();
+            });
+        }, 30000, 'waiting for gulp to finish building');
+    },
     //
     // Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
     // beforeEach in Mocha)
