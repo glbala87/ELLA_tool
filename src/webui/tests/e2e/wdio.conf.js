@@ -181,11 +181,7 @@ exports.config = {
     // Runs after a WebdriverIO command gets executed
     afterCommand: function (commandName, args, result, error) {
         // Wait for angular digest to finish.
-        if (commandName === 'click' ||
-            commandName === 'setValue' ||
-            commandName === 'selectByVisibleText') {
-                browser.waitForAngular();
-        }
+        browser.waitForAngular();
     },
     //
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
