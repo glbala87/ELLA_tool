@@ -16,7 +16,7 @@ function checkAlleleClassification(allele_data) {
 
         expect(alleleSidebar.isAlleleInClassified(allele)).toBe(true);
         alleleSidebar.selectClassifiedAllele(allele);
-        expect(data.classification).toEqual(alleleSidebar.getSelectedAlleleClassification());
+        expect(alleleSidebar.getSelectedAlleleClassification()).toEqual(data.classification);
 
         if ('references' in data) {
             for (let [idx, ref_data] of Object.entries(data.references)) {
