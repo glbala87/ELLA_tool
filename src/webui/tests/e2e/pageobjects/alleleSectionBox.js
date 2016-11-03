@@ -25,10 +25,6 @@ class AlleleSectionBox extends Page {
        browser.click('.id-mark-technical');
     }
 
-    markAsTechnical() {
-       browser.click('.id-mark-technical');
-    }
-
     /**
      * @param {string} category Either 'pathogenic' or 'benign'
      * @param {string} code ACMG code to add
