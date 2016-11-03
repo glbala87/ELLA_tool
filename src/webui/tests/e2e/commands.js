@@ -14,7 +14,7 @@ module.exports = function addCommands() {
 
     browser.addCommand('resetDb', () => {
         console.log(`Resetting database (this can take a while...)`);
-        browser.url('/reset?testset=e2e&blocking=true');
+        browser.url('http://' + browser.options.baseUrl + '/reset?testset=e2e&blocking=true');
         console.log("Database reset done!");
     });
 
