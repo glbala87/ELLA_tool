@@ -2,6 +2,7 @@ var http = require('http');
 var addCommands = require('./commands');
 
 var debug = process.env.DEBUG;
+var BUNDLED_APP = 'app.js'; // see gulp file
 
 exports.config = {
 
@@ -49,6 +50,10 @@ exports.config = {
         // maxInstances can get overwritten per capability. So if you have an in-house Selenium
         // grid with only 5 firefox instance available you can make sure that not more than
         // 5 instance gets started at a time.
+        "chromeOptions" : {
+            // "args": ["--kiosk"] // maximizes the browser, but  still not-clickable errors happen
+            // these don't have any effect: ["--start-fullscreen", start-fullscreen", "--start-maximized", start-maximized"]
+        },
         maxInstances: 1,
         browserName: 'chrome'
     }],
@@ -155,7 +160,10 @@ exports.config = {
     // variables, such as `browser`. It is the perfect place to define custom commands.
     before: function (capabilities, specs) {
         addCommands();
-
+        // Despite these settings, not-clickable errors happen locally. (height is limited running on Mac)
+        // browser.setViewportSize({ width: 1280, height: 1000});
+        console.log('browser window size:');
+        console.log(browser.windowHandleSize());
     },
     //
     // Hook that gets executed before the suite starts
@@ -168,8 +176,8 @@ exports.config = {
                 let options = {
                     host: host,
                     port: port,
-                    path: '/app.js'
-                }
+                    path: '/' + BUNDLED_APP
+                };
                 let data = '';
                 let callback = function(response) {
                     response.on('data', function (chunk) {
@@ -177,15 +185,15 @@ exports.config = {
                     });
                     response.on('end', function () {
                         if (data.length) {
-                            console.log("App is compiled, moving on...")
+                            console.log("App is compiled, moving on...");
                             resolve(true);
                         }
                         else {
-                            console.log("app.js is still compiling, waiting...")
+                            console.log(BUNDLED_APP + " is still compiling, waiting...");
                             resolve(false);
                         }
                     });
-                }
+                };
                 http.request(options, callback).end();
             });
         }, 30000, 'waiting for gulp to finish building');
@@ -232,4 +240,4 @@ exports.config = {
     // possible to defer the end of the process using a promise.
     // onComplete: function(exitCode) {
     // }
-}
+};
