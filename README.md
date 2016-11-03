@@ -76,7 +76,13 @@ You can run this locally to check that the tests are passing, but it's unsuitabl
 - Download and install chromedriver and Chrome/Chromium.
 - Run `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local machine.
 - Run `make e2e-test-local`. You'll be presented with a shell inside the container.
-- Run `make wdio` inside the shell to start the tests. It will connect to the locally running chromedriver.
+- Run `make wdio APP_BASE_URL=.. CHROME_HOST=..` inside the shell to start the tests. It will connect to the locally running chromedriver (given by CHROME_HOST as IP address) and test the app that runs on APP_BASE_URL (ip:port).
+  To run only a specific test, add WDIO_OPTIONS='--spec <path to test>'
+Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
+
+To install chromedriver:
+- brew info chromedriver
+- or https://sites.google.com/a/chromium.org/chromedriver/downloads
 
 ## Explore
 Best way to get and test selectors in Chrome is to use the `CSS Selector Helper for Chrome` extension.
@@ -84,5 +90,6 @@ Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools
 
 You can connect a debugger to Node.js instance on port `5859` to play around.
 
-Use `browser.debug()` in a test file to pause the execution of the tests.
+Use `browser.debug()` in a test file to pause the execution of the tests. 
 This let's you use the browser's console to experiment and inspect variables.
+Hit 'return' in the shell where you ran `make wdio` to continue.
