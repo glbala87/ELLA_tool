@@ -1,15 +1,13 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
-API_PORT ?= 8000-9999
-INTERNAL_API_PORT = 5000 # e2e testing uses linked containers, so use container internal port
-INTERNAL_SELENIUM_PORT = 4444 # e2e testing uses linked containers, so use container internal port
-API_HOST ?= 'localhost'
 TEST_NAME ?= all
 TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
-E2E_CONTAINER_NAME = ella-e2e-$(BRANCH)-$(USER)
-SELENIUM_CONTAINER_NAME = selenium
-SELENIUM_ADDRESS ?= 'http://localhost:4444/wd/hub'
+API_PORT ?= 8000-9999
+
+# e2e test:
+CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
+WDIO_OPTIONS ?= '' # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
 
 .PHONY: help
 
@@ -32,6 +30,10 @@ help :
 	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
 	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
+	@echo "make wdio		- For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
+	@echo "                          Set these vars: APP_BASE_URL and CHROME_HOST"
+	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
+
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
 	@echo "make core		- builds a core (development) image named ousamg/ella-core"
@@ -70,7 +72,7 @@ db:
 	docker exec $(CONTAINER_NAME) make dbreset
 
 url:
-	@./ops/dev/show-url.sh
+	@./ops/dev/show-url.sh $(CONTAINER_NAME)
 
 kill:
 	docker stop $(CONTAINER_NAME)
@@ -117,7 +119,7 @@ wdio-chromebox:
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 wdio:
-	DEBUG=true /dist/node_modules/webdriverio/bin/wdio --baseUrl "localhost:5000" --host "172.17.0.1" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
+	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 e2e-run-chrome:
 	-docker kill chromebox
