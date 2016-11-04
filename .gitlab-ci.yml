@@ -47,12 +47,6 @@ test_e2e:
     - /^ops-.*$/
   allow_failure: true
 
-cleanup_e2e:
-  stage: cleanup
-  script:
-    - make cleanup-e2e BRANCH=test
-  when: on_failure
-
 build_core:
   stage: deploy
   script:

@@ -90,7 +90,7 @@ restart:
 #---------------------------------------------
 # TESTING
 #---------------------------------------------
-.PHONY: test-build test single-test e2e-test run-test run-e2e-test run-e2e-selenium run-e2e-app cleanup-e2e
+.PHONY: test-build test single-test e2e-test e2e-test-local wdio wdio-chromebox run-test
 
 test-build:
 	$(eval BRANCH = test)
