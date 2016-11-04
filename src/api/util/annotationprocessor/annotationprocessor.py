@@ -16,44 +16,65 @@ class References(object):
 
     def _csq_pubmeds(self, annotation):
         if 'CSQ' not in annotation:
-            return list()
+            return dict()
         # Get first elem which has PUBMED ids (it's the same in all elements)
         pubmed_data = next((d['PUBMED'] for d in annotation['CSQ'] if 'PUBMED' in d), list())
+        pubmed_data = dict(zip(pubmed_data, [""]*len(pubmed_data))) # Return as dict (empty values)
         return pubmed_data
 
     def _hgmd_pubmeds(self, annotation):
         if 'HGMD' not in annotation:
-            return list()
+            return dict()
+        total = dict()
 
-        total = list()
         if 'pmid' in annotation['HGMD']:
-            total.append(annotation['HGMD']['pmid'])
-        if 'extrarefs' in annotation['HGMD']:
-            total.extend([e['pmid'] for e in annotation['HGMD']['extrarefs'] if 'pmid' in e])
+            pmid = annotation['HGMD']['pmid']
+            reftag = "Primary literature report"
+            comments = annotation['HGMD'].get("comments", "No comments")
+            comments = "No comments." if comments == "None" else comments
+            total[pmid] = [reftag, comments]
+
+        for er in annotation["HGMD"].get("extrarefs",[]):
+            if "pmid" in er:
+                pmid = er['pmid']
+                reftag = config.config["annotation"]["hgmd"]["reftag"].get(er.get("reftag"), "Reftag not specified")
+                comments = annotation['HGMD'].get("comments", "No comments.")
+                comments = "No comments." if comments == "None" else comments
+                total[pmid] = [reftag, comments]
+
+        # Format reftag, comments to string
+        for pmid, info in total.items():
+            info_string = ". ".join([v.strip().strip('.') for v in info])+"."
+            total[pmid] = info_string
+
         return total
 
     def _clinvar_pubmeds(self, annotation):
         if 'CLINVARJSON' not in annotation:
-            return list()
+            return dict()
 
         clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
 
         total = []
         for val in clinvarjson["rcvs"].values():
             total += val["pubmed"]
-        total = list(set(total))
+        total = set(total)
+        total = dict(zip(total, [""]*len(total))) # Return as dict (empty values)
 
         return total
 
     def _ensure_int_pmids(self, pmids):
         # HACK: Convert all ids to int, the annotation is sometimes messed up
         # If it cannot be converted, ignore it...
-        int_pmids = list()
+        assert isinstance(pmids, dict)
+        int_pmids = dict()
         for pmid in pmids:
+            val = pmids[pmid]
             try:
-                int_pmids.append(int(pmid))
+                int_pmids[pmid] = val
             except ValueError:
                 pass
+
         return int_pmids
 
     def process(self, annotation):
@@ -62,17 +83,27 @@ class References(object):
         clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
 
         # Merge references and restructure to list
-        all_pubmeds = csq_pubmeds+hgmd_pubmeds+clinvar_pubmeds
+        all_pubmeds = csq_pubmeds.keys()+hgmd_pubmeds.keys()+clinvar_pubmeds.keys()
         references = list()
         for pmid in sorted(set(all_pubmeds), key=all_pubmeds.count, reverse=True):
             sources = []
-            sources += ["VEP"] if pmid in csq_pubmeds else []
-            sources += ["HGMD"] if pmid in hgmd_pubmeds else []
-            sources += ["CLINVAR"] if pmid in clinvar_pubmeds else []
-            references.append({
-                'pubmed_id': pmid, 'sources': sources
-            })
+            sourceInfo = dict()
+            if pmid in csq_pubmeds:
+                sources.append("VEP")
+                if csq_pubmeds[pmid] != "":
+                    sourceInfo["VEP"] = csq_pubmeds[pmid]
+            if pmid in hgmd_pubmeds:
+                sources.append("HGMD")
+                if hgmd_pubmeds[pmid] != "":
+                    sourceInfo["HGMD"] = hgmd_pubmeds[pmid]
+            if pmid in clinvar_pubmeds:
+                sources.append("CLINVAR")
+                if clinvar_pubmeds[pmid] != "":
+                    sourceInfo["CLINVAR"] = clinvar_pubmeds[pmid]
 
+            references.append({
+                'pubmed_id': pmid, 'sources': sources, "sourceInfo": sourceInfo,
+            })
 
         return {References.CONTRIBUTION_KEY: references}
 
@@ -491,7 +522,6 @@ class GeneticAnnotation(object):
 
     def process(self, annotation):
         return {}
-        # print annotation.get('RepeatMasker')
 
 
 class QualityAnnotation(object):
@@ -566,11 +596,12 @@ class AnnotationProcessor(object):
             # References are merged specially
             if 'references' in data and 'references' in custom_annotation:
                 for ca_ref in custom_annotation['references']:
+                    if "sourceInfo" not in ca_ref:
+                        ca_ref["sourceInfo"] =  dict()
                     # A pubmed reference can exist in both, if so only merge the source
                     if 'pubmed_id' in ca_ref:
                         existing_ref = next((r for r in data['references'] if r.get('pubmed_id') == ca_ref['pubmed_id']), None)
                         if existing_ref:
-                            existing_ref
                             existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
                             continue
                     data['references'].append(ca_ref)
