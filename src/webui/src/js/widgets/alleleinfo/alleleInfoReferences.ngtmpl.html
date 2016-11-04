@@ -2,20 +2,19 @@
   <cbbody>
     <article class="acmg-body" ng-repeat="ref in vm.allele_references">
       <div>
-        <div class="clickable white" isolate-click>
-          <transcript-wrapper  transcript="ref"
-            popover-trigger="outsideClick"
-            uib-popover-template="'ngtmpl/abstractPopover.ngtmpl.html'"
-            popover-placement="auto right"
-            popover-append-to-body=true>
-            <h4 class="faded-title">Article</h4>
-          </transcript-wrapper>
-        </div>
+        <h4 class="faded-title">Article</h4>
       </div>
       <section class="line-wrapper spaced">
         <div>
           <h5 class="wrap"><a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
           <p>{{ref.getShortDesc()}}</p>
+          <p ng-if="ref.abstract"><a class="clickable"
+              popover-trigger="outsideClick"
+              uib-popover-template="'ngtmpl/abstractPopover.ngtmpl.html'"
+              popover-placement="bottom-left"
+              popover-append-to-body="true"
+              class="faded-title"
+            >Abstract</a></p>
           <div ng-repeat="(source, sourceStr) in vm.getReferenceDBSources(ref.pubmed_id)">
               <div ng-switch=source>
                   <p ng-switch-when="HGMD"><a-clip href="{{vm.allele.getHGMDUrl()}}">Source: {{ sourceStr }}</a-clip></p>
