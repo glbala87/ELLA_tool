@@ -56,9 +56,8 @@ export class Allele {
     }
 
     getClinvarUrl() {
-        if ('CLINVAR' in this.annotation.external &&
-            'CLNACC' in this.annotation.external.CLINVAR) {
-            let search_term = this.annotation.external.CLINVAR.CLNACC.split('|').map(s => s.split('.')[0]).join(' OR ');
+        if ('CLINVAR' in this.annotation.external) {
+            let search_term = this.annotation.external.CLINVAR.map(c => c.rcv).join(' OR ');
             return `http://www.ncbi.nlm.nih.gov/clinvar?term=${search_term}`;
         }
     }

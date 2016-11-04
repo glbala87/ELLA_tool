@@ -8,8 +8,8 @@
           <p>{{ref.getShortDesc()}}</p>
           <div ng-repeat="(source, sourceStr) in vm.getReferenceDBSources(ref.pubmed_id)">
               <div ng-switch=source>
-                  <p><a ng-switch-when="HGMD" href="{{vm.allele.getHGMDUrl()}}">Source: {{ sourceStr }}</a></p>
-                  <p><a ng-switch-when="CLINVAR" href="{{vm.allele.getClinVarUrl()}}">Source: {{ sourceStr }}</a></p>
+                  <p ng-switch-when="HGMD"><a-clip href="{{vm.allele.getHGMDUrl()}}">Source: {{ sourceStr }}</a-clip></p>
+                  <p ng-switch-when="CLINVAR"><a-clip href="{{vm.allele.getClinvarUrl()}}">Source: {{ sourceStr }}</a-clip></p>
                   <p ng-switch-default>Source: {{ sourceStr }}</p>
               </div>
           </div>
