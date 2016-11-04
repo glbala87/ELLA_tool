@@ -120,6 +120,10 @@ export class AlleleInfoReferences {
         return this._referenceDBSources[pmid];
     }
 
+    getAbstract(reference) {
+        return reference.abstract;
+    }
+
     showReferenceEval(reference) {
         // Check for existing referenceassessment data (either from existing ra from backend
         // or user data in the allele state)
