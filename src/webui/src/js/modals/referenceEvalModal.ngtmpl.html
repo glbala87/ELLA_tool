@@ -5,7 +5,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" modal="true" on-close="vm.modal.close" ng-if="vm.reference">
+<sectionbox color="green id-reference-modal-body" modal="true" on-close="vm.modal.close" ng-if="vm.reference">
   <titlebar>
     <h3 class="title">REFERENCE EVALUATION</h3>
   </titlebar>
@@ -16,8 +16,8 @@
         <p class="slim">{{vm.reference.getShortDesc()}}</p>
       </div>
       <div class="line-wrapper">
-        <button type="button" ng-click="vm.modal.close()">Cancel</button>
-        <button ng-click="vm.save()"> Save </button>
+        <button class="id-reference-modal-cancel" type="button" ng-click="vm.modal.close()">Cancel</button>
+        <button class="id-reference-modal-save" ng-click="vm.save()"> Save </button>
       </div>
     </section>
   </controls>

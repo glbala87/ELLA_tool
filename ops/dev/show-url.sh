@@ -1,8 +1,14 @@
 #!/bin/bash
-# print the url to our ella instance:
 
-branch=$(git rev-parse --abbrev-ref HEAD)
-port=$(docker port "ella-$branch-$USER" | cut -d: -f2)
+# print the url to our ella instance
+# usage: show-url.sh [container] Assumes default container name if none is given
+
+
+defaultContainer="ella-$(git rev-parse --abbrev-ref HEAD)-$USER" # see Makefile
+container=${1:-$defaultContainer} # use $defaultContainer if $1 is not set
+
+# echo "Finding port used by container $container"
+port=$(docker port "$container" | cut -d: -f2)
 
 if [[ "$port" == "" ]]
 then
@@ -18,4 +24,4 @@ else
 fi
 
 
-echo "Ella is running at $url"
+echo "$url"

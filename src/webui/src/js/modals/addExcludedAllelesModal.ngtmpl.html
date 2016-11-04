@@ -1,10 +1,10 @@
-<sectionbox color="green" modal="true" on-close="vm.onClose()">
+<sectionbox class="id-add-excluded-modal" color="green" modal="true" on-close="vm.onClose()">
   <titlebar>
     <h3 class="title">ADD EXCLUDED VARIANTS</h3>
   </titlebar>
   <controls>
     <section class="line-wrapper pinned-right">
-      <button type="button" ng-click="vm.close()">Close</button>
+      <button class="id-close" type="button" ng-click="vm.close()">Close</button>
     </section>
   </controls>
   <contentwrapper>
@@ -17,7 +17,7 @@
           <div class="line-wrapper spaced only-control">
             <allelebar class="allele-info" allele="al"></allelebar>
             <section>
-              <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
+              <checkable-button class="id-exclude-allele" list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
                 <checked>EXCLUDE</checked>
                 INCLUDE
               </checkable-button>
@@ -76,7 +76,7 @@
           <div class="line-wrapper spaced">
             <allelebar class="allele-info" allele="al"></allelebar>
             <section>
-              <checkable-button list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
+              <checkable-button class="id-include-allele" list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
                 <checked>INCLUDED</checked>
                 INCLUDE
               </checkable-button>

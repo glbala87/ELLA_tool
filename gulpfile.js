@@ -177,10 +177,7 @@ gulp.task('base-css', function () {
  */
 gulp.task('fonts', function () {
     gulp.src(
-        [
-            'src/webui/src/thirdparty/fontawesome/font-awesome-4.3.0/fonts/*',
-            'src/webui/src/thirdparty/fonts/*.woff2'
-        ])
+        [ 'src/webui/src/thirdparty/fonts/*.woff2' ])
         .pipe(plumber())
         .pipe(gulp.dest(__basedir + 'fonts/'));
 });
