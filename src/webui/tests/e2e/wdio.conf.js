@@ -178,20 +178,17 @@ exports.config = {
                     port: port,
                     path: '/' + BUNDLED_APP
                 };
-                let data = '';
                 let callback = function(response) {
-                    response.on('data', function (chunk) {
-                        data += chunk;
-                    });
+                    response.on('data', function (chunk) {});
                     response.on('end', function () {
-                        if (data.length) {
-                            console.log("App is compiled, moving on...");
-                            resolve(true);
+                        let ok = response.statusCode === 200;
+                        if (ok) {
+                            console.log(BUNDLED_APP + ' is compiled, moving on...');
                         }
                         else {
-                            console.log(BUNDLED_APP + " is still compiling, waiting...");
-                            resolve(false);
+                            console.log(BUNDLED_APP + ' is still compiling, waiting...');
                         }
+                        resolve(ok);
                     });
                 };
                 http.request(options, callback).end();
