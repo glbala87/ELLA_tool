@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from vardb.datamodel import DB, assessment
+from vardb.datamodel import DB, assessment, sample
 from api.util import alleledataloader
 from sqlalchemy.orm import subqueryload, joinedload
 import logging
@@ -8,7 +8,7 @@ import time
 from openpyxl import Workbook
 from openpyxl.writer.write_only import WriteOnlyCell
 from openpyxl.styles import Font
-import os.path as path
+from os import path, mkdir
 from collections import defaultdict, OrderedDict
 import argparse
 
@@ -47,6 +47,7 @@ COLUMN_PROPERTIES = OrderedDict([
     ('user', ['User', 20]),
     ('consequence', ['Consequence', 20]),
     ('coordinate', ['Coordinate', 20]),
+    ('n_samples', ['# samples', 6]),
     ('classification_eval', ['Evaluation', 20]),
     ('acmg_eval', ['ACMG evaluation', 20]),
     ('freq_eval', ['Frequency comment', 20]),
@@ -76,7 +77,12 @@ def get_batch(alleleassessments):
 
 
 def format_transcripts(allele_annotation):
-
+    """
+    Make dict with info about a transcript for each
+    filtered transcript in allele_annotation
+    :param allele_annotation: an allele_dict['annotation'] dict
+    :return : a dict with info about transcript
+    """
     keys = {'gene': 'SYMBOL',
             'hgvsc': 'HGVSc',
             'hgvsp': 'HGVSp',
@@ -85,8 +91,8 @@ def format_transcripts(allele_annotation):
             'rsnum': 'Existing_variation',
             'consequence': 'Consequence'}
 
+    formatted_transcripts = defaultdict(list)
     for filtered_transcript in allele_annotation['filtered_transcripts']:
-        formatted_transcripts = defaultdict(list)
         for transcript in allele_annotation['transcripts']:
             if filtered_transcript == transcript['Transcript']:
                 for key, allele_key in keys.items():
@@ -96,16 +102,15 @@ def format_transcripts(allele_annotation):
                     if formatted_transcript:
                         formatted_transcripts[key].append(formatted_transcript)
 
-        yield {key: ' | '.join(value) for key, value in formatted_transcripts.items()}
+    return {key: ' | '.join(value) for key, value in formatted_transcripts.items()}
 
 
 def format_classification(alleleassessment, adl):
     """
-    Generator of string-formatted lists of the filtered
-    transcripts of an AlleleAssessment
+    String-formatted list of the filtered transcripts of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
     :param adl: an AlleleDataLoader object
-    :yield : list of formatted strings for each filtered transcript
+    :return : list of formatted strings for filtered transcripts
     """
     allele_dict = adl.from_objs([alleleassessment.allele],
                                 genepanel=alleleassessment.genepanel,
@@ -140,26 +145,34 @@ def format_classification(alleleassessment, adl):
         open_end_position=allele_dict['open_end_position']
     )
 
-    for formatted_transcript in format_transcripts(allele_dict['annotation']):
-        classification_values = {
-            'gene': formatted_transcript.get('gene'),
-            'class': alleleassessment.classification,
-            'hgvsc': formatted_transcript.get('hgvsc'),
-            'date': date,
-            'hgvsp': formatted_transcript.get('hgvsp'),
-            'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
-            'rsnum': formatted_transcript.get('rsnum'),
-            'user': user,
-            'consequence': formatted_transcript.get('consequence'),
-            'coordinate': coordinate,
-            'classification_eval': alleleassessment.evaluation['classification']['comment'],
-            'acmg_eval': acmg_evals,
-            'freq_eval': alleleassessment.evaluation['frequency']['comment'],
-            'extdb_eval': alleleassessment.evaluation['external']['comment'],
-            'pred_eval': alleleassessment.evaluation['prediction']['comment'],
-            'ref_eval': ref_evals
-        }
-        yield [classification_values[key] for key in COLUMN_PROPERTIES]
+    formatted_transcript = format_transcripts(allele_dict['annotation'])
+
+    n_samples = len(alleleassessment.allele.genotypes)
+    log.debug('Allele %s is found in samples %s' %
+              (formatted_transcript.get('hgvsc'),
+               ', '.join([str(g.sample_id) for g in alleleassessment.allele.genotypes])
+              ))
+
+    classification_values = {
+        'gene': formatted_transcript.get('gene'),
+        'class': alleleassessment.classification,
+        'hgvsc': formatted_transcript.get('hgvsc'),
+        'date': date,
+        'hgvsp': formatted_transcript.get('hgvsp'),
+        'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
+        'rsnum': formatted_transcript.get('rsnum'),
+        'user': user,
+        'consequence': formatted_transcript.get('consequence'),
+        'coordinate': coordinate,
+        'n_samples': n_samples,
+        'classification_eval': alleleassessment.evaluation['classification']['comment'],
+        'acmg_eval': acmg_evals,
+        'freq_eval': alleleassessment.evaluation['frequency']['comment'],
+        'extdb_eval': alleleassessment.evaluation['external']['comment'],
+        'pred_eval': alleleassessment.evaluation['prediction']['comment'],
+        'ref_eval': ref_evals
+    }
+    return [classification_values[key] for key in COLUMN_PROPERTIES]
 
 
 def dump_alleleassessments(session, filename=None):
@@ -167,10 +180,10 @@ def dump_alleleassessments(session, filename=None):
     Save all current alleleassessments to Excel document
     """
     alleleassessments = session.query(assessment.AlleleAssessment).order_by(
-        assessment.AlleleAssessment.id).options(
+        assessment.AlleleAssessment.allele_id).options(
             joinedload(assessment.AlleleAssessment.user),
             subqueryload(assessment.AlleleAssessment.annotation).
-            subqueryload('allele'),
+            subqueryload('allele').joinedload('genotypes'),
             joinedload(assessment.AlleleAssessment.genepanel),
             subqueryload(assessment.AlleleAssessment.referenceassessments).
             joinedload('reference')
@@ -201,9 +214,9 @@ def dump_alleleassessments(session, filename=None):
                  (len(batch_alleleassessments), str(t_query-t_start)))
 
         for alleleassessment in batch_alleleassessments:
-            for classification in format_classification(alleleassessment, adl):
-                if filename:
-                    worksheet.append(classification)
+            classification = format_classification(alleleassessment, adl)
+            if filename:
+                worksheet.append(classification)
 
         t_get = time.time()
         log.info("Read the allele assessments in %s seconds" %
@@ -229,8 +242,11 @@ def main(session):
     args = parser.parse_args()
 
     if args.log:
+        if not path.exists(LOG_FILENAME):
+            mkdir(path.dirname(LOG_FILENAME))
         logging.basicConfig(filename=LOG_FILENAME, filemode='w',
                             level=logging.DEBUG)
+
 
     if not args.excel_file.endswith('.xlsx'):
         args.excel_file += '.xlsx'
