@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from vardb.datamodel import DB, assessment, sample
+from vardb.datamodel import DB, assessment
 from api.util import alleledataloader
 from sqlalchemy.orm import subqueryload, joinedload
 import logging
@@ -25,11 +25,12 @@ TRANSCRIPT_FORMAT = "{transcript}.{version}:{hgvsc_short}"
 
 REF_FORMAT = "{title} (Pubmed {pmid}): {evaluation}"
 
-REF_ORDER = ['relevance', 'ref_auth_classification', 'comment',
-             'ref_prot', 'ref_population', 'ref_prediction',
-             'ref_prediction_tool', 'ref_segregation',
-             'ref_segregation_quality', 'ref_quality',
-             'ref_prot_quality', 'ref_rna', 'ref_rna_quality', 'sources']
+REF_ORDER = ['relevance', 'ref_auth_classification', 'comment']
+# Ref evaluation fields, order not specified:
+# ['ref_prot', 'ref_population', 'ref_prediction',
+#  'ref_prediction_tool', 'ref_segregation',
+#  'ref_segregation_quality', 'ref_quality',
+#  'ref_prot_quality', 'ref_rna', 'ref_rna_quality', 'sources']
 
 CHROMOSOME_FORMAT = "{chromosome}:{start_position}-{open_end_position}"
 
@@ -107,7 +108,7 @@ def format_transcripts(allele_annotation):
 
 def format_classification(alleleassessment, adl):
     """
-    String-formatted list of the filtered transcripts of an AlleleAssessment
+    Make list of the filtered transcripts of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
     :param adl: an AlleleDataLoader object
     :return : list of formatted strings for filtered transcripts
@@ -128,13 +129,18 @@ def format_classification(alleleassessment, adl):
         [': '.join([ae['code'], ae['comment']]) if ae['comment'] else ae['code']
          for ae in alleleassessment.evaluation['acmg']['included']]
     )
+
+    # Note that the order of the first ref evaluation fields are specified by
+    # REF_ORDER. In order to include all refs, the remaining evaluation keys
+    # are added using a set-operation:
     ref_evals = ' | '.join(
         [REF_FORMAT.format(
             title=re.reference.title,
             pmid=re.reference.pubmed_id,
             evaluation=', '.join(
                 ['='.join(map(str, [key, re.evaluation[key]]))
-                 for key in REF_ORDER if key in re.evaluation]
+                 for key in REF_ORDER+list(set(re.evaluation.keys())-set(REF_ORDER))
+                 if key in re.evaluation]
             )
         ) for re in alleleassessment.referenceassessments if len(re.evaluation)]
     )
@@ -148,10 +154,13 @@ def format_classification(alleleassessment, adl):
     formatted_transcript = format_transcripts(allele_dict['annotation'])
 
     n_samples = len(alleleassessment.allele.genotypes)
-    log.debug('Allele %s is found in samples %s' %
-              (formatted_transcript.get('hgvsc'),
-               ', '.join([str(g.sample_id) for g in alleleassessment.allele.genotypes])
-              ))
+    log.debug('Allele %s, %s is found in samples %s' %
+              (alleleassessment.allele_id,
+               formatted_transcript.get('hgvsc'),
+               '|'.join([','.join(map(str, [g.sample_id]))
+                         for g in alleleassessment.allele.genotypes])
+              )
+    )
 
     classification_values = {
         'gene': formatted_transcript.get('gene'),
@@ -178,6 +187,8 @@ def format_classification(alleleassessment, adl):
 def dump_alleleassessments(session, filename=None):
     """
     Save all current alleleassessments to Excel document
+    :param session: An sqlalchemy session
+    :param filename: Filename ending with .xlsx
     """
     alleleassessments = session.query(assessment.AlleleAssessment).order_by(
         assessment.AlleleAssessment.allele_id).options(
@@ -246,7 +257,6 @@ def main(session):
             mkdir(path.dirname(LOG_FILENAME))
         logging.basicConfig(filename=LOG_FILENAME, filemode='w',
                             level=logging.DEBUG)
-
 
     if not args.excel_file.endswith('.xlsx'):
         args.excel_file += '.xlsx'
