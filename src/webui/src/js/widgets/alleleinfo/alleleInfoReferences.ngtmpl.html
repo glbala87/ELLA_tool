@@ -9,6 +9,7 @@
           <h5 class="wrap"><a-clip class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
           <p>{{ref.getShortDesc()}}</p>
           <p ng-if="ref.abstract"><a class="clickable"
+              popover-title="Abstract"
               popover-trigger="outsideClick"
               uib-popover-template="'ngtmpl/abstractPopover.ngtmpl.html'"
               popover-placement="bottom-left"
