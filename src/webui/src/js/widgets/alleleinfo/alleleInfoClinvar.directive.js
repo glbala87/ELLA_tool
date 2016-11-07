@@ -50,8 +50,8 @@ export class AlleleInfoClinvar {
         return 'CLINVAR' in this.allele.annotation.external;
     }
 
-    getUrl(rcv) {
-        return "http://www.ncbi.nlm.nih.gov/clinvar/" + rcv;
+    getRCVUrl(rcv) {
+        return "https://www.ncbi.nlm.nih.gov/clinvar/" + rcv;
     }
 
     idempoClinvar() {

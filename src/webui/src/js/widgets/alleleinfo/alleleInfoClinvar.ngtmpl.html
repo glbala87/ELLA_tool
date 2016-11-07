@@ -1,8 +1,8 @@
-<contentbox title="Clinvar" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
+<contentbox title="Clinvar" title-url="{{vm.allele.getClinvarUrl()}}" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
   <cbbody>
     <div class="cb-table">
       <div class="tabular-row" ng-repeat="c in ::vm.idempoClinvar()">
-        <div class="cell"><h5 class="wrap"> <a-clip href="{{vm.getUrl(c.rcv)}}">
+        <div class="cell"><h5 class="wrap"> <a-clip href="{{vm.getRCVUrl(c.rcv)}}">
             {{c.sigtext}} - {{c.phenotypetext}}
         </a-clip> </h5></div>
         <div class="cell">

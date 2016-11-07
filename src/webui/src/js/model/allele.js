@@ -56,8 +56,8 @@ export class Allele {
 
     getClinvarUrl() {
         if ('CLINVAR' in this.annotation.external) {
-            let search_term = this.annotation.external.CLINVAR.map(c => c.rcv).join(' OR ');
-            return `http://www.ncbi.nlm.nih.gov/clinvar?term=${search_term}`;
+            let variant_id = this.annotation.external.CLINVAR[0]["variant_id"];
+            return "https://www.ncbi.nlm.nih.gov/clinvar/variation/" + variant_id;
         }
     }
 
