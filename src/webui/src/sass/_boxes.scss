@@ -67,6 +67,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .title { margin-right: 0.025rem; }
   .cb-body { padding: 1.3rem; width: 100%; transform: scaleX(1); opacity: 1; transform-origin: left; transform-style: flat; transition: all 0.6s; white-space: nowrap; }
   .title { color: white; }
+  h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
   h5, p { font-size: 1.4rem; color: #333; }
   .exac p { padding-right: 2.6rem; }
   h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; font-family: $slim; }
