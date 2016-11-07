@@ -48,7 +48,7 @@ COLUMN_PROPERTIES = OrderedDict([
     ('user', ['User', 20]),
     ('consequence', ['Consequence', 20]),
     ('coordinate', ['Coordinate', 20]),
-    ('n_samples', ['# samples', 6]),
+    ('n_samples', ['# samples', 3]),
     ('classification_eval', ['Evaluation', 20]),
     ('acmg_eval', ['ACMG evaluation', 20]),
     ('freq_eval', ['Frequency comment', 20]),
@@ -79,7 +79,7 @@ def get_batch(alleleassessments):
 
 def format_transcripts(allele_annotation):
     """
-    Make dict with info about a transcript for each
+    Make dict with info about a transcript for all
     filtered transcript in allele_annotation
     :param allele_annotation: an allele_dict['annotation'] dict
     :return : a dict with info about transcript
@@ -108,7 +108,7 @@ def format_transcripts(allele_annotation):
 
 def format_classification(alleleassessment, adl):
     """
-    Make list of the filtered transcripts of an AlleleAssessment
+    Make a list of the classification fields of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
     :param adl: an AlleleDataLoader object
     :return : list of formatted strings for filtered transcripts
