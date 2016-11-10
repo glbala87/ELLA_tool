@@ -1,4 +1,5 @@
 import logging
+import xml.etree.ElementTree as ET
 
 """
 This module parses an PubmedArticle XML tree and returns the reference as
@@ -11,6 +12,9 @@ NOT_IN_PUBMED = "NOT IN PUBMED"
 
 
 class PubMedParser(object):
+
+    def from_xml_string(self, pubmed_xml):
+        return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
 
     def parse_pubmed_article(self, pubmed_article):
         """

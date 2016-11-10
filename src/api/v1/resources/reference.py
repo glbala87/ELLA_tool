@@ -3,8 +3,7 @@ from vardb.datamodel import assessment
 from api import schemas
 from api.util.util import paginate, rest_filter, request_json
 
-
-from api.util.pubmedxml import PubmedXmlParser
+from pubmed import PubMedParser
 
 from api.v1.resource import Resource
 
@@ -77,7 +76,8 @@ class ReferenceListResource(Resource):
               $ref: '#/definitions/Reference'
             description: Created reference
         """
-        ref_data = PubmedXmlParser().from_string(data['xml'].encode('utf-8'))
+
+        ref_data = PubMedParser().from_xml_string(data['xml'].encode('utf-8'))
 
         reference = session.query(assessment.Reference).filter(
             assessment.Reference.pubmed_id == ref_data['pubmed_id']
