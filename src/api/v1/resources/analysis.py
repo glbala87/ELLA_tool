@@ -783,6 +783,13 @@ class AnalysisCollisionResource(Resource):
             sample.Analysis.id != analysis_id
         )
 
+        # Subquery: Only include alleles which belongs to requested analysis
+        analysis_alleles = session.query(allele.Allele.id).join(
+            genotype.Genotype.alleles,
+            sample.Sample,
+            sample.Analysis
+        ).filter(sample.Analysis.id == analysis_id)
+
         # Get all combinations of users and alleles where the analyses belongs to ongoing
         # interpretations and the alleles have no existing alleleassessment
         user_alleles = session.query(
@@ -796,11 +803,12 @@ class AnalysisCollisionResource(Resource):
             sample.Analysis,
             sample.Interpretation
         ).filter(
+            allele.Allele.id.in_(analysis_alleles),
             allele.Allele.id.in_(allele_ids_no_aa),
             sample.Analysis.id.in_(analysis_ongoing_interpretation),
             user.User.id == sample.Interpretation.user_id,
-            sample.Analysis.genepanel_name == gene.Genepanel.name,
-            sample.Analysis.genepanel_version == gene.Genepanel.version
+            gene.Genepanel.name == sample.Analysis.genepanel_name,
+            gene.Genepanel.version == sample.Analysis.genepanel_version
         ).group_by(
             user.User.id,
             allele.Allele.id,
@@ -809,7 +817,7 @@ class AnalysisCollisionResource(Resource):
         ).order_by(
             user.User.id
         ).limit(  # Just in case to prevent DB overload...
-            200
+            20
         ).all()
 
         user_ids = set([ua[0] for ua in user_alleles])
