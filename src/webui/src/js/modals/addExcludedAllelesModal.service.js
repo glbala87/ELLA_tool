@@ -18,10 +18,7 @@ export class AddExcludedAllelesController {
         this.frequencies = Config.getConfig().frequencies;
         this.alleleService = Allele;
         this.included_allele_ids = included_allele_ids;  // Alleles added by user
-        this.alleles = {
-            class1: [],
-            intronic: []
-        }; // Alleles loaded from backend
+        this.alleles = []; // Alleles loaded from backend
         this.excluded_allele_ids = excluded_allele_ids;
         this.category_excluded_alleles = []; // Alleles filtered on the category, but no further filtering. Needed for showing genes
         this.filtered_alleles = [];  // Finished filtered Alleles to show, that are not yet added
@@ -42,26 +39,24 @@ export class AddExcludedAllelesController {
      */
     loadAlleles(sample_id, gp_name, gp_version) {
 
-        // Class 1
-        let p_class1 = this.alleleService.getAlleles(
-            this.excluded_allele_ids.class1,
+        let all_ids = this._getAllExcludedAlleleIds();
+
+        this.alleleService.getAlleles(
+            all_ids,
             sample_id,
             gp_name,
             gp_version
-        ).then(alleles => this.alleles.class1 = alleles);
-
-        // Intronic
-        let p_intronic = this.alleleService.getAlleles(
-            this.excluded_allele_ids.intronic,
-            sample_id,
-            gp_name,
-            gp_version
-        ).then(alleles => this.alleles.intronic = alleles);
-
-        // When done, update view data
-        Promise.all([p_class1, p_intronic]).then(
-            () => this.update()
         )
+        .then(alleles => this.alleles = alleles)
+        .then(() => this.update());
+    }
+
+    _getAllExcludedAlleleIds() {
+        let all_ids = [];
+        for (let ids of Object.values(this.excluded_allele_ids)) {
+            all_ids.push(...ids);
+        }
+        return all_ids;
     }
 
     update() {
@@ -87,13 +82,22 @@ export class AddExcludedAllelesController {
 
     _updateFilter() {
         if (this.category === 'all') {
-            this.category_excluded_alleles = this.alleles.class1.concat(this.alleles.intronic);
+            this.category_excluded_alleles = this.alleles.slice(0);
         }
         else if (this.category === 'class_one') {
-            this.category_excluded_alleles = this.alleles.class1;
+            this.category_excluded_alleles = this.alleles.filter(
+                a => this.excluded_allele_ids.class1.includes(a.id)
+            );
+        }
+        else if (this.category === 'gene') {
+            this.category_excluded_alleles = this.alleles.filter(
+                a => this.excluded_allele_ids.gene.includes(a.id)
+            );
         }
         else if (this.category === 'intronic') {
-            this.category_excluded_alleles = this.alleles.intronic;
+            this.category_excluded_alleles = this.alleles.filter(
+                a => this.excluded_allele_ids.intronic.includes(a.id)
+            );
         }
 
         this.filtered_alleles = this.category_excluded_alleles.slice(0); // Clone array
@@ -144,9 +148,8 @@ export class AddExcludedAllelesController {
     }
 
     _updateIncludedAlleles() {
-        let all_alleles = this.alleles.class1.concat(this.alleles.intronic);
-        this.included_alleles = this.included_allele_ids.map(
-            aid => all_alleles.find(ma => ma.id === aid)
+        this.included_alleles = this.alleles.filter(
+            a => this.included_allele_ids.includes(a.id)
         );
     }
 }

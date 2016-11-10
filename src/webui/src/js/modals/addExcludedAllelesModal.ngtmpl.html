@@ -32,7 +32,6 @@
     <!-- END INCLUDED -->
 
     <!-- START MODAL CONTROLS -->
-
     <hr ng-if="vm.included_alleles.length">
     <div class="question small line-wrapper spaced bottom">
       <h5 class="slim title upper"><b>{{vm.filtered_alleles.length}} variants</b> <small>from current filter settings</small></h5>
@@ -43,6 +42,7 @@
           <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
           <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'class_one'">Class 1</label>
           <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
+          <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'gene'">Gene</label>
         </div>
         <div class="dropdown multiple-question-element">
           <select ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
