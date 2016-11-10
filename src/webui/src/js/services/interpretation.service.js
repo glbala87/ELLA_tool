@@ -38,7 +38,6 @@ class InterpretationService {
         this.alleleService = Allele;
         this.user = User;
         this.interpretationResource = interpretationResource;
-        this.interpretation = null;
         this.modalService = ModalService;
         this.locationService = LocationService;
     }
@@ -106,7 +105,12 @@ class InterpretationService {
             if (res) {
                 return this.save(interpretation).then(() => {
                     if (res === 'markreview') {
-                        this.analysisService.markreview(interpretation.analysis.id);
+                        return this.analysisService.updateProperties(
+                            interpretation.analysis.id,
+                            interpretation.state.analysis.properties
+                        ).then(() => {
+                            this.analysisService.markreview(interpretation.analysis.id);
+                        });
                     }
                     else if (res === 'finalize') {
 
@@ -136,13 +140,18 @@ class InterpretationService {
                             }
                         }
 
-
-                        return this.analysisService.finalize(
+                        return this.analysisService.updateProperties(
                             interpretation.analysis.id,
-                            alleleassessments,
-                            referenceassessments,
-                            allelereports
-                        );
+                            interpretation.state.analysis.properties
+                        ).then(() => {
+                            return this.analysisService.finalize(
+                                interpretation.analysis.id,
+                                alleleassessments,
+                                referenceassessments,
+                                allelereports
+                            );
+                        });
+
                     }
                     else {
                         throw `Got unknown option ${res} when confirming interpretation action.`;

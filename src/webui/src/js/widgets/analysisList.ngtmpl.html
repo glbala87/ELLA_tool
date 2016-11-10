@@ -8,6 +8,9 @@
           <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • <b>{{::vm.abbreviateUser(interpretation.user)}}</b> • <i>{{::interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}}</i></h3></div>
         </div>
       </div>
+      <div class="analysis-extras">
+        <div><span class="tag" disabled ng-repeat="tag in analysis.properties.tags track by tag">{{tag}}</span> <input ng-if="!vm.isAnalysisDone(analysis) && analysis.properties.review_comment" disabled ng-model="analysis.properties.review_comment"></div>
+      </div>
     </div>
   </cbbody>
 </contentbox>

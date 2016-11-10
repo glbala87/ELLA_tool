@@ -35,6 +35,13 @@ export class AnalysisService {
         return this.analysisResource.getAnalysis(analysis_id);
     }
 
+    updateProperties(analysis_id, properties) {
+        return this.analysisResource.patch(
+            analysis_id,
+            {'properties': properties}
+        );
+    }
+
     markreview(analysis_id) {
         return this.analysisResource.markreview(analysis_id);
     }
