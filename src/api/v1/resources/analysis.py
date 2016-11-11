@@ -99,6 +99,18 @@ class AnalysisResource(Resource):
             in: path
             type: integer
             description: Analysis id
+          - data:
+            in: body
+            required: true
+            schema:
+              title: Analysis properties
+              type: object
+              required:
+                - properties
+              properties:
+                properties:
+                  description: Properties data
+                  type: object
         responses:
           200:
             schema:
