@@ -39,7 +39,7 @@ class AlleleSectionBox extends Page {
         };
 
         let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`;
-        browser.waitForExist(acmg_selector); // Wait for popover to appear properly
+        browser.pause(500); // Wait for popover animation to settle
         browser.click(acmg_selector);
 
         browser.element('.popover').scroll(`h4.acmg-title=${code}`);
