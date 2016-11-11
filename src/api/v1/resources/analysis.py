@@ -9,6 +9,7 @@ from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.interpretationdataloader import InterpretationDataLoader
 from api.v1.resource import Resource
+from api.config import config
 
 
 def get_current_interpretation(analysis):
@@ -686,7 +687,7 @@ class AnalysisActionFinalizeResource(Resource):
         # We need to fetch all allele ids to store info for.
         # Allele ids are provided by the 'Ongoing' interpretation
 
-        i = InterpretationDataLoader(session).from_id(current_interpretation.id)
+        i = InterpretationDataLoader(session, config).from_id(current_interpretation.id)
 
         allele_ids = i['allele_ids']
         excluded = i['excluded_allele_ids']

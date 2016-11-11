@@ -60,7 +60,12 @@ button { outline: none; border: 1px solid Transparent;
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
 
-.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
+.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
+}
+.no-alleles {
+   h2 { font-family: $slim; font-size: 2.0rem; text-transform: uppercase; color: $black-50; }
+}
+
 
 .hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 1501; color: black; cursor: pointer;
   h1 { font-size: 4rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
