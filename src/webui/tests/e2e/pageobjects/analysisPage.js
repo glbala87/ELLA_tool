@@ -8,6 +8,7 @@ class AnalysisPage extends Page {
     get markReviewButton() { return browser.element('.id-mark-review'); }
     get finalizeButton() { return browser.element('.id-finalize'); }
     get addExcludedButton() { return browser.element('.id-add-excluded') }
+    get collisionWarningBar() { return browser.element('.id-collision-warning'); }
 
     _selectSection(number) {
         let dropdown = `interpretation-singlesample nav select option:nth-child(${number})`;
@@ -25,10 +26,6 @@ class AnalysisPage extends Page {
 
     selectSectionReport() {
        this._selectSection(3);
-    }
-
-    startAnalysis() {
-
     }
 
 }

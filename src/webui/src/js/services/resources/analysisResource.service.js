@@ -2,6 +2,7 @@
 
 import {Service, Inject} from '../../ng-decorators';
 import Analysis from '../../model/analysis';
+import {Allele} from '../../model/allele';
 
 
 @Service({
@@ -142,6 +143,25 @@ class AnalysisResource {
                 resolve,
                 reject
             );
+        });
+    }
+
+    /**
+     * Returns information about alleles that are currently being interpreted in
+     * analyses _other_ than the provided analysis id, and which doesn't
+     * have any existing alleleassessment.
+     * @param  {int} id Analysis id
+     * @return {Object}    Information about collisions
+     */
+    getCollisions(id) {
+        return new Promise((resolve, reject) => {
+            var r = this.resource(`${this.base}/analyses/${id}/collisions/`);
+            var data = r.query(() => {
+                for (let user of data) {
+                    user.alleles = user.alleles.map(a => new Allele(a));
+                }
+                resolve(data);
+            }, reject);
         });
     }
 }
