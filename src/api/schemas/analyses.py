@@ -54,6 +54,7 @@ class AnalysisSchema(Schema):
                   'deposit_date',
                   'interpretations',
                   'genepanel',
+                  'properties',
                   'samples')
 
     samples = fields.Nested(SampleSchema, many=True)

@@ -34,6 +34,16 @@ export class ReportCardController {
         this.analysisService = Analysis;
 
         this.selected_excluded = null;
+
+        if (!('analysis' in this.state)) {
+            this.state.analysis = {};
+        }
+        if (!('properties' in this.state.analysis)) {
+            this.state.analysis.properties = {
+                tags: [],
+                review_comment: ''
+            }
+        }
     }
 
     getAlleleState(allele) {
@@ -59,6 +69,10 @@ export class ReportCardController {
             .thenBy(a => a.annotation.filtered[0].HGVSc_short)
         )
         return this.alleles;
+    }
+
+    getAnalysisTagOptions() {
+        return this.config.analysis.tags;
     }
 
     formatHGVS(allele) {

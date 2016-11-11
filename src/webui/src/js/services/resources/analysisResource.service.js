@@ -33,6 +33,21 @@ class AnalysisResource {
         });
     }
 
+    patch(id, data) {
+        return new Promise((resolve, reject) => {
+            var r = this.resource(`${this.base}/analyses/${id}/`, {}, {
+                update: {
+                    method: 'PATCH'
+                }
+            });
+            r.update(
+                data,
+                resolve,
+                reject
+            );
+        });
+    }
+
     getAnalysis(id) {
         return new Promise((resolve, reject) => {
             var r = this.resource(`${this.base}/analyses/${id}/`);
@@ -53,8 +68,8 @@ class AnalysisResource {
                 {
                     id: id
                 },
-                resolve(),
-                reject()
+                resolve,
+                reject
             );
         });
     }
