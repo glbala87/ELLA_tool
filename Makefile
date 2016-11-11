@@ -6,8 +6,9 @@ IMAGE_NAME = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
 
 # e2e test:
+APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
-WDIO_OPTIONS ?= '' # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
+WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
 
 .PHONY: help
 
@@ -104,6 +105,7 @@ e2e-test: e2e-network-check e2e-run-chrome test-build
 	-docker rm ella-e2e
 	docker run -v errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
 e2e-test-local: test-build
+	-docker rm ella-e2e-local
 	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(IMAGE_NAME) /bin/bash -c "make e2e-ella; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
 
 run-test:
