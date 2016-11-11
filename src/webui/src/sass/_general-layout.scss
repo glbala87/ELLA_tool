@@ -97,6 +97,15 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   input:focus:hover { background-color: $white-75; }
 }
 
+nav.warning { z-index: 99; position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; color: $white-95; background-color: $red-95; padding: 1.3rem;
+  h2 {  font-weight: 400; font-size: 1.4rem; color: $white-75;}
+  h3 {  font-weight: 400; font-size: 1.4rem; }
+  h4 {  font-weight: 400; font-size: 1.2rem; padding-left: 1rem; }
+
+}
+
+
+
 .search-results .ng-enter { animation: 1s fade-in; }
 .search-results { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
   h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; }
