@@ -45,6 +45,7 @@ test_e2e:
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+  allow_failure: true
 
 build_core:
   stage: deploy
