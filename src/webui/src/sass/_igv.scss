@@ -1,0 +1,65 @@
+// IGV override styling (might change inbetween versions, so don't spend too much effort here...)
+
+
+
+igv {
+
+  @mixin button-shim {
+    font-family: $full !important; font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: $blue; border-radius: 0 !important; color: #fff;
+
+  }
+  .igvNavigation {
+    @include button-shim;
+  }
+
+
+  .igvNavigationSearch {
+    .igvNavigationSearchInput {
+      margin-top: 2px;
+      border-radius: 0;
+      color: white;
+    }
+    .fa-search {
+      display: none;
+    }
+  }
+
+  .igv-windowsizepanel-content-div {
+    color: white;
+  }
+
+  .fa-minus-circle, .fa-plus-circle{
+    color: white;
+  }
+
+  .igv-toggle-track-labels {
+    margin-top: 1px;
+    @include button-shim;
+  }
+
+  .igv-track-label {
+    @include button-shim;
+    background-color: $blue-75;
+  }
+
+  .igv-popover {
+    border-radius: 0;
+  }
+
+  .igv-popover-table {
+    font-family: $full;
+    line-height: 1em;
+    hr {
+      margin: 5px;
+    }
+  }
+
+  .igv-scrollbar-inner-div {
+    border-color: $blue;
+    background-color: $blue;
+    &:hover, &:active {
+      border-color: $blue-75;
+      background-color: $blue-75;
+    }
+  }
+}

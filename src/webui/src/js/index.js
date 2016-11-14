@@ -16,6 +16,7 @@ import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
+import "./modals/igvModal.service";
 import './services/resources/acmgClassificationResource.service';
 import './services/resources/alleleResource.service';
 import './services/resources/alleleAssessmentResource.service';
@@ -80,6 +81,7 @@ import './widgets/allelesectionbox/allelesectionboxcontent.directive';
 import './widgets/reportcard/reportcard.directive';
 import './widgets/isolateclick.directive';
 import './widgets/genepanelvalue/genepanelvalue.directive.js';
+import './widgets/igv.directive.js';
 
 
 

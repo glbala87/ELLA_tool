@@ -11,3 +11,4 @@ import referenceassessment
 import search
 import user
 import genepanel
+import igv
