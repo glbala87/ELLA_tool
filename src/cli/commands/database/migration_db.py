@@ -7,8 +7,8 @@ from alembic import command
 from vardb.util import DB
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-ALEMBIC_CFG = os.path.join(SCRIPT_DIR, '../../../datamodel/migration/alembic.ini')
-ALEMBIC_DIR = os.path.join(SCRIPT_DIR, '../../../datamodel/migration/alembic/')
+ALEMBIC_CFG = os.path.join(SCRIPT_DIR, '../../../vardb/datamodel/migration/alembic.ini')
+ALEMBIC_DIR = os.path.join(SCRIPT_DIR, '../../../vardb/datamodel/migration/alembic/')
 
 
 def _get_alembic_config():
