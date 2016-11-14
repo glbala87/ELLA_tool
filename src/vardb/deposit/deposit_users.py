@@ -11,9 +11,18 @@ log = logging.getLogger(__name__)
 def import_users(session, users):
 
     for u in users:
-        new_user = user.User(**u)
-        session.add(new_user)
-        log.info("Adding user {}".format(u['username']))
+        existing_user = session.query(user.User).filter(
+            user.User.username == u['username']
+        ).all()
+        if not existing_user:
+            new_user = user.User(**u)
+            session.add(new_user)
+            log.info("Adding user {}".format(u['username']))
+        else:
+            existing_user = existing_user[0]
+            log.info("Username {} already exists, updating record...".format(u['username']))
+            for k, v in u.iteritems():
+                setattr(existing_user, k, v)
 
     session.commit()
 
