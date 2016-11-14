@@ -15,10 +15,11 @@ def rest_filter(func):
 
     @wraps(func)
     def inner(*args, **kwargs):
-        q = request.args.get('q')
         rest_filter = None
-        if q:
-            rest_filter = json.loads(q)
+        if request:
+            q = request.args.get('q')
+            if q:
+                rest_filter = json.loads(q)
         return func(*args, rest_filter=rest_filter, **kwargs)
 
     return inner
@@ -44,12 +45,16 @@ def paginate(func):
 
     @wraps(func)
     def inner(*args, **kwargs):
-        page = request.args.get('page')
+        page = None
+        if request:
+            page = request.args.get('page')
         if page is None:
             page = 1
         else:
             page = int(page)
-        num_per_page = request.args.get('num_per_page')
+        num_per_page = None
+        if request:
+            num_per_page = request.args.get('num_per_page')
         if num_per_page is not None:
             kwargs['num_per_page'] = int(num_per_page)
         else:

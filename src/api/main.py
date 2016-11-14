@@ -11,7 +11,7 @@ from api.v1 import ApiV1
 
 # For /reset purposes
 from vardb.deposit.deposit_testdata import DepositTestdata
-from vardb.cli.commands.database import drop_db, make_db
+from cli.commands.database import drop_db, make_db
 
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
