@@ -1,0 +1,311 @@
+<html>
+  <head>
+    <title>ella style guide</title>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700|Work+Sans:300,400,500,600" rel="stylesheet">
+    <style>
+      * { padding: 0; margin: 0; box-sizing: border-box; }
+      body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: "Source Sans Pro"; color: #333; }
+      p { margin: 13px; font-weight: 400; letter-spacing: -0.5px; color: rgba(49,96,129,1); }
+      hr { margin: 28px; border: none; border-top: 1px dashed #eee; background-color: #eee; }
+      h1, h2 { font-family: 'Work Sans'; font-weight: 300; font-size: 30px; color: rgba(49,96,129,1); text-align: center; }
+      button { font-family: 'Work Sans'; font-size: 12px; font-weight: 500; letter-spacing: 1px; word-spacing: 2px; text-transform: uppercase; padding: 2.5px 7.5px; padding-top: 4px; border-radius: 0; }
+    </style>
+  </head>
+  <body>
+    <p>In general ella has very few headers, this stems from the use of *boxes to present context to the user. This pattern allows for very information-dense views without needing to have large, space wasting headers.</p>
+    <hr/>
+    <h2>reserved headers</h2>
+    <hr/>
+    <h3 style="
+      font-family: 'Work Sans';
+      font-weight: 400;
+      font-size: 15px;
+      background-color: #316081;
+      color: white;
+      line-height: 28px;
+      padding-top: 14px;
+      padding-left: 14px;
+      ">primary header</h3>
+    <h3 style="
+      font-family: 'Work Sans';
+      font-weight: 500;
+      font-size: 15px;
+      background-color: #316081;
+      color: white;
+      line-height: 28px;
+      padding-left: 14px;
+      ">primary header - callout</h3>
+    <h3 style="
+      font-family: 'Work Sans';
+      font-weight: 400;
+      font-size: 15px;
+      background-color: #316081;
+      color: rgba(255,255,255,0.65);
+      line-height: 28px;
+      padding-left: 14px;
+      padding-bottom: 14px;
+      ">primary header - less important</h3>
+    <p>These are only found when representing top-level - user/sample/allele - information to the user.</p>
+    <hr/>
+    <h3 style="
+      font-family: 'Source Sans Pro';
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 13px;
+      text-transform: uppercase;
+      background-color: rgba(49,56,129,.25);
+      color: rgba(0,0,0,0.5);
+      height: 28px;
+      line-height: 28px;
+      padding-left: 14px;
+      ">sectionbox-header</h3>
+    <h3 style="
+      font-family: 'Source Sans Pro';
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 13px;
+      text-transform: uppercase;
+      background-color: rgba(49,96,129,.5);
+      color: white;
+      height: 28px;
+      line-height: 28px;
+      padding-left: 14px;
+      ">contentbox-header</h3>
+    <p>This style is reserved exclusively for the sideways headers on boxes. Presented in white for contentboxes, and faded-black on sectionboxes. No content should be presented to the user in this form, only commonly repeated headers.</p>
+    <hr/>
+    <h4 style="
+      font-family: 'Source Sans Pro';
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: rgba(49,96,129,.5);
+      height: 28px;
+      line-height: 28px;
+      padding-left: 14px;
+      ">variant / acmg header</h4>
+    <p>Another highly reserved style, always presented in this faded blue. Used to designate a major portion of a context - f.ex the sidebar or ACMG areas. Where one of the lighter headers doesn't call enough attention, or already has a context.</p>
+    <hr/>
+    <h4 style="
+      font-family: 'Work Sans';
+      font-weight: 600;
+      letter-spacing: 0.75px;
+      font-size: 15px;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.25);
+      height: 28px;
+      line-height: 28px;
+      padding-left: 14px;
+      ">empty-state or informative text</h4>
+    <p>This is used when an element is currently in an 'empty state' and no other information is being given to the user - or - in modals when the only information being given to the user is informative/help text and the buttons present clear options. It should never be paired with other text or elements due to its faded nature. It's meant to be helpful if noticed, but not the element demanding attention on the page.</p>
+    <hr/>
+    <section style="display: flex; align-items: center;">
+      <h4 style="
+        font-family: 'Source Sans Pro';
+        font-weight: 400;
+        font-size: 12.5px;
+        color: #316081;
+        height: 28px;
+        line-height: 28px;
+        padding-left: 14px;
+        ">sidebar/variant text - gene</h4>
+      <h4 style="
+        font-family: 'Source Sans Pro';
+        font-weight: 600;
+        font-size: 14px;
+        color: #316081;
+        height: 28px;
+        line-height: 28px;
+        padding-left: 14px;
+        ">sidebar/variant text - c.variant</h4>
+    </section>
+    <p>Only used on the sidebar, has been left unique from other headers to help distinguish from other uses, and because of the small size needed.</p>
+    <hr/>
+    <h2>common headers</h2>
+    <hr/>
+    <section style="display: flex; align-items: flex-end;">
+      <h5 style="
+        font-family: 'Source Sans Pro';
+        font-weight: 400;
+        font-size: 14px;
+        color: #333;
+        height: 28px;
+        line-height: 28px;
+        padding-left: 14px;
+        ">Common text header:</h5>
+      <h5 style="
+        font-family: 'Work Sans';
+        font-weight: 300;
+        font-size: 14px;
+        color: #333;
+        letter-spacing: -0.25px;
+        height: 28px;
+        line-height: 28px;
+        padding-left: 14px;
+        ">common text</h5>
+    </section>
+    <p>This text pairing is used in nearly all content displayed for the user; including tables and other headings (e.g. reference section)</p>
+    <hr/>
+    <h3 style="
+      font-family: 'Source Sans Pro';
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: #333;
+      height: 28px;
+      line-height: 28px;
+      padding-left: 14px;
+      ">popover header</h3>
+    <p>Used only as the title of popovers - should likely be merged with the header for question elements</p>
+    <hr/>
+    <h3 style="
+      font-family: 'Source Sans Pro';
+      font-weight: 700;
+      font-size: 13px;
+      color: #333;
+      height: 28px;
+      line-height: 28px;
+      padding-left: 14px;
+      ">popover/modal inner-header</h3>
+    <p>Used as a header inside popovers and modals</p>
+    <hr/>
+    <h3 style="
+      font-family: 'Source Sans Pro';
+      font-weight: 500;
+      font-size: 12.5px;
+      color: #333;
+      opacity: 0.5;
+      letter-spacing: -0.4px;
+      text-transform: uppercase;
+      height: 28px;
+      line-height: 28px;
+      padding-left: 14px;
+      ">table / minor header</h3>
+    <p>Used as the header for table-columns as well as when a header could be useful to the user, but might not be needed. Because of this, it needs consideration whether or not to use it! An example is where it's used as a header for each reference, it might not be needed there if each reference can be distinguished.</p>
+    <hr/>
+    <h2>elements</h2>
+    <hr/>
+    <section style="display: flex; align-items: center;">
+      <article style="text-align: right; flex: 3;">
+      <h5 style="
+        font-family: 'Source Sans Pro';
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        color: #333;
+        letter-spacing: 1px;
+        word-spacing: 2px;
+        margin-right: -2px;
+        margin-bottom: 3px;
+        " ignore-margins>question-title</h5>
+      <h5 style="
+        font-family: 'Work Sans';
+        font-weight: 400;
+        font-size: 14px;
+        color: #000;
+        letter-spacing: -0.25px;
+        ">question-text</h5>
+      </article>
+      <article style="flex: 0.5;"></article>
+      <article style="flex: 3; display: flex;">
+        <button style="
+          background-color: rgba(49,96,129,.75);
+          color: white;
+          border: 1px solid rgba(49,96,129,.05);
+          height: 26px;
+          box-shadow: 0 3px 0 rgba(0,0,0,.05);
+          ">active</button>
+        <button style="
+          background-color: rgba(49,96,129,.05);
+          border: 1px solid rgba(49,96,129,.05);
+          height: 26px;
+          box-shadow: 0 3px 0 rgba(0,0,0,.05);
+          ">inactive</button>
+        <button style="
+          background-color: rgba(49,96,129,.05);
+          border: 1px solid rgba(49,96,129,.05);
+          border-left: 1px solid rgba(49,96,129,.25);
+          height: 26px;
+          box-shadow: 0 3px 0 rgba(0,0,0,.05);
+          ">inactive</button>
+      </article>
+    </section>
+    <p>These styles are used heavily in popovers where the user is 'filling out forms'.</p>
+    <hr/>
+    <article style="text-align: center;">
+      <button style="
+        height: 26px;
+        background-color: rgba(49,96,129,.05) !important;
+        box-shadow: 0 3px 0 rgba(0,0,0,.05);
+        color: rgba(0,0,0,.75) !important;
+        border: 1px solid Transparent;
+        ">'normal' button</button>
+      <button style="
+        height: 26px;
+        background-color: rgba(49,56,129,.5);
+        box-shadow: 0 3px 0 rgba(0,0,0,.05);
+        color: white;
+        border: 1px solid Transparent;
+        ">section button</button>
+      <button style="
+        height: 26px;
+        background-color: rgba(49,129,123,.5);
+        box-shadow: 0 3px 0 rgba(0,0,0,.05);
+        color: white;
+        border: 1px solid Transparent;
+        ">section button</button>
+      <button style="
+        height: 26px;
+        background-color: rgba(96,49,129,.5);
+        box-shadow: 0 3px 0 rgba(0,0,0,.05);
+        color: white;
+        border: 1px solid Transparent;
+        ">warning button</button>
+      <button style="
+        height: 26px;
+        background-color: rgba(49,129,123,.5);
+        border: 1px solid rgba(0,0,0,.5);
+        color: rgba(0,0,0,.75);
+        opacity: 0.25;
+        background-color: inherit;
+        ">disabled button</button>
+    </article>
+    <p>Buttons generally inherit the sectionbox's color, except on the navbar, in 'question' elements or where a callout is needed - f.ex green for 'start' or pink for 'warning'.</p>
+    <p>Note the 'normal' style can be used to force a button to not use the parent's coloring - this is typically done when another button is a callout such as an override.</p>
+    <hr/>
+    <input placeholder="inputs and textareas" style="
+      border: none;
+      border-bottom: 1px solid rgba(0,0,0,.5);
+      font-size: 14px;
+      font-family: 'Work Sans';
+      font-weight: 500;
+      letter-spacing: 1px;
+      word-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 20px;
+      margin-left: 14px;
+      padding: 0 3px;
+      min-height: 26px;
+      outline: none;
+      box-shadow: none;
+      width: 100%;
+    "/>
+    <p>Inputs and textareas share styling, and are characterized by their heavy underline and faded placeholder text.</p>
+    <input placeholder="User inputted text will look more like this" style="
+      border: none;
+      border-bottom: 1px solid rgba(0,0,0,.5);
+      font-size: 14px;
+      font-family: 'Source Sans Pro';
+      font-weight: 400;
+      line-height: 20px;
+      margin-left: 14px;
+      padding: 0 3px;
+      min-height: 26px;
+      outline: none;
+      box-shadow: none;
+      width: 100%;
+    "/>
+    <p>Note that the placeholder text used is different from user-inputted text. User text uses Source Sans and is more dense.</p>
+    <hr/>
+  </body>
+</html>
