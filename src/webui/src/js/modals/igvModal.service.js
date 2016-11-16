@@ -32,7 +32,15 @@ export class IgvModalController {
                 name: sample.identifier
             });
         }
-        this.options = {tracks};
+        let reference = {
+            id: "GRCh37",
+            fastaURL: "api/v1/igv/human_g1k_v37_decoy.fasta",
+            cytobandURL: "api/v1/igv/cytoBand.txt"
+        };
+        this.options = {
+            tracks,
+            reference
+        };
         this.chrom = `${allele.chromosome}`;
         this.pos = `${allele.start_position}`;
         this.modal = modalInstance;

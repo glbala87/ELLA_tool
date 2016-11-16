@@ -18,13 +18,12 @@ import {Directive, Inject} from '../ng-decorators';
         var defaults = {
             showNavigation: true,
             showRuler: true,
-            genome: "hg19",
             showCenterGuide: true,
             showCursorTrackingGuide: true,
             doubleClickDelay: 300,
         };
         Object.assign(defaults, scope.options, {
-            locus: `chr${scope.chrom}:${scope.pos}`,
+            locus: `${scope.chrom}:${scope.pos}`,
         });
         console.log(defaults);
         igv.createBrowser(elem.children()[0], defaults);
