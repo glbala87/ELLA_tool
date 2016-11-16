@@ -6,7 +6,35 @@ export class IgvModalController {
      * Controller for showing IGV.js in a modal
      */
 
-    constructor(modalInstance) {
+    constructor(modalInstance, analysis, allele) {
+
+        let padding = 50;
+
+        let tracks = []
+        // Not working correctly...
+        /*tracks.push({
+            type: 'variant',
+            url: `api/v1/analyses/${analysis.id}/vcf/`,
+            indexURL: `api/v1/analyses/${analysis.id}/vcf/?index=true`,
+            name: 'Variants'
+        });*/
+        tracks.push({
+            name: 'Gencode',
+            url: 'api/v1/igv/gencode.v18.collapsed.bed',
+            displayMode: 'EXPANDED'
+        });
+        for (let sample of analysis.samples) {
+            tracks.unshift({
+                type: 'alignment',
+                height: 400,
+                url: `api/v1/analyses/${analysis.id}/bams/${sample.id}/`,
+                indexURL: `api/v1/analyses/${analysis.id}/bams/${sample.id}/?index=true`,
+                name: sample.identifier
+            });
+        }
+        this.options = {tracks};
+        this.chrom = `${allele.chromosome}`;
+        this.pos = `${allele.start_position}`;
         this.modal = modalInstance;
     }
 }
@@ -34,10 +62,14 @@ export class IgvModal {
             templateUrl: 'ngtmpl/igvModal.ngtmpl.html',
             controller: [
                 '$uibModalInstance',
+                'analysis',
+                'allele',
                 IgvModalController
             ],
             controllerAs: 'vm',
             resolve: {
+                'analysis': () => analysis,
+                'allele': () => allele
             },
             size: 'lg'
         });

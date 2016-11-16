@@ -13,6 +13,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         references: '=',
         alleleState: '=',
         alleleUserState: '=',
+        analysis: '=?', // Used for IGV (optional)
         comments: '=',  // Array of [{model: string, placeholder: string}, ...]
         section: '=',  // Section to display using <allelesectionboxcontent>
         updateText: '@?',
@@ -39,6 +40,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     'Config',
     'Allele',
     'CustomAnnotationModal',
+    'IgvModal',
     'Analysis',
     'Interpretation',
     'clipboard',
@@ -51,6 +53,7 @@ export class AlleleSectionBoxController {
                 Config,
                 Allele,
                 CustomAnnotationModal,
+                IgvModal,
                 Analysis,
                 Interpretation,
                 clipboard,
@@ -58,6 +61,7 @@ export class AlleleSectionBoxController {
         this.config = Config.getConfig();
         this.alleleService = Allele;
         this.customAnnotationModal = CustomAnnotationModal;
+        this.igvModal = IgvModal;
         this.interpretationService = Interpretation;
         this.analysisService = Analysis;
         this.clipboard = clipboard;
@@ -147,6 +151,10 @@ export class AlleleSectionBoxController {
     ///////////////
     /// Controls
     ///////////////
+
+    showIgv() {
+        this.igvModal.show(this.analysis, this.allele);
+    }
 
     showCustomAnnotationModal(category) {
         let title = category === 'external' ? 'ADD EXTERNAL ANNOTATION' : 'ADD PREDICTION ANNOTATION';

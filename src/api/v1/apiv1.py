@@ -94,7 +94,10 @@ class ApiV1(object):
                            '/api/v1/analyses/<int:analysis_id>/actions/reopen/')
 
         self._add_resource(r.igv.BamResource,
-                           '/api/v1/analyses/<int:analysis_id>/bam/<int:sample_id>/')
+                           '/api/v1/analyses/<int:analysis_id>/bams/<int:sample_id>/')
+
+        self._add_resource(r.igv.VcfResource,
+                           '/api/v1/analyses/<int:analysis_id>/vcf/')
 
         self._add_resource(r.customannotation.CustomAnnotationList,
                            '/api/v1/customannotations/')
@@ -106,7 +109,7 @@ class ApiV1(object):
                            '/api/v1/genepanels/<name>/<version>/')
 
         self._add_resource(r.igv.IgvResource,
-                           '/api/v1/igv/<filename>/')
+                           '/api/v1/igv/<filename>')
 
         self._add_resource(r.interpretation.InterpretationResource,
                            '/api/v1/interpretations/<int:interpretation_id>/')

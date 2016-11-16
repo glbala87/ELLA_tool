@@ -1,16 +1,17 @@
-<card color="aqua" modal="true" on-close="vm.modal.close" collapsible="false" options="{}">
-  <primary>
-    <h3 class="header">IGV</h3>
-  </primary>
-  <secondary>
-    <igv></igv>
-  </secondary>
-  <bottom>
-
-  </bottom>
+<sectionbox color="purple" modal="true" on-close="vm.modal.close">
+  <titlebar>
+    <h3 class="title">IGV</h3>
+  </titlebar>
   <controls>
-    <div>
-      <button ng-click="vm.modal.close()">Cancel</button>
-    </div>
+    <section class="line-wrapper pinned-right">
+      <button class="id-cancel"  type="button" ng-click="vm.modal.close(false)">Close</button>
+    </section>
   </controls>
-</card>
+  <contentwrapper>
+    <section>
+      <igv options="vm.options" chrom="{{vm.chrom}}" pos="{{vm.pos}}"></igv>
+      <br>
+      <p style="text-align: right;">Powered by <a href="https://github.com/igvteam/igv.js">igv.js</a>.</p>
+    </section>
+  </contentwrapper>
+</sectionbox>

@@ -1,45 +1,79 @@
 // IGV override styling (might change inbetween versions, so don't spend too much effort here...)
 
-
+@import "../thirdparty/igv/igv-1.0.5";
 
 igv {
 
-  @mixin button-shim {
-    font-family: $full !important; font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; color: $button-black; border: 1px solid $half-black; background-color: $blue; border-radius: 0 !important; color: #fff;
-
+  @mixin base-mixin {
+    background-color: $purple-50; font-family: $full !important; font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; border-radius: 0 !important; color: #fff;
   }
   .igvNavigation {
-    @include button-shim;
+    background-color: transparent;
+    border: 0;
   }
 
 
   .igvNavigationSearch {
+      width: 30rem;
+      height: 3rem;
+
     .igvNavigationSearchInput {
-      margin-top: 2px;
+      width: 30rem;
+      height: 3rem;
+      padding: 0.1rem;
       border-radius: 0;
-      color: white;
+      border: 0.1rem solid $purple-50;
+      color: black;
+      font-family: $full;
+      font-size: 1.5rem;
     }
     .fa-search {
       display: none;
     }
   }
 
-  .igv-windowsizepanel-content-div {
-    color: white;
+  .igv-windowsizepanel-content-div, .igv-toggle-track-labels {
+    display: none !important;
   }
 
-  .fa-minus-circle, .fa-plus-circle{
-    color: white;
+
+  .igvNavigationZoom {
+    float: right;
+    margin-top: -0.4rem;
+    padding-right: 3rem;
+
+    .fa-minus-circle:before, .fa-plus-circle:before {
+      display: inline-block;
+      height: 3rem;
+      width: 6rem;
+      text-align: center;
+      color: $black-75;
+      line-height: 3rem;
+      font-style: normal;
+      border: 0.1rem solid $purple-50;
+      font-size: 1.5rem;
+    }
+
+    .fa-minus-circle:before {
+      content: 'OUT';
+    }
+
+    .fa-plus-circle:before {
+      content: 'IN';
+    }
+
   }
+
 
   .igv-toggle-track-labels {
     margin-top: 1px;
-    @include button-shim;
+    @include base-mixin;
   }
 
   .igv-track-label {
-    @include button-shim;
-    background-color: $blue-75;
+    @include base-mixin;
+    letter-spacing: 0.001rem;
+    background-color: $purple-50;
   }
 
   .igv-popover {
@@ -55,11 +89,11 @@ igv {
   }
 
   .igv-scrollbar-inner-div {
-    border-color: $blue;
-    background-color: $blue;
+    border-color: $purple-75;
+    background-color: $purple-75;
     &:hover, &:active {
-      border-color: $blue-75;
-      background-color: $blue-75;
+      border-color: $purple-50;
+      background-color: $purple-50;
     }
   }
 }
