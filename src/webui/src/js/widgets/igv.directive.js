@@ -25,7 +25,6 @@ import {Directive, Inject} from '../ng-decorators';
         Object.assign(defaults, scope.options, {
             locus: `${scope.chrom}:${scope.pos}`,
         });
-        console.log(defaults);
         igv.createBrowser(elem.children()[0], defaults);
     }
 })

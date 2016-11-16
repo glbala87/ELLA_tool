@@ -6,7 +6,8 @@ export class IgvModalController {
      * Controller for showing IGV.js in a modal
      */
 
-    constructor(modalInstance, analysis, allele) {
+    constructor(modalInstance, Config, analysis, allele) {
+        let config = Config.getConfig();
 
         let padding = 50;
 
@@ -20,7 +21,7 @@ export class IgvModalController {
         });*/
         tracks.push({
             name: 'Gencode',
-            url: 'api/v1/igv/gencode.v18.collapsed.bed',
+            url: config.igv.tracks.gencode,
             displayMode: 'EXPANDED'
         });
         for (let sample of analysis.samples) {
@@ -34,8 +35,8 @@ export class IgvModalController {
         }
         let reference = {
             id: "GRCh37",
-            fastaURL: "api/v1/igv/human_g1k_v37_decoy.fasta",
-            cytobandURL: "api/v1/igv/cytoBand.txt"
+            fastaURL: config.igv.reference.fastaURL,
+            cytobandURL: config.igv.reference.cytobandURL
         };
         this.options = {
             tracks,
@@ -70,6 +71,7 @@ export class IgvModal {
             templateUrl: 'ngtmpl/igvModal.ngtmpl.html',
             controller: [
                 '$uibModalInstance',
+                'Config',
                 'analysis',
                 'allele',
                 IgvModalController
