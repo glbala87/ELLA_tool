@@ -4,6 +4,7 @@ TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
+ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -57,6 +58,7 @@ dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
 dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \
+	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	-p $(API_PORT):5000 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
