@@ -124,9 +124,13 @@ class DepositTestdata(object):
         else:
             testset = next(v for v in ANALYSES if v['name'] == test_set)
 
-        analysis_paths = glob.glob(os.path.join(SCRIPT_DIR, testset['path'], '*'))
+        testset_path = os.path.join(SCRIPT_DIR, testset['path'])
+        analysis_paths = [os.path.join(testset_path, d) for d in os.listdir(testset_path)]
         analysis_paths.sort()
         for analysis_path in analysis_paths:
+
+            if not os.path.isdir(analysis_path):
+                continue
             try:
                 analysis_config_path = glob.glob(os.path.join(analysis_path, '*.analysis'))[0]
                 with open(analysis_config_path) as f:
