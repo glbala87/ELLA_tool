@@ -130,3 +130,9 @@ class ApiV1(object):
 
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
+
+        self._add_resource(r.analysisimport.AnalysisImportResource,
+                           '/api/v1/analyses/imports/')
+
+        self._add_resource(r.analysisimport.AnalysisImportDepositResource,
+                           '/api/v1/analyses/imports/<task_id>')

@@ -3,6 +3,7 @@ import allele
 import allelereport
 import alleleassessment
 import analysis
+import analysisimport
 import config
 import customannotation
 import interpretation
