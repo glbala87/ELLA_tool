@@ -65,7 +65,10 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/color-hash/color-hash.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
         'src/webui/src/thirdparty/dalliance/release-0.13/dalliance-compiled.js',
-        'src/webui/src/thirdparty/thenby/thenBy.min.js'
+        'src/webui/src/thirdparty/thenby/thenBy.min.js',
+        'src/webui/src/thirdparty/igv/jquery.min.js',  // <-- Beware, we're using jquery here (in case of conflicts)
+        'src/webui/src/thirdparty/igv/jquery-ui.min.js',
+        'src/webui/src/thirdparty/igv/igv-1.0.5.min.js'
     ];
 
     return gulp.src(sourcePaths)

@@ -123,11 +123,15 @@ if __name__ == '__main__':
     opts['port'] = int(os.getenv('API_PORT', '5000'))
 
     # Dev mode stuff
-    is_dev = os.getenv('DEVELOP', False)
-    if is_dev.lower() == 'true':
+    is_dev = os.getenv('DEVELOP', '').lower() == 'true'
+    if is_dev:
         opts['use_reloader'] = True
         app.add_url_rule('/reset', 'reset', reset_testdata)
 
+        os.environ['ANALYSES_PATH'] = '/ella/src/vardb/testdata/analyses/small/'
+
+    if is_dev:
+        print "!!!!!DEVELOPMENT MODE!!!!!"
     app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
     app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
     app.run(**opts)

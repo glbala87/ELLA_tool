@@ -37,12 +37,13 @@ GENEPANELS = [
         'name': 'HBOCUTV',
         'version': 'v01'
     },
-    {'config': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.config.json',
-     'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
-     'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
-     'name': 'HBOC',
-     'version': 'v01'
-     },
+    {
+        'config': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.config.json',
+        'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
+        'name': 'HBOC',
+        'version': 'v01'
+    },
     {
         'path': '../testdata/clinicalGenePanels/Bindevev_v02.transcripts.csv',
         'name': 'Bindevev',
@@ -71,32 +72,33 @@ GENEPANELS = [
 ]
 
 
-VCF = [
+ANALYSES = [
 
     {
-        'path': '../testdata/vcf/all',
+        'path': '../testdata/analyses/all',
         'name': 'all',
     },
     {
-        'path': '../testdata/vcf/small',
+        'path': '../testdata/analyses/small',
         'name': 'small',
         'default': True,
     },
     {
-        'path': '../testdata/vcf/e2e',
+        'path': '../testdata/analyses/e2e',
         'name': 'e2e'
     },
     {
-        'path': '../testdata/vcf/integration_testing',
+        'path': '../testdata/analyses/integration_testing',
         'name': 'integration_testing',
     },
     {
-        'path': '../testdata/vcf/custom',
+        'path': '../testdata/analyses/custom',
         'name': 'custom',
     },
 ]
 
 REFERENCES = '../testdata/references_test.json'
+
 
 class DepositTestdata(object):
 
@@ -118,40 +120,40 @@ class DepositTestdata(object):
         """
 
         if test_set is None:
-            testset = next(v for v in VCF if v.get('default'))
+            testset = next(v for v in ANALYSES if v.get('default'))
         else:
-            testset = next(v for v in VCF if v['name'] == test_set)
+            testset = next(v for v in ANALYSES if v['name'] == test_set)
 
-        vcf_paths = glob.glob(os.path.join(SCRIPT_DIR, testset['path'], '*.vcf'))
-        vcf_paths.sort()
-        for vcf_path in vcf_paths:
-            da = DepositAnalysis(self.session)
+        testset_path = os.path.join(SCRIPT_DIR, testset['path'])
+        analysis_paths = [os.path.join(testset_path, d) for d in os.listdir(testset_path)]
+        analysis_paths.sort()
+        for analysis_path in analysis_paths:
+
+            if not os.path.isdir(analysis_path):
+                continue
             try:
-                vcf_path = os.path.join(SCRIPT_DIR, vcf_path)
-                filename = os.path.basename(vcf_path)
-                # Get last part of filename before ext 'sample.HBOC_v00.vcf'
-                gp_part = os.path.splitext(filename)[0].split('.')[-1].split('_')
+                analysis_config_path = glob.glob(os.path.join(analysis_path, '*.analysis'))[0]
+                with open(analysis_config_path) as f:
+                    analysis_config = json.load(f)
 
-                kwargs = {
-                    'sample_configs': [{
-                        'name': self._get_vcf_samples(vcf_path)[0]
-                    }],
-                    'analysis_config': {
-                        'name': '{}-{}-{}'.format(
-                            self._get_vcf_samples(vcf_path)[0],
-                            *gp_part
-                        ),
-                        'params': {
-                            'genepanel': '_'.join(gp_part)
-                        }
-                    }
-                }
+                sample_configs = []
+                for sample_name in analysis_config['samples']:
+                    sample_config_path = os.path.join(analysis_path, sample_name + '.sample')
+                    with open(sample_config_path) as f:
+                        sample_config = json.load(f)
+                        sample_configs.append(sample_config)
+
+                analysis_name = analysis_config['name']
+                vcf_path = os.path.join(analysis_path, analysis_name + '.vcf')
+
+                da = DepositAnalysis(self.session)
+
                 da.import_vcf(
                     vcf_path,
-                    **kwargs
+                    sample_configs=sample_configs,
+                    analysis_config=analysis_config
                 )
-                log.info("Deposited {} using panel {} {}".
-                         format(vcf_path, gp_part[0], gp_part[1]))
+                log.info("Deposited {}".format(analysis_name))
                 self.session.commit()
 
             except UserWarning as e:
