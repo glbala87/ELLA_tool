@@ -126,4 +126,4 @@ class AlleleReport(Base):
     alleleassessment = relationship("AlleleAssessment")
 
     def __repr__(self):
-        return "<AlleleReport('%s','%s', '%s')>" % (self.id, self.allele, str(self.user))
+        return "<AlleleReport('%s','%s', '%s')>" % (self.id, self.allele_id, str(self.user))
