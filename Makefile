@@ -4,6 +4,7 @@ TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
+RESET_DB_SET ?= 'small'
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -70,7 +71,7 @@ fancy-dev:
 	git checkout gulpfile.js
 
 db:
-	docker exec $(CONTAINER_NAME) make dbreset
+	docker exec $(CONTAINER_NAME) make dbreset RESET_DB_SET=$(RESET_DB_SET)
 
 url:
 	@./ops/dev/show-url.sh $(CONTAINER_NAME)
