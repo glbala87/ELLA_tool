@@ -2,8 +2,11 @@
 
 import {Service, Inject} from '../../ng-decorators';
 import Analysis from '../../model/analysis';
-import {Allele} from '../../model/allele';
 
+/**
+ * - retrieve analyses
+ * - drive analysis licecycle (start, finalize etc)
+ */
 
 @Service({
     serviceName: 'AnalysisResource'
@@ -19,40 +22,17 @@ class AnalysisResource {
 
     get() {
         return new Promise((resolve, reject) => {
-            var r = this.resource(`${this.base}/analyses/`, {}, {
-                get: {
-                    isArray: true
-                }
+            var AnalysisRS = this.resource(`${this.base}/analyses/`);
+            var analyses = AnalysisRS.query(() => {
+                resolve(analyses.map(a => new Analysis(a)));
             });
-            var analyses = r.get(function () {
-                let analyses_list = [];
-                for (let analysis of analyses) {
-                    analyses_list.push(new Analysis(analysis));
-                }
-                resolve(analyses_list);
-            });
-        });
-    }
-
-    patch(id, data) {
-        return new Promise((resolve, reject) => {
-            var r = this.resource(`${this.base}/analyses/${id}/`, {}, {
-                update: {
-                    method: 'PATCH'
-                }
-            });
-            r.update(
-                data,
-                resolve,
-                reject
-            );
         });
     }
 
     getAnalysis(id) {
         return new Promise((resolve, reject) => {
-            var r = this.resource(`${this.base}/analyses/${id}/`);
-            var analysis = r.get(() => {
+            var AnalysisRS = this.resource(`${this.base}/analyses/${id}/`);
+            var analysis = AnalysisRS.get(() => {
                 resolve(new Analysis(analysis));
             });
         });
@@ -60,31 +40,24 @@ class AnalysisResource {
 
     markreview(id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/analyses/${id}/actions/markreview/`, {}, {
-                complete: {
-                    method: 'POST'
-                }
-            });
-            r.complete(
-                {
-                    id: id
-                },
-                resolve,
-                reject
+            this._resourceWithAction('markreview').doIt(
+                { analysisId: id },
+                {},
+                resolve(),
+                reject()
             );
         });
     }
 
-    finalize(id, alleleassessments, referenceassessments, allelereports) {
+    finalize(id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports) {
+
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/analyses/${id}/actions/finalize/`, {}, {
-                finalize: {
-                    method: 'POST'
-                }
-            });
-            r.finalize(
+            this._resourceWithAction('finalize').doIt(
+                { analysisId: id },
                 {
                     user_id: this.user.getCurrentUserId(),
+                    annotations: annotations,
+                    custom_annotations: custom_annotations,
                     alleleassessments: alleleassessments,
                     referenceassessments: referenceassessments,
                     allelereports: allelereports
@@ -97,12 +70,8 @@ class AnalysisResource {
 
     override(id, user_id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/analyses/${id}/actions/override/`, {}, {
-                override: {
-                    method: 'POST'
-                }
-            });
-            r.override(
+            this._resourceWithAction('override').doIt(
+                { analysisId: id},
                 {
                     user_id: user_id
                 },
@@ -114,15 +83,9 @@ class AnalysisResource {
 
     start(id, user_id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/analyses/${id}/actions/start/`, {}, {
-                start: {
-                    method: 'POST'
-                }
-            });
-            r.start(
-                {
-                    user_id: user_id
-                },
+            this._resourceWithAction('start').doIt(
+                { analysisId: id },
+                { user_id: user_id },
                 resolve,
                 reject
             );
@@ -131,15 +94,9 @@ class AnalysisResource {
 
     reopen(id, user_id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/analyses/${id}/actions/reopen/`, {}, {
-                reopen: {
-                    method: 'POST'
-                }
-            });
-            r.reopen(
-                {
-                    user_id: user_id
-                },
+            this._resourceWithAction('reopen').doIt(
+                { analysisId: id },
+                { user_id: user_id },
                 resolve,
                 reject
             );
@@ -147,23 +104,23 @@ class AnalysisResource {
     }
 
     /**
-     * Returns information about alleles that are currently being interpreted in
-     * analyses _other_ than the provided analysis id, and which doesn't
-     * have any existing alleleassessment.
-     * @param  {int} id Analysis id
-     * @return {Object}    Information about collisions
+     * Usage:
+     *  let MyResource = _resourceWithAction('reopen', 4);
+     *  MyResource.doIt(..)
+     *
+     * @param action
+     * @param analysisId
+     * @returns an Angular Resource class with a custom action 'doIt'
+     * @private
      */
-    getCollisions(id) {
-        return new Promise((resolve, reject) => {
-            var r = this.resource(`${this.base}/analyses/${id}/collisions/`);
-            var data = r.query(() => {
-                for (let user of data) {
-                    user.alleles = user.alleles.map(a => new Allele(a));
-                }
-                resolve(data);
-            }, reject);
-        });
+    _resourceWithAction(action) {
+        return this.resource(`${this.base}/analyses/:analysisId/actions/:action/`,
+            { action: action },
+            { doIt: { method: 'POST'} }
+        );
+
     }
+
 }
 
 export default AnalysisResource;
