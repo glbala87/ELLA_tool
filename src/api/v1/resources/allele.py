@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from vardb.datamodel import sample, genotype, assessment, allele, user, gene
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter
+from api.util.util import paginate, rest_filter, rest_filter_allele
 
 from api.util.alleledataloader import AlleleDataLoader
 
@@ -12,12 +12,19 @@ from api.v1.resource import Resource
 
 class AlleleListResource(Resource):
 
-    @rest_filter
-    def get(self, session, rest_filter=None, allele_ids=None):
+    @rest_filter_allele
+    def get(self, session, rest_filter=None,  x_filter=None, allele_ids=None):
+        print allele_ids
+        print rest_filter
         """
-        Returns a list of alleles, with or without annotation included.
+        Loads alleles based on q={} filter or allele ids directly and a={} for related entities
         Specify a genepanel to get more data included.
-        Supports `q=` filtering.
+         Additional request parameters:
+            - sample_id: Includes genotypes into the result and enables quality data in the annotation
+            - annotation: Enables the annotation to filter transcripts to only show the relevant ones.
+            - gp_name:
+            - gp_version:
+
         ---
         summary: List alleles
         tags:
@@ -52,7 +59,7 @@ class AlleleListResource(Resource):
             description: List of alleles
         """
 
-        if allele_ids and not rest_filter:
+        if allele_ids and not rest_filter: # overwrite the q parameter with Allele id's from route variables
             rest_filter = {'id': allele_ids}
 
         alleles = self.list_query(session, allele.Allele, rest_filter=rest_filter)
@@ -94,6 +101,8 @@ class AlleleListResource(Resource):
             'include_annotation': False,
             'include_custom_annotation': False
         }
+        if x_filter:
+            kwargs['x_filter'] = x_filter
         if allele_genotypes:
             kwargs['genotypes'] = allele_genotypes
         if genepanel:  # TODO: make genepanel required?

@@ -84,6 +84,7 @@ class AlleleAssessmentListResource(Resource):
             'genepanel_name',
             'genepanel_version',
             'evaluation',
+            'previous_assessment_id',
             'referenceassessments'
         ]
     )
@@ -102,10 +103,12 @@ class AlleleAssessmentListResource(Resource):
             "user_id": 1,
             "allele_id": 2,
             "classification": "3",
+            "reuse": false,
             "evaluation": {...data...},
             "analysis_id": 3,  # Optional, should be given when assessment is made in context of analysis
             "genepanel_name": "HBOC", # Optional only if analysis_id provided
             "genepanel_version": "v01", # Optional only if analysis_id provided
+
             "referenceassessments": [  # Optional
                 {
                     "allele_id": 2,
@@ -119,6 +122,9 @@ class AlleleAssessmentListResource(Resource):
                 }
             ]
         }
+
+        # TODO: what's the role of this as opposed to api/v1/resources/analysis.py?
+
         ```
         Provided data can also be a list of items.
 
@@ -225,8 +231,10 @@ class AlleleAssessmentListResource(Resource):
 
         ac = AssessmentCreator(session)
         result = ac.create_from_data(alleleassessments=data)
+        # un-tuple:
+        aa = map(lambda x: x[0], result['alleleassessments']['reused'])\
+             + map(lambda x: x[1], result['alleleassessments']['created'])
 
-        aa = result['alleleassessments']['reused'] + result['alleleassessments']['created']
         if not isinstance(data, list):
             aa = aa[0]
 

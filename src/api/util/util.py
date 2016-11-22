@@ -1,4 +1,3 @@
-from functools import wraps
 import json
 from flask import request
 from api import db, ApiError
@@ -13,21 +12,36 @@ def error(msg, code):
 
 def rest_filter(func):
 
-    @wraps(func)
     def inner(*args, **kwargs):
-        rest_filter = None
-        if request:
-            q = request.args.get('q')
-            if q:
-                rest_filter = json.loads(q)
-        return func(*args, rest_filter=rest_filter, **kwargs)
+        q = request.args.get('q')
+        q_filter = None
+        if q:
+            q_filter = json.loads(q)
+
+        return func(*args, rest_filter=q_filter, **kwargs)
+
+    return inner
+
+
+def rest_filter_allele(func):
+
+    def inner(*args, **kwargs):
+        q = request.args.get('q')
+        q_filter = None
+        if q:
+            q_filter = json.loads(q)
+
+        a = request.args.get('a')
+        a_filter = None
+        if a:
+            a_filter = json.loads(a)
+
+        return func(*args, rest_filter=q_filter, x_filter = a_filter, **kwargs)
 
     return inner
 
 
 def provide_session(func):
-
-    @wraps(func)
     def inner(*args, **kwargs):
         try:
             return func(db.session, *args, **kwargs)
@@ -43,7 +57,6 @@ def provide_session(func):
 
 def paginate(func):
 
-    @wraps(func)
     def inner(*args, **kwargs):
         page = None
         if request:
@@ -77,8 +90,6 @@ def request_json(required, only_required=False, allowed=None):
     those fields are passed on.
     """
     def wrapper(func):
-
-        @wraps(func)
         def inner(*args, **kwargs):
             data = request.get_json()
             if not isinstance(data, list):

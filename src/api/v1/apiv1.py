@@ -85,7 +85,8 @@ class ApiV1(object):
                            '/api/v1/analyses/<int:analysis_id>/actions/markreview/')
 
         self._add_resource(r.analysis.AnalysisActionFinalizeResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/finalize/')
+                           '/api/v1/analyses/<int:analysis_id>/actions/finalize/',
+                           '/api/v1/analyses/finalized/<int:analysis_id>/')
 
         self._add_resource(r.analysis.AnalysisActionOverrideResource,
                            '/api/v1/analyses/<int:analysis_id>/actions/override/')

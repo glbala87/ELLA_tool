@@ -10,6 +10,10 @@ class Allele(Base):
     """Represents an allele (a variant type in a genomic position)"""
     __tablename__ = "allele"
 
+    CLASS1 = 'CLASS1'
+    INTRON = 'INTRON'
+    GENE = 'GENE'
+
     id = Column(Integer, Sequence("id_allele_seq"), primary_key=True)
     genome_reference = Column(String, nullable=False)
     genotypes = relationship("Genotype", primaryjoin="or_(Allele.id==Genotype.allele_id, "

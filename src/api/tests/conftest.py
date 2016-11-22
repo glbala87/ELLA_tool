@@ -37,10 +37,12 @@ class TestDatabase(object):
         """
         Wipes out whole database, and recreates a clean copy from the dump.
         """
+        print "Refreshing database with data from dump"
         with open(os.devnull, "w") as f:
             subprocess.check_call('psql -d postgres < {path}'.format(path=self.dump_path), shell=True, stdout=f)
 
     def cleanup(self):
+        print "Removing database"
         subprocess.call('dropdb vardb-test', shell=True)
         try:
             os.remove(self.dump_path)

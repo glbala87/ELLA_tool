@@ -89,7 +89,7 @@ class AlleleReportListResource(Resource):
 
         If any AlleleReport exists already for the same allele, it will be marked as superceded.
 
-        **If report should be created as part of finalizing an analysis, check the `analyses/{id}/finalize` resource instead.**
+        **If report should be created as part of finalizing an analysis, check the analysis resource instead.**
 
         POST data example:
         ```javascript
@@ -100,10 +100,13 @@ class AlleleReportListResource(Resource):
                 "allele_id": 2,
                 "evaluation": {...data...},
                 "analysis_id": 3,  // Optional, should be given when report is made in context of analysis
+                "presented_report_id": 6, # Could be None. The report displayed to the user.
                 "alleleassessment_id": 3,  // Optional, should be given when report is made in context of an alleleassessment
             },
             {
-                "id": 4,  // Existing will be reused, so no report will be created...
+                // Existing will be reused, so no report will be created...
+                "reuse": true,
+-               "presented_report_id": The report to reuse.
                 ...
             }
         ]
@@ -127,9 +130,12 @@ class AlleleReportListResource(Resource):
                   - allele_id
                   - evaluation
                 properties:
-                  id:
+                  presented_report_id:
                     description: Reuse exisisting object, no report will be created
                     type: integer
+                  reuse:
+                    description: If true, reuse exisisting object, se presented_report_id
+                    type: boolean
                   user_id:
                     description: User id
                     type: integer
@@ -152,7 +158,8 @@ class AlleleReportListResource(Resource):
                   evaluation: {}
                   analysis_id: 3
                   alleleassessment_id: 3
-                - id: 3
+                - presented_report_id: 3
+                  reuse: true
             description: Submitted data
         responses:
           200:
@@ -166,18 +173,23 @@ class AlleleReportListResource(Resource):
         if not isinstance(data, list):
             data = [data]
 
-        # Extract any alleleassessment_ids for passing into AlleleReportCreator
-        aa_ids = [d['alleleassessment_id'] for d in data if 'alleleassessment_id' in d]
-        aa = session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.id.in_(aa_ids)
+        # find assessments to link to the reports:
+        assessment_ids = [d['alleleassessment_id'] for d in data if 'alleleassessment_id' in d]
+        existing_assessments = session.query(assessment.AlleleAssessment).filter(
+            assessment.AlleleAssessment.id.in_(assessment_ids)
         ).all()
 
-        arc = AlleleReportCreator(session)
-        result = arc.create_from_data(data, alleleassessments=aa)
+        grouped_allelereports = AlleleReportCreator(session).create_from_data(
+            data,
+            alleleassessments = existing_assessments
+        )
 
-        ar = result['reused'] + result['created']
+        # un-tuple:
+        allele_reports_without_context = map(lambda x: x[0], grouped_allelereports['reused']) + map(lambda x: x[1], grouped_allelereports['created'])
+
         if not isinstance(data, list):
-            ar = ar[0]
+            allele_reports_without_context = allele_reports_without_context[0]
 
         session.commit()
-        return schemas.AlleleReportSchema().dump(ar, many=isinstance(ar, list)).data
+        return schemas.AlleleReportSchema().dump(allele_reports_without_context,
+                                                 many=isinstance(allele_reports_without_context, list)).data

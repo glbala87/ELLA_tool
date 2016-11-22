@@ -1,4 +1,6 @@
-from vardb.datamodel import allele, assessment, annotation
+from vardb.datamodel import allele
+from vardb.datamodel.annotation import CustomAnnotation, Annotation
+from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
 
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, GenepanelSchema
 from api.util.annotationprocessor import AnnotationProcessor
@@ -24,6 +26,7 @@ class AlleleDataLoader(object):
 
     def from_objs(self,
                   alleles,
+                  x_filter=None,
                   genotypes=None,
                   genepanel=None,  # Make genepanel mandatory?
                   include_annotation=True,
@@ -39,14 +42,15 @@ class AlleleDataLoader(object):
         a genepanel for automatic transcript selection.
 
         :param alleles: List of allele objects.
+        :param x_filter: a struct defining the ids of related entities to fetch. See other parameters for more info.
         :param genotypes: List of genotypes objects. Index of matching genotype object should match allele list index.
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
-        :param annotation: Load current valid annotation data.
-        :param custom_annotation: Load current valid custom annotation data.
-        :param include_allele_assessment: Load current valid allele assessment
-        :param include_reference_assessments: Load current valid reference assessments
-        :param include_allele_report: Load current valid allele report
+        :param annotation: If true, load the ones mentioned in x_filter.annotation_id
+        :param include_custom_annotation: If true, load the ones mentioned in x_filter.custom_annotation_id
+        :param include_allele_assessment: If true, load the ones mentioned in x_filter.assessment_id
+        :param include_reference_assessments: If true, load the ones mentioned in x_filter.reference_assessment_id
+        :param include_allele_report: If true, load the ones mentioned in x_filter.report_id
         :returns: dict with converted data using schema data.
         """
 
@@ -74,54 +78,39 @@ class AlleleDataLoader(object):
                 genotype = genotypes[idx]
                 allele_data[al.id][KEY_GENOTYPE] = genotype_schema.dump(genotype).data
 
-        ids = allele_data.keys()
+        allele_ids = allele_data.keys()
+
+        allele_annotations = list()
         if include_annotation:
-            annotation_schema = AnnotationSchema()
-            allele_annotations = self.session.query(annotation.Annotation).filter(
-                annotation.Annotation.allele_id.in_(ids),
-                annotation.Annotation.date_superceeded == None
-            ).all()
-            for allele_annotation in allele_annotations:
-                allele_data[allele_annotation.allele_id][KEY_ANNOTATION] = annotation_schema.dump(allele_annotation).data
+            annotation_filters = self.setup_entity_filter(Annotation, 'annotation_id', allele_ids, x_filter)
+            allele_annotations = self.session.query(Annotation).filter(*annotation_filters).all()
 
+        allele_custom_annotations = list()
         if include_custom_annotation:
-            custom_annotation_schema = CustomAnnotationSchema()
-            allele_custom_annotations = self.session.query(annotation.CustomAnnotation).filter(
-                annotation.CustomAnnotation.allele_id.in_(ids),
-                annotation.CustomAnnotation.date_superceeded == None
-            ).all()
-            for allele_custom_annotation in allele_custom_annotations:
-                allele_data[allele_custom_annotation.allele_id][KEY_CUSTOM_ANNOTATION] = custom_annotation_schema.dump(allele_custom_annotation).data
+            custom_annotation_filters = self.setup_entity_filter(CustomAnnotation, 'custom_annotation_id', allele_ids, x_filter)
+            allele_custom_annotations = self.session.query(CustomAnnotation).filter(*custom_annotation_filters).all()
 
+        allele_assessments = list()
         if include_allele_assessment:
-            aa_schema = AlleleAssessmentSchema()
-            allele_assessments = self.session.query(assessment.AlleleAssessment).filter(
-                assessment.AlleleAssessment.allele_id.in_(ids),
-                assessment.AlleleAssessment.date_superceeded == None
-            ).all()
-            for aa in allele_assessments:
-                allele_data[aa.allele_id][KEY_ALLELE_ASSESSMENT] = aa_schema.dump(aa).data
+            assessment_filters = self.setup_entity_filter(AlleleAssessment, 'assessment_id', allele_ids, x_filter)
+            allele_assessments = self.session.query(AlleleAssessment).filter(*assessment_filters).all()
 
+        reference_assessments = list()
         if include_reference_assessments:
-            ra_schema = ReferenceAssessmentSchema()
-            reference_assessments = self.session.query(assessment.ReferenceAssessment).filter(
-                assessment.ReferenceAssessment.allele_id.in_(ids),
-                assessment.ReferenceAssessment.date_superceeded == None
-            ).all()
-            for ra in reference_assessments:
-                if KEY_REFERENCE_ASSESSMENTS not in allele_data[ra.allele_id]:
-                    allele_data[ra.allele_id][KEY_REFERENCE_ASSESSMENTS] = list()
-                allele_data[ra.allele_id][KEY_REFERENCE_ASSESSMENTS].append(ra_schema.dump(ra).data)
+            reference_filters = self.setup_entity_filter(ReferenceAssessment, 'reference_assessment_id', allele_ids, x_filter)
+            reference_assessments = self.session.query(ReferenceAssessment).filter(*reference_filters).all()
 
+        allele_reports = list()
         if include_allele_report:
-            ar_schema = AlleleReportSchema()
-            allele_reports = self.session.query(assessment.AlleleReport).filter(
-                assessment.AlleleReport.allele_id.in_(ids),
-                assessment.AlleleReport.date_superceeded == None
-            ).all()
-            for ar in allele_reports:
-                allele_data[ar.allele_id][KEY_ALLELE_REPORT] = ar_schema.dump(ar).data
+            report_filters = self.setup_entity_filter(AlleleReport, 'report_id', allele_ids, x_filter)
+            allele_reports = self.session.query(AlleleReport).filter(*report_filters).all()
 
+        # serialize the found entities:
+        self.dump(allele_data, allele_annotations, AnnotationSchema(), KEY_ANNOTATION)
+        self.dump(allele_data, allele_custom_annotations, CustomAnnotationSchema(), KEY_CUSTOM_ANNOTATION)
+        self.dump(allele_data, allele_assessments, AlleleAssessmentSchema(), KEY_ALLELE_ASSESSMENT)
+        self.dump(allele_data, reference_assessments, ReferenceAssessmentSchema(), KEY_REFERENCE_ASSESSMENTS, use_list=True)
+        self.dump(allele_data, allele_reports, AlleleReportSchema(), KEY_ALLELE_REPORT)
 
         # Create final data
         # genepanel_data = GenepanelSchema().dump(genepanel).data
@@ -154,6 +143,46 @@ class AlleleDataLoader(object):
             final_alleles.append(final_allele)
 
         return final_alleles
+
+    def dump(self, accumulator, items, schema, key, use_list=False):
+        """
+
+        :param accumulator: The dict to mutate with dumped data
+        :param items:
+        :param schema: the Schema to use for serializing
+        :param key: the key in acc to place the dumped data
+        :param use_list: the dumped values are appended to a list
+        :return:
+        """
+        for i in items:
+            if use_list:
+                if key not in accumulator[i.allele_id]:
+                    accumulator[i.allele_id][key] = list()
+                accumulator[i.allele_id][key].append(schema.dump(i).data)
+                # print(schema.dump(i).data)
+            else:
+                accumulator[i.allele_id][key] = schema.dump(i).data
+
+    def setup_entity_filter(self, clazz, key, allele_ids, query_object):
+        """
+        Create a list of filters for finding entities having a relationship
+        with Allele. If the IDs of the entities are not defined in the query object,
+        we choose the most recent ones instead of loading the specific ones.
+
+        :param clazz: The entity to find
+        :param key: the key of the query_object where the ids are found
+        :param allele_ids: The IDs of Allele the entity class is related to
+        :param query_object: a dict based on an url parameter (json formatted)
+        :return:
+        """
+        filters = [clazz.allele_id.in_(allele_ids)]
+        if query_object and key in query_object:
+            list_of_ids = query_object[key] if isinstance(query_object[key], list) else [query_object[key]]
+            filters.append(clazz.id.in_(list_of_ids))
+        else:
+            filters.append(clazz.date_superceeded == None)
+        return filters
+
 
 
 if __name__ == '__main__':
