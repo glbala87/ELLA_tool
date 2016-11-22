@@ -111,7 +111,9 @@ class AnalysisListWidget {
 
     clickAnalysis(analysis) {
         if (this.isAnalysisDone(analysis)) {
-            this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
+            // this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
+            this.toastr.warning("Opening a finished analysis in read-only mode", null, 600);
+            this.openAnalysis(analysis);
             return;
         }
 

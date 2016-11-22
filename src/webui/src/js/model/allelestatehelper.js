@@ -322,19 +322,23 @@ export class AlleleStateHelper {
         if (allele.allele_assessment && !allele_state.alleleAssessmentCopied) {
             allele_state.alleleassessment.evaluation = deepCopy(allele.allele_assessment.evaluation);
             allele_state.alleleAssessmentCopied = true;
+            allele_state.reuse = false;
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
         }
     }
 
     /**
-     * Copies any existing allele's alleleassessment into the allele_state.
+     * Copies any existing allele's report into the allele_state.
      * To be used when the user want's to edit the existing report.
-     * @param  {Allele} allele   Allele to copy alleleassessment from.
+     * @param  {Allele} allele   Allele to copy report from.
      * @param  {Object} allele_state   Allele state to modify
      */
     static copyAlleleReportToState(allele, allele_state) {
         if (allele.allele_report && !allele_state.alleleReportCopied) {
             allele_state.allelereport.evaluation = deepCopy(allele.allele_report.evaluation);
             allele_state.alleleReportCopied = true;
+            allele_state.reuse = false;
+            allele_state.presented_allelereport_id = allele.allele_report.id;
         }
     }
 
@@ -354,7 +358,8 @@ export class AlleleStateHelper {
         }
         this.setupAlleleState(allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
-            delete allele_state.alleleassessment.id;
+            allele_state.reuse = false;
+            // delete allele_state.alleleassessment.id;
 
             // TODO: allelereport reuse is now tied to alleleassessment reuse,
             // we might want to decouple this in case user only wants to update either of them..
@@ -380,10 +385,13 @@ export class AlleleStateHelper {
             }
 
             if ('allele_assessment' in allele) {
-                allele_state.alleleassessment.id = allele.allele_assessment.id;
+                allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+                allele_state.reuse = true;
             }
             if ('allele_report' in allele) {
                 allele_state.allelereport.id = allele.allele_report.id;
+                allele_state.presented_allelereport_id = allele.allele_report.id;
+                allele_state.reuse = true;
             }
 
 
@@ -392,9 +400,7 @@ export class AlleleStateHelper {
     }
 
     static isAlleleAssessmentReused(allele_state) {
-        return allele_state &&
-               allele_state.alleleassessment &&
-               'id' in allele_state.alleleassessment;
+        return allele_state && allele_state.alleleassessment && allele_state.reuse;
     }
 
     /**

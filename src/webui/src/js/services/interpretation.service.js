@@ -38,6 +38,7 @@ class InterpretationService {
         this.alleleService = Allele;
         this.user = User;
         this.interpretationResource = interpretationResource;
+        this.interpretation = null;
         this.modalService = ModalService;
         this.locationService = LocationService;
     }
@@ -114,10 +115,30 @@ class InterpretationService {
                     }
                     else if (res === 'finalize') {
 
-                        // Get all alleleassessments, referenceassessments and allelereports used for this analysis.
+                        // Collect info about this analysis.
+                        let annotations = [];
+                        let custom_annotations = [];
                         let alleleassessments = [];
                         let referenceassessments = [];
                         let allelereports = [];
+                        // collection annotation ids for the alleles:
+                        for (let allele_state of interpretation.state.allele) {
+                            let match = alleles.find(a => a.id === allele_state.allele_id);
+
+                            if (match) {
+                                annotations.push({
+                                    allele_id: match.id,
+                                    annotation_id: match.annotation.annotation_id
+                                });
+                                if (match.annotation.custom_annotation_id) {
+                                    custom_annotations.push({
+                                        allele_id: match.id,
+                                        custom_annotation_id: match.annotation.custom_annotation_id
+                                    });
+                                }
+                            }
+                        }
+
                         for (let allele_state of interpretation.state.allele) {
                             // Only include assessments/reports for alleles part of the supplied list.
                             // This is to avoid submitting assessments for alleles that have been
@@ -146,6 +167,8 @@ class InterpretationService {
                         ).then(() => {
                             return this.analysisService.finalize(
                                 interpretation.analysis.id,
+                                annotations,
+                                custom_annotations,
                                 alleleassessments,
                                 referenceassessments,
                                 allelereports
@@ -175,18 +198,18 @@ class InterpretationService {
             aa.genepanel_name = genepanel_name;
             aa.genepanel_version = genepanel_version;
         }
-        // If id is included, we're reusing an existing one.
-        if ('id' in allelestate.alleleassessment) {
-            aa.id = allelestate.alleleassessment.id;
-        }
-        else {
-            // Fill in fields expected by backend
+
+        aa.presented_alleleassessment_id = allelestate.presented_alleleassessment_id;
+        // possible reuse:
+        if ('reuse' in allelestate && allelestate.reuse) {
+            aa.reuse = true;
+        } else {
             Object.assign(aa, {
                 user_id: this.user.getCurrentUserId(),
                 classification: allelestate.alleleassessment.classification,
                 evaluation: allelestate.alleleassessment.evaluation
             });
-        }
+                }
         return aa;
     }
 
@@ -201,7 +224,8 @@ class InterpretationService {
                 let ra = {
                     reference_id: reference_state.reference_id,
                     allele_id: reference_state.allele_id
-                }
+                };
+
                 if (analysis_id) {
                     ra.analysis_id = analysis_id;
                 }
@@ -238,11 +262,11 @@ class InterpretationService {
             ar.alleleassessment_id = alleleassessment_id;
         }
 
-        // If id is included, we're reusing an existing one.
-        if ('id' in allelestate.allelereport) {
-            ar.id = allelestate.allelereport.id;
-        }
-        else {
+        ar.presented_allelereport_id = allelestate.presented_allelereport_id;
+        // possible reuse:
+        if ('reuse' in allelestate && allelestate.reuse) {
+            ar.reuse = true;
+        } else {
             // Fill in fields expected by backend
             Object.assign(ar, {
                 user_id: this.user.getCurrentUserId(),
