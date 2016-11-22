@@ -16,31 +16,22 @@ export class AlleleResource {
 
     get(allele_ids, sample_id=null, gp_name=null, gp_version=null, include_annotation=true) {
         return new Promise((resolve, reject) => {
-            let q = JSON.stringify({
-                'id': allele_ids
-            });
-            let uri = `${this.base}/alleles/?q=${encodeURIComponent(q)}`;
-            if (sample_id !== null) {
-                uri += `&sample_id=${sample_id}`
-            }
-            if (gp_name !== null && gp_version !== null) {
-                uri += `&gp_name=${gp_name}&gp_version=${gp_version}`
-            }
-            let r = this.resource(uri);
-            let alleles = r.query(() => {
-                let alleles_obj = [];
-                for (let allele of alleles) {
-                    alleles_obj.push(new Allele(allele));
-                }
-                resolve(alleles_obj);
+            let uri = `${this.base}/alleles/`;
+            // angular skips null parameters
+            let AlleleRS = this.resource(uri, {q: {id: allele_ids},
+                sample_id: sample_id,
+                gp_name: gp_name,
+                gp_version: gp_version});
+            let alleles = AlleleRS.query(() => {
+                resolve(alleles.map(a => new Allele(a)));
             }, reject);
         });
     }
 
     getGenepanels(allele_id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/alleles/${allele_id}/genepanels/`);
-            let genepanels = r.query(() => {
+            let GenepanelRS = this.resource(`${this.base}/alleles/:id/genepanels/`, {id: allele_id});
+            let genepanels = GenepanelRS.query(() => {
                 resolve(genepanels);
             }, reject);
         });

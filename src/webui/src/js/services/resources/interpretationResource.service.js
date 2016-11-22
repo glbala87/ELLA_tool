@@ -15,10 +15,10 @@ class InterpretationResource {
         this.base = '/api/v1';
     }
 
-    _getInterpretation(id) {
+    get(id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/:id/`);
-            let interpretation = r.get({
+            let InterpretationRS = this.resource(`${this.base}/interpretations/:id/`);
+            let interpretation = InterpretationRS.get({
                 id: id
             }, () => {
                 resolve(new Interpretation(interpretation));
@@ -26,32 +26,18 @@ class InterpretationResource {
         });
     }
 
-    _getAlleles(id) {
+    getAlleles(id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/:id/alleles/`, {}, {
-                get: {
-                    isArray: true
-                }
-            });
-            let alleles = r.get({
-                id: id
-            }, () => {
+            let AlleleRS = this.resource(`${this.base}/interpretations/:id/alleles/`);
+            let alleles = AlleleRS.query({id: id}, () => {
                 resolve(alleles);
             });
         });
     }
 
-    get(id) {
-        return this._getInterpretation(id);
-    }
-
-    getAlleles(id) {
-        return this._getAlleles(id);
-    }
-
     updateState(interpretation) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(
+            let InterpretationRS = this.resource(
                 `${this.base}/interpretations/:id/`, {
                     id: interpretation.id
                 }, {
@@ -67,7 +53,7 @@ class InterpretationResource {
                 status: interpretation.status,
                 user_id: interpretation.user_id
             };
-            r.update(data, resolve, reject);
+            InterpretationRS.update(data, resolve, reject);
         });
     }
 
