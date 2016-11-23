@@ -39,7 +39,9 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; }
   .sb-controls { flex-basis: 100%; order: -1; padding: 1.65rem; padding-left: 2.95rem; transition: all 0.6s 0.3s;
     .dropdown:after { border-color: $white-75 transparent transparent transparent }
-    .dropdown select { color: white; }
+    .dropdown select { color: white;
+      option { background-color: $purple-50; }
+    }
     &:empty { display: none; }
   }
   .sb.titlebar {
