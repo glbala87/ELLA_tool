@@ -28,7 +28,7 @@ help :
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image local/ella-test, then run all tests"
-	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js } required as variable or will default to 'all'"
+	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js | api-migration} required as variable or will default to 'all'"
 	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
 	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
