@@ -25,12 +25,13 @@ export class AlleleService {
         this.referenceResource = ReferenceResource;
     }
 
-    getAlleles(allele_ids, sample_id=null, gp_name=null, gp_version=null) {
+    getAlleles(allele_ids, sample_id=null, gp_name=null, gp_version=null, related_entities=null) {
         return this.alleleResource.get(
             allele_ids,
             sample_id,
             gp_name,
-            gp_version
+            gp_version,
+            related_entities
         );
     }
 
