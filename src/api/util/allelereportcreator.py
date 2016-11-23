@@ -34,9 +34,6 @@ class AlleleReportCreator(object):
         :returns: Dict with keys 'reused' and 'created'
         """
 
-        print("Create reports using:")
-        print(json.dumps(allelereports))
-
         created_reports, reused_reports = self._create_or_reuse_allelereports(allelereports)
 
         if alleleassessments:

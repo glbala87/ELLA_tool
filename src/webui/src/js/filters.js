@@ -101,7 +101,7 @@ class Filters {
     })
     noUnderscores() {
         return (text) => {
-            if (text) { return ""; }
+            if (!text) { return ""; }
             return text.replace(/_/g, " ");
         }
     }
