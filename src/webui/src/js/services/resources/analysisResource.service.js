@@ -127,8 +127,8 @@ class AnalysisResource {
      */
     getCollisions(id) {
         return new Promise((resolve, reject) => {
-            var CollistionRC = this.resource(`${this.base}/analyses/${id}/collisions/`);
-            var data = CollistionRC.query(() => {
+            var CollistionRS = this.resource(`${this.base}/analyses/${id}/collisions/`);
+            var data = CollistionRS.query(() => {
                 for (let user of data) {
                     user.alleles = user.alleles.map(a => new Allele(a));
                 }
