@@ -19,7 +19,7 @@ export class InterpretationOverrideModal {
     }
 
     /**
-     * Popups a dialog for adding excluded alleles
+     * Popups a dialog askin if user wants to own the analysis
      * @return {Promise} Promise that resolves when dialog is closed. Resolves with true/false.
      */
     show() {

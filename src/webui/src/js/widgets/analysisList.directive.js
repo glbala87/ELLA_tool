@@ -31,7 +31,7 @@ class AnalysisListWidget {
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
         this.toastr = toastr;
-        this.previous = {}
+        this.previous = {};
 
         // this.setupSidebar();
     }
@@ -111,15 +111,13 @@ class AnalysisListWidget {
 
     clickAnalysis(analysis) {
         if (this.isAnalysisDone(analysis)) {
-            // this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
             this.toastr.warning("Opening a finished analysis in read-only mode", null, 600);
             this.openAnalysis(analysis);
             return;
         }
 
-        let iuser = analysis.getInterpretationUser();
-        if (iuser &&
-            iuser.id !== this.user.getCurrentUserId()) {
+        let owner = analysis.getInterpretationUser();
+        if (this.ownedByOther(owner)) {
             this.interpretationOverrideModal.show().then(result => {
                 if (result) {
                     this.overrideAnalysis(analysis);
@@ -129,6 +127,10 @@ class AnalysisListWidget {
         else {
             this.openAnalysis(analysis);
         }
+    }
+
+    ownedByOther(owner) {
+        return owner && (owner.id !== this.user.getCurrentUserId());
     }
 
     getStateMessage(analysis) {

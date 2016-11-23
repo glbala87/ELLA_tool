@@ -123,7 +123,7 @@ gulp.task('watch-js', function() {
  * Compile app javascript
  * Transpiles ES6 to ES5
  */
-gulp.task('js', function() {
+gulp.task('js', function(done) {
     // return browserify('./src/webui/src/js/index.js', {debug: true})
     return bundler
         .bundle()
@@ -191,7 +191,7 @@ gulp.task('fonts', function () {
 
 gulp.task('e2e', function(done) {
     var base = util.env.e2e_ip || '172.16.250.128';
-    var basePort = util.env.e2e_port || 8000
+    var basePort = util.env.e2e_port || 8000;
     var seleniumAddress = util.env.selenium_address || 'http://172.16.250.128:4444/wd/hub';
     var args = ['--baseUrl', 'http://' + base + ':' + basePort,
                 '--seleniumAddress', seleniumAddress
@@ -211,6 +211,7 @@ gulp.task('e2e', function(done) {
 
 /**
  * Run unit test once and exit
+ * #TODO: hangs (forever) if error in bundling (i.e. syntax file in code)
  */
 gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
     var server = new KarmaServer({
@@ -228,8 +229,6 @@ gulp.task('unit', ['tp-js', 'js', 'ngtmpl'], function (done) {
             done();
         }
     }
-
-  return;
 
 });
 
