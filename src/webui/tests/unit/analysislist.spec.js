@@ -38,7 +38,7 @@ import Analysis from "../../src/js/model/analysis.js"
 
     describe("when user clicks an analysis", function () {
 
-        xit("it opens it if already analysed by this user", function () {
+        it("it opens it if already analysed by this user", function () {
             // Setup mocks
             scope.vm.user = {
                 getCurrentUserId: () => 1
@@ -70,7 +70,7 @@ import Analysis from "../../src/js/model/analysis.js"
 
         });
 
-        it("it opens override modal if analysis is in use by another user", function () {
+        it("it opens override modal if it's in use by another user", function () {
             // Setup mocks
             scope.vm.user = {
                 getCurrentUserId: () => 1
@@ -107,7 +107,7 @@ import Analysis from "../../src/js/model/analysis.js"
 
         });
 
-        it("it opens analysis if not Done and not previously analysed by user", function () {
+        it("it opens it if not Done and not previously analysed by user", function () {
 
             scope.vm.user = {
                 getCurrentUserId: () => 1
@@ -126,7 +126,7 @@ import Analysis from "../../src/js/model/analysis.js"
 
         });
 
-        it("it opens analysis a finalized analysis with a warning", function () {
+        it("it opens it with a warning if it's finalized", function () {
 
             scope.vm.user = {
                 getCurrentUserId: () => 1
@@ -149,6 +149,7 @@ import Analysis from "../../src/js/model/analysis.js"
             // then
             expect(scope.vm.isAnalysisDone).toHaveBeenCalled();
             expect(scope.vm.openAnalysis).toHaveBeenCalled();
+            // don't know how test if toastr shows a warning
 
         });
 
