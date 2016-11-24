@@ -2,6 +2,7 @@
 
 import {Service, Inject} from '../../ng-decorators';
 import Analysis from '../../model/analysis';
+import {Allele} from '../../model/allele';
 
 /**
  * - retrieve analyses

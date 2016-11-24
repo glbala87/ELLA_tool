@@ -26,9 +26,26 @@ class AlleleSidebar extends Page {
         return browser.getText('allele-sidebar .enabled .nav-row.active .id-classification');
     }
 
-    _selectAllele(allele, identifier) {
-        this._ensureLoaded()
+    selectFirstUnclassified() {
+        this._selectFirstIn('.id-unclassified.enabled');
+    }
 
+    _selectFirstIn(identifier) {
+        this._ensureLoaded();
+        const groupSelector = `allele-sidebar ${identifier} .nav-row`;
+        let all = browser.getText(groupSelector);
+        if (Array.isArray(all)) {
+            let selector_of_first = `${groupSelector}:nth-child(1)`;
+            browser.click(selector_of_first);
+            return;
+        }
+        throw Error(`Using selector '${groupSelector}' didn't result in an Array`);
+        }
+
+    _selectAllele(allele, identifier) {
+        this._ensureLoaded();
+
+        // example 'allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc'
         let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`);
         let allele_idx = 0;
         if (Array.isArray(all)) {
