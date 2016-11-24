@@ -164,7 +164,8 @@ class InterpretationService {
 
                         return this.analysisService.updateProperties(
                             interpretation.analysis.id,
-                            interpretation.state.analysis.properties
+                            {'dummy': 'set in interpretation.service.js line 111'}
+                            // interpretation.state.analysis.properties // analysis is null
                         ).then(() => {
                             return this.analysisService.finalize(
                                 interpretation.analysis.id,

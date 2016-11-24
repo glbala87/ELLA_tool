@@ -14,10 +14,13 @@ class AlleleListResource(Resource):
 
     @rest_filter_allele
     def get(self, session, rest_filter=None,  x_filter=None, allele_ids=None):
+        print('AlleleListResource')
         print allele_ids
         print rest_filter
+        print x_filter
         """
-        Loads alleles based on q={} filter or allele ids directly and a={} for related entities
+        Loads alleles based on q={} filter or allele ids directly and a={} for related entities.
+        See decorator rest_filter_allele  and AlleleDataLoader for details about the possible values of a/x_filter
         Specify a genepanel to get more data included.
          Additional request parameters:
             - sample_id: Includes genotypes into the result and enables quality data in the annotation
@@ -50,6 +53,10 @@ class AlleleListResource(Resource):
             in: query
             type: boolean
             description: Whether to include annotation data or not.
+          - name: a
+            in: query
+            type: string
+            description: JSON with ids of related entities to load with the alleles
         responses:
           200:
             schema:

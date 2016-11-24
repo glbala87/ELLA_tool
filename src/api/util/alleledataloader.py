@@ -1,3 +1,4 @@
+import logging
 from vardb.datamodel import allele
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
@@ -69,6 +70,8 @@ class AlleleDataLoader(object):
         #    id2: ...
         # }
 
+        print('x_filter')
+        print(x_filter)
         allele_schema = AlleleSchema()
         genotype_schema = GenotypeSchema()
         allele_data = dict()
@@ -80,6 +83,8 @@ class AlleleDataLoader(object):
 
         allele_ids = allele_data.keys()
 
+        logging.info('Getting entities for alleles '.format(allele_ids))
+        # print(allele_data)
         allele_annotations = list()
         if include_annotation:
             annotation_filters = self.setup_entity_filter(Annotation, 'annotation_id', allele_ids, x_filter)
@@ -153,34 +158,49 @@ class AlleleDataLoader(object):
         :param key: the key in acc to place the dumped data
         :param use_list: the dumped values are appended to a list
         :return:
+
         """
         for i in items:
+            print('dumping item with id {} for allele {} using key {}'.format(i.id, i.allele_id, key))
+
             if use_list:
                 if key not in accumulator[i.allele_id]:
                     accumulator[i.allele_id][key] = list()
                 accumulator[i.allele_id][key].append(schema.dump(i).data)
                 # print(schema.dump(i).data)
             else:
+                print('accumulator[i.allele_id]')
+                print('i.allele_id')
+                print(i.allele_id)
+                print(accumulator[i.allele_id])
+                print(accumulator.keys())
                 accumulator[i.allele_id][key] = schema.dump(i).data
 
-    def setup_entity_filter(self, clazz, key, allele_ids, query_object):
+    def setup_entity_filter(self, entity_clazz, key, allele_ids, query_object):
         """
         Create a list of filters for finding entities having a relationship
         with Allele. If the IDs of the entities are not defined in the query object,
         we choose the most recent ones instead of loading the specific ones.
 
-        :param clazz: The entity to find
+        :param entity_clazz: The entity to find
         :param key: the key of the query_object where the ids are found
         :param allele_ids: The IDs of Allele the entity class is related to
         :param query_object: a dict based on an url parameter (json formatted)
         :return:
         """
-        filters = [clazz.allele_id.in_(allele_ids)]
+        # filters = [entity_clazz.allele_id.in_(allele_ids)] # we are given specific entitye ids and assume they
+        # related to correct alleles. If given id for an entity not related to our alleles, they are disarded anyway
+        # when stitching together the final response
+        filters = []
         if query_object and key in query_object:
             list_of_ids = query_object[key] if isinstance(query_object[key], list) else [query_object[key]]
-            filters.append(clazz.id.in_(list_of_ids))
+            if len(list_of_ids) > 0:
+                filters.append(entity_clazz.id.in_(list_of_ids))
+            else:
+                raise RuntimeError("No id given when creating a filter to find specific entities")
         else:
-            filters.append(clazz.date_superceeded == None)
+            filters.append(entity_clazz.allele_id.in_(allele_ids))
+            filters.append(entity_clazz.date_superceeded == None)
         return filters
 
 

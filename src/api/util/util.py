@@ -36,7 +36,7 @@ def rest_filter_allele(func):
         if a:
             a_filter = json.loads(a)
 
-        return func(*args, rest_filter=q_filter, x_filter = a_filter, **kwargs)
+        return func(*args, rest_filter=q_filter, x_filter=a_filter, **kwargs)
 
     return inner
 
