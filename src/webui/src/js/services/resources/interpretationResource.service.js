@@ -26,27 +26,8 @@ class InterpretationResource {
         });
     }
 
-    _getAlleles(id) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/interpretations/:id/alleles/`, {}, {
-                get: {
-                    isArray: true
-                }
-            });
-            let alleles = r.get({
-                id: id
-            }, () => {
-                resolve(alleles);
-            });
-        });
-    }
-
     get(id) {
         return this._getInterpretation(id);
-    }
-
-    getAlleles(id) {
-        return this._getAlleles(id);
     }
 
     updateState(interpretation) {
