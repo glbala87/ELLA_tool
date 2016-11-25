@@ -13,7 +13,7 @@ from api.v1.resource import Resource
 class AlleleListResource(Resource):
 
     @rest_filter
-    def get(self, session, rest_filter=None, allele_ids=None):
+    def get(self, session, rest_filter=None):
         """
         Returns a list of alleles, with or without annotation included.
         Specify a genepanel to get more data included.
@@ -23,10 +23,6 @@ class AlleleListResource(Resource):
         tags:
           - Allele
         parameters:
-          - name: allele_ids
-            in: query
-            type: string
-            description: List of comma separated allele ids to include
           - name: q
             in: query
             type: string
@@ -51,9 +47,6 @@ class AlleleListResource(Resource):
                 $ref: '#/definitions/Allele'
             description: List of alleles
         """
-
-        if allele_ids and not rest_filter:
-            rest_filter = {'id': allele_ids}
 
         alleles = self.list_query(session, allele.Allele, rest_filter=rest_filter)
         allele_ids = [a.id for a in alleles]
