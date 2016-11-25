@@ -35,12 +35,14 @@ class AlleleSidebar extends Page {
             allele_idx = all.findIndex(s => s === allele);
         }
 
-        let allele_selector = '';
         if (allele_idx === -1) {
             throw Error(`Allele ${allele} not found among options ${all.join(',')}`);
-
         }
-        allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${allele_idx+1})`;
+        this._selectAlleleByIdx(allele_idx, identifier);
+    }
+
+    _selectAlleleByIdx(idx, identifier) {
+        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx+1})`;
         browser.click(allele_selector);
 
         // Check that we changed active allele
@@ -51,8 +53,16 @@ class AlleleSidebar extends Page {
         this._selectAllele(allele, '.id-unclassified.enabled')
     }
 
+    selectUnclassifiedAlleleByIdx(idx) {
+        this._selectAlleleByIdx(idx, '.id-unclassified.enabled')
+    }
+
     selectClassifiedAllele(allele) {
         this._selectAllele(allele, '.id-classified.enabled')
+    }
+
+    selectClassifiedAlleleByIdx(idx) {
+        this._selectAlleleByIdx(idx, '.id-classified.enabled')
     }
 
     isAlleleInUnclassified(allele) {
