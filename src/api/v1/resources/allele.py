@@ -14,10 +14,6 @@ class AlleleListResource(Resource):
 
     @rest_filter_allele
     def get(self, session, rest_filter=None,  x_filter=None, allele_ids=None):
-        print('AlleleListResource')
-        print allele_ids
-        print rest_filter
-        print x_filter
         """
         Loads alleles based on q={} filter or allele ids directly and a={} for related entities.
         See decorator rest_filter_allele  and AlleleDataLoader for details about the possible values of a/x_filter

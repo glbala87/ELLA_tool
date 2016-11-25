@@ -70,8 +70,6 @@ class AlleleDataLoader(object):
         #    id2: ...
         # }
 
-        print('x_filter')
-        print(x_filter)
         allele_schema = AlleleSchema()
         genotype_schema = GenotypeSchema()
         allele_data = dict()
@@ -83,32 +81,35 @@ class AlleleDataLoader(object):
 
         allele_ids = allele_data.keys()
 
-        logging.info('Getting entities for alleles '.format(allele_ids))
-        # print(allele_data)
         allele_annotations = list()
         if include_annotation:
             annotation_filters = self.setup_entity_filter(Annotation, 'annotation_id', allele_ids, x_filter)
-            allele_annotations = self.session.query(Annotation).filter(*annotation_filters).all()
+            if annotation_filters:
+                allele_annotations = self.session.query(Annotation).filter(*annotation_filters).all()
 
         allele_custom_annotations = list()
         if include_custom_annotation:
             custom_annotation_filters = self.setup_entity_filter(CustomAnnotation, 'custom_annotation_id', allele_ids, x_filter)
-            allele_custom_annotations = self.session.query(CustomAnnotation).filter(*custom_annotation_filters).all()
+            if custom_annotation_filters:
+                allele_custom_annotations = self.session.query(CustomAnnotation).filter(*custom_annotation_filters).all()
 
         allele_assessments = list()
         if include_allele_assessment:
             assessment_filters = self.setup_entity_filter(AlleleAssessment, 'assessment_id', allele_ids, x_filter)
-            allele_assessments = self.session.query(AlleleAssessment).filter(*assessment_filters).all()
+            if assessment_filters:
+                allele_assessments = self.session.query(AlleleAssessment).filter(*assessment_filters).all()
 
         reference_assessments = list()
         if include_reference_assessments:
             reference_filters = self.setup_entity_filter(ReferenceAssessment, 'reference_assessment_id', allele_ids, x_filter)
-            reference_assessments = self.session.query(ReferenceAssessment).filter(*reference_filters).all()
+            if reference_filters:
+                reference_assessments = self.session.query(ReferenceAssessment).filter(*reference_filters).all()
 
         allele_reports = list()
         if include_allele_report:
             report_filters = self.setup_entity_filter(AlleleReport, 'report_id', allele_ids, x_filter)
-            allele_reports = self.session.query(AlleleReport).filter(*report_filters).all()
+            if report_filters:
+                allele_reports = self.session.query(AlleleReport).filter(*report_filters).all()
 
         # serialize the found entities:
         self.dump(allele_data, allele_annotations, AnnotationSchema(), KEY_ANNOTATION)
@@ -161,19 +162,11 @@ class AlleleDataLoader(object):
 
         """
         for i in items:
-            print('dumping item with id {} for allele {} using key {}'.format(i.id, i.allele_id, key))
-
             if use_list:
                 if key not in accumulator[i.allele_id]:
                     accumulator[i.allele_id][key] = list()
                 accumulator[i.allele_id][key].append(schema.dump(i).data)
-                # print(schema.dump(i).data)
             else:
-                print('accumulator[i.allele_id]')
-                print('i.allele_id')
-                print(i.allele_id)
-                print(accumulator[i.allele_id])
-                print(accumulator.keys())
                 accumulator[i.allele_id][key] = schema.dump(i).data
 
     def setup_entity_filter(self, entity_clazz, key, allele_ids, query_object):
@@ -182,27 +175,29 @@ class AlleleDataLoader(object):
         with Allele. If the IDs of the entities are not defined in the query object,
         we choose the most recent ones instead of loading the specific ones.
 
+        If query_object is given  we retrieve the entities mentioned there, regardless of there relationship
+        with the allele mentioned in allele_ids. If an entity is not related to our alleles, they are discarded anyway
+        when stitching together the final response
+
         :param entity_clazz: The entity to find
         :param key: the key of the query_object where the ids are found
         :param allele_ids: The IDs of Allele the entity class is related to
-        :param query_object: a dict based on an url parameter (json formatted)
-        :return:
+        :param query_object: a dict with ids of the entities to retrieve
+        :return: An array of filters to be used in a session.query
         """
-        # filters = [entity_clazz.allele_id.in_(allele_ids)] # we are given specific entitye ids and assume they
-        # related to correct alleles. If given id for an entity not related to our alleles, they are disarded anyway
-        # when stitching together the final response
         filters = []
+
         if query_object and key in query_object:
             list_of_ids = query_object[key] if isinstance(query_object[key], list) else [query_object[key]]
             if len(list_of_ids) > 0:
                 filters.append(entity_clazz.id.in_(list_of_ids))
             else:
-                raise RuntimeError("No id given when creating a filter to find specific entities")
+                return None  # we don't want any entities
         else:
             filters.append(entity_clazz.allele_id.in_(allele_ids))
             filters.append(entity_clazz.date_superceeded == None)
-        return filters
 
+        return filters
 
 
 if __name__ == '__main__':

@@ -4,36 +4,36 @@ import {Service, Inject} from '../../ng-decorators';
 import {Allele} from '../../model/allele';
 
 /**
+ * Collect the id of same entity types into an array, one array for each type.
  *
  * @param related_entities [{id: 1, allele_id: 3, presented_alleleleassessment_id: 8, ..}, ]
- * @returns {{assessment_id: Array, annotation_id: Array}} where assessment_id are gathered from the objects
- * in the input array
+ * @returns {assessment_id: Array, annotation_id: Array} where assessment_id are gathered
+ * from  'presented_alleleassessment_id'
  */
 function buildEntityMap(related_entities) {
-    console.log("building a filter using");
-    console.log(related_entities);
+    let extracts = {  // see AnalysisFinalized
+        'annotation_id': [],
+        'customannotation_id': [],
+        'presented_alleleassessment_id': [],
+        'presented_allelereport_id': []
+        // TODO: add reference assessments?
+    };
 
-    let assessment_ids = [];
-    let annotations_ids = [];
-    for (let entry in related_entities) {
-        let id = entry.presented_alleleassessment_id;
-
-        let annotationId = entry.annotation_id;
-        if (id) {
-            assessment_ids.push(id);
-        }
-        if (annotationId) {
-            annotations_ids.push(annotationId);
+    for (const extractKey of Object.keys(extracts)) {
+        for (const entry of related_entities) {
+            let id = entry[extractKey];
+            if (id) {
+                extracts[extractKey].push(id);
+            }
         }
     }
 
-    var result = {
-        'assessment_id': assessment_ids,
-        'annotation_id': annotations_ids,
+    return  {
+        'annotation_id': extracts['annotation_id'],
+        'customannotation_id': extracts['customannotation_id'],
+        'assessment_id': extracts['presented_alleleassessment_id'],
+        'allelereport_id': extracts['presented_allelereport_id']
     };
-    console.log(result);
-
-    return result;
 }
 
 @Service({
@@ -52,7 +52,6 @@ export class AlleleResource {
         return new Promise((resolve, reject) => {
             let uri = `${this.base}/alleles/`;
             // angular skips null parameters
-            console.log(related_entities);
 
             let AlleleRS = this.resource(uri,
                 { q: { 'id': allele_ids

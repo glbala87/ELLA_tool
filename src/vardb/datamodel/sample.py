@@ -68,6 +68,8 @@ class AnalysisFinalized(Base):
     our_assessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
     presented_assessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)
 
+    # TODO: add reference assessments?
+
 
 class Analysis(Base):
     """Represents a bioinformatical pipeline analysis
