@@ -26,8 +26,55 @@ class AlleleSidebar extends Page {
         return browser.getText('allele-sidebar .enabled .nav-row.active .id-classification');
     }
 
+
+
+    numberOf(identifier) {
+        this._ensureLoaded();
+        const groupSelector = `allele-sidebar .id-${identifier} .nav-row`;
+        let all = browser.getText(groupSelector);
+        if (Array.isArray(all)) {
+            return all.length;
+        } else {
+            return 1; // if zero an exception would be called above
+        }
+
+
+    }
+    numberOfUnclassified() {
+        return this.numberOf('unclassified');
+    }
+
+    numberOfClassified() {
+        return this.numberOf('classified');
+    }
+
+    selectFirstUnclassifedForce() {
+        this._selectFirstInForced('unclassified');
+    }
+
+    selectFirstClassifedForce() {
+        this._selectFirstInForced('classified');
+    }
+
+
+    _selectFirstInForced(identifier) { // selectFirstUnclassified throws an error if there is less than two!
+        this._ensureLoaded();
+        const groupSelector = `allele-sidebar .id-${identifier} .nav-row`;
+        let all = browser.getText(groupSelector);
+        if (Array.isArray(all)) {
+            let selector_of_first = `${groupSelector}:nth-child(1)`;
+            browser.click(selector_of_first);
+        } else {
+            browser.click(groupSelector);
+        }
+        return;
+    }
     selectFirstUnclassified() {
         this._selectFirstIn('.id-unclassified.enabled');
+    }
+
+    selectFirstClassified() {
+        this._selectFirstIn('.id-classified.enabled');
     }
 
     _selectFirstIn(identifier) {

@@ -12,6 +12,7 @@ class AlleleSectionBox extends Page {
     get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
+    get hasExistingClassification() {return browser.isExisting('allele-info-vardb'); }
 
     markAsClass1() {
        browser.click('.id-mark-class1');
@@ -83,8 +84,10 @@ class AlleleSectionBox extends Page {
         return browser.getText('allele-info-prediction-other div.cell p');
     }
 
-
+    getExistingClassificationClass() {
+        return browser.getText('allele-info-vardb contentbox div div.cb-body cbbody h2');
+    }
 
 }
 
-module.exports = AlleleSectionBox
+module.exports = AlleleSectionBox;
