@@ -31,6 +31,9 @@ class AlleleSidebar extends Page {
     numberOf(identifier) {
         this._ensureLoaded();
         const groupSelector = `allele-sidebar .id-${identifier} .nav-row`;
+        if (!browser.isExisting(groupSelector)) {
+            return 0;
+        }
         let all = browser.getText(groupSelector);
         if (Array.isArray(all)) {
             return all.length;
