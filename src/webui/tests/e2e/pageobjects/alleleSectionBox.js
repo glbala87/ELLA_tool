@@ -13,8 +13,29 @@ class AlleleSectionBox extends Page {
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
 
+
+
+
+    unclassify() { // go through all possible buttons that 'unclassifies':
+        let selectors = [
+            '.id-accept-classification',
+            '.id-marked-class1',
+            '.id-marked-class2',
+            '.id-marked-technical'
+        ];
+
+        for (let s of selectors) {
+            if (browser.isExisting(s)) {
+                console.info(`Unclassified variant using using button selector ${s}`);
+                browser.click(s);
+                return;
+            }
+        }
+
+    }
+
     markAsClass1() {
-       browser.click('.id-mark-class1');
+        browser.click('.id-mark-class1');
     }
 
     markAsClass2() {
@@ -22,8 +43,21 @@ class AlleleSectionBox extends Page {
     }
 
     markAsTechnical() {
-       browser.click('.id-mark-technical');
+        browser.click('.id-mark-technical');
     }
+
+    unmarkClass1() {
+        browser.click('.id-marked-class1');
+    }
+
+    unmarkClass2() {
+        browser.click('.id-marked-class2');
+    }
+
+    unmarkTechnical() {
+        browser.click('.id-marked-technical');
+    }
+
 
     /**
      * @param {string} category Either 'pathogenic' or 'benign'
@@ -84,10 +118,13 @@ class AlleleSectionBox extends Page {
     }
 
     getExistingClassificationClass() {
-        return browser.getText('allele-info-vardb contentbox div div.cb-body cbbody h2');
+        return browser.getText('allele-info-vardb contentbox.vardb cbbody h2');
     }
 
-    hasExistingClassification() {return browser.isExisting('allele-info-vardb'); }
+    hasExistingClassification() {
+        browser.waitForExist('allele-info-vardb');
+        return browser.isExisting('allele-info-vardb contentbox.vardb');
+    }
 
 }
 

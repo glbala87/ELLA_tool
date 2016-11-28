@@ -10,10 +10,27 @@ class AnalysisPage extends Page {
     get addExcludedButton() { return browser.element('.id-add-excluded') }
     get collisionWarningBar() { return browser.element('.id-collision-warning'); }
 
+    get roundCount() {
+        let selector = '.id-interpretationrounds-dropdown option'
+        let all = browser.getText(selector);
+        if (Array.isArray(all)) {
+            return all.length;
+        } else {
+            return 1; // if zero an exception would be called above
+        }
+    }
+
+    chooseRound(number) {
+        let dropdownOption = `.id-interpretationrounds-dropdown option:nth-child(${number})`;
+        browser.waitForExist(dropdownOption);
+        browser.click(dropdownOption);
+
+    }
+
     _selectSection(number) {
-        let dropdown = `interpretation-singlesample nav select option:nth-child(${number})`;
-        browser.waitForExist(dropdown);
-        browser.click(dropdown);
+        let dropdownOption = `interpretation-singlesample nav select option:nth-child(${number})`;
+        browser.waitForExist(dropdownOption);
+        browser.click(dropdownOption);
     }
 
     selectSectionFrequency() {
