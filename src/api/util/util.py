@@ -31,12 +31,12 @@ def rest_filter_allele(func):
         if q:
             q_filter = json.loads(q)
 
-        a = request.args.get('a')
-        a_filter = None
-        if a:
-            a_filter = json.loads(a)
+        link = request.args.get('link')
+        link_filter = None
+        if link:
+            link_filter = json.loads(link)
 
-        return func(*args, rest_filter=q_filter, x_filter=a_filter, **kwargs)
+        return func(*args, rest_filter=q_filter, link_filter=link_filter, **kwargs)
 
     return inner
 

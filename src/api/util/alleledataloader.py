@@ -27,7 +27,7 @@ class AlleleDataLoader(object):
 
     def from_objs(self,
                   alleles,
-                  x_filter=None,
+                  link_filter=None,
                   genotypes=None,
                   genepanel=None,  # Make genepanel mandatory?
                   include_annotation=True,
@@ -43,15 +43,15 @@ class AlleleDataLoader(object):
         a genepanel for automatic transcript selection.
 
         :param alleles: List of allele objects.
-        :param x_filter: a struct defining the ids of related entities to fetch. See other parameters for more info.
+        :param link_filter: a struct defining the ids of related entities to fetch. See other parameters for more info.
         :param genotypes: List of genotypes objects. Index of matching genotype object should match allele list index.
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
-        :param annotation: If true, load the ones mentioned in x_filter.annotation_id
-        :param include_custom_annotation: If true, load the ones mentioned in x_filter.custom_annotation_id
-        :param include_allele_assessment: If true, load the ones mentioned in x_filter.assessment_id
-        :param include_reference_assessments: If true, load the ones mentioned in x_filter.reference_assessment_id
-        :param include_allele_report: If true, load the ones mentioned in x_filter.report_id
+        :param annotation: If true, load the ones mentioned in link_filter.annotation_id
+        :param include_custom_annotation: If true, load the ones mentioned in link_filter.custom_annotation_id
+        :param include_allele_assessment: If true, load the ones mentioned in link_filter.assessment_id
+        :param include_reference_assessments: If true, load the ones mentioned in link_filter.reference_assessment_id
+        :param include_allele_report: If true, load the ones mentioned in link_filter.report_id
         :returns: dict with converted data using schema data.
         """
 
@@ -83,31 +83,31 @@ class AlleleDataLoader(object):
 
         allele_annotations = list()
         if include_annotation:
-            annotation_filters = self.setup_entity_filter(Annotation, 'annotation_id', allele_ids, x_filter)
+            annotation_filters = self.setup_entity_filter(Annotation, 'annotation_id', allele_ids, link_filter)
             if annotation_filters:
                 allele_annotations = self.session.query(Annotation).filter(*annotation_filters).all()
 
         allele_custom_annotations = list()
         if include_custom_annotation:
-            custom_annotation_filters = self.setup_entity_filter(CustomAnnotation, 'custom_annotation_id', allele_ids, x_filter)
+            custom_annotation_filters = self.setup_entity_filter(CustomAnnotation, 'custom_annotation_id', allele_ids, link_filter)
             if custom_annotation_filters:
                 allele_custom_annotations = self.session.query(CustomAnnotation).filter(*custom_annotation_filters).all()
 
         allele_assessments = list()
         if include_allele_assessment:
-            assessment_filters = self.setup_entity_filter(AlleleAssessment, 'assessment_id', allele_ids, x_filter)
+            assessment_filters = self.setup_entity_filter(AlleleAssessment, 'assessment_id', allele_ids, link_filter)
             if assessment_filters:
                 allele_assessments = self.session.query(AlleleAssessment).filter(*assessment_filters).all()
 
         reference_assessments = list()
         if include_reference_assessments:
-            reference_filters = self.setup_entity_filter(ReferenceAssessment, 'reference_assessment_id', allele_ids, x_filter)
+            reference_filters = self.setup_entity_filter(ReferenceAssessment, 'reference_assessment_id', allele_ids, link_filter)
             if reference_filters:
                 reference_assessments = self.session.query(ReferenceAssessment).filter(*reference_filters).all()
 
         allele_reports = list()
         if include_allele_report:
-            report_filters = self.setup_entity_filter(AlleleReport, 'report_id', allele_ids, x_filter)
+            report_filters = self.setup_entity_filter(AlleleReport, 'report_id', allele_ids, link_filter)
             if report_filters:
                 allele_reports = self.session.query(AlleleReport).filter(*report_filters).all()
 

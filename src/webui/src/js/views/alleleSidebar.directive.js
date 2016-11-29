@@ -45,13 +45,18 @@ export class AlleleSidebarController {
     }
 
     isSelected(allele_option) {
-        let selected = this.selected === allele_option.allele;
+        if (!this.selected) {
+            return false;
+        }
+
+        let matching = this.selected.id === allele_option.allele.id;
+
         // If checkable is true, we don't support select mode. Set to null
-        if (selected && allele_option.checkable) {
+        if (matching && allele_option.checkable) {
             this.selected = null;
             return false;
         }
-        return selected;
+        return matching;
     }
 
     isToggled(allele_option) {

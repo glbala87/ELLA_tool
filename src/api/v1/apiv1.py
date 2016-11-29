@@ -51,8 +51,7 @@ class ApiV1(object):
                            '/api/v1/acmg/classifications/')
 
         self._add_resource(r.allele.AlleleListResource,
-                           '/api/v1/alleles/',
-                           '/api/v1/alleles/<list:allele_ids>')
+                           '/api/v1/alleles/')
 
         self._add_resource(r.alleleassessment.AlleleAssessmentResource,
                            '/api/v1/alleleassessments/<int:aa_id>/')

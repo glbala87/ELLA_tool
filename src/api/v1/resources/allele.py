@@ -13,10 +13,10 @@ from api.v1.resource import Resource
 class AlleleListResource(Resource):
 
     @rest_filter_allele
-    def get(self, session, rest_filter=None,  x_filter=None, allele_ids=None):
+    def get(self, session, rest_filter=None,  link_filter=None):
         """
-        Loads alleles based on q={} filter or allele ids directly and a={} for related entities.
-        See decorator rest_filter_allele  and AlleleDataLoader for details about the possible values of a/x_filter
+        Loads alleles based on q={..} and link={..} for linked/related entities.
+        See decorator rest_filter_allele  and AlleleDataLoader for details about the possible values of link_filter
         Specify a genepanel to get more data included.
          Additional request parameters:
             - sample_id: Includes genotypes into the result and enables quality data in the annotation
@@ -29,10 +29,6 @@ class AlleleListResource(Resource):
         tags:
           - Allele
         parameters:
-          - name: allele_ids
-            in: query
-            type: string
-            description: List of comma separated allele ids to include
           - name: q
             in: query
             type: string
@@ -61,9 +57,6 @@ class AlleleListResource(Resource):
                 $ref: '#/definitions/Allele'
             description: List of alleles
         """
-
-        if allele_ids and not rest_filter: # overwrite the q parameter with Allele id's from route variables
-            rest_filter = {'id': allele_ids}
 
         alleles = self.list_query(session, allele.Allele, rest_filter=rest_filter)
         allele_ids = [a.id for a in alleles]
@@ -104,8 +97,8 @@ class AlleleListResource(Resource):
             'include_annotation': False,
             'include_custom_annotation': False
         }
-        if x_filter:
-            kwargs['x_filter'] = x_filter
+        if link_filter:
+            kwargs['link_filter'] = link_filter
         if allele_genotypes:
             kwargs['genotypes'] = allele_genotypes
         if genepanel:  # TODO: make genepanel required?

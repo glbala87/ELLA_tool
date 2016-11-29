@@ -52,40 +52,35 @@ class AlleleSidebar extends Page {
         return this._countOf('.id-classified');
     }
 
-    selectFirstUnclassifedForce() {
-        this._selectFirstInForced('.id-unclassified');
-    }
+    // selectFirstUnclassifedForce() {
+    //     this._selectFirstInForced('.id-unclassified');
+    // }
+    //
+    // selectFirstClassifiedForce() {
+    //     this._selectFirstInForced('.id-classified');
+    // }
 
-    selectFirstClassifiedForce() {
-        this._selectFirstInForced('.id-classified');
-    }
+    // _selectFirstInForced(identifier) { // selectFirstUnclassified throws an error if there is less than two!
+    //     this._ensureLoaded();
+    //     const groupSelector = `allele-sidebar ${identifier} .nav-row`;
+    //     let all = browser.getText(groupSelector);
+    //     if (Array.isArray(all)) {
+    //         let selector_of_first = `${groupSelector}:nth-child(1)`;
+    //         browser.click(selector_of_first);
+    //     } else {
+    //         browser.click(groupSelector);
+    //     }
+    //     return;
+    // }
 
-    selectClassified(number) {
-        return this._selectAlleleNumber(number, '.id-classified');
-    }
-
-    selectUnclassified(number) {
-        return this._selectAlleleNumber(number, '.id-unclassified');
-    }
-
-    _selectFirstInForced(identifier) { // selectFirstUnclassified throws an error if there is less than two!
-        this._ensureLoaded();
-        const groupSelector = `allele-sidebar ${identifier} .nav-row`;
-        let all = browser.getText(groupSelector);
-        if (Array.isArray(all)) {
-            let selector_of_first = `${groupSelector}:nth-child(1)`;
-            browser.click(selector_of_first);
-        } else {
-            browser.click(groupSelector);
-        }
-        return;
-    }
     selectFirstUnclassified() {
-        this._selectFirstIn('.id-unclassified.enabled');
+        // this._selectFirstIn('.id-unclassified.enabled');
+        this._selectFirstIn('.id-unclassified');
     }
 
     selectFirstClassified() {
-        this._selectFirstIn('.id-classified.enabled');
+        // this._selectFirstIn('.id-classified.enabled');
+        this._selectFirstIn('.id-classified');
     }
 
     _selectFirstIn(identifier) {
@@ -95,19 +90,9 @@ class AlleleSidebar extends Page {
         if (Array.isArray(all)) {
             let selector_of_first = `${groupSelector}:nth-child(1)`;
             browser.click(selector_of_first);
-            return;
+        } else {
+            browser.click(groupSelector);
         }
-        throw Error(`Using selector '${groupSelector}' didn't result in an Array`);
-        }
-
-    _selectAlleleNumber(number, identifier) {
-        this._ensureLoaded();
-        const allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${number})`;
-        browser.click(allele_selector);
-
-        // Check that we changed active allele
-        expect(browser.getClass(allele_selector).find(a => a === 'active')).toBeDefined();
-        return browser.element(allele_selector);
     }
 
     _selectAllele(allele, identifier) {
@@ -115,29 +100,46 @@ class AlleleSidebar extends Page {
 
         // example 'allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc'
         let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`);
-        let allele_idx = 0;
+        let allele_idx = -1; // assume no match
         if (Array.isArray(all)) {
             allele_idx = all.findIndex(s => s === allele);
+        } else { // not an array, there is only one
+            if ( all === allele) { // match
+                allele_idx = 0
+            }
         }
 
-        let allele_selector = '';
         if (allele_idx === -1) {
             throw Error(`Allele ${allele} not found among options ${all.join(',')}`);
-
         }
-        allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${allele_idx+1})`;
+        this._selectAlleleByIdx(allele_idx + 1, identifier);
+    }
+
+    _selectAlleleByIdx(idx, identifier) {
+        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx})`;
         browser.click(allele_selector);
 
         // Check that we changed active allele
         expect(browser.getClass(allele_selector).find(a => a === 'active')).toBeDefined();
+        return browser.element(allele_selector);
     }
 
     selectUnclassifiedAllele(allele) {
         this._selectAllele(allele, '.id-unclassified.enabled')
     }
 
+    selectUnclassifiedAlleleByIdx(idx) { // 1-based
+        // return this._selectAlleleByIdx(idx, '.id-unclassified.enabled')
+        return this._selectAlleleByIdx(idx, '.id-unclassified')
+    }
+
     selectClassifiedAllele(allele) {
         this._selectAllele(allele, '.id-classified.enabled')
+    }
+
+    selectClassifiedAlleleByIdx(idx) { // 1-based
+        // return this._selectAlleleByIdx(idx, '.id-classified.enabled')
+        return this._selectAlleleByIdx(idx, '.id-classified')
     }
 
     isAlleleInUnclassified(allele) {

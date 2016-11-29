@@ -33,16 +33,12 @@ class AnalysisPage extends Page {
         browser.click(dropdownOption);
     }
 
-    selectSectionFrequency() {
+    selectSectionClassification() {
        this._selectSection(1);
     }
 
-    selectSectionClassification() {
-       this._selectSection(2);
-    }
-
     selectSectionReport() {
-       this._selectSection(3);
+       this._selectSection(2);
     }
 
 }

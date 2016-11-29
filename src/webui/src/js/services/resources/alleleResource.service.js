@@ -48,15 +48,13 @@ export class AlleleResource {
     }
 
     // related_entietes
-    get(allele_ids, sample_id=null, gp_name=null, gp_version=null, related_entities=null) {
+    get(allele_ids, sample_id=null, gp_name=null, gp_version=null, link_entities=null) {
         return new Promise((resolve, reject) => {
             let uri = `${this.base}/alleles/`;
             // angular skips null parameters
-
             let AlleleRS = this.resource(uri,
-                { q: { 'id': allele_ids
-                     },
-                  a: related_entities ? buildEntityMap(related_entities): null,
+                { q: { 'id': allele_ids},
+                  link: link_entities ? buildEntityMap(link_entities): null,
                   sample_id: sample_id,
                   gp_name: gp_name,
                   gp_version: gp_version

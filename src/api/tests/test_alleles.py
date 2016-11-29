@@ -1,4 +1,5 @@
 import pytest
+import json
 from util import FlaskClientProxy
 from api.util.annotationprocessor.genepanelprocessor import BETWEEN_RESULT, BELOW_RESULT, ABOVE_RESULT
 
@@ -24,7 +25,8 @@ class TestAlleleList(object):
 
         # ids = [1, 2, 3, 4, 5, 6]
         ids = [1]
-        response = client.get('/api/v1/alleles/{}'.format(",".join(map(str,ids))))
+        q = {'id': ids}
+        response = client.get('/api/v1/alleles/?q={}'.format(json.dumps(q)))
 
         assert response.status_code == 200
 
@@ -42,8 +44,8 @@ class TestAlleleList(object):
 #                          "lo_freq_cutoff": 0.0005
 
 @pytest.mark.parametrize("url, expected_1000g, expected_6500, expected_exac", [
-    ('/api/v1/alleles/1?gp_name=HBOC&gp_version=v01', [BETWEEN_LOWER_U, BETWEEN_UPPER_U], BELOW_U, [BETWEEN_LOWER_U, BETWEEN_UPPER_U]),
-    ('/api/v1/alleles/1', BELOW_U, BELOW_U, BELOW_U),  # panel not specified, uses default cutoffs
+    ('/api/v1/alleles/?q={"id": [1]}&gp_name=HBOC&gp_version=v01', [BETWEEN_LOWER_U, BETWEEN_UPPER_U], BELOW_U, [BETWEEN_LOWER_U, BETWEEN_UPPER_U]),
+    ('/api/v1/alleles/?q={"id": [1]}', BELOW_U, BELOW_U, BELOW_U),  # panel not specified, uses default cutoffs
 ])
 def test_calculation_of_cutoffs(client, url, expected_1000g, expected_6500, expected_exac):
     response = client.get(url)
