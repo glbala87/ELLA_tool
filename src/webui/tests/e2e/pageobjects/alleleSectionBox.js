@@ -75,7 +75,6 @@ class AlleleSectionBox extends Page {
         let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`;
         browser.pause(500); // Wait for popover animation to settle
         browser.click(acmg_selector);
-
         browser.element('.popover').scroll(`h4.acmg-title=${code}`);
         browser.element('.popover').click(`h4.acmg-title=${code}`);
 
