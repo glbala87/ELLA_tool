@@ -38,11 +38,9 @@ class InterpretationService {
         this.alleleService = Allele;
         this.user = User;
         this.interpretationResource = interpretationResource;
-        this.interpretation = null;
         this.modalService = ModalService;
         this.locationService = LocationService;
     }
-
 
     loadInterpretation(id) {
         if (id === undefined) {
@@ -108,8 +106,8 @@ class InterpretationService {
                     if (res === 'markreview') {
                         return this.analysisService.updateProperties(
                             interpretation.analysis.id,
-                            {'dummy': 'set in interpretation.service.js line 111'}
-                            // interpretation.state.analysis.properties // analysis is null
+                            // {'dummy': 'set in interpretation.service.js line 111'}
+                            interpretation.state.analysis.properties // analysis is null
                         ).then(() => {
                             this.analysisService.markreview(interpretation.analysis.id);
                         });
@@ -164,8 +162,8 @@ class InterpretationService {
 
                         return this.analysisService.updateProperties(
                             interpretation.analysis.id,
-                            {'dummy': 'set in interpretation.service.js line 111'}
-                            // interpretation.state.analysis.properties // analysis is null
+                            // {'dummy': 'set in interpretation.service.js line 111'}
+                            interpretation.state.analysis.properties // analysis is null
                         ).then(() => {
                             return this.analysisService.finalize(
                                 interpretation.analysis.id,
