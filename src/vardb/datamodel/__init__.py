@@ -77,4 +77,4 @@ Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
 Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:
-from vardb.datamodel import allele, annotation, sample, assessment, genotype, gene, user
+from vardb.datamodel import allele, annotation, sample, assessment, genotype, gene, user, workflow
