@@ -63,7 +63,7 @@ class AnalysisFinalized(Base):
     allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
     presented_allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
 
-    filtered = Column(Enum("CLASS1", "INTRON", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
+    filtered = Column(Enum("CLASS1", "INTRON", "GENE", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
 
     our_assessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
     presented_assessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)

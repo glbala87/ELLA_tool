@@ -23,10 +23,17 @@ Whenever you make changes to the database model, you need to create migration sc
 To create a new migration:
 
 1. Make all your changes to the normal datamodel in `src/vardb/datamodel/` and test them until you're satisfied. In general we don't want to make more migration scripts than necessary, so make sure things are proper.
-1. On your dev instance run: export DB_URL=postgresql:///postgres
-1. On your dev instance run:  `./ella-cli database ci-migration-head` to reset the database to the migration base, then run all the upgrades to make
-1. `cd src/vardb/datamodel/migration/` and run something like this `PYTHONPATH=../../.. DB_URL=postgresql://postgres@/postgres alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel and compare it against the database state, generating a migration script from the differences.
-1. Go over the created script, clean it up and test it. The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right. Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data present in the database if necessary. The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
+1. Make and enter a dev instance: `make dev` and `make shell`
+1. Inside it do:
+    1. `export DB_URL=postgresql:///postgres`
+    1. `/ella/ella-cli database ci-migration-head` (resets database to the migration base, then runs all the migrations)
+    1. `cd /ella/src/vardb/datamodel/migration/`
+    1. `PYTHONPATH=../../.. alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel
+     and compare it against the database state, generating a migration script from the differences.
+1. Go over the created script, clean it up and test it (`test-api-migration`).
+
+The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right. Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data present in the database if necessary.
+The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
 
 
 ### API documentation
