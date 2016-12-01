@@ -39,6 +39,10 @@ class AlleleDataLoader(object):
         Loads data for a list of alleles from the database, and returns a dictionary
         with the final data, loaded using the allele schema.
 
+        By default the most recent linked entities of the alleles are fetched from database.
+        If specific entity ids are given in 'link_filter' those are loaded instead. Any explicitly given entities
+        not linked to the alleles will not be part of the returned result
+
         Annotation is automatically processed using annotationprocessor. If possible, provide
         a genepanel for automatic transcript selection.
 
@@ -72,14 +76,14 @@ class AlleleDataLoader(object):
 
         allele_schema = AlleleSchema()
         genotype_schema = GenotypeSchema()
-        allele_data = dict()
+        accumulated_allele_data = dict()
         for idx, al in enumerate(alleles):
-            allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
+            accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
             if genotypes:
                 genotype = genotypes[idx]
-                allele_data[al.id][KEY_GENOTYPE] = genotype_schema.dump(genotype).data
+                accumulated_allele_data[al.id][KEY_GENOTYPE] = genotype_schema.dump(genotype).data
 
-        allele_ids = allele_data.keys()
+        allele_ids = accumulated_allele_data.keys()
 
         allele_annotations = list()
         if include_annotation:
@@ -112,16 +116,18 @@ class AlleleDataLoader(object):
                 allele_reports = self.session.query(AlleleReport).filter(*report_filters).all()
 
         # serialize the found entities:
-        self.dump(allele_data, allele_annotations, AnnotationSchema(), KEY_ANNOTATION)
-        self.dump(allele_data, allele_custom_annotations, CustomAnnotationSchema(), KEY_CUSTOM_ANNOTATION)
-        self.dump(allele_data, allele_assessments, AlleleAssessmentSchema(), KEY_ALLELE_ASSESSMENT)
-        self.dump(allele_data, reference_assessments, ReferenceAssessmentSchema(), KEY_REFERENCE_ASSESSMENTS, use_list=True)
-        self.dump(allele_data, allele_reports, AlleleReportSchema(), KEY_ALLELE_REPORT)
+        self.dump(accumulated_allele_data, allele_ids, allele_annotations, AnnotationSchema(), KEY_ANNOTATION)
+        self.dump(accumulated_allele_data, allele_ids, allele_custom_annotations, CustomAnnotationSchema(),
+                  KEY_CUSTOM_ANNOTATION)
+        self.dump(accumulated_allele_data, allele_ids, allele_assessments, AlleleAssessmentSchema(), KEY_ALLELE_ASSESSMENT)
+        self.dump(accumulated_allele_data, allele_ids, reference_assessments, ReferenceAssessmentSchema(),
+                  KEY_REFERENCE_ASSESSMENTS, use_list=True)
+        self.dump(accumulated_allele_data, allele_ids, allele_reports, AlleleReportSchema(), KEY_ALLELE_REPORT)
 
         # Create final data
         # genepanel_data = GenepanelSchema().dump(genepanel).data
         final_alleles = list()
-        for allele_id, data in allele_data.iteritems():
+        for allele_id, data in accumulated_allele_data.iteritems():
             final_allele = data[KEY_ALLELE]
 
             for key in [KEY_GENOTYPE, KEY_ALLELE_ASSESSMENT, KEY_REFERENCE_ASSESSMENTS, KEY_ALLELE_REPORT]:
@@ -150,9 +156,10 @@ class AlleleDataLoader(object):
 
         return final_alleles
 
-    def dump(self, accumulator, items, schema, key, use_list=False):
+    def dump(self, accumulator, allowed_allele_ids, items, schema, key, use_list=False):
         """
 
+        :param allowed_allele_ids:
         :param accumulator: The dict to mutate with dumped data
         :param items:
         :param schema: the Schema to use for serializing
@@ -161,13 +168,15 @@ class AlleleDataLoader(object):
         :return:
 
         """
-        for i in items:
+        for item in items:
+            if item.allele_id not in allowed_allele_ids:
+                return
             if use_list:
-                if key not in accumulator[i.allele_id]:
-                    accumulator[i.allele_id][key] = list()
-                accumulator[i.allele_id][key].append(schema.dump(i).data)
+                if key not in accumulator[item.allele_id]:
+                    accumulator[item.allele_id][key] = list()
+                accumulator[item.allele_id][key].append(schema.dump(item, None, ).data)
             else:
-                accumulator[i.allele_id][key] = schema.dump(i).data
+                accumulator[item.allele_id][key] = schema.dump(item, None, ).data
 
     def setup_entity_filter(self, entity_clazz, key, allele_ids, query_object):
         """

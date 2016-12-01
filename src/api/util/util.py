@@ -1,3 +1,4 @@
+from functools import wraps
 import json
 from flask import request
 from api import db, ApiError
@@ -12,31 +13,30 @@ def error(msg, code):
 
 def rest_filter(func):
 
+    @wraps(func)
     def inner(*args, **kwargs):
-        q = request.args.get('q')
         q_filter = None
-        if q:
-            q_filter = json.loads(q)
+        if request:
+            q = request.args.get('q')
+            if q:
+                q_filter = json.loads(q)
 
         return func(*args, rest_filter=q_filter, **kwargs)
 
     return inner
 
 
-def rest_filter_allele(func):
+def link_filter(func):
 
+    @wraps(func)
     def inner(*args, **kwargs):
-        q = request.args.get('q')
-        q_filter = None
-        if q:
-            q_filter = json.loads(q)
-
-        link = request.args.get('link')
         link_filter = None
-        if link:
-            link_filter = json.loads(link)
+        if request:
+            link = request.args.get('link')
+            if link:
+                link_filter = json.loads(link)
 
-        return func(*args, rest_filter=q_filter, link_filter=link_filter, **kwargs)
+        return func(*args, link_filter=link_filter, **kwargs)
 
     return inner
 

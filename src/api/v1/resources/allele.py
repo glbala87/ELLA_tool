@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from vardb.datamodel import sample, genotype, assessment, allele, user, gene
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter, rest_filter_allele
+from api.util.util import paginate, rest_filter, link_filter
 
 from api.util.alleledataloader import AlleleDataLoader
 
@@ -12,13 +12,14 @@ from api.v1.resource import Resource
 
 class AlleleListResource(Resource):
 
-    @rest_filter_allele
+    @link_filter
+    @rest_filter
     def get(self, session, rest_filter=None,  link_filter=None):
         """
-        Loads alleles based on q={..} and link={..} for linked/related entities.
-        See decorator rest_filter_allele  and AlleleDataLoader for details about the possible values of link_filter
+        Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
+        See decorator link_filter  and AlleleDataLoader for details about the possible values of link_filter
         Specify a genepanel to get more data included.
-         Additional request parameters:
+        Additional request parameters:
             - sample_id: Includes genotypes into the result and enables quality data in the annotation
             - annotation: Enables the annotation to filter transcripts to only show the relevant ones.
             - gp_name:
@@ -45,7 +46,7 @@ class AlleleListResource(Resource):
             in: query
             type: boolean
             description: Whether to include annotation data or not.
-          - name: a
+          - name: link
             in: query
             type: string
             description: JSON with ids of related entities to load with the alleles
