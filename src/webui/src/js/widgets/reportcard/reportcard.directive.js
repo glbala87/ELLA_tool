@@ -47,7 +47,7 @@ export class ReportCardController {
                 let classification = AlleleStateHelper.getClassification(a, this.getAlleleState(a));
                 return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
-            .thenBy(a => a.annotation.filtered[0].SYMBOL)
+            .thenBy(a => a.annotation.filtered[0].symbol)
             .thenBy(a => a.annotation.filtered[0].HGVSc_short)
         )
         return this.alleles;
@@ -56,7 +56,7 @@ export class ReportCardController {
     formatHGVS(allele) {
         let hgvs = '';
         for (let t of allele.annotation.filtered) {
-            hgvs += `${t.Transcript}.${t.Transcript_version}(${t.SYMBOL}):`;
+            hgvs += `${t.transcript}.${t.Transcript_version}(${t.symbol}):`;
             let part = t.HGVSc_short.split("c.", 2)[1]; // remove 'c.'
             if (allele.genotype.homozygous) {
                 hgvs += `c.[${part}];[(${part})]`; // c.[76A>C];[(76A>C)]

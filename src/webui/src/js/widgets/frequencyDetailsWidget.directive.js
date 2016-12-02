@@ -35,10 +35,10 @@ export class FrequencyDetailsWidget {
                 let group_data = this.allele.annotation.frequencies[this.group];
                 // Filter based on frequencies group names from config, since we
                 // might not want to show everything
-                if (freq in group_data) {
+                if (freq in group_data.freq) {
                     let freq_data = {
                         name: freq,
-                        freq: group_data[freq]
+                        freq: group_data.freq[freq]
                     }
                     // Add ExAC specific values
                     for (let group of ['het', 'hom', 'count', 'num']) {
@@ -79,7 +79,6 @@ export class FrequencyDetailsWidget {
     }
 
     exacNames(freq_data) {
-        console.log(freq_data);
         return freq_data;
     }
 

@@ -34,7 +34,7 @@ export class Allele {
             if (hgvs !== '') {
                 hgvs += '|'
             }
-            hgvs += `${t.Transcript}.${t.Transcript_version}(${t.SYMBOL}):${t.HGVSc_short}`;
+            hgvs += `${t.transcript}.${t.Transcript_version}(${t.symbol}):${t.HGVSc_short}`;
         }
         return hgvs;
     }

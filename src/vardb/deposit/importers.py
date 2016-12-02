@@ -23,7 +23,7 @@ import vardb.datamodel
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf
 from vardb.datamodel import annotation as annm, assessment as asm
 from vardb.datamodel import gene
-from vardb.util import vcfiterator
+from vardb.util import vcfiterator, annotationconverters
 from vardb.deposit.vcfutil import vcfhelper
 
 
@@ -446,27 +446,57 @@ class AnnotationImporter(object):
         else:
             return False
 
-    def _extract_annotation_from_record(self, record, allele, skip_anno=None):
-        """Given a record, return dict with annotation to be stored in db.
+    @staticmethod
+    def _compare_transcript(t1, t2):
+        # If RefSeq (NM_xxxx.1), ignore the versions.
+        # Otherwise, do normal comparison
+        if t1.startswith('NM_') and t2.startswith('NM_'):
+            return t1.split('.', 1)[0] == t2.split('.', 1)[0]
+        return t1 == t2
 
-            Uses VCF Info and ID fields. Skip if tag is self.skip_anno.
-        """
-        annotations = {}
+    def _extract_annotation_from_record(self, record, allele):
+        """Given a record, return dict with annotation to be stored in db."""
         # Deep merge 'ALL' annotation and allele specific annotation
         merged_annotation = deepmerge(record['INFO']['ALL'], record['INFO'][allele])
-        for key, value in merged_annotation.iteritems():
-            if skip_anno and key in self.skip_anno:
-                continue
+
+        # Convert the mess of input annotation into database annotation format
+        frequencies = dict()
+        frequencies.update(annotationconverters.exac_frequencies(merged_annotation))
+        frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
+        frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
+
+        transcripts = annotationconverters.convert_csq(merged_annotation)
+        splice_transcripts = annotationconverters.convert_splice(merged_annotation)
+        # Merge splice's transcript objects into the ones from CSQ
+        # If refseq transcript, ignore the version when comparing.
+        for st in splice_transcripts:
+            transcript = next((t for t in transcripts if AnnotationImporter._compare_transcript(t['transcript'], st['transcript'])), None)
+            if not transcript:
+                transcripts.append(st)
             else:
-                annotations[key] = value
-        assert "id" not in annotations, "VCF (Info) already includes 'id' field!"
-        annotations["id"] = record['ID'] if not record['ID'] is None else str()
+                # Remove transcript from splice, we use version from CSQ.
+                st.pop('transcript')
+                transcript.update(st)
+
+        external = dict()
+        external.update(annotationconverters.convert_hgmd(merged_annotation))
+        external.update(annotationconverters.convert_clinvar(merged_annotation))
+
+        references = annotationconverters.ConvertReferences().process(merged_annotation)
+
+        annotations = {
+            'frequencies': frequencies,
+            'external': external,
+            'prediction': {},
+            'transcripts': transcripts,
+            'references': references
+        }
         return annotations
 
     def create_or_update_annotation(self, session, db_allele, annotation_data, log=None):
         annotations = self.session.query(annm.Annotation).filter(
             annm.Annotation.allele_id == db_allele.id,
-            annm.Annotation.date_superceeded == None
+            annm.Annotation.date_superceeded.is_(None)
         ).all()
         if annotations:
             assert len(annotations) == 1
@@ -494,11 +524,11 @@ class AnnotationImporter(object):
 
         return existing_annotation
 
-    def process(self, record, db_alleles, skip_anno=None):
+    def process(self, record, db_alleles):
         annotations = list()
         alleles = record['ALT']
         for allele, db_allele in zip(alleles, db_alleles):
-            annotation_data = self._extract_annotation_from_record(record, allele, skip_anno=None)
+            annotation_data = self._extract_annotation_from_record(record, allele)
             annotations.append(
                 self.create_or_update_annotation(
                     self.session,

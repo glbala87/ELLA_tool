@@ -269,7 +269,7 @@ class SearchResource(Resource):
             al = next(a for a in alleles if a['id'] == allele_id)
             genepanel = next(gp for gp in genepanels if gp.name == gp_name and gp.version == gp_version)
 
-            transcripts = [t['Transcript'] for t in al['annotation']['transcripts']]
+            transcripts = [t['transcript'] for t in al['annotation']['transcripts']]
             al['annotation']['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(
                 transcripts,
                 genepanel

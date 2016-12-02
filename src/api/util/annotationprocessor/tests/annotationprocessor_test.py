@@ -357,7 +357,7 @@ def test_frequency_cutoffs_2():
                     "AA": 0.00005,
                     "EA": 0.99,
             },
-             "inDB": {
+            "inDB": {
                     "alleleFreq": 0.0022323
             }
         }
@@ -403,7 +403,7 @@ def test_frequency_cutoffs_2():
                     "AA": 0.00002,
                     "EA": 0.00002,
             },
-             "inDB": {
+            "inDB": {
                     "alleleFreq": 0.0022323
             }
         }
@@ -437,7 +437,6 @@ def test_frequency_cutoffs_2():
 
 
 class TestTranscriptAnnotation(unittest.TestCase):
-
 
     def test_get_transcript_intronic(self):
 
@@ -576,10 +575,10 @@ class TestTranscriptAnnotation(unittest.TestCase):
             transcripts['NM_000091'][TranscriptAnnotation.CSQ_FIELDS[0]],
             'TEST'
         )
-        self.assertEqual(transcripts['NM_000090']['Transcript'], 'NM_000090')
+        self.assertEqual(transcripts['NM_000090']['transcript'], 'NM_000090')
         self.assertEqual(transcripts['NM_000090']['Transcript_version'], '3')
 
-        self.assertEqual(transcripts['NM_000091']['Transcript'], 'NM_000091')
+        self.assertEqual(transcripts['NM_000091']['transcript'], 'NM_000091')
         self.assertEqual(transcripts['NM_000091']['Transcript_version'], '2')
 
         # Test stripping away non-NM transcripts
@@ -604,9 +603,9 @@ class TestTranscriptAnnotation(unittest.TestCase):
         }
 
         transcripts = TranscriptAnnotation({}).process(data)[TranscriptAnnotation.CONTRIBUTION_KEY]
-        self.assertEqual(transcripts[0]['Transcript'], 'NM_000090')
+        self.assertEqual(transcripts[0]['transcript'], 'NM_000090')
         self.assertEqual(transcripts[0]['Transcript_version'], '3')
-        self.assertEqual(transcripts[1]['Transcript'], 'NM_000091')
+        self.assertEqual(transcripts[1]['transcript'], 'NM_000091')
         self.assertEqual(transcripts[1]['Transcript_version'], '2')
         self.assertEqual(transcripts[1][TranscriptAnnotation.CSQ_FIELDS[0]], 'TEST2')
 
@@ -623,9 +622,9 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_versioned(self):
         genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
-                                    Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
-                       version='v01',
-                       name='HBOCUTV')
+                                           Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
+                              version='v01',
+                              name='HBOCUTV')
 
         transcripts = ['NM_000059.3', 'NM_000058.1']
 
@@ -646,8 +645,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_none(self):
         genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455')],
-                       version='v01',
-                       name='HBOCUTV')
+                              version='v01',
+                              name='HBOCUTV')
 
         transcripts = ['NM_000051']
 
@@ -738,12 +737,12 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
 @pytest.mark.parametrize("annotation, symbol", [
     ({
-      TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'Gene X'}, {'SYMBOL': 'Gene X'}]
+      TranscriptAnnotation.CONTRIBUTION_KEY: [{'symbol': 'Gene X'}, {'symbol': 'Gene X'}]
      }, 'Gene X'),
 
     ({
       TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS: ['NM_2'],
-      TranscriptAnnotation.CONTRIBUTION_KEY: [{'Transcript': 'NM_1', 'SYMBOL': 'Gene X'}, {'Transcript': 'NM_2', 'SYMBOL': 'Gene Y'}]
+      TranscriptAnnotation.CONTRIBUTION_KEY: [{'Transcript': 'NM_1', 'symbol': 'Gene X'}, {'Transcript': 'NM_2', 'symbol': 'Gene Y'}]
      }, 'Gene Y')
 ])
 def test_find_symbol_from_transcripts(annotation, symbol):
@@ -752,10 +751,10 @@ def test_find_symbol_from_transcripts(annotation, symbol):
 
 def test_find_symbol_raise_exception():
     with pytest.raises(Exception) as exc:
-         find_symbol({
-          TranscriptAnnotation.CONTRIBUTION_KEY: [{'SYMBOL': 'Gene X'}, {'SYMBOL': 'Gene Y'}],
-          'annotation_id': 1
-         })
+        find_symbol({
+            TranscriptAnnotation.CONTRIBUTION_KEY: [{'symbol': 'Gene X'}, {'symbol': 'Gene Y'}],
+            'annotation_id': 1
+        })
     assert exc
     assert "Gene X" in exc.value.message
     assert "Gene Y" in exc.value.message

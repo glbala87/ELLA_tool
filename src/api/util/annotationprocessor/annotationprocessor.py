@@ -1,148 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
 import re
-import base64
-import json
+import copy
 
 from api import config
 from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
-from vardb.datamodel.gene import Transcript
-
-
-class References(object):
-    CONTRIBUTION_KEY = 'references'
-
-    def _csq_pubmeds(self, annotation):
-        if 'CSQ' not in annotation:
-            return dict()
-        # Get first elem which has PUBMED ids (it's the same in all elements)
-        pubmed_data = next((d['PUBMED'] for d in annotation['CSQ'] if 'PUBMED' in d), list())
-        pubmed_data = dict(zip(pubmed_data, [""]*len(pubmed_data))) # Return as dict (empty values)
-        return pubmed_data
-
-    def _hgmd_pubmeds(self, annotation):
-        if 'HGMD' not in annotation:
-            return dict()
-        total = dict()
-
-        if 'pmid' in annotation['HGMD']:
-            pmid = annotation['HGMD']['pmid']
-            reftag = "Primary literature report"
-            comments = annotation['HGMD'].get("comments", "No comments")
-            comments = "No comments." if comments == "None" else comments
-            total[pmid] = [reftag, comments]
-
-        for er in annotation["HGMD"].get("extrarefs",[]):
-            if "pmid" in er:
-                pmid = er['pmid']
-                reftag = config.config["annotation"]["hgmd"]["reftag"].get(er.get("reftag"), "Reftag not specified")
-                comments = annotation['HGMD'].get("comments", "No comments.")
-                comments = "No comments." if comments == "None" else comments
-                total[pmid] = [reftag, comments]
-
-        # Format reftag, comments to string
-        for pmid, info in total.items():
-            info_string = ". ".join([v.strip().strip('.') for v in info])+"."
-            total[pmid] = info_string
-
-        return total
-
-    def _clinvar_pubmeds(self, annotation):
-        if 'CLINVARJSON' not in annotation:
-            return dict()
-
-        clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
-
-        total = []
-        for val in clinvarjson["rcvs"].values():
-            total += val["pubmed"]
-        total = set(total)
-        total = dict(zip(total, [""]*len(total))) # Return as dict (empty values)
-
-        return total
-
-    def _ensure_int_pmids(self, pmids):
-        # HACK: Convert all ids to int, the annotation is sometimes messed up
-        # If it cannot be converted, ignore it...
-        assert isinstance(pmids, dict)
-        int_pmids = dict()
-        for pmid in pmids:
-            val = pmids[pmid]
-            try:
-                int_pmids[pmid] = val
-            except ValueError:
-                pass
-
-        return int_pmids
-
-    def process(self, annotation):
-        csq_pubmeds = self._ensure_int_pmids(self._csq_pubmeds(annotation))
-        hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
-        clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
-
-        # Merge references and restructure to list
-        all_pubmeds = csq_pubmeds.keys()+hgmd_pubmeds.keys()+clinvar_pubmeds.keys()
-        references = list()
-        for pmid in sorted(set(all_pubmeds), key=all_pubmeds.count, reverse=True):
-            sources = []
-            sourceInfo = dict()
-            if pmid in csq_pubmeds:
-                sources.append("VEP")
-                if csq_pubmeds[pmid] != "":
-                    sourceInfo["VEP"] = csq_pubmeds[pmid]
-            if pmid in hgmd_pubmeds:
-                sources.append("HGMD")
-                if hgmd_pubmeds[pmid] != "":
-                    sourceInfo["HGMD"] = hgmd_pubmeds[pmid]
-            if pmid in clinvar_pubmeds:
-                sources.append("CLINVAR")
-                if clinvar_pubmeds[pmid] != "":
-                    sourceInfo["CLINVAR"] = clinvar_pubmeds[pmid]
-
-            references.append({
-                'pubmed_id': pmid, 'sources': sources, "sourceInfo": sourceInfo,
-            })
-
-        return {References.CONTRIBUTION_KEY: references}
 
 
 class TranscriptAnnotation(object):
     """
-    Fetch out and restructure data that is transcript dependant.
+    Calculate extra transcript related fields that depend on dynamic configs.
     """
-
-    CONTRIBUTION_KEY = 'transcripts'
-    CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS = 'filtered_transcripts'
-
-    # Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
-    # but not NM_007294.3:c.4535G>T
-    INTRON_CHECK_REGEX = re.compile(r'.*c\.[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
-
-    CSQ_FIELDS = [
-        'Consequence',
-        'SYMBOL',
-        'HGVSc',
-        'HGVSp',
-        'STRAND',
-        'Amino_acids',
-        'Existing_variation',
-        'EXON',
-        'INTRON',
-        'Codons'
-    ]
-
-    SPLICE_FIELDS = [
-        'Effect',
-        'MaxEntScan-mut',
-        'MaxEntScan-wild',
-        'MaxEntScan-closest',  # relevant for 'de novo'
-        'dist'  # relevant for 'de novo'
-    ]
 
     def __init__(self, config):
         self.config = config
 
+    '''
     def _get_transcript_intronic(self, transcript_data):
         """
         Checks whether variant for given transcript is considered
@@ -153,7 +26,7 @@ class TranscriptAnnotation(object):
         the intron it is.
         """
         criteria = self.config.get('variant_criteria', {}).get('intronic_region')
-        if criteria and 'intron_variant' in transcript_data['Consequence']:
+        if criteria and 'intron_variant' in transcript_data['consequences']:
             hgvsc = transcript_data.get('HGVSc')
             match = re.match(TranscriptAnnotation.INTRON_CHECK_REGEX, hgvsc)
             if match:
@@ -167,14 +40,7 @@ class TranscriptAnnotation(object):
                     return distance > criteria[plus_minus]
 
         return False
-
-    def _get_is_last_exon(self, transcript_data):
-
-        exon = transcript_data.get('EXON')
-        if exon:
-            parts = exon.split('/')
-            return parts[0] == parts[1]
-        return False
+    '''
 
     def _get_worst_consequence(self, transcripts):
         """
@@ -189,81 +55,27 @@ class TranscriptAnnotation(object):
         consequences = self.config['transcripts']['consequences']
 
         def sort_func(x):
-            if 'Consequence' in x and x['Consequence']:
-                return min(consequences.index(c) for c in x['Consequence'])
+            if 'consequences' in x and x['consequences']:
+                return min(consequences.index(c) for c in x['consequences'])
             else:
                 return 9999999
         sorted_transcripts = sorted(transcripts, key=sort_func)
 
         worst_consequences = list()
         if sorted_transcripts:
-            worst_consequence = sorted_transcripts[0]['Consequence']
+            worst_consequence = sorted_transcripts[0]['consequences']
             for t in sorted_transcripts:
-                if any(c in t.get('Consequence', []) for c in worst_consequence):
-                    worst_consequences.append(t['Transcript'])
+                if any(c in t.get('consequences', []) for c in worst_consequence):
+                    worst_consequences.append(t['transcript'])
                 else:
                     break
 
             return worst_consequences
 
-    def _csq_transcripts(self, annotation):
-        if 'CSQ' not in annotation:
-            return dict()
-
-        transcripts = dict()
-
-        # Invert CSQ data to map to transcripts
-        for data in annotation['CSQ']:
-            # Filter out non-transcripts and non-refseq transcripts
-            if data.get('Feature_type') != 'Transcript' or \
-               not any(data['Feature'].startswith(x) for x in ['NM', 'NR', 'XM']):
-                continue
-
-            transcript_data = {k: data[k] for k in TranscriptAnnotation.CSQ_FIELDS if k in data}
-            # VEP transcript versions are treated as master version
-            transcript_data['Transcript'], transcript_data['Transcript_version'] = data['Feature'].split('.', 1)
-
-            # Only keep dbSNP data (e.g. rs123456789)
-            if 'Existing_variation' in transcript_data:
-                transcript_data['Existing_variation'] = [t for t in transcript_data['Existing_variation']
-                                                         if t.startswith('rs')]
-
-            # Add custom types
-            if 'HGVSc' in transcript_data:
-                # Split away transcript part
-                transcript_data['HGVSc_short'] = transcript_data['HGVSc'].split(':', 1)[1]
-            if 'HGVSp' in transcript_data:
-                transcript_data['HGVSp_short'] = transcript_data['HGVSp'].split(':', 1)[1]
-            is_last_exon = self._get_is_last_exon(transcript_data)
-            transcript_data['in_last_exon'] = 'yes' if is_last_exon else 'no'
-            transcripts[transcript_data['Transcript']] = transcript_data
-        return transcripts
-
-
-    def _splice_transcripts(self, annotation):
-        if 'splice' not in annotation:
-            return dict()
-
-        transcripts = dict()
-
-        for data in annotation['splice']:
-            if 'Transcript' not in data:
-                continue
-
-            transcript_data = {'splice_' + k.replace('-', '_'): data[k] for k in TranscriptAnnotation.SPLICE_FIELDS if k in data}
-            transcript_data['Transcript'], transcript_data['splice_Transcript_version'] = data['Transcript'].split('.', 1)
-
-            if transcript_data['Transcript'] in transcripts:
-                transcripts[transcript_data['Transcript']].append(transcript_data)
-            else:
-                transcripts[transcript_data['Transcript']] = [transcript_data]
-
-        return transcripts
-
     @staticmethod
     def get_genepanel_transcripts(transcript_names, genepanel):
         """
-        Searches input transcripts for matching transcript names in the genepanel,
+        Searches input transcripts for matching RefSeq transcript names in the genepanel,
         and returns the list of matches. If no matches are done, returns all RefSeq
         transcripts.
 
@@ -272,19 +84,20 @@ class TranscriptAnnotation(object):
         :param transcript_names: List of transcript names (without version) to search for
         :param genepanel:
         :type genepanel: vardb.datamodel.gene.Genepanel
-        :return: list of genepanel transcript names, without version: ['NM_13423', ...]
+        :return: list of matching transcript names
         """
-
-        transcript_names = [Transcript.get_name(t) for t in transcript_names]
 
         gp_transcripts = list()
         for transcript in genepanel.transcripts:
             gp_transcripts.append(transcript.refseq_name)
-            gp_transcripts.append(transcript.ensembl_id)  # TODO: necessary to add ensembleId as well?
 
-        transcript_names_in_genepanel = [Transcript.get_name(t) for t in gp_transcripts]
+        transcript_names_in_genepanel = [t.split('.', 1)[0] for t in gp_transcripts if t.startswith('NM_')]
 
-        return list(set(transcript_names).intersection(set(transcript_names_in_genepanel)))
+        filtered_transcript_names = list()
+        for transcript_name in transcript_names:
+            if transcript_name.split('.', 1)[0] in transcript_names_in_genepanel:
+                filtered_transcript_names.append(transcript_name)
+        return filtered_transcript_names
 
     def process(self, annotation, genepanel=None):
         """
@@ -294,150 +107,28 @@ class TranscriptAnnotation(object):
                           genepanel.
         :type genepanel: vardb.datamodel.gene.Genepanel
         """
-        csq_transcripts = self._csq_transcripts(annotation)
-        splice_transcripts = self._splice_transcripts(annotation)
 
-        # Merge transcripts and restructure to list
-        transcripts = list()
+        transcripts = annotation['transcripts']
 
-        for transcript_name in list(set(csq_transcripts.keys() +
-                                        splice_transcripts.keys())):
-
-            t = dict()
-            for x in [csq_transcripts]:
-                t.update(x.get(transcript_name, {}))
-            for x in [splice_transcripts]:
-                t['Splice'] = x.get(transcript_name, [])
-
-            # As CSQ transcripts are treated as master,
-            # promote others if CSQ is not available
-            if 'Transcript_version' not in t:
-                if ('Splice' in t) and (len(t['Splice'])) and ('splice_Transcript_version' in t['Splice'][0]):
-                        t['Transcript_version'] = t['Splice'][0]['splice_Transcript_version']
-
-            transcripts.append(t)
-
-        final_transcripts = sorted(transcripts, key=lambda x: x['Transcript'])
-
-        # Add 'intronic' flag:
-        for t in final_transcripts:
-            t['intronic'] = self._get_transcript_intronic(t)
-
-        result = {TranscriptAnnotation.CONTRIBUTION_KEY: final_transcripts}
+        result = {'transcripts': transcripts}
 
         if genepanel:
-            final_transcript_names = [t['Transcript'] for t in final_transcripts]
-            result[TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS] \
-                = TranscriptAnnotation.get_genepanel_transcripts(final_transcript_names, genepanel)
+            transcript_names = [t['transcript'] for t in transcripts]
+            result['filtered_transcripts'] \
+                = TranscriptAnnotation.get_genepanel_transcripts(transcript_names, genepanel)
 
-        result['worst_consequence'] = self._get_worst_consequence(final_transcripts)
+        result['worst_consequence'] = self._get_worst_consequence(transcripts)
         return result
 
 
 class FrequencyAnnotation(object):
-    CONTRIBUTION_KEY='frequencies'
 
     def __init__(self, config, genepanel=None):
         self.config = config
         self.genepanel = genepanel
 
-    def _exac_frequencies(self, annotation):
+    def process(self, annotation, symbols=None, genepanel=None):
         """
-        Manually calculate frequencies from raw ExAC data.
-
-        :param: annotation: a dict with key 'EXAC'
-        :returns: dict with key 'ExAC'
-        """
-
-        if 'EXAC' not in annotation:
-            return {}
-
-        frequencies = defaultdict(dict)
-
-        count = {}
-        num = {}
-        hom = {}
-        het = {}
-        for key, value in annotation['EXAC'].iteritems():
-            # Be careful if rearranging!
-            if key == 'AC':
-                assert len(value) == 1
-                count['G'] = value[0]
-            elif key == 'AC_Het':
-                assert len(value) == 1
-                het['G'] = value[0]
-            elif key == 'AC_Hom':
-                assert len(value) == 1
-                hom['G'] = value[0]
-            elif key == 'AN':
-                num['G'] = value
-            elif key.startswith('AC_'):
-                pop = key.split('AC_')[1]
-                assert len(value) == 1
-                count[pop] = value[0]
-            elif key.startswith('AN_'):
-                pop = key.split('AN_')[1]
-                num[pop] = value
-            elif key.startswith('Hom_'):
-                pop = key.split('Hom_')[1]
-                hom[pop] = value[0]
-            elif key.startswith('Het_'):
-                pop = key.split('Het_')[1]
-                het[pop] = value[0]
-
-        for key in count:
-            if key in num and num[key]:
-                frequencies['ExAC'][key] = float(count[key]) / num[key]
-
-        if hom:
-            frequencies['ExAC'].update({'hom': hom})
-        if het:
-            frequencies['ExAC'].update({'het': het})
-        if num:
-            frequencies['ExAC'].update({'num': num})
-        if count:
-            frequencies['ExAC'].update({'count': count})
-
-        return dict(frequencies)
-
-    def _csq_frequencies(self, annotation):
-        if 'CSQ' not in annotation:
-            return {}
-
-        # Get first elem which has frequency data (it's the same in all elements)
-        frequencies = dict()
-        freq_data = next((d for d in annotation['CSQ'] if any('MAF' in k for k in d)), None)
-        if freq_data:
-            # Check whether the allele provided for the frequency is the same as the one we have in our allele.
-            # VEP gives minor allele for some fields, which can be the reference instead of the allele
-            processed = {
-                k.replace('_MAF', '').replace('MAF', ''): v[freq_data['Allele']]
-                for k, v in freq_data.iteritems()
-                if 'MAF' in k and
-                freq_data['Allele'] in v
-            }
-            if processed:
-                # ESP6500 freqs
-                esp6500_freq = dict()
-                for f in ['AA', 'EA']:
-                    if f in processed:
-                        esp6500_freq[f] = processed.pop(f)
-                if esp6500_freq:
-                    frequencies['esp6500'] = esp6500_freq
-
-                if processed:
-                    frequencies['1000g'] = processed
-        return dict(frequencies)
-
-    def _indb_frequencies(self, annotation):
-        if 'inDB' not in annotation:
-            return {}
-
-        return {'inDB': annotation['inDB']}
-
-    def process(self, annotation, symbol=None, genepanel=None):
-        """
-
         :param annotation:
         :param symbol: the gene symbol
         :param genepanel:
@@ -445,118 +136,35 @@ class FrequencyAnnotation(object):
         :return:
         """
         processor = GenepanelCutoffsAnnotationProcessor(self.config, genepanel)
-        frequencies = self._exac_frequencies(annotation)
-        frequencies.update(self._csq_frequencies(annotation))
-        frequencies.update(self._indb_frequencies(annotation))
-        frequencies.update(processor.cutoff_frequencies(frequencies, symbol))
+        frequencies = annotation['frequencies']
+        frequencies.update(processor.cutoff_frequencies(frequencies, symbols))
 
-        return {FrequencyAnnotation.CONTRIBUTION_KEY: frequencies}
-
-
-class ExternalAnnotation(object):
-    CONTRIBUTION_KEY = 'external'
-
-    BIC_FIELDS = [
-        ('Clinically_Important', lambda x: x.lower())
-    ]
-
-    CLINVAR_FIELDS = [
-        'traitnames',
-        'clinical_significance_descr',
-        'clinical_significance_status',
-        'variant_id',
-    ]
-
-    HGMD_FIELDS = [
-        'acc_num',
-        'codon',
-        'disease',
-        'tag',
-    ]
-
-    def _bic(self, annotation):
-        if 'BIC' not in annotation:
-            return dict()
-
-        # Assumption: BRCA1 and BRCA2 data don't overlap
-        assert len(annotation['BIC']) < 2
-        if annotation.get('BIC'):
-            # Should just be one key (either 'BRCA1' or 'BRCA2')
-            # we just return the data
-            bic_data = annotation['BIC'][annotation['BIC'].keys()[0]]
-            data = {'BIC': {k[0]: k[1](bic_data[k[0]]) for k in ExternalAnnotation.BIC_FIELDS if k[0] in bic_data}}
-            return data
-        return {}
-
-    def _clinvar(self, annotation):
-        if 'CLINVARJSON' not in annotation:
-            return dict()
-
-        clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
-
-        data = []
-        for rcv, val in clinvarjson["rcvs"].items():
-            item = {k: ", ".join(val[k]) for k in ExternalAnnotation.CLINVAR_FIELDS}
-            item["rcv"] = rcv
-            data.append(item)
-
-        return {'CLINVAR': data}
-
-    def _hgmd(self, annotation):
-        if 'HGMD' not in annotation:
-            return dict()
-
-        data = {k: annotation['HGMD'][k] for k in ExternalAnnotation.HGMD_FIELDS if k in annotation['HGMD']}
-        return {'HGMD': data}
-
-    def process(self, annotation):
-        data = dict()
-
-        data.update(self._bic(annotation))
-        data.update(self._clinvar(annotation))
-        data.update(self._hgmd(annotation))
-        return {ExternalAnnotation.CONTRIBUTION_KEY: data}
+        print frequencies
+        return {'frequencies': frequencies}
 
 
-class GeneticAnnotation(object):
-
-    def process(self, annotation):
-        return {}
-
-
-class QualityAnnotation(object):
-    CONTRIBUTION_KEY='quality'
-
-    def process(self, genotype):
-        data = {
-            'QUAL': genotype.get('variant_quality'),
-            'GQ': genotype.get('genotype_quality'),
-            'DP': genotype.get('sequencing_depth'),
-            'FILTER': genotype.get('filter_status'),
-            'AD': genotype.get('allele_depth')
-        }
-        return {QualityAnnotation.CONTRIBUTION_KEY: data}
-
-
-def find_symbol(annotation):
-    transcripts = annotation.get(TranscriptAnnotation.CONTRIBUTION_KEY, None)
-    filtered_transcripts = annotation.get(TranscriptAnnotation.CONTRIBUTION_KEY_FILTERED_TRANSCRIPTS, None)
+def find_symbols(annotation):
+    transcripts = annotation.get('transcripts', None)
+    filtered_transcripts = annotation.get('filtered_transcripts', None)
 
     # filtered contains only the refSeq ID, must find full transcript:
     found = None
     if filtered_transcripts and len(filtered_transcripts) > 0:
         look_for = filtered_transcripts[0]
-        found = filter(lambda t: t['Transcript'] == look_for, transcripts)
+        found = filter(lambda t: t['transcript'] == look_for, transcripts)
 
     # prefer filtered transcripts:
-    symbols = map(lambda t: t['SYMBOL'], found if found else transcripts)
+    if found:
+        symbols = [t['symbol'] for t in found if 'symbol' in t]
+    else:
+        symbols = [t['symbol'] for t in transcripts if 'symbol' in t]
 
     if len(set(symbols)) > 1:
         raise Exception("The transcript(s) selected don't have the same gene symbol, found genes {}"
                         .format(','.join(list(set(symbols)))))
 
     if symbols:
-        return symbols.pop()
+        return symbols
     else:
         return None
 
@@ -577,13 +185,10 @@ class AnnotationProcessor(object):
         'external', 'quality' (only if genotype)
         """
 
-        data = dict()
+        data = copy.deepcopy(annotation)
         data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
-        gene_symbol = find_symbol(data)
-        data.update(FrequencyAnnotation(config.config).process(annotation, symbol=gene_symbol, genepanel=genepanel))
-        data.update(References().process(annotation))
-        data.update(GeneticAnnotation().process(annotation))
-        data.update(ExternalAnnotation().process(annotation))
+        gene_symbols = find_symbols(data)
+        data.update(FrequencyAnnotation(config.config).process(annotation, symbols=gene_symbols, genepanel=genepanel))
 
         if custom_annotation:
             # Merge/overwrite data with custom_annotation
@@ -597,7 +202,7 @@ class AnnotationProcessor(object):
             if 'references' in data and 'references' in custom_annotation:
                 for ca_ref in custom_annotation['references']:
                     if "sourceInfo" not in ca_ref:
-                        ca_ref["sourceInfo"] =  dict()
+                        ca_ref["sourceInfo"] = dict()
                     # A pubmed reference can exist in both, if so only merge the source
                     if 'pubmed_id' in ca_ref:
                         existing_ref = next((r for r in data['references'] if r.get('pubmed_id') == ca_ref['pubmed_id']), None)
@@ -605,8 +210,5 @@ class AnnotationProcessor(object):
                             existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
                             continue
                     data['references'].append(ca_ref)
-
-        if genotype:
-            data.update(QualityAnnotation().process(genotype))
 
         return data

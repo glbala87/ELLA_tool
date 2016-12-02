@@ -147,10 +147,6 @@ class AlleleDataLoader(object):
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']
 
-                # Add sanger verification check
-                if KEY_GENOTYPE in data:
-                    final_allele[KEY_ANNOTATION]['quality']['needs_verification'] = SangerVerification().needs_verification(final_allele)
-
             final_alleles.append(final_allele)
 
         return final_alleles

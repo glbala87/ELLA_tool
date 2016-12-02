@@ -27,8 +27,9 @@ class InterpretationDataLoader(object):
         """
 
         excluded_genes = self.config['variant_criteria']['exclude_genes']
-        filtered = [t for t in allele['annotation']['transcripts'] if t['Transcript'] in allele['annotation']['filtered_transcripts']]
-        allele_genes = [f['SYMBOL'] for f in filtered]
+        filtered = [t for t in allele['annotation']['transcripts'] if t['transcript'] in allele['annotation']['filtered_transcripts']]
+        print filtered
+        allele_genes = [f['symbol'] for f in filtered]
         return bool(list(set(excluded_genes).intersection(set(allele_genes))))
 
     def _exclude_class1(self, allele):
@@ -39,7 +40,7 @@ class InterpretationDataLoader(object):
 
     def _exclude_intronic(self, allele):
         for filtered_transcript in allele['annotation']['filtered_transcripts']:
-            t = next((tla for tla in allele['annotation']['transcripts'] if tla['Transcript'] == filtered_transcript), None)
+            t = next((tla for tla in allele['annotation']['transcripts'] if tla['transcript'] == filtered_transcript), None)
             if t and t.get('intronic'):
                 return True
         return False

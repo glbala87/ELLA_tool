@@ -13,12 +13,12 @@ describe("Annotation model", function () {
             ],
             "transcripts": [
                 {
-                    "SYMBOL": "GENE1",
+                    "symbol": "GENE1",
                     "Transcript": "NM_000123",
                     "Transcript_version": "1"
                 },
                 {
-                    "SYMBOL": "GENE2",
+                    "symbol": "GENE2",
                     "Transcript": "NM_000321",
                     "Transcript_version": "3"
                 }
@@ -38,7 +38,7 @@ describe("Annotation model", function () {
         let annotation = new Annotation(getData());
         expect(annotation.filtered).toEqual(
             [{
-                "SYMBOL": "GENE1",
+                "symbol": "GENE1",
                 "Transcript": "NM_000123",
                 "Transcript_version": "1"
             }]
@@ -55,7 +55,7 @@ describe("Annotation model", function () {
         let annotation = new Annotation(getData());
         expect(annotation.getWorseConsequenceTranscripts()).toEqual(
             [{
-                "SYMBOL": "GENE2",
+                "symbol": "GENE2",
                 "Transcript": "NM_000321",
                 "Transcript_version": "3"
             }]

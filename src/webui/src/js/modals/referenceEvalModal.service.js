@@ -492,7 +492,7 @@ export class ReferenceEvalModalController {
     }
 
     _isAlleleInGeneGroup(group) {
-        let genes = this.allele.annotation.filtered.map(a => a.SYMBOL);
+        let genes = this.allele.annotation.filtered.map(a => a.symbol);
         return this.config.classification.gene_groups[group].some(g => genes.includes(g));
     }
 
