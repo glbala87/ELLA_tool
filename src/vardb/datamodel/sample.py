@@ -65,8 +65,8 @@ class AnalysisFinalized(Base):
 
     filtered = Column(Enum("CLASS1", "INTRON", "GENE", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
 
-    our_assessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
-    presented_assessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)
+    alleleassessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
+    presented_alleleassessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)
 
     # TODO: add reference assessments?
 
