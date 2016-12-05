@@ -42,6 +42,8 @@ def link_filter(func):
 
 
 def provide_session(func):
+
+    @wraps(func)
     def inner(*args, **kwargs):
         try:
             return func(db.session, *args, **kwargs)
@@ -57,6 +59,7 @@ def provide_session(func):
 
 def paginate(func):
 
+    @wraps(func)
     def inner(*args, **kwargs):
         page = None
         if request:
@@ -90,6 +93,8 @@ def request_json(required, only_required=False, allowed=None):
     those fields are passed on.
     """
     def wrapper(func):
+
+        @wraps(func)
         def inner(*args, **kwargs):
             data = request.get_json()
             if not isinstance(data, list):
