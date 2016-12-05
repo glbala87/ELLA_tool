@@ -36,4 +36,13 @@ export class Allelebar {
     }
 
 
+    getGenotypeForSample() {
+        // TODO: Fix me when introducing multiple samples...
+        let sample_ids = Object.keys(this.allele.genotype);
+        if (sample_ids.length) {
+            return this.allele.genotype[sample_ids[0]];
+        }
+        return null;
+    }
+
 }

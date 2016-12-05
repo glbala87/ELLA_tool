@@ -1,10 +1,10 @@
-from vardb.datamodel import allele
+from vardb.datamodel import allele, sample, genotype
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
+from sqlalchemy import or_
 
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema
 from api.util.annotationprocessor import AnnotationProcessor
-from api.util.sanger_verification import SangerVerification
 
 
 # Top level keys:
@@ -27,8 +27,8 @@ class AlleleDataLoader(object):
     def from_objs(self,
                   alleles,
                   link_filter=None,
-                  genotypes=None,
                   genepanel=None,  # Make genepanel mandatory?
+                  include_genotype_samples=None,
                   include_annotation=True,
                   include_custom_annotation=True,
                   include_allele_assessment=True,
@@ -47,7 +47,7 @@ class AlleleDataLoader(object):
 
         :param alleles: List of allele objects.
         :param link_filter: a struct defining the ids of related entities to fetch. See other parameters for more info.
-        :param genotypes: List of genotypes objects. Index of matching genotype object should match allele list index.
+        :param include_genotype_samples: List of samples ids to include genotypes for.
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
         :param annotation: If true, load the ones mentioned in link_filter.annotation_id
@@ -78,11 +78,28 @@ class AlleleDataLoader(object):
         accumulated_allele_data = dict()
         for idx, al in enumerate(alleles):
             accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
-            if genotypes:
-                genotype = genotypes[idx]
-                accumulated_allele_data[al.id][KEY_GENOTYPE] = genotype_schema.dump(genotype).data
 
         allele_ids = accumulated_allele_data.keys()
+
+        if include_genotype_samples:
+            for sample_id in include_genotype_samples:
+                genotypes = self.session.query(genotype.Genotype).join(sample.Sample).filter(
+                    sample.Sample.id == sample_id,
+                    or_(
+                        genotype.Genotype.allele_id.in_(allele_ids),
+                        genotype.Genotype.secondallele_id.in_(allele_ids),
+                    )
+                ).all()
+
+                # Add genotype into 'genotypes': { '{sample_id}': {..data..} }
+                if genotypes:
+                    for gt in genotypes:
+                        for attr in ['allele_id', 'secondallele_id']:
+                            allele_id = getattr(gt, attr)
+                            if allele_id is not None:
+                                if KEY_GENOTYPE not in accumulated_allele_data[allele_id]:
+                                    accumulated_allele_data[allele_id][KEY_GENOTYPE] = dict()
+                                accumulated_allele_data[allele_id][KEY_GENOTYPE][str(sample_id)] = genotype_schema.dump(gt).data
 
         allele_annotations = list()
         if include_annotation:
@@ -128,7 +145,6 @@ class AlleleDataLoader(object):
         final_alleles = list()
         for allele_id, data in accumulated_allele_data.iteritems():
             final_allele = data[KEY_ALLELE]
-
             for key in [KEY_GENOTYPE, KEY_ALLELE_ASSESSMENT, KEY_REFERENCE_ASSESSMENTS, KEY_ALLELE_REPORT]:
                 if key in data:
                     final_allele[key] = data[key]
@@ -137,7 +153,6 @@ class AlleleDataLoader(object):
                 # Convert annotation using annotationprocessor
                 processed_annotation = AnnotationProcessor.process(
                     data[KEY_ANNOTATION][KEY_ANNOTATIONS],
-                    genotype=data.get(KEY_GENOTYPE),
                     custom_annotation=data.get(KEY_CUSTOM_ANNOTATION, {}).get(KEY_ANNOTATIONS),
                     genepanel=genepanel
                 )

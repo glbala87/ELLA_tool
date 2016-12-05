@@ -39,10 +39,11 @@ class InterpretationDataLoader(object):
         return False
 
     def _exclude_intronic(self, allele):
+        intronic_region = self.config['variant_criteria']['intronic_region']
         for filtered_transcript in allele['annotation']['filtered_transcripts']:
             t = next((tla for tla in allele['annotation']['transcripts'] if tla['transcript'] == filtered_transcript), None)
-            if t and t.get('intronic'):
-                return True
+            if t and 'exon_distance' in t:
+                return t['exon_distance'] < intronic_region[0] or t['exon_distance'] > intronic_region[1]
         return False
 
     def _get_classification_options(self, classification):

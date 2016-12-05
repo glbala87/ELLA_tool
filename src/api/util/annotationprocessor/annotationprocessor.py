@@ -15,33 +15,6 @@ class TranscriptAnnotation(object):
     def __init__(self, config):
         self.config = config
 
-    '''
-    def _get_transcript_intronic(self, transcript_data):
-        """
-        Checks whether variant for given transcript is considered
-        intronic according to coordinates given by configuration.
-
-        Checks first if consequence is intron_variant,
-        then parses the cDNA coordinates to check how far into
-        the intron it is.
-        """
-        criteria = self.config.get('variant_criteria', {}).get('intronic_region')
-        if criteria and 'intron_variant' in transcript_data['consequences']:
-            hgvsc = transcript_data.get('HGVSc')
-            match = re.match(TranscriptAnnotation.INTRON_CHECK_REGEX, hgvsc)
-            if match:
-                match_data = match.groupdict()
-
-                # Regex should guarantee int conversion is possible
-                plus_minus, distance = match_data['plus_minus'], int(match_data['distance'])
-
-                # Check if distance is outside criteria
-                if plus_minus in criteria:
-                    return distance > criteria[plus_minus]
-
-        return False
-    '''
-
     def _get_worst_consequence(self, transcripts):
         """
         Finds the transcript with the worst consequence.
@@ -108,9 +81,12 @@ class TranscriptAnnotation(object):
         :type genepanel: vardb.datamodel.gene.Genepanel
         """
 
-        transcripts = annotation['transcripts']
+        result = dict()
+        if 'transcripts' not in annotation:
+            return result
 
-        result = {'transcripts': transcripts}
+        transcripts = annotation['transcripts']
+        result['transcripts'] = transcripts
 
         if genepanel:
             transcript_names = [t['transcript'] for t in transcripts]
@@ -139,7 +115,6 @@ class FrequencyAnnotation(object):
         frequencies = annotation['frequencies']
         frequencies.update(processor.cutoff_frequencies(frequencies, symbols))
 
-        print frequencies
         return {'frequencies': frequencies}
 
 
@@ -149,7 +124,7 @@ def find_symbols(annotation):
 
     # filtered contains only the refSeq ID, must find full transcript:
     found = None
-    if filtered_transcripts and len(filtered_transcripts) > 0:
+    if filtered_transcripts:
         look_for = filtered_transcripts[0]
         found = filter(lambda t: t['transcript'] == look_for, transcripts)
 
@@ -159,12 +134,8 @@ def find_symbols(annotation):
     else:
         symbols = [t['symbol'] for t in transcripts if 'symbol' in t]
 
-    if len(set(symbols)) > 1:
-        raise Exception("The transcript(s) selected don't have the same gene symbol, found genes {}"
-                        .format(','.join(list(set(symbols)))))
-
     if symbols:
-        return symbols
+        return sorted(list(set(symbols)))
     else:
         return None
 
@@ -172,23 +143,23 @@ def find_symbols(annotation):
 class AnnotationProcessor(object):
 
     @staticmethod
-    def process(annotation, custom_annotation=None, genotype=None, genepanel=None):
+    def process(annotation, custom_annotation=None, genepanel=None):
         """
-        Creates/converts annotation data from input Allele dictionary data.
+        Expands/changes/merges input annotation data.
 
         :param annotation:
         :param custom_annotation:
-        :param genotype:
         :param genepanel:
         :type genepanel: vardb.datamodel.gene.Genepanel
-        :return: a dict with one key for each "class" of annotation: 'transcripts', 'frequency', 'references'
-        'external', 'quality' (only if genotype)
+        :return: Modified annotation data
         """
 
         data = copy.deepcopy(annotation)
-        data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
-        gene_symbols = find_symbols(data)
-        data.update(FrequencyAnnotation(config.config).process(annotation, symbols=gene_symbols, genepanel=genepanel))
+        if 'transcripts' in data:
+            data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
+        if 'transcripts' in data and 'frequencies' in data:
+            gene_symbols = find_symbols(data)
+            data.update(FrequencyAnnotation(config.config).process(annotation, symbols=gene_symbols, genepanel=genepanel))
 
         if custom_annotation:
             # Merge/overwrite data with custom_annotation
