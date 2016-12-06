@@ -72,6 +72,7 @@ bot_notify_failure:
   when: on_failure
   only:
     - triggers
+    - branches
 
 bot_notify_success:
   stage: notify
@@ -80,6 +81,7 @@ bot_notify_success:
   when: on_success
   only:
     - triggers
+    - branches
 
 start_review:
   stage: review
