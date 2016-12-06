@@ -134,8 +134,19 @@ class ApiV1(object):
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
 
-        self._add_resource(r.analysisimport.AnalysisImportResource,
-                           '/api/v1/analyses/imports/')
+        self._add_resource(r.annotationjob.AnnotationJob,
+                           '/api/v1/annotationjobs/',
+                           '/api/v1/annotationjobs/<int:id>')
 
-        self._add_resource(r.analysisimport.AnalysisImportDepositResource,
-                           '/api/v1/analyses/imports/<task_id>')
+        self._add_resource(r.annotationjob.AnnotationServiceStatus,
+                           '/api/v1/annotationservice/status/<task_id>')
+
+        self._add_resource(r.annotationjob.AnnotationServiceAnnotate,
+                           '/api/v1/annotationservice/annotate/')
+
+        self._add_resource(r.annotationjob.AnnotationServiceProcess,
+                           '/api/v1/annotationservice/process/<task_id>')
+
+        self._add_resource(r.annotationjob.AnnotationJobDeposit,
+                           '/api/v1/annotationservice/deposit/')
+
