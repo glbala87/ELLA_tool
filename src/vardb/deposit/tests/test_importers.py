@@ -140,41 +140,6 @@ class TestGenotypeImporter():
         assert result3.variant_quality == 456
 
 
-class TestAnnotationImporter():
-
-    def test_annotation(self, annotation_importer):
-
-        alleles = [mock.Mock(), mock.Mock()]
-        ai1, ai2 = annotation_importer.process({
-            'ID': 'H186',
-            'ALT': ['A', 'G'],
-            'INFO': {
-                'A': {
-                    'EFF': 'TestA'
-                },
-                'G': {
-                    'EFF': 'TestG'
-                },
-                'ALL': {
-                    'Common': 'SomeData'
-                }
-            }
-
-        }, alleles)
-
-        assert ai1.annotations == {
-            'id': 'H186',
-            'Common': 'SomeData',
-            'EFF': 'TestA'
-        }
-
-        assert ai2.annotations == {
-            'id': 'H186',
-            'Common': 'SomeData',
-            'EFF': 'TestG'
-        }
-
-
 class TestAlleleImporter():
 
     def test_snp(self, allele_importer, ref_genome):
