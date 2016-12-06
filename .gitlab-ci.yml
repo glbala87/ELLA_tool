@@ -58,7 +58,7 @@ bot_build:
   script:
     - if [ -n "${DEV_CHANNEL}" ]; then make release deploy DEPLOY_NAME=demo.allel.es; fi
     - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es; fi
-    - if [ -n "${JULEBORD_CHANNEL}" ]; then make release deploy BUILD_TYPE=julebord DEPLOY_NAME=julebord.ousamg.io; fi
+    - if [ -n "${REVIEW_CHANNEL}" ]; then make release deploy BUILD_TYPE=julebord DEPLOY_NAME=${REVIEW_CHANNEL}.review.ousamg.io; fi
   tags:
     - web
   only:
