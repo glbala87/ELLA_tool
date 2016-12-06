@@ -3,8 +3,8 @@ stages:
   - test
   - cleanup
   - deploy
-  - notify
   - review
+  - notify
 
 test_api:
   stage: test
