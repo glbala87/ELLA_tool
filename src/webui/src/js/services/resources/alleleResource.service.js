@@ -16,7 +16,6 @@ function buildEntityMap(related_entities) {
         'customannotation_id': [],
         'presented_alleleassessment_id': [],
         'presented_allelereport_id': []
-        // TODO: add reference assessments?
     };
 
     for (const extractKey of Object.keys(extracts)) {
