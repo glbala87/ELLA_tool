@@ -56,7 +56,7 @@ export class ReportCardController {
     formatHGVS(allele) {
         let hgvs = '';
         for (let t of allele.annotation.filtered) {
-            hgvs += `${t.transcript}.${t.Transcript_version}(${t.symbol}):`;
+            hgvs += `${t.transcript}(${t.symbol}):`;
             let part = t.HGVSc_short.split("c.", 2)[1]; // remove 'c.'
             if (allele.genotype.homozygous) {
                 hgvs += `c.[${part}];[(${part})]`; // c.[76A>C];[(76A>C)]

@@ -28,7 +28,6 @@ class InterpretationDataLoader(object):
 
         excluded_genes = self.config['variant_criteria']['exclude_genes']
         filtered = [t for t in allele['annotation']['transcripts'] if t['transcript'] in allele['annotation']['filtered_transcripts']]
-        print filtered
         allele_genes = [f['symbol'] for f in filtered]
         return bool(list(set(excluded_genes).intersection(set(allele_genes))))
 

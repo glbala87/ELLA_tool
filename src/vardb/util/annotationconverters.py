@@ -269,7 +269,7 @@ def indb_frequencies(annotation):
         'freq': {
             'AF': annotation['inDB']['alleleFreq']
         },
-        'num': {
+        'count': {
             'AF': annotation['inDB']['noMutInd']
         },
         'indications': annotation['inDB']['indications']

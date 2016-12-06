@@ -83,7 +83,7 @@ export class FrequencyDetailsWidget {
 
     inDbIndicationThreshold() {
         if ('inDB' in this.allele.annotation.frequencies) {
-            return this.allele.annotation.frequencies.inDB.num.AF <
+            return this.allele.annotation.frequencies.inDB.count.AF <
                    this.config.frequencies.view.inDB.indications_threshold;
         }
     }
