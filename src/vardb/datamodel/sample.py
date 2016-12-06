@@ -89,8 +89,7 @@ class Analysis(Base):
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
     alleleassessments = relationship("AlleleAssessment", viewonly=True,
                                      secondary="analysisfinalized",
-                                     secondaryjoin=id==AnalysisFinalized.analysis_id,
-                                     foreign_keys=[AnalysisFinalized.analysis_id])
+                                     foreign_keys=[AnalysisFinalized.analysis_id, AnalysisFinalized.alleleassessment_id])
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
