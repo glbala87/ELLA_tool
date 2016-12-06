@@ -4,6 +4,7 @@ stages:
   - cleanup
   - deploy
   - notify
+  - review
 
 test_api:
   stage: test
