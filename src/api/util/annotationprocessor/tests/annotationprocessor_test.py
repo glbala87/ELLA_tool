@@ -239,6 +239,107 @@ class TestFrequencyAnnotation(unittest.TestCase):
         self.assertEquals(frequencies['cutoff']['internal']['inDB'], [">=lo_freq_cutoff", "<hi_freq_cutoff"])
 
 
+    def test_frequency_cutoffs_5(self):
+
+        # Test multiple genes in config
+        annotation = {
+            "1000g": {
+                "freq": {
+                    "G": 0.000001,
+                    "NOT_IN_CONFIG": 1.0
+                }
+            },
+            "ExAC": {
+                "freq": {
+                    "G": 0.000002,
+                }
+            },
+            "esp6500": {
+                "freq": {
+                    "AA": 0.2,
+                    "EA": 0.2,
+                }
+            },
+            "inDB": {
+                "freq": {
+                    "AF": 0.6
+                }
+            }
+        }
+
+        defaults = {
+            'freq_cutoffs': {
+                'default': {
+                    'external': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    },
+                    'internal': {
+                        'hi_freq_cutoff': 0.01,
+                        'lo_freq_cutoff': 0.001
+                    }
+                }
+            }
+        }
+
+        mock_gp = lambda: None
+        mock_gp.find_inheritance = lambda x: None
+        mock_gp.config = {
+            'data': {
+                'BRCA1': {
+                    'freq_cutoffs': {
+                        'external': {
+                            'hi_freq_cutoff': 0.1,
+                            'lo_freq_cutoff': 0.001
+                        },
+                        'internal': {
+                            'hi_freq_cutoff': 0.1,
+                            'lo_freq_cutoff': 0.01
+                        }
+                    },
+                },
+                'BRCA2': {
+                    'freq_cutoffs': {
+                        'external': {
+                            'hi_freq_cutoff': 0.5,
+                            'lo_freq_cutoff': 0.3
+                        },
+                        'internal': {
+                            'hi_freq_cutoff': 0.9,
+                            'lo_freq_cutoff': 0.7
+                        }
+                    }
+                }
+            }
+        }
+
+        processor = GenepanelCutoffsAnnotationProcessor(
+            TestFrequencyAnnotation.MOCK_CONFIG,
+            genepanel=mock_gp,
+            genepanel_default=defaults
+        )
+        frequencies = processor.cutoff_frequencies(annotation, symbols=['BRCA1'])
+
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], ">=hi_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], ">=hi_freq_cutoff")
+
+        frequencies = processor.cutoff_frequencies(annotation, symbols=['BRCA2'])
+
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], "<lo_freq_cutoff")
+
+        frequencies = processor.cutoff_frequencies(annotation, symbols=['BRCA2', 'BRCA1'])
+
+        self.assertEquals(frequencies['cutoff']['external']['ExAC'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['1000g'], "<lo_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['external']['esp6500'], ">=hi_freq_cutoff")
+        self.assertEquals(frequencies['cutoff']['internal']['inDB'], ">=hi_freq_cutoff")
+
+
 class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_normal(self):
