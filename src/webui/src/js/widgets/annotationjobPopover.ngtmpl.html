@@ -1,0 +1,6 @@
+<h3><strong>Status:</strong></h3>
+<p>{{job.status}}</p>
+<h3>Message:</h3>
+<pre>{{job.message | parseJSON | json:4}}</pre>
+<h3>VCF:</h3>
+<p style="white-space: pre-line">{{job.vcf}}</p>
