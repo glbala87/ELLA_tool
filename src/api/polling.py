@@ -65,8 +65,6 @@ def process_submitted(c):
             print as_response
             if not response_ok(as_response):
                 status = "FAILED (SUBMISSION)"
-                print "hei"
-                exit()
                 message = as_response.get_data()
                 task_id = ""
             else:
