@@ -31,8 +31,6 @@ def process_running(c):
             if not response_ok(as_response):
                 status = "FAILED (ANNOTATION)"
                 message = as_response.get_data()
-                print message
-                exit()
             else:
                 as_status = json.loads(as_response.get_data())[task_id]
                 print "\n"*2
@@ -40,8 +38,6 @@ def process_running(c):
                 print "\n" * 2
                 if as_status == "FAILED":
                     status = "FAILED (ANNOTATION)"
-                    print status
-                    exit()
                 elif as_status == "SUCCESS":
                     status = "ANNOTATED"
                 message = ""
@@ -120,34 +116,35 @@ def polling(app):
         annotated=dict()
     )
     debug = False
-    with app.test_client() as c:
-        # Get all newly submitted task
-        try:
-            for update in process_running(c):
-                db_job_update(c, update)
-        except Exception as e:
-            errors["running"].setdefault(e.message, 0)
-            errors["running"][e.message] += 1
-            if debug: raise e
+    while True:
+        with app.test_client() as c:
+            # Get all newly submitted task
+            try:
+                for update in process_running(c):
+                    db_job_update(c, update)
+            except Exception as e:
+                errors["running"].setdefault(e.message, 0)
+                errors["running"][e.message] += 1
+                if debug: raise e
 
-        try:
-            for update in process_submitted(c):
-                db_job_update(c, update)
-        except Exception as e:
-            errors["submitted"].setdefault(e.message, 0)
-            errors["submitted"][e.message] += 1
-            if debug: raise e
+            try:
+                for update in process_submitted(c):
+                    db_job_update(c, update)
+            except Exception as e:
+                errors["submitted"].setdefault(e.message, 0)
+                errors["submitted"][e.message] += 1
+                if debug: raise e
 
-        try:
-            for update in process_annotated(c):
-                db_job_update(c, update)
-        except Exception as e:
-            errors["annotated"].setdefault(e.message, 0)
-            errors["annotated"][e.message] += 1
-            if debug: raise e
+            try:
+                for update in process_annotated(c):
+                    db_job_update(c, update)
+            except Exception as e:
+                errors["annotated"].setdefault(e.message, 0)
+                errors["annotated"][e.message] += 1
+                if debug: raise e
 
-    time.sleep(5)
-    print json.dumps(errors, indent=1)
+        time.sleep(5)
+        print json.dumps(errors, indent=1)
 
 def setup_polling(app):
     #Initiate
