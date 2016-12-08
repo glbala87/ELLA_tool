@@ -40,7 +40,7 @@ select { border: none; box-shadow: none; background: transparent; height: 100%; 
   &[disabled] { border: 1px solid $black-50; color: $black-75; opacity: 0.25; background-color: inherit; select:hover { cursor: default; } }
 }
 
-p, span { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
+p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
 
 // interpretation-button button { height: 100%; } // fixes a browser quirk - edit, seems to have gone away with some other changes
 .button ~ .button, button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
@@ -51,9 +51,9 @@ button { outline: none; border: 1px solid Transparent;
 }
 .buttonmark { width: 1.5rem; height: 0.8rem; stroke-width: 14%; }
 
-.button-status-green {fill: $green; width: 0.6rem; height: 0.6rem;}
-.button-status-red {fill: $red; width: 0.6rem; height: 0.6rem;}
-.button-status-yellow {fill: $yellow; width: 0.6rem; height: 0.6rem; stroke-width: 14%;}
+%button-status {width: 0.6rem; height: 0.6rem; margin-left: 0.3rem; margin-right: -0.4rem}
+.button-status-green {@extend %button-status; fill: $green-75;}
+.button-status-red {@extend %button-status; fill: $red-75}
 
 // APP-WIDE STYLE
 
