@@ -8,7 +8,8 @@ $bar-colors: (
 @each $name, $color in $bar-colors {
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
    .sectionbox.#{$name} {
-     .sb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.25); }
+     .sb-title-container { background-color: hsla(hue($color),saturation($color),lightness($color),0.15); }
+     .sb-container { border-left: 0.2rem solid hsla(hue($color),saturation($color),lightness($color),0.15); }
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
    .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
@@ -32,24 +33,24 @@ $bar-colors: (
   }
 }
 
+
 $sb-titlebar-height: 3.8rem;
-
 .sectionbox { margin-bottom: 1.3rem; display: flex; flex-direction: column;
-
 
   .titlebar { display: flex; height: $sb-titlebar-height; min-height: $sb-titlebar-height;
 
-    .sb-title-container { display: flex; cursor: pointer; padding-right: 3rem; flex: 1; padding-left: 1.5rem;
+    // Left part containing title and collapse arrow/close button
+    .sb-title-container { display: flex; cursor: pointer; min-width: 20rem; padding-right: 3rem; padding-left: 1.5rem;
       .title { font-family: $slim; line-height: $sb-titlebar-height; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
         a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
         a:hover { border-left: 1px solid $white-50; border-bottom: none; }
       }
       .icon { transition: all 0.3s; width: 1.2rem; margin-right: 1rem; margin-top: 0.3rem; line-height: $sb-titlebar-height;
         svg { width: 1.2rem; height: 1.2rem; transition: all 0.3s; transform: rotate(90deg); transform-origin: center; }
-        &.collapser { }
       }
     }
-    .sb-controls { padding-top: 0.5rem; padding-left: 3rem; padding-right: 1.5rem; transition: all 0.5s 0.2s;
+    // Right side controls (buttons)
+    .sb-controls { flex: 1; padding-top: 0.5rem; padding-left: 3rem; padding-right: 1.5rem; transition: all 0.5s 0.2s;
       .dropdown:after { border-color: $white-75 transparent transparent transparent }
       .dropdown select { color: white;
         option { background-color: $purple-50; }
@@ -58,7 +59,7 @@ $sb-titlebar-height: 3.8rem;
     }
   }
 
-  .sb-container { flex: 1; display: flex; flex-direction: column;
+  .sb-container {  display: flex; flex-direction: column;
     .sb-top {
       padding: 2rem; flex-grow: 1;
     }

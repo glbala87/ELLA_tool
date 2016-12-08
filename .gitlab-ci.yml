@@ -99,6 +99,7 @@ start_review:
   tags:
     - web
 
+# when: manual is also run upon branch deletion
 stop_review:
   stage: review
   variables:
