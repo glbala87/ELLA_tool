@@ -1002,7 +1002,7 @@ class AnalysisCollisionResource(Resource):
         ).order_by(
             user.User.id
         ).limit(  # Just in case to prevent DB overload...
-            20
+            200
         ).all()
 
         user_ids = set([ua[0] for ua in user_alleles])

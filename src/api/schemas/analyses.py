@@ -20,7 +20,6 @@ class UserSchema(Schema):
                   'username',
                   'first_name',
                   'last_name')
-        skip_missing = True
 
 
 class GenepanelSchema(Schema):
@@ -29,7 +28,6 @@ class GenepanelSchema(Schema):
         description = 'Panel of genes connected to a certain analysis'
         fields = ('name',
                   'version')
-        skip_missing = True
 
 
 class AnalysisInterpretationSchema(Schema):
@@ -40,7 +38,6 @@ class AnalysisInterpretationSchema(Schema):
                   'status',
                   'date_last_update',
                   'user')
-        skip_missing = True
 
     user = fields.Nested(UserSchema)
 
