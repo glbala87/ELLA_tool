@@ -113,47 +113,45 @@ def db_job_update(c, data):
     a = c.patch(ANNOTATION_JOBS_PATH, data=json.dumps(data), content_type='application/json')
     return a
 
-def polling(app, event):
+def polling(app):
     errors = dict(
         submitted=dict(),
         running=dict(),
         annotated=dict()
     )
     debug = False
-    while not event.is_set():
-        with app.test_client() as c:
-            # Get all newly submitted task
-            try:
-                for update in process_running(c):
-                    db_job_update(c, update)
-            except Exception as e:
-                errors["running"].setdefault(e.message, 0)
-                errors["running"][e.message] += 1
-                if debug: raise e
+    with app.test_client() as c:
+        # Get all newly submitted task
+        try:
+            for update in process_running(c):
+                db_job_update(c, update)
+        except Exception as e:
+            errors["running"].setdefault(e.message, 0)
+            errors["running"][e.message] += 1
+            if debug: raise e
 
-            try:
-                for update in process_submitted(c):
-                    db_job_update(c, update)
-            except Exception as e:
-                errors["submitted"].setdefault(e.message, 0)
-                errors["submitted"][e.message] += 1
-                if debug: raise e
+        try:
+            for update in process_submitted(c):
+                db_job_update(c, update)
+        except Exception as e:
+            errors["submitted"].setdefault(e.message, 0)
+            errors["submitted"][e.message] += 1
+            if debug: raise e
 
-            try:
-                for update in process_annotated(c):
-                    db_job_update(c, update)
-            except Exception as e:
-                errors["annotated"].setdefault(e.message, 0)
-                errors["annotated"][e.message] += 1
-                if debug: raise e
+        try:
+            for update in process_annotated(c):
+                db_job_update(c, update)
+        except Exception as e:
+            errors["annotated"].setdefault(e.message, 0)
+            errors["annotated"][e.message] += 1
+            if debug: raise e
 
-        time.sleep(5)
-        print json.dumps(errors, indent=1)
-    print "Received exit signal"
+    time.sleep(5)
+    print json.dumps(errors, indent=1)
 
 def setup_polling(app):
     #Initiate
     if not is_running_from_reloader():
-       event = threading.Event()
-       threading.Thread(target=polling, args=(app, event)).start()
-       atexit.register(event.set)
+       t = threading.Thread(target=polling, args=(app,))
+       t.setDaemon(True)
+       t.start()
