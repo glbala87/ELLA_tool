@@ -1,0 +1,53 @@
+<nav class="secondary">
+  <search class="search-box"></search>
+</nav>
+
+<div class="container">
+<search-results></search-results>
+<sectionbox color="blue">
+  <titlebar>
+    <h3 class="title">PENDING VARIANTS</h3>
+  </titlebar>
+  <contentwrapper>
+    <!--<analysis-list analyses="vm.user_ongoing_analyses"></analysis-list>-->
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="green">
+  <titlebar>
+    <h3 class="title">VARIANTS PENDING REVIEW</h3>
+  </titlebar>
+  <contentwrapper>
+    <!--<analysis-list analyses="vm.pending_analysis"></analysis-list>-->
+    <h4 class="sb-notification dim" ng-if="!vm.pending_analysis.length">No pending analyses</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="green">
+  <titlebar>
+    <h3 class="title">ANALYSES WITH CLASS 3-5 VARIANTS</h3>
+  </titlebar>
+  <contentwrapper>
+    <analysis-list analyses="vm.overview.analyses.with_findings"></analysis-list>
+    <!--<h4 class="sb-notification dim" ng-if="!vm.pending_review.length">No analyses to review</h4>-->
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="green">
+  <titlebar>
+    <h3 class="title">ANALYSES WITH NORMAL VARIANTS</h3>
+  </titlebar>
+  <contentwrapper>
+    <analysis-list analyses="vm.overview.analyses.without_findings"></analysis-list>
+  </contentwrapper>
+</sectionbox>
+<sectionbox color="green">
+  <titlebar>
+    <h3 class="title">ANALYSES WITH MISSING CLASSIFICATIONS</h3>
+  </titlebar>
+  <contentwrapper>
+    <analysis-list analyses="vm.overview.analyses.missing_alleleassessments"></analysis-list>
+  </contentwrapper>
+</sectionbox>
+
+</div>

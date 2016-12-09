@@ -26,7 +26,7 @@ import './services/resources/interpretationResource.service';
 import './services/resources/ReferenceResource.service';
 import './services/resources/searchResource.service';
 import './services/resources/finalizationResource.service';
-
+import './services/resources/overviewResource.service';
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
@@ -41,6 +41,7 @@ import './filters';
 import './views/analysis/analysis.directive';
 import './views/analysis/analysisSelection.directive';
 import './views/analysis/interpretationSingleSample.directive';
+import './views/overviews/alleleSelection.directive';
 import './views/main.directive';
 import './views/login.directive';
 import './views/sidebar.directive';
@@ -110,6 +111,14 @@ class AppConfig {
                 views: {
                     content: {
                         template: '<analysis-selection></analysis-selection>'
+                    }
+                }
+            })
+            .state('app.alleles', {
+                url: '/variants',
+                views: {
+                    content: {
+                        template: '<allele-selection></allele-selection>'
                     }
                 }
             })

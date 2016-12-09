@@ -7,7 +7,7 @@ from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 from api import schemas, ApiError
 from api.util.util import request_json
 from api.v1.resource import Resource
-import api.v1.queries as queries
+from api.v1 import queries
 
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
@@ -15,7 +15,7 @@ from api.util.interpretationdataloader import InterpretationDataLoader
 from api.config import config
 
 
-class OverviewAlleleInterpretationResource(Resource):
+class OverviewAlleleResource(Resource):
 
     def get_alleles_no_alleleassessment(self, session):
         """

@@ -115,6 +115,9 @@ class ApiV1(object):
         self._add_resource(r.genepanel.GenepanelResource,
                            '/api/v1/genepanels/<name>/<version>/')
 
+        self._add_resource(r.overview.OverviewAlleleResource,
+                           '/api/v1/overviews/alleles/')
+
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
 

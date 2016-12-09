@@ -25,22 +25,13 @@ class AnalysisListWidget {
                 InterpretationOverrideModal,
                 toastr) {
         this.location = location;
-        // this.sidebar = Sidebar;
         this.user = User;
         this.analysisService = Analysis;
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
         this.toastr = toastr;
-        this.previous = {};
-
-        // this.setupSidebar();
+        this.previous = {}
     }
-
-    // setupSidebar() {
-    //     this.sidebar.setBackLink(null, null);
-    //     this.sidebar.setTitle('Analyses List', false);
-    //     this.sidebar.clearItems();
-    // }
 
     /**
      * Checks whether current user is working on an analysis.
@@ -88,36 +79,15 @@ class AnalysisListWidget {
       }
     }
 
-    idempoByDate() {
-      let cur = this.analysesByDate();
-      if(JSON.stringify(this.previous) != JSON.stringify(cur)) {
-        this.previous = cur;
-      }
-      return this.previous;
-    }
-
-    analysesByDate() {
-      // FIXME: Hi i'm an infinite loop in angular
-      let byday = {};
-      function groupday(value, index, array)
-      {
-        let d = value['deposit_date'].substring(0,10);
-        byday[d]=byday[d]||[];
-        byday[d].push(value);
-      }
-      this.analyses.forEach(groupday);
-      return byday;
-    }
-
     clickAnalysis(analysis) {
         if (this.isAnalysisDone(analysis)) {
-            this.toastr.warning("Opening a finished analysis in read-only mode", null, 600);
-            this.openAnalysis(analysis);
+            this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
             return;
         }
 
-        let owner = analysis.getInterpretationUser();
-        if (this.ownedByOther(owner)) {
+        let iuser = analysis.getInterpretationUser();
+        if (iuser &&
+            iuser.id !== this.user.getCurrentUserId()) {
             this.interpretationOverrideModal.show().then(result => {
                 if (result) {
                     this.overrideAnalysis(analysis);
@@ -127,10 +97,6 @@ class AnalysisListWidget {
         else {
             this.openAnalysis(analysis);
         }
-    }
-
-    ownedByOther(owner) {
-        return owner && (owner.id !== this.user.getCurrentUserId());
     }
 
     getStateMessage(analysis) {
