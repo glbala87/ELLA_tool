@@ -65,6 +65,7 @@ import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
 import './widgets/analysisList.directive';
+import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
