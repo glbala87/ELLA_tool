@@ -49,7 +49,7 @@ $sb-titlebar-height: 3.8rem;
       }
     }
     // Right side controls (buttons)
-    .sb-controls { flex: 1; padding-top: 0.5rem; padding-left: 3rem; padding-right: 1.5rem; transition: all 0.5s 0.2s;
+    .sb-controls { flex: 1; padding-top: 0.65rem; padding-left: 3rem; padding-right: 1.5rem; transition: all 0.5s 0.2s;
       .dropdown:after { border-color: $white-75 transparent transparent transparent }
       .dropdown select { color: white;
         option { background-color: $purple-50; }

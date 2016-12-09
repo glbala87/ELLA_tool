@@ -1,24 +1,3 @@
-<aside class="row up">
-  <h3 class="full-title">
-    {{vm.allele.change_from}}
-    <svg id="i-arrow-right" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-      <path d="M22 6 L30 16 22 26 M30 16 L2 16" />
-    </svg>
-    {{vm.allele.change_to}} ({{vm.allele.change_type}})
-  </h3>
-  <h3 class="full-title">{{vm.allele.genotype.genotype}} <span ng-if="vm.allele.genotype.homozygous">(homozygous)</span><span ng-if="!vm.allele.genotype.homozygous">(heterozygous)</span></h3>
-  <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.Transcript">
-    <transcript-wrapper  transcript="t">
-      {{t.Codons}}
-    </transcript-wrapper>
-  </h3>
-  <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.Transcript">
-    <transcript-wrapper  transcript="t">
-      {{t.EXON}}
-    </transcript-wrapper>
-  </h3>
-  <h3 class="full-title">{{vm.allele.genome_reference}} - {{vm.allele.formatGenomicPosition()}}</h3>
-</aside>
 <aside class="row down">
     <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.Transcript" ng-if="::vm.genepanel">
       <div class="allele_popup clickable white" isolate-click>
@@ -27,7 +6,7 @@
           uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
           popover-title="{{t.SYMBOL}}"
           popover-placement="bottom">
-          {{t.SYMBOL}}
+          {{t.SYMBOL}} ({{t.EXON}})
         </transcript-wrapper>
       </div>
     </h3>
@@ -44,7 +23,7 @@
           uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
           popover-title="HGVS c.DNA"
           popover-placement="bottom">
-            <i>{{t.HGVSc | HGVS_firsthalf}}:</i><b>{{t.HGVSc | HGVSc_short}}</b>
+            <i>{{t.HGVSc | HGVS_firsthalf}}:</i><b>{{t.HGVSc | HGVSc_short}}</b> ({{vm.allele.genotype.genotype}})
         </transcript-wrapper>
       </div>
     </h3>
@@ -56,8 +35,9 @@
           uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
           popover-title="HGVS protein"
           popover-placement="bottom">
-            <i>{{t.HGVSp | HGVS_firsthalf}}:</i><b>{{t.HGVSp | HGVSp_short}}</b>
+            <i>{{t.HGVSp | HGVS_firsthalf}}:</i><b>{{t.HGVSp | HGVSp_short}}</b> ({{t.Codons}})
         </transcript-wrapper>
       </div>
     </h3>
+    <h3 class="full-title">{{vm.allele.formatGenomicPosition()}}</h3>
 </aside>
