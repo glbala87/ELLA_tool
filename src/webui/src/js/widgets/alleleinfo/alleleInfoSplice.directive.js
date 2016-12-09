@@ -5,8 +5,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-splice',
     scope: {
-        allele: '=',
-        collapsed: '=?'
+        allele: '='
     },
     templateUrl: 'ngtmpl/alleleInfoSplice.ngtmpl.html'
 })

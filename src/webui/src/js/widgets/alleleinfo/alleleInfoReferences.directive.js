@@ -12,8 +12,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         allele: '=',
         references: '=',
         alleleState: '=',
-        onSave: '&?',
-        collapsed: '=?'
+        onSave: '&?'
     }
 })
 @Inject('$scope', 'ReferenceEvalModal', 'Interpretation')

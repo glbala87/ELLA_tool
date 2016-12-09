@@ -5,8 +5,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-hgmd',
     scope: {
-        allele: '=',
-        collapsed: '=?'
+        allele: '='
     },
     templateUrl: 'ngtmpl/alleleInfoHgmd.ngtmpl.html'
 })

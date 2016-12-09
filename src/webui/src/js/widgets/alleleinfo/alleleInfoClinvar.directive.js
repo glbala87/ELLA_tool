@@ -5,8 +5,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-clinvar',
     scope: {
-        allele: '=',
-        collapsed: '=?'
+        allele: '='
     },
     templateUrl: 'ngtmpl/alleleInfoClinvar.ngtmpl.html'
 })

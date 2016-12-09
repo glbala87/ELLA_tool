@@ -72,42 +72,6 @@ export class AlleleSectionBoxController {
 
         this.classificationOptions = this.config.classification.options;
 
-        this.sectionOptions = {};  // {'alleleinfo-something': {collapsed: true, ...}}
-
-        this.setupSectionOptions();
-
-        // This is a hack around the fact
-        // that <sectionbox> contains the toggle for
-        // the collapse action, so we need to watch
-        // it's collapsed state and act on that.
-        rootScope.$watch(
-            () => this.section.options.collapsed,
-            () => this.toggleCollapse()
-        );
-    }
-
-
-    /**
-     * Creates option objects for the <contentbox> es
-     * used as part of provided section.
-     */
-    setupSectionOptions() {
-        this.sectionOptions = {};
-        for (let s of this.section.content) {
-            this.sectionOptions[s.tag] = {
-                collapsed: false
-            }
-        }
-    }
-
-    /**
-     * Toggles collapse state on all child <contentbox>es through the
-     * section options.
-     */
-    toggleCollapse() {
-        for (let s of this.section.content) {
-            this.sectionOptions[s.tag].collapsed = this.section.options.collapsed;
-        }
     }
 
     /**
@@ -122,7 +86,6 @@ export class AlleleSectionBoxController {
     getClassification() {
         return AlleleStateHelper.getClassification(this.allele, this.alleleState);
     }
-
 
     /**
      * If the allele has an existing alleleassessment,

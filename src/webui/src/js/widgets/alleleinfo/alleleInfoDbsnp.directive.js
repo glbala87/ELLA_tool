@@ -5,8 +5,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-dbsnp',
     scope: {
-        allele: '=',
-        collapsed: '=?'
+        allele: '='
     },
     templateUrl: 'ngtmpl/alleleInfoDbsnp.ngtmpl.html'
 })

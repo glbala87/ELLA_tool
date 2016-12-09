@@ -5,8 +5,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-quality',
     scope: {
-        allele: '=',
-        collapsed: '=?'
+        allele: '='
     },
     templateUrl: 'ngtmpl/alleleInfoQuality.ngtmpl.html'
 })

@@ -61,14 +61,16 @@
         </section>
       </div>
     </section>
-        <!-- Comments -->
-    <section class="comments" ng-if=vm.comments.length>
-      <autosize-textarea class="control-comment" ng-disabled="!vm.isEditable()" placeholder="{{comment.placeholder}}" ng-model="comment.model.comment" ng-repeat="comment in vm.comments"></autosize-textarea>
-    </section>
 
 
 
 </controls>
+
+<!-- Comments -->
+<top class="comments" ng-if=vm.comments.length>
+  <autosize-textarea class="control-comment" ng-disabled="!vm.isEditable()" placeholder="{{comment.placeholder}}" ng-model="comment.model.comment" ng-repeat="comment in vm.comments"></autosize-textarea>
+</top>
+
 <contentwrapper>
     <allele-sectionbox-content
       class="sectionbox-content"
