@@ -1,4 +1,4 @@
-<contentbox title="dbSNP" collapsed="vm.collapsed" disabled="::!vm.hasContent()">
+<contentbox title="dbSNP" disabled="::!vm.hasContent()">
   <cbbody>
     <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript">
         <transcript-wrapper transcript="t">

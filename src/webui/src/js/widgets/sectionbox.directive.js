@@ -17,7 +17,7 @@ import {Directive, Inject} from '../ng-decorators';
         onClose: '&',
         color: '@'
     },
-    transclude: { title: 'titlebar', contentwrapper: 'contentwrapper', top: '?top' , controls: '?controls' },
+    transclude: { title: 'titlebar', contentwrapper: '?contentwrapper', top: '?top' , controls: '?controls' },
     templateUrl: 'ngtmpl/sectionbox.ngtmpl.html',
     link: (scope, elem, attrs) => {
       setTimeout(() => {
@@ -35,20 +35,25 @@ export class SectionboxController {
       let collapsed = this.collapsed ? "collapsed" : "";
       return `${color} ${collapsed}`
     }
+
     collapse() {
-      if (this.isModal()) { return; }
+      if (this.isModal() || !this.isCollapsible()) { return; }
       this.collapsed === undefined ? true : this.collapsed;
       this.collapsed = !this.collapsed;
     }
+
     isCollapsible() {
-        return this.collapsible === undefined || this.collapsible;
+        return (this.collapsible === undefined || this.collapsible) && !this.isModal();
     }
+
     isModal() {
       return (this.modal != undefined || this.modal === true);
     }
+
     onTop() {
       return (this.topcontrols != undefined || this.topcontrols === true);
     }
+
     close() {
       this.onClose()();
     }

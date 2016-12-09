@@ -7,8 +7,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     selector: 'allele-info-acmg-selection',
     scope: {
         allele: '=',
-        alleleState: '=',
-        collapsed: '=?'
+        alleleState: '='
     },
     templateUrl: 'ngtmpl/alleleInfoAcmgSelection.ngtmpl.html'
 })

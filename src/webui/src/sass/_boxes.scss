@@ -19,8 +19,9 @@ $bar-colors: (
 .sectionbox .sb.titlebar { color: $black-50; }
 .contentbox .cb.titlebar { color: $white-50; }
 
+
 .contentbox { display: flex; height: calc(100% - 0.7rem);
-  .titlebar { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
+  .cb.titlebar { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
   .titlebar div { margin: 1.75rem 0; }
   .titlebar div ~ div { margin-top: 0; }
   .titlebar .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
@@ -33,6 +34,14 @@ $bar-colors: (
 }
 
 
+@keyframes hide {
+    0%   {opacity: 1; transform: scale(1); } // Scale is used to "remove" element afterwards
+    99%  {opacity: 0; transform: scale(1);}
+}
+@keyframes show {
+    0%   {opacity: 0; transform: scale(1); }
+    99%  {opacity: 1; transform: scale(1);}
+}
 $sb-titlebar-height: 3.8rem;
 .sectionbox { margin-bottom: 1.3rem; display: flex; flex-direction: column;
 
@@ -55,14 +64,21 @@ $sb-titlebar-height: 3.8rem;
         option { background-color: $purple-50; }
       }
       &:empty { display: none; }
+      // Animation hacks
+      transform: scale(1); animation: show 0.5s;
     }
   }
 
   .sb-container {  display: flex; flex-direction: column;
     .sb-top {
-      padding: 2rem; flex-grow: 1;
+       padding: 2rem;
+       flex-grow: 1;
+       &:empty { padding: 0 }
     }
-    .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; flex-wrap: wrap; }
+    .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; flex-wrap: wrap;
+      &:empty { padding: 0 }
+      transform: scale(1); animation: show 1.0s;
+    }
   }
 
   // Collapsed overrides
@@ -75,7 +91,8 @@ $sb-titlebar-height: 3.8rem;
       display: none;
     }
     .sb-controls {
-      opacity: 0;
+      transform: scale(0);
+      animation: hide 0.5s;
     }
   }
 }
@@ -83,6 +100,7 @@ $sb-titlebar-height: 3.8rem;
 
 allele-sectionbox {
   .sb-top {
+
     .comments { padding-top: 1.3rem; }
     .comments {
       .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
@@ -91,47 +109,6 @@ allele-sectionbox {
 }
 
 contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
-@keyframes flexw { from { flex-wrap: wrap; } to { flex-wrap: nowrap; } }
-@keyframes flexg { from { flex-grow: 1; } to { flex-grow: 0; flex: 1; } }
-.contentbox { margin-bottom: 1.3rem;
-  .titlebar {
-    height: calc(100% - 0.7rem);
-  }
-  .sb-container { flex: 1; display: flex; flex-wrap: wrap; }
-  .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; }
-  .sb-controls { flex-basis: 100%; order: -1; padding: 1.65rem; padding-left: 2.95rem; transition: all 0.6s 0.3s; background: $green;
-    .dropdown:after { border-color: $white-75 transparent transparent transparent }
-    .dropdown select { color: white;
-      option { background-color: $purple-50; }
-    }
-    &:empty { display: none; }
-  }
-  .sb.titlebar { padding-left: 3rem; display: flex; height: 2.8rem; min-height: 2.8rem;
-    .icon { transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center;
-      svg { width: 1.2rem; height: 1.2rem; transition: all 0.3s; }
-    }
-    .icon:hover svg { fill: $black-75; }
-    .icon.modal-close {
-      svg { stroke-width: 14%; width: 1rem; height: 1rem; }
-    }
-    .icon.collapser { padding-top: 0.8rem; }
-    .title { font-family: $slim; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
-      a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
-      a:hover { border-left: 1px solid $white-50; border-bottom: none; }
-    }
-  }
-  &.collapsed {
-    .sb-container { animation: flexw; animation-delay: 0.6s; animation-duration: 0s; animation-fill-mode: forwards; }
-    .sb-body { animation: flexg; animation-delay: 0.6s; animation-duration: 0s; animation-fill-mode: forwards; }
-    .sb-controls { padding: 1.65rem; padding-top: 2.6rem; padding-left: 2.95rem; flex-basis: 75%; }
-    .icon.collapser { transform: rotate(-90deg); }
-  }
-  section ~ section.comments { padding-top: 1.3rem; }
-  section.comments {
-    .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
-  }
-  .nobody & .sb-body { display: none; }
-}
 
 .contentbox { margin: 0.35rem;
   .max-width & .cb-body { max-width: 100% !important; }
@@ -153,10 +130,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
   .remove { margin-bottom: 0.7rem; @extend .pink; }
-  .icon:hover svg { fill: $white; }
-  .icon.collapsed { transform-style: preserve-3d; transform: rotateY(180deg); }
 }
-.contentbox.collapsed .cb-body { transform: scaleX(0);  opacity: 0; max-width: 0 !important; max-height: 0; overflow: hidden; padding: 0; white-space: nowrap; } // display: inline-flex;
 
 // no-content styling
 .no-content.contentbox { background-color: $black-25;
