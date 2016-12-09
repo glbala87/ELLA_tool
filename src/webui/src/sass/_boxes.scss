@@ -8,8 +8,7 @@ $bar-colors: (
 @each $name, $color in $bar-colors {
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
    .sectionbox.#{$name} {
-     .sb-title-container { background-color: hsla(hue($color),saturation($color),lightness($color),0.15); }
-     .sb-container { border-left: 0.2rem solid hsla(hue($color),saturation($color),lightness($color),0.15); }
+     .sb-title-container { background-color: hsla(hue($color),saturation($color),lightness($color), 0.25); }
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
    .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
