@@ -60,20 +60,29 @@ class TestAlleleAssessment(object):
             assessment_data['allele_id'] = allele_id
             assessment_data['referenceassessments'] = [referenceassessment_template(allele_id)]
 
-            annotations = [{"allele_id": assessment_data['allele_id'], "annotation_id": assessment_data['annotation_id']}]
+            annotations = [{"allele_id": assessment_data['allele_id'],
+                            "annotation_id": assessment_data['annotation_id']}
+                           ]
+            custom_annotations = [{"allele_id": assessment_data['allele_id'],
+                                   "custom_annotation_id": 1}
+                                  ]
 
             # POST data
             r = client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                           "custom_annotations": custom_annotations,
                                                            "allele_assessments": [assessment_data]})
 
             # Check response
             assert r.status_code == 200
-            assessment_data = r.json[0]
-            assert len(assessment_data['referenceassessments']) == 1
-            assert 'id' in assessment_data['referenceassessments'][0]
-            assert assessment_data['referenceassessments'][0]['allele_id'] == allele_id
-            assert assessment_data['allele_id'] == allele_id
-            assert assessment_data['id'] == idx + 1
+            assessment_response = r.json[0]
+            assert len(assessment_response['referenceassessments']) == 1
+            assert 'id' in assessment_response['referenceassessments'][0]
+            assert assessment_response['referenceassessments'][0]['allele_id'] == allele_id
+            assert assessment_response['allele_id'] == allele_id
+            assert assessment_response['id'] == idx + 1
+            assert assessment_response['annotation_id'] == assessment_data['annotation_id']
+            assert assessment_response['custom_annotation_id'] == 1
+
 
     @pytest.mark.aa(order=1)
     def test_update_assessment(self, client):

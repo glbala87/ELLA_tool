@@ -35,9 +35,12 @@ class AlleleAssessment(Base):
     genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
-    # TODO: consider adding customannotation similar to annotation
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
+    custom_annotation_id = Column(Integer, ForeignKey("customannotation.id"))
+    custom_annotation = relationship("CustomAnnotation")
+
+
     referenceassessments = relationship("ReferenceAssessment",
                                         secondary=AlleleAssessmentReferenceAssessment)
 

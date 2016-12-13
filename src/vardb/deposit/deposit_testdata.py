@@ -15,6 +15,7 @@ import vardb.datamodel
 from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
+from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_users import import_users
 from vardb.deposit.deposit_analysis import DepositAnalysis
 
@@ -98,6 +99,7 @@ ANALYSES = [
 ]
 
 REFERENCES = '../testdata/references_test.json'
+CUSTOM_ANNO = '../testdata/custom_annotation_test.json'
 
 
 class DepositTestdata(object):
@@ -176,6 +178,10 @@ class DepositTestdata(object):
         references_path = os.path.join(SCRIPT_DIR, REFERENCES)
         import_references(self.session, references_path)
 
+    def deposit_custom_annotation(self):
+        custom_anno_path = os.path.join(SCRIPT_DIR, CUSTOM_ANNO)
+        import_custom_annotations(self.session, custom_anno_path)
+
     def deposit_all(self, test_set=None):
         log.info("--------------------")
         log.info("Starting a DB reset")
@@ -185,6 +191,7 @@ class DepositTestdata(object):
         self.deposit_genepanels()
         self.deposit_references()
         self.deposit_vcfs(test_set=test_set)
+        self.deposit_custom_annotation()
         log.info("--------------------")
         log.info(" DB Reset Complete!")
         log.info("--------------------")

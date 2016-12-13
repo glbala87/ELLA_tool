@@ -21,6 +21,7 @@ class AlleleAssessmentSchema(Schema):
                   'genepanel_name',
                   'genepanel_version',
                   'annotation_id',
+                  'custom_annotation_id',
                   'previous_assessment_id',
                   'user_id',
                   'user',
