@@ -41,6 +41,7 @@ import './filters';
 import './views/analysis/analysis.directive';
 import './views/analysis/analysisSelection.directive';
 import './views/analysis/interpretationSingleSample.directive';
+import './views/variant/variant.directive';
 import './views/overviews/alleleSelection.directive';
 import './views/main.directive';
 import './views/login.directive';
@@ -123,13 +124,27 @@ class AppConfig {
                     }
                 }
             })
-            .state('app.interpretation', {
+            .state('app.analysisinterpretation', {
                 url: '/analyses/:analysisId',
                 views: {
                     content: {
                         template: '<analysis analysis-id="{{analysisId}}"></analysis>',
-                        controller: ['$scope', '$stateParams', function($scope, $stateParams) {
+                        controller: ['$scope', '$stateParams', '$location', function($scope, $stateParams, $location) {
                             $scope.analysisId = $stateParams.analysisId;
+                        }]
+                    }
+                }
+            })
+            .state('app.variantinterpretation', {
+                url: '/variants/{reference_genome}/{variant_selector}?gp_name&gp_version',
+                views: {
+                    content: {
+                        template: '<variant reference-genome="{{reference_genome}}" variant-selector="{{variant_selector}}" genepanel-name="{{gp_name}}" genepanel-version="{{gp_version}}"></variant>',
+                        controller: ['$scope', '$stateParams', function($scope, $stateParams) {
+                            $scope.reference_genome = $stateParams.reference_genome;
+                            $scope.variant_selector = $stateParams.variant_selector;
+                            $scope.gp_name = $stateParams.gp_name;
+                            $scope.gp_version = $stateParams.gp_version;
                         }]
                     }
                 }

@@ -27,7 +27,7 @@ class OverviewAlleleResource(Resource):
             - Would not be part of the excluded_alleles for an analysisinterpretation,
               i.e that they are not frequency, intronic or gene filtered.
 
-        Returns [{'genepanel': {'gp_name': ..., 'gp_version': ...}, 'allele': {...alleledata...}}, ...]
+        Returns [{'genepanel': {'name': ..., 'version': ...}, 'allele': {...alleledata...}}, ...]
         """
 
         allele_ids_with_valid_aa = queries.allele_ids_with_valid_alleleassessments(session)
@@ -98,7 +98,7 @@ class OverviewAlleleResource(Resource):
 
             for a in loaded_genepanel_alleles:
                 if not any([idl._exclude_class1(a), idl._exclude_gene(a), idl._exclude_intronic(a)]):
-                    final_alleles.append({'genepanel': {'gp_name': genepanel.name, 'gp_version': genepanel.version}, 'allele': a})
+                    final_alleles.append({'genepanel': {'name': genepanel.name, 'version': genepanel.version}, 'allele': a})
         return final_alleles
 
     def get_alleles_missing_interpretation(self, session, alleles):

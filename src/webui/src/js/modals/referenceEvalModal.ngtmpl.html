@@ -1,14 +1,14 @@
 <sectionbox color="purple" modal="true" on-close="vm.modal.close" ng-if="!vm.reference">
-  <titlebar> <h3 class="title">ERROR</h3> </titlebar>
+  <maintitle>ERROR</maintitle>
   <contentwrapper>
     <h4 class="sb-notification" ng-if="!vm.pending_analysis.length">No reference selected</h4>
   </contentwrapper>
 </sectionbox>
 
 <sectionbox color="green id-reference-modal-body" modal="true" on-close="vm.modal.close" ng-if="vm.reference">
-  <titlebar>
-    <h3 class="title">REFERENCE EVALUATION</h3>
-  </titlebar>
+  <maintitle>
+    REFERENCE EVALUATION
+  </maintitle>
   <controls>
     <section class="line-wrapper spaced">
       <div class="ref-title">

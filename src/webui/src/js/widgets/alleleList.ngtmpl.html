@@ -1,9 +1,9 @@
 <article class="sectionbox-content allele-list">
-<a class="list-item clickable" href="{{vm.getAlleleUrl(item.allele)}}" ng-repeat="item in vm.sorted_items track by [item.genepanel.gp_name, item.genepanel.gp_version, item.allele.id]">
+<a class="list-item clickable" href="{{vm.getItemUrl(item)}}" ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]">
   <div class="full-title ref-title">
       <span ng-repeat="t in item.allele.annotation.filtered"><b>{{t.SYMBOL}} {{t.HGVSc_short}}</b></span>
   </div>
-  <div>{{item.genepanel.gp_name}}_{{item.genepanel.gp_version}}</div>
+  <div>{{item.genepanel.name}}_{{item.genepanel.version}}</div>
   <div class="allele-extras">
     <span class="allele-comment" ng-if="!vm.isalleleDone(allele) && allele.properties.review_comment">{{allele.properties.review_comment}}</span>
   </div>

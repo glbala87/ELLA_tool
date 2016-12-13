@@ -60,9 +60,6 @@ class ApiV1(object):
         self._add_resource(r.alleleassessment.AlleleAssessmentListResource,
                            '/api/v1/alleleassessments/')
 
-        self._add_resource(r.alleleinterpretation.AlleleInterpretationResource,
-                           '/api/v1/alleleinterpretations/<int:interpretation_id>/')
-
         self._add_resource(r.alleleinterpretation.AlleleInterpretationCreateActionResource,
                            '/api/v1/alleleinterpretations/actions/create/')
 
@@ -141,3 +138,21 @@ class ApiV1(object):
 
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
+
+        self._add_resource(r.workflowallele.AlleleInterpretationResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/')
+
+        self._add_resource(r.workflowallele.AlleleActionStartResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/start/')
+
+        self._add_resource(r.workflowallele.AlleleActionMarkReviewResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/markreview/')
+
+        self._add_resource(r.workflowallele.AlleleActionFinalizeResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/finalize/')
+
+        self._add_resource(r.workflowallele.AlleleActionOverrideResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/override/')
+
+        self._add_resource(r.workflowallele.AlleleActionReopenResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/reopen/')

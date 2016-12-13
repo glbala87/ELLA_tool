@@ -14,3 +14,4 @@ import search
 import user
 import genepanel
 import igv
+import workflowallele
