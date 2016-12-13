@@ -3,6 +3,7 @@ import logging
 import json
 
 from vardb.datamodel import DB
+from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users
 
@@ -26,6 +27,20 @@ def cmd_deposit_references(references_json):
     db.connect()
     import_references(db.session, references_json)
 
+
+@deposit.command('custom_annotation')
+@click.argument('custom_annotation_json')
+def cmd_deposit_custom_annotations(custom_annotation_json):
+    """
+    Deposit/update a set of custom annotations into database given by DB_URL.
+
+    Input is a line separated JSON file, with one custom annotation object per line.
+    """
+    logging.basicConfig(level=logging.INFO)
+
+    db = DB()
+    db.connect()
+    import_custom_annotations(db.session, custom_annotation_json)
 
 @deposit.command('users')
 @click.argument('users_json')

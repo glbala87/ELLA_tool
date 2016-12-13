@@ -363,21 +363,21 @@ class AnalysisActionMarkReviewResource(Resource):
         analysis = schemas.AnalysisSchema().dump(a).data
         int_id = get_current_interpretation(analysis)
 
-        i = session.query(sample.Interpretation).filter(
+        interpretation_current = session.query(sample.Interpretation).filter(
             sample.Interpretation.id == int_id
         ).one()
 
-        if i.status != 'Ongoing':
+        if interpretation_current.status != 'Ongoing':
             raise ApiError("Interpretation is not ongoing.")
 
-        i.status = 'Done'
+        interpretation_current.status = 'Done'
 
         # Create next interpretation
-        next_i = sample.Interpretation()
-        next_i.analysis_id = i.analysis_id
-        next_i.state = i.state
+        interpretation_next = sample.Interpretation()
+        interpretation_next.analysis_id = interpretation_current.analysis_id
+        interpretation_next.state = interpretation_current.state
 
-        session.add(next_i)
+        session.add(interpretation_next)
         session.commit()
         return None, 200
 
@@ -427,21 +427,29 @@ class AnalysisActionReopenResource(Resource):
         if get_current_interpretation(analysis) is not None:
             raise ApiError("Analysis is already pending or ongoing. Cannot reopen.")
 
-        i = session.query(sample.Interpretation).filter(
+        interpretation_current = session.query(sample.Interpretation).filter(
             sample.Analysis.id == analysis_id
         ).order_by(desc(sample.Interpretation.id)).first()
 
         # Create next interpretation
-        next_i = sample.Interpretation()
-        next_i.analysis_id = i.analysis_id
-        next_i.state = i.state
+        interpretation_next = sample.Interpretation()
+        interpretation_next.analysis_id = interpretation_current.analysis_id
+        interpretation_next.state = interpretation_current.state
 
-        session.add(next_i)
+        session.add(interpretation_next)
         session.commit()
         return None, 200
 
 
 class AnalysisActionFinalizeResource(Resource):
+
+    def get(self, session, analysis_id):
+        a = session.query(sample.AnalysisFinalized).filter(
+            sample.AnalysisFinalized.analysis_id == analysis_id
+            ).all()
+
+        result = schemas.AnalysisFinalizedSchema(strict=True).dump(a, many=True).data
+        return result
 
     @request_json(
         [
@@ -456,26 +464,37 @@ class AnalysisActionFinalizeResource(Resource):
 
         This sets the analysis' current interpretation's status to `Done` and creates
         any [alleleassessment|referenceassessment|allelereport] objects for the provided alleles,
-        unless it's specified to reuse the existing objects.
+        unless it's specified to reuse existing objects.
 
-        You must provide a list of assessments/reports.
-        For each assessment/report, if an 'id' field is not part of the data, it will create
-        a new assessments/reports in the database.
-        It will then link the analysis to these assessments/reports.
+        The user must provide a list of alleleassessments, referenceassessments and allelereports.
+        For each assessment/report, there are two cases:
+        - 'reuse=False' or reuse is missing: a new assessment/report is created in the database using the data given.
+        - 'reuse=True' The id of an existing assessment/report is expected in 'presented_assessment_id'
+            or 'presented_report_id'.
 
-        If an 'id' field does exist, it will check if the assessment/report with this id
-        exists in the database, then link the analysis to this assessment/report. If the 'id' doesn't
-        exists, an ApiError is given.
+        The assessment/report mentioned in the 'presented..' field is the one displayed/presented to the user.
+        We pass it along to keep a record of the context of the assessment.
 
-        In other words, if reusing a preexisting assessment/report, you can pass in just it's 'id',
-        otherwise pass in all the data needed to create a new assessment/report (without an 'id' field).
+        The analysis will be linked to assessments/report.
 
         **Only works for analyses with a `Ongoing` current interpretation**
 
         ```javascript
         Example POST data:
         {
-            "referenceassessments": [
+            "annotations": [
+              {
+               "allele_id": 14,
+               "annotation_id": 56
+               }
+              ],
+            "customannotations": [
+               {
+                "allele_id": 14,
+                "custom_annotation_id": 56
+               }
+             ],
+          "referenceassessments": [
                 {
                     // New assessment will be created, superceding any old one
                     "user_id": 1,
@@ -500,12 +519,15 @@ class AnalysisActionFinalizeResource(Resource):
                     "classification": "3",
                     "evaluation": {...data...},
                     "analysis_id": 3,
+                    "presented_alleleassessment_id": 7 // optional
+                    "reuse": false
                 },
                 {
                     // Reusing assessment
-                    "id": 9
-                    "allele_id": 6
-                }
+                    "allele_id": 6,
+                    "presented_alleleassessment_id": 7,
+                    "reuse": true
+                 }
             ],
             "allelereports": [
                 {
@@ -517,8 +539,10 @@ class AnalysisActionFinalizeResource(Resource):
                 },
                 {
                     // Reusing report
-                    "id": 9
                     "allele_id": 6
+                    "presented_allelereport_id": 7,
+                    "reuse": true
+
                 }
             ]
         }
@@ -540,6 +564,8 @@ class AnalysisActionFinalizeResource(Resource):
               title: Data object
               type: object
               required:
+                - annotations
+                - customannotations
                 - referenceassessments
                 - alleleassessments
                 - allelereports
@@ -581,9 +607,12 @@ class AnalysisActionFinalizeResource(Resource):
                     required:
                       - allele_id
                     properties:
-                      id:
-                        description: Existing alleleassessment id. If provided, existing object will be reused
+                      presented_alleleassessment_id:
+                        description: Existing alleleassessment id. Displayed to the user (aka context)
                         type: integer
+                      reuse:
+                        description: The objects signals reuse of an existing alleleassessment
+                        type: boolean
                       user_id:
                         description: User id. Required if not reusing existing object
                         type: integer
@@ -611,6 +640,12 @@ class AnalysisActionFinalizeResource(Resource):
                       id:
                         description: Existing reference id. If provided, existing object will be reused
                         type: integer
+                      presented_allelereport_id:
+                        description: Existing report id. Displayed to the user (aka context)
+                        type: integer
+                      reuse:
+                        description: The objects signals reuse of an existing report
+                        type: boolean
                       user_id:
                         description: User id. Required if not reusing existing object
                         type: integer
@@ -624,6 +659,14 @@ class AnalysisActionFinalizeResource(Resource):
                         description: Evaluation data object
                         type: object
               example:
+                annotations:
+                  - allele_id: 1
+                    annotation_id: 10
+                  - allele_id: 2
+                    annotation_id: 34
+                custom_annotations:
+                  - allele_id: 1
+                     custom_annotation_id: 102
                 referenceassessments:
                   - user_id: 1
                     analysis_id: 3
@@ -639,14 +682,16 @@ class AnalysisActionFinalizeResource(Resource):
                     classification: '3'
                     evaluation: {}
                     analysis_id: 3
-                  - id: 9
+                  - presented_alleleassessment_id: 9,
+                    reuse: true
                     allele_id: 6
                 allelereports:
                   - user_id: 1
                     allele_id: 2
                     evaluation: {}
                     analysis_id: 3
-                  - id: 9
+                  - presented_report_id: 9
+                    reuse: true
                     allele_id: 6
               description: Submitted data
 
@@ -676,7 +721,7 @@ class AnalysisActionFinalizeResource(Resource):
                     # Reusing assessment
                     "id": 13,
                     "allele_id": 13,
-                    "reference_id": 1
+                     "reference_id": 1
                 }
             ],
             "alleleassessments": [
@@ -690,7 +735,8 @@ class AnalysisActionFinalizeResource(Resource):
                 },
                 {
                     # Reusing assessment
-                    "id": 9
+                    "presented_alleleassessment_id": 9,
+                    "reuse": true
                     "allele_id": 6
                 }
             ],
@@ -704,7 +750,8 @@ class AnalysisActionFinalizeResource(Resource):
                 },
                 {
                     # Reusing report
-                    "id": 9
+                    "presented_allelereport_id": 9,
+                    "reuse": true,
                     "allele_id": 6
                 }
             ]
@@ -712,21 +759,163 @@ class AnalysisActionFinalizeResource(Resource):
 
         """
 
-        ac = AssessmentCreator(session)
+        # internal helper methods:
+        def _find_first_allele_assessment(created_alleleassessments, reused_alleleassessments, allele_id):
+            """
+            Find the first assessment from 'created..' and 'reused..' whose allele_id matches.
+            If found, return a tuple (id_of_presented | None, id_of_created | None)
+            """
 
-        result = ac.create_from_data(
-            data['alleleassessments'],
-            data['referenceassessments'],
+            created = _find_first_matching(created_alleleassessments, lambda x: x[1].allele_id == allele_id)
+            reused = _find_first_matching(reused_alleleassessments, lambda x: x[0].allele_id == allele_id)
+            if created:
+                return created[0].id if created[0] else None, created[1].id
+            if reused:
+                return reused[0].id, None
+            raise ApiError("No allele assessment found for allele_id {} when finalizing analysis.".format(allele_id))
+
+        def _find_first_allele_report(created_allele_reports, reused_allele_reports, allele_id):
+            """
+            Find the first report from 'created..' and 'reused..' whose allele_id matches.
+            If found, return a tuple (id_of_presented | None, id_of_created | None)
+            """
+            created = _find_first_matching(created_allele_reports, lambda x: x[1].allele_id == allele_id)
+            reused = _find_first_matching(reused_allele_reports, lambda x: x[0].allele_id == allele_id)
+            if created:
+                return created[0].id if created[0] else None, created[1].id
+            if reused:
+                return reused[0].id, None
+            raise ApiError("No allele assessment found for allele_id {} when finalizing analysis.".format(allele_id))
+
+        def _find_first_matching(seq, predicate):
+            return next((s for s in seq if predicate(s)), None)
+
+        def _filter_flag(id, excluded):
+            if id in excluded['class1']:
+                return allele.Allele.CLASS1
+            elif id in excluded['intronic']:
+                return allele.Allele.INTRON
+            else:
+                return None
+
+        def _create_finalization_object_for_excluded(allele_id, analysis_id, excluded):
+            kwargs = {
+                'analysis_id': analysis_id,
+                'allele_id': allele_id,
+                'annotation_id': None,
+                'customannotation_id': None,
+                'alleleassessment_id': None,
+                'presented_alleleassessment_id': None,
+                'allelereport_id': None,
+                'presented_allelereport_id': None,
+                'filtered': _filter_flag(allele_id, excluded)
+            }
+            return sample.AnalysisFinalized(**kwargs)
+
+        def _create_finalization_object_for_included_allele(
+                allele_id,
+                analysis_id,
+                annotations,
+                custom_annotations,
+                created_alleleassessments,
+                reused_alleleassessments,
+                created_allelereports,
+                reused_allelereports):
+            annotation = _find_first_matching(annotations, lambda x: x['allele_id'] == allele_id)
+            custom_annotation = _find_first_matching(custom_annotations, lambda x: x['allele_id'] == allele_id)
+            presented_alleleassessment_id, alleleassessment_id = _find_first_allele_assessment(
+                created_alleleassessments,
+                reused_alleleassessments,
+                allele_id)
+            presented_allelereport_id, allelereport_id = _find_first_allele_report(created_allelereports,
+                                                                                   reused_allelereports,
+                                                                                   allele_id)
+            kwargs = {
+                'analysis_id': analysis_id,
+                'allele_id': allele_id,
+                'annotation_id': annotation['annotation_id'],
+                'customannotation_id': custom_annotation['custom_annotation_id'] if (
+                    custom_annotation and 'custom_annotation_id' in custom_annotation) else None,
+
+                'alleleassessment_id': alleleassessment_id,
+                'presented_alleleassessment_id': presented_alleleassessment_id,
+
+                'allelereport_id': allelereport_id,
+                'presented_allelereport_id': presented_allelereport_id,
+
+                'filtered': None
+            }
+            return sample.AnalysisFinalized(**kwargs)
+
+            # end internal
+
+        annotations = data['annotations']
+        custom_annotations = data['custom_annotations']
+
+        grouped_alleleassessments = AssessmentCreator(session).create_from_data(annotations, data['alleleassessments'],
+                                                                                custom_annotations,
+                                                                                data['referenceassessments'])
+
+        # List of tuples:
+        reused_alleleassessments = grouped_alleleassessments['alleleassessments']['reused']
+        created_alleleassessments = grouped_alleleassessments['alleleassessments']['created']
+        # un-tuple:
+        all_alleleassessments_without_link_to_presented_assessments = \
+            map(lambda a: a[0], reused_alleleassessments) + map(lambda a: a[1], created_alleleassessments)
+
+        reused_referenceassessments = grouped_alleleassessments['referenceassessments']['reused']
+        created_referenceassessments = grouped_alleleassessments['referenceassessments']['created']
+        all_referenceassessments = reused_referenceassessments + created_referenceassessments
+
+        grouped_allelereports = AlleleReportCreator(session).create_from_data(
+            data['allelereports'],
+            all_alleleassessments_without_link_to_presented_assessments
         )
+        # List of tuples:
+        reused_allelereports = grouped_allelereports['reused']
+        created_allelereports = grouped_allelereports['created']
+        # un-tuple:
+        all_allelereports_without_link_to_presented_report = \
+            map(lambda a: a[0], reused_allelereports) + map(lambda a: a[1], created_allelereports)
 
-        all_alleleassessments = result['alleleassessments']['reused'] + result['alleleassessments']['created']
-        all_referenceassessments = result['referenceassessments']['reused'] + result['referenceassessments']['created']
+        connected_interpretations, interpretation_data = self.find_ongoing_interpretation(analysis_id, session)
 
-        arc = AlleleReportCreator(session)
-        arc_result = arc.create_from_data(data['allelereports'], all_alleleassessments)
+        allele_ids = interpretation_data['allele_ids']
+        excluded = interpretation_data['excluded_allele_ids']
 
-        all_allelereports = arc_result['reused'] + arc_result['created']
+        for allele_id in allele_ids:
+            finalization_object = _create_finalization_object_for_included_allele(
+                allele_id,
+                analysis_id,
+                annotations,
+                custom_annotations,
+                created_alleleassessments,
+                reused_alleleassessments,
+                created_allelereports,
+                reused_allelereports)
+            session.add(finalization_object)
 
+        for allele_id in list(itertools.chain(*excluded.values())):
+            finalization_object = _create_finalization_object_for_excluded(allele_id, analysis_id, excluded)
+            session.add(finalization_object)
+
+        # Mark all interpretations as done (we do all just in case)
+        for ci in connected_interpretations:
+            ci.status = 'Done'
+
+        session.commit()
+
+        return {
+                   'allelereports': schemas.AlleleReportSchema().dump(
+                       all_allelereports_without_link_to_presented_report, many=True).data,
+                   'alleleassessments': schemas.AlleleAssessmentSchema().dump(
+                       all_alleleassessments_without_link_to_presented_assessments, many=True).data,
+                   'referenceassessments': schemas.ReferenceAssessmentSchema().dump(all_referenceassessments,
+                                                                                    many=True).data,
+               }, 200
+
+    @staticmethod
+    def find_ongoing_interpretation(analysis_id, session):
         connected_interpretations = session.query(sample.Interpretation).filter(
             sample.Interpretation.analysis_id == analysis_id
         ).all()
@@ -743,72 +932,10 @@ class AnalysisActionFinalizeResource(Resource):
         if current_interpretation is None:
             raise ApiError("Trying to finalize analysis with no 'Ongoing' interpretations")
 
-        # Create analysisfinalized objects:
-        # We need to fetch all allele ids to store info for.
-        # Allele ids are provided by the 'Ongoing' interpretation
+        # Create a finalization item for allele in the ongoing interpretation:
 
         i = InterpretationDataLoader(session, config).from_id(current_interpretation.id)
-
-        allele_ids = i['allele_ids']
-        excluded = i['excluded_allele_ids']
-
-        all_allele_ids = allele_ids + list(itertools.chain(*excluded.values()))
-
-        # Fetch connected annotation ids
-        allele_annotation = session.query(
-            allele.Allele.id,
-            annotation.Annotation.id,
-            annotation.CustomAnnotation.id
-        ).outerjoin(  # Outer join since not all alleles have customannotation
-            annotation.Annotation,
-            annotation.CustomAnnotation,
-        ).filter(
-            annotation.Annotation.date_superceeded == None,
-            annotation.CustomAnnotation.date_superceeded == None,
-            allele.Allele.id.in_(all_allele_ids)
-        ).all()
-
-        def create_analaysisfinalize(allele_id, alleleassessment_id=None, allelereport_id=None, filtered=None):
-            _, annotation_id, customannotation_id = next(a for a in allele_annotation if a[0] == allele_id)
-            af_data = {
-                'analysis_id': analysis_id,
-                'allele_id': allele_id,
-                'annotation_id': annotation_id,
-                'customannotation_id': customannotation_id,
-                'alleleassessment_id': alleleassessment_id,
-                'allelereport_id': allelereport_id,
-                'filtered': filtered
-            }
-            af = sample.AnalysisFinalized(**af_data)
-            return af
-
-        for allele_id in allele_ids:
-            af = create_analaysisfinalize(
-                allele_id,
-                alleleassessment_id=next(a.id for a in all_alleleassessments if a.allele_id == allele_id),
-                allelereport_id=next(a.id for a in all_allelereports if a.allele_id == allele_id),
-            )
-            session.add(af)
-
-        for allele_id in excluded['class1']:
-            af = create_analaysisfinalize(allele_id, filtered='CLASS1')
-            session.add(af)
-
-        for allele_id in excluded['intronic']:
-            af = create_analaysisfinalize(allele_id, filtered='INTRON')
-            session.add(af)
-
-        # Mark all analysis' interpretations as done (we do all just in case)
-        for ci in connected_interpretations:
-            ci.status = 'Done'
-
-        session.commit()
-
-        return {
-            'allelereports': schemas.AlleleReportSchema().dump(all_allelereports, many=True).data,
-            'alleleassessments': schemas.AlleleAssessmentSchema().dump(all_alleleassessments, many=True).data,
-            'referenceassessments': schemas.ReferenceAssessmentSchema().dump(all_referenceassessments, many=True).data,
-        }, 200
+        return connected_interpretations, i
 
 
 class AnalysisCollisionResource(Resource):

@@ -1,9 +1,11 @@
+from analyses import AnalysisFinalizedSchema
 from analyses import AnalysisSchema
 from interpretations import InterpretationSchema
 from alleles import AlleleSchema
 from references import ReferenceSchema
 from referenceassessments import ReferenceAssessmentSchema
 from alleleassessments import AlleleAssessmentSchema
+from alleleassessments import AlleleAssessmentInputSchema
 from allelereports import AlleleReportSchema
 from users import UserSchema
 from classifications import ClassificationSchema, RuleSchema

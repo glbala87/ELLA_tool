@@ -14,7 +14,17 @@ import Analysis from "../../src/js/model/analysis.js"
         elm = angular.element("<analysis-list analyses='vm.pending_analyses'></analysis-list>");
         let parent = $rootScope;
         parent.vm = { // a single item to kick off ng-repeat in the template
-            pending_analyses: [{'deposit_date': '2016-08-10'}, {'deposit_date': '2016-08-09'}]
+            pending_analyses: [
+                {
+                    'deposit_date': '2016-08-10',
+                    'interpretations': []
+                },
+                {
+                    'deposit_date': '2016-08-09',
+                    'interpretations': []
+                }
+            ],
+
         };
         $compile(elm)(parent);
         parent.$digest();
@@ -28,32 +38,39 @@ import Analysis from "../../src/js/model/analysis.js"
 
     describe("when user clicks an analysis", function () {
 
-        it("it returns undefined if already analysed by this user", function () {
+        it("it opens it if already analysed by this user", function () {
             // Setup mocks
             scope.vm.user = {
                 getCurrentUserId: () => 1
             };
-            let analysis = {
+            let analysis = new Analysis({
                 interpretations: [
-                    {
-                        user: {
-                            id: 1
-                        },
-                        status: 'Done'
-                    },
                     {
                         user: {
                             id: 2
                         },
                         status: 'Done'
+                    },
+                    {
+                        user: {
+                            id: 1
+                        },
+                        status: 'Ongoing'
                     }
                 ]
-            };
-            expect(scope.vm.clickAnalysis(analysis)).toEqual(undefined);
+            });
+
+            spyOn(scope.vm, "openAnalysis"); // spy on method in analysisList.directive.js
+
+            // when
+            scope.vm.clickAnalysis(analysis);
+
+            // then
+            expect(scope.vm.openAnalysis).toHaveBeenCalled();
 
         });
 
-        it("it opens override modal if analysis is in use by another user", function () {
+        it("it opens override modal if it's in use by another user", function () {
             // Setup mocks
             scope.vm.user = {
                 getCurrentUserId: () => 1
@@ -70,7 +87,7 @@ import Analysis from "../../src/js/model/analysis.js"
                         user: {
                             id: 2
                         },
-                        status: 'In progress'
+                        status: 'Ongoing'
                     }
                 ]
             });
@@ -83,31 +100,59 @@ import Analysis from "../../src/js/model/analysis.js"
                 }
             };
 
-            spyOn(scope.vm, "overrideAnalysis");
+            spyOn(scope.vm, "overrideAnalysis"); // spy on method in analysisList.directive.js
             scope.vm.clickAnalysis(analysis);
             expect(scope.vm.overrideAnalysis).toHaveBeenCalled();
 
 
         });
 
-        it("it opens analysis if not Done and not previously analysed by user", function () {
+        it("it opens it if not Done and not previously analysed by user", function () {
 
             scope.vm.user = {
                 getCurrentUserId: () => 1
-            }
+            };
             let analysis = new Analysis({
                 interpretations: [
                     {
-                        status: 'Pending'
+                        status: 'Ongoing'
                     }
                 ]
             });
 
-            spyOn(scope.vm, "openAnalysis");
+            spyOn(scope.vm, "openAnalysis"); // spy on method in analysisList.directive.js
             scope.vm.clickAnalysis(analysis);
             expect(scope.vm.openAnalysis).toHaveBeenCalled();
 
         });
+
+        it("it opens it with a warning if it's finalized", function () {
+
+            scope.vm.user = {
+                getCurrentUserId: () => 1
+            };
+            let analysis = new Analysis({
+                interpretations: [
+                    {
+                        status: 'Done'
+                    }
+                ]
+            });
+
+            spyOn(scope.vm, "isAnalysisDone"); // spy on method in analysisList.directive.js
+            spyOn(scope.vm, "openAnalysis"); // spy on method in analysisList.directive.js
+
+            // when
+            scope.vm.clickAnalysis(analysis);
+
+
+            // then
+            expect(scope.vm.isAnalysisDone).toHaveBeenCalled();
+            expect(scope.vm.openAnalysis).toHaveBeenCalled();
+            // don't know how test if toastr shows a warning
+
+        });
+
     });
 
 });

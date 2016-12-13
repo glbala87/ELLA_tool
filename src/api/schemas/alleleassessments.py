@@ -21,6 +21,7 @@ class AlleleAssessmentSchema(Schema):
                   'genepanel_name',
                   'genepanel_version',
                   'annotation_id',
+                  'custom_annotation_id',
                   'previous_assessment_id',
                   'user_id',
                   'user',
@@ -44,3 +45,30 @@ class AlleleAssessmentSchema(Schema):
     @post_load
     def make_object(self, data):
         return assessment.AlleleAssessment(**data)
+
+
+class AlleleAssessmentInputSchema(Schema):
+    class Meta:
+        title = "AlleleAssessmentInput"
+        description = 'Represents data to create an allele assessment'
+        fields = (
+                  'allele_id',
+                  'analysis_id',
+                  'genepanel_name',
+                  'genepanel_version',
+                  'user_id',
+                  'classification',
+                  'evaluation',
+                  'referenceassessments'
+)
+
+    user_id = fields.Integer()
+    evaluation = fields.Field(required=False, default={})
+    classification = fields.Field(required=True)
+
+    referenceassessments = fields.Nested(referenceassessments.ReferenceAssessmentInputSchema,
+                                         many=True,
+                                         attribute='referenceassessments',
+                                         required=False)
+
+

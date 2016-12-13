@@ -60,3 +60,17 @@ class AnalysisSchema(Schema):
     samples = fields.Nested(SampleSchema, many=True)
     genepanel = fields.Nested(GenepanelSchema)
     interpretations = fields.Nested(AnalysisInterpretationSchema, many=True)
+
+class AnalysisFinalizedSchema(Schema):
+    class Meta:
+        fields = ('id',
+                  'analysis_id',
+                  'allele_id',
+                  'annotation_id',
+                  'customannotation_id',
+                  'alleleassessment_id',
+                  'presented_alleleassessment_id',
+                  'allelereport_id',
+                  'presented_allelereport_id',
+                  'filtered'
+                  )

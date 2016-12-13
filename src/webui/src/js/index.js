@@ -25,6 +25,8 @@ import './services/resources/analysisResource.service';
 import './services/resources/interpretationResource.service';
 import './services/resources/ReferenceResource.service';
 import './services/resources/searchResource.service';
+import './services/resources/finalizationResource.service';
+
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
@@ -83,11 +85,7 @@ import './widgets/isolateclick.directive';
 import './widgets/genepanelvalue/genepanelvalue.directive.js';
 import './widgets/igv.directive.js';
 
-
-
-
 import {Config, Inject, Run} from './ng-decorators';
-
 
 class AppConfig {
 

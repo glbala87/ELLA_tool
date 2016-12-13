@@ -1,8 +1,17 @@
 import datetime
+import json
 from vardb.datamodel import allele, assessment, annotation, sample, gene
+
 
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, GenepanelSchema
 from api import ApiError
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
+
 
 
 class AssessmentCreator(object):
@@ -10,9 +19,17 @@ class AssessmentCreator(object):
     def __init__(self, session):
         self.session = session
 
-    def create_from_data(self, alleleassessments=None, referenceassessments=None):
+    @staticmethod
+    def _possible_reuse(item):
+        return 'reuse' in item and item['reuse']
+
+    def create_from_data(self, annotations, alleleassessments, custom_annotations=list(),
+                         referenceassessments=list()):
         """
-        Takes in lists of data and creates new assessments in database.
+        Takes in lists of assessment data and (possible) creates new assessments in database.
+
+        Returns all mentioned assessments along with the assessments that was part of the assessment context.
+
         ReferenceAssessments having same allele as the AlleleAssessments,
         are connected to the corresponding AlleleAssessment.
 
@@ -25,48 +42,65 @@ class AssessmentCreator(object):
         through the refereassessment keyword. They will be connected correctly
         through alleleassessments regardless.
 
+        :param annotations: [{allele_id: 1, annotatation_id: 212}, ...] identifying the annotation for the allele
+        :param custom_annotations: [{allele_id: 1, custom_annotatation_id: 212}, ...]  identifying the annotation for the allele
         :param alleleassessments: AlleleAssessments to create or reuse (dict data)
         :param referenceassessments: ReferenceAssessments to create or reuse (dict data)
+        :type annotations:
+
+        :return a dict {
+            'referenceassessments': {
+                'reused': [(context, None)]
+                'created': [(context, created)]
+            },
+            'alleleassessments': {
+                'reused': [(context, None)],
+                'created': [(context, created)]
+            }
+        }
+        with the assessments grouped by allele assessments and reference assessments and
+        whether they were created or reused.
+
+        Each entry in the list is a tuple to keep track of the context of the assessment,
+        more specifically the assessment presented to the user when doing an assessment.
+
+         The tuple is of the form (context, created). Where 'context' is the one (if any) displayed to the user
+         in the UI and created is the one (if any) created by the user.
         """
 
-        if referenceassessments is None:
-            referenceassessments = list()
+        aa_created, aa_reused = self._create_or_reuse_alleleassessments(annotations, alleleassessments, custom_annotations=custom_annotations)
 
-        if alleleassessments is None:
-            alleleassessments = list()
+        included_reference_assessments = self.get_included_referenceassessments(alleleassessments)
 
-        aa_created, aa_reused = self._create_or_reuse_alleleassessments(alleleassessments)
+        all_reference_assessments = referenceassessments + included_reference_assessments
 
-        # Check for any referenceassessments included as part of alleleassessments
-        for aa in alleleassessments:
-            if 'referenceassessments' in aa:
-                for f in ['allele_id']:
-                    if not all([r[f] == aa[f] for r in aa['referenceassessments']]):
-                        raise ApiError("One of the included referenceassessments has a mismatch on {}.".format(f))
-                referenceassessments += aa['referenceassessments']
+        ra_created, ra_reused = self._create_or_reuse_referenceassessments(all_reference_assessments)
 
-        ra_created, ra_reused = self._create_or_reuse_referenceassessments(referenceassessments)
+        self._attach_referenceassessments(ra_created + ra_reused, map(lambda c: c[1], aa_created))
 
-        # Attach ReferenceAssessments to the AlleleAssessments
-        ref_total = ra_created + ra_reused
-        if ref_total and aa_created:
-            self._attach_referenceassessments(ref_total, aa_created)
-
-        result = dict()
-        result.update({
+        return {
             'referenceassessments': {
                 'reused': ra_reused,
                 'created': ra_created
-            }
-        })
-        result.update({
+            },
             'alleleassessments': {
                 'reused': aa_reused,
                 'created': aa_created
             }
-        })
+        }
 
-        return result
+
+    def get_included_referenceassessments(self, alleleassessments):
+        # Get all reference assessments included as part of alleleassessments
+        included = list()
+        for aa in alleleassessments:
+            if 'referenceassessments' in aa:
+                for f in ['allele_id']:
+                    if not all([ra[f] == aa[f] for ra in aa['referenceassessments']]):
+                        raise ApiError(
+                            "All included reference assessments must match allele assements on {}.".format(f))
+                included += aa['referenceassessments']
+        return included
 
     def _attach_referenceassessments(self, referenceassessments, alleleassessments):
         """
@@ -79,64 +113,97 @@ class AssessmentCreator(object):
         for aa in alleleassessments:
             aa.referenceassessments = [ra for ra in referenceassessments if ra.allele_id == aa.allele_id]
 
-    def _create_or_reuse_alleleassessments(self, alleleassessments):
+    def _create_or_reuse_alleleassessments(self, annotations, alleleassessments, custom_annotations=list()):
+        """
+
+        :param annotations: [{allele_id: annotation_id}]
+        :param alleleassessments:
+        :param custom_annotations: [{allele_id: custom_annotation_id}]
+        :return: (created, reused), created is list( (presented | None, created) )
+                                    reused is  list( (presented       , None)    )
+        """
+
+        def _find_first_matching(seq, predicate):
+            if not seq:
+                return None
+            return next((s for s in seq if predicate(s)), None)
+
         allele_ids = [a['allele_id'] for a in alleleassessments]
-        analysis_id = [a['analysis_id'] for a in alleleassessments if 'analysis_id' in a]
+        analysis_ids = [a['analysis_id'] for a in alleleassessments if 'analysis_id' in a]
 
-        cache = {
-            'annotation': self.session.query(annotation.Annotation).filter(
-                annotation.Annotation.allele_id.in_(allele_ids)
-            ).all()
-        }
-        if analysis_id:
+        cache = {}
+        if analysis_ids:
             cache['analysis'] = self.session.query(sample.Analysis).filter(
-                sample.Analysis.id.in_(analysis_id)
+                sample.Analysis.id.in_(analysis_ids)
             ).all()
 
-        existing = self.session.query(assessment.AlleleAssessment).filter(
+        all_existing_assessments = self.session.query(assessment.AlleleAssessment).filter(
             assessment.AlleleAssessment.allele_id.in_(allele_ids),
             assessment.AlleleAssessment.date_superceeded == None  # Only allowed to reuse valid assessment
         ).all()
 
-        reused = list()
-        created = list()
-        # When an 'id' is provided, we check and reuse that assessment instead of creating it
-        for aa in alleleassessments:
-            if 'id' in aa:
-                to_reuse = next((e for e in existing if aa['allele_id'] == e.allele_id and aa['id'] == e.id), None)
-                if not to_reuse:
-                    raise ApiError("Found no matching alleleassessment for allele_id: {}, id: {}. Either the assessment is outdated or it doesn't exist.".format(aa['allele_id'], aa['id']))
-                reused.append(to_reuse)
-            else:
-                assessment_obj = AlleleAssessmentSchema(strict=True).load(aa).data
+        reused_assessments = list()  # list of tuples (presented, None)
+        created_assessments = list()  # list of tuples (presented/None, created)
+        for assessment_data in alleleassessments:
+            if AssessmentCreator._possible_reuse(assessment_data):
+                presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments)
+                reused_assessments.append((presented_assessment, None))
+                log.info("Reused assessment %s for allele %s", presented_assessment.id, assessment_data['allele_id'])
+            else:  # create a new assessment
+                assessment_obj = AlleleAssessmentSchema(strict=True).load(assessment_data).data
                 assessment_obj.referenceassessments = []  # ReferenceAssessments must be handled separately, and not included as part of data
-                assessment_obj.date_last_update = datetime.datetime.now()
+                now = datetime.datetime.now()
+                assessment_obj.date_last_update = now
 
-                # Link assessment to current valid annotation (through the allele id)
-                valid_annotation = next((an for an in cache['annotation'] if an.allele_id == aa['allele_id']), None)
-                if not allele:
-                    raise ApiError("Couldn't find annotation for provided allele_id: {}.".format(aa['allele_id']))
-                assessment_obj.annotation_id = valid_annotation.id
+                # look up the annotations for the allele we assess:
+                def annotation_predicate(id_pair):
+                    return id_pair['allele_id'] == assessment_data['allele_id']
+                annotation_match = _find_first_matching(annotations, annotation_predicate)
+                custom_annotation_match = _find_first_matching(custom_annotations, annotation_predicate)
+
+                assessment_obj.annotation_id = annotation_match['annotation_id']
+                assessment_obj.custom_annotation_id = custom_annotation_match['custom_annotation_id'] if custom_annotation_match and 'custom_annotation_id' in custom_annotation_match else None
 
                 # If analysis_id provided, link assessment to genepanel through analysis
-                if 'analysis_id' in aa:
-                    assessment_analysis = next(a for a in cache['analysis'] if a.id == aa['analysis_id'])
+                if 'analysis_id' in assessment_data:
+                    assessment_analysis = next(a for a in cache['analysis'] if a.id == assessment_data['analysis_id'])
                     assessment_obj.genepanel_name = assessment_analysis.genepanel_name
                     assessment_obj.genepanel_version = assessment_analysis.genepanel_version
-                elif not ('genepanel_name' in aa and 'genepanel_version' in aa):
+                elif not ('genepanel_name' in assessment_data and 'genepanel_version' in assessment_data):
                     raise ApiError("No 'analysis_id' and no 'genepanel_name' + 'genepanel_version' given for assessment")
 
                 # Check if there's an existing assessment for this allele. If so, we want to supercede it
-                to_supercede = next((e for e in existing if e.allele_id == aa['allele_id']), None)
+                to_supercede = next((e for e in all_existing_assessments if e.allele_id == assessment_data['allele_id']), None)
                 if to_supercede:
-                    to_supercede.date_superceeded = datetime.datetime.now()
+                    to_supercede.date_superceeded = now
                     assessment_obj.previous_assessment_id = to_supercede.id
-                created.append(assessment_obj)
-                self.session.add(assessment_obj)
 
-        return created, reused
+                presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments, error_if_not_found=False)
+                created_assessments.append((presented_assessment, assessment_obj))
+                self.session.add(assessment_obj)
+                log.info("Created assessment for allele %s, superceed? %s", assessment_obj.allele_id, assessment_obj.previous_assessment_id)
+
+        return created_assessments, reused_assessments
+
+    def find_assessment_presented(self, allele_assessment, existing_assessments, error_if_not_found=True):
+        """
+        Find an assessment in list 'existing_assessments' whose id == allele_assessment['presented_alleleassessment_id']
+        """
+        match = next((e for e in existing_assessments
+                        if allele_assessment['allele_id'] == e.allele_id
+                            and 'presented_alleleassessment_id' in allele_assessment
+                            and allele_assessment['presented_alleleassessment_id'] == e.id),
+                     None)
+        if not match and error_if_not_found:
+            raise ApiError(
+                "Found no matching alleleassessment for allele_id: {}, id: {}. Either the assessment is outdated or it doesn't exist.".format(
+                    allele_assessment['allele_id'], allele_assessment['presented_alleleassessment_id']))
+
+        return match
 
     def _create_or_reuse_referenceassessments(self, referenceassessments):
+        if not referenceassessments:
+            return list(), list()
 
         analysis_id = [a['analysis_id'] for a in referenceassessments if 'analysis_id' in a]
 

@@ -46,9 +46,11 @@ export class AnalysisService {
         return this.analysisResource.markreview(analysis_id);
     }
 
-    finalize(analysis_id, alleleassessments, referenceassessments, allelereports) {
+    finalize(analysis_id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports) {
         return this.analysisResource.finalize(
             analysis_id,
+            annotations,
+            custom_annotations,
             alleleassessments,
             referenceassessments,
             allelereports

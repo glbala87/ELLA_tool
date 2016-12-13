@@ -73,54 +73,35 @@ class AlleleAssessmentListResource(Resource):
         )
 
     @request_json(
-        [
-            'allele_id',
-            'classification',
-            'user_id',
-        ],
-        allowed=[
-            # 'id' is excluded on purpose, as the endpoint should always result in a new assessment
-            'analysis_id',
-            'genepanel_name',
-            'genepanel_version',
-            'evaluation',
-            'referenceassessments'
-        ]
-    )
+        ["allele_assessments", "annotations"],
+        # required fields for dict of dict not supported
+        allowed={
+            "allele_assessments": [
+                'user_id',
+                'allele_id',
+                'analysis_id',
+                'classification',
+                'genepanel_name',
+                'genepanel_version',
+                'evaluation',
+                'previous_assessment_id',
+                'referenceassessments'
+            ],
+            "custom_annotations": [
+                'custom_annotation_id',
+                'allele_id',
+            ],
+            "annotations": [
+                'annotation_id',
+                'allele_id',
+            ]
+        })
     def post(self, session, data=None):
         """
         Creates a new AlleleAssessment(s) for a given allele(s).
 
         If any AlleleAssessment exists already for the same allele, it will be marked as superceded.
-
-        **If assessment should be created as part of finalizing an analysis, check the `analyses/{id}/finalize` resource instead.**
-
-        POST data example:
-        ```
-        {
-            # New assessment will be created, superceding any old one
-            "user_id": 1,
-            "allele_id": 2,
-            "classification": "3",
-            "evaluation": {...data...},
-            "analysis_id": 3,  # Optional, should be given when assessment is made in context of analysis
-            "genepanel_name": "HBOC", # Optional only if analysis_id provided
-            "genepanel_version": "v01", # Optional only if analysis_id provided
-            "referenceassessments": [  # Optional
-                {
-                    "allele_id": 2,
-                    "analysis_id": 3,
-                    "evaluation": {...data...}
-                },
-                {
-                    "analysis_id": 3,
-                    "allele_id": 2,
-                    "id": 3  # Reuse existing referenceassessment, but link it to this alleleassessment
-                }
-            ]
-        }
-        ```
-        Provided data can also be a list of items.
+        If assessment should be created as part of finalizing an analysis, check the `analyses/{id}/finalize` resource instead.
 
         ---
         summary: Create alleleassessment
@@ -131,86 +112,70 @@ class AlleleAssessmentListResource(Resource):
             in: body
             required: true
             schema:
-              type: array
-              items:
-                title: AlleleAssessment data
-                type: object
-                required:
-                  - user_id
-                  - allele_id
-                  - evaluation
-                  - classification
-                properties:
-                  user_id:
-                    description: User id
-                    type: integer
-                  analysis_id:
-                    description: Analysis id
-                    type: integer
-                  genepanel_name:
-                    description: Genepanel name. Required if no analysis id
-                    type: string
-                  genepanel_version:
-                    description: Genepanel version. Required if no analysis id
-                    type: string
-                  allele_id:
-                    description: Allele id
-                    type: integer
-                  evaluation:
-                    description: Evaluation data object
+              title: Data object
+              type: object
+              required:
+                - annotations
+                - allele_assessments
+              properties:
+                annotations:
+                  description: annotatation for the allele to assess
+                  type: array
+                  items:
                     type: object
-                  classification:
-                    description: Classification
-                    type: string
-                  referenceassessments:
-                    name: referenceassessment
-                    type: array
-                    items:
-                      title: ReferenceAssessment
-                      type: object
-                      required:
-                        - allele_id
-                        - reference_id
-                      properties:
-                        id:
-                          description: Existing referenceassessment id. If provided, existing object will be linked to alleleassessment.
-                          type: integer
-                        user_id:
-                          description: User id. Required if not reusing existing object
-                          type: integer
-                        analysis_id:
-                          description: Analysis id. Required if not reusing existing object
-                          type: integer
-                        allele_id:
-                          description: Allele id
-                          type: integer
-                        reference_id:
-                          description: Reference id
-                          type: integer
-                        evaluation:
-                          description: Evaluation data object
-                          type: object
+                    required:
+                      - annotation_id
+                      - allele_id
+                    properties:
+                      annotation_id:
+                        type: integer
+                      allele_id:
+                        type: integer
+                allele_assessments:
+                  "description": our assessment data
+                  type: array
+                  items:
+                    "$ref": "#/definitions/AlleleAssessmentInput"
+                custom_annotations:
+                  "description": "custom annotation for the allele"
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - custom_annotation_id
+                      - allele_id
+                    properties:
+                      custom_annotation_id:
+                        type: integer
+                      allele_id:
+                        type: integer
               example:
-                - user_id: 3
-                  allele_id: 2
-                  classification: "3"
-                  evaluation: {}
-                  analysis_id: 3
-                  referenceassessments:
-                    - allele_id: 2
-                      reference_id: 53
-                      analysis_id: 3
-                      evaluation: {}
-                    - id: 3
+                annotations:
+                  - annotation_id: 12
+                    allele_id: 1
+                custom_annotations:
+                  - custom_annotation_id: 45
+                    allele_id: 4
+                allele_assessments:
+                    - user_id: 3
                       allele_id: 2
-                      reference_id: 23
-                - user_id: 3
-                  allele_id: 3
-                  classification: "4"
-                  evaluation: {}
-                  genepanel_name: "HBOC"
-                  genepanel_version: "v01"
-            description: Submitted data
+                      classification: "3"
+                      evaluation: {}
+                      analysis_id: 3
+                      referenceassessments:
+                        - allele_id: 2
+                          reference_id: 53
+                          analysis_id: 3
+                          evaluation: {}
+                        - id: 3
+                          allele_id: 2
+                          reference_id: 23
+                    - user_id: 3
+                      allele_id: 3
+                      classification: "4"
+                      evaluation: {}
+                      genepanel_name: "HBOC"
+                      genepanel_version: "v01"
         responses:
           200:
             schema:
@@ -220,15 +185,16 @@ class AlleleAssessmentListResource(Resource):
             description: List of created alleleassessments
         """
 
-        if not isinstance(data, list):
-            data = [data]
+        annotations = data["annotations"]
+        custom_annotations = data["custom_annotations"] if "custom_annotations" in data else None
+        allelele_assessments = data["allele_assessments"]
 
         ac = AssessmentCreator(session)
-        result = ac.create_from_data(alleleassessments=data)
-
-        aa = result['alleleassessments']['reused'] + result['alleleassessments']['created']
-        if not isinstance(data, list):
-            aa = aa[0]
+        result = ac.create_from_data(annotations, allelele_assessments,
+                                     custom_annotations=custom_annotations)
+        # un-tuple:
+        aa = map(lambda x: x[0], result['alleleassessments']['reused'])\
+             + map(lambda x: x[1], result['alleleassessments']['created'])
 
         session.commit()
-        return schemas.AlleleAssessmentSchema().dump(aa, many=isinstance(aa, list)).data
+        return schemas.AlleleAssessmentSchema().dump(aa, many=True).data

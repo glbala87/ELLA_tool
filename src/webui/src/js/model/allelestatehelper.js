@@ -14,6 +14,7 @@ export class AlleleStateHelper {
         // If not existing, return the object from the state, or create empty one
         if (!('alleleassessment' in allele_state)) {
             allele_state.alleleassessment = {
+                reuse: false,
                 evaluation: {
                     prediction: {
                         comment: ''
@@ -190,9 +191,9 @@ export class AlleleStateHelper {
      * @return  {Object} allelereport data
      */
     static getAlleleReport(allele, allele_state) {
-        if (this.isAlleleAssessmentReused(allele_state)) {
-            if (!('allele_assessment' in allele)) {
-                throw Error("Alleleassessment set as reused, but there's no allele_assessment in provided allele.");
+        if (this.isAlleleReportReused(allele_state)) {
+            if (!('allele_report' in allele)) {
+                throw Error("AlleleReport set as reused, but there's no allele_report in provided allele.");
             }
             // Should only happen for legacy alleles without allelereport data.
             if (!('allele_report' in allele)) {
@@ -322,19 +323,21 @@ export class AlleleStateHelper {
         if (allele.allele_assessment && !allele_state.alleleAssessmentCopied) {
             allele_state.alleleassessment.evaluation = deepCopy(allele.allele_assessment.evaluation);
             allele_state.alleleAssessmentCopied = true;
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
         }
     }
 
     /**
-     * Copies any existing allele's alleleassessment into the allele_state.
+     * Copies any existing allele's report into the allele_state.
      * To be used when the user want's to edit the existing report.
-     * @param  {Allele} allele   Allele to copy alleleassessment from.
+     * @param  {Allele} allele   Allele to copy report from.
      * @param  {Object} allele_state   Allele state to modify
      */
     static copyAlleleReportToState(allele, allele_state) {
         if (allele.allele_report && !allele_state.alleleReportCopied) {
             allele_state.allelereport.evaluation = deepCopy(allele.allele_report.evaluation);
             allele_state.alleleReportCopied = true;
+            allele_state.presented_allelereport_id = allele.allele_report.id;
         }
     }
 
@@ -354,10 +357,11 @@ export class AlleleStateHelper {
         }
         this.setupAlleleState(allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
-            delete allele_state.alleleassessment.id;
+            allele_state.alleleassessment.reuse = false;
 
             // TODO: allelereport reuse is now tied to alleleassessment reuse,
             // we might want to decouple this in case user only wants to update either of them..
+            allele_state.allelereport.reuse = false;
             if ('id' in allele_state.allelereport) {
                 delete allele_state.allelereport.id;
             }
@@ -380,10 +384,13 @@ export class AlleleStateHelper {
             }
 
             if ('allele_assessment' in allele) {
-                allele_state.alleleassessment.id = allele.allele_assessment.id;
+                allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+                allele_state.alleleassessment.reuse = true;
             }
             if ('allele_report' in allele) {
                 allele_state.allelereport.id = allele.allele_report.id;
+                allele_state.presented_allelereport_id = allele.allele_report.id;
+                allele_state.allelereport.reuse = true;
             }
 
 
@@ -392,9 +399,10 @@ export class AlleleStateHelper {
     }
 
     static isAlleleAssessmentReused(allele_state) {
-        return allele_state &&
-               allele_state.alleleassessment &&
-               'id' in allele_state.alleleassessment;
+        return allele_state && allele_state.alleleassessment && allele_state.alleleassessment.reuse;
+    }
+    static isAlleleReportReused(allele_state) {
+        return allele_state && allele_state.allelereport && allele_state.allelereport.reuse;
     }
 
     /**

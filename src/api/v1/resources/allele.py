@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from vardb.datamodel import sample, genotype, assessment, allele, user, gene
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter
+from api.util.util import paginate, rest_filter, link_filter
 
 from api.util.alleledataloader import AlleleDataLoader
 
@@ -12,12 +12,19 @@ from api.v1.resource import Resource
 
 class AlleleListResource(Resource):
 
+    @link_filter
     @rest_filter
-    def get(self, session, rest_filter=None):
+    def get(self, session, rest_filter=None,  link_filter=None):
         """
-        Returns a list of alleles, with or without annotation included.
+        Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
+        See decorator link_filter  and AlleleDataLoader for details about the possible values of link_filter
         Specify a genepanel to get more data included.
-        Supports `q=` filtering.
+        Additional request parameters:
+            - sample_id: Includes genotypes into the result and enables quality data in the annotation
+            - annotation: Enables the annotation to filter transcripts to only show the relevant ones.
+            - gp_name:
+            - gp_version:
+
         ---
         summary: List alleles
         tags:
@@ -39,6 +46,10 @@ class AlleleListResource(Resource):
             in: query
             type: boolean
             description: Whether to include annotation data or not.
+          - name: link
+            in: query
+            type: string
+            description: JSON with ids of related entities to load with the alleles
         responses:
           200:
             schema:
@@ -87,6 +98,8 @@ class AlleleListResource(Resource):
             'include_annotation': False,
             'include_custom_annotation': False
         }
+        if link_filter:
+            kwargs['link_filter'] = link_filter
         if allele_genotypes:
             kwargs['genotypes'] = allele_genotypes
         if genepanel:  # TODO: make genepanel required?

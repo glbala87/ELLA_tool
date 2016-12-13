@@ -20,6 +20,7 @@ class ApiV1(object):
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
         self.api_v1_docs.add_schema('ReferenceAssessment', schemas.ReferenceAssessmentSchema())
         self.api_v1_docs.add_schema('AlleleAssessment', schemas.AlleleAssessmentSchema())
+        self.api_v1_docs.add_schema('AlleleAssessmentInput', schemas.AlleleAssessmentInputSchema())
         self.api_v1_docs.add_schema('AlleleReport', schemas.AlleleReportSchema())
         self.api_v1_docs.add_schema('User', schemas.UserSchema())
         self.api_v1_docs.add_schema('Classification', schemas.ClassificationSchema())
@@ -84,7 +85,8 @@ class ApiV1(object):
                            '/api/v1/analyses/<int:analysis_id>/actions/markreview/')
 
         self._add_resource(r.analysis.AnalysisActionFinalizeResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/finalize/')
+                           '/api/v1/analyses/<int:analysis_id>/actions/finalize/',
+                           '/api/v1/analyses/finalized/<int:analysis_id>/')
 
         self._add_resource(r.analysis.AnalysisActionOverrideResource,
                            '/api/v1/analyses/<int:analysis_id>/actions/override/')

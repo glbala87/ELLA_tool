@@ -1,7 +1,7 @@
 <article class="sectionbox-content">
 <contentbox ng-repeat="(date, analyses) in vm.idempoByDate()" title="{{date}}">
   <cbbody>
-    <div class="list-item line-wrapper spaced clickable"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in analyses track by analysis.name">
+    <div class="id-analysis list-item line-wrapper spaced clickable"  ng-click="vm.clickAnalysis(analysis)" ng-repeat="analysis in analyses track by analysis.name">
       <h3 class="full-title ref-title"><b>{{::analysis.name | noUnderscores}}</b></h3>
       <div class="analysis-users">
         <div ng-repeat="interpretation in analysis.interpretations track by interpretation.id">

@@ -37,6 +37,10 @@ class AlleleAssessment(Base):
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
+    custom_annotation_id = Column(Integer, ForeignKey("customannotation.id"))
+    custom_annotation = relationship("CustomAnnotation")
+
+
     referenceassessments = relationship("ReferenceAssessment",
                                         secondary=AlleleAssessmentReferenceAssessment)
 
@@ -126,4 +130,4 @@ class AlleleReport(Base):
     alleleassessment = relationship("AlleleAssessment")
 
     def __repr__(self):
-        return "<AlleleReport('%s','%s', '%s')>" % (self.id, self.allele, str(self.user))
+        return "<AlleleReport('%s','%s', '%s')>" % (self.id, self.allele_id, str(self.user))

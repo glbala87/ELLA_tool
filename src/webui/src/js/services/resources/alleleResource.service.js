@@ -3,6 +3,38 @@
 import {Service, Inject} from '../../ng-decorators';
 import {Allele} from '../../model/allele';
 
+/**
+ * Collect the id of same entity types into an array, one array for each type.
+ *
+ * @param related_entities [{id: 1, allele_id: 3, presented_alleleleassessment_id: 8, ..}, ]
+ * @returns {assessment_id: Array, annotation_id: Array} where assessment_id are gathered
+ * from  'presented_alleleassessment_id'
+ */
+function buildEntityMap(related_entities) {
+    let extracts = {  // see AnalysisFinalized
+        'annotation_id': [],
+        'customannotation_id': [],
+        'presented_alleleassessment_id': [],
+        'presented_allelereport_id': []
+    };
+
+    for (const extractKey of Object.keys(extracts)) {
+        for (const entry of related_entities) {
+            let id = entry[extractKey];
+            if (id) {
+                extracts[extractKey].push(id);
+            }
+        }
+    }
+
+    return  {
+        'annotation_id': extracts['annotation_id'],
+        'customannotation_id': extracts['customannotation_id'],
+        'assessment_id': extracts['presented_alleleassessment_id'],
+        'allelereport_id': extracts['presented_allelereport_id']
+    };
+}
+
 @Service({
     serviceName: 'AlleleResource'
 })
@@ -14,33 +46,28 @@ export class AlleleResource {
         this.base = '/api/v1';
     }
 
-    get(allele_ids, sample_id=null, gp_name=null, gp_version=null, include_annotation=true) {
+    // related_entietes
+    get(allele_ids, sample_id=null, gp_name=null, gp_version=null, link_entities=null) {
         return new Promise((resolve, reject) => {
-            let q = JSON.stringify({
-                'id': allele_ids
-            });
-            let uri = `${this.base}/alleles/?q=${encodeURIComponent(q)}`;
-            if (sample_id !== null) {
-                uri += `&sample_id=${sample_id}`
-            }
-            if (gp_name !== null && gp_version !== null) {
-                uri += `&gp_name=${gp_name}&gp_version=${gp_version}`
-            }
-            let r = this.resource(uri);
-            let alleles = r.query(() => {
-                let alleles_obj = [];
-                for (let allele of alleles) {
-                    alleles_obj.push(new Allele(allele));
-                }
-                resolve(alleles_obj);
+            let uri = `${this.base}/alleles/`;
+            // angular skips null parameters
+            let AlleleRS = this.resource(uri,
+                { q: { 'id': allele_ids},
+                  link: link_entities ? buildEntityMap(link_entities): null,
+                  sample_id: sample_id,
+                  gp_name: gp_name,
+                  gp_version: gp_version
+                });
+            let alleles = AlleleRS.query(() => {
+                resolve(alleles.map(a => new Allele(a)));
             }, reject);
         });
     }
 
     getGenepanels(allele_id) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/alleles/${allele_id}/genepanels/`);
-            let genepanels = r.query(() => {
+            let GenepanelRS = this.resource(`${this.base}/alleles/:id/genepanels/`, {id: allele_id});
+            let genepanels = GenepanelRS.query(() => {
                 resolve(genepanels);
             }, reject);
         });

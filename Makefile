@@ -4,6 +4,7 @@ TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
+RESET_DB_SET ?= 'small'
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -27,7 +28,7 @@ help :
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image local/ella-test, then run all tests"
-	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js } required as variable or will default to 'all'"
+	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js | api-migration} required as variable or will default to 'all'"
 	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
 	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
@@ -70,7 +71,7 @@ fancy-dev:
 	git checkout gulpfile.js
 
 db:
-	docker exec $(CONTAINER_NAME) make dbreset
+	docker exec $(CONTAINER_NAME) make dbreset RESET_DB_SET=$(RESET_DB_SET)
 
 url:
 	@./ops/dev/show-url.sh $(CONTAINER_NAME)
@@ -145,10 +146,9 @@ test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
 	createdb vardb-test
-ifeq ($(TEST_COMMAND),) # empty?
-
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
+ifeq ($(TEST_COMMAND),) # empty?
 	py.test --color=yes "/ella/src/api/" -s
 else
 	$(TEST_COMMAND)

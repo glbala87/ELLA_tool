@@ -54,11 +54,21 @@ class AnalysisFinalized(Base):
     id = Column(Integer, Sequence("id_analysisfinalized_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
-    annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=False)
+    annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=True)  # None for an excluded allele
     customannotation_id = Column(Integer, ForeignKey("customannotation.id"))
+
     alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
+    presented_alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
+
     allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
-    filtered = Column(Enum("CLASS1", "INTRON", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
+    presented_allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
+
+    filtered = Column(Enum("CLASS1", "INTRON", "GENE", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
+
+    alleleassessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
+    presented_alleleassessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)
+
+    # TODO: add reference assessments?
 
 
 class Analysis(Base):
@@ -77,9 +87,10 @@ class Analysis(Base):
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysis_config = Column(JSONMutableDict.as_mutable(JSONB))
     interpretations = relationship("Interpretation", order_by="Interpretation.id")
-    alleleassessments = relationship("AlleleAssessment", viewonly=True, secondary="analysisfinalized")
+    alleleassessments = relationship("AlleleAssessment", viewonly=True,
+                                     secondary="analysisfinalized",
+                                     foreign_keys=[AnalysisFinalized.analysis_id, AnalysisFinalized.alleleassessment_id])
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
-
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
