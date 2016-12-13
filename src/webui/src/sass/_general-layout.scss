@@ -196,6 +196,11 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   width: 200px !important;
 }
 
+.analysis {
+  @extend .dropdown;
+  width: 300px !important;
+}
+
 .selector-container { display: block; position: relative; }
 .selector-container,
 .selector-container * input {
@@ -239,9 +244,13 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 
 .selector-container .selector-values {
   position: absolute;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: calc(100% - 3.5rem);
 }
 .selector-container .selector-values>li,
 .selector-container .selector-values>li>div {
+
   display: block;
   width:100% !important;
   padding-top: 0.25rem;
