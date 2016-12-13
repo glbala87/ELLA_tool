@@ -75,7 +75,7 @@ class AlleleAssessmentListResource(Resource):
     @request_json(
         ["allele_assessments", "annotations"],
         # required fields for dict of dict not supported
-        allowed_dict={
+        allowed={
             "allele_assessments": [
                 'user_id',
                 'allele_id',

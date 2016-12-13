@@ -81,26 +81,35 @@ def paginate(func):
     return inner
 
 
-
-
-def request_json(required, only_required=False, allowed=None, allowed_dict=None, only_required_dict=None):
+def request_json(required, only_required=False, allowed=None):
     """
-    Decorator: Checks flasks's request json object for 'required'
+    Decorator: Checks flasks's request (root) json object for 'required'
     fields before passing on the data to the function.
 
     If 'only_required', the json input is "washed" so only
     the fields in required are passed on.
 
-    If 'allowed' is set, the json input is "washed" so only
-    those fields are passed on.
+    If 'allowed' is set, the json input is "washed" so only those fields are passed on.
+    'allowed' accepts either an array ["field1", "field2" ..] or a dict ["top_key1": ["field",...], "top_key2": [...]}
+    In the array case the array items tell which fields to keep in the root json object. In the dict case the array
+    value of each key are used to filter the similar keyed object in the root json object.
 
-    If 'allowed_dict' is set, the specified key(s) of the json input is "washed" similar to the 'allowed' keyword
-    It's currently not possible to specify the required keys of the these dicts, thus only_required flag is not possible
+
+    example:
+    @request_json(["allele_id", "user_id"], allowed=["comment", "genepanel"])
+    to filter an input like {"allele_id": 45, "user_id": 1, "illegal": 666, "comment": "important stuff"}
+
+    or
+
+    @request_json(["user", "content"], allowed={"user": ["user_id", "name"], "content": ["allele_id", "annotation"]})
+
+    to filter an input like {"user":    {"id": 4, "name": "Erik", "address": "Parkveien"}
+                             "content": {"mode": "weak", "allele_id": 34, "annotation": 44, "archived": true}}
 
     """
 
     # used by request_json to mutate an array of dicts
-    def _check_and_filter(source_array, required_fields, only_required=False, allowed_fields=None):
+    def _check_array_content(source_array, required_fields, only_required=False, allowed_fields=None):
         for idx, d in enumerate(source_array):
             if required_fields:
                 for field in required_fields:
@@ -115,9 +124,6 @@ def request_json(required, only_required=False, allowed=None, allowed_dict=None,
                 if allowed_fields:
                     source_array[idx] = {k: v for k, v in d.iteritems() if k in allowed_fields}
 
-    if allowed and allowed_dict:
-        raise ApiError("Only one of 'allowed' and 'allowed_dict' can be configured")
-
     def array_wrapper(func):
 
         @wraps(func)
@@ -128,7 +134,7 @@ def request_json(required, only_required=False, allowed=None, allowed_dict=None,
             else:
                 check_data = data
 
-            _check_and_filter(check_data, required, only_required=only_required, allowed_fields=allowed)
+            _check_array_content(check_data, required, only_required=only_required, allowed_fields=allowed)
 
             if not isinstance(data, list):
                 data = check_data[0]
@@ -145,19 +151,22 @@ def request_json(required, only_required=False, allowed=None, allowed_dict=None,
             data = request.get_json()
             for data_key in data.keys():
                 if required:
-                    for f in required:
-                        if data.get(f) is None:
-                            raise ApiError("Missing or empty required field {} in provided data.".format(f))
+                    for fields in required:
+                        if data.get(fields) is None:
+                            raise ApiError("Missing or empty required field {} in provided data.".format(fields))
 
-                if allowed_dict:
-                    for allow_key in allowed_dict.keys():
+                if allowed:
+                    assert isinstance(allowed, dict)
+                    for allow_key in allowed.keys():
                         if allow_key == data_key:
-                            _check_and_filter(data[data_key], None, allowed_fields=allowed_dict[allow_key])
+                            _check_array_content(data[data_key], None, allowed_fields=allowed[allow_key])
 
             return func(*args, data=data, **kwargs)
         return inner
 
-    if allowed_dict:
+    if isinstance(allowed, dict):
         return dict_wrapper
     else:
         return array_wrapper
+
+
