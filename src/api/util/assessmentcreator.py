@@ -131,13 +131,6 @@ class AssessmentCreator(object):
         allele_ids = [a['allele_id'] for a in alleleassessments]
         analysis_ids = [a['analysis_id'] for a in alleleassessments if 'analysis_id' in a]
 
-        # # TODO: if annotation_ids, retrieve those instead of using the allele ids:
-        # cache = {
-        #     'annotation': self.session.query(annotation.Annotation).filter(
-        #         annotation.Annotation.allele_id.in_(allele_ids),
-        #         annotation.Annotation.date_superceeded == None  # We want the most recent annotations
-        #     ).all()
-        # }
         cache = {}
         if analysis_ids:
             cache['analysis'] = self.session.query(sample.Analysis).filter(

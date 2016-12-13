@@ -116,7 +116,7 @@ class AlleleAssessmentListResource(Resource):
               type: object
               required:
                 - annotations
-                - alleleassessments
+                - allele_assessments
               properties:
                 annotations:
                   description: annotatation for the allele to assess
@@ -153,10 +153,10 @@ class AlleleAssessmentListResource(Resource):
                 annotations:
                   - annotation_id: 12
                     allele_id: 1
-                customannotations:
+                custom_annotations:
                   - custom_annotation_id: 45
                     allele_id: 4
-                alleleassessments:
+                allele_assessments:
                     - user_id: 3
                       allele_id: 2
                       classification: "3"
