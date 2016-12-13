@@ -6,8 +6,8 @@ body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoo
 input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; background-color: transparent; padding: 0.3rem; height: 2.6rem; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
   &:focus { border-bottom: 1px solid Transparent; box-shadow: 0px 0.3rem 0px $blue-50; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; }
-  &.white { color: white; border-bottom: 1px solid rgba(255,255,255,0.5);
-    &::placeholder { color: rgba(255,255,255,0.5); }
+  &.white { color: white; border-bottom: 1px solid rgba(255,255,0,0.5);
+    &::placeholder { color: rgba(255,255,0,1.0); }
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
   }
 }
@@ -39,6 +39,13 @@ select { border: none; box-shadow: none; background: transparent; height: 100%; 
   &:after { content: ' '; position: absolute; top: 0; width: 0; height: 0; right: 10px; bottom: 0; margin: auto; border-style: solid; border-width: 5px 5px 0 5px; border-color: $black-75 transparent transparent transparent; pointer-events: none; }
   &[disabled] { border: 1px solid $black-50; color: $black-75; opacity: 0.25; background-color: inherit; select:hover { cursor: default; } }
 }
+
+
+//select {&:open {color: red;}};
+//
+//ui-select-container, ui-select-search {
+//  @extend .bttn;
+//}
 
 p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
 
@@ -182,3 +189,114 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 .toast-message a:hover { color: $white; text-decoration: none; }
 .toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: $white-75; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
 .toast-close-button:hover, .toast-close-button:focus { color: $white; text-decoration: none; cursor: pointer; opacity: 0.4; }
+
+
+.genepanel {
+  @extend .dropdown;
+  width: 200px !important;
+}
+
+.selector-container { display: block; position: relative; }
+.selector-container,
+.selector-container * input {
+  padding: 0;
+  text-transform: uppercase;
+  line-height: normal;
+  height: 2.6rem !important;
+}
+.selector-input {
+  display: block;
+  height: 2.6rem;
+  padding-left: 0.7rem;
+  padding-right: 2.6rem;
+  overflow: hidden;
+  font-weight: inherit;
+}
+
+.selector-container .selector-values { list-style: none; }
+.selector-container * input {
+  outline: none;
+  background: none !important;
+  border-color: transparent !important;
+  width: 2px;
+  display: inline-block;
+  cursor: pointer;
+}
+.selector-container.open input,
+.selector-container.has-value input { cursor: text; }
+.selector-container.disabled { opacity: .6; }
+
+/* Single */
+.selector-container.open .selector-input {
+  background: none;
+  border-radius: 0px 0px 0 0;
+}
+
+.selector-container * input {
+  display: block;
+  width:100% !important;
+}
+
+.selector-container .selector-values {
+  position: absolute;
+}
+.selector-container .selector-values>li,
+.selector-container .selector-values>li>div {
+  display: block;
+  width:100% !important;
+  padding-top: 0.25rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.1rem;
+  word-spacing: 0.2rem;
+}
+
+/* Helper */
+.selector-helper {
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Shadow */
+.selector-input input,
+.selector-shadow {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  max-width: 100% !important;
+}
+.selector-shadow { position: absolute; top: 0; left: 0; opacity: 0; visibility: hidden; white-space: pre; margin: 0;}
+
+/* Dropdown */
+.selector-dropdown {
+  display: none;
+  list-style: none;
+  padding-top: 0;
+  position: absolute;
+  background: $white;
+  border: 1px solid $black-25;
+  max-height: 15.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  z-index: 1000;
+  width: 100%;
+}
+.selector-dropdown>li {
+  padding: 0.2em 0.7em;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.selector-dropdown>.selector-option.active { background: $blue-05; }
+.selector-container.open .selector-dropdown { display: block; }
+
+// CUSTOM
+.selector-container.has-value * input {
+  opacity: 0;
+}

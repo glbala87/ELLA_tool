@@ -10,7 +10,8 @@ let app = angular.module('workbench', ['ui.bootstrap',
     'ngCookies',
     'checklist-model',
     'angular-clipboard',
-    'toastr'
+    'toastr',
+    'selector'
 ]);
 
 function Run() {
