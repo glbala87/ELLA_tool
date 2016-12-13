@@ -10,6 +10,7 @@ from api import ApiError
 def assessment_template():
     return {
         "allele_id": 1,
+        "annotation_id": 1,
         "analysis_id": 1,
         "user_id": 1,
         "classification": "1",
@@ -55,21 +56,24 @@ class TestAlleleAssessment(object):
         for idx, allele_id in enumerate(interpretation['allele_ids']):
 
             # Prepare
-            aa = copy.deepcopy(assessment_template)
-            aa['allele_id'] = allele_id
-            aa['referenceassessments'] = [referenceassessment_template(allele_id)]
+            assessment_data = copy.deepcopy(assessment_template)
+            assessment_data['allele_id'] = allele_id
+            assessment_data['referenceassessments'] = [referenceassessment_template(allele_id)]
+
+            annotations = [{"allele_id": assessment_data['allele_id'], "annotation_id": assessment_data['annotation_id']}]
 
             # POST data
-            r = client.post('/api/v1/alleleassessments/', aa)
+            r = client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                           "allele_assessments": [assessment_data]})
 
             # Check response
             assert r.status_code == 200
-            aa = r.json[0]
-            assert len(aa['referenceassessments']) == 1
-            assert 'id' in aa['referenceassessments'][0]
-            assert aa['referenceassessments'][0]['allele_id'] == allele_id
-            assert aa['allele_id'] == allele_id
-            assert aa['id'] == idx + 1
+            assessment_data = r.json[0]
+            assert len(assessment_data['referenceassessments']) == 1
+            assert 'id' in assessment_data['referenceassessments'][0]
+            assert assessment_data['referenceassessments'][0]['allele_id'] == allele_id
+            assert assessment_data['allele_id'] == allele_id
+            assert assessment_data['id'] == idx + 1
 
     @pytest.mark.aa(order=1)
     def test_update_assessment(self, client):
@@ -102,7 +106,9 @@ class TestAlleleAssessment(object):
             assessment_data['referenceassessments'][0]['evaluation'] = {'comment': 'Some new reference comment'}
 
             # POST (a single) assessment
-            r = client.post('/api/v1/alleleassessments/', assessment_data)
+            annotations = [{"allele_id": assessment_data['allele_id'], "annotation_id": assessment_data['annotation_id']}]
+            r = client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                           "allele_assessments": [assessment_data]})
 
             # Check response
             assert r.status_code == 200
@@ -127,18 +133,22 @@ class TestAlleleAssessment(object):
         Test cases where it should fail to create assessments.
         """
 
+        assessment_data = copy.deepcopy(assessment_template)
+        annotations = [{"annotation_id": 1, "allele_id": assessment_data['allele_id']}]
+
         # Test without allele_id
-        data = copy.deepcopy(assessment_template)
-        del data['allele_id']
+        del assessment_data['allele_id']
 
         # We don't run actual HTTP requests, everything is in python
         # so we can catch the exceptions directly
-        with pytest.raises(ApiError):
-            client.post('/api/v1/alleleassessments/', data)
+        with pytest.raises(Exception):  # the error is not caught at the API boundary as enforcing required fields for dict of dict isn't implemented
+            client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                       "allele_assessments": [assessment_data]})
 
         # Test without analysis_id
-        data = copy.deepcopy(assessment_template)
-        del data['analysis_id']
+        assessment_data = copy.deepcopy(assessment_template)
+        del assessment_data['analysis_id']
 
         with pytest.raises(ApiError):
-            client.post('/api/v1/alleleassessments/', data)
+            client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                       "allele_assessments": [assessment_data]})

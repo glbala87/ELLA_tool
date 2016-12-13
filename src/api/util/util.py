@@ -81,7 +81,9 @@ def paginate(func):
     return inner
 
 
-def request_json(required, only_required=False, allowed=None):
+
+
+def request_json(required, only_required=False, allowed=None, allowed_dict=None, only_required_dict=None):
     """
     Decorator: Checks flasks's request json object for 'required'
     fields before passing on the data to the function.
@@ -91,8 +93,32 @@ def request_json(required, only_required=False, allowed=None):
 
     If 'allowed' is set, the json input is "washed" so only
     those fields are passed on.
+
+    If 'allowed_dict' is set, the specified key(s) of the json input is "washed" similar to the 'allowed' keyword
+    It's currently not possible to specify the required keys of the these dicts, thus only_required flag is not possible
+
     """
-    def wrapper(func):
+
+    # used by request_json to mutate an array of dicts
+    def _check_and_filter(source_array, required_fields, only_required=False, allowed_fields=None):
+        for idx, d in enumerate(source_array):
+            if required_fields:
+                for field in required_fields:
+                    if d.get(field) is None:
+                        raise ApiError("Missing or empty required field {} in provided data.".format(field))
+
+                if only_required:
+                    source_array[idx] = {k: v for k, v in d.iteritems() if k in required_fields}
+                elif allowed_fields:
+                    source_array[idx] = {k: v for k, v in d.iteritems() if k in required_fields + allowed_fields}
+            else:
+                if allowed_fields:
+                    source_array[idx] = {k: v for k, v in d.iteritems() if k in allowed_fields}
+
+    if allowed and allowed_dict:
+        raise ApiError("Only one of 'allowed' and 'allowed_dict' can be configured")
+
+    def array_wrapper(func):
 
         @wraps(func)
         def inner(*args, **kwargs):
@@ -101,23 +127,37 @@ def request_json(required, only_required=False, allowed=None):
                 check_data = [data]
             else:
                 check_data = data
-            for idx, d in enumerate(check_data):
-                if required:
-                    for field in required:
-                        if d.get(field) is None:
-                            raise ApiError("Missing or empty required field {} in provided data.".format(field))
 
-                    if only_required:
-                        check_data[idx] = {k: v for k, v in d.iteritems() if k in required}
-                    elif allowed:
-                        check_data[idx] = {k: v for k, v in d.iteritems() if k in required + allowed}
-                else:
-                    if allowed:
-                        check_data[idx] = {k: v for k, v in d.iteritems() if k in allowed}
+            _check_and_filter(check_data, required, only_required=only_required, allowed_fields=allowed)
+
             if not isinstance(data, list):
                 data = check_data[0]
             else:
                 data = check_data
+
             return func(*args, data=data, **kwargs)
         return inner
-    return wrapper
+
+    def dict_wrapper(func):
+
+        @wraps(func)
+        def inner(*args, **kwargs):
+            data = request.get_json()
+            for data_key in data.keys():
+                if required:
+                    for f in required:
+                        if data.get(f) is None:
+                            raise ApiError("Missing or empty required field {} in provided data.".format(f))
+
+                if allowed_dict:
+                    for allow_key in allowed_dict.keys():
+                        if allow_key == data_key:
+                            _check_and_filter(data[data_key], None, allowed_fields=allowed_dict[allow_key])
+
+            return func(*args, data=data, **kwargs)
+        return inner
+
+    if allowed_dict:
+        return dict_wrapper
+    else:
+        return array_wrapper

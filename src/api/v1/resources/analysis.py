@@ -660,9 +660,13 @@ class AnalysisActionFinalizeResource(Resource):
                         type: object
               example:
                 annotations:
-                  - annotation_id: 1
+                  - allele_id: 1
+                    annotation_id: 10
+                  - allele_id: 2
+                    annotation_id: 34
                 custom_annotations:
-                  -
+                  - allele_id: 1
+                     custom_annotation_id: 102
                 referenceassessments:
                   - user_id: 1
                     analysis_id: 3
@@ -848,10 +852,9 @@ class AnalysisActionFinalizeResource(Resource):
         annotations = data['annotations']
         custom_annotations = data['custom_annotations']
 
-        grouped_alleleassessments = AssessmentCreator(session).create_from_data(
-            data['alleleassessments'],
-            data['referenceassessments'],
-        )
+        grouped_alleleassessments = AssessmentCreator(session).create_from_data(annotations, data['alleleassessments'],
+                                                                                custom_annotations,
+                                                                                data['referenceassessments'])
 
         # List of tuples:
         reused_alleleassessments = grouped_alleleassessments['alleleassessments']['reused']

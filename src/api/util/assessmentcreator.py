@@ -23,9 +23,10 @@ class AssessmentCreator(object):
     def _possible_reuse(item):
         return 'reuse' in item and item['reuse']
 
-    def create_from_data(self, alleleassessments=list(), referenceassessments=list()):
+    def create_from_data(self, annotations, alleleassessments, custom_annotations=list(),
+                         referenceassessments=list()):
         """
-        Takes in lists of data and creates new assessments in database.
+        Takes in lists of assessment data and (possible) creates new assessments in database.
 
         Returns all mentioned assessments along with the assessments that was part of the assessment context.
 
@@ -41,8 +42,12 @@ class AssessmentCreator(object):
         through the refereassessment keyword. They will be connected correctly
         through alleleassessments regardless.
 
+        :param annotations: [{allele_id: 1, annotatation_id: 212}, ...] identifying the annotation for the allele
+        :param custom_annotations: [{allele_id: 1, custom_annotatation_id: 212}, ...]  identifying the annotation for the allele
         :param alleleassessments: AlleleAssessments to create or reuse (dict data)
         :param referenceassessments: ReferenceAssessments to create or reuse (dict data)
+        :type annotations:
+
         :return a dict {
             'referenceassessments': {
                 'reused': [(context, None)]
@@ -63,7 +68,7 @@ class AssessmentCreator(object):
          in the UI and created is the one (if any) created by the user.
         """
 
-        aa_created, aa_reused = self._create_or_reuse_alleleassessments(alleleassessments)
+        aa_created, aa_reused = self._create_or_reuse_alleleassessments(annotations, alleleassessments, custom_annotations=custom_annotations)
 
         included_reference_assessments = self.get_included_referenceassessments(alleleassessments)
 
@@ -108,23 +113,32 @@ class AssessmentCreator(object):
         for aa in alleleassessments:
             aa.referenceassessments = [ra for ra in referenceassessments if ra.allele_id == aa.allele_id]
 
-    def _create_or_reuse_alleleassessments(self, alleleassessments):
+    def _create_or_reuse_alleleassessments(self, annotations, alleleassessments, custom_annotations=list()):
         """
 
+        :param annotations: [{allele_id: annotation_id}]
         :param alleleassessments:
+        :param custom_annotations: [{allele_id: custom_annotation_id}]
         :return: (created, reused), created is list( (presented | None, created) )
                                     reused is  list( (presented       , None)    )
         """
 
+        def _find_first_matching(seq, predicate):
+            if not seq:
+                return None
+            return next((s for s in seq if predicate(s)), None)
+
         allele_ids = [a['allele_id'] for a in alleleassessments]
         analysis_ids = [a['analysis_id'] for a in alleleassessments if 'analysis_id' in a]
 
-        cache = {
-            'annotation': self.session.query(annotation.Annotation).filter(
-                annotation.Annotation.allele_id.in_(allele_ids),
-                annotation.Annotation.date_superceeded == None  # We want the most recent annotations
-            ).all()
-        }
+        # # TODO: if annotation_ids, retrieve those instead of using the allele ids:
+        # cache = {
+        #     'annotation': self.session.query(annotation.Annotation).filter(
+        #         annotation.Annotation.allele_id.in_(allele_ids),
+        #         annotation.Annotation.date_superceeded == None  # We want the most recent annotations
+        #     ).all()
+        # }
+        cache = {}
         if analysis_ids:
             cache['analysis'] = self.session.query(sample.Analysis).filter(
                 sample.Analysis.id.in_(analysis_ids)
@@ -148,12 +162,14 @@ class AssessmentCreator(object):
                 now = datetime.datetime.now()
                 assessment_obj.date_last_update = now
 
-                # TODO: connect assessment to annotation_id given as input to finalize
-                # Link assessment to current valid annotation (through the allele id)
-                valid_annotation = next((an for an in cache['annotation'] if an.allele_id == assessment_data['allele_id']), None)
-                if not allele:
-                    raise ApiError("Couldn't find annotation for provided allele_id: {}.".format(assessment_data['allele_id']))
-                assessment_obj.annotation_id = valid_annotation.id
+                # look up the annotations for the allele we assess:
+                def annotation_predicate(id_pair):
+                    return id_pair['allele_id'] == assessment_data['allele_id']
+                annotation_match = _find_first_matching(annotations, annotation_predicate)
+                custom_annotation_match = _find_first_matching(custom_annotations, annotation_predicate)
+
+                assessment_obj.annotation_id = annotation_match['annotation_id']
+                assessment_obj.custom_annotation_id = custom_annotation_match['custom_annotation_id'] if custom_annotation_match and 'custom_annotation_id' in custom_annotation_match else None
 
                 # If analysis_id provided, link assessment to genepanel through analysis
                 if 'analysis_id' in assessment_data:

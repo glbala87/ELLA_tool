@@ -20,6 +20,7 @@ class ApiV1(object):
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
         self.api_v1_docs.add_schema('ReferenceAssessment', schemas.ReferenceAssessmentSchema())
         self.api_v1_docs.add_schema('AlleleAssessment', schemas.AlleleAssessmentSchema())
+        self.api_v1_docs.add_schema('AlleleAssessmentInput', schemas.AlleleAssessmentInputSchema())
         self.api_v1_docs.add_schema('AlleleReport', schemas.AlleleReportSchema())
         self.api_v1_docs.add_schema('User', schemas.UserSchema())
         self.api_v1_docs.add_schema('Classification', schemas.ClassificationSchema())
