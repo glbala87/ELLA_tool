@@ -30,6 +30,8 @@
   </contentwrapper>
 </sectionbox>
 
+<div class="spacer"></div>
+
 <sectionbox color="green">
   <maintitle>
     ANALYSES WITH CLASS 3-5 VARIANTS
@@ -55,6 +57,21 @@
     <h4 class="sb-notification dim" ng-if="!vm.overview.analyses.without_findings.length">No analyses with normal variants</h4>
   </contentwrapper>
 </sectionbox>
+
+<sectionbox color="purple">
+  <maintitle>
+    ANALYSES PENDING REVIEW
+  </maintitle>
+  <subtitle>
+    {{vm.overview.analyses.marked_review.length}}
+  </subtitle>
+  <contentwrapper>
+    <analysis-list analyses="vm.overview.analyses.marked_review"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.analyses.marked_review.length">No analyses pending review.</h4>
+  </contentwrapper>
+</sectionbox>
+
+<div class="spacer"></div>
 
 <sectionbox color="green">
   <maintitle>

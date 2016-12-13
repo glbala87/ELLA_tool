@@ -180,3 +180,5 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 .toast-message a:hover { color: $white; text-decoration: none; }
 .toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: $white-75; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
 .toast-close-button:hover, .toast-close-button:focus { color: $white; text-decoration: none; cursor: pointer; opacity: 0.4; }
+
+.spacer { height: 4rem; }

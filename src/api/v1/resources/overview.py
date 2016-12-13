@@ -204,6 +204,7 @@ class OverviewAlleleResource(Resource):
             'without_findings': [],
             'missing_alleleassessments': []
         }
+
         for analysis_id, allele_ids in analysis_ids_allele_ids_map.iteritems():
             analysis = next(a for a in analyses_not_started_serialized if a['id'] == analysis_id)
             if any(a in categorized_allele_ids['missing_alleleassessments'] for a in allele_ids):
@@ -214,6 +215,12 @@ class OverviewAlleleResource(Resource):
                 final_analyses['without_findings'].append(analysis)
             else:
                 raise ApiError("Allele was not categorized correctly. This may indicate a bug.")
+
+        # Add mark review analyses
+        analyses_marked_review = session.query(sample.Analysis).filter(
+            sample.Analysis.id.in_(queries.analysis_ids_marked_review(session))
+        ).all()
+        final_analyses['marked_review'] = [aschema.dump(a).data for a in analyses_marked_review]
 
         return final_analyses
 
