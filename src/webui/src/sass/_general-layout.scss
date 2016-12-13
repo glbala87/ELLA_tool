@@ -53,10 +53,29 @@ button { outline: none; border: 1px solid Transparent;
 
 
 // APP-WIDE STYLE
+.main {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 11rem);
 
-.container { margin-left: 2rem; margin-top: 0; margin-right: 2.0rem; margin-bottom: 2.6rem; }
-.container.no-secondary-nav { margin-top: 12rem; }
-.container.inner { margin-top: 0; width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+  .sidenavbar { color: $black-25; width: 4rem; background-color: $black-10; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase;
+    .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
+      .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
+        &.active {
+          background-color: $black-10;
+        }
+        &:hover {
+          background-color: $black-10;
+          color: $white-50;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  .container { margin-left: 2rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  .container.no-secondary-nav { margin-top: 12rem; }
+  .container.inner { width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+}
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
@@ -91,7 +110,7 @@ nav.top { display: flex; flex-direction: row; align-items: center; background-co
   }
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 4rem; margin-top: 6.5rem; padding: 0 1.3rem; }
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-top: 6.5rem; padding: 0 1.3rem; }
 .search-box { margin-left: auto; margin-right: 1rem;
   input { padding: 0.25rem 0.75rem; transition: all 0.3s; }
   input:focus { background-color: $white-75; }

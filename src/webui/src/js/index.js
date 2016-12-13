@@ -44,6 +44,7 @@ import './views/analysis/interpretationSingleSample.directive';
 import './views/variant/variant.directive';
 import './views/overviews/alleleSelection.directive';
 import './views/main.directive';
+import './views/overview.directive';
 import './views/login.directive';
 import './views/sidebar.directive';
 import './views/alleleSidebar.directive';
@@ -109,18 +110,10 @@ class AppConfig {
                 }
             })
             .state('app.analyses', {
-                url: '/analyses',
+                url: '/overview',
                 views: {
                     content: {
-                        template: '<analysis-selection></analysis-selection>'
-                    }
-                }
-            })
-            .state('app.alleles', {
-                url: '/variants',
-                views: {
-                    content: {
-                        template: '<allele-selection></allele-selection>'
+                        template: '<overview></overview>'
                     }
                 }
             })
@@ -159,7 +152,7 @@ class AppConfig {
             });
 
         // when there is an empty route, redirect to /analyses
-        $urlRouterProvider.otherwise('/analyses');
+        $urlRouterProvider.otherwise('/overview');
         $locationProvider.html5Mode(true);
         $resourceProvider.defaults.stripTrailingSlashes = false;
     }

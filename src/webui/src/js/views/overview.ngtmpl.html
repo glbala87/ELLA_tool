@@ -1,0 +1,19 @@
+<nav class="secondary">
+  <search class="search-box"></search>
+</nav>
+
+<div class="main">
+    <div class="sidenavbar">
+        <div class="item-row">
+            <div class="item" ng-class="{'active': vm.isActive('analyses')}" ng-click="vm.setView('analyses')">Analyses</div>
+            <div class="item" ng-class="{'active': vm.isActive('alleles')}" ng-click="vm.setView('alleles')">Variants</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <search-results></search-results>
+        <div ng-switch="vm.selected_view">
+            <analysis-selection ng-switch-when="analyses"></analysis-selection>
+            <allele-selection ng-switch-when="alleles"></allele-selection>
+    </div>
+</div>
