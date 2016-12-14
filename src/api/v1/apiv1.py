@@ -138,6 +138,9 @@ class ApiV1(object):
                            '/api/v1/annotationjobs/',
                            '/api/v1/annotationjobs/<int:id>')
 
+        self._add_resource(r.annotationjob.AnnotationServiceRunning,
+                           '/api/v1/annotationservice/running/')
+
         self._add_resource(r.annotationjob.AnnotationServiceStatus,
                            '/api/v1/annotationservice/status/<task_id>')
 

@@ -22,6 +22,21 @@ export class AnnotationjobResource {
         });
     }
 
+    annotationServiceRunning() {
+        return new Promise((resolve, reject) => {
+            let r = this.resource(`${this.base}/annotationservice/running/`, {},
+                {
+                    get: {
+                        method: 'GET',
+                        // isArray: false,
+                    }
+            });
+            let isAlive = r.get(() => {
+                resolve(isAlive.running);
+            });
+        });
+    }
+
     post(data) {
         return new Promise(resolve => {
             let r = this.resource(`${this.base}/annotationjobs/`, {},

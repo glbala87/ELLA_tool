@@ -110,6 +110,15 @@ class AnnotationJobDeposit(Resource):
         elif mode == "Variants":
             raise RuntimeError("Variant deposit not yet supported.")
 
+class AnnotationServiceRunning(Resource):
+    def get(self, session):
+        try:
+            k = urllib2.urlopen(join(ANNOTATION_SERVICE, "status"))
+            return {"running": True}, 200
+        except:
+            return {"running": False}, 200
+
+
 class AnnotationServiceStatus(Resource):
     def get(self, session, task_id=None):
         "Get status of task_id or all tasks"
