@@ -32,7 +32,7 @@ import "./services/user.service";
 import './services/ConfigService';
 import './services/alleleFilter.service';
 import './services/analysis.service';
-import './services/interpretation.service';
+import './services/workflow.service';
 import './services/search.service';
 import './services/sidebar.service';
 import './services/navbar.service';

@@ -16,22 +16,15 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
 
 })
 @Inject(
-    'Config',
-    'Allele',
-    'Analysis',
-    'Interpretation'
+    'Config'
 )
 export class ReportCardController {
 
 
     constructor(Config,
                 Allele,
-                Analysis,
-                Interpretation) {
+                Analysis) {
         this.config = Config.getConfig();
-        this.alleleService = Allele;
-        this.interpretationService = Interpretation;
-        this.analysisService = Analysis;
         this.selected_excluded = null;
     }
 

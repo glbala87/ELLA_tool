@@ -15,7 +15,7 @@ class ConfirmCompleteInterpretationController {
 
 
 @Service({
-    serviceName: 'Interpretation'
+    serviceName: 'Workflow'
 })
 @Inject('$rootScope',
         'Allele',
@@ -24,7 +24,7 @@ class ConfirmCompleteInterpretationController {
         'User',
         '$uibModal',
         '$location')
-class InterpretationService {
+class WorkflowService {
 
     constructor(rootScope,
         Allele,
@@ -278,4 +278,4 @@ class InterpretationService {
 }
 
 
-export default InterpretationService;
+export default WorkflowService;

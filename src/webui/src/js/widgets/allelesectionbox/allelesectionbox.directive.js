@@ -42,7 +42,6 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     'CustomAnnotationModal',
     'IgvModal',
     'Analysis',
-    'Interpretation',
     'clipboard',
     'toastr'
 )
@@ -55,14 +54,12 @@ export class AlleleSectionBoxController {
                 CustomAnnotationModal,
                 IgvModal,
                 Analysis,
-                Interpretation,
                 clipboard,
                 toastr) {
         this.config = Config.getConfig();
         this.alleleService = Allele;
         this.customAnnotationModal = CustomAnnotationModal;
         this.igvModal = IgvModal;
-        this.interpretationService = Interpretation;
         this.analysisService = Analysis;
         this.clipboard = clipboard;
         this.toastr = toastr;
