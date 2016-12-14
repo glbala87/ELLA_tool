@@ -142,7 +142,6 @@ class OverviewAlleleResource(Resource):
 
         return [a for a in alleles if a['allele']['id'] in allele_ids_markreview]
 
-
     def get_categorized_analyses(self, session):
 
         # Get all (analysis_id, allele_id) combinations for analyses that are 'Not started'.

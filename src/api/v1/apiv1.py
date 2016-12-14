@@ -81,21 +81,6 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
 
-        self._add_resource(r.analysis.AnalysisActionStartResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/start/')
-
-        self._add_resource(r.analysis.AnalysisActionMarkReviewResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/markreview/')
-
-        self._add_resource(r.analysis.AnalysisActionFinalizeResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/finalize/',
-                           '/api/v1/analyses/finalized/<int:analysis_id>/')
-
-        self._add_resource(r.analysis.AnalysisActionOverrideResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/override/')
-
-        self._add_resource(r.analysis.AnalysisActionReopenResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/reopen/')
 
         self._add_resource(r.igv.BamResource,
                            '/api/v1/analyses/<int:analysis_id>/bams/<int:sample_id>/')
@@ -139,20 +124,35 @@ class ApiV1(object):
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
 
-        self._add_resource(r.workflowallele.AlleleInterpretationResource,
+        self._add_resource(r.workflow.allele.AlleleInterpretationResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/')
 
-        self._add_resource(r.workflowallele.AlleleActionStartResource,
+        self._add_resource(r.workflow.allele.AlleleActionStartResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/start/')
 
-        self._add_resource(r.workflowallele.AlleleActionMarkReviewResource,
+        self._add_resource(r.workflow.allele.AlleleActionMarkReviewResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/markreview/')
 
-        self._add_resource(r.workflowallele.AlleleActionFinalizeResource,
+        self._add_resource(r.workflow.allele.AlleleActionFinalizeResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/finalize/')
 
-        self._add_resource(r.workflowallele.AlleleActionOverrideResource,
+        self._add_resource(r.workflow.allele.AlleleActionOverrideResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/override/')
 
-        self._add_resource(r.workflowallele.AlleleActionReopenResource,
+        self._add_resource(r.workflow.allele.AlleleActionReopenResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/reopen/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionStartResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/start/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionMarkReviewResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/markreview/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionFinalizeResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/finalize/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionOverrideResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/override/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionReopenResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/reopen/')

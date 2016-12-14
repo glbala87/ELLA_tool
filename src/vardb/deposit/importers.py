@@ -568,19 +568,3 @@ class AnalysisImporter(object):
         )
         self.session.add(analysis)
         return analysis
-
-
-class InterpretationImporter(object):
-
-    def __init__(self, session):
-        self.session = session
-
-    def process(self, db_analysis):
-        db_interpretation, _ = sm.Interpretation.get_or_create(
-            self.session,
-            analysis=db_analysis,
-            status="Not started"
-            )
-        return db_interpretation
-
-

@@ -12,8 +12,6 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
-
-
 class AssessmentCreator(object):
 
     def __init__(self, session):
@@ -88,7 +86,6 @@ class AssessmentCreator(object):
                 'created': aa_created
             }
         }
-
 
     def get_included_referenceassessments(self, alleleassessments):
         # Get all reference assessments included as part of alleleassessments
@@ -180,7 +177,6 @@ class AssessmentCreator(object):
 
                 presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments, error_if_not_found=False)
                 created_assessments.append((presented_assessment, assessment_obj))
-                self.session.add(assessment_obj)
                 log.info("Created assessment for allele %s, superceed? %s", assessment_obj.allele_id, assessment_obj.previous_assessment_id)
 
         return created_assessments, reused_assessments
@@ -249,7 +245,6 @@ class AssessmentCreator(object):
                     to_supercede.date_superceeded = datetime.datetime.now()
                     assessment_obj.previous_assessment_id = to_supercede.id
                 created.append(assessment_obj)
-                self.session.add(assessment_obj)
 
         return created, reused
 
