@@ -39,6 +39,146 @@ def get_current_interpretation(analysis):
     return current[0] if current else None
 
 
+class AnalysisInterpretationResource(Resource):
+
+    def get(self, session, analysis_id):
+        """
+        Returns latest analysisinterpretation for analysis.
+
+        If no analysisinterpretation exists, it returns null.
+        ---
+        summary: Get latest AnalysisInterpretation
+        tags:
+          - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+        responses:
+          200:
+            schema:
+              title: AnalysisInterpretation
+              allOf:
+                - $ref: '#/definitions/AnalysisInterpretation'
+                - properties:
+                    allele_ids:
+                      title: Allele ids
+                      type: array
+                      description: Allele ids
+                      items:
+                        type: integer
+                    excluded_allele_ids:
+                      title: ExcludedAlleles
+                      type: object
+                      description: Filtered allele ids
+                      properties:
+                        class1:
+                          type: array
+                          items:
+                            type: integer
+                        intronic:
+                          type: array
+                          items:
+                            type: integer
+
+            description: Interpretation object
+        """
+
+        latest_analysis_interpretation = get_latest_analysisinterpretation(session, analysis_id)
+        if latest_analysis_interpretation:
+            return InterpretationDataLoader(session, config).from_id(latest_analysis_interpretation.id)
+        else:
+            return None
+
+    @request_json(
+        ['id'],
+        allowed=[
+            'state',
+            'user_state',
+            'user_id'
+        ]
+    )
+    def patch(self, session, analysis_id, data=None):
+        """
+        Updates a single interpretations inplace.
+
+        **Only allowed for interpretations that are `Ongoing`**
+        ---
+        summary: Update AnaysisInterpretation
+        tags:
+          - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - data:
+            in: body
+            required: true
+            schema:
+              title: AnalysisInterpretation data
+              type: object
+              properties:
+                user_id:
+                  description: User id of user performing update
+                  type: integer
+                state:
+                  description: State data
+                  type: object
+                user_state:
+                  description: User state data
+                  type: object
+        responses:
+          200:
+            type: null
+            description: OK
+        """
+
+        latest_analysis_interpretation = get_latest_analysisinterpretation(session, analysis_id)
+
+        AnalysisInterpretationResource.check_update_allowed(latest_analysis_interpretation, data)
+
+        # Add current state to history if new state is different:
+        if data['state'] != latest_analysis_interpretation.state:
+            AnalysisInterpretationResource.update_history(latest_analysis_interpretation)
+
+        # Patch (overwrite) state fields with new values
+        latest_analysis_interpretation.state = data['state']
+        latest_analysis_interpretation.user_state = data['user_state']
+
+        latest_analysis_interpretation.date_last_update = datetime.datetime.now()
+
+        session.commit()
+        return None, 200
+
+
+    @staticmethod
+    def update_history(interpretation):
+        if 'history' not in interpretation.state_history:
+            interpretation.state_history['history'] = list()
+        interpretation.state_history['history'].insert(0, {
+            'time': datetime.datetime.now().isoformat(),
+            'state': interpretation.state,
+            'user_id': interpretation.user_id
+        })
+
+
+    @staticmethod
+    def check_update_allowed(interpretation, patch_data):
+        if interpretation.status == 'Done':
+            raise ApiError("Cannot PATCH interpretation with status 'DONE'")
+        elif interpretation.status == 'Not started':
+            raise ApiError("Interpretation not started. Call it's analysis' start action to begin interpretation.")
+
+        # Check that user is same as before
+        if interpretation.user_id:
+            if interpretation.user_id != patch_data['user_id']:
+                raise ApiError("Interpretation owned by {} cannot be updated by other user ({})"
+                               .format(interpretation.user_id, patch_data['user_id']))
+
+
+
 class AnalysisActionOverrideResource(Resource):
 
     @request_json(['user_id'])

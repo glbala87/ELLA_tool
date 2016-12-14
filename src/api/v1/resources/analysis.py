@@ -14,23 +14,6 @@ from api.v1.resource import Resource
 from api.config import config
 
 
-def get_current_interpretation(analysis):
-    """
-    Goes through the interpretations and selects the
-    current one, if any. A current interpretation is
-    defined as a interpretation that has yet to be started,
-    or is currently in progress.
-    """
-
-    ongoing_statuses = ['Not started', 'Ongoing']
-    current = list()
-    for interpretation in analysis['interpretations']:
-        if interpretation['status'] in ongoing_statuses:
-            current.append(interpretation['id'])
-    assert len(current) < 2
-    return current[0] if current else None
-
-
 class AnalysisListResource(Resource):
 
     @paginate
@@ -59,8 +42,6 @@ class AnalysisListResource(Resource):
             description: List of analyses
         """
         analyses = self.list_query(session, sample.Analysis, schema=schemas.AnalysisSchema(), rest_filter=rest_filter)
-        for analysis in analyses:
-            analysis['current_interpretation'] = get_current_interpretation(analysis)
         return analyses
 
 
@@ -86,7 +67,6 @@ class AnalysisResource(Resource):
         """
         a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
         analysis = schemas.AnalysisSchema().dump(a).data
-        analysis['current_interpretation'] = get_current_interpretation(analysis)
         return analysis
 
     @request_json(['properties'])
