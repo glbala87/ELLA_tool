@@ -56,17 +56,18 @@ button { outline: none; border: 1px solid Transparent;
 .main {
   display: flex;
   width: 100%;
-  height: calc(100vh - 11rem);
+  min-height: calc(100vh - 11rem);
+  height: 100%;
 
-  .sidenavbar { color: $black-25; width: 4rem; background-color: $black-10; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase;
+  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase;
     .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
       .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
         &.active {
-          background-color: $black-10;
+          background-color: $blue-25;
         }
         &:hover {
-          background-color: $black-10;
-          color: $white-50;
+          background-color: $blue-25;
+          color: $white;
           cursor: pointer;
         }
       }
