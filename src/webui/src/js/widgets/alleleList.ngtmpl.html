@@ -1,5 +1,6 @@
 <article class="sectionbox-content allele-list">
 <a class="list-item clickable" href="{{vm.getItemUrl(item)}}" ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]">
+  <div style="padding-right: 2rem;" >{{item.oldest_analysis | date:"dd-MM-yyyy"}}</div>
   <div class="full-title ref-title">
       <span ng-repeat="t in item.allele.annotation.filtered"><b>{{t.SYMBOL}} {{t.HGVSc_short}}</b></span>
   </div>

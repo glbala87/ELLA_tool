@@ -666,7 +666,7 @@ class AnalysisActionFinalizeResource(Resource):
                     annotation_id: 34
                 custom_annotations:
                   - allele_id: 1
-                     custom_annotation_id: 102
+                    custom_annotation_id: 102
                 referenceassessments:
                   - user_id: 1
                     analysis_id: 3

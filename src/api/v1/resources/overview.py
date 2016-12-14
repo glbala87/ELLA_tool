@@ -1,6 +1,6 @@
 import datetime
 from collections import defaultdict
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, func
 from sqlalchemy.orm import contains_eager
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 
@@ -80,6 +80,18 @@ class OverviewAlleleResource(Resource):
         genepanel_cache = dict()  # Cache for the genepanels. Ideally we'd like to just prefetch them all in single query, but turned out to be hard
         final_alleles = list()
 
+        # Load oldest analysis for each allele, to get the oldest datetime
+        # for the analysis awaiting this allele's classification
+        allele_ids_deposit_date = session.query(allele.Allele.id, func.min(sample.Analysis.deposit_date)).join(
+            genotype.Genotype.alleles,
+            sample.Sample,
+            sample.Analysis
+        ).filter(
+            allele.Allele.id.in_(allele_ids)
+        ).group_by(allele.Allele.id).all()
+
+        allele_ids_deposit_date = {k: v for k, v in allele_ids_deposit_date}
+
         for gp_key, check_allele_ids in gp_allele_ids.iteritems():
             if gp_key not in genepanel_cache:
                 genepanel_cache[gp_key] = session.query(gene.Genepanel).filter(
@@ -98,7 +110,7 @@ class OverviewAlleleResource(Resource):
 
             for a in loaded_genepanel_alleles:
                 if not any([idl._exclude_class1(a), idl._exclude_gene(a), idl._exclude_intronic(a)]):
-                    final_alleles.append({'genepanel': {'name': genepanel.name, 'version': genepanel.version}, 'allele': a})
+                    final_alleles.append({'genepanel': {'name': genepanel.name, 'version': genepanel.version}, 'allele': a, 'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat()})
         return final_alleles
 
     def get_alleles_missing_interpretation(self, session, alleles):

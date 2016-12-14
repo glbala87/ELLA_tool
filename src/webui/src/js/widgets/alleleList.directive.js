@@ -44,7 +44,12 @@ class AlleleListWidget {
         this.sorted_items = this.alleleItems.slice(0);
         this.sorted_items.sort(
             firstBy(a => a.allele.annotation.filtered[0].SYMBOL)
-            .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short)
+            .thenBy(a => {
+                if (a.allele.annotation.filtered[0].STRAND > 0) {
+                    return a.allele.start_position;
+                }
+                return -a.allele.start_position;
+            })
         );
     }
 
