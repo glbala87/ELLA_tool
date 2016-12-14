@@ -51,6 +51,21 @@ export class AnnotationjobResource {
         })
     }
 
+    restart(id) {
+        return new Promise((resolve, reject)=> {
+            let r = this.resource(`${this.base}/annotationjobs/`, {},
+                {
+                    patch: {
+                        method: 'PATCH'
+                    }
+                });
+            let data = {id: id, status: "SUBMITTED"};
+            r.patch(data, res => {
+                resolve(res);
+            }, reject);
+        });
+    }
+
     delete(id) {
         return new Promise((resolve, reject)=> {
             console.log(`${this.base}/annotationjobs/${id}`);
