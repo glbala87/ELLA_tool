@@ -1,9 +1,8 @@
-import itertools
 import datetime
 
-from sqlalchemy import desc, not_
+from sqlalchemy import not_
 
-from vardb.datamodel import user, assessment, sample, genotype, allele, annotation, gene, workflow
+from vardb.datamodel import user, assessment, sample, genotype, allele, gene, workflow
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json
@@ -43,11 +42,11 @@ class AnalysisInterpretationResource(Resource):
 
     def get(self, session, analysis_id):
         """
-        Returns latest analysisinterpretation for analysis.
+        Returns current analysisinterpretation for analysis.
 
-        If no analysisinterpretation exists, it returns null.
+        If no current analysisinterpretation exists, it returns null.
         ---
-        summary: Get latest AnalysisInterpretation
+        summary: Get current interpretation
         tags:
           - Workflow
         parameters:
@@ -101,11 +100,11 @@ class AnalysisInterpretationResource(Resource):
     )
     def patch(self, session, analysis_id, data=None):
         """
-        Updates a single interpretations inplace.
+        Updates the current interpretation inplace.
 
         **Only allowed for interpretations that are `Ongoing`**
         ---
-        summary: Update AnaysisInterpretation
+        summary: Update interpretation
         tags:
           - Workflow
         parameters:
@@ -152,7 +151,6 @@ class AnalysisInterpretationResource(Resource):
         session.commit()
         return None, 200
 
-
     @staticmethod
     def update_history(interpretation):
         if 'history' not in interpretation.state_history:
@@ -162,7 +160,6 @@ class AnalysisInterpretationResource(Resource):
             'state': interpretation.state,
             'user_id': interpretation.user_id
         })
-
 
     @staticmethod
     def check_update_allowed(interpretation, patch_data):
@@ -178,7 +175,6 @@ class AnalysisInterpretationResource(Resource):
                                .format(interpretation.user_id, patch_data['user_id']))
 
 
-
 class AnalysisActionOverrideResource(Resource):
 
     @request_json(['user_id'])
@@ -191,7 +187,7 @@ class AnalysisActionOverrideResource(Resource):
         ---
         summary: Assign analysis to another user
         tags:
-            - Analysis
+            - Workflow
         parameters:
           - name: analysis_id
             in: path
@@ -218,25 +214,20 @@ class AnalysisActionOverrideResource(Resource):
           500:
             description: Error
         """
+
         # Get user by username
         new_user = session.query(user.User).filter(
             user.User.id == data['user_id']
         ).one()
 
-        a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
-        analysis = schemas.AnalysisSchema().dump(a).data
-        int_id = get_current_interpretation(analysis)
+        analysis_interpretation = get_latest_analysisinterpretation(session, analysis_id)
 
-        i = session.query(sample.Interpretation).filter(
-            sample.Interpretation.id == int_id
-        ).one()
-
-        if i.status == 'Not started':
-            raise ApiError("Interpretation hasn't started.")
+        if analysis_interpretation.status != 'Ongoing':
+            raise ApiError("Cannot reassign interpretation that is not 'Ongoing'.")
 
         # db will throw exception if user_id is not a valid id
         # since it's a foreign key
-        i.user = new_user
+        analysis_interpretation.user = new_user
         session.commit()
         return None, 200
 
@@ -279,6 +270,7 @@ class AnalysisActionStartResource(Resource):
           500:
             description: Error
         """
+
         # Get user by username
         start_user = session.query(user.User).filter(
             user.User.id == data['user_id']
@@ -315,7 +307,7 @@ class AnalysisActionMarkReviewResource(Resource):
         ---
         summary: Mark analysis for review
         tags:
-          - Analysis
+          - Workflow
         parameters:
           - name: analysis_id
             in: path
@@ -342,7 +334,6 @@ class AnalysisActionMarkReviewResource(Resource):
             description: Error
         """
         # TODO: Validate that user is same as user on interpretation
-        # TODO: Consider some way to validate that it should be completable
 
         analysis_interpretation_current = get_latest_analysisinterpretation(session, analysis_id)
 
@@ -350,11 +341,11 @@ class AnalysisActionMarkReviewResource(Resource):
             raise ApiError("Interpretation is not ongoing.")
 
         analysis_interpretation_current.status = 'Done'
+        analysis_interpretation_current.date_last_update = datetime.datetime.now()
 
         # Create next interpretation
         analysis_interpretation_next = workflow.AnalysisInterpretation()
         analysis_interpretation_next.analysis_id = analysis_interpretation_current.analysis_id
-        analysis_interpretation_next.state = analysis_interpretation_current.state
         analysis_interpretation_next.state = analysis_interpretation_current.state
 
         session.add(analysis_interpretation_next)
@@ -366,7 +357,7 @@ class AnalysisActionReopenResource(Resource):
 
     def post(self, session, analysis_id):
         """
-        Reopens an analysis, which was previously finalized.
+        Reopens an analysis workflow that has previously been finalized.
 
         This creates a new current interpretation for the analysis,
         with status set to `Not started`.
@@ -374,9 +365,9 @@ class AnalysisActionReopenResource(Resource):
 
         **Only works for analyses with a `Ongoing` current interpretation**
         ---
-        summary: Mark analysis for review
+        summary: Reopen analysis workflow
         tags:
-          - Analysis
+          - Workflow
         parameters:
           - name: analysis_id
             in: path
@@ -402,23 +393,18 @@ class AnalysisActionReopenResource(Resource):
           500:
             description: Error
         """
-        a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
-        analysis = schemas.AnalysisSchema().dump(a).data
-        if get_current_interpretation(analysis) is not None:
-            raise ApiError("Analysis is already pending or ongoing. Cannot reopen.")
+        analysis_interpretation = get_latest_analysisinterpretation(session, analysis_id)
 
-        analysis_interpretation_current = get_latest_analysisinterpretation(sample, analysis_id)
+        if analysis_interpretation is None:
+            raise ApiError("There are no existing interpretations for this allele. Use the start action instead.")
 
-        if analysis_interpretation_current is None:
-            raise ApiError("There are no existing interpretations for this analysis. Use the start action instead.")
-
-        if not analysis_interpretation_current.status == 'Done':
-            raise ApiError("Analysis is already 'Not started' or 'Ongoing'. Cannot reopen.")
+        if not analysis_interpretation.status == 'Done':
+            raise ApiError("Allele interpretation is already 'Not started' or 'Ongoing'. Cannot reopen.")
 
         # Create next interpretation
-        analysis_interpretation_next = workflow.AnalysisInterpretation()
-        analysis_interpretation_next.analysis_id = analysis_interpretation_current.analysis_id
-        analysis_interpretation_next.state = analysis_interpretation_current.state
+        analysis_interpretation_next = workflow.AlleleInterpretation()
+        analysis_interpretation_next.allele_id = analysis_interpretation.allele_id
+        analysis_interpretation_next.state = analysis_interpretation.state
 
         session.add(analysis_interpretation_next)
         session.commit()
@@ -525,9 +511,9 @@ class AnalysisActionFinalizeResource(Resource):
         ```
 
         ---
-        summary: Finalize an analysis
+        summary: Finalize analysis workflow
         tags:
-          - Analysis
+          - Workflow
         parameters:
           - name: analysis_id
             in: path

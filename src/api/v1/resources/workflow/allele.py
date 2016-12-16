@@ -25,9 +25,9 @@ class AlleleInterpretationResource(Resource):
 
     def get(self, session, allele_id):
         """
-        Returns current allele interpretation.
+        Returns current alleleinterpretation for allele.
         ---
-        summary: Get current allele interpretation
+        summary: Get current interpretation
         tags:
           - Workflow
         parameters:
@@ -38,11 +38,11 @@ class AlleleInterpretationResource(Resource):
         responses:
           200:
             schema:
-                $ref: '#/definitions/Analysis'
-            description: Analysis object
+                $ref: '#/definitions/AlleleInterpretation'
+            description: AnalysisInterpretation object
         """
         allele_interpretation = session.query(workflow.AlleleInterpretation).filter(
-
+            workflow.AlleleInterpretation.allele_id == allele_id
         ).order_by(workflow.AlleleInterpretation.id.desc()).first()
 
         return schemas.AlleleInterpretationSchema().dump(allele_interpretation).data
@@ -57,11 +57,11 @@ class AlleleInterpretationResource(Resource):
     )
     def patch(self, session, allele_id, data=None):
         """
-        Updates an alleles current interpretation inplace.
+        Updates current interpretation inplace.
 
         **Only allowed for interpretations that are `Ongoing`**
         ---
-        summary: Update allele interpretation
+        summary: Update interpretation
         tags:
           - Workflow
         parameters:
@@ -134,19 +134,19 @@ class AlleleActionOverrideResource(Resource):
     @request_json(['user_id'])
     def post(self, session, allele_id, data=None):
         """
-        Lets an user take over an analysis, by replacing the
-        analysis' current interpretation's user_id with the input user_id.
+        Lets an user take over an allele, by replacing the
+        allele's current interpretation's user_id with the input user_id.
 
-        **Only works for analyses with a `Ongoing` current interpretation**
+        **Only works for alleles with an `Ongoing` current interpretation**
         ---
-        summary: Assign analysis to another user
+        summary: Assign allele to another user
         tags:
-            - Analysis
+            - Workflow
         parameters:
-          - name: analysis_id
+          - name: allele_id
             in: path
             type: integer
-            description: Analysis id
+            description: Allele id
           - name: data
             in: body
             type: object
@@ -175,16 +175,12 @@ class AlleleActionOverrideResource(Resource):
 
         allele_interpretation = get_latest_alleleinterpretation(session, allele_id)
 
-        i = session.query(sample.Interpretation).filter(
-            sample.Interpretation.id == int_id
-        ).one()
-
-        if i.status == 'Not started':
-            raise ApiError("Interpretation hasn't started.")
+        if allele_interpretation.status != 'Ongoing':
+            raise ApiError("Cannot reassign interpretation that is not 'Ongoing'.")
 
         # db will throw exception if user_id is not a valid id
         # since it's a foreign key
-        i.user = new_user
+        allele_interpretation.user = new_user
         session.commit()
         return None, 200
 
@@ -197,6 +193,9 @@ class AlleleActionStartResource(Resource):
         Starts an alleleinterpretation.
 
         If no alleleinterpretations exists for given allele id, one is created.
+
+        If all interpretations are 'Done', an error will be returned.
+        Use the `/reopen/` action to reopen such an workflow.
         ---
         summary: Start allele interpretation
         tags:
@@ -262,7 +261,7 @@ class AlleleActionMarkReviewResource(Resource):
         ---
         summary: Mark allele for review
         tags:
-          - Analysis
+          - Workflow
         parameters:
           - name: allele_id
             in: path
@@ -296,6 +295,7 @@ class AlleleActionMarkReviewResource(Resource):
             raise ApiError("Interpretation is not ongoing.")
 
         allele_interpretation.status = 'Done'
+        allele_interpretation.date_last_update = datetime.datetime.now()
 
         # Create next interpretation
         allele_interpretation_next = workflow.AlleleInterpretation()
@@ -311,13 +311,13 @@ class AlleleActionReopenResource(Resource):
 
     def post(self, session, allele_id):
         """
-        Reopens an allele, which was previously finalized, for interpretation.
+        Reopens an allele workflow that has previously been finalized.
 
         This creates a new current interpretation for the allele,
         with status set to `Not started`.
 
         ---
-        summary: Mark allele for review
+        summary: Reopen allele workflow
         tags:
           - Workflow
         parameters:
@@ -448,9 +448,9 @@ class AlleleActionFinalizeResource(Resource):
         ```
 
         ---
-        summary: Finalize an analysis
+        summary: Finalize allele workflow
         tags:
-          - Analysis
+          - Workflow
         parameters:
           - name: analysis_id
             in: path
