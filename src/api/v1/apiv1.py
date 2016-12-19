@@ -15,7 +15,7 @@ class ApiV1(object):
         Loads our marshmallow schemas into docs.
         """
         self.api_v1_docs.add_schema('Analysis', schemas.AnalysisSchema())
-        self.api_v1_docs.add_schema('Interpretation', schemas.InterpretationSchema())
+        self.api_v1_docs.add_schema('Interpretation', schemas.AnalysisInterpretationSchema())
         self.api_v1_docs.add_schema('Allele', schemas.AlleleSchema())
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
         self.api_v1_docs.add_schema('ReferenceAssessment', schemas.ReferenceAssessmentSchema())
@@ -81,7 +81,6 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
 
-
         self._add_resource(r.igv.BamResource,
                            '/api/v1/analyses/<int:analysis_id>/bams/<int:sample_id>/')
 
@@ -144,6 +143,9 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.analysis.AnalysisInterpretationResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/current/')
+
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
 
         self._add_resource(r.workflow.analysis.AnalysisActionStartResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/start/')

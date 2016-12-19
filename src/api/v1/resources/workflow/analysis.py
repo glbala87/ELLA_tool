@@ -175,6 +175,37 @@ class AnalysisInterpretationResource(Resource):
                                .format(interpretation.user_id, patch_data['user_id']))
 
 
+class AnalysisInterpretationListResource(Resource):
+
+    def get(self, session, analysis_id):
+        """
+        Returns all interpretations for analysis.
+        ---
+        summary: Get interpretations
+        tags:
+          - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/AnalysisInterpretation'
+
+            description: AnalysisInterpretation objects
+        """
+
+        analysis_interpretations = session.query(workflow.AnalysisInterpretation).filter(
+            workflow.AnalysisInterpretation.analysis_id == analysis_id
+        ).all()
+
+        return schemas.AnalysisInterpretationSchema().dump(analysis_interpretations, many=True).data
+
+
 class AnalysisActionOverrideResource(Resource):
 
     @request_json(['user_id'])
@@ -280,7 +311,7 @@ class AnalysisActionStartResource(Resource):
 
         if not analysis_interpretation:
             analysis_interpretation = workflow.AnalysisInterpretation()
-            analysis_interpretation.allele_id = analysis_id
+            analysis_interpretation.analysis_id = analysis_id
             session.add(analysis_interpretation)
         elif analysis_interpretation.status != 'Not started':
             raise ApiError("Cannot start existing interpretation where status = {}".format(analysis_interpretation.status))

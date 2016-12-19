@@ -1,5 +1,5 @@
 from analyses import AnalysisSchema
-from interpretations import InterpretationSchema
+from analysisinterpretations import AnalysisInterpretationSchema
 from alleles import AlleleSchema
 from alleleinterpretations import AlleleInterpretationSchema
 from references import ReferenceSchema

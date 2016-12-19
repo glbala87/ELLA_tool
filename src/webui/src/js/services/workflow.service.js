@@ -19,8 +19,7 @@ class ConfirmCompleteInterpretationController {
 })
 @Inject('$rootScope',
         'Allele',
-        'Analysis',
-        'InterpretationResource',
+        'WorkflowResource',
         'User',
         '$uibModal',
         '$location')
@@ -28,61 +27,108 @@ class WorkflowService {
 
     constructor(rootScope,
         Allele,
-        Analysis,
-        interpretationResource,
+        WorkflowResource,
         User,
         ModalService,
         LocationService) {
 
 
         //this._setWatchers(rootScope);
-        this.analysisService = Analysis;
         this.alleleService = Allele;
         this.user = User;
-        this.interpretationResource = interpretationResource;
+        this.workflowResource = WorkflowResource;
         this.modalService = ModalService;
         this.locationService = LocationService;
     }
 
-    loadInterpretation(id) {
-        if (id === undefined) {
-            throw Error("You must provide an id");
-        }
-        return new Promise((resolve, reject) => {
-            let userPromise = this.user.getCurrentUser();
-            let interpretationPromise = this.interpretationResource.get(id);
+    markreview(type, id) {
+        return this.workflowResource.markreview(type, id, this.user.getCurrentUserId());
+    }
 
-            // Prepare interpretation and assign user
-            Promise.all([userPromise, interpretationPromise]).spread((user, interpretation) => {
-                interpretation.analysis.type = 'singlesample'; // TODO: remove me when implemented in backend
-                console.log("Interpretation loaded", interpretation);
-                resolve(interpretation);
-            });
-        });
+    finalize(type, id, interpretation, alleles) {
+
+        // Collect info about this interpretation.
+        let annotations = [];
+        let custom_annotations = [];
+        let alleleassessments = [];
+        let referenceassessments = [];
+        let allelereports = [];
+
+        // collection annotation ids for the alleles:
+        for (let allele_state of interpretation.state.allele) {
+            let match = alleles.find(a => a.id === allele_state.allele_id);
+
+            if (match) {
+                annotations.push({
+                    allele_id: match.id,
+                    annotation_id: match.annotation.annotation_id
+                });
+                if (match.annotation.custom_annotation_id) {
+                    custom_annotations.push({
+                        allele_id: match.id,
+                        custom_annotation_id: match.annotation.custom_annotation_id
+                    });
+                }
+            }
+        }
+
+        for (let allele_state of interpretation.state.allele) {
+            // Only include assessments/reports for alleles part of the supplied list.
+            // This is to avoid submitting assessments for alleles that have been
+            // removed from classification during interpretation process.
+            if (alleles.find(a => a.id === allele_state.allele_id)) {
+                alleleassessments.push(this.prepareAlleleAssessmentsForApi(
+                    allele_state.allele_id,
+                    allele_state,
+                    interpretation.analysis.id
+                    ));
+                referenceassessments = referenceassessments.concat(this.prepareReferenceAssessmentsForApi(
+                    allele_state,
+                    interpretation.analysis.id
+                ));
+                allelereports.push(this.prepareAlleleReportForApi(
+                    allele_state.allele_id,
+                    allele_state,
+                    interpretation.analysis.id
+                ));
+            }
+        }
+
+
+    return this.workflowResource.finalize(
+        type,
+        id,
+        annotations,
+        custom_annotations,
+        alleleassessments,
+        referenceassessments,
+        allelereports
+    );
+
+    }
+
+    start(type, id) {
+        return this.workflowResource.start(type, id, this.user.getCurrentUserId());
+    }
+
+    reopen(type, id) {
+        return this.workflowResource.reopen(type, id, this.user.getCurrentUserId());
+    }
+
+    override(type, id) {
+        return this.workflowResource.override(type, id, this.user.getCurrentUserId());
     }
 
     /**
      * Saves the current state to server.
-     * If the status is 'Not started',
-     * we start the interpretation before saving.
      * @return {Promise} Promise that resolves upon completion.
      */
-    save(interpretation) {
+    save(type, id, interpretation) {
         if (interpretation.status === 'Not started') {
-            interpretation.user_id = this.user.getCurrentUserId();
-            return this.analysisService.start(
-                interpretation.analysis.id,
-            ).then(
-                () => {
-                    interpretation.status = 'Ongoing';
-                    // Update on server in case user made any changes
-                    // before starting analysis.
-                    return this.save(interpretation);
-                }
-            );
+            throw Error("Interpretation not started");
         }
         else {
-            return this.interpretationResource.updateState(interpretation).then(
+            return this.workflowResource.patchInterpretation(type, id, interpretation).then(
                 () => interpretation.setClean()
             );
         }
@@ -94,7 +140,7 @@ class WorkflowService {
      * @param  {Array(Allele)} alleles  Alleles to include allele/referenceassessments for.
      * @return {Promise}  Resolves upon completed submission.
      */
-    confirmCompleteFinalize(interpretation, alleles) {
+    confirmCompleteFinalize(type, id, interpretation, alleles) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
             controller: ['$uibModalInstance', ConfirmCompleteInterpretationController],
@@ -103,78 +149,18 @@ class WorkflowService {
         });
         return modal.result.then(res => {
             // Save interpretation before marking as done
+            // FIXME:
+            /*return this.analysisService.updateProperties(
+                    interpretation.analysis.id,
+                    interpretation.state.analysis.properties
+            )*/
             if (res) {
-                return this.save(interpretation).then(() => {
+                return this.save(type, id, interpretation).then(() => {
                     if (res === 'markreview') {
-                        return this.analysisService.updateProperties(
-                            interpretation.analysis.id,
-                            interpretation.state.analysis.properties
-                        ).then(() => {
-                            this.analysisService.markreview(interpretation.analysis.id);
-                        });
+                        return this.markreview(type, id);
                     }
                     else if (res === 'finalize') {
-
-                        // Collect info about this analysis.
-                        let annotations = [];
-                        let custom_annotations = [];
-                        let alleleassessments = [];
-                        let referenceassessments = [];
-                        let allelereports = [];
-                        // collection annotation ids for the alleles:
-                        for (let allele_state of interpretation.state.allele) {
-                            let match = alleles.find(a => a.id === allele_state.allele_id);
-
-                            if (match) {
-                                annotations.push({
-                                    allele_id: match.id,
-                                    annotation_id: match.annotation.annotation_id
-                                });
-                                if (match.annotation.custom_annotation_id) {
-                                    custom_annotations.push({
-                                        allele_id: match.id,
-                                        custom_annotation_id: match.annotation.custom_annotation_id
-                                    });
-                                }
-                            }
-                        }
-
-                        for (let allele_state of interpretation.state.allele) {
-                            // Only include assessments/reports for alleles part of the supplied list.
-                            // This is to avoid submitting assessments for alleles that have been
-                            // removed from classification during interpretation process.
-                            if (alleles.find(a => a.id === allele_state.allele_id)) {
-                                alleleassessments.push(this.prepareAlleleAssessmentsForApi(
-                                    allele_state.allele_id,
-                                    allele_state,
-                                    interpretation.analysis.id
-                                    ));
-                                referenceassessments = referenceassessments.concat(this.prepareReferenceAssessmentsForApi(
-                                    allele_state,
-                                    interpretation.analysis.id
-                                ));
-                                allelereports.push(this.prepareAlleleReportForApi(
-                                    allele_state.allele_id,
-                                    allele_state,
-                                    interpretation.analysis.id
-                                ));
-                            }
-                        }
-
-                        return this.analysisService.updateProperties(
-                            interpretation.analysis.id,
-                            interpretation.state.analysis.properties
-                        ).then(() => {
-                            return this.analysisService.finalize(
-                                interpretation.analysis.id,
-                                annotations,
-                                custom_annotations,
-                                alleleassessments,
-                                referenceassessments,
-                                allelereports
-                            );
-                        });
-
+                        return this.finalize(type, id, interpretation, alleles);
                     }
                     else {
                         throw `Got unknown option ${res} when confirming interpretation action.`;

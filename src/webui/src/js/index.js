@@ -27,6 +27,7 @@ import './services/resources/ReferenceResource.service';
 import './services/resources/searchResource.service';
 import './services/resources/finalizationResource.service';
 import './services/resources/overviewResource.service';
+import './services/resources/workflowResource.service';
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
@@ -38,7 +39,7 @@ import './services/sidebar.service';
 import './services/navbar.service';
 import './filters';
 
-import './views/analysis/analysis.directive';
+import './views/workflow/workflowAnalysis.directive';
 import './views/analysis/analysisSelection.directive';
 import './views/analysis/interpretationSingleSample.directive';
 import './views/variant/variant.directive';
@@ -81,7 +82,7 @@ import './widgets/sectionbox.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
 // import './widgets/card.directive';
-import './widgets/interpretationbutton.directive';
+import './widgets/workflowButtons.directive';
 import './widgets/allelesectionbox/allelesectionbox.directive';
 import './widgets/allelesectionbox/allelesectionboxcontent.directive';
 import './widgets/reportcard/reportcard.directive';
@@ -121,7 +122,7 @@ class AppConfig {
                 url: '/analyses/:analysisId',
                 views: {
                     content: {
-                        template: '<analysis analysis-id="{{analysisId}}"></analysis>',
+                        template: '<workflow-analysis analysis-id="{{analysisId}}"></workflow-analysis>',
                         controller: ['$scope', '$stateParams', '$location', function($scope, $stateParams, $location) {
                             $scope.analysisId = $stateParams.analysisId;
                         }]

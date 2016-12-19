@@ -1,9 +1,9 @@
 from sqlalchemy.orm import joinedload, contains_eager, load_only
 
-from vardb.datamodel import allele, sample, genotype
+from vardb.datamodel import allele, sample, genotype, workflow
 
 from api.util.alleledataloader import AlleleDataLoader
-from api.schemas import InterpretationSchema
+from api.schemas import AnalysisInterpretationSchema
 from api.util.annotationprocessor.genepanelprocessor import ABOVE_RESULT
 
 
@@ -58,11 +58,12 @@ class InterpretationDataLoader(object):
             genotype.Genotype.alleles,
             sample.Sample,
             sample.Analysis,
-            sample.Interpretation
+            workflow.AnalysisInterpretation
         ).options(
             contains_eager('genotypes'),  # do not use joinedload, as that will filter wrong
         ).filter(
-            sample.Interpretation.id == interpretation.id,
+            # TODO: Add AlleleInterpretation
+            workflow.AnalysisInterpretation.id == interpretation.id,
             genotype.Genotype.sample_id == sample.Sample.id
         ).options(
             load_only('id')
@@ -97,9 +98,8 @@ class InterpretationDataLoader(object):
 
     def group_alleles_by_finalization_filtering_status(self, analysis_id):
         entities_finalized =\
-            self.session.query(sample.AnalysisFinalized
-            ).filter(
-            sample.AnalysisFinalized.analysis_id == analysis_id
+            self.session.query(sample.AnalysisFinalized).filter(
+                sample.AnalysisFinalized.analysis_id == analysis_id
             ).all()
 
         allele_ids = []
@@ -122,10 +122,12 @@ class InterpretationDataLoader(object):
         return allele_ids, excluded_allele_ids
 
     def from_id(self, interpretation_id):
-        interpretation = self.session.query(sample.Interpretation).options(
+        # TODO: Add AlleleInterpretation
+        interpretation = self.session.query(workflow.AnalysisInterpretation).options(
             joinedload('analysis'),
             joinedload('analysis.samples')
-        ).filter(sample.Interpretation.id == interpretation_id
+        ).filter(
+            workflow.AnalysisInterpretation.id == interpretation_id
         ).one()
 
         analysis_is_finalized = all(map(lambda i:  i.status == 'Done', interpretation.analysis.interpretations))
@@ -133,7 +135,7 @@ class InterpretationDataLoader(object):
         allele_ids, excluded_ids = (self.group_alleles_by_finalization_filtering_status(interpretation.analysis_id)
             if analysis_is_finalized else self.group_alleles_by_config_and_annotation(interpretation))
 
-        result = InterpretationSchema().dump(interpretation).data
+        result = AnalysisInterpretationSchema().dump(interpretation).data
         result['allele_ids'] = allele_ids
         result['excluded_allele_ids'] = excluded_ids
         return result
