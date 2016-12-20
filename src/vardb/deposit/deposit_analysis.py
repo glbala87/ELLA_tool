@@ -20,8 +20,9 @@ import vardb.datamodel
 from vardb.datamodel import gene
 from vardb.util import vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
-                                    GenotypeImporter, AlleleImporter, inDBInfoProcessor, \
-                                    SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
+                                    GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
+                                    inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    SplitToDictInfoProcessor
 
 
 log = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ class DepositAnalysis(object):
         self.allele_importer = AlleleImporter(self.session)
         self.genotype_importer = GenotypeImporter(self.session)
         self.analysis_importer = AnalysisImporter(self.session)
+        self.analysis_interpretation_importer = AnalysisInterpretationImporter(self.session)
         self.counter = defaultdict(int)
 
     def check_samples(self, sample_names_in_vcf, sample_configs):
@@ -87,6 +89,8 @@ class DepositAnalysis(object):
             analysis_config=analysis_config,
             genepanel=db_genepanel
         )
+
+        self.analysis_interpretation_importer.process(db_analysis)
 
         for record in vi.iter():
             # Import alleles for this record (regardless if it's in our specified sample set or not)

@@ -20,7 +20,7 @@ from sqlalchemy import and_
 import sqlalchemy.orm.exc
 
 import vardb.datamodel
-from vardb.datamodel import allele as am, sample as sm, genotype as gm
+from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf
 from vardb.datamodel import annotation as annm, assessment as asm
 from vardb.datamodel import gene
 from vardb.util import vcfiterator
@@ -568,3 +568,19 @@ class AnalysisImporter(object):
         )
         self.session.add(analysis)
         return analysis
+
+
+class AnalysisInterpretationImporter(object):
+
+    def __init__(self, session):
+        self.session = session
+
+    def process(self, db_analysis):
+        db_interpretation, _ = wf.AnalysisInterpretation.get_or_create(
+            self.session,
+            analysis=db_analysis,
+            status="Not started"
+            )
+        return db_interpretation
+
+
