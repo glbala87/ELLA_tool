@@ -120,25 +120,6 @@ class AnalysisResource {
     }
 
     /**
-     * Returns information about alleles that are currently being interpreted in
-     * analyses _other_ than the provided analysis id, and which doesn't
-     * have any existing alleleassessment.
-     * @param  {int} id Analysis id
-     * @return {Object}    Information about collisions
-     */
-    getCollisions(id) {
-        return new Promise((resolve, reject) => {
-            var CollistionRS = this.resource(`${this.base}/analyses/${id}/collisions/`);
-            var data = CollistionRS.query(() => {
-                for (let user of data) {
-                    user.alleles = user.alleles.map(a => new Allele(a));
-                }
-                resolve(data);
-            }, reject);
-        });
-    }
-
-    /**
      * Usage:
      *  let MyResource = _resourceWithAction('reopen', 4);
      *  MyResource.doIt(..)

@@ -13,16 +13,14 @@
         <span> {{vm.interpretation.state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>-->
       <!--<button ng-click="vm.copyAlamut()">Copy all to alamut</button>-->
 
-      <!-- FIXME: how to show previous interpretations? As dropdown (below) or as a popup to show more data like 'Latest', days since change etc -->
-      <!--<div class="dropdown white" ng-if="vm.history_interpretations" style="margin-left: 1em">
-        <select  class="id-interpretationrounds-dropdown" ng-options="i as ( vm.history_interpretations.indexOf(i) + ' (' + i.id + ') '  + i.user.first_name + ' ' + i.user.last_name + ' ' + (i.date_last_update | date:'dd-MM-yyyy HH:mm')) for i in vm.history_interpretations track by i.id"
-                ng-model="vm.history_selected_interpretation"
-                ng-change="vm.onInterpretationRoundChange(vm.manuallySelectedInterpretation)">
-
+      <div class="dropdown white" ng-if="vm.showHistory()">
+        <select
+          class="id-interpretationrounds-dropdown"
+          ng-options="i as ( vm.interpretations.indexOf(i) + 1 + ' • ' + i.user.first_name + ' ' + i.user.last_name + ' • ' + (i.date_last_update | date:'dd-MM-yyyy HH:mm')) for i in vm.history_interpretations track by i.id"
+          ng-model="vm.selected_interpretation">
         </select>
-      </div>-->
-
-      <workflow-buttons analysis-id="vm.analysis.id" reload="vm.reloadInterpretationData()" current-interpretation="vm.current_interpretation" history-interpretations="vm.history_interpretations"></workflow-buttons>
+      </div>
+      <workflow-buttons analysis-id="vm.analysis.id" can-finish="vm.canFinish()" reload="vm.reloadInterpretationData()" selected-interpretation="vm.selected_interpretation" interpretations="vm.interpretations"></workflow-buttons>
     </section>
   </nav>
   <div class="interpretation">
@@ -34,7 +32,9 @@
       genepanel-name="vm.analysis.genepanel.name"
       genepanel-version="vm.analysis.genepanel.version"
       analysis="vm.analysis"
-      ng-if="vm.analysis">
+      alleles="vm.selected_interpretation_alleles"
+      updateAlleles="vm.reloadAlleles()"
+      ng-if="vm.analysis && vm.alleles_loaded">
     </interpretation>
   </div>
 

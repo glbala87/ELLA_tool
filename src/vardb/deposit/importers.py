@@ -579,6 +579,7 @@ class AnalysisInterpretationImporter(object):
         db_interpretation, _ = wf.AnalysisInterpretation.get_or_create(
             self.session,
             analysis=db_analysis,
+            genepanel=db_analysis.genepanel,
             status="Not started"
             )
         return db_interpretation

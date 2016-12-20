@@ -19,23 +19,38 @@ class WorkflowResource {
         this.base = '/api/v1';
         this.user = User;
         this.resource = resource;
+        this.types = {
+            allele: 'alleles',
+            analysis: 'analyses'
+        };
     }
 
-    getAnalysisCurrentInterpretations(analysis_id) {
+    getInterpretation(type, id, interpretation_id) {
         return new Promise((resolve, reject) => {
-            var AnalysisRS = this.resource(`${this.base}/workflows/analyses/${analysis_id}/interpretations/current/`);
+            var AnalysisRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/interpretations/${interpretation_id}/`);
             var current_interpretation = AnalysisRS.get((data) => {
                 resolve(new Interpretation(data));
             });
         });
     }
 
-    getAnalysisInterpretations(analysis_id) {
+    getInterpretations(type, id) {
         return new Promise((resolve, reject) => {
-            var AnalysisRS = this.resource(`${this.base}/workflows/analyses/${analysis_id}/interpretations/`);
-            var interpretations = AnalysisRS.query((data) => {
-                resolve(data);
+            var AnalysisRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/interpretations/`);
+            var interpretations = AnalysisRS.query(() => {
+                resolve(interpretations.map(i => new Interpretation(i)));
             });
+        });
+    }
+
+    getAlleles(type, id, interpretation_id, allele_ids) {
+        return new Promise((resolve, reject) => {
+            var AnalysisRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/interpretations/${interpretation_id}/alleles/`,
+                {allele_ids: allele_ids.join(',')}
+            );
+            var alleles = AnalysisRS.query(() => {
+                resolve(alleles.map(a => new Allele(a)));
+            }, reject);
         });
     }
 
@@ -104,19 +119,15 @@ class WorkflowResource {
         });
     }
 
-    patchInterpretation(type, id, data) {
+    patchInterpretation(type, id, interpretation) {
         return new Promise((resolve, reject) => {
-            let resource_types = {
-                allele: 'alleles',
-                analysis: 'analyses'
-            };
-            var AnalysesRS = this.resource(`${this.base}/workflows/${resource_types[type]}/${id}/interpretations/current/`, {}, {
+            var AnalysesRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/interpretations/${interpretation.id}/`, {}, {
                 update: {
                     method: 'PATCH'
                 }
             });
             AnalysesRS.update(
-                data,
+                interpretation,
                 resolve,
                 reject
             );
@@ -131,6 +142,7 @@ class WorkflowResource {
      * @return {Object}    Information about collisions
      */
     getCollisions(id) {
+        throw Error("Fix me!");
         return new Promise((resolve, reject) => {
             var CollistionRS = this.resource(`${this.base}/analyses/${id}/collisions/`);
             var data = CollistionRS.query(() => {
@@ -153,11 +165,7 @@ class WorkflowResource {
      * @private
      */
     _resourceWithAction(type, action) {
-        let resource_type = {
-            allele: 'alleles',
-            analysis: 'analyses'
-        }
-        return this.resource(`${this.base}/workflows/${resource_type[type]}/:id/actions/:action/`,
+        return this.resource(`${this.base}/workflows/${this.types[type]}/:id/actions/:action/`,
             { action: action },
             { doIt: { method: 'POST'} }
         );

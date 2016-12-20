@@ -1,2 +1,3 @@
-<button class="id-finish-analysis" ng-click="vm.completeInterpretation()" ng-disabled="!vm.canFinish()">Finish analysis</button>
+
+<button class="id-finish-analysis" ng-click="vm.clickFinishBtn()" ng-disabled="!vm.checkCanFinish()">Finish analysis</button>
 <button class="id-start-analysis" ng-class="vm.getSaveBtnClass()" ng-click="vm.clickStartSaveBtn()">{{vm.getSaveBtnText()}}</button>

@@ -155,19 +155,23 @@ export class AnalysisController {
         // Let's user browse read only view, without starting interpretation
         this.dummy_interpretation = {
             state: {},
-            user_state: {},
-            allele_ids: [1, 2, 3]  // Debug: Remove me
+            user_state: {}
         };
-        this.current_interpretation = null; // Holds active interpretation for editing
 
-        this.history_selected_interpretation = null; // Holds selected interpretation from history
-        this.history_interpretations = []; // Holds interpretation history from backend
+
+        this.selected_interpretation = null; // Holds displayed interpretation
+        this.selected_interpretation_alleles = []; // Loaded alleles for current interpretation
+        this.alleles_loaded = false;  // Loading indicators etc
+
+
+        this.interpretations = []; // Holds interpretations from backend
+        this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
 
         this.setUpListeners();
         this._setWatchers();
         this.setupNavbar();
 
-        this._loadAnalysis(this.analysisId);
+        this._loadAnalysis();
         this.reloadInterpretationData();
     }
 
@@ -175,7 +179,7 @@ export class AnalysisController {
         // Setup listener for asking user if they really want to navigate
         // away from page if unsaved changes
         let unregister_func = this.rootScope.$on('$stateChangeStart', (event) => {  // TODO: create switch to disable in CI/test
-            if (this.config.app.user_confirmation_on_state_change && this.interpretation && this.interpretation.dirty) {
+            if (this.config.app.user_confirmation_on_state_change && this.isInterpretationOngoing() && this.selected_interpretation.dirty) {
                 this.confirmAbortInterpretation(event);
             }
         });
@@ -188,7 +192,7 @@ export class AnalysisController {
 
         // Ask user when reloading/closing if unsaved changes
         window.onbeforeunload = (event) => {
-            if (this.config.app.user_confirmation_to_discard_changes && this.interpretation && this.interpretation.dirty) { // TODO: create switch to disable in CI/test
+            if (this.config.app.user_confirmation_to_discard_changes && this.isInterpretationOngoing() && this.selected_interpretation.dirty) { // TODO: create switch to disable in CI/test
                 event.returnValue = "You have unsaved work. Do you really want to exit application?";
             }
         };
@@ -197,30 +201,36 @@ export class AnalysisController {
     _setWatchers(rootScope) {
         // Watch interpretation's state/user_state and call update whenever it changes
         let watchStateFn = () => {
-            if (this.interpretation &&
-                this.interpretation.state) {
-                return this.interpretation.state;
+            if (this.isInterpretationOngoing() &&
+                this.selected_interpretation.state) {
+                return this.selected_interpretation.state;
             }
         };
         let watchUserStateFn = () => {
-            if (this.interpretation &&
-                this.interpretation.user_state) {
-                return this.interpretation.user_state;
+            if (this.isInterpretationOngoing() &&
+                this.selected_interpretation.user_state) {
+                return this.selected_interpretation.user_state;
             }
         };
         this.rootScope.$watch(watchStateFn, (n, o) => {
             // If no old object, we're on the first iteration
             // -> don't set dirty
-            if (this.interpretation && o) {
-                this.interpretation.setDirty();
+            if (this.selected_interpretation && o) {
+                this.selected_interpretation.setDirty();
             }
         }, true); // true -> Deep watch
 
         this.rootScope.$watch(watchUserStateFn, (n, o) => {
-            if (this.interpretation && o) {
-                this.interpretation.setDirty();
+            if (this.selected_interpretation && o) {
+                this.selected_interpretation.setDirty();
             }
         }, true); // true -> Deep watch
+
+
+        this.rootScope.$watch(
+            () => this.selected_interpretation,
+            () => this.loadAlleles(this.selected_interpretation)
+        );
     }
 
     setupNavbar() {
@@ -239,32 +249,6 @@ export class AnalysisController {
                .reduce((total_length, length) => total_length + length);
     }
 
-    /**
-     * User chose an interpretation (round) (when read-only sample history)
-     */
-    onInterpretationRoundChange(value) {
-        console.log("user chose " + value + ". Now this.manuallySelectedInterpretation = " + this.manuallySelectedInterpretation);
-        this.workflowService.loadInterpretation(this.manuallySelectedInterpretation.id).then(i => {
-            this.interpretation = i;
-        }).catch((err) => {
-            console.error(err);
-        })
-    }
-
-    /**
-     * Checks whether the loaded interpretation
-     * is current user.
-     * @return {Boolean} true if undefined or current user, false if different user
-     */
-    isCurrentUser() {
-        if (!this.interpretation ||
-            this.interpretation.user_id === undefined ||
-            this.interpretation.user_id === null) {
-            return true;
-        }
-        return this.interpretation.user_id === this.user.getCurrentUserId();
-    }
-
     isAnalysisDone() {
         if (!this.interpretation) {
             return false;
@@ -274,7 +258,7 @@ export class AnalysisController {
     }
 
     confirmAbortInterpretation(event) {
-        if (this.interpretation && !event.defaultPrevented) {
+        if (this.isInterpretationOngoing() && !event.defaultPrevented) {
             let choice = confirm('Abort current analysis? Any unsaved changes will be lost!');
             if (!choice) {
                 event.preventDefault();
@@ -283,39 +267,63 @@ export class AnalysisController {
     }
 
     getInterpretation() {
-        if (this.current_interpretation &&
-            (this.current_interpretation.status == 'Not started' ||
-             this.current_interpretation.status ==  'Ongoing')
-           ) {
-            return this.current_interpretation;
+        // Force selected interpretation to be the Ongoing one, if it exists, to avoid mixups.
+        let ongoing_interpretation = this.interpretations.find(i => i.status === 'Ongoing');
+        if (ongoing_interpretation) {
+            this.selected_interpretation = ongoing_interpretation;
         }
-        else if (this.history_selected_interpretation) {
-            return this.history_selected_interpretation;
+
+        if (this.selected_interpretation) {
+            return this.selected_interpretation;
         }
         return this.dummy_interpretation;
     }
 
-    reloadInterpretationData() {
-        console.log("Reloading interpretation data...")
-        this._loadCurrentInterpretation(this.analysisId);
-        this._loadHistoryInterpretations(this.analysisId);
+    isInterpretationOngoing() {
+        return (this.selected_interpretation &&
+                this.selected_interpretation.status == 'Ongoing')
     }
 
-    _loadCurrentInterpretation(analysis_id) {
-        return this.workflowResource.getAnalysisCurrentInterpretations(analysis_id).then(current => {
-            console.log(current);
-            this.current_interpretation = current;
+    showHistory() {
+        return !this.isInterpretationOngoing()
+               && this.history_interpretations.length;
+    }
+
+    canFinish() {
+        return true;
+    }
+
+    reloadInterpretationData() {
+        console.log("Reloading interpretation data...")
+        this._loadInterpretations().then(() => {
+            this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
         });
     }
 
-    _loadHistoryInterpretations(analysis_id) {
-        return this.workflowResource.getAnalysisInterpretations(analysis_id).then(interpretations =>
-            this.history_interpretations = interpretations
-        );
+    loadAlleles(interpretation) {
+        this.alleles_loaded = false;
+        this.selected_interpretation_alleles = [];
+        if (interpretation) {
+            return this.workflowService.loadAlleles(
+                'analysis',
+                this.analysisId,
+                interpretation
+            ).then(alleles => {
+                this.selected_interpretation_alleles = alleles;
+                this.alleles_loaded = true;
+            });
+        }
     }
 
-    _loadAnalysis(analysis_id) {
-        this.analysisResource.getAnalysis(analysis_id).then(a => {
+    _loadInterpretations() {
+        return this.workflowResource.getInterpretations('analysis', this.analysisId).then(interpretations => {
+            this.interpretations = interpretations
+            this.selected_interpretation = this.interpretations[this.interpretations.length-1];
+        });
+    }
+
+    _loadAnalysis() {
+        this.analysisResource.getAnalysis(this.analysisId).then(a => {
             this.analysis = a;
             this.setupNavbar();
         });

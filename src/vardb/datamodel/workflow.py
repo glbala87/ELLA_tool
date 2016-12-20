@@ -3,8 +3,8 @@
 
 import datetime
 
-from sqlalchemy import Column, Sequence, Integer, DateTime, Enum
-from sqlalchemy import ForeignKey
+from sqlalchemy import Column, Sequence, Integer, DateTime, Enum, String
+from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -25,9 +25,15 @@ class AnalysisInterpretation(Base):
     """
     __tablename__ = "analysisinterpretation"
 
+    __next_attrs__ = ['analysis_id', 'state', 'genepanel_name', 'genepanel_version']
+
     id = Column(Integer, Sequence("id_analysisinterpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
+    genepanel_name = Column(String)
+    genepanel_version = Column(String)
+    genepanel = relationship("Genepanel", uselist=False)
+
     user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False, backref='analysisinterpretations')
@@ -36,9 +42,17 @@ class AnalysisInterpretation(Base):
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
     date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)
+
+    @classmethod
+    def create_next(cls, old):
+        next_obj = cls()
+        for attr in cls.__next_attrs__:
+            setattr(next_obj, attr, getattr(old, attr))
+        return next_obj
 
 
 class AnalysisInterpretationSnapshot(Base):
@@ -80,9 +94,14 @@ class AlleleInterpretation(Base):
     """
     __tablename__ = "alleleinterpretation"
 
+    __next_attrs__ = ['allele_id', 'state', 'genepanel_name', 'genepanel_version']
+
     id = Column(Integer, Sequence("id_alleleinterpretation_seq"), primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
+    genepanel_name = Column(String)
+    genepanel_version = Column(String)
+    genepanel = relationship("Genepanel", uselist=False)
     user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
@@ -91,9 +110,17 @@ class AlleleInterpretation(Base):
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
     date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<AlleleInterpretation('{}', '{}')>".format(str(self.allele_id), self.status)
+
+    @classmethod
+    def create_next(cls, old):
+        next_obj = cls()
+        for attr in cls.__next_attrs__:
+            setattr(next_obj, attr, getattr(old, attr))
+        return next_obj
 
 
 class AlleleInterpretationSnapshot(Base):

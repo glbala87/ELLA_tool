@@ -1,6 +1,7 @@
 import datetime
 
-from sqlalchemy import not_
+from sqlalchemy import not_, or_
+from flask import request
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, gene, workflow
 
@@ -38,15 +39,85 @@ def get_current_interpretation(analysis):
     return current[0] if current else None
 
 
+class AnalysisInterpretationAllelesListResource(Resource):
+
+    def get(self, session, analysis_id, interpretation_id):
+
+        allele_ids = request.args.get('allele_ids').split(',')
+
+        alleles = session.query(allele.Allele).filter(
+            allele.Allele.id.in_(allele_ids)
+        ).all()
+
+        # Get analysis in order to get genepanels and samples
+        sample_ids = session.query(sample.Sample.id).filter(
+            sample.Sample.analysis_id == sample.Analysis.id,
+            sample.Analysis.id == analysis_id
+        ).all()
+
+        sample_ids = [s[0] for s in sample_ids]
+
+        # Get interpretation to get genepanel and check status
+        analysis_interpretation = session.query(workflow.AnalysisInterpretation).filter(
+            workflow.AnalysisInterpretation.id == interpretation_id
+        ).one()
+
+        link_filter = None  # In case of loading specific data rather than latest available for annotation, custom_annotation etc..
+        if analysis_interpretation.status == 'Done':
+            # Use context data from snapshot
+            link_filter = {
+                # TODO: Get data from snapshot
+            }
+        else:
+            # Load latest data
+            pass
+
+        allele_genotypes = None
+        print alleles
+
+        # FIXME
+        sample_id = sample_ids[0]
+        if sample_id:
+            genotypes = None
+            genotypes = session.query(genotype.Genotype).join(sample.Sample).filter(
+                sample.Sample.id == sample_id,
+                or_(
+                    genotype.Genotype.allele_id.in_(allele_ids),
+                    genotype.Genotype.secondallele_id.in_(allele_ids),
+                )
+            ).all()
+
+            # Map one genotype to each allele for use in AlleleDataLoader
+            allele_genotypes = list()
+            for al in alleles:
+                gt = next((g for g in genotypes if g.allele_id == al.id or g.secondallele_id == al.id), None)
+                if gt is None:
+                    raise ApiError("No genotype match in sample {} for allele id {}".format(sample_id, al.id))
+                allele_genotypes.append(gt)
+
+        kwargs = {
+            'include_annotation': True,
+            'include_custom_annotation': True,
+            'genepanel': analysis_interpretation.genepanel
+        }
+
+        if link_filter:
+            kwargs['link_filter'] = link_filter
+        if allele_genotypes:
+            kwargs['genotypes'] = allele_genotypes
+        return AlleleDataLoader(session).from_objs(
+            alleles,
+            **kwargs
+        )
+
+
 class AnalysisInterpretationResource(Resource):
 
-    def get(self, session, analysis_id):
+    def get(self, session, analysis_id, interpretation_id):
         """
-        Returns current analysisinterpretation for analysis.
-
-        If no current analysisinterpretation exists, it returns null.
+        Returns analysisinterpretation for analysis.
         ---
-        summary: Get current interpretation
+        summary: Get analysis interpretation
         tags:
           - Workflow
         parameters:
@@ -54,6 +125,10 @@ class AnalysisInterpretationResource(Resource):
             in: path
             type: integer
             description: Analysis id
+          - name: interpretation_id
+            in: path
+            type: integer
+            description: AnalysisInterpretation id
         responses:
           200:
             schema:
@@ -84,11 +159,7 @@ class AnalysisInterpretationResource(Resource):
             description: Interpretation object
         """
 
-        latest_analysis_interpretation = get_latest_analysisinterpretation(session, analysis_id)
-        if latest_analysis_interpretation:
-            return InterpretationDataLoader(session, config).from_id(latest_analysis_interpretation.id)
-        else:
-            return None
+        return InterpretationDataLoader(session, config).from_id(interpretation_id)
 
     @request_json(
         ['id'],
@@ -98,7 +169,7 @@ class AnalysisInterpretationResource(Resource):
             'user_id'
         ]
     )
-    def patch(self, session, analysis_id, data=None):
+    def patch(self, session, analysis_id, interpretation_id, data=None):
         """
         Updates the current interpretation inplace.
 
@@ -134,19 +205,21 @@ class AnalysisInterpretationResource(Resource):
             description: OK
         """
 
-        latest_analysis_interpretation = get_latest_analysisinterpretation(session, analysis_id)
+        analysis_interpretation = session.query(workflow.AnalysisInterpretation).filter(
+            workflow.AnalysisInterpretation.id == interpretation_id
+        ).one()
 
-        AnalysisInterpretationResource.check_update_allowed(latest_analysis_interpretation, data)
+        AnalysisInterpretationResource.check_update_allowed(analysis_interpretation, data)
 
         # Add current state to history if new state is different:
-        if data['state'] != latest_analysis_interpretation.state:
-            AnalysisInterpretationResource.update_history(latest_analysis_interpretation)
+        if data['state'] != analysis_interpretation.state:
+            AnalysisInterpretationResource.update_history(analysis_interpretation)
 
         # Patch (overwrite) state fields with new values
-        latest_analysis_interpretation.state = data['state']
-        latest_analysis_interpretation.user_state = data['user_state']
+        analysis_interpretation.state = data['state']
+        analysis_interpretation.user_state = data['user_state']
 
-        latest_analysis_interpretation.date_last_update = datetime.datetime.now()
+        analysis_interpretation.date_last_update = datetime.datetime.now()
 
         session.commit()
         return None, 200
@@ -199,11 +272,17 @@ class AnalysisInterpretationListResource(Resource):
             description: AnalysisInterpretation objects
         """
 
-        analysis_interpretations = session.query(workflow.AnalysisInterpretation).filter(
+        analysis_interpretations = session.query(workflow.AnalysisInterpretation.id).filter(
             workflow.AnalysisInterpretation.analysis_id == analysis_id
-        ).all()
+        ).order_by(workflow.AnalysisInterpretation.id).all()
 
-        return schemas.AnalysisInterpretationSchema().dump(analysis_interpretations, many=True).data
+        loaded_interpretations = list()
+        idl = InterpretationDataLoader(session, config)
+        # FIXME: Handle snapshots...
+        for analysis_interpretation in analysis_interpretations:
+            loaded_interpretations.append(idl.from_id(analysis_interpretation[0]))
+
+        return loaded_interpretations
 
 
 class AnalysisActionOverrideResource(Resource):
@@ -375,9 +454,7 @@ class AnalysisActionMarkReviewResource(Resource):
         analysis_interpretation_current.date_last_update = datetime.datetime.now()
 
         # Create next interpretation
-        analysis_interpretation_next = workflow.AnalysisInterpretation()
-        analysis_interpretation_next.analysis_id = analysis_interpretation_current.analysis_id
-        analysis_interpretation_next.state = analysis_interpretation_current.state
+        analysis_interpretation_next = workflow.AnalysisInterpretation.create_next(analysis_interpretation_current)
 
         session.add(analysis_interpretation_next)
         session.commit()
@@ -433,9 +510,7 @@ class AnalysisActionReopenResource(Resource):
             raise ApiError("Allele interpretation is already 'Not started' or 'Ongoing'. Cannot reopen.")
 
         # Create next interpretation
-        analysis_interpretation_next = workflow.AlleleInterpretation()
-        analysis_interpretation_next.allele_id = analysis_interpretation.allele_id
-        analysis_interpretation_next.state = analysis_interpretation.state
+        analysis_interpretation_next = workflow.AlleleInterpretation.create_next(analysis_interpretation)
 
         session.add(analysis_interpretation_next)
         session.commit()

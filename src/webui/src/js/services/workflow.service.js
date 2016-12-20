@@ -135,6 +135,50 @@ class WorkflowService {
     }
 
     /**
+     * Loads in allele data from backend, including ACMG data.
+     * Referenceassessments and included alleles are fetched from interpretation's state.
+     *
+     */
+    loadAlleles(type, id, interpretation) {
+        // Clone allele_ids array
+        let allele_ids = interpretation.allele_ids.slice(0);
+
+        // Add any manually added alleles
+        if ('manuallyAddedAlleles' in interpretation.state) {
+            allele_ids = allele_ids.concat(interpretation.state.manuallyAddedAlleles);
+        }
+
+        return this.workflowResource.getAlleles(
+            type,
+            id,
+            interpretation.id,
+            allele_ids
+        ).then(
+            alleles => {
+            // Flatten all referenceassessments from state
+            let referenceassessments = [];
+            if ('allele' in interpretation.state) {
+                referenceassessments = interpretation.state.allele.map(
+                    al => al.referenceassessments
+                ).reduce((p, c) => {
+                    if (c) {
+                        return p.concat(c.filter(e => e.evaluation));
+                    }
+                    return p;
+                }, []);
+            }
+
+            // Updates allele.acmg inplace
+            return this.alleleService.updateACMG(
+                alleles,
+                interpretation.genepanel_name,
+                interpretation.genepanel_version,
+                referenceassessments
+            ).then(() => alleles);
+        });
+    }
+
+    /**
      * Popups a confirmation dialog, asking to complete or finalize the interpretation
      * @param  {Interpretation} interpretation
      * @param  {Array(Allele)} alleles  Alleles to include allele/referenceassessments for.

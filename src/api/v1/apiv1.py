@@ -141,11 +141,14 @@ class ApiV1(object):
         self._add_resource(r.workflow.allele.AlleleActionReopenResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/reopen/')
 
-        self._add_resource(r.workflow.analysis.AnalysisInterpretationResource,
-                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/current/')
-
         self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
+
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/')
+
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationAllelesListResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/alleles/')
 
         self._add_resource(r.workflow.analysis.AnalysisActionStartResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/start/')

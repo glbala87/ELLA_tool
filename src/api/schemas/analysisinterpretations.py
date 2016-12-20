@@ -1,7 +1,8 @@
 from flask.ext.marshmallow import Marshmallow
-from marshmallow import Schema
+from marshmallow import Schema, fields
 
 from api import app
+from api.schemas import users
 
 ma = Marshmallow(app)
 
@@ -16,4 +17,9 @@ class AnalysisInterpretationSchema(Schema):
                   'user_state',
                   'state',
                   'date_last_update',
-                  'user_id')
+                  'genepanel_name',
+                  'genepanel_version',
+                  'user_id',
+                  'user')
+
+    user = fields.Nested(users.UserSchema)
