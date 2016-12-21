@@ -88,6 +88,7 @@ import './widgets/reportcard/reportcard.directive';
 import './widgets/isolateclick.directive';
 import './widgets/genepanelvalue/genepanelvalue.directive.js';
 import './widgets/igv.directive.js';
+import './widgets/wysiwygjsEditor.directive';
 
 import {Config, Inject, Run} from './ng-decorators';
 

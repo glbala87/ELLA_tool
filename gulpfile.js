@@ -68,7 +68,9 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/thenby/thenBy.min.js',
         'src/webui/src/thirdparty/igv/jquery.min.js',  // <-- Beware, we're using jquery here (in case of conflicts)
         'src/webui/src/thirdparty/igv/jquery-ui.min.js',
-        'src/webui/src/thirdparty/igv/igv-1.0.5.min.js'
+        'src/webui/src/thirdparty/igv/igv-1.0.5.min.js',
+        'src/webui/src/thirdparty/wysiwygjs/wysiwyg.js'
+
     ];
 
     return gulp.src(sourcePaths)
