@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload, contains_eager, load_only
 from vardb.datamodel import allele, sample, genotype, workflow
 
 from api.util.alleledataloader import AlleleDataLoader
-from api.schemas import AnalysisInterpretationSchema
+from api.schemas import AnalysisInterpretationSchema, AlleleInterpretationSchema
 from api.util.annotationprocessor.genepanelprocessor import ABOVE_RESULT
 
 
@@ -44,6 +44,22 @@ class InterpretationDataLoader(object):
                 return True
         return False
 
+    def _get_interpretation_cls(self, interpretation):
+        if isinstance(interpretation, workflow.AnalysisInterpretation):
+            return workflow.AnalysisInterpretation
+        elif isinstance(interpretation, workflow.AlleleInterpretation):
+            return workflow.AlleleInterpretation
+        else:
+            raise RuntimeError("Unknown interpretation class type.")
+
+    def _get_interpretation_schema(self, interpretation):
+        if isinstance(interpretation, workflow.AnalysisInterpretation):
+            return AnalysisInterpretationSchema
+        elif isinstance(interpretation, workflow.AlleleInterpretation):
+            return AlleleInterpretationSchema
+        else:
+            raise RuntimeError("Unknown interpretation class type.")
+
     def group_alleles_by_config_and_annotation(self, interpretation):
         """
         Group the allele ids by checking the cutoff thresholds and intronic flag in annotation data
@@ -54,16 +70,18 @@ class InterpretationDataLoader(object):
         """
         genepanel = interpretation.analysis.genepanel
 
+        interpretation_cls = self._get_interpretation_cls(interpretation)
+
         alleles_with_id = self.session.query(allele.Allele).join(
             genotype.Genotype.alleles,
             sample.Sample,
             sample.Analysis,
-            workflow.AnalysisInterpretation
+            interpretation_cls
         ).options(
             contains_eager('genotypes'),  # do not use joinedload, as that will filter wrong
         ).filter(
             # TODO: Add AlleleInterpretation
-            workflow.AnalysisInterpretation.id == interpretation.id,
+            interpretation_cls.id == interpretation.id,
             genotype.Genotype.sample_id == sample.Sample.id
         ).options(
             load_only('id')
@@ -96,11 +114,9 @@ class InterpretationDataLoader(object):
 
         return allele_ids, excluded_allele_ids
 
-    def group_alleles_by_finalization_filtering_status(self, analysis_id):
-        entities_finalized =\
-            self.session.query(sample.AnalysisFinalized).filter(
-                sample.AnalysisFinalized.analysis_id == analysis_id
-            ).all()
+    def group_alleles_by_finalization_filtering_status(self, interpretation):
+        if not interpretation.snapshots:
+            raise RuntimeError("Missing snapshot for interpretation.")
 
         allele_ids = []
         excluded_allele_ids = {
@@ -109,33 +125,25 @@ class InterpretationDataLoader(object):
             'gene': []
         }
 
-        for f in entities_finalized:
-            if f.filtered == allele.Allele.CLASS1:
-                excluded_allele_ids['class1'].append(f.allele_id)
-            elif f.filtered == allele.Allele.INTRON:
-                excluded_allele_ids['intron'].append(f.allele_id)
-            elif f.filtered == allele.Allele.GENE:
-                excluded_allele_ids['gene'].append(f.allele_id)
+        for snapshot in interpretation.snapshots:
+            if snapshot.filtered == allele.Allele.CLASS1:
+                excluded_allele_ids['class1'].append(snapshot.allele_id)
+            elif snapshot.filtered == allele.Allele.INTRON:
+                excluded_allele_ids['intron'].append(snapshot.allele_id)
+            elif snapshot.filtered == allele.Allele.GENE:
+                excluded_allele_ids['gene'].append(snapshot.allele_id)
             else:
-                allele_ids.append(f.allele_id)
+                allele_ids.append(snapshot.allele_id)
 
         return allele_ids, excluded_allele_ids
 
-    def from_id(self, interpretation_id):
-        # TODO: Add AlleleInterpretation
-        interpretation = self.session.query(workflow.AnalysisInterpretation).options(
-            joinedload('analysis'),
-            joinedload('analysis.samples')
-        ).filter(
-            workflow.AnalysisInterpretation.id == interpretation_id
-        ).one()
+    def from_obj(self, interpretation):
+        if interpretation.status == 'Done':
+            allele_ids, excluded_ids = self.group_alleles_by_finalization_filtering_status(interpretation)
+        else:
+            allele_ids, excluded_ids = self.group_alleles_by_config_and_annotation(interpretation)
 
-        analysis_is_finalized = all(map(lambda i:  i.status == 'Done', interpretation.analysis.interpretations))
-
-        allele_ids, excluded_ids = (self.group_alleles_by_finalization_filtering_status(interpretation.analysis_id)
-            if analysis_is_finalized else self.group_alleles_by_config_and_annotation(interpretation))
-
-        result = AnalysisInterpretationSchema().dump(interpretation).data
+        result = self._get_interpretation_schema(interpretation)().dump(interpretation).data
         result['allele_ids'] = allele_ids
         result['excluded_allele_ids'] = excluded_ids
         return result

@@ -48,22 +48,16 @@ class AssessmentCreator(object):
 
         :return a dict {
             'referenceassessments': {
-                'reused': [(context, None)]
-                'created': [(context, created)]
+                'reused': [...]
+                'created': [...]
             },
             'alleleassessments': {
-                'reused': [(context, None)],
-                'created': [(context, created)]
+                'reused': [...],
+                'created': [...]
             }
         }
         with the assessments grouped by allele assessments and reference assessments and
         whether they were created or reused.
-
-        Each entry in the list is a tuple to keep track of the context of the assessment,
-        more specifically the assessment presented to the user when doing an assessment.
-
-         The tuple is of the form (context, created). Where 'context' is the one (if any) displayed to the user
-         in the UI and created is the one (if any) created by the user.
         """
 
         aa_created, aa_reused = self._create_or_reuse_alleleassessments(annotations, alleleassessments, custom_annotations=custom_annotations)
@@ -74,7 +68,7 @@ class AssessmentCreator(object):
 
         ra_created, ra_reused = self._create_or_reuse_referenceassessments(all_reference_assessments)
 
-        self._attach_referenceassessments(ra_created + ra_reused, map(lambda c: c[1], aa_created))
+        self._attach_referenceassessments(ra_created + ra_reused, aa_created)
 
         return {
             'referenceassessments': {
@@ -116,8 +110,7 @@ class AssessmentCreator(object):
         :param annotations: [{allele_id: annotation_id}]
         :param alleleassessments:
         :param custom_annotations: [{allele_id: custom_annotation_id}]
-        :return: (created, reused), created is list( (presented | None, created) )
-                                    reused is  list( (presented       , None)    )
+        :return: (created, reused)
         """
 
         def _find_first_matching(seq, predicate):
@@ -144,7 +137,7 @@ class AssessmentCreator(object):
         for assessment_data in alleleassessments:
             if AssessmentCreator._possible_reuse(assessment_data):
                 presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments)
-                reused_assessments.append((presented_assessment, None))
+                reused_assessments.append(presented_assessment)
                 log.info("Reused assessment %s for allele %s", presented_assessment.id, assessment_data['allele_id'])
             else:  # create a new assessment
                 assessment_obj = AlleleAssessmentSchema(strict=True).load(assessment_data).data
@@ -176,8 +169,8 @@ class AssessmentCreator(object):
                     assessment_obj.previous_assessment_id = to_supercede.id
 
                 presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments, error_if_not_found=False)
-                created_assessments.append((presented_assessment, assessment_obj))
-                log.info("Created assessment for allele %s, superceed? %s", assessment_obj.allele_id, assessment_obj.previous_assessment_id)
+                created_assessments.append(assessment_obj)
+                log.info("Created assessment for allele: %s, it supercedes: %s", assessment_obj.allele_id, assessment_obj.previous_assessment_id)
 
         return created_assessments, reused_assessments
 

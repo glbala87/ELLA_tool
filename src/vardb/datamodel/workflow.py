@@ -64,7 +64,8 @@ class AnalysisInterpretationSnapshot(Base):
     __tablename__ = "analysisinterpretationsnapshot"
 
     id = Column(Integer, Sequence("id_analysisinterpretationsnapshot_seq"), primary_key=True)
-    analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"), nullable=False)
+    analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"), nullable=False,)
+    analysisinterpretation = relationship("AnalysisInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=True)  # None for an excluded allele
     customannotation_id = Column(Integer, ForeignKey("customannotation.id"))
@@ -133,6 +134,7 @@ class AlleleInterpretationSnapshot(Base):
 
     id = Column(Integer, Sequence("id_alleleinterpretationsnapshot_seq"), primary_key=True)
     alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"), nullable=False)
+    alleleinterpretation = relationship("AlleleInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=True)  # None for an excluded allele
     customannotation_id = Column(Integer, ForeignKey("customannotation.id"))

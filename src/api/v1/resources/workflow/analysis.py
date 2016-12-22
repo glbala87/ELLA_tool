@@ -64,16 +64,19 @@ class AnalysisInterpretationAllelesListResource(Resource):
 
         link_filter = None  # In case of loading specific data rather than latest available for annotation, custom_annotation etc..
         if analysis_interpretation.status == 'Done':
-            # Use context data from snapshot
+            # Serve using context data from snapshot
+            snapshots = session.query(workflow.AnalysisInterpretationSnapshot).filter(
+                workflow.AnalysisInterpretationSnapshot.analysisinterpretation_id == analysis_interpretation.id
+            ).all()
+
             link_filter = {
-                # TODO: Get data from snapshot
+                'annotation_id': [s.annotation_id for s in snapshots if s.annotation_id is not None],
+                'customannotation_id': [s.customannotation_id for s in snapshots if s.customannotation_id is not None],
+                'alleleassessment_id': [s.alleleassessment_id for s in snapshots if s.alleleassessment_id is not None],
+                'allelereport_id': [s.allelereport_id for s in snapshots if s.allelereport_id is not None],
             }
-        else:
-            # Load latest data
-            pass
 
         allele_genotypes = None
-        print alleles
 
         # FIXME
         sample_id = sample_ids[0]
@@ -272,7 +275,7 @@ class AnalysisInterpretationListResource(Resource):
             description: AnalysisInterpretation objects
         """
 
-        analysis_interpretations = session.query(workflow.AnalysisInterpretation.id).filter(
+        analysis_interpretations = session.query(workflow.AnalysisInterpretation).filter(
             workflow.AnalysisInterpretation.analysis_id == analysis_id
         ).order_by(workflow.AnalysisInterpretation.id).all()
 
@@ -280,7 +283,8 @@ class AnalysisInterpretationListResource(Resource):
         idl = InterpretationDataLoader(session, config)
         # FIXME: Handle snapshots...
         for analysis_interpretation in analysis_interpretations:
-            loaded_interpretations.append(idl.from_id(analysis_interpretation[0]))
+            print analysis_interpretation
+            loaded_interpretations.append(idl.from_obj(analysis_interpretation))
 
         return loaded_interpretations
 
@@ -406,7 +410,15 @@ class AnalysisActionStartResource(Resource):
 
 class AnalysisActionMarkReviewResource(Resource):
 
-    def post(self, session, analysis_id):
+    @request_json(
+        [
+            'alleleassessments',
+            'annotations',
+            'custom_annotations',
+            'allelereports'
+        ]
+    )
+    def post(self, session, analysis_id, data=None):
         """
         Marks an analysis for review.
 
@@ -445,19 +457,43 @@ class AnalysisActionMarkReviewResource(Resource):
         """
         # TODO: Validate that user is same as user on interpretation
 
-        analysis_interpretation_current = get_latest_analysisinterpretation(session, analysis_id)
+        analysis_interpretation = get_latest_analysisinterpretation(session, analysis_id)
 
-        if analysis_interpretation_current.status != 'Ongoing':
-            raise ApiError("Interpretation is not ongoing.")
+        if not analysis_interpretation.status == 'Ongoing':
+            raise ApiError("Cannot mark for review when latest interpretation is not 'Ongoing'")
 
-        analysis_interpretation_current.status = 'Done'
-        analysis_interpretation_current.date_last_update = datetime.datetime.now()
+        import pprint; print '{0}{2}\nanalysis.py (461):\n{2}{1}\n{3}\n{0}{2}{1}'.format('\033[91m', '\033[0m','='*50, pprint.pformat(data))
+
+        presented_alleleassessment_ids = [a['presented_alleleassessment_id'] for a in data['alleleassessments'] if 'presented_alleleassessment_id' in a]
+        presented_alleleassessments = session.query(assessment.AlleleAssessment).filter(
+            assessment.AlleleAssessment.id.in_(presented_alleleassessment_ids)
+        ).all()
+
+        presented_allelereport_ids = [a['presented_allelereport_id'] for a in data['allelereports'] if 'presented_allelereport_id' in a]
+        presented_allelereports = session.query(assessment.AlleleReport).filter(
+            assessment.AlleleAssessment.id.in_(presented_allelereport_ids)
+        ).all()
+
+        snapshot_objects = SnapshotCreator(session).create_from_data(
+            'analysis',
+            analysis_interpretation.id,
+            data['annotations'],
+            presented_alleleassessments,
+            presented_allelereports,
+            custom_annotations=data.get('customannotations'),
+        )
+
+        session.add_all(snapshot_objects)
+
+        analysis_interpretation.status = 'Done'
+        analysis_interpretation.date_last_update = datetime.datetime.now()
 
         # Create next interpretation
-        analysis_interpretation_next = workflow.AnalysisInterpretation.create_next(analysis_interpretation_current)
-
+        analysis_interpretation_next = workflow.AnalysisInterpretation.create_next(analysis_interpretation)
         session.add(analysis_interpretation_next)
+
         session.commit()
+
         return None, 200
 
 
@@ -832,59 +868,66 @@ class AnalysisActionFinalizeResource(Resource):
         if not analysis_interpretation.status == 'Ongoing':
             raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
 
-        grouped_alleleassessments = AssessmentCreator(self.session).create_from_data(
+        # Create/reuse assessments
+        grouped_alleleassessments = AssessmentCreator(session).create_from_data(
             data['annotations'],
             data['alleleassessments'],
             data['custom_annotations'],
             data['referenceassessments']
         )
 
-        # List of tuples (presented_assessment, created_assessment or None):
         reused_alleleassessments = grouped_alleleassessments['alleleassessments']['reused']
         created_alleleassessments = grouped_alleleassessments['alleleassessments']['created']
 
-        for alleleassessment in created_alleleassessments:
-            session.add(alleleassessment[1])
+        session.add_all(created_alleleassessments)
 
-        # un-tuple:
-        all_alleleassessents = \
-            map(lambda a: a[0], reused_alleleassessments) + map(lambda a: a[1], created_alleleassessments)
-
-        grouped_allelereports = AlleleReportCreator(self.session).create_from_data(
+        # Create/reuse allelereports
+        all_alleleassessments = reused_alleleassessments + created_alleleassessments
+        grouped_allelereports = AlleleReportCreator(session).create_from_data(
             data['allelereports'],
-            all_alleleassessents
+            all_alleleassessments
         )
 
-        # List of tuples (presented_report, created_report or None):
         reused_allelereports = grouped_allelereports['reused']
         created_allelereports = grouped_allelereports['created']
 
-        for allele_report in created_allelereports:
-            session.add(allele_report[1])
+        session.add_all(created_allelereports)
+
+        # Create interpretation snapshot objects
+        presented_alleleassessment_ids = [a['presented_alleleassessment_id'] for a in data['alleleassessments'] if 'presented_alleleassessment_id' in a]
+        presented_alleleassessments = session.query(assessment.AlleleAssessment).filter(
+            assessment.AlleleAssessment.id.in_(presented_alleleassessment_ids)
+        ).all()
+
+        presented_allelereport_ids = [a['presented_allelereport_id'] for a in data['allelereports'] if 'presented_allelereport_id' in a]
+        print presented_allelereport_ids
+        presented_allelereports = session.query(assessment.AlleleReport).filter(
+            assessment.AlleleReport.id.in_(presented_allelereport_ids)
+        ).all()
+        print presented_allelereports
 
         snapshot_objects = SnapshotCreator(session).create_from_data(
             'analysis',
             analysis_interpretation.id,
             data['annotations'],
-            reused_alleleassessments,
-            created_alleleassessments,
-            reused_allelereports=reused_allelereports,
-            created_allelereports=created_allelereports,
+            presented_alleleassessments,
+            presented_allelereports,
+            used_alleleassessments=created_alleleassessments + reused_alleleassessments,
+            used_allelereports=created_allelereports + reused_allelereports,
             custom_annotations=data.get('customannotations'),
         )
 
-        for snapshot_object in snapshot_objects:
-            session.add(snapshot_object)
+        session.add_all(snapshot_objects)
 
+        # Update interpretation and return data
         analysis_interpretation.status = 'Done'
         analysis_interpretation.date_last_update = datetime.datetime.now()
 
-        # un-tuple:
-        all_allelereports = map(lambda a: a[0], reused_allelereports) + map(lambda a: a[1], created_allelereports)
-
         reused_referenceassessments = grouped_alleleassessments['referenceassessments']['reused']
         created_referenceassessments = grouped_alleleassessments['referenceassessments']['created']
+
         all_referenceassessments = reused_referenceassessments + created_referenceassessments
+        all_allelereports = reused_allelereports + created_allelereports
 
         session.commit()
 
@@ -892,7 +935,7 @@ class AnalysisActionFinalizeResource(Resource):
             'allelereports': schemas.AlleleReportSchema().dump(
                 all_allelereports, many=True).data,
             'alleleassessments': schemas.AlleleAssessmentSchema().dump(
-                all_alleleassessents, many=True).data,
+                all_alleleassessments, many=True).data,
             'referenceassessments': schemas.ReferenceAssessmentSchema().dump(all_referenceassessments,
                                                                              many=True).data,
         }, 200
