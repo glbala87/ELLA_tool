@@ -102,9 +102,6 @@ class ApiV1(object):
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
 
-        self._add_resource(r.interpretation.InterpretationResource,
-                           '/api/v1/interpretations/<int:interpretation_id>/')
-
         self._add_resource(r.reference.ReferenceListResource,
                            '/api/v1/references/')
 

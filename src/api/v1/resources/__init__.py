@@ -6,7 +6,6 @@ import alleleinterpretation
 import analysis
 import config
 import customannotation
-import interpretation
 import overview
 import reference
 import referenceassessment
