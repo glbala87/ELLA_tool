@@ -36,7 +36,7 @@ class EventListeners {
         ngDisabled: '=?'
     },
     require: '?ngModel', // get a hold of NgModelController
-    template: '<div class="wysiwygeditor" ng-disabled="vm.ngDisabled" ng-model="comment.model.comment"></div>' +
+    template: '<div class="wysiwygeditor" spellcheck="false" ng-disabled="vm.ngDisabled" ng-model="comment.model.comment"></div>' +
               '<div class="wysiwygplaceholder"></div> ' +
               '<div class="wysiwygbuttons">' +
                 '<button class="wysiwygbutton" id="wysiwyg-src">&lt;&gt;</button>' +
@@ -80,6 +80,14 @@ class EventListeners {
         };
 
         var editor = wysiwyg(options);
+
+        // Attach existing $viewValue to editor
+        ngModel.$render = () => {
+            if (ngModel.$viewValue) {
+                editor.setHTML(ngModel.$viewValue);
+                placeholderelement.hidden = true;
+            }
+        };
 
         function placeholderEvent(visible) {
             if (document.activeElement !== editorelement || !visible) {
