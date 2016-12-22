@@ -72,8 +72,8 @@ class AnalysisInterpretationAllelesListResource(Resource):
             link_filter = {
                 'annotation_id': [s.annotation_id for s in snapshots if s.annotation_id is not None],
                 'customannotation_id': [s.customannotation_id for s in snapshots if s.customannotation_id is not None],
-                'alleleassessment_id': [s.alleleassessment_id for s in snapshots if s.alleleassessment_id is not None],
-                'allelereport_id': [s.allelereport_id for s in snapshots if s.allelereport_id is not None],
+                'alleleassessment_id': [s.presented_alleleassessment_id for s in snapshots if s.presented_alleleassessment_id is not None],
+                'allelereport_id': [s.presented_allelereport_id for s in snapshots if s.presented_allelereport_id is not None],
             }
 
         allele_genotypes = None
