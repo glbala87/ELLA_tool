@@ -8,6 +8,7 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     scope: {
         selectedInterpretation: '=',
         interpretations: '=',
+        alleles: '=',
         alleleId: '=?', // If allele workflow
         analysisId: '=?', // If analysis workflow
         canFinish: '&?',
@@ -109,7 +110,7 @@ export class WorkflowButtonsController {
         }
         else {
             // Call reopen if applicable
-            if (!this.selectedInterpretation && this._hasHistory()) {
+            if (!this.selectedInterpretation && this.interpretations.length > 1) {
                 this.workflowService.reopen(type, id).then(() => this._callReload());
             }
             // Else start interpretation
@@ -123,7 +124,7 @@ export class WorkflowButtonsController {
         let [type, id] = this.getTypeAndId();
         if (this.checkCanFinish()) {
             // TODO: Redirect user
-            this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, []).then(() => this.reload());
+            this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles).then(() => this.reload());
         }
     }
 

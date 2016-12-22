@@ -54,18 +54,25 @@ class WorkflowResource {
         });
     }
 
-    markreview(type, id) {
+    markreview(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'markreview').doIt(
                 { id },
-                {},
+                {
+                    user_id: this.user.getCurrentUserId(),
+                    annotations: annotations,
+                    custom_annotations: custom_annotations,
+                    alleleassessments: alleleassessments,
+                    referenceassessments: referenceassessments,
+                    allelereports: allelereports
+                },
                 resolve(),
                 reject()
             );
         });
     }
 
-    finalize(id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports) {
+    finalize(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports) {
 
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'finalize').doIt(

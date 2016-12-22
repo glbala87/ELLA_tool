@@ -41,70 +41,32 @@ class WorkflowService {
         this.locationService = LocationService;
     }
 
-    markreview(type, id) {
-        return this.workflowResource.markreview(type, id, this.user.getCurrentUserId());
+    markreview(type, id, interpretation, alleles) {
+
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.markreview(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports
+        );
     }
 
     finalize(type, id, interpretation, alleles) {
 
-        // Collect info about this interpretation.
-        let annotations = [];
-        let custom_annotations = [];
-        let alleleassessments = [];
-        let referenceassessments = [];
-        let allelereports = [];
-
-        // collection annotation ids for the alleles:
-        for (let allele_state of interpretation.state.allele) {
-            let match = alleles.find(a => a.id === allele_state.allele_id);
-
-            if (match) {
-                annotations.push({
-                    allele_id: match.id,
-                    annotation_id: match.annotation.annotation_id
-                });
-                if (match.annotation.custom_annotation_id) {
-                    custom_annotations.push({
-                        allele_id: match.id,
-                        custom_annotation_id: match.annotation.custom_annotation_id
-                    });
-                }
-            }
-        }
-
-        for (let allele_state of interpretation.state.allele) {
-            // Only include assessments/reports for alleles part of the supplied list.
-            // This is to avoid submitting assessments for alleles that have been
-            // removed from classification during interpretation process.
-            if (alleles.find(a => a.id === allele_state.allele_id)) {
-                alleleassessments.push(this.prepareAlleleAssessmentsForApi(
-                    allele_state.allele_id,
-                    allele_state,
-                    interpretation.analysis.id
-                    ));
-                referenceassessments = referenceassessments.concat(this.prepareReferenceAssessmentsForApi(
-                    allele_state,
-                    interpretation.analysis.id
-                ));
-                allelereports.push(this.prepareAlleleReportForApi(
-                    allele_state.allele_id,
-                    allele_state,
-                    interpretation.analysis.id
-                ));
-            }
-        }
-
-
-    return this.workflowResource.finalize(
-        type,
-        id,
-        annotations,
-        custom_annotations,
-        alleleassessments,
-        referenceassessments,
-        allelereports
-    );
-
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.finalize(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports
+        );
     }
 
     start(type, id) {
@@ -201,7 +163,7 @@ class WorkflowService {
             if (res) {
                 return this.save(type, id, interpretation).then(() => {
                     if (res === 'markreview') {
-                        return this.markreview(type, id);
+                        return this.markreview(type, id, interpretation, alleles);
                     }
                     else if (res === 'finalize') {
                         return this.finalize(type, id, interpretation, alleles);
@@ -213,6 +175,63 @@ class WorkflowService {
             }
             return true;
         });
+    }
+
+    prepareInterpretationForApi(type, id, interpretation, alleles) {
+        // Collect info about this interpretation.
+        let annotations = [];
+        let custom_annotations = [];
+        let alleleassessments = [];
+        let referenceassessments = [];
+        let allelereports = [];
+
+        // collection annotation ids for the alleles:
+        for (let allele_state of interpretation.state.allele) {
+            let match = alleles.find(a => a.id === allele_state.allele_id);
+
+            if (match) {
+                annotations.push({
+                    allele_id: match.id,
+                    annotation_id: match.annotation.annotation_id
+                });
+                if (match.annotation.custom_annotation_id) {
+                    custom_annotations.push({
+                        allele_id: match.id,
+                        custom_annotation_id: match.annotation.custom_annotation_id
+                    });
+                }
+            }
+        }
+
+        for (let allele_state of interpretation.state.allele) {
+            // Only include assessments/reports for alleles part of the supplied list.
+            // This is to avoid submitting assessments for alleles that have been
+            // removed from classification during interpretation process.
+            if (alleles.find(a => a.id === allele_state.allele_id)) {
+                alleleassessments.push(this.prepareAlleleAssessmentsForApi(
+                    allele_state.allele_id,
+                    allele_state,
+                    type === 'analysis' ? id : null
+                    ));
+                referenceassessments = referenceassessments.concat(this.prepareReferenceAssessmentsForApi(
+                    allele_state,
+                    type === 'analysis' ? id : null
+                ));
+                allelereports.push(this.prepareAlleleReportForApi(
+                    allele_state.allele_id,
+                    allele_state,
+                    type === 'analysis' ? id : null
+                ));
+            }
+        }
+
+        return {
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports
+        }
     }
 
     prepareAlleleAssessmentsForApi(allele_id, allelestate, analysis_id=null, genepanel_name=null, genepanel_version=null) {

@@ -10,7 +10,7 @@ export class AlleleStateHelper {
      * describing the state for one allele).
     */
 
-    static setupAlleleState(allele_state) {
+    static setupAlleleState(allele, allele_state) {
         // If not existing, return the object from the state, or create empty one
         if (!('alleleassessment' in allele_state)) {
             allele_state.alleleassessment = {
@@ -48,6 +48,18 @@ export class AlleleStateHelper {
                 }
             };
         }
+
+        if (allele.allele_assessment) {
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+        }
+
+        if (allele.allele_report) {
+            allele_state.presented_allelereport_id = allele.allele_report.id;
+        }
+
+        this.copyAlleleAssessmentToState(allele, allele_state);
+        this.copyAlleleReportToState(allele, allele_state);
+
     }
 
     /**
@@ -78,7 +90,7 @@ export class AlleleStateHelper {
      */
     static getAlleleAssessment(allele, allele_state) {
         // Ensure object is properly initialised
-        this.setupAlleleState(allele_state);
+        this.setupAlleleState(allele, allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
             if (!('allele_assessment' in allele)) {
                 throw Error("Alleleassessment set as reused, but there's no allele_assessment in provided allele.");
@@ -100,7 +112,7 @@ export class AlleleStateHelper {
     }
 
     static getStateAlleleAssessment(allele, allele_state) {
-        this.setupAlleleState(allele_state);
+        this.setupAlleleState(allele, allele_state);
         return allele_state.alleleassessment;
     }
 
@@ -319,11 +331,15 @@ export class AlleleStateHelper {
      * @param  {Allele} allele   Allele to copy alleleassessment from.
      * @param  {Object} allele_state   Allele state to modify
      */
-    static copyAlleleAssessmentToState(allele, allele_state) {
-        if (allele.allele_assessment && !allele_state.alleleAssessmentCopied) {
+    static copyAlleleAssessmentToState(allele, allele_state, force_copy=false) {
+        // Check if remote alleleassessment is newer, if so copy it in again.
+        // TODO: Present dialog for confirmation.
+        if (allele.allele_report && (force_copy ||
+            (!allele_state.alleleAssessmentCopied ||
+             allele.allele_assessment.id > allele_state.alleleAssessmentCopied))) {
             allele_state.alleleassessment.evaluation = deepCopy(allele.allele_assessment.evaluation);
-            allele_state.alleleAssessmentCopied = true;
-            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+            allele_state.alleleassessment.classification = allele.allele_assessment.classification;
+            allele_state.alleleAssessmentCopied = allele.allele_assessment.id;
         }
     }
 
@@ -333,11 +349,14 @@ export class AlleleStateHelper {
      * @param  {Allele} allele   Allele to copy report from.
      * @param  {Object} allele_state   Allele state to modify
      */
-    static copyAlleleReportToState(allele, allele_state) {
-        if (allele.allele_report && !allele_state.alleleReportCopied) {
+    static copyAlleleReportToState(allele, allele_state, force_copy=false) {
+        // Check if date of remote allelereport is newer, if so copy it in again.
+        // TODO: Present dialog for confirmation.
+        if (allele.allele_report && (force_copy ||
+            (!allele_state.alleleReportCopied ||
+             allele.allele_assessment.id > allele_state.alleleReportCopied))) {
             allele_state.allelereport.evaluation = deepCopy(allele.allele_report.evaluation);
-            allele_state.alleleReportCopied = true;
-            allele_state.presented_allelereport_id = allele.allele_report.id;
+            allele_state.alleleReportCopied = allele.allele_report.id;
         }
     }
 
@@ -355,7 +374,7 @@ export class AlleleStateHelper {
         if (!('allele_assessment' in allele)) {
             throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
         }
-        this.setupAlleleState(allele_state);
+        this.setupAlleleState(allele, allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
             allele_state.alleleassessment.reuse = false;
 
@@ -365,16 +384,13 @@ export class AlleleStateHelper {
             if ('id' in allele_state.allelereport) {
                 delete allele_state.allelereport.id;
             }
-            // TODO: This overwrites user's data, might want to add a warning...
-            this.copyAlleleAssessmentToState(allele, allele_state);
-            this.copyAlleleReportToState(allele, allele_state);
 
             return false;
         }
         else {
             if (copy_on_enable) {
-                this.copyAlleleAssessmentToState(allele, allele_state);
-                this.copyAlleleReportToState(allele, allele_state);
+                this.copyAlleleAssessmentToState(allele, allele_state, true);
+                this.copyAlleleReportToState(allele, allele_state, true);
             }
 
             // Check whether existing allele assessment is outdated,
