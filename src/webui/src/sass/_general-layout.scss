@@ -43,8 +43,8 @@ wysiwyg-editor {
   color: $black-95
 }
 
-.wysiwygeditor * strong, .wysiwygeditor > strong {
-  font-weight: 500;
+.wysiwygeditor * b, .wysiwygeditor > b {
+  font-weight: bold;
 }
 
 .wysiwygeditor * li, .wysiwygeditor > li {
