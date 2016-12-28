@@ -185,6 +185,20 @@ test-js:
 	ln -s /dist/node_modules/ /ella/node_modules
 	gulp unit
 
+
+test-sanger-export: export PGDATABASE=vardb-test
+test-sanger-export: export DB_URL=postgres:///vardb-test
+test-sanger-export: export PYTHONPATH=/ella/src
+test-sanger-export:
+	@echo "Running test of sanger export"
+	supervisord -c /ella/ops/test/supervisor.cfg
+	make dbsleep
+	createdb vardb-test
+	/ella/ella-cli database drop -f
+	/ella/ella-cli database make -f
+	python /ella/src/vardb/export/dump_sanger_verification.py /tmp/dump-sanger.xlsx
+# Test OK if return code is 0
+
 #---------------------------------------------
 # BUILD / RELEASE
 #---------------------------------------------

@@ -6,6 +6,11 @@ stages:
   - review
   - notify
 
+test_sanger_export:
+  stage: test
+  script:
+    - make single-test TEST_NAME=sanger-export
+
 test_api:
   stage: test
   script:
