@@ -196,7 +196,7 @@ test-sanger-export:
 	createdb vardb-test
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
-	python /ella/src/vardb/export/dump_sanger_verification.py /tmp/dump-sanger.xlsx
+	python /ella/src/vardb/export/sanger.py /tmp/foo.xlsx
 # Test OK if return code is 0
 
 #---------------------------------------------
