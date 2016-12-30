@@ -29,15 +29,15 @@ class EventListeners {
 function addColorPicker(el) {
     var picker = vanillaColorPicker(el);
     console.log(picker);
-    // console.log()
+    document.execCommand('styleWithCSS', false, true);
     picker.set('customColors', [
-        'rgb(0,0,0)', // black
-        'rgb(129,62,49)', // red
-        'rgb(49,96,129)', // blue
-        'rgb(49,129,123)', // green
-        'rgb(155,135,75)', // yellow
-        'rgb(49,56,129)', // purple
-        'rgb(96,49,129)' // pink
+        'rgba(0,0,0,0.95)', // black
+        'rgba(129,62,49,0.95)', // red
+        'rgba(49,96,129,0.95)', // blue
+        'rgba(49,129,123,0.95)', // green
+        'rgba(155,135,75,0.95)', // yellow
+        'rgba(49,56,129,0.95)', // purple
+        'rgba(96,49,129,0.95)' // pink
     ]);
     return picker;
 }
@@ -86,8 +86,13 @@ function isInsideTable(nodes) {
                 '<button class="wysiwygbutton" title="Numbered list" id="wysiwyg-unorderedList"><svg width="60%" height="100%" fill="currentcolor" stroke="currentcolor" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path class="path1" d="M384 1408q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm0-512q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm1408 416v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5zm-1408-928q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm1408 416v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5zm0-512v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5z"></path></svg></button>' +
                 '<button class="wysiwygbutton" title="Clear formatting" id="wysiwyg-removeFormat">T<span style="vertical-align: sub; margin-left: -0.3rem">&#10005</span></button>' +
                 '<button class="wysiwygbutton" title="Set text color" id="wysiwyg-color">C</button>' +
+                '<button class="wysiwygbutton" title="Add link" id="wysiwyg-link">L' +
+                    '<div class="wysiwyglinkform" tabindex="1" hidden>' +
+                        '<div><input id="wysiwygklinkurl" placeholder="LINK ADDRESS"></div>' +
+                        '<div><input id="wysiwygklinktext" placeholder="(OPTIONAL) TEXT"></div>' +
+                    '</div>' +
+                '</button>' +
               '</div> ',
-              // '<div class="wysiwygdebug"></div> ',
     link: (scope, elem, attrs, ngModel) => {
         let editorelement = elem.children()[0];
         let placeholderelement = elem.children()[1];
@@ -99,8 +104,8 @@ function isInsideTable(nodes) {
         for (let i=0; i<buttonselement.children.length; i++) {
             let button = buttonselement.children[i];
             let name = button.id.split('-')[1];
-            eventListeners.add(button, "mousedown", function() {scope.vm.blurBlocked=true;});
-            if (name !== "color") {
+            eventListeners.add(button, "mousedown", function () {scope.vm.blurBlocked = true;});
+            if (name !== "color" || name !== "link") {
                 eventListeners.add(button, "mouseup", function () {scope.vm.blurBlocked = false;});
             }
             buttons[name] = button;
@@ -128,6 +133,7 @@ function isInsideTable(nodes) {
                                         editor.underline();
                                         return false;
                                     }
+
                                 }
                         },
             onSelection: function( collapsed, rect, nodes, rightclick ) {
@@ -155,7 +161,7 @@ function isInsideTable(nodes) {
         function getTextFromHTML(html) {
             html = html.replace(/<\/?(br|ul|ol|strong|em|li|h1|h2|h3|h4|p|div)[^>]*>/g, '');
             return html;
-        };
+        }
 
         function blur(e) {
             if (!scope.vm.blurBlocked) {
@@ -164,8 +170,8 @@ function isInsideTable(nodes) {
                     placeholderEvent(true);
                 }
                 buttonselement.hidden = true;
+                closeLinkForm(true, null);
             }
-            else {editorelement.focus()}
         }
 
         function focus() {
@@ -211,10 +217,11 @@ function isInsideTable(nodes) {
         eventListeners.add(buttons["paragraph"], "click", () => {editor.format("div")});
         eventListeners.add(buttons["removeFormat"], "click", editor.removeFormat);
 
+
         let picker = addColorPicker(buttons["color"]);
 
-        picker.on("pickerClosed", () => {scope.vm.blurBlocked=false;});
-        picker.on('colorChosen', function(color, targetElem) {editor.forecolor(color);});
+        picker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
+        picker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.forecolor(color); editor.openPopup();});
 
 
 
@@ -236,12 +243,105 @@ function isInsideTable(nodes) {
                          "input", "keypress", "keyup", "load", "mousedown", "mouseup", "paste", "popstate", "propertychange",
                          "resize", "scroll", "selectionchange", "textinput"]
         function logEvent(e) {
-            console.log(e.type + " triggered")
+            // console.log(e.type + " triggered")
         }
         for (let i=0; i<logEvents.length; i++) {
             let ev = logEvents[i];
             eventListeners.add(editorelement, ev, logEvent);
         }
+
+        function handleLinkForm(e) {
+            console.log("handleLinkForm")
+            console.log(e);
+            let src = e.srcElement;
+            console.log(src.nodeName)
+            if (src.id === "wysiwyg-link") {
+                let linkform = src.children[0]
+                if (linkform.hidden) {
+                    console.log(editor.getSelectedHTML())
+                    editor.openPopup(); // Save selection, to later add link at right location
+                    console.log(editor.getSelectedHTML())
+                    linkform.hidden = false;
+                    console.log(editor.getSelectedHTML())
+                } else {
+                    console.log("Forcing close link form")
+                    closeLinkForm(true, e)
+                }
+
+            } else if (src.nodeName === "INPUT") {
+                // editor.openPopup(); // Save selection, to later add link at right location
+                console.log(e)
+                if (typeof e.type === "click") {
+                    src.focus()
+                } else if (e.type === "keyup") {
+                    if (e.key === "Escape") {
+                        closeLinkForm(true, e)
+                    } else if (e.key === "Enter") {
+
+                        // Get url
+                        let url = buttons["link"].children[0].children[0].children[0].value;
+                        console.log(url);
+                        if (!url.startsWith("http://")) {
+                            url = "http://"+url;
+                        }
+
+                        // Get link text
+                        let linktext = buttons["link"].children[0].children[1].children[0].value;
+                        linktext = linktext !== "" ? linktext: url;
+                        console.log(url);
+
+                        editor.insertHTML('<div><a href="'+url+'" target="'+url+'"><span>'+linktext+'</span></a></div>');
+                        closeLinkForm(true, e)
+                    }
+                    console.log(e)
+                }
+            }
+        }
+
+        function closeLinkForm(force, e) {
+
+            console.log("closeLinkForm")
+            console.log(force)
+            console.log(e)
+            console.log(document.activeElement)
+            if (!force && buttons["link"].contains(document.activeElement)) {
+                // Link form is still active
+                return;
+            }
+            let linkform = buttons["link"].children[0];
+            linkform.hidden = true;
+
+            // Clear inputs
+            let inputs = linkform.getElementsByTagName("input");
+            for (let i=0; i<inputs.length; i++) {
+                inputs[i].value = "";
+            }
+
+            console.log("Close popup")
+            console.log(editor.getSelectedHTML())
+            editor.closePopup().collapseSelection()
+            scope.vm.blurBlocked = false;
+        }
+
+        // eventListeners.add(buttons["link"], "click", handleLinkForm);
+        eventListeners.add(buttons["link"], "click", handleLinkForm);
+        // eventListeners.add(buttons["link"].children[0], "blur", (e) => setTimeout(closeLinkForm, 1, false, e));
+        // eventListeners.add(buttons["link"].children[0], "blur", closeLinkForm);
+        let linkinputs = buttons["link"].getElementsByTagName("input");
+        for (let i=0; i<linkinputs.length; i++) {
+            // eventListeners.add(linkinputs[i], "blur", closeLinkForm);
+            eventListeners.add(linkinputs[i], "blur", (e) => {setTimeout(closeLinkForm, 1, false, e)});
+            eventListeners.add(linkinputs[i], "keyup", handleLinkForm);
+        }
+        // eventListeners.add()
+        // eventListeners.add(buttons["link"].children[0], "blur", closeLinkForm);
+        //  for (let i=0; i<buttons["link"].children.length; i++)
+        //     eventListeners.add(buttons["link"].children[i], "blur", closeLinkForm);
+        for (let s in editor) {
+            console.log(s)
+        }
+
+
 
         scope.$on('$destroy', function () {eventListeners.removeAll;});
 
