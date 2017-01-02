@@ -87,9 +87,11 @@ wysiwyg-editor {
     border-radius: 2px;}
 }
 
-#wysiwyg-src, #wysiwyg-underline, #wysiwyg-paragraph,#wysiwyg-unorderedList {border-right: 1px solid $black-25}
-#wysiwyg-italic {font-style: italic}
-#wysiwyg-underline {text-decoration: underline}
+#wysiwyg-src, #wysiwyg-color, #wysiwyg-paragraph, #wysiwyg-link {border-right: 1px solid $black-25}
+#wysiwyg-italic {font-style: italic;}
+#wysiwyg-underline {text-decoration: underline;}
+#wysiwyg-color {padding-top: 0.3rem;}
+#wysiwyg-link {padding-top: 0.1rem;}
 
 .vanilla-color-picker {
   //background-color: $black-05 !important;
