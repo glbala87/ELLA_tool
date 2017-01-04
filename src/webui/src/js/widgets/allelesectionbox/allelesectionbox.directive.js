@@ -67,7 +67,7 @@ export class AlleleSectionBoxController {
         this.selected_class = null; // Stores selected class in dropdown
         this.calculated_config = null; // calculated at request.
 
-        this.classificationOptions = this.config.classification.options;
+        this.classificationOptions = [{name: 'Unclassified', value: null}].concat(this.config.classification.options);
 
     }
 
@@ -82,6 +82,10 @@ export class AlleleSectionBoxController {
 
     getClassification() {
         return AlleleStateHelper.getClassification(this.allele, this.alleleState);
+    }
+
+    getAlleleAssessment() {
+        return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState);
     }
 
     /**
@@ -146,24 +150,24 @@ export class AlleleSectionBoxController {
         }
     }
 
-    toggleClass1() {
-        AlleleStateHelper.toggleClass1(this.alleleState);
+    setClass1() {
+        this.alleleState.alleleassessment.classification = '1';
 
         if (this.onSkip) {
             this.onSkip();
         }
     }
 
-    toggleClass2() {
-        AlleleStateHelper.toggleClass2(this.alleleState);
+    setClass2() {
+        this.alleleState.alleleassessment.classification = '2';
 
         if (this.onSkip) {
             this.onSkip();
         }
     }
 
-    toggleTechnical() {
-        AlleleStateHelper.toggleTechnical(this.alleleState);
+    setTechnical() {
+        this.alleleState.alleleassessment.classification = 'T';
 
         if (this.onSkip) {
             this.onSkip();
