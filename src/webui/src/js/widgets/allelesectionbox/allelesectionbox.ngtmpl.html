@@ -32,7 +32,7 @@
 
         <section class="line-wrapper" ng-if="control == 'classification'">
           <div class="dropdown">
-            <select class="id-select-classification" ng-disabled="vm.isAlleleAssessmentReused()" ng-model="vm.getAlleleAssessment().classification" ng-options="o.value as o.name for o in vm.classificationOptions"></select>
+            <select class="id-select-classification" ng-disabled="vm.isAlleleAssessmentReused()" ng-model="vm.getAlleleAssessment().classification" ng-options="o.value as o.name for o in vm.classificationOptions" ng-change="vm.changeClassification()"></select>
           </div>
         </section>
       </div>

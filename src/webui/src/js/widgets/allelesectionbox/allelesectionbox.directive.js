@@ -18,7 +18,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         section: '=',  // Section to display using <allelesectionboxcontent>
         updateText: '@?',
         onUpdate: '&?',  // On-update callback function (should refresh allele)
-        onSetClass: '&?',  // Callback function when clicking 'Set' button for setting class
+        onChangeClass: '&?',  // Callback function when changing class (dropdown)
         onSkip: '&?', // Callback function when clicking 'Skip' button. Enables skip button.
         controls: '=',
         // possible controls: {
@@ -142,11 +142,10 @@ export class AlleleSectionBoxController {
         });
     }
 
-    updateClassification() {
-        AlleleStateHelper.updateClassification(this.alleleState, this.selected_class);
+    changeClassification() {
 
-        if (this.onSetClass) {
-            this.onSetClass({allele: this.allele});
+        if (this.onChangeClass) {
+            this.onChangeClass({allele: this.allele});
         }
     }
 
