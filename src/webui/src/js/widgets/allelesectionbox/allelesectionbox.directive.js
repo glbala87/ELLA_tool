@@ -155,7 +155,7 @@ export class AlleleSectionBoxController {
 
     setClass1() {
         this.alleleState.alleleassessment.classification = '1';
-
+        this.changeClassification();
         if (this.onSkip) {
             this.onSkip();
         }
@@ -163,6 +163,7 @@ export class AlleleSectionBoxController {
 
     setClass2() {
         this.alleleState.alleleassessment.classification = '2';
+        this.changeClassification();
 
         if (this.onSkip) {
             this.onSkip();
@@ -171,6 +172,7 @@ export class AlleleSectionBoxController {
 
     setTechnical() {
         this.alleleState.alleleassessment.classification = 'T';
+        this.changeClassification();
 
         if (this.onSkip) {
             this.onSkip();
@@ -183,6 +185,7 @@ export class AlleleSectionBoxController {
                 this.onSetClass({allele: this.allele});
             }
         };
+        this.changeClassification();
     }
 
     getUpdateText() {
