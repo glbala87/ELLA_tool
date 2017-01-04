@@ -14,7 +14,8 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         alleleState: '=',
         alleleUserState: '=',
         analysis: '=?', // Used for IGV (optional)
-        comments: '=',  // Array of [{model: string, placeholder: string}, ...]
+        alleleassessmentComment: '=?',  // {name: string, placeholder: string}
+        allelereportComment: '=?',  // {name: string, placeholder: string}
         section: '=',  // Section to display using <allelesectionboxcontent>
         updateText: '@?',
         onUpdate: '&?',  // On-update callback function (should refresh allele)
@@ -68,7 +69,6 @@ export class AlleleSectionBoxController {
         this.calculated_config = null; // calculated at request.
 
         this.classificationOptions = [{name: 'Unclassified', value: null}].concat(this.config.classification.options);
-
     }
 
     /**
@@ -86,6 +86,10 @@ export class AlleleSectionBoxController {
 
     getAlleleAssessment() {
         return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState);
+    }
+
+    getAlleleReport() {
+        return AlleleStateHelper.getAlleleReport(this.allele, this.alleleState);
     }
 
     /**

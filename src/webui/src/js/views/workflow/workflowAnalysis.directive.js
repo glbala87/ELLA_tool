@@ -43,18 +43,14 @@ export class AnalysisController {
                             'classification',
                             'reuse_classification'
                         ],
-                        comments: [
-                            {
+                        alleleassessment_comment: {
                                 placeholder: 'EVALUATION',
-                                modeltype: 'alleleassessment',
-                                modelname: 'classification'
+                                name: 'classification'
                             },
-                            {
-                                placeholder: 'REPORT',
-                                modeltype: 'report',
-                                modelname: 'evaluation'
-                            }
-                        ],
+                        report_comment: {
+                            placeholder: 'REPORT',
+                            modelname: 'evaluation'
+                        },
                         content: [
                             {'tag': 'allele-info-acmg-selection'},
                             {'tag': 'allele-info-vardb'}
@@ -72,13 +68,10 @@ export class AnalysisController {
                             'toggle_class2',
                             'toggle_technical'
                         ],
-                        comments: [
-                            {
-                                placeholder: 'FREQUENCY-COMMENTS',
-                                modeltype: 'alleleassessment',
-                                modelname: 'frequency'
-                            }
-                        ],
+                        alleleassessment_comment: {
+                            placeholder: 'FREQUENCY-COMMENTS',
+                            name: 'frequency'
+                        },
                         content: [
                             {'tag': 'allele-info-frequency-exac'},
                             {'tag': 'allele-info-frequency-thousandg'},
@@ -96,13 +89,10 @@ export class AnalysisController {
                         controls: [
                             'custom_external'
                         ],
-                        comments: [
-                            {
-                                placeholder: 'EXTERNAL DB-COMMENTS',
-                                modeltype: 'alleleassessment',
-                                modelname: 'external'
-                            }
-                        ],
+                        alleleassessment_comment: {
+                            placeholder: 'EXTERNAL DB-COMMENTS',
+                            name: 'external'
+                        },
                         content: [
                             {'tag': 'allele-info-hgmd'},
                             {'tag': 'allele-info-clinvar'},
@@ -117,13 +107,10 @@ export class AnalysisController {
                         controls: [
                             'custom_prediction'
                         ],
-                        comments: [
-                            {
-                                placeholder: 'PREDICTION-COMMENTS',
-                                modeltype: 'alleleassessment',
-                                modelname: 'prediction'
-                            }
-                        ],
+                        alleleassessment_comment: {
+                            placeholder: 'PREDICTION-COMMENTS',
+                            name: 'prediction'
+                        },
                         content: [
                             {'tag': 'allele-info-consequence'},
                             {'tag': 'allele-info-splice'},
