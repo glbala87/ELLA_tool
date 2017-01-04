@@ -2,6 +2,9 @@ import logging
 import copy
 from api.config import config
 
+INHERITANCE_AD = 'AD'
+INHERITANCE_AR = 'AR'
+DEFAULT_INHERITANCE = INHERITANCE_AD
 
 """
 Reads the gene panel specific config and overrides the default values if the gene panel config
@@ -26,10 +29,19 @@ def _find_cutoffs(genepanel_config, inheritance_code):
             inheritance_code = [inheritance_code]
 
         codes = set(inheritance_code)
-        if len(codes) == 1 and codes.pop().upper() == 'AD':
-            cutoff_group = 'AD'
+        if len(codes) == 1 and codes.pop().upper() == INHERITANCE_AD:
+            cutoff_group = INHERITANCE_AD
 
     return genepanel_config['freq_cutoffs'][cutoff_group]
+
+
+def _chose_inheritance(codes):
+    if not codes:
+        return DEFAULT_INHERITANCE
+    if isinstance(codes, list) and len(filter(lambda c: c.upper() == INHERITANCE_AR, codes)) > 0:
+        return INHERITANCE_AR
+    else:
+        DEFAULT_INHERITANCE
 
 
 class GenepanelConfigResolver(object):
@@ -89,12 +101,18 @@ class GenepanelConfigResolver(object):
             return copy.deepcopy(result)
         # end
 
+        chosen_inheritance = _chose_inheritance(self.genepanel.find_inheritance(symbol))
+
+        if chosen_inheritance:
+            result['inheritance'] = chosen_inheritance
+
         # Remove the AD/default level from freq_cutoffs {'external': {'AD': cutoffs, 'default': cutoffs}} -> {'external': AD_or_default_cutoffs}
         result["freq_cutoffs"] = copy.deepcopy(_find_cutoffs(self.genepanel_default, self.genepanel.find_inheritance(symbol)))
 
         # replace defaults with overrides from the gene panel:
         if self.genepanel.config and 'data' in self.genepanel.config and symbol in self.genepanel.config['data']:
             gene_specific_overrides = self.genepanel.config['data'][symbol]
+            print('gene_specific_overrides {}'.format(gene_specific_overrides))
             result.update(gene_specific_overrides)
 
             # use inheritance to find cutoffs:
