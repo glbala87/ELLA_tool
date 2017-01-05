@@ -120,7 +120,7 @@ class WorkflowService {
             // Flatten all referenceassessments from state
             let referenceassessments = [];
             if ('allele' in interpretation.state) {
-                referenceassessments = interpretation.state.allele.map(
+                referenceassessments = Object.values(interpretation.state.allele).map(
                     al => al.referenceassessments
                 ).reduce((p, c) => {
                     if (c) {
@@ -186,7 +186,7 @@ class WorkflowService {
         let allelereports = [];
 
         // collection annotation ids for the alleles:
-        for (let allele_state of interpretation.state.allele) {
+        for (let allele_state of Object.values(interpretation.state.allele)) {
             let match = alleles.find(a => a.id === allele_state.allele_id);
 
             if (match) {
@@ -203,7 +203,7 @@ class WorkflowService {
             }
         }
 
-        for (let allele_state of interpretation.state.allele) {
+        for (let allele_state of Object.values(interpretation.state.allele)) {
             // Only include assessments/reports for alleles part of the supplied list.
             // This is to avoid submitting assessments for alleles that have been
             // removed from classification during interpretation process.
