@@ -6,11 +6,11 @@
     </div>
 
     <section>
-      <!--<button class="id-add-excluded" ng-click="vm.modalAddExcludedAlleles()">
+      <button class="id-add-excluded" ng-click="vm.modalAddExcludedAlleles()">
         <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
             <path d="M16 2 L16 30 M2 16 L30 16" />
         </svg>
-        <span> {{vm.interpretation.state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>-->
+        <span> {{vm.getInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
       <!--<button ng-click="vm.copyAlamut()">Copy all to alamut</button>-->
 
       <div class="dropdown white" ng-if="vm.showHistory()">

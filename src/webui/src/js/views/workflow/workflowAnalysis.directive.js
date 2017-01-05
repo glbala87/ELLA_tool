@@ -16,14 +16,16 @@ import {Directive, Inject} from '../../ng-decorators';
     'Workflow',
     'Navbar',
     'Config',
-    'User')
+    'User',
+    'AddExcludedAllelesModal')
 export class AnalysisController {
-    constructor(rootScope, scope, WorkflowResource, AnalysisResource, Workflow, Navbar, Config, User) {
+    constructor(rootScope, scope, WorkflowResource, AnalysisResource, Workflow, Navbar, Config, User, AddExcludedAllelesModal) {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
         this.analysisResource = AnalysisResource;
         this.workflowService = Workflow;
+        this.addExcludedAllelesModal = AddExcludedAllelesModal;
         this.analysis = null;
         this.active_interpretation = null;
         this.navbar = Navbar;
@@ -231,9 +233,35 @@ export class AnalysisController {
     }
 
     getExcludedAlleleCount() {
-        return Object.values(this.interpretation.excluded_allele_ids)
-               .map(excluded_group => excluded_group.length)
-               .reduce((total_length, length) => total_length + length);
+        if (this.selected_interpretation) {
+            return Object.values(this.selected_interpretation.excluded_allele_ids)
+                .map(excluded_group => excluded_group.length)
+                .reduce((total_length, length) => total_length + length);
+        }
+    }
+
+    /**
+     * Popups a dialog for adding excluded alleles
+     */
+    modalAddExcludedAlleles() {
+        if (this.getInterpretation().state.manuallyAddedAlleles === undefined) {
+            this.getInterpretation().state.manuallyAddedAlleles = [];
+        }
+        this.addExcludedAllelesModal.show(
+            this.getInterpretation().excluded_allele_ids,
+            this.getInterpretation().state.manuallyAddedAlleles,
+            this.analysis.samples[0].id, // FIXME: Support multiple samples
+            this.getInterpretation().genepanel_name,
+            this.getInterpretation().genepanel_version
+        ).then(added => {
+            if (this.isInterpretationOngoing()) { // noop if analysis is finalized
+                // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
+                this.getInterpretation().state.manuallyAddedAlleles = added;
+                this.loadAlleles(this.selected_interpretation);
+            }
+        }).catch(() => {
+            this.loadAlleles(this.selected_interpretation);  // Also update on modal dismissal
+        });
     }
 
     isAnalysisDone() {
