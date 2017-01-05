@@ -8,7 +8,8 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
  */
 class ConfirmCompleteInterpretationController {
 
-    constructor(modalInstance) {
+    constructor(canFinalize, modalInstance) {
+        this.canFinalize = canFinalize;
         this.modal = modalInstance;
     }
 }
@@ -141,6 +142,25 @@ class WorkflowService {
     }
 
     /**
+     * Checks whether user is allowed to finalize the analysis.
+     * Criteria is that every allele must have an alleleassessment _with a classification_.
+     * @return {bool}
+     */
+    canFinalize(interpretation, alleles) {
+        return interpretation &&
+               interpretation.status === 'Ongoing' &&
+               alleles &&
+               'allele' in interpretation.state &&
+               alleles.every(a => {
+                   return a.id in interpretation.state.allele &&
+                          AlleleStateHelper.getClassification(
+                              a,
+                              interpretation.state.allele[a.id]
+                          );
+               });
+    }
+
+    /**
      * Popups a confirmation dialog, asking to complete or finalize the interpretation
      * @param  {Interpretation} interpretation
      * @param  {Array(Allele)} alleles  Alleles to include allele/referenceassessments for.
@@ -149,8 +169,11 @@ class WorkflowService {
     confirmCompleteFinalize(type, id, interpretation, alleles) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
-            controller: ['$uibModalInstance', ConfirmCompleteInterpretationController],
+            controller: ['canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
             size: 'lg',
+            resolve: {
+                canFinalize: () => this.canFinalize(interpretation, alleles)
+            },
             controllerAs: 'vm'
         });
         return modal.result.then(res => {

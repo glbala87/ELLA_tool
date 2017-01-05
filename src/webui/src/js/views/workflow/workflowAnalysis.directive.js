@@ -304,14 +304,11 @@ export class AnalysisController {
                && this.history_interpretations.length;
     }
 
-    canFinish() {
-        return true;
-    }
-
     reloadInterpretationData() {
-        console.log("Reloading interpretation data...")
         this._loadInterpretations().then(() => {
             this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
+            this.selected_interpretation = this.interpretations[this.history_interpretations.length-1];
+            console.log("Reloaded interpretation data:", this.selected_interpretation)
         });
     }
 
@@ -322,7 +319,7 @@ export class AnalysisController {
             return this.workflowService.loadAlleles(
                 'analysis',
                 this.analysisId,
-                interpretation
+                interpretation,
             ).then(alleles => {
                 this.selected_interpretation_alleles = alleles;
                 this.alleles_loaded = true;
@@ -332,8 +329,7 @@ export class AnalysisController {
 
     _loadInterpretations() {
         return this.workflowResource.getInterpretations('analysis', this.analysisId).then(interpretations => {
-            this.interpretations = interpretations
-            this.selected_interpretation = this.interpretations[this.interpretations.length-1];
+            this.interpretations = interpretations;
         });
     }
 

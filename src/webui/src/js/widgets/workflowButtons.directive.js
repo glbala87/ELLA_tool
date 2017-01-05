@@ -11,7 +11,6 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         alleles: '=',
         alleleId: '=?', // If allele workflow
         analysisId: '=?', // If analysis workflow
-        canFinish: '&?',
         reload: '&?'
     },
     templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html'
@@ -58,28 +57,6 @@ export class WorkflowButtonsController {
         return type_id;
     }
 
-    /**
-     * Checks whether user is allowed to finish the analysis.
-     * Criteria is that every allele must have an alleleassessment _with a classification_.
-     * @return {bool}
-     */
-    checkCanFinish() {
-        /*if (!this.alleles.length) {
-            return true;
-        }
-
-        return this.alleles.every(a => {
-            let allele_state = this.interpretation.state.allele.find(s => s.allele_id === a.id);
-            return Boolean(AlleleStateHelper.getClassification(a, allele_state));
-        });*/
-        if (this.selectedInterpretation &&
-            this.selectedInterpretation.status === 'Ongoing' &&
-            this.canFinish) {
-                return this.canFinish();
-            }
-        return false;
-    }
-
     _callReload() {
         // Let parent know that it should reload data
         if (this.reload) {
@@ -122,10 +99,12 @@ export class WorkflowButtonsController {
 
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
-        if (this.checkCanFinish()) {
             // TODO: Redirect user
-            this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles).then(() => this.reload());
-        }
+        this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles).then(() => {this._callReload()});
+    }
+
+    isInterpretationOngoing() {
+        return this.selectedInterpretation.status === 'Ongoing';
     }
 
     _getSaveStatus() {

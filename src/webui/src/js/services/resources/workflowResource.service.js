@@ -66,8 +66,8 @@ class WorkflowResource {
                     referenceassessments: referenceassessments,
                     allelereports: allelereports
                 },
-                resolve(),
-                reject()
+                resolve,
+                reject
             );
         });
     }
