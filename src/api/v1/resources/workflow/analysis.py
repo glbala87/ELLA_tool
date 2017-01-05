@@ -546,7 +546,7 @@ class AnalysisActionReopenResource(Resource):
             raise ApiError("Allele interpretation is already 'Not started' or 'Ongoing'. Cannot reopen.")
 
         # Create next interpretation
-        analysis_interpretation_next = workflow.AlleleInterpretation.create_next(analysis_interpretation)
+        analysis_interpretation_next = workflow.AnalysisInterpretation.create_next(analysis_interpretation)
 
         session.add(analysis_interpretation_next)
         session.commit()
