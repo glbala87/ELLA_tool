@@ -29,7 +29,7 @@ export class ReportCardController {
     }
 
     getAlleleState(allele) {
-        return this.state.allele.find(al => al.allele_id === allele.id);
+        return this.state.allele[allele.id];
     }
 
     getAlleleReport(allele) {

@@ -87,7 +87,7 @@ export class WorkflowButtonsController {
         }
         else {
             // Call reopen if applicable
-            if (!this.selectedInterpretation && this.interpretations.length > 1) {
+            if (this.interpretations.every(i => i.status === 'Done')) {
                 this.workflowService.reopen(type, id).then(() => this._callReload());
             }
             // Else start interpretation
@@ -104,13 +104,14 @@ export class WorkflowButtonsController {
     }
 
     isInterpretationOngoing() {
-        return this.selectedInterpretation.status === 'Ongoing';
+        if (this.selectedInterpretation) {
+            return this.selectedInterpretation.status === 'Ongoing';
+        }
+        return false;
     }
 
     _getSaveStatus() {
-        if (!this.interpretations.length) {
-            return 'start';
-        }
+
         if (this.interpretations.find(i => i.status === 'Ongoing')) {
             return 'save';
         }
@@ -118,6 +119,10 @@ export class WorkflowButtonsController {
         let not_started = this.interpretations.find(i => i.status === 'Not started');
         if (not_started) {
             return this.interpretations.length > 1 ? 'review' : 'start'
+        }
+
+        if (this.interpretations.every(i => i.status === 'Done')) {
+            return 'reopen';
         }
 
         return 'start';

@@ -17,9 +17,21 @@ import {Directive, Inject} from '../../ng-decorators';
     'Navbar',
     'Config',
     'User',
-    'AddExcludedAllelesModal')
+    'AddExcludedAllelesModal',
+    'clipboard',
+    'toastr')
 export class AnalysisController {
-    constructor(rootScope, scope, WorkflowResource, AnalysisResource, Workflow, Navbar, Config, User, AddExcludedAllelesModal) {
+    constructor(rootScope,
+                scope,
+                WorkflowResource,
+                AnalysisResource,
+                Workflow,
+                Navbar,
+                Config,
+                User,
+                AddExcludedAllelesModal,
+                clipboard,
+                toastr) {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
@@ -31,6 +43,8 @@ export class AnalysisController {
         this.navbar = Navbar;
         this.config = Config.getConfig();
         this.user = User;
+        this.clipboard = clipboard;
+        this.toastr = toastr;
 
         this.components = [ // instantiated/rendered in AlleleSectionboxContentController
             {
@@ -140,18 +154,9 @@ export class AnalysisController {
         ];
         this.selected_component = this.components[0];
 
-        // Dummy state provided to <interpretation> before we have loaded actual interpretation. Never stored, just discarded..
-        // Let's user browse read only view, without starting interpretation
-        this.dummy_interpretation = {
-            state: {},
-            user_state: {}
-        };
-
-
         this.selected_interpretation = null; // Holds displayed interpretation
         this.selected_interpretation_alleles = []; // Loaded alleles for current interpretation
         this.alleles_loaded = false;  // Loading indicators etc
-
 
         this.interpretations = []; // Holds interpretations from backend
         this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
@@ -288,15 +293,12 @@ export class AnalysisController {
             this.selected_interpretation = ongoing_interpretation;
         }
 
-        if (this.selected_interpretation) {
-            return this.selected_interpretation;
-        }
-        return this.dummy_interpretation;
+        return this.selected_interpretation;
     }
 
     isInterpretationOngoing() {
-        return (this.selected_interpretation &&
-                this.selected_interpretation.status == 'Ongoing')
+        let interpretation = this.getInterpretation();
+        return interpretation && interpretation.status === 'Ongoing';
     }
 
     showHistory() {
@@ -307,7 +309,19 @@ export class AnalysisController {
     reloadInterpretationData() {
         this._loadInterpretations().then(() => {
             this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
-            this.selected_interpretation = this.interpretations[this.history_interpretations.length-1];
+            let last_interpretation = this.interpretations[this.interpretations.length-1];
+            // If an interpretation is Ongoing, we assign it directly
+            if (last_interpretation.status === 'Ongoing') {
+                this.selected_interpretation = last_interpretation;
+            }
+            // Otherwise, select the last item of the dropdown to show latest history as default
+            else if (this.history_interpretations.length) {
+                this.selected_interpretation = this.history_interpretations[this.history_interpretations.length-1];
+            }
+            // If we have no history, select the last interpretation
+            else {
+                this.selected_interpretation = last_interpretation;
+            }
             console.log("Reloaded interpretation data:", this.selected_interpretation)
         });
     }
@@ -338,6 +352,13 @@ export class AnalysisController {
             this.analysis = a;
             this.setupNavbar();
         });
+    }
+
+    copyAlamut() {
+        this.clipboard.copyText(
+            this.selected_interpretation_alleles.map(a => a.formatAlamut() + '\n').join('')
+        );
+        this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
     }
 
 }

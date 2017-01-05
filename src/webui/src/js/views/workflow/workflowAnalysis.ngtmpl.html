@@ -11,7 +11,7 @@
             <path d="M16 2 L16 30 M2 16 L30 16" />
         </svg>
         <span> {{vm.getInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
-      <!--<button ng-click="vm.copyAlamut()">Copy all to alamut</button>-->
+      <button ng-click="vm.copyAlamut()">Copy all to alamut</button>
 
       <div class="dropdown white" ng-if="vm.showHistory()">
         <select
