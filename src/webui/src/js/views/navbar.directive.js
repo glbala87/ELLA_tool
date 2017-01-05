@@ -6,17 +6,16 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'navbar',
     templateUrl: 'ngtmpl/navbar.ngtmpl.html'
 })
-@Inject('Navbar', 'User', '$uibModal', '$location')
+@Inject('Navbar', 'User', '$location')
 export class NavbarController {
 
-    constructor(Navbar, User, ModalService, $location) {
+    constructor(Navbar, User, $location) {
         this.navbarService = Navbar;
         this.user = {};
         User.getCurrentUser().then(user => {
             this.user = user;
         });
         this.location = $location;
-        this.modalService = ModalService;
     }
 
     abbreviateUser() {
@@ -66,32 +65,5 @@ export class NavbarController {
         this.location.path('/login');
     }
 
-    // open modal for confirming download of file with variants needing sanger verification
-    sangerExport() {
-        let modal = this.modalService.open({
-            templateUrl: 'ngtmpl/sangerExport.modal.ngtmpl.html',
-            controller: ['$uibModalInstance', SangerExportController],
-            size: 'lg',
-            controllerAs: 'vm'
-        });
-
-        return modal.result.then(res => {
-            console.log('sanger ok');
-        }).catch(reason => {
-            console.log('modal was dismissed.');
-        });
-
-    }
 
 }
-
-/**
- * Controller for dialog asking user whether to markreview or finalize interpretation.
- */
-class SangerExportController {
-
-    constructor(modalInstance) {
-        this.modal = modalInstance;
-    }
-}
-
