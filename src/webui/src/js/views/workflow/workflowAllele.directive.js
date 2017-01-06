@@ -72,7 +72,6 @@ export class WorkflowAlleleController {
                             collapsed: false
                         },
                         controls: [
-                            'igv',
                             'copy_alamut',
                             'toggle_class1',
                             'toggle_class2',
@@ -87,8 +86,7 @@ export class WorkflowAlleleController {
                             {'tag': 'allele-info-frequency-thousandg'},
                             {'tag': 'allele-info-frequency-esp6500'},
                             {'tag': 'allele-info-frequency-indb'},
-                            {'tag': 'allele-info-dbsnp'},
-                            {'tag': 'allele-info-quality'},
+                            {'tag': 'allele-info-dbsnp'}
                         ],
                     },
                     {
