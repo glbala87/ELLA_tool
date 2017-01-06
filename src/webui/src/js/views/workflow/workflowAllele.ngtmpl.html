@@ -1,0 +1,42 @@
+<div class="main">
+
+  <nav class="secondary">
+    <div>
+    </div>
+
+    <section>
+      <div class="dropdown white" ng-if="vm.showHistory()">
+        <select
+          class="id-interpretationrounds-dropdown"
+          ng-options="i as ( vm.interpretations.indexOf(i) + 1 + ' • ' + i.user.first_name + ' ' + i.user.last_name + ' • ' + (i.date_last_update | date:'dd-MM-yyyy HH:mm')) for i in vm.history_interpretations track by i.id"
+          ng-model="vm.selected_interpretation">
+        </select>
+      </div>
+      <workflow-buttons alleles="vm.getAlleles()" allele-id="vm.allele_id" genepanel-name="vm.genepanelName" genepanel-version="vm.genepanelVersion" reload="vm.reloadInterpretationData()" selected-interpretation="vm.selected_interpretation" interpretations="vm.interpretations"></workflow-buttons>
+    </section>
+  </nav>
+  <div class="interpretation">
+    <interpretation
+      components="vm.components"
+      selected-component="vm.selected_component"
+      interpretation="vm.getInterpretation()"
+      genepanel-name="vm.genepanelName"
+      genepanel-version="vm.genepanelVersion"
+      alleles="vm.getAlleles()"
+      updateAlleles="vm.reloadAlleles()"
+      show-sidebar="false"
+      ng-if="vm.getAlleles().length">
+    </interpretation>
+  </div>
+
+</div>
+
+<!-- - ->
+<h4>Debug:</h4>
+<br><br>
+<h5>Interpretation state:</h5>
+<p><pre>{{vm.interpretation.state | prettyJSON}}</pre></p>
+<h5>Interpretation user state:</h5>
+<p><pre>{{vm.interpretation.user_state | prettyJSON}}</pre></p>
+
+ <!- - -->

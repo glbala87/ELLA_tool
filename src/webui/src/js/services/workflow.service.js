@@ -70,8 +70,8 @@ class WorkflowService {
         );
     }
 
-    start(type, id) {
-        return this.workflowResource.start(type, id, this.user.getCurrentUserId());
+    start(type, id, gp_name=null, gp_version=null) {
+        return this.workflowResource.start(type, id, this.user.getCurrentUserId(), gp_name, gp_version);
     }
 
     reopen(type, id) {
@@ -234,11 +234,15 @@ class WorkflowService {
                 alleleassessments.push(this.prepareAlleleAssessmentsForApi(
                     allele_state.allele_id,
                     allele_state,
-                    type === 'analysis' ? id : null
+                    type === 'analysis' ? id : null,
+                    interpretation.genepanel_name,
+                    interpretation.genepanel_version
                     ));
                 referenceassessments = referenceassessments.concat(this.prepareReferenceAssessmentsForApi(
                     allele_state,
-                    type === 'analysis' ? id : null
+                    type === 'analysis' ? id : null,
+                    interpretation.genepanel_name,
+                    interpretation.genepanel_version
                 ));
                 allelereports.push(this.prepareAlleleReportForApi(
                     allele_state.allele_id,

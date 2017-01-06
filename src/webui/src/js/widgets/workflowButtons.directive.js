@@ -11,6 +11,8 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         alleles: '=',
         alleleId: '=?', // If allele workflow
         analysisId: '=?', // If analysis workflow
+        genepanelName: '=?',
+        genepanelVersion: '=?',
         reload: '&?'
     },
     templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html'
@@ -38,8 +40,6 @@ export class WorkflowButtonsController {
                 text: 'Reopen analysis'
             }
         };
-
-
 
     }
 
@@ -87,12 +87,13 @@ export class WorkflowButtonsController {
         }
         else {
             // Call reopen if applicable
-            if (this.interpretations.every(i => i.status === 'Done')) {
+            if (this.interpretations.length &&
+                this.interpretations.every(i => i.status === 'Done')) {
                 this.workflowService.reopen(type, id).then(() => this._callReload());
             }
             // Else start interpretation
             else {
-                this.workflowService.start(type, id).then(() => this._callReload());
+                this.workflowService.start(type, id, this.genepanelName, this.genepanelVersion).then(() => this._callReload());
             }
         }
     }
@@ -121,7 +122,8 @@ export class WorkflowButtonsController {
             return this.interpretations.length > 1 ? 'review' : 'start'
         }
 
-        if (this.interpretations.every(i => i.status === 'Done')) {
+        if (this.interpretations.length &&
+            this.interpretations.every(i => i.status === 'Done')) {
             return 'reopen';
         }
 

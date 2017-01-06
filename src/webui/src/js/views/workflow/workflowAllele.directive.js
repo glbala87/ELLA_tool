@@ -3,48 +3,42 @@
 import {Directive, Inject} from '../../ng-decorators';
 
 @Directive({
-    selector: 'workflow-analysis',
+    selector: 'workflow-allele',
     scope: {
-        'analysisId': '@'
+        referenceGenome: '@',
+        variantSelector: '@',
+        genepanelName: '@',
+        genepanelVersion: '@'
     },
-    templateUrl: 'ngtmpl/workflowAnalysis.ngtmpl.html'
+    templateUrl: 'ngtmpl/workflowAllele.ngtmpl.html'
 })
 @Inject('$rootScope',
     '$scope',
     'WorkflowResource',
-    'AnalysisResource',
+    'AlleleResource',
     'Workflow',
     'Navbar',
     'Config',
-    'User',
-    'AddExcludedAllelesModal',
-    'clipboard',
-    'toastr')
-export class AnalysisController {
+    'User')
+export class WorkflowAlleleController {
     constructor(rootScope,
                 scope,
                 WorkflowResource,
-                AnalysisResource,
+                AlleleResource,
                 Workflow,
                 Navbar,
                 Config,
-                User,
-                AddExcludedAllelesModal,
-                clipboard,
-                toastr) {
+                User) {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
-        this.analysisResource = AnalysisResource;
+        this.alleleResource = AlleleResource;
         this.workflowService = Workflow;
-        this.addExcludedAllelesModal = AddExcludedAllelesModal;
         this.analysis = null;
         this.active_interpretation = null;
         this.navbar = Navbar;
         this.config = Config.getConfig();
         this.user = User;
-        this.clipboard = clipboard;
-        this.toastr = toastr;
 
         this.components = [ // instantiated/rendered in AlleleSectionboxContentController
             {
@@ -146,27 +140,35 @@ export class AnalysisController {
                         ],
                     }
                 ]
-            },
-            {
-                title: 'Report',
-                alleles: []
             }
         ];
+
         this.selected_component = this.components[0];
 
+        this.alleles = []; // Holds allele based on directive params. Array since "everything" expects an array...
+
         this.selected_interpretation = null; // Holds displayed interpretation
-        this.selected_interpretation_alleles = []; // Loaded alleles for current interpretation
+        this.selected_interpretation_alleles = []; // Loaded allele for current interpretation (annotation etc data can change based on interpretation snapshot)
         this.alleles_loaded = false;  // Loading indicators etc
 
         this.interpretations = []; // Holds interpretations from backend
         this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
 
+        this.dummy_interpretation = { // Dummy data for letting the user browse the view before starting interpretation. Never stored!
+            genepanel_name: this.genepanelName,
+            genepanel_version: this.genepanelVersion,
+            state: {},
+            user_state: {}
+        }
+
         this.setUpListeners();
         this._setWatchers();
         this.setupNavbar();
 
-        this._loadAnalysis();
-        this.reloadInterpretationData();
+        this.loadAlleleId().then(() => {
+            this.dummy_interpretation.allele_ids = [this.allele_id];
+            this.reloadInterpretationData();
+        });
     }
 
     setUpListeners() {
@@ -222,51 +224,21 @@ export class AnalysisController {
 
 
         this.rootScope.$watch(
-            () => this.selected_interpretation,
-            () => this.loadAlleles(this.selected_interpretation)
+            () => this.getInterpretation(),
+            () => this._loadAllele(this.selected_interpretation)
         );
     }
 
     setupNavbar() {
-        this.navbar.replaceItems([
-            {
-                title: this.analysis ? this.analysis.name : '',
-                url: "/overview"
-            }
-        ]);
-        this.navbar.setAnalysis(this.analysis);
-    }
-
-    getExcludedAlleleCount() {
-        if (this.selected_interpretation) {
-            return Object.values(this.selected_interpretation.excluded_allele_ids)
-                .map(excluded_group => excluded_group.length)
-                .reduce((total_length, length) => total_length + length);
+        if (this.getAlleles().length) {
+            this.navbar.replaceItems([
+                {
+                    title: 'FixME',
+                    url: "/overview"
+                }
+            ]);
+            this.navbar.setAllele(this.getAlleles()[0]);
         }
-    }
-
-    /**
-     * Popups a dialog for adding excluded alleles
-     */
-    modalAddExcludedAlleles() {
-        if (this.getInterpretation().state.manuallyAddedAlleles === undefined) {
-            this.getInterpretation().state.manuallyAddedAlleles = [];
-        }
-        this.addExcludedAllelesModal.show(
-            this.getInterpretation().excluded_allele_ids,
-            this.getInterpretation().state.manuallyAddedAlleles,
-            this.analysis.samples[0].id, // FIXME: Support multiple samples
-            this.getInterpretation().genepanel_name,
-            this.getInterpretation().genepanel_version
-        ).then(added => {
-            if (this.isInterpretationOngoing()) { // noop if analysis is finalized
-                // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
-                this.getInterpretation().state.manuallyAddedAlleles = added;
-                this.loadAlleles(this.selected_interpretation);
-            }
-        }).catch(() => {
-            this.loadAlleles(this.selected_interpretation);  // Also update on modal dismissal
-        });
     }
 
     confirmAbortInterpretation(event) {
@@ -285,7 +257,18 @@ export class AnalysisController {
             this.selected_interpretation = ongoing_interpretation;
         }
 
-        return this.selected_interpretation;
+        if (this.selected_interpretation) {
+            return this.selected_interpretation;
+        }
+        return this.dummy_interpretation;
+    }
+
+    getAlleles() {
+        if (this.interpretations.length && this.selected_interpretation) {
+            return this.selected_interpretation_alleles;
+        }
+        // Fall back to this.allele when no interpretation exists on backend
+        return this.alleles;
     }
 
     isInterpretationOngoing() {
@@ -302,29 +285,29 @@ export class AnalysisController {
         this._loadInterpretations().then(() => {
             this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
             let last_interpretation = this.interpretations[this.interpretations.length-1];
+
             // If an interpretation is Ongoing, we assign it directly
-            if (last_interpretation.status === 'Ongoing') {
+            if (last_interpretation && last_interpretation.status === 'Ongoing') {
                 this.selected_interpretation = last_interpretation;
             }
             // Otherwise, select the last item of the dropdown to show latest history as default
             else if (this.history_interpretations.length) {
                 this.selected_interpretation = this.history_interpretations[this.history_interpretations.length-1];
             }
-            // If we have no history, select the last interpretation
             else {
-                this.selected_interpretation = last_interpretation;
+                this.selected_interpretation = null;
             }
             console.log("Reloaded interpretation data:", this.selected_interpretation)
         });
     }
 
-    loadAlleles(interpretation) {
+    _loadAllele(interpretation) {
         this.alleles_loaded = false;
-        this.selected_interpretation_alleles = [];
-        if (interpretation) {
+        this.selected_interpretation_alleles = null;
+        if (this.allele_id && interpretation) {
             return this.workflowService.loadAlleles(
-                'analysis',
-                this.analysisId,
+                'allele',
+                this.allele_id,
                 interpretation,
             ).then(alleles => {
                 this.selected_interpretation_alleles = alleles;
@@ -334,23 +317,33 @@ export class AnalysisController {
     }
 
     _loadInterpretations() {
-        return this.workflowResource.getInterpretations('analysis', this.analysisId).then(interpretations => {
+        return this.workflowResource.getInterpretations('allele', this.allele_id).then(interpretations => {
             this.interpretations = interpretations;
         });
     }
 
-    _loadAnalysis() {
-        this.analysisResource.getAnalysis(this.analysisId).then(a => {
-            this.analysis = a;
-            this.setupNavbar();
-        });
+    _getQueryFromSelector() {
+        let parts = this.variantSelector.split('-');
+        if (parts.length !== 5) {
+            throw Error("Variant selector doesn't contain 5 items")
+        }
+        let [chr, start, end, from, to] = parts;
+        let query = {
+            chromosome: chr,
+            start_position: start,
+            open_end_position: end,
+            change_from: from,
+            change_to: to
+        }
+        return query;
     }
 
-    copyAlamut() {
-        this.clipboard.copyText(
-            this.selected_interpretation_alleles.map(a => a.formatAlamut() + '\n').join('')
-        );
-        this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
+    loadAlleleId() {
+        let q = this._getQueryFromSelector();
+        return this.alleleResource.getByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {
+            this.allele_id = a[0].id;
+            this.alleles = a;
+        });
     }
 
 }

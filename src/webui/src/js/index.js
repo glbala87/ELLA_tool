@@ -40,9 +40,9 @@ import './services/navbar.service';
 import './filters';
 
 import './views/workflow/workflowAnalysis.directive';
+import './views/workflow/workflowAllele.directive';
 import './views/analysis/analysisSelection.directive';
 import './views/analysis/interpretationSingleSample.directive';
-import './views/variant/variant.directive';
 import './views/overviews/alleleSelection.directive';
 import './views/main.directive';
 import './views/overview.directive';
@@ -133,7 +133,7 @@ class AppConfig {
                 url: '/variants/{reference_genome}/{variant_selector}?gp_name&gp_version',
                 views: {
                     content: {
-                        template: '<variant reference-genome="{{reference_genome}}" variant-selector="{{variant_selector}}" genepanel-name="{{gp_name}}" genepanel-version="{{gp_version}}"></variant>',
+                        template: '<workflow-allele reference-genome="{{reference_genome}}" variant-selector="{{variant_selector}}" genepanel-name="{{gp_name}}" genepanel-version="{{gp_version}}"></workflow-allele>',
                         controller: ['$scope', '$stateParams', function($scope, $stateParams) {
                             $scope.reference_genome = $stateParams.reference_genome;
                             $scope.variant_selector = $stateParams.variant_selector;

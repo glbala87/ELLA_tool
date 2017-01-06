@@ -104,11 +104,15 @@ class WorkflowResource {
         });
     }
 
-    start(type, id, user_id) {
+    start(type, id, user_id, gp_name=null, gp_version=null) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'start').doIt(
                 { id },
-                { user_id: user_id },
+                {
+                    user_id: user_id,
+                    gp_name: gp_name,
+                    gp_version: gp_version
+                },
                 resolve,
                 reject
             );
