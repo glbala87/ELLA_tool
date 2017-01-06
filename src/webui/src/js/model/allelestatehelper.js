@@ -290,6 +290,62 @@ export class AlleleStateHelper {
         }
     }
 
+    /**
+     * Enables reusing the existing classification of allele.
+     * If alleleassessment is outdated, it refuse to toggle on.
+     * @param  {Allele} allele   Allele to reuse alleleassessment of.
+     * @param  {Object} allele_state   Allele state to modify
+     * @param  {Config}  config Application config
+     * @return {Boolean}              Whether toggle is true or not
+     */
+    static enableReuseAlleleAssessment(allele, allele_state, config) {
+        if (!('allele_assessment' in allele)) {
+            throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
+        }
+        this.setupAlleleState(allele, allele_state);
+
+
+        // Check whether existing allele assessment is outdated,
+        // if so refuse to toggle on.
+        if (this.isAlleleAssessmentOutdated(allele, config)) {
+            return false;
+        }
+
+        if ('allele_assessment' in allele) {
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+            allele_state.alleleassessment.reuse = true;
+        }
+
+        // TODO: allelereport reuse is now tied to alleleassessment reuse,
+        // we might want to decouple this in case user only wants to update either of them..
+        if ('allele_report' in allele) {
+            allele_state.allelereport.id = allele.allele_report.id;
+            allele_state.presented_allelereport_id = allele.allele_report.id;
+            allele_state.allelereport.reuse = true;
+        }
+
+        return true;
+    }
+
+    /**
+     * Disables reusing the existing classification of allele.
+     * If alleleassessment is outdated, it refuse to toggle on.
+     * @param  {Allele} allele   Allele to reuse alleleassessment of.
+     * @param  {Object} allele_state   Allele state to modify
+     * @return {Boolean}              Whether toggle is true or not
+     */
+    static disableReuseAlleleAssessment(allele, allele_state) {
+        this.setupAlleleState(allele, allele_state);
+
+        allele_state.alleleassessment.reuse = false;
+
+        allele_state.allelereport.reuse = false;
+        if ('id' in allele_state.allelereport) {
+            delete allele_state.allelereport.id;
+        }
+
+        return false;
+    }
 
     /**
      * Toggles reusing the existing classification of allele.
@@ -299,43 +355,28 @@ export class AlleleStateHelper {
      * @param  {Config}  config Application config
      * @return {Boolean}              Whether toggle is true or not
      */
-
     static toggleReuseAlleleAssessment(allele, allele_state, config) {
-        if (!('allele_assessment' in allele)) {
-            throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
-        }
-        this.setupAlleleState(allele, allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
-            allele_state.alleleassessment.reuse = false;
-
-            // TODO: allelereport reuse is now tied to alleleassessment reuse,
-            // we might want to decouple this in case user only wants to update either of them..
-            allele_state.allelereport.reuse = false;
-            if ('id' in allele_state.allelereport) {
-                delete allele_state.allelereport.id;
-            }
-
-            return false;
+            return this.disableReuseAlleleAssessment(allele, allele_state);
         }
         else {
-            // Check whether existing allele assessment is outdated,
-            // if so refuse to toggle on.
-            if (this.isAlleleAssessmentOutdated(allele, config)) {
-                return false;
-            }
+            return this.enableReuseAlleleAssessment(allele, allele_state, config);
+        }
+    }
 
-            if ('allele_assessment' in allele) {
-                allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
-                allele_state.alleleassessment.reuse = true;
+    /**
+     *  Auto-reuse new, existing alleleassessment for the user.
+     *  We keep track of last alleleassessment id where we auto-reused the alleleassessment,
+     *  in order to prevent re-enabling what the user has already disabled.
+     * @memberOf AlleleStateHelper
+     */
+    static autoReuseExistingAssessment(allele, allele_state, config) {
+        if (allele.allele_assessment) {
+            if (!('autoReuseAlleleAssessmentCheckedId' in allele_state) ||
+                allele_state.autoReuseAlleleAssessmentCheckedId < allele.allele_assessment.id) {
+                this.enableReuseAlleleAssessment(allele, allele_state, config)
+                allele_state.autoReuseAlleleAssessmentCheckedId = allele.allele_assessment.id;
             }
-            if ('allele_report' in allele) {
-                allele_state.allelereport.id = allele.allele_report.id;
-                allele_state.presented_allelereport_id = allele.allele_report.id;
-                allele_state.allelereport.reuse = true;
-            }
-
-
-            return true;
         }
     }
 
