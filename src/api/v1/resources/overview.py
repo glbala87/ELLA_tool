@@ -90,8 +90,13 @@ class OverviewAlleleResource(Resource):
             allele.Allele.id.in_(allele_ids)
         ).group_by(allele.Allele.id).all()
 
+        # Load interpretations for each allele
+        allele_ids_interpretations = session.query(workflow.AlleleInterpretation).filter(
+            workflow.AlleleInterpretation.allele_id.in_(allele_ids)
+        ).all()
         allele_ids_deposit_date = {k: v for k, v in allele_ids_deposit_date}
 
+        alleleinterpretation_schema = schemas.AlleleInterpretationSchema()
         for gp_key, check_allele_ids in gp_allele_ids.iteritems():
             if gp_key not in genepanel_cache:
                 genepanel_cache[gp_key] = session.query(gene.Genepanel).filter(
@@ -110,7 +115,13 @@ class OverviewAlleleResource(Resource):
 
             for a in loaded_genepanel_alleles:
                 if not any([idl._exclude_class1(a), idl._exclude_gene(a), idl._exclude_intronic(a)]):
-                    final_alleles.append({'genepanel': {'name': genepanel.name, 'version': genepanel.version}, 'allele': a, 'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat()})
+                    interpretations = [i for i in allele_ids_interpretations if i.allele_id == a['id']]
+                    final_alleles.append({
+                        'genepanel': {'name': genepanel.name, 'version': genepanel.version},
+                        'allele': a,
+                        'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
+                        'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
+                    })
         return final_alleles
 
     def get_alleles_missing_interpretation(self, session, alleles):
