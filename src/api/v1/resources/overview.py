@@ -126,14 +126,16 @@ class OverviewAlleleResource(Resource):
         # We assume marked for review when at least one alleleinterpretation is 'Done', and one is 'Not started'
         allele_ids = [a['allele']['id'] for a in alleles]
         allele_ids_markreview = session.query(workflow.AlleleInterpretation.allele_id).filter(
-            workflow.AlleleInterpretation.id.in_(
-                session.query(workflow.AlleleInterpretation.id).filter(
-                    workflow.AlleleInterpretation.status == 'Done'
+            workflow.AlleleInterpretation.allele_id.in_(
+                session.query(workflow.AlleleInterpretation.allele_id).filter(
+                    workflow.AlleleInterpretation.status == 'Done',
+                    workflow.AlleleInterpretation.allele_id.in_(allele_ids)
                 )
             ),
-            workflow.AlleleInterpretation.id.in_(
-                session.query(workflow.AlleleInterpretation.id).filter(
-                    workflow.AlleleInterpretation.status == 'Not started'
+            workflow.AlleleInterpretation.allele_id.in_(
+                session.query(workflow.AlleleInterpretation.allele_id).filter(
+                    workflow.AlleleInterpretation.status == 'Not started',
+                    workflow.AlleleInterpretation.allele_id.in_(allele_ids)
                 )
             ),
             workflow.AlleleInterpretation.allele_id.in_(allele_ids)
