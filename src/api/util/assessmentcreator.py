@@ -154,7 +154,8 @@ class AssessmentCreator(object):
                 assessment_obj.annotation_id = annotation_match['annotation_id']
                 assessment_obj.custom_annotation_id = custom_annotation_match['custom_annotation_id'] if custom_annotation_match and 'custom_annotation_id' in custom_annotation_match else None
 
-                # If analysis_id provided, link assessment to genepanel through analysis
+                # If analysis_id provided, link assessment to genepanel through analysis for safety
+                # If not analysis_id, genepanel was loaded using schema above.
                 if 'analysis_id' in assessment_data:
                     assessment_analysis = next(a for a in cache['analysis'] if a.id == assessment_data['analysis_id'])
                     assessment_obj.genepanel_name = assessment_analysis.genepanel_name

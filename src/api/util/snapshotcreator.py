@@ -85,7 +85,7 @@ class SnapshotCreator(object):
             used_allelereports = list()
 
         # Get working list of alleles straigt from interpretation to ensure we log all data
-        excluded = None
+        excluded = {}
         if interpretation_snapshot_model == 'analysis':
             analysisinterpretation_obj = self.session.query(workflow.AnalysisInterpretation).filter(
                 workflow.AnalysisInterpretation.id == interpretation_id

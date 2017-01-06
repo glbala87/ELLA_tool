@@ -2,10 +2,9 @@ from flask.ext.marshmallow import Marshmallow
 from marshmallow import fields, Schema
 
 from api import app
+from api.schemas import users
 
 ma = Marshmallow(app)
-
-from .alleles import AlleleSchema
 
 
 class AlleleInterpretationSchema(Schema):
@@ -17,8 +16,10 @@ class AlleleInterpretationSchema(Schema):
                   'status',
                   'user_state',
                   'state',
+                  'genepanel_name',
+                  'genepanel_version',
                   'date_last_update',
-                  'allele',
-                  'user_id')
+                  'user_id',
+                  'user')
 
-    allele = fields.Nested(AlleleSchema)
+    user = fields.Nested(users.UserSchema)

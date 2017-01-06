@@ -1,9 +1,10 @@
 import datetime
 import itertools
 
+from flask import request
 from sqlalchemy import desc, not_
 
-from vardb.datamodel import workflow, user, assessment, sample, genotype, allele, annotation, gene
+from vardb.datamodel import user, assessment, sample, genotype, allele, annotation, gene
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json
@@ -14,16 +15,12 @@ from api.util.interpretationdataloader import InterpretationDataLoader
 from api.v1.resource import Resource
 from api.config import config
 
-
-def get_latest_alleleinterpretation(session, allele_id):
-    return session.query(workflow.AlleleInterpretation).filter(
-        workflow.AlleleInterpretation.allele_id == allele_id
-    ).order_by(workflow.AlleleInterpretation.id.desc()).first()
+from . import helpers
 
 
 class AlleleInterpretationResource(Resource):
 
-    def get(self, session, allele_id):
+    def get(self, session, allele_id, interpretation_id):
         """
         Returns current alleleinterpretation for allele.
         ---
@@ -41,11 +38,7 @@ class AlleleInterpretationResource(Resource):
                 $ref: '#/definitions/AlleleInterpretation'
             description: AnalysisInterpretation object
         """
-        allele_interpretation = session.query(workflow.AlleleInterpretation).filter(
-            workflow.AlleleInterpretation.allele_id == allele_id
-        ).order_by(workflow.AlleleInterpretation.id.desc()).first()
-
-        return schemas.AlleleInterpretationSchema().dump(allele_interpretation).data
+        return helpers.get_interpretation(session, alleleinterpretation_id=interpretation_id)
 
     @request_json(
         [],
@@ -55,7 +48,7 @@ class AlleleInterpretationResource(Resource):
             'user_id'
         ]
     )
-    def patch(self, session, allele_id, data=None):
+    def patch(self, session, allele_id, interpretation_id, data=None):
         """
         Updates current interpretation inplace.
 
@@ -96,37 +89,45 @@ class AlleleInterpretationResource(Resource):
             description: OK
         """
 
-        allele_interpretation = get_latest_alleleinterpretation(session, allele_id)
-
-        # If interpretation is completed, no changes are allowed
-        if allele_interpretation.status == 'Done':
-            raise ApiError("Cannot PATCH interpretation with status 'DONE'")
-        elif allele_interpretation.status == 'Not started':
-            raise ApiError("Interpretation not started. Call it's start action to begin the interpretation.")
-
-        # Check that user is same as before
-        if allele_interpretation.user_id:
-            if allele_interpretation.user_id != data['user_id']:
-                raise ApiError("User id doesn't match existing user_id")
-
-        # Check if new state is different than old, if so make a copy of the old into state_history
-        if data['state'] != allele_interpretation.state:
-            if 'history' not in allele_interpretation.state_history:
-                allele_interpretation.state_history['history'] = list()
-            allele_interpretation.state_history['history'].insert(0, {
-                'time': datetime.datetime.now().isoformat(),
-                'state': allele_interpretation.state,
-                'user_id': allele_interpretation.user_id
-            })
-
-        # Patch (overwrite) state fields with new values
-        allele_interpretation.state = data['state']
-        allele_interpretation.user_state = data['user_state']
-
-        allele_interpretation.date_last_update = datetime.datetime.now()
-
+        helpers.update_interpretation(session, data, alleleinterpretation_id=interpretation_id)
         session.commit()
+
         return None, 200
+
+
+class AlleleInterpretationAllelesListResource(Resource):
+
+    def get(self, session, allele_id, interpretation_id):
+
+        allele_ids = request.args.get('allele_ids').split(',')
+        return helpers.get_alleles(session, allele_ids, alleleinterpretation_id=interpretation_id)
+
+
+class AlleleInterpretationListResource(Resource):
+
+    def get(self, session, allele_id):
+        """
+        Returns all interpretations for allele.
+        ---
+        summary: Get interpretations
+        tags:
+          - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/AlleleInterpretation'
+
+            description: AlleleInterpretation objects
+        """
+
+        return helpers.get_interpretations(session, allele_id=allele_id)
 
 
 class AlleleActionOverrideResource(Resource):
@@ -168,26 +169,15 @@ class AlleleActionOverrideResource(Resource):
           500:
             description: Error
         """
-        # Get user by username
-        new_user = session.query(user.User).filter(
-            user.User.id == data['user_id']
-        ).one()
-
-        allele_interpretation = get_latest_alleleinterpretation(session, allele_id)
-
-        if allele_interpretation.status != 'Ongoing':
-            raise ApiError("Cannot reassign interpretation that is not 'Ongoing'.")
-
-        # db will throw exception if user_id is not a valid id
-        # since it's a foreign key
-        allele_interpretation.user = new_user
+        helpers.override_interpretation(session, data, allele_id=allele_id)
         session.commit()
+
         return None, 200
 
 
 class AlleleActionStartResource(Resource):
 
-    @request_json(['user_id'])
+    @request_json(['user_id', 'gp_name', 'gp_version'])
     def post(self, session, allele_id, data=None):
         """
         Starts an alleleinterpretation.
@@ -226,31 +216,24 @@ class AlleleActionStartResource(Resource):
           500:
             description: Error
         """
-        # Get user by username
-        start_user = session.query(user.User).filter(
-            user.User.id == data['user_id']
-        ).one()
 
-        allele_interpretation = get_latest_alleleinterpretation(session, allele_id)
-
-        if not allele_interpretation:
-            allele_interpretation = workflow.AlleleInterpretation()
-            allele_interpretation.allele_id = allele_id
-            session.add(allele_interpretation)
-        elif allele_interpretation.status != 'Not started':
-            raise ApiError("Cannot start existing interpretation where status = {}".format(allele_interpretation.status))
-
-        # db will throw exception if user_id is not a valid id
-        # since it's a foreign key
-        allele_interpretation.user = start_user
-        allele_interpretation.status = 'Ongoing'
+        helpers.start_interpretation(session, data, allele_id=allele_id)
         session.commit()
+
         return None, 200
 
 
 class AlleleActionMarkReviewResource(Resource):
 
-    def post(self, session, allele_id):
+    @request_json(
+        [
+            'alleleassessments',
+            'annotations',
+            'custom_annotations',
+            'allelereports'
+        ]
+    )
+    def post(self, session, allele_id, data=None):
         """
         Marks an allele interpretation for review.
 
@@ -287,23 +270,10 @@ class AlleleActionMarkReviewResource(Resource):
           500:
             description: Error
         """
-        # TODO: Validate that user is same as user on interpretation
 
-        allele_interpretation = get_latest_alleleinterpretation(session, allele_id)
-
-        if allele_interpretation.status != 'Ongoing':
-            raise ApiError("Interpretation is not ongoing.")
-
-        allele_interpretation.status = 'Done'
-        allele_interpretation.date_last_update = datetime.datetime.now()
-
-        # Create next interpretation
-        allele_interpretation_next = workflow.AlleleInterpretation()
-        allele_interpretation_next.allele_id = allele_interpretation.allele_id
-        allele_interpretation_next.state = allele_interpretation.state
-
-        session.add(allele_interpretation_next)
+        helpers.markreview_interpretation(session, data, allele_id=allele_id)
         session.commit()
+
         return None, 200
 
 
@@ -346,21 +316,9 @@ class AlleleActionReopenResource(Resource):
             description: Error
         """
 
-        allele_interpretation = get_latest_alleleinterpretation(session, allele_id)
-
-        if allele_interpretation is None:
-            raise ApiError("There are no existing interpretations for this allele. Use the start action instead.")
-
-        if not allele_interpretation.status == 'Done':
-            raise ApiError("Allele interpretation is already 'Not started' or 'Ongoing'. Cannot reopen.")
-
-        # Create next interpretation
-        allele_interpretation_next = workflow.AlleleInterpretation()
-        allele_interpretation_next.allele_id = allele_interpretation.allele_id
-        allele_interpretation_next.state = allele_interpretation.state
-
-        session.add(allele_interpretation_next)
+        helpers.reopen_interpretation(session, allele_id=allele_id)
         session.commit()
+
         return None, 200
 
 
@@ -635,103 +593,10 @@ class AlleleActionFinalizeResource(Resource):
 
         """
 
-        ac = AssessmentCreator(session)
-
-        result = ac.create_from_data(
-            data['alleleassessments'],
-            data['referenceassessments'],
-        )
-
-        all_alleleassessments = result['alleleassessments']['reused'] + result['alleleassessments']['created']
-        all_referenceassessments = result['referenceassessments']['reused'] + result['referenceassessments']['created']
-
-        arc = AlleleReportCreator(session)
-        arc_result = arc.create_from_data(data['allelereports'], all_alleleassessments)
-
-        all_allelereports = arc_result['reused'] + arc_result['created']
-
-        connected_interpretations = session.query(sample.Interpretation).filter(
-            sample.Interpretation.analysis_id == analysis_id
-        ).all()
-
-        # Check that exactly one is ongoing
-        if not len([i for i in connected_interpretations if i.status == 'Ongoing']) == 1:
-            raise ApiError("There's more than one ongoing interpretation. This shouldn't happen!")
-
-        if [i for i in connected_interpretations if i.status == 'Not started']:
-            raise ApiError("One or more interpretations are marked as 'Not started'. Finalization not possible.")
-
-        current_interpretation = next((i for i in connected_interpretations if i.status == 'Ongoing'), None)
-
-        if current_interpretation is None:
-            raise ApiError("Trying to finalize analysis with no 'Ongoing' interpretations")
-
-        # Create analysisfinalized objects:
-        # We need to fetch all allele ids to store info for.
-        # Allele ids are provided by the 'Ongoing' interpretation
-
-        i = InterpretationDataLoader(session, config).from_id(current_interpretation.id)
-
-        allele_ids = i['allele_ids']
-        excluded = i['excluded_allele_ids']
-
-        all_allele_ids = allele_ids + list(itertools.chain(*excluded.values()))
-
-        # Fetch connected annotation ids
-        allele_annotation = session.query(
-            allele.Allele.id,
-            annotation.Annotation.id,
-            annotation.CustomAnnotation.id
-        ).outerjoin(  # Outer join since not all alleles have customannotation
-            annotation.Annotation,
-            annotation.CustomAnnotation,
-        ).filter(
-            annotation.Annotation.date_superceeded == None,
-            annotation.CustomAnnotation.date_superceeded == None,
-            allele.Allele.id.in_(all_allele_ids)
-        ).all()
-
-        def create_analaysisfinalize(allele_id, alleleassessment_id=None, allelereport_id=None, filtered=None):
-            _, annotation_id, customannotation_id = next(a for a in allele_annotation if a[0] == allele_id)
-            af_data = {
-                'analysis_id': analysis_id,
-                'allele_id': allele_id,
-                'annotation_id': annotation_id,
-                'customannotation_id': customannotation_id,
-                'alleleassessment_id': alleleassessment_id,
-                'allelereport_id': allelereport_id,
-                'filtered': filtered
-            }
-            af = sample.AnalysisFinalized(**af_data)
-            return af
-
-        for allele_id in allele_ids:
-            af = create_analaysisfinalize(
-                allele_id,
-                alleleassessment_id=next(a.id for a in all_alleleassessments if a.allele_id == allele_id),
-                allelereport_id=next(a.id for a in all_allelereports if a.allele_id == allele_id),
-            )
-            session.add(af)
-
-        for allele_id in excluded['class1']:
-            af = create_analaysisfinalize(allele_id, filtered='CLASS1')
-            session.add(af)
-
-        for allele_id in excluded['intronic']:
-            af = create_analaysisfinalize(allele_id, filtered='INTRON')
-            session.add(af)
-
-        # Mark all analysis' interpretations as done (we do all just in case)
-        for ci in connected_interpretations:
-            ci.status = 'Done'
-
+        result = helpers.finalize_interpretation(session, data, allele_id=allele_id)
         session.commit()
 
-        return {
-            'allelereports': schemas.AlleleReportSchema().dump(all_allelereports, many=True).data,
-            'alleleassessments': schemas.AlleleAssessmentSchema().dump(all_alleleassessments, many=True).data,
-            'referenceassessments': schemas.ReferenceAssessmentSchema().dump(all_referenceassessments, many=True).data,
-        }, 200
+        return result, 200
 
 '''
 class AnalysisCollisionResource(Resource):

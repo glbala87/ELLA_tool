@@ -121,7 +121,13 @@ class ApiV1(object):
                            '/api/v1/users/<int:user_id>/')
 
         self._add_resource(r.workflow.allele.AlleleInterpretationResource,
-                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/current/')
+                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/')
+
+        self._add_resource(r.workflow.allele.AlleleInterpretationListResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/')
+
+        self._add_resource(r.workflow.allele.AlleleInterpretationAllelesListResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/alleles/')
 
         self._add_resource(r.workflow.allele.AlleleActionStartResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/start/')

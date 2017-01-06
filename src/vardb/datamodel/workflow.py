@@ -67,6 +67,11 @@ class AnalysisInterpretationSnapshot(Base):
     analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"), nullable=False,)
     analysisinterpretation = relationship("AnalysisInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
+
+    genepanel_name = Column(String)
+    genepanel_version = Column(String)
+    genepanel = relationship("Genepanel", uselist=False)
+
     annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=True)  # None for an excluded allele
     customannotation_id = Column(Integer, ForeignKey("customannotation.id"))
 
@@ -80,6 +85,8 @@ class AnalysisInterpretationSnapshot(Base):
 
     alleleassessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
     presented_alleleassessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)
+
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
 
 class AlleleInterpretation(Base):
