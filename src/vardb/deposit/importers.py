@@ -440,11 +440,22 @@ class AnnotationImporter(object):
     def diff_annotation(annos1, annos2):
         """True if the dictionaries are not identical wrt keys and values."""
 
-        # TODO: Verify functionality!
-        if not annos1 == annos2:
-            return True
-        else:
-            return False
+        def ordered(obj):
+            if isinstance(obj, dict):
+                return sorted((k, ordered(v)) for k, v in obj.items())
+            if isinstance(obj, list):
+                return sorted(ordered(x) for x in obj)
+            else:
+                return obj
+
+        has_diff = not annos1 == annos2
+        if has_diff:  # sort dict/lists and compare again:
+            annos1_ordered = ordered(annos1)
+            annos2_ordered = ordered(annos2)
+            has_ordered_diff = not annos1_ordered == annos2_ordered
+            has_diff = has_ordered_diff
+
+        return has_diff
 
     def _extract_annotation_from_record(self, record, allele, skip_anno=None):
         """Given a record, return dict with annotation to be stored in db.
