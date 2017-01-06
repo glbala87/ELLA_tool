@@ -151,6 +151,7 @@ export class WorkflowAlleleController {
 
         this.interpretations = []; // Holds interpretations from backend
         this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
+        this.interpretations_loaded = false; // For hiding view until we've checked whether we have interpretations
 
         this.dummy_interpretation = { // Dummy data for letting the user browse the view before starting interpretation. Never stored!
             genepanel_name: this.genepanelName,
@@ -161,11 +162,11 @@ export class WorkflowAlleleController {
 
         this.setUpListeners();
         this._setWatchers();
-        this.setupNavbar();
 
         this.loadAlleleId().then(() => {
             this.dummy_interpretation.allele_ids = [this.allele_id];
             this.reloadInterpretationData();
+            this.setupNavbar();
         });
     }
 
@@ -231,7 +232,7 @@ export class WorkflowAlleleController {
         if (this.getAlleles().length) {
             this.navbar.replaceItems([
                 {
-                    title: 'FixME',
+                    title: `${this.getAlleles()[0].toString()} ${this.genepanelName}_${this.genepanelVersion}`,
                     url: "/overview"
                 }
             ]);
@@ -295,6 +296,7 @@ export class WorkflowAlleleController {
             else {
                 this.selected_interpretation = null;
             }
+            this.interpretations_loaded = true;
             console.log("Reloaded interpretation data:", this.selected_interpretation)
         });
     }
