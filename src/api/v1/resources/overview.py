@@ -163,13 +163,13 @@ class OverviewAlleleResource(Resource):
 
         # First get rid of all variants that would be filtered out, per analysis
 
-        analysis_ids_not_started = queries.analysis_ids_not_started(session)
+        workflow_analyses_not_started = queries.workflow_analyses_not_started(session)
         analysis_ids_allele_ids = session.query(sample.Analysis.id, allele.Allele.id).join(
             genotype.Genotype.alleles,
             sample.Sample,
             sample.Analysis,
         ).filter(
-            sample.Analysis.id.in_(analysis_ids_not_started)
+            sample.Analysis.id.in_(workflow_analyses_not_started)
         ).all()
 
         # Now we have all the alleles, so what remains is to see which alleles are
@@ -218,7 +218,7 @@ class OverviewAlleleResource(Resource):
                 analysis_ids_allele_ids_map[a[0]].append(a[1])
 
         analyses_not_started = session.query(sample.Analysis).filter(
-            sample.Analysis.id.in_(analysis_ids_not_started)
+            sample.Analysis.id.in_(workflow_analyses_not_started)
         ).all()
         aschema = schemas.AnalysisSchema()
         analyses_not_started_serialized = [aschema.dump(a).data for a in analyses_not_started]
@@ -242,7 +242,7 @@ class OverviewAlleleResource(Resource):
 
         # Add mark review analyses
         analyses_marked_review = session.query(sample.Analysis).filter(
-            sample.Analysis.id.in_(queries.analysis_ids_marked_review(session))
+            sample.Analysis.id.in_(queries.workflow_analyses_marked_review(session))
         ).all()
         final_analyses['marked_review'] = [aschema.dump(a).data for a in analyses_marked_review]
 

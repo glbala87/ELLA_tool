@@ -75,8 +75,6 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisListResource,
                            '/api/v1/analyses/')
 
-        self._add_resource(r.analysis.AnalysisCollisionResource,
-                           '/api/v1/analyses/<int:analysis_id>/collisions/')
 
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
@@ -120,11 +118,11 @@ class ApiV1(object):
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
 
-        self._add_resource(r.workflow.allele.AlleleInterpretationResource,
-                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/')
-
         self._add_resource(r.workflow.allele.AlleleInterpretationListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/interpretations/')
+
+        self._add_resource(r.workflow.allele.AlleleInterpretationResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/')
 
         self._add_resource(r.workflow.allele.AlleleInterpretationAllelesListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/alleles/')
@@ -143,6 +141,9 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.allele.AlleleActionReopenResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/reopen/')
+
+        self._add_resource(r.workflow.allele.AlleleCollisionResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/collisions/')
 
         self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
@@ -167,3 +168,6 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.analysis.AnalysisActionReopenResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/reopen/')
+
+        self._add_resource(r.workflow.analysis.AnalysisCollisionResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/collisions/')
