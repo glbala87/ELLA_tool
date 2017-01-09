@@ -149,6 +149,8 @@ export class WorkflowAlleleController {
         this.selected_interpretation_alleles = []; // Loaded allele for current interpretation (annotation etc data can change based on interpretation snapshot)
         this.alleles_loaded = false;  // Loading indicators etc
 
+        this.allele_collisions = null;
+
         this.interpretations = []; // Holds interpretations from backend
         this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
         this.interpretations_loaded = false; // For hiding view until we've checked whether we have interpretations
@@ -164,6 +166,7 @@ export class WorkflowAlleleController {
         this._setWatchers();
 
         this.loadAlleleId().then(() => {
+            this.checkForCollisions();
             this.dummy_interpretation.allele_ids = [this.allele_id];
             this.reloadInterpretationData();
             this.setupNavbar();
@@ -336,6 +339,12 @@ export class WorkflowAlleleController {
             change_to: to
         }
         return query;
+    }
+
+    checkForCollisions() {
+        this.workflowResource.getCollisions('allele', this.allele_id).then(c => {
+            this.allele_collisions = c;
+        });
     }
 
     loadAlleleId() {

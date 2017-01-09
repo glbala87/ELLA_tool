@@ -152,14 +152,10 @@ class WorkflowResource {
      * @param  {int} id Analysis id
      * @return {Object}    Information about collisions
      */
-    getCollisions(id) {
-        throw Error("Fix me!");
+    getCollisions(type, id) {
         return new Promise((resolve, reject) => {
-            var CollistionRS = this.resource(`${this.base}/analyses/${id}/collisions/`);
-            var data = CollistionRS.query(() => {
-                for (let user of data) {
-                    user.alleles = user.alleles.map(a => new Allele(a));
-                }
+            var CollistionRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/collisions/`);
+            var data = CollistionRS.get(() => {
                 resolve(data);
             }, reject);
         });

@@ -158,6 +158,8 @@ export class AnalysisController {
         this.selected_interpretation_alleles = []; // Loaded alleles for current interpretation
         this.alleles_loaded = false;  // Loading indicators etc
 
+        this.allele_collisions = null;
+
         this.interpretations = []; // Holds interpretations from backend
         this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
 
@@ -343,6 +345,10 @@ export class AnalysisController {
         this.analysisResource.getAnalysis(this.analysisId).then(a => {
             this.analysis = a;
             this.setupNavbar();
+        })
+
+        this.workflowResource.getCollisions('analysis', this.analysisId).then(c => {
+            this.allele_collisions = c;
         });
     }
 

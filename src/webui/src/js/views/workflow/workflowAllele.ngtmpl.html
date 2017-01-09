@@ -15,6 +15,11 @@
       <workflow-buttons alleles="vm.getAlleles()" allele-id="vm.allele_id" genepanel-name="vm.genepanelName" genepanel-version="vm.genepanelVersion" reload="vm.reloadInterpretationData()" selected-interpretation="vm.selected_interpretation" interpretations="vm.interpretations"></workflow-buttons>
     </section>
   </nav>
+  <nav class="warning" ng-if="vm.allele_collisions.collisions.count > 0">
+    <div class="id-collision-warning">
+      <h2>This variant is currently being worked on as part of another workflow.</h2>
+    </div>
+  </nav>
   <div class="interpretation">
     <interpretation
       components="vm.components"
