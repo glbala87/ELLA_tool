@@ -41,8 +41,8 @@ import './filters';
 
 import './views/workflow/workflowAnalysis.directive';
 import './views/workflow/workflowAllele.directive';
-import './views/analysis/analysisSelection.directive';
-import './views/analysis/interpretationSingleSample.directive';
+import './views/workflow/interpretation.directive';
+import './views/overviews/analysisSelection.directive';
 import './views/overviews/alleleSelection.directive';
 import './views/main.directive';
 import './views/overview.directive';
@@ -81,7 +81,6 @@ import './widgets/contentbox.directive';
 import './widgets/sectionbox.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
-// import './widgets/card.directive';
 import './widgets/workflowButtons.directive';
 import './widgets/allelesectionbox/allelesectionbox.directive';
 import './widgets/allelesectionbox/allelesectionboxcontent.directive';
