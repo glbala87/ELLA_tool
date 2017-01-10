@@ -94,7 +94,7 @@ class WorkflowResource {
     override(type, id, user_id) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'override').doIt(
-                { analysisId: id},
+                { id },
                 {
                     user_id: user_id
                 },

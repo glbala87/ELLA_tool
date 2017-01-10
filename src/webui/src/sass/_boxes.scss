@@ -4,6 +4,7 @@ $bar-colors: (
   purple: $purple,
   pink: $pink,
   black: $black,
+  red: $red
 );
 @each $name, $color in $bar-colors {
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }

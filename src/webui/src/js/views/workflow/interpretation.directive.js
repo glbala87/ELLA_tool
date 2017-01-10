@@ -43,7 +43,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         'ReferenceResource',
         'AlleleFilter',
         'CustomAnnotationModal')
-export class InterpretationSingleSampleController {
+export class InterpretationController {
 
     constructor($scope,
                 clipboard,

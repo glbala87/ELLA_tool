@@ -17,12 +17,13 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     },
     templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html'
 })
-@Inject('Workflow', 'Config', 'User', 'toastr')
+@Inject('Workflow', 'Config', 'User', 'InterpretationOverrideModal', 'toastr')
 export class WorkflowButtonsController {
-    constructor(Workflow, Config, User, toastr) {
+    constructor(Workflow, Config, User, InterpretationOverrideModal, toastr) {
         this.workflowService = Workflow;
         this.config = Config;
         this.user = User;
+        this.interpretationOverrideModal = InterpretationOverrideModal;
         this.toastr = toastr;
         this.interpretationUpdateInProgress = false;
 
@@ -38,6 +39,9 @@ export class WorkflowButtonsController {
             },
             reopen: {
                 text: 'Reopen analysis'
+            },
+            override: {
+                text: 'Reassign to me'
             }
         };
 
@@ -77,13 +81,22 @@ export class WorkflowButtonsController {
      */
     clickStartSaveBtn() {
         let [type, id] = this.getTypeAndId();
-        // Save mode
+        // Reassign/save mode
         if (this.selectedInterpretation && this.selectedInterpretation.status === 'Ongoing') {
-            this.workflowService.save(type, id, this.selectedInterpretation).then(() => {
-                this.interpretationUpdateInProgress = false;
-            }).catch(() => {
-                this.toastr.error("Something went wrong while saving your work. To avoid losing it, please don't close this window and contact support.");
-            });
+            if (this.selectedInterpretation.user.id !== this.user.getCurrentUserId()) {
+                this.interpretationOverrideModal.show().then(result => {
+                    if (result) {
+                        this.workflowService.override(type, id).then(() => this._callReload());
+                    }
+                });
+            }
+            else {
+                this.workflowService.save(type, id, this.selectedInterpretation).then(() => {
+                    this.interpretationUpdateInProgress = false;
+                }).catch(() => {
+                    this.toastr.error("Something went wrong while saving your work. To avoid losing it, please don't close this window and contact support.");
+                });
+            }
         }
         else {
             // Call reopen if applicable
@@ -104,14 +117,22 @@ export class WorkflowButtonsController {
         this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles).then(() => {this._callReload()});
     }
 
-    isInterpretationOngoing() {
-        if (this.selectedInterpretation) {
-            return this.selectedInterpretation.status === 'Ongoing';
+    showFinishBtn() {
+        if (this.selectedInterpretation &&
+            this.selectedInterpretation.status === 'Ongoing') {
+                return this.selectedInterpretation.user.id === this.user.getCurrentUserId();
         }
         return false;
     }
 
     _getSaveStatus() {
+
+        if (this.interpretations.find(i => {
+            return i.status === 'Ongoing' &&
+                   i.user.id !== this.user.getCurrentUserId();
+        })) {
+            return 'override';
+        }
 
         if (this.interpretations.find(i => i.status === 'Ongoing')) {
             return 'save';
@@ -136,8 +157,11 @@ export class WorkflowButtonsController {
 
     getSaveBtnClass() {
         let classes = [];
-        if (this._getSaveStatus() === 'start') {
+        if (['start', 'review'].includes(this._getSaveStatus())) {
             classes.push('green');
+        }
+        else if (['override'].includes(this._getSaveStatus())) {
+            classes.push('red');
         }
         else {
             if (this.selectedInterpretation &&
