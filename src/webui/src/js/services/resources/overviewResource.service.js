@@ -22,18 +22,29 @@ export class OverviewResource {
             let overview = r.get((data) => {
 
                 // Convert to our model objects
-                for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing']) {
-                    for (let item of data.alleles[key]) {
+                for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing', 'finalized']) {
+                    for (let item of data[key]) {
                         item.allele = new Allele(item.allele);
                     }
                 }
 
-                for (let key of ['with_findings', 'without_findings', 'missing_alleleassessments', 'ongoing']) {
+                resolve(overview);
+            }, reject);
+        });
+    }
+
+    getAnalysesOverview() {
+        return new Promise((resolve, reject) => {
+            let uri = `${this.base}/overviews/analyses/`;
+            let r = this.resource(uri);
+            let overview = r.get((data) => {
+
+                for (let key of ['with_findings', 'without_findings', 'missing_alleleassessments', 'ongoing', 'marked_review', 'finalized']) {
                     let analyses_objs = [];
-                    for (let a of data.analyses[key]) {
+                    for (let a of data[key]) {
                         analyses_objs.push(new Analysis(a));
                     }
-                    data.analyses[key] = analyses_objs;
+                    data[key] = analyses_objs;
                 }
 
                 resolve(overview);

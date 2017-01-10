@@ -1,4 +1,4 @@
-<sectionbox color="green" collapsed="true">
+<sectionbox color="green" collapsed="true" ng-if="vm.overview">
   <maintitle>
     YOUR VARIANTS
   </maintitle>
@@ -11,7 +11,35 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="blue" collapsed="true">
+<sectionbox color="green" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    PENDING VARIANTS
+  </maintitle>
+  <subtitle>
+    {{vm.overview.missing_alleleassessment.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.overview.missing_alleleassessment"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.missing_alleleassessment.length">No pending variants</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="purple" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    VARIANTS PENDING REVIEW
+  </maintitle>
+  <subtitle>
+    {{vm.overview.marked_review.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.overview.marked_review"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review.length">No variants pending review</h4>
+  </contentwrapper>
+</sectionbox>
+
+<div class="spacer"></div>
+
+<sectionbox color="blue" collapsed="true" ng-if="vm.overview">
   <maintitle>
     OTHERS' VARIANTS
   </maintitle>
@@ -24,84 +52,15 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green">
+<sectionbox color="blue" collapsed="true" ng-if="vm.overview">
   <maintitle>
-    PENDING VARIANTS
+    FINISHED VARIANTS
   </maintitle>
   <subtitle>
-    {{vm.overview.alleles.missing_alleleassessment.length}}
+    {{vm.overview.finalized.length}}
   </subtitle>
   <contentwrapper>
-    <allele-list allele-items="vm.overview.alleles.missing_alleleassessment"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.alleles.missing_alleleassessment.length">No pending variants</h4>
-  </contentwrapper>
-</sectionbox>
-
-<sectionbox color="purple">
-  <maintitle>
-    VARIANTS PENDING REVIEW
-  </maintitle>
-  <subtitle>
-    {{vm.overview.alleles.marked_review.length}}
-  </subtitle>
-  <contentwrapper>
-    <allele-list allele-items="vm.overview.alleles.marked_review"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.alleles.marked_review.length">No variants pending review</h4>
-  </contentwrapper>
-</sectionbox>
-
-<div class="spacer"></div>
-
-<sectionbox color="green">
-  <maintitle>
-    ANALYSES WITH CLASS 3-5 VARIANTS
-  </maintitle>
-  <subtitle>
-    {{vm.overview.analyses.with_findings.length}}
-  </subtitle>
-  <contentwrapper>
-    <analysis-list analyses="vm.overview.analyses.with_findings"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.analyses.with_findings.length">No analyses with class 3-5 variants</h4>
-  </contentwrapper>
-</sectionbox>
-
-<sectionbox color="green">
-  <maintitle>
-    ANALYSES WITH NORMAL VARIANTS
-  </maintitle>
-  <subtitle>
-    {{vm.overview.analyses.without_findings.length}}
-  </subtitle>
-  <contentwrapper>
-    <analysis-list analyses="vm.overview.analyses.without_findings"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.analyses.without_findings.length">No analyses with normal variants</h4>
-  </contentwrapper>
-</sectionbox>
-
-<sectionbox color="purple">
-  <maintitle>
-    ANALYSES PENDING REVIEW
-  </maintitle>
-  <subtitle>
-    {{vm.overview.analyses.marked_review.length}}
-  </subtitle>
-  <contentwrapper>
-    <analysis-list analyses="vm.overview.analyses.marked_review"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.analyses.marked_review.length">No analyses pending review.</h4>
-  </contentwrapper>
-</sectionbox>
-
-<div class="spacer"></div>
-
-<sectionbox color="green">
-  <maintitle>
-    ANALYSES WITH MISSING CLASSIFICATIONS
-  </maintitle>
-  <subtitle>
-    {{vm.overview.analyses.missing_alleleassessments.length}}
-  </subtitle>
-  <contentwrapper>
-    <analysis-list analyses="vm.overview.analyses.missing_alleleassessments"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.analyses.missing_alleleassessments.length">No analyses with missing classifications</h4>
+    <allele-list allele-items="vm.overview.finalized"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.finalized.length">No finished variants</h4>
   </contentwrapper>
 </sectionbox>
