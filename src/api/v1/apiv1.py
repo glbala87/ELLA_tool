@@ -60,9 +60,6 @@ class ApiV1(object):
         self._add_resource(r.alleleassessment.AlleleAssessmentListResource,
                            '/api/v1/alleleassessments/')
 
-        self._add_resource(r.alleleinterpretation.AlleleInterpretationCreateActionResource,
-                           '/api/v1/alleleinterpretations/actions/create/')
-
         self._add_resource(r.allelereport.AlleleReportListResource,
                            '/api/v1/allelereports/')
 
@@ -74,7 +71,6 @@ class ApiV1(object):
 
         self._add_resource(r.analysis.AnalysisListResource,
                            '/api/v1/analyses/')
-
 
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
