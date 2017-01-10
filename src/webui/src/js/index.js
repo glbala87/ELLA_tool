@@ -12,7 +12,6 @@ require('core-js/fn/array/includes');
 import "./recompile.directive";
 
 import "./modals/addExcludedAllelesModal.service";
-import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
