@@ -1,11 +1,9 @@
 import itertools
 from collections import defaultdict
-from sqlalchemy import or_, and_, func
-from sqlalchemy.orm import contains_eager
+from sqlalchemy import func
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 
 from api import schemas, ApiError
-from api.util.util import request_json
 from api.v1.resource import Resource
 from api.v1 import queries
 
