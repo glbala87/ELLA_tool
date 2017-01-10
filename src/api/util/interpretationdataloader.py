@@ -133,7 +133,7 @@ class InterpretationDataLoader(object):
                 if snapshot.filtered == allele.Allele.CLASS1:
                     excluded_allele_ids['class1'].append(snapshot.allele_id)
                 elif snapshot.filtered == allele.Allele.INTRON:
-                    excluded_allele_ids['intron'].append(snapshot.allele_id)
+                    excluded_allele_ids['intronic'].append(snapshot.allele_id)
                 elif snapshot.filtered == allele.Allele.GENE:
                     excluded_allele_ids['gene'].append(snapshot.allele_id)
                 else:
