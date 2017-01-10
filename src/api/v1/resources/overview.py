@@ -15,88 +15,89 @@ from api.util.interpretationdataloader import InterpretationDataLoader
 from api.config import config
 
 
+def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
+    """
+    Loads in allele data from AlleleDataLoader for all allele ids given by input structure:
+
+    gp_allele_ids = {
+        ('HBOC', 'v01'): [1, 2, 3, ...],
+        ('HBOCutv', 'v01'): [1, 2, 3, ...],
+    }
+
+    Returns [
+        {
+            'genepanel': {...genepanel data...},
+            'allele': {...allele data...},
+            'oldest_analysis': '<dateisoformat>',
+            'interpretations': [{...interpretation_data...}, ...]
+        },
+        ...
+    ]
+    """
+
+    # Preload all alleles in one go
+    all_allele_ids = list(itertools.chain(*gp_allele_ids.values()))
+    all_alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
+
+    # Preload oldest analysis for each allele, to get the oldest datetime
+    # for the analysis awaiting this allele's classification
+    allele_ids_deposit_date = session.query(allele.Allele.id, func.min(sample.Analysis.deposit_date)).join(
+        genotype.Genotype.alleles,
+        sample.Sample,
+        sample.Analysis
+    ).filter(
+        allele.Allele.id.in_(all_allele_ids)
+    ).group_by(allele.Allele.id).all()
+
+    # Preload interpretations for each allele
+    allele_ids_interpretations = session.query(workflow.AlleleInterpretation).filter(
+        workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
+    ).all()
+    allele_ids_deposit_date = {k: v for k, v in allele_ids_deposit_date}
+
+    # Set structures/loaders
+    final_alleles = list()
+    genepanel_cache = dict()  # Cache for the genepanels. Ideally we'd like to just prefetch them all in single query, but turned out to be hard
+    idl = InterpretationDataLoader(session, config)
+    adl = AlleleDataLoader(session)
+    alleleinterpretation_schema = schemas.AlleleInterpretationSchema()
+
+    # Start processing alleles
+    for gp_key, gp_allele_ids in gp_allele_ids.iteritems():  # ('HBOC', 'v01'), [1, 2, 3, ...]
+        if gp_key not in genepanel_cache:
+            genepanel_cache[gp_key] = session.query(gene.Genepanel).filter(
+                gene.Genepanel.name == gp_key[0],
+                gene.Genepanel.version == gp_key[1]
+            ).one()
+
+        genepanel = genepanel_cache[gp_key]
+        genepanel_alleles = [a for a in all_alleles if a.id in gp_allele_ids]
+
+        loaded_genepanel_alleles = adl.from_objs(
+            genepanel_alleles,
+            genepanel=genepanel,
+            include_custom_annotation=False,  # Extra data not needed for our use cases here
+            include_reference_assessments=False,
+            include_allele_report=False
+        )
+
+        for a in loaded_genepanel_alleles:
+
+            if filter_alleles and any([idl._exclude_class1(a), idl._exclude_gene(a), idl._exclude_intronic(a)]):
+                continue
+            else:
+                interpretations = [i for i in allele_ids_interpretations if i.allele_id == a['id']]
+                final_alleles.append({
+                    'genepanel': {'name': genepanel.name, 'version': genepanel.version},
+                    'allele': a,
+                    'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
+                    'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
+                })
+
+    return final_alleles
+
+
 class OverviewAlleleResource(Resource):
-
-    def load_genepanel_alleles(self, session, gp_allele_ids, filter_alleles=True):
-        """
-        Loads in allele data from AlleleDataLoader for all allele ids given by input structure:
-
-        gp_allele_ids = {
-            ('HBOC', 'v01'): [1, 2, 3, ...],
-            ('HBOCutv', 'v01'): [1, 2, 3, ...],
-        }
-
-        Returns [
-            {
-                'genepanel': {...genepanel data...},
-                'allele': {...allele data...},
-                'oldest_analysis': '<dateisoformat>',
-                'interpretations': [{...interpretation_data...}, ...]
-            },
-            ...
-        ]
-        """
-
-        # Preload all alleles in one go
-        all_allele_ids = list(itertools.chain(*gp_allele_ids.values()))
-        all_alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
-
-        # Preload oldest analysis for each allele, to get the oldest datetime
-        # for the analysis awaiting this allele's classification
-        allele_ids_deposit_date = session.query(allele.Allele.id, func.min(sample.Analysis.deposit_date)).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis
-        ).filter(
-            allele.Allele.id.in_(all_allele_ids)
-        ).group_by(allele.Allele.id).all()
-
-        # Preload interpretations for each allele
-        allele_ids_interpretations = session.query(workflow.AlleleInterpretation).filter(
-            workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
-        ).all()
-        allele_ids_deposit_date = {k: v for k, v in allele_ids_deposit_date}
-
-        # Set structures/loaders
-        final_alleles = list()
-        genepanel_cache = dict()  # Cache for the genepanels. Ideally we'd like to just prefetch them all in single query, but turned out to be hard
-        idl = InterpretationDataLoader(session, config)
-        adl = AlleleDataLoader(session)
-        alleleinterpretation_schema = schemas.AlleleInterpretationSchema()
-
-        # Start processing alleles
-        for gp_key, gp_allele_ids in gp_allele_ids.iteritems():  # ('HBOC', 'v01'), [1, 2, 3, ...]
-            if gp_key not in genepanel_cache:
-                genepanel_cache[gp_key] = session.query(gene.Genepanel).filter(
-                    gene.Genepanel.name == gp_key[0],
-                    gene.Genepanel.version == gp_key[1]
-                ).one()
-
-            genepanel = genepanel_cache[gp_key]
-            genepanel_alleles = [a for a in all_alleles if a.id in gp_allele_ids]
-
-            loaded_genepanel_alleles = adl.from_objs(
-                genepanel_alleles,
-                genepanel=genepanel,
-                include_custom_annotation=False,  # Extra data not needed for our use cases here
-                include_reference_assessments=False,
-                include_allele_report=False
-            )
-
-            for a in loaded_genepanel_alleles:
-
-                if filter_alleles and any([idl._exclude_class1(a), idl._exclude_gene(a), idl._exclude_intronic(a)]):
-                    continue
-                else:
-                    interpretations = [i for i in allele_ids_interpretations if i.allele_id == a['id']]
-                    final_alleles.append({
-                        'genepanel': {'name': genepanel.name, 'version': genepanel.version},
-                        'allele': a,
-                        'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
-                        'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
-                    })
-
-        return final_alleles
 
     def get_alleles_no_alleleassessment(self, session):
         """
@@ -123,17 +124,16 @@ class OverviewAlleleResource(Resource):
 
         # Get a list of candidate genepanels per allele id
         allele_ids_genepanels = session.query(
-            gene.Genepanel.name,
-            gene.Genepanel.version,
+            workflow.AnalysisInterpretation.genepanel_name,
+            workflow.AnalysisInterpretation.genepanel_version,
             allele.Allele.id
         ).join(
             genotype.Genotype.alleles,
             sample.Sample,
             sample.Analysis
         ).filter(
-            allele.Allele.id.in_(candidate_allele_ids),
-            workflow.AnalysisInterpretation.genepanel_name == gene.Genepanel.name,
-            workflow.AnalysisInterpretation.genepanel_version == gene.Genepanel.version,
+            workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
+            allele.Allele.id.in_(candidate_allele_ids)
         ).all()
 
         # Make a dict of (gp_name, gp_version): [allele_ids], since we must process as many alleles as possible at once with AlleleDataLoader
@@ -142,7 +142,7 @@ class OverviewAlleleResource(Resource):
             gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
         # Load and return loaded allele data
-        return self.load_genepanel_alleles(session, gp_allele_ids)
+        return load_genepanel_alleles(session, gp_allele_ids, filter_alleles=True)
 
     def get_alleles_missing_interpretation(self, session):
         alleles_no_alleleassessment = self.get_alleles_no_alleleassessment(session)
@@ -182,7 +182,7 @@ class OverviewAlleleResource(Resource):
         for entry in allele_ids_genepanels:
             gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
-        return self.load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False)
+        return load_genepanel_alleles(session, gp_allele_ids)
 
     def get_alleles_ongoing(self, session):
         return self._get_genepanel_alleles_existing_alleleinterpretation(
@@ -196,6 +196,23 @@ class OverviewAlleleResource(Resource):
             allele.Allele.id.in_(queries.workflow_alleles_marked_review(session))
         )
 
+    def get_alleles_finalized(self, session):
+        return self._get_genepanel_alleles_existing_alleleinterpretation(
+            session,
+            allele.Allele.id.in_(queries.workflow_alleles_finalized(session))
+        )
+
+    def get(self, session):
+        return {
+            'missing_alleleassessment': self.get_alleles_missing_interpretation(session),
+            'marked_review': self.get_alleles_markedreview(session),
+            'ongoing': self.get_alleles_ongoing(session),
+            'finalized': self.get_alleles_finalized(session)
+        }
+
+
+class OverviewAnalysisResource(Resource):
+
     def get_categorized_analyses(self, session):
 
         # Get all (analysis_id, allele_id) combinations for analyses that are 'Not started'.
@@ -203,7 +220,6 @@ class OverviewAlleleResource(Resource):
         # based on the state of their alleles' alleleassessments
 
         # First get rid of all variants that would be filtered out, per analysis
-
         workflow_analyses_not_started = queries.workflow_analyses_not_started(session)
         analysis_ids_allele_ids = session.query(sample.Analysis.id, allele.Allele.id).join(
             genotype.Genotype.alleles,
@@ -220,17 +236,16 @@ class OverviewAlleleResource(Resource):
 
         # Get a list of candidate genepanels per allele id
         allele_ids_genepanels = session.query(
-            gene.Genepanel.name,
-            gene.Genepanel.version,
+            workflow.AnalysisInterpretation.genepanel_name,
+            workflow.AnalysisInterpretation.genepanel_version,
             allele.Allele.id
         ).join(
             genotype.Genotype.alleles,
             sample.Sample,
             sample.Analysis
         ).filter(
-            allele.Allele.id.in_(all_allele_ids),
-            workflow.AnalysisInterpretation.genepanel_name == gene.Genepanel.name,
-            workflow.AnalysisInterpretation.genepanel_version == gene.Genepanel.version,
+            workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
+            allele.Allele.id.in_(all_allele_ids)
         ).all()
 
         # Make a dict of (gp_name, gp_version): [allele_ids], since we must process as many alleles as possible at once with AlleleDataLoader
@@ -239,7 +254,7 @@ class OverviewAlleleResource(Resource):
             gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
         # Filter out alleles (it also loads the data, which we don't really need here)
-        genepanels_alleles = self.load_genepanel_alleles(session, gp_allele_ids)
+        genepanels_alleles = load_genepanel_alleles(session, gp_allele_ids, filter_alleles=True)
         filtered_allele_ids = list(set([a['allele']['id'] for a in genepanels_alleles]))
 
         classification_options = config['classification']['options']
@@ -300,27 +315,21 @@ class OverviewAlleleResource(Resource):
             else:
                 raise ApiError("Allele was not categorized correctly. This may indicate a bug.")
 
-        # Add mark review analyses
-        analyses_marked_review = session.query(sample.Analysis).filter(
-            sample.Analysis.id.in_(queries.workflow_analyses_marked_review(session))
-        ).all()
-        final_analyses['marked_review'] = [aschema.dump(a).data for a in analyses_marked_review]
+        # Add the rest of categories
+        other_categories = [
+            ('marked_review', queries.workflow_analyses_marked_review(session)),
+            ('ongoing', queries.workflow_analyses_ongoing(session)),
+            ('finalized', queries.workflow_analyses_finalized(session))
+        ]
 
-        # Add ongoing analyses
-        analyses_ongoing = session.query(sample.Analysis).filter(
-            sample.Analysis.id.in_(queries.workflow_analyses_ongoing(session))
-        ).all()
-        final_analyses['ongoing'] = [aschema.dump(a).data for a in analyses_ongoing]
+        for key, subquery in other_categories:
+            analyses = session.query(sample.Analysis).filter(
+                sample.Analysis.id.in_(subquery)
+            ).all()
+            final_analyses[key] = [aschema.dump(a).data for a in analyses]
 
         return final_analyses
 
     def get(self, session):
 
-        return {
-            'alleles': {
-                'missing_alleleassessment': self.get_alleles_missing_interpretation(session),
-                'marked_review': self.get_alleles_markedreview(session),
-                'ongoing': self.get_alleles_ongoing(session)
-            },
-            'analyses': self.get_categorized_analyses(session)
-        }, 200
+        return self.get_categorized_analyses(session)

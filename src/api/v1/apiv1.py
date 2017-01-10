@@ -97,6 +97,9 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewAlleleResource,
                            '/api/v1/overviews/alleles/')
 
+        self._add_resource(r.overview.OverviewAnalysisResource,
+                           '/api/v1/overviews/analyses/')
+
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
 

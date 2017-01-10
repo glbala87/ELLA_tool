@@ -494,7 +494,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     ).filter(sample.Analysis.id.in_(workflow_analysis_ids))
 
     # Get all allele ids connected to allele workflows that are ongoing
-    # (also ensure at last one AlleleInterpretation exists)
+    # (also ensure at least one AlleleInterpretation exists)
     allele_ids_has_interpretation = session.query(workflow.AlleleInterpretation.allele_id)
 
     workflow_allele_ids = session.query(allele.Allele.id).filter(
