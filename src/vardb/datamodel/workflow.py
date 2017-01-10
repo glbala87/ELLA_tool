@@ -30,8 +30,8 @@ class AnalysisInterpretation(Base):
     id = Column(Integer, Sequence("id_analysisinterpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
-    genepanel_name = Column(String)
-    genepanel_version = Column(String)
+    genepanel_name = Column(String, nullable=False)
+    genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
 
     user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
@@ -68,10 +68,6 @@ class AnalysisInterpretationSnapshot(Base):
     analysisinterpretation = relationship("AnalysisInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
 
-    genepanel_name = Column(String)
-    genepanel_version = Column(String)
-    genepanel = relationship("Genepanel", uselist=False)
-
     annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=True)  # None for an excluded allele
     customannotation_id = Column(Integer, ForeignKey("customannotation.id"))
 
@@ -85,8 +81,6 @@ class AnalysisInterpretationSnapshot(Base):
 
     alleleassessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
     presented_alleleassessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)
-
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
 
 class AlleleInterpretation(Base):
@@ -107,8 +101,8 @@ class AlleleInterpretation(Base):
     id = Column(Integer, Sequence("id_alleleinterpretation_seq"), primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
-    genepanel_name = Column(String)
-    genepanel_version = Column(String)
+    genepanel_name = Column(String, nullable=False)
+    genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
     user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
