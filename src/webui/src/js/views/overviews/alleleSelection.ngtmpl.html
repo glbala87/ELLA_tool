@@ -1,3 +1,29 @@
+<sectionbox color="green" collapsed="true">
+  <maintitle>
+    YOUR VARIANTS
+  </maintitle>
+  <subtitle>
+    {{vm.ongoing_user.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.ongoing_user"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.ongoing_user.length">You have no variants</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="blue" collapsed="true">
+  <maintitle>
+    OTHERS' VARIANTS
+  </maintitle>
+  <subtitle>
+    {{vm.ongoing_others.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.ongoing_others"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.ongoing_others.length">Others have no variants</h4>
+  </contentwrapper>
+</sectionbox>
+
 <sectionbox color="green">
   <maintitle>
     PENDING VARIANTS

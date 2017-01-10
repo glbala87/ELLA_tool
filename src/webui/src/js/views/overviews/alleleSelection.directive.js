@@ -18,6 +18,8 @@ class AlleleSelectionController {
         this.overviewResource = OverviewResource;
         this.user = User;
         this.overview = {};
+        this.ongoing_user = []; // Holds filtered list of ongoing alleles belonging to user
+        this.ongoing_others = [];  // Inverse of above list
         this._setup();
     }
 
@@ -36,6 +38,14 @@ class AlleleSelectionController {
         this.overviewResource.getAllelesOverview().then(data => {
             console.log(data);
             this.overview = data;
+
+            this.ongoing_user = this.overview.alleles.ongoing.filter(item => {
+                return item.interpretations[item.interpretations.length-1].user_id === this.user.getCurrentUserId();
+            });
+
+            this.ongoing_others = this.overview.alleles.ongoing.filter(item => {
+                return item.interpretations[item.interpretations.length-1].user_id !== this.user.getCurrentUserId();
+            });
         });
     }
 

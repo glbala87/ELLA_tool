@@ -22,13 +22,13 @@ export class OverviewResource {
             let overview = r.get((data) => {
 
                 // Convert to our model objects
-                for (let key of ['marked_review', 'missing_alleleassessment']) {
+                for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing']) {
                     for (let item of data.alleles[key]) {
                         item.allele = new Allele(item.allele);
                     }
                 }
 
-                for (let key of ['with_findings', 'without_findings', 'missing_alleleassessments']) {
+                for (let key of ['with_findings', 'without_findings', 'missing_alleleassessments', 'ongoing']) {
                     let analyses_objs = [];
                     for (let a of data.analyses[key]) {
                         analyses_objs.push(new Analysis(a));

@@ -4,7 +4,9 @@
   <div class="full-title ref-title">
       <span ng-repeat="t in item.allele.annotation.filtered"><b>{{t.SYMBOL}} {{t.HGVSc_short}}</b></span>
   </div>
-  <div>{{item.genepanel.name}}_{{item.genepanel.version}}</div>
+
+  <div class="allele-genepanel">{{item.genepanel.name}}_{{item.genepanel.version}}</div>
+
   <div class="allele-extras">
     <span class="allele-comment" ng-if="!vm.isalleleDone(allele) && allele.properties.review_comment">{{allele.properties.review_comment}}</span>
   </div>
