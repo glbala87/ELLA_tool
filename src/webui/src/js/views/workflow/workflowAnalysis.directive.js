@@ -225,7 +225,7 @@ export class AnalysisController {
 
         this.rootScope.$watch(
             () => this.selected_interpretation,
-            () => this.loadAlleles(this.selected_interpretation)
+            () => this.loadAlleles()
         );
     }
 
@@ -320,14 +320,14 @@ export class AnalysisController {
         });
     }
 
-    loadAlleles(interpretation) {
+    loadAlleles() {
         this.alleles_loaded = false;
         this.selected_interpretation_alleles = [];
-        if (interpretation) {
+        if (this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 'analysis',
                 this.analysisId,
-                interpretation,
+                this.selected_interpretation,
             ).then(alleles => {
                 this.selected_interpretation_alleles = alleles;
                 this.alleles_loaded = true;

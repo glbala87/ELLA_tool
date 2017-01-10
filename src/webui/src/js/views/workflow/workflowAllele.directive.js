@@ -227,7 +227,7 @@ export class WorkflowAlleleController {
 
         this.rootScope.$watch(
             () => this.getInterpretation(),
-            () => this._loadAllele(this.selected_interpretation)
+            () => this.loadAllele()
         );
     }
 
@@ -304,14 +304,15 @@ export class WorkflowAlleleController {
         });
     }
 
-    _loadAllele(interpretation) {
+    loadAllele() {
+        console.log("(Re)loading allele...");
         this.alleles_loaded = false;
         this.selected_interpretation_alleles = null;
-        if (this.allele_id && interpretation) {
+        if (this.allele_id && this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 'allele',
                 this.allele_id,
-                interpretation,
+                this.selected_interpretation,
             ).then(alleles => {
                 this.selected_interpretation_alleles = alleles;
                 this.alleles_loaded = true;
