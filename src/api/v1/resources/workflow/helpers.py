@@ -1,18 +1,15 @@
 import datetime
 
-from sqlalchemy import not_, or_
-from flask import request
+from sqlalchemy import or_
 
-from vardb.datamodel import user, assessment, sample, genotype, allele, gene, workflow
+from vardb.datamodel import user, assessment, sample, genotype, allele, workflow
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter, request_json
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
-from api.v1.resource import Resource
 from api.v1 import queries
 from api.config import config
 
