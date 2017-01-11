@@ -74,23 +74,27 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
         loaded_genepanel_alleles = adl.from_objs(
             genepanel_alleles,
             genepanel=genepanel,
-            include_custom_annotation=False,  # Extra data not needed for our use cases here
+            include_allele_assessment=True,  # Needed for correct filtering
+            include_custom_annotation=False,  # Rest is extra data not needed for our use cases here
             include_reference_assessments=False,
             include_allele_report=False
         )
 
         for a in loaded_genepanel_alleles:
 
-            if filter_alleles and any([idl._exclude_class1(a), idl._exclude_gene(a), idl._exclude_intronic(a)]):
-                continue
-            else:
-                interpretations = [i for i in allele_ids_interpretations if i.allele_id == a['id']]
-                final_alleles.append({
-                    'genepanel': {'name': genepanel.name, 'version': genepanel.version},
-                    'allele': a,
-                    'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
-                    'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
-                })
+            if filter_alleles:
+                allele_ids, excluded_allele_ids = idl.filter_alleles([a])
+                # If the allele id is not in allele_ids, it has been filtered out
+                if a['id'] not in allele_ids:
+                    continue
+
+            interpretations = [i for i in allele_ids_interpretations if i.allele_id == a['id']]
+            final_alleles.append({
+                'genepanel': {'name': genepanel.name, 'version': genepanel.version},
+                'allele': a,
+                'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
+                'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
+            })
 
     return final_alleles
 

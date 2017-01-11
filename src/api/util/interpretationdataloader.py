@@ -44,6 +44,11 @@ class InterpretationDataLoader(object):
                 return True
         return False
 
+    def _get_classification_options(self, classification):
+        for option in self.config['classification']['options']:
+            if classification == option['value']:
+                return option
+
     def _get_interpretation_cls(self, interpretation):
         if isinstance(interpretation, workflow.AnalysisInterpretation):
             return workflow.AnalysisInterpretation
@@ -69,13 +74,12 @@ class InterpretationDataLoader(object):
         :return: (normal, {'intron': {}, 'class1': [], 'gene': []})
         """
 
-        allele_ids = []
-        excluded_allele_ids = {
-            'class1': [],
-            'intronic': [],
-            'gene': []
-        }
         if isinstance(interpretation, workflow.AlleleInterpretation):
+            excluded_allele_ids = {
+                'class1': [],
+                'intronic': [],
+                'gene': []
+            }
             return [interpretation.allele.id], excluded_allele_ids
         elif isinstance(interpretation, workflow.AnalysisInterpretation):
             genepanel = interpretation.analysis.genepanel
@@ -100,22 +104,11 @@ class InterpretationDataLoader(object):
             loaded_alleles = AlleleDataLoader(self.session).from_objs(
                 alleles_with_id,
                 genepanel=genepanel,
-                include_allele_assessment=False,
+                include_allele_assessment=True,  # Needed for correct filtering!
                 include_reference_assessments=False
             )
 
-            for la in loaded_alleles:
-                # Filter priority: Gene, class1, intronic
-                if self._exclude_gene(la):
-                    excluded_allele_ids['gene'].append(la['id'])
-                elif self._exclude_class1(la):
-                    excluded_allele_ids['class1'].append(la['id'])
-                elif self._exclude_intronic(la):
-                    excluded_allele_ids['intronic'].append(la['id'])
-                else:
-                    allele_ids.append(la['id'])
-
-            return allele_ids, excluded_allele_ids
+            return self.filter_alleles(loaded_alleles)
 
     def group_alleles_by_finalization_filtering_status(self, interpretation):
         if not interpretation.snapshots:
@@ -140,6 +133,37 @@ class InterpretationDataLoader(object):
                     allele_ids.append(snapshot.allele_id)
             else:
                 allele_ids.append(snapshot.allele_id)
+
+        return allele_ids, excluded_allele_ids
+
+    def filter_alleles(self, alleles):
+        allele_ids = []
+        excluded_allele_ids = {
+            'class1': [],
+            'intronic': [],
+            'gene': []
+        }
+
+        for al in alleles:
+
+            # If 'exclude_filtering_existing_assessment' flag is set in classification
+            # options, we omit filtering if there's an existing alleleassessment
+            allele_assessment = al.get('allele_assessment')
+            if allele_assessment:
+                classification_options = self._get_classification_options(allele_assessment['classification'])
+                if classification_options.get('exclude_filtering_existing_assessment'):
+                    allele_ids.append(al['id'])
+                    continue
+
+            # Filter priority: Gene, class1, intronic
+            if self._exclude_gene(al):
+                excluded_allele_ids['gene'].append(al['id'])
+            elif self._exclude_class1(al):
+                excluded_allele_ids['class1'].append(al['id'])
+            elif self._exclude_intronic(al):
+                excluded_allele_ids['intronic'].append(al['id'])
+            else:
+                allele_ids.append(al['id'])
 
         return allele_ids, excluded_allele_ids
 
