@@ -60,12 +60,11 @@ export class AnalysisController {
                             'reuse_classification'
                         ],
                         alleleassessment_comment: {
-                                placeholder: 'EVALUATION',
-                                name: 'classification'
-                            },
+                            placeholder: 'EVALUATION',
+                            name: 'classification'
+                        },
                         report_comment: {
-                            placeholder: 'REPORT',
-                            modelname: 'evaluation'
+                            placeholder: 'REPORT'
                         },
                         content: [
                             {'tag': 'allele-info-acmg-selection'},

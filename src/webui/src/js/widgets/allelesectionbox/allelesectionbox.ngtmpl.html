@@ -45,7 +45,7 @@
 <!-- Comments -->
 <top class="comments">
   <autosize-textarea class="control-comment" ng-disabled="!vm.isEditable()" placeholder="{{vm.alleleassessmentComment.placeholder}}" ng-model="vm.getAlleleAssessment().evaluation[vm.alleleassessmentComment.name].comment" ng-if="vm.alleleassessmentComment"></autosize-textarea>
-  <autosize-textarea class="control-comment" ng-disabled="!vm.isEditable()" placeholder="{{vm.allelereportComment.placeholder}}" ng-model="vm.getAlleleReport().evaluation[vm.allelereportComment.name].comment" ng-if="vm.allelereportComment"></autosize-textarea>
+  <autosize-textarea class="control-comment" ng-disabled="!vm.isEditable()" placeholder="{{vm.allelereportComment.placeholder}}" ng-model="vm.getAlleleReport().evaluation.comment" ng-if="vm.allelereportComment"></autosize-textarea>
 </top>
 
 <contentwrapper>
