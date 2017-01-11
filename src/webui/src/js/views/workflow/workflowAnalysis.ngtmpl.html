@@ -1,10 +1,14 @@
 <div class="main">
 
   <nav class="secondary">
-    <div class="dropdown white">
-      <select ng-options="c as c.title for c in vm.components" ng-model="vm.selected_component"></select>
+    <div class="workflow-options">
+      <div class="dropdown white">
+        <select ng-options="c as c.title for c in vm.components" ng-model="vm.selected_component"></select>
+      </div>
+      <div class="review-comment">
+        <input type="text" placeholder="REVIEW COMMENT" ng-model="vm.getInterpretation().state.review_comment"></input>
+      </div>
     </div>
-
     <section>
       <button class="id-add-excluded" ng-click="vm.modalAddExcludedAlleles()">
         <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">

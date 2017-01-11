@@ -1,9 +1,11 @@
 <div class="main">
 
   <nav class="secondary">
-    <div>
+    <div class="workflow-options">
+      <div class="review-comment">
+        <input type="text" placeholder="REVIEW COMMENT" ng-model="vm.getInterpretation().state.review_comment"></input>
+      </div>
     </div>
-
     <section>
       <div class="dropdown white" ng-if="vm.showHistory()">
         <select

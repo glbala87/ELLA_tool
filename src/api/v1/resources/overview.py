@@ -58,7 +58,7 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
     genepanel_cache = dict()  # Cache for the genepanels. Ideally we'd like to just prefetch them all in single query, but turned out to be hard
     idl = InterpretationDataLoader(session, config)
     adl = AlleleDataLoader(session)
-    alleleinterpretation_schema = schemas.AlleleInterpretationSchema()
+    alleleinterpretation_schema = schemas.AlleleInterpretationOverviewSchema()
 
     # Start processing alleles
     for gp_key, gp_allele_ids in gp_allele_ids.iteritems():  # ('HBOC', 'v01'), [1, 2, 3, ...]

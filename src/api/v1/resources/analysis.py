@@ -69,45 +69,6 @@ class AnalysisResource(Resource):
         analysis = schemas.AnalysisSchema().dump(a).data
         return analysis
 
-    @request_json(['properties'])
-    def patch(self, session, analysis_id, data=None):
-        """
-        Updates an analysis.
-        ---
-        summary: Update analysis
-        tags:
-          - Analysis
-        parameters:
-          - name: analysis_id
-            in: path
-            type: integer
-            description: Analysis id
-          - data:
-            in: body
-            required: true
-            schema:
-              title: Analysis properties
-              type: object
-              required:
-                - properties
-              properties:
-                properties:
-                  description: Properties data
-                  type: object
-        responses:
-          200:
-            schema:
-                $ref: '#/definitions/Analysis'
-            description: Analysis object
-        """
-        a = session.query(sample.Analysis).filter(
-            sample.Analysis.id == analysis_id
-        ).one()
-
-        a.properties = data['properties']
-        session.commit()
-        return schemas.AnalysisSchema().dump(a).data, 200
-
     def delete(self, session, analysis_id, override=False):
         """
         Deletes an analysis from the system, including corresponding samples, genotypes

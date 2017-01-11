@@ -3,10 +3,7 @@
 
   <h3 class="full-title ref-title"><span class="analysis-date">{{::analysis.deposit_date | date:"dd-MM-yyyy"}}</span> <b>{{::analysis.name}}</b></h3>
   <div class="analysis-extras">
-    <span class="analysis-comment" ng-if="!vm.isAnalysisDone(analysis) && analysis.properties.review_comment">{{analysis.properties.review_comment}}</span>
-  </div>
-  <div class="analysis-tags">
-     <span class="tag" disabled ng-repeat="tag in analysis.properties.tags track by tag">{{tag}}</span>
+    <span class="analysis-comment" ng-if="!vm.isAnalysisDone(analysis) && vm.getReviewComment(analysis)">{{::vm.getReviewComment(analysis)}}</span>
   </div>
   <div class="analysis-users">
     <div ng-repeat="interpretation in analysis.interpretations track by interpretation.id">

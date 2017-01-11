@@ -1,4 +1,6 @@
-from marshmallow import fields, Schema
+from marshmallow import fields, Schema, post_dump
+
+from api.schemas import analysisinterpretations
 
 
 class SampleSchema(Schema):
@@ -30,18 +32,6 @@ class GenepanelSchema(Schema):
                   'version')
 
 
-class AnalysisInterpretationSchema(Schema):
-    class Meta:
-        title = "AnalysisInterpretation"
-        description = 'Represents one round of interpretation of an analysis'
-        fields = ('id',
-                  'status',
-                  'date_last_update',
-                  'user')
-
-    user = fields.Nested(UserSchema)
-
-
 class AnalysisSchema(Schema):
     class Meta:
         title = "Analysis"
@@ -51,9 +41,8 @@ class AnalysisSchema(Schema):
                   'deposit_date',
                   'interpretations',
                   'genepanel',
-                  'properties',
                   'samples')
 
     samples = fields.Nested(SampleSchema, many=True)
     genepanel = fields.Nested(GenepanelSchema)
-    interpretations = fields.Nested(AnalysisInterpretationSchema, many=True)
+    interpretations = fields.Nested(analysisinterpretations.AnalysisInterpretationOverviewSchema, many=True)

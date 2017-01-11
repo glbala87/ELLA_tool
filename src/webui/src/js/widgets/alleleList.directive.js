@@ -53,45 +53,6 @@ class AlleleListWidget {
         );
     }
 
-
-    /**
-     * Checks whether current user is working on an analysis.
-     */
-    isCurrentUser(analysis) {
-        return this.user.getCurrentUserId() === analysis.getInterpretationUser().id;
-    }
-
-    userAlreadyAnalyzed(analysis) {
-        let current_user_id = this.user.getCurrentUserId();
-        return analysis.interpretations.filter(
-            i => i.user &&
-                 i.user.id === current_user_id &&
-                 i.status !== 'Ongoing'  // Exempt if in progress by user
-        ).length > 0;
-    }
-
-    isAnalysisDone(analysis) {
-        return analysis.interpretations.length &&
-               analysis.interpretations.every(
-                   i => i.status === 'Done'
-               );
-    }
-
-    openAnalysis(analysis) {
-        if (this.onSelect) {
-            this.onSelect(analysis);
-        }
-        this.analysisService.openAnalysis(analysis.id);
-    }
-
-    overrideAnalysis(analysis) {
-        this.analysisService.override(
-            analysis.id,
-        ).then(() => {
-            this.openAnalysis(analysis);
-        });
-    }
-
     abbreviateUser(user) {
       if(Object.keys(user).length != 0) {
         return `${user.first_name.substring(0,1)}. ${user.last_name}`;
@@ -100,35 +61,8 @@ class AlleleListWidget {
       }
     }
 
-    clickAnalysis(analysis) {
-        if (this.isAnalysisDone(analysis)) {
-            this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
-            return;
-        }
-
-        let iuser = analysis.getInterpretationUser();
-        if (iuser &&
-            iuser.id !== this.user.getCurrentUserId()) {
-            this.interpretationOverrideModal.show().then(result => {
-                if (result) {
-                    this.overrideAnalysis(analysis);
-                }
-            });
-        }
-        else {
-            this.openAnalysis(analysis);
-        }
-    }
-
-    getStateMessage(analysis) {
-        if (!analysis) {
-            return "Analysis is null";
-        }
-        if (analysis.getInterpretationState() === 'Not started' &&
-            analysis.interpretations.length > 1) {
-            return 'Needs review';
-        }
-        return analysis.getInterpretationState();
+    getReviewComment(item) {
+        return item.interpretations[item.interpretations.length-1].review_comment;
     }
 
     getItemUrl(item) {
