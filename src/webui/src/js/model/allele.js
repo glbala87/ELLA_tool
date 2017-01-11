@@ -40,9 +40,8 @@ export class Allele {
     }
 
     getExACUrl() {
-        if (this.chromosome &&
-            this.genotype) {
-            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.genotype.vcf_pos}-${this.genotype.vcf_ref}-${this.genotype.vcf_alt}`;
+        if (this.chromosome) {
+            return `http://exac.broadinstitute.org/region/${this.chromosome}-${this.start_position - 9}-${this.open_end_position + 10}`;
         }
     }
 
