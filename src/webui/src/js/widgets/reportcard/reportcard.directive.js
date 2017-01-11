@@ -53,10 +53,6 @@ export class ReportCardController {
         return this.alleles;
     }
 
-    getAnalysisTagOptions() {
-        return this.config.analysis.tags;
-    }
-
     formatHGVS(allele) {
         let hgvs = '';
         for (let t of allele.annotation.filtered) {

@@ -77,7 +77,6 @@ export class AnalysisController {
                             collapsed: false
                         },
                         controls: [
-                            'igv',
                             'copy_alamut',
                             'toggle_class1',
                             'toggle_class2',
