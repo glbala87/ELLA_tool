@@ -1,17 +1,9 @@
-import itertools
 
-from sqlalchemy import desc, not_
-
-from vardb.datamodel import user, assessment, sample, genotype, allele, annotation, gene
+from vardb.datamodel import assessment, sample, genotype
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter, request_json
-from api.util.assessmentcreator import AssessmentCreator
-from api.util.allelereportcreator import AlleleReportCreator
-from api.util.alleledataloader import AlleleDataLoader
-from api.util.interpretationdataloader import InterpretationDataLoader
+from api.util.util import paginate, rest_filter
 from api.v1.resource import Resource
-from api.config import config
 
 
 class AnalysisListResource(Resource):

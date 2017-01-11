@@ -1,4 +1,4 @@
-from marshmallow import fields, Schema, post_dump
+from marshmallow import fields, Schema
 
 from api.schemas import analysisinterpretations
 

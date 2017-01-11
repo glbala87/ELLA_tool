@@ -1,11 +1,8 @@
-from sqlalchemy import not_
 from flask import request
 
-from vardb.datamodel import user, assessment, sample, genotype, allele, gene
+from vardb.datamodel import sample, genotype, allele
 
-from api import schemas
-from api.util.util import paginate, rest_filter, request_json
-from api.util.alleledataloader import AlleleDataLoader
+from api.util.util import request_json
 from api.v1.resource import Resource
 
 from . import helpers

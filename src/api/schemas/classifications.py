@@ -1,4 +1,4 @@
-from marshmallow import fields, Schema, pre_dump, post_dump
+from marshmallow import Schema, pre_dump, post_dump
 from rule_engine.grm import GRM
 
 

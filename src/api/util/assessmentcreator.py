@@ -1,9 +1,8 @@
 import datetime
-import json
-from vardb.datamodel import allele, assessment, annotation, sample, gene
+from vardb.datamodel import assessment, sample
 
 
-from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, GenepanelSchema
+from api.schemas import AlleleAssessmentSchema, ReferenceAssessmentSchema
 from api import ApiError
 
 import logging

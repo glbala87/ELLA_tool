@@ -1,8 +1,6 @@
-from collections import defaultdict
 import re
 from flask import request
 from sqlalchemy.sql import text
-from sqlalchemy.orm import contains_eager
 from vardb.datamodel import sample, assessment, allele, gene, genotype
 
 from api import schemas

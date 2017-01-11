@@ -1,9 +1,9 @@
 from flask import request
 from sqlalchemy import or_
-from vardb.datamodel import sample, genotype, assessment, allele, user, gene
+from vardb.datamodel import sample, genotype, allele, gene
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter, link_filter
+from api.util.util import rest_filter, link_filter
 
 from api.util.alleledataloader import AlleleDataLoader
 

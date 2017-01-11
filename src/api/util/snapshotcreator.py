@@ -1,9 +1,6 @@
 import itertools
 
-from vardb.datamodel import user, assessment, sample, genotype, allele, annotation, gene, workflow
-from api import schemas, ApiError
-from api.util.assessmentcreator import AssessmentCreator
-from api.util.allelereportcreator import AlleleReportCreator
+from vardb.datamodel import allele, workflow
 from api.util.interpretationdataloader import InterpretationDataLoader
 from api.config import config
 

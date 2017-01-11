@@ -1,4 +1,4 @@
-from sqlalchemy.orm import joinedload, contains_eager, load_only
+from sqlalchemy.orm import contains_eager, load_only
 
 from vardb.datamodel import allele, sample, genotype, workflow
 

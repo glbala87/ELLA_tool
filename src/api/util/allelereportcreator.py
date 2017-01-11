@@ -1,7 +1,6 @@
-import json
 import logging
 import datetime
-from vardb.datamodel import allele, assessment, sample
+from vardb.datamodel import assessment
 
 from api.schemas import AlleleReportSchema
 from api import ApiError
@@ -9,7 +8,6 @@ from api import ApiError
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
-
 
 
 class AlleleReportCreator(object):
