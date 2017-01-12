@@ -21,6 +21,7 @@ class InterpretationMixin(object):
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
     date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     @declared_attr
     def state_history(cls):
@@ -52,6 +53,7 @@ class InterpretationMixin(object):
 
 class InterpretationSnapshotMixin(object):
 
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     filtered = Column(Enum("CLASS1", "INTRON", "GENE", name="interpretationsnapshot_filtered"),)  # If the allele was filtered, this describes which type of filtering
 
     @declared_attr
