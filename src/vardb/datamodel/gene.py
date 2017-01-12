@@ -1,5 +1,5 @@
 """varDB datamodel classes for Gene and Transcript"""
-from sqlalchemy import Column, Sequence, Integer, String, Table, Enum, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Table, UniqueConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -30,7 +30,7 @@ class Transcript(Base):
 
     )
 
-    id = Column(Integer, Sequence("id_transcript_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     gene_id = Column(String(20), ForeignKey("gene.hugo_symbol"), nullable=False)
     gene = relationship("Gene", lazy="joined")
     refseq_name = Column(String(15))
@@ -120,7 +120,7 @@ class Phenotype(Base):
     """
     __tablename__ = "phenotype"
 
-    id = Column(Integer, Sequence("id_phenotype_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
 
     genepanel_name = Column(String(40), nullable=False)
     genepanel_version = Column(String(10), nullable=False)

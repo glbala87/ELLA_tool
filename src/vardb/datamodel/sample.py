@@ -3,7 +3,7 @@
 
 import datetime
 
-from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum
+from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -24,7 +24,7 @@ class Sample(Base):
     """
     __tablename__ = "sample"
 
-    id = Column(Integer, Sequence("id_sample_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     identifier = Column(String(), nullable=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
@@ -46,7 +46,7 @@ class Analysis(Base):
     """
     __tablename__ = "analysis"
 
-    id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(), nullable=False, unique=True)
     genepanel_name = Column(String)
     genepanel_version = Column(String)

@@ -2,7 +2,7 @@
 
 import datetime
 
-from sqlalchemy import Column, Sequence, Integer, DateTime, Enum, String
+from sqlalchemy import Column, Integer, DateTime, Enum, String
 from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.postgresql import JSONB
@@ -13,6 +13,8 @@ from vardb.util.mutjson import JSONMutableDict
 
 
 class InterpretationMixin(object):
+
+    id = Column(Integer, primary_key=True)
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
 
@@ -53,6 +55,7 @@ class InterpretationMixin(object):
 
 class InterpretationSnapshotMixin(object):
 
+    id = Column(Integer, primary_key=True)
     date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     filtered = Column(Enum("CLASS1", "INTRON", "GENE", name="interpretationsnapshot_filtered"),)  # If the allele was filtered, this describes which type of filtering
 
@@ -92,7 +95,6 @@ class AnalysisInterpretation(Base, InterpretationMixin):
 
     __next_attrs__ = ['analysis_id', 'state', 'genepanel_name', 'genepanel_version']
 
-    id = Column(Integer, Sequence("id_analysisinterpretation_seq"), primary_key=True)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
 
@@ -108,7 +110,6 @@ class AnalysisInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     """
     __tablename__ = "analysisinterpretationsnapshot"
 
-    id = Column(Integer, Sequence("id_analysisinterpretationsnapshot_seq"), primary_key=True)
     analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"), nullable=False,)
     analysisinterpretation = relationship("AnalysisInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
@@ -125,7 +126,6 @@ class AlleleInterpretation(Base, InterpretationMixin):
 
     __next_attrs__ = ['allele_id', 'state', 'genepanel_name', 'genepanel_version']
 
-    id = Column(Integer, Sequence("id_alleleinterpretation_seq"), primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
 
@@ -141,7 +141,6 @@ class AlleleInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     """
     __tablename__ = "alleleinterpretationsnapshot"
 
-    id = Column(Integer, Sequence("id_alleleinterpretationsnapshot_seq"), primary_key=True)
     alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"), nullable=False)
     alleleinterpretation = relationship("AlleleInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)

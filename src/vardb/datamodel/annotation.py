@@ -1,6 +1,6 @@
 """varDB datamodel Annotation class"""
 import datetime
-from sqlalchemy import Column, Sequence, Integer, DateTime
+from sqlalchemy import Column, Integer, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -13,7 +13,7 @@ class Annotation(Base):
     """Represents a set of annotations for an allele"""
     __tablename__ = "annotation"
 
-    id = Column(Integer, Sequence("id_annotation_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"))
     allele = relationship("Allele", uselist=False)
     annotations = Column(JSONMutableDict.as_mutable(JSONB))
@@ -33,7 +33,7 @@ class CustomAnnotation(Base):
     """Represents a set of annotations for an allele, created by a user"""
     __tablename__ = "customannotation"
 
-    id = Column(Integer, Sequence("id_customannotation_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     annotations = Column(JSONMutableDict.as_mutable(JSONB))
     allele_id = Column(Integer, ForeignKey("allele.id"))
     allele = relationship("Allele", uselist=False)
