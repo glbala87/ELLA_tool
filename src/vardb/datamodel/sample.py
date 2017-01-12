@@ -55,6 +55,7 @@ class Analysis(Base):
     analysis_config = Column(JSONMutableDict.as_mutable(JSONB))
     interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
+    priority = Column(Integer, nullable=False, default=1)
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):

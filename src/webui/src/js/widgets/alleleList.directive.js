@@ -11,6 +11,7 @@ import {Directive, Inject} from '../ng-decorators';
     templateUrl: 'ngtmpl/alleleList.ngtmpl.html',
 })
 @Inject('$scope',
+        'Config',
         'Sidebar',
         'User',
         'Analysis',
@@ -20,12 +21,13 @@ import {Directive, Inject} from '../ng-decorators';
 class AlleleListWidget {
 
     constructor($scope,
+                Config,
                 Sidebar,
                 User,
                 InterpretationResource,
                 InterpretationOverrideModal,
                 toastr) {
-        this.location = location;
+        this.config = Config.getConfig();
         this.user = User;
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
@@ -43,7 +45,9 @@ class AlleleListWidget {
         if (!this.alleleItems) { return; }
         this.sorted_items = this.alleleItems.slice(0);
         this.sorted_items.sort(
-            firstBy(a => a.allele.annotation.filtered[0].SYMBOL)
+            firstBy(a => a.highest_analysis_priority, -1)
+            .thenBy(a => a.oldest_analysis)
+            .thenBy(a => a.allele.annotation.filtered[0].SYMBOL)
             .thenBy(a => {
                 if (a.allele.annotation.filtered[0].STRAND > 0) {
                     return a.allele.start_position;
@@ -59,6 +63,12 @@ class AlleleListWidget {
       } else {
         return "";
       }
+    }
+
+    getPriorityText(item) {
+        if (item.highest_analysis_priority > 1) {
+            return this.config.analysis.priority.display[item.highest_analysis_priority];
+        }
     }
 
     getReviewComment(item) {

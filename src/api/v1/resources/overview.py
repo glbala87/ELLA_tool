@@ -1,4 +1,5 @@
 import itertools
+import datetime
 from collections import defaultdict
 from sqlalchemy import func
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
@@ -46,12 +47,22 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
     ).filter(
         allele.Allele.id.in_(all_allele_ids)
     ).group_by(allele.Allele.id).all()
+    allele_ids_deposit_date = {k: v for k, v in allele_ids_deposit_date}
+
+    # Preload highest priority analysis for each allele
+    allele_ids_priority = session.query(allele.Allele.id, func.max(sample.Analysis.priority)).join(
+        genotype.Genotype.alleles,
+        sample.Sample,
+        sample.Analysis
+    ).filter(
+        allele.Allele.id.in_(all_allele_ids)
+    ).group_by(allele.Allele.id).all()
+    allele_ids_priority = {k: v for k, v in allele_ids_priority}
 
     # Preload interpretations for each allele
     allele_ids_interpretations = session.query(workflow.AlleleInterpretation).filter(
         workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
     ).all()
-    allele_ids_deposit_date = {k: v for k, v in allele_ids_deposit_date}
 
     # Set structures/loaders
     final_alleles = list()
@@ -92,7 +103,8 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
             final_alleles.append({
                 'genepanel': {'name': genepanel.name, 'version': genepanel.version},
                 'allele': a,
-                'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
+                'oldest_analysis': allele_ids_deposit_date.get(a['id'], datetime.datetime.now()).isoformat(),
+                'highest_analysis_priority': allele_ids_priority.get(a['id'], 1),  # If there's no analysis connected, set to normal priority
                 'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
             })
 
