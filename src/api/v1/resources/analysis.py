@@ -1,5 +1,5 @@
 
-from vardb.datamodel import assessment, sample, genotype
+from vardb.datamodel import assessment, sample, genotype, workflow
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter
@@ -100,17 +100,22 @@ class AnalysisResource(Resource):
             for g in s.genotypes:
                 session.delete(g)
             session.delete(s)
-        for i in analysis.interpretations:
-            session.delete(i)
 
-        # Clean up corresponding analysisfinalized entries
+        # Clean up corresponding interpretationsnapshot entries
         # Will rarely happen (but can in principle), since we forbid to remove
         # analyses that have alleleassessments pointing to it.
-        afs = session.query(sample.AnalysisFinalized).filter(
-            sample.AnalysisFinalized.analysis_id == analysis_id
+        snapshots = session.query(workflow.AnalysisInterpretationSnapshot).filter(
+            workflow.AnalysisInterpretation.analysis_id == analysis_id,
+            workflow.AnalysisInterpretationSnapshot.analysisinterpretation_id == workflow.AnalysisInterpretation.id
         ).all()
-        for af in afs:
-            session.delete(af)
+        for snapshot in snapshots:
+            session.delete(snapshot)
+
+        interpretations = session.query(workflow.AnalysisInterpretation).filter(
+            workflow.AnalysisInterpretation.analysis_id == analysis_id,
+        ).all()
+        for i in interpretations:
+            session.delete(i)
 
         # Finally, delete analysis
         session.delete(analysis)
