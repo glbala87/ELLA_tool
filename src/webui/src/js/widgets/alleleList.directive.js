@@ -62,7 +62,12 @@ class AlleleListWidget {
     }
 
     getReviewComment(item) {
-        return item.interpretations[item.interpretations.length-1].review_comment;
+        if (item.interpretations.length) {
+            let last_interpretation = item.interpretations[item.interpretations.length-1];
+            if ('review_comment' in last_interpretation) {
+                return last_interpretation.review_comment;
+            }
+        }
     }
 
     getItemUrl(item) {
