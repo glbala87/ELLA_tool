@@ -32,22 +32,6 @@ def cmd_analysis_list():
         click.echo(row_format.format(**{h: a[h] for h in header}))
 
 
-@analyses.command('reopen')
-@click.argument('analysis_id')
-def cmd_analysis_reopen(analysis_id):
-    """
-    Reopens an analysis that is finalized.
-    """
-    logging.basicConfig(level=logging.INFO)
-
-    db = DB()
-    db.connect()
-
-    res = resources.analysis.AnalysisActionReopenResource()
-    res.post(db.session, analysis_id)
-    logging.info("Analysis {} reopened successfully".format(analysis_id))
-
-
 @analyses.command('priority')
 @click.argument('analysis_id')
 @click.argument('priority', type=int)
