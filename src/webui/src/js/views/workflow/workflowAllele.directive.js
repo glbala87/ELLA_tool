@@ -351,7 +351,7 @@ export class WorkflowAlleleController {
         let q = this._getQueryFromSelector();
         return this.alleleService.getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {
             this.allele_id = a[0].id;
-            this.alleleService.updateACMG(a, this.genepanelName, this.genepanelVersion, []).then(
+            return this.alleleService.updateACMG(a, this.genepanelName, this.genepanelVersion, []).then(
                 () => this.alleles = a
             );
         });
