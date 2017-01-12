@@ -35,6 +35,16 @@ export class AlleleService {
         );
     }
 
+    getAllelesByQuery(query, sample_id=null, gp_name=null, gp_version=null, related_entities=null) {
+        return this.alleleResource.getByQuery(
+            query,
+            sample_id,
+            gp_name,
+            gp_version,
+            related_entities
+        );
+    }
+
     /**
      * POSTs an referenceassessment to the backend.
      * Note! Normally you want to use the analysis' finalize

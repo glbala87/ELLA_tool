@@ -15,7 +15,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Inject('$rootScope',
     '$scope',
     'WorkflowResource',
-    'AlleleResource',
+    'Allele',
     'Workflow',
     'Navbar',
     'Config',
@@ -24,7 +24,7 @@ export class WorkflowAlleleController {
     constructor(rootScope,
                 scope,
                 WorkflowResource,
-                AlleleResource,
+                Allele,
                 Workflow,
                 Navbar,
                 Config,
@@ -32,7 +32,7 @@ export class WorkflowAlleleController {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
-        this.alleleResource = AlleleResource;
+        this.alleleService = Allele;
         this.workflowService = Workflow;
         this.analysis = null;
         this.active_interpretation = null;
@@ -349,9 +349,11 @@ export class WorkflowAlleleController {
 
     loadAlleleId() {
         let q = this._getQueryFromSelector();
-        return this.alleleResource.getByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {
+        return this.alleleService.getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {
             this.allele_id = a[0].id;
-            this.alleles = a;
+            this.alleleService.updateACMG(a, this.genepanelName, this.genepanelVersion, []).then(
+                () => this.alleles = a
+            );
         });
     }
 
