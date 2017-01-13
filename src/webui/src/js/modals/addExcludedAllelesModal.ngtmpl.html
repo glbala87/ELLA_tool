@@ -1,7 +1,7 @@
 <sectionbox class="id-add-excluded-modal" color="green" modal="true" on-close="vm.onClose()">
-  <titlebar>
-    <h3 class="title">ADD EXCLUDED VARIANTS</h3>
-  </titlebar>
+  <maintitle>
+    ADD EXCLUDED VARIANTS
+  </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
       <button class="id-close" type="button" ng-click="vm.close()">Close</button>
@@ -10,9 +10,9 @@
   <contentwrapper>
     <article ng-repeat="al in vm.included_alleles track by al.id">
       <sectionbox class="nobody" color="blue" collapsible="false">
-        <titlebar>
-          <h3 class="title">included</h3>
-        </titlebar>
+        <maintitle>
+          included
+        </maintitle>
         <controls>
           <div class="line-wrapper spaced only-control">
             <allelebar class="allele-info" allele="al"></allelebar>
@@ -67,9 +67,9 @@
 
     <article class="allele" ng-repeat="al in vm.slice track by al.id">
       <sectionbox color="purple" collapsible="false">
-        <titlebar>
-          <h3 class="title">excluded</h3>
-        </titlebar>
+        <maintitle>
+          excluded
+        </maintitle>
         <controls>
           <div class="line-wrapper spaced">
             <allelebar class="allele-info" allele="al"></allelebar>

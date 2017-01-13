@@ -17,7 +17,7 @@ import {Directive, Inject} from '../ng-decorators';
         onClose: '&',
         color: '@'
     },
-    transclude: { title: 'titlebar', contentwrapper: '?contentwrapper', top: '?top' , controls: '?controls' },
+    transclude: { title: 'maintitle', subtitle: '?subtitle', contentwrapper: '?contentwrapper', top: '?top' , controls: '?controls' },
     templateUrl: 'ngtmpl/sectionbox.ngtmpl.html',
     link: (scope, elem, attrs) => {
       setTimeout(() => {

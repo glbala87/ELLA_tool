@@ -1,5 +1,5 @@
 from flask import request
-from vardb.datamodel import assessment, allele, gene
+from vardb.datamodel import allele, gene
 
 from api import ApiError
 

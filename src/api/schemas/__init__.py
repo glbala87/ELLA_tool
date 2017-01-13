@@ -1,7 +1,7 @@
-from analyses import AnalysisFinalizedSchema
 from analyses import AnalysisSchema
-from interpretations import InterpretationSchema
+from analysisinterpretations import AnalysisInterpretationSchema, AnalysisInterpretationOverviewSchema
 from alleles import AlleleSchema
+from alleleinterpretations import AlleleInterpretationSchema, AlleleInterpretationOverviewSchema
 from references import ReferenceSchema
 from referenceassessments import ReferenceAssessmentSchema
 from alleleassessments import AlleleAssessmentSchema

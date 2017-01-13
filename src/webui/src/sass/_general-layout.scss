@@ -53,10 +53,34 @@ button { outline: none; border: 1px solid Transparent;
 
 
 // APP-WIDE STYLE
+.main {
+  //display: flex;
+  width: 100%;
+  min-height: calc(100vh - 11rem);
+  height: 100%;
 
-.container { margin-left: 32rem; margin-top: 0; margin-right: 1.3rem; margin-bottom: 2.6rem; }
-.container.no-secondary-nav { margin-top: 12rem; }
-.container.inner { margin-top: 0; width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; min-height: calc(100vh - 11rem);
+    .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
+      .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
+        &.active {
+          background-color: $blue-25;
+        }
+        &:hover {
+          background-color: $blue-25;
+          color: $white;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  .container { margin-left: 2rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  .container.no-secondary-nav { margin-top: 12rem; }
+  .container.inner { width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+
+
+  // View specific stuff
+  .overviewcontainer { display: flex; }
+}
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
@@ -65,6 +89,7 @@ button { outline: none; border: 1px solid Transparent;
 }
 .no-alleles {
    h2 { font-family: $slim; font-size: 2.0rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-50; }
+   h4 { font-family: $slim; font-size: 1.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-25; }
 }
 
 
@@ -90,7 +115,21 @@ nav.top { display: flex; flex-direction: row; align-items: center; background-co
   }
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 4rem; margin-top: 6.5rem; padding: 0 1.3rem; }
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-top: 6.5rem; padding: 0 1.3rem;
+  section { display: flex;
+    button { margin-left: 1.3rem; }
+    .dropdown { margin-left: 1.3rem; }
+  }
+
+  // Workflow specific
+  .workflow-options { display: flex;
+    .dropdown { margin-right: 2rem; }
+    .review-comment {
+      input { width: 25rem; }
+    }
+  }
+}
+
 .search-box { margin-left: auto; margin-right: 1rem;
   input { padding: 0.25rem 0.75rem; transition: all 0.3s; }
   input:focus { background-color: $white-75; }
@@ -179,3 +218,5 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 .toast-message a:hover { color: $white; text-decoration: none; }
 .toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: $white-75; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
 .toast-close-button:hover, .toast-close-button:focus { color: $white; text-decoration: none; cursor: pointer; opacity: 0.4; }
+
+.spacer { height: 4rem; }

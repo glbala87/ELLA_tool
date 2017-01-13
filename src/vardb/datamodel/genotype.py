@@ -1,5 +1,5 @@
 """vardb datamodel Genotype class"""
-from sqlalchemy import Column, Sequence, Integer, Boolean, String
+from sqlalchemy import Column, Integer, Boolean, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
@@ -12,7 +12,7 @@ class Genotype(Base):
     """Represent an observed diploid genotype (i.e. an instance of a pair of alleles.)"""
     __tablename__ = "genotype"
 
-    id = Column(Integer, Sequence("id_genotype_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     # Shortcut to get both alleles
     alleles = relationship("Allele", primaryjoin="or_(Allele.id==Genotype.allele_id, "
                                                  "Allele.id==Genotype.secondallele_id)", uselist=True)

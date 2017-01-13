@@ -1,7 +1,6 @@
-import json
 import logging
 import datetime
-from vardb.datamodel import allele, assessment, sample
+from vardb.datamodel import assessment
 
 from api.schemas import AlleleReportSchema
 from api import ApiError
@@ -9,7 +8,6 @@ from api import ApiError
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
-
 
 
 class AlleleReportCreator(object):
@@ -37,7 +35,7 @@ class AlleleReportCreator(object):
         created_reports, reused_reports = self._create_or_reuse_allelereports(allelereports)
 
         if alleleassessments:
-            for created_report in (map(lambda x: x[1],  created_reports)):  # un-tuple
+            for created_report in created_reports:
                 created_report.alleleassessment = next((a for a in alleleassessments if a.allele_id == created_report.allele_id))
 
         return {
@@ -69,12 +67,12 @@ class AlleleReportCreator(object):
             assessment.AlleleReport.date_superceeded == None  # Only allowed to reuse valid allelereport
         ).all()
 
-        reused = list()  # list of tuples (presented, None)
-        created = list()  # list of tuples (presented/None, created)
+        reused = list()
+        created = list()
         for report_data in allelereports:
             if AlleleReportCreator._possible_reuse(report_data):
                 presented_report = self.find_report_presented(report_data, all_existing_reports)
-                reused.append((presented_report, None))
+                reused.append(presented_report)
                 log.info("Reused report %s for allele %s", presented_report.id, report_data['allele_id'])
             else:  # create a new report
                 if 'id' in report_data:
@@ -91,9 +89,7 @@ class AlleleReportCreator(object):
                     report_object_to_create.previous_report_id = old_report.id
 
                 presented_report = self.find_report_presented(report_data, all_existing_reports, error_if_not_found=False)
-                created.append((presented_report, report_object_to_create))
-                self.session.add(report_object_to_create)
-                log.info("Created report for allele %s, superceed? %s", report_object_to_create.allele_id, report_object_to_create.previous_report_id)
-                self.session.commit()
+                created.append(report_object_to_create)
+                log.info("Created report for allele: %s, it supercedes: %s", report_object_to_create.allele_id, report_object_to_create.previous_report_id)
 
         return created, reused

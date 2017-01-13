@@ -1,17 +1,14 @@
 import datetime
-import json
-from vardb.datamodel import allele, assessment, annotation, sample, gene
+from vardb.datamodel import assessment, sample
 
 
-from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, GenepanelSchema
+from api.schemas import AlleleAssessmentSchema, ReferenceAssessmentSchema
 from api import ApiError
 
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
-
-
 
 
 class AssessmentCreator(object):
@@ -50,22 +47,16 @@ class AssessmentCreator(object):
 
         :return a dict {
             'referenceassessments': {
-                'reused': [(context, None)]
-                'created': [(context, created)]
+                'reused': [...]
+                'created': [...]
             },
             'alleleassessments': {
-                'reused': [(context, None)],
-                'created': [(context, created)]
+                'reused': [...],
+                'created': [...]
             }
         }
         with the assessments grouped by allele assessments and reference assessments and
         whether they were created or reused.
-
-        Each entry in the list is a tuple to keep track of the context of the assessment,
-        more specifically the assessment presented to the user when doing an assessment.
-
-         The tuple is of the form (context, created). Where 'context' is the one (if any) displayed to the user
-         in the UI and created is the one (if any) created by the user.
         """
 
         aa_created, aa_reused = self._create_or_reuse_alleleassessments(annotations, alleleassessments, custom_annotations=custom_annotations)
@@ -76,7 +67,7 @@ class AssessmentCreator(object):
 
         ra_created, ra_reused = self._create_or_reuse_referenceassessments(all_reference_assessments)
 
-        self._attach_referenceassessments(ra_created + ra_reused, map(lambda c: c[1], aa_created))
+        self._attach_referenceassessments(ra_created + ra_reused, aa_created)
 
         return {
             'referenceassessments': {
@@ -88,7 +79,6 @@ class AssessmentCreator(object):
                 'created': aa_created
             }
         }
-
 
     def get_included_referenceassessments(self, alleleassessments):
         # Get all reference assessments included as part of alleleassessments
@@ -119,8 +109,7 @@ class AssessmentCreator(object):
         :param annotations: [{allele_id: annotation_id}]
         :param alleleassessments:
         :param custom_annotations: [{allele_id: custom_annotation_id}]
-        :return: (created, reused), created is list( (presented | None, created) )
-                                    reused is  list( (presented       , None)    )
+        :return: (created, reused)
         """
 
         def _find_first_matching(seq, predicate):
@@ -147,7 +136,7 @@ class AssessmentCreator(object):
         for assessment_data in alleleassessments:
             if AssessmentCreator._possible_reuse(assessment_data):
                 presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments)
-                reused_assessments.append((presented_assessment, None))
+                reused_assessments.append(presented_assessment)
                 log.info("Reused assessment %s for allele %s", presented_assessment.id, assessment_data['allele_id'])
             else:  # create a new assessment
                 assessment_obj = AlleleAssessmentSchema(strict=True).load(assessment_data).data
@@ -164,7 +153,8 @@ class AssessmentCreator(object):
                 assessment_obj.annotation_id = annotation_match['annotation_id']
                 assessment_obj.custom_annotation_id = custom_annotation_match['custom_annotation_id'] if custom_annotation_match and 'custom_annotation_id' in custom_annotation_match else None
 
-                # If analysis_id provided, link assessment to genepanel through analysis
+                # If analysis_id provided, link assessment to genepanel through analysis for safety
+                # If not analysis_id, genepanel was loaded using schema above.
                 if 'analysis_id' in assessment_data:
                     assessment_analysis = next(a for a in cache['analysis'] if a.id == assessment_data['analysis_id'])
                     assessment_obj.genepanel_name = assessment_analysis.genepanel_name
@@ -179,9 +169,8 @@ class AssessmentCreator(object):
                     assessment_obj.previous_assessment_id = to_supercede.id
 
                 presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments, error_if_not_found=False)
-                created_assessments.append((presented_assessment, assessment_obj))
-                self.session.add(assessment_obj)
-                log.info("Created assessment for allele %s, superceed? %s", assessment_obj.allele_id, assessment_obj.previous_assessment_id)
+                created_assessments.append(assessment_obj)
+                log.info("Created assessment for allele: %s, it supercedes: %s", assessment_obj.allele_id, assessment_obj.previous_assessment_id)
 
         return created_assessments, reused_assessments
 
@@ -249,7 +238,6 @@ class AssessmentCreator(object):
                     to_supercede.date_superceeded = datetime.datetime.now()
                     assessment_obj.previous_assessment_id = to_supercede.id
                 created.append(assessment_obj)
-                self.session.add(assessment_obj)
 
         return created, reused
 

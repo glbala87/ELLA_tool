@@ -1,9 +1,8 @@
-import logging
 from vardb.datamodel import allele
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
 
-from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, GenepanelSchema
+from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema
 from api.util.annotationprocessor import AnnotationProcessor
 from api.util.sanger_verification import SangerVerification
 
@@ -52,10 +51,10 @@ class AlleleDataLoader(object):
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
         :param annotation: If true, load the ones mentioned in link_filter.annotation_id
-        :param include_custom_annotation: If true, load the ones mentioned in link_filter.custom_annotation_id
-        :param include_allele_assessment: If true, load the ones mentioned in link_filter.assessment_id
-        :param include_reference_assessments: If true, load the ones mentioned in link_filter.reference_assessment_id
-        :param include_allele_report: If true, load the ones mentioned in link_filter.report_id
+        :param include_custom_annotation: If true, load the ones mentioned in link_filter.customannotation_id
+        :param include_allele_assessment: If true, load the ones mentioned in link_filter.alleleassessment_id
+        :param include_reference_assessments: If true, load the ones mentioned in link_filter.referenceassessment_id
+        :param include_allele_report: If true, load the ones mentioned in link_filter.allelereport_id
         :returns: dict with converted data using schema data.
         """
 
@@ -93,25 +92,25 @@ class AlleleDataLoader(object):
 
         allele_custom_annotations = list()
         if include_custom_annotation:
-            custom_annotation_filters = self.setup_entity_filter(CustomAnnotation, 'custom_annotation_id', allele_ids, link_filter)
+            custom_annotation_filters = self.setup_entity_filter(CustomAnnotation, 'customannotation_id', allele_ids, link_filter)
             if custom_annotation_filters:
                 allele_custom_annotations = self.session.query(CustomAnnotation).filter(*custom_annotation_filters).all()
 
         allele_assessments = list()
         if include_allele_assessment:
-            assessment_filters = self.setup_entity_filter(AlleleAssessment, 'assessment_id', allele_ids, link_filter)
+            assessment_filters = self.setup_entity_filter(AlleleAssessment, 'alleleassessment_id', allele_ids, link_filter)
             if assessment_filters:
                 allele_assessments = self.session.query(AlleleAssessment).filter(*assessment_filters).all()
 
         reference_assessments = list()
         if include_reference_assessments:
-            reference_filters = self.setup_entity_filter(ReferenceAssessment, 'reference_assessment_id', allele_ids, link_filter)
+            reference_filters = self.setup_entity_filter(ReferenceAssessment, 'referenceassessment_id', allele_ids, link_filter)
             if reference_filters:
                 reference_assessments = self.session.query(ReferenceAssessment).filter(*reference_filters).all()
 
         allele_reports = list()
         if include_allele_report:
-            report_filters = self.setup_entity_filter(AlleleReport, 'report_id', allele_ids, link_filter)
+            report_filters = self.setup_entity_filter(AlleleReport, 'allelereport_id', allele_ids, link_filter)
             if report_filters:
                 allele_reports = self.session.query(AlleleReport).filter(*report_filters).all()
 

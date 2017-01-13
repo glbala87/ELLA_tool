@@ -16,27 +16,20 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
 
 })
 @Inject(
-    'Config',
-    'Allele',
-    'Analysis',
-    'Interpretation'
+    'Config'
 )
 export class ReportCardController {
 
 
     constructor(Config,
                 Allele,
-                Analysis,
-                Interpretation) {
+                Analysis) {
         this.config = Config.getConfig();
-        this.alleleService = Allele;
-        this.interpretationService = Interpretation;
-        this.analysisService = Analysis;
         this.selected_excluded = null;
     }
 
     getAlleleState(allele) {
-        return this.state.allele.find(al => al.allele_id === allele.id);
+        return this.state.allele[allele.id];
     }
 
     getAlleleReport(allele) {
@@ -58,10 +51,6 @@ export class ReportCardController {
             .thenBy(a => a.annotation.filtered[0].HGVSc_short)
         )
         return this.alleles;
-    }
-
-    getAnalysisTagOptions() {
-        return this.config.analysis.tags;
     }
 
     formatHGVS(allele) {

@@ -1,6 +1,6 @@
 import datetime
 from flask.ext.marshmallow import Marshmallow
-from marshmallow import fields, Schema, validates_schema, ValidationError, post_load
+from marshmallow import fields, Schema, post_load
 
 from api import app
 from vardb.datamodel import assessment

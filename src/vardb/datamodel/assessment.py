@@ -1,6 +1,6 @@
 """vardb datamodel Assessment class"""
 
-from sqlalchemy import Column, Sequence, Enum, Integer, String, DateTime, ForeignKey, Table
+from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
@@ -20,7 +20,7 @@ class AlleleAssessment(Base):
     """Represents an assessment of one allele."""
     __tablename__ = "alleleassessment"
 
-    id = Column(Integer, Sequence("id_alleleassessment_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     classification = Column(Enum('1', '2', '3', '4', '5', 'T', native_enum=False), nullable=False)
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
@@ -62,7 +62,7 @@ class ReferenceAssessment(Base):
     """
     __tablename__ = "referenceassessment"
 
-    id = Column(Integer, Sequence("id_referenceassessment_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     reference_id = Column(Integer, ForeignKey("reference.id"), nullable=False)
     reference = relationship("Reference")
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
@@ -88,7 +88,7 @@ class Reference(Base):
     """Represents a reference that brings information to this assessment."""
     __tablename__ = "reference"
 
-    id = Column(Integer, Sequence("id_reference_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     authors = Column(String())
     title = Column(String())
     journal = Column(String())
@@ -115,7 +115,7 @@ class AlleleReport(Base):
 
     __tablename__ = "allelereport"
 
-    id = Column(Integer, Sequence("id_allelereport_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)

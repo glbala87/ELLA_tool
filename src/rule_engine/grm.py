@@ -22,8 +22,13 @@ class GRM:
         def __hash__(self):
             return hash((self.source, self.value, self.code, self.aggregate))
 
-        # def __str__(self):
-        #     return self.value + " " + self.source + " " + self.code
+        def __repr__(self):
+            result = '<Rule '
+            for k in ['code', 'source', 'value', 'match', 'aggregate']:
+                if hasattr(self, k):
+                    result += k + ': ' + str(getattr(self, k)) + ' '
+            result += '>'
+            return result
         """
         Applies this rule to some data. The return value is a list of rules which contributed
         to the result. Empty list means no match. The returned list can be used to inspect which

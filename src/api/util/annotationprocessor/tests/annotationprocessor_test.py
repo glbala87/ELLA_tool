@@ -2,10 +2,8 @@
 import unittest
 import pytest
 
-from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation
-from ..annotationprocessor import TranscriptAnnotation, AnnotationProcessor
+from ..annotationprocessor import FrequencyAnnotation, References, TranscriptAnnotation, AnnotationProcessor
 from ..annotationprocessor import GenepanelCutoffsAnnotationProcessor, find_symbol
-from api import config
 from vardb.datamodel.gene import Transcript, Genepanel
 
 

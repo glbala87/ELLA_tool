@@ -4,6 +4,7 @@ $bar-colors: (
   purple: $purple,
   pink: $pink,
   black: $black,
+  red: $red
 );
 @each $name, $color in $bar-colors {
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
@@ -16,7 +17,8 @@ $bar-colors: (
    .#{$name} .sb-controls button:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
 }
 
-.sectionbox .sb.titlebar { color: $black-50; }
+.sectionbox .title, .sectionbox .icon { color: $black-50; }
+.sectionbox .subtitle { color: $black-25; }
 .contentbox .cb.titlebar { color: $white-50; }
 
 
@@ -56,6 +58,7 @@ $sb-titlebar-height: 3.8rem;
       .icon { transition: all 0.3s; width: 1.2rem; margin-right: 1rem; margin-top: 0.3rem; line-height: $sb-titlebar-height;
         svg { width: 1.2rem; height: 1.2rem; transition: all 0.3s; transform: rotate(90deg); transform-origin: center; }
       }
+      .subtitle { padding-left: 1rem; font-family: $slim; line-height: $sb-titlebar-height; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap; }
     }
     // Right side controls (buttons)
     .sb-controls { flex: 1; padding-top: 0.65rem; padding-left: 3rem; padding-right: 1.5rem; transition: all 0.5s 0.2s;

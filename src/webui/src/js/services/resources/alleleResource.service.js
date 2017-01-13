@@ -46,13 +46,17 @@ export class AlleleResource {
         this.base = '/api/v1';
     }
 
-    // related_entietes
     get(allele_ids, sample_id=null, gp_name=null, gp_version=null, link_entities=null) {
+        let q = { 'id': allele_ids };
+        return this.getByQuery(q, sample_id, gp_name, gp_version, link_entities);
+    }
+
+    getByQuery(query, sample_id=null, gp_name=null, gp_version=null, link_entities=null) {
         return new Promise((resolve, reject) => {
             let uri = `${this.base}/alleles/`;
             // angular skips null parameters
             let AlleleRS = this.resource(uri,
-                { q: { 'id': allele_ids},
+                { q: query,
                   link: link_entities ? buildEntityMap(link_entities): null,
                   sample_id: sample_id,
                   gp_name: gp_name,

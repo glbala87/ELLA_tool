@@ -15,7 +15,7 @@ class ApiV1(object):
         Loads our marshmallow schemas into docs.
         """
         self.api_v1_docs.add_schema('Analysis', schemas.AnalysisSchema())
-        self.api_v1_docs.add_schema('Interpretation', schemas.InterpretationSchema())
+        self.api_v1_docs.add_schema('Interpretation', schemas.AnalysisInterpretationSchema())
         self.api_v1_docs.add_schema('Allele', schemas.AlleleSchema())
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
         self.api_v1_docs.add_schema('ReferenceAssessment', schemas.ReferenceAssessmentSchema())
@@ -72,27 +72,8 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisListResource,
                            '/api/v1/analyses/')
 
-        self._add_resource(r.analysis.AnalysisCollisionResource,
-                           '/api/v1/analyses/<int:analysis_id>/collisions/')
-
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
-
-        self._add_resource(r.analysis.AnalysisActionStartResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/start/')
-
-        self._add_resource(r.analysis.AnalysisActionMarkReviewResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/markreview/')
-
-        self._add_resource(r.analysis.AnalysisActionFinalizeResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/finalize/',
-                           '/api/v1/analyses/finalized/<int:analysis_id>/')
-
-        self._add_resource(r.analysis.AnalysisActionOverrideResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/override/')
-
-        self._add_resource(r.analysis.AnalysisActionReopenResource,
-                           '/api/v1/analyses/<int:analysis_id>/actions/reopen/')
 
         self._add_resource(r.igv.BamResource,
                            '/api/v1/analyses/<int:analysis_id>/bams/<int:sample_id>/')
@@ -109,11 +90,14 @@ class ApiV1(object):
         self._add_resource(r.genepanel.GenepanelResource,
                            '/api/v1/genepanels/<name>/<version>/')
 
+        self._add_resource(r.overview.OverviewAlleleResource,
+                           '/api/v1/overviews/alleles/')
+
+        self._add_resource(r.overview.OverviewAnalysisResource,
+                           '/api/v1/overviews/analyses/')
+
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
-
-        self._add_resource(r.interpretation.InterpretationResource,
-                           '/api/v1/interpretations/<int:interpretation_id>/')
 
         self._add_resource(r.reference.ReferenceListResource,
                            '/api/v1/references/')
@@ -132,3 +116,57 @@ class ApiV1(object):
 
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
+
+        self._add_resource(r.workflow.allele.AlleleInterpretationListResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/')
+
+        self._add_resource(r.workflow.allele.AlleleInterpretationResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/')
+
+        self._add_resource(r.workflow.allele.AlleleInterpretationAllelesListResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/alleles/')
+
+        self._add_resource(r.workflow.allele.AlleleActionStartResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/start/')
+
+        self._add_resource(r.workflow.allele.AlleleActionMarkReviewResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/markreview/')
+
+        self._add_resource(r.workflow.allele.AlleleActionFinalizeResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/finalize/')
+
+        self._add_resource(r.workflow.allele.AlleleActionOverrideResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/override/')
+
+        self._add_resource(r.workflow.allele.AlleleActionReopenResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/reopen/')
+
+        self._add_resource(r.workflow.allele.AlleleCollisionResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/collisions/')
+
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
+
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/')
+
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationAllelesListResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/alleles/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionStartResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/start/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionMarkReviewResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/markreview/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionFinalizeResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/finalize/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionOverrideResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/override/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionReopenResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/reopen/')
+
+        self._add_resource(r.workflow.analysis.AnalysisCollisionResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/collisions/')

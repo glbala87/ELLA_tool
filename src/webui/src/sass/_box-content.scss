@@ -74,3 +74,26 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 .vardb {
   .outdated { color: $red; text-transform: uppercase; }
 }
+
+.analysis-list { display: flex; flex-direction: column;
+
+  .list-item { display: flex; margin-bottom: 1.2rem; font-size: 1.4rem;
+    .analysis-date { color: $black-50; }
+    .full-title { flex-grow: 1;  }
+    .analysis-tags { padding-right: 2.0rem; }
+    .analysis-users { padding-right: 2.0rem; }
+    .analysis-extras { font-size: 1.2rem; padding-right: 1rem; }
+  }
+}
+
+.allele-list { display: flex; flex-direction: column;
+
+  .list-item { display: flex; margin-bottom: 1.2rem; font-size: 1.4rem;
+    .analysis-date { color: $black-50; }
+    .full-title { flex-grow: 1; }
+    .allele-tags { padding-right: 2.0rem; }
+    .allele-users { padding-right: 2.0rem; }
+    .allele-genepanel { padding-right: 2.0rem; }
+    .allele-extras { padding-right: 1rem; }
+  }
+}

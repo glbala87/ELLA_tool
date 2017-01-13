@@ -10,7 +10,7 @@ export class AlleleStateHelper {
      * describing the state for one allele).
     */
 
-    static setupAlleleState(allele_state) {
+    static setupAlleleState(allele, allele_state) {
         // If not existing, return the object from the state, or create empty one
         if (!('alleleassessment' in allele_state)) {
             allele_state.alleleassessment = {
@@ -48,6 +48,18 @@ export class AlleleStateHelper {
                 }
             };
         }
+
+        if (allele.allele_assessment) {
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+        }
+
+        if (allele.allele_report) {
+            allele_state.presented_allelereport_id = allele.allele_report.id;
+        }
+
+        this.copyAlleleAssessmentToState(allele, allele_state);
+        this.copyAlleleReportToState(allele, allele_state);
+
     }
 
     /**
@@ -78,7 +90,7 @@ export class AlleleStateHelper {
      */
     static getAlleleAssessment(allele, allele_state) {
         // Ensure object is properly initialised
-        this.setupAlleleState(allele_state);
+        this.setupAlleleState(allele, allele_state);
         if (this.isAlleleAssessmentReused(allele_state)) {
             if (!('allele_assessment' in allele)) {
                 throw Error("Alleleassessment set as reused, but there's no allele_assessment in provided allele.");
@@ -100,7 +112,7 @@ export class AlleleStateHelper {
     }
 
     static getStateAlleleAssessment(allele, allele_state) {
-        this.setupAlleleState(allele_state);
+        this.setupAlleleState(allele, allele_state);
         return allele_state.alleleassessment;
     }
 
@@ -239,91 +251,22 @@ export class AlleleStateHelper {
     }
 
     /**
-     * Toggles class 1 on/off
-     * In addition to setting 'alleleassessment.classification',
-     * a property class1 is also set as a flag to indicate
-     * that the toggle was set (to distinguish against setting it
-     * manually to same class).
-     * @param  {Object} allele_state   Allele state to modify
-     * @return {Boolean}              Whether toggle is true or not
-     */
-    static toggleClass1(allele_state) {
-        // Ignore if already set as class T or class 2
-        if (allele_state.classT || allele_state.class2) {
-            return;
-        }
-        allele_state.class1 = !Boolean(allele_state.class1);
-        if (allele_state.class1) {
-            allele_state.alleleassessment.classification = '1';
-            return true;
-        }
-        else {
-            delete allele_state.alleleassessment.classification;
-            return false;
-        }
-    }
-
-    /**
-     * Toggles class 2 on/off
-     * In addition to setting 'alleleassessment.classification',
-     * a property class2 is also set as a flag to indicate
-     * that the toggle was set (to distinguish against setting it
-     * manually to same class).
-     * @param  {Object} allele_state   Allele state to modify
-     * @return {Boolean}              Whether toggle is true or not
-     */
-    static toggleClass2(allele_state) {
-        // Ignore if already set as class T or class 1
-        if (allele_state.classT || allele_state.class1) {
-            return;
-        }
-        allele_state.class2 = !Boolean(allele_state.class2);
-        if (allele_state.class2) {
-            allele_state.alleleassessment.classification = '2';
-            return true;
-        }
-        else {
-            delete allele_state.alleleassessment.classification;
-            return false;
-        }
-    }
-
-    /**
-     * Toggles class T on/off
-     * In addition to setting 'alleleassessment.classification',
-     * a property classT is also set as a flag to indicate
-     * that the toggle was set (to distinguish against setting it
-     * manually to same class).
-     * @param  {Object} allele_state   Allele state to modify
-     * @return {Boolean}              Whether toggle is true or not
-     */
-    static toggleTechnical(allele_state) {
-        // Ignore if set as class 1 or class 2
-        if (allele_state.class1 || allele_state.class2) {
-            return;
-        }
-        allele_state.classT = !Boolean(allele_state.classT);
-        if (allele_state.classT) {
-            allele_state.alleleassessment.classification = 'T';
-            return true;
-        }
-        else {
-            delete allele_state.alleleassessment.classification;
-            return false;
-        }
-    }
-
-    /**
      * Copies any existing allele's alleleassessment into the allele_state.
      * To be used when the user want's to edit the existing assessment.
      * @param  {Allele} allele   Allele to copy alleleassessment from.
      * @param  {Object} allele_state   Allele state to modify
      */
-    static copyAlleleAssessmentToState(allele, allele_state) {
-        if (allele.allele_assessment && !allele_state.alleleAssessmentCopied) {
+    static copyAlleleAssessmentToState(allele, allele_state, force_copy=false) {
+        // Check if remote alleleassessment is newer, if so copy it in again.
+        if (allele.allele_assessment &&
+             (force_copy ||
+              (!allele_state.alleleAssessmentCopiedFromId ||
+               allele.allele_assessment.id > allele_state.alleleAssessmentCopiedFromId)
+             )
+            ) {
             allele_state.alleleassessment.evaluation = deepCopy(allele.allele_assessment.evaluation);
-            allele_state.alleleAssessmentCopied = true;
-            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+            allele_state.alleleassessment.classification = allele.allele_assessment.classification;
+            allele_state.alleleAssessmentCopiedFromId = allele.allele_assessment.id;
         }
     }
 
@@ -333,14 +276,76 @@ export class AlleleStateHelper {
      * @param  {Allele} allele   Allele to copy report from.
      * @param  {Object} allele_state   Allele state to modify
      */
-    static copyAlleleReportToState(allele, allele_state) {
-        if (allele.allele_report && !allele_state.alleleReportCopied) {
+    static copyAlleleReportToState(allele, allele_state, force_copy=false) {
+        // Check if date of remote allelereport is newer, if so copy it in again.
+        // TODO: Present dialog for confirmation.
+        if (allele.allele_report &&
+            (force_copy ||
+             (!allele_state.alleleReportCopiedFromId ||
+              allele.allele_assessment.id > allele_state.alleleReportCopiedFromId)
+            )
+           ) {
             allele_state.allelereport.evaluation = deepCopy(allele.allele_report.evaluation);
-            allele_state.alleleReportCopied = true;
-            allele_state.presented_allelereport_id = allele.allele_report.id;
+            allele_state.alleleReportCopiedFromId = allele.allele_report.id;
         }
     }
 
+    /**
+     * Enables reusing the existing classification of allele.
+     * If alleleassessment is outdated, it refuse to toggle on.
+     * @param  {Allele} allele   Allele to reuse alleleassessment of.
+     * @param  {Object} allele_state   Allele state to modify
+     * @param  {Config}  config Application config
+     * @return {Boolean}              Whether toggle is true or not
+     */
+    static enableReuseAlleleAssessment(allele, allele_state, config) {
+        if (!('allele_assessment' in allele)) {
+            throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
+        }
+        this.setupAlleleState(allele, allele_state);
+
+
+        // Check whether existing allele assessment is outdated,
+        // if so refuse to toggle on.
+        if (this.isAlleleAssessmentOutdated(allele, config)) {
+            return false;
+        }
+
+        if ('allele_assessment' in allele) {
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+            allele_state.alleleassessment.reuse = true;
+        }
+
+        // TODO: allelereport reuse is now tied to alleleassessment reuse,
+        // we might want to decouple this in case user only wants to update either of them..
+        if ('allele_report' in allele) {
+            allele_state.allelereport.id = allele.allele_report.id;
+            allele_state.presented_allelereport_id = allele.allele_report.id;
+            allele_state.allelereport.reuse = true;
+        }
+
+        return true;
+    }
+
+    /**
+     * Disables reusing the existing classification of allele.
+     * If alleleassessment is outdated, it refuse to toggle on.
+     * @param  {Allele} allele   Allele to reuse alleleassessment of.
+     * @param  {Object} allele_state   Allele state to modify
+     * @return {Boolean}              Whether toggle is true or not
+     */
+    static disableReuseAlleleAssessment(allele, allele_state) {
+        this.setupAlleleState(allele, allele_state);
+
+        allele_state.alleleassessment.reuse = false;
+
+        allele_state.allelereport.reuse = false;
+        if ('id' in allele_state.allelereport) {
+            delete allele_state.allelereport.id;
+        }
+
+        return false;
+    }
 
     /**
      * Toggles reusing the existing classification of allele.
@@ -350,51 +355,28 @@ export class AlleleStateHelper {
      * @param  {Config}  config Application config
      * @return {Boolean}              Whether toggle is true or not
      */
-
-    static toggleReuseAlleleAssessment(allele, allele_state, config, copy_on_enable=false) {
-        if (!('allele_assessment' in allele)) {
-            throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
-        }
-        this.setupAlleleState(allele_state);
+    static toggleReuseAlleleAssessment(allele, allele_state, config) {
         if (this.isAlleleAssessmentReused(allele_state)) {
-            allele_state.alleleassessment.reuse = false;
-
-            // TODO: allelereport reuse is now tied to alleleassessment reuse,
-            // we might want to decouple this in case user only wants to update either of them..
-            allele_state.allelereport.reuse = false;
-            if ('id' in allele_state.allelereport) {
-                delete allele_state.allelereport.id;
-            }
-            // TODO: This overwrites user's data, might want to add a warning...
-            this.copyAlleleAssessmentToState(allele, allele_state);
-            this.copyAlleleReportToState(allele, allele_state);
-
-            return false;
+            return this.disableReuseAlleleAssessment(allele, allele_state);
         }
         else {
-            if (copy_on_enable) {
-                this.copyAlleleAssessmentToState(allele, allele_state);
-                this.copyAlleleReportToState(allele, allele_state);
-            }
+            return this.enableReuseAlleleAssessment(allele, allele_state, config);
+        }
+    }
 
-            // Check whether existing allele assessment is outdated,
-            // if so refuse to toggle on.
-            if (this.isAlleleAssessmentOutdated(allele, config)) {
-                return false;
+    /**
+     *  Auto-reuse new, existing alleleassessment for the user.
+     *  We keep track of last alleleassessment id where we auto-reused the alleleassessment,
+     *  in order to prevent re-enabling what the user has already disabled.
+     * @memberOf AlleleStateHelper
+     */
+    static autoReuseExistingAssessment(allele, allele_state, config) {
+        if (allele.allele_assessment) {
+            if (!('autoReuseAlleleAssessmentCheckedId' in allele_state) ||
+                allele_state.autoReuseAlleleAssessmentCheckedId < allele.allele_assessment.id) {
+                this.enableReuseAlleleAssessment(allele, allele_state, config)
+                allele_state.autoReuseAlleleAssessmentCheckedId = allele.allele_assessment.id;
             }
-
-            if ('allele_assessment' in allele) {
-                allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
-                allele_state.alleleassessment.reuse = true;
-            }
-            if ('allele_report' in allele) {
-                allele_state.allelereport.id = allele.allele_report.id;
-                allele_state.presented_allelereport_id = allele.allele_report.id;
-                allele_state.allelereport.reuse = true;
-            }
-
-
-            return true;
         }
     }
 

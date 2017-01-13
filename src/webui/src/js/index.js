@@ -12,7 +12,6 @@ require('core-js/fn/array/includes');
 import "./recompile.directive";
 
 import "./modals/addExcludedAllelesModal.service";
-import "./modals/alleleAssessmentModal.service";
 import "./modals/customAnnotationModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
@@ -26,22 +25,26 @@ import './services/resources/interpretationResource.service';
 import './services/resources/ReferenceResource.service';
 import './services/resources/searchResource.service';
 import './services/resources/finalizationResource.service';
-
+import './services/resources/overviewResource.service';
+import './services/resources/workflowResource.service';
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
 import './services/alleleFilter.service';
 import './services/analysis.service';
-import './services/interpretation.service';
+import './services/workflow.service';
 import './services/search.service';
 import './services/sidebar.service';
 import './services/navbar.service';
 import './filters';
 
-import './views/analysis/analysis.directive';
-import './views/analysis/analysisSelection.directive';
-import './views/analysis/interpretationSingleSample.directive';
+import './views/workflow/workflowAnalysis.directive';
+import './views/workflow/workflowAllele.directive';
+import './views/workflow/interpretation.directive';
+import './views/overviews/analysisSelection.directive';
+import './views/overviews/alleleSelection.directive';
 import './views/main.directive';
+import './views/overview.directive';
 import './views/login.directive';
 import './views/sidebar.directive';
 import './views/alleleSidebar.directive';
@@ -64,6 +67,7 @@ import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
 import './widgets/analysisList.directive';
+import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
@@ -76,8 +80,7 @@ import './widgets/contentbox.directive';
 import './widgets/sectionbox.directive';
 import './widgets/search.directive';
 import './widgets/searchResults.directive';
-// import './widgets/card.directive';
-import './widgets/interpretationbutton.directive';
+import './widgets/workflowButtons.directive';
 import './widgets/allelesectionbox/allelesectionbox.directive';
 import './widgets/allelesectionbox/allelesectionboxcontent.directive';
 import './widgets/reportcard/reportcard.directive';
@@ -106,20 +109,34 @@ class AppConfig {
                 }
             })
             .state('app.analyses', {
-                url: '/analyses',
+                url: '/overview',
                 views: {
                     content: {
-                        template: '<analysis-selection></analysis-selection>'
+                        template: '<overview></overview>'
                     }
                 }
             })
-            .state('app.interpretation', {
+            .state('app.analysisinterpretation', {
                 url: '/analyses/:analysisId',
                 views: {
                     content: {
-                        template: '<analysis analysis-id="{{analysisId}}"></analysis>',
-                        controller: ['$scope', '$stateParams', function($scope, $stateParams) {
+                        template: '<workflow-analysis analysis-id="{{analysisId}}"></workflow-analysis>',
+                        controller: ['$scope', '$stateParams', '$location', function($scope, $stateParams, $location) {
                             $scope.analysisId = $stateParams.analysisId;
+                        }]
+                    }
+                }
+            })
+            .state('app.variantinterpretation', {
+                url: '/variants/{reference_genome}/{variant_selector}?gp_name&gp_version',
+                views: {
+                    content: {
+                        template: '<workflow-allele reference-genome="{{reference_genome}}" variant-selector="{{variant_selector}}" genepanel-name="{{gp_name}}" genepanel-version="{{gp_version}}"></workflow-allele>',
+                        controller: ['$scope', '$stateParams', function($scope, $stateParams) {
+                            $scope.reference_genome = $stateParams.reference_genome;
+                            $scope.variant_selector = $stateParams.variant_selector;
+                            $scope.gp_name = $stateParams.gp_name;
+                            $scope.gp_version = $stateParams.gp_version;
                         }]
                     }
                 }
@@ -134,7 +151,7 @@ class AppConfig {
             });
 
         // when there is an empty route, redirect to /analyses
-        $urlRouterProvider.otherwise('/analyses');
+        $urlRouterProvider.otherwise('/overview');
         $locationProvider.html5Mode(true);
         $resourceProvider.defaults.stripTrailingSlashes = false;
     }

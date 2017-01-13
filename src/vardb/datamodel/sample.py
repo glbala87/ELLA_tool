@@ -3,7 +3,7 @@
 
 import datetime
 
-from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum
+from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -24,7 +24,7 @@ class Sample(Base):
     """
     __tablename__ = "sample"
 
-    id = Column(Integer, Sequence("id_sample_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     identifier = Column(String(), nullable=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
@@ -38,39 +38,6 @@ class Sample(Base):
         return "<Sample('%s', '%s')>" % (self.identifier, self.sample_type)
 
 
-class AnalysisFinalized(Base):
-    """
-    Represents a snapshot of a finalized analysis,
-    logging all relevant information for every allele
-    involved in the analysis, upon finalization.
-
-    If an allele id is given two times for same analysis id,
-    it was first served as part of the filtered data (class 1 or intron),
-    and then included by the user as part of the interpretation,
-    giving it an assessment.
-    """
-    __tablename__ = "analysisfinalized"
-
-    id = Column(Integer, Sequence("id_analysisfinalized_seq"), primary_key=True)
-    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
-    annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=True)  # None for an excluded allele
-    customannotation_id = Column(Integer, ForeignKey("customannotation.id"))
-
-    alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
-    presented_alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
-
-    allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
-    presented_allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
-
-    filtered = Column(Enum("CLASS1", "INTRON", "GENE", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
-
-    alleleassessment = relationship("AlleleAssessment", foreign_keys=alleleassessment_id)
-    presented_alleleassessment = relationship("AlleleAssessment", foreign_keys=presented_alleleassessment_id)
-
-    # TODO: add reference assessments?
-
-
 class Analysis(Base):
     """Represents a bioinformatical pipeline analysis
 
@@ -79,48 +46,16 @@ class Analysis(Base):
     """
     __tablename__ = "analysis"
 
-    id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(), nullable=False, unique=True)
     genepanel_name = Column(String)
     genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysis_config = Column(JSONMutableDict.as_mutable(JSONB))
-    interpretations = relationship("Interpretation", order_by="Interpretation.id")
-    alleleassessments = relationship("AlleleAssessment", viewonly=True,
-                                     secondary="analysisfinalized",
-                                     foreign_keys=[AnalysisFinalized.analysis_id, AnalysisFinalized.alleleassessment_id])
+    interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanel_name, self.genepanel_version)
-
-
-class Interpretation(Base):
-    """Represents an Interpretation by a labengineer
-
-    This corresponds to one interpretation 'round' of an analysis.
-    The table stores both normal state and user-specific state for each round,
-    while keeping a history of the state upon update.
-
-    :note: The stateHistory column can potentially be heavy in extreme cases,
-    so you can defer loading it when you don't need it.
-    (TODO: defer by default?)
-    """
-    __tablename__ = "interpretation"
-
-    id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
-    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    analysis = relationship("Analysis", uselist=False)
-    user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
-    user_id = Column(Integer, ForeignKey("user.id"))
-    user = relationship("User", uselist=False, backref='interpretations')
-    state = Column(JSONMutableDict.as_mutable(JSONB), default={})
-    state_history = Column(JSONMutableDict.as_mutable(JSONB), default={})
-    status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
-                    default="Not started", nullable=False)
-    date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
-
-    def __repr__(self):
-        return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)

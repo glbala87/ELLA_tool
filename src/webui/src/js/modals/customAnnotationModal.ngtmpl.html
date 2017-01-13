@@ -1,7 +1,7 @@
 <sectionbox class="id-custom-annotation-modal" color="green" modal="true" on-close="vm.modal.close">
-  <titlebar>
-    <h3 class="title">{{vm.title}}</h3>
-  </titlebar>
+  <maintitle>
+    {{vm.title}}
+  </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
       <button class="id-cancel"  type="button" ng-click="vm.modal.close(false)">Cancel</button>
@@ -37,7 +37,7 @@
       <div class="question line-wrapper">
         <div class="left">
           <h5 class="slim title section-top"><b>Instructions</b></h5>
-          <p>First, select a variant in the dropdown below. Next, find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
+          <p>Find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
         </div>
         <div class="middle"></div>
         <div class="right"><autosize-textarea class="big" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea></div>

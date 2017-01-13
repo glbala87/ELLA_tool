@@ -1,5 +1,7 @@
 from marshmallow import fields, Schema
 
+from api.schemas import analysisinterpretations
+
 
 class SampleSchema(Schema):
     class Meta:
@@ -20,7 +22,6 @@ class UserSchema(Schema):
                   'username',
                   'first_name',
                   'last_name')
-        skip_missing = True
 
 
 class GenepanelSchema(Schema):
@@ -29,20 +30,6 @@ class GenepanelSchema(Schema):
         description = 'Panel of genes connected to a certain analysis'
         fields = ('name',
                   'version')
-        skip_missing = True
-
-
-class AnalysisInterpretationSchema(Schema):
-    class Meta:
-        title = "Interpretation"
-        description = 'Represents one round of interpretation of an analysis'
-        fields = ('id',
-                  'status',
-                  'date_last_update',
-                  'user')
-        skip_missing = True
-
-    user = fields.Nested(UserSchema)
 
 
 class AnalysisSchema(Schema):
@@ -54,23 +41,8 @@ class AnalysisSchema(Schema):
                   'deposit_date',
                   'interpretations',
                   'genepanel',
-                  'properties',
                   'samples')
 
     samples = fields.Nested(SampleSchema, many=True)
     genepanel = fields.Nested(GenepanelSchema)
-    interpretations = fields.Nested(AnalysisInterpretationSchema, many=True)
-
-class AnalysisFinalizedSchema(Schema):
-    class Meta:
-        fields = ('id',
-                  'analysis_id',
-                  'allele_id',
-                  'annotation_id',
-                  'customannotation_id',
-                  'alleleassessment_id',
-                  'presented_alleleassessment_id',
-                  'allelereport_id',
-                  'presented_allelereport_id',
-                  'filtered'
-                  )
+    interpretations = fields.Nested(analysisinterpretations.AnalysisInterpretationOverviewSchema, many=True)

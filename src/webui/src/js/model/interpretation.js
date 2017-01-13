@@ -1,7 +1,5 @@
 /* jshint esnext: true */
 
-import Analysis from './analysis';
-
 
 export class Interpretation {
     /**
@@ -10,9 +8,6 @@ export class Interpretation {
      */
     constructor(data) {
         Object.assign(this, data);
-        if ('analysis' in data) {
-            this.analysis = new Analysis(data.analysis);
-        }
         this.dirty = false; // Indicates whether any state has changed, so user should save
 
     }

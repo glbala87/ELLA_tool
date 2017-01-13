@@ -1,8 +1,6 @@
-import datetime
-
 from vardb.datamodel import assessment
 
-from api import schemas, ApiError
+from api import schemas
 from api.util.util import paginate, rest_filter, request_json
 from api.v1.resource import Resource
 from api.util.allelereportcreator import AlleleReportCreator

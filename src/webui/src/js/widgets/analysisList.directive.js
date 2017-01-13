@@ -25,37 +25,12 @@ class AnalysisListWidget {
                 InterpretationOverrideModal,
                 toastr) {
         this.location = location;
-        // this.sidebar = Sidebar;
         this.user = User;
         this.analysisService = Analysis;
         this.interpretationResource = InterpretationResource;
         this.interpretationOverrideModal = InterpretationOverrideModal;
         this.toastr = toastr;
-        this.previous = {};
-
-        // this.setupSidebar();
-    }
-
-    // setupSidebar() {
-    //     this.sidebar.setBackLink(null, null);
-    //     this.sidebar.setTitle('Analyses List', false);
-    //     this.sidebar.clearItems();
-    // }
-
-    /**
-     * Checks whether current user is working on an analysis.
-     */
-    isCurrentUser(analysis) {
-        return this.user.getCurrentUserId() === analysis.getInterpretationUser().id;
-    }
-
-    userAlreadyAnalyzed(analysis) {
-        let current_user_id = this.user.getCurrentUserId();
-        return analysis.interpretations.filter(
-            i => i.user &&
-                 i.user.id === current_user_id &&
-                 i.status !== 'Ongoing'  // Exempt if in progress by user
-        ).length > 0;
+        this.previous = {}
     }
 
     isAnalysisDone(analysis) {
@@ -65,19 +40,8 @@ class AnalysisListWidget {
                );
     }
 
-    openAnalysis(analysis) {
-        if (this.onSelect) {
-            this.onSelect(analysis);
-        }
-        this.analysisService.openAnalysis(analysis.id);
-    }
-
-    overrideAnalysis(analysis) {
-        this.analysisService.override(
-            analysis.id,
-        ).then(() => {
-            this.openAnalysis(analysis);
-        });
+    getReviewComment(analysis) {
+        return analysis.interpretations[analysis.interpretations.length-1].review_comment;
     }
 
     abbreviateUser(user) {
@@ -86,62 +50,6 @@ class AnalysisListWidget {
       } else {
         return "";
       }
-    }
-
-    idempoByDate() {
-      let cur = this.analysesByDate();
-      if(JSON.stringify(this.previous) != JSON.stringify(cur)) {
-        this.previous = cur;
-      }
-      return this.previous;
-    }
-
-    analysesByDate() {
-      // FIXME: Hi i'm an infinite loop in angular
-      let byday = {};
-      function groupday(value, index, array)
-      {
-        let d = value['deposit_date'].substring(0,10);
-        byday[d]=byday[d]||[];
-        byday[d].push(value);
-      }
-      this.analyses.forEach(groupday);
-      return byday;
-    }
-
-    clickAnalysis(analysis) {
-        if (this.isAnalysisDone(analysis)) {
-            this.toastr.warning("Opening a finished analysis in read-only mode", null, 600);
-            this.openAnalysis(analysis);
-            return;
-        }
-
-        let owner = analysis.getInterpretationUser();
-        if (this.ownedByOther(owner)) {
-            this.interpretationOverrideModal.show().then(result => {
-                if (result) {
-                    this.overrideAnalysis(analysis);
-                }
-            });
-        }
-        else {
-            this.openAnalysis(analysis);
-        }
-    }
-
-    ownedByOther(owner) {
-        return owner && (owner.id !== this.user.getCurrentUserId());
-    }
-
-    getStateMessage(analysis) {
-        if (!analysis) {
-            return "Analysis is null";
-        }
-        if (analysis.getInterpretationState() === 'Not started' &&
-            analysis.interpretations.length > 1) {
-            return 'Needs review';
-        }
-        return analysis.getInterpretationState();
     }
 }
 

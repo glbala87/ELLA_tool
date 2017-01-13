@@ -2,7 +2,6 @@
 
 from collections import defaultdict
 import re
-import itertools
 import base64
 import json
 
