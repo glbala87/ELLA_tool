@@ -29,7 +29,8 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         analysis: '=?',
         updateAlleles: '&',
         alleles: '=',
-        showSidebar: '=?'
+        showSidebar: '=?',
+        readOnly: '='
     }
 })
 @Inject('$scope',

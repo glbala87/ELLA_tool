@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../../ng-decorators';
+import {STATUS_ONGOING, STATUS_NOT_STARTED} from '../../model/interpretation'
 
 @Directive({
     selector: 'workflow-allele',
@@ -157,9 +158,11 @@ export class WorkflowAlleleController {
         this.dummy_interpretation = { // Dummy data for letting the user browse the view before starting interpretation. Never stored!
             genepanel_name: this.genepanelName,
             genepanel_version: this.genepanelVersion,
+            dirty: false,
             state: {},
-            user_state: {}
-        }
+            user_state: {},
+            status: STATUS_NOT_STARTED
+        };
 
         this.setUpListeners();
         this._setWatchers();
@@ -170,6 +173,11 @@ export class WorkflowAlleleController {
             this.reloadInterpretationData();
             this.setupNavbar();
         });
+    }
+
+    readOnly() {
+        return !this.isInterpretationOngoing();
+        // return true; // for testing
     }
 
     setUpListeners() {
@@ -198,13 +206,13 @@ export class WorkflowAlleleController {
     _setWatchers(rootScope) {
         // Watch interpretation's state/user_state and call update whenever it changes
         let watchStateFn = () => {
-            if (this.isInterpretationOngoing() &&
+            if (this.isInterpretationOngoing() && this.selected_interpretation &&
                 this.selected_interpretation.state) {
                 return this.selected_interpretation.state;
             }
         };
         let watchUserStateFn = () => {
-            if (this.isInterpretationOngoing() &&
+            if (this.isInterpretationOngoing() && this.selected_interpretation &&
                 this.selected_interpretation.user_state) {
                 return this.selected_interpretation.user_state;
             }
@@ -230,11 +238,13 @@ export class WorkflowAlleleController {
         );
     }
 
+    // title: (this.interpretation.status == 'Done' ? '*' : '') + this.interpretation.analysis.name,
     setupNavbar() {
         if (this.getAlleles().length) {
+            let label = `${this.getAlleles()[0].toString()} ${this.genepanelName}_${this.genepanelVersion}`;
             this.navbar.replaceItems([
                 {
-                    title: `${this.getAlleles()[0].toString()} ${this.genepanelName}_${this.genepanelVersion}`,
+                    title: this.isInterpretationOngoing() ? label : '*' + label,
                     url: "/overview"
                 }
             ]);
@@ -253,7 +263,7 @@ export class WorkflowAlleleController {
 
     getInterpretation() {
         // Force selected interpretation to be the Ongoing one, if it exists, to avoid mixups.
-        let ongoing_interpretation = this.interpretations.find(i => i.status === 'Ongoing');
+        let ongoing_interpretation = this.interpretations.find(i => i.isOngoing());
         if (ongoing_interpretation) {
             this.selected_interpretation = ongoing_interpretation;
         }
@@ -356,5 +366,6 @@ export class WorkflowAlleleController {
             );
         });
     }
+
 
 }

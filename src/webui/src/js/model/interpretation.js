@@ -1,7 +1,12 @@
 /* jshint esnext: true */
 
 
+export const STATUS_ONGOING = "Ongoing";
+export const STATUS_NOT_STARTED = "Not started";
+
 export class Interpretation {
+
+
     /**
      * Represents one Interpretation.
      * @param  {object} Interpretation data from server, see InterpretationResource
@@ -21,6 +26,10 @@ export class Interpretation {
 
     setClean() {
         this.dirty = false;
+    }
+
+    isOngoing() {
+        return this.status == STATUS_ONGOING;
     }
 
 }

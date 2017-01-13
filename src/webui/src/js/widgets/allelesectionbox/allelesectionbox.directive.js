@@ -22,6 +22,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         onChangeClass: '&?',  // Callback function when changing class (dropdown)
         onSkip: '&?', // Callback function when clicking 'Skip' button. Enables skip button.
         controls: '=',
+        readOnly: '=?', // prevent user from changing/updating if readOnly is true
         // possible controls: {
         //   toggle_technical: bool,
         //   toggle_class2: bool,

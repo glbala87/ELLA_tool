@@ -13,7 +13,8 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         analysisId: '=?', // If analysis workflow
         genepanelName: '=?',
         genepanelVersion: '=?',
-        reload: '&?'
+        reload: '&?',
+        readOnly: '='
     },
     templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html'
 })
@@ -124,6 +125,21 @@ export class WorkflowButtonsController {
         }
         return false;
     }
+
+    showStartSaveBtn() {
+        let interpretation = this.selectedInterpretation;
+        if (interpretation) {
+            let status = interpretation.status;
+            if (status === 'Ongoing') {
+                return interpretation.user.id === this.user.getCurrentUserId();
+            } else if (status === 'Not started') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     _getSaveStatus() {
 
