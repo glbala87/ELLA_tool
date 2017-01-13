@@ -10,28 +10,35 @@ import {Directive, Inject} from '../ng-decorators';
     },
     templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
 })
-@Inject('Sidebar',
-        'User',
-        'Analysis',
-        'InterpretationResource',
-        'InterpretationOverrideModal',
-        'toastr')
+@Inject('$scope',
+        'Config',
+        'User')
 class AnalysisListWidget {
 
-    constructor(Sidebar,
-                User,
-                Analysis,
-                InterpretationResource,
-                InterpretationOverrideModal,
-                toastr) {
-        this.location = location;
+    constructor($scope,
+                Config,
+                User) {
+
+        this.config = Config.getConfig();
         this.user = User;
-        this.analysisService = Analysis;
-        this.interpretationResource = InterpretationResource;
-        this.interpretationOverrideModal = InterpretationOverrideModal;
-        this.toastr = toastr;
-        this.previous = {}
+
+        $scope.$watchCollection(
+            () => this.analyses,
+            () => this.sortItems()
+        );
+        this.sorted_analyses = [];
     }
+
+
+    sortItems() {
+        if (!this.analyses.length) { return; }
+        this.sorted_analyses = this.analyses.slice(0);
+        this.sorted_analyses.sort(
+            firstBy(a => a.priority, -1)
+            .thenBy(a => a.deposit_date)
+        );
+    }
+
 
     isAnalysisDone(analysis) {
         return analysis.interpretations.length &&
@@ -39,6 +46,13 @@ class AnalysisListWidget {
                    i => i.status === 'Done'
                );
     }
+
+    getPriorityText(analysis) {
+        if (analysis.priority > 1) {
+            return this.config.analysis.priority.display[analysis.priority];
+        }
+    }
+
 
     getReviewComment(analysis) {
         return analysis.interpretations[analysis.interpretations.length-1].review_comment;

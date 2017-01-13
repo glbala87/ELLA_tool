@@ -79,8 +79,8 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 
   .list-item { display: flex; margin-bottom: 1.2rem; font-size: 1.4rem;
     .analysis-date { color: $black-50; }
-    .full-title { flex-grow: 1;  }
-    .analysis-tags { padding-right: 2.0rem; }
+    .full-title { flex-grow: 1; padding-left: 1.2rem; }
+    .analysis-priority { color: $red-75; padding-left: 1.3rem; text-transform: uppercase; }
     .analysis-users { padding-right: 2.0rem; }
     .analysis-extras { font-size: 1.2rem; padding-right: 1rem; }
   }
@@ -90,8 +90,8 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 
   .list-item { display: flex; margin-bottom: 1.2rem; font-size: 1.4rem;
     .analysis-date { color: $black-50; }
-    .full-title { flex-grow: 1; }
-    .allele-tags { padding-right: 2.0rem; }
+    .full-title { flex-grow: 1; padding-left: 1.2rem; }
+    .allele-priority { color: $red-75; padding-left: 1.3rem; text-transform: uppercase; }
     .allele-users { padding-right: 2.0rem; }
     .allele-genepanel { padding-right: 2.0rem; }
     .allele-extras { padding-right: 1rem; }
