@@ -31,13 +31,13 @@ function addColorPicker(el) {
     console.log(picker);
     // document.execCommand('styleWithCSS', false, true);
     picker.set('customColors', [
-        'rgb(0,0,0)', // black
-        'rgb(129,62,49)', // red
-        'rgb(49,96,129)', // blue
-        'rgb(49,129,123)', // green
-        'rgb(155,135,75)', // yellow
-        'rgb(49,56,129)', // purple
-        'rgb(96,49,129)' // pink
+        '#000000', // black
+        '#813E31', // red
+        '#316081', // blue
+        '#31817B', // green
+        '#9B874B', // yellow
+        '#313881', // purple
+        '#603181' // pink
     ]);
     return picker;
 }
@@ -71,7 +71,7 @@ function getCurrentColors(nodes) {
                 if (subtree[j].style.color) {
                     colors = colors.concat(subtree[j].style.color)
                 } else {
-                    colors = colors.concat('rgba(0,0,0,0.95)') // default color
+                    colors = colors.concat('rgb(0,0,0)') // default color
                 }
                 break; // Check only first styled element in tree
             }
@@ -98,7 +98,7 @@ function getCurrentColors(nodes) {
                 '<button class="wysiwygbutton" title="Bold (Ctrl+B)" style="font-weight: bold" id="wysiwyg-bold">B</button>' +
                 '<button class="wysiwygbutton" title="Italic (Ctrl+I)" id="wysiwyg-italic">I</button>' +
                 '<button class="wysiwygbutton" title="Underline (Ctrl+U)" id="wysiwyg-underline">U</button>' +
-                '<button class="wysiwygbutton" title="Set text color" id="wysiwyg-color">A<span style="color: rgba(0,0,0,0.95); vertical-align: sub; margin-left: -0.0rem">&#9646</span></button>' +
+                '<button class="wysiwygbutton" title="Set text color" id="wysiwyg-color">A<span style="color: rgb(0,0,0); vertical-align: sub; margin-left: -0.0rem">&#9646</span></button>' +
                 '<button class="wysiwygbutton" title="Heading 1" id="wysiwyg-heading1">H1</button>' +
                 '<button class="wysiwygbutton" title="Heading 2" id="wysiwyg-heading2">H2</button>' +
                 '<button class="wysiwygbutton" title="Normal text" id="wysiwyg-paragraph">P</button>' +
@@ -161,7 +161,7 @@ function getCurrentColors(nodes) {
                             if (colors.length == 1) {
                                 buttons["color"].children[0].style.color = colors[0];
                             } else {
-                                buttons["color"].children[0].style.color = 'rgba(0,0,0,0.95)';
+                                buttons["color"].children[0].style.color = 'rgb(0,0,0)';
                             }
                         },
         };
