@@ -526,60 +526,7 @@ class AlleleActionFinalizeResource(Resource):
           500:
             description: Error
         """
-        """
 
-        Example data:
-
-        {
-            "referenceassessments": [
-                {
-                    # New assessment will be created, superceding any old one
-                    "user_id": 1,
-                    "analysis_id": 3,
-                    "reference_id": 123
-                    "evaluation": {...data...},
-                    "analysis_id": 3,
-                    "allele_id": 14,
-                },
-                {
-                    # Reusing assessment
-                    "id": 13,
-                    "allele_id": 13,
-                    "reference_id": 1
-                }
-            ],
-            "alleleassessments": [
-                {
-                    # New assessment will be created, superceding any old one
-                    "user_id": 1,
-                    "allele_id": 2,
-                    "classification": "3",
-                    "evaluation": {...data...},
-                    "analysis_id": 3,
-                },
-                {
-                    # Reusing assessment
-                    "id": 9
-                    "allele_id": 6
-                }
-            ],
-            "allelereports": [
-                {
-                    # New report will be created, superceding any old one
-                    "user_id": 1,
-                    "allele_id": 2,
-                    "evaluation": {...data...},
-                    "analysis_id": 3,
-                },
-                {
-                    # Reusing report
-                    "id": 9
-                    "allele_id": 6
-                }
-            ]
-        }
-
-        """
 
         result = helpers.finalize_interpretation(session, data, allele_id=allele_id)
         session.commit()
