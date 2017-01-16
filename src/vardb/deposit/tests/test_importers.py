@@ -40,13 +40,9 @@ def genotype_importer(session):
 
 
 @pytest.fixture
-def annotation_importer(session):
-    return deposit.AnnotationImporter(session)
-
-
-@pytest.fixture
 def allele_importer(session, ref_genome):
     return deposit.AlleleImporter(session, ref_genome=ref_genome)
+
 
 def test_anno_diff():
     assert not deposit.AnnotationImporter.diff_annotation({'b': 2, 'a': 1}, {'a': 1, 'b': 2})
