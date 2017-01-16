@@ -3,6 +3,10 @@ import json
 import base64
 from collections import defaultdict
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 SPLICE_FIELDS = [
     ('Effect', 'effect'),
@@ -340,12 +344,11 @@ class ConvertReferences(object):
         # If it cannot be converted, ignore it...
         assert isinstance(pmids, dict)
         int_pmids = dict()
-        for pmid in pmids:
-            val = pmids[pmid]
+        for pmid, val in pmids.iteritems():
             try:
-                int_pmids[pmid] = val
+                int_pmids[int(pmid)] = val
             except ValueError:
-                pass
+                log.warning("Cannot convert pubmed id from annotation to integer: {}".format(val))
 
         return int_pmids
 
