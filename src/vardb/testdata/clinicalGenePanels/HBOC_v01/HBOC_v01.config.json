@@ -18,7 +18,7 @@
               "lo_freq_cutoff": 0.0005
           }
         },
-        "last_exon": false,
+        "last_exon_important": "LENI",
         "disease_mode": "ANY",
         "comment": "a comment from the genepanel config"
       }
