@@ -46,7 +46,12 @@ class AlleleListWidget {
         this.sorted_items = this.alleleItems.slice(0);
         this.sorted_items.sort(
             firstBy(a => a.highest_analysis_priority, -1)
-            .thenBy(a => a.oldest_analysis)
+            .thenBy(a => {
+                // Ignore seconds/milliseconds when sorting
+                let d = new Date(a.oldest_analysis);
+                d.setSeconds(0,0);
+                return d.toISOString();
+            })
             .thenBy(a => a.allele.annotation.filtered[0].symbol)
             .thenBy(a => {
                 if (a.allele.annotation.filtered[0].strand > 0) {
