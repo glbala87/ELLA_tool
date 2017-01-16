@@ -64,8 +64,7 @@ class DepositAnalysis(object):
                 genepanel_name, genepanel_version))
         return genepanel
 
-    def import_vcf(self, path, sample_configs=None, analysis_config=None,
-                   skip_anno=None, assess_class=None):
+    def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None):
 
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
@@ -97,7 +96,7 @@ class DepositAnalysis(object):
             db_alleles = self.allele_importer.process(record)
 
             # Import annotation for these alleles
-            self.annotation_importer.process(record, db_alleles, skip_anno=skip_anno)
+            self.annotation_importer.process(record, db_alleles)
 
             for sample_name, db_sample in zip(vcf_sample_names, db_samples):
                 self.genotype_importer.process(record, sample_name, db_analysis, db_sample, db_alleles)

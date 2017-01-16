@@ -17,16 +17,18 @@
     <div class="cell"><h5>{{::freq_data.name}}:</h5></div>
     <div class="cell"><p>{{::vm.getFreqValue(freq_data)}}</p></div>
   </div>
-  <div class="tabular-row" ng-if="::vm.inDb.noMutInd">
+  <ng-if="">
+  <div class="tabular-row" ng-if="::vm.group == 'inDB' && vm.allele.annotation.frequencies.inDB.count.AF">
     <div class="cell"><h5>Individuals:</h5></div>
-    <div class="cell"> <p>{{::vm.inDb.noMutInd}}</p> </div>
+    <div class="cell"> <p>{{::vm.allele.annotation.frequencies.inDB.count.AF}}</p> </div>
   </div>
-  <div class="tabular-row" ng-if="::vm.inDb.indications">
+  <div class="tabular-row" ng-if="::vm.group == 'inDB' && vm.inDbIndicationThreshold()">
     <div class="cell"><h5>Indications:</h5></div>
     <div class="cell"></div>
   </div>
-  <div class="tabular-row" ng-repeat="(k, v) in ::vm.inDb.indications">
+  <div class="tabular-row" ng-repeat="(k, v) in ::vm.allele.annotation.frequencies.inDB.indications" ng-if="::vm.group == 'inDB' && vm.inDbIndicationThreshold()">
     <div class="cell"><p>- {{::k}}:</p></div>
     <div class="cell"><p>{{::v}}</p></div>
   </div>
+  </ng-if>
 </div>

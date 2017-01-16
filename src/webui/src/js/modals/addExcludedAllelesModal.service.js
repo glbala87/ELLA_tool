@@ -113,8 +113,8 @@ export class AddExcludedAllelesController {
         if (this.selected_gene) {
             this.filtered_alleles = this.filtered_alleles.filter(a => {
                 return a.annotation.filtered.some(t => {
-                    if ('SYMBOL' in t) {
-                        return t.SYMBOL === this.selected_gene;
+                    if ('symbol' in t) {
+                        return t.symbol === this.selected_gene;
                     };
                 })
             });
@@ -122,7 +122,7 @@ export class AddExcludedAllelesController {
 
         // Sort by gene symbol and HGVSc
         this.filtered_alleles.sort(
-            firstBy(v => v.annotation.filtered[0].SYMBOL)
+            firstBy(v => v.annotation.filtered[0].symbol)
             .thenBy(v => v.annotation.filtered[0].HGVSc)
         );
     }
@@ -139,7 +139,7 @@ export class AddExcludedAllelesController {
         // Use category_excluded_alleles to make the options relate
         // to selected category
         for (let a of this.category_excluded_alleles) {
-            let symbol = a.annotation.filtered[0].SYMBOL;
+            let symbol = a.annotation.filtered[0].symbol;
             if (this.gene_options.find(g => g === symbol) === undefined) {
                 this.gene_options.push(symbol);
             }

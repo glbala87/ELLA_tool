@@ -25,7 +25,7 @@ class ACMGDataLoader(object):
         if len(filtered_transcripts) == 1:
             # Fetch transcript data from 'transcripts' key, given transcript
             # name from filtered_transcripts[0].
-            return next((t for t in annotation_data['transcripts'] if t['Transcript'] == filtered_transcripts[0]), None)
+            return next((t for t in annotation_data['transcripts'] if t['transcript'] == filtered_transcripts[0]), None)
         else:
             return None
 
@@ -93,7 +93,7 @@ class ACMGDataLoader(object):
             transcript = ACMGDataLoader._find_single_transcript(annotation_data)
             annotation_data['transcript'] = transcript
             if transcript:
-                annotation_data["genepanel"] = resolver.resolve(transcript['SYMBOL'])
+                annotation_data["genepanel"] = resolver.resolve(transcript['symbol'])
             else:
                 annotation_data["genepanel"] = resolver.resolve(None)
 

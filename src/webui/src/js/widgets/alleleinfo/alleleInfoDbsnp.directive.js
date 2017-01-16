@@ -23,8 +23,8 @@ export class AlleleInfoDbsnp {
     }
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'Existing_variation' in t &&
-                                                          t.Existing_variation.length);
+        return this.allele.annotation.filtered.some(t => 'dbsnp' in t &&
+                                                          t.dbsnp.length);
     }
 
 }

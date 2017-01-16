@@ -18,12 +18,7 @@ export class FrequencyDetailsWidget {
         this.config = Config.getConfig();
         this.precision = this.config.frequencies.view.precision;
         this.frequencies = [];
-        this.inDb = {
-            indications: null,
-            noMutInd: null
-        }
         this.setFrequencies();
-        this.setInDb();
         this.exac_fields = ['count', 'num', 'hom', 'freq']
     }
 
@@ -35,10 +30,10 @@ export class FrequencyDetailsWidget {
                 let group_data = this.allele.annotation.frequencies[this.group];
                 // Filter based on frequencies group names from config, since we
                 // might not want to show everything
-                if (freq in group_data) {
+                if (freq in group_data.freq) {
                     let freq_data = {
                         name: freq,
-                        freq: group_data[freq]
+                        freq: group_data.freq[freq]
                     }
                     // Add ExAC specific values
                     for (let group of ['het', 'hom', 'count', 'num']) {
@@ -79,7 +74,6 @@ export class FrequencyDetailsWidget {
     }
 
     exacNames(freq_data) {
-        console.log(freq_data);
         return freq_data;
     }
 
@@ -87,18 +81,10 @@ export class FrequencyDetailsWidget {
        return this.group === 'ExAC'
     }
 
-    setInDb() {
-        if (this.group === 'inDB' &&
-            'inDB' in this.allele.annotation.frequencies) {
-            let group_data = this.allele.annotation.frequencies[this.group];
-            if ('noMutInd' in group_data) {
-                this.inDb.noMutInd = group_data.noMutInd;
-
-                if(group_data.noMutInd < this.config.frequencies.view.inDB.noMutInd_threshold &&
-                   'indications' in group_data) {
-                    this.inDb.indications = group_data.indications;
-                }
-            }
+    inDbIndicationThreshold() {
+        if ('inDB' in this.allele.annotation.frequencies) {
+            return this.allele.annotation.frequencies.inDB.count.AF <
+                   this.config.frequencies.view.inDB.indications_threshold;
         }
     }
 
