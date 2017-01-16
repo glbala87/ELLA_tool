@@ -25,7 +25,9 @@
           </div>
         </div>
         <div>
-          <button class="blue id-reference-evaluate" ng-click="vm.showReferenceEval(ref)">{{vm.getEvaluateBtnText(ref)}}</button>
+          <button class="blue id-reference-evaluate"
+                  ng-click="vm.showReferenceEval(ref)"
+          >{{vm.getEvaluateBtnText(ref)}}</button>
         </div>
       </section>
       <div class="cb-table topfix" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
@@ -41,7 +43,11 @@
         <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.comment">
           <div class="cell top-align"><h5>Comment:</h5></div>
           <div class="cell max-width">
-            <autosize-textarea class="card-comment id-reference-comment" ng-disabled="true" placeholder="" ng-model="vm.getReferenceAssessment(ref).evaluation.comment"></autosize-textarea>
+              <autosize-textarea class="card-comment id-reference-comment"
+                                 ng-disabled="true"
+                                 placeholder=""
+                                 ng-model="vm.getReferenceAssessment(ref).evaluation.comment">
+              </autosize-textarea>
           </div>
         </div>
       </div>

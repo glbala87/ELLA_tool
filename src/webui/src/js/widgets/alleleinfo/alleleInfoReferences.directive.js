@@ -12,7 +12,8 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         allele: '=',
         references: '=',
         alleleState: '=',
-        onSave: '&?'
+        onSave: '&?',
+        readOnly: '=?'
     }
 })
 @Inject('$scope', 'ReferenceEvalModal')
@@ -88,6 +89,10 @@ export class AlleleInfoReferences {
     }
 
     getEvaluateBtnText(reference) {
+        if (this.readOnly) {
+            return 'See details'
+        }
+
         if (this.hasReferenceAssessment(reference)) {
             return 'Re-evaluate';
         }
@@ -134,17 +139,21 @@ export class AlleleInfoReferences {
             this.analysis,
             this.allele,
             reference,
-            existing_ra
-        ).then(ra => {
-            // If ra is an object, then the referenceassessment
+            existing_ra,
+            this.readOnly
+        ).then(dialogResult => {
+            // If dialogResult is an object, then the referenceassessment
             // was changed and we should replace it in our state.
             // If modal was canceled or no changes took place, it's 'undefined'.
-            if (ra) {
+            if (this.readOnly) { // don't save anything
+                return;
+            }
+            if (dialogResult) {
                 AlleleStateHelper.updateReferenceAssessment(
                     this.allele,
                     reference,
                     this.alleleState,
-                    ra
+                    dialogResult
                 );
                 if (this.onSave) {
                     this.onSave();

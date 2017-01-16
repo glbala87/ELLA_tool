@@ -12,6 +12,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         references: '=',
         state: '=',
         userState: '=',
+        readOnly: '=?'
     }
 
 })

@@ -259,7 +259,11 @@ export class InterpretationController {
                     }
                     return state.report.included;
                 },
-                toggle: () => {
+                toggle: () => { // variant clicked in sidebar
+                    if (this.readOnly) { // don't allow changing reports
+                        return;
+                    }
+
                     let state = this.getAlleleState(allele);
                     if (!('report' in state)) {
                         state.report = {
