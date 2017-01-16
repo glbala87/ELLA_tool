@@ -29,15 +29,15 @@ class EventListeners {
 function addColorPicker(el) {
     var picker = vanillaColorPicker(el);
     console.log(picker);
-    document.execCommand('styleWithCSS', false, true);
+    // document.execCommand('styleWithCSS', false, true);
     picker.set('customColors', [
-        'rgba(0,0,0,0.95)', // black
-        'rgba(129,62,49,0.95)', // red
-        'rgba(49,96,129,0.95)', // blue
-        'rgba(49,129,123,0.95)', // green
-        'rgba(155,135,75,0.95)', // yellow
-        'rgba(49,56,129,0.95)', // purple
-        'rgba(96,49,129,0.95)' // pink
+        'rgb(0,0,0)', // black
+        'rgb(129,62,49)', // red
+        'rgb(49,96,129)', // blue
+        'rgb(49,129,123)', // green
+        'rgb(155,135,75)', // yellow
+        'rgb(49,56,129)', // purple
+        'rgb(96,49,129)' // pink
     ]);
     return picker;
 }
