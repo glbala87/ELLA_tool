@@ -363,6 +363,8 @@ class ConvertReferences(object):
         csq_pubmeds = self._ensure_int_pmids(self._csq_pubmeds(annotation))
         hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
         clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
+        # FIXME: Disable clinvar references for now, since they're wrong(?)
+        clinvar_pubmeds = dict()
 
         # Merge references and restructure to list
         all_pubmeds = csq_pubmeds.keys()+hgmd_pubmeds.keys()+clinvar_pubmeds.keys()
