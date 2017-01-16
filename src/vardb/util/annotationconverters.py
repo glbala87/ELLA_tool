@@ -377,7 +377,7 @@ class ConvertReferences(object):
                     sourceInfo["CLINVAR"] = clinvar_pubmeds[pmid]
 
             references.append({
-                'pubmed_id': pmid, 'sources': sources, "sourceInfo": sourceInfo,
+                'pubmed_id': pmid, 'sources': sources, "source_info": sourceInfo,
             })
 
         return references

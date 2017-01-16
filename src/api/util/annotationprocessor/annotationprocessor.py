@@ -172,8 +172,8 @@ class AnnotationProcessor(object):
             # References are merged specially
             if 'references' in data and 'references' in custom_annotation:
                 for ca_ref in custom_annotation['references']:
-                    if "sourceInfo" not in ca_ref:
-                        ca_ref["sourceInfo"] = dict()
+                    if "source_info" not in ca_ref:
+                        ca_ref["source_info"] = dict()
                     # A pubmed reference can exist in both, if so only merge the source
                     if 'pubmed_id' in ca_ref:
                         existing_ref = next((r for r in data['references'] if r.get('pubmed_id') == ca_ref['pubmed_id']), None)
