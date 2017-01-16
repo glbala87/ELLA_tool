@@ -211,10 +211,17 @@ def exac_frequencies(annotation):
             num[pop] = value
         elif key.startswith('Hom_'):
             pop = key.split('Hom_')[1]
-            hom[pop] = value[0]
+            # TODO: Remove me when we got our annotation under control...
+            if isinstance(value, list):
+                hom[pop] = value[0]
+            else:
+                hom[pop] = value
         elif key.startswith('Het_'):
             pop = key.split('Het_')[1]
-            het[pop] = value[0]
+            if isinstance(value, list):
+                het[pop] = value[0]
+            else:
+                het[pop] = value
 
     for key in count:
         if key in num and num[key]:
