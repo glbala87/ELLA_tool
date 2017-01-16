@@ -68,8 +68,8 @@ function getCurrentColors(nodes) {
         let subtree = getTree(nodes[i]);
         for (let j=0; j<subtree.length; j++) {
             if (subtree[j].style) {
-                if (subtree[j].style.color) {
-                    colors = colors.concat(subtree[j].style.color)
+                if (subtree[j].color) {
+                    colors = colors.concat(subtree[j].color)
                 } else {
                     colors = colors.concat('rgb(0,0,0)') // default color
                 }
