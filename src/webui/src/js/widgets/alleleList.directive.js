@@ -47,9 +47,9 @@ class AlleleListWidget {
         this.sorted_items.sort(
             firstBy(a => a.highest_analysis_priority, -1)
             .thenBy(a => a.oldest_analysis)
-            .thenBy(a => a.allele.annotation.filtered[0].SYMBOL)
+            .thenBy(a => a.allele.annotation.filtered[0].symbol)
             .thenBy(a => {
-                if (a.allele.annotation.filtered[0].STRAND > 0) {
+                if (a.allele.annotation.filtered[0].strand > 0) {
                     return a.allele.start_position;
                 }
                 return -a.allele.start_position;
