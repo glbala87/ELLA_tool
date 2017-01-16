@@ -21,8 +21,6 @@ BATCH_SIZE = 200
 SCRIPT_DIR = path.abspath(path.dirname(__file__))
 log = logging.getLogger(__name__)
 
-TRANSCRIPT_FORMAT = "{transcript}.{version}:{hgvsc_short}"
-
 REF_FORMAT = "{title} (Pubmed {pmid}): {evaluation}"
 
 REF_ORDER = ['relevance', 'ref_auth_classification', 'comment']
@@ -40,14 +38,14 @@ DATE_FORMAT = "%Y-%m-%d"
 COLUMN_PROPERTIES = OrderedDict([
     ('gene', ['Genes', 6]),
     ('class', ['Class', 5]),
+    ('transcript', ['Transcript', 26]),
     ('hgvsc', ['HGVSc', 26]),
-    ('date', ['Date', 10]),
+    ('date', ['Date', 11]),
     ('hgvsp', ['HGVSp', 26]),
     ('exon', ['Exon/Intron', 11]),
     ('rsnum', ['RS number', 11]),
-    ('user', ['User', 20]),
     ('consequence', ['Consequence', 20]),
-    ('coordinate', ['Coordinate', 20]),
+    ('coordinate', ['GRCh37', 20]),
     ('n_samples', ['# samples', 3]),
     ('classification_eval', ['Evaluation', 20]),
     ('acmg_eval', ['ACMG evaluation', 20]),
@@ -84,18 +82,19 @@ def format_transcripts(allele_annotation):
     :param allele_annotation: an allele_dict['annotation'] dict
     :return : a dict with info about transcript
     """
-    keys = {'gene': 'SYMBOL',
-            'hgvsc': 'HGVSc',
-            'hgvsp': 'HGVSp',
-            'exon': 'EXON',
-            'intron': 'INTRON',
-            'rsnum': 'Existing_variation',
-            'consequence': 'Consequence'}
+    keys = {'gene': 'symbol',
+            'transcript': 'transcript',
+            'hgvsc': 'HGVSc_short',
+            'hgvsp': 'HGVSp_short',
+            'exon': 'exon',
+            'intron': 'intron',
+            'rsnum': 'dbsnp',
+            'consequences': 'consequences'}
 
     formatted_transcripts = defaultdict(list)
     for filtered_transcript in allele_annotation['filtered_transcripts']:
         for transcript in allele_annotation['transcripts']:
-            if filtered_transcript == transcript['Transcript']:
+            if filtered_transcript == transcript['transcript']:
                 for key, allele_key in keys.items():
                     formatted_transcript = transcript.get(allele_key)
                     if hasattr(formatted_transcript, '__iter__'):
@@ -113,18 +112,20 @@ def format_classification(alleleassessment, adl):
     :param adl: an AlleleDataLoader object
     :return : list of formatted strings for filtered transcripts
     """
+
+    link_filter = {
+        'annotation_id': [alleleassessment.annotation.id]
+    }
     allele_dict = adl.from_objs([alleleassessment.allele],
+                                link_filter=link_filter,
                                 genepanel=alleleassessment.genepanel,
-                                include_annotation=[alleleassessment.annotation],
+                                include_annotation=True,
                                 include_custom_annotation=False,
                                 include_allele_assessment=False,
                                 include_reference_assessments=False,
                                 include_allele_report=False)[0]
 
     date = alleleassessment.date_last_update.strftime(DATE_FORMAT)
-    user = ' '.join(
-        [alleleassessment.user.first_name, alleleassessment.user.last_name]
-    )
     acmg_evals = ' | '.join(
         [': '.join([ae['code'], ae['comment']]) if ae['comment'] else ae['code']
          for ae in alleleassessment.evaluation['acmg']['included']]
@@ -165,13 +166,13 @@ def format_classification(alleleassessment, adl):
     classification_values = {
         'gene': formatted_transcript.get('gene'),
         'class': alleleassessment.classification,
+        'transcript': formatted_transcript.get('transcript'),
         'hgvsc': formatted_transcript.get('hgvsc'),
         'date': date,
         'hgvsp': formatted_transcript.get('hgvsp'),
         'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
         'rsnum': formatted_transcript.get('rsnum'),
-        'user': user,
-        'consequence': formatted_transcript.get('consequence'),
+        'consequence': formatted_transcript.get('consequences'),
         'coordinate': coordinate,
         'n_samples': n_samples,
         'classification_eval': alleleassessment.evaluation['classification']['comment'],
@@ -192,7 +193,6 @@ def dump_alleleassessments(session, filename=None):
     """
     alleleassessments = session.query(assessment.AlleleAssessment).order_by(
         assessment.AlleleAssessment.allele_id).options(
-            joinedload(assessment.AlleleAssessment.user),
             subqueryload(assessment.AlleleAssessment.annotation).
             subqueryload('allele').joinedload('genotypes'),
             joinedload(assessment.AlleleAssessment.genepanel),
