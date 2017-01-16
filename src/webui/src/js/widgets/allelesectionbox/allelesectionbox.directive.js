@@ -148,6 +148,9 @@ export class AlleleSectionBoxController {
     }
 
     changeClassification() {
+        if (this.readOnly) {
+            return;
+        }
 
         if (this.onChangeClass) {
             this.onChangeClass({allele: this.allele});
@@ -155,6 +158,10 @@ export class AlleleSectionBoxController {
     }
 
     setClass1() {
+        if (this.readOnly) {
+            return;
+        }
+
         this.alleleState.alleleassessment.classification = '1';
         this.changeClassification();
         if (this.onSkip) {
@@ -163,6 +170,10 @@ export class AlleleSectionBoxController {
     }
 
     setClass2() {
+        if (this.readOnly) {
+            return;
+        }
+
         this.alleleState.alleleassessment.classification = '2';
         this.changeClassification();
 
@@ -172,6 +183,10 @@ export class AlleleSectionBoxController {
     }
 
     setTechnical() {
+        if (this.readOnly) {
+            return;
+        }
+
         this.alleleState.alleleassessment.classification = 'T';
         this.changeClassification();
 
@@ -181,6 +196,9 @@ export class AlleleSectionBoxController {
     }
 
     toggleReuseAlleleAssessment() {
+        if (this.readOnly) {
+            return;
+        }
         if (AlleleStateHelper.toggleReuseAlleleAssessment(this.allele, this.alleleState, this.config)) {
             if (this.onSetClass) {
                 this.onSetClass({allele: this.allele});

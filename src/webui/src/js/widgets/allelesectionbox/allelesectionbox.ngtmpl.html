@@ -27,15 +27,17 @@
                             ng-if="control == 'reuse_classification' && vm.hasExistingAlleleAssessment() && !vm.isAlleleAssessmentOutdated()"
                             show-mark="true"
                             check-model="vm.isAlleleAssessmentReused()"
-                                ng-click="vm.toggleReuseAlleleAssessment()"
-                            one-way="true">
+                            ng-click="vm.toggleReuseAlleleAssessment()"
+                            one-way="true"
+                            ng-disabled="vm.readOnly">
               Use existing
               <checked>Existing reused</checked>
           </checkable-button>
           <button class="id-mark-technical"
                   ng-if="control == 'toggle_technical'"
                   ng-disabled="vm.readOnly"
-                  ng-click="vm.setTechnical()">
+                  ng-click="vm.setTechnical()"
+                  ng-disabled="vm.alleleState.class2 || vm.alleleState.class1 || vm.readOnly">
           Mark technical
         </button>
 
@@ -120,6 +122,7 @@
       boxes="vm.section.content"
       boxes-options="vm.sectionOptions"
       on-save="vm.onUpdate()"
+      read-only="vm.readOnly"
     ></allele-sectionbox-content>
 </contentwrapper>
 </sectionbox>
