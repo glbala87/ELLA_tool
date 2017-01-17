@@ -126,21 +126,6 @@ export class WorkflowButtonsController {
         return false;
     }
 
-    showStartSaveBtn() {
-        let interpretation = this.selectedInterpretation;
-        if (interpretation) {
-            let status = interpretation.status;
-            if (status === 'Ongoing') {
-                return interpretation.user.id === this.user.getCurrentUserId();
-            } else if (status === 'Not started') {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-
     _getSaveStatus() {
 
         if (this.interpretations.find(i => {

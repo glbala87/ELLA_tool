@@ -231,7 +231,7 @@ export class AnalysisController {
         let label = this.analysis ? this.analysis.name : '';
         this.navbar.replaceItems([
             {
-                title: this.isInterpretationOngoing() ? label : '*' + label,
+                title: label,
                 url: "/overview"
             }
         ]);
@@ -296,8 +296,13 @@ export class AnalysisController {
     }
 
     readOnly() {
-        return !this.isInterpretationOngoing();
-        // return true; // for testing
+        let interpretation = this.getInterpretation();
+        if (!interpretation) {
+            return true;
+        }
+
+        return !this.isInterpretationOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
+
     }
 
 
@@ -344,6 +349,7 @@ export class AnalysisController {
     _loadInterpretations() {
         return this.workflowResource.getInterpretations('analysis', this.analysisId).then(interpretations => {
             this.interpretations = interpretations;
+            console.log('Loaded ' + interpretations.length + ' interpretations');
         });
     }
 

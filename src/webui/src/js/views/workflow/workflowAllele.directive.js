@@ -238,13 +238,12 @@ export class WorkflowAlleleController {
         );
     }
 
-    // title: (this.interpretation.status == 'Done' ? '*' : '') + this.interpretation.analysis.name,
     setupNavbar() {
         if (this.getAlleles().length) {
             let label = `${this.getAlleles()[0].toString()} ${this.genepanelName}_${this.genepanelVersion}`;
             this.navbar.replaceItems([
                 {
-                    title: this.isInterpretationOngoing() ? label : '*' + label,
+                    title: label,
                     url: "/overview"
                 }
             ]);
