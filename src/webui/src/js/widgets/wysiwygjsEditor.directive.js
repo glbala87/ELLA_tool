@@ -214,7 +214,6 @@ function getCurrentColors(nodes) {
 
         function focus() {
             placeholderEvent(false);
-            closeLinkForm(true);
             editorelement.focus();
             buttonselement.hidden = false;
         }
@@ -263,10 +262,8 @@ function getCurrentColors(nodes) {
         picker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
         picker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.forecolor(color); editor.openPopup();});
 
-
         // Add eventhandlers on link-form
         eventListeners.add(buttons["link"], "click", handleLinkForm);
-        // eventListeners.add(buttons["link"], "blur", () => {setTimeout(closeLinkForm, 1, false)}); // Close if active element not in link form));
         var linkform = buttonselement.children[buttonselement.children.length-1];
         eventListeners.add(linkform, "blur", () => {setTimeout(closeLinkForm, 1, false)}); // Close if active element not in link form)
         let linkinputs = linkform.getElementsByTagName("input");
@@ -348,7 +345,7 @@ function getCurrentColors(nodes) {
                 inputs[i].value = "";
             }
 
-            editor.closePopup().collapseSelection()
+            editor.closePopup().collapseSelection();
             scope.vm.blurBlocked = false;
             editorelement.focus();
         }
