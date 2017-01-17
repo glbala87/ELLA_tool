@@ -24,7 +24,7 @@
            ng-repeat="allele_obj in vm.alleles.classified.active track by allele_obj.allele.id"
            ng-click="vm.select(allele_obj)">
       <h4 class="variant" title="allele {{allele_obj.allele.id}}">
-          <i class="id-gene">{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i>
+          <i class="id-gene">{{allele_obj.allele.annotation.filtered[0].symbol}}</i>
           <span class="id-hgvsc">{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span>
           <b class="id-classification">{{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}</b></h4>
       <div class="tab"
@@ -44,7 +44,7 @@
            ng-repeat="allele_obj in vm.alleles.classified.inactive track by allele_obj.allele.id">
           <h4 class="variant"
               title="allele {{allele_obj.allele.id}}">
-              <i class="id-gene">{{allele_obj.allele.annotation.filtered[0].SYMBOL}}</i>
+              <i class="id-gene">{{allele_obj.allele.annotation.filtered[0].symbol}}</i>
               <span class="id-hgvsc">{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span>
               <b class="id-classification">
                   {{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}
