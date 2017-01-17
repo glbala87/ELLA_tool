@@ -347,7 +347,6 @@ function getCurrentColors(nodes) {
 
             editor.closePopup().collapseSelection();
             scope.vm.blurBlocked = false;
-            editorelement.focus();
         }
     }
 })
