@@ -169,6 +169,9 @@ function getCurrentColors(nodes) {
 
         var editor = wysiwyg(options);
 
+        scope.$watch('ngDisabled', () => {
+            editor.readOnly(scope.ngDisabled);
+        });
 
         // Attach existing $viewValue to editor
         ngModel.$render = () => {
@@ -213,9 +216,11 @@ function getCurrentColors(nodes) {
         }
 
         function focus() {
-            placeholderEvent(false);
-            editorelement.focus();
-            buttonselement.hidden = false;
+            if (!editor.readOnly()) {
+                placeholderEvent(false);
+                editorelement.focus();
+                buttonselement.hidden = false;
+            }
         }
 
         // Add eventlisteners to editorelement and buttons
