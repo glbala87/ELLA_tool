@@ -326,7 +326,7 @@ export class WorkflowAlleleController {
     loadAllele() {
         console.log("(Re)loading allele...");
         this.alleles_loaded = false;
-        this.selected_interpretation_alleles = null;
+        this.selected_interpretation_alleles = [];
         if (this.allele_id && this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 'allele',
