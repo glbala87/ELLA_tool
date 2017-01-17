@@ -3,7 +3,10 @@
   <nav class="secondary">
     <div class="workflow-options">
       <div class="review-comment">
-        <input type="text" placeholder="REVIEW COMMENT" ng-model="vm.getInterpretation().state.review_comment"></input>
+        <input type="text"
+               placeholder="REVIEW COMMENT"
+               ng-model="vm.getInterpretation().state.review_comment"
+               ng-disabled="vm.readOnly()"></input>
       </div>
     </div>
     <section>
@@ -14,7 +17,15 @@
           ng-model="vm.selected_interpretation">
         </select>
       </div>
-      <workflow-buttons alleles="vm.getAlleles()" allele-id="vm.allele_id" genepanel-name="vm.genepanelName" genepanel-version="vm.genepanelVersion" reload="vm.reloadInterpretationData()" selected-interpretation="vm.selected_interpretation" interpretations="vm.interpretations"></workflow-buttons>
+        <workflow-buttons alleles="vm.getAlleles()"
+                          allele-id="vm.allele_id"
+                          genepanel-name="vm.genepanelName"
+                          genepanel-version="vm.genepanelVersion"
+                          reload="vm.reloadInterpretationData()"
+                          selected-interpretation="vm.getInterpretation()"
+                          interpretations="vm.interpretations"
+                          read-only="vm.readOnly()"
+        ></workflow-buttons>
     </section>
   </nav>
   <nav class="warning" ng-if="vm.allele_collisions.collisions.count > 0">
@@ -32,8 +43,9 @@
       alleles="vm.getAlleles()"
       update-alleles="vm.loadAllele()"
       show-sidebar="false"
-      ng-if="vm.getAlleles().length && vm.interpretations_loaded">
-    </interpretation>
+      ng-if="vm.getAlleles().length && vm.interpretations_loaded"
+      read-only="vm.readOnly()"
+    ></interpretation>
   </div>
 
 </div>

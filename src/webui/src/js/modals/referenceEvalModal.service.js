@@ -5,7 +5,7 @@ import {deepCopy, deepEquals} from '../util';
 
 export class ReferenceEvalModalController {
     /**
-     * Controller for dialog asking user to add filtered alleles.
+     * Controller for dialog with reference evaluation.
      */
 
     constructor(modalInstance,
@@ -14,8 +14,9 @@ export class ReferenceEvalModalController {
                 analysis,
                 allele,
                 reference,
-                referenceAssessment) {
-        this.config = Config.getConfig(),
+                referenceAssessment,
+                readOnly) {
+        this.config = Config.getConfig();
         this.analysisService = Analysis;
         this.analysis = analysis;
         this.modal = modalInstance;
@@ -23,6 +24,7 @@ export class ReferenceEvalModalController {
         this.reference = reference;
         this.existingReferenceAssessment = referenceAssessment;
         this.referenceAssessment = deepCopy(referenceAssessment);
+        this.readOnly = readOnly;
         this.enabled_sources = [];
         this.sources = {
                 // 'relevance' is a special case, so it has no 'elements' block like the others
@@ -630,19 +632,21 @@ export class ReferenceEvalModal {
      * @param  {Allele} Allele for reference evaluation
      * @param  {Reference} Reference to be evaluated
      * @param  {Object} Data for reference assessment
+     * @param  {boolean} don't save changes if read-only
      * @return {Promise} Promise that resolves when dialog is closed.
      */
-    show(analysis, allele, reference, referenceAssessment) {
+    show(analysis, allele, reference, referenceAssessment, readOnly) {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/referenceEvalModal.ngtmpl.html',
-            controller: ['$uibModalInstance', 'Config', 'Analysis', 'analysis', 'allele', 'reference', 'referenceAssessment', ReferenceEvalModalController],
+            controller: ['$uibModalInstance', 'Config', 'Analysis', 'analysis', 'allele', 'reference', 'referenceAssessment', 'readOnly', ReferenceEvalModalController],
             controllerAs: 'vm',
             resolve: {
                 analysis: analysis,
                 allele: () => allele,
                 reference: () => reference,
                 referenceAssessment: () => referenceAssessment,
+                readOnly: () => readOnly,
             },
             size: 'lg',
             backdrop: 'static', // Disallow closing by clicking outside

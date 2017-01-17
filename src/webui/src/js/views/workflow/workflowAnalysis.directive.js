@@ -228,9 +228,10 @@ export class AnalysisController {
     }
 
     setupNavbar() {
+        let label = this.analysis ? this.analysis.name : '';
         this.navbar.replaceItems([
             {
-                title: this.analysis ? this.analysis.name : '',
+                title: label,
                 url: "/overview"
             }
         ]);
@@ -257,7 +258,8 @@ export class AnalysisController {
             this.getInterpretation().state.manuallyAddedAlleles,
             this.analysis.samples[0].id, // FIXME: Support multiple samples
             this.getInterpretation().genepanel_name,
-            this.getInterpretation().genepanel_version
+            this.getInterpretation().genepanel_version,
+            this.readOnly()
         ).then(added => {
             if (this.isInterpretationOngoing()) { // noop if analysis is finalized
                 // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
@@ -292,6 +294,17 @@ export class AnalysisController {
         let interpretation = this.getInterpretation();
         return interpretation && interpretation.status === 'Ongoing';
     }
+
+    readOnly() {
+        let interpretation = this.getInterpretation();
+        if (!interpretation) {
+            return true;
+        }
+
+        return !this.isInterpretationOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
+
+    }
+
 
     showHistory() {
         return !this.isInterpretationOngoing()
@@ -334,6 +347,7 @@ export class AnalysisController {
     _loadInterpretations() {
         return this.workflowResource.getInterpretations('analysis', this.analysisId).then(interpretations => {
             this.interpretations = interpretations;
+            console.log('Loaded ' + interpretations.length + ' interpretations');
         });
     }
 
@@ -341,7 +355,7 @@ export class AnalysisController {
         this.analysisResource.getAnalysis(this.analysisId).then(a => {
             this.analysis = a;
             this.setupNavbar();
-        })
+        });
 
         this.workflowResource.getCollisions('analysis', this.analysisId).then(c => {
             this.allele_collisions = c;

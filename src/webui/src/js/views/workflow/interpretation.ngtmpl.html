@@ -1,7 +1,12 @@
 
     <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()">
 
-      <allele-sidebar ng-if="vm.showSidebar" alleles="vm.allele_sidebar.alleles" selected="vm.allele_sidebar.selected" checked="vm.interpretation.state.report.included"></allele-sidebar>
+        <allele-sidebar ng-if="vm.showSidebar"
+                        read-only="vm.readOnly"
+                        alleles="vm.allele_sidebar.alleles"
+                        selected="vm.allele_sidebar.selected"
+                        checked="vm.interpretation.state.report.included">
+        </allele-sidebar>
 
       <section class="container" ng-class="{'inner': vm.showSidebar}">
 
@@ -9,6 +14,7 @@
           <!-- Recompiles the DOM upon change. <allele-sectionbox> uses one-time bindings for perf, as sometimes you might show lots of them on same page -->
           <div recompile-on="vm.allele_sidebar.selected">
             <allele-sectionbox
+              read-only="vm.readOnly"
               header="section.title"
               genepanel="vm.interpretation.analysis.genepanel"
               allele="vm.allele_sidebar.selected"
@@ -33,6 +39,7 @@
         <div ng-switch-when="Classification">
           <div recompile-on="vm.allele_sidebar.selected">
             <allele-sectionbox
+              read-only="vm.readOnly"
               header="section.title"
               genepanel="vm.interpretation.analysis.genepanel"
               allele="vm.allele_sidebar.selected"
@@ -56,6 +63,7 @@
         </div>
 
         <report-card
+          read-only="vm.readOnly"
           class="single-sample-analysis-item"
           ng-switch-when="Report"
           analysis="vm.interpretation.analysis"

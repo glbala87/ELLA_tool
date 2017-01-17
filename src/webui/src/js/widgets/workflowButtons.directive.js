@@ -13,7 +13,8 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         analysisId: '=?', // If analysis workflow
         genepanelName: '=?',
         genepanelVersion: '=?',
-        reload: '&?'
+        reload: '&?',
+        readOnly: '='
     },
     templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html'
 })

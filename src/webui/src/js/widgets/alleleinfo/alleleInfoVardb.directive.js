@@ -7,7 +7,8 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     selector: 'allele-info-vardb',
     scope: {
         allele: '=',
-        alleleState: '='
+        alleleState: '=',
+        readOnly: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoVardb.ngtmpl.html'
 })

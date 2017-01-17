@@ -17,7 +17,7 @@
       </div>
       <div class="line-wrapper">
         <button class="id-reference-modal-cancel" type="button" ng-click="vm.modal.close()">Cancel</button>
-        <button class="id-reference-modal-save" ng-click="vm.save()"> Save </button>
+        <button class="id-reference-modal-save" ng-if="!vm.readOnly" ng-click="vm.save()"> Save </button>
       </div>
     </section>
   </controls>
@@ -27,34 +27,67 @@
       <div class="middle"></div>
       <div class="right">
         <div class="bttn-set">
-          <label tabindex=0 class="bttn" ng-model="vm.referenceAssessment.evaluation.relevance" uib-btn-radio="item" ng-repeat="item in vm.sources['relevance'].buttons">{{item}}</label>
+            <label tabindex=0
+                   class="bttn"
+                   ng-model="vm.referenceAssessment.evaluation.relevance"
+                   uib-btn-radio="item"
+                   ng-repeat="item in vm.sources['relevance'].buttons"
+                   ng-disabled="vm.readOnly"
+            >{{item}}</label>
         </div>
       </div>
     </article>
-    <article class='line-wrapper question' ng-repeat="source in vm.getSources() track by source" ng-if="vm.shouldShow(source)">
+      <article class='line-wrapper question'
+               ng-repeat="source in vm.getSources() track by source"
+               ng-if="vm.shouldShow(source)">
       <div class="left"> <h5 class="slim title"> <b>{{vm.sources[source].title}}</b> </h5> <p> {{vm.sources[source].desc}} </p> </div>
       <div class="middle">
         <span ng-if="vm.sources[source].optional">
-          <input type="checkbox" class="box" checklist-model="vm.referenceAssessment.evaluation.sources" checklist-value="source">
+          <input type="checkbox"
+                 class="box"
+                 checklist-model="vm.referenceAssessment.evaluation.sources"
+                 checklist-value="source"
+                 ng-disabled="vm.readOnly">
         </span>
       </div>
       <div class="right line-wrapper">
         <div class="multiple-question-element" ng-repeat="elem in vm.sources[source].elements">
           <div class="bttn-set" ng-if="::elem.type == 'button'">
-            <label tabindex=0 class="bttn" ng-model="vm.referenceAssessment.evaluation[elem.store]" uib-btn-radio="item[1]" ng-repeat="item in elem.options" ng-disabled="vm.isDisabled(source)">{{item[0]}}</label>
+              <label tabindex=0
+                     class="bttn"
+                     ng-model="vm.referenceAssessment.evaluation[elem.store]"
+                     uib-btn-radio="item[1]"
+                     ng-repeat="item in elem.options"
+                     ng-disabled="vm.isDisabled(source) || vm.readOnly">{{item[0]}}</label>
           </div>
-          <div class="dropdown" ng-if="::elem.type == 'dropdown'" ng-disabled="vm.isDisabled(source)">
-            <select ng-options="v[1] as v[0] for v in elem.options" ng-model="vm.referenceAssessment.evaluation[elem.store]" ng-disabled="vm.isDisabled(source)"><option value="" disabled selected>Choose quality</option></select>
+          <div class="dropdown"
+               ng-if="::elem.type == 'dropdown'"
+               ng-disabled="vm.isDisabled(source)">
+              <select ng-options="v[1] as v[0] for v in elem.options"
+                      ng-model="vm.referenceAssessment.evaluation[elem.store]"
+                      ng-disabled="vm.isDisabled(source) || vm.readOnly">
+                  <option value=""
+                          disabled
+                          selected>Choose quality
+                  </option>
+              </select>
           </div>
           <div ng-if="::elem.type == 'text'">
-            <input type="text" placeholder="{{elem.placeholder || ''}}" ng-disabled="vm.isDisabled(source)" ng-model="vm.referenceAssessment.evaluation[elem.store]">
+              <input type="text"
+                     placeholder="{{elem.placeholder || ''}}"
+                     ng-disabled="vm.isDisabled(source) || vm.readOnly"
+                     ng-model="vm.referenceAssessment.evaluation[elem.store]">
           </div>
         </div>
       </div>
     </article>
     <article class="line-wrapper question">
       <div class="middle"></div>
-      <div class="right"><autosize-textarea placeholder="COMMENTS" ng-model="vm.referenceAssessment.evaluation['comment']"></autosize-textarea></div>
+      <div class="right">
+          <autosize-textarea placeholder="COMMENTS"
+                             ng-model="vm.referenceAssessment.evaluation['comment']"
+                             ng-disabled="vm.readOnly"
+          ></autosize-textarea></div>
       <div class="middle"></div>
     </article>
   </contentwrapper>

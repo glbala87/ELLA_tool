@@ -11,6 +11,7 @@ import {Directive, Inject} from '../ng-decorators';
         directreqs: '=?',  // Defaults to false
         onToggle: '&?',
         toggleText: '@?',
+        readOnly: '=?',
         addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
     },
     templateUrl: 'ngtmpl/acmg.ngtmpl.html'
@@ -27,6 +28,9 @@ export class AcmgController {
     }
 
     toggle() {
+        if (this.readOnly) {
+            return;
+        }
         if (this.onToggle && this.isEditable()) {
             this.onToggle({code: this.code});
         }

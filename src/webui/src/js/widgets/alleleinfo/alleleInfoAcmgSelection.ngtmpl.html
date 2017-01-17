@@ -6,7 +6,8 @@
         <div class="cell"><p>{{vm.getSuggestedClassification()}}</p></div>
       </div>
       <div>
-        <checkable-button buttonclass="blue" check-model="vm.show_req">
+        <checkable-button buttonclass="blue"
+                          check-model="vm.show_req">
           <checked>Hide REQ</checked>
           Show REQ ({{vm.getREQCodeCount()}})
         </checkable-button>
@@ -15,7 +16,9 @@
           popover-title="Add ACMG code"
           popover-trigger="outsideClick"
           popover-placement="left"
-          ng-if="vm.isEditable()">Add code</button>
+          ng-if="vm.isEditable() && !vm.readOnly"
+        >Add code
+        </button>
       </div>
     </section>
 
@@ -23,21 +26,39 @@
     <!-- Don't use 'track by $index' -->
     <h4 class="section-title acmg-body">ACMG Included</h4>
     <section class="acmg-wrapper included">
-      <acmg directreqs="true" code="code" ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.included" on-toggle="vm.excludeACMG(code)" toggle-text="-" comment-model="code.comment" editable="vm.isEditable()"></acmg>
+      <acmg directreqs="true"
+            code="code"
+            ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.included"
+            on-toggle="vm.excludeACMG(code)"
+            toggle-text="-"
+            comment-model="code.comment"
+            editable="vm.isEditable() && !vm.readOnly">
+      </acmg>
     </section>
 
     <!-- Suggested codes (sans REQ) -->
     <!-- Don't use 'track by $index' -->
     <h4 class="section-title acmg-body">ACMG Suggested</h4>
     <section class="acmg-wrapper">
-      <acmg code="code" ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.suggested" on-toggle="vm.includeACMG(code)" toggle-text="+" comment-model="code.comment" ng-if="::vm.isIncludable(code.code)" editable="vm.isEditable()"></acmg>
+      <acmg code="code"
+            ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.suggested"
+            on-toggle="vm.includeACMG(code)"
+            toggle-text="+"
+            comment-model="code.comment"
+            ng-if="::vm.isIncludable(code.code)"
+            editable="vm.isEditable() && !vm.readOnly"
+      ></acmg>
     </section>
 
     <!-- REQ codes -->
     <!-- Don't use 'track by $index' -->
     <h4 class="section-title acmg-body" ng-if="vm.show_req">ACMG Suggested REQ</h4>
     <section class="acmg-wrapper" ng-if="vm.show_req">
-      <acmg code="group" ng-repeat="group in vm.req_groups" ng-if="vm.show_req" add-required-for-code="vm.addACMGCode(code)" editable="vm.isEditable()"></acmg>
+      <acmg code="group"
+            ng-repeat="group in vm.req_groups"
+            ng-if="vm.show_req"
+            add-required-for-code="vm.addACMGCode(code)"
+            editable="vm.isEditable() && !vm.readOnly"></acmg>
     </section>
 
   </cbbody>

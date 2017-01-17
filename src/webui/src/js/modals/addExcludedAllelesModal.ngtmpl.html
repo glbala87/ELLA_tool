@@ -17,7 +17,11 @@
           <div class="line-wrapper spaced only-control">
             <allelebar class="allele-info" allele="al"></allelebar>
             <section>
-              <checkable-button class="id-exclude-allele" list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
+              <checkable-button class="id-exclude-allele"
+                                list-model="vm.included_allele_ids"
+                                list-value="al.id"
+                                on-change="vm.update()"
+                                ng-if="!vm.readOnly">
                 <checked>EXCLUDE</checked>
                 INCLUDE
               </checkable-button>
@@ -74,7 +78,11 @@
           <div class="line-wrapper spaced">
             <allelebar class="allele-info" allele="al"></allelebar>
             <section>
-              <checkable-button class="id-include-allele" list-model="vm.included_allele_ids" list-value="al.id" on-change="vm.update()">
+              <checkable-button class="id-include-allele"
+                                list-model="vm.included_allele_ids"
+                                list-value="al.id"
+                                on-change="vm.update()"
+                                ng-disabled="vm.readOnly">
                 <checked>INCLUDED</checked>
                 INCLUDE
               </checkable-button>

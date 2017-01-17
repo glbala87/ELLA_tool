@@ -9,6 +9,7 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     scope: {
         alleles: '=',  // Allele options: { unclassified: [ {allele: Allele, alleleState: {...}, inactive: true, checkable: true, checked: true ] }, classified: [ ... ] }
         selected: '=', // Selected Allele
+        readOnly: '=?' // if readOnly the allele can't be added to report
     },
     link: (scope, element) => {
       let scrollFunction = function() {

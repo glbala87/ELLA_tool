@@ -13,7 +13,8 @@ export class AddExcludedAllelesController {
                 included_allele_ids,
                 sample_id,
                 gp_name,
-                gp_version) {
+                gp_version,
+                read_only) {
         this.modal = modalInstance;
         this.frequencies = Config.getConfig().frequencies;
         this.alleleService = Allele;
@@ -29,6 +30,8 @@ export class AddExcludedAllelesController {
         this.selected_gene = null;
         this.page_idx = 1;
         this.number_per_page = 3;
+        this.readOnly = read_only;
+
 
         this.loadAlleles(sample_id, gp_name, gp_version);
     }
@@ -67,6 +70,11 @@ export class AddExcludedAllelesController {
     }
 
     close() {
+        if (this.readOnly) {
+            this.modal.close(); // close without reporting state
+            return;
+        }
+
         this.modal.close(this.included_allele_ids);
     }
 
@@ -176,9 +184,10 @@ export class AddExcludedAllelesModal {
      * @param  {int} sample_id Sample for which to load alleles
      * @param  {string} gp_name Genepanel name for which to load alleles
      * @param  {string} gp_version Genepanel version for which to load alleles
+     * @param  {boolean} read_only Don't allow include/exclude of allele if read-only
      * @return {Promise} Promise that resolves when dialog is closed. Resolves with same array as included_allele_ids.
      */
-    show(excluded_allele_ids, included_allele_ids, sample_id, gp_name, gp_version) {
+    show(excluded_allele_ids, included_allele_ids, sample_id, gp_name, gp_version, read_only) {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/addExcludedAllelesModal.ngtmpl.html',
@@ -191,6 +200,7 @@ export class AddExcludedAllelesModal {
                 'sample_id',
                 'gp_name',
                 'gp_version',
+                'read_only',
                 AddExcludedAllelesController
             ],
             controllerAs: 'vm',
@@ -199,7 +209,8 @@ export class AddExcludedAllelesModal {
                 included_allele_ids: () => included_allele_ids,
                 sample_id: () => sample_id,
                 gp_name: () => gp_name,
-                gp_version: () => gp_version
+                gp_version: () => gp_version,
+                read_only: () => read_only
             },
             size: 'lg'
         });

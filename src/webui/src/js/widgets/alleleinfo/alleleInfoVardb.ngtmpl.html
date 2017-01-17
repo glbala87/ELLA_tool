@@ -5,9 +5,13 @@
       <h2>{{::vm.getClassName()}} <span class="outdated" ng-if="::vm.isOutdated()"> (Outdated)</span></h2>
       <h5>made by {{::vm.allele.allele_assessment.user.first_name}} {{::vm.allele.allele_assessment.user.last_name}}, {{::vm.allele.allele_assessment.seconds_since_update | secondsToTimeString}}ago for {{::vm.allele.allele_assessment.genepanel_name}}_{{::vm.allele.allele_assessment.genepanel_version}}</h5>
     </div>
-    <button class="blue" ng-click="vm.reset()">RESET</button>
+    <button class="blue" ng-click="vm.reset()" ng-if="!vm.readOnly">RESET</button>
     </section>
-    <acmg class="included disabled" code="code" ng-repeat="code in vm.allele.allele_assessment.evaluation.acmg.included track by $index" comment-model="code.comment" editable="false"></acmg>
+    <acmg class="included disabled"
+          code="code"
+          ng-repeat="code in vm.allele.allele_assessment.evaluation.acmg.included track by $index"
+          comment-model="code.comment"
+          editable="false"></acmg>
 
     <div>
       <div class="tabular-row">

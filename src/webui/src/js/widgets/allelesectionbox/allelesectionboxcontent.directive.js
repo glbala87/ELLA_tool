@@ -33,6 +33,7 @@ import {Directive, Inject} from '../../ng-decorators';
         references: '=',
         alleleState: '=',
         onSave: '&?',
+        readOnly: '=?',
         boxes: '='  // Array of objects.
     },
     link: (scope, elem, attrs, ctrl) => {
@@ -65,6 +66,7 @@ import {Directive, Inject} from '../../ng-decorators';
                     allele="vm.allele"
                     references="vm.references"
                     allele-state="vm.alleleState"
+                    read-only="vm.readOnly"
                     ${on_save}
                     ${attrs}
                 ></${box.tag}>`;

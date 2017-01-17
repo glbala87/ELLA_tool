@@ -3,10 +3,14 @@
   <nav class="secondary">
     <div class="workflow-options">
       <div class="dropdown white">
-        <select ng-options="c as c.title for c in vm.components" ng-model="vm.selected_component"></select>
+        <select ng-options="c as c.title for c in vm.components"
+                ng-model="vm.selected_component"></select>
       </div>
       <div class="review-comment">
-        <input type="text" placeholder="REVIEW COMMENT" ng-model="vm.getInterpretation().state.review_comment"></input>
+        <input type="text"
+               placeholder="REVIEW COMMENT"
+               ng-model="vm.getInterpretation().state.review_comment"
+               ng-disabled="vm.readOnly()"></input>
       </div>
     </div>
     <section>
@@ -24,7 +28,13 @@
           ng-model="vm.selected_interpretation">
         </select>
       </div>
-      <workflow-buttons alleles="vm.selected_interpretation_alleles" analysis-id="vm.analysis.id" reload="vm.reloadInterpretationData()" selected-interpretation="vm.selected_interpretation" interpretations="vm.interpretations"></workflow-buttons>
+      <workflow-buttons alleles="vm.selected_interpretation_alleles"
+                        analysis-id="vm.analysis.id"
+                        reload="vm.reloadInterpretationData()"
+                        selected-interpretation="vm.selected_interpretation"
+                        interpretations="vm.interpretations"
+                        readOnly="vm.readOnly"
+      ></workflow-buttons>
     </section>
   </nav>
   <nav class="warning" ng-if="vm.allele_collisions.collisions.count > 0">
@@ -43,8 +53,9 @@
       analysis="vm.analysis"
       alleles="vm.selected_interpretation_alleles"
       update-alleles="vm.loadAlleles()"
-      ng-if="vm.analysis && vm.alleles_loaded">
-    </interpretation>
+      ng-if="vm.analysis && vm.alleles_loaded"
+      read-only="vm.readOnly()"
+    ></interpretation>
   </div>
 
 </div>
