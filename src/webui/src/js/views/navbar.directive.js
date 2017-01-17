@@ -34,8 +34,8 @@ export class NavbarController {
       return this.navbarService.getAllele();
     }
 
-    getAnalysis() {
-      return this.navbarService.getAnalysis();
+    getGenepanel() {
+      return this.navbarService.getGenepanel();
     }
 
     getItems() {

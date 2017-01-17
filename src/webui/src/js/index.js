@@ -20,6 +20,7 @@ import './services/resources/acmgClassificationResource.service';
 import './services/resources/alleleResource.service';
 import './services/resources/alleleAssessmentResource.service';
 import './services/resources/customAnnotationResource.service';
+import './services/resources/genepanelResource.service';
 import './services/resources/analysisResource.service';
 import './services/resources/interpretationResource.service';
 import './services/resources/ReferenceResource.service';

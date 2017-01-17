@@ -106,7 +106,7 @@ export class InterpretationController {
 
         $scope.$watch(
             () => this.allele_sidebar.selected,
-            () => this.navbar.setAllele(this.allele_sidebar.selected)
+            () => this.navbar.setAllele(this.allele_sidebar.selected, this.analysis ? this.analysis.genepanel : null)
         );
 
         $scope.$watch(

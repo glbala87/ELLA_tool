@@ -235,7 +235,6 @@ export class AnalysisController {
                 url: "/overview"
             }
         ]);
-        this.navbar.setAnalysis(this.analysis);
     }
 
     getExcludedAlleleCount() {

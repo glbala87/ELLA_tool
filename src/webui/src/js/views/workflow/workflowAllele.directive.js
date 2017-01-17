@@ -16,6 +16,7 @@ import {STATUS_ONGOING, STATUS_NOT_STARTED} from '../../model/interpretation'
 @Inject('$rootScope',
     '$scope',
     'WorkflowResource',
+    'GenepanelResource',
     'Allele',
     'Workflow',
     'Navbar',
@@ -25,6 +26,7 @@ export class WorkflowAlleleController {
     constructor(rootScope,
                 scope,
                 WorkflowResource,
+                GenepanelResource,
                 Allele,
                 Workflow,
                 Navbar,
@@ -33,6 +35,7 @@ export class WorkflowAlleleController {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
+        this.genepanelResource = GenepanelResource;
         this.alleleService = Allele;
         this.workflowService = Workflow;
         this.analysis = null;
@@ -147,6 +150,7 @@ export class WorkflowAlleleController {
 
         this.selected_interpretation = null; // Holds displayed interpretation
         this.selected_interpretation_alleles = []; // Loaded allele for current interpretation (annotation etc data can change based on interpretation snapshot)
+        this.selected_interpretation_genepanel = null; // Loaded genepanel for current interpretation (used in navbar)
         this.alleles_loaded = false;  // Loading indicators etc
 
         this.allele_collisions = null;
@@ -171,7 +175,9 @@ export class WorkflowAlleleController {
             this.checkForCollisions();
             this.dummy_interpretation.allele_ids = [this.allele_id];
             this.reloadInterpretationData();
-            this.setupNavbar();
+            this.loadGenepanel().then(() => {
+                this.setupNavbar();
+            });
         });
     }
 
@@ -234,7 +240,12 @@ export class WorkflowAlleleController {
 
         this.rootScope.$watch(
             () => this.getInterpretation(),
-            () => this.loadAllele()
+            () => {
+                this.alleles_loaded = false;
+                let a = this.loadAllele();
+                let g = this.loadGenepanel();  // Reload genepanel in case it was different
+                Promise.all([a, g]).then(() => this.setupNavbar());
+            }
         );
     }
 
@@ -247,7 +258,7 @@ export class WorkflowAlleleController {
                     url: "/overview"
                 }
             ]);
-            this.navbar.setAllele(this.getAlleles()[0]);
+            this.navbar.setAllele(this.getAlleles()[0], this.selected_interpretation_genepanel);
         }
     }
 
@@ -326,6 +337,18 @@ export class WorkflowAlleleController {
                 this.alleles_loaded = true;
             });
         }
+    }
+
+    loadGenepanel() {
+        let gp_name = this.genepanelName;
+        let gp_version = this.genepanelVersion;
+        if (this.selected_interpretation) {
+            gp_name = this.selected_interpretation.genepanel_name;
+            gp_version = this.selected_interpretation.genepanel_version;
+        }
+        return this.genepanelResource.get(gp_name, gp_version).then(
+            gp => this.selected_interpretation_genepanel = gp
+        );
     }
 
     _loadInterpretations() {
