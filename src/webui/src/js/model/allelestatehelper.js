@@ -368,7 +368,8 @@ export class AlleleStateHelper {
      *  Auto-reuse new, existing alleleassessment for the user.
      *  We keep track of last alleleassessment id where we auto-reused the alleleassessment,
      *  in order to prevent re-enabling what the user has already disabled.
-     * @memberOf AlleleStateHelper
+     *
+     *  Returns whether existing assessment was reused.
      */
     static autoReuseExistingAssessment(allele, allele_state, config) {
         if (allele.allele_assessment) {
@@ -376,7 +377,47 @@ export class AlleleStateHelper {
                 allele_state.autoReuseAlleleAssessmentCheckedId < allele.allele_assessment.id) {
                 this.enableReuseAlleleAssessment(allele, allele_state, config)
                 allele_state.autoReuseAlleleAssessmentCheckedId = allele.allele_assessment.id;
+                return true;
             }
+        }
+        return false;
+    }
+
+    static addAlleleToReport(allele_state) {
+        if (!('report' in allele_state)) {
+            allele_state.report = {};
+        }
+        allele_state.report.included = true;
+
+    }
+
+    static removeAlleleFromReport(allele_state) {
+        if (!('report' in allele_state)) {
+            allele_state.report = {};
+        }
+        allele_state.report.included = false;
+
+    }
+
+    /**
+     * For automatically adding certain classifications to the report (e.g. class 3, 4, 5 alleles).
+     *
+     * @param {Allele} allele
+     * @param {Object} allele_state
+     * @param {Object} config
+     */
+    static checkAddRemoveAlleleToReport(allele, allele_state, config) {
+        let classification = this.getClassification(allele, allele_state);
+        let config_option = config.classification.options.find(o => {
+            return o.value === classification;
+        });
+        if (config_option &&
+            config_option.include_report) {
+            this.addAlleleToReport(allele_state);
+        }
+        else {
+            // Either include_report option is not set, or classification is null
+            this.removeAlleleFromReport(allele_state);
         }
     }
 

@@ -157,11 +157,14 @@ export class InterpretationController {
     autoReuseExistingAssessments() {
         for (let allele of this.alleles) {
 
-            AlleleStateHelper.autoReuseExistingAssessment(allele, this.getAlleleState(allele), this.config);
-            // Recheck allele whether they should now be added to report.
-            this.addAlleleToReport(allele);
+            let changed = AlleleStateHelper.autoReuseExistingAssessment(allele, this.getAlleleState(allele), this.config);
+            if (changed) {
+                // Recheck allele whether allele should now be added to/removed from report.
+                AlleleStateHelper.checkAddRemoveAlleleToReport(allele, this.getAlleleState(allele), this.config);
+            }
         }
     }
+
 
     /**
      * Called by <allele-sectionbox> whenever an allele needs
@@ -175,28 +178,7 @@ export class InterpretationController {
      * Called by <allele-sectionbox> whenever a class is changed.
      */
     onChangeClass(allele) {
-        this.addAlleleToReport(allele);
-    }
-
-    /**
-     * Check if class should be included in report automatically
-     * @param {Allele} allele Allele to check for inclusion
-     */
-    addAlleleToReport(allele) {
-        let state = this.getAlleleState(allele);
-        if (!('report' in state)) {
-            state.report = {};
-        }
-        state.report.included = false;
-
-        let classification = AlleleStateHelper.getClassification(allele, state);
-        let config_option = this.config.classification.options.find(o => {
-            return o.value === classification;
-        });
-        if (config_option &&
-            config_option.include_report) {
-            state.report.included = true;
-        }
+        AlleleStateHelper.checkAddRemoveAlleleToReport(allele, this.getAlleleState(allele), this.config);
     }
 
     getSidebarSelected() {
