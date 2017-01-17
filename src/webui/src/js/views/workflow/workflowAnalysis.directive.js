@@ -223,7 +223,10 @@ export class AnalysisController {
 
         this.rootScope.$watch(
             () => this.selected_interpretation,
-            () => this.loadAlleles()
+            () => {
+                this.alleles_loaded = false;  // Make <interpretation> redraw
+                this.loadAlleles()
+            }
         );
     }
 
