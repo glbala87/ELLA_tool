@@ -35,46 +35,45 @@
           </checkable-button>
           <button class="id-mark-technical"
                   ng-if="control == 'toggle_technical'"
-                  ng-disabled="vm.readOnly"
                   ng-click="vm.setTechnical()"
-                  ng-disabled="vm.alleleState.class2 || vm.alleleState.class1 || vm.readOnly">
+                  ng-disabled="vm.alleleState.class2 || vm.alleleState.class1 || vm.isAlleleAssessmentReused() || vm.readOnly">
           Mark technical
         </button>
 
           <button class="id-mark-class1"
                   ng-if="control == 'toggle_class1'"
-                  ng-disabled="vm.readOnly"
+                  ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                   ng-click="vm.setClass1()">
               Mark class 1
           </button>
 
           <button class="id-mark-class2"
                   ng-if="control == 'toggle_class2'"
-                  ng-disabled="vm.readOnly"
+                  ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                   ng-click="vm.setClass2()">
               Mark class 2
           </button>
 
           <button class="id-add-references"
                   ng-click="vm.showAddReferenceModal()"
-                  ng-disabled="vm.readOnly"
+                  ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                   ng-if="control == 'references'">Add references
           </button>
 
           <button class="id-add-external"
                   ng-if="control == 'custom_external'"
-                  ng-disabled="vm.readOnly"
+                  ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                   ng-click="vm.showCustomAnnotationModal('external')">Add external DB
           </button>
 
           <button class="id-add-prediction"
                   ng-if="control == 'custom_prediction'"
-                  ng-disabled="vm.readOnly"
+                  ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                   ng-click="vm.showCustomAnnotationModal('prediction')">Add prediction
           </button>
 
           <button ng-if="control == 'add_reference'"
-                  ng-disabled="vm.readOnly"
+                  ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                   ng-click="vm.showAddReferenceModal()">Add reference
           </button>
 
@@ -122,7 +121,7 @@
       boxes="vm.section.content"
       boxes-options="vm.sectionOptions"
       on-save="vm.onUpdate()"
-      read-only="vm.readOnly"
+      read-only="vm.readOnly || vm.isAlleleAssessmentReused()"
     ></allele-sectionbox-content>
 </contentwrapper>
 </sectionbox>

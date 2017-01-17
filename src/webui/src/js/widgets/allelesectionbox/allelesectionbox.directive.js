@@ -203,7 +203,7 @@ export class AlleleSectionBoxController {
             if (this.onSetClass) {
                 this.onSetClass({allele: this.allele});
             }
-        };
+        }
         this.changeClassification();
     }
 
