@@ -72,7 +72,7 @@ export class CustomAnnotationController {
     getAnnotationGroups() {
         let valid_groups = this.config.custom_annotation[this.category].filter(c => {
             if ('only_for_genes' in c) {
-                let genes = this.selected_allele.annotation.filtered.map(t => t.SYMBOL);
+                let genes = this.selected_allele.annotation.filtered.map(t => t.symbol);
                 return c.only_for_genes.some(g => genes.includes(g));
             }
             // If no restriction, always include it.
@@ -148,7 +148,7 @@ export class CustomAnnotationController {
     formatAllele(allele) {
         let result = '';
         for (let f of allele.annotation.filtered) {
-            result += `${f.SYMBOL} ${f.HGVSc_short}`;
+            result += `${f.symbol} ${f.HGVSc_short}`;
         }
         return result;
     }
@@ -213,7 +213,7 @@ export class CustomAnnotationController {
             return [];
         }
 
-        let genes = this.selected_allele.annotation.filtered.map(t => t.SYMBOL);
+        let genes = this.selected_allele.annotation.filtered.map(t => t.symbol);
 
         let urls = [];
         if ('url_for_genes' in this.selected_annotation_group) {

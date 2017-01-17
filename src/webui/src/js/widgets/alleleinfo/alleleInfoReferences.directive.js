@@ -107,8 +107,8 @@ export class AlleleInfoReferences {
             for (let sourceKey in ref.sources) {
                 let source = ref.sources[sourceKey];
                 let sourceStr = source;
-                if (source in ref.sourceInfo) {
-                    sourceStr += " ("+ref.sourceInfo[source]+")";
+                if (source in ref.source_info) {
+                    sourceStr += " ("+ref.source_info[source]+")";
                 }
                 referenceDBSources[ref.pubmed_id][source] = sourceStr;
             }

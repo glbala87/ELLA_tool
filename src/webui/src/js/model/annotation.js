@@ -17,7 +17,7 @@ export default class Annotation {
     setFilteredTranscripts() {
         if (this.filtered_transcripts) {
             this.filtered = this.transcripts.filter(t => {
-                return this.filtered_transcripts.includes(t.Transcript);
+                return this.filtered_transcripts.includes(t.transcript);
             });
         }
     }
@@ -37,7 +37,7 @@ export default class Annotation {
 
     getWorseConsequenceTranscripts() {
         return this.worst_consequence.map(name => {
-            return this.transcripts.find(t => t.Transcript === name);
+            return this.transcripts.find(t => t.transcript === name);
         });
     }
 }

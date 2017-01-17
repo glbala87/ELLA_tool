@@ -114,7 +114,7 @@ def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinter
         }
 
     # Only relevant for analysisinterpretation: Include the genotype for connected samples
-    allele_genotypes = None
+    sample_ids = list()
     if analysisinterpretation_id is not None:
 
         sample_ids = session.query(sample.Sample.id).filter(
@@ -124,26 +124,6 @@ def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinter
 
         sample_ids = [s[0] for s in sample_ids]
 
-        # FIXME: Support more samples and fix stupid check below
-        if sample_ids and sample_ids[0]:
-            sample_id = sample_ids[0]
-            genotypes = None
-            genotypes = session.query(genotype.Genotype).join(sample.Sample).filter(
-                sample.Sample.id == sample_id,
-                or_(
-                    genotype.Genotype.allele_id.in_(allele_ids),
-                    genotype.Genotype.secondallele_id.in_(allele_ids),
-                )
-            ).all()
-
-            # Map one genotype to each allele for use in AlleleDataLoader
-            allele_genotypes = list()
-            for al in alleles:
-                gt = next((g for g in genotypes if g.allele_id == al.id or g.secondallele_id == al.id), None)
-                if gt is None:
-                    raise ApiError("No genotype match in sample {} for allele id {}".format(sample_id, al.id))
-                allele_genotypes.append(gt)
-
     kwargs = {
         'include_annotation': True,
         'include_custom_annotation': True,
@@ -152,8 +132,8 @@ def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinter
 
     if link_filter:
         kwargs['link_filter'] = link_filter
-    if allele_genotypes:
-        kwargs['genotypes'] = allele_genotypes
+    if sample_ids:
+        kwargs['include_genotype_samples'] = sample_ids
     return AlleleDataLoader(session).from_objs(
         alleles,
         **kwargs

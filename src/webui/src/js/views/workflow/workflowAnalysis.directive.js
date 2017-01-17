@@ -332,8 +332,6 @@ export class AnalysisController {
     }
 
     loadAlleles() {
-        this.alleles_loaded = false;
-        this.selected_interpretation_alleles = [];
         if (this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 'analysis',

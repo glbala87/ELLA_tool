@@ -1,5 +1,5 @@
 FROM ousamg/ella.core:0.9.4
-MAINTAINER Dave Honneffer <dave@ousamg.io>
+MAINTAINER Erik Severinsen <erik@ousamg.io>
 
 # Get gulp
 RUN npm install -g gulp

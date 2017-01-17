@@ -125,7 +125,7 @@ data16nov2015 = {
                         "HGVSc": "NM_000059.3:c.3264T>C", 
                         "HGVSp": "NM_000059.3:c.3264T>C(p.=)", 
                         "STRAND": 1, 
-                        "SYMBOL": "BRCA2", 
+                        "symbol": "BRCA2", 
                         "Transcript": "NM_000059", 
                         "Transcript_version": "3", 
                         "splice_Effect": "no_effect", 

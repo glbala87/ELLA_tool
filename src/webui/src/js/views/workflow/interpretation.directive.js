@@ -312,7 +312,7 @@ export class InterpretationController {
         // Sort data
 
         // Sort unclassified by (gene, hgvsc)
-        let unclassified_sort = firstBy(a => a.allele.annotation.filtered[0].SYMBOL)
+        let unclassified_sort = firstBy(a => a.allele.annotation.filtered[0].symbol)
                                 .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
         if (alleles.unclassified.active.length) {
@@ -327,7 +327,7 @@ export class InterpretationController {
                 let classification = AlleleStateHelper.getClassification(a.allele, this.getAlleleState(a.allele));
                return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
-            .thenBy(a => a.allele.annotation.filtered[0].SYMBOL)
+            .thenBy(a => a.allele.annotation.filtered[0].symbol)
             .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
         if (alleles.classified.active.length) {

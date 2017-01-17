@@ -19,6 +19,6 @@ export class AlleleInfoSplice {
     }
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'Splice' in t);
+        return this.allele.annotation.filtered.some(t => 'splice' in t);
     }
 }

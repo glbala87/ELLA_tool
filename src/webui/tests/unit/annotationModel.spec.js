@@ -9,22 +9,20 @@ describe("Annotation model", function () {
         return {
             "annotation_id": 37,
             "filtered_transcripts": [
-                "NM_000123"
+                "NM_000123.1"
             ],
             "transcripts": [
                 {
-                    "SYMBOL": "GENE1",
-                    "Transcript": "NM_000123",
-                    "Transcript_version": "1"
+                    "symbol": "GENE1",
+                    "transcript": "NM_000123.1",
                 },
                 {
-                    "SYMBOL": "GENE2",
-                    "Transcript": "NM_000321",
-                    "Transcript_version": "3"
+                    "symbol": "GENE2",
+                    "transcript": "NM_000321.1"
                 }
             ],
             "worst_consequence": [
-                "NM_000321"
+                "NM_000321.1"
             ]
         };
 
@@ -38,9 +36,8 @@ describe("Annotation model", function () {
         let annotation = new Annotation(getData());
         expect(annotation.filtered).toEqual(
             [{
-                "SYMBOL": "GENE1",
-                "Transcript": "NM_000123",
-                "Transcript_version": "1"
+                "symbol": "GENE1",
+                "transcript": "NM_000123.1"
             }]
         );
     });
@@ -55,9 +52,8 @@ describe("Annotation model", function () {
         let annotation = new Annotation(getData());
         expect(annotation.getWorseConsequenceTranscripts()).toEqual(
             [{
-                "SYMBOL": "GENE2",
-                "Transcript": "NM_000321",
-                "Transcript_version": "3"
+                "symbol": "GENE2",
+                "transcript": "NM_000321.1"
             }]
         );
 
