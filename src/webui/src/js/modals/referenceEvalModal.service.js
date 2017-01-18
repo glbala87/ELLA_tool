@@ -416,7 +416,7 @@ export class ReferenceEvalModalController {
                 },
                 'population': {
                     title: 'Population',
-                    desc: 'Observed in unrelated affecteds or present in healthy?',
+                    desc: 'Observed in UNRELATED affecteds or present in healthy?',
                     elements: [
                         {
                             type: 'button',
@@ -454,12 +454,12 @@ export class ReferenceEvalModalController {
                 'Yes': [
                     'auth_classification',
                     'segregation',
+                    'population',
                     'protein',
                     'rna',
                     'msi',
                     'ihc',
                     'prediction',
-                    'population',
                     'quality'
                 ],
                 'Indirectly': [
