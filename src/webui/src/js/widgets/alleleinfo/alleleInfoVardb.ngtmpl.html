@@ -16,19 +16,39 @@
     <div>
       <div class="tabular-row">
         <div class="cell top-align"> <h5>Evaluation</h5> </div>
-        <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.classification.comment}}</p> </div>
+        <div class="cell"> <p>
+          <wysiwyg-editor
+                ng-disabled="true"
+                ng-model="vm.allele.allele_assessment.evaluation.classification.comment">
+          </wysiwyg-editor>
+        </div>
       </div>
       <div class="tabular-row">
         <div class="cell top-align"> <h5>Frequency</h5> </div>
-        <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.frequency.comment}}</p> </div>
+        <div class="cell"> <p>
+          <wysiwyg-editor
+                ng-disabled="true"
+                ng-model="vm.allele.allele_assessment.evaluation.frequency.comment">
+          </wysiwyg-editor>
+        </div>
       </div>
       <div class="tabular-row">
         <div class="cell top-align"> <h5>External DB</h5> </div>
-        <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.external.comment}}</p> </div>
+        <div class="cell"> <p>
+          <wysiwyg-editor
+                ng-disabled="true"
+                ng-model="vm.allele.allele_assessment.evaluation.external.comment">
+          </wysiwyg-editor>
+        </div>
       </div>
       <div class="tabular-row">
         <div class="cell top-align"> <h5>Prediction</h5> </div>
-        <div class="cell"> <p>{{::vm.allele.allele_assessment.evaluation.prediction.comment}}</p> </div>
+        <div class="cell"> <p>
+          <wysiwyg-editor
+                ng-disabled="true"
+                ng-model="vm.allele.allele_assessment.evaluation.prediction.comment">
+          </wysiwyg-editor>
+        </div>
       </div>
     </div>
   </cbbody>
