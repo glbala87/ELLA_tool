@@ -5,7 +5,9 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'overview',
     templateUrl: 'ngtmpl/overview.ngtmpl.html',
-    scope: {}
+    scope: {
+        selectedView: '='
+    }
 })
 @Inject('SearchResource')
 export class MainController {
@@ -15,8 +17,6 @@ export class MainController {
             results: null,
             query: ''
         }
-        this.setView('alleles');
-
     }
 
     updateSearch() {
@@ -35,11 +35,11 @@ export class MainController {
     }
 
     setView(view) {
-        this.selected_view = view;
+        this.selectedView = view;
     }
 
     isActive(view) {
-        return this.selected_view === view;
+        return this.selectedView === view;
     }
 
 }

@@ -2,8 +2,8 @@
 <nav class="top">
   <section class="left">
     <aside class="row up">
-      <div ng-click="vm.goToLogin()" ng-if="!vm.isLogin()">
-        <h3 class="full-title upper clickable white"><i>{{ vm.abbreviateUser() }}</i></h3>
+      <div ng-if="!vm.isLogin()">
+        <a href="/login"><h3 class="full-title upper clickable white"><i>{{ vm.abbreviateUser() }}</i></h3></a>
       </div>
       <div ng-if="vm.isLogin()">
         <h3 class="full-title"><i>Welcome!</i></h3>
@@ -13,8 +13,8 @@
       <div ng-if="vm.isLogin()">
         <h3 class="full-title"><b>Please login</b></h3>
       </div>
-      <div ng-click="vm.goToItem(item)" ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">
-        <h3 class="full-title"><b>{{item.title}}</b></h3>
+      <div ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">
+        <a href="{{item.url}}"><h3 class="full-title"><b>{{item.title}}</b></h3></a>
       </div>
     </aside>
   </section>

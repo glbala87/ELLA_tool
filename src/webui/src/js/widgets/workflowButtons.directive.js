@@ -18,13 +18,14 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     },
     templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html'
 })
-@Inject('Workflow', 'Config', 'User', 'InterpretationOverrideModal', 'toastr')
+@Inject('Workflow', 'Config', 'User', 'InterpretationOverrideModal', '$location', 'toastr')
 export class WorkflowButtonsController {
-    constructor(Workflow, Config, User, InterpretationOverrideModal, toastr) {
+    constructor(Workflow, Config, User, InterpretationOverrideModal, $location, toastr) {
         this.workflowService = Workflow;
         this.config = Config;
         this.user = User;
         this.interpretationOverrideModal = InterpretationOverrideModal;
+        this.location = $location;
         this.toastr = toastr;
         this.interpretationUpdateInProgress = false;
 
@@ -115,7 +116,9 @@ export class WorkflowButtonsController {
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
             // TODO: Redirect user
-        this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles).then(() => {this._callReload()});
+        this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles).then(() => {
+            this.location.path('/overview');
+        });
     }
 
     showFinishBtn() {

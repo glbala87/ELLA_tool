@@ -235,7 +235,7 @@ export class AnalysisController {
         this.navbar.replaceItems([
             {
                 title: label,
-                url: "/overview"
+                url: "/overview/analyses"
             }
         ]);
     }

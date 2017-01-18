@@ -51,19 +51,8 @@ export class NavbarController {
       if (item.url) { return true; } else { return false; }
     }
 
-    goToItem(item) {
-        if (item.url) {
-            this.location.path(item.url);
-        }
-    }
-
     isLogin() {
       return this.location.path() == '/login';
     }
-
-    goToLogin() {
-        this.location.path('/login');
-    }
-
 
 }

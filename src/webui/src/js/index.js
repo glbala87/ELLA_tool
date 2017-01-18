@@ -111,10 +111,13 @@ class AppConfig {
                 }
             })
             .state('app.analyses', {
-                url: '/overview',
+                url: '/overview/:view',
                 views: {
                     content: {
-                        template: '<overview></overview>'
+                        template: '<overview selected-view="selectedView"></overview>',
+                        controller: ['$scope', '$stateParams', function($scope, $stateParams) {
+                            $scope.selectedView = $stateParams.view || 'variants';
+                        }]
                     }
                 }
             })
@@ -153,7 +156,7 @@ class AppConfig {
             });
 
         // when there is an empty route, redirect to /analyses
-        $urlRouterProvider.otherwise('/overview');
+        $urlRouterProvider.otherwise('/overview/variants');
         $locationProvider.html5Mode(true);
         $resourceProvider.defaults.stripTrailingSlashes = false;
     }

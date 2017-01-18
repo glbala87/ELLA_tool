@@ -255,7 +255,7 @@ export class WorkflowAlleleController {
             this.navbar.replaceItems([
                 {
                     title: label,
-                    url: "/overview"
+                    url: "/overview/variants"
                 }
             ]);
             this.navbar.setAllele(this.getAlleles()[0], this.selected_interpretation_genepanel);
