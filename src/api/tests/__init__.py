@@ -68,7 +68,7 @@ def get_last_interpretation_id(analysis_id=1):
 
 
 def get_interpretation_id_of_first(analysis_id):
-    r = api.get('/api/v1/analyses/{}/'.format(analysis_id)).json
+    r = api.get('/analyses/{}/'.format(analysis_id)).json
     return r['interpretations'][0]['id']
 
 

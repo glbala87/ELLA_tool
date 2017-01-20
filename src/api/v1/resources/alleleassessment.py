@@ -188,11 +188,12 @@ class AlleleAssessmentListResource(Resource):
         allelele_assessments = data["allele_assessments"]
 
         ac = AssessmentCreator(session)
-        result = ac.create_from_data(annotations, allelele_assessments,
+        grouped_alleleassessments = ac.create_from_data(annotations,
+                                     allelele_assessments,
                                      custom_annotations=custom_annotations)
-        # un-tuple:
-        aa = map(lambda x: x[0], result['alleleassessments']['reused'])\
-             + map(lambda x: x[1], result['alleleassessments']['created'])
+        created_alleleassessments = grouped_alleleassessments['alleleassessments']['created']
 
+        session.add_all(created_alleleassessments)
         session.commit()
-        return schemas.AlleleAssessmentSchema().dump(aa, many=True).data
+
+        return schemas.AlleleAssessmentSchema().dump(created_alleleassessments, many=True).data
