@@ -1,10 +1,8 @@
-import os
 from vardb.util import DB
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm.session import Session as SessionType
 
 
 class CustomBase(object):
@@ -42,7 +40,6 @@ class CustomBase(object):
                 except NoResultFound:
                     raise e
 
-
     @classmethod
     def update_or_create(cls, session, defaults=None, **kwargs):
         """
@@ -70,7 +67,6 @@ convention = {
   "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
   "pk": "pk_%(table_name)s"
 }
-
 
 
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
