@@ -160,7 +160,8 @@ class ApiV1(object):
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/markreview/')
 
         self._add_resource(r.workflow.analysis.AnalysisActionFinalizeResource,
-                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/finalize/')
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/finalize/',
+                           '/api/v1/workflows/analyses/<int:analysis_id>/snapshots/')
 
         self._add_resource(r.workflow.analysis.AnalysisActionOverrideResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/override/')

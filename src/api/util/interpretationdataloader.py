@@ -156,7 +156,7 @@ class InterpretationDataLoader(object):
             allele_assessment = al.get('allele_assessment')
             if allele_assessment:
                 classification_options = self._get_classification_options(allele_assessment['classification'])
-                if classification_options.get('exclude_filtering_existing_assessment'):
+                if classification_options and classification_options.get('exclude_filtering_existing_assessment'):
                     allele_ids.append(al['id'])
                     continue
 
