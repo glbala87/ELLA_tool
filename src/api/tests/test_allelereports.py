@@ -36,7 +36,7 @@ class TestAlleleReports(object):
             report_data = copy.deepcopy(report_template(allele_id))
 
             # POST data
-            api_response = api.post('/allelereports/', [report_data])
+            api_response = create_entities('allelereports', [report_data])
 
             # Check response
             assert api_response.status_code == 200
@@ -54,7 +54,7 @@ class TestAlleleReports(object):
 
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_reports = api.get('/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', q)
         previous_ids = []
         for report_data in previous_reports:
             prev_id = report_data['id']
@@ -65,7 +65,7 @@ class TestAlleleReports(object):
             report_data['presented_report_id'] = prev_id
 
             # POST data
-            r = api.post('/allelereports/', [report_data])
+            r = create_entities('allelereports', [report_data])
 
             # Check response
             assert r.status_code == 200
@@ -74,8 +74,7 @@ class TestAlleleReports(object):
             assert new_report['id'] != prev_id
 
         # Reload the previous reports and make sure they're marked as superceded
-        q = {'id': previous_ids}
-        previous_reports = api.get('/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', {'id': previous_ids})
 
         assert all([p['date_superceeded'] is not None for p in previous_reports])
 
@@ -90,7 +89,7 @@ class TestAlleleReports(object):
         interpretation = get_interpretation(ANALYSIS_ID, get_interpretation_id_of_first(ANALYSIS_ID))
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_reports = api.get('/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', q)
 
         previous_ids = []
         for previous_report in previous_reports:
@@ -102,7 +101,7 @@ class TestAlleleReports(object):
             previous_report['evaluation']['comment'] = "Some new comment"
 
             # POST data
-            api_reponse = api.post('/allelereports/', [previous_report])
+            api_reponse = create_entities('allelereports', [previous_report])
 
             # Check response
             assert api_reponse.status_code == 200
@@ -114,7 +113,7 @@ class TestAlleleReports(object):
         # Reload the previous allelereports and make sure
         # they're marked as superceded
         q = {'id': previous_ids}
-        previous_reports = api.get('/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', q)
 
         assert all([p['date_superceeded'] is not None for p in previous_reports])
 
@@ -131,4 +130,4 @@ class TestAlleleReports(object):
         # We don't run actual HTTP requests, everything is in python
         # so we can catch the exceptions directly
         with pytest.raises(ApiError):
-            api.post('/allelereports/', data)
+            create_entities('allelereports', [data])

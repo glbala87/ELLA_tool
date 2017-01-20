@@ -73,13 +73,13 @@ def get_interpretation_id_of_first(analysis_id):
 
 
 def get_last_interpretation(analysis_id=1):
-    return api.get('/workflows/analyses/{}/interpretations/{}/'
-                   .format(analysis_id, get_last_interpretation_id(analysis_id=analysis_id))).json
+    return get_interpretation(analysis_id, get_last_interpretation_id(analysis_id=analysis_id))
 
 
 def get_interpretation(analysis_id, interpretation_id):
     return api.get('/workflows/analyses/{}/interpretations/{}/'
         .format(analysis_id, interpretation_id)).json
+
 
 def save_interpretation_state(interpretation, analysis_id):
     api.patch(
@@ -100,11 +100,12 @@ def start_analysis(analysis_id, user):
     return interpretation
 
 
-def get_references(allele):
-    annotation_references = allele['annotation']['references']
-    ref_ids = [r['pubmed_id'] for r in annotation_references]
-    q = {'pubmed_id': ref_ids}
-    response = api.get('/references/?q={}'.format(json.dumps(q)))
+def create_entities(type, data):
+    return api.post('/{}/'.format(type), data)
+
+
+def get_entities_by_query(type, query):
+    response = api.get('/{}/?q={}'.format(type, json.dumps(query)))
     assert response.status_code == 200
     return response.json
 
@@ -123,31 +124,29 @@ def get_alleles(ids):
     return response.json
 
 
-def get_entity(type, id):  # like /alleleassessments/34/
+def get_entity_by_id(type, id):  # like /alleleassessments/34/
     response = api.get('/{}/{}/'.format(type, id))
     assert response.status_code == 200
     return response.json
 
 
-def get_allele_assessments(analysis_id):
-    analysis_query_filter = {'analysis_id': analysis_id}
-    response = api.get('/alleleassessments/?q={}'.format(json.dumps(analysis_query_filter)))
+def get_entities_by_analysis_id(type, id):
+    analysis_query_filter = {'analysis_id': id}
+    response = api.get('/{}/?q={}'.format(type, json.dumps(analysis_query_filter)))
     assert response.status_code == 200
     return response.json
 
 
-def get_allele_reports(analysis_id):
-    analysis_query_filter = {'analysis_id': analysis_id}
-    response = api.get('/allelereports/?q={}'.format(json.dumps(analysis_query_filter)))
-    assert response.status_code == 200
-    return response.json
+def get_allele_assessments_by_analysis(analysis_id):
+    return get_entities_by_analysis_id('alleleassessments', analysis_id)
 
 
-def get_reference_assessments(analysis_id):
-    analysis_query_filter = {'analysis_id': analysis_id}
-    response = api.get('/referenceassessments/?q={}'.format(json.dumps(analysis_query_filter)))
-    assert response.status_code == 200
-    return response.json
+def get_allele_reports_by_analysis(analysis_id):
+    return get_entities_by_analysis_id('allelereports', analysis_id)
+
+
+def get_reference_assessments_by_analysis(analysis_id):
+    return get_entities_by_analysis_id('referenceassessments', analysis_id)
 
 
 def get_users():
@@ -157,9 +156,7 @@ def get_users():
 
 
 def get_analysis(id):
-    response = api.get('/analyses/{}/'.format(id))
-    assert response.status_code == 200
-    return response.json
+    return get_entity_by_id('analyses', id)
 
 
 def mark_review(analysis_id, data):
