@@ -168,8 +168,8 @@ class AlleleReportListResource(Resource):
             description: List of created alleleassessments
         """
 
-        if not isinstance(data, list):
-            data = [data]
+        # if not isinstance(data, list):
+        #     data = [data]
 
         # find assessments to link to the reports:
         assessment_ids = [d['alleleassessment_id'] for d in data if 'alleleassessment_id' in d]
@@ -182,12 +182,12 @@ class AlleleReportListResource(Resource):
             alleleassessments = existing_assessments
         )
 
-        # un-tuple:
-        allele_reports_without_context = map(lambda x: x[0], grouped_allelereports['reused']) + map(lambda x: x[1], grouped_allelereports['created'])
+        created_allele_reports = grouped_allelereports['created']
 
-        if not isinstance(data, list):
-            allele_reports_without_context = allele_reports_without_context[0]
+        # if not isinstance(data, list):
+        #     allele_reports_without_context = allele_reports_without_context[0]
 
+        session.add_all(created_allele_reports)
         session.commit()
-        return schemas.AlleleReportSchema().dump(allele_reports_without_context,
-                                                 many=isinstance(allele_reports_without_context, list)).data
+
+        return schemas.AlleleReportSchema().dump(created_allele_reports,many=True).data
