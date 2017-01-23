@@ -7,6 +7,20 @@ from api.schemas import users
 ma = Marshmallow(app)
 
 
+class AlleleInterpretationSnapshotSchema(Schema):
+    class Meta:
+        title = "AlleleInterpretationSnapshot"
+        description = 'snapshot of a allele interpretation with context'
+        # Fields to expose
+        fields = ('id',
+                  'annotation_id',
+                  'customannotation_id',
+                  'alleleassessment_id',
+                  'presented_alleleassessment_id',
+                  'allelereport_id',
+                  'presented_allelereport_id')
+
+
 class AlleleInterpretationSchema(Schema):
 
     class Meta:

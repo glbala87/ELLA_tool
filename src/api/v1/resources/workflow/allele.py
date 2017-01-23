@@ -3,6 +3,10 @@ from flask import request
 from api.util.util import request_json
 from api.v1.resource import Resource
 
+
+from vardb.datamodel.workflow import AlleleInterpretationSnapshot, AlleleInterpretation
+from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
+
 from . import helpers
 
 
@@ -532,6 +536,15 @@ class AlleleActionFinalizeResource(Resource):
         session.commit()
 
         return result, 200
+
+
+    def get(self, session, allele_id):
+        f = session.query(AlleleInterpretationSnapshot).filter(
+            AlleleInterpretationSnapshot.allele_id == allele_id
+        ).join().all()
+
+        result = AlleleInterpretationSnapshotSchema(strict=True).dump(f, many=True).data
+        return result
 
 
 class AlleleCollisionResource(Resource):

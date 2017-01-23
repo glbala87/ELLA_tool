@@ -651,7 +651,6 @@ class AnalysisActionFinalizeResource(Resource):
 
         return result, 200
 
-
     def get(self, session, analysis_id):
         f = session.query(AnalysisInterpretationSnapshot).filter(
             Analysis.id == analysis_id

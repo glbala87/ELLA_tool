@@ -133,7 +133,8 @@ class ApiV1(object):
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/markreview/')
 
         self._add_resource(r.workflow.allele.AlleleActionFinalizeResource,
-                           '/api/v1/workflows/alleles/<int:allele_id>/actions/finalize/')
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/finalize/',
+                           '/api/v1/workflows/alleles/<int:allele_id>/snapshots/')
 
         self._add_resource(r.workflow.allele.AlleleActionOverrideResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/override/')

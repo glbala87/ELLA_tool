@@ -5,6 +5,10 @@ from api.tests.util import FlaskClientProxy
 api = FlaskClientProxy(url_prefix='/api/v1')
 
 
+uri_part = {"analysis": "analyses",
+            "variant": "alleles"
+            }
+
 def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports):
     return {
        'annotations': annotations,
@@ -89,13 +93,13 @@ def save_interpretation_state(interpretation, analysis_id):
     )
 
 
-def start_analysis(analysis_id, user):
+def start_interpretation(workflow_type, id, user):
     response = api.post(
-        '/workflows/analyses/{}/actions/start/'.format(analysis_id),
+        '/workflows/{}/{}/actions/start/'.format(uri_part[workflow_type], id),
         {'user_id': user['id']}
     )
     assert response.status_code == 200
-    interpretation = get_last_interpretation(analysis_id)
+    interpretation = get_last_interpretation(id)
     assert interpretation['status'] == 'Ongoing'
     return interpretation
 
@@ -155,8 +159,12 @@ def get_users():
     return response.json
 
 
-def get_analysis(id):
+def get_analysis_workflow(id):
     return get_entity_by_id('analyses', id)
+
+
+def get_variant_workflow(id):
+    return get_entity_by_id('variants', id)
 
 
 def mark_review(analysis_id, data):
