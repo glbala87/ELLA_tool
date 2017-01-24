@@ -531,12 +531,10 @@ class AlleleActionFinalizeResource(Resource):
             description: Error
         """
 
-
         result = helpers.finalize_interpretation(session, data, allele_id=allele_id)
         session.commit()
 
         return result, 200
-
 
     def get(self, session, allele_id):
         f = session.query(AlleleInterpretationSnapshot).filter(

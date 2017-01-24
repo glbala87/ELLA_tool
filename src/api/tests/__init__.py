@@ -93,10 +93,14 @@ def save_interpretation_state(interpretation, analysis_id):
     )
 
 
-def start_interpretation(workflow_type, id, user):
+def start_interpretation(workflow_type, id, user, extra=None):
+    post_data = {'user_id': user['id']}
+    if extra:
+        for k,v in extra.iteritems():
+            post_data[k] = v
     response = api.post(
         '/workflows/{}/{}/actions/start/'.format(uri_part[workflow_type], id),
-        {'user_id': user['id']}
+        post_data
     )
     assert response.status_code == 200
     interpretation = get_last_interpretation(id)
