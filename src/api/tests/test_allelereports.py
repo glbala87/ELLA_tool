@@ -28,7 +28,8 @@ class TestAlleleReports(object):
         test_database.refresh()  # Reset db
 
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = get_interpretation(ANALYSIS_ID, get_interpretation_id_of_first(ANALYSIS_ID))
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
         created_ids = list()
         for idx, allele_id in enumerate(interpretation['allele_ids']):
 
@@ -50,7 +51,8 @@ class TestAlleleReports(object):
     @pytest.mark.ar(order=1)
     def test_create_new_and_reuse(self, test_database):
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = get_interpretation(ANALYSIS_ID, get_interpretation_id_of_first(ANALYSIS_ID))
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
 
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
@@ -86,7 +88,8 @@ class TestAlleleReports(object):
         while the existing should be superceded.
         """
 
-        interpretation = get_interpretation(ANALYSIS_ID, get_interpretation_id_of_first(ANALYSIS_ID))
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
         previous_reports = get_entities_by_query('allelereports', q)

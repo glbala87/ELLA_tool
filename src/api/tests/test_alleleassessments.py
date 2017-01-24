@@ -42,7 +42,8 @@ class TestAlleleAssessment(object):
         test_database.refresh()  # Reset db
 
         # Create an assessment for alleles in the interpretation
-        interpretation = get_interpretation(ANALYSIS_ID, get_interpretation_id_of_first(ANALYSIS_ID))
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
         for idx, allele_id in enumerate(interpretation['allele_ids']):
 
             # Prepare
@@ -81,7 +82,8 @@ class TestAlleleAssessment(object):
         while the existing should be superceded.
         """
 
-        interpretation = get_interpretation(ANALYSIS_ID, get_interpretation_id_of_first(ANALYSIS_ID))
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
         previous_assessments = api.get('/alleleassessments/?q={}'.format(json.dumps(q))).json

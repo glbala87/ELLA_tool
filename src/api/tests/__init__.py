@@ -9,6 +9,7 @@ uri_part = {"analysis": "analyses",
             "variant": "alleles"
             }
 
+
 def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports):
     return {
        'annotations': annotations,
@@ -66,29 +67,48 @@ def allele_report_template(analysis_id, allele, user):
     }
 
 
-def get_last_interpretation_id(analysis_id=1):
-    r = api.get('/analyses/{}/'.format(analysis_id)).json
-    return r['interpretations'][-1]['id']
+def get_interpretation_id_of_last(workflow_type, workflow_id):
+    response = api.get('/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id))
+    assert response
+    assert response.status_code == 200
+    interpretations = response.json
+    return interpretations[-1]['id']
 
 
-def get_interpretation_id_of_first(analysis_id):
-    r = api.get('/analyses/{}/'.format(analysis_id)).json
-    return r['interpretations'][0]['id']
+def get_interpretation_id_of_first(workflow_type, workflow_id):
+    response = api.get('/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id))
+    assert response
+    assert response.status_code == 200
+    interpretations = response.json
+    return interpretations[0]['id']
 
 
-def get_last_interpretation(analysis_id=1):
-    return get_interpretation(analysis_id, get_last_interpretation_id(analysis_id=analysis_id))
+def get_last_interpretation(workflow_type, id=1):
+    return get_interpretation(workflow_type, id, get_interpretation_id_of_last(workflow_type, id))
 
 
-def get_interpretation(analysis_id, interpretation_id):
-    return api.get('/workflows/analyses/{}/interpretations/{}/'
-        .format(analysis_id, interpretation_id)).json
+def get_interpretation(workflow_type, workflow_id, interpretation_id):
+    response = api.get(
+        '/workflows/{}/{}/interpretations/{}/'.format(uri_part[workflow_type], workflow_id, interpretation_id))
+    assert response
+    assert response.status_code == 200
+    interpretation = response.json
+    return interpretation
 
 
-def save_interpretation_state(interpretation, analysis_id):
+def get_interpretations(workflow_type, workflow_id):
+    response = api.get(
+        '/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id))
+    assert response
+    assert response.status_code == 200
+    interpretations = response.json
+    return interpretations
+
+
+def save_interpretation_state(workflow_type, interpretation, workflow_id):
     api.patch(
-    '/workflows/analyses/{}/interpretations/{}/'
-        .format(analysis_id, interpretation['id']),
+    '/workflows/{}/{}/interpretations/{}/'
+        .format(uri_part[workflow_type], workflow_id, interpretation['id']),
         interpretation_template(interpretation)
     )
 
@@ -103,7 +123,7 @@ def start_interpretation(workflow_type, id, user, extra=None):
         post_data
     )
     assert response.status_code == 200
-    interpretation = get_last_interpretation(id)
+    interpretation = get_last_interpretation(workflow_type, id)
     assert interpretation['status'] == 'Ongoing'
     return interpretation
 
@@ -118,11 +138,11 @@ def get_entities_by_query(type, query):
     return response.json
 
 
-def get_snapshots(analysis_id):
-    response = api.get('/workflows/analyses/{}/snapshots/'.format(analysis_id))
+def get_snapshots(workflow_type, workflow_id):
+    response = api.get('/workflows/{}/{}/snapshots/'.format(uri_part[workflow_type], workflow_id))
+    assert response
     assert response.status_code == 200
     snapshots = response.json
-    assert snapshots
     return snapshots
 
 
@@ -134,6 +154,7 @@ def get_alleles(ids):
 
 def get_entity_by_id(type, id):  # like /alleleassessments/34/
     response = api.get('/{}/{}/'.format(type, id))
+    assert response
     assert response.status_code == 200
     return response.json
 
@@ -171,30 +192,26 @@ def get_variant_workflow(id):
     return get_entity_by_id('variants', id)
 
 
-def mark_review(analysis_id, data):
+def mark_review(workflow_type, workflow_id, data):
     response = api.post(
-        '/workflows/analyses/{}/actions/markreview/'.format(analysis_id),
+        '/workflows/{}/{}/actions/markreview/'.format(uri_part[workflow_type], workflow_id),
         data
     )
     assert response.status_code == 200
 
 
-def reopen_analysis(user, analysis_id):
+def reopen_analysis(workflow_type, workflow_id, user):
     response = api.post(
-        '/workflows/analyses/{}/actions/reopen/'.format(analysis_id),
+        '/workflows/{}/{}/actions/reopen/'.format(uri_part[workflow_type], workflow_id),
         {'user_id': user['id']}
     )
     assert response.status_code == 200
 
 
-def finalize(analysis_id,
-             annotations,
-             custom_annotations,
-             alleleassessments,
-             referenceassessments,
+def finalize(workflow_type, analysis_id, annotations, custom_annotations, alleleassessments, referenceassessments,
              allelereports):
     response = api.post(
-        '/workflows/analyses/{}/actions/finalize/'.format(analysis_id),
+        '/workflows/{}/{}/actions/finalize/'.format(uri_part[workflow_type], analysis_id),
         finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports)
     )
     assert response.status_code == 200
