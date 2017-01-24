@@ -9,6 +9,9 @@ uri_part = {"analysis": "analyses",
             "variant": "alleles"
             }
 
+ANALYSIS_WORKFLOW = "analysis"
+VARIANT_WORKFLOW = "variant"
+
 
 def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports):
     return {
@@ -38,14 +41,36 @@ def interpretation_template(interpretation):
     }
 
 
-def allele_assessment_template(analysis_id, allele, user):
+def allele_assessment_template_for_variant_workflow(allele, user):
     return {
         'user_id': user['id'],
         'allele_id': allele['id'],
         'evaluation': {'comment': 'Original comment'},
-        'classification': 5,
-        'analysis_id': analysis_id
+        'classification': 5
     }
+
+
+def allele_assessment_template(workflow_type, workflow_id, allele, user, extra):
+    base = {
+            'user_id': user['id'],
+            'allele_id': allele['id'],
+            'evaluation': {'comment': 'Original comment'},
+            'classification': 5,
+            'analysis_id': None,
+            'genepanel_name': None,
+            'genepanel_version': None
+            }
+
+    if workflow_type == ANALYSIS_WORKFLOW:
+        base['analysis_id'] = workflow_id
+        del base['genepanel_name']
+        del base['genepanel_version']
+    else:
+        del base['analysis_id']
+        base['genepanel_name'] = extra['gp_name']
+        base['genepanel_version'] = extra['gp_version']
+
+    return base
 
 
 def reference_assessment_template(analysis_id, allele, reference, user):
@@ -58,14 +83,27 @@ def reference_assessment_template(analysis_id, allele, reference, user):
     }
 
 
-def allele_report_template(analysis_id, allele, user):
-    return {
+def allele_report_template(workflow_type, workflow_id, allele, user, extra):
+    base = {
         'user_id': user['id'],
         'allele_id': allele['id'],
         'evaluation': {'comment': 'Original comment'},
-        'analysis_id': analysis_id
+        'analysis_id': None,
+        'genepanel_name': None,
+        'genepanel_version': None
     }
 
+    if workflow_type == ANALYSIS_WORKFLOW:
+        base['analysis_id'] = workflow_id
+        del base['genepanel_name']
+        del base['genepanel_version']
+    else:
+        del base['analysis_id']
+        base['genepanel_name'] = extra['gp_name']
+        base['genepanel_version'] = extra['gp_version']
+
+
+    return base
 
 def get_interpretation_id_of_last(workflow_type, workflow_id):
     response = api.get('/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id))
@@ -115,7 +153,7 @@ def save_interpretation_state(workflow_type, interpretation, workflow_id):
 
 def start_interpretation(workflow_type, id, user, extra=None):
     post_data = {'user_id': user['id']}
-    if extra:
+    if extra: # variant interpretation needs more than user
         for k,v in extra.iteritems():
             post_data[k] = v
     response = api.post(
