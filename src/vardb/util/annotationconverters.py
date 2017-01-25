@@ -148,11 +148,18 @@ def convert_hgmd(annotation):
     return {'HGMD': data}
 
 
-CLINVAR_FIELDS = [
+CLINVAR_RCV_FIELDS = [
     'traitnames',
     'clinical_significance_descr',
-    'clinical_significance_status',
+    #'clinical_significance_status',
     'variant_id',
+    'submitter',
+    'last_evaluated'
+]
+
+CLINVAR_FIELDS = [
+    'variant_description',
+    'variant_id'
 ]
 
 
@@ -162,11 +169,14 @@ def convert_clinvar(annotation):
 
     clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
 
-    data = []
+    data = dict(items=[])
+    data.update({k: clinvarjson[k] for k in CLINVAR_FIELDS})
     for rcv, val in clinvarjson["rcvs"].items():
-        item = {k: ", ".join(val[k]) for k in CLINVAR_FIELDS}
+        item = {k: ", ".join(val[k]) for k in CLINVAR_RCV_FIELDS}
         item["rcv"] = rcv
-        data.append(item)
+        data["items"].append(item)
+
+
 
     return {'CLINVAR': data}
 
@@ -338,13 +348,11 @@ class ConvertReferences(object):
 
         clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
 
-        total = []
-        for val in clinvarjson["rcvs"].values():
-            total += val["pubmed"]
-        total = set(total)
-        total = dict(zip(total, [""]*len(total)))  # Return as dict (empty values)
 
-        return total
+        pubmeds = clinvarjson["pubmeds"]
+        pubmeds = dict(zip(pubmeds, [""]*len(pubmeds)))  # Return as dict (empty values)
+
+        return pubmeds
 
     def _ensure_int_pmids(self, pmids):
         # HACK: Convert all ids to int, the annotation is sometimes messed up
@@ -363,8 +371,6 @@ class ConvertReferences(object):
         csq_pubmeds = self._ensure_int_pmids(self._csq_pubmeds(annotation))
         hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
         clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
-        # FIXME: Disable clinvar references for now, since they're wrong(?)
-        clinvar_pubmeds = dict()
 
         # Merge references and restructure to list
         all_pubmeds = csq_pubmeds.keys()+hgmd_pubmeds.keys()+clinvar_pubmeds.keys()
