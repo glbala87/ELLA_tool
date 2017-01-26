@@ -1,8 +1,6 @@
-from collections import defaultdict
 import re
 from flask import request
 from sqlalchemy.sql import text
-from sqlalchemy.orm import contains_eager
 from vardb.datamodel import sample, assessment, allele, gene, genotype
 
 from api import schemas
@@ -165,13 +163,13 @@ class SearchResource(Resource):
         # Search by c.DNA and p. names
         # Query unwraps 'CSQ' JSON array as intermediate
         # table then searches that table for a match.
-        allele_query = """with csq_transcripts as (
+        allele_query = """with annotation_transcripts as (
             SELECT
                a.allele_id,
-               jsonb_array_elements(a.annotations->'CSQ') AS csq
+               jsonb_array_elements(a.annotations->'transcripts') AS transcript_list
             FROM annotation as a
         )
-        SELECT DISTINCT allele_id FROM csq_transcripts
+        SELECT DISTINCT allele_id FROM annotation_transcripts
         WHERE {where_clause} LIMIT 5000
         """
 
@@ -179,9 +177,9 @@ class SearchResource(Resource):
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in query:
-            where_clause = "csq->>'HGVSp' ~* :query"
+            where_clause = "transcript_list->>'HGVSp' ~* :query"
         elif 'c.' in query:
-            where_clause = "csq->>'HGVSc' ~* :query"
+            where_clause = "transcript_list->>'HGVSc' ~* :query"
 
         if where_clause:
             allele_query = text(allele_query.format(where_clause=where_clause))
@@ -260,7 +258,6 @@ class SearchResource(Resource):
             allele.Allele.id.in_(allele_ids)
         ).distinct().all()
 
-
         # Load all genepanels
         # TODO: Optimize to load only relevant ones
         genepanels = session.query(gene.Genepanel).all()
@@ -271,7 +268,7 @@ class SearchResource(Resource):
             al = next(a for a in alleles if a['id'] == allele_id)
             genepanel = next(gp for gp in genepanels if gp.name == gp_name and gp.version == gp_version)
 
-            transcripts = [t['Transcript'] for t in al['annotation']['transcripts']]
+            transcripts = [t['transcript'] for t in al['annotation']['transcripts']]
             al['annotation']['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(
                 transcripts,
                 genepanel

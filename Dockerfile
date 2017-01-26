@@ -1,5 +1,5 @@
 FROM ousamg/ella.core:0.9.4
-MAINTAINER Dave Honneffer <dave@ousamg.io>
+MAINTAINER Erik Severinsen <erik@ousamg.io>
 
 # Get gulp
 RUN npm install -g gulp
@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
 RUN yarn install
 
+# See .dockerignore for files that won't be copied
 # Test builds depend on the next line
 # COPY . /ella
 WORKDIR /ella

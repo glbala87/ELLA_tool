@@ -11,10 +11,145 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; ba
     &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
   }
 }
-textarea { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0 0.3rem; width: 100%; min-height: 2.6rem; max-height: 50rem; border: none; background-color: transparent; border-bottom: 1px solid $black-50; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
+textarea, .wysiwygeditor { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0 0.3rem; width: 100%; min-height: 2.6rem; max-height: 50rem; border: none; background-color: transparent; border-bottom: 1px solid $black-50; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
   &:focus { border-bottom: 1px solid Transparent; box-shadow: 0px 0.3rem 0px $blue-50; outline: none; transition: all 0.3s ease-in-out; }
   &::placeholder { font-family: $full; font-size: 1.3rem; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
 }
+
+wysiwyg-editor {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.4rem;
+}
+
+.wysiwygplaceholder {
+  @extend textarea::placeholder;
+  border-bottom: 1px solid $black-25;
+}
+.wysiwygeditor {
+  max-height: 100%;
+  border-bottom: 1px solid $black-25;
+}
+
+.wysiwygeditor,
+.wysiwygeditor * li, .wysiwygeditor > li,
+.wysiwygeditor * p, .wysiwygeditor > p,
+.wysiwygeditor * em, .wysiwygeditor > em,
+.wysiwygeditor * span, .wysiwygeditor > span {
+  font-family: "Work Sans", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 300;
+  letter-spacing: 0;
+  color: $black;
+}
+
+.wysiwygeditor * b, .wysiwygeditor > b {
+  font-weight: bold;
+}
+
+.wysiwygeditor * li, .wysiwygeditor > li {
+  margin-left: 1.8rem;
+}
+.wysiwygeditor h1, .wysiwygeditor * h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03rem;
+}
+
+.wysiwygeditor h2, .wysiwygeditor * h2 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.03rem;
+}
+
+.wysiwygbuttons {
+  padding: 0px 0px;
+  margin: 0px 0px;
+  padding-top: 0.3rem;
+  box-shadow: 0 0.1rem 0.1rem $black-25;
+  display: inline-table;
+}
+
+.wysiwygbuttons[hidden] { display: none; }
+
+.wysiwygbutton {
+  background-color: $black-05;
+  color: $black-50;
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0px 0px;
+  margin: 0px 0px;
+  float: left;
+  box-shadow: none;
+  &:hover {
+    border: 1px solid $black-25;
+    border-bottom:0;
+    border-radius: 2px;}
+}
+
+#wysiwyg-src, #wysiwyg-color, #wysiwyg-paragraph, #wysiwyg-link {border-right: 1px solid $black-25}
+#wysiwyg-italic {font-style: italic;}
+#wysiwyg-underline {text-decoration: underline;}
+#wysiwyg-color {padding-top: 0.3rem;}
+#wysiwyg-link {padding-top: 0.1rem;}
+
+.vanilla-color-picker {
+  //background-color: $black-05 !important;
+  background-color: #EAEAED; // $black-05 overlayed on $purple-05
+  padding: 0.2rem;
+  margin-top: 0.3rem;
+  margin-right: 3rem;
+  border-radius: 3px;
+}
+
+.wysiwyglinkform {
+  width: 24rem;
+  border-radius: 3px;
+  padding: 0.2rem;
+  padding-bottom: 0.6rem;
+  margin-top: 0.2rem;
+  position: absolute;
+  opacity: 1;
+  z-index: 100;
+  background-color: #EAEAED; // $black-05 overlayed on $purple-05
+  box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.3);
+  &:focus {
+    outline: 0px solid transparent;
+  }
+}
+
+.addlinkbutton {
+  @extend .wysiwygbutton;
+  //width: calc(15% - 0.5rem);
+  //width: 15%;
+  float: right;
+  position: absolute;
+  left: 100%;
+  top: 100%;
+  //margin-top: 3.0rem;
+  //margin-bottom: 1.0rem;
+  //height: calc(100% - 1.3rem);
+  margin-left: -3rem;
+  margin-top: -3.5rem;
+  //margin-top: 0.5rem;
+  //margin-bottom: 0.8rem;
+  background: transparent;
+  //height: 2.6rem;
+  //box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.2);
+  font-size: 2.0rem;
+  //border-radius: 2px;
+  //color: $green-50;
+}
+
+
+.wysiwyglinkform * input {
+  width: calc(100% - 4rem);
+  padding: 0.5rem;
+  margin: 0.2rem;
+  z-index: 100;
+}
+
+
 a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed; border-color: $black-25; cursor: pointer; }
 a:hover, .clickable:hover { color: inherit; text-decoration: none; border-bottom: 1px solid; }
 a.white, .clickable.white, a.white:hover, .clickable.white:hover { border-color: $white-25; }
@@ -62,11 +197,37 @@ button { outline: none; border: 1px solid Transparent;
 .button-status-green {@extend %button-status; fill: $green-75;}
 .button-status-red {@extend %button-status; fill: $red-75}
 
-// APP-WIDE STYLE
+.max-width { width: 100%; }
 
-.container { margin-left: 32rem; margin-top: 0; margin-right: 1.3rem; margin-bottom: 2.6rem; }
-.container.no-secondary-nav { margin-top: 12rem; }
-.container.inner { margin-top: 0; width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+// APP-WIDE STYLE
+.main {
+  //display: flex;
+  width: 100%;
+  min-height: calc(100vh - 11rem);
+  height: 100%;
+
+  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; min-height: calc(100vh - 11rem);
+    .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
+      .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
+        &.active {
+          background-color: $blue-25;
+        }
+        &:hover {
+          background-color: $blue-25;
+          color: $white;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  .container { margin-left: 2rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  .container.no-secondary-nav { margin-top: 12rem; }
+  .container.inner { width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+
+
+  // View specific stuff
+  .overviewcontainer { display: flex; }
+}
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
 .full-width { width: 100%; }
@@ -75,6 +236,7 @@ button { outline: none; border: 1px solid Transparent;
 }
 .no-alleles {
    h2 { font-family: $slim; font-size: 2.0rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-50; }
+   h4 { font-family: $slim; font-size: 1.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-25; }
 }
 
 
@@ -88,9 +250,9 @@ button { outline: none; border: 1px solid Transparent;
 }
 
 nav.top { display: flex; flex-direction: row; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 1500;
-  section { display: flex; flex-direction: column; height: 100%; width: calc(50vw - 1.3rem); justify-content: space-between;
-    &.left { display: flex; justify-content: space-around; padding-bottom: 0.35rem }
-    &.right { margin-left: 0.35rem; }
+  section { display: flex; flex-direction: column; height: 100%; justify-content: space-between;
+    &.left { width: calc(30vw - 1.3rem); display: flex; justify-content: space-around; padding-bottom: 0.35rem }
+    &.right { width: calc(70vw - 1.3rem); margin-left: 0.35rem; margin-top: 5rem; }
   }
   .row { display: flex; flex-direction: row; align-items: center;
     &.up h3 { font-size: 1.3rem; }
@@ -100,7 +262,21 @@ nav.top { display: flex; flex-direction: row; align-items: center; background-co
   }
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-bottom: 4rem; margin-top: 6.5rem; padding: 0 1.3rem; }
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-top: 6.5rem; padding: 0 1.3rem;
+  section { display: flex;
+    button { margin-left: 1.3rem; }
+    .dropdown { margin-left: 1.3rem; }
+  }
+
+  // Workflow specific
+  .workflow-options { display: flex;
+    .dropdown { margin-right: 2rem; }
+    .review-comment {
+      input { width: 25rem; }
+    }
+  }
+}
+
 .search-box { margin-left: auto; margin-right: 1rem;
   input { padding: 0.25rem 0.75rem; transition: all 0.3s; }
   input:focus { background-color: $white-75; }
@@ -190,6 +366,7 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 .toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: $white-75; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
 .toast-close-button:hover, .toast-close-button:focus { color: $white; text-decoration: none; cursor: pointer; opacity: 0.4; }
 
+.spacer { height: 4rem; }
 
 .genepanel {
   @extend .dropdown;
@@ -309,3 +486,4 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 .selector-container.has-value * input {
   opacity: 0;
 }
+

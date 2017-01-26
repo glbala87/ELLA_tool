@@ -34,15 +34,14 @@ export class Allele {
             if (hgvs !== '') {
                 hgvs += '|'
             }
-            hgvs += `${t.Transcript}.${t.Transcript_version}(${t.SYMBOL}):${t.HGVSc_short}`;
+            hgvs += `${t.transcript}(${t.symbol}):${t.HGVSc_short}`;
         }
         return hgvs;
     }
 
     getExACUrl() {
-        if (this.chromosome &&
-            this.genotype) {
-            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.genotype.vcf_pos}-${this.genotype.vcf_ref}-${this.genotype.vcf_alt}`;
+        if (this.chromosome) {
+            return `http://exac.broadinstitute.org/region/${this.chromosome}-${this.start_position - 9}-${this.open_end_position + 10}`;
         }
     }
 
@@ -107,8 +106,8 @@ export class Allele {
         let result = `Chr${this.chromosome}(${this.genome_reference}):g.`;
 
         // Database is 0-based, alamut uses 1-based index
-        let start = this.start_position + 1;
-        let end = this.open_end_position + 1;
+        let start = this.start_position;
+        let end = this.open_end_position;
 
         if (this.change_type === 'SNP') {
             // snp: Chr11(GRCh37):g.66285951C>Tdel:
@@ -116,7 +115,7 @@ export class Allele {
         }
         else if (this.change_type === 'del') {
             // del: Chr13(GRCh37):g.32912008_32912011del
-            result += `${start}_${end}del`;
+            result += `${start+1}_${end}del`;
         }
         else if (this.change_type === 'ins') {
             // ins: Chr13(GRCh37):g.32912008_3291209insCGT
@@ -124,11 +123,11 @@ export class Allele {
         }
         else if (this.change_type === 'indel') {
             // delins: Chr13(GRCh37):g.32912008_32912011delinsGGG
-            result += `${start}_${end}delins${this.change_to}`;
+            result += `${start+1}_${end}delins${this.change_to}`;
         }
         else {
             // edge case, shouldn't happen, but this is valid format as well
-            result += `${start}`;
+            result += `${start+1}`;
         }
 
         return result;

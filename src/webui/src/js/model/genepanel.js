@@ -42,7 +42,7 @@ export default class Genepanel {
         let result = {
             _overridden: []  // Holds keys that are overridden by genepanel config.
         };
-        let props = ['last_exon', 'disease_mode', 'freq_cutoffs'];
+        let props = ['last_exon_important', 'disease_mode', 'freq_cutoffs'];
         let config_override = this.findGeneConfigOverride(geneSymbol);
         for (let p of props) {
             if (p in config_override) {

@@ -4,22 +4,26 @@ $bar-colors: (
   purple: $purple,
   pink: $pink,
   black: $black,
+  red: $red
 );
 @each $name, $color in $bar-colors {
    .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
    .sectionbox.#{$name} {
-     .sb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.25); }
+     .sb-title-container { background-color: hsla(hue($color),saturation($color),lightness($color), 0.25); }
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
    .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
    .#{$name} .sb-controls button:disabled, button.#{$name}:disabled { color: $color; border-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
    .#{$name} .sb-controls button:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
 }
-.sectionbox .sb.titlebar { color: $black-50; }
+
+.sectionbox .title, .sectionbox .icon { color: $black-50; }
+.sectionbox .subtitle { color: $black-25; }
 .contentbox .cb.titlebar { color: $white-50; }
 
-.sectionbox, .contentbox { display: flex; height: calc(100% - 0.7rem);
-  .titlebar { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
+
+.contentbox { display: flex; height: calc(100% - 0.7rem);
+  .cb.titlebar { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
   .titlebar div { margin: 1.75rem 0; }
   .titlebar div ~ div { margin-top: 0; }
   .titlebar .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
@@ -31,38 +35,85 @@ $bar-colors: (
   }
 }
 
-contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
-@keyframes flexw { from { flex-wrap: wrap; } to { flex-wrap: nowrap; } }
-@keyframes flexg { from { flex-grow: 1; } to { flex-grow: 0; flex: 1; } }
-.sectionbox { margin-bottom: 1.3rem;
-  .sb-container { flex: 1; display: flex; flex-wrap: wrap; }
-  .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; }
-  .sb-controls { flex-basis: 100%; order: -1; padding: 1.65rem; padding-left: 2.95rem; transition: all 0.6s 0.3s;
-    .dropdown:after { border-color: $white-75 transparent transparent transparent }
-    .dropdown select { color: white;
-      option { background-color: $purple-50; }
-    }
-    &:empty { display: none; }
-  }
-  .sb.titlebar {
-    .icon:hover svg { fill: $black-75; }
-    .icon.modal-close { margin-bottom: 2.6rem;
-      svg { stroke-width: 14%; width: 1rem; height: 1rem; }
-    }
-    .icon.collapser { margin-top: auto; }
-  }
-  &.collapsed {
-    .sb-container { animation: flexw; animation-delay: 0.6s; animation-duration: 0s; animation-fill-mode: forwards; }
-    .sb-body { animation: flexg; animation-delay: 0.6s; animation-duration: 0s; animation-fill-mode: forwards; }
-    .sb-controls { padding: 1.65rem; padding-top: 2.6rem; padding-left: 2.95rem; flex-basis: 75%; }
-    .icon.collapser { transform: rotate(-90deg); }
-  }
-  section ~ section.comments { padding-top: 1.3rem; }
-  section.comments {
-    .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
-  }
-  .nobody & .sb-body { display: none; }
+
+@keyframes hide {
+    0%   {opacity: 1; transform: scale(1); } // Scale is used to "remove" element afterwards
+    99%  {opacity: 0; transform: scale(1);}
 }
+@keyframes show {
+    0%   {opacity: 0; transform: scale(1); }
+    99%  {opacity: 1; transform: scale(1);}
+}
+$sb-titlebar-height: 3.8rem;
+.sectionbox { margin-bottom: 1.3rem; display: flex; flex-direction: column;
+
+  .titlebar { display: flex; height: $sb-titlebar-height; min-height: $sb-titlebar-height;
+
+    // Left part containing title and collapse arrow/close button
+    .sb-title-container { display: flex; cursor: pointer; min-width: 20rem; padding-right: 3rem; padding-left: 1.5rem;
+      .title { font-family: $slim; line-height: $sb-titlebar-height; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
+        a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
+        a:hover { border-left: 1px solid $white-50; border-bottom: none; }
+      }
+      .icon { transition: all 0.3s; width: 1.2rem; margin-right: 1rem; margin-top: 0.3rem; line-height: $sb-titlebar-height;
+        svg { width: 1.2rem; height: 1.2rem; transition: all 0.3s; transform: rotate(90deg); transform-origin: center; }
+      }
+      .subtitle { padding-left: 1rem; font-family: $slim; line-height: $sb-titlebar-height; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap; }
+    }
+    // Right side controls (buttons)
+    .sb-controls { flex: 1; padding-top: 0.65rem; padding-left: 3rem; padding-right: 1.5rem; transition: all 0.5s 0.2s;
+      .dropdown:after { border-color: $white-75 transparent transparent transparent }
+      .dropdown select { color: white;
+        option { background-color: $purple-50;}
+        &[disabled] { background-color: $purple-25; opacity: 1}
+      }
+      &:empty { display: none; }
+      // Animation hacks
+      transform: scale(1); animation: show 0.5s;
+    }
+  }
+
+  .sb-container {  display: flex; flex-direction: column;
+    .sb-top {
+       padding: 2rem;
+       flex-grow: 1;
+       &:empty { padding: 0 }
+    }
+    .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; flex-wrap: wrap;
+      &:empty { padding: 0 }
+      transform: scale(1); animation: show 1.0s;
+    }
+  }
+
+  // Collapsed overrides
+  &.collapsed {
+    .sb-title-container .icon.collapser {
+      svg { transform: rotate(0deg); }
+      transform-origin: bottom;
+    }
+    .sb-body {
+      display: none;
+    }
+    .sb-controls {
+      transform: scale(0);
+      animation: hide 0.5s;
+    }
+  }
+}
+
+
+allele-sectionbox {
+  .sb-top {
+
+    .comments { padding-top: 1.3rem; }
+    .comments {
+      .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
+    }
+  }
+}
+
+contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+
 .contentbox { margin: 0.35rem;
   .max-width & .cb-body { max-width: 100% !important; }
   .titlebar { justify-content: space-between; }
@@ -83,10 +134,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }
   .remove { margin-bottom: 0.7rem; @extend .pink; }
-  .icon:hover svg { fill: $white; }
-  .icon.collapsed { transform-style: preserve-3d; transform: rotateY(180deg); }
 }
-.contentbox.collapsed .cb-body { transform: scaleX(0);  opacity: 0; max-width: 0 !important; max-height: 0; overflow: hidden; padding: 0; white-space: nowrap; } // display: inline-flex;
 
 // no-content styling
 .no-content.contentbox { background-color: $black-25;

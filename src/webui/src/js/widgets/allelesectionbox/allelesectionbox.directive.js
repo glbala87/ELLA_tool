@@ -14,13 +14,15 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         alleleState: '=',
         alleleUserState: '=',
         analysis: '=?', // Used for IGV (optional)
-        comments: '=',  // Array of [{model: string, placeholder: string}, ...]
+        alleleassessmentComment: '=?',  // {name: string, placeholder: string}
+        allelereportComment: '=?',  // {name: string, placeholder: string}
         section: '=',  // Section to display using <allelesectionboxcontent>
         updateText: '@?',
         onUpdate: '&?',  // On-update callback function (should refresh allele)
-        onSetClass: '&?',  // Callback function when clicking 'Set' button for setting class
+        onChangeClass: '&?',  // Callback function when changing class (dropdown)
         onSkip: '&?', // Callback function when clicking 'Skip' button. Enables skip button.
         controls: '=',
+        readOnly: '=?', // prevent user from changing/updating if readOnly is true
         // possible controls: {
         //   toggle_technical: bool,
         //   toggle_class2: bool,
@@ -42,7 +44,6 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     'CustomAnnotationModal',
     'IgvModal',
     'Analysis',
-    'Interpretation',
     'clipboard',
     'toastr'
 )
@@ -55,14 +56,12 @@ export class AlleleSectionBoxController {
                 CustomAnnotationModal,
                 IgvModal,
                 Analysis,
-                Interpretation,
                 clipboard,
                 toastr) {
         this.config = Config.getConfig();
         this.alleleService = Allele;
         this.customAnnotationModal = CustomAnnotationModal;
         this.igvModal = IgvModal;
-        this.interpretationService = Interpretation;
         this.analysisService = Analysis;
         this.clipboard = clipboard;
         this.toastr = toastr;
@@ -70,44 +69,7 @@ export class AlleleSectionBoxController {
         this.selected_class = null; // Stores selected class in dropdown
         this.calculated_config = null; // calculated at request.
 
-        this.classificationOptions = this.config.classification.options;
-
-        this.sectionOptions = {};  // {'alleleinfo-something': {collapsed: true, ...}}
-
-        this.setupSectionOptions();
-
-        // This is a hack around the fact
-        // that <sectionbox> contains the toggle for
-        // the collapse action, so we need to watch
-        // it's collapsed state and act on that.
-        rootScope.$watch(
-            () => this.section.options.collapsed,
-            () => this.toggleCollapse()
-        );
-    }
-
-
-    /**
-     * Creates option objects for the <contentbox> es
-     * used as part of provided section.
-     */
-    setupSectionOptions() {
-        this.sectionOptions = {};
-        for (let s of this.section.content) {
-            this.sectionOptions[s.tag] = {
-                collapsed: false
-            }
-        }
-    }
-
-    /**
-     * Toggles collapse state on all child <contentbox>es through the
-     * section options.
-     */
-    toggleCollapse() {
-        for (let s of this.section.content) {
-            this.sectionOptions[s.tag].collapsed = this.section.options.collapsed;
-        }
+        this.classificationOptions = [{name: 'Unclassified', value: null}].concat(this.config.classification.options);
     }
 
     /**
@@ -123,6 +85,13 @@ export class AlleleSectionBoxController {
         return AlleleStateHelper.getClassification(this.allele, this.alleleState);
     }
 
+    getAlleleAssessment() {
+        return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState);
+    }
+
+    getAlleleReport() {
+        return AlleleStateHelper.getAlleleReport(this.allele, this.alleleState);
+    }
 
     /**
      * If the allele has an existing alleleassessment,
@@ -178,32 +147,48 @@ export class AlleleSectionBoxController {
         });
     }
 
-    updateClassification() {
-        AlleleStateHelper.updateClassification(this.alleleState, this.selected_class);
+    changeClassification() {
+        if (this.readOnly) {
+            return;
+        }
 
-        if (this.onSetClass) {
-            this.onSetClass({allele: this.allele});
+        if (this.onChangeClass) {
+            this.onChangeClass({allele: this.allele});
         }
     }
 
-    toggleClass1() {
-        AlleleStateHelper.toggleClass1(this.alleleState);
+    setClass1() {
+        if (this.readOnly) {
+            return;
+        }
+
+        this.alleleState.alleleassessment.classification = '1';
+        this.changeClassification();
+        if (this.onSkip) {
+            this.onSkip();
+        }
+    }
+
+    setClass2() {
+        if (this.readOnly) {
+            return;
+        }
+
+        this.alleleState.alleleassessment.classification = '2';
+        this.changeClassification();
 
         if (this.onSkip) {
             this.onSkip();
         }
     }
 
-    toggleClass2() {
-        AlleleStateHelper.toggleClass2(this.alleleState);
-
-        if (this.onSkip) {
-            this.onSkip();
+    setTechnical() {
+        if (this.readOnly) {
+            return;
         }
-    }
 
-    toggleTechnical() {
-        AlleleStateHelper.toggleTechnical(this.alleleState);
+        this.alleleState.alleleassessment.classification = 'T';
+        this.changeClassification();
 
         if (this.onSkip) {
             this.onSkip();
@@ -211,11 +196,15 @@ export class AlleleSectionBoxController {
     }
 
     toggleReuseAlleleAssessment() {
+        if (this.readOnly) {
+            return;
+        }
         if (AlleleStateHelper.toggleReuseAlleleAssessment(this.allele, this.alleleState, this.config)) {
             if (this.onSetClass) {
                 this.onSetClass({allele: this.allele});
             }
-        };
+        }
+        this.changeClassification();
     }
 
     getUpdateText() {

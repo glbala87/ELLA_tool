@@ -5,8 +5,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'allele-info-splice',
     scope: {
-        allele: '=',
-        collapsed: '=?'
+        allele: '='
     },
     templateUrl: 'ngtmpl/alleleInfoSplice.ngtmpl.html'
 })
@@ -20,6 +19,6 @@ export class AlleleInfoSplice {
     }
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'Splice' in t);
+        return this.allele.annotation.filtered.some(t => 'splice' in t);
     }
 }

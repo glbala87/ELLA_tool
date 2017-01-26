@@ -1,4 +1,4 @@
-<contentbox title="References" collapsed="vm.collapsed" ng-if="vm.allele_references.length+vm.missing_references.length">
+<contentbox class="max-width" title="References" ng-if="vm.allele_references.length+vm.missing_references.length">
   <cbbody>
     <article class="acmg-body" ng-repeat="ref in vm.allele_references">
       <div>
@@ -25,7 +25,9 @@
           </div>
         </div>
         <div>
-          <button class="blue id-reference-evaluate" ng-click="vm.showReferenceEval(ref)">{{vm.getEvaluateBtnText(ref)}}</button>
+          <button class="blue id-reference-evaluate"
+                  ng-click="vm.showReferenceEval(ref)"
+          >{{vm.getEvaluateBtnText(ref)}}</button>
         </div>
       </section>
       <div class="cb-table topfix" ng-if="vm.getReferenceAssessment(ref).evaluation.relevance">
@@ -41,7 +43,11 @@
         <div class="tabular-row" ng-if="vm.getReferenceAssessment(ref).evaluation.comment">
           <div class="cell top-align"><h5>Comment:</h5></div>
           <div class="cell max-width">
-            <autosize-textarea class="card-comment id-reference-comment" ng-disabled="true" placeholder="" ng-model="vm.getReferenceAssessment(ref).evaluation.comment"></autosize-textarea>
+              <wysiwyg-editor class="card-comment id-reference-comment"
+                      ng-disabled="true"
+                      placeholder=""
+                      ng-model="vm.getReferenceAssessment(ref).evaluation.comment">
+              </wysiwyg-editor>
           </div>
         </div>
       </div>

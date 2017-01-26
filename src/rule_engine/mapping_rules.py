@@ -6,8 +6,8 @@ rules = [
     { "code": "REQ_GP_AR", "rule": {"genepanel.inheritance": "AR"}},
     { "code": "REQ_GP_XD", "rule": {"genepanel.inheritance": "XD"}},
     { "code": "REQ_GP_XR", "rule": {"genepanel.inheritance": "XR"}},
-    { "code": "REQ_GP_last_exon_important", "rule": {"genepanel.last_exon": "LEI"}},
-    { "code": "REQ_GP_last_exon_not_important", "rule": {"genepanel.last_exon": "LENI"}},
+    { "code": "REQ_GP_last_exon_important", "rule": {"genepanel.last_exon_important": "LEI"}},
+    { "code": "REQ_GP_last_exon_not_important", "rule": {"genepanel.last_exon_important": "LENI"}},
     { "code": "REQ_GP_LOF_missense", "rule": {"genepanel.disease_mode": "ANY"}},
     { "code": "REQ_GP_LOF_only", "rule": {"genepanel.disease_mode": "LOF"}},
     { "code": "REQ_GP_missense_only", "rule": {"genepanel.disease_mode": "MISS"}},
@@ -20,7 +20,7 @@ rules = [
     { "code": "REQ_abnormal_protein", "rule": {"refassessment.*.ref_prot": "prot_abnormal"}},
     { "code": "REQ_abnormal_RNA", "rule": {"refassessment.*.ref_rna": "rna_abnormal"}},
     { "code": "REQ_crit_domain", "rule": {"refassessment.*.ref_domain_overlap": "crit_domain"}},
-    { "code": "REQ_crit_domain", "rule": {"prediction.Domain": "crit_domain"}},
+    { "code": "REQ_crit_domain", "rule": {"prediction.domain": "crit_domain"}},
     { "code": "REQ_hi_freq", "rule": {"frequencies.cutoff.ExAC": ">=hi_freq_cutoff"}},
     { "code": "REQ_hi_freq", "rule": {"frequencies.cutoff.1000G": ">=hi_freq_cutoff"}},
     { "code": "REQ_hi_freq", "rule": {"frequencies.cutoff.ESP6500": ">=hi_freq_cutoff"}},
@@ -30,17 +30,17 @@ rules = [
     { "code": "REQ_in_autozygous", "rule": {"genomic.autozygosity": "in_autozygous"}},
     { "code": "REQ_in_last_exon", "rule": {"transcript.in_last_exon": "yes"}},
     { "code": "REQ_in_trans_pathogenic", "rule": {"genomic.phase": "in_trans_pathogenic"}},
-    { "code": "REQ_inframe", "rule": {"transcript.Consequence": {"$in": ["inframe_insertion", "inframe_deletion"]}}},
+    { "code": "REQ_inframe", "rule": {"transcript.consequences": {"$in": ["inframe_insertion", "inframe_deletion"]}}},
     { "code": "REQ_less_common", "rule": {"frequencies.cutoff.ExAC": {"$all": [">=lo_freq_cutoff", "<hi_freq_cutoff"]}}},
     { "code": "REQ_less_common", "rule": {"frequencies.cutoff.1000G": {"$all": [">=lo_freq_cutoff", "<hi_freq_cutoff"]}}},
     { "code": "REQ_less_common", "rule": {"frequencies.cutoff.ESP6500": {"$all": [">=lo_freq_cutoff", "<hi_freq_cutoff"]}}},
     { "code": "REQ_less_common", "rule": {"frequencies.cutoff.inDB": {"$all": [">=lo_freq_cutoff", "<hi_freq_cutoff"]}}},
-    { "code": "REQ_missense", "rule": {"transcript.Consequence": {"$in": ["missense_variant", "protein_altering_variant"]}}},
+    { "code": "REQ_missense", "rule": {"transcript.consequences": {"$in": ["missense_variant", "protein_altering_variant"]}}},
     { "code": "REQ_MMR_loss", "rule": {"refassessment.*.ref_ihc": "mmr_loss"}},
     { "code": "REQ_MSI", "rule": {"refassessment.*.ref_msi": "msi"}},
     { "code": "REQ_MSI_HQ", "rule": {"refassessment.*.ref_msi_quality": "msi_HQ"}},
     { "code": "REQ_MSI_MQ", "rule": {"refassessment.*.ref_msi_quality": "msi_MQ"}},
-    { "code": "REQ_no_aa_change", "rule": {"transcript.Consequence": {"$in": ["stop_retained_variant", "5_prime_UTR_variant", "3_prime_UTR_variant", "non_coding_transcript_exon_variant", "non_coding_transcript_variant", "intron_variant", "upstream_gene_variant", "downstream_gene_variant", "intergenic_variant", "synonymous_variant"]}}},
+    { "code": "REQ_no_aa_change", "rule": {"transcript.consequences": {"$in": ["stop_retained_variant", "5_prime_UTR_variant", "3_prime_UTR_variant", "non_coding_transcript_exon_variant", "non_coding_transcript_variant", "intron_variant", "upstream_gene_variant", "downstream_gene_variant", "intergenic_variant", "synonymous_variant"]}}},
     { "code": "REQ_no_MSI", "rule": {"refassessment.*.ref_msi": "no_msi"}},
     { "code": "REQ_no_segregation", "rule": {"refassessment.*.ref_segregation": "no_segr"}},
     # Manual edit
@@ -49,7 +49,7 @@ rules = [
     { "code": "REQ_normal_RNA", "rule": {"refassessment.*.ref_rna": "rna_normal"}},
     { "code": "REQ_not_in_last_exon", "rule": {"transcript.in_last_exon": "no"}},
     { "code": "REQ_novel_aa", "rule": {"refassessment.*.ref_aa_overlap_same_novel": "novel_aa"}},
-    { "code": "REQ_null_variant", "rule": {"transcript.Consequence": {"$in": ["start_lost", "initiator_codon_variant", "transcript_ablation", "splice_donor_variant", "splice_acceptor_variant", "stop_gained", "frameshift_variant"]}}},
+    { "code": "REQ_null_variant", "rule": {"transcript.consequences": {"$in": ["start_lost", "initiator_codon_variant", "transcript_ablation", "splice_donor_variant", "splice_acceptor_variant", "stop_gained", "frameshift_variant"]}}},
     { "code": "REQ_no_freq", "rule": {"frequencies.cutoff.ExAC": "null_freq"}},
     { "code": "REQ_no_freq", "rule": {"frequencies.cutoff.1000G": "null_freq"}},
     { "code": "REQ_no_freq", "rule": {"frequencies.cutoff.ESP6500": "null_freq"}},
@@ -61,7 +61,7 @@ rules = [
     { "code": "REQ_protein_HQ", "rule": {"refassessment.*.ref_prot_quality": "prot_HQ"}},
     { "code": "REQ_protein_MQ", "rule": {"refassessment.*.ref_prot_quality": "prot_MQ"}},
     { "code": "REQ_repeat", "rule": {"refassessment.*.ref_repeat_overlap": "repeat"}},
-    { "code": "REQ_repeat", "rule": {"genomic.Domain": "repeat"}},
+    { "code": "REQ_repeat", "rule": {"genomic.domain": "repeat"}},
     { "code": "REQ_RNA_HQ", "rule": {"refassessment.*.ref_rna_quality": "rna_HQ"}},
     { "code": "REQ_RNA_MQ", "rule": {"refassessment.*.ref_rna_quality": "rna_MQ"}},
     { "code": "REQ_same_aa", "rule": {"refassessment.*.ref_aa_overlap_same_novel": "same_aa"}},
@@ -81,7 +81,7 @@ rules = [
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_MMR_loss", "REQ_IHC_HQ"]}}},
     { "code": "PS4", "rule": {"$$aggregate": {"$all": ["REQ_>=4affected", "REQ_no_freq"]}}},
     { "code": "PSxPM1", "rule": {"refassessment.*.ref_crit_site": "crit_site"}},
-    { "code": "PSxPM1", "rule": {"prediction.Domain": "crit_site"}},
+    { "code": "PSxPM1", "rule": {"prediction.domain": "crit_site"}},
     # PSxPM4 (no rule)
     { "code": "PSxPP1", "rule": {"$$aggregate": {"$all": ["REQ_segregation", "REQ_segregation_HQ"]}}},
     ### PM*
@@ -89,7 +89,7 @@ rules = [
     { "code": "PM1", "rule": {"refassessment.*.ref_mut_hotspot": "mut_hotspot"}},
     # PM2 (no rule)
     { "code": "PM3", "rule": {"$$aggregate": {"$all": ["REQ_in_trans_pathogenic", "REQ_GP_AR"]}}},
-    { "code": "PM4", "rule": {"transcript.Consequence": "stop_lost"}},
+    { "code": "PM4", "rule": {"transcript.consequences": "stop_lost"}},
     # Manual edit
     { "code": "PM4", "rule": {"$$aggregate": {"$and": ["REQ_inframe", {"$not": {"$in": ["REQ_repeat"]}}]}}},
     { "code": "PM5", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_novel_aa", "REQ_aa_similar", "REQ_overlap_HQ"]}}},
@@ -107,7 +107,7 @@ rules = [
     # Manual edit
     { "code": "PP2","rule": {"$$aggregate": {"$and":["REQ_missense",{"$in": ["REQ_GP_LOF_missense","REQ_GP_missense_only"]}]}}},
     { "code": "PP3", "rule": {"transcript.splice_Effect": {"$in": ["predicted_lost ", "de_novo"]}}},
-    { "code": "PP3", "rule": {"prediction.Conservation": "conserved"}},
+    { "code": "PP3", "rule": {"prediction.conservation": "conserved"}},
     { "code": "PP3", "rule": {"external.IARC-BRCA": {"$in": ["4", "5"]}}},
     # PP4 (no rule)
     { "code": "PP5", "rule": {"external.[Trusted source]": "Pathogenic"}},
@@ -123,7 +123,7 @@ rules = [
     { "code": "BP3", "rule": {"$$aggregate": {"$all": ["REQ_inframe", "REQ_repeat"]}}},
     # Manual edit
     { "code": "BP4", "rule": {"transcript.splice_Effect": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
-    { "code": "BP4", "rule": {"prediction.Conservation": "non-conserved"}},
+    { "code": "BP4", "rule": {"prediction.conservation": "non-conserved"}},
     # BP5 (no rule)
     { "code": "BP6", "rule": {"external.[Trusted source]": "Benign"}},
     # BP7 (no rule)
@@ -146,7 +146,7 @@ rules = [
     { "code": "BA1", "rule": {"frequencies.cutoff.ExAC": ">=hi_freq_cutoff"}},
     { "code": "BA1", "rule": {"frequencies.cutoff.1000G": ">=hi_freq_cutoff"}},
     { "code": "BA1", "rule": {"frequencies.cutoff.ESP6500": ">=hi_freq_cutoff"}},
-    { "code": "BA1", "rule": {"frequencies.cutoff.inDB": ">=hi_freq_cutoff"}},
+    { "code": "BA1", "rule": {"frequencies.cutoff.inDB": ">=hi_freq_cutoff"}}
 
 
 

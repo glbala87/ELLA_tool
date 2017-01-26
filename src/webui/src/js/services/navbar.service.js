@@ -25,29 +25,21 @@ export class NavbarService {
       this.allele = null;
     }
 
-    setAnalysis(analysis) {
-        this.analysis = analysis;
-    }
-
-    getAnalysis() {
-        return this.analysis;
-    }
-
-    clearAnalysis() {
-        this.analysis = null;
-    }
-
-    setAllele(allele) {
+    setAllele(allele, genepanel=null) {
         this.allele = allele;
+        this.genepanel = genepanel;
     }
 
     getAllele() {
-      return this.allele;
+        return this.allele;
+    }
+
+    getGenepanel() {
+        return this.genepanel;
     }
 
     clearItems() {
         this.clearAllele();
-        this.clearAnalysis();
         this.items = [];
     }
 

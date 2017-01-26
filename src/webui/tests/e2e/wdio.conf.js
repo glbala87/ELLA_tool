@@ -162,7 +162,7 @@ exports.config = {
         addCommands();
         // Despite these settings, not-clickable errors happen locally. (height is limited running on Mac)
         // browser.setViewportSize({ width: 1280, height: 1000});
-        console.log('browser window size:');
+        console.log('\nbrowser window size:');
         console.log(browser.windowHandleSize());
     },
     //

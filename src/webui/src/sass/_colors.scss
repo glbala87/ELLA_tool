@@ -27,6 +27,7 @@ $black-95: hsla(hue($black),saturation($black),lightness($black),0.95);
 $black-75: hsla(hue($black),saturation($black),lightness($black),0.75);
 $black-50: hsla(hue($black),saturation($black),lightness($black),0.50);
 $black-25: hsla(hue($black),saturation($black),lightness($black),0.25);
+$black-10: hsla(hue($black),saturation($black),lightness($black),0.10);
 $black-05: hsla(hue($black),saturation($black),lightness($black),0.05);
 
 $white: hsl(0,0,100);
@@ -35,6 +36,8 @@ $white-75: hsla(hue($white),saturation($white),lightness($white),0.75);
 $white-50: hsla(hue($white),saturation($white),lightness($white),0.50);
 $white-25: hsla(hue($white),saturation($white),lightness($white),0.25);
 $white-05: hsla(hue($white),saturation($white),lightness($white),0.05);
+
+//$black-95-solid: hsl(0,0,95);
 
 
 $yellow: hsla(45,35,45,1);

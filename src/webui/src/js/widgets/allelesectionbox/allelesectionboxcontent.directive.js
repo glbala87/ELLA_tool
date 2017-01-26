@@ -33,8 +33,8 @@ import {Directive, Inject} from '../../ng-decorators';
         references: '=',
         alleleState: '=',
         onSave: '&?',
-        boxes: '=',  // Array of objects.
-        boxesOptions: '=' // {allele-info-exac: {collapsed: false}, ...}
+        readOnly: '=?',
+        boxes: '='  // Array of objects.
     },
     link: (scope, elem, attrs, ctrl) => {
 
@@ -59,12 +59,6 @@ import {Directive, Inject} from '../../ng-decorators';
                     on_save = 'on-save="vm.onSave()"';
                 }
 
-
-                let collapsed = '';
-                if (scope.vm.boxesOptions &&
-                    box.tag in scope.vm.boxesOptions) {
-                    collapsed = `collapsed="vm.boxesOptions['${box.tag}'].collapsed"`;
-                }
                 html += `
                 <${box.tag}
                     class="cb-wrapper"
@@ -72,7 +66,7 @@ import {Directive, Inject} from '../../ng-decorators';
                     allele="vm.allele"
                     references="vm.references"
                     allele-state="vm.alleleState"
-                    ${collapsed}
+                    read-only="vm.readOnly"
                     ${on_save}
                     ${attrs}
                 ></${box.tag}>`;

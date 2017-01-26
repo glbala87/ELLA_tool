@@ -1,15 +1,16 @@
 <sectionbox class="prompt" color="purple" modal="true" on-close="vm.modal.close">
-  <titlebar>
-    <h3 class="title">FINISHED: ANALYSIS COMPLETE</h3>
-  </titlebar>
+  <maintitle>
+    FINISHED: ANALYSIS COMPLETE
+  </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
       <button class="id-mark-review normal" type="button" ng-click="vm.modal.close('markreview')">Mark for review</button>
-      <button class="id-finalize" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
+      <button ng-disabled="!vm.canFinalize" class="id-finalize" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
     </section>
   </controls>
   <contentwrapper>
-    <h4 class="sb-notification"> You have finished the current analysis. </h4>
     <h4 class="sb-notification"> Would you like to mark the analysis for review, or finalize it? </h4>
+    <h4 class="sb-notification" ng-if="!vm.canFinalize"> </h4>
+    <h4 class="sb-notification" ng-if="!vm.canFinalize">In order to finalize you need to classify all variants.</h4>
   </contentwrapper>
 </sectionbox>

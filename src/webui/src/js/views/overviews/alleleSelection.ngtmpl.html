@@ -1,0 +1,66 @@
+<sectionbox color="green" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    YOUR VARIANTS
+  </maintitle>
+  <subtitle>
+    {{vm.ongoing_user.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.ongoing_user"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.ongoing_user.length">You have no variants</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="green" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    PENDING VARIANTS
+  </maintitle>
+  <subtitle>
+    {{vm.overview.missing_alleleassessment.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.overview.missing_alleleassessment"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.missing_alleleassessment.length">No pending variants</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="purple" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    VARIANTS PENDING REVIEW
+  </maintitle>
+  <subtitle>
+    {{vm.overview.marked_review.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.overview.marked_review"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review.length">No variants pending review</h4>
+  </contentwrapper>
+</sectionbox>
+
+<div class="spacer"></div>
+
+<sectionbox color="blue" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    OTHERS' VARIANTS
+  </maintitle>
+  <subtitle>
+    {{vm.ongoing_others.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.ongoing_others"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.ongoing_others.length">Others have no variants</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="blue" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    FINISHED VARIANTS
+  </maintitle>
+  <subtitle>
+    {{vm.overview.finalized.length}}
+  </subtitle>
+  <contentwrapper>
+    <allele-list allele-items="vm.overview.finalized"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.finalized.length">No finished variants</h4>
+  </contentwrapper>
+</sectionbox>

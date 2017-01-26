@@ -42,39 +42,6 @@ export class AnalysisService {
         );
     }
 
-    markreview(analysis_id) {
-        return this.analysisResource.markreview(analysis_id);
-    }
-
-    finalize(analysis_id, alleleassessments, referenceassessments, allelereports) {
-        return this.analysisResource.finalize(
-            analysis_id,
-            alleleassessments,
-            referenceassessments,
-            allelereports
-        );
-    }
-
-    start(analysis_id) {
-        return this.analysisResource.start(analysis_id, this.user.getCurrentUserId());
-    }
-
-    reopen(analysis_id) {
-        return this.analysisResource.reopen(analysis_id, this.user.getCurrentUserId());
-    }
-
-    override(analysis_id) {
-        return this.analysisResource.override(analysis_id, this.user.getCurrentUserId());
-    }
-
-    openAnalysis(analysis_id) {
-        this.location.path(`/analyses/${analysis_id}`);
-    }
-
-    openAnalysisList() {
-        this.location.path('/analyses');
-    }
-
     getCollisions(id) {
         return this.analysisResource.getCollisions(id);
     }

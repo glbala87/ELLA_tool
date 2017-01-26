@@ -7,16 +7,29 @@ from api import ApiError
 
 
 @pytest.fixture
-def testdata():
+def assessment_template():
     return {
         "allele_id": 1,
+        "annotation_id": 1,
+        "analysis_id": 1,
+        "user_id": 1,
         "classification": "1",
         "evaluation": {
             "comment": "Some comment",
         },
-        "user_id": 1,
+        "referenceassessments": []  # populated as part of test see referenceassessment_template
+    }
+
+
+def referenceassessment_template(allele_id):
+    return {
+        "allele_id": allele_id,
         "analysis_id": 1,
-        "referenceassessments": []
+        "user_id": 1,
+        "reference_id": 9,  # must exist in database
+        "evaluation": {
+            "comment": "Some comment"
+        },
     }
 
 
@@ -27,50 +40,49 @@ def client():
 
 class TestAlleleAssessment(object):
 
-    def _get_interpretation_id(self, client):
+    def _get_interpretation_id_of_first(self, client):
         r = client.get('/api/v1/analyses/1/').json
         return r['interpretations'][0]['id']
 
-    def _get_interpretation(self, client):
-        return client.get('/api/v1/interpretations/{}/'.format(self._get_interpretation_id(client))).json
+    def _get_interpretation(self, client, id):
+        return client.get('/api/v1/interpretations/{}/'.format(id)).json
 
     @pytest.mark.aa(order=0)
-    def test_create_new(self, test_database, testdata, client):
+    def test_create_new(self, test_database, assessment_template, client):
         test_database.refresh()  # Reset db
 
-        # Retrieve alleles for interpretation for which
-        # to create new AlleleAssessments
-        interpretation = self._get_interpretation(client)
-
-        # Create all AlleleAssessments objects
+        # Create an assessment for alleles in the interpretation
+        interpretation = self._get_interpretation(client, self._get_interpretation_id_of_first(client))
         for idx, allele_id in enumerate(interpretation['allele_ids']):
 
             # Prepare
-            aa = copy.deepcopy(testdata)
-            aa['allele_id'] = allele_id
-            aa['referenceassessments'] = [
-                {
-                    'allele_id': allele_id,
-                    'reference_id': 1,
-                    'user_id': 1,
-                    'evaluation': {
-                        'comment': 'Some comment'
-                    },
-                    'analysis_id': 1
-                }
-            ]
+            assessment_data = copy.deepcopy(assessment_template)
+            assessment_data['allele_id'] = allele_id
+            assessment_data['referenceassessments'] = [referenceassessment_template(allele_id)]
+
+            annotations = [{"allele_id": assessment_data['allele_id'],
+                            "annotation_id": assessment_data['annotation_id']}
+                           ]
+            custom_annotations = [{"allele_id": assessment_data['allele_id'],
+                                   "custom_annotation_id": 1}
+                                  ]
 
             # POST data
-            r = client.post('/api/v1/alleleassessments/', aa)
+            r = client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                           "custom_annotations": custom_annotations,
+                                                           "allele_assessments": [assessment_data]})
 
             # Check response
             assert r.status_code == 200
-            aa = r.json[0]
-            assert len(aa['referenceassessments']) == 1
-            assert 'id' in aa['referenceassessments'][0]
-            assert aa['referenceassessments'][0]['allele_id'] == allele_id
-            assert aa['allele_id'] == allele_id
-            assert aa['id'] == idx + 1
+            assessment_response = r.json[0]
+            assert len(assessment_response['referenceassessments']) == 1
+            assert 'id' in assessment_response['referenceassessments'][0]
+            assert assessment_response['referenceassessments'][0]['allele_id'] == allele_id
+            assert assessment_response['allele_id'] == allele_id
+            assert assessment_response['id'] == idx + 1
+            assert assessment_response['annotation_id'] == assessment_data['annotation_id']
+            assert assessment_response['custom_annotation_id'] == 1
+
 
     @pytest.mark.aa(order=1)
     def test_update_assessment(self, client):
@@ -80,63 +92,72 @@ class TestAlleleAssessment(object):
         while the existing should be superceded.
         """
 
-        interpretation = self._get_interpretation(client)
+        interpretation = self._get_interpretation(client, self._get_interpretation_id_of_first(client))
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_aa = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
+        previous_assessments = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
 
         previous_ids = []
-        for prev in previous_aa:
-            # Prepare
-            prev_id = prev['id']
-            previous_ids.append(prev_id)
+        for assessment_data in previous_assessments:
+            # Build assessment data suitable for saving
+            prev_id = assessment_data['id']
+            previous_ids.append(prev_id)  # bookkeeping
             # Delete the id, to make the backend create a new assessment
-            del prev['id']
-            prev['evaluation']['comment'] = "Some new comment"
+            del assessment_data['id']
+            del assessment_data['previous_assessment_id']  # remove as a null value creates an schema exception
+            assessment_data['presented_alleleassessment_id'] = prev_id  # Api requirement dictated by finalization
+            assessment_data['reuse'] = False
+            assessment_data['evaluation']['comment'] = "A new assessment superceeding an old one"
 
             # Update referenceassessment
-            prev_ra_id = prev['referenceassessments'][0]['id']
-            del prev['referenceassessments'][0]['id']
-            prev['referenceassessments'][0]['evaluation'] = {'comment': 'Some new comment'}
+            prev_ra_id = assessment_data['referenceassessments'][0]['id']
+            del assessment_data['referenceassessments'][0]['id']
+            assessment_data['referenceassessments'][0]['evaluation'] = {'comment': 'Some new reference comment'}
 
-            # POST data
-            r = client.post('/api/v1/alleleassessments/', prev)
+            # POST (a single) assessment
+            annotations = [{"allele_id": assessment_data['allele_id'], "annotation_id": assessment_data['annotation_id']}]
+            r = client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                           "allele_assessments": [assessment_data]})
 
             # Check response
             assert r.status_code == 200
-            aa = r.json[0]
-            assert aa['id'] != prev_id
-            assert aa['evaluation']['comment'] == 'Some new comment'
+            new_assessment = r.json[0]  # we posted only one, so expect only one in return
+            assert new_assessment['id'] != prev_id
+            assert new_assessment['evaluation']['comment'] == 'A new assessment superceeding an old one'
 
             # Check that a new referenceassessment was created
-            assert aa['referenceassessments'][0]['id'] != prev_ra_id
-            assert aa['referenceassessments'][0]['evaluation']['comment'] == 'Some new comment'
+            assert new_assessment['referenceassessments'][0]['id'] != prev_ra_id
+            assert new_assessment['referenceassessments'][0]['evaluation']['comment'] == 'Some new reference comment'
 
         # Reload the previous alleleassessments and make sure
         # they're marked as superceded
         q = {'id': previous_ids}
-        previous_aa = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
+        previous_assessments = client.get('/api/v1/alleleassessments/?q={}'.format(json.dumps(q))).json
 
-        assert all([p['date_superceeded'] is not None for p in previous_aa])
+        assert all([p['date_superceeded'] is not None for p in previous_assessments])
 
     @pytest.mark.aa(order=2)
-    def test_fail_cases(self, client, testdata):
+    def test_fail_cases(self, client, assessment_template):
         """
         Test cases where it should fail to create assessments.
         """
 
+        assessment_data = copy.deepcopy(assessment_template)
+        annotations = [{"annotation_id": 1, "allele_id": assessment_data['allele_id']}]
+
         # Test without allele_id
-        data = copy.deepcopy(testdata)
-        del data['allele_id']
+        del assessment_data['allele_id']
 
         # We don't run actual HTTP requests, everything is in python
         # so we can catch the exceptions directly
-        with pytest.raises(ApiError):
-            client.post('/api/v1/alleleassessments/', data)
+        with pytest.raises(Exception):  # the error is not caught at the API boundary as enforcing required fields for dict of dict isn't implemented
+            client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                       "allele_assessments": [assessment_data]})
 
         # Test without analysis_id
-        data = copy.deepcopy(testdata)
-        del data['analysis_id']
+        assessment_data = copy.deepcopy(assessment_template)
+        del assessment_data['analysis_id']
 
         with pytest.raises(ApiError):
-            client.post('/api/v1/alleleassessments/', data)
+            client.post('/api/v1/alleleassessments/', {"annotations": annotations,
+                                                       "allele_assessments": [assessment_data]})

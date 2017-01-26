@@ -1,0 +1,71 @@
+<div class="main">
+
+  <nav class="secondary">
+    <div class="workflow-options">
+      <div class="dropdown white">
+        <select ng-options="c as c.title for c in vm.components"
+                ng-model="vm.selected_component"></select>
+      </div>
+      <div class="review-comment">
+        <input type="text"
+               placeholder="REVIEW COMMENT"
+               ng-model="vm.getInterpretation().state.review_comment"
+               ng-disabled="vm.readOnly()"></input>
+      </div>
+    </div>
+    <section>
+      <button class="id-add-excluded" ng-click="vm.modalAddExcludedAlleles()">
+        <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+            <path d="M16 2 L16 30 M2 16 L30 16" />
+        </svg>
+        <span> {{vm.getInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
+      <button ng-click="vm.copyAlamut()">Copy all to alamut</button>
+
+      <div class="dropdown white" ng-if="vm.showHistory()">
+        <select
+          class="id-interpretationrounds-dropdown"
+          ng-options="i as ( vm.interpretations.indexOf(i) + 1 + ' • ' + i.user.first_name + ' ' + i.user.last_name + ' • ' + (i.date_last_update | date:'dd-MM-yyyy HH:mm')) for i in vm.history_interpretations track by i.id"
+          ng-model="vm.selected_interpretation">
+        </select>
+      </div>
+      <workflow-buttons alleles="vm.selected_interpretation_alleles"
+                        analysis-id="vm.analysis.id"
+                        reload="vm.reloadInterpretationData()"
+                        selected-interpretation="vm.selected_interpretation"
+                        interpretations="vm.interpretations"
+                        readOnly="vm.readOnly"
+      ></workflow-buttons>
+    </section>
+  </nav>
+  <nav class="warning" ng-if="vm.allele_collisions.collisions.count > 0">
+    <div class="id-collision-warning">
+      <h2>There are currently {{vm.allele_collisions.collisions.count}} variant(s) being worked on in other workflows.</h2>
+    </div>
+  </nav>
+  <div class="interpretation">
+    <interpretation
+      components="vm.components"
+      selected-component="vm.selected_component"
+      interpretation="vm.getInterpretation()"
+      allele-ids="vm.getInterpretation().allele_ids"
+      genepanel-name="vm.analysis.genepanel.name"
+      genepanel-version="vm.analysis.genepanel.version"
+      analysis="vm.analysis"
+      alleles="vm.selected_interpretation_alleles"
+      update-alleles="vm.loadAlleles()"
+      ng-if="vm.analysis && vm.alleles_loaded"
+      read-only="vm.readOnly()"
+    ></interpretation>
+  </div>
+
+</div>
+
+<!-- - ->
+<h4>Debug:</h4>
+<br><br>
+<h5>Interpretation state:</h5>
+<p><pre>{{vm.interpretation.state | prettyJSON}}</pre></p>
+<h5>Interpretation user state:</h5>
+<p><pre>{{vm.interpretation.user_state | prettyJSON}}</pre></p>
+
+ <!- - -->

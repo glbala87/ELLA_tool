@@ -1,7 +1,11 @@
-import logging
 import copy
-from api.config import config
+import logging
 
+from api.config import config
+#
+INHERITANCE_AD = 'AD'
+INHERITANCE_AR = 'AR'
+INHERITANCE_DEFAULT = INHERITANCE_AR
 
 """
 Reads the gene panel specific config and overrides the default values if the gene panel config
@@ -26,10 +30,19 @@ def _find_cutoffs(genepanel_config, inheritance_code):
             inheritance_code = [inheritance_code]
 
         codes = set(inheritance_code)
-        if len(codes) == 1 and codes.pop().upper() == 'AD':
-            cutoff_group = 'AD'
+        if len(codes) == 1 and codes.pop().upper() == INHERITANCE_AD:
+            cutoff_group = INHERITANCE_AD
 
     return genepanel_config['freq_cutoffs'][cutoff_group]
+
+
+def _chose_inheritance(codes=None):
+    if not codes:
+        return INHERITANCE_DEFAULT
+    if all(map(lambda c: c.upper() == INHERITANCE_AD, codes)):
+        return INHERITANCE_AD
+    else:
+        return INHERITANCE_DEFAULT
 
 
 class GenepanelConfigResolver(object):
@@ -49,13 +62,15 @@ class GenepanelConfigResolver(object):
         """
         Find the config values using any overrides that might be defined on the genepanel.
         Algorithm: start with a dict with default values and mutate it if more gene-specific info
-        is available.
+        is available. The algorithm are described in stages (stage 1, stage 2 etc) for clarity.
 
         Regarding 'freq_cutoffs':
         One thing to be aware of it that the the configuration file has inheritance (AD or default) as
         part of it's freq_cutoffs options, while the genepanel configs do not.
         Reason for this is that the genepanel configuration is supposed to force thresholds, regardless
         of inheritance mode, so inheritance is not relevant for the genepanel overrides.
+
+        Inheritance is calculated based on the phenotypes' inheritance. If no phenotypes, we uses a default inheritance.
 
         Uses deepcopy to avoid any mutation of the "constants" of this module.
 
@@ -73,11 +88,10 @@ class GenepanelConfigResolver(object):
          that will override the global defaults.
         """
 
-        # init the result using the defaults. The result might be mutated further down.
+        # Stage 1: init the result using the defaults
         result = dict(self.genepanel_default)
 
-        # find frequency cutoffs when we don't have any specific info:
-        # start
+        # Stage 2: find frequency cutoffs when we don't have any specific info:
         if not symbol:
             logging.warning("Symbol not defined when resolving genepanel config values")
             result["freq_cutoffs"] = self.genepanel_default["freq_cutoffs"]['default']
@@ -87,12 +101,17 @@ class GenepanelConfigResolver(object):
             logging.warning("Genepanel not defined when resolving genepanel config values")
             result["freq_cutoffs"] = self.genepanel_default["freq_cutoffs"]['default']
             return copy.deepcopy(result)
-        # end
 
+        # Stage 3: find the most "useful" inheritance using the gene symbol:
+        chosen_inheritance = _chose_inheritance(self.genepanel.find_inheritance(symbol))
+        if chosen_inheritance:
+            result['inheritance'] = chosen_inheritance
+
+        # Stage 4: find/override cutoffs using inheritance:
         # Remove the AD/default level from freq_cutoffs {'external': {'AD': cutoffs, 'default': cutoffs}} -> {'external': AD_or_default_cutoffs}
-        result["freq_cutoffs"] = copy.deepcopy(_find_cutoffs(self.genepanel_default, self.genepanel.find_inheritance(symbol)))
+        result["freq_cutoffs"] = copy.deepcopy(_find_cutoffs(self.genepanel_default, result['inheritance']))
 
-        # replace defaults with overrides from the gene panel:
+        # Stage 5: allow any overrides defined in the gene panel config to win:
         if self.genepanel.config and 'data' in self.genepanel.config and symbol in self.genepanel.config['data']:
             gene_specific_overrides = self.genepanel.config['data'][symbol]
             result.update(gene_specific_overrides)
@@ -108,6 +127,5 @@ class GenepanelConfigResolver(object):
                 for freq_group in config['variant_criteria']['frequencies']['groups'].keys():
                     if freq_group in gene_specific_overrides['freq_cutoffs']:
                         result['freq_cutoffs'][freq_group] = gene_specific_overrides['freq_cutoffs'][freq_group]
-
 
         return copy.deepcopy(result)

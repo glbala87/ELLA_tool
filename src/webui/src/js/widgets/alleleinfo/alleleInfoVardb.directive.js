@@ -1,12 +1,14 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../../ng-decorators';
+import {AlleleStateHelper} from '../../model/allelestatehelper';
 
 @Directive({
     selector: 'allele-info-vardb',
     scope: {
         allele: '=',
-        collapsed: '=?'
+        alleleState: '=',
+        readOnly: '=?'
     },
     templateUrl: 'ngtmpl/alleleInfoVardb.ngtmpl.html'
 })
@@ -40,5 +42,12 @@ export class AlleleInfoVardb {
 
     hasContent() {
         return Boolean(this.allele.allele_assessment);
+    }
+
+    reset() {
+        if (confirm("This will reset the classification, all ACMG codes and comments you've entered, for this variant, back to existing classification data. Proceed?")) {
+            AlleleStateHelper.copyAlleleAssessmentToState(this.allele, this.alleleState, true);
+            AlleleStateHelper.copyAlleleReportToState(this.allele, this.alleleState, true);
+        }
     }
 }

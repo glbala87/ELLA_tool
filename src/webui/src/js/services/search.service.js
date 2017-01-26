@@ -21,7 +21,7 @@ export class SearchService {
     }
 
     search(query) {
-        this.query = query;
+        this.model.query = query;
         this.updateSearch();
     }
 

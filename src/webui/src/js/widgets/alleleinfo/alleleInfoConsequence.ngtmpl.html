@@ -1,12 +1,12 @@
-<contentbox title="Consequence" title-url="{{::vm.allele.getEnsemblUrl()}}" collapsed="vm.collapsed">
+<contentbox title="Consequence" title-url="{{::vm.allele.getEnsemblUrl()}}">
   <cbbody>
     <div ng-if="::vm.allele.annotation.hasWorseConsequence()">
       <h5>Worse consequences found in:</h5>
       <ul>
-        <li ng-repeat="t in ::vm.allele.annotation.getWorseConsequenceTranscripts()">{{::t.Consequence.join(',')}} in {{::t.Transcript}}.{{::t.Transcript_version}}</li>
+        <li ng-repeat="t in ::vm.allele.annotation.getWorseConsequenceTranscripts()">{{::t.consequences.join(',')}} in {{::t.transcript}}</li>
       </ul>
     </div>
-    <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.Transcript"
+    <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.transcript"
       class="clickable"
       popover-trigger="outsideClick"
       uib-popover-template="'ngtmpl/alleleInfoConsequencePopover.ngtmpl.html'"
@@ -14,11 +14,11 @@
       popover-title="Consequences"
       popover-placement="auto top">
         <transcript-wrapper transcript="t">
-            <p ng-repeat="c in ::t.Consequence">{{::c | noUnderscores}}</p>
+            <p ng-repeat="c in ::t.consequences">{{::c | noUnderscores}}</p>
         </transcript-wrapper>
     </div>
-    <h4 ng-if="vm.allele.getACMGCodes('transcript.Consequence').length" class="section-title acmg-body">ACMG Suggested</h4>
-    <acmg class="disabled" ng-repeat="code in vm.allele.getACMGCodes('transcript.Consequence')" code="code"></acmg>
+    <h4 ng-if="vm.allele.getACMGCodes('transcript.consequences').length" class="section-title acmg-body">ACMG Suggested</h4>
+    <acmg class="disabled" ng-repeat="code in vm.allele.getACMGCodes('transcript.consequences')" code="code"></acmg>
   </cbbody>
 </contentbox>
 

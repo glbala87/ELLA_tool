@@ -40,13 +40,15 @@ def genotype_importer(session):
 
 
 @pytest.fixture
-def annotation_importer(session):
-    return deposit.AnnotationImporter(session)
-
-
-@pytest.fixture
 def allele_importer(session, ref_genome):
     return deposit.AlleleImporter(session, ref_genome=ref_genome)
+
+
+def test_anno_diff():
+    assert not deposit.AnnotationImporter.diff_annotation({'b': 2, 'a': 1}, {'a': 1, 'b': 2})
+    assert not deposit.AnnotationImporter.diff_annotation({'a': 1, 'b': [1,2,3]}, {'a': 1, 'b': [1,2,3]})
+    # element order in list makes a diff:
+    assert deposit.AnnotationImporter.diff_annotation({'a': 1, 'b': [1,2,3]}, {'a': 1, 'b': [3,2,1]})
 
 
 class TestGenotypeImporter():
@@ -132,41 +134,6 @@ class TestGenotypeImporter():
         assert result3.genotype_quality == 234.4
         assert result3.sequencing_depth == 12
         assert result3.variant_quality == 456
-
-
-class TestAnnotationImporter():
-
-    def test_annotation(self, annotation_importer):
-
-        alleles = [mock.Mock(), mock.Mock()]
-        ai1, ai2 = annotation_importer.process({
-            'ID': 'H186',
-            'ALT': ['A', 'G'],
-            'INFO': {
-                'A': {
-                    'EFF': 'TestA'
-                },
-                'G': {
-                    'EFF': 'TestG'
-                },
-                'ALL': {
-                    'Common': 'SomeData'
-                }
-            }
-
-        }, alleles)
-
-        assert ai1.annotations == {
-            'id': 'H186',
-            'Common': 'SomeData',
-            'EFF': 'TestA'
-        }
-
-        assert ai2.annotations == {
-            'id': 'H186',
-            'Common': 'SomeData',
-            'EFF': 'TestG'
-        }
 
 
 class TestAlleleImporter():

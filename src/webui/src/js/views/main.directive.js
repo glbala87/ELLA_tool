@@ -7,10 +7,9 @@ import {Directive, Inject} from '../ng-decorators';
     templateUrl: 'ngtmpl/main.ngtmpl.html',
     scope: {}
 })
-@Inject('Interpretation')
+@Inject('Search')
 export class MainController {
-    constructor(Interpretation, SearchResource) {
-        this.interpretationService = Interpretation;
+    constructor(SearchResource) {
         this.searchResource = SearchResource;
 
         this.search = {

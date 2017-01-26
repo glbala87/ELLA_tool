@@ -1,20 +1,13 @@
 <sectionbox color="purple" collapsible="false">
-  <titlebar>
-    <h3 class="title">Report</h3>
-  </titlebar>
+  <maintitle>
+    Report
+  </maintitle>
   <contentwrapper class="report">
-    <div>
-      <h4 class="section-header">Analysis options</h4>
-      <checkable-button class="id-analysis-tag" list-model="vm.state.analysis.properties.tags" list-value="tag" show-mark="true" ng-repeat="tag in vm.getAnalysisTagOptions()">
-        <checked>{{tag}}</checked>
-        {{tag}}
-      </checkable-button>
-    <div>
-    </div>
-      <input class="id-review-comment" type="text" ng-model="vm.state.analysis.properties.review_comment" placeholder="COMMENT FOR REVIEWER"></input>
-    </div>
     <h4 class="section-header">Clinical report</h4>
-    <h4 ng-if="!vm.alleles.length" class="sb-notification dim">No variants added. You can add variants from the classified variants on sidebar to the left.</h4>
+
+    <h4 ng-if="!vm.alleles.length && vm.readOnly" class="sb-notification dim">No variants added.</h4>
+    <h4 ng-if="!vm.alleles.length && !vm.readOnly" class="sb-notification dim">No variants added. You can add variants from the classified variants on sidebar to the left.</h4>
+
     <pre ng-if="vm.alleles.length" class="included-report">
       <div class="report-entry" ng-repeat="al in vm.getAlleles() track by al.id"><h5>{{vm.formatHGVS(al)}}</h5><p>{{vm.getAlleleReport(al).evaluation.comment}}</p></div>
     </pre>

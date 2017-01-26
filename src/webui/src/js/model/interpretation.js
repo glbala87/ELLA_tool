@@ -1,18 +1,18 @@
 /* jshint esnext: true */
 
-import Analysis from './analysis';
 
+export const STATUS_ONGOING = "Ongoing";
+export const STATUS_NOT_STARTED = "Not started";
 
 export class Interpretation {
+
+
     /**
      * Represents one Interpretation.
      * @param  {object} Interpretation data from server, see InterpretationResource
      */
     constructor(data) {
         Object.assign(this, data);
-        if ('analysis' in data) {
-            this.analysis = new Analysis(data.analysis);
-        }
         this.dirty = false; // Indicates whether any state has changed, so user should save
 
     }
@@ -26,6 +26,10 @@ export class Interpretation {
 
     setClean() {
         this.dirty = false;
+    }
+
+    isOngoing() {
+        return this.status == STATUS_ONGOING;
     }
 
 }

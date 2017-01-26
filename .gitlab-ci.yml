@@ -3,6 +3,7 @@ stages:
   - test
   - cleanup
   - deploy
+  - review
   - notify
 
 test_api:
@@ -56,8 +57,9 @@ build_core:
 bot_build:
   stage: deploy
   script:
-    - if [ -n "${DEV_CHANNEL}" ]; then make release deploy DEPLOY_NAME=demo.allel.es,demo.ella.ousamg.io; fi
-    - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es,beta.ella.ousamg.io; fi
+    - if [ -n "${DEV_CHANNEL}" ]; then make release deploy DEPLOY_NAME=demo.allel.es; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es; fi
+    - if [ -n "${REVIEW_CHANNEL}" ]; then make release deploy BUILD_TYPE=${REVIEW_CHANNEL} DEPLOY_NAME=${REVIEW_CHANNEL}.review.ousamg.io; fi
   tags:
     - web
   only:
@@ -70,6 +72,7 @@ bot_notify_failure:
   when: on_failure
   only:
     - triggers
+    - branches
 
 bot_notify_success:
   stage: notify
@@ -78,3 +81,41 @@ bot_notify_success:
   when: on_success
   only:
     - triggers
+    - branches
+
+start_review:
+  stage: review
+  script:
+    - make release deploy BUILD_TYPE=${CI_BUILD_REF_NAME} DEPLOY_NAME=${CI_BUILD_REF_NAME}.review.ousamg.io
+  environment:
+    name: review/$CI_BUILD_REF_NAME
+    url: http://$CI_BUILD_REF_NAME.review.$APPS_DOMAIN
+    on_stop: stop_review
+  when: always
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - web
+
+# when: manual is also run upon branch deletion
+stop_review:
+  stage: review
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - docker rm -f ${CI_BUILD_REF_NAME}.review.ousamg.io; docker rmi -f ousamg/ella.${CI_BUILD_REF_NAME};
+  when: manual
+  environment:
+    name: review/$CI_BUILD_REF_NAME
+    action: stop
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - web
+
+
+

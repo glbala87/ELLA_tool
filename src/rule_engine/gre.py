@@ -13,4 +13,4 @@ class GRE:
     """        
     def query(self, rules, data):
         return GRA().applyRules(GRL().parseRules(rules),
-                                     GRA().parseNodeToSourceKeyedDict(data))
+                                GRA().parseNodeToSourceKeyedDict(data))

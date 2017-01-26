@@ -3,7 +3,7 @@
 
 import datetime
 
-from sqlalchemy import Column, Sequence, Integer, String, DateTime, Enum
+from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -24,7 +24,7 @@ class Sample(Base):
     """
     __tablename__ = "sample"
 
-    id = Column(Integer, Sequence("id_sample_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     identifier = Column(String(), nullable=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
@@ -38,29 +38,6 @@ class Sample(Base):
         return "<Sample('%s', '%s')>" % (self.identifier, self.sample_type)
 
 
-class AnalysisFinalized(Base):
-    """
-    Represents a snapshot of a finalized analysis,
-    logging all relevant information for every allele
-    involved in the analysis, upon finalization.
-
-    If an allele id is given two times for same analysis id,
-    it was first served as part of the filtered data (class 1 or intron),
-    and then included by the user as part of the interpretation,
-    giving it an assessment.
-    """
-    __tablename__ = "analysisfinalized"
-
-    id = Column(Integer, Sequence("id_analysisfinalized_seq"), primary_key=True)
-    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
-    annotation_id = Column(Integer, ForeignKey("annotation.id"), nullable=False)
-    customannotation_id = Column(Integer, ForeignKey("customannotation.id"))
-    alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
-    allelereport_id = Column(Integer, ForeignKey("allelereport.id"))
-    filtered = Column(Enum("CLASS1", "INTRON", name="analysis_filtered"),)  # If the allele was filtered, this describes which type of filtering
-
-
 class Analysis(Base):
     """Represents a bioinformatical pipeline analysis
 
@@ -69,17 +46,16 @@ class Analysis(Base):
     """
     __tablename__ = "analysis"
 
-    id = Column(Integer, Sequence("id_analysis_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(), nullable=False, unique=True)
     genepanel_name = Column(String)
     genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
     analysis_config = Column(JSONMutableDict.as_mutable(JSONB))
-    interpretations = relationship("Interpretation", order_by="Interpretation.id")
-    alleleassessments = relationship("AlleleAssessment", viewonly=True, secondary="analysisfinalized")
+    interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
-
+    priority = Column(Integer, nullable=False, default=1)
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):

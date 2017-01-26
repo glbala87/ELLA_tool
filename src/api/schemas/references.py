@@ -1,5 +1,5 @@
 from flask.ext.marshmallow import Marshmallow
-from marshmallow import fields, Schema
+from marshmallow import Schema
 
 from api import app
 

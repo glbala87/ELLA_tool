@@ -12,42 +12,25 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         references: '=',
         state: '=',
         userState: '=',
+        readOnly: '=?'
     }
 
 })
 @Inject(
-    'Config',
-    'Allele',
-    'Analysis',
-    'Interpretation'
+    'Config'
 )
 export class ReportCardController {
 
 
     constructor(Config,
                 Allele,
-                Analysis,
-                Interpretation) {
+                Analysis) {
         this.config = Config.getConfig();
-        this.alleleService = Allele;
-        this.interpretationService = Interpretation;
-        this.analysisService = Analysis;
-
         this.selected_excluded = null;
-
-        if (!('analysis' in this.state)) {
-            this.state.analysis = {};
-        }
-        if (!('properties' in this.state.analysis)) {
-            this.state.analysis.properties = {
-                tags: [],
-                review_comment: ''
-            }
-        }
     }
 
     getAlleleState(allele) {
-        return this.state.allele.find(al => al.allele_id === allele.id);
+        return this.state.allele[allele.id];
     }
 
     getAlleleReport(allele) {
@@ -65,20 +48,16 @@ export class ReportCardController {
                 let classification = AlleleStateHelper.getClassification(a, this.getAlleleState(a));
                 return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
-            .thenBy(a => a.annotation.filtered[0].SYMBOL)
+            .thenBy(a => a.annotation.filtered[0].symbol)
             .thenBy(a => a.annotation.filtered[0].HGVSc_short)
         )
         return this.alleles;
     }
 
-    getAnalysisTagOptions() {
-        return this.config.analysis.tags;
-    }
-
     formatHGVS(allele) {
         let hgvs = '';
         for (let t of allele.annotation.filtered) {
-            hgvs += `${t.Transcript}.${t.Transcript_version}(${t.SYMBOL}):`;
+            hgvs += `${t.transcript}(${t.symbol}):`;
             let part = t.HGVSc_short.split("c.", 2)[1]; // remove 'c.'
             if (allele.genotype.homozygous) {
                 hgvs += `c.[${part}];[(${part})]`; // c.[76A>C];[(76A>C)]

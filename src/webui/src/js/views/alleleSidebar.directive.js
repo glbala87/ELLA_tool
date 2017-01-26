@@ -9,6 +9,7 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     scope: {
         alleles: '=',  // Allele options: { unclassified: [ {allele: Allele, alleleState: {...}, inactive: true, checkable: true, checked: true ] }, classified: [ ... ] }
         selected: '=', // Selected Allele
+        readOnly: '=?' // if readOnly the allele can't be added to report
     },
     link: (scope, element) => {
       let scrollFunction = function() {
@@ -45,13 +46,18 @@ export class AlleleSidebarController {
     }
 
     isSelected(allele_option) {
-        let selected = this.selected === allele_option.allele;
+        if (!this.selected) {
+            return false;
+        }
+
+        let matching = this.selected.id === allele_option.allele.id;
+
         // If checkable is true, we don't support select mode. Set to null
-        if (selected && allele_option.checkable) {
+        if (matching && allele_option.checkable) {
             this.selected = null;
             return false;
         }
-        return selected;
+        return matching;
     }
 
     isToggled(allele_option) {

@@ -30,32 +30,33 @@ def json_out(func):
 
 class FlaskClientProxy(object):
 
-    def __init__(self):
+    def __init__(self, url_prefix=''):
         app.testing = True
         api.init_app(app)
         self.app = app
+        self.url_prefix = url_prefix
 
     @json_out
     def get(self, url):
         with self.app.test_client() as client:
-            return client.get(url, content_type='application/json')
+            return client.get(self.url_prefix + url, content_type='application/json')
 
     @json_out
     def post(self, url, data):
         with self.app.test_client() as client:
-            return client.post(url, data=json.dumps(data), content_type='application/json')
+            return client.post(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
     def put(self, url, data):
         with self.app.test_client() as client:
-            return client.put(url, data=json.dumps(data), content_type='application/json')
+            return client.put(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
     def patch(self, url, data):
         with self.app.test_client() as client:
-            return client.patch(url, data=json.dumps(data), content_type='application/json')
+            return client.patch(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
     def delete(self, url, data):
         with self.app.test_client() as client:
-            return client.delete(url, data=json.dumps(data), content_type='application/json')
+            return client.delete(self.url_prefix + url, data=json.dumps(data), content_type='application/json')

@@ -6,12 +6,11 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'search',
     templateUrl: 'ngtmpl/search.ngtmpl.html'
 })
-@Inject('Search', 'AlleleAssessmentModal', '$timeout')
+@Inject('Search', '$timeout')
 export class SearchController {
 
-    constructor(Search, AlleleAssessmentModal, $timeout) {
+    constructor(Search, $timeout) {
         this.searchService = Search;
-        this.alleleAssessmentModal = AlleleAssessmentModal;
         this.timeout = $timeout;
         this.model = this.searchService.getModel();
     }
@@ -27,7 +26,4 @@ export class SearchController {
         }
     }
 
-    openAllele(allele) {
-        this.alleleAssessmentModal.show(allele);
-    }
 }

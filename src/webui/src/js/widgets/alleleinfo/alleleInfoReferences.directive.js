@@ -13,12 +13,12 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         references: '=',
         alleleState: '=',
         onSave: '&?',
-        collapsed: '=?'
+        readOnly: '=?'
     }
 })
-@Inject('$scope', 'ReferenceEvalModal', 'Interpretation')
+@Inject('$scope', 'ReferenceEvalModal')
 export class AlleleInfoReferences {
-    constructor($scope, ReferenceEvalModal, Interpretation) {
+    constructor($scope, ReferenceEvalModal) {
 
         this.allele_references = [];
         // If we have PMID in annotation,
@@ -32,7 +32,6 @@ export class AlleleInfoReferences {
             }
         );
         this.refEvalModal = ReferenceEvalModal;
-        this.interpretationService = Interpretation;
     }
 
     /**
@@ -90,6 +89,10 @@ export class AlleleInfoReferences {
     }
 
     getEvaluateBtnText(reference) {
+        if (this.readOnly) {
+            return 'See details'
+        }
+
         if (this.hasReferenceAssessment(reference)) {
             return 'Re-evaluate';
         }
@@ -104,8 +107,8 @@ export class AlleleInfoReferences {
             for (let sourceKey in ref.sources) {
                 let source = ref.sources[sourceKey];
                 let sourceStr = source;
-                if (source in ref.sourceInfo) {
-                    sourceStr += " ("+ref.sourceInfo[source]+")";
+                if (source in ref.source_info) {
+                    sourceStr += " ("+ref.source_info[source]+")";
                 }
                 referenceDBSources[ref.pubmed_id][source] = sourceStr;
             }
@@ -136,17 +139,21 @@ export class AlleleInfoReferences {
             this.analysis,
             this.allele,
             reference,
-            existing_ra
-        ).then(ra => {
-            // If ra is an object, then the referenceassessment
+            existing_ra,
+            this.readOnly
+        ).then(dialogResult => {
+            // If dialogResult is an object, then the referenceassessment
             // was changed and we should replace it in our state.
             // If modal was canceled or no changes took place, it's 'undefined'.
-            if (ra) {
+            if (this.readOnly) { // don't save anything
+                return;
+            }
+            if (dialogResult) {
                 AlleleStateHelper.updateReferenceAssessment(
                     this.allele,
                     reference,
                     this.alleleState,
-                    ra
+                    dialogResult
                 );
                 if (this.onSave) {
                     this.onSave();

@@ -1,18 +1,20 @@
 <navbar></navbar>
-<article class="container no-secondary-nav">
-  <sectionbox collapsible="false" color="green" topcontrols="true">
-    <titlebar>
-      <h3 class="title">available users</h3>
-    </titlebar>
-    <controls>
-      <input class="full-width" type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
-    </controls>
-    <contentwrapper>
-      <section>
-        <div class="line-wrapper list-item clickable" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
-          <h3 class="full-title"><b>{{user.first_name}} {{user.last_name}}</b></h3>
-        </div>
-      </section>
-    </contentwrapper>
-  </sectionbox>
-</article>
+<div class="main">
+  <article class="container no-secondary-nav">
+    <sectionbox collapsible="false" color="green" topcontrols="true">
+      <maintitle>
+        available users
+      </maintitle>
+      <controls>
+        <input class="full-width" type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
+      </controls>
+      <contentwrapper>
+        <section>
+          <div class="line-wrapper list-item clickable" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
+            <h3 class="full-title"><b>{{user.first_name}} {{user.last_name}}</b></h3>
+          </div>
+        </section>
+      </contentwrapper>
+    </sectionbox>
+  </article>
+</div>

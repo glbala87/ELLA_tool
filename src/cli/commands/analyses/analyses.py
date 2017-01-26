@@ -32,20 +32,30 @@ def cmd_analysis_list():
         click.echo(row_format.format(**{h: a[h] for h in header}))
 
 
-@analyses.command('reopen')
+@analyses.command('priority')
 @click.argument('analysis_id')
-def cmd_analysis_reopen(analysis_id):
+@click.argument('priority', type=int)
+def cmd_analysis_priority(analysis_id, priority):
     """
-    Reopens an analysis that is finalized.
+    Sets priority for an analysis.
     """
     logging.basicConfig(level=logging.INFO)
+
+    if priority < 1:
+        raise RuntimeError("Priority must be >0")
 
     db = DB()
     db.connect()
 
-    res = resources.analysis.AnalysisActionReopenResource()
-    res.post(db.session, analysis_id)
-    logging.info("Analysis {} reopened successfully".format(analysis_id))
+    res = db.session.query(sample.Analysis).filter(
+        sample.Analysis.id == analysis_id
+    ).one()
+    old_priority = res.priority
+    res.priority = int(priority)
+
+    db.session.commit()
+
+    logging.info("Analysis {} ({}) priority changed to {} (was {})".format(res.id, res.name, priority, old_priority))
 
 
 @analyses.command('delete')

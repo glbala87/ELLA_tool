@@ -10,53 +10,35 @@ import {Directive, Inject} from '../ng-decorators';
     },
     templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
 })
-@Inject('Sidebar',
-        'User',
-        'Analysis',
-        'InterpretationResource',
-        'InterpretationOverrideModal',
-        'toastr')
+@Inject('$scope',
+        'Config',
+        'User')
 class AnalysisListWidget {
 
-    constructor(Sidebar,
-                User,
-                Analysis,
-                InterpretationResource,
-                InterpretationOverrideModal,
-                toastr) {
-        this.location = location;
-        // this.sidebar = Sidebar;
+    constructor($scope,
+                Config,
+                User) {
+
+        this.config = Config.getConfig();
         this.user = User;
-        this.analysisService = Analysis;
-        this.interpretationResource = InterpretationResource;
-        this.interpretationOverrideModal = InterpretationOverrideModal;
-        this.toastr = toastr;
-        this.previous = {}
 
-        // this.setupSidebar();
+        $scope.$watchCollection(
+            () => this.analyses,
+            () => this.sortItems()
+        );
+        this.sorted_analyses = [];
     }
 
-    // setupSidebar() {
-    //     this.sidebar.setBackLink(null, null);
-    //     this.sidebar.setTitle('Analyses List', false);
-    //     this.sidebar.clearItems();
-    // }
 
-    /**
-     * Checks whether current user is working on an analysis.
-     */
-    isCurrentUser(analysis) {
-        return this.user.getCurrentUserId() === analysis.getInterpretationUser().id;
+    sortItems() {
+        if (!this.analyses.length) { return; }
+        this.sorted_analyses = this.analyses.slice(0);
+        this.sorted_analyses.sort(
+            firstBy(a => a.priority, -1)
+            .thenBy(a => a.deposit_date)
+        );
     }
 
-    userAlreadyAnalyzed(analysis) {
-        let current_user_id = this.user.getCurrentUserId();
-        return analysis.interpretations.filter(
-            i => i.user &&
-                 i.user.id === current_user_id &&
-                 i.status !== 'Ongoing'  // Exempt if in progress by user
-        ).length > 0;
-    }
 
     isAnalysisDone(analysis) {
         return analysis.interpretations.length &&
@@ -65,19 +47,15 @@ class AnalysisListWidget {
                );
     }
 
-    openAnalysis(analysis) {
-        if (this.onSelect) {
-            this.onSelect(analysis);
+    getPriorityText(analysis) {
+        if (analysis.priority > 1) {
+            return this.config.analysis.priority.display[analysis.priority];
         }
-        this.analysisService.openAnalysis(analysis.id);
     }
 
-    overrideAnalysis(analysis) {
-        this.analysisService.override(
-            analysis.id,
-        ).then(() => {
-            this.openAnalysis(analysis);
-        });
+
+    getReviewComment(analysis) {
+        return analysis.interpretations[analysis.interpretations.length-1].review_comment;
     }
 
     abbreviateUser(user) {
@@ -86,58 +64,6 @@ class AnalysisListWidget {
       } else {
         return "";
       }
-    }
-
-    idempoByDate() {
-      let cur = this.analysesByDate();
-      if(JSON.stringify(this.previous) != JSON.stringify(cur)) {
-        this.previous = cur;
-      }
-      return this.previous;
-    }
-
-    analysesByDate() {
-      // FIXME: Hi i'm an infinite loop in angular
-      let byday = {};
-      function groupday(value, index, array)
-      {
-        let d = value['deposit_date'].substring(0,10);
-        byday[d]=byday[d]||[];
-        byday[d].push(value);
-      }
-      this.analyses.forEach(groupday);
-      return byday;
-    }
-
-    clickAnalysis(analysis) {
-        if (this.isAnalysisDone(analysis)) {
-            this.toastr.error("Sorry, opening a finished analysis is not implemented yet.", null, 5000);
-            return;
-        }
-
-        let iuser = analysis.getInterpretationUser();
-        if (iuser &&
-            iuser.id !== this.user.getCurrentUserId()) {
-            this.interpretationOverrideModal.show().then(result => {
-                if (result) {
-                    this.overrideAnalysis(analysis);
-                }
-            });
-        }
-        else {
-            this.openAnalysis(analysis);
-        }
-    }
-
-    getStateMessage(analysis) {
-        if (!analysis) {
-            return "Analysis is null";
-        }
-        if (analysis.getInterpretationState() === 'Not started' &&
-            analysis.interpretations.length > 1) {
-            return 'Needs review';
-        }
-        return analysis.getInterpretationState();
     }
 }
 

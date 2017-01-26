@@ -1,10 +1,10 @@
 import pytest
-
+import json
 from util import FlaskClientProxy
 
 
 @pytest.fixture
-def testdata():
+def annotation_template():
     return {
         "allele_id": 1,
         "annotations": {
@@ -22,31 +22,30 @@ def client():
 class TestCustomAnnotation(object):
 
     @pytest.mark.ca(order=0)
-    def test_create_new(self, test_database, testdata, client):
+    def test_create_new(self, test_database, annotation_template, client):
         test_database.refresh()  # Reset db
 
         # Insert new CustomAnnotation
-        r = client.post('/api/v1/customannotations/', testdata)
+        insert_response = client.post('/api/v1/customannotations/', annotation_template)
+        id_of_first_created = insert_response.json['id']
 
         # Check that it's inserted
-        r = client.get('/api/v1/customannotations/').json
-        assert r[0]['annotations'] == testdata['annotations']
-        assert r[0]['date_last_update']
+        insert_response = client.get('/api/v1/customannotations/?q={}'.format(json.dumps({"id": [id_of_first_created]}))).json
+        assert insert_response[0]['annotations'] == annotation_template['annotations']
+        assert insert_response[0]['date_last_update']
 
-    @pytest.mark.ca(order=1)
-    def test_update_annotation_1(self, client, testdata):
-        """
-        Simulate updating CustomAnnotation.
-        It should result in a new CustomAnnotation object being
-        created, while the old one being superseded.
-        """
+        # Create a new one by updating an existing
+        annotation_template['annotations'] = {'test': 2}
+        update_response = client.post('/api/v1/customannotations/', annotation_template)
+        id_of_created_by_update = update_response.json['id']
 
-        testdata['annotations'] = {'test': 2}
-        r = client.post('/api/v1/customannotations/', testdata)
+        # Check that the new annotation exists:
+        second_response = client.get(
+            '/api/v1/customannotations/?q={}'.format(json.dumps({"id": [id_of_created_by_update]}))).json
+        assert second_response[0]['annotations'] == annotation_template['annotations']
 
-        # Check that it's inserted
-        r = client.get('/api/v1/customannotations/').json
-        assert r[1]['annotations'] == testdata['annotations']
-        assert r[0]['date_superceeded']
-        assert r[0]['annotations']['test'] == 1
-        assert r[0]['id'] != r[1]['id']
+        # Check that the "original" has been superceeded:
+        first_response = client.get('/api/v1/customannotations/?q={}'.format(json.dumps({"id": [id_of_first_created]}))).json
+        assert first_response[0]['date_superceeded']
+        assert first_response[0]['annotations']['test'] == 1
+        assert first_response[0]['id'] != id_of_created_by_update
