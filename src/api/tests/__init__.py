@@ -163,6 +163,7 @@ def start_interpretation(workflow_type, id, user, extra=None):
     assert response.status_code == 200
     interpretation = get_last_interpretation(workflow_type, id)
     assert interpretation['status'] == 'Ongoing'
+    assert interpretation['user']['username'] == user['username']
     return interpretation
 
 
