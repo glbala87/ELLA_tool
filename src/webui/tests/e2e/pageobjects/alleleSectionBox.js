@@ -1,5 +1,8 @@
 var Page = require('./page')
 
+
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+
 class AlleleSectionBox extends Page {
 
     get reportComment() { return browser.element('allele-sectionbox textarea[placeholder="REPORT"]'); }
@@ -12,9 +15,39 @@ class AlleleSectionBox extends Page {
     get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
+    get classificationAcceptedToggleBtn() { return browser.element('allele-sectionbox .id-accept-classification'); }
+    get existingClassificationButtonText() { return this.classificationAcceptedToggleBtn.getText(); }
 
 
+    _setClassification(index) {
+        let dropdownOption = `select.id-select-classification option:nth-child(${index})`;
+        console.log(`finding selector ${dropdownOption}`);
+        // browser.debug();
+        browser.click(dropdownOption);
+    }
 
+    classifyAsU() {
+       this._setClassification(1);
+    }
+    classifyAsT() {
+       this._setClassification(2);
+    }
+    classifyAs1() {
+       this._setClassification(3);
+    }
+
+    classifyAs2() {
+       this._setClassification(4);
+    }
+    classifyAs3() {
+       this._setClassification(5);
+    }
+    classifyAs4() {
+       this._setClassification(6);
+    }
+    classifyAs5() {
+       this._setClassification(7);
+    }
 
     unclassify() { // go through all possible buttons that 'unclassifies':
         let selectors = [

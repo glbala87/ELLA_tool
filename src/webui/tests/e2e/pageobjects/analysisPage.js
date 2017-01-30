@@ -28,7 +28,8 @@ class AnalysisPage extends Page {
     }
 
     _selectSection(number) {
-        let dropdownOption = `interpretation-singlesample nav select option:nth-child(${number})`;
+        let dropdownOption = `workflow-analysis nav select option:nth-child(${number})`;
+        console.log(`finding selector ${dropdownOption}`);
         browser.waitForExist(dropdownOption);
         browser.click(dropdownOption);
     }
