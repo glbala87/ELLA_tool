@@ -1,7 +1,7 @@
 var Page = require('./page')
 
 
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+// export const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
 
 class AlleleSectionBox extends Page {
 
@@ -21,8 +21,7 @@ class AlleleSectionBox extends Page {
 
     _setClassification(index) {
         let dropdownOption = `select.id-select-classification option:nth-child(${index})`;
-        console.log(`finding selector ${dropdownOption}`);
-        // browser.debug();
+        // console.log(`finding selector ${dropdownOption}`);
         browser.click(dropdownOption);
     }
 
