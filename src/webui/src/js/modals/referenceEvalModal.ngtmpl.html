@@ -9,6 +9,7 @@
   <maintitle>
     REFERENCE EVALUATION
   </maintitle>
+
   <controls>
     <section class="line-wrapper spaced">
       <div class="ref-title">
@@ -21,8 +22,21 @@
       </div>
     </section>
   </controls>
+
   <contentwrapper>
-    <article class='line-wrapper question'>
+      <article class="line-wrapper question">
+      <div class="middle"></div>
+      <div class="right">
+          <wysiwyg-editor
+                class="id-reference-comment"
+                ng-disabled="vm.readOnly"
+                placeholder="COMMENTS"
+                ng-model="vm.referenceAssessment.evaluation['comment']">
+          </wysiwyg-editor>
+      </div>
+      <div class="middle"></div>
+    </article>
+    <article class='line-wrapper question id-relevance'>
       <div class="left"> <h5 class="slim title"> <b>Relevance</b> </h5> <p> Is the reference relevant? </p> </div>
       <div class="middle"></div>
       <div class="right">
@@ -47,7 +61,7 @@
                  class="box"
                  checklist-model="vm.referenceAssessment.evaluation.sources"
                  checklist-value="source"
-                 ng-disabled="vm.readOnly">
+                 ng-disabled="vm.readOnly"/>
         </span>
       </div>
       <div class="right line-wrapper">
@@ -81,15 +95,18 @@
         </div>
       </div>
     </article>
-    <article class="line-wrapper question">
-      <div class="middle"></div>
-      <div class="right">
-          <wysiwyg-editor
-                ng-disabled="vm.readOnly"
-                placeholder="COMMENTS"
-                ng-model="vm.referenceAssessment.evaluation['comment']">
-          </wysiwyg-editor>
-      <div class="middle"></div>
-    </article>
+    <!--<article class="line-wrapper question">-->
+      <!--<div class="middle"></div>-->
+      <!--<div class="right">-->
+          <!--<wysiwyg-editor-->
+                <!--class="id-reference-comment"-->
+                <!--ng-disabled="vm.readOnly"-->
+                <!--placeholder="COMMENTS"-->
+                <!--ng-model="vm.referenceAssessment.evaluation['comment']">-->
+          <!--</wysiwyg-editor>-->
+      <!--</div>-->
+      <!--<div class="middle"></div>-->
+    <!--</article>-->
   </contentwrapper>
+
 </sectionbox>

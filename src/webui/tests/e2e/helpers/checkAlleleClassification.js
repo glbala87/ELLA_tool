@@ -26,16 +26,16 @@ function checkAlleleClassification(allele_data) {
         }
 
         if ('evaluation' in data) {
-            expect(alleleSectionBox.evaluationComment.getValue()).toEqual(data.evaluation);
+            expect(alleleSectionBox.classificationComment).toEqual(data.evaluation);
         }
         if ('frequency' in data) {
-            expect(alleleSectionBox.frequencyComment.getValue()).toEqual(data.frequency);
+            expect(alleleSectionBox.frequencyComment).toEqual(data.frequency);
         }
         if ('prediction' in data) {
-            expect(alleleSectionBox.predictionComment.getValue()).toEqual(data.prediction);
+            expect(alleleSectionBox.predictionComment).toEqual(data.prediction);
         }
         if ('external' in data) {
-            expect(alleleSectionBox.externalComment.getValue()).toEqual(data.external);
+            expect(alleleSectionBox.externalComment).toEqual(data.external);
         }
         if ('report' in data) {
             expect(alleleSectionBox.reportComment.getValue()).toEqual(data.report);

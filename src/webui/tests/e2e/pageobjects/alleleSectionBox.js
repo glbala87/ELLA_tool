@@ -5,11 +5,71 @@ var Page = require('./page')
 
 class AlleleSectionBox extends Page {
 
+    get classificationComment() {
+        let element = browser.element('allele-sectionbox .id-comment-classification .wysiwygeditor');
+        return element.getText();
+    }
+
+    setClassificationComment(text) {
+        let comment = browser.selectorExecute('allele-sectionbox .id-comment-classification .wysiwygeditor',
+            function(matchingElements, message) {
+                matchingElements[0].innerText = message;
+                return matchingElements[0].innerText;
+        }, text);
+        console.log(`Comment is now ${comment}`);
+    }
+
+    // get reportComment() {
+    //         let element = browser.element('allele-sectionbox .id-comment-evaluation .wysiwygeditor');
+    //     return element.getText();
+    // }
     get reportComment() { return browser.element('allele-sectionbox textarea[placeholder="REPORT"]'); }
-    get evaluationComment() { return browser.element('allele-sectionbox textarea[placeholder="EVALUATION"]'); }
-    get frequencyComment() { return browser.element('allele-sectionbox textarea[placeholder="FREQUENCY-COMMENTS"]'); }
-    get externalComment() { return browser.element('allele-sectionbox textarea[placeholder="EXTERNAL DB-COMMENTS"]'); }
-    get predictionComment() { return browser.element('allele-sectionbox textarea[placeholder="PREDICTION-COMMENTS"]'); }
+
+    get frequencyComment() {
+        let element = browser.element('allele-sectionbox .id-comment-frequency .wysiwygeditor');
+        return element.getText();
+    }
+
+    setFrequencyComment(text) {
+        let comment = browser.selectorExecute('allele-sectionbox .id-comment-frequency .wysiwygeditor',
+            function(matchingElements, message) {
+                matchingElements[0].innerText = message;
+                return matchingElements[0].innerText;
+        }, text);
+        console.log(`Comment is now ${comment}`);
+    }
+
+
+    get externalComment() {
+        let element = browser.element('allele-sectionbox .id-comment-external .wysiwygeditor');
+        return element.getText();
+    }
+
+    setExternalComment(text) {
+        let comment = browser.selectorExecute('allele-sectionbox .id-comment-external .wysiwygeditor',
+            function(matchingElements, message) {
+                matchingElements[0].innerText = message;
+                return matchingElements[0].innerText;
+        }, text);
+        console.log(`Comment is now ${comment}`);
+    }
+
+
+    get predictionComment() {
+        let element = browser.element('allele-sectionbox .id-comment-prediction .wysiwygeditor');
+        return element.getText();
+    }
+
+    setPredictionComment(text) {
+        let comment = browser.selectorExecute('allele-sectionbox .id-comment-prediction .wysiwygeditor',
+            function(matchingElements, message) {
+                matchingElements[0].innerText = message;
+                return matchingElements[0].innerText;
+        }, text);
+        console.log(`Comment is now ${comment}`);
+    }
+
+
     get classSelection() { return browser.element('allele-sectionbox select.id-select-classification'); }
     get setClassBtn() { return browser.element('allele-sectionbox button.id-set-class'); }
     get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
@@ -98,6 +158,7 @@ class AlleleSectionBox extends Page {
      *
      */
     addAcmgCode(category, code, comment) {
+        browser.debug();
         browser.click('allele-sectionbox button.id-add-acmg');
         let categories = {
             pathogenic: 1,
@@ -123,7 +184,8 @@ class AlleleSectionBox extends Page {
     }
 
     getReferenceComment(index) {
-        return browser.getValue(`allele-info-references article:nth-child(${index}) .id-reference-comment textarea`);
+        const selector = `allele-info-references article:nth-child(${index}) .id-reference-comment .wysiwygeditor`;
+        return browser.getText(selector);
     }
 
     getReferenceRelevance(index) {
