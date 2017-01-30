@@ -158,7 +158,7 @@ class AlleleSectionBox extends Page {
      *
      */
     addAcmgCode(category, code, comment) {
-        browser.debug();
+        // browser.debug();
         browser.click('allele-sectionbox button.id-add-acmg');
         let categories = {
             pathogenic: 1,
