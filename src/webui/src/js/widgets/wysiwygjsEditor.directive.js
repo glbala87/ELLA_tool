@@ -187,6 +187,7 @@ function getCurrentColors(nodes) {
         };
 
         eventListeners.add(editorelement, "input", () => {setTimeout(setState(), 0)});
+        eventListeners.add(editorelement, "blur", () => {setTimeout(setState(), 0)});
 
         scope.$on('$destroy', function () {eventListeners.removeAll;});
 
