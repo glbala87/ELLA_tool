@@ -18,8 +18,7 @@ exports.config = {
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
     specs: [
-        // 'src/webui/tests/e2e/tests/**/*.js'
-        'src/webui/tests/e2e/tests/analyses.js'
+        'src/webui/tests/e2e/tests/**/*.js'
     ],
     // Patterns to exclude.
     exclude: [
