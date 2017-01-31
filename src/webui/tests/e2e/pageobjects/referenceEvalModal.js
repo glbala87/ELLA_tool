@@ -13,16 +13,10 @@ class ReferenceEvalModal extends Page {
     }
 
     setComment(text) {
-        var selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`;
-        console.log('set comment with selector ' + selector);
-
-        let comment = browser.selectorExecute('.id-reference-modal-body .id-reference-comment .wysiwygeditor', function(matchingElements, message) {
-            console.log('Found ' + matchingElements.length);
-            matchingElements[0].innerText = message;
-            return matchingElements[0].innerText;
-        }, text);
-
-        console.log(`Comment is now ${comment}`);
+        let commentElement = this.comment;
+        commentElement.click();
+        let selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`;
+        browser.setValue(selector, text);
     }
 
     // setConclusion(index) {

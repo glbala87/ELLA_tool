@@ -4,6 +4,7 @@ let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
 
+const SELECTOR_COMMENT_CLASSIFICATION_EDITOR = 'allele-sectionbox .id-comment-classification .wysiwygeditor';
 
 /**
  *
@@ -13,6 +14,8 @@ let alleleSectionBox = new AlleleSectionBox()
 function checkAlleleClassification(allele_data) {
 
     for (let [allele, data] of Object.entries(allele_data)) {
+
+        console.log(`checking classification for allele ${allele}`);
 
         expect(alleleSidebar.isAlleleInClassified(allele)).toBe(true);
         alleleSidebar.selectClassifiedAllele(allele);
@@ -26,7 +29,6 @@ function checkAlleleClassification(allele_data) {
         }
 
         if ('evaluation' in data) {
-            // browser.debug();
             expect(alleleSectionBox.classificationComment).toEqual(data.evaluation);
         }
         if ('frequency' in data) {
