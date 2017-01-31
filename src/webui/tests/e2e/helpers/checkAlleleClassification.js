@@ -26,6 +26,7 @@ function checkAlleleClassification(allele_data) {
         }
 
         if ('evaluation' in data) {
+            // browser.debug();
             expect(alleleSectionBox.classificationComment).toEqual(data.evaluation);
         }
         if ('frequency' in data) {

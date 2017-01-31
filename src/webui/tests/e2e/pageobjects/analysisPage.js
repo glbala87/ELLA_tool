@@ -5,6 +5,7 @@ class AnalysisPage extends Page {
     get analysis() { return browser.element('analysis'); }
     get finishButton() { return browser.element('.id-finish-analysis'); }
     get startButton() { return browser.element('.id-start-analysis'); }
+    get saveButton() { return browser.element('.id-start-analysis'); } // button text is varying
     get markReviewButton() { return browser.element('.id-mark-review'); }
     get finalizeButton() { return browser.element('.id-finalize'); }
     get addExcludedButton() { return browser.element('.id-add-excluded') }

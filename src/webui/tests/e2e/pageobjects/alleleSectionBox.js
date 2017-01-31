@@ -6,8 +6,9 @@ var Page = require('./page')
 class AlleleSectionBox extends Page {
 
     get classificationComment() {
-        let element = browser.element('allele-sectionbox .id-comment-classification .wysiwygeditor');
-        return element.getText();
+        let selector = 'allele-sectionbox .id-comment-classification .wysiwygeditor';
+        console.log(`Finding classification comment using '${selector}'`);
+        return browser.getText(selector);
     }
 
     setClassificationComment(text) {
@@ -17,6 +18,8 @@ class AlleleSectionBox extends Page {
                 return matchingElements[0].innerText;
         }, text);
         console.log(`Comment is now ${comment}`);
+        // browser.click('allele-sectionbox'); // "force" putting our text into the wysiwyg editor state
+        // browser.click('allele-sectionbox'); // expand section again
     }
 
     // get reportComment() {
@@ -71,7 +74,7 @@ class AlleleSectionBox extends Page {
 
 
     get classSelection() { return browser.element('allele-sectionbox select.id-select-classification'); }
-    get setClassBtn() { return browser.element('allele-sectionbox button.id-set-class'); }
+    // get setClassBtn() { return browser.element('allele-sectionbox button.id-set-class'); }
     get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
@@ -158,8 +161,11 @@ class AlleleSectionBox extends Page {
      *
      */
     addAcmgCode(category, code, comment) {
+
+        let buttonSelector = 'allele-sectionbox button.id-add-acmg';
+        console.log(`Using '${buttonSelector}' to find ACMG button`);
         // browser.debug();
-        browser.click('allele-sectionbox button.id-add-acmg');
+        browser.click(buttonSelector);
         let categories = {
             pathogenic: 1,
             benign: 2
@@ -176,7 +182,7 @@ class AlleleSectionBox extends Page {
         browser.element('allele-sectionbox allele-info-acmg-selection section.included acmg:last-child textarea').setValue(comment)
 
         // Close sidebar
-        browser.click('allele-sectionbox button.id-add-acmg');
+        browser.click(buttonSelector);
     }
 
     evaluateReference(index) {
