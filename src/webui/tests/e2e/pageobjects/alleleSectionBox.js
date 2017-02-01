@@ -16,12 +16,15 @@ const SELECTOR_COMMENT_PREDICTION_EDITOR = `${SELECTOR_COMMENT_PREDICTION} .wysi
 
 class AlleleSectionBox extends Page {
 
+
+    get reviewCommentElement() { return browser.element('.workflow-options input.id-review-comment'); }
+
     get classificationCommentElement() { return browser.element(SELECTOR_COMMENT_CLASSIFICATION);}
     get classificationComment() { return browser.getText(SELECTOR_COMMENT_CLASSIFICATION_EDITOR); }
 
     setClassificationComment(text) {
         this.classificationCommentElement.click();
-        // this.classificationCommentElement.click().waitForVisible('.wysiwygeditor', 50).setValue('.wysiwygeditor', text);
+        // not working: this.classificationCommentElement.click().waitForVisible('.wysiwygeditor', 50).setValue('.wysiwygeditor', text);
         browser.setValue(SELECTOR_COMMENT_CLASSIFICATION_EDITOR, text);
     }
 

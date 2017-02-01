@@ -5,7 +5,6 @@ const TOP_CLASS = ".id-reference-modal-body";
 class ReferenceEvalModal extends Page {
 
     get comment() { return browser.element(`${TOP_CLASS} .id-reference-comment`); }
-    // get comment() { return browser.element(`${TOP_CLASS} .id-reference-comment .wysiwygeditor`); }
     get saveBtn() { return browser.element(`${TOP_CLASS} button.id-reference-modal-save`); }
 
     setRelevance(index) {
@@ -18,15 +17,6 @@ class ReferenceEvalModal extends Page {
         let selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`;
         browser.setValue(selector, text);
     }
-
-    // setConclusion(index) {
-    //     browser.click(`${TOP_CLASS} article.question:nth-child(2) label:nth-child(${index})`);
-    // }
-
-    // setQuality(index) {
-    //     browser.click(`${TOP_CLASS} article.question:nth-child(8) label:nth-child(${index})`);
-    // }
-
 
 }
 
