@@ -169,7 +169,10 @@ class AlleleSectionBox extends Page {
     }
 
     evaluateReference(index) {
-        browser.click(`allele-info-references article:nth-child(${index}) button.id-reference-evaluate`);
+        let referenceSelector = `allele-info-references article:nth-child(${index})`;
+        let title = browser.getText(`${referenceSelector} .id-reference-title`);
+        browser.click(`${referenceSelector} button.id-reference-evaluate`);
+        return title;
     }
 
     getReferenceComment(index) {

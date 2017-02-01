@@ -24,18 +24,6 @@
   </controls>
 
   <contentwrapper>
-      <article class="line-wrapper question">
-      <div class="middle"></div>
-      <div class="right">
-          <wysiwyg-editor
-                class="id-reference-comment"
-                ng-disabled="vm.readOnly"
-                placeholder="COMMENTS"
-                ng-model="vm.referenceAssessment.evaluation['comment']">
-          </wysiwyg-editor>
-      </div>
-      <div class="middle"></div>
-    </article>
     <article class='line-wrapper question id-relevance'>
       <div class="left"> <h5 class="slim title"> <b>Relevance</b> </h5> <p> Is the reference relevant? </p> </div>
       <div class="middle"></div>
@@ -95,18 +83,18 @@
         </div>
       </div>
     </article>
-    <!--<article class="line-wrapper question">-->
-      <!--<div class="middle"></div>-->
-      <!--<div class="right">-->
-          <!--<wysiwyg-editor-->
-                <!--class="id-reference-comment"-->
-                <!--ng-disabled="vm.readOnly"-->
-                <!--placeholder="COMMENTS"-->
-                <!--ng-model="vm.referenceAssessment.evaluation['comment']">-->
-          <!--</wysiwyg-editor>-->
-      <!--</div>-->
-      <!--<div class="middle"></div>-->
-    <!--</article>-->
+    <article class="line-wrapper question">
+      <div class="middle"></div>
+      <div class="right">
+          <wysiwyg-editor
+                class="id-reference-comment"
+                ng-disabled="vm.readOnly"
+                placeholder="COMMENTS"
+                ng-model="vm.referenceAssessment.evaluation['comment']">
+          </wysiwyg-editor>
+      </div>
+      <div class="middle"></div>
+    </article>
   </contentwrapper>
 
 </sectionbox>
