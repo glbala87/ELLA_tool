@@ -1,8 +1,11 @@
-import datetime
 import itertools
-from collections import defaultdict
 from sqlalchemy import or_, and_, tuple_, column, Float, String, table, Integer, func
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import ClauseElement, Executable
+from sqlalchemy.sql import functions
+from sqlalchemy.sql.selectable import FromClause, Alias
+from sqlalchemy.sql.elements import ColumnClause
+
 from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
 
 from api.util.util import query_print_table
@@ -10,12 +13,6 @@ from api.config import config
 from api.util.genepanelconfig import GenepanelConfigResolver
 
 from api.v1 import queries  # TODO: Feels strange to import something inside v1 in general util
-
-# TEST
-
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable, literal_column
-from sqlalchemy.dialects import postgresql
 
 
 class CreateTempTableAs(Executable, ClauseElement):
@@ -36,10 +33,6 @@ def _create_temp_table_as(element, compiler, **kw):
 ###
 # START SQLAlchemy support for jsonb_to_recordset
 ###
-from sqlalchemy.sql import functions
-from sqlalchemy.sql.selectable import FromClause, Alias
-from sqlalchemy.sql.elements import ColumnClause
-from sqlalchemy.ext.compiler import compiles
 
 
 class FunctionColumn(ColumnClause):
@@ -201,13 +194,16 @@ class TempAlleleFilterTable(object):
             *[column(k + '.' + v, Float) for k, v in freqs]
         )
 
+    def drop(self):
+        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_internal_only;')
+
     def __enter__(self):
         return self.create()
 
     def __exit__(self, type, value, traceback):
         # Extra safety. Table should normally be dropped at end of transaction,
         # but even better to be explicit.
-        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_internal_only;')
+        return self.drop()
 
 
 class AlleleFilter(object):
@@ -316,7 +312,7 @@ class AlleleFilter(object):
             gp_filter[gp_key] = or_(*gp_final_filter)
         return gp_filter
 
-    def get_commonness_groups(self, gp_allele_ids):
+    def get_commonness_groups(self, gp_allele_ids, allele_filter_tbl):
         """
         Categorizes allele ids according to their annotation frequency
         and the thresholds in the genepanel configuration.
@@ -348,56 +344,53 @@ class AlleleFilter(object):
             tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(gp_allele_ids.keys())
         ).all()
 
-        all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
-        with TempAlleleFilterTable(self.session, all_allele_ids, config) as allele_filter_tbl:
+        def common_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
+            return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
 
-            def common_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
-                return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
+        def less_common_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
+            return and_(
+                getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['hi_freq_cutoff'],
+                getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
+            )
 
-            def less_common_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
-                return and_(
-                    getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['hi_freq_cutoff'],
-                    getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
-                )
+        def below_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
+            return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
 
-            def below_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
-                return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
+        commonness_result = {
+            'common': dict(),
+            'less_common': dict(),
+            'low_freq': dict(),
+        }
 
-            commonness_result = {
-                'common': dict(),
-                'less_common': dict(),
-                'low_freq': dict(),
-            }
+        threshold_funcs = {
+            'common': common_threshold,
+            'less_common': less_common_threshold,
+            'low_freq': below_threshold
+        }
 
-            threshold_funcs = {
-                'common': common_threshold,
-                'less_common': less_common_threshold,
-                'low_freq': below_threshold
-            }
+        for commonness_group, result in commonness_result.iteritems():
 
-            for commonness_group, result in commonness_result.iteritems():
+            # Create query filter this genepanel
+            gp_filters = self._create_freq_filter(
+                allele_filter_tbl,
+                genepanels,
+                gp_allele_ids,
+                threshold_funcs[commonness_group]
+            )
 
-                # Create query filter this genepanel
-                gp_filters = self._create_freq_filter(
-                    allele_filter_tbl,
-                    genepanels,
-                    gp_allele_ids,
-                    threshold_funcs[commonness_group]
-                )
+            for gp_key, al_ids in gp_allele_ids.iteritems():
+                allele_ids = self.session.query(allele_filter_tbl.c.allele_id).filter(
+                    gp_filters[gp_key],
+                    allele_filter_tbl.c.allele_id.in_(al_ids)
+                ).distinct()
+                result[gp_key] = [a[0] for a in allele_ids.all()]
 
-                for gp_key, al_ids in gp_allele_ids.iteritems():
-                    allele_ids = self.session.query(allele_filter_tbl.c.allele_id).filter(
-                        gp_filters[gp_key],
-                        allele_filter_tbl.c.allele_id.in_(al_ids)
-                    ).distinct()
-                    result[gp_key] = [a[0] for a in allele_ids.all()]
-
-            # Invert result structure
-            final_result = {k: dict() for k in gp_allele_ids}
-            for gp_key in final_result:
-                for k, v in commonness_result.iteritems():
-                    final_result[gp_key][k] = v[gp_key]
-            return final_result
+        # Invert result structure
+        final_result = {k: dict() for k in gp_allele_ids}
+        for gp_key in final_result:
+            for k, v in commonness_result.iteritems():
+                final_result[gp_key][k] = v[gp_key]
+        return final_result
 
     def exclude_classification_allele_ids(self, allele_ids):
         """
@@ -425,15 +418,121 @@ class AlleleFilter(object):
 
         return [a for a in allele_ids if a not in to_exclude]
 
-    def filtered_gene(self, gp_allele_ids):
-        pass
-
-    def filtered_intronic(self, gp_allele_ids):
-        pass
-
-    def filtered_frequency(self, gp_allele_ids):
+    def filtered_gene(self, gp_allele_ids, allele_filter_tbl=None):
         """
-        Gives all allele_ids filtered on frequency according to input
+        Returns all allele_ids filtered on gene according to input
+        genepanel with allele_ids.
+
+        The filtering will happen according to any genepanel's specified
+        configuration, specifying what genes that should be excluded.
+
+        If any alleles have an existing classification according to config
+        'exclude_filtering_existing_assessment', they will be excluded from the
+        result.
+
+        :param gp_allele_ids: Dict of genepanel key with corresponding allele_ids {('HBOC', 'v01'): [1, 2, 3])}
+        :returns: Structure similar to input, but only containing allele ids are excluded based on gene.
+
+        :note: The returned values are allele ids that were _filtered out_
+        based on gene, i.e. they are in excluded list.
+        """
+
+        # If user didn't pass cached table, create one
+        table_creator = None
+        if allele_filter_tbl is None:
+            all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
+            table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.config)
+            allele_filter_tbl = table_creator.create()
+
+        exclude_genes = self.config['variant_criteria']['exclude_genes']
+
+        gene_filtered = dict()
+        for gp_key, allele_ids in gp_allele_ids.iteritems():
+            gene_filtered_q = self.session.query(
+                allele_filter_tbl.c.allele_id
+            ).filter(
+                allele_filter_tbl.c.symbol.in_(exclude_genes),
+                allele_filter_tbl.c.allele_id.in_(allele_ids)
+            ).distinct()
+
+            gene_filtered[gp_key] = [a[0] for a in gene_filtered_q.all()]
+
+        # Remove the ones with existing classification
+        for gp_key, allele_ids in gene_filtered.iteritems():
+            gene_filtered[gp_key] = self.exclude_classification_allele_ids(allele_ids)
+
+        if table_creator:
+            table_creator.drop()
+
+        return gene_filtered
+
+    def filtered_intronic(self, gp_allele_ids, allele_filter_tbl=None):
+        """
+        Returns all allele_ids filtered on intronic status according to input
+        genepanel with allele_ids.
+
+        The filtering will happen according to any genepanel's specified
+        configuration, specifying what exon_distance defines intronic status.
+
+        If any alleles have an existing classification according to config
+        'exclude_filtering_existing_assessment', they will be excluded from the
+        result.
+
+        :param gp_allele_ids: Dict of genepanel key with corresponding allele_ids {('HBOC', 'v01'): [1, 2, 3])}
+        :returns: Structure similar to input, but only containing allele ids that are intronic.
+
+        :note: The returned values are allele ids that were _filtered out_
+        based on intronic status, i.e. they are intronic.
+        """
+
+        all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
+
+        table_creator = None
+        if allele_filter_tbl is None:
+            table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.config)
+            allele_filter_tbl = table_creator.create()
+
+        all_gp_keys = gp_allele_ids.keys()
+
+        filtered_transcripts = queries.alleles_transcript_filtered_genepanel(
+            self.session,
+            all_allele_ids,
+            all_gp_keys
+        ).subquery()
+
+        intronic_region = self.config['variant_criteria']['intronic_region']
+
+        # TODO: Add support for per gene/genepanel configuration when ready.
+        intronic_filtered = dict()
+        for gp_key, allele_ids in gp_allele_ids.iteritems():
+            intronic_filtered_q = self.session.query(
+                allele_filter_tbl.c.allele_id
+            ).join(
+                filtered_transcripts,
+                allele_filter_tbl.c.transcript == filtered_transcripts.c.annotation_transcript
+            ).filter(
+                tuple_(filtered_transcripts.c.name, filtered_transcripts.c.version) == gp_key,
+                or_(
+                    allele_filter_tbl.c.exon_distance < intronic_region[0],
+                    allele_filter_tbl.c.exon_distance > intronic_region[1]
+                ),
+                allele_filter_tbl.c.allele_id.in_(allele_ids)
+            ).distinct()
+
+            intronic_filtered[gp_key] = [a[0] for a in intronic_filtered_q.all()]
+
+        # Remove the ones with existing classification
+        for gp_key, allele_ids in intronic_filtered.iteritems():
+            intronic_filtered[gp_key] = self.exclude_classification_allele_ids(allele_ids)
+
+        if table_creator is not None:
+            table_creator.drop()
+
+        return intronic_filtered
+
+    def filtered_frequency(self, gp_allele_ids, allele_filter_tbl=None):
+        """
+        Returns all allele_ids filtered on frequency according to input
         genepanel with allele_ids.
 
         The filtering will happen according to any genepanel's specified
@@ -451,12 +550,30 @@ class AlleleFilter(object):
         that should be included.
         """
 
-        commonness_result = self.get_commonness_groups(gp_allele_ids)
+        table_creator = None
+        if allele_filter_tbl is None:
+            all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
+            table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.config)
+            allele_filter_tbl = table_creator.create()
+
+        commonness_result = self.get_commonness_groups(gp_allele_ids, allele_filter_tbl)
         frequency_filtered = dict()
         for gp_key, commonness_group in commonness_result.iteritems():
             frequency_filtered[gp_key] = self.exclude_classification_allele_ids(commonness_group['common'])
 
+        if table_creator:
+            table_creator.drop()
+
         return frequency_filtered
+
+    def filter_alleles(self, gp_allele_ids):
+
+        all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
+        with TempAlleleFilterTable(self.session, all_allele_ids, self.config) as allele_filter_tbl:
+            self.filtered_frequency(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
+            self.filtered_intronic(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
+            self.filtered_gene(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
+
 
 if __name__ == '__main__':
     from vardb.util.db import DB
@@ -464,7 +581,7 @@ if __name__ == '__main__':
     db.connect()
 
     gp_allele_ids = dict()
-    test_genepanels = [('HBOC', 'v01'), ('HBOCUTV', 'v01'), ('KREFT17', 'v01'), ('Iktyose', 'v02'), ('Joubert', 'v02'), ('Bindevev', 'v02')]
+    test_genepanels = [('HBOC', 'v01'), ('HBOCUTV', 'v01'), ('Ciliopati', 'v03'), ('Iktyose', 'v02'), ('Joubert', 'v02'), ('Bindevev', 'v02')]
     #test_genepanels = [('HBOC', 'v01'), ('HBOCUTV', 'v01')]
     for gp_key in test_genepanels:
         allele_ids = db.session.query(allele.Allele.id).join(
@@ -479,10 +596,6 @@ if __name__ == '__main__':
 
     af = AlleleFilter(db.session, config)
 
-    result = af.filtered_frequency(
+    result = af.filter_alleles(
         gp_allele_ids
     )
-
-    for gp_key in gp_allele_ids:
-        print "BEFORE", gp_key, len(gp_allele_ids[gp_key])
-        print "AFTER", gp_key, len(result[gp_key])
