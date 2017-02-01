@@ -182,8 +182,6 @@ class TempAlleleFilterTable(object):
             self.session.execute('CREATE INDEX ix_tmp_allele_filter_{0} ON tmp_allele_filter_internal_only ({0})'.format(c))
 
         self.session.execute('ANALYZE tmp_allele_filter_internal_only')
-        for a in self.session.execute('SELECT count(distinct(allele_id)) FROM tmp_allele_filter_internal_only'):
-            print a
 
         return table(
             'tmp_allele_filter_internal_only',
