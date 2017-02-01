@@ -2,13 +2,13 @@ require('core-js/fn/object/entries');
 
 /**
  * Performs interpretations for three samples and evaluate some references.
- * 1. Sample 1: interpret one round, set to review.
- * 2. Sample 1: check if interpretations from previous round is stored. Finalize the sample.
- * 3. Sample 2: check if variants common with sample 1 are already classified.
- *              change a variant that also exists in sample 3
- * 4. Sample 3: confirm that the changed classification in 2nd sample is carried
- *    over correctly, and that it's using the latest classification rather
- *    than the first one made as part of 1st sample.
+ * - Sample 1: interpret one round, set to review.
+ * - Sample 1: check if interpretations from previous round is stored. Finalize the sample.
+ * - Sample 2: check if variants common with sample 1 are already classified.
+ *             change a variant that also exists in sample 3
+ * - Sample 3: confirm that the changed classification in 2nd sample is carried
+ *             over correctly, and that it's using the latest classification rather
+ *             than the first one made as part of 1st sample.
  */
 
 let LoginPage = require('../pageobjects/loginPage')
@@ -186,16 +186,17 @@ describe('Sample workflow', function () {
         analysisPage.markReviewButton.click();
     });
 
+    it('shows the review comment on overview page', function () {
+        loginPage.selectSecondUser();
+        sampleSelectionPage.expandReviewSection();
+        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1');
+    });
+
     it('keeps the classification from the previous round', function () {
 
         loginPage.selectSecondUser();
-
-        // Check that analysis tag and comment was stored correctly
-        // expect(sampleSelectionPage.getReviewTags().length).toEqual(2);
         sampleSelectionPage.expandReviewSection();
-        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1');
         sampleSelectionPage.selectTopReview();
-
         analysisPage.startButton.click();
         checkAlleleClassification(expected_analysis_1_round_1);
         analysisPage.finishButton.click();
