@@ -612,4 +612,16 @@ class AnalysisInterpretationImporter(object):
             )
         return db_interpretation
 
+class AlleleInterpretationImporter(object):
 
+    def __init__(self, session):
+        self.session = session
+
+    def process(self, genepanel, allele_id):
+        db_interpretation, _ = wf.AlleleInterpretation.get_or_create(
+            self.session,
+            allele_id=allele_id,
+            genepanel=genepanel,
+            status="Not started"
+            )
+        return db_interpretation

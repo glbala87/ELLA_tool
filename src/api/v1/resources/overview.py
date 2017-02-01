@@ -216,9 +216,15 @@ class OverviewAlleleResource(Resource):
             allele.Allele.id.in_(queries.workflow_alleles_finalized(session))
         )
 
+    def get_alleles_not_started(self, session):
+        return self._get_genepanel_alleles_existing_alleleinterpretation(
+            session,
+            allele.Allele.id.in_(queries.workflow_alleles_not_started(session))
+        )
+
     def get(self, session):
         return {
-            'missing_alleleassessment': self.get_alleles_missing_interpretation(session),
+            'missing_alleleassessment': self.get_alleles_missing_interpretation(session)+self.get_alleles_not_started(session),
             'marked_review': self.get_alleles_markedreview(session),
             'ongoing': self.get_alleles_ongoing(session),
             'finalized': self.get_alleles_finalized(session)

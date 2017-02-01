@@ -11,6 +11,7 @@ from api import schemas
 from api.config import config
 
 from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.deposit.deposit_alleles import DepositAlleles
 
 ANNOTATION_SERVICE = config["app"]["annotation_service"]
 
@@ -108,7 +109,31 @@ class AnnotationJobDeposit(Resource):
                                analysis_config=analysis_config)
             session.commit()
         elif mode == "Variants":
-            raise RuntimeError("Variant deposit not yet supported.")
+            #type = job.properties["create_or_append"]
+            #assert type == "Create", "Only supports creating new analysis"
+            #analysis_name = job.properties["analysis_name"]
+            deposit = DepositAlleles(session)
+            samples = VcfIterator(filename).getSamples()
+            sample_config = [{"name": sname} for sname in samples]
+            # vcf_sample_names = [analysis_name]
+            print job.properties
+            genepanel = job.properties["genepanel"]
+            # analysis_config = dict(params=dict(genepanel=genepanel))
+            allele_config = dict(
+                params=dict(genepanel=genepanel),
+                samples=samples,
+                name = ".".join(["independent", genepanel])
+            )
+            try:
+                deposit.import_vcf(filename,
+                                   sample_configs=sample_config,
+                                   allele_config=allele_config)
+            except Exception as e:
+                return e.message, 500
+            session.commit()
+
+
+            #raise RuntimeError("Variant deposit not yet supported.")
 
 class AnnotationServiceRunning(Resource):
     def get(self, session):
