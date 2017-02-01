@@ -15,10 +15,12 @@ export default class Annotation {
      * and data from 'transcripts'
      */
     setFilteredTranscripts() {
-        if (this.filtered_transcripts) {
+        if (this.filtered_transcripts.length) {
             this.filtered = this.transcripts.filter(t => {
                 return this.filtered_transcripts.includes(t.transcript);
             });
+        } else {
+            this.filtered = this.transcripts;
         }
     }
 
