@@ -11,7 +11,8 @@ let app = angular.module('workbench', ['ui.bootstrap',
     'checklist-model',
     'angular-clipboard',
     'toastr',
-    'selector'
+    'selector',
+    'ngSanitize'
 ]);
 
 function Run() {
