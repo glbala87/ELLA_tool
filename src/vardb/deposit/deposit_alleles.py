@@ -79,7 +79,7 @@ class DepositAlleles(object):
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
-
+        """
         vcf_sample_names = vi.samples
         self.check_samples(vcf_sample_names, sample_configs)
 
@@ -88,7 +88,7 @@ class DepositAlleles(object):
 
         if not db_samples or len(db_samples) != len(vcf_sample_names):
             raise RuntimeError("Couldn't import samples to database.")
-
+        """
         db_genepanel = self.get_genepanel(allele_config)
         """
         db_analysis = self.analysis_importer.process(
