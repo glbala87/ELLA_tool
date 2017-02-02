@@ -10,7 +10,7 @@ require('core-js/fn/object/entries');
  */
 
 let LoginPage = require('../pageobjects/loginPage')
-let SampleSelection = require('../pageobjects/overview')
+let SampleSelection = require('../pageobjects/overview_samples')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
@@ -108,8 +108,8 @@ describe('Sample workflow', function () {
         for (let i=1; i<=numberOfClassifiedBefore; i++) {
             alleleSidebar.selectFirstClassified(); // who's first changes when unclassify/classify
             let selected_allele = alleleSidebar.getSelectedAllele();
-            expect(alleleSectionBox.existingClassificationButtonText).
-                toBe(BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION, 'Allele should be marked as reusing existing classification');
+            expect(alleleSectionBox.existingClassificationButtonText.toLowerCase()).
+                toBe(BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase(), 'Allele should be marked as reusing existing classification');
             alleleSectionBox.classificationAcceptedBtn.click();
             alleleSectionBox.classifyAsT();
             let classification = alleleSidebar.getSelectedAlleleClassification();

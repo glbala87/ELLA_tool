@@ -6,7 +6,7 @@ require('core-js/fn/object/entries');
  */
 
 let LoginPage = require('../pageobjects/loginPage')
-let SampleSelectionPage = require('../pageobjects/overview')
+let SampleSelectionPage = require('../pageobjects/overview_samples')
 let AnalysisPage = require('../pageobjects/analysisPage')
 
 let loginPage = new LoginPage()

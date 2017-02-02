@@ -22,7 +22,7 @@ exports.config = {
     ],
     // Patterns to exclude.
     exclude: [
-        // 'path/to/excluded/files'
+        'src/webui/tests/e2e/tests/workflow_variant_classification.js'
     ],
     //
     // ============

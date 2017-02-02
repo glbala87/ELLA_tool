@@ -1,21 +1,13 @@
 require('core-js/fn/object/entries');
 
 /**
- * Performs interpretations for three samples and evaluate some references.
- * - Sample 1: interpret one round, set to review.
- * - Sample 1: check if interpretations from previous round is stored. Finalize the sample.
- * - Sample 2: check if variants common with sample 1 are already classified.
- *             change a variant that also exists in sample 3
- * - Sample 3: confirm that the changed classification in 2nd sample is carried
- *             over correctly, and that it's using the latest classification rather
- *             than the first one made as part of 1st sample.
+ * Performs interpretations for ...
+ * - Variant 1: TBD
  */
 
 let LoginPage = require('../pageobjects/loginPage')
-let AddExcludedAllelesModal = require('../pageobjects/addExcludedModal')
-let SampleSelectionPage = require('../pageobjects/overview_samples')
+let VariantSelectionPage = require('../pageobjects/overview_variants')
 let AnalysisPage = require('../pageobjects/analysisPage')
-let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
@@ -23,10 +15,8 @@ let checkAlleleClassification = require('../helpers/checkAlleleClassification')
 let failFast = require('jasmine-fail-fast');
 
 let loginPage = new LoginPage()
-let addExcludedAllelesModal = new AddExcludedAllelesModal()
-let sampleSelectionPage = new SampleSelectionPage()
+let variantSelectionPage = new VariantSelectionPage()
 let analysisPage = new AnalysisPage()
-let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
@@ -36,7 +26,7 @@ jasmine.getEnv().addReporter(failFast.init());
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
 const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01';
 
-describe('Sample workflow', function () {
+describe('Variant workflow', function () {
 
     beforeAll(() => {
         browser.resetDb();
@@ -49,7 +39,7 @@ describe('Sample workflow', function () {
 
     it('allows interpretation, classification and reference evaluation to be set to review', function () {
         loginPage.selectFirstUser();
-        sampleSelectionPage.selectTopPending();
+        variantSelectionPage.selectTopPending();
 
         analysisPage.startButton.click();
 
@@ -188,15 +178,15 @@ describe('Sample workflow', function () {
 
     it('shows the review comment on overview page', function () {
         loginPage.selectSecondUser();
-        sampleSelectionPage.expandReviewSection();
-        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1');
+        variantSelectionPage.expandReviewSection();
+        expect(variantSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1');
     });
 
     it('keeps the classification from the previous round', function () {
 
         loginPage.selectSecondUser();
-        sampleSelectionPage.expandReviewSection();
-        sampleSelectionPage.selectTopReview();
+        variantSelectionPage.expandReviewSection();
+        variantSelectionPage.selectTopReview();
         analysisPage.startButton.click();
         checkAlleleClassification(expected_analysis_1_round_1);
         analysisPage.finishButton.click();
@@ -206,7 +196,7 @@ describe('Sample workflow', function () {
     it('reuses classified variants from a different sample', function() {
 
         loginPage.selectFirstUser();
-        sampleSelectionPage.selectTopPending();
+        variantSelectionPage.selectTopPending();
         analysisPage.startButton.click();
 
         // First check alleles overlapping with prev sample
@@ -293,7 +283,7 @@ describe('Sample workflow', function () {
     it('reuses the latest variant classification done in another sample', function() {
 
         loginPage.selectFirstUser();
-        sampleSelectionPage.selectFindings(1);
+        variantSelectionPage.selectFindings(1);
         checkAlleleClassification(expected_analysis_2_round_1);
     });
 
