@@ -12,6 +12,7 @@ from api.config import config
 
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
 
 ANNOTATION_SERVICE = config["app"]["annotation_service"]
 
@@ -91,23 +92,39 @@ class AnnotationJobDeposit(Resource):
 
         if mode == "Analysis":
             type = job.properties["create_or_append"]
-            assert type == "Create", "Only supports creating new analysis"
-            analysis_name = job.properties["analysis_name"]
-            deposit = DepositAnalysis(session)
-            samples = VcfIterator(filename).getSamples()
-            sample_config = [{"name": sname} for sname in samples]
-            # vcf_sample_names = [analysis_name]
-            genepanel = job.properties["genepanel"]
-            # analysis_config = dict(params=dict(genepanel=genepanel))
-            analysis_config = dict(
-                params=dict(genepanel=genepanel),
-                samples=samples,
-                name = ".".join([analysis_name, genepanel])
-            )
-            deposit.import_vcf(filename,
-                               sample_configs=sample_config,
-                               analysis_config=analysis_config)
-            session.commit()
+            if type == "Create":
+                # assert type == "Create", "Only supports creating new analysis"
+                analysis_name = job.properties["analysis_name"]
+                deposit = DepositAnalysis(session)
+                samples = VcfIterator(filename).getSamples()
+                sample_config = [{"name": sname} for sname in samples]
+                # vcf_sample_names = [analysis_name]
+                genepanel = job.properties["genepanel"]
+                # analysis_config = dict(params=dict(genepanel=genepanel))
+                analysis_config = dict(
+                    params=dict(genepanel=genepanel),
+                    samples=samples,
+                    name = ".".join([analysis_name, genepanel])
+                )
+                deposit.import_vcf(filename,
+                                   sample_configs=sample_config,
+                                   analysis_config=analysis_config)
+                session.commit()
+            else:
+                analysis_name = job.properties["analysis_name"]
+                deposit = DepositAnalysisAppend(session)
+                samples = VcfIterator(filename).getSamples()
+                sample_config = [{"name": sname} for sname in samples]
+                genepanel = job.properties["genepanel"]
+                analysis_config = dict(
+                    params=dict(genepanel=genepanel),
+                    samples=samples,
+                    name=analysis_name,
+                )
+                deposit.import_vcf(filename,
+                                   sample_configs=sample_config,
+                                   analysis_config=analysis_config)
+                session.commit()
         elif mode == "Variants":
             #type = job.properties["create_or_append"]
             #assert type == "Create", "Only supports creating new analysis"
