@@ -1,8 +1,5 @@
 var Page = require('./page');
 
-
-// export const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
-
 const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
 
 const SELECTOR_COMMENT_CLASSIFICATION = 'allele-sectionbox .id-comment-classification';
@@ -24,7 +21,6 @@ class AlleleSectionBox extends Page {
 
     setClassificationComment(text) {
         this.classificationCommentElement.click();
-        // not working: this.classificationCommentElement.click().waitForVisible('.wysiwygeditor', 50).setValue('.wysiwygeditor', text);
         browser.setValue(SELECTOR_COMMENT_CLASSIFICATION_EDITOR, text);
     }
 
@@ -53,10 +49,6 @@ class AlleleSectionBox extends Page {
         browser.setValue(SELECTOR_COMMENT_PREDICTION_EDITOR, text);
     }
 
-    // get reportComment() {
-    //         let element = browser.element('allele-sectionbox .id-comment-evaluation .wysiwygeditor');
-    //     return element.getText();
-    // }
     get reportComment() { return browser.element('allele-sectionbox textarea[placeholder="REPORT"]'); }
 
     get classSelection() { return browser.element('allele-sectionbox select.id-select-classification'); }
@@ -72,6 +64,18 @@ class AlleleSectionBox extends Page {
         let dropdownOption = `select.id-select-classification option:nth-child(${index})`;
         // console.log(`finding selector ${dropdownOption}`);
         browser.click(dropdownOption);
+    }
+
+    setClassificationByText(value) {
+        let option = this.classSelection.selectByVisibleText(value);
+        if (!option) {
+            console.error(`Didn't find classifiation option with value '${value}'`);
+        }
+    }
+
+    getClassificationValue() {
+        // the value of the selected option element. This is different than the label shown.
+        return this.classSelection.getValue();
     }
 
     classifyAsU() {

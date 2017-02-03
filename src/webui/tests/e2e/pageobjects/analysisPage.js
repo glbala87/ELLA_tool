@@ -2,6 +2,7 @@ var Page = require('./page')
 
 class AnalysisPage extends Page {
 
+    get title() { return browser.element('.full-title').getText(); }
     get analysis() { return browser.element('analysis'); }
     get finishButton() { return browser.element('.id-finish-analysis'); }
     get startButton() { return browser.element('.id-start-analysis'); }

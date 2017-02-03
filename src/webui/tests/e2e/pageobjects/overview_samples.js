@@ -17,17 +17,21 @@ const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
 
 class SampleSelection extends Page {
 
-    get analysisList() { return browser.element('analysis-list') }
+    open() {
+        super.open('overview/analyses');
+    }
 
+    get analysisList() { return browser.element('analysis-list') }
     get noFindingsSection() { return browser.element('.id-analysis-findings-none') }
     get findingsSection() { return browser.element(SELECTOR_FINDINGS) }
     get emptySection() { return browser.element(SELECTOR_EMPTY) };
     get pendingSection() { return browser.element(SELECTOR_PENDING) }
     get reviewSection() { return browser.element(SELECTOR_REVIEW) }
     get finishedSection() { return browser.element(SELECTOR_FINISHED) }
+
+
+
     get normalSection() { return browser.element(SELECTOR_NORMAL) }
-
-
 
     expandPendingSection() {
         this._expandSection(SELECTOR_PENDING);
@@ -75,7 +79,7 @@ class SampleSelection extends Page {
             //     console.error("Analysis name mismatch");
             // }
         // }
-        
+
     }
 
     selectWithMissingAssessments(number, name) {
@@ -92,10 +96,6 @@ class SampleSelection extends Page {
 
     selectFindings(number) {
         this.selectItemInSection(number, SELECTOR_FINDINGS);
-    }
-
-    open() {
-        super.open('overview/analyses');
     }
 
     selectTopPending() {

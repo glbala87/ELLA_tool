@@ -21,9 +21,9 @@ exports.config = {
         'src/webui/tests/e2e/tests/**/*.js'
     ],
     // Patterns to exclude.
-    exclude: [
-        'src/webui/tests/e2e/tests/workflow_variant_classification.js'
-    ],
+    // exclude: [
+    //     'src/webui/tests/e2e/tests/workflow_variant_classification.js'
+    // ],
     //
     // ============
     // Capabilities
