@@ -17,7 +17,8 @@ class TestDatabase(object):
 
         # Reconnect with NullPool in order to avoid hanging connections
         # which prevents us from dropping/creating database
-        db.connect(engine_kwargs={"poolclass": NullPool}, query_cls=RestQuery)
+        db.disconnect()
+        self.conn = db.connect(engine_kwargs={"poolclass": NullPool}, query_cls=RestQuery)
 
         if "@" in os.environ["DB_URL"]:
             self.host = re.findall(".*@([^/]*).*", os.environ["DB_URL"])[0]
@@ -25,6 +26,9 @@ class TestDatabase(object):
             self.host = "localhost"
 
         self.create_dump()
+
+    def get_session(self):
+        return db.session
 
     def get_dump_path(self):
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
@@ -49,6 +53,8 @@ class TestDatabase(object):
             subprocess.check_call('psql --host={host} -d postgres < {path}'.format(host=self.host, path=self.dump_path), shell=True, stdout=f)
 
     def cleanup(self):
+        print "Disconnecting..."
+        db.disconnect()
         print "Removing database"
         subprocess.call('dropdb --host={host} vardb-test'.format(host=self.host), shell=True)
         try:

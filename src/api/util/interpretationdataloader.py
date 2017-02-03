@@ -2,6 +2,7 @@ from sqlalchemy.orm import contains_eager, load_only
 
 from vardb.datamodel import allele, sample, genotype, workflow
 
+from api.util.allelefilter import AlleleFilter
 from api.util.alleledataloader import AlleleDataLoader
 from api.schemas import AnalysisInterpretationSchema, AlleleInterpretationSchema
 from api.util.annotationprocessor.genepanelprocessor import ABOVE_RESULT
@@ -86,34 +87,29 @@ class InterpretationDataLoader(object):
                 'gene': []
             }
             return [interpretation.allele.id], excluded_allele_ids
+
         elif isinstance(interpretation, workflow.AnalysisInterpretation):
             genepanel = interpretation.analysis.genepanel
 
-            interpretation_cls = self._get_interpretation_cls(interpretation)
-
-            alleles_with_id = self.session.query(allele.Allele).join(
+            allele_ids = self.session.query(allele.Allele.id).join(
                 genotype.Genotype.alleles,
                 sample.Sample,
                 sample.Analysis,
-                interpretation_cls
-            ).options(
-                contains_eager('genotypes'),  # do not use joinedload, as that will filter wrong
+                workflow.AnalysisInterpretation
             ).filter(
-                # TODO: Add AlleleInterpretation
-                interpretation_cls.id == interpretation.id,
+                workflow.AnalysisInterpretation.id == interpretation.id,
                 genotype.Genotype.sample_id == sample.Sample.id
-            ).options(
-                load_only('id')
             ).all()
 
-            loaded_alleles = AlleleDataLoader(self.session).from_objs(
-                alleles_with_id,
-                genepanel=genepanel,
-                include_allele_assessment=True,  # Needed for correct filtering!
-                include_reference_assessments=False
+            allele_ids = [a[0] for a in allele_ids]
+            af = AlleleFilter(self.session, self.config)
+
+            gp_key = (genepanel.name, genepanel.version)
+            filtered_alleles = af.filter_alleles(
+                {gp_key: allele_ids}
             )
 
-            return self.group_by_filter_types(loaded_alleles)
+            return filtered_alleles[gp_key]['allele_ids'], filtered_alleles[gp_key]['excluded_allele_ids']
 
     def group_alleles_by_finalization_filtering_status(self, interpretation):
         if not interpretation.snapshots:
@@ -138,37 +134,6 @@ class InterpretationDataLoader(object):
                     allele_ids.append(snapshot.allele_id)
             else:
                 allele_ids.append(snapshot.allele_id)
-
-        return allele_ids, excluded_allele_ids
-
-    def group_by_filter_types(self, alleles):
-        allele_ids = []
-        excluded_allele_ids = {
-            'class1': [],
-            'intronic': [],
-            'gene': []
-        }
-
-        for al in alleles:
-
-            # If 'exclude_filtering_existing_assessment' flag is set in classification
-            # options, we omit filtering if there's an existing alleleassessment
-            allele_assessment = al.get('allele_assessment')
-            if allele_assessment:
-                classification_options = self._get_classification_options(allele_assessment['classification'])
-                if classification_options and classification_options.get('exclude_filtering_existing_assessment'):
-                    allele_ids.append(al['id'])
-                    continue
-
-            # Filter priority: Gene, class1, intronic
-            if self._exclude_gene(al):
-                excluded_allele_ids['gene'].append(al['id'])
-            elif self._exclude_class1(al):
-                excluded_allele_ids['class1'].append(al['id'])
-            elif self._exclude_intronic(al):
-                excluded_allele_ids['intronic'].append(al['id'])
-            else:
-                allele_ids.append(al['id'])
 
         return allele_ids, excluded_allele_ids
 

@@ -8,11 +8,9 @@ from sqlalchemy.sql.elements import ColumnClause
 
 from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
 
+from api.util import queries
 from api.util.util import query_print_table
-from api.config import config
 from api.util.genepanelconfig import GenepanelConfigResolver
-
-from api.v1 import queries  # TODO: Feels strange to import something inside v1 in general util
 
 
 class CreateTempTableAs(Executable, ClauseElement):
@@ -152,7 +150,7 @@ class TempAlleleFilterTable(object):
 
     def create(self):
 
-        frequency_groups = config['variant_criteria']['frequencies']['groups']
+        frequency_groups = self.config['variant_criteria']['frequencies']['groups']
         freqs = list()
         for freq_group in frequency_groups:
             for freq_provider, freq_keys in frequency_groups[freq_group].iteritems():  # 'ExAC', ['G', 'SAS', ...]
@@ -244,7 +242,7 @@ class AlleleFilter(object):
     def _get_freq_threshold_filter(self, af_table, group_thresholds, threshold_func):
         # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
         # TODO: Get from merged genepanel config when ready
-        frequency_groups = config['variant_criteria']['frequencies']['groups']
+        frequency_groups = self.config['variant_criteria']['frequencies']['groups']
         filters = list()
         for group, thresholds in group_thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
             if group not in frequency_groups:
@@ -263,7 +261,10 @@ class AlleleFilter(object):
         for gp_key in gp_allele_ids:  # loop over every genepanel, with related genes
 
             genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
-            gp_config_resolver = GenepanelConfigResolver(genepanel=genepanel)
+            gp_config_resolver = GenepanelConfigResolver(
+                genepanel=genepanel,
+                genepanel_default=self.config['variant_criteria']['genepanel_config']
+            )
 
             # Create the different kinds of filters
             #
@@ -418,10 +419,9 @@ class AlleleFilter(object):
 
     def filtered_gene(self, gp_allele_ids, allele_filter_tbl=None):
         """
-        Returns all allele_ids filtered on gene according to input
-        genepanel with allele_ids.
+        Filters allele ids from input based on gene.
 
-        The filtering will happen according to any genepanel's specified
+        The filtering will happen according to the genepanel's specified
         configuration, specifying what genes that should be excluded.
 
         If any alleles have an existing classification according to config
@@ -466,10 +466,10 @@ class AlleleFilter(object):
 
     def filtered_intronic(self, gp_allele_ids, allele_filter_tbl=None):
         """
-        Returns all allele_ids filtered on intronic status according to input
-        genepanel with allele_ids.
+        Filters allele ids from input based on their distance to nearest
+        exon edge.
 
-        The filtering will happen according to any genepanel's specified
+        The filtering will happen according to the genepanel's specified
         configuration, specifying what exon_distance defines intronic status.
 
         If any alleles have an existing classification according to config
@@ -530,10 +530,9 @@ class AlleleFilter(object):
 
     def filtered_frequency(self, gp_allele_ids, allele_filter_tbl=None):
         """
-        Returns all allele_ids filtered on frequency according to input
-        genepanel with allele_ids.
+        Filters allele ids from input based on their frequency.
 
-        The filtering will happen according to any genepanel's specified
+        The filtering will happen according to the genepanel's specified
         configuration.
 
         If any alleles have an existing classification according to config
@@ -566,11 +565,31 @@ class AlleleFilter(object):
 
     def filter_alleles(self, gp_allele_ids):
 
+        result = dict()
         all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
         with TempAlleleFilterTable(self.session, all_allele_ids, self.config) as allele_filter_tbl:
-            self.filtered_frequency(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
-            self.filtered_intronic(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
-            self.filtered_gene(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
+            filtered_gene = self.filtered_gene(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
+            filtered_frequency = self.filtered_frequency(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
+            filtered_intronic = self.filtered_intronic(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
+
+        for gp_key in gp_allele_ids:
+            gp_filtered_gene = filtered_gene[gp_key]
+            gp_filtered_frequency = [i for i in filtered_frequency[gp_key] if i not in gp_filtered_gene]
+            excluded = gp_filtered_gene + gp_filtered_frequency
+            gp_filtered_intronic = [i for i in filtered_intronic[gp_key] if i not in excluded]
+            excluded = excluded + gp_filtered_intronic
+            # Subtract the ones we excluded to get the ones not filtred out
+            not_filtered = list(set(gp_allele_ids[gp_key]) - set(excluded))
+            result[gp_key] = {
+                'allele_ids': not_filtered,
+                'excluded_allele_ids': {
+                    'gene': gp_filtered_gene,
+                    'intronic': gp_filtered_intronic,
+                    'frequency': gp_filtered_frequency
+                }
+            }
+
+        return result
 
 
 if __name__ == '__main__':

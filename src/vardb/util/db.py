@@ -8,6 +8,7 @@ class DB(object):
 
     def __init__(self):
         self.engine = None
+        self.session = None
 
     def connect(self,
                 host=None,
@@ -48,5 +49,7 @@ class DB(object):
         self.session = scoped_session(self.sessionmaker)
 
     def disconnect(self):
+        if self.session:
+            self.session.close()
         if self.engine:
             self.engine.dispose()

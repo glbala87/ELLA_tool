@@ -14,7 +14,7 @@ class Annotation(Base):
     __tablename__ = "annotation"
 
     id = Column(Integer, primary_key=True)
-    allele_id = Column(Integer, ForeignKey("allele.id"))
+    allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
     allele = relationship("Allele", uselist=False)
     annotations = Column(JSONMutableDict.as_mutable(JSONB))
     previous_annotation_id = Column(Integer,
