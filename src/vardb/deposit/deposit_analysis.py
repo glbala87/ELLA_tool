@@ -24,46 +24,12 @@ from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, Sample
                                     inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor
 
+from deposit_from_vcf import DepositFromVCF
 
 log = logging.getLogger(__name__)
 
 
-class DepositAnalysis(object):
-
-    def __init__(self, session):
-        self.session = session
-        self.sample_importer = SampleImporter(self.session)
-        self.annotation_importer = AnnotationImporter(self.session)
-        self.allele_importer = AlleleImporter(self.session)
-        self.genotype_importer = GenotypeImporter(self.session)
-        self.analysis_importer = AnalysisImporter(self.session)
-        self.analysis_interpretation_importer = AnalysisInterpretationImporter(self.session)
-        self.counter = defaultdict(int)
-
-    def check_samples(self, sample_names_in_vcf, sample_configs):
-        """
-        Returns name of sample(s) where:
-        - Name of sample in VCF matches name in sample_config (if given).
-        """
-        for sample_name in sample_names_in_vcf:
-            if sample_name not in [s['name'] for s in sample_configs]:
-                raise RuntimeError("Missing sample configuration for sample '{}' given in vcf".format(sample_name))
-        return True
-
-    def get_genepanel(self, analysis_config):
-        genepanel_name = analysis_config["params"]["genepanel"].split('_')[0]
-        genepanel_version = analysis_config["params"]["genepanel"].split('_')[1]
-        try:
-            genepanel = self.session.query(gene.Genepanel).filter(and_(
-                gene.Genepanel.name == genepanel_name,
-                gene.Genepanel.version == genepanel_version)).one()
-        except sqlalchemy.orm.exc.NoResultFound:
-            log.warning("Genepanel {} version {} not available in varDB".format(
-                genepanel_name, genepanel_version))
-            raise RuntimeError("Genepanel {} version {} not available in varDB".format(
-                genepanel_name, genepanel_version))
-        return genepanel
-
+class DepositAnalysis(DepositFromVCF):
     def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None):
 
         vi = vcfiterator.VcfIterator(path)
@@ -102,30 +68,6 @@ class DepositAnalysis(object):
                 self.genotype_importer.process(record, sample_name, db_analysis, db_sample, db_alleles)
 
             self.counter['nVariantsInFile'] += 1
-
-    def getCounter(self):
-        counter = dict(self.counter)
-        counter.update(self.sample_importer.counter)
-        counter.update(self.allele_importer.counter)
-        counter.update(self.annotation_importer.counter)
-        counter.update(self.genotype_importer.counter)
-        return counter
-
-    def printStats(self):
-        stats = self.getCounter()
-        print "Samples to add: {}".format(stats["nSamplesAdded"])
-        print "Variants in file: {}".format(stats.get('nVariantsInFile', '???'))
-        print "Alternative alleles to add: {}".format(stats.get('nAltAlleles', '???'))
-        print "Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", '???'))
-        print
-        print "Novel annotations to add: {}".format(stats.get("nNovelAnnotation", '???'))
-        print "Updated annotations: {}".format(stats.get("nUpdatedAnnotation", '???'))
-        print "Annotations unchanged: {}".format(stats.get("nNoChangeAnnotation", '???'))
-        print
-        print "Genotypes hetro ref: {}".format(stats.get('nGenotypeHetroRef', '???'))
-        print "Genotypes homo nonref: {}".format(stats.get('nGenotypeHomoNonRef', '???'))
-        print "Genotypes hetro nonref: {}".format(stats.get('nGenotypeHetroNonRef', '???'))
-        print "Genotypes not added (not variant/not called/sample not added): {}".format(stats.get('nGenotypeNotAdded', '???'))
 
 
 def main(argv=None):
