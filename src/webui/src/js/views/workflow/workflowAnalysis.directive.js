@@ -51,6 +51,7 @@ export class AnalysisController {
                 title: 'Classification',
                 sections: [
                     {
+                        name: 'classification',
                         title: 'Classification',
                         options: {
                             collapsed: false
@@ -72,6 +73,7 @@ export class AnalysisController {
                         ],
                     },
                     {
+                        name: 'frequency',
                         title: 'Frequency & QC',
                         options: {
                             collapsed: false
@@ -96,6 +98,7 @@ export class AnalysisController {
                         ],
                     },
                     {
+                        name: 'external',
                         title: 'External',
                         options: {
                             collapsed: false
@@ -114,6 +117,7 @@ export class AnalysisController {
                         ],
                     },
                     {
+                        name: 'prediction',
                         title: 'Prediction',
                         options: {
                             collapsed: false
@@ -132,6 +136,7 @@ export class AnalysisController {
                         ],
                     },
                     {
+                        name: 'references',
                         title: 'References',
                         options: {
                             collapsed: false

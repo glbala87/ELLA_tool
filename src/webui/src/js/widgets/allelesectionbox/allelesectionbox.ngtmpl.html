@@ -1,4 +1,4 @@
-<sectionbox color="purple" collapsed="vm.section.options.collapsed">
+<sectionbox class="id-sectionbox-{{section.name}}" color="purple" collapsed="vm.section.options.collapsed">
 
   <maintitle>
   {{vm.header}}
@@ -99,7 +99,7 @@
 
 <!-- Comments -->
 <top class="comments">
-    <wysiwyg-editor class="control-comment"
+    <wysiwyg-editor class="control-comment id-comment-{{vm.alleleassessmentComment.name}}"
                        ng-disabled="!vm.isEditable() || vm.readOnly"
                        placeholder="{{vm.alleleassessmentComment.placeholder}}"
                        ng-model="vm.getAlleleAssessment().evaluation[vm.alleleassessmentComment.name].comment"

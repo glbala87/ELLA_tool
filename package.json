@@ -49,6 +49,7 @@
     "protractor": "3.3.0",
     "watchify": "3.7.0",
     "wdio-jasmine-framework": "0.2.6",
+    "wdio-spec-reporter": "0.0.5",
     "webdriverio": "4.2.16"
   },
   "scripts": {

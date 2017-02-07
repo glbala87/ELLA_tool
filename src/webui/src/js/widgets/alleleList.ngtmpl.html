@@ -1,15 +1,20 @@
 <article class="sectionbox-content allele-list">
-<a class="list-item clickable" href="{{vm.getItemUrl(item)}}" ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]">
+<a class="id-variant list-item clickable"
+   href="{{vm.getItemUrl(item)}}"
+   ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]">
   <div>{{item.oldest_analysis | date:"dd-MM-yyyy"}}</div>
   <div class="allele-priority">{{::vm.getPriorityText(item)}}</div>
-  <div class="full-title ref-title">
-      <span ng-repeat="t in item.allele.annotation.filtered"><span style="text-transform: uppercase; color: #aaa;"> </span> <b>{{t.symbol}} {{t.HGVSc_short}}</b></span>
+  <div class="full-title ref-title id-variant-name">
+      <span ng-repeat="t in item.allele.annotation.filtered">
+        <span style="text-transform: uppercase; color: #aaa;"> </span>
+        <b>{{t.symbol}} {{t.HGVSc_short}}</b>
+      </span>
   </div>
 
   <div class="allele-genepanel">{{item.genepanel.name}}_{{item.genepanel.version}}</div>
 
   <div class="allele-extras">
-    <span class="allele-comment" ng-if="!vm.isalleleDone(allele) && vm.getReviewComment(item)">{{::vm.getReviewComment(item)}}</span>
+    <span class="id-allele-comment" ng-if="!vm.isalleleDone(allele) && vm.getReviewComment(item)">{{::vm.getReviewComment(item)}}</span>
   </div>
 
   <div class="allele-users">

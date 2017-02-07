@@ -89,8 +89,10 @@ class AlleleSidebar extends Page {
         let all = browser.getText(groupSelector);
         if (Array.isArray(all)) {
             let selector_of_first = `${groupSelector}:nth-child(1)`;
+            // console.log(`selecting first in array using ${selector_of_first}`);
             browser.click(selector_of_first);
         } else {
+            // console.log(`selecting first in singleton using ${groupSelector}`);
             browser.click(groupSelector);
         }
     }

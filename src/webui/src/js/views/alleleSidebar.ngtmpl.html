@@ -10,8 +10,14 @@
   </section>
 
   <section class="id-unclassified disabled">
-    <div class="nav-row disabled" ng-class="{'active': vm.isSelected(allele_obj)}" ng-repeat="allele_obj in vm.alleles.unclassified.inactive track by allele_obj.allele.id">
-      <h4 class="variant" title="allele {{allele_obj.allele.id}}"><i class="id-gene">{{allele_obj.allele.annotation.filtered[0].symbol}}</i><span class="id-hgvsc">{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span><b class="id-classification"></b></h4>
+      <div class="nav-row disabled"
+           ng-class="{'active': vm.isSelected(allele_obj)}"
+           ng-repeat="allele_obj in vm.alleles.unclassified.inactive track by allele_obj.allele.id">
+        <h4 class="variant" title="allele {{allele_obj.allele.id}}">
+          <i class="id-gene">{{allele_obj.allele.annotation.filtered[0].symbol}}</i>
+          <span class="id-hgvsc">{{allele_obj.allele.annotation.filtered[0].HGVSc_short}}</span>
+          <b class="id-classification"></b>
+        </h4>
       <div class="tab"> </div>
     </div>
   </section>
