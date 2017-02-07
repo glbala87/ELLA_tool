@@ -178,6 +178,7 @@ class AssessmentCreator(object):
         """
         Find an assessment in list 'existing_assessments' whose id == allele_assessment['presented_alleleassessment_id']
         """
+
         match = next((e for e in existing_assessments
                         if allele_assessment['allele_id'] == e.allele_id
                             and 'presented_alleleassessment_id' in allele_assessment

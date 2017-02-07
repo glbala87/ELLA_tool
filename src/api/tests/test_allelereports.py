@@ -2,7 +2,8 @@ import json
 import copy
 import pytest
 
-from util import FlaskClientProxy
+from api.tests import *
+
 from api import ApiError
 
 
@@ -17,27 +18,18 @@ def report_template(allele_id):
         }
     }
 
-
-@pytest.fixture
-def client():
-    return FlaskClientProxy()
+ANALYSIS_ID = 1
 
 
 class TestAlleleReports(object):
 
-    def _get_interpretation_id(self, client):
-        r = client.get('/api/v1/analyses/1/').json
-        return r['interpretations'][0]['id']
-
-    def _get_interpretation(self, client):
-        return client.get('/api/v1/interpretations/{}/'.format(self._get_interpretation_id(client))).json
-
     @pytest.mark.ar(order=0)
-    def test_create_new(self, test_database, client):
+    def test_create_new(self, test_database):
         test_database.refresh()  # Reset db
 
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = self._get_interpretation(client)
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
         created_ids = list()
         for idx, allele_id in enumerate(interpretation['allele_ids']):
 
@@ -45,11 +37,11 @@ class TestAlleleReports(object):
             report_data = copy.deepcopy(report_template(allele_id))
 
             # POST data
-            r = client.post('/api/v1/allelereports/', report_data)
+            api_response = create_entities('allelereports', [report_data])
 
             # Check response
-            assert r.status_code == 200
-            report_data = r.json[0]
+            assert api_response.status_code == 200
+            report_data = api_response.json[0]
             assert report_data['allele_id'] == allele_id
             assert report_data['id'] == idx + 1
             created_ids.append(report_data['id'])
@@ -57,12 +49,14 @@ class TestAlleleReports(object):
         return created_ids
 
     @pytest.mark.ar(order=1)
-    def test_create_new_and_reuse(self, test_database, client):
+    def test_create_new_and_reuse(self, test_database):
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = self._get_interpretation(client)
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
+
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_reports = client.get('/api/v1/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', q)
         previous_ids = []
         for report_data in previous_reports:
             prev_id = report_data['id']
@@ -73,7 +67,7 @@ class TestAlleleReports(object):
             report_data['presented_report_id'] = prev_id
 
             # POST data
-            r = client.post('/api/v1/allelereports/', report_data)
+            r = create_entities('allelereports', [report_data])
 
             # Check response
             assert r.status_code == 200
@@ -82,55 +76,54 @@ class TestAlleleReports(object):
             assert new_report['id'] != prev_id
 
         # Reload the previous reports and make sure they're marked as superceded
-        q = {'id': previous_ids}
-        previous_reports = client.get('/api/v1/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', {'id': previous_ids})
 
         assert all([p['date_superceeded'] is not None for p in previous_reports])
 
     @pytest.mark.ar(order=2)
-    def test_update_reports(self, client):
+    def test_update_reports(self):
         """
         Simulate updating the AlleleReport created in create_new().
         It should result in a new AlleleReport being created,
         while the existing should be superceded.
         """
 
-        interpretation = self._get_interpretation(client)
+        interpretation = get_interpretation("analysis", ANALYSIS_ID,
+                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_aa = client.get('/api/v1/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', q)
 
         previous_ids = []
-        for prev in previous_aa:
+        for previous_report in previous_reports:
             # Prepare
-            prev_id = prev['id']
+            prev_id = previous_report['id']
             previous_ids.append(prev_id)
             # Delete the id, to make the backend create a new report
-            del prev['id']
-            prev['evaluation']['comment'] = "Some new comment"
+            del previous_report['id']
+            previous_report['evaluation']['comment'] = "Some new comment"
 
             # POST data
-            r = client.post('/api/v1/allelereports/', prev)
+            api_reponse = create_entities('allelereports', [previous_report])
 
             # Check response
-            assert r.status_code == 200
-            ar = r.json[0]
+            assert api_reponse.status_code == 200
+            allele_report = api_reponse.json[0]
             # Check that the object is new
-            assert ar['id'] != prev_id
-            assert ar['evaluation']['comment'] == 'Some new comment'
+            assert allele_report['id'] != prev_id
+            assert allele_report['evaluation']['comment'] == 'Some new comment'
 
         # Reload the previous allelereports and make sure
         # they're marked as superceded
         q = {'id': previous_ids}
-        previous_aa = client.get('/api/v1/allelereports/?q={}'.format(json.dumps(q))).json
+        previous_reports = get_entities_by_query('allelereports', q)
 
-        assert all([p['date_superceeded'] is not None for p in previous_aa])
-
+        assert all([p['date_superceeded'] is not None for p in previous_reports])
 
     @pytest.mark.ar(order=3)
-    def test_fail_cases(self, client):
+    def test_fail_cases(self):
         """
-        Test cases where it should fail to create reportss.
+        Test cases where it should fail to create reports.
         """
 
         # Test without allele_id
@@ -140,4 +133,4 @@ class TestAlleleReports(object):
         # We don't run actual HTTP requests, everything is in python
         # so we can catch the exceptions directly
         with pytest.raises(ApiError):
-            client.post('/api/v1/allelereports/', data)
+            create_entities('allelereports', [data])

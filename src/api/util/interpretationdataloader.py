@@ -38,11 +38,15 @@ class InterpretationDataLoader(object):
         return False
 
     def _exclude_intronic(self, allele):
+        if 'intronic_region' not in self.config['variant_criteria']:
+            return False
+
         intronic_region = self.config['variant_criteria']['intronic_region']
         for filtered_transcript in allele['annotation']['filtered_transcripts']:
             t = next((tla for tla in allele['annotation']['transcripts'] if tla['transcript'] == filtered_transcript), None)
             if t and 'exon_distance' in t:
                 return t['exon_distance'] < intronic_region[0] or t['exon_distance'] > intronic_region[1]
+
         return False
 
     def _get_classification_options(self, classification):
@@ -109,7 +113,7 @@ class InterpretationDataLoader(object):
                 include_reference_assessments=False
             )
 
-            return self.filter_alleles(loaded_alleles)
+            return self.group_by_filter_types(loaded_alleles)
 
     def group_alleles_by_finalization_filtering_status(self, interpretation):
         if not interpretation.snapshots:
@@ -137,7 +141,7 @@ class InterpretationDataLoader(object):
 
         return allele_ids, excluded_allele_ids
 
-    def filter_alleles(self, alleles):
+    def group_by_filter_types(self, alleles):
         allele_ids = []
         excluded_allele_ids = {
             'class1': [],
@@ -152,7 +156,7 @@ class InterpretationDataLoader(object):
             allele_assessment = al.get('allele_assessment')
             if allele_assessment:
                 classification_options = self._get_classification_options(allele_assessment['classification'])
-                if classification_options.get('exclude_filtering_existing_assessment'):
+                if classification_options and classification_options.get('exclude_filtering_existing_assessment'):
                     allele_ids.append(al['id'])
                     continue
 

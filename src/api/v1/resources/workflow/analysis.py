@@ -6,6 +6,9 @@ from api.util.util import request_json
 from api.v1.resource import Resource
 
 from . import helpers
+from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
+from vardb.datamodel.sample import Analysis
+from api.schemas.analysisinterpretations import AnalysisInterpretationSchema, AnalysisInterpretationSnapshotSchema
 
 
 class AnalysisInterpretationAllelesListResource(Resource):
@@ -647,6 +650,14 @@ class AnalysisActionFinalizeResource(Resource):
         session.commit()
 
         return result, 200
+
+    def get(self, session, analysis_id):
+        f = session.query(AnalysisInterpretationSnapshot).filter(
+            Analysis.id == analysis_id
+        ).join(AnalysisInterpretation, Analysis).all()
+
+        result = AnalysisInterpretationSnapshotSchema(strict=True).dump(f, many=True).data
+        return result
 
 
 class AnalysisCollisionResource(Resource):
