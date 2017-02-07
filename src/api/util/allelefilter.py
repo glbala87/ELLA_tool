@@ -590,29 +590,3 @@ class AlleleFilter(object):
             }
 
         return result
-
-
-if __name__ == '__main__':
-    from vardb.util.db import DB
-    db = DB()
-    db.connect()
-
-    gp_allele_ids = dict()
-    test_genepanels = [('HBOC', 'v01'), ('HBOCUTV', 'v01'), ('Ciliopati', 'v03'), ('Iktyose', 'v02'), ('Joubert', 'v02'), ('Bindevev', 'v02')]
-    #test_genepanels = [('HBOC', 'v01'), ('HBOCUTV', 'v01')]
-    for gp_key in test_genepanels:
-        allele_ids = db.session.query(allele.Allele.id).join(
-            allele.Allele.genotypes,
-            sample.Sample,
-            sample.Analysis
-        ).filter(
-            sample.Analysis.genepanel_name == gp_key[0],
-            sample.Analysis.genepanel_version == gp_key[1],
-        ).distinct().all()
-        gp_allele_ids[gp_key] = [a[0] for a in allele_ids]
-
-    af = AlleleFilter(db.session, config)
-
-    result = af.filter_alleles(
-        gp_allele_ids
-    )
