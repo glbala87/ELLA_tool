@@ -183,12 +183,10 @@ function getCurrentColors(nodes) {
 
         // Update state on certain triggering events
         var setState = function() {
-            console.log('setState, getting html' + editor.getHTML());
             scope.$evalAsync(ngModel.$setViewValue(editor.getHTML()))
         };
 
         eventListeners.add(editorelement, "input", () => {setTimeout(setState(), 0)});
-        // eventListeners.add(editorelement, "blur", () => {setTimeout(setState(), 0)});
 
         scope.$on('$destroy', function () {eventListeners.removeAll;});
 
@@ -207,7 +205,6 @@ function getCurrentColors(nodes) {
         }
 
         function blur() {
-            setState();
             if (!scope.vm.blurBlocked) {
                 if (getTextFromHTML(editor.getHTML()) === "") {
                     editor.setHTML("");
