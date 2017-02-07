@@ -1,11 +1,7 @@
-from sqlalchemy.orm import contains_eager, load_only
-
 from vardb.datamodel import allele, sample, genotype, workflow
 
 from api.util.allelefilter import AlleleFilter
-from api.util.alleledataloader import AlleleDataLoader
 from api.schemas import AnalysisInterpretationSchema, AlleleInterpretationSchema
-from api.util.annotationprocessor.genepanelprocessor import ABOVE_RESULT
 
 
 class InterpretationDataLoader(object):
@@ -19,36 +15,6 @@ class InterpretationDataLoader(object):
     def __init__(self, session, config):
         self.session = session
         self.config = config
-
-    def _exclude_gene(self, allele):
-        """
-        Check whether gene(s) are part of excluded_genes list
-        We only use genes from filtered transcripts, as that is the
-        context the user cares about.
-        """
-
-        excluded_genes = self.config['variant_criteria']['exclude_genes']
-        filtered = [t for t in allele['annotation']['transcripts'] if t['transcript'] in allele['annotation']['filtered_transcripts']]
-        allele_genes = [f['symbol'] for f in filtered]
-        return bool(list(set(excluded_genes).intersection(set(allele_genes))))
-
-    def _exclude_class1(self, allele):
-        for group in self.config['variant_criteria']['frequencies']['groups']:
-            if any(c == ABOVE_RESULT for c in allele['annotation']['frequencies']['cutoff'][group].values()):
-                return True
-        return False
-
-    def _exclude_intronic(self, allele):
-        if 'intronic_region' not in self.config['variant_criteria']:
-            return False
-
-        intronic_region = self.config['variant_criteria']['intronic_region']
-        for filtered_transcript in allele['annotation']['filtered_transcripts']:
-            t = next((tla for tla in allele['annotation']['transcripts'] if tla['transcript'] == filtered_transcript), None)
-            if t and 'exon_distance' in t:
-                return t['exon_distance'] < intronic_region[0] or t['exon_distance'] > intronic_region[1]
-
-        return False
 
     def _get_classification_options(self, classification):
         for option in self.config['classification']['options']:
