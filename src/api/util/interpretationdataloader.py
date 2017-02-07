@@ -8,8 +8,8 @@ class InterpretationDataLoader(object):
     """
     Load various info about a interpretation (aka round) and the ID of the alleles that are part of it.
     There are two sources for the allele IDs:
-    - Allele table (class1/intron decided using annotation and config)
-    - AnalysisFinalized table when the anlysis has been finalized
+    - Allele table (frequency/intron decided using annotation and config)
+    - Snapshot table when the anlysis has been finalized
     """
 
     def __init__(self, session, config):
@@ -43,12 +43,12 @@ class InterpretationDataLoader(object):
         and what gene it belongs to
 
         :param interpretation:
-        :return: (normal, {'intron': {}, 'class1': [], 'gene': []})
+        :return: (normal, {'intron': {}, 'frequency': [], 'gene': []})
         """
 
         if isinstance(interpretation, workflow.AlleleInterpretation):
             excluded_allele_ids = {
-                'class1': [],
+                'frequency': [],
                 'intronic': [],
                 'gene': []
             }
@@ -83,15 +83,15 @@ class InterpretationDataLoader(object):
 
         allele_ids = []
         excluded_allele_ids = {
-            'class1': [],
+            'frequency': [],
             'intronic': [],
             'gene': []
         }
 
         for snapshot in interpretation.snapshots:
             if hasattr(snapshot, 'filtered'):
-                if snapshot.filtered == allele.Allele.CLASS1:
-                    excluded_allele_ids['class1'].append(snapshot.allele_id)
+                if snapshot.filtered == allele.Allele.FREQUENCY:
+                    excluded_allele_ids['frequency'].append(snapshot.allele_id)
                 elif snapshot.filtered == allele.Allele.INTRON:
                     excluded_allele_ids['intronic'].append(snapshot.allele_id)
                 elif snapshot.filtered == allele.Allele.GENE:

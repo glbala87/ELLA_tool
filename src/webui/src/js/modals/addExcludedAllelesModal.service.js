@@ -92,9 +92,9 @@ export class AddExcludedAllelesController {
         if (this.category === 'all') {
             this.category_excluded_alleles = this.alleles.slice(0);
         }
-        else if (this.category === 'class_one') {
+        else if (this.category === 'frequency') {
             this.category_excluded_alleles = this.alleles.filter(
-                a => this.excluded_allele_ids.class1.includes(a.id)
+                a => this.excluded_allele_ids.frequency.includes(a.id)
             );
         }
         else if (this.category === 'gene') {
@@ -178,7 +178,7 @@ export class AddExcludedAllelesModal {
 
     /**
      * Popups a dialog for adding excluded alleles
-     * @param  {Object} excluded_allele_ids Object with list of alleles that are excluded {class1: [..], intronic: [..]}
+     * @param  {Object} excluded_allele_ids Object with list of alleles that are excluded {frequency: [..], intronic: [..]}
      * @param  {Array} included_allele_ids List of allele ids that are included
      *                 (must be subset of excluded_allele_ids). This is directly updated based on users selection.
      * @param  {int} sample_id Sample for which to load alleles
