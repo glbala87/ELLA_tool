@@ -42,8 +42,7 @@ def process_running(c):
                     status = "ANNOTATED"
                 message = ""
 
-            if status != "RUNNING":
-                yield dict(id=id, status=status, message=message)
+            yield dict(id=id, task_id=task_id, status=status, message=message)
 
 def process_submitted(c):
     QUERY = urllib2.quote(json.dumps(dict(status="SUBMITTED")))
@@ -58,7 +57,6 @@ def process_submitted(c):
             id = job["id"]
             unannotated_vcf = job["vcf"]
             as_response = c.post(ANNOTATION_SERVICE_ANNOTATE_PATH, data=json.dumps(dict(vcf=unannotated_vcf)), content_type='application/json')
-            print as_response
             if not response_ok(as_response):
                 status = "FAILED (SUBMISSION)"
                 message = as_response.get_data()
@@ -121,7 +119,8 @@ def polling(app):
             # Get all newly submitted task
             try:
                 for update in process_running(c):
-                    db_job_update(c, update)
+                    if update["status"] != "RUNNING":
+                        db_job_update(c, update)
             except Exception as e:
                 errors["running"].setdefault(e.message, 0)
                 errors["running"][e.message] += 1
