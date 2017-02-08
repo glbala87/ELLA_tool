@@ -38,12 +38,17 @@ INTERPRETATION_INIT_DATA = {
 
 ASSESSMENT_EXTRA_DATA = {
     ANALYSIS_WORKFLOW: None,
-    VARIANT_WORKFLOW: {"gp_name": "HBOCUTV", "gp_version": "v01"}
+    VARIANT_WORKFLOW: {"genepanel_name": "HBOCUTV", "genepanel_version": "v01"}
+}
+
+REFERENCEASSESSMENT_EXTRA_DATA = {
+    ANALYSIS_WORKFLOW: 1,
+    VARIANT_WORKFLOW: {"genepanel_name": "HBOCUTV", "genepanel_version": "v01"}
 }
 
 ID_OF = {
-    ANALYSIS_WORKFLOW: 1,  # allele 7-12
-    VARIANT_WORKFLOW: 7  # allele id 1, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
+    ANALYSIS_WORKFLOW: 1,  # analysis_id = 1, allele 1-6
+    VARIANT_WORKFLOW: 12   # allele id 12, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
 }
 
 
@@ -82,6 +87,8 @@ class TestInterpretationWorkflow(object):
         test_database.refresh()
 
     @pytest.mark.ai(order=1)
+    # @pytest.mark.parametrize("workflow_type", [("variant")])
+    # @pytest.mark.parametrize("workflow_type", [("analysis")])
     @pytest.mark.parametrize("workflow_type", [("variant"), ("analysis")])
     def test_round_one_review(self, workflow_type):
 
@@ -120,11 +127,20 @@ class TestInterpretationWorkflow(object):
             references = get_entities_by_query('references', q)
             for reference in references:
                 state['referenceassessments'].append(
-                    reference_assessment_template(ID_OF[workflow_type], allele, reference, user)
+                    reference_assessment_template(workflow_type,
+                                                  ID_OF[workflow_type],
+                                                  allele,
+                                                  reference,
+                                                  user,
+                                                  extra=REFERENCEASSESSMENT_EXTRA_DATA[workflow_type])
                 )
 
             state['allelereports'].append(
-                allele_report_template(workflow_type, ID_OF[workflow_type], allele, user, extra=ASSESSMENT_EXTRA_DATA[workflow_type])
+                allele_report_template(workflow_type,
+                                       ID_OF[workflow_type],
+                                       allele,
+                                       user,
+                                       extra=ASSESSMENT_EXTRA_DATA[workflow_type])
             )
 
         interpretation['state'] = state
@@ -143,7 +159,9 @@ class TestInterpretationWorkflow(object):
         assert len(interpretations) == 2
 
     @pytest.mark.ai(order=2)
+    # @pytest.mark.parametrize(["workflow_type",  "number_of_alleles_in_fixture"], [("variant", 1)])
     @pytest.mark.parametrize(["workflow_type",  "number_of_alleles_in_fixture"], [("variant", 1), ("analysis", 6)])
+    # @pytest.mark.parametrize(["workflow_type",  "number_of_alleles_in_fixture"], [("analysis", 6)])
     def test_round_two_finalize(self, workflow_type, number_of_alleles_in_fixture):
         # Given
         users = get_users()
@@ -203,7 +221,9 @@ class TestInterpretationWorkflow(object):
                 assert entity_in_db['evaluation']['comment'] == 'Updated comment'
 
     @pytest.mark.ai(order=3)
+    # @pytest.mark.parametrize("workflow_type", [("analysis")])
     @pytest.mark.parametrize("workflow_type", [("variant"), ("analysis")])
+    # @pytest.mark.parametrize("workflow_type", [("variant")])
     def test_round_three_reopen_and_finalize(self, workflow_type):
 
         # Given

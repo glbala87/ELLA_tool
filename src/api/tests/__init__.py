@@ -67,20 +67,33 @@ def allele_assessment_template(workflow_type, workflow_id, allele, user, extra):
         del base['genepanel_version']
     else:
         del base['analysis_id']
-        base['genepanel_name'] = extra['gp_name']
-        base['genepanel_version'] = extra['gp_version']
+        base['genepanel_name'] = extra['genepanel_name']
+        base['genepanel_version'] = extra['genepanel_version']
 
     return base
 
 
-def reference_assessment_template(analysis_id, allele, reference, user):
-    return {
-        'user_id': user['id'],
-        'allele_id': allele['id'],
-        'reference_id': reference['id'],
-        'evaluation': {'comment': 'Original comment'},
-        'analysis_id': analysis_id
-    }
+def reference_assessment_template(workflow_type, workflow_id, allele, reference, user, extra):
+    base = {'user_id': user['id'],
+            'allele_id': allele['id'],
+            'reference_id': reference['id'],
+            'evaluation': {'comment': 'Original comment'},
+            'analysis_id': None,
+            'genepanel_name': None,
+            'genepanel_version': None
+            }
+
+    if workflow_type == ANALYSIS_WORKFLOW:
+        base['analysis_id'] = workflow_id
+        del base['genepanel_name']
+        del base['genepanel_version']
+    else:
+        del base['analysis_id']
+        base['genepanel_name'] = extra['genepanel_name']
+        base['genepanel_version'] = extra['genepanel_version']
+
+
+    return base
 
 
 def allele_report_template(workflow_type, workflow_id, allele, user, extra):
@@ -99,8 +112,8 @@ def allele_report_template(workflow_type, workflow_id, allele, user, extra):
         del base['genepanel_version']
     else:
         del base['analysis_id']
-        base['genepanel_name'] = extra['gp_name']
-        base['genepanel_version'] = extra['gp_version']
+        base['genepanel_name'] = extra['genepanel_name']
+        base['genepanel_version'] = extra['genepanel_version']
 
 
     return base
