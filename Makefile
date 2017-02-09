@@ -144,6 +144,7 @@ test-all: test-js test-common test-api
 test-api: export PGDATABASE=vardb-test
 test-api: export DB_URL=postgres:///vardb-test
 test-api: export PYTHONPATH=/ella/src
+test-api: export ANNOTATION_SERVICE_URL=http://localhost:6000
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
