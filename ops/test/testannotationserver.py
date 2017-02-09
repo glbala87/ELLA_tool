@@ -15,9 +15,10 @@ def taskstatus(task_id):
     if task_id == None:
         return "foo"
     else:
+        taskstatus.count += 1
         # Will return PENDING first time, and SUCCESS second time
-        return jsonify({task_id: JOBSTATUS.pop(0)})
-
+        return jsonify({task_id: JOBSTATUS[taskstatus.count % 2]})
+taskstatus.count = -1
 
 @app.route('/process/<task_id>', methods=["GET", "DELETE"])
 def process(task_id):
