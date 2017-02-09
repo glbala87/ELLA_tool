@@ -133,7 +133,6 @@ class AnnotationJobDeposit(Resource):
             samples = VcfIterator(filename).getSamples()
             sample_config = [{"name": sname} for sname in samples]
             # vcf_sample_names = [analysis_name]
-            print job.properties
             genepanel = job.properties["genepanel"]
             # analysis_config = dict(params=dict(genepanel=genepanel))
             allele_config = dict(

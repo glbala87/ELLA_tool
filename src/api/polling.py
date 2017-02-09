@@ -5,6 +5,8 @@ import atexit
 import time
 import json
 import urllib2
+import logging
+log = logging.getLogger(__name__)
 
 def response_ok(response):
     return 200 <= response.status_code < 400
@@ -21,8 +23,8 @@ def process_running(c):
 
     if response_ok(response):
         running_jobs = json.loads(response.get_data())
-        print "RUNNING: "
-        print running_jobs
+        log.debug("RUNNING: ")
+        log.debug(str(running_jobs))
         for job in running_jobs:
             id = job["id"]
             status = job["status"]
@@ -33,9 +35,6 @@ def process_running(c):
                 message = as_response.get_data()
             else:
                 as_status = json.loads(as_response.get_data())[task_id]
-                print "\n"*2
-                print as_status
-                print "\n" * 2
                 if as_status == "FAILED":
                     status = "FAILED (ANNOTATION)"
                 elif as_status == "SUCCESS":
@@ -51,8 +50,8 @@ def process_submitted(c):
     if response_ok(response):
         submitted_jobs = json.loads(response.get_data())
         # Post submitted jobs to annotation service
-        print "SUBMITTED: "
-        print submitted_jobs
+        log.debug("SUBMITTED: ")
+        log.debug(str(submitted_jobs))
         for job in submitted_jobs:
             id = job["id"]
             unannotated_vcf = job["vcf"]
@@ -78,12 +77,11 @@ def process_annotated(c):
         # Post submitted jobs to annotation service
         annotated_jobs = json.loads(response.get_data())
         # Deposit done jobs
-        print "ANNOTATION SUCCESSFUL: "
-        print annotated_jobs
+        log.debug("ANNOTATION SUCCESSFUL: ")
+        log.debug(str(annotated_jobs))
         for job in annotated_jobs:
             id = job["id"]
             task_id = job["task_id"]
-            print ANNOTATION_SERVICE_PROCESS_PATH+task_id
             as_response = c.get(ANNOTATION_SERVICE_PROCESS_PATH+task_id)
             if not response_ok(as_response):
                 status = "FAILED (PROCESSING)"
@@ -103,7 +101,7 @@ def process_annotated(c):
 
 
 def db_job_update(c, data):
-    print json.dumps(data, indent=1)
+    log.debug("Update annotation job with data\n"+json.dumps(data, indent=1))
     a = c.patch(ANNOTATION_JOBS_PATH, data=json.dumps(data), content_type='application/json')
     return a
 
@@ -143,7 +141,7 @@ def polling(app):
                 if debug: raise e
 
         time.sleep(5)
-        print json.dumps(errors, indent=1)
+        log.debug("Accumulated errors: \n"+json.dumps(errors, indent=1))
 
 def setup_polling(app):
     #Initiate
