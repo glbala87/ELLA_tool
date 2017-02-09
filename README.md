@@ -99,6 +99,5 @@ Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools
 
 You can connect a debugger to Node.js instance on port `5859` to play around.
 
-Use `browser.debug()` in a test file to pause the execution of the tests. It will present a REPL (in recent webdriverio versions, from 4.7?) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`.
-It's also useful to head over to the browser's console to experiment and inspect variables.
-Hit 'Ctrl-c' in the REPL to continue the test run.
+Use `browser.debug()` in a test file to pause the execution of the tests. It will present a REPL (in recent webdriverio versions, from 4.5.0) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
+Hit 'Ctrl-c' in the REPL to continue the test run. See more on http://webdriver.io/guide/usage/repl.html
