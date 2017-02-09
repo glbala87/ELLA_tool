@@ -21,7 +21,7 @@ jasmine.getEnv().addReporter(failFast.init());
 
 const OUR_VARIANT =  'c.581G>A';
 
-xdescribe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function () {
+describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function () {
 
     beforeAll(() => {
         browser.resetDb();
