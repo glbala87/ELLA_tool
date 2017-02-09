@@ -414,7 +414,7 @@ def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
         presented_allelereports,
         used_alleleassessments=created_alleleassessments + reused_alleleassessments,
         used_allelereports=created_allelereports + reused_allelereports,
-        custom_annotations=data.get('customannotations'),
+        custom_annotations=data.get('custom_annotations'),
     )
 
     session.add_all(snapshot_objects)
