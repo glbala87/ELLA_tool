@@ -55,6 +55,7 @@ import './widgets/alleleinfo/alleleInfoAcmgSelection.directive';
 import './widgets/alleleinfo/alleleInfoQuality.directive';
 import './widgets/alleleinfo/alleleInfoConsequence.directive';
 import './widgets/alleleinfo/alleleInfoReferences.directive';
+import './widgets/alleleinfo/referenceAssessment.directive';
 import './widgets/alleleinfo/alleleInfoSplice.directive';
 import './widgets/alleleinfo/alleleInfoSplicePopoverContent.directive';
 import './widgets/alleleinfo/alleleInfoPredictionOther.directive';

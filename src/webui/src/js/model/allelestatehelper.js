@@ -127,10 +127,7 @@ export class AlleleStateHelper {
 
     static getExistingReferenceAssessment(allele, reference) {
         if (allele.reference_assessments) {
-            let existing = allele.reference_assessments.find(ra => {
-                return ra.reference_id === reference.id;
-            });
-            return existing;
+            return allele.reference_assessments.find(ra => ra.reference_id === reference.id);
         }
     }
 
@@ -253,8 +250,9 @@ export class AlleleStateHelper {
     /**
      * Copies any existing allele's alleleassessment into the allele_state.
      * To be used when the user want's to edit the existing assessment.
-     * @param  {Allele} allele   Allele to copy alleleassessment from.
-     * @param  {Object} allele_state   Allele state to modify
+     * @param {Allele} allele   Allele to copy alleleassessment from.
+     * @param {Object} allele_state   Allele state to modify
+     * @param {Boolean} force_copy Copy into allele_state regardless
      */
     static copyAlleleAssessmentToState(allele, allele_state, force_copy=false) {
         // Check if remote alleleassessment is newer, if so copy it in again.
@@ -273,8 +271,9 @@ export class AlleleStateHelper {
     /**
      * Copies any existing allele's report into the allele_state.
      * To be used when the user want's to edit the existing report.
-     * @param  {Allele} allele   Allele to copy report from.
-     * @param  {Object} allele_state   Allele state to modify
+     * @param {Allele} allele   Allele to copy report from.
+     * @param {Object} allele_state   Allele state to modify
+     * @param {Boolean} force_copy Copy into allele_state regardless
      */
     static copyAlleleReportToState(allele, allele_state, force_copy=false) {
         // Check if date of remote allelereport is newer, if so copy it in again.
