@@ -80,7 +80,7 @@ We use webdriver.io for testing. See http://webdriver.io.
 In CI tests are run with `make e2e-test`. This will run Chrome in it's own container and run the test suites.
 You can run this locally to check that the tests are passing, but it's unsuitable for authoring/editing tests.
 
-To explore the e2e test data, start a local Ella instance and import the e2e test data: `.../reset?testset=e2e` 
+To explore the e2e test data, start a local Ella instance and import the e2e test data: `.../reset?testset=e2e`
 ## Local usage
 - Download and install chromedriver and Chrome/Chromium.
 - Run `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local machine.
@@ -99,6 +99,6 @@ Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools
 
 You can connect a debugger to Node.js instance on port `5859` to play around.
 
-Use `browser.debug()` in a test file to pause the execution of the tests. 
-This let's you use the browser's console to experiment and inspect variables.
-Hit 'return' in the shell where you ran `make wdio` to continue.
+Use `browser.debug()` in a test file to pause the execution of the tests. It will present a REPL (in recent webdriverio versions, from 4.7?) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`.
+It's also useful to head over to the browser's console to experiment and inspect variables.
+Hit 'Ctrl-c' in the REPL to continue the test run.
