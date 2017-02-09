@@ -5,9 +5,10 @@ import tempfile
 import pytest
 from sqlalchemy.pool import NullPool
 from vardb.deposit.deposit_testdata import DepositTestdata
+from vardb.util import DB
 from api.rest_query import RestQuery
 from api import db
-
+from util import FlaskClientProxy
 
 class TestDatabase(object):
 
@@ -56,9 +57,19 @@ class TestDatabase(object):
         except Exception:
             pass
 
+@pytest.yield_fixture
+def session(request):
+    db = DB()
+    db.connect()
+    session = db.session()
+    yield session
+    # Close session on teardown
+    session.close()
+    db.disconnect()
+
 
 # Will be shared among all tests
-@pytest.fixture(scope="session")
+@pytest.yield_fixture(scope="session", autouse=True)
 def test_database(request):
     """
     Fixture for creating a test database from test data set.
@@ -67,10 +78,16 @@ def test_database(request):
     The TestDatabase object is yielded in order for the user to
     be able to call refresh() when he wants a fresh database.
     """
-    return TestDatabase()
+    test_db = TestDatabase()
+    yield test_db
 
+    # Cleanup database on teardown
+    test_db.cleanup()
 
-# Pre-create dump before starting any tests (autouse flag)
-@pytest.fixture(scope="session", autouse=True)
-def test_database_create_dump(request, test_database):
-    request.addfinalizer(test_database.cleanup)
+@pytest.fixture
+def client():
+    """
+    Fixture for a flask client proxy, that supports get, post etc.
+    """
+    return FlaskClientProxy()
+
