@@ -11,7 +11,7 @@
   <contentwrapper>
     <section ng-if="vm.category == 'references'">
       <article class="sectionbox-content allele-control-bar">
-        <contentbox title="references" collapsible="false" class="max-width">
+        <contentbox class="id-references-list" title="references" collapsible="false" class="max-width">
           <cbbody>
             <article class="content-box" ng-repeat="ref in vm.getCurrent()">
               <section class="line-wrapper">
@@ -40,14 +40,14 @@
           <p>Find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
         </div>
         <div class="middle"></div>
-        <div class="right"><autosize-textarea class="big" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea></div>
+        <div class="right"><autosize-textarea class="big id-reference-xml" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea></div>
       </div>
       <div class="question small">
         <h5 class="slim title" ng-if="vm.reference_error"><b>The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</b></h5>
       </div>
       <div class="question small line-wrapper">
         <div class="left">
-        <button class="green" ng-click="vm.addReference()" ng-disabled="vm.reference_xml === ''">
+        <button class="green id-add-reference-button" ng-click="vm.addReference()" ng-disabled="vm.reference_xml === ''">
           <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
               <path d="M16 2 L16 30 M2 16 L30 16" />
           </svg>

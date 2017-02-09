@@ -55,6 +55,7 @@ class AlleleSectionBox extends Page {
     get setClassBtn() { return browser.element('allele-sectionbox button.id-set-class'); }
     get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
+    get addReferencesBtn() { return browser.element('allele-sectionbox button.id-add-references' ); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
     get classificationAcceptedToggleBtn() { return browser.element('allele-sectionbox .id-accept-classification'); }
     get existingClassificationButtonText() { return this.classificationAcceptedToggleBtn.getText(); }
@@ -225,6 +226,10 @@ class AlleleSectionBox extends Page {
                 return matchingElements[0].className = matchingElements[0].className.replace("collapsed", "");
         });
         console.log(`CSS class of ${sectionSelector} is now ${comment}`);
+    }
+
+    getReferences() {
+        return browser.elements('allele-sectionbox .id-references-box article');
     }
 
 }

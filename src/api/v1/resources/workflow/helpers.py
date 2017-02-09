@@ -198,7 +198,9 @@ def get_interpretation(session, alleleinterpretation_id=None, analysisinterpreta
     ).one()
 
     idl = InterpretationDataLoader(session, config)
-    return idl.from_obj(interpretation)
+    obj = idl.from_obj(interpretation)
+    print obj
+    return obj
 
 
 def get_interpretations(session, allele_id=None, analysis_id=None):
@@ -308,6 +310,7 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
         data['annotations'],
         presented_alleleassessments,
         presented_allelereports,
+        # custom_annotations=data.get('custom_annotations'),
         custom_annotations=data.get('customannotations'),
     )
 

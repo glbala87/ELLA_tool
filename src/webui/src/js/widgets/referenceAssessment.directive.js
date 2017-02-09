@@ -1,6 +1,5 @@
 
-import {Directive, Inject} from '../ng-decorators';
-import {AlleleStateHelper} from '../model/allelestatehelper';
+import {Directive} from '../ng-decorators';
 
 /***
  * Display (some of) a reference assessment
@@ -13,8 +12,4 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     },
     templateUrl: 'ngtmpl/referenceAssessment.ngtmpl.html'
 })
-
-export class ReferenceAssessment {
-    constructor() {}
-
-}
+export class ReferenceAssessment {}
