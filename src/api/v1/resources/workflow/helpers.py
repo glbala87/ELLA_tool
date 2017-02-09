@@ -310,8 +310,7 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
         data['annotations'],
         presented_alleleassessments,
         presented_allelereports,
-        # custom_annotations=data.get('custom_annotations'),
-        custom_annotations=data.get('customannotations'),
+        custom_annotations=data.get('custom_annotations'),
     )
 
     session.add_all(snapshot_objects)
