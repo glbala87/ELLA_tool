@@ -13,11 +13,12 @@
           comment-model="code.comment"
           editable="false"></acmg>
 
-    <div>
+    <div class="existing-classification-comments">
       <div class="tabular-row">
         <div class="cell top-align"> <h5>Evaluation</h5> </div>
         <div class="cell"> <p>
           <wysiwyg-editor
+                class="id-existing-comment-classification"
                 ng-disabled="true"
                 ng-model="vm.allele.allele_assessment.evaluation.classification.comment">
           </wysiwyg-editor>
@@ -27,6 +28,7 @@
         <div class="cell top-align"> <h5>Frequency</h5> </div>
         <div class="cell"> <p>
           <wysiwyg-editor
+                class="id-existing-comment-frequency"
                 ng-disabled="true"
                 ng-model="vm.allele.allele_assessment.evaluation.frequency.comment">
           </wysiwyg-editor>
@@ -36,6 +38,7 @@
         <div class="cell top-align"> <h5>External DB</h5> </div>
         <div class="cell"> <p>
           <wysiwyg-editor
+                class="id-existing-comment-external"
                 ng-disabled="true"
                 ng-model="vm.allele.allele_assessment.evaluation.external.comment">
           </wysiwyg-editor>
@@ -45,6 +48,7 @@
         <div class="cell top-align"> <h5>Prediction</h5> </div>
         <div class="cell"> <p>
           <wysiwyg-editor
+                class="id-existing-comment-prediction"
                 ng-disabled="true"
                 ng-model="vm.allele.allele_assessment.evaluation.prediction.comment">
           </wysiwyg-editor>

@@ -94,7 +94,7 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
         for a in loaded_genepanel_alleles:
 
             if filter_alleles:
-                allele_ids, excluded_allele_ids = idl.filter_alleles([a])
+                allele_ids, excluded_allele_ids = idl.group_by_filter_types([a])
                 # If the allele id is not in allele_ids, it has been filtered out
                 if a['id'] not in allele_ids:
                     continue

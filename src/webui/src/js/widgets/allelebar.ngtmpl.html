@@ -12,7 +12,7 @@
     </h3>
     <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.transcript" ng-if="!vm.genepanel">
       <transcript-wrapper  transcript="t">
-        {{t.symbol}}
+        {{t.symbol}} ({{t.exon}})
       </transcript-wrapper>
     </h3>
 
@@ -39,5 +39,6 @@
         </transcript-wrapper>
       </div>
     </h3>
+
     <h3 class="full-title">{{vm.allele.formatGenomicPosition()}}</h3>
 </aside>

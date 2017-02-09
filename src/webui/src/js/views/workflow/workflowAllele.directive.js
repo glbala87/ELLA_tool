@@ -46,6 +46,7 @@ export class WorkflowAlleleController {
 
         this.components = [ // instantiated/rendered in AlleleSectionboxContentController
             {
+                name: 'classification',
                 title: 'Classification',
                 sections: [
                     {
@@ -69,7 +70,7 @@ export class WorkflowAlleleController {
                             {'tag': 'allele-info-vardb'}
                         ],
                     },
-                    {
+                    {   name: 'frequency',
                         title: 'Frequency & QC',
                         options: {
                             collapsed: false
@@ -93,6 +94,7 @@ export class WorkflowAlleleController {
                         ],
                     },
                     {
+                        name: 'external',
                         title: 'External',
                         options: {
                             collapsed: false
@@ -111,6 +113,7 @@ export class WorkflowAlleleController {
                         ],
                     },
                     {
+                        name: 'prediction',
                         title: 'Prediction',
                         options: {
                             collapsed: false
@@ -129,6 +132,7 @@ export class WorkflowAlleleController {
                         ],
                     },
                     {
+                        name: 'references',
                         title: 'References',
                         options: {
                             collapsed: false

@@ -34,6 +34,29 @@ ASSESSMENT_CLASS_FIELD = 'class'
 ASSESSMENT_COMMENT_FIELD = 'ASSC'
 
 
+def ordered(obj):
+    if isinstance(obj, dict):
+        return sorted((k, ordered(v)) for k, v in obj.items())
+    if isinstance(obj, list):
+        return sorted(ordered(x) for x in obj)
+    else:
+        return obj
+
+
+def has_diff_ignoring_order(ignore_order_for_key, obj1, obj2):
+    csq_1 = obj1.pop(ignore_order_for_key)
+    csq_2 = obj2.pop(ignore_order_for_key)
+    csq1_ordered = ordered(csq_1)
+    csq2_ordered = ordered(csq_2)
+    csq_has_diff = not csq1_ordered == csq2_ordered
+    if csq_has_diff:
+        return True
+    else:
+        obj1[ignore_order_for_key] = csq1_ordered
+        obj2[ignore_order_for_key] = csq2_ordered
+        return not obj1 == obj2
+
+
 def deepmerge(source, destination):
     """
     Deepmerge dicts.
@@ -448,13 +471,18 @@ class AnnotationImporter(object):
 
     @staticmethod
     def diff_annotation(annos1, annos2):
-        """True if the dictionaries are not identical wrt keys and values."""
+        """
+        True if the dictionaries are not identical wrt keys and values.
 
-        # TODO: Verify functionality!
-        if not annos1 == annos2:
-            return True
-        else:
-            return False
+        Warning: the elements of the list for 'CSQ' might change order
+        """
+
+        has_diff = not annos1 == annos2
+
+        if has_diff and 'CSQ' in annos1 and 'CSQ' in annos2:  # sort and compare again:
+            return has_diff_ignoring_order('CSQ', annos1, annos2)
+
+        return has_diff
 
     @staticmethod
     def _compare_transcript(t1, t2):

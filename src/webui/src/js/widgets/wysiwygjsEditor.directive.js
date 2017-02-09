@@ -207,7 +207,7 @@ function getCurrentColors(nodes) {
         function blur() {
             if (!scope.vm.blurBlocked) {
                 if (getTextFromHTML(editor.getHTML()) === "") {
-                    editor.setHTML("")
+                    editor.setHTML("");
                     placeholderEvent(true);
                 }
                 closeLinkForm(true);

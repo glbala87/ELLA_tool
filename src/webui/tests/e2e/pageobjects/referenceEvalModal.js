@@ -1,23 +1,23 @@
-var Page = require('./page')
+let Page = require('./page');
+
+const TOP_CLASS = ".id-reference-modal-body";
 
 class ReferenceEvalModal extends Page {
 
-    get comment() { return browser.element('.id-reference-modal-body textarea[placeholder="COMMENTS"]'); }
-    get saveBtn() { return browser.element('.id-reference-modal-body button.id-reference-modal-save'); }
+    get comment() { return browser.element(`${TOP_CLASS} .id-reference-comment`); }
+    get saveBtn() { return browser.element(`${TOP_CLASS} button.id-reference-modal-save`); }
 
     setRelevance(index) {
-        browser.click(`.id-reference-modal-body article.question:nth-child(1) label:nth-child(${index})`);
+        browser.click(`${TOP_CLASS} article.id-relevance label:nth-child(${index})`);
     }
 
-    setConclusion(index) {
-        browser.click(`.id-reference-modal-body article.question:nth-child(2) label:nth-child(${index})`);
+    setComment(text) {
+        let commentElement = this.comment;
+        commentElement.click();
+        let selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`;
+        browser.setValue(selector, text);
     }
-
-    setQuality(index) {
-        browser.click(`.id-reference-modal-body article.question:nth-child(8) label:nth-child(${index})`);
-    }
-
 
 }
 
-module.exports = ReferenceEvalModal
+module.exports = ReferenceEvalModal;

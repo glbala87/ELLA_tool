@@ -21,9 +21,9 @@ exports.config = {
         'src/webui/tests/e2e/tests/**/*.js'
     ],
     // Patterns to exclude.
-    exclude: [
-        // 'path/to/excluded/files'
-    ],
+    // exclude: [
+    //     'src/webui/tests/e2e/tests/workflow_variant_classification.js'
+    // ],
     //
     // ============
     // Capabilities
@@ -126,7 +126,7 @@ exports.config = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: http://webdriver.io/guide/testrunner/reporters.html
-    // reporters: ['dot'],
+    reporters: ['spec'],
     //
     // Options to be passed to Jasmine.
     jasmineNodeOpts: {
@@ -238,3 +238,8 @@ exports.config = {
     // onComplete: function(exitCode) {
     // }
 };
+
+// require("babel-register")({
+//     presets: ['es2015', 'stage-0'],
+//     plugins: ["babel-plugin-transform-decorators-legacy"]
+// });

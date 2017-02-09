@@ -75,11 +75,12 @@ Our test suites are intended to be run inside Docker. The Makefile has commands 
 - All relevant configuration files are in `ops/prod`
 
 # End to end testing (e2e)
-We use webdriver.io for testing. See http://webdriver.io .
+We use webdriver.io for testing. See http://webdriver.io.
 
 In CI tests are run with `make e2e-test`. This will run Chrome in it's own container and run the test suites.
-You can run this locally to check that the tests are passing, but it's unsuitable for developing tests.
+You can run this locally to check that the tests are passing, but it's unsuitable for authoring/editing tests.
 
+To explore the e2e test data, start a local Ella instance and import the e2e test data: `.../reset?testset=e2e` 
 ## Local usage
 - Download and install chromedriver and Chrome/Chromium.
 - Run `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local machine.

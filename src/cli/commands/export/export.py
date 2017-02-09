@@ -2,7 +2,7 @@ import click
 import logging
 
 from vardb.datamodel import DB
-from vardb.export.dump_classification import dump_alleleassessments
+from vardb.export import dump_classification
 
 
 @click.group(help='Export data')
@@ -20,4 +20,4 @@ def cmd_export_classifications(output):
 
     db = DB()
     db.connect()
-    dump_alleleassessments(db.session, output)
+    dump_classification(db.session, output)
