@@ -1,43 +1,44 @@
 from flask import Flask, request, render_template, session, flash, redirect, \
     url_for, jsonify, Response
-from util import FlaskClientProxy
+
 import pytest
 import vardb
 from vardb.util import DB
-from vardb.datamodel import sample
+from vardb.datamodel import sample, allele
+from vardb.deposit.importers import AlleleImporter
 import os
 import subprocess
-
-TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
-assert os.path.isdir(TESTDATA_DIR)
-
-ANALYSIS = "brca_sample_2"
-GENEPANEL = "HBOC_v01"
+import json
 
 from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, ANNOTATION_SERVICE_STATUS_PATH, \
     ANNOTATION_SERVICE_PROCESS_PATH, DEPOSIT_SERVICE_PATH
 
-@pytest.fixture
+import vardb
+TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
+assert os.path.isdir(TESTDATA_DIR)
+
+ANALYSIS = "brca_sample_3"
+GENEPANEL = "HBOCUTV_v01"
+
+@pytest.fixture(scope="session")
 def unannotated_vcf():
     filename = ANALYSIS+".vcf"
     full_path = subprocess.check_output("find %s -type f -name %s" % (TESTDATA_DIR, filename), shell=True).strip()
     with open(full_path, 'r') as f:
         vcf = f.read()
+
     return vcf
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def annotated_vcf():
     filename = ".".join([ANALYSIS, GENEPANEL]) + ".vcf"
-    print filename
     full_path = subprocess.check_output("find %s -type f -name %s" % (TESTDATA_DIR, filename), shell=True).strip()
     with open(full_path, 'r') as f:
         vcf = f.read()
     return vcf
 
 from vardb.util import DB
-
-
 
 
 def split_vcf(vcf):
@@ -67,22 +68,12 @@ def split_annotated_vcf(annotated_vcf):
 def split_unannotated_vcf(unannotated_vcf):
     return split_vcf(unannotated_vcf)
 
-@pytest.fixture
-def client():
-    return FlaskClientProxy()
 
-@pytest.fixture
-def session():
-    db = DB()
-    db.connect()
-    session = db.session()
-    return session
-
-def test_submit_annotationjob(session, client, unannotated_vcf):
+def test_submit_annotationjob(session, client):
     "Submit annotation job"
     data = dict(mode="Analysis",
                 user_id=1,
-                vcf=unannotated_vcf,
+                vcf="Dummy vcf data",
                 properties=dict(
                     analysis_name = "abc",
                     create_or_append = "Create",
@@ -97,7 +88,7 @@ def test_submit_annotationjob(session, client, unannotated_vcf):
 
     annotation_job = annotation_jobs[0]
     assert annotation_job.status == "SUBMITTED"
-    assert annotation_job.vcf == unannotated_vcf
+    assert annotation_job.vcf == data["vcf"]
     assert annotation_job.mode == "Analysis"
     assert annotation_job.status_history == {}
     assert annotation_job.user_id == 1
@@ -121,14 +112,7 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
-
-    annotation_jobs = session.query(sample.AnnotationJob).filter(
-        sample.AnnotationJob.task_id==data["task_id"]
-    ).all()
-    assert len(annotation_jobs) == 1
-
-    annotation_job = annotation_jobs[0]
-    id = annotation_job.id
+    id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
     deposit_data = dict(id=id, annotated_vcf=annotated_vcf)
@@ -148,7 +132,7 @@ def test_status_update_annotationjob(session, client):
     # Submit annotation job
     data = dict(mode="Analysis",
                 user_id=1,
-                vcf=unannotated_vcf,
+                vcf="Dummy vcf data",
                 properties=dict(
                     analysis_name = "abc",
                     create_or_append = "Create",
@@ -157,13 +141,17 @@ def test_status_update_annotationjob(session, client):
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
+    id = json.loads(response.get_data())["id"]
 
-    update_data = dict(status="ANNOTATED", message="Message from server", task_id="123456789")
+    update_data = dict(id=id,
+                       status="ANNOTATED",
+                       message="Message from server",
+                       task_id="123456789")
     response = client.patch(ANNOTATION_JOBS_PATH, data=update_data)
     assert response.status_code == 200
 
     annotation_jobs = session.query(sample.AnnotationJob).filter(
-        sample.AnnotationJob.task_id == update_data["task_id"]
+        sample.AnnotationJob.id == id
     ).all()
 
     assert len(annotation_jobs) == 1
@@ -171,4 +159,71 @@ def test_status_update_annotationjob(session, client):
 
     assert annotation_job.message == update_data["message"]
     assert annotation_job.status == update_data["status"]
+    assert annotation_job.task_id== update_data["task_id"]
     assert len(annotation_job.status_history) == 1
+
+
+def get_alleles(vcf, session):
+    from vardb.util.vcfiterator import VcfIterator
+    import tempfile
+    f = tempfile.NamedTemporaryFile(delete=False)
+    f.write(vcf)
+    f.close()
+    vcfiterator = VcfIterator(f.name)
+    allele_importer = AlleleImporter(session)
+    alleles = []
+    for a in vcfiterator.iter():
+        alleles += allele_importer.process(a)
+    session.rollback()
+    os.remove(f.name)
+    return alleles
+
+
+def test_deposit_independent_variants(test_database, session, client, annotated_vcf):
+    alleles = get_alleles(annotated_vcf, session)
+    existing = session.query(allele.Allele).all()
+    alleles_to_be_added = list(set(alleles)-set(existing))
+    alleles_already_added = list(set(alleles)-set(alleles_to_be_added))
+
+    data = dict(mode="Variants",
+                status="ANNOTATED",
+                task_id="123456789",
+                user_id=1,
+                vcf=annotated_vcf,
+                properties=dict(
+                    genepanel=GENEPANEL
+                ))
+
+    response = client.post(ANNOTATION_JOBS_PATH, data=data)
+    assert response.status_code == 200
+    id = json.loads(response.get_data())["id"]
+
+    # Annotation job deposit
+    deposit_data = dict(id=id, annotated_vcf=annotated_vcf)
+    response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
+    assert response.status_code == 200
+
+    # Check that annotation job is deposited
+    new_alleles = session.query(allele.Allele).filter(
+        ~allele.Allele.id.in_([a.id for a in existing])
+    ).all()
+
+    new_alleles = [(a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for a in new_alleles]
+    alleles_to_be_added = [(a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for a in alleles_to_be_added]
+
+    assert len(new_alleles) == len(alleles_to_be_added)
+    assert set(new_alleles) == set(alleles_to_be_added)
+
+
+
+def test_append_to_analysis(session, client, annotated_vcf):
+    # Create a new analysis
+    data = dict(mode="Analysis",
+                user_id=1,
+                vcf="Dummy vcf data",
+                properties=dict(
+                    analysis_name = "abc",
+                    create_or_append = "Create",
+                    genepanel = GENEPANEL,
+                ))
+
