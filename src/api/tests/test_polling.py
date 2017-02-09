@@ -13,7 +13,8 @@ def test_annotationserver_running(client):
     assert json.loads(response.get_data())["running"]
 
 
-def test_polling(client):
+def test_polling(client, test_database):
+    test_database.refresh()
     # Submit to database
     data = dict(mode="Analysis",
                 user_id=1,
