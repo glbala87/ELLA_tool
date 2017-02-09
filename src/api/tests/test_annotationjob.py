@@ -2,13 +2,12 @@ from flask import Flask, request, render_template, session, flash, redirect, \
     url_for, jsonify, Response
 
 import pytest
-import vardb
-from vardb.util import DB
-from vardb.datamodel import sample, allele
-from vardb.deposit.importers import AlleleImporter
 import os
 import subprocess
 import json
+
+from vardb.datamodel import sample, allele, genotype
+from vardb.deposit.importers import AlleleImporter
 
 from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, ANNOTATION_SERVICE_STATUS_PATH, \
     ANNOTATION_SERVICE_PROCESS_PATH, DEPOSIT_SERVICE_PATH
@@ -38,26 +37,30 @@ def annotated_vcf():
         vcf = f.read()
     return vcf
 
-from vardb.util import DB
-
-
 def split_vcf(vcf):
     lines = vcf.split('\n')
     header = []
-    for l in iter(lines):
+    iter_lines = iter(lines)
+    for l in iter_lines:
         header.append(l)
         if l.startswith("#CHROM"):
             break
     header = "\n".join(header)
 
     variants = []
-    for l in iter(lines):
-        variants.append(l)
+    for l in iter_lines:
+        if l.strip():
+            variants.append(l)
 
-    first = header+"\n"+"\n".join(variants[:len(variants)/2])
-    second = header + "\n" + "\n".join(variants[len(variants)/2:])
+    variants1 = variants[:len(variants)/2]
+    variants2 = variants[len(variants)/2:]
 
-    return {"first": first, "second": second}
+    N1 = len(variants1)
+    N2 = len(variants2)
+    first = header+"\n"+"\n".join(variants1)
+    second = header + "\n" + "\n".join(variants2)
+
+    return first,second, N1,N2
 
 
 @pytest.fixture
@@ -216,14 +219,68 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
 
 
 
-def test_append_to_analysis(session, client, annotated_vcf):
+def test_append_to_analysis(test_database, session, client, annotated_vcf):
+    test_database.refresh()
+
+    # Split vcf in two, to be submitted first as new analysis,
+    # then to append to the newly created analysis
+    first_vcf, second_vcf, N1, N2 = split_vcf(annotated_vcf)
+
     # Create a new analysis
-    data = dict(mode="Analysis",
+    data1 = dict(mode="Analysis",
                 user_id=1,
-                vcf="Dummy vcf data",
+                vcf=first_vcf,
                 properties=dict(
                     analysis_name = "abc",
                     create_or_append = "Create",
                     genepanel = GENEPANEL,
                 ))
+
+    response = client.post(ANNOTATION_JOBS_PATH, data=data1)
+    assert response.status_code == 200
+    id = json.loads(response.get_data())["id"]
+
+    # Annotation job deposit
+    deposit_data = dict(id=id, annotated_vcf=first_vcf)
+    response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
+    assert response.status_code == 200
+
+    # Check that annotation job is deposited
+    analysis_name = ".".join([data1["properties"]["analysis_name"], data1["properties"]["genepanel"]])
+    analyses = session.query(sample.Analysis).filter(
+        sample.Analysis.name == analysis_name,
+    ).all()
+
+    assert len(analyses) == 1
+    analysis_id = analyses[0].id
+    genotypes = session.query(genotype.Genotype).filter(
+        genotype.Genotype.analysis_id == analysis_id,
+    ).all()
+    assert len(genotypes) == N1
+
+    # Create new annotation job, to append to newly created analysis
+    data2 = dict(mode="Analysis",
+                user_id=1,
+                vcf=second_vcf,
+                properties=dict(
+                    analysis_name = analysis_name,
+                    create_or_append = "Append",
+                    genepanel = GENEPANEL,
+                ))
+
+    response = client.post(ANNOTATION_JOBS_PATH, data=data2)
+    assert response.status_code == 200
+    id = json.loads(response.get_data())["id"]
+
+    # Annotation job deposit (append)
+    deposit_data = dict(id=id, annotated_vcf=second_vcf)
+    response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
+    assert response.status_code == 200
+
+    # Check that the new alleles were added to analysis
+    genotypes = session.query(genotype.Genotype).filter(
+        genotype.Genotype.analysis_id == analysis_id,
+    ).all()
+
+    assert len(genotypes) == N1+N2
 
