@@ -55,7 +55,6 @@ import './widgets/alleleinfo/alleleInfoAcmgSelection.directive';
 import './widgets/alleleinfo/alleleInfoQuality.directive';
 import './widgets/alleleinfo/alleleInfoConsequence.directive';
 import './widgets/alleleinfo/alleleInfoReferences.directive';
-import './widgets/alleleinfo/referenceAssessment.directive';
 import './widgets/alleleinfo/alleleInfoSplice.directive';
 import './widgets/alleleinfo/alleleInfoSplicePopoverContent.directive';
 import './widgets/alleleinfo/alleleInfoPredictionOther.directive';
@@ -68,6 +67,7 @@ import './widgets/alleleinfo/alleleInfoHgmd.directive';
 import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
+
 import './widgets/analysisList.directive';
 import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
@@ -90,6 +90,7 @@ import './widgets/isolateclick.directive';
 import './widgets/genepanelvalue/genepanelvalue.directive.js';
 import './widgets/igv.directive.js';
 import './widgets/wysiwygjsEditor.directive';
+import './widgets/referenceAssessment.directive';
 
 import {Config, Inject, Run} from './ng-decorators';
 
