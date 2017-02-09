@@ -70,8 +70,5 @@ class DepositAlleles(DepositFromVCF):
             for allele in db_alleles:
                 self.allele_interpretation_importer.process(db_genepanel, allele.id)
 
-            #for sample_name, db_sample in zip(vcf_sample_names, db_samples):
-            #    self.genotype_importer.process(record, sample_name, db_analysis, db_sample, db_alleles)
-
             self.counter['nVariantsInFile'] += 1
 

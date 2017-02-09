@@ -54,6 +54,15 @@ class Util(object):
             return l
         return inner
 
+    @staticmethod
+    def open(path_or_fileobject):
+        if isinstance(path_or_fileobject, basestring):
+            return open(path_or_fileobject, 'r')
+        else:
+            # Reset file object and return
+            path_or_fileobject.seek(0)
+            return path_or_fileobject
+
 
 class BaseInfoProcessor(object):
 
@@ -296,8 +305,8 @@ class HeaderParser(object):
 
     RE_INFO = re.compile(r'[<]*(.*?)=["]*(.*?)["]*[,>]')
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, path_or_fileobject):
+        self.path_or_fileobject = path_or_fileobject
         self.metaProccessors = {
             'INFO': self._parseMetaInfo,
             'FILTER': self._parseMetaInfo,
@@ -317,8 +326,8 @@ class HeaderParser(object):
         header = list()
 
         # Read in metadata and header
-        with open(self.path) as fd:
-            for line in fd.xreadlines():
+        with Util.open(self.path_or_fileobject) as fd:
+            for line in fd:
                 line = line.replace('\n', '')
                 if line.startswith('##'):
                     key, value = line[2:].split('=', 1)
@@ -352,8 +361,9 @@ class HeaderParser(object):
 
 class DataParser(object):
 
-    def __init__(self, path, meta, header, samples):
-        self.path = path
+    def __init__(self, path_or_fileobject, meta, header, samples):
+        self.path_or_fileobject = path_or_fileobject
+
         self.meta = meta
         self.header = header
         self.samples = samples
@@ -369,7 +379,6 @@ class DataParser(object):
         Parses the INFO data into data structures.
         Data is split into general ('ALL') and allele specific data.
         """
-
         alleles = data['ALT']
 
         fields = data['INFO'].split(';')
@@ -398,7 +407,6 @@ class DataParser(object):
             # If no processors handled the data, use the native header processor
             if not processed:
                 self.fallbackProcessor.process(key, value, info_data, alleles)
-
         data['INFO'] = info_data
 
     def _parseDataSampleFields(self, data):
@@ -436,8 +444,8 @@ class DataParser(object):
 
     def iter(self, throw_exceptions=True):
         found_data_start = False
-        with open(self.path) as fd:
-            for line_idx, line in enumerate(fd.xreadlines()):
+        with Util.open(self.path_or_fileobject) as fd:
+            for line_idx, line in enumerate(fd):
                 # Skip header, wait for #CHROM to signal start of data
                 if line.startswith('#CHROM') and not found_data_start:
                     found_data_start = True
@@ -458,10 +466,10 @@ class DataParser(object):
 
 class VcfIterator(object):
 
-    def __init__(self, path):
-        self.path = path
-        self.meta, self.header, self.samples = HeaderParser(self.path).parse()
-        self.data_parser = DataParser(self.path, self.meta, self.header, self.samples)
+    def __init__(self, path_or_fileobject):
+        self.path_or_fileobject = path_or_fileobject
+        self.meta, self.header, self.samples = HeaderParser(self.path_or_fileobject).parse()
+        self.data_parser = DataParser(self.path_or_fileobject, self.meta, self.header, self.samples)
 
         self.addInfoProcessor(VEPInfoProcessor(self.meta))
         self.addInfoProcessor(SnpEffInfoProcessor(self.meta))

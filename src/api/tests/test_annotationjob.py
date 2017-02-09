@@ -168,17 +168,20 @@ def test_status_update_annotationjob(session, client):
 
 def get_alleles(vcf, session):
     from vardb.util.vcfiterator import VcfIterator
-    import tempfile
-    f = tempfile.NamedTemporaryFile(delete=False)
-    f.write(vcf)
-    f.close()
-    vcfiterator = VcfIterator(f.name)
+
+    from StringIO import StringIO
+    fd = StringIO()
+    fd.write(vcf)
+    fd.flush()
+    fd.seek(0)
+
+    vcfiterator = VcfIterator(fd)
     allele_importer = AlleleImporter(session)
     alleles = []
     for a in vcfiterator.iter():
         alleles += allele_importer.process(a)
     session.rollback()
-    os.remove(f.name)
+    fd.close()
     return alleles
 
 
@@ -216,7 +219,6 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
 
     assert len(new_alleles) == len(alleles_to_be_added)
     assert set(new_alleles) == set(alleles_to_be_added)
-
 
 
 def test_append_to_analysis(test_database, session, client, annotated_vcf):
