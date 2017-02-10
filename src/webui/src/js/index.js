@@ -67,6 +67,7 @@ import './widgets/alleleinfo/alleleInfoHgmd.directive';
 import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
+
 import './widgets/analysisList.directive';
 import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
@@ -89,6 +90,7 @@ import './widgets/isolateclick.directive';
 import './widgets/genepanelvalue/genepanelvalue.directive.js';
 import './widgets/igv.directive.js';
 import './widgets/wysiwygjsEditor.directive';
+import './widgets/referenceAssessment.directive';
 
 import {Config, Inject, Run} from './ng-decorators';
 
