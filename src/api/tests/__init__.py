@@ -1,12 +1,10 @@
 import json
 from api.tests.util import FlaskClientProxy
 
-
 api = FlaskClientProxy(url_prefix='/api/v1')
 
-
 uri_part = {"analysis": "analyses",
-            "variant": "alleles"
+            "variant" : "alleles"
             }
 
 ANALYSIS_WORKFLOW = "analysis"
@@ -15,51 +13,51 @@ VARIANT_WORKFLOW = "variant"
 
 def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports):
     return {
-       'annotations': annotations,
-       'custom_annotations': custom_annotations,
-       'alleleassessments': alleleassessments,
-       'referenceassessments': referenceassessments,
-       'allelereports': allelereports
-}
+        'annotations'         : annotations,
+        'custom_annotations'  : custom_annotations,
+        'alleleassessments'   : alleleassessments,
+        'referenceassessments': referenceassessments,
+        'allelereports'       : allelereports
+    }
 
 
-def review_template(annotations = None, custom_annotations = None, alleleassessments = None, allelereports = None):
+def review_template(annotations=None, custom_annotations=None, alleleassessments=None, allelereports=None):
     return {
-       'annotations': annotations if annotations else [],
-       'custom_annotations': custom_annotations if custom_annotations else [],
-       'alleleassessments': alleleassessments if alleleassessments else [],
-       'allelereports': allelereports if allelereports else []
-}
+        'annotations'       : annotations if annotations else [],
+        'custom_annotations': custom_annotations if custom_annotations else [],
+        'alleleassessments' : alleleassessments if alleleassessments else [],
+        'allelereports'     : allelereports if allelereports else []
+    }
 
 
 def interpretation_template(interpretation):
     return {
-        'id': interpretation['id'],
+        'id'        : interpretation['id'],
         'user_state': interpretation['user_state'],
-        'state': interpretation['state'],
-        'user_id': interpretation['user_id']
+        'state'     : interpretation['state'],
+        'user_id'   : interpretation['user_id']
     }
 
 
 def allele_assessment_template_for_variant_workflow(allele, user):
     return {
-        'user_id': user['id'],
-        'allele_id': allele['id'],
-        'evaluation': {'comment': 'Original comment'},
+        'user_id'       : user['id'],
+        'allele_id'     : allele['id'],
+        'evaluation'    : {'comment': 'Original comment'},
         'classification': 5
     }
 
 
 def allele_assessment_template(workflow_type, workflow_id, allele, user, extra):
     base = {
-            'user_id': user['id'],
-            'allele_id': allele['id'],
-            'evaluation': {'comment': 'Original comment'},
-            'classification': 5,
-            'analysis_id': None,
-            'genepanel_name': None,
-            'genepanel_version': None
-            }
+        'user_id'          : user['id'],
+        'allele_id'        : allele['id'],
+        'evaluation'       : {'comment': 'Original comment'},
+        'classification'   : 5,
+        'analysis_id'      : None,
+        'genepanel_name'   : None,
+        'genepanel_version': None
+    }
 
     if workflow_type == ANALYSIS_WORKFLOW:
         base['analysis_id'] = workflow_id
@@ -74,12 +72,12 @@ def allele_assessment_template(workflow_type, workflow_id, allele, user, extra):
 
 
 def reference_assessment_template(workflow_type, workflow_id, allele, reference, user, extra):
-    base = {'user_id': user['id'],
-            'allele_id': allele['id'],
-            'reference_id': reference['id'],
-            'evaluation': {'comment': 'Original comment'},
-            'analysis_id': None,
-            'genepanel_name': None,
+    base = {'user_id'          : user['id'],
+            'allele_id'        : allele['id'],
+            'reference_id'     : reference['id'],
+            'evaluation'       : {'comment': 'Original comment'},
+            'analysis_id'      : None,
+            'genepanel_name'   : None,
             'genepanel_version': None
             }
 
@@ -92,17 +90,16 @@ def reference_assessment_template(workflow_type, workflow_id, allele, reference,
         base['genepanel_name'] = extra['genepanel_name']
         base['genepanel_version'] = extra['genepanel_version']
 
-
     return base
 
 
 def allele_report_template(workflow_type, workflow_id, allele, user, extra):
     base = {
-        'user_id': user['id'],
-        'allele_id': allele['id'],
-        'evaluation': {'comment': 'Original comment'},
-        'analysis_id': None,
-        'genepanel_name': None,
+        'user_id'          : user['id'],
+        'allele_id'        : allele['id'],
+        'evaluation'       : {'comment': 'Original comment'},
+        'analysis_id'      : None,
+        'genepanel_name'   : None,
         'genepanel_version': None
     }
 
@@ -115,8 +112,8 @@ def allele_report_template(workflow_type, workflow_id, allele, user, extra):
         base['genepanel_name'] = extra['genepanel_name']
         base['genepanel_version'] = extra['genepanel_version']
 
-
     return base
+
 
 def get_interpretation_id_of_last(workflow_type, workflow_id):
     response = api.get('/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id))
@@ -158,16 +155,16 @@ def get_interpretations(workflow_type, workflow_id):
 
 def save_interpretation_state(workflow_type, interpretation, workflow_id):
     api.patch(
-    '/workflows/{}/{}/interpretations/{}/'
-        .format(uri_part[workflow_type], workflow_id, interpretation['id']),
+        '/workflows/{}/{}/interpretations/{}/'
+            .format(uri_part[workflow_type], workflow_id, interpretation['id']),
         interpretation_template(interpretation)
     )
 
 
 def start_interpretation(workflow_type, id, user, extra=None):
     post_data = {'user_id': user['id']}
-    if extra: # variant interpretation needs more than user
-        for k,v in extra.iteritems():
+    if extra:  # variant interpretation needs more than user
+        for k, v in extra.iteritems():
             post_data[k] = v
     response = api.post(
         '/workflows/{}/{}/actions/start/'.format(uri_part[workflow_type], id),
