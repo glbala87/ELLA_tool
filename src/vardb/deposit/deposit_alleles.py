@@ -20,9 +20,9 @@ import vardb.datamodel
 from vardb.datamodel import gene
 from vardb.util import vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
-                                    GenotypeImporter, AlleleImporter, AlleleInterpretationImporter, \
-                                    inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
-                                    SplitToDictInfoProcessor
+    GenotypeImporter, AlleleImporter, AlleleInterpretationImporter, \
+    inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
+    SplitToDictInfoProcessor
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -37,7 +37,6 @@ class DepositAlleles(DepositFromVCF):
             if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
                 return True
         return False
-
 
     def import_vcf(self, path, sample_configs=None, allele_config=None, assess_class=None):
 
@@ -55,9 +54,9 @@ class DepositAlleles(DepositFromVCF):
                 is_not_inside_transcripts.append(record)
 
         if len(is_not_inside_transcripts) > 0:
-            error = "The following variants are not inside the genepanel %s\n" %(db_genepanel.name+"_"+db_genepanel.version)
+            error = "The following variants are not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
             for record in is_not_inside_transcripts:
-                error += "%s\t%s\t%s\t%s\t%s\n" %(record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
+                error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
             raise RuntimeError(error)
 
         for record in vi.iter():
@@ -71,4 +70,3 @@ class DepositAlleles(DepositFromVCF):
                 self.allele_interpretation_importer.process(db_genepanel, allele.id)
 
             self.counter['nVariantsInFile'] += 1
-

@@ -22,13 +22,14 @@ from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
 
 ANNOTATION_SERVICE = config["app"]["annotation_service"]
 
+
 class AnnotationJob(Resource):
     @rest_filter
     def get(self, session, rest_filter=None, page=None, num_per_page=None):
         val = self.list_query(session,
-                           annotationjob.AnnotationJob,
-                           schemas.AnnotationJobSchema(),
-                           rest_filter=rest_filter)
+                              annotationjob.AnnotationJob,
+                              schemas.AnnotationJobSchema(),
+                              rest_filter=rest_filter)
 
         return val
 
@@ -52,14 +53,14 @@ class AnnotationJob(Resource):
                 job.status_history["history"] = list()
 
             job.status_history["history"].insert(0, {
-                'time'    : datetime.datetime.now().isoformat(),
-                'status'  : job.status,
+                'time'  : datetime.datetime.now().isoformat(),
+                'status': job.status,
             })
 
-        for k,v in data.items():
-            assert hasattr(job,k)
-            if getattr(job,k) != v:
-                setattr(job,k,v)
+        for k, v in data.items():
+            assert hasattr(job, k)
+            if getattr(job, k) != v:
+                setattr(job, k, v)
 
         job.date_last_update = datetime.datetime.now()
         session.commit()
@@ -73,6 +74,7 @@ class AnnotationJob(Resource):
         session.delete(job)
         session.commit()
         return None, 200
+
 
 class AnnotationJobDeposit(Resource):
     @request_json(["id", "annotated_vcf"])
@@ -105,7 +107,7 @@ class AnnotationJobDeposit(Resource):
                 analysis_config = dict(
                     params=dict(genepanel=genepanel),
                     samples=samples,
-                    name = ".".join([analysis_name, genepanel])
+                    name=".".join([analysis_name, genepanel])
                 )
                 deposit.import_vcf(fd,
                                    sample_configs=sample_config,
@@ -128,7 +130,7 @@ class AnnotationJobDeposit(Resource):
             allele_config = dict(
                 params=dict(genepanel=genepanel),
                 samples=samples,
-                name = ".".join(["independent", genepanel])
+                name=".".join(["independent", genepanel])
             )
 
             try:
@@ -151,7 +153,7 @@ class AnnotationServiceRunning(Resource):
 
 class AnnotationServiceStatus(Resource):
     def get(self, session, task_id=None):
-        "Get status of task_id or all tasks"
+        """Get status of task_id or all tasks"""
         if task_id:
             k = urllib2.urlopen(join(ANNOTATION_SERVICE, "status", task_id))
         else:
@@ -159,18 +161,17 @@ class AnnotationServiceStatus(Resource):
         resp = json.loads(k.read())
         return resp
 
+
 class AnnotationServiceAnnotate(Resource):
     @request_json([], True)
     def post(self, session, data):
-        "Post vcf, create job, return task_id"
+        """Post vcf, create job, return task_id"""
         k = urllib2.urlopen(join(ANNOTATION_SERVICE, "annotate"), data=json.dumps(data))
         return json.loads(k.read())
 
 
 class AnnotationServiceProcess(Resource):
     def get(self, session, task_id):
-        "Return annotated vcf"
+        """Return annotated vcf"""
         k = urllib2.urlopen(join(ANNOTATION_SERVICE, "process", task_id))
         return json.loads(k.read())
-
-

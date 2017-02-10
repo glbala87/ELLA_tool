@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from vardb.datamodel import Base
 from vardb.util.mutjson import JSONMutableDict
 
+
 class AnnotationJob(Base):
     """
     Represents an annotation job submitted for annotation.
