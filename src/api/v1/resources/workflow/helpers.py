@@ -199,7 +199,6 @@ def get_interpretation(session, alleleinterpretation_id=None, analysisinterpreta
 
     idl = InterpretationDataLoader(session, config)
     obj = idl.from_obj(interpretation)
-    print obj
     return obj
 
 
