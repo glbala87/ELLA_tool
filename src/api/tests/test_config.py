@@ -1,13 +1,3 @@
-import copy
-import pytest
-
-from util import FlaskClientProxy
-
-
-@pytest.fixture
-def client():
-    return FlaskClientProxy()
-
 
 def test_config(client):
     r = client.get('/api/v1/config/')

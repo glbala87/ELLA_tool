@@ -54,7 +54,7 @@ class TestDatabase(object):
         try:
             os.remove(self.dump_path)
             print "Temporary database file removed."
-        except Exception:
+        except:
             pass
 
 @pytest.yield_fixture

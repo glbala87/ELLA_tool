@@ -80,7 +80,7 @@ def test_polling(client, test_database):
 
     # Expected failure
     try:
-        annotated_jobs = list(process_annotated(client))
+        annotation_jobs = list(process_annotated(client))
         error_message = None
     except RuntimeError as e:
         error_message = e.message

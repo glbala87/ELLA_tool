@@ -8,7 +8,7 @@ from StringIO import StringIO
 StringIO.__exit__ = lambda *args: args[0]
 StringIO.__enter__ = lambda *args: args[0]
 
-from vardb.datamodel import sample
+from vardb.datamodel import annotationjob
 
 import datetime
 
@@ -26,7 +26,7 @@ class AnnotationJob(Resource):
     @rest_filter
     def get(self, session, rest_filter=None, page=None, num_per_page=None):
         val = self.list_query(session,
-                           sample.AnnotationJob,
+                           annotationjob.AnnotationJob,
                            schemas.AnnotationJobSchema(),
                            rest_filter=rest_filter)
 
@@ -34,7 +34,7 @@ class AnnotationJob(Resource):
 
     @request_json([], True)
     def post(self, session, data=None):
-        annotation_job_data = sample.AnnotationJob(**data)
+        annotation_job_data = annotationjob.AnnotationJob(**data)
         session.add(annotation_job_data)
         session.commit()
         return schemas.AnnotationJobSchema().dump(annotation_job_data).data
@@ -43,8 +43,8 @@ class AnnotationJob(Resource):
     def patch(self, session, data=None):
         id = data["id"]
 
-        job = session.query(sample.AnnotationJob).filter(
-            sample.AnnotationJob.id == id
+        job = session.query(annotationjob.AnnotationJob).filter(
+            annotationjob.AnnotationJob.id == id
         ).one()
 
         if data["status"] != job.status:
@@ -67,8 +67,8 @@ class AnnotationJob(Resource):
         return None, 200
 
     def delete(self, session, id):
-        job = session.query(sample.AnnotationJob).filter(
-            sample.AnnotationJob.id == id
+        job = session.query(annotationjob.AnnotationJob).filter(
+            annotationjob.AnnotationJob.id == id
         ).one()
         session.delete(job)
         session.commit()
@@ -81,8 +81,8 @@ class AnnotationJobDeposit(Resource):
         id = data["id"]
         vcf = data["annotated_vcf"]
 
-        job = session.query(sample.AnnotationJob).filter(
-            sample.AnnotationJob.id == id
+        job = session.query(annotationjob.AnnotationJob).filter(
+            annotationjob.AnnotationJob.id == id
         ).one()
 
         mode = job.mode

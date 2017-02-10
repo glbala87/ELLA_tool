@@ -6,7 +6,7 @@ import os
 import subprocess
 import json
 
-from vardb.datamodel import sample, allele, genotype
+from vardb.datamodel import sample, annotationjob, allele, genotype
 from vardb.deposit.importers import AlleleImporter
 
 from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, ANNOTATION_SERVICE_STATUS_PATH, \
@@ -86,7 +86,7 @@ def test_submit_annotationjob(session, client):
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
 
-    annotation_jobs = session.query(sample.AnnotationJob).all()
+    annotation_jobs = session.query(annotationjob.AnnotationJob).all()
     assert len(annotation_jobs) == 1
 
     annotation_job = annotation_jobs[0]
@@ -153,8 +153,8 @@ def test_status_update_annotationjob(session, client):
     response = client.patch(ANNOTATION_JOBS_PATH, data=update_data)
     assert response.status_code == 200
 
-    annotation_jobs = session.query(sample.AnnotationJob).filter(
-        sample.AnnotationJob.id == id
+    annotation_jobs = session.query(annotationjob.AnnotationJob).filter(
+        annotationjob.AnnotationJob.id == id
     ).all()
 
     assert len(annotation_jobs) == 1
