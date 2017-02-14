@@ -81,7 +81,9 @@ In CI tests are run with `make e2e-test`. This will run Chrome in it's own conta
 You can run this locally to check that the tests are passing, but it's unsuitable for authoring/editing tests.
 
 To explore the e2e test data, start a local Ella instance and import the e2e test data: `.../reset?testset=e2e`
-## Local usage
+
+
+## Local usage, REPL and debugging
 - Download and install chromedriver and Chrome/Chromium.
 - Run `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local machine.
 - Run `make e2e-test-local`. You'll be presented with a shell inside the container.
@@ -93,11 +95,12 @@ To install chromedriver:
 - brew info chromedriver
 - or https://sites.google.com/a/chromium.org/chromedriver/downloads
 
-## Explore
 Best way to get and test selectors in Chrome is to use the `CSS Selector Helper for Chrome` extension.
 Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools to test your selector.
 
 You can connect a debugger to Node.js instance on port `5859` to play around.
 
-Use `browser.debug()` in a test file to pause the execution of the tests. It will present a REPL (in recent webdriverio versions, from 4.5.0) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
+Use `browser.debug()` in a test file to pause the execution of the tests. It will present a REPL (webdriverio >= 4.5.0) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
 Hit 'Ctrl-c' in the REPL to continue the test run. See more on http://webdriver.io/guide/usage/repl.html
+
+More info at http://webdriver.io/guide/testrunner/debugging.html
