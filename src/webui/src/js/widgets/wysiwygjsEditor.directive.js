@@ -32,12 +32,12 @@ function addColorPicker(el) {
     // document.execCommand('styleWithCSS', false, true);
     picker.set('customColors', [
         '#000000', // black
-        '#813E31', // red
-        '#316081', // blue
-        '#31817B', // green
-        '#9B874B', // yellow
-        '#313881', // purple
-        '#603181' // pink
+        '#A92309', // red
+        '#0967A9', // blue
+        '#09A99C', // green
+        '#DABF00', // yellow
+        '#0918A9', // purple
+        '#6709A9' // pink
     ]);
     return picker;
 }
