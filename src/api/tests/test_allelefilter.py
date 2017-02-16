@@ -204,17 +204,15 @@ def create_genepanel(config):
 class TestAlleleFilter(object):
 
     @pytest.mark.aa(order=0)
-    def test_prepare_data(self, test_database):
+    def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
-
-        session = test_database.get_session()
 
         gp = create_genepanel(GP_CONFIG)
         session.add(gp)
         session.commit()
 
     @pytest.mark.aa(order=1)
-    def test_frequency_filtering(self, test_database):
+    def test_frequency_filtering(self, session):
 
         # Filter config should end up being the following
         # (GENE2 has override in genepanel config, hence different threshold)
@@ -222,7 +220,6 @@ class TestAlleleFilter(object):
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
         # GENE3: Will be 'GENE' filtered
 
-        session = test_database.get_session()
 
         ##
         # Test positive cases
@@ -402,10 +399,9 @@ class TestAlleleFilter(object):
         assert all(a in result[gp_key]['allele_ids'] for a in allele_ids)
 
     @pytest.mark.aa(order=2)
-    def test_intronic_filtering(self, test_database):
+    def test_intronic_filtering(self, session):
 
         # intronic_region [-10, 5]
-        session = test_database.get_session()
 
         ##
         # Test positive cases
@@ -520,10 +516,9 @@ class TestAlleleFilter(object):
         assert all(a in result[gp_key]['allele_ids'] for a in allele_ids)
 
     @pytest.mark.aa(order=3)
-    def test_gene_filtering(self, test_database):
+    def test_gene_filtering(self, session):
 
         # exclude_gene ['GENE3']
-        session = test_database.get_session()
 
         ##
         # Test positive case
@@ -597,10 +592,9 @@ class TestAlleleFilter(object):
 
 
     @pytest.mark.aa(order=4)
-    def test_filter_order(self, test_database):
+    def test_filter_order(self, session):
 
         # Test filter order: gene -> frequency -> intronic
-        session = test_database.get_session()
 
         # Will be filtered on frequency, gene and intronic
         a1 = create_allele_annotation(session, {

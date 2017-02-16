@@ -10,6 +10,7 @@ from api.rest_query import RestQuery
 from api import db
 from util import FlaskClientProxy
 
+
 class TestDatabase(object):
 
     def __init__(self):
@@ -26,9 +27,6 @@ class TestDatabase(object):
             self.host = "localhost"
 
         self.create_dump()
-
-    def get_session(self):
-        return db.session
 
     def get_dump_path(self):
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
@@ -63,11 +61,13 @@ class TestDatabase(object):
         except OSError:
             pass
 
+
 @pytest.yield_fixture
 def session(request):
     db = DB()
     db.connect()
     session = db.session()
+
     yield session
     # Close session on teardown
     session.close()
@@ -78,9 +78,6 @@ def session(request):
 @pytest.yield_fixture(scope="session", autouse=True)
 def test_database(request):
     """
-    Fixture for creating a test database from test data set.
-    When initialized, it deposits the data and creates a dump into a
-    temporary file.
     The TestDatabase object is yielded in order for the user to
     be able to call refresh() when he wants a fresh database.
     """
@@ -90,10 +87,10 @@ def test_database(request):
     # Cleanup database on teardown
     test_db.cleanup()
 
+
 @pytest.fixture
 def client():
     """
     Fixture for a flask client proxy, that supports get, post etc.
     """
     return FlaskClientProxy()
-
