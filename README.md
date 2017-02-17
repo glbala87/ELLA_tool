@@ -24,7 +24,16 @@ Next, launch a new container with
 docker run --name {container_name} -p 80:80 -v /path/to/repo:/repo -v /path/to/logs:/logs -e DB_URL={db_url} {image_name}
 ```
 
-Internally, the container will spin up nginx, several API workers, transpile the frontend and launch the analyses watcher.
+Mount points of interest:
+  - `/logs` - application logs
+  - `/repo` - repository of analyses/genepanels. See below
+
+
+Internally, the `supervisord` will spin up:
+  - nginx - actiong as reverse proxy and serving static files
+  - gunicorn - launching several API workers
+  - gulp - transpiles the frontend upon startup
+  - analyses-watcher - handles watching for and importing new data
 
 Transpiling the frontend files may take up to a minute, so it might take some time before the application is available.
 
@@ -87,14 +96,10 @@ The demo container runs an internal PostgreSQL server for easier deployment.
 - Start a development environment in Docker, run **`make dev`** - you may need to do `make build` first
 - Populate the database by visiting the `/reset` route _or do `/reset?testset=all` to get an expanded data set_.
 
-### More info:
-- All *system* dependencies - as in apt-packages
-  - are kept in core images (e.g. `ousamg/ella-core:0.9.1`)
-  - are managed via the build system `ops/builder/builder.yml`
-- All *application* dependencies - nodejs, python, etc.
-  - are kept in local images (e.g. `local/ella-dev`)
-  - are managed via their respective dependency files
-  - are baked in when you do `make build`, so if you change a dependency file you need to do `make build` again!
+### Ops
+
+Bringing up the production/development/demo/testing systems are handled by `Make` and `supervisord`.
+Look in `Makefile` and in  `ops/` for more information.
 
 ### Migration:
 Whenever you make changes to the database model, you need to create migration scripts, so that the production database can be upgraded to the new version. We use Alembic to assist creating those scripts. Migration scripts are stored in `src/vardb/datamodel/migration/alembic/`. The current migration base is stored in `src/vardb/datamodel/migration/ci_migration_base`. This base serves as the base for which the migration scripts will be built against, and should represent the oldest database in production.
@@ -136,22 +141,6 @@ Our test suites are intended to be run inside Docker. The Makefile has commands 
 - `make e2e-test` will run e2e tests
 - `make single-test` will run a single _non-e2e_ test
 
-## More info
-- For more information please see [the wiki](https://git.ousamg.io/docs/wiki/wikis/ella/testing)
-
-# Production
-
-### Getting started:
-- Start the app using `docker run -p 80:80 -d ousamg/ella`
-- You may also want to mount the following folders:
-  - `/logs` - application logs
-  - `/data` - database storage
-
-### More info:
-- nginx is used to serve both the API and static assets
-  - Static assets are pre-built and stored at `/static`
-  - Gunicorn runs the API, it stores its socket at `/socket`
-- All relevant configuration files are in `ops/prod`
 
 # End to end testing (e2e)
 We use webdriver.io for testing. See http://webdriver.io.
