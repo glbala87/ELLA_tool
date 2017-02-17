@@ -42,6 +42,36 @@ help :
 	@echo "make release		- builds a production image named ousamg/ella-release"
 
 #---------------------------------------------
+# DEMO
+#---------------------------------------------
+
+.PHONY: demo dbreset
+
+comma := ,
+DEMO_NAME ?= none
+
+demo:
+	-docker build -t $(IMAGE_NAME) .
+	-docker stop $(subst $(comma),-,$(DEMO_NAME))
+	-docker rm $(subst $(comma),-,$(DEMO_NAME))
+	docker run -d \
+		--name $(subst $(comma),-,$(DEMO_NAME)) \
+		-e VIRTUAL_HOST=$(DEMO_NAME) \
+		--expose 80 \
+		$(IMAGE_NAME) \
+		supervisord -c /ella/ops/demo/supervisor.cfg
+	docker exec $(subst $(comma),-,$(DEMO_NAME)) make dbreset
+
+dbreset: dbsleep dbreset-inner
+
+dbreset-inner:
+	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
+
+dbsleep:
+	while ! pg_isready; do sleep 5; done
+
+
+#---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
 .PHONY: any build dev fancy-dev url kill shell logs restart db
@@ -51,7 +81,7 @@ any:
 	@true
 
 build:
-	docker build --pull -t $(IMAGE_NAME) .
+	docker build -t $(IMAGE_NAME) .
 
 dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
 dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
@@ -96,9 +126,7 @@ restart:
 
 test-build:
 	$(eval BRANCH = test)
-	sed 's/# COPY/COPY/' Dockerfile > Dockerfile.test
-	docker build -t $(IMAGE_NAME) -f Dockerfile.test .
-	rm Dockerfile.test
+	docker build -t $(IMAGE_NAME) .
 
 test: test-build run-test
 single-test: test-build run-test
@@ -192,84 +220,3 @@ test-js:
 	ln -s /dist/node_modules/ /ella/node_modules
 	gulp unit
 
-
-#---------------------------------------------
-# BUILD / RELEASE
-#---------------------------------------------
-BUILD_VERSION ?= should_not_happen
-ANSIBLE_TAGS ?= core
-BUILD_TYPE ?= core
-BUILD_NAME ?= ousamg/ella.$(BUILD_TYPE):$(BUILD_VERSION)
-.PHONY: setup-release setup-core ensure-clean add-production-elements release build-image core push squash copy run-ansible clean-provision stop-provision start-provision commit-provision
-
-setup-core:
-	$(eval BUILD_VERSION = $(shell awk -F':' '/ella.core/ { print $$2 }' Dockerfile))
-	$(eval CORE_NAME := ousamg/baseimage:latest)
-
-setup-release: ensure-clean
-	$(eval ANSIBLE_TAGS = release)
-	$(eval BUILD_TYPE = release)
-	$(eval BUILD_VERSION =latest)
-	$(eval CORE_NAME = $(shell awk '/ella.core/ { print $$2 }' Dockerfile))
-
-ensure-clean:
-	rm -rf node_modules
-	git checkout ops/builder/Dockerfile.runnable
-
-add-production-elements:
-	sed -i 's substitution $(BUILD_NAME) ' ops/builder/Dockerfile.runnable
-	docker build -t $(BUILD_NAME) -f ops/builder/Dockerfile.runnable .
-	git checkout ops/builder/Dockerfile.runnable
-
-release: setup-release build-image squash stop-provision add-production-elements
-build-image: start-provision copy run-ansible
-core: setup-core build-image commit-provision stop-provision
-
-push:
-	docker push $(BUILD_NAME)
-
-squash:
-	docker export provision | docker import - $(BUILD_NAME)
-
-copy:
-	docker cp . provision:/ella
-
-run-ansible:
-	docker exec -i provision ansible-playbook -i localhost, -c local /ella/ops/builder/builder.yml --tags=$(ANSIBLE_TAGS)
-
-clean-provision stop-provision:
-	-docker stop -t 0 provision && docker rm provision
-
-start-provision: clean-provision
-	docker pull $(CORE_NAME)
-	docker run -d --name provision $(CORE_NAME) sleep infinity
-
-commit-provision:
-	docker commit provision $(BUILD_NAME)
-
-#---------------------------------------------
-# DEPLOY
-#---------------------------------------------
-comma := ,
-DEPLOY_NAME ?= test.allel.es
-.PHONY: tsd-assets dbreset dbreset-inner dbsleep deploy
-
-tsd-assets:
-	docker run -d --name ella-assets ousamg/ella.release
-	docker cp ella-assets:/static .
-	docker stop ella-assets
-	docker rm ella-assets
-
-dbreset: dbsleep dbreset-inner
-
-dbreset-inner:
-	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
-
-dbsleep:
-	while ! pg_isready; do sleep 5; done
-
-deploy:
-	-docker stop $(subst $(comma),-,$(DEPLOY_NAME))
-	-docker rm $(subst $(comma),-,$(DEPLOY_NAME))
-	docker run -d --name $(subst $(comma),-,$(DEPLOY_NAME)) -e VIRTUAL_HOST=$(DEPLOY_NAME) --expose 80 ousamg/ella.$(BUILD_TYPE)
-	docker exec $(subst $(comma),-,$(DEPLOY_NAME)) make dbreset

@@ -1,7 +1,6 @@
 ---
 stages:
   - test
-  - cleanup
   - deploy
   - review
   - notify
@@ -47,19 +46,11 @@ test_e2e:
     - /^ui-.*$/
     - /^ops-.*$/
 
-build_core:
-  stage: deploy
-  script:
-    - if [ -n "${BUILD_CORE}" ]; then make core push; fi
-  only:
-    - triggers
-
 bot_build:
   stage: deploy
   script:
-    - if [ -n "${DEV_CHANNEL}" ]; then make release deploy DEPLOY_NAME=demo.allel.es; fi
-    - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es; fi
-    - if [ -n "${REVIEW_CHANNEL}" ]; then make release deploy BUILD_TYPE=${REVIEW_CHANNEL} DEPLOY_NAME=${REVIEW_CHANNEL}.review.ousamg.io; fi
+    - if [ -n "${DEV_CHANNEL}" ]; then make build; make demo DEMO_NAME=demo.allel.es; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make build; make demo DEMO_NAME=beta.allel.es; fi
   tags:
     - web
   only:
@@ -86,7 +77,7 @@ bot_notify_success:
 start_review:
   stage: review
   script:
-    - make release deploy BUILD_TYPE=${CI_BUILD_REF_SLUG} DEPLOY_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+    - docker build -t ousamg/ella.${CI_BUILD_REF_SLUG} .; make demo DEMO_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
   environment:
     name: review/$CI_BUILD_REF_SLUG
     url: http://$CI_BUILD_REF_SLUG.review.$APPS_DOMAIN
