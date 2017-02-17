@@ -8,7 +8,7 @@ ENV LC_ALL C.UTF-8
 
 RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 
-# Install all dependencies/tools in one go to reduce image size
+# Install as much as reasonable in one go to reduce image size
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python \
@@ -26,18 +26,10 @@ RUN apt-get update && \
     libffi-dev \
     ca-certificates \
     git \
-    chrpath \
-    libssl-dev \
-    libxft-dev \
-    libfreetype6 \
-    libfreetype6-dev \
-    libfontconfig1 \
-    libfontconfig1-dev \
-    libkrb5-dev \
     less \
     sudo \
     nano \
-    nginx \
+    nginx-light \
     htop && \
 
     # Additional tools
@@ -64,7 +56,8 @@ RUN cd /dist && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-test.txt && \
     pip install --no-cache-dir -r requirements-prod.txt && \
-    yarn install
+    yarn install && \
+    yarn cache clean
 
 RUN mkdir -p /logs /socket /repo/imported/ /repo/incoming/ /repo/genepanels
 
