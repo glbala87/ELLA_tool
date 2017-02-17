@@ -62,7 +62,6 @@ Analyses in `incoming/` will be automatically imported and placed into `imported
 To spin up a new demo instance, run the following:
 
 ```
-make build
 DEMO_NAME=domain.com make demo
 ```
 

@@ -49,8 +49,8 @@ test_e2e:
 bot_build:
   stage: deploy
   script:
-    - if [ -n "${DEV_CHANNEL}" ]; then make build; make demo DEMO_NAME=demo.allel.es; fi
-    - if [ -n "${BETA_CHANNEL}" ]; then make build; make demo DEMO_NAME=beta.allel.es; fi
+    - if [ -n "${DEV_CHANNEL}" ]; then make demo DEMO_NAME=demo.allel.es; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make demo DEMO_NAME=beta.allel.es; fi
   tags:
     - web
   only:
@@ -77,10 +77,10 @@ bot_notify_success:
 start_review:
   stage: review
   script:
-    - docker build -t ousamg/ella.${CI_BUILD_REF_SLUG} .; make demo DEMO_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+    - make demo DEMO_NAME=${CI_BUILD_REF_NAME}.review.ousamg.io
   environment:
-    name: review/$CI_BUILD_REF_SLUG
-    url: http://$CI_BUILD_REF_SLUG.review.$APPS_DOMAIN
+    name: review/$CI_BUILD_REF_NAME
+    url: http://$CI_BUILD_REF_NAME.review.$APPS_DOMAIN
     on_stop: stop_review
   when: always
   only:
@@ -91,15 +91,16 @@ start_review:
     - web
 
 # when: manual is also run upon branch deletion
+# Image name for removal (local/${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
 stop_review:
   stage: review
   variables:
     GIT_STRATEGY: none
   script:
-    - docker rm -f ${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f ousamg/ella.${CI_BUILD_REF_SLUG};
+    - docker rm -f ${CI_BUILD_REF_NAME}.review.ousamg.io; docker rmi -f local/${CI_BUILD_REF_NAME}.review.ousamg.io;
   when: manual
   environment:
-    name: review/$CI_BUILD_REF_SLUG
+    name: review/$CI_BUILD_REF_NAME
     action: stop
   only:
     - branches

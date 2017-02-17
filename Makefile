@@ -51,14 +51,14 @@ comma := ,
 DEMO_NAME ?= none
 
 demo:
-	-docker build -t $(IMAGE_NAME) .
+	-docker build -t local/$(DEMO_NAME) .
 	-docker stop $(subst $(comma),-,$(DEMO_NAME))
 	-docker rm $(subst $(comma),-,$(DEMO_NAME))
 	docker run -d \
 		--name $(subst $(comma),-,$(DEMO_NAME)) \
 		-e VIRTUAL_HOST=$(DEMO_NAME) \
 		--expose 80 \
-		$(IMAGE_NAME) \
+		local/$(DEMO_NAME) \
 		supervisord -c /ella/ops/demo/supervisor.cfg
 	docker exec $(subst $(comma),-,$(DEMO_NAME)) make dbreset
 

@@ -8,13 +8,6 @@ ENV LC_ALL C.UTF-8
 
 RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 
-# Add our requirements files
-COPY ./requirements.txt /dist/requirements.txt
-COPY ./requirements-test.txt  /dist/requirements-test.txt
-COPY ./requirements-prod.txt  /dist/requirements-prod.txt
-COPY ./package.json /dist/package.json
-COPY ./yarn.lock /dist/yarn.lock
-
 # Install all dependencies/tools in one go to reduce image size
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -55,16 +48,23 @@ RUN apt-get update && \
     git clone git://github.com/nicoulaj/rainbow.git /root/rainbow && cd /root/rainbow && python setup.py install && cd / && rm -rf /root/rainbow && \
     curl -L https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 -o /usr/local/bin/gosu && chmod u+x /usr/local/bin/gosu && \
 
-    # npm / pip
-    cd /dist && \
+    # Cleanup
+    cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
+    rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
+
+# Add our requirements files
+COPY ./requirements.txt /dist/requirements.txt
+COPY ./requirements-test.txt  /dist/requirements-test.txt
+COPY ./requirements-prod.txt  /dist/requirements-prod.txt
+COPY ./package.json /dist/package.json
+COPY ./yarn.lock /dist/yarn.lock
+
+# npm / pip
+RUN cd /dist && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-test.txt && \
     pip install --no-cache-dir -r requirements-prod.txt && \
-    yarn install && \
-
-    # Cleanup
-    cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
-    rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.npm /root/.cache /root/.node-gyp
+    yarn install
 
 RUN mkdir -p /logs /socket /repo/imported/ /repo/incoming/ /repo/genepanels
 
