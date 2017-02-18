@@ -16,6 +16,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements-test.txt
 RUN yarn install
 
+RUN apt-get install -y libzmq3-dev
+RUN npm install @kurtharriger/wdio-repl
+RUN npm install -g ijavascript
+RUN pip install jupyter
+#RUN pip install ipykernel
+#RUN echo "alias hydrokernel='python -m ipykernel "'--ip=$(hostname -I)'" -f /tmp/hydrogen/connection.json'" >> /etc/bash.bashrc
+
+
+
+
+
 # See .dockerignore for files that won't be copied
 # Test builds depend on the next line
 # COPY . /ella

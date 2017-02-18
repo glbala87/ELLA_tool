@@ -13,7 +13,8 @@ var defaultCapabilities =  [{
     }];
 var defaultTimeoutInterval = 120000; // ms
 var defaultMaxInstances = 10;
-var defaultSpecs = ['src/webui/tests/e2e/tests/**/*.js'];
+// var defaultSpecs = ['src/webui/tests/e2e/tests/**/*.js'];
+var defaultSpecs = ['src/webui/tests/e2e/tests/**/workflow_variant_acmg.js'];
 var BUNDLED_APP = 'app.js'; // see gulp file
 
 exports.config = {

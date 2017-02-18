@@ -11,6 +11,10 @@ const SELECTOR_COMMENT_EXTERNAL_EDITOR = `${SELECTOR_COMMENT_EXTERNAL} .wysiwyge
 const SELECTOR_COMMENT_PREDICTION = 'allele-sectionbox .id-comment-prediction';
 const SELECTOR_COMMENT_PREDICTION_EDITOR = `${SELECTOR_COMMENT_PREDICTION} .wysiwygeditor`;
 
+
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+
+
 class AlleleSectionBox extends Page {
 
 
@@ -60,6 +64,10 @@ class AlleleSectionBox extends Page {
     get classificationAcceptedToggleBtn() { return browser.element('allele-sectionbox .id-accept-classification'); }
     get existingClassificationButtonText() { return this.classificationAcceptedToggleBtn.getText(); }
 
+
+    reusingClassification() {
+        return this.existingClassificationButtonText.toLowerCase() === BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase()
+    }
 
     _setClassification(index) {
         let dropdownOption = `select.id-select-classification option:nth-child(${index})`;

@@ -97,6 +97,10 @@ class VariantSelection extends Page {
         this.selectReview(1);
     }
 
+    selectTopFinished() {
+        this.selectFinished(1);
+    }
+
 
     getReviewComment() {
         let selector = `${SELECTOR_REVIEW} .allele-extras .id-allele-comment`;
