@@ -1,5 +1,4 @@
 require('core-js/fn/object/entries');
-require('repl');
 
 /**
  * Displaying ACMG codes
@@ -21,11 +20,8 @@ let acmg = new ACMG();
 jasmine.getEnv().addReporter(failFast.init());
 
 const OUR_VARIANT =  'c.581G>A';
-var x = 4;
-console.log('erik')
+
 describe(`ACMG`, function () {
-repl
-    repl(function(code) {return eval(code)}.bind(this), require);
 
     beforeAll(() => {
         browser.resetDb();
