@@ -8,18 +8,15 @@ let LoginPage = require('../pageobjects/loginPage');
 let VariantSelectionPage = require('../pageobjects/overview_variants');
 let AnalysisPage = require('../pageobjects/analysisPage');
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox');
-let ACMG = require('../pageobjects/acmg');
+let acmg = require('../pageobjects/acmg');
 let failFast = require('jasmine-fail-fast');
 
 let loginPage = new LoginPage();
 let variantSelectionPage = new VariantSelectionPage();
 let analysisPage = new AnalysisPage();
 let alleleSectionBox = new AlleleSectionBox();
-let acmg = new ACMG();
 
 jasmine.getEnv().addReporter(failFast.init());
-
-const OUR_VARIANT =  'c.581G>A';
 
 describe(`ACMG`, function () {
 
@@ -27,7 +24,7 @@ describe(`ACMG`, function () {
         browser.resetDb();
     });
 
-    it('suggested codes are displayed', function () {
+    it('suggested codes and REQs are displayed when interpreting', function () {
         loginPage.selectFirstUser();
         variantSelectionPage.selectPending(5);
         analysisPage.startButton.click(); 
@@ -42,23 +39,18 @@ describe(`ACMG`, function () {
     });
 
 
-    it('suggested codes are hidden when reusing existing classification', function () {
+    it('suggested codes and REQs are hidden when reusing existing classification', function () {
         loginPage.selectSecondUser();
         variantSelectionPage.expandFinishedSection();
         variantSelectionPage.selectTopFinished();
 
-        browser.debug();
+        analysisPage.startButton.click(); // reopen
+
+        analysisPage.startButton.click(); // start review
         expect(alleleSectionBox.reusingClassification()).toBe(true);
-        expect(acmg.suggestedElement).toBeUndefined("Suggested should be hidden");
-        expect(acmg.suggestedReqElement).toBeUndefined("Suggested REQ should be hidden");
-        expect(acmg.hasShowHideButton()).toBe(false, "Button should be hidden");
-
-        analysisPage.startButton.click();
-
-        expect(acmg.suggestedElement).toBeUndefined();
-        expect(acmg.suggestedReqElement).toBeUndefined();
+        expect(acmg.suggestedElement).toBeNull();
+        expect(acmg.suggestedReqElement).toBeNull();
         expect(acmg.hasShowHideButton()).toBe(false);
-
 
         alleleSectionBox.classificationAcceptedToggleBtn.click();
 
@@ -68,8 +60,8 @@ describe(`ACMG`, function () {
 
         alleleSectionBox.classificationAcceptedToggleBtn.click();
 
-        expect(acmg.suggestedElement).toBeUndefined();
-        expect(acmg.suggestedReqElement).toBeUndefined();
+        expect(acmg.suggestedElement).toBeNull();
+        expect(acmg.suggestedReqElement).toBeNull();
         expect(acmg.hasShowHideButton()).toBe(false);
 
         analysisPage.finishButton.click();

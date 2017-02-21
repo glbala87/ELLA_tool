@@ -1,4 +1,5 @@
-var Page = require('./page');
+let Page = require('./page');
+let util = require('./util');
 
 const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
 
@@ -15,7 +16,7 @@ const SELECTOR_COMMENT_PREDICTION_EDITOR = `${SELECTOR_COMMENT_PREDICTION} .wysi
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
 
 
-class AlleleSectionBox extends Page {
+class AlleleSectionBox  {
 
 
     get reviewCommentElement() { return browser.element('.workflow-options input.id-review-comment'); }
@@ -233,7 +234,7 @@ class AlleleSectionBox extends Page {
             function(matchingElements) {
                 return matchingElements[0].className = matchingElements[0].className.replace("collapsed", "");
         });
-        console.log(`CSS class of ${sectionSelector} is now ${comment}`);
+        util.log(`CSS class of ${sectionSelector} is now ${comment}`);
     }
 
     getReferences() {

@@ -1,4 +1,5 @@
-var Page = require('./page');
+let Page = require('./page');
+let util = require('./util');
 
 const SELECTOR_FINISHED = '.id-variants-finished';
 const SELECTOR_PENDING = '.id-variants-pending'; // no assessment
@@ -55,11 +56,10 @@ class VariantSelection extends Page {
         browser.waitForExist(sectionSelector);
         browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
         let selector = `${sectionSelector} .id-variant:nth-child(${number})`;
-        console.log('Going to click selector:' + selector);
+        util.logSelector(selector);
         browser.waitForExist(selector);
         browser.click(selector);
         let element = browser.element(selector);
-        console.log('found element using selector:' + element);
         browser.waitForExist('allele-list', 5000, true);
         return element;
     }
