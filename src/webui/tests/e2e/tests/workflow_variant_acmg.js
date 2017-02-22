@@ -1,7 +1,7 @@
 require('core-js/fn/object/entries');
 
 /**
- * Displaying ACMG codes
+ * Displaying ACMG codes when interpreting
  */
 
 let LoginPage = require('../pageobjects/loginPage');
@@ -24,6 +24,7 @@ describe(`ACMG`, function () {
         browser.resetDb();
     });
 
+
     it('suggested codes and REQs are displayed when interpreting', function () {
         loginPage.selectFirstUser();
         variantSelectionPage.selectPending(5);
@@ -38,34 +39,62 @@ describe(`ACMG`, function () {
         analysisPage.finalizeButton.click();
     });
 
+    describe('suggested coded and REQs are', function () {
 
-    it('suggested codes and REQs are hidden when reusing existing classification', function () {
-        loginPage.selectSecondUser();
-        variantSelectionPage.expandFinishedSection();
-        variantSelectionPage.selectTopFinished();
+        beforeAll(function () {
+            loginPage.selectSecondUser();
+            variantSelectionPage.expandFinishedSection();
+            variantSelectionPage.selectTopFinished();
+        });
 
-        analysisPage.startButton.click(); // reopen
+        it('hidden when seeing a finished interpretation', function () {
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBe(null);
+            expect(acmg.suggestedElement).toBeNull();
+            expect(acmg.suggestedReqElement).toBeNull();
+            expect(acmg.hasShowHideButton()).toBe(false);
 
-        analysisPage.startButton.click(); // start review
-        expect(alleleSectionBox.reusingClassification()).toBe(true);
-        expect(acmg.suggestedElement).toBeNull();
-        expect(acmg.suggestedReqElement).toBeNull();
-        expect(acmg.hasShowHideButton()).toBe(false);
+        });
 
-        alleleSectionBox.classificationAcceptedToggleBtn.click();
+        it('are hidden after opening a finished interpretation', function () {
+            // reopen the interpretation
+            analysisPage.startButton.click();
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBe(null);
+            expect(acmg.suggestedElement).toBeNull();
+            expect(acmg.suggestedReqElement).toBeNull();
+            expect(acmg.hasShowHideButton()).toBe(false);
+        });
 
-        expect(acmg.suggestedElement).toBeDefined();
-        expect(acmg.suggestedReqElement).toBeDefined();
-        expect(acmg.hasShowHideButton()).toBe(true);
+        it('are hidden after starting a finished interpretation', function () {
+            // start the interpreation
+            analysisPage.startButton.click();
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined();
+            expect(alleleSectionBox.reusingClassification()).toBe(true);
+            expect(acmg.suggestedElement).toBeNull();
+            expect(acmg.suggestedReqElement).toBeNull();
+            expect(acmg.hasShowHideButton()).toBe(false);
+        });
 
-        alleleSectionBox.classificationAcceptedToggleBtn.click();
+        it('are shown when a reclassification is started', function () {
+            // start (re) classification
+            alleleSectionBox.classificationAcceptedToggleBtn.click();
 
-        expect(acmg.suggestedElement).toBeNull();
-        expect(acmg.suggestedReqElement).toBeNull();
-        expect(acmg.hasShowHideButton()).toBe(false);
+            expect(alleleSectionBox.reusingClassification()).toBe(false);
+            expect(acmg.suggestedElement).toBeDefined();
+            expect(acmg.suggestedReqElement).toBeDefined();
+            expect(acmg.hasShowHideButton()).toBe(true);
 
-        analysisPage.finishButton.click();
-        analysisPage.finalizeButton.click();
+            // let's reuse the existing classification
+            alleleSectionBox.classificationAcceptedToggleBtn.click();
+
+            expect(acmg.suggestedElement).toBeNull();
+            expect(acmg.suggestedReqElement).toBeNull();
+            expect(acmg.hasShowHideButton()).toBe(false);
+
+            analysisPage.finishButton.click();
+            analysisPage.finalizeButton.click();
+        });
+
     });
+
 
 });

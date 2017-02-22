@@ -7,7 +7,7 @@
         <div class="cell"><p>{{vm.getSuggestedClassification()}}</p></div>
       </div>
 
-      <div ng-if="vm.isEditable()" class="id-acmg-show-hide-req">
+      <div ng-if="!vm.readOnly && !vm.isAlleleAssessmentReused()" class="id-acmg-show-hide-req">
         <checkable-button buttonclass="blue"
                           check-model="vm.show_req">
           <checked>Hide REQ</checked>
@@ -43,7 +43,7 @@
 
     <!-- Suggested codes (sans REQ) -->
     <!-- Don't use 'track by $index' -->
-    <div class="id-acmg-suggested" ng-if="vm.isEditable()">
+    <div class="id-acmg-suggested" ng-if="!vm.readOnly && !vm.isAlleleAssessmentReused()">
         <h4 class="section-title acmg-body">Suggested</h4>
         <section class="acmg-wrapper">
           <acmg code="code"
@@ -59,7 +59,7 @@
 
     <!-- REQ codes -->
     <!-- Don't use 'track by $index' -->
-    <div class="id-acmg-suggested-req" ng-if="vm.isEditable() && vm.show_req">
+    <div class="id-acmg-suggested-req" ng-if="!vm.readOnly && !vm.isAlleleAssessmentReused() && vm.show_req">
         <h4 class="section-title acmg-body">Suggested REQ</h4>
         <section class="acmg-wrapper">
           <acmg code="group"

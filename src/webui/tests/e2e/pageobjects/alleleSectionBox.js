@@ -1,8 +1,6 @@
 let Page = require('./page');
 let util = require('./util');
 
-const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
-
 const SELECTOR_COMMENT_CLASSIFICATION = 'allele-sectionbox .id-comment-classification';
 const SELECTOR_COMMENT_CLASSIFICATION_EDITOR = `${SELECTOR_COMMENT_CLASSIFICATION} .wysiwygeditor`;
 const SELECTOR_COMMENT_FREQUENCY = 'allele-sectionbox .id-comment-frequency';
@@ -12,7 +10,7 @@ const SELECTOR_COMMENT_EXTERNAL_EDITOR = `${SELECTOR_COMMENT_EXTERNAL} .wysiwyge
 const SELECTOR_COMMENT_PREDICTION = 'allele-sectionbox .id-comment-prediction';
 const SELECTOR_COMMENT_PREDICTION_EDITOR = `${SELECTOR_COMMENT_PREDICTION} .wysiwygeditor`;
 
-
+const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification';
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
 
 
@@ -62,9 +60,11 @@ class AlleleSectionBox  {
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
     get addReferencesBtn() { return browser.element('allele-sectionbox button.id-add-references' ); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
-    get classificationAcceptedToggleBtn() { return browser.element('allele-sectionbox .id-accept-classification'); }
-    get existingClassificationButtonText() { return this.classificationAcceptedToggleBtn.getText(); }
+    get classificationAcceptedToggleBtn() {
+        return util.elementOrNull(SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION);
+    }
 
+    get existingClassificationButtonText() { return this.classificationAcceptedToggleBtn.getText(); }
 
     reusingClassification() {
         return this.existingClassificationButtonText.toLowerCase() === BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase()
