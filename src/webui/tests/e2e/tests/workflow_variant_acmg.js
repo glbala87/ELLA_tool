@@ -1,7 +1,11 @@
 require('core-js/fn/object/entries');
 
 /**
- * Displaying ACMG codes when interpreting
+ * Displaying ACMG codes when interpreting.
+ *
+ * In some we don't want Suggested codes/Reqs to be shown. This could be implemented by some sort of hiding
+ * (setting to size zero, opacity 0 etc, display:none) or by not putting them in the DOM. The implementation will
+ * influence how the tests/page objects are designed.
  */
 
 let LoginPage = require('../pageobjects/loginPage');
@@ -24,6 +28,17 @@ describe(`ACMG`, function () {
         browser.resetDb();
     });
 
+    function expectSuggestedFeatureIsHidden() {
+        expect(acmg.suggestedElement.isVisible()).toBe(false);
+        expect(acmg.suggestedReqElement.isVisible()).toBe(false);
+        expect(acmg.showHideBtn.isVisible()).toBe(false);
+    }
+
+    function expectSuggestedFeatureIsShown() {
+        expect(acmg.suggestedElement.isVisible()).toBe(true);
+        expect(acmg.suggestedReqElement.isVisible()).toBe(true);
+        expect(acmg.showHideBtn.isVisible()).toBe(true);
+    }
 
     it('suggested codes and REQs are displayed when interpreting', function () {
         loginPage.selectFirstUser();
@@ -31,9 +46,7 @@ describe(`ACMG`, function () {
         analysisPage.startButton.click(); 
 
         alleleSectionBox.markAsTechnical();
-        expect(acmg.suggestedElement).toBeDefined();
-        expect(acmg.suggestedReqElement).toBeDefined();
-        expect(acmg.hasShowHideButton()).toBe(true);
+        expectSuggestedFeatureIsShown();
 
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
@@ -48,20 +61,17 @@ describe(`ACMG`, function () {
         });
 
         it('hidden when seeing a finished interpretation', function () {
+            // browser.debug();
+            // expect(acmg.collapsed).toBe(true);
             expect(alleleSectionBox.classificationAcceptedToggleBtn).toBe(null);
-            expect(acmg.suggestedElement).toBeNull();
-            expect(acmg.suggestedReqElement).toBeNull();
-            expect(acmg.hasShowHideButton()).toBe(false);
-
+            expectSuggestedFeatureIsHidden();
         });
 
         it('are hidden after opening a finished interpretation', function () {
             // reopen the interpretation
             analysisPage.startButton.click();
             expect(alleleSectionBox.classificationAcceptedToggleBtn).toBe(null);
-            expect(acmg.suggestedElement).toBeNull();
-            expect(acmg.suggestedReqElement).toBeNull();
-            expect(acmg.hasShowHideButton()).toBe(false);
+            expectSuggestedFeatureIsHidden();
         });
 
         it('are hidden after starting a finished interpretation', function () {
@@ -69,9 +79,8 @@ describe(`ACMG`, function () {
             analysisPage.startButton.click();
             expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined();
             expect(alleleSectionBox.reusingClassification()).toBe(true);
-            expect(acmg.suggestedElement).toBeNull();
-            expect(acmg.suggestedReqElement).toBeNull();
-            expect(acmg.hasShowHideButton()).toBe(false);
+
+            expectSuggestedFeatureIsHidden();
         });
 
         it('are shown when a reclassification is started', function () {
@@ -79,16 +88,12 @@ describe(`ACMG`, function () {
             alleleSectionBox.classificationAcceptedToggleBtn.click();
 
             expect(alleleSectionBox.reusingClassification()).toBe(false);
-            expect(acmg.suggestedElement).toBeDefined();
-            expect(acmg.suggestedReqElement).toBeDefined();
-            expect(acmg.hasShowHideButton()).toBe(true);
+            expectSuggestedFeatureIsShown();
 
             // let's reuse the existing classification
             alleleSectionBox.classificationAcceptedToggleBtn.click();
 
-            expect(acmg.suggestedElement).toBeNull();
-            expect(acmg.suggestedReqElement).toBeNull();
-            expect(acmg.hasShowHideButton()).toBe(false);
+            expectSuggestedFeatureIsHidden();
 
             analysisPage.finishButton.click();
             analysisPage.finalizeButton.click();

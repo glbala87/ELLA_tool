@@ -136,10 +136,10 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .remove { margin-bottom: 0.7rem; @extend .pink; }
 }
 
-// no-content styling
+// no-content styling (used when we have no content or if we want to collapse)
 .no-content.contentbox { background-color: $black-25;
   .cb.titlebar { background-color: Transparent; }
-  .cb-body { padding: 0; }
+  .cb-body { padding: 0;  display: none; }
   .icon { display: none; }
 }
 
