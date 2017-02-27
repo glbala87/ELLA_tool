@@ -13,14 +13,6 @@ const SELECTOR_SHOW_HIDE = '.id-acmg-show-hide-req';
  */
 class Acmg {
 
-    get collapsed() {
-        let cssClass = browser.getAttribute(SELECTOR_TOP, "class");
-        if (Array.isArray(cssClass)) {
-            throw Error("Expected a single element for selector " + SELECTOR_TOP);
-        }
-        return cssClass.includes("collapsed");
-    }
-
     get showHideBtn() {
         return util.elementOrNull(`${SELECTOR_TOP} ${SELECTOR_SHOW_HIDE}`);
     }
