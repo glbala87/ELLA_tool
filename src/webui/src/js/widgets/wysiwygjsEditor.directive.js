@@ -34,7 +34,6 @@ var DEFAULT_COLOR = {
 
 function addColorPicker(el, colors) {
     var picker = vanillaColorPicker(el);
-    console.log(picker);
     // document.execCommand('styleWithCSS', false, true);
     picker.set('customColors', colors);
     return picker;
@@ -72,8 +71,7 @@ function getCurrentColors(nodes) {
                 } else {
                     fontcolors = fontcolors.concat("rgb(0,0,0)")
                 }
-                console.log(fontcolors)
-                break;
+                break; // Check only first styled element in tree
             }
         }
         for (let j=0; j<subtree.length; j++) {
@@ -83,7 +81,6 @@ function getCurrentColors(nodes) {
                 } else {
                     highlightcolors = highlightcolors.concat('rgb(0,0,0)') // default color
                 }
-                console.log(highlightcolors)
                 break; // Check only first styled element in tree
             }
         }
