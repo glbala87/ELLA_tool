@@ -26,18 +26,23 @@ class EventListeners {
     }
 }
 
+var DEFAULT_COLOR = {
+    HEX: "#F5F5F9",
+    RGB: "245, 245, 249"
+}
+
+
 function addColorPicker(el) {
     var picker = vanillaColorPicker(el);
     console.log(picker);
     // document.execCommand('styleWithCSS', false, true);
     picker.set('customColors', [
-        '#000000', // black
-        '#EC1E07', // red
-        '#0791EC', // blue
-        '#07ECE3', // green
-        '#DABF00', // yellow
-        '#0714EC', // purple
-        '#9107EC' // pink
+        DEFAULT_COLOR.HEX,
+        '#FF1C0B', // red
+        '#23D801', // green
+        '#FDFF16', // yellow
+        '#FF8C1B', // purple
+        '#BF12C3' // pink
     ]);
     return picker;
 }
@@ -68,8 +73,8 @@ function getCurrentColors(nodes) {
         let subtree = getTree(nodes[i]);
         for (let j=0; j<subtree.length; j++) {
             if (subtree[j].style) {
-                if (subtree[j].color) {
-                    colors = colors.concat(subtree[j].color)
+                if (subtree[j].style["background-color"] && subtree[j].style["background-color"] !== `rgb(${DEFAULT_COLOR.RGB})`) {
+                    colors = colors.concat(subtree[j].style["background-color"])
                 } else {
                     colors = colors.concat('rgb(0,0,0)') // default color
                 }
@@ -210,6 +215,12 @@ function getCurrentColors(nodes) {
                     editor.setHTML("");
                     placeholderEvent(true);
                 }
+
+                // Clean up html highlight color with no effect
+                let html = editor.getHTML()
+                html = html.replace(`background-color: rgb(${DEFAULT_COLOR.RGB});`, '');
+                html = html.replace('style=""', '');
+                editor.setHTML(html)
                 closeLinkForm(true);
                 buttonselement.hidden = true;
             }
@@ -265,7 +276,8 @@ function getCurrentColors(nodes) {
         let picker = addColorPicker(buttons["color"]);
 
         picker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
-        picker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.forecolor(color); editor.openPopup();});
+        picker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.highlight(color); editor.openPopup();});
+
 
         // Add eventhandlers on link-form
         eventListeners.add(buttons["link"], "click", handleLinkForm);
