@@ -32,18 +32,11 @@ var DEFAULT_COLOR = {
 }
 
 
-function addColorPicker(el) {
+function addColorPicker(el, colors) {
     var picker = vanillaColorPicker(el);
     console.log(picker);
     // document.execCommand('styleWithCSS', false, true);
-    picker.set('customColors', [
-        DEFAULT_COLOR.HEX,
-        '#FF1C0B', // red
-        '#23D801', // green
-        '#FDFF16', // yellow
-        '#FF8C1B', // purple
-        '#BF12C3' // pink
-    ]);
+    picker.set('customColors', colors);
     return picker;
 }
 
@@ -68,22 +61,34 @@ function isInsideTable(nodes) {
 }
 
 function getCurrentColors(nodes) {
-    let colors = [];
+    let highlightcolors = [];
+    let fontcolors = [];
     for (let i=0; i<nodes.length; i++) {
         let subtree = getTree(nodes[i]);
         for (let j=0; j<subtree.length; j++) {
             if (subtree[j].style) {
-                if (subtree[j].style["background-color"] && subtree[j].style["background-color"] !== `rgb(${DEFAULT_COLOR.RGB})`) {
-                    colors = colors.concat(subtree[j].style["background-color"])
+                if (subtree[j].color) {
+                    fontcolors = fontcolors.concat(subtree[j].color)
                 } else {
-                    colors = colors.concat('rgb(0,0,0)') // default color
+                    fontcolors = fontcolors.concat("rgb(0,0,0)")
                 }
+                console.log(fontcolors)
+                break;
+            }
+        }
+        for (let j=0; j<subtree.length; j++) {
+            if (subtree[j].style && subtree[j].style["background-color"]) {
+                if (subtree[j].style["background-color"] !== `rgb(${DEFAULT_COLOR.RGB})`) {
+                    highlightcolors = highlightcolors.concat(subtree[j].style["background-color"])
+                } else {
+                    highlightcolors = highlightcolors.concat('rgb(0,0,0)') // default color
+                }
+                console.log(highlightcolors)
                 break; // Check only first styled element in tree
             }
         }
     }
-
-    return colors;
+    return {fontcolors: fontcolors, highlightcolors: highlightcolors};
 }
 
 
@@ -103,7 +108,8 @@ function getCurrentColors(nodes) {
                 '<button class="wysiwygbutton" title="Bold (Ctrl+B)" style="font-weight: bold" id="wysiwyg-bold">B</button>' +
                 '<button class="wysiwygbutton" title="Italic (Ctrl+I)" id="wysiwyg-italic">I</button>' +
                 '<button class="wysiwygbutton" title="Underline (Ctrl+U)" id="wysiwyg-underline">U</button>' +
-                '<button class="wysiwygbutton" title="Set text color" id="wysiwyg-color">A<span style="color: rgb(0,0,0); vertical-align: sub; margin-left: -0.0rem">&#9646</span></button>' +
+                '<button class="wysiwygbutton" title="Set text color" id="wysiwyg-fontcolor">A<span style="color: rgb(0,0,0); vertical-align: sub; margin-left: -0.0rem">&#9646</span></button>' +
+                '<button class="wysiwygbutton" title="Set highlight color" id="wysiwyg-highlightcolor"><svg width="60%" height="60%" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z" /></svg><span style="color: rgb(0,0,0);">&#9646</span></button>' +
                 '<button class="wysiwygbutton" title="Heading 1" id="wysiwyg-heading1">H1</button>' +
                 '<button class="wysiwygbutton" title="Heading 2" id="wysiwyg-heading2">H2</button>' +
                 '<button class="wysiwygbutton" title="Normal text" id="wysiwyg-paragraph">P</button>' +
@@ -164,11 +170,17 @@ function getCurrentColors(nodes) {
             onSelection: function( collapsed, rect, nodes, rightclick ) {
                             console.log("Is inside table: "+isInsideTable(nodes));
                             let colors = getCurrentColors(nodes);
-                            if (colors.length == 1) {
-                                buttons["color"].children[0].style.color = colors[0];
+                            if (colors["highlightcolors"].length == 1) {
+                                buttons["highlightcolor"].children[1].style.color = colors["highlightcolors"][0];
                             } else {
-                                buttons["color"].children[0].style.color = 'rgb(0,0,0)';
+                                buttons["highlightcolor"].children[1].style.color = 'rgb(0,0,0)';
                             }
+                            if (colors["fontcolors"].length == 1) {
+                                buttons["fontcolor"].children[0].style.color = colors["fontcolors"][0];
+                            } else {
+                                buttons["fontcolor"].children[0].style.color = 'rgb(0,0,0)';
+                            }
+
                         },
         };
 
@@ -272,11 +284,31 @@ function getCurrentColors(nodes) {
             }
         }
 
-        // Add color picker
-        let picker = addColorPicker(buttons["color"]);
+        // Add color picker[
+        let highlightpicker = addColorPicker(buttons["highlightcolor"], [
+            DEFAULT_COLOR.HEX,
+            '#FF1C0B', // red
+            '#23D801', // green
+            '#FDFF16', // yellow
+            '#FF8C1B', // purple
+            '#BF12C3' // pink);
+        ]);
+        highlightpicker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
+        highlightpicker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.highlight(color); editor.openPopup();});
 
-        picker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
-        picker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.highlight(color); editor.openPopup();});
+        let fontpicker = addColorPicker(buttons["fontcolor"], [
+            '#000000', // black
+            '#A92309', // red
+            '#0967A9', // blue
+            '#09A99C', // green
+            '#DABF00', // yellow
+            '#0918A9', // purple
+            '#6709A9' // pink
+        ]);
+        fontpicker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
+        fontpicker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.forecolor(color); editor.openPopup();});
+
+
 
 
         // Add eventhandlers on link-form
