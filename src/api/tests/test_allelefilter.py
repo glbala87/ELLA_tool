@@ -313,7 +313,7 @@ class TestAlleleFilter(object):
         allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert all(a in result[gp_key]['excluded_allele_ids']['frequency'] for a in allele_ids)
+        assert set(result[gp_key]['excluded_allele_ids']['frequency']) == set(allele_ids)
 
         ##
         # Test negative cases
@@ -396,7 +396,7 @@ class TestAlleleFilter(object):
         allele_ids = [na1.id, na2.id, na3.id, na4.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert all(a in result[gp_key]['allele_ids'] for a in allele_ids)
+        assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=2)
     def test_intronic_filtering(self, session):
@@ -454,7 +454,7 @@ class TestAlleleFilter(object):
         allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert all(a in result[gp_key]['excluded_allele_ids']['intronic'] for a in allele_ids)
+        assert set(result[gp_key]['excluded_allele_ids']['intronic']) == set(allele_ids)
 
         ##
         # Test negative cases
@@ -513,7 +513,7 @@ class TestAlleleFilter(object):
         allele_ids = [na1.id, na2.id, na3.id, na4.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert all(a in result[gp_key]['allele_ids'] for a in allele_ids)
+        assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=3)
     def test_gene_filtering(self, session):
@@ -553,7 +553,7 @@ class TestAlleleFilter(object):
         allele_ids = [pa1.id, pa2.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert all(a in result[gp_key]['excluded_allele_ids']['gene'] for a in allele_ids)
+        assert set(result[gp_key]['excluded_allele_ids']['gene']) == set(allele_ids)
 
         ##
         # Test negative cases
@@ -588,8 +588,7 @@ class TestAlleleFilter(object):
         allele_ids = [na1.id, na2.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert all(a in result[gp_key]['allele_ids'] for a in allele_ids)
-
+        assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=4)
     def test_filter_order(self, session):
