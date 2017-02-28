@@ -20,4 +20,4 @@ def cmd_export_classifications(output):
 
     db = DB()
     db.connect()
-    dump_classification(db.session, output)
+    dump_classification.dump_alleleassessments(db.session, output)
