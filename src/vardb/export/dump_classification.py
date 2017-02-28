@@ -37,12 +37,12 @@ DATE_FORMAT = "%Y-%m-%d"
 # (field name, [Column header, Column width])
 COLUMN_PROPERTIES = OrderedDict([
     ('gene', ['Genes', 6]),
-    ('class', ['Class', 6]),
     ('transcript', ['Transcript', 15]),
     ('hgvsc', ['HGVSc', 26]),
+    ('class', ['Class', 6]),
     ('date', ['Date', 11]),
     ('prev_class', ['Prev. class', 6]),
-    ('prev_class_superceeded', ['Superceeded date', 11]),
+    ('prev_class_date', ['Prev. class date', 11]),
     ('hgvsp', ['HGVSp', 26]),
     ('exon', ['Exon/Intron', 11]),
     ('rsnum', ['RS number', 11]),
@@ -87,7 +87,7 @@ def format_transcripts(allele_annotation):
     keys = {'gene': 'symbol',
             'transcript': 'transcript',
             'hgvsc': 'HGVSc_short',
-            'hgvsp': 'HGVSp_short',
+            'hgvsp': 'HGVSp',
             'exon': 'exon',
             'intron': 'intron',
             'rsnum': 'dbsnp',
@@ -150,7 +150,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
 
     coordinate = CHROMOSOME_FORMAT.format(
         chromosome=allele_dict['chromosome'],
-        start_position=allele_dict['start_position'],
+        start_position=allele_dict['start_position']+1,  # DB is 0-based
         open_end_position=allele_dict['open_end_position']
     )
 
@@ -171,7 +171,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         'transcript': formatted_transcript.get('transcript'),
         'hgvsc': formatted_transcript.get('hgvsc'),
         'prev_class': previous_alleleassessment.classification if previous_alleleassessment else '',
-        'prev_class_superceeded': previous_alleleassessment.date_superceeded.strftime(DATE_FORMAT) if previous_alleleassessment else '',
+        'prev_class_date': previous_alleleassessment.date_last_update.strftime(DATE_FORMAT) if previous_alleleassessment else '',
         'date': date,
         'hgvsp': formatted_transcript.get('hgvsp'),
         'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
