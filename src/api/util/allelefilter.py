@@ -6,10 +6,9 @@ from sqlalchemy.sql import functions
 from sqlalchemy.sql.selectable import FromClause, Alias
 from sqlalchemy.sql.elements import ColumnClause
 
-from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
+from vardb.datamodel import assessment, gene, annotation
 
 from api.util import queries
-from api.util.util import query_print_table
 from api.util.genepanelconfig import GenepanelConfigResolver
 
 
