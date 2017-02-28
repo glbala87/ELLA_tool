@@ -4,7 +4,7 @@ let util = require('./util');
 const SELECTOR_FINISHED = '.id-variants-finished';
 const SELECTOR_PENDING = '.id-variants-pending'; // no assessment
 const SELECTOR_REVIEW = '.id-variants-review';
-const SELECTOR_YOURS = '.id-variants-yours';
+const SELECTOR_YOURS = '.id-variants-your';
 const SELECTOR_OTHERS = '.id-variants-others';
 
 
@@ -44,6 +44,14 @@ class VariantSelection extends Page {
         this._expandSection(SELECTOR_FINISHED);
     }
 
+    expandOthersSection() {
+        this._expandSection(SELECTOR_OTHERS);
+    }
+
+    expandOwnSection() {
+        this._expandSection(SELECTOR_YOURS);
+    }
+
     _expandSection(sectionSelector) {
         this.open();
         browser.waitForExist(sectionSelector);
@@ -80,7 +88,7 @@ class VariantSelection extends Page {
         this.selectItemInSection(number, SELECTOR_FINISHED);
     }
 
-    selectYours(number) {
+    selectOwn(number) {
         this.selectItemInSection(number, SELECTOR_YOURS);
     }
 

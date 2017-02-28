@@ -50,7 +50,7 @@ function checkAlleleClassification(allele_data) {
             expect(alleleSectionBox.externalComment).toEqual(data.external);
         }
         if ('report' in data) {
-            expect(alleleSectionBox.reportComment.getValue()).toEqual(data.report);
+            expect(alleleSectionBox.reportComment).toEqual(data.report);
         }
     }
 }

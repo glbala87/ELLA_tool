@@ -104,7 +104,7 @@
                        placeholder="{{vm.alleleassessmentComment.placeholder}}"
                        ng-model="vm.getAlleleAssessment().evaluation[vm.alleleassessmentComment.name].comment"
                        ng-if="vm.alleleassessmentComment"></wysiwyg-editor>
-    <wysiwyg-editor class="control-comment"
+    <wysiwyg-editor class="control-comment id-comment-report"
                        ng-disabled="!vm.isEditable() || vm.readOnly"
                        placeholder="{{vm.allelereportComment.placeholder}}"
                        ng-model="vm.getAlleleReport().evaluation.comment"

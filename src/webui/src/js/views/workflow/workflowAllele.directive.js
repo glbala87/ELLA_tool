@@ -63,7 +63,8 @@ export class WorkflowAlleleController {
                             name: 'classification'
                         },
                         report_comment: {
-                            placeholder: 'REPORT'
+                            placeholder: 'REPORT',
+                            name: 'report'
                         },
                         content: [
                             {'tag': 'allele-info-acmg-selection'},
@@ -186,8 +187,13 @@ export class WorkflowAlleleController {
     }
 
     readOnly() {
-        return !this.isInterpretationOngoing();
-        // return true; // for testing
+        let interpretation = this.getInterpretation();
+        if (!interpretation) {
+            return true;
+        }
+
+        return !this.isInterpretationOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
+
     }
 
     setUpListeners() {
