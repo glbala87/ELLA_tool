@@ -1,8 +1,10 @@
 let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 
-let alleleSidebar = new AlleleSidebar()
-let alleleSectionBox = new AlleleSectionBox()
+let util = require('../pageobjects/util');
+
+let alleleSidebar = new AlleleSidebar();
+let alleleSectionBox = new AlleleSectionBox();
 
 const SELECTOR_COMMENT_CLASSIFICATION_EDITOR = 'allele-sectionbox .id-comment-classification .wysiwygeditor';
 
@@ -17,7 +19,7 @@ function checkAlleleClassification(allele_data) {
 
     for (let [allele, data] of Object.entries(allele_data)) {
 
-        console.log(`checking classification for allele ${allele}`);
+        util.log(`checking classification for allele ${allele}`);
 
         if (Object.keys(allele_data).length > 1) { // must load the allele by choosing it in the side bar
             expect(alleleSidebar.isAlleleInClassified(allele)).toBe(true);

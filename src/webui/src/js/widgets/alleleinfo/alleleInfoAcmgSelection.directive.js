@@ -55,6 +55,13 @@ export class ACMGSelectionController {
         this.setACMGCandidates();
     }
 
+    isAlleleAssessmentReused() {
+        return AlleleStateHelper.isAlleleAssessmentReused(
+            this.alleleState
+        );
+
+    }
+
     isEditable() {
         return !AlleleStateHelper.isAlleleAssessmentReused(
             this.alleleState

@@ -46,4 +46,4 @@ class AnalysisPage extends Page {
 
 }
 
-module.exports = AnalysisPage
+module.exports = AnalysisPage;

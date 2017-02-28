@@ -1,6 +1,5 @@
-var Page = require('./page');
-
-const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
+let Page = require('./page');
+let util = require('./util');
 
 const SELECTOR_COMMENT_CLASSIFICATION = 'allele-sectionbox .id-comment-classification';
 const SELECTOR_COMMENT_CLASSIFICATION_EDITOR = `${SELECTOR_COMMENT_CLASSIFICATION} .wysiwygeditor`;
@@ -11,7 +10,11 @@ const SELECTOR_COMMENT_EXTERNAL_EDITOR = `${SELECTOR_COMMENT_EXTERNAL} .wysiwyge
 const SELECTOR_COMMENT_PREDICTION = 'allele-sectionbox .id-comment-prediction';
 const SELECTOR_COMMENT_PREDICTION_EDITOR = `${SELECTOR_COMMENT_PREDICTION} .wysiwygeditor`;
 
-class AlleleSectionBox extends Page {
+const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification';
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+
+
+class AlleleSectionBox  {
 
 
     get reviewCommentElement() { return browser.element('.workflow-options input.id-review-comment'); }
@@ -57,9 +60,15 @@ class AlleleSectionBox extends Page {
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
     get addReferencesBtn() { return browser.element('allele-sectionbox button.id-add-references' ); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
-    get classificationAcceptedToggleBtn() { return browser.element('allele-sectionbox .id-accept-classification'); }
+    get classificationAcceptedToggleBtn() {
+        return util.elementOrNull(SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION);
+    }
+
     get existingClassificationButtonText() { return this.classificationAcceptedToggleBtn.getText(); }
 
+    reusingClassification() {
+        return this.existingClassificationButtonText.toLowerCase() === BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase()
+    }
 
     _setClassification(index) {
         let dropdownOption = `select.id-select-classification option:nth-child(${index})`;
@@ -225,7 +234,7 @@ class AlleleSectionBox extends Page {
             function(matchingElements) {
                 return matchingElements[0].className = matchingElements[0].className.replace("collapsed", "");
         });
-        console.log(`CSS class of ${sectionSelector} is now ${comment}`);
+        util.log(`CSS class of ${sectionSelector} is now ${comment}`);
     }
 
     getReferences() {
