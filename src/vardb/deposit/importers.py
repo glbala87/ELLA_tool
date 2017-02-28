@@ -132,7 +132,7 @@ class GenotypeImporter(object):
         gt = [al for al in GenotypeImporter.ALLELE_DELIMITER.split(sample['GT'])]
         return not (gt[0] == gt[1] and gt[0] in ['0', '.'])
 
-    def get_alleles_for_genotypes(self, record_sample, db_alleles):
+    def get_alleles_for_genotypes(self, records_sample, db_alleles):
         """From genotype numbers, return correct objects from alleles list
 
         Assumes alleles only contain alternative alleles.
@@ -140,32 +140,65 @@ class GenotypeImporter(object):
         """
         # Must define sort order for genotypes so alleles come in a defined order
         # and alternative alleles come before ref (alt comes as gt1).
-        gt1, gt2 = sorted((int(g) for g in GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])), reverse=True)
-        assert gt1 > 0
+        if len(records_sample) == 1:
+            record_sample = records_sample[0]
+            gt1, gt2 = sorted((int(g) for g in GenotypeImporter.ALLELE_DELIMITER.split(records_sample[0]['GT'])), reverse=True)
+            assert gt1 > 0
 
-        a1 = db_alleles[gt1 - 1]
+            a1 = db_alleles[gt1 - 1]
 
-        # Only use a2 if hetrozygous non-reference
-        if gt1 != gt2 and gt2 != 0:
-            a2 = db_alleles[gt2 - 1]
+            # Only use a2 if hetrozygous non-reference
+            if gt1 != gt2 and gt2 != 0:
+                a2 = db_alleles[gt2 - 1]
+            else:
+                a2 = None
+            return a1, a2
         else:
+            a1 = None
             a2 = None
-        return a1, a2
+            i = 0
+            for i, record_sample in enumerate(records_sample):
+                gt_sample = re.split("\||\/", record_sample["GT"])
+                if "1" not in gt_sample:
+                    continue
 
-    def process(self, record, sample_name, db_analysis, db_sample, db_alleles):
-        record_sample = record['SAMPLES'][sample_name]
-        a1, a2 = self.get_alleles_for_genotypes(record_sample, db_alleles)
-        sample_het = self.is_sample_het(record_sample)
+                if a1 is None:
+                    a1 = db_alleles[0]
+                    continue
+                if a2 is None:
+                    a2 = db_alleles[1]
+            return a1, a2
 
-        try:
-            qual = int(record['QUAL'])
-        except ValueError:
-            qual = None
+
+    def process(self, records, sample_name, db_analysis, db_sample, db_alleles):
+        records_sample = [record['SAMPLES'][sample_name] for record in records]
+        a1, a2 = self.get_alleles_for_genotypes(records_sample, db_alleles)
+        # sample_het = self.is_sample_het(records_sample)
+        sample_het = a1 != a2
 
         allele_depth = dict()
-        if record_sample.get('AD'):
-            # {'A': 134, 'G': 12}
-            allele_depth = {k: v for k,v in zip([record['REF']] + record['ALT'], record_sample['AD'])}
+        for i, record_sample in enumerate(records_sample):
+            if record_sample.get('AD'):
+                if len(record_sample['AD']) != 2:
+                    log.warning("AD not decomposed")
+                    continue
+                # {'REF': 12, 'A': 134, 'G': 12}
+                allele_depth.update({"REF": record_sample["AD"][0]})
+                allele_depth.update({k: v for k,v in zip(records[i]['ALT'], record_sample['AD'][1:])})
+
+        ref = ",".join(set([r["REF"] for r in records]))
+        # GQ, DP, FILTER, POS, and QUAL should be the same for all decomposed variants
+        genotype_quality = records_sample[0].get('GQ')
+        sequencing_depth = records_sample[0].get('DP')
+
+        filter = records[0]["FILTER"]
+        assert filter == records[0]["FILTER"]
+        pos = records[0]["POS"]
+
+        try:
+            qual = int(records[0]['QUAL'])
+        except ValueError:
+            qual = None
 
         db_genotype, _ = gm.Genotype.get_or_create(
             self.session,
@@ -174,14 +207,14 @@ class GenotypeImporter(object):
             homozygous=not sample_het,
             sample=db_sample,
             analysis=db_analysis,
-            genotype_quality=record_sample.get('GQ'),
-            sequencing_depth=record_sample.get('DP'),
+            genotype_quality=genotype_quality,
+            sequencing_depth=sequencing_depth,
             variant_quality=qual,
             allele_depth=allele_depth,
-            filter_status=record['FILTER'],
-            vcf_pos=record['POS'],
-            vcf_ref=record['REF'],
-            vcf_alt=','.join(record['ALT'])
+            filter_status=filter,
+            vcf_pos=pos,
+            vcf_ref=ref,
+            vcf_alt=",".join(sum([record["ALT"] for record in records], []))
         )
         if sample_het and a2 is None: self.counter["nGenotypeHetroRef"] += 1
         elif not sample_het and a2 is None: self.counter["nGenotypeHomoNonRef"] += 1
