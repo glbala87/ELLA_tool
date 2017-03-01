@@ -70,10 +70,13 @@ class DepositAnalysis(object):
             # Import alleles
             db_alleles = []
             for record in v:
-                db_alleles += self.allele_importer.process(record)
+                new_db_alleles = self.allele_importer.process(record)
 
-            # Import annotation
-            self.annotation_importer.process(record, db_alleles)
+                # Import annotation
+                self.annotation_importer.process(record, new_db_alleles)
+
+                db_alleles += new_db_alleles
+
 
             # Compute and import genotypes
             for sample_name, db_sample in zip(vcf_sample_names, db_samples):

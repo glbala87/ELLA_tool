@@ -186,14 +186,12 @@ class GenotypeImporter(object):
                 allele_depth.update({"REF": record_sample["AD"][0]})
                 allele_depth.update({k: v for k,v in zip(records[i]['ALT'], record_sample['AD'][1:])})
 
-        ref = ",".join(set([r["REF"] for r in records]))
-        # GQ, DP, FILTER, POS, and QUAL should be the same for all decomposed variants
+        # GQ, DP, FILTER, and QUAL should be the same for all decomposed variants
         genotype_quality = records_sample[0].get('GQ')
         sequencing_depth = records_sample[0].get('DP')
 
         filter = records[0]["FILTER"]
         assert filter == records[0]["FILTER"]
-        pos = records[0]["POS"]
 
         try:
             qual = int(records[0]['QUAL'])
@@ -212,9 +210,6 @@ class GenotypeImporter(object):
             variant_quality=qual,
             allele_depth=allele_depth,
             filter_status=filter,
-            vcf_pos=pos,
-            vcf_ref=ref,
-            vcf_alt=",".join(sum([record["ALT"] for record in records], []))
         )
         if sample_het and a2 is None: self.counter["nGenotypeHetroRef"] += 1
         elif not sample_het and a2 is None: self.counter["nGenotypeHomoNonRef"] += 1
@@ -619,6 +614,11 @@ class AlleleImporter(object):
                 vcfhelper.compare_alleles(record['REF'], allele)
             start_pos = vcfhelper.get_start_position(record['POS'], start_offset, change_type)
             end_pos = vcfhelper.get_end_position(record['POS'], start_offset, allele_length)
+
+            vcf_pos = record["POS"]
+            vcf_ref = record["REF"]
+            vcf_alt = allele
+
             allele, _ = am.Allele.get_or_create(
                 self.session,
                 genome_reference=self.ref_genome,
@@ -627,7 +627,10 @@ class AlleleImporter(object):
                 open_end_position=end_pos,
                 change_from=change_from,
                 change_to=change_to,
-                change_type=change_type
+                change_type=change_type,
+                vcf_pos=vcf_pos,
+                vcf_ref=vcf_ref,
+                vcf_alt=vcf_alt
             )
             alleles.append(allele)
 
