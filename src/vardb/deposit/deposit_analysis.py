@@ -11,7 +11,7 @@ import sys
 import argparse
 import json
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from sqlalchemy import and_
 import sqlalchemy.orm.exc
@@ -109,12 +109,13 @@ class DepositAnalysis(object):
         )
 
         self.analysis_interpretation_importer.process(db_analysis)
-        records_cache = defaultdict(list)
+        records_cache = OrderedDict()
         N = 0
         for record in vi.iter():
             self.counter['nVariantsInFile'] += 1
             N += 1
             key = (record["CHROM"], record["POS"])
+            if key not in records_cache: records_cache[key] = []
 
             assert len(record["ALT"]) == 1, "We only support decomposed variants. That is, only one ALT per line/record."
 
