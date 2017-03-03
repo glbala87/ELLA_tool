@@ -119,8 +119,11 @@ class GenotypeImporter(object):
         self.counter['nGenotypeHomoNonRef'] = 0
         self.counter['nGenotypeHetroNonRef'] = 0
 
-    def is_sample_het(self, record_sample):
-        gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
+    def is_sample_het(self, records_sample):
+        if len(records_sample) > 1:
+            return True
+
+        gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(records_sample[0]['GT'])
         return gt1 != gt2
 
     def should_add_genotype(self, sample):
@@ -141,9 +144,12 @@ class GenotypeImporter(object):
         # Must define sort order for genotypes so alleles come in a defined order
         # and alternative alleles come before ref (alt comes as gt1).
         if len(records_sample) == 1:
+            # Position is single-allelic
             record_sample = records_sample[0]
-            gt1, gt2 = sorted((int(g) for g in GenotypeImporter.ALLELE_DELIMITER.split(records_sample[0]['GT'])), reverse=True)
-            assert gt1 > 0
+            gt1, gt2 = sorted((int(g) for g in GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])), reverse=True)
+            if not gt1 > 0:
+                assert gt2 == 0
+                return None, None
 
             a1 = db_alleles[gt1 - 1]
 
@@ -154,27 +160,35 @@ class GenotypeImporter(object):
                 a2 = None
             return a1, a2
         else:
+            # Position is multiallelic
             a1 = None
             a2 = None
-            i = 0
             for i, record_sample in enumerate(records_sample):
-                gt_sample = re.split("\||\/", record_sample["GT"])
-                if "1" not in gt_sample:
+                gt1,gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
+                if "1" not in [gt1,gt2]:
                     continue
 
+                if gt1 != "1":
+                    gt1, gt2 = gt2, gt1
+
+                gt1 = int(gt1) + i
+                assert gt2 in ["0", ".", "1"]
+
                 if a1 is None:
-                    a1 = db_alleles[0]
+                    a1 = db_alleles[gt1-1]
                     continue
                 if a2 is None:
-                    a2 = db_alleles[1]
+                    a2 = db_alleles[gt1-1]
             return a1, a2
 
 
     def process(self, records, sample_name, db_analysis, db_sample, db_alleles):
         records_sample = [record['SAMPLES'][sample_name] for record in records]
         a1, a2 = self.get_alleles_for_genotypes(records_sample, db_alleles)
-        # sample_het = self.is_sample_het(records_sample)
-        sample_het = a1 != a2
+        if a1 is None:
+            assert a2 is None
+            return None
+        sample_het = self.is_sample_het(records_sample)
 
         allele_depth = dict()
         for i, record_sample in enumerate(records_sample):
