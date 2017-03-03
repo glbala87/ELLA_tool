@@ -4,6 +4,8 @@ import os
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel import genotype, allele, sample
 
+import vardb
+VARDB_PATH = os.path.split(vardb.__file__)[0]
 
 ## HELPER FUNCTIONS
 
@@ -26,7 +28,8 @@ def get_genotype(genotypes, first_change, second_change, _ret=[]):
 @pytest.fixture(scope="module", autouse=True)
 def deposit_single(session):
     """Deposit test analysis"""
-    single = "../../testdata/analyses/all/brca_decomposed.HBOC_v01"
+    single = os.path.join(VARDB_PATH, "testdata/analyses/all/brca_decomposed.HBOC_v01")
+    assert os.path.isdir(single)
     files = os.listdir(single)
     assert len(files) == 3
     sample_configs_file = os.path.join(single, [f for f in files if f.endswith(".sample")][0])

@@ -172,8 +172,15 @@ else
 	$(TEST_COMMAND)
 endif
 
+test-common: export PGDATABASE=vardb-test
+test-common: export DB_URL=postgres:///vardb-test
 test-common: export PYTHONPATH=/ella/src
 test-common:
+	supervisord -c /ella/ops/test/supervisor.cfg
+	make dbsleep
+	createdb vardb-test
+	/ella/ella-cli database drop -f
+	/ella/ella-cli database make -f
 ifeq ($(TEST_COMMAND),) # empty?
 	py.test src -k 'not test_ui' --color=yes --cov src --cov-report xml --ignore src/api
 else

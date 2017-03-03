@@ -32,13 +32,17 @@ import os
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel import genotype, allele, sample
 
+import vardb
+VARDB_PATH = os.path.split(vardb.__file__)[0]
+
 
 ## FIXTURES
 
 @pytest.fixture(scope="module", autouse=True)
 def deposit(session):
     """Deposit test analysis"""
-    trio = "../../testdata/analyses/trio/trio_analysis_1.HBOC_v01"
+    trio = os.path.join(VARDB_PATH, "testdata/analyses/trio/trio_analysis_1.HBOC_v01")
+    assert os.path.isdir(trio)
     files = os.listdir(trio)
     assert len(files) == 1+1+3
     sample_configs_files = [os.path.join(trio, f)  for f in files if f.endswith(".sample")]
