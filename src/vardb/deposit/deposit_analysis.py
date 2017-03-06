@@ -18,7 +18,7 @@ import sqlalchemy.orm.exc
 
 import vardb.datamodel
 from vardb.datamodel import gene
-from vardb.util import vcfiterator
+from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
                                     inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
@@ -166,7 +166,7 @@ def main(argv=None):
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser(description="""Deposit variants and genotypes from a VCF file into varDB.""")
     parser.add_argument("--vcf", action="store", dest="vcfPath", required=True, help="Path to VCF file to deposit")
-    parser.add_argument("--samplecfgs", action="store", nargs="+", dest="sample_config_file", required=True,
+    parser.add_argument("--samplecfgs", action="store", nargs="+", dest="sample_config_files", required=True,
                         help="Configuration file(s) (JSON) for sample(s) from pipeline")
     parser.add_argument("--analysiscfg", action="store", dest="analysis_config_file", required=True,
                         help="Configuration file (JSON) for analysis from pipeline")
@@ -188,15 +188,16 @@ def main(argv=None):
     with open(args.analysis_config_file) as f:
         analysis_config = json.load(f)
 
-    session = vardb.datamodel.Session()
+    db = DB()
+    db.connect()
+    session = db.session
 
     da = DepositAnalysis(session)
     try:
         da.import_vcf(
             args.vcfPath,
             sample_configs=sample_configs,
-            analysis_config=analysis_config,
-            skip_anno=args.skipInfoFields
+            analysis_config=analysis_config
         )
     except UserWarning as e:
         log.error(str(e))
