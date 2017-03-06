@@ -118,6 +118,21 @@ describe("filter", function () {
 
     });
 
+    describe("protein", function() {
+        var f;
 
+        beforeEach(function () {
+            angular.mock.module('workbench');
+            inject(
+                function (_$filter_) {
+                    f = _$filter_('proteinSequence');
+                });
+        });
+
+        it("removes protein change", function() {
+            expect(f('NP_000050.2:p.Gly4Ter')).toEqual('NP_000050.2');
+        })
+
+    })
 
 });
