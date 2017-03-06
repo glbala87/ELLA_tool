@@ -1,0 +1,15 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=PASS,Description="All filters passed">
+##INFO=<ID=class,Number=.,Type=String,Description="class">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##INFO=<ID=OLD_MULTIALLELIC,Number=1,Type=String,Description="Original chr:pos:ref:alt encoding">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	TrioMK	TrioPK	TrioFK
+13	32914458	.	C	G	5000	PASS	.	GT	0|1	0|0	0|0
+13	32914484	.	C	T	5000	PASS	.	GT	1|1	0|0	0|0
+13	32914522	.	C	A	5000	PASS	.	GT	1|0	1|0	0|0
+13	32914550	.	GAACA	G	5000	PASS	.	GT	1|0	1|0	1|0
+13	32914569	.	C	CA	5000	PASS	.	GT	0|1	1|0	0|0
+13	32914616	.	C	T	5000	PASS	.	GT	0|1	1|0	0|1
+13	32914617	.	A	C,G	5000	PASS	.	GT	1|2	1|0	0|2
+13	32914688	.	GTT	ATT,GT,G	5000	PASS	.	GT	1|3	1|0	2|3
+13	32914766	.	CTTCACTA	GTTCACTA,C	5000	PASS	.	GT	0|0	1|0	0|2

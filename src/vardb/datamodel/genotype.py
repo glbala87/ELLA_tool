@@ -30,9 +30,6 @@ class Genotype(Base):
     variant_quality = Column(Integer)  # Assume integer, not floating point
     allele_depth = Column(JSONMutableDict.as_mutable(JSONB), default={})  # {'A': 23, 'G': 32}  Gives depth per allele
     filter_status = Column(String)
-    vcf_pos = Column(Integer, nullable=False)
-    vcf_ref = Column(String, nullable=False)
-    vcf_alt = Column(String, nullable=False)
 
     def __repr__(self):
         return "<Genotype('%s','%s', '%s', '%s')>" % (self.allele, self.secondallele, self.homozygous, self.sample)

@@ -119,8 +119,11 @@ class GenotypeImporter(object):
         self.counter['nGenotypeHomoNonRef'] = 0
         self.counter['nGenotypeHetroNonRef'] = 0
 
-    def is_sample_het(self, record_sample):
-        gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
+    def is_sample_het(self, records_sample):
+        if len(records_sample) > 1:
+            return True
+
+        gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(records_sample[0]['GT'])
         return gt1 != gt2
 
     def should_add_genotype(self, sample):
@@ -132,7 +135,7 @@ class GenotypeImporter(object):
         gt = [al for al in GenotypeImporter.ALLELE_DELIMITER.split(sample['GT'])]
         return not (gt[0] == gt[1] and gt[0] in ['0', '.'])
 
-    def get_alleles_for_genotypes(self, record_sample, db_alleles):
+    def get_alleles_for_genotypes(self, records_sample, db_alleles):
         """From genotype numbers, return correct objects from alleles list
 
         Assumes alleles only contain alternative alleles.
@@ -140,32 +143,74 @@ class GenotypeImporter(object):
         """
         # Must define sort order for genotypes so alleles come in a defined order
         # and alternative alleles come before ref (alt comes as gt1).
-        gt1, gt2 = sorted((int(g) for g in GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])), reverse=True)
-        assert gt1 > 0
+        if len(records_sample) == 1:
+            # Position is single-allelic
+            record_sample = records_sample[0]
+            gt1, gt2 = sorted((int(g) for g in GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])), reverse=True)
+            if not gt1 > 0:
+                assert gt2 == 0
+                return None, None
 
-        a1 = db_alleles[gt1 - 1]
+            a1 = db_alleles[gt1 - 1]
 
-        # Only use a2 if hetrozygous non-reference
-        if gt1 != gt2 and gt2 != 0:
-            a2 = db_alleles[gt2 - 1]
+            # Only use a2 if hetrozygous non-reference
+            if gt1 != gt2 and gt2 != 0:
+                a2 = db_alleles[gt2 - 1]
+            else:
+                a2 = None
+            return a1, a2
         else:
+            # Position is multiallelic
+            a1 = None
             a2 = None
-        return a1, a2
+            for i, record_sample in enumerate(records_sample):
+                gt1,gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
+                if "1" not in [gt1,gt2]:
+                    continue
 
-    def process(self, record, sample_name, db_analysis, db_sample, db_alleles):
-        record_sample = record['SAMPLES'][sample_name]
-        a1, a2 = self.get_alleles_for_genotypes(record_sample, db_alleles)
-        sample_het = self.is_sample_het(record_sample)
+                if gt1 != "1":
+                    gt1, gt2 = gt2, gt1
 
-        try:
-            qual = int(record['QUAL'])
-        except ValueError:
-            qual = None
+                gt1 = int(gt1) + i
+                assert gt2 in ["0", ".", "1"]
+
+                if a1 is None:
+                    a1 = db_alleles[gt1-1]
+                    continue
+                if a2 is None:
+                    a2 = db_alleles[gt1-1]
+            return a1, a2
+
+
+    def process(self, records, sample_name, db_analysis, db_sample, db_alleles):
+        records_sample = [record['SAMPLES'][sample_name] for record in records]
+        a1, a2 = self.get_alleles_for_genotypes(records_sample, db_alleles)
+        if a1 is None:
+            assert a2 is None
+            return None
+        sample_het = self.is_sample_het(records_sample)
 
         allele_depth = dict()
-        if record_sample.get('AD'):
-            # {'A': 134, 'G': 12}
-            allele_depth = {k: v for k,v in zip([record['REF']] + record['ALT'], record_sample['AD'])}
+        for i, record_sample in enumerate(records_sample):
+            if record_sample.get('AD'):
+                if len(record_sample['AD']) != 2:
+                    log.warning("AD not decomposed")
+                    continue
+                # {'REF': 12, 'A': 134, 'G': 12}
+                allele_depth.update({"REF": record_sample["AD"][0]})
+                allele_depth.update({k: v for k,v in zip(records[i]['ALT'], record_sample['AD'][1:])})
+
+        # GQ, DP, FILTER, and QUAL should be the same for all decomposed variants
+        genotype_quality = records_sample[0].get('GQ')
+        sequencing_depth = records_sample[0].get('DP')
+
+        filter = records[0]["FILTER"]
+        assert filter == records[0]["FILTER"]
+
+        try:
+            qual = int(records[0]['QUAL'])
+        except ValueError:
+            qual = None
 
         db_genotype, _ = gm.Genotype.get_or_create(
             self.session,
@@ -174,14 +219,11 @@ class GenotypeImporter(object):
             homozygous=not sample_het,
             sample=db_sample,
             analysis=db_analysis,
-            genotype_quality=record_sample.get('GQ'),
-            sequencing_depth=record_sample.get('DP'),
+            genotype_quality=genotype_quality,
+            sequencing_depth=sequencing_depth,
             variant_quality=qual,
             allele_depth=allele_depth,
-            filter_status=record['FILTER'],
-            vcf_pos=record['POS'],
-            vcf_ref=record['REF'],
-            vcf_alt=','.join(record['ALT'])
+            filter_status=filter,
         )
         if sample_het and a2 is None: self.counter["nGenotypeHetroRef"] += 1
         elif not sample_het and a2 is None: self.counter["nGenotypeHomoNonRef"] += 1
@@ -586,6 +628,11 @@ class AlleleImporter(object):
                 vcfhelper.compare_alleles(record['REF'], allele)
             start_pos = vcfhelper.get_start_position(record['POS'], start_offset, change_type)
             end_pos = vcfhelper.get_end_position(record['POS'], start_offset, allele_length)
+
+            vcf_pos = record["POS"]
+            vcf_ref = record["REF"]
+            vcf_alt = allele
+
             allele, _ = am.Allele.get_or_create(
                 self.session,
                 genome_reference=self.ref_genome,
@@ -594,7 +641,10 @@ class AlleleImporter(object):
                 open_end_position=end_pos,
                 change_from=change_from,
                 change_to=change_to,
-                change_type=change_type
+                change_type=change_type,
+                vcf_pos=vcf_pos,
+                vcf_ref=vcf_ref,
+                vcf_alt=vcf_alt
             )
             alleles.append(allele)
 

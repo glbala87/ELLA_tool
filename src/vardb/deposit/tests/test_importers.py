@@ -86,7 +86,7 @@ class TestGenotypeImporter():
             'SAMPLES': samples
         }
 
-        result1 = genotype_importer.process(data1, 'TEST_1', db_analysis, db_sample, db_alleles)
+        result1 = genotype_importer.process([data1], 'TEST_1', db_analysis, db_sample, db_alleles)
 
         assert result1.allele == db_alleles[0]
         # Second allele will only be set if heterozygous non-ref
@@ -107,7 +107,7 @@ class TestGenotypeImporter():
             'SAMPLES': samples
         }
 
-        result2 = genotype_importer.process(data2, 'TEST_2', db_analysis, db_sample, db_alleles)
+        result2 = genotype_importer.process([data2], 'TEST_2', db_analysis, db_sample, db_alleles)
 
         assert result2.allele == db_alleles[0]
         assert result2.secondallele is None
@@ -127,7 +127,7 @@ class TestGenotypeImporter():
             'SAMPLES': samples
         }
 
-        result3 = genotype_importer.process(data3, 'TEST_3', db_analysis, db_sample, db_alleles)
+        result3 = genotype_importer.process([data3], 'TEST_3', db_analysis, db_sample, db_alleles)
 
         assert result3.allele == db_alleles[1]
         assert result3.secondallele == db_alleles[0]

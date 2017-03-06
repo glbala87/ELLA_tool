@@ -11,9 +11,7 @@ class GenotypeSchema(Schema):
                   'filter_status',
                   'homozygous',
                   'genotype',
-                  'vcf_pos',
-                  'vcf_ref',
-                  'vcf_alt')
+                  )
 
     genotype = fields.Method("get_genotype")
 
