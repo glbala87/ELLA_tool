@@ -28,14 +28,14 @@
       </div>
     </h3>
 
-    <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.transcript">
+    <h3 class="full-title" ng-repeat="variant in vm.allele.annotation.filtered track by variant.transcript">
       <div class="allele_popup clickable white" isolate-click>
-        <transcript-wrapper  transcript="t"
+        <transcript-wrapper  transcript="variant"
           popover-trigger="outsideClick"
           uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
           popover-title="HGVS protein"
           popover-placement="bottom">
-            <i>{{t.transcript}}:</i><b>{{t.HGVSp_short}}</b> ({{t.codons}})
+            <i ng-if="variant.HGVSp">{{variant.HGVSp | proteinSequence}}:</i><b>{{variant.HGVSp_short}}</b> ({{variant.codons}})
         </transcript-wrapper>
       </div>
     </h3>
