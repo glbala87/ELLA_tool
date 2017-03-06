@@ -285,21 +285,29 @@ def csq_frequencies(annotation):
 def indb_frequencies(annotation):
     if 'inDB' not in annotation:
         return {}
+
     frequencies = dict(freq=dict(), count=dict(), indications=dict())
     if "AF_OUSWES" in annotation["inDB"]:
         frequencies["freq"]["AF"] = annotation["inDB"]["AF_OUSWES"]
-    else:
+    elif 'alleleFreq' in annotation["inDB"]:
         frequencies["freq"]["AF"] = annotation["inDB"]["alleleFreq"]
+    else:
+        log.warning("inDB key present, bug missing supported frequency key")
 
     if "AC_OUSWES" in annotation["inDB"]:
         frequencies["count"]["AF"] = annotation["inDB"]["AC_OUSWES"]
-    else:
+    elif 'noMutInd' in annotation['inDB']:
         frequencies["count"]["AF"] = annotation["inDB"]["noMutInd"]
+    else:
+        log.warning("inDB key present, bug missing supported allele count key")
 
     if "indications_OUSWES" in annotation["inDB"]:
         frequencies["indications"] = annotation['inDB']['indications_OUSWES']
-    else:
+    elif 'indications' in annotation['inDB']:
         frequencies["indications"] = annotation['inDB']['indications']
+    else:
+        log.warning("inDB key present, bug missing supported indications key")
+
     return {'inDB': frequencies}
 
 
