@@ -169,14 +169,15 @@ def convert_clinvar(annotation):
 
     clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
 
+    if any(k not in clinvarjson for k in CLINVAR_FIELDS):
+        return dict()
+
     data = dict(items=[])
     data.update({k: clinvarjson[k] for k in CLINVAR_FIELDS})
     for rcv, val in clinvarjson["rcvs"].items():
         item = {k: ", ".join(val[k]) for k in CLINVAR_RCV_FIELDS}
         item["rcv"] = rcv
         data["items"].append(item)
-
-
 
     return {'CLINVAR': data}
 
