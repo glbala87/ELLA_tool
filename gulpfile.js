@@ -10,6 +10,7 @@ var gulp = require('gulp'),
     wrapper = require('gulp-wrapper'),
     sass = require('gulp-sass'),
     plumber = require('gulp-plumber'),
+    watch = require('gulp-watch'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
     browserify = require('browserify'),
@@ -111,7 +112,9 @@ function doBundling(watcher) {
 
 gulp.task('watch-js', function() {
     var watcher  = watchify(bundler, {
-        poll: true // because inotify don't work in Docker
+        // docker-machine: use 'true' since inotify doesn't seem to work;
+        // Docker for Mac: use 'false' since polling makes CPU go crazy
+        poll: false
     });
     watcher
         .on('update', function () { doBundling(watcher); });
@@ -226,12 +229,18 @@ gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
 
 gulp.task('watch', function() {
     livereload.listen();
-    // gulp.watch('src/webui/src/js/**/*.js', ['js']);
-    gulp.watch('src/webui/src/sass/*.scss', ['sass']);
-    gulp.watch('src/webui/src/**/*.html', ['ngtmpl', 'index']);
+    watch('src/webui/src/sass/*.scss', function(hmm) {
+        console.log('*.scss changed');
+        gulp.start('sass')
+        });
+    watch('src/webui/src/**/*.html', function() {
+        console.log('*.html changed');
+        gulp.start(['ngtmpl', 'index']);
+    });
 });
 
 
 gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'base-css']);
 
 gulp.task('default', ['build','watch-js', 'watch']);
+// gulp.task('default', ['build']);
