@@ -28,7 +28,6 @@ class EventListeners {
 
 function addColorPicker(el) {
     var picker = vanillaColorPicker(el);
-    console.log(picker);
     // document.execCommand('styleWithCSS', false, true);
     picker.set('customColors', [
         '#000000', // black
@@ -282,7 +281,7 @@ function getCurrentColors(nodes) {
         // Handle link form
         function handleLinkForm(e) {
             let src = e.target || e.srcElement;
-            console.log(src)
+            console.log(src);
 
             if (src.nodeName !== "INPUT" && (src === buttons["link"] || buttons["link"].contains(src))) {
                 // Open or close link form
