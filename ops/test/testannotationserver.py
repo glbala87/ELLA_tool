@@ -22,16 +22,17 @@ taskstatus.count = -1
 
 @app.route('/process/<task_id>', methods=["GET", "DELETE"])
 def process(task_id):
-    output = dict()
-    output["data"] = "Dummy data that will fail deposit"
-    output["message"] = ""
-    output["status"] = "SUCCESS"
+    output = {
+        "data": "Dummy data that will fail deposit",
+        "message": "",
+        "status": "SUCCESS"
+    }
     return jsonify(output)
 
 @app.route('/annotate', methods=['POST'])
 def annotate():
     data = request.get_data()
-    return json.dumps(dict(task_id="123456789"))
+    return json.dumps({"task_id": "123456789"})
 
 if __name__ == "__main__":
     ANNOTATION_SERVICE = os.environ["ANNOTATION_SERVICE_URL"]

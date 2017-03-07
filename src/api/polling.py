@@ -22,7 +22,7 @@ DEPOSIT_SERVICE_PATH = "/api/v1/annotationservice/deposit/"
 
 
 def process_running(c):
-    QUERY = urllib2.quote(json.dumps(dict(status="RUNNING")))
+    QUERY = urllib2.quote(json.dumps({"status": "RUNNING"}))
     response = c.get(ANNOTATION_JOBS_PATH + "?q=" + QUERY)
 
     if response_ok(response):
@@ -45,11 +45,11 @@ def process_running(c):
                     status = "ANNOTATED"
                 message = ""
 
-            yield dict(id=id, task_id=task_id, status=status, message=message)
+            yield {"id": id, "task_id": task_id, "status": status, "message": message}
 
 
 def process_submitted(c):
-    QUERY = urllib2.quote(json.dumps(dict(status="SUBMITTED")))
+    QUERY = urllib2.quote(json.dumps({"status": "SUBMITTED"}))
     response = c.get(ANNOTATION_JOBS_PATH + "?q=" + QUERY)
 
     if response_ok(response):
@@ -60,7 +60,7 @@ def process_submitted(c):
         for job in submitted_jobs:
             id = job["id"]
             unannotated_vcf = job["vcf"]
-            as_response = c.post(ANNOTATION_SERVICE_ANNOTATE_PATH, data=json.dumps(dict(vcf=unannotated_vcf)),
+            as_response = c.post(ANNOTATION_SERVICE_ANNOTATE_PATH, data=json.dumps({"vcf": unannotated_vcf}),
                                  content_type='application/json')
             if not response_ok(as_response):
                 status = "FAILED (SUBMISSION)"
@@ -72,11 +72,11 @@ def process_submitted(c):
                 task_id = json.loads(as_response.get_data())["task_id"]
 
             # Update
-            yield dict(id=id, task_id=task_id, status=status, message=message)
+            yield {"id": id, "task_id": task_id, "status": status, "message": message}
 
 
 def process_annotated(c):
-    QUERY = urllib2.quote(json.dumps(dict(status=["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])))
+    QUERY = urllib2.quote(json.dumps({"status": ["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"]}))
     response = c.get(ANNOTATION_JOBS_PATH + "?q=" + QUERY)
 
     if response_ok(response):
@@ -94,7 +94,7 @@ def process_annotated(c):
                 message = as_response.get_data()
             else:
                 annotated_vcf = json.loads(as_response.get_data())["data"]
-                data = dict(id=id, annotated_vcf=annotated_vcf)
+                data = {"id": id, "annotated_vcf": annotated_vcf}
                 deposit_response = c.post(DEPOSIT_SERVICE_PATH, data=json.dumps(data), content_type='application/json')
                 if not response_ok(deposit_response):
                     status = "FAILED (DEPOSIT)"
@@ -103,7 +103,7 @@ def process_annotated(c):
                     status = "DONE"
                     message = ""
 
-            yield dict(id=id, status=status, message=message)
+            yield {"id": id, "status": status, "message": message}
 
 
 def db_job_update(c, data):

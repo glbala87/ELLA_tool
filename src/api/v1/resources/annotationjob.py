@@ -104,11 +104,11 @@ class AnnotationJobDeposit(Resource):
             if type == "Create":
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysis(session)
-                analysis_config = dict(
-                    params=dict(genepanel=genepanel),
-                    samples=samples,
-                    name=".".join([analysis_name, genepanel])
-                )
+                analysis_config = {
+                    "params": {"genepanel": genepanel},
+                    "samples": samples,
+                    "name": ".".join([analysis_name, genepanel])
+                }
                 deposit.import_vcf(fd,
                                    sample_configs=sample_config,
                                    analysis_config=analysis_config)
@@ -116,22 +116,22 @@ class AnnotationJobDeposit(Resource):
             else:
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysisAppend(session)
-                analysis_config = dict(
-                    params=dict(genepanel=genepanel),
-                    samples=samples,
-                    name=analysis_name,
-                )
+                analysis_config = {
+                    "params": {"genepanel": genepanel},
+                    "samples": samples,
+                    "name": analysis_name,
+                }
                 deposit.import_vcf(fd,
                                    sample_configs=sample_config,
                                    analysis_config=analysis_config)
                 session.commit()
         elif mode == "Variants":
             deposit = DepositAlleles(session)
-            allele_config = dict(
-                params=dict(genepanel=genepanel),
-                samples=samples,
-                name=".".join(["independent", genepanel])
-            )
+            allele_config = {
+                "params": {"genepanel": genepanel},
+                "samples": samples,
+                "name": ".".join(["independent", genepanel])
+            }
 
             try:
                 deposit.import_vcf(fd,
@@ -147,7 +147,7 @@ class AnnotationServiceRunning(Resource):
         try:
             k = urllib2.urlopen(join(ANNOTATION_SERVICE, "status"))
             return {"running": True}, 200
-        except:
+        except urllib2.HTTPError:
             return {"running": False}, 200
 
 

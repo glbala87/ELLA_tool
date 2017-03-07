@@ -74,14 +74,16 @@ def split_unannotated_vcf(unannotated_vcf):
 
 def test_submit_annotationjob(session, client):
     "Submit annotation job"
-    data = dict(mode="Analysis",
-                user_id=1,
-                vcf="Dummy vcf data",
-                properties=dict(
-                    analysis_name = "abc",
-                    create_or_append = "Create",
-                    genepanel = GENEPANEL,
-                ))
+    data = {
+        "mode": "Analysis",
+        "user_id": 1,
+        "vcf": "Dummy vcf data",
+        "properties": {
+            "analysis_name": "abc",
+            "create_or_append": "Create",
+            "genepanel": GENEPANEL,
+        }
+    }
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
@@ -102,23 +104,25 @@ def test_submit_annotationjob(session, client):
 
 
 def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
-    data = dict(mode="Analysis",
-                status="ANNOTATED",
-                task_id="123456789",
-                user_id=1,
-                vcf=unannotated_vcf,
-                properties=dict(
-                    analysis_name="abc",
-                    create_or_append="Create",
-                    genepanel=GENEPANEL
-                ))
+    data = {
+        "mode": "Analysis",
+        "status": "ANNOTATED",
+        "task_id": "123456789",
+        "user_id": 1,
+        "vcf": unannotated_vcf,
+        "properties": {
+            "analysis_name": "abc",
+            "create_or_append": "Create",
+            "genepanel": GENEPANEL
+        }
+    }
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    deposit_data = dict(id=id, annotated_vcf=annotated_vcf)
+    deposit_data = {"id": id, "annotated_vcf": annotated_vcf}
     response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
     assert response.status_code == 200
 
@@ -133,23 +137,27 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
 
 def test_status_update_annotationjob(session, client):
     # Submit annotation job
-    data = dict(mode="Analysis",
-                user_id=1,
-                vcf="Dummy vcf data",
-                properties=dict(
-                    analysis_name = "abc",
-                    create_or_append = "Create",
-                    genepanel = GENEPANEL,
-                ))
+    data = {
+        "mode": "Analysis",
+        "user_id": 1,
+        "vcf": "Dummy vcf data",
+        "properties": {
+            "analysis_name": "abc",
+            "create_or_append": "Create",
+            "genepanel": GENEPANEL,
+        }
+    }
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
     id = json.loads(response.get_data())["id"]
 
-    update_data = dict(id=id,
-                       status="ANNOTATED",
-                       message="Message from server",
-                       task_id="123456789")
+    update_data = {
+        "id": id,
+        "status": "ANNOTATED",
+        "message": "Message from server",
+        "task_id": "123456789"
+    }
     response = client.patch(ANNOTATION_JOBS_PATH, data=update_data)
     assert response.status_code == 200
 
@@ -191,21 +199,23 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
     alleles_to_be_added = list(set(alleles)-set(existing))
     alleles_already_added = list(set(alleles)-set(alleles_to_be_added))
 
-    data = dict(mode="Variants",
-                status="ANNOTATED",
-                task_id="123456789",
-                user_id=1,
-                vcf=annotated_vcf,
-                properties=dict(
-                    genepanel=GENEPANEL
-                ))
+    data = {
+        "mode": "Variants",
+        "status": "ANNOTATED",
+        "task_id": "123456789",
+        "user_id": 1,
+        "vcf": annotated_vcf,
+        "properties": {
+            "genepanel": GENEPANEL
+        }
+    }
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    deposit_data = dict(id=id, annotated_vcf=annotated_vcf)
+    deposit_data = {"id": id, "annotated_vcf": annotated_vcf}
     response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
     assert response.status_code == 200
 
@@ -229,21 +239,23 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     first_vcf, second_vcf, N1, N2 = split_vcf(annotated_vcf)
 
     # Create a new analysis
-    data1 = dict(mode="Analysis",
-                user_id=1,
-                vcf=first_vcf,
-                properties=dict(
-                    analysis_name = "abc",
-                    create_or_append = "Create",
-                    genepanel = GENEPANEL,
-                ))
+    data1 = {
+        "mode": "Analysis",
+        "user_id": 1,
+        "vcf": first_vcf,
+        "properties": {
+            "analysis_name": "abc",
+            "create_or_append": "Create",
+            "genepanel": GENEPANEL,
+        }
+    }
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data1)
     assert response.status_code == 200
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    deposit_data = dict(id=id, annotated_vcf=first_vcf)
+    deposit_data = {"id": id, "annotated_vcf": first_vcf}
     response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
     assert response.status_code == 200
 
@@ -261,21 +273,23 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     assert len(genotypes) == N1
 
     # Create new annotation job, to append to newly created analysis
-    data2 = dict(mode="Analysis",
-                user_id=1,
-                vcf=second_vcf,
-                properties=dict(
-                    analysis_name = analysis_name,
-                    create_or_append = "Append",
-                    genepanel = GENEPANEL,
-                ))
+    data2 = {
+        "mode": "Analysis",
+        "user_id": 1,
+        "vcf": second_vcf,
+        "properties": {
+            "analysis_name": analysis_name,
+            "create_or_append": "Append",
+            "genepanel": GENEPANEL,
+        }
+    }
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data2)
     assert response.status_code == 200
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit (append)
-    deposit_data = dict(id=id, annotated_vcf=second_vcf)
+    deposit_data = {"id": id, "annotated_vcf": second_vcf}
     response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
     assert response.status_code == 200
 
