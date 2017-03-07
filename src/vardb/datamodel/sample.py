@@ -60,33 +60,3 @@ class Analysis(Base):
 
     def __repr__(self):
         return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanel_name, self.genepanel_version)
-
-
-class Interpretation(Base):
-    """Represents an Interpretation by a labengineer
-
-    This corresponds to one interpretation 'round' of an analysis.
-    The table stores both normal state and user-specific state for each round,
-    while keeping a history of the state upon update.
-
-    :note: The stateHistory column can potentially be heavy in extreme cases,
-    so you can defer loading it when you don't need it.
-    (TODO: defer by default?)
-    """
-    __tablename__ = "interpretation"
-
-    id = Column(Integer, Sequence("id_interpretation_seq"), primary_key=True)
-    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    analysis = relationship("Analysis", uselist=False)
-    user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
-    user_id = Column(Integer, ForeignKey("user.id"))
-    user = relationship("User", uselist=False, backref='interpretations')
-    state = Column(JSONMutableDict.as_mutable(JSONB), default={})
-    state_history = Column(JSONMutableDict.as_mutable(JSONB), default={})
-    status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
-                    default="Not started", nullable=False)
-    date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
-
-    def __repr__(self):
-        return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)
-
