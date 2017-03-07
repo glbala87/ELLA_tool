@@ -31,7 +31,6 @@ log = logging.getLogger(__name__)
 
 class DepositAnalysis(DepositFromVCF):
     def process_records(self, records, db_analysis, vcf_sample_names, db_samples):
-        allele_ids = defaultdict(list)
         for k,v in records.iteritems():
             # Import alleles
             db_alleles = []
@@ -48,7 +47,7 @@ class DepositAnalysis(DepositFromVCF):
             for sample_name, db_sample in zip(vcf_sample_names, db_samples):
                 self.genotype_importer.process(v, sample_name, db_analysis, db_sample, db_alleles)
 
-    def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None):
+    def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None, cache_size=1000):
 
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
