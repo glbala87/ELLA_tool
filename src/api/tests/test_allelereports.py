@@ -9,20 +9,20 @@ from api import ApiError
 
 def report_template(allele_id):
     return {
-        "allele_id"     : allele_id,
-        "analysis_id"   : 1,
-        "user_id"       : 1,
+        "allele_id": allele_id,
+        "analysis_id": 1,
+        "user_id": 1,
         "classification": "1",
-        "evaluation"    : {
+        "evaluation": {
             "comment": "Some comment",
         }
     }
-
 
 ANALYSIS_ID = 1
 
 
 class TestAlleleReports(object):
+
     @pytest.mark.ar(order=0)
     def test_create_new(self, test_database):
         test_database.refresh()  # Reset db
@@ -32,6 +32,7 @@ class TestAlleleReports(object):
                                             get_interpretation_id_of_first("analysis", ANALYSIS_ID))
         created_ids = list()
         for idx, allele_id in enumerate(interpretation['allele_ids']):
+
             # Prepare
             report_data = copy.deepcopy(report_template(allele_id))
 
@@ -52,6 +53,7 @@ class TestAlleleReports(object):
         # Create one AlleleReport for each allele in the interpretation:
         interpretation = get_interpretation("analysis", ANALYSIS_ID,
                                             get_interpretation_id_of_first("analysis", ANALYSIS_ID))
+
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
         previous_reports = get_entities_by_query('allelereports', q)

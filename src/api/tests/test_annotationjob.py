@@ -13,17 +13,15 @@ from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, 
     ANNOTATION_SERVICE_PROCESS_PATH, DEPOSIT_SERVICE_PATH
 
 import vardb
-
 TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
 assert os.path.isdir(TESTDATA_DIR)
 
 ANALYSIS = "brca_sample_3"
 GENEPANEL = "HBOCUTV_v01"
 
-
 @pytest.fixture(scope="session")
 def unannotated_vcf():
-    filename = ANALYSIS + ".vcf"
+    filename = ANALYSIS+".vcf"
     full_path = subprocess.check_output("find %s -type f -name %s" % (TESTDATA_DIR, filename), shell=True).strip()
     with open(full_path, 'r') as f:
         vcf = f.read()
@@ -38,7 +36,6 @@ def annotated_vcf():
     with open(full_path, 'r') as f:
         vcf = f.read()
     return vcf
-
 
 def split_vcf(vcf):
     lines = vcf.split('\n')
@@ -55,19 +52,20 @@ def split_vcf(vcf):
         if l.strip():
             variants.append(l)
 
-    variants1 = variants[:len(variants) / 2]
-    variants2 = variants[len(variants) / 2:]
+    variants1 = variants[:len(variants)/2]
+    variants2 = variants[len(variants)/2:]
 
-    first = header + "\n" + "\n".join(variants1)
+    N1 = len(variants1)
+    N2 = len(variants2)
+    first = header+"\n"+"\n".join(variants1)
     second = header + "\n" + "\n".join(variants2)
 
-    return first, second, len(variants1), len(variants2)
+    return first,second, N1,N2
 
 
 @pytest.fixture
 def split_annotated_vcf(annotated_vcf):
     return split_vcf(annotated_vcf)
-
 
 @pytest.fixture
 def split_unannotated_vcf(unannotated_vcf):
@@ -80,9 +78,9 @@ def test_submit_annotationjob(session, client):
                 user_id=1,
                 vcf="Dummy vcf data",
                 properties=dict(
-                    analysis_name="abc",
-                    create_or_append="Create",
-                    genepanel=GENEPANEL,
+                    analysis_name = "abc",
+                    create_or_append = "Create",
+                    genepanel = GENEPANEL,
                 ))
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
@@ -132,15 +130,16 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
     assert len(analyses) == 1
 
 
+
 def test_status_update_annotationjob(session, client):
     # Submit annotation job
     data = dict(mode="Analysis",
                 user_id=1,
                 vcf="Dummy vcf data",
                 properties=dict(
-                    analysis_name="abc",
-                    create_or_append="Create",
-                    genepanel=GENEPANEL,
+                    analysis_name = "abc",
+                    create_or_append = "Create",
+                    genepanel = GENEPANEL,
                 ))
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
@@ -163,7 +162,7 @@ def test_status_update_annotationjob(session, client):
 
     assert annotation_job.message == update_data["message"]
     assert annotation_job.status == update_data["status"]
-    assert annotation_job.task_id == update_data["task_id"]
+    assert annotation_job.task_id== update_data["task_id"]
     assert len(annotation_job.status_history) == 1
 
 
@@ -189,8 +188,8 @@ def get_alleles(vcf, session):
 def test_deposit_independent_variants(test_database, session, client, annotated_vcf):
     alleles = get_alleles(annotated_vcf, session)
     existing = session.query(allele.Allele).all()
-    alleles_to_be_added = list(set(alleles) - set(existing))
-    alleles_already_added = list(set(alleles) - set(alleles_to_be_added))
+    alleles_to_be_added = list(set(alleles)-set(existing))
+    alleles_already_added = list(set(alleles)-set(alleles_to_be_added))
 
     data = dict(mode="Variants",
                 status="ANNOTATED",
@@ -215,11 +214,8 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
         ~allele.Allele.id.in_([a.id for a in existing])
     ).all()
 
-    new_alleles = [(a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for
-                   a in new_alleles]
-    alleles_to_be_added = [
-        (a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for a in
-        alleles_to_be_added]
+    new_alleles = [(a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for a in new_alleles]
+    alleles_to_be_added = [(a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for a in alleles_to_be_added]
 
     assert len(new_alleles) == len(alleles_to_be_added)
     assert set(new_alleles) == set(alleles_to_be_added)
@@ -230,17 +226,17 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
 
     # Split vcf in two, to be submitted first as new analysis,
     # then to append to the newly created analysis
-    first_vcf, second_vcf, num_variants_first, num_variants_second = split_vcf(annotated_vcf)
+    first_vcf, second_vcf, N1, N2 = split_vcf(annotated_vcf)
 
     # Create a new analysis
     data1 = dict(mode="Analysis",
-                 user_id=1,
-                 vcf=first_vcf,
-                 properties=dict(
-                     analysis_name="abc",
-                     create_or_append="Create",
-                     genepanel=GENEPANEL,
-                 ))
+                user_id=1,
+                vcf=first_vcf,
+                properties=dict(
+                    analysis_name = "abc",
+                    create_or_append = "Create",
+                    genepanel = GENEPANEL,
+                ))
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data1)
     assert response.status_code == 200
@@ -262,17 +258,17 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     genotypes = session.query(genotype.Genotype).filter(
         genotype.Genotype.analysis_id == analysis_id,
     ).all()
-    assert len(genotypes) == num_variants_first
+    assert len(genotypes) == N1
 
     # Create new annotation job, to append to newly created analysis
     data2 = dict(mode="Analysis",
-                 user_id=1,
-                 vcf=second_vcf,
-                 properties=dict(
-                     analysis_name=analysis_name,
-                     create_or_append="Append",
-                     genepanel=GENEPANEL,
-                 ))
+                user_id=1,
+                vcf=second_vcf,
+                properties=dict(
+                    analysis_name = analysis_name,
+                    create_or_append = "Append",
+                    genepanel = GENEPANEL,
+                ))
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data2)
     assert response.status_code == 200
@@ -288,4 +284,5 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
         genotype.Genotype.analysis_id == analysis_id,
     ).all()
 
-    assert len(genotypes) == num_variants_first + num_variants_second
+    assert len(genotypes) == N1+N2
+

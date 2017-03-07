@@ -5,17 +5,18 @@ from api import ApiError
 
 from api.tests import *
 
+
 ANALYSIS_ID = 1
 
 
 def assessment_template():
     return {
-        "allele_id"           : 1,
-        "annotation_id"       : 1,
-        "analysis_id"         : 1,
-        "user_id"             : 1,
-        "classification"      : "1",
-        "evaluation"          : {
+        "allele_id": 1,
+        "annotation_id": 1,
+        "analysis_id": 1,
+        "user_id": 1,
+        "classification": "1",
+        "evaluation": {
             "comment": "Some comment",
         },
         "referenceassessments": []  # populated as part of test see referenceassessment_template
@@ -24,41 +25,43 @@ def assessment_template():
 
 def referenceassessment_template(allele_id):
     return {
-        "allele_id"   : allele_id,
-        "analysis_id" : 1,
-        "user_id"     : 1,
+        "allele_id": allele_id,
+        "analysis_id": 1,
+        "user_id": 1,
         "reference_id": 9,  # must exist in database
-        "evaluation"  : {
+        "evaluation": {
             "comment": "Some comment"
         },
     }
 
 
 class TestAlleleAssessment(object):
+
     @pytest.mark.aa(order=0)
-    def test_create_new(self, test_database):
+    def test_create_new(self, test_database,):
         test_database.refresh()  # Reset db
 
         # Create an assessment for alleles in the interpretation
         interpretation = get_interpretation("analysis", ANALYSIS_ID,
                                             get_interpretation_id_of_first("analysis", ANALYSIS_ID))
         for idx, allele_id in enumerate(interpretation['allele_ids']):
+
             # Prepare
             assessment_data = copy.deepcopy(assessment_template())
             assessment_data['allele_id'] = allele_id
             assessment_data['referenceassessments'] = [referenceassessment_template(allele_id)]
 
-            annotations = [{"allele_id"    : assessment_data['allele_id'],
+            annotations = [{"allele_id": assessment_data['allele_id'],
                             "annotation_id": assessment_data['annotation_id']}
                            ]
-            custom_annotations = [{"allele_id"           : assessment_data['allele_id'],
+            custom_annotations = [{"allele_id": assessment_data['allele_id'],
                                    "custom_annotation_id": 1}
                                   ]
 
             # POST data
-            api_response = api.post('/alleleassessments/', {"annotations"       : annotations,
-                                                            "custom_annotations": custom_annotations,
-                                                            "allele_assessments": [assessment_data]})
+            api_response = api.post('/alleleassessments/', {"annotations": annotations,
+                                                 "custom_annotations": custom_annotations,
+                                                 "allele_assessments": [assessment_data]})
 
             # Check response
             assert api_response.status_code == 200
@@ -103,9 +106,8 @@ class TestAlleleAssessment(object):
             assessment_data['referenceassessments'][0]['evaluation'] = {'comment': 'Some new reference comment'}
 
             # POST (a single) assessment
-            annotations = [
-                {"allele_id": assessment_data['allele_id'], "annotation_id": assessment_data['annotation_id']}]
-            r = api.post('/alleleassessments/', {"annotations"       : annotations,
+            annotations = [{"allele_id": assessment_data['allele_id'], "annotation_id": assessment_data['annotation_id']}]
+            r = api.post('/alleleassessments/', {"annotations": annotations,
                                                  "allele_assessments": [assessment_data]})
 
             # Check response
@@ -139,9 +141,8 @@ class TestAlleleAssessment(object):
 
         # We don't run actual HTTP requests, everything is in python
         # so we can catch the exceptions directly
-        with pytest.raises(
-                Exception):  # the error is not caught at the API boundary as enforcing required fields for dict of dict isn't implemented
-            api.post('/alleleassessments/', {"annotations"       : annotations,
+        with pytest.raises(Exception):  # the error is not caught at the API boundary as enforcing required fields for dict of dict isn't implemented
+            api.post('/alleleassessments/', {"annotations": annotations,
                                              "allele_assessments": [assessment_data]})
 
         # Test without analysis_id
@@ -149,5 +150,5 @@ class TestAlleleAssessment(object):
         del assessment_data['analysis_id']
 
         with pytest.raises(ApiError):
-            api.post('/alleleassessments/', {"annotations"       : annotations,
+            api.post('/alleleassessments/', {"annotations": annotations,
                                              "allele_assessments": [assessment_data]})

@@ -10,8 +10,8 @@ from api.rest_query import RestQuery
 from api import db
 from util import FlaskClientProxy
 
-
 class TestDatabase(object):
+
     def __init__(self):
         self.dump_path = self.get_dump_path()
 
@@ -37,8 +37,7 @@ class TestDatabase(object):
         with open(os.devnull, "w") as f:
             subprocess.call('createdb --host={host} vardb-test'.format(host=self.host), shell=True, stdout=f)
         DepositTestdata(db).deposit_all(test_set='integration_testing')
-        subprocess.check_call(
-            'pg_dumpall --host={host} --file={path} --clean'.format(host=self.host, path=self.dump_path), shell=True)
+        subprocess.check_call('pg_dumpall --host={host} --file={path} --clean'.format(host=self.host, path=self.dump_path), shell=True)
         print "Temporary database file created at {}.".format(self.dump_path)
 
     def refresh(self):
@@ -47,8 +46,7 @@ class TestDatabase(object):
         """
         print "Refreshing database with data from dump"
         with open(os.devnull, "w") as f:
-            subprocess.check_call('psql --host={host} -d postgres < {path}'.format(host=self.host, path=self.dump_path),
-                                  shell=True, stdout=f)
+            subprocess.check_call('psql --host={host} -d postgres < {path}'.format(host=self.host, path=self.dump_path), shell=True, stdout=f)
 
     def cleanup(self):
         print "Removing database"
@@ -58,7 +56,6 @@ class TestDatabase(object):
             print "Temporary database file removed."
         except:
             pass
-
 
 @pytest.yield_fixture
 def session(request):
@@ -87,10 +84,10 @@ def test_database(request):
     # Cleanup database on teardown
     test_db.cleanup()
 
-
 @pytest.fixture
 def client():
     """
     Fixture for a flask client proxy, that supports get, post etc.
     """
     return FlaskClientProxy()
+
