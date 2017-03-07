@@ -37,10 +37,12 @@ DATE_FORMAT = "%Y-%m-%d"
 # (field name, [Column header, Column width])
 COLUMN_PROPERTIES = OrderedDict([
     ('gene', ['Genes', 6]),
-    ('class', ['Class', 5]),
-    ('transcript', ['Transcript', 26]),
+    ('transcript', ['Transcript', 15]),
     ('hgvsc', ['HGVSc', 26]),
+    ('class', ['Class', 6]),
     ('date', ['Date', 11]),
+    ('prev_class', ['Prev. class', 6]),
+    ('prev_class_date', ['Prev. class date', 11]),
     ('hgvsp', ['HGVSp', 26]),
     ('exon', ['Exon/Intron', 11]),
     ('rsnum', ['RS number', 11]),
@@ -85,7 +87,7 @@ def format_transcripts(allele_annotation):
     keys = {'gene': 'symbol',
             'transcript': 'transcript',
             'hgvsc': 'HGVSc_short',
-            'hgvsp': 'HGVSp_short',
+            'hgvsp': 'HGVSp',
             'exon': 'exon',
             'intron': 'intron',
             'rsnum': 'dbsnp',
@@ -105,7 +107,7 @@ def format_transcripts(allele_annotation):
     return {key: ' | '.join(value) for key, value in formatted_transcripts.items()}
 
 
-def format_classification(alleleassessment, adl):
+def format_classification(alleleassessment, adl, previous_alleleassessment=None):
     """
     Make a list of the classification fields of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
@@ -148,7 +150,7 @@ def format_classification(alleleassessment, adl):
 
     coordinate = CHROMOSOME_FORMAT.format(
         chromosome=allele_dict['chromosome'],
-        start_position=allele_dict['start_position'],
+        start_position=allele_dict['start_position']+1,  # DB is 0-based
         open_end_position=allele_dict['open_end_position']
     )
 
@@ -168,6 +170,8 @@ def format_classification(alleleassessment, adl):
         'class': alleleassessment.classification,
         'transcript': formatted_transcript.get('transcript'),
         'hgvsc': formatted_transcript.get('hgvsc'),
+        'prev_class': previous_alleleassessment.classification if previous_alleleassessment else '',
+        'prev_class_date': previous_alleleassessment.date_last_update.strftime(DATE_FORMAT) if previous_alleleassessment else '',
         'date': date,
         'hgvsp': formatted_transcript.get('hgvsp'),
         'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
@@ -182,6 +186,7 @@ def format_classification(alleleassessment, adl):
         'pred_eval': alleleassessment.evaluation['prediction']['comment'],
         'ref_eval': ref_evals
     }
+
     return [classification_values[key] for key in COLUMN_PROPERTIES]
 
 
@@ -191,14 +196,18 @@ def dump_alleleassessments(session, filename=None):
     :param session: An sqlalchemy session
     :param filename: Filename ending with .xlsx
     """
+
     alleleassessments = session.query(assessment.AlleleAssessment).order_by(
-        assessment.AlleleAssessment.allele_id).options(
-            subqueryload(assessment.AlleleAssessment.annotation).
-            subqueryload('allele').joinedload('genotypes'),
-            joinedload(assessment.AlleleAssessment.genepanel),
-            subqueryload(assessment.AlleleAssessment.referenceassessments).
-            joinedload('reference')
-        ).filter(assessment.AlleleAssessment.date_superceeded.is_(None))
+        assessment.AlleleAssessment.allele_id
+    ).options(
+        subqueryload(assessment.AlleleAssessment.annotation).
+        subqueryload('allele').joinedload('genotypes'),
+        joinedload(assessment.AlleleAssessment.genepanel),
+        subqueryload(assessment.AlleleAssessment.referenceassessments).
+        joinedload('reference')
+    ).filter(
+        assessment.AlleleAssessment.date_superceeded.is_(None)
+    )
 
     adl = alleledataloader.AlleleDataLoader(session)
 
@@ -225,7 +234,13 @@ def dump_alleleassessments(session, filename=None):
                  (len(batch_alleleassessments), str(t_query-t_start)))
 
         for alleleassessment in batch_alleleassessments:
-            classification = format_classification(alleleassessment, adl)
+            previous_alleleassessment = session.query(assessment.AlleleAssessment).filter(
+                ~assessment.AlleleAssessment.date_superceeded.is_(None),  # Is superceeded
+            ).filter(
+                assessment.AlleleAssessment.allele_id == alleleassessment.allele_id
+            ).order_by(assessment.AlleleAssessment.date_superceeded.desc()).limit(1).one_or_none()
+            print previous_alleleassessment
+            classification = format_classification(alleleassessment, adl, previous_alleleassessment=previous_alleleassessment)
             if filename:
                 worksheet.append(classification)
 

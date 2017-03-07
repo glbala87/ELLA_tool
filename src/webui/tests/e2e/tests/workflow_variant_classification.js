@@ -84,7 +84,9 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
         alleleSectionBox.setExternalComment('EXTERNAL_ROUND1');
         analysisPage.saveButton.scroll();
         analysisPage.saveButton.click();
-        alleleSectionBox.reportComment.setValue('REPORT_ROUND1');
+        alleleSectionBox.setReportComment('REPORT_ROUND1');
+        browser.click('body'); // a trick to unfocus the above report comment
+
         alleleSectionBox.classificationCommentElement.scroll();
 
         alleleSectionBox.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');

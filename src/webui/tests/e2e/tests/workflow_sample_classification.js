@@ -87,7 +87,7 @@ describe('Sample workflow', function () {
             // Move to next unclassified
             alleleSidebar.selectFirstUnclassified();
             selected_allele = alleleSidebar.getSelectedAllele();
-            console.log(`Classifying variant ${selected_allele}`);
+            console.log(`Classifying variant ${selected_allele} in loop with idx=${idx}`);
 
             // Evaluate one reference
             let referenceTitle = alleleSectionBox.evaluateReference(1);
@@ -133,9 +133,10 @@ describe('Sample workflow', function () {
             alleleSectionBox.setExternalComment('EXTERNAL_ROUND1');
             analysisPage.saveButton.scroll();
             analysisPage.saveButton.click();
-            alleleSectionBox.reportComment.setValue('REPORT_ROUND1');
-            alleleSectionBox.classificationCommentElement.scroll();
 
+            alleleSectionBox.setReportComment('REPORT_ROUND1');
+            browser.click('body'); // a trick to unfocus the above report comment
+            alleleSectionBox.classificationCommentElement.scroll();
             alleleSectionBox.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');
             alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1');
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx+1}`);
@@ -265,7 +266,7 @@ describe('Sample workflow', function () {
         alleleSectionBox.setExternalComment('EXTERNAL_UPDATED');
         analysisPage.saveButton.scroll();
         analysisPage.saveButton.click();
-        alleleSectionBox.reportComment.setValue('REPORT_UPDATED');
+        alleleSectionBox.setReportComment('REPORT_UPDATED');
         alleleSectionBox.classSelection.selectByVisibleText('Class 5');
         // :end
 

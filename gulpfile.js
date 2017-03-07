@@ -23,7 +23,6 @@ var production = !!util.env.production;
 
 if(! production) {
     var watchify   = require('watchify'),
-        protractor = require('gulp-protractor').protractor,
         KarmaServer = require('karma').Server;
 }
 
@@ -128,6 +127,7 @@ gulp.task('watch-js', function() {
  * Transpiles ES6 to ES5
  */
 gulp.task('js', function(done) {
+    console.log('Gulp: starting js');
     // return browserify('./src/webui/src/js/index.js', {debug: true})
     return bundler
         .bundle()
@@ -143,6 +143,7 @@ gulp.task('js', function(done) {
 });
 
 gulp.task('ngtmpl', function() {
+    console.log('Gulp: starting ngtmpl');
     return gulp.src('**/*.ngtmpl.html')
         .pipe(templateCache('templates.js', {
             transformUrl: function(file) {return 'ngtmpl/' + path.basename(file)},
@@ -187,30 +188,6 @@ gulp.task('fonts', function () {
         [ 'src/webui/src/thirdparty/fonts/*.woff2' ])
         .pipe(plumber())
         .pipe(gulp.dest(__basedir + 'fonts/'));
-});
-
-/**
- * Run end-2-end tests
- */
-
-gulp.task('e2e', function(done) {
-    var base = util.env.e2e_ip || '172.16.250.128';
-    var basePort = util.env.e2e_port || 8000;
-    var seleniumAddress = util.env.selenium_address || 'http://172.16.250.128:4444/wd/hub';
-    var args = ['--baseUrl', 'http://' + base + ':' + basePort,
-                '--seleniumAddress', seleniumAddress
-    ];
-
-    // spec orders matter until we can handle the alert popup when swithcing pages
-    gulp.src([
-             './src/webui/tests/e2e/misc.spec.js',
-             './src/webui/tests/e2e/allele-popup.spec.js'
-        ])
-        .pipe(protractor({
-            configFile: "./src/webui/tests/protractor.conf.js",
-            args: args
-        }))
-        .on('error', function(e) { console.error(e.message); throw e;});
 });
 
 /**

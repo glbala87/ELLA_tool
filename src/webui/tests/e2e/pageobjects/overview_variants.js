@@ -1,9 +1,10 @@
-var Page = require('./page');
+let Page = require('./page');
+let util = require('./util');
 
 const SELECTOR_FINISHED = '.id-variants-finished';
 const SELECTOR_PENDING = '.id-variants-pending'; // no assessment
 const SELECTOR_REVIEW = '.id-variants-review';
-const SELECTOR_YOURS = '.id-variants-yours';
+const SELECTOR_YOURS = '.id-variants-your';
 const SELECTOR_OTHERS = '.id-variants-others';
 
 
@@ -43,6 +44,14 @@ class VariantSelection extends Page {
         this._expandSection(SELECTOR_FINISHED);
     }
 
+    expandOthersSection() {
+        this._expandSection(SELECTOR_OTHERS);
+    }
+
+    expandOwnSection() {
+        this._expandSection(SELECTOR_YOURS);
+    }
+
     _expandSection(sectionSelector) {
         this.open();
         browser.waitForExist(sectionSelector);
@@ -55,11 +64,10 @@ class VariantSelection extends Page {
         browser.waitForExist(sectionSelector);
         browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
         let selector = `${sectionSelector} .id-variant:nth-child(${number})`;
-        console.log('Going to click selector:' + selector);
+        util.logSelector(selector);
         browser.waitForExist(selector);
         browser.click(selector);
         let element = browser.element(selector);
-        console.log('found element using selector:' + element);
         browser.waitForExist('allele-list', 5000, true);
         return element;
     }
@@ -80,7 +88,7 @@ class VariantSelection extends Page {
         this.selectItemInSection(number, SELECTOR_FINISHED);
     }
 
-    selectYours(number) {
+    selectOwn(number) {
         this.selectItemInSection(number, SELECTOR_YOURS);
     }
 
@@ -95,6 +103,10 @@ class VariantSelection extends Page {
 
     selectTopReview() {
         this.selectReview(1);
+    }
+
+    selectTopFinished() {
+        this.selectFinished(1);
     }
 
 

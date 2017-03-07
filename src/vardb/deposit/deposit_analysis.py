@@ -11,14 +11,14 @@ import sys
 import argparse
 import json
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from sqlalchemy import and_
 import sqlalchemy.orm.exc
 
 import vardb.datamodel
 from vardb.datamodel import gene
-from vardb.util import vcfiterator
+from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
                                     inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
@@ -30,6 +30,24 @@ log = logging.getLogger(__name__)
 
 
 class DepositAnalysis(DepositFromVCF):
+    def process_records(self, records, db_analysis, vcf_sample_names, db_samples):
+        allele_ids = defaultdict(list)
+        for k,v in records.iteritems():
+            # Import alleles
+            db_alleles = []
+            for record in v:
+                new_db_alleles = self.allele_importer.process(record)
+
+                # Import annotation
+                self.annotation_importer.process(record, new_db_alleles)
+
+                db_alleles += new_db_alleles
+
+
+            # Compute and import genotypes
+            for sample_name, db_sample in zip(vcf_sample_names, db_samples):
+                self.genotype_importer.process(v, sample_name, db_analysis, db_sample, db_alleles)
+
     def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None):
 
         vi = vcfiterator.VcfIterator(path)
@@ -56,18 +74,32 @@ class DepositAnalysis(DepositFromVCF):
         )
 
         self.analysis_interpretation_importer.process(db_analysis)
-
+        records_cache = OrderedDict()
+        N = 0
         for record in vi.iter():
-            # Import alleles for this record (regardless if it's in our specified sample set or not)
-            db_alleles = self.allele_importer.process(record)
-
-            # Import annotation for these alleles
-            self.annotation_importer.process(record, db_alleles)
-
-            for sample_name, db_sample in zip(vcf_sample_names, db_samples):
-                self.genotype_importer.process(record, sample_name, db_analysis, db_sample, db_alleles)
-
             self.counter['nVariantsInFile'] += 1
+            N += 1
+            key = (record["CHROM"], record["POS"])
+            if key not in records_cache: records_cache[key] = []
+
+            assert len(record["ALT"]) == 1, "We only support decomposed variants. That is, only one ALT per line/record."
+
+            if N < cache_size:
+                records_cache[key].append(record)
+                continue
+            elif key in records_cache:
+                # Make sure all variants at same position is in same cache
+                records_cache[key].append(record)
+                continue
+            else:
+                self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
+
+                records_cache.clear()
+                records_cache[key].append(record)# self.annotation_importer.process(record, db_alleles)
+                N = 1
+
+        self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
+
 
 
 def main(argv=None):
@@ -75,7 +107,7 @@ def main(argv=None):
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser(description="""Deposit variants and genotypes from a VCF file into varDB.""")
     parser.add_argument("--vcf", action="store", dest="vcfPath", required=True, help="Path to VCF file to deposit")
-    parser.add_argument("--samplecfgs", action="store", nargs="+", dest="sample_config_file", required=True,
+    parser.add_argument("--samplecfgs", action="store", nargs="+", dest="sample_config_files", required=True,
                         help="Configuration file(s) (JSON) for sample(s) from pipeline")
     parser.add_argument("--analysiscfg", action="store", dest="analysis_config_file", required=True,
                         help="Configuration file (JSON) for analysis from pipeline")
@@ -97,15 +129,16 @@ def main(argv=None):
     with open(args.analysis_config_file) as f:
         analysis_config = json.load(f)
 
-    session = vardb.datamodel.Session()
+    db = DB()
+    db.connect()
+    session = db.session
 
     da = DepositAnalysis(session)
     try:
         da.import_vcf(
             args.vcfPath,
             sample_configs=sample_configs,
-            analysis_config=analysis_config,
-            skip_anno=args.skipInfoFields
+            analysis_config=analysis_config
         )
     except UserWarning as e:
         log.error(str(e))

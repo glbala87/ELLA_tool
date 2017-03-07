@@ -1,6 +1,5 @@
-var Page = require('./page');
-
-const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
+let Page = require('./page');
+let util = require('./util');
 
 const SELECTOR_COMMENT_CLASSIFICATION = 'allele-sectionbox .id-comment-classification';
 const SELECTOR_COMMENT_CLASSIFICATION_EDITOR = `${SELECTOR_COMMENT_CLASSIFICATION} .wysiwygeditor`;
@@ -10,8 +9,14 @@ const SELECTOR_COMMENT_EXTERNAL = 'allele-sectionbox .id-comment-external';
 const SELECTOR_COMMENT_EXTERNAL_EDITOR = `${SELECTOR_COMMENT_EXTERNAL} .wysiwygeditor`;
 const SELECTOR_COMMENT_PREDICTION = 'allele-sectionbox .id-comment-prediction';
 const SELECTOR_COMMENT_PREDICTION_EDITOR = `${SELECTOR_COMMENT_PREDICTION} .wysiwygeditor`;
+const SELECTOR_COMMENT_REPORT = 'allele-sectionbox .id-comment-report';
+const SELECTOR_COMMENT_REPORT_EDITOR = `${SELECTOR_COMMENT_REPORT} .wysiwygeditor`;
 
-class AlleleSectionBox extends Page {
+const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification';
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+
+
+class AlleleSectionBox  {
 
 
     get reviewCommentElement() { return browser.element('.workflow-options input.id-review-comment'); }
@@ -20,6 +25,7 @@ class AlleleSectionBox extends Page {
     get classificationComment() { return browser.getText(SELECTOR_COMMENT_CLASSIFICATION_EDITOR); }
 
     setClassificationComment(text) {
+        this.classificationCommentElement.scroll();
         this.classificationCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_CLASSIFICATION_EDITOR, text);
     }
@@ -29,6 +35,7 @@ class AlleleSectionBox extends Page {
     get frequencyComment() { return browser.getText(SELECTOR_COMMENT_FREQUENCY_EDITOR); }
 
     setFrequencyComment(text) {
+        this.frequencyCommentElement.scroll();
         this.frequencyCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_FREQUENCY_EDITOR, text);
     }
@@ -37,6 +44,7 @@ class AlleleSectionBox extends Page {
     get externalComment() { return browser.getText(SELECTOR_COMMENT_EXTERNAL_EDITOR); }
 
     setExternalComment(text) {
+        this.externalCommentElement.scroll();
         this.externalCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_EXTERNAL_EDITOR, text);
     }
@@ -45,20 +53,36 @@ class AlleleSectionBox extends Page {
     get predictionComment() { return browser.getText(SELECTOR_COMMENT_PREDICTION_EDITOR); }
 
     setPredictionComment(text) {
+        this.predictionCommentElement.scroll();
         this.predictionCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_PREDICTION_EDITOR, text);
     }
 
-    get reportComment() { return browser.element('allele-sectionbox textarea[placeholder="REPORT"]'); }
+    get reportCommentElement() { return browser.element(SELECTOR_COMMENT_REPORT); }
+    get reportComment() { return browser.getText(SELECTOR_COMMENT_REPORT_EDITOR); }
+
+    setReportComment(text) {
+        this.reportCommentElement.scroll();
+        this.reportCommentElement.click();
+        browser.setValue(SELECTOR_COMMENT_REPORT_EDITOR, text);
+    }
+
 
     get classSelection() { return browser.element('allele-sectionbox select.id-select-classification'); }
     get setClassBtn() { return browser.element('allele-sectionbox button.id-set-class'); }
     get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
     get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
+    get addReferencesBtn() { return browser.element('allele-sectionbox button.id-add-references' ); }
     get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
-    get classificationAcceptedToggleBtn() { return browser.element('allele-sectionbox .id-accept-classification'); }
+    get classificationAcceptedToggleBtn() {
+        return util.elementOrNull(SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION);
+    }
+
     get existingClassificationButtonText() { return this.classificationAcceptedToggleBtn.getText(); }
 
+    reusingClassification() {
+        return this.existingClassificationButtonText.toLowerCase() === BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase()
+    }
 
     _setClassification(index) {
         let dropdownOption = `select.id-select-classification option:nth-child(${index})`;
@@ -77,6 +101,39 @@ class AlleleSectionBox extends Page {
         // the value of the selected option element. This is different than the label shown.
         return this.classSelection.getValue();
     }
+
+    _getClassificationLabel() {
+        return this.classSelection.getText('option:checked');
+    }
+
+    isClassU() {
+        return this._getClassificationLabel().toLowerCase() === "Unclassified".toLowerCase();
+    }
+
+    isClassT() {
+        return this._getClassificationLabel().toLowerCase() === "Technical".toLowerCase();
+    }
+
+    isClass1() {
+        return this._getClassificationLabel().toLowerCase() === "Class 1".toLowerCase();
+    }
+
+    isClass2() {
+        return this._getClassificationLabel().toLowerCase() === "Class 2".toLowerCase();
+    }
+
+    isClass3() {
+        return this._getClassificationLabel().toLowerCase() === "Class 3".toLowerCase();
+    }
+
+    isClass4() {
+        return this._getClassificationLabel().toLowerCase() === "Class 4".toLowerCase();
+    }
+
+    isClass5() {
+        return this._getClassificationLabel().toLowerCase() === "Class 5".toLowerCase();
+    }
+
 
     classifyAsU() {
        this._setClassification(1);
@@ -156,13 +213,15 @@ class AlleleSectionBox extends Page {
 
         let buttonSelector = 'allele-sectionbox button.id-add-acmg';
         browser.click(buttonSelector);
+        browser.waitForExist('.id-acmg-selection-popover', 100); // make sure the popover appeared
+        browser.pause(500); // Wait for popover animation to settle
+
         let categories = {
             pathogenic: 1,
             benign: 2
         };
 
         let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`;
-        browser.pause(500); // Wait for popover animation to settle
         browser.click(acmg_selector);
         browser.element('.popover').scroll(`h4.acmg-title=${code}`);
         browser.element('.popover').click(`h4.acmg-title=${code}`);
@@ -224,7 +283,11 @@ class AlleleSectionBox extends Page {
             function(matchingElements) {
                 return matchingElements[0].className = matchingElements[0].className.replace("collapsed", "");
         });
-        console.log(`CSS class of ${sectionSelector} is now ${comment}`);
+        util.log(`CSS class of ${sectionSelector} is now ${comment}`);
+    }
+
+    getReferences() {
+        return browser.elements('allele-sectionbox .id-references-box article');
     }
 
 }

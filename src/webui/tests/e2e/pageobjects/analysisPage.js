@@ -4,16 +4,22 @@ class AnalysisPage extends Page {
 
     get title() { return browser.element('.full-title').getText(); }
     get analysis() { return browser.element('analysis'); }
+
+    // button has many uses, where button text varies:
     get finishButton() { return browser.element('.id-finish-analysis'); }
     get startButton() { return browser.element('.id-start-analysis'); }
-    get saveButton() { return browser.element('.id-start-analysis'); } // button text is varying
+    get saveButton() { return browser.element('.id-start-analysis'); }
+    get reopenButton() { return browser.element('.id-start-analysis'); }
+
+    // buttons in modal
     get markReviewButton() { return browser.element('.id-mark-review'); }
     get finalizeButton() { return browser.element('.id-finalize'); }
+
     get addExcludedButton() { return browser.element('.id-add-excluded') }
     get collisionWarningBar() { return browser.element('.id-collision-warning'); }
 
     get roundCount() {
-        let selector = '.id-interpretationrounds-dropdown option'
+        let selector = '.id-interpretationrounds-dropdown option';
         let all = browser.getText(selector);
         if (Array.isArray(all)) {
             return all.length;
@@ -46,4 +52,4 @@ class AnalysisPage extends Page {
 
 }
 
-module.exports = AnalysisPage
+module.exports = AnalysisPage;

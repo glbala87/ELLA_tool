@@ -1,7 +1,20 @@
 var http = require('http');
 var addCommands = require('./commands');
 
+// when debugging it's useful to alter some config values
 var debug = process.env.DEBUG;
+var defaultCapabilities =  [{
+        "chromeOptions" : {
+            // "args": ["--kiosk"] // maximizes the browser, but  still not-clickable errors happen
+            // these don't have any effect: ["--start-fullscreen", start-fullscreen", "--start-maximized", start-maximized"]
+        },
+        maxInstances: 1,
+        browserName: 'chrome'
+    }];
+var defaultTimeoutInterval = 120000; // ms
+var defaultMaxInstances = 10;
+var defaultSpecs = ['src/webui/tests/e2e/tests/**/*.js'];
+// var defaultSpecs = ['src/webui/tests/e2e/tests/**/workflow_variant_acmg.js'];
 var BUNDLED_APP = 'app.js'; // see gulp file
 
 exports.config = {
@@ -17,9 +30,7 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
-    specs: [
-        'src/webui/tests/e2e/tests/**/*.js'
-    ],
+    specs:  process.env.SPEC ? [process.env.SPEC] : defaultSpecs,
     // Patterns to exclude.
     // exclude: [
     //     'src/webui/tests/e2e/tests/workflow_variant_classification.js'
@@ -40,23 +51,17 @@ exports.config = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: 10,
+    maxInstances: debug ? 1 : defaultMaxInstances,
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: [{
-        // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-        // grid with only 5 firefox instance available you can make sure that not more than
-        // 5 instance gets started at a time.
-        "chromeOptions" : {
-            // "args": ["--kiosk"] // maximizes the browser, but  still not-clickable errors happen
-            // these don't have any effect: ["--start-fullscreen", start-fullscreen", "--start-maximized", start-maximized"]
-        },
-        maxInstances: 1,
-        browserName: 'chrome'
-    }],
+    capabilities: debug ? [{browserName: 'chrome'}] : defaultCapabilities,
+    // maxInstances can get overwritten per capability. So if you have an in-house Selenium
+    // grid with only 5 firefox instance available you can make sure that not more than
+    // 5 instance gets started at a time.
+
 
     // Defined at cli...
     //host: "172.17.0.1",
@@ -133,7 +138,7 @@ exports.config = {
         //
         // Jasmine default timeout
         // We set this high, since some tests takes some time...
-        defaultTimeoutInterval: debug ? (24 * 60 * 60 * 1000) : 120000,
+        defaultTimeoutInterval: debug ? (24 * 60 * 60 * 1000) : defaultTimeoutInterval,
         //
         // The Jasmine framework allows interception of each assertion in order to log the state of the application
         // or website depending on the result. For example, it is pretty handy to take a screenshot every time
@@ -168,32 +173,35 @@ exports.config = {
     //
     // Hook that gets executed before the suite starts
     beforeSuite: function (suite) {
+        var timeout = 30000;
+        let baseUrl = browser.options.baseUrl;
+        var host = baseUrl.substring(0, baseUrl.lastIndexOf(":"));
+        var port = baseUrl.substring(baseUrl.lastIndexOf(":") + 1, baseUrl.length);
+        let options = {
+            host: host,
+            port: port,
+            path: '/' + BUNDLED_APP
+        };
+        var appUrl = "http://" + host + ":" + port + "/" + BUNDLED_APP;
+        console.log('Test suite waiting for ' + appUrl);
         browser.waitUntil(function () {
             return new Promise(function(resolve, reject) {
-                let baseUrl = browser.options.baseUrl;
-                var host = baseUrl.substring(0, baseUrl.lastIndexOf(":"));
-                var port = baseUrl.substring(baseUrl.lastIndexOf(":") + 1, baseUrl.length);
-                let options = {
-                    host: host,
-                    port: port,
-                    path: '/' + BUNDLED_APP
-                };
                 let callback = function(response) {
                     response.on('data', function (chunk) {});
                     response.on('end', function () {
                         let ok = response.statusCode === 200;
                         if (ok) {
-                            console.log(BUNDLED_APP + ' is compiled, moving on...');
+                            console.log(appUrl + ' is compiled, moving on...');
                         }
                         else {
-                            console.log(BUNDLED_APP + ' is still compiling, waiting...');
+                            console.log(appUrl + ' is still compiling, waiting...');
                         }
                         resolve(ok);
                     });
                 };
                 http.request(options, callback).end();
             });
-        }, 30000, 'waiting for gulp to finish building');
+        }, timeout, appUrl + " wasn't available within " + timeout + " ms. What's up gulp?", 1000);
     },
     //
     // Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling

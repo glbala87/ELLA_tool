@@ -169,14 +169,15 @@ def convert_clinvar(annotation):
 
     clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
 
+    if any(k not in clinvarjson for k in CLINVAR_FIELDS):
+        return dict()
+
     data = dict(items=[])
     data.update({k: clinvarjson[k] for k in CLINVAR_FIELDS})
     for rcv, val in clinvarjson["rcvs"].items():
         item = {k: ", ".join(val[k]) for k in CLINVAR_RCV_FIELDS}
         item["rcv"] = rcv
         data["items"].append(item)
-
-
 
     return {'CLINVAR': data}
 
@@ -286,15 +287,28 @@ def indb_frequencies(annotation):
     if 'inDB' not in annotation:
         return {}
 
-    frequencies = {
-        'freq': {
-            'AF': annotation['inDB']['alleleFreq']
-        },
-        'count': {
-            'AF': annotation['inDB']['noMutInd']
-        },
-        'indications': annotation['inDB']['indications']
-    }
+    frequencies = dict(freq=dict(), count=dict(), indications=dict())
+    if "AF_OUSWES" in annotation["inDB"]:
+        frequencies["freq"]["AF"] = annotation["inDB"]["AF_OUSWES"]
+    elif 'alleleFreq' in annotation["inDB"]:
+        frequencies["freq"]["AF"] = annotation["inDB"]["alleleFreq"]
+    else:
+        log.warning("inDB key present, bug missing supported frequency key")
+
+    if "AC_OUSWES" in annotation["inDB"]:
+        frequencies["count"]["AF"] = annotation["inDB"]["AC_OUSWES"]
+    elif 'noMutInd' in annotation['inDB']:
+        frequencies["count"]["AF"] = annotation["inDB"]["noMutInd"]
+    else:
+        log.warning("inDB key present, bug missing supported allele count key")
+
+    if "indications_OUSWES" in annotation["inDB"]:
+        frequencies["indications"] = annotation['inDB']['indications_OUSWES']
+    elif 'indications' in annotation['inDB']:
+        frequencies["indications"] = annotation['inDB']['indications']
+    else:
+        log.warning("inDB key present, bug missing supported indications key")
+
     return {'inDB': frequencies}
 
 
