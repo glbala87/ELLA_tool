@@ -1,42 +1,42 @@
 <aside class="row down">
     <h3 class="full-title" ng-repeat="anno in vm.allele.annotation.filtered track by anno.transcript" ng-if="vm.genepanel">
       <div class="allele_popup clickable white" isolate-click>
-        <transcript-wrapper  transcript="anno"
+        <repeat-wrapper  item="anno" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
           popover-trigger="outsideClick"
           uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
           popover-title="{{anno.symbol}}"
           popover-placement="bottom">
           {{anno.symbol}} ({{anno.exon}})
-        </transcript-wrapper>
+        </repeat-wrapper>
       </div>
     </h3>
     <h3 class="full-title" ng-repeat="anno in vm.allele.annotation.filtered track by anno.transcript" ng-if="!vm.genepanel">
-      <transcript-wrapper  transcript="anno">
+      <repeat-wrapper  item="anno" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html">
         {{anno.symbol}} ({{anno.exon}})
-      </transcript-wrapper>
+      </repeat-wrapper>
     </h3>
 
     <h3 class="full-title" ng-repeat="anno in vm.allele.annotation.filtered track by anno.transcript">
       <div class="allele_popup clickable white" isolate-click>
-        <transcript-wrapper  transcript="anno"
+        <repeat-wrapper  item="anno" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
           popover-trigger="outsideClick"
           uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
           popover-title="HGVS c.DNA"
           popover-placement="bottom">
             <i>{{anno.transcript}}:</i><b>{{anno.HGVSc_short}}</b> {{vm.getGenotypeForSample()}}
-        </transcript-wrapper>
+        </repeat-wrapper>
       </div>
     </h3>
 
     <h3 class="full-title" ng-repeat="anno in vm.allele.annotation.filtered track by anno.transcript">
       <div class="allele_popup clickable white" isolate-click>
-        <transcript-wrapper  transcript="anno"
+        <repeat-wrapper  item="anno" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
           popover-trigger="outsideClick"
           uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
           popover-title="HGVS protein"
           popover-placement="bottom">
             <i ng-if="anno.HGVSp">{{anno.HGVSp | proteinSequence}}:</i><b>{{anno.HGVSp_short}}</b> ({{anno.codons}})
-        </transcript-wrapper>
+        </repeat-wrapper>
       </div>
     </h3>
 
