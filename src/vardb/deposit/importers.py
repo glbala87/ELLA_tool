@@ -120,11 +120,12 @@ class GenotypeImporter(object):
         self.counter['nGenotypeHetroNonRef'] = 0
 
     def is_sample_het(self, records_sample):
-        if len(records_sample) > 1:
-            return True
+        for record in records_sample:
+            gt1, gt2=GenotypeImporter.ALLELE_DELIMITER.split(record['GT'])
+            if gt1 == gt2 == "1":
+                return False
 
-        gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(records_sample[0]['GT'])
-        return gt1 != gt2
+        return True
 
     def should_add_genotype(self, sample):
         """Decide if genotype should be added for this sample
@@ -140,47 +141,40 @@ class GenotypeImporter(object):
 
         Assumes alleles only contain alternative alleles.
         Assume genotype un-phased and returns alleles in reverse-integersorted genotype order (e.g. 0/1 -> 1,0).
+        For heterozygous non-ref genootypes, genotype phase is kept.
+
+        If the genotype in the record sample is of the form
+        records_sample = [{'GT': '.|1'}, {"GT": '1|.'}], this is interpreted as as GT='2|1',
+        and returns db_alleles[1], db_alleles[0]
         """
-        # Must define sort order for genotypes so alleles come in a defined order
-        # and alternative alleles come before ref (alt comes as gt1).
-        if len(records_sample) == 1:
-            # Position is single-allelic
-            record_sample = records_sample[0]
-            gt1, gt2 = sorted((int(g) for g in GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])), reverse=True)
-            if not gt1 > 0:
-                assert gt2 == 0
-                return None, None
+        # Iterate over records to extract genotype.
+        a1 = None
+        a2 = None
+        for i, record_sample in enumerate(records_sample):
+            gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
 
-            a1 = db_alleles[gt1 - 1]
+            assert gt1 in ['0', '.', '1']
+            assert gt2 in ['0', '.', '1']
 
-            # Only use a2 if hetrozygous non-reference
-            if gt1 != gt2 and gt2 != 0:
+            if gt1 == "1":
+                assert a1 is None
+                gt1=int(gt1) + i # Shift allele index by i
+                a1 = db_alleles[gt1 - 1]
+
+            if gt2 == "1":
+                assert a2 is None
+                gt2=int(gt2) + i # Shift allele index by i
                 a2 = db_alleles[gt2 - 1]
-            else:
-                a2 = None
-            return a1, a2
-        else:
-            # Position is multiallelic
-            a1 = None
+
+        # Flip genotype if given as 0|1
+        if a1 is None:
+            a1,a2 = a2,a1
+
+        # Second allele should be none if homozygous
+        if a1 == a2:
             a2 = None
-            for i, record_sample in enumerate(records_sample):
-                gt1,gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
-                if "1" not in [gt1,gt2]:
-                    continue
 
-                if gt1 != "1":
-                    gt1, gt2 = gt2, gt1
-
-                gt1 = int(gt1) + i
-                assert gt2 in ["0", ".", "1"]
-
-                if a1 is None:
-                    a1 = db_alleles[gt1-1]
-                    continue
-                if a2 is None:
-                    a2 = db_alleles[gt1-1]
-            return a1, a2
-
+        return a1, a2
 
     def process(self, records, sample_name, db_analysis, db_sample, db_alleles):
         records_sample = [record['SAMPLES'][sample_name] for record in records]
@@ -198,7 +192,7 @@ class GenotypeImporter(object):
                     continue
                 # {'REF': 12, 'A': 134, 'G': 12}
                 allele_depth.update({"REF": record_sample["AD"][0]})
-                allele_depth.update({k: v for k,v in zip(records[i]['ALT'], record_sample['AD'][1:])})
+                allele_depth.update({k: v for k, v in zip(records[i]['ALT'], record_sample['AD'][1:])})
 
         # GQ, DP, FILTER, and QUAL should be the same for all decomposed variants
         genotype_quality = records_sample[0].get('GQ')
