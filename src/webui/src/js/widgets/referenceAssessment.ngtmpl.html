@@ -1,20 +1,6 @@
 <div class="cb-table topfix" ng-if="referenceassessment && referenceassessment.evaluation.relevance">
     <h4 class="faded-title content-top" >Evaluation</h4>
 
-    <div class="tabular-row">
-      <div class="cell"><h5>Relevant:</h5></div>
-      <div class="cell max-width id-reference-relevance">
-          <p>{{referenceassessment.evaluation.relevance}}</p>
-      </div>
-    </div>
-
-    <div class="tabular-row" ng-if="referenceassessment.evaluation.ref_quality">
-      <div class="cell"><h5>Quality:</h5></div>
-      <div class="cell max-width id-reference-quality">
-          <p>{{referenceassessment.evaluation.ref_quality}}</p>
-      </div>
-    </div>
-
     <div class="tabular-row" ng-if="referenceassessment.evaluation.comment">
       <div class="cell top-align"><h5>Comment:</h5></div>
       <div class="cell max-width">

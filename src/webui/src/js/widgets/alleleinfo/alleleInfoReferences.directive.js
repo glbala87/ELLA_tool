@@ -99,34 +99,6 @@ export class AlleleInfoReferences {
         return 'Evaluate';
     }
 
-    _createReferenceDBSources() {
-        let referenceDBSources = {};
-        for (let key in this.allele.annotation.references) {
-            let ref = this.allele.annotation.references[key];
-            referenceDBSources[ref.pubmed_id] = {};
-            for (let sourceKey in ref.sources) {
-                let source = ref.sources[sourceKey];
-                let sourceStr = source;
-                if (source in ref.source_info) {
-                    sourceStr += " ("+ref.source_info[source]+")";
-                }
-                referenceDBSources[ref.pubmed_id][source] = sourceStr;
-            }
-        }
-        this._referenceDBSources = referenceDBSources;
-    }
-
-    getReferenceDBSources(pmid) {
-        if (!this.hasOwnProperty("_referenceDBSources")) {
-            this._createReferenceDBSources()
-        }
-        return this._referenceDBSources[pmid];
-    }
-
-    getAbstract(reference) {
-        return reference.abstract;
-    }
-
     showReferenceEval(reference) {
         // Check for existing referenceassessment data (either from existing ra from backend
         // or user data in the allele state)

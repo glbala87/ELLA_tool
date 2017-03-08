@@ -565,6 +565,24 @@ export class ReferenceEvalModalController {
 
     }
 
+    getReferenceDBSources() {
+        let sources = {};
+        console.log(this.allele.annotation);
+        let annotation_reference = this.allele.annotation.references.find(a => a.pubmed_id == this.reference.pubmed_id);
+        for (let source of annotation_reference.sources) {
+            let source_text = source;
+            if (source in annotation_reference.source_info) {
+                source_text += " ("+annotation_reference.source_info[source]+")";
+            }
+            sources[source] = source_text;
+        }
+        return sources;
+    }
+
+    getAbstract(reference) {
+        return reference.abstract;
+    }
+
     /**
      * Cleans up the evaluation, removing all data that is not
      * selected or not shown in the UI.
