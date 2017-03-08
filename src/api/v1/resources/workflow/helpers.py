@@ -113,6 +113,14 @@ def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinter
             'allelereport_id': [s.presented_allelereport_id for s in snapshots if s.presented_allelereport_id is not None],
         }
 
+        # For historical referenceassessments, they should all be connected to the alleleassessments used
+        ra_ids = session.query(assessment.ReferenceAssessment.id).join(
+            assessment.AlleleAssessment.referenceassessments
+        ).filter(
+            assessment.AlleleAssessment.id.in_(link_filter['alleleassessment_id'])
+        ).all()
+        link_filter['referenceassessment_id'] = [i[0] for i in ra_ids]
+
     # Only relevant for analysisinterpretation: Include the genotype for connected samples
     sample_ids = list()
     if analysisinterpretation_id is not None:
