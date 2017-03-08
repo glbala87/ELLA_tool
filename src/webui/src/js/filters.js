@@ -133,6 +133,15 @@ class Filters {
         }
     }
 
+    @Filter({
+        filterName: 'proteinSequence'
+    })
+    dropProteinChange() {
+        return (input) => {
+          return input.split(':')[0];
+        }
+    }
+
 }
 
 export default Filter;

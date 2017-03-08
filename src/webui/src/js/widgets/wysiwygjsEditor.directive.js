@@ -323,7 +323,7 @@ function getCurrentColors(nodes) {
         // Handle link form
         function handleLinkForm(e) {
             let src = e.target || e.srcElement;
-            console.log(src)
+            console.log(src);
 
             if (src.nodeName !== "INPUT" && (src === buttons["link"] || buttons["link"].contains(src))) {
                 // Open or close link form
