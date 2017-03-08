@@ -91,7 +91,6 @@ export class AnalysisController {
                         content: [
                             {'tag': 'allele-info-frequency-exac'},
                             {'tag': 'allele-info-frequency-thousandg'},
-                            {'tag': 'allele-info-frequency-esp6500'},
                             {'tag': 'allele-info-frequency-indb'},
                             {'tag': 'allele-info-dbsnp'},
                             {'tag': 'allele-info-quality'},
