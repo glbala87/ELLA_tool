@@ -1,0 +1,20 @@
+<sectionbox color="purple" modal="true" on-close="vm.modal.close">
+  <maintitle>
+    <h3 class="title">Classification history</h3>
+  </maintitle>
+  <controls>
+    <section class="line-wrapper pinned-right">
+      <button class="id-cancel"  type="button" ng-click="vm.modal.close(false)">Close</button>
+    </section>
+  </controls>
+  <contentwrapper>
+        <contentbox title="{{aa.date_created | date:'yyyy-MM-dd'}}" ng-repeat="aa in vm.alleleassessments">
+            <cbbody>
+                <allele-assessment
+                    alleleassessment="aa"
+                ></allele-assessment>
+            </cbbody>
+        </contentbox>
+
+  </contentwrapper>
+</sectionbox>
