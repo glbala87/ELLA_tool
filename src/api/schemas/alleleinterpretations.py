@@ -18,6 +18,7 @@ class AlleleInterpretationSnapshotSchema(Schema):
                   'alleleassessment_id',
                   'presented_alleleassessment_id',
                   'allelereport_id',
+                  'date_created',
                   'presented_allelereport_id')
 
 
@@ -34,6 +35,7 @@ class AlleleInterpretationSchema(Schema):
                   'genepanel_name',
                   'genepanel_version',
                   'date_last_update',
+                  'date_created',
                   'user_id',
                   'user')
 

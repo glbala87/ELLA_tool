@@ -14,7 +14,7 @@ class AlleleAssessmentSchema(Schema):
         title = "AlleleAssessment"
         description = 'Represents an assessment of one allele'
         fields = ('id',
-                  'date_last_update',
+                  'date_created',
                   'date_superceeded',
                   'allele_id',
                   'analysis_id',
@@ -34,13 +34,13 @@ class AlleleAssessmentSchema(Schema):
     user = fields.Nested(users.UserSchema)
     evaluation = fields.Field(required=False, default={})
     classification = fields.Field(required=True)
-    date_last_update = fields.DateTime()
+    date_created = fields.DateTime()
     date_superceeded = fields.DateTime(allow_none=True)
     referenceassessments = fields.Nested(referenceassessments.ReferenceAssessmentSchema, many=True, attribute='referenceassessments')
     seconds_since_update = fields.Method('get_seconds_since_created')
 
     def get_seconds_since_created(self, obj):
-        return (datetime.datetime.now() - obj.date_last_update).total_seconds()
+        return (datetime.datetime.now() - obj.date_created).total_seconds()
 
     @post_load
     def make_object(self, data):

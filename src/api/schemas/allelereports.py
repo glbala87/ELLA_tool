@@ -14,7 +14,7 @@ class AlleleReportSchema(Schema):
         title = "AlleleReport"
         description = 'Represents a clinical report for one allele'
         fields = ('id',
-                  'date_last_update',
+                  'date_created',
                   'date_superceeded',
                   'allele_id',
                   'analysis_id',
@@ -27,12 +27,12 @@ class AlleleReportSchema(Schema):
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
     evaluation = fields.Field(required=False, default={})
-    date_last_update = fields.DateTime()
+    date_created = fields.DateTime()
     date_superceeded = fields.DateTime(allow_none=True)
     seconds_since_update = fields.Method('get_seconds_since_created')
 
     def get_seconds_since_created(self, obj):
-        return (datetime.datetime.now() - obj.date_last_update).total_seconds()
+        return (datetime.datetime.now() - obj.date_created).total_seconds()
 
     @post_load
     def make_object(self, data):

@@ -141,8 +141,6 @@ class AssessmentCreator(object):
             else:  # create a new assessment
                 assessment_obj = AlleleAssessmentSchema(strict=True).load(assessment_data).data
                 assessment_obj.referenceassessments = []  # ReferenceAssessments must be handled separately, and not included as part of data
-                now = datetime.datetime.now()
-                assessment_obj.date_last_update = now
 
                 # look up the annotations for the allele we assess:
                 def annotation_predicate(id_pair):
@@ -165,7 +163,7 @@ class AssessmentCreator(object):
                 # Check if there's an existing assessment for this allele. If so, we want to supercede it
                 to_supercede = next((e for e in all_existing_assessments if e.allele_id == assessment_data['allele_id']), None)
                 if to_supercede:
-                    to_supercede.date_superceeded = now
+                    to_supercede.date_superceeded = datetime.datetime.now()
                     assessment_obj.previous_assessment_id = to_supercede.id
 
                 presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments, error_if_not_found=False)
@@ -223,7 +221,6 @@ class AssessmentCreator(object):
                 reused.append(to_reuse)
             else:
                 assessment_obj = ReferenceAssessmentSchema(strict=True).load(ra).data
-                assessment_obj.date_last_update = datetime.datetime.now()
 
                 # Link assessment to genepanel through analysis
                 if 'analysis_id' in ra:

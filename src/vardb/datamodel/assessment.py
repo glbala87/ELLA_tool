@@ -1,4 +1,5 @@
 """vardb datamodel Assessment class"""
+import datetime
 
 from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
@@ -25,7 +26,7 @@ class AlleleAssessment(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_last_update = Column(DateTime, nullable=False)
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     date_superceeded = Column(DateTime)
     previous_assessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
     previous_assessment = relationship("AlleleAssessment", uselist=False)
@@ -68,7 +69,7 @@ class ReferenceAssessment(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_last_update = Column(DateTime, nullable=False)
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     date_superceeded = Column(DateTime)
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
@@ -119,7 +120,7 @@ class AlleleReport(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_last_update = Column(DateTime, nullable=False)
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     date_superceeded = Column(DateTime)
     previous_report_id = Column(Integer, ForeignKey("allelereport.id"))
     previous_report = relationship("AlleleReport", uselist=False)

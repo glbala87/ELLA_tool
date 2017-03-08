@@ -79,13 +79,10 @@ class AlleleReportCreator(object):
                     del report_data['id']
                 report_object_to_create = AlleleReportSchema(strict=True).load(report_data).data
 
-                now = datetime.datetime.now()
-                report_object_to_create.date_last_update = now
-
                 # Check if there's an existing allelereport for this allele. If so, we want to supercede it
                 old_report = next((e for e in all_existing_reports if e.allele_id == report_data['allele_id']), None)
                 if old_report:
-                    old_report.date_superceeded = now
+                    old_report.date_superceeded = datetime.datetime.now()
                     report_object_to_create.previous_report_id = old_report.id
 
                 presented_report = self.find_report_presented(report_data, all_existing_reports, error_if_not_found=False)
