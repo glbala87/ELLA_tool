@@ -20,25 +20,6 @@ import {Directive, Inject} from '../ng-decorators';
 @Inject('$scope')
 export class ContentboxController {
 
-    constructor($scope) {
-        // textareas that are hidden won't automatically be resized when unhidden (http://www.jacklmoore.com/autosize/#faq-hidden)
-        $scope.$watch( () => this.disabled, (_new, _old) => {
-            if (_new == false) {
-              setTimeout(() => {
-                updateTextAreas();
-              }, 100);
-            }
-
-            function updateTextAreas() {
-                let comments = document.getElementsByClassName("id-autosizeable");
-                for (let c of comments) {
-                    autosize.update(c);
-                }
-            }
-        });
-
-    }
-
     getClasses() {
         let color = this.color ? this.color : "blue";
         let disabled = this.disabled ? "no-content" : "";
