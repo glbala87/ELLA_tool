@@ -1,28 +1,21 @@
 /* jshint esnext: true */
 
 export default class Annotation {
+
     /**
      * Represents one Annotation
      * @param  {object} Annotation data.
      */
     constructor(data) {
         Object.assign(this, data);
-        this.setFilteredTranscripts();
-    }
-
-    /**
-     * Set 'filtered' property based on key from 'filtered_transcripts'
-     * and data from 'transcripts'
-     */
-    setFilteredTranscripts() {
         if (this.filtered_transcripts.length) {
-            this.filtered = this.transcripts.filter(t => {
-                return this.filtered_transcripts.includes(t.transcript);
-            });
+            this.filtered = this.transcripts.filter(anno => this.filtered_transcripts.includes(anno.transcript));
         } else {
             this.filtered = this.transcripts;
         }
     }
+
+
 
     /**
      * Checks whether the allele has a transcript with worse consequence than

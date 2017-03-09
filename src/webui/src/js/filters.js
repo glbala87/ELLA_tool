@@ -133,9 +133,17 @@ class Filters {
         }
     }
 
+    @Filter({
+        filterName: 'proteinSequence'
+    })
+    dropProteinChange() {
+        return (input) => {
+          return input.split(':')[0];
+        }
+    }
 
     @Filter({
-        filterName: 'formatText'
+    filterName: 'formatText'
     })
     formatText() {
         return (input) => {
@@ -152,6 +160,7 @@ class Filters {
 
         }
     };
+
 }
 
 export default Filter;

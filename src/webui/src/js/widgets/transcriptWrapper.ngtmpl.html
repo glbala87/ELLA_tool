@@ -1,6 +1,6 @@
-<div class="panel panel-default" ng-if="vm.showWrapper">
-        <p>{{vm.transcript.transcript}}:</p>
-        <ng-transclude></ng-transclude>
+<div class="panel panel-default" ng-if="vm.singleElement">
+  <p>{{vm.item.transcript}}:</p>
+  <ng-transclude></ng-transclude>
 </div>
 
-<ng-transclude ng-if="!vm.showWrapper"></ng-transclude>
+<ng-transclude ng-if="!vm.singleElement"></ng-transclude>

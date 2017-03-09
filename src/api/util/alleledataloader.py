@@ -51,10 +51,10 @@ class AlleleDataLoader(object):
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
         :param annotation: If true, load the ones mentioned in link_filter.annotation_id
-        :param include_custom_annotation: If true, load the ones mentioned in link_filter.customannotation_id
-        :param include_allele_assessment: If true, load the ones mentioned in link_filter.alleleassessment_id
-        :param include_reference_assessments: If true, load the ones mentioned in link_filter.referenceassessment_id
-        :param include_allele_report: If true, load the ones mentioned in link_filter.allelereport_id
+        :param include_custom_annotation: If true, load the ones mentioned in link_filter.customannotation_id or, if not provided, the latest data
+        :param include_allele_assessment: If true, load the ones mentioned in link_filter.alleleassessment_id or, if not provided, the latest data
+        :param include_reference_assessments: If true, load the ones mentioned in link_filter.referenceassessment_id or, if not provided, the latest data
+        :param include_allele_report: If true, load the ones mentioned in link_filter.allelereport_id or, if not provided, the latest data
         :returns: dict with converted data using schema data.
         """
 
