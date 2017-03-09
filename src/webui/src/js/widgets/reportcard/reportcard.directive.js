@@ -17,15 +17,16 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
 
 })
 @Inject(
-    'Config'
+    'Config',
+    '$sce'
 )
 export class ReportCardController {
 
 
     constructor(Config,
-                Allele,
-                Analysis) {
+                $sce) {
         this.config = Config.getConfig();
+        this.sce = $sce;
         this.selected_excluded = null;
     }
 
@@ -40,6 +41,11 @@ export class ReportCardController {
 
     getClassification(allele) {
         return AlleleStateHelper.getClassification(allele, this.getAlleleState(allele));
+    }
+
+    getAlleleReportComment(allele) {
+        console.log(this.sce.trustAsHtml(this.getAlleleReport(allele).evaluation.comment));
+        return this.sce.trustAsHtml(this.getAlleleReport(allele).evaluation.comment);
     }
 
     getAlleles() {
