@@ -4,7 +4,6 @@ and started in conftest.py"""
 
 import json
 
-#from api.polling import ANNOTATION_JOBS_PATH
 from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, \
     ANNOTATION_SERVICE_URL
 from api.polling import process_annotated, process_submitted, process_running

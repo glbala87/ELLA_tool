@@ -7,13 +7,13 @@ import urllib2
 from StringIO import StringIO
 from os.path import join
 from sqlalchemy.exc import OperationalError
-from werkzeug.serving import is_running_from_reloader
 
 from api.config import config
 from vardb.datamodel import annotationjob
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
+from werkzeug.serving import is_running_from_reloader
 
 # Make StringIO objects work fine in with-statements
 StringIO.__exit__ = lambda *args: args[0]

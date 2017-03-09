@@ -1,17 +1,12 @@
-from flask import Flask, request, render_template, session, flash, redirect, \
-    url_for, jsonify, Response
-
-import pytest
-import os
-import subprocess
 import json
+import os
+import pytest
+import subprocess
 
+from api.polling import AnnotationJobsInterface
 from vardb.datamodel import sample, annotationjob, allele, genotype
 from vardb.deposit.importers import AlleleImporter
 
-#from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, ANNOTATION_SERVICE_STATUS_PATH, \
-#    ANNOTATION_SERVICE_PROCESS_PATH, DEPOSIT_SERVICE_PATH
-from api.polling import AnnotationServiceInterface, AnnotationJobsInterface
 ANNOTATION_JOBS_PATH = "/api/v1/annotationjobs/"
 
 import vardb
@@ -162,9 +157,6 @@ def test_status_update_annotationjob(session, client):
 
     annotationjob_interface=AnnotationJobsInterface(session)
     annotationjob_interface.patch(id, **update_data)
-
-    #response = client.patch(ANNOTATION_JOBS_PATH, data=update_data)
-    #assert response.status_code == 200
 
     annotation_jobs = session.query(annotationjob.AnnotationJob).filter(
         annotationjob.AnnotationJob.id == id
