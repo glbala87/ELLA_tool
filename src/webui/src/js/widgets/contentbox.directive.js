@@ -20,6 +20,8 @@ import {Directive, Inject} from '../ng-decorators';
 @Inject('$scope')
 export class ContentboxController {
 
+    constructor() {}
+
     getClasses() {
         let color = this.color ? this.color : "blue";
         let disabled = this.disabled ? "no-content" : "";
