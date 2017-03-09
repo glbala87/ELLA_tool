@@ -6,14 +6,7 @@ from rest_query import RestQuery
 from polling import setup_polling
 
 
-def create_app():
-    app = Flask(__name__)
-    setup_polling(app)
-    return app
-
-
-# Setup app, and create polling thread
-app = create_app()
+app = Flask(__name__)
 
 db = DB()
 engine_kwargs = {
@@ -23,6 +16,8 @@ engine_kwargs = {
 }
 db.connect(engine_kwargs=engine_kwargs, query_cls=RestQuery)
 
+# Setup polling of annotation service
+setup_polling(db.session)
 
 class ApiError(RuntimeError):
     pass

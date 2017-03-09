@@ -2,23 +2,14 @@ from api.util.util import request_json, rest_filter
 import urllib2
 from os.path import join
 import json
-from StringIO import StringIO
 
-# Make StringIO objects work fine in with-statements
-StringIO.__exit__ = lambda *args: args[0]
-StringIO.__enter__ = lambda *args: args[0]
 
 from vardb.datamodel import annotationjob
-
-import datetime
 
 from api.v1.resource import Resource
 from api import schemas
 from api.config import config
 
-from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.deposit.deposit_alleles import DepositAlleles
-from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
 
 ANNOTATION_SERVICE = config["app"]["annotation_service"]
 
@@ -40,6 +31,7 @@ class AnnotationJob(Resource):
         session.commit()
         return schemas.AnnotationJobSchema().dump(annotation_job_data).data
 
+    '''
     @request_json(['id'], allowed=['status', 'message', 'task_id'])
     def patch(self, session, data=None):
         id = data["id"]
@@ -66,6 +58,7 @@ class AnnotationJob(Resource):
         session.commit()
 
         return None, 200
+    '''
 
     def delete(self, session, id):
         job = session.query(annotationjob.AnnotationJob).filter(
@@ -75,7 +68,7 @@ class AnnotationJob(Resource):
         session.commit()
         return None, 200
 
-
+'''
 class AnnotationJobDeposit(Resource):
     @request_json(["id", "annotated_vcf"])
     def post(self, session, data=None):
@@ -140,17 +133,17 @@ class AnnotationJobDeposit(Resource):
             except Exception as e:
                 return e.message, 500
             session.commit()
-
+'''
 
 class AnnotationServiceRunning(Resource):
     def get(self, session):
         try:
             k = urllib2.urlopen(join(ANNOTATION_SERVICE, "status"))
             return {"running": True}, 200
-        except urllib2.HTTPError:
+        except Exception:
             return {"running": False}, 200
 
-
+'''
 class AnnotationServiceStatus(Resource):
     def get(self, session, task_id=None):
         """Get status of task_id or all tasks"""
@@ -160,18 +153,20 @@ class AnnotationServiceStatus(Resource):
             k = urllib2.urlopen(join(ANNOTATION_SERVICE, "status"))
         resp = json.loads(k.read())
         return resp
-
-
+'''
+'''
 class AnnotationServiceAnnotate(Resource):
     @request_json([], True)
     def post(self, session, data):
         """Post vcf, create job, return task_id"""
         k = urllib2.urlopen(join(ANNOTATION_SERVICE, "annotate"), data=json.dumps(data))
         return json.loads(k.read())
+'''
 
-
+'''
 class AnnotationServiceProcess(Resource):
     def get(self, session, task_id):
         """Return annotated vcf"""
         k = urllib2.urlopen(join(ANNOTATION_SERVICE, "process", task_id))
         return json.loads(k.read())
+'''

@@ -127,17 +127,17 @@ class ApiV1(object):
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
                            '/api/v1/annotationservice/running/')
 
-        self._add_resource(r.annotationjob.AnnotationServiceStatus,
-                           '/api/v1/annotationservice/status/<task_id>')
+        # self._add_resource(r.annotationjob.AnnotationServiceStatus,
+        #                    '/api/v1/annotationservice/status/<task_id>')
 
-        self._add_resource(r.annotationjob.AnnotationServiceAnnotate,
-                           '/api/v1/annotationservice/annotate/')
+        # self._add_resource(r.annotationjob.AnnotationServiceAnnotate,
+        #                    '/api/v1/annotationservice/annotate/')
 
-        self._add_resource(r.annotationjob.AnnotationServiceProcess,
-                           '/api/v1/annotationservice/process/<task_id>')
+        # self._add_resource(r.annotationjob.AnnotationServiceProcess,
+        #                    '/api/v1/annotationservice/process/<task_id>')
 
-        self._add_resource(r.annotationjob.AnnotationJobDeposit,
-                           '/api/v1/annotationservice/deposit/')
+        # self._add_resource(r.annotationjob.AnnotationJobDeposit,
+        #                    '/api/v1/annotationservice/deposit/')
 
         self._add_resource(r.workflow.allele.AlleleInterpretationListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/interpretations/')
