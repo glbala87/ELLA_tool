@@ -158,13 +158,11 @@ class GenotypeImporter(object):
 
             if gt1 == "1":
                 assert a1 is None
-                gt1=int(gt1) + i # Shift allele index by i
-                a1 = db_alleles[gt1 - 1]
+                a1 = db_alleles[i]
 
             if gt2 == "1":
                 assert a2 is None
-                gt2=int(gt2) + i # Shift allele index by i
-                a2 = db_alleles[gt2 - 1]
+                a2 = db_alleles[i]
 
         # Flip genotype if given as 0|1
         if a1 is None:
