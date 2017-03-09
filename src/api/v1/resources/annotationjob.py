@@ -2,16 +2,14 @@ from api.util.util import request_json, rest_filter
 import urllib2
 from os.path import join
 import json
-
+import datetime
+from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
 
 from vardb.datamodel import annotationjob
 
 from api.v1.resource import Resource
 from api import schemas
 from api.config import config
-
-
-ANNOTATION_SERVICE = config["app"]["annotation_service"]
 
 
 class AnnotationJob(Resource):
@@ -31,34 +29,18 @@ class AnnotationJob(Resource):
         session.commit()
         return schemas.AnnotationJobSchema().dump(annotation_job_data).data
 
-    '''
+
     @request_json(['id'], allowed=['status', 'message', 'task_id'])
     def patch(self, session, data=None):
-        id = data["id"]
-
-        job = session.query(annotationjob.AnnotationJob).filter(
-            annotationjob.AnnotationJob.id == id
-        ).one()
-
-        if data["status"] != job.status:
-            if "history" not in job.status_history:
-                job.status_history["history"] = list()
-
-            job.status_history["history"].insert(0, {
-                'time'  : datetime.datetime.now().isoformat(),
-                'status': job.status,
-            })
-
-        for k, v in data.items():
-            assert hasattr(job, k)
-            if getattr(job, k) != v:
-                setattr(job, k, v)
-
-        job.date_last_update = datetime.datetime.now()
+        annotationjob_interface = AnnotationJobsInterface(session)
+        job = annotationjob_interface.patch(data["id"],
+                                      status=data.get("status"),
+                                      message=data.get("message"),
+                                      task_id=data.get("task_id"))
         session.commit()
 
-        return None, 200
-    '''
+        return job, 200
+
 
     def delete(self, session, id):
         job = session.query(annotationjob.AnnotationJob).filter(
@@ -137,11 +119,8 @@ class AnnotationJobDeposit(Resource):
 
 class AnnotationServiceRunning(Resource):
     def get(self, session):
-        try:
-            k = urllib2.urlopen(join(ANNOTATION_SERVICE, "status"))
-            return {"running": True}, 200
-        except Exception:
-            return {"running": False}, 200
+        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
+        return annotationservice_interface.annotation_service_running()
 
 '''
 class AnnotationServiceStatus(Resource):

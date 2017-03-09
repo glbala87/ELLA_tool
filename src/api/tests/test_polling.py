@@ -5,7 +5,8 @@ and started in conftest.py"""
 import json
 
 #from api.polling import ANNOTATION_JOBS_PATH
-from api.polling import AnnotationJobs, AnnotationService, ANNOTATION_SERVICE_URL
+from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, \
+    ANNOTATION_SERVICE_URL
 from api.polling import process_annotated, process_submitted, process_running
 ANNOTATION_JOBS_PATH = "/api/v1/annotationjobs/"
 
@@ -30,8 +31,8 @@ def test_polling(session, client, test_database):
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
 
-    annotationjob_interface = AnnotationJobs(session)
-    annotationservice_interface = AnnotationService(ANNOTATION_SERVICE_URL)
+    annotationjob_interface = AnnotationJobsInterface(session)
+    annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
 
     # Process submitted
     submitted = annotationjob_interface.get_with_status("SUBMITTED")

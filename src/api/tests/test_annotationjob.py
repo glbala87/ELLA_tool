@@ -11,7 +11,7 @@ from vardb.deposit.importers import AlleleImporter
 
 #from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, ANNOTATION_SERVICE_STATUS_PATH, \
 #    ANNOTATION_SERVICE_PROCESS_PATH, DEPOSIT_SERVICE_PATH
-from api.polling import AnnotationService, AnnotationJobs
+from api.polling import AnnotationServiceInterface, AnnotationJobsInterface
 ANNOTATION_JOBS_PATH = "/api/v1/annotationjobs/"
 
 import vardb
@@ -124,7 +124,7 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    annotationjob_interface = AnnotationJobs(session)
+    annotationjob_interface = AnnotationJobsInterface(session)
     annotationjob_interface.deposit(id, annotated_vcf)
     session.commit()
 
@@ -160,7 +160,7 @@ def test_status_update_annotationjob(session, client):
         "task_id": "123456789"
     }
 
-    annotationjob_interface=AnnotationJobs(session)
+    annotationjob_interface=AnnotationJobsInterface(session)
     annotationjob_interface.patch(id, **update_data)
 
     #response = client.patch(ANNOTATION_JOBS_PATH, data=update_data)
@@ -221,7 +221,7 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    annotationjob_interface = AnnotationJobs(session)
+    annotationjob_interface = AnnotationJobsInterface(session)
     annotationjob_interface.deposit(id, annotated_vcf)
     session.commit()
 
@@ -261,7 +261,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    annotationjob_interface=AnnotationJobs(session)
+    annotationjob_interface=AnnotationJobsInterface(session)
     annotationjob_interface.deposit(id, first_vcf)
     session.commit()
 
@@ -295,7 +295,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    annotationjob_interface=AnnotationJobs(session)
+    annotationjob_interface=AnnotationJobsInterface(session)
     annotationjob_interface.deposit(id, second_vcf)
     session.commit()
 

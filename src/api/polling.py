@@ -24,7 +24,7 @@ log=logging.getLogger(__name__)
 ANNOTATION_SERVICE_URL = config["app"]["annotation_service"]
 
 
-class AnnotationJobs:
+class AnnotationJobsInterface:
     def __init__(self, session):
         self.session = session
 
@@ -65,7 +65,7 @@ class AnnotationJobs:
 
         for k, v in kwargs.items():
             assert hasattr(job, k)
-            if getattr(job, k) != v:
+            if v is not None and getattr(job, k) != v:
                 setattr(job, k, v)
 
         job.date_last_update=datetime.datetime.now()
@@ -131,7 +131,7 @@ class AnnotationJobs:
         self.session.commit()
 
 
-class AnnotationService:
+class AnnotationServiceInterface:
     def __init__(self, url):
         self.url = url
 
@@ -214,7 +214,6 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
 
         try:
             annotation_jobs.deposit(id, annotated_vcf)
-            annotated_jobs.commit()
             status = "DONE"
             message = ""
         except Exception, e:
@@ -226,8 +225,8 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
 
 def polling(session):
     def loop(session):
-        annotation_jobs = AnnotationJobs(session)
-        annotation_service = AnnotationService(ANNOTATION_SERVICE_URL)
+        annotation_jobs = AnnotationJobsInterface(session)
+        annotation_service = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
         while True:
             try:
                 session.connection()
