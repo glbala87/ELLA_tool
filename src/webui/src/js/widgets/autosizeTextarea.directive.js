@@ -13,7 +13,7 @@ import {Directive, Inject} from '../ng-decorators';
         ngModel: '=',
         ngDisabled: '=?'
     },
-    template: '<textarea ng-disabled="vm.ngDisabled" rows=1 placeholder="{{vm.placeholder}}" ng-model="vm.ngModel"></textarea>',
+    template: '<textarea class="id-autosizeable" ng-disabled="vm.ngDisabled" rows=1 placeholder="{{vm.placeholder}}" ng-model="vm.ngModel"></textarea>',
     link: (scope, elem, attrs) => {
         autosize(elem.children()[0]);
         scope.$watch( () => scope.ngModel, () => autosize.update(elem.children()[0]) );
