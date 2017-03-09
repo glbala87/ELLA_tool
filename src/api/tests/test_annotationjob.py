@@ -9,8 +9,10 @@ import json
 from vardb.datamodel import sample, annotationjob, allele, genotype
 from vardb.deposit.importers import AlleleImporter
 
-from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, ANNOTATION_SERVICE_STATUS_PATH, \
-    ANNOTATION_SERVICE_PROCESS_PATH, DEPOSIT_SERVICE_PATH
+#from api.polling import ANNOTATION_JOBS_PATH, ANNOTATION_SERVICE_ANNOTATE_PATH, ANNOTATION_SERVICE_STATUS_PATH, \
+#    ANNOTATION_SERVICE_PROCESS_PATH, DEPOSIT_SERVICE_PATH
+from api.polling import AnnotationService, AnnotationJobs
+ANNOTATION_JOBS_PATH = "/api/v1/annotationjobs/"
 
 import vardb
 TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
@@ -122,9 +124,9 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    deposit_data = {"id": id, "annotated_vcf": annotated_vcf}
-    response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
-    assert response.status_code == 200
+    annotationjob_interface = AnnotationJobs(session)
+    annotationjob_interface.deposit(id, annotated_vcf)
+    session.commit()
 
     # Check that annotation job is deposited
     analyses = session.query(sample.Analysis).filter(
@@ -153,13 +155,16 @@ def test_status_update_annotationjob(session, client):
     id = json.loads(response.get_data())["id"]
 
     update_data = {
-        "id": id,
         "status": "ANNOTATED",
         "message": "Message from server",
         "task_id": "123456789"
     }
-    response = client.patch(ANNOTATION_JOBS_PATH, data=update_data)
-    assert response.status_code == 200
+
+    annotationjob_interface=AnnotationJobs(session)
+    annotationjob_interface.patch(id, **update_data)
+
+    #response = client.patch(ANNOTATION_JOBS_PATH, data=update_data)
+    #assert response.status_code == 200
 
     annotation_jobs = session.query(annotationjob.AnnotationJob).filter(
         annotationjob.AnnotationJob.id == id
@@ -194,6 +199,7 @@ def get_alleles(vcf, session):
 
 
 def test_deposit_independent_variants(test_database, session, client, annotated_vcf):
+    test_database.refresh()
     alleles = get_alleles(annotated_vcf, session)
     existing = session.query(allele.Allele).all()
     alleles_to_be_added = list(set(alleles)-set(existing))
@@ -215,9 +221,9 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    deposit_data = {"id": id, "annotated_vcf": annotated_vcf}
-    response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
-    assert response.status_code == 200
+    annotationjob_interface = AnnotationJobs(session)
+    annotationjob_interface.deposit(id, annotated_vcf)
+    session.commit()
 
     # Check that annotation job is deposited
     new_alleles = session.query(allele.Allele).filter(
@@ -255,9 +261,9 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    deposit_data = {"id": id, "annotated_vcf": first_vcf}
-    response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
-    assert response.status_code == 200
+    annotationjob_interface=AnnotationJobs(session)
+    annotationjob_interface.deposit(id, first_vcf)
+    session.commit()
 
     # Check that annotation job is deposited
     analysis_name = ".".join([data1["properties"]["analysis_name"], data1["properties"]["genepanel"]])
@@ -288,10 +294,10 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     assert response.status_code == 200
     id = json.loads(response.get_data())["id"]
 
-    # Annotation job deposit (append)
-    deposit_data = {"id": id, "annotated_vcf": second_vcf}
-    response = client.post(DEPOSIT_SERVICE_PATH, data=deposit_data)
-    assert response.status_code == 200
+    # Annotation job deposit
+    annotationjob_interface=AnnotationJobs(session)
+    annotationjob_interface.deposit(id, second_vcf)
+    session.commit()
 
     # Check that the new alleles were added to analysis
     genotypes = session.query(genotype.Genotype).filter(
