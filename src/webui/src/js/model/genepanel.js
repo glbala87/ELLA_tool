@@ -97,6 +97,10 @@ export default class Genepanel {
 
     }
 
+    getDisplayInheritance(gene_symbol) {
+        return this.getInheritanceCodes(gene_symbol);
+    }
+
     phenotypesBy(geneSymbol) {
         let phenotypes = this.phenotypes;
         if (phenotypes) {

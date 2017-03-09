@@ -48,13 +48,11 @@
       components="vm.components"
       selected-component="vm.selected_component"
       interpretation="vm.getInterpretation()"
+      genepanel="vm.genepanel"
       allele-ids="vm.getInterpretation().allele_ids"
-      genepanel-name="vm.analysis.genepanel.name"
-      genepanel-version="vm.analysis.genepanel.version"
-      analysis="vm.analysis"
       alleles="vm.selected_interpretation_alleles"
       update-alleles="vm.loadAlleles()"
-      ng-if="vm.analysis && vm.alleles_loaded"
+      ng-if="vm.analysis && vm.alleles_loaded && vm.genepanel"
       read-only="vm.readOnly()"
     ></interpretation>
   </div>

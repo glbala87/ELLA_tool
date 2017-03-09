@@ -7,7 +7,8 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     selector: 'allele-sidebar',
     templateUrl: 'ngtmpl/alleleSidebar.ngtmpl.html',
     scope: {
-        alleles: '=',  // Allele options: { unclassified: [ {allele: Allele, alleleState: {...}, inactive: true, checkable: true, checked: true ] }, classified: [ ... ] }
+        genepanel: '=',
+        alleles: '=',  // Allele options: { unclassified: [ {allele: Allele, alleleState: {...}, checkable: true, checked: true ] }, classified: [ ... ] }
         selected: '=', // Selected Allele
         readOnly: '=?' // if readOnly the allele can't be added to report
     },
@@ -26,10 +27,11 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
       });
     }
 })
-@Inject()
+@Inject('Config')
 export class AlleleSidebarController {
 
-    constructor() {
+    constructor(Config) {
+        this.config = Config.getConfig();
     }
 
     select(allele_option) {
@@ -69,6 +71,22 @@ export class AlleleSidebarController {
 
     isTogglable(allele_option) {
         return allele_option.togglable;
+    }
+
+    getConsequence(allele) {
+        let consequence_priority = this.config.transcripts.consequences;
+        let sort_func = (a, b) => {
+            return consequence_priority.indexOf(a) - consequence_priority.indexOf(b);
+        }
+        return allele.annotation.filtered.map(
+            t => t.consequences.sort(sort_func)[0].replace('_variant', '')
+        ).join(' | ');
+    }
+
+    getInheritance(allele) {
+        if (this.genepanel) {
+            return this.genepanel.getDisplayInheritance(allele.annotation.filtered[0].symbol);
+        }
     }
 
     getClassification(allele, allele_state) {
