@@ -44,8 +44,8 @@ class TestAlleleList(object):
 #                          "lo_freq_cutoff": 0.0005
 
 @pytest.mark.parametrize("url, expected_1000g, expected_6500, expected_exac", [
-    ('/api/v1/alleles/?q={"id": [1]}&gp_name=HBOC&gp_version=v01', [BETWEEN_LOWER_U, BETWEEN_UPPER_U], BELOW_U, [BETWEEN_LOWER_U, BETWEEN_UPPER_U]),
-    ('/api/v1/alleles/?q={"id": [1]}', BELOW_U, BELOW_U, BELOW_U),  # panel not specified, uses default cutoffs
+    ('/api/v1/alleles/?q={"id": [6]}&gp_name=HBOC&gp_version=v01', [BETWEEN_LOWER_U, BETWEEN_UPPER_U], BELOW_U, [BETWEEN_LOWER_U, BETWEEN_UPPER_U]),
+    ('/api/v1/alleles/?q={"id": [6]}', BELOW_U, BELOW_U, BELOW_U),  # panel not specified, uses default cutoffs
 ])
 def test_calculation_of_cutoffs(client, url, expected_1000g, expected_6500, expected_exac):
     response = client.get(url)
@@ -55,7 +55,7 @@ def test_calculation_of_cutoffs(client, url, expected_1000g, expected_6500, expe
     assert len(alleles) == 1
 
     our_allele = alleles[0]
-    assert 1 == our_allele['id']
+    assert 6 == our_allele['id']
 
     frequency_annotations = our_allele['annotation']['frequencies']
     assert expected_1000g == frequency_annotations['cutoff']['external']['1000g']
