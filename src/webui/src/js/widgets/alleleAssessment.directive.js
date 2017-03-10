@@ -15,15 +15,15 @@ export class AlleleInfoVardb {
 
     constructor(Config, AlleleAssessmentHistoryModal) {
         this.config = Config.getConfig();
-        console.log(this.alleleassessment);
     }
 
     getClassificationConfig() {
         let aclass = this.alleleassessment.classification;
-        try {
+        if ('classification' in this.config &&
+            'options' in this.config.classification){
             return this.config.classification.options.find(o => o.value === aclass);
         }
-        catch(err) {
+        else {
             return {}
         }
     }
@@ -40,12 +40,11 @@ export class AlleleInfoVardb {
         if (!this.alleleassessment) {
             return '';
         }
-        try {
-            return this.getClassificationConfig().name;
+        let classification_config = this.getClassificationConfig();
+        if ('name' in classification_config) {
+            return classification_config.name;
         }
-        catch(err) {
-            return this.alleleassessment.classification;
-        }
+        return this.alleleassessment.classification;
     }
 
 }
