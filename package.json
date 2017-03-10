@@ -27,12 +27,12 @@
     "gulp-uglify": "1.5.3",
     "gulp-util": "3.0.7",
     "gulp-wrapper": "0.1.42",
+    "gulp-watch": "4.3.11",
     "jasmine-fail-fast": "^2.0.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0"
   },
   "devDependencies": {
-    "gulp-watch": "4.3.11",
     "jasmine-core": "2.5.2",
     "jasmine-spec-reporter": "3.2.0",
     "js-polyfills": "0.1.19",
