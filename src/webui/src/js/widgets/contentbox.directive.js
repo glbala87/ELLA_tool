@@ -17,6 +17,7 @@ import {Directive, Inject} from '../ng-decorators';
     transclude: { cbbody: 'cbbody' },
     templateUrl: 'ngtmpl/contentbox.ngtmpl.html'
 })
+@Inject('$scope')
 export class ContentboxController {
 
     constructor() {}

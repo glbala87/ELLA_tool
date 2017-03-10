@@ -13,10 +13,14 @@ import {Directive, Inject} from '../ng-decorators';
         ngModel: '=',
         ngDisabled: '=?'
     },
-    template: '<textarea ng-disabled="vm.ngDisabled" rows=1 placeholder="{{vm.placeholder}}" ng-model="vm.ngModel"></textarea>',
+    template: '<textarea class="id-autosizeable" ng-disabled="vm.ngDisabled" rows=1 placeholder="{{vm.placeholder}}" ng-model="vm.ngModel"></textarea>',
     link: (scope, elem, attrs) => {
-        autosize(elem.children()[0]);
-        scope.$watch( () => scope.ngModel, () => autosize.update(elem.children()[0]) );
+        let textarea = elem.children()[0];
+        autosize(textarea);
+        scope.$watch( () => scope.ngModel, () => autosize.update(textarea) );
+        // when textarea initially is hidden and then shown, we must explicitly autosize it:
+        // (http://www.jacklmoore.com/autosize/#faq-hidden)
+        setTimeout(() => { autosize.update(textarea); }, 10);
     }
 })
 export class AutosizeTextareaController { }
