@@ -68,7 +68,7 @@ describe('Sample workflow', function () {
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
         expected_analysis_1_round_1[selected_allele] = {classification: '1'};
 
-        alleleSidebar.selectUnclassifiedAllele('c.920_921insT');
+        alleleSidebar.selectUnclassifiedAllele('c.925dupT');
         selected_allele = alleleSidebar.getSelectedAllele();
         alleleSectionBox.markAsClass2();
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);

@@ -37,7 +37,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
 
         alleleSectionBox.markAsTechnical();
 
-        expect(alleleSectionBox.getReferences().value.length).toEqual(2);
+        expect(alleleSectionBox.getReferences().value.length).toEqual(3);
 
         // add a reference
         console.log(`adding references`);
@@ -51,7 +51,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         expect(afterCount).toEqual(beforeCount + 1);
         customAnnotationModal.saveBtn.click();
 
-        expect(alleleSectionBox.getReferences().value.length).toEqual(3);
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1');
         analysisPage.finishButton.click();
@@ -63,9 +63,9 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         loginPage.selectSecondUser();
         variantSelectionPage.expandReviewSection();
         variantSelectionPage.selectTopReview();
-        expect(alleleSectionBox.getReferences().value.length).toEqual(3);
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
         analysisPage.startButton.click();
-        expect(alleleSectionBox.getReferences().value.length).toEqual(3);
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
     });
@@ -75,7 +75,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         loginPage.selectSecondUser();
         variantSelectionPage.expandFinishedSection();
         variantSelectionPage.selectFinished(1);
-        expect(alleleSectionBox.getReferences().value.length).toEqual(3);
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
     });
 
 
