@@ -277,6 +277,7 @@ def start_interpretation(session, data, allele_id=None, analysis_id=None):
     # since it's a foreign key
     interpretation.user = start_user
     interpretation.status = 'Ongoing'
+    interpretation.date_last_update = datetime.datetime.now()
 
     if analysis_id is not None:
         analysis = session.query(sample.Analysis).filter(
