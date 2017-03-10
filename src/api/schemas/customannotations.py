@@ -8,4 +8,4 @@ class CustomAnnotationSchema(Schema):
                   'user_id',
                   'annotations',
                   'date_superceeded',
-                  'date_last_update')
+                  'date_created')

@@ -104,7 +104,7 @@ function doBundling(watcher) {
         .pipe(buffer())
         .pipe(gulp.dest(__basedir))
         .on('end', function() { d = new Date(); console.log(
-                '[' + d.toTimeString().split(' ')[0] + ']' + ' Finished rebuilding JS, so fast!'
+                '[' + d.toTimeString().split(' ')[0] + ']' + ' Finished rebuilding JS.'
         )})
         .pipe(production ? util.noop() : livereload());
 

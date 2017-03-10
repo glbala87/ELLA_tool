@@ -19,22 +19,6 @@ $bar-colors: (
 
 .sectionbox .title, .sectionbox .icon { color: $black-50; }
 .sectionbox .subtitle { color: $black-25; }
-.contentbox .cb.titlebar { color: $white-50; }
-
-
-.contentbox { display: flex; height: calc(100% - 0.7rem);
-  .cb.titlebar { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 2.8rem; min-width: 2.8rem; }
-  .titlebar div { margin: 1.75rem 0; }
-  .titlebar div ~ div { margin-top: 0; }
-  .titlebar .title { font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
-    a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
-    a:hover { border-left: 1px solid $white-50; border-bottom: none; }
-  }
-  .icon { transition: all 0.3s; width: 2.8rem; cursor: pointer; text-align: center;
-    svg { width: 1.2rem; height: 1.2rem; transition: all 0.3s; }
-  }
-}
-
 
 @keyframes hide {
     0%   {opacity: 1; transform: scale(1); } // Scale is used to "remove" element afterwards
@@ -114,12 +98,16 @@ allele-sectionbox {
 
 contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
 
-.contentbox { margin: 0.35rem;
+.contentbox { margin: 0.35rem; display: flex; height: calc(100% - 0.7rem);
   .max-width & .cb-body { max-width: 100% !important; }
-  .titlebar { justify-content: space-between; }
-  .title { margin-right: 0.025rem; }
-  .cb-body { padding: 1.3rem; width: 100%; transform: scaleX(1); opacity: 1; transform-origin: left; transform-style: flat; transition: all 0.6s; white-space: nowrap; }
-  .title { color: white; }
+  .cb-body { padding: 1.3rem; width: 100%; }
+  .cb.titlebar { height: 100%;
+    div { margin: 1.75rem 0; }
+    .title { color: white; font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
+      a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
+      a:hover { border-left: 1px solid $white-50; border-bottom: none; }
+    }
+  }
   h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
   h5, p { font-size: 1.4rem; color: #333; }
   .exac p { padding-right: 2.6rem; }

@@ -12,11 +12,12 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     },
     templateUrl: 'ngtmpl/alleleInfoVardb.ngtmpl.html'
 })
-@Inject('Config')
+@Inject('Config', 'AlleleAssessmentHistoryModal')
 export class AlleleInfoVardb {
 
-    constructor(Config) {
+    constructor(Config, AlleleAssessmentHistoryModal) {
         this.config = Config.getConfig();
+        this.alleleAssessmentHistoryModal = AlleleAssessmentHistoryModal;
     }
 
     isOutdated() {
@@ -49,5 +50,9 @@ export class AlleleInfoVardb {
             AlleleStateHelper.copyAlleleAssessmentToState(this.allele, this.alleleState, true);
             AlleleStateHelper.copyAlleleReportToState(this.allele, this.alleleState, true);
         }
+    }
+
+    showHistory() {
+        this.alleleAssessmentHistoryModal.show(this.allele.id);
     }
 }

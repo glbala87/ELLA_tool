@@ -26,6 +26,7 @@
     "gulp-sass": "2.3.2",
     "gulp-uglify": "1.5.3",
     "gulp-util": "3.0.7",
+    "gulp-watch": "4.3.11",
     "gulp-wrapper": "0.1.42",
     "gulp-watch": "4.3.11",
     "jasmine-fail-fast": "^2.0.0",

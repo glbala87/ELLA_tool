@@ -32,7 +32,7 @@ class TestCustomAnnotation(object):
         # Check that it's inserted
         insert_response = client.get('/api/v1/customannotations/?q={}'.format(json.dumps({"id": [id_of_first_created]}))).json
         assert insert_response[0]['annotations'] == annotation_template['annotations']
-        assert insert_response[0]['date_last_update']
+        assert insert_response[0]['date_created']
 
         # Create a new one by updating an existing
         annotation_template['annotations'] = {'test': 2}

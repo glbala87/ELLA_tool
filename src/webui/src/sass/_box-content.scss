@@ -72,6 +72,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 }
 
 .vardb {
+  .button-row {text-align: right;}
   .outdated { color: $red; text-transform: uppercase; }
 }
 

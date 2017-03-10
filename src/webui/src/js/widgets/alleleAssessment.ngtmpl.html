@@ -1,0 +1,53 @@
+<div>
+    <h2>{{::vm.getClassName()}} <span class="outdated" ng-if="::vm.isOutdated()"> (Outdated)</span></h2>
+    <h5>made by {{::vm.alleleassessment.user.first_name}} {{::vm.alleleassessment.user.last_name}} on {{::vm.alleleassessment.date_created | date:'yyyy-MM-dd'}} for {{::vm.alleleassessment.genepanel_name}}_{{::vm.alleleassessment.genepanel_version}}</h5>
+</div>
+
+<acmg class="included disabled"
+          code="code"
+          ng-repeat="code in vm.alleleassessment.evaluation.acmg.included track by $index"
+          comment-model="code.comment"
+          editable="false"></acmg>
+
+<div class="existing-classification-comments">
+    <div class="tabular-row">
+    <div class="cell top-align"> <h5>Evaluation</h5> </div>
+    <div class="cell"> <p>
+        <wysiwyg-editor
+            class="id-existing-comment-classification"
+            ng-disabled="true"
+            ng-model="vm.alleleassessment.evaluation.classification.comment">
+        </wysiwyg-editor>
+    </div>
+    </div>
+    <div class="tabular-row">
+    <div class="cell top-align"> <h5>Frequency</h5> </div>
+    <div class="cell"> <p>
+        <wysiwyg-editor
+            class="id-existing-comment-frequency"
+            ng-disabled="true"
+            ng-model="vm.alleleassessment.evaluation.frequency.comment">
+        </wysiwyg-editor>
+    </div>
+    </div>
+    <div class="tabular-row">
+    <div class="cell top-align"> <h5>External DB</h5> </div>
+    <div class="cell"> <p>
+        <wysiwyg-editor
+            class="id-existing-comment-external"
+            ng-disabled="true"
+            ng-model="vm.alleleassessment.evaluation.external.comment">
+        </wysiwyg-editor>
+    </div>
+    </div>
+    <div class="tabular-row">
+    <div class="cell top-align"> <h5>Prediction</h5> </div>
+    <div class="cell"> <p>
+        <wysiwyg-editor
+            class="id-existing-comment-prediction"
+            ng-disabled="true"
+            ng-model="vm.alleleassessment.evaluation.prediction.comment">
+        </wysiwyg-editor>
+    </div>
+    </div>
+</div>

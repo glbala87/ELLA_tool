@@ -152,7 +152,6 @@ class ReferenceAssessmentListResource(Resource):
         """
 
         obj = schemas.ReferenceAssessmentSchema(strict=True).load(data).data
-        obj.date_last_update = datetime.datetime.now()
 
         # If there exists an assessment already for this allele_id which is not yet curated,
         # we update that one instead.

@@ -22,6 +22,7 @@ class Annotation(Base):
     # use remote_side to store foreignkey for previous_annotation in 'this' parent:
     previous_annotation = relationship("Annotation", uselist=False, remote_side=id)
     date_superceeded = Column("date_superceeded", DateTime)
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
         return "<Annotation('%s', '%s', '%s')>" % (self.annotations,
@@ -44,7 +45,7 @@ class CustomAnnotation(Base):
     # use remote_side to store foreignkey for previous_annotation in 'this' parent:
     previous_annotation = relationship("CustomAnnotation", uselist=False, remote_side=id)
     date_superceeded = Column(DateTime)
-    date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
         return "<CustomAnnotation('%s')>" % (self.annotations)

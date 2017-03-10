@@ -17,12 +17,25 @@ class AlleleAssessmentResource {
         return new Promise((resolve, reject) => {
             let q = JSON.stringify({
                 date_superceeded: null,
-                'allele_id': allele_ids,
-                status: 1
+                'allele_id': allele_ids
             });
             let r = this.resource(`${this.base}/alleleassessments/?q=${encodeURIComponent(q)}`);
             let alleleassessments = r.query(() => {
                 resolve(alleleassessments);
+            }, reject);
+        });
+    }
+
+    getHistoryForAlleleId(allele_id) {
+        return new Promise((resolve, reject) => {
+            let q = JSON.stringify({
+                'allele_id': allele_id
+            });
+            let r = this.resource(`${this.base}/alleleassessments/?q=${encodeURIComponent(q)}`);
+            let alleleassessments = r.query(() => {
+                resolve(
+                    alleleassessments.sort(firstBy(a => a.date_created, -1))
+                );
             }, reject);
         });
     }
