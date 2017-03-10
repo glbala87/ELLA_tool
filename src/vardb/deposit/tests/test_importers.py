@@ -60,7 +60,7 @@ class TestGenotypeImporter():
         db_alleles = [allele.Allele(), allele.Allele()]
         db_sample = sample.Sample()
         db_analysis = sample.Analysis()
-        samples = {
+        samples1 = {
             'TEST_1': {
                 'GT': '0/1'
             },
@@ -70,23 +70,53 @@ class TestGenotypeImporter():
                 'DP': 12
             },
             'TEST_3': {
-                'GT': '2/1',
+                'GT': './1',
                 'GQ': 234.4,
                 'DP': 12
             }
+
+        }
+        samples2={
+            'TEST_1': {
+                'GT': '0/0'
+            },
+            'TEST_2': {
+                'GT': '0|0',
+                'GQ': 234.4,
+                'DP': 12
+            },
+            'TEST_3': {
+                'GT': '1/.',
+                'GQ': 234.4,
+                'DP': 12
+            }
+
         }
 
-        data1 = {
-            'QUAL': '.',
-            'ID': 'H186',
-            'POS': 1234,
-            'REF': 'T',
-            'ALT': ['A', 'G'],
-            'FILTER': 'PASS',
-            'SAMPLES': samples
-        }
 
-        result1 = genotype_importer.process([data1], 'TEST_1', db_analysis, db_sample, db_alleles)
+
+        data1 = [{
+                'QUAL': '.',
+                'ID': 'H186',
+                'POS': 1234,
+                'REF': 'T',
+                'ALT': 'A',
+                'FILTER': 'PASS',
+                'SAMPLES': samples1
+            },
+            {
+                'QUAL': '.',
+                'ID': 'H186',
+                'POS': 1234,
+                'REF': 'T',
+                'ALT': 'G',
+                'FILTER': 'PASS',
+                'SAMPLES': samples2
+            },
+        ]
+
+
+        result1 = genotype_importer.process(data1, 'TEST_1', db_analysis, db_sample, db_alleles)
 
         assert result1.allele == db_alleles[0]
         # Second allele will only be set if heterozygous non-ref
@@ -97,17 +127,27 @@ class TestGenotypeImporter():
         assert result1.sequencing_depth is None
         assert result1.variant_quality is None
 
-        data2 = {
-            'QUAL': 456,
-            'ID': 'H186',
-            'POS': 1234,
-            'REF': 'T',
-            'ALT': ['A', 'G'],
-            'FILTER': 'PASS',
-            'SAMPLES': samples
-        }
+        data2 = [{
+                'QUAL': 456,
+                'ID': 'H186',
+                'POS': 1234,
+                'REF': 'T',
+                'ALT': 'A',
+                'FILTER': 'PASS',
+                'SAMPLES': samples1
+            },
+            {
+                'QUAL': 456,
+                'ID': 'H186',
+                'POS': 1234,
+                'REF': 'T',
+                'ALT': 'G',
+                'FILTER': 'PASS',
+                'SAMPLES': samples2
+            }
+        ]
 
-        result2 = genotype_importer.process([data2], 'TEST_2', db_analysis, db_sample, db_alleles)
+        result2 = genotype_importer.process(data2, 'TEST_2', db_analysis, db_sample, db_alleles)
 
         assert result2.allele == db_alleles[0]
         assert result2.secondallele is None
@@ -117,18 +157,27 @@ class TestGenotypeImporter():
         assert result2.sequencing_depth == 12
         assert result2.variant_quality == 456
 
-        data3 = {
-            'QUAL': 456,
-            'ID': 'H186',
-            'POS': 1234,
-            'REF': 'T',
-            'ALT': ['A', 'G'],
-            'FILTER': 'PASS',
-            'SAMPLES': samples
-        }
+        data3=[{
+                'QUAL': 456,
+                'ID': 'H186',
+                'POS': 1234,
+                'REF': 'T',
+                'ALT': 'A',
+                'FILTER': 'PASS',
+                'SAMPLES': samples1
+            },
+            {
+                'QUAL': 456,
+                'ID': 'H186',
+                'POS': 1234,
+                'REF': 'T',
+                'ALT': 'G',
+                'FILTER': 'PASS',
+                'SAMPLES': samples2
+            }
+        ]
 
-        result3 = genotype_importer.process([data3], 'TEST_3', db_analysis, db_sample, db_alleles)
-
+        result3 = genotype_importer.process(data3, 'TEST_3', db_analysis, db_sample, db_alleles)
         assert result3.allele == db_alleles[1]
         assert result3.secondallele == db_alleles[0]
         assert result3.homozygous is False
