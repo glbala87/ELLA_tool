@@ -11,6 +11,7 @@ export class Allele {
      * @param  {object} Allele data from server.
      */
     constructor(data) {
+        console.log(data)
         Object.assign(this, data);
         this._createAnnotations();
     }
@@ -40,9 +41,7 @@ export class Allele {
     }
 
     getExACUrl() {
-        if (this.chromosome) {
-            return `http://exac.broadinstitute.org/region/${this.chromosome}-${this.start_position - 9}-${this.open_end_position + 10}`;
-        }
+        return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcf_pos}-${this.vcf_ref}-${this.vcf_alt}`;
     }
 
     getHGMDUrl() {

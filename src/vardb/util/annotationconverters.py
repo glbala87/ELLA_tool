@@ -192,7 +192,6 @@ def exac_frequencies(annotation):
 
     if 'EXAC' not in annotation:
         return {}
-
     frequencies = defaultdict(dict)
 
     freq = {}
@@ -202,7 +201,7 @@ def exac_frequencies(annotation):
     het = {}
     for key, value in annotation['EXAC'].iteritems():
         # Be careful if rearranging!
-        if key == 'AC':
+        if key == 'AC_Adj':
             assert len(value) == 1
             count['G'] = value[0]
         elif key == 'AC_Het':
@@ -211,7 +210,7 @@ def exac_frequencies(annotation):
         elif key == 'AC_Hom':
             assert len(value) == 1
             hom['G'] = value[0]
-        elif key == 'AN':
+        elif key == 'AN_Adj':
             num['G'] = value
         elif key.startswith('AC_'):
             pop = key.split('AC_')[1]
