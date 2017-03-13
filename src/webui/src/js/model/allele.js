@@ -139,7 +139,7 @@ export class Allele {
         }
         else if (this.change_type === 'del') {
             if (this.change_from.length > 1) {
-                return `${this.chromosome}:${this.start_position+1}-${this.open_end_position+1}`;
+                return `${this.chromosome}:${this.start_position+1}-${this.open_end_position}`;
             }
             else {
                 return `${this.chromosome}:${this.start_position+1}`;
@@ -149,7 +149,7 @@ export class Allele {
             return `${this.chromosome}:${this.start_position}-${this.start_position+1}`;
         }
         else {
-            return `${this.chromosome}:${this.start_position+1}-${this.open_end_position+1}`;
+            return `${this.chromosome}:${this.start_position+1}-${this.open_end_position}`;
         }
     }
 }
