@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Compiles production files using gulp and moves them to /static
+
+mkdir /static
+cd /ella
+ln -s /dist/node_modules node_modules
+/dist/node_modules/gulp/bin/gulp.js build --production
+mv /ella/src/webui/dev/* /static/
