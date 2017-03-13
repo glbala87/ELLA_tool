@@ -16,9 +16,12 @@ WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdrive
 help :
 	@echo ""
 	@echo "-- DEV COMMANDS --"
+	@echo ""
+	@echo " Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
+	@echo ""
 	@echo "make build		- build image $(IMAGE_NAME)"
 	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db		- populates the db with fixture data"
+	@echo "make db			- populates the db with fixture data"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
@@ -37,9 +40,21 @@ help :
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
+	@echo "-- DEMO COMMANDS --"
+	@echo "make demo		- builds a container to work in tandem with the nginx-proxy container"
+	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
+	@echo ""
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make core		- builds a core (development) image named ousamg/ella-core"
-	@echo "make release		- builds a production image named ousamg/ella-release"
+	@echo "make release		- Noop. See the README.md file"
+
+
+#---------------------------------------------
+# Production / release
+#---------------------------------------------
+
+.PHONY: release
+release:
+	@echo "See the README.md file, section 'Production'"
 
 #---------------------------------------------
 # DEMO
@@ -48,10 +63,10 @@ help :
 .PHONY: demo dbreset
 
 comma := ,
-DEMO_NAME ?= none
+DEMO_NAME ?= ella-demo
 
 demo:
-	-docker build -t local/$(DEMO_NAME) .
+	docker build -t local/$(DEMO_NAME) .
 	-docker stop $(subst $(comma),-,$(DEMO_NAME))
 	-docker rm $(subst $(comma),-,$(DEMO_NAME))
 	docker run -d \
@@ -74,7 +89,7 @@ dbsleep:
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev fancy-dev url kill shell logs restart db
+.PHONY: any build dev url kill shell logs restart db
 
 any:
 	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
@@ -93,12 +108,6 @@ dev:
 	-v $(shell pwd):/ella \
 	$(IMAGE_NAME) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
-
-fancy-dev:
-	sed -i 's poll //poll ' gulpfile.js
-	$(MAKE) dev
-	$(MAKE) db
-	git checkout gulpfile.js
 
 db:
 	docker exec $(CONTAINER_NAME) make dbreset RESET_DB_SET=$(RESET_DB_SET)

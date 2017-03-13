@@ -74,7 +74,8 @@ To spin up a new demo instance, run the following:
 DEMO_NAME=domain.com make demo
 ```
 
-`DEMO_NAME` will add the corresponding host to VIRTUAL_HOST inside the container, for use with nginx-proxy docker container.
+Inside the container an environment variable VIRTUAL_HOST will be set equal to the value `DEMO_NAME` for use with the nginx-proxy docker container.
+
 
 If you want to bind the demo directly to the local host you can instead run it manually like this:
 
@@ -85,6 +86,7 @@ docker run -d \
 		{image_name} \
 		supervisord -c /ella/ops/demo/supervisor.cfg
 
+# when the processes inside the container have started up, populate the database: 
 docker exec {container_name} make dbreset
 ```
 

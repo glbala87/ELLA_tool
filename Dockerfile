@@ -37,7 +37,6 @@ RUN apt-get update && \
     curl -sLk https://deb.nodesource.com/setup_6.x | bash - && \
     apt-get install -y -q nodejs yarn && \
     curl -SLk 'https://bootstrap.pypa.io/get-pip.py' | python && \
-    git clone git://github.com/nicoulaj/rainbow.git /root/rainbow && cd /root/rainbow && python setup.py install && cd / && rm -rf /root/rainbow && \
     curl -L https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 -o /usr/local/bin/gosu && chmod u+x /usr/local/bin/gosu && \
 
     # Cleanup
@@ -48,15 +47,18 @@ RUN apt-get update && \
 COPY ./requirements.txt /dist/requirements.txt
 COPY ./requirements-test.txt  /dist/requirements-test.txt
 COPY ./requirements-prod.txt  /dist/requirements-prod.txt
-COPY ./package.json /dist/package.json
-COPY ./yarn.lock /dist/yarn.lock
 
-# npm / pip
+#  pip
 RUN cd /dist && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-test.txt && \
-    pip install --no-cache-dir -r requirements-prod.txt && \
-    yarn install && \
+    pip install --no-cache-dir -r requirements-prod.txt
+
+# npm
+COPY ./package.json /dist/package.json
+COPY ./yarn.lock /dist/yarn.lock
+
+RUN yarn install && \
     yarn cache clean
 
 RUN mkdir -p /logs /socket /repo/imported/ /repo/incoming/ /repo/genepanels
