@@ -20,7 +20,7 @@ import {Directive, Inject} from '../ng-decorators';
         scope.$watch( () => scope.ngModel, () => autosize.update(textarea) );
         // when textarea initially is hidden and then shown, we must explicitly autosize it:
         // (http://www.jacklmoore.com/autosize/#faq-hidden)
-        setTimeout(() => { autosize.update(textarea); }, 10);
+        setTimeout(() => { autosize.update(textarea); }, 100);
     }
 })
 export class AutosizeTextareaController { }
