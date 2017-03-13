@@ -11,4 +11,6 @@ class AlleleSchema(Schema):
                   'open_end_position',
                   'change_from',
                   'change_to',
-                  'change_type')
+                  'change_type',
+                  'vcf_ref',
+                  'vcf_alt')
