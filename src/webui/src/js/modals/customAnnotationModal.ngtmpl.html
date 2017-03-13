@@ -84,7 +84,7 @@
         <div class="left"> <h5 class="slim title"> <b>Annotation:</b> </h5> </div>
         <div class="right">
           <div class="dropdown">
-            <select class="id-annotation-select" ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"><option value="" disabled selected>Choose database</option></select>
+            <select class="id-annotation-select" ng-options="group as group.name for group in vm.getAnnotationGroups()" ng-model="vm.selected_annotation_group"><option value="" disabled selected>{{::vm.placeholder}}</option></select>
           </div>
         </div>
       </article>
