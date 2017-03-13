@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 
-from vardb.datamodel import Base
+from vardb.datamodel.migration.ci_migration_base import Base
 
 
 class User(Base):

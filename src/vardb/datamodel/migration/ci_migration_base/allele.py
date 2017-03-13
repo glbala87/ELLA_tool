@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, UniqueConstraint
 
-from vardb.datamodel import Base
+from vardb.datamodel.migration.ci_migration_base import Base
 
 
 class Allele(Base):
