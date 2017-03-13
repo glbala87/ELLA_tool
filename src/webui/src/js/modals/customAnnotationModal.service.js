@@ -9,11 +9,12 @@ import {Service, Inject} from '../ng-decorators';
  * category === 'references'.
  */
 export class CustomAnnotationController {
-    constructor(modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, alleles, category) {
+    constructor(modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, placeholder, alleles, category) {
         this.modal = modalInstance;
         this.category = category;
         this.config = Config.getConfig();
         this.title = title;
+        this.placeholder = placeholder;
         this.alleles = alleles;
         this.selected_allele = alleles[0];
         this.referenceResource = ReferenceResource;
@@ -274,7 +275,7 @@ export class CustomAnnotationModal {
      * Popups a dialog for adding custom annotation for one allele
      * @return {Promise} Promise that resolves when dialog is closed. Resolves with result data from dialog.
      */
-    show(title, alleles, category) {
+    show(title, placeholder, alleles, category) {
 
         if (!category) {
             category = 'external';
@@ -282,11 +283,12 @@ export class CustomAnnotationModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
-            controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'alleles', 'category', CustomAnnotationController],
+            controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'placeholder', 'alleles', 'category', CustomAnnotationController],
             controllerAs: 'vm',
             size: 'lg',
             resolve: {
                 title: () => title,
+                placeholder: () => placeholder,
                 alleles: () => alleles,
                 category: () => category
             }

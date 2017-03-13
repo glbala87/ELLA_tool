@@ -126,8 +126,9 @@ export class AlleleSectionBoxController {
     }
 
     showCustomAnnotationModal(category) {
-        let title = category === 'external' ? 'ADD EXTERNAL ANNOTATION' : 'ADD PREDICTION ANNOTATION';
-        this.customAnnotationModal.show(title, [this.allele], category).then(result => {
+        let title = category === 'external' ? 'ADD EXTERNAL DB DATA' : 'ADD PREDICTION DATA';
+        let placeholder = category === 'external' ? 'CHOOSE DATABASE' : 'CHOOSE PREDICTION TYPE';
+        this.customAnnotationModal.show(title, placeholder, [this.allele], category).then(result => {
             if (result) {
                 if (this.onUpdate) {
                     this.onUpdate();
@@ -138,7 +139,8 @@ export class AlleleSectionBoxController {
 
     showAddReferenceModal() {
         let title = 'ADD REFERENCES';
-        this.customAnnotationModal.show(title, [this.allele], 'references').then(result => {
+        let placeholder = "Not used";
+        this.customAnnotationModal.show(title, placeholder, [this.allele], 'references').then(result => {
             if (result) {
                 if (this.onUpdate) {
                     this.onUpdate();
