@@ -156,6 +156,8 @@ e2e-ella:
 e2e-run-ci: e2e-ella wdio-chromebox
 
 wdio-chromebox:
+	rm -f /ella/node_modules
+	ln -s /dist/node_modules/ /ella/node_modules
 	pwd && ls -la /ella/ && /dist/node_modules/webdriverio/bin/wdio --baseUrl "$(E2E_CONTAINER):5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 wdio:
