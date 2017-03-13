@@ -58,7 +58,8 @@ RUN cd /dist && \
 COPY ./package.json /dist/package.json
 COPY ./yarn.lock /dist/yarn.lock
 
-RUN yarn install && \
+RUN cd /dist &&  \
+    yarn install && \
     yarn cache clean
 
 RUN mkdir -p /logs /socket /repo/imported/ /repo/incoming/ /repo/genepanels
