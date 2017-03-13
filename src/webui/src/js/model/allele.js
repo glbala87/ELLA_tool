@@ -111,7 +111,7 @@ export class Allele {
 
         if (this.change_type === 'SNP') {
             // snp: Chr11(GRCh37):g.66285951C>Tdel:
-            result += `${start}${this.change_from}>${this.change_to}`;
+            result += `${start+1}${this.change_from}>${this.change_to}`;
         }
         else if (this.change_type === 'del') {
             // del: Chr13(GRCh37):g.32912008_32912011del
