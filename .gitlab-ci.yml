@@ -1,7 +1,6 @@
 ---
 stages:
   - test
-  - cleanup
   - deploy
   - review
   - notify
@@ -47,19 +46,11 @@ test_e2e:
     - /^ui-.*$/
     - /^ops-.*$/
 
-build_core:
-  stage: deploy
-  script:
-    - if [ -n "${BUILD_CORE}" ]; then make core push; fi
-  only:
-    - triggers
-
 bot_build:
   stage: deploy
   script:
-    - if [ -n "${DEV_CHANNEL}" ]; then make release deploy DEPLOY_NAME=demo.allel.es; fi
-    - if [ -n "${BETA_CHANNEL}" ]; then make release deploy BUILD_TYPE=beta DEPLOY_NAME=beta.allel.es; fi
-    - if [ -n "${REVIEW_CHANNEL}" ]; then make release deploy BUILD_TYPE=${REVIEW_CHANNEL} DEPLOY_NAME=${REVIEW_CHANNEL}.review.ousamg.io; fi
+    - if [ -n "${DEV_CHANNEL}" ]; then make demo DEMO_NAME=demo.allel.es; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make demo DEMO_NAME=beta.allel.es; fi
   tags:
     - web
   only:
@@ -86,10 +77,10 @@ bot_notify_success:
 start_review:
   stage: review
   script:
-    - make release deploy BUILD_TYPE=${CI_BUILD_REF_SLUG} DEPLOY_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+    - make demo DEMO_NAME=${CI_BUILD_REF_NAME}.review.ousamg.io
   environment:
-    name: review/$CI_BUILD_REF_SLUG
-    url: http://$CI_BUILD_REF_SLUG.review.$APPS_DOMAIN
+    name: review/$CI_BUILD_REF_NAME
+    url: http://$CI_BUILD_REF_NAME.review.$APPS_DOMAIN
     on_stop: stop_review
   when: always
   only:
@@ -100,15 +91,16 @@ start_review:
     - web
 
 # when: manual is also run upon branch deletion
+# Image name for removal (local/${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
 stop_review:
   stage: review
   variables:
     GIT_STRATEGY: none
   script:
-    - docker rm -f ${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f ousamg/ella.${CI_BUILD_REF_SLUG};
+    - docker rm -f ${CI_BUILD_REF_NAME}.review.ousamg.io; docker rmi -f local/${CI_BUILD_REF_NAME}.review.ousamg.io;
   when: manual
   environment:
-    name: review/$CI_BUILD_REF_SLUG
+    name: review/$CI_BUILD_REF_NAME
     action: stop
   only:
     - branches
