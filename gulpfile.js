@@ -242,5 +242,7 @@ gulp.task('watch', function() {
 
 gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'base-css']);
 
-gulp.task('default', ['build','watch-js', 'watch']);
+gulp.task('default', ['build','watch-js', 'watch'], function() {
+            console.log("gulp called 'default'");
+});
 
