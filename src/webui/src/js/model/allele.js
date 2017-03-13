@@ -41,11 +41,7 @@ export class Allele {
     }
 
     getExACUrl() {
-        if (this.change_type === "SNP") {
-            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.start_position+1}-${this.vcf_ref}-${this.vcf_alt}`;
-        } else {
-            return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.start_position}-${this.vcf_ref}-${this.vcf_alt}`;
-        }
+        return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcf_pos}-${this.vcf_ref}-${this.vcf_alt}`;
     }
 
     getHGMDUrl() {
