@@ -49,7 +49,7 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
         referenceEvalModal.saveBtn.scroll();
         referenceEvalModal.saveBtn.click();
 
-        expect(alleleSectionBox.getReferenceRelevance(1)).toEqual('Yes');
+        // browser.debug();
         expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1');
 
         // Add external annotation

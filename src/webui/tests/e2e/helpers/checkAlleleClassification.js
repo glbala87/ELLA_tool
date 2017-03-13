@@ -32,7 +32,6 @@ function checkAlleleClassification(allele_data) {
 
         if ('references' in data) {
             for (let [idx, ref_data] of Object.entries(data.references)) {
-                expect(alleleSectionBox.getReferenceRelevance(idx)).toEqual(ref_data.relevance);
                 expect(alleleSectionBox.getReferenceComment(idx)).toEqual(ref_data.comment);
             }
         }
