@@ -134,7 +134,8 @@ restart:
 .PHONY: test-build test single-test e2e-test e2e-test-local wdio wdio-chromebox run-test
 
 test-build:
-	$(eval BRANCH = test)
+    #$(eval BRANCH = test)
+    $(eval IMAGE_NAME = local/ella-test)
 	docker build -t $(IMAGE_NAME) .
 
 test: test-build run-test
