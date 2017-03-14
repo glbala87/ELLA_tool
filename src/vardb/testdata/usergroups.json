@@ -1,0 +1,19 @@
+[
+    {
+        "name": "testgroup01",
+        "genepanels": [
+            ["HBOC", "v01"],
+            ["HBOCUTV", "v01"]
+        ]
+    },
+    {
+        "name": "testgroup02",
+        "genepanels": [
+            ["Ciliopati", "v03"],
+            ["Bindevev", "v02"],
+            ["Iktyose", "v02"],
+            ["Joubert", "v02"],
+            ["EEogPU", "v02"]
+        ]
+    }
+]

@@ -7,7 +7,7 @@ import click
 from vardb.datamodel import DB
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_references import import_references
-from vardb.deposit.deposit_users import import_users
+from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
 
@@ -115,6 +115,7 @@ def cmd_deposit_custom_annotations(custom_annotation_json):
     db.connect()
     import_custom_annotations(db.session, custom_annotation_json)
 
+
 @deposit.command('users')
 @click.argument('users_json')
 def cmd_deposit_users(users_json):
@@ -138,5 +139,30 @@ def cmd_deposit_users(users_json):
     db.connect()
 
     import_users(db.session, users)
+
+
+@deposit.command('usergroups')
+@click.argument('usergroups_json')
+def cmd_deposit_usergroups(usergroups_json):
+    """
+    Deposit/update a set of user groups into database given by DB_URL.
+
+    Input is a json file, with an array of user group objects.
+
+    Any group matching 'name' key will have it's record updated,
+    otherwise a new record is inserted.
+    """
+    logging.basicConfig(level=logging.INFO)
+
+    with open(usergroups_json) as fd:
+        groups = json.load(fd)
+
+    if not groups:
+        raise RuntimeError("No user groups found in file {}".format(usergroups_json))
+
+    db = DB()
+    db.connect()
+
+    import_groups(db.session, groups)
 
 
