@@ -18,4 +18,3 @@ jsonschema==2.5.1
 strict-rfc3339==0.7
 click==6.6
 alembic==0.8.6
-rainbow==2.5.0
