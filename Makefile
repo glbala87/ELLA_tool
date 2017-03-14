@@ -134,15 +134,15 @@ restart:
 .PHONY: test-build test single-test e2e-test e2e-test-local wdio wdio-chromebox run-test
 
 test-build:
-	$(eval IMAGE_NAME = local/ella-test)
+	$(eval BRANCH = test)
 	docker build -t $(IMAGE_NAME) .
 
 test: test-build run-test
 single-test: test-build run-test
 e2e-test: e2e-network-check e2e-run-chrome test-build
-	-docker stop ella-e2e-$(BRANCH)
-	-docker rm ella-e2e-$(BRANCH)
-	docker run -v errorShots:/ella/errorShots/ --name ella-e2e-$(BRANCH) --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci E2E_CONTAINER=ella-e2e-$(BRANCH)
+	-docker stop ella-e2e
+	-docker rm ella-e2e
+	docker run -v errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
 	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(IMAGE_NAME) /bin/bash -c "make e2e-run-continous; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
@@ -170,7 +170,7 @@ e2e-gulp-once:
 	/ella/node_modules/gulp/bin/gulp.js build
 
 wdio-chromebox:
-	/dist/node_modules/webdriverio/bin/wdio --baseUrl "$(E2E_CONTAINER):5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
+	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 wdio:
 	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
