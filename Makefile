@@ -214,10 +214,10 @@ test-api-migration:
 	createdb vardb-test
 ifeq ($(TEST_COMMAND),) # empty?
 	# Run migration scripts test
-	/ella/ella-cli database ci-migration
+	/ella/ella-cli database ci-migration-test -f
 
 	# Run API test on migrated database
-	/ella/ella-cli database ci-migration-head
+	/ella/ella-cli database ci-migration-head -f
 	py.test --color=yes "/ella/src/api/" -s
 else
 	$(TEST_COMMAND)
