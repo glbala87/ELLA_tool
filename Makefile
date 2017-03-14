@@ -140,11 +140,12 @@ test-build:
 test: test-build run-test
 single-test: test-build run-test
 e2e-test: e2e-network-check e2e-run-chrome test-build
+	-docker stop ella-e2e
 	-docker rm ella-e2e
 	docker run -v errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
-	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(IMAGE_NAME) /bin/bash -c "make e2e-ella; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
+	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(IMAGE_NAME) /bin/bash -c "make e2e-run-continous; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
 
 run-test:
 	docker run $(IMAGE_NAME) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
@@ -153,7 +154,20 @@ e2e-ella:
 	supervisord -c /ella/ops/test/supervisor-e2e.cfg
 	make dbsleep
 
-e2e-run-ci: e2e-ella wdio-chromebox
+e2e-run-ci: e2e-ella e2e-gulp-once wdio-chromebox
+
+e2e-run-continous: e2e-ella e2e-gulp-continous
+
+e2e-gulp-continous:
+	rm -f /ella/node_modules
+	ln -s /dist/node_modules/ /ella/node_modules
+        # we want gulp to run continously, watching for file changes:
+	supervisorctl -c /ella/ops/test/supervisor-e2e.cfg start gulp
+
+e2e-gulp-once:
+	rm -f /ella/node_modules
+	ln -s /dist/node_modules/ /ella/node_modules
+	/ella/node_modules/gulp/bin/gulp.js build
 
 wdio-chromebox:
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js

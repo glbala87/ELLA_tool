@@ -3,3 +3,4 @@ docs/
 node_modules/
 # made by e2e tests:
 src/webui/tests/node_modules/
+src/webui/dev
