@@ -5,8 +5,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 
-from vardb.datamodel import Base
-from vardb.datamodel import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
+from vardb.datamodel.migration.ci_migration_base import Base
+from vardb.datamodel.migration.ci_migration_base import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
 from vardb.util.mutjson import JSONMutableDict
 
 

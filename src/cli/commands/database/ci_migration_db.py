@@ -5,10 +5,6 @@ then running all migrations until current head.
 
 For CI and other testing purposes.
 """
-import os
-from alembic.config import Config
-from alembic import command
-
 from vardb.util import DB
 from vardb.datamodel.migration.ci_migration_base import *  # Yes, use '*'
 from .migration_db import migration_downgrade, migration_upgrade
