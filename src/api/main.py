@@ -57,7 +57,6 @@ def serve_static_factory(dev=False):
             path = 'index.html'
 
         valid_files = [
-            'auto.js',
             'app.css',
             'base.css',
             'app.js',
