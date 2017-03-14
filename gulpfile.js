@@ -61,7 +61,7 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/ui-router/angular-ui-router.min.js',
         'src/webui/src/thirdparty/angular-clipboard/angular-clipboard.js',
         'src/webui/src/thirdparty/angular-toastr/angular-toastr.tpls.min.js',
-        'src/webui/src/thirdparty/autosize-textarea/autosize.min.js',
+        'src/webui/src/thirdparty/autosize-textarea/autosize.js',
         'src/webui/src/thirdparty/color-hash/color-hash.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
         'src/webui/src/thirdparty/dalliance/release-0.13/dalliance-compiled.js',
@@ -82,7 +82,8 @@ gulp.task('tp-js', function() {
 });
 
 var bundler = browserify('./src/webui/src/js/index.js', {
-    debug: production ? false : true,
+    // debug: production ? false : true,
+    debug: false, // include sourcemap
     cache: {}, packageCache: {}, fullPaths: true // for watchify
 }).transform(babelify.configure({
     presets: ["es2015", "stage-0"],
