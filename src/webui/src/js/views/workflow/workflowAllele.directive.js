@@ -1,7 +1,24 @@
 /* jshint esnext: true */
 
+/**
+ * View for handling allele workflow.
+ *
+ * The interpretation handling is a bit messy, and could be improved upon.
+ * Basic idea:
+ * - Get list of interpretations from backend.
+ *  - If one is ongoing, show that one.
+ *  - If all are done:
+ *      - By default, create a 'current' interpretation, which is a copy of the latest interpretation.
+ *        This is done in order to present the user with the latest data, i.e. how the view would look like
+ *        if they started a new round. We need to make a copy, since the view might change the state of the object.
+ *      - If selecting one of the historical ones (i.e. not the copy mentioned above), we load in the historical
+ *        data to show the view like they user saw it at that point of time.
+ */
+
 import {Directive, Inject} from '../../ng-decorators';
 import {STATUS_ONGOING, STATUS_NOT_STARTED} from '../../model/interpretation'
+import {deepCopy} from '../../util'
+
 
 @Directive({
     selector: 'workflow-allele',
@@ -21,7 +38,8 @@ import {STATUS_ONGOING, STATUS_NOT_STARTED} from '../../model/interpretation'
     'Workflow',
     'Navbar',
     'Config',
-    'User')
+    'User',
+    '$filter')
 export class WorkflowAlleleController {
     constructor(rootScope,
                 scope,
@@ -31,7 +49,8 @@ export class WorkflowAlleleController {
                 Workflow,
                 Navbar,
                 Config,
-                User) {
+                User,
+                filter) {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
@@ -43,6 +62,7 @@ export class WorkflowAlleleController {
         this.navbar = Navbar;
         this.config = Config.getConfig();
         this.user = User;
+        this.filter = filter;
 
         this.components = [ // instantiated/rendered in AlleleSectionboxContentController
             {
@@ -312,6 +332,16 @@ export class WorkflowAlleleController {
                && this.history_interpretations.length;
     }
 
+    formatHistoryOption(interpretation) {
+        if (interpretation.current) {
+            return 'Current data';
+        }
+        let interpretation_idx = this.interpretations.indexOf(interpretation) + 1;
+        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
+        return `${interpretation_idx} • ${interpretation.user.first_name} ${interpretation.user.last_name} • ${interpretation_date}`;
+    }
+
+
     reloadInterpretationData() {
         this._loadInterpretations().then(() => {
             this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
@@ -321,9 +351,13 @@ export class WorkflowAlleleController {
             if (last_interpretation && last_interpretation.status === 'Ongoing') {
                 this.selected_interpretation = last_interpretation;
             }
-            // Otherwise, select the last item of the dropdown to show latest history as default
+            // Otherwise, make a copy of the last historical one to act as "current" entry.
+            // Current means get latest allele data (instead of historical)
+            // We make a copy, to prevent the state of the original to be modified
             else if (this.history_interpretations.length) {
-                this.selected_interpretation = this.history_interpretations[this.history_interpretations.length-1];
+                this.selected_interpretation = deepCopy(this.history_interpretations[this.history_interpretations.length-1]);
+                this.selected_interpretation.current = true;
+                this.history_interpretations.push(this.selected_interpretation);
             }
             else {
                 this.selected_interpretation = null;
@@ -341,13 +375,14 @@ export class WorkflowAlleleController {
                 'allele',
                 this.allele_id,
                 this.selected_interpretation,
+                this.selected_interpretation.current // Whether to show current allele data or historical data
             ).then(
                 alleles => {
                     this.selected_interpretation_alleles = alleles;
                     this.alleles_loaded = true;
                 },
                 () => { this.selected_interpretation_alleles = []; } // On error
-            )
+            );
         }
     }
 

@@ -43,10 +43,13 @@ class WorkflowResource {
         });
     }
 
-    getAlleles(type, id, interpretation_id, allele_ids) {
+    getAlleles(type, id, interpretation_id, allele_ids, current_data=false) {
         return new Promise((resolve, reject) => {
             var AnalysisRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/interpretations/${interpretation_id}/alleles/`,
-                {allele_ids: allele_ids.join(',')}
+                {
+                    allele_ids: allele_ids.join(','),
+                    current: current_data
+                }
             );
             var alleles = AnalysisRS.query(() => {
                 resolve(alleles.map(a => new Allele(a)));

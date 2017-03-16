@@ -102,7 +102,7 @@ class WorkflowService {
      * Referenceassessments and included alleles are fetched from interpretation's state.
      *
      */
-    loadAlleles(type, id, interpretation) {
+    loadAlleles(type, id, interpretation, current_data=false) {
         // Clone allele_ids array
         let allele_ids = interpretation.allele_ids.slice(0);
 
@@ -115,7 +115,8 @@ class WorkflowService {
             type,
             id,
             interpretation.id,
-            allele_ids
+            allele_ids,
+            current_data
         ).then(
             alleles => {
             // Flatten all referenceassessments from state
