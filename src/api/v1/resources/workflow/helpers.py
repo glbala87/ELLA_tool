@@ -72,10 +72,13 @@ def _get_latest_interpretation(session, allele_id, analysis_id):
     return session.query(model).filter(field == model_id).order_by(model.id.desc()).first()
 
 
-def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinterpretation_id=None):
+def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinterpretation_id=None, current_allele_data=False):
     """
     Loads all alleles for an interpretation. The interpretation model is dynamically chosen
     based on which argument (alleleinterpretation_id, analysisinterpretation_id) is given.
+
+    If current_allele_data is True, load newest allele data instead of allele data
+    at time of interpretation snapshot.
 
     By default, the latest connected data is loaded (e.g. latest annotations, assessments etc).
     However, if the interpretation is marked as 'Done', it's context is loaded from the snapshot,
@@ -100,7 +103,7 @@ def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinter
     ).one()
 
     link_filter = None  # In case of loading specific data rather than latest available for annotation, custom_annotation etc..
-    if interpretation.status == 'Done':
+    if not current_allele_data and interpretation.status == 'Done':
         # Serve using context data from snapshot
         snapshots = session.query(interpretationsnapshot_model).filter(
             interpretationsnapshot_field == interpretation.id

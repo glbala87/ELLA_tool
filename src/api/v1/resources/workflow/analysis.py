@@ -2,7 +2,7 @@ from flask import request
 
 from vardb.datamodel import sample, genotype, allele
 
-from api.util.util import request_json
+from api.util.util import request_json, ApiError
 from api.v1.resource import Resource
 
 from . import helpers
@@ -14,8 +14,21 @@ from api.schemas.analysisinterpretations import AnalysisInterpretationSchema, An
 class AnalysisInterpretationAllelesListResource(Resource):
 
     def get(self, session, analysis_id, interpretation_id):
+        if not session.query(AnalysisInterpretation).filter(
+            AnalysisInterpretation.id == interpretation_id,
+            AnalysisInterpretation.analysis_id == analysis_id
+        ).count():
+            raise ApiError("Interpretation id {} is not part of analysis with id {}".format(
+                interpretation_id, analysis_id
+            ))
         allele_ids = request.args.get('allele_ids').split(',')
-        return helpers.get_alleles(session, allele_ids, analysisinterpretation_id=interpretation_id)
+        current = request.args.get('current', '').lower() == 'true'
+        return helpers.get_alleles(
+            session,
+            allele_ids,
+            analysisinterpretation_id=interpretation_id,
+            current_allele_data=current
+        )
 
 
 class AnalysisInterpretationResource(Resource):
