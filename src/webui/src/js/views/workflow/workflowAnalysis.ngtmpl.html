@@ -22,7 +22,7 @@
         <span> {{vm.getInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
       <button ng-click="vm.copyAlamut()">Copy all to alamut</button>
 
-      <div class="dropdown white" ng-if="false">  <!--Hide for now, add when we have admin users-->
+      <div class="dropdown white" ng-if="vm.showHistory()">
         <select
           class="id-interpretationrounds-dropdown"
           ng-options="i as vm.formatHistoryOption(i) for i in vm.history_interpretations"

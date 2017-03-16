@@ -14,7 +14,8 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         genepanelName: '=?',
         genepanelVersion: '=?',
         reload: '&?',
-        readOnly: '='
+        readOnly: '=',
+        startWhenReopen: '=?' // Reopen and start analysis at the same time
     },
     templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html'
 })
@@ -104,7 +105,14 @@ export class WorkflowButtonsController {
             // Call reopen if applicable
             if (this.interpretations.length &&
                 this.interpretations.every(i => i.status === 'Done')) {
-                this.workflowService.reopen(type, id).then(() => this._callReload());
+                this.workflowService.reopen(type, id).then(() => {
+                    if (this.startWhenReopen) {
+                        this.workflowService.start(type, id, this.genepanelName, this.genepanelVersion).then(() => this._callReload());
+                    }
+                    else {
+                        this._callReload();
+                    }
+                });
             }
             // Else start interpretation
             else {
@@ -156,7 +164,12 @@ export class WorkflowButtonsController {
     }
 
     getSaveBtnText() {
-        return this.saveButtonOptions[this._getSaveStatus()].text;
+        let status = this._getSaveStatus();
+        if (status === 'reopen' && this.startWhenReopen) {
+            // If we're going to start directly when reopening, show 'start' instead
+            return this.saveButtonOptions['start'].text;
+        }
+        return this.saveButtonOptions[status].text;
     }
 
     getSaveBtnClass() {
