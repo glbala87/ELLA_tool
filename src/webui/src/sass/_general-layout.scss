@@ -23,6 +23,11 @@ wysiwyg-editor {
   white-space: normal;
 }
 
+wysiwyg-editor:not([disabled]) > .wysiwygeditor {
+  max-height: 50vh;
+  overflow-y: scroll;
+}
+
 .wysiwygplaceholder {
   @extend textarea::placeholder;
   border-bottom: 1px solid $black-25;
