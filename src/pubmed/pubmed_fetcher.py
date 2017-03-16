@@ -192,6 +192,13 @@ class PubMedFetcher(object):
                     log.error(r_err % (count+1, e1))
                     t_prev_query = self.control_query_frequency(t_prev_query,
                                                                 wait_time=self.WAIT_TIME)
+                except IOError as e2:
+                    # Entrez occationally has some problems with SSL
+                    # Try again
+                    r_err = "Attempt %s: IOError from Entrez %s"
+                    log.error(r_err % (count+1, e2))
+                    t_prev_query = self.control_query_frequency(t_prev_query,
+                                                                wait_time=self.WAIT_TIME)
                 else:
                     break
 
