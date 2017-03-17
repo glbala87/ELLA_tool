@@ -266,7 +266,7 @@ def main():
               a list of references (currently empty), and a
               namespace of parsed command line arguments
     """
-    LOG_FILENAME = path.join(path.dirname(__file__), 'log/fetcher.log')
+    LOG_FILENAME = path.join(path.dirname(__file__), 'fetcher.log')
     logging.basicConfig(filename=LOG_FILENAME, filemode='w',
                         level=logging.DEBUG)
 
