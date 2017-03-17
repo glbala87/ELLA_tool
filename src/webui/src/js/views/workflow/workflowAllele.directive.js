@@ -336,16 +336,18 @@ export class WorkflowAlleleController {
     loadAllele() {
         console.log("(Re)loading allele...");
         this.alleles_loaded = false;
-        this.selected_interpretation_alleles = [];
         if (this.allele_id && this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 'allele',
                 this.allele_id,
                 this.selected_interpretation,
-            ).then(alleles => {
-                this.selected_interpretation_alleles = alleles;
-                this.alleles_loaded = true;
-            });
+            ).then(
+                alleles => {
+                    this.selected_interpretation_alleles = alleles;
+                    this.alleles_loaded = true;
+                },
+                () => { this.selected_interpretation_alleles = []; } // On error
+            )
         }
     }
 

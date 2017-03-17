@@ -94,7 +94,6 @@ export class AlleleSectionBoxController {
     }
 
     showControls() {
-        console.log(this.section.options.hide_controls_on_collapse)
         if (this.section.options &&
             'hide_controls_on_collapse' in this.section.options) {
             return !(this.section.options.hide_controls_on_collapse &&
