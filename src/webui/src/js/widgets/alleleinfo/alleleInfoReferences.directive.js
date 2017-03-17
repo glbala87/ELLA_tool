@@ -2,6 +2,7 @@
 
 import {Directive, Inject} from '../../ng-decorators';
 import {AlleleStateHelper} from '../../model/allelestatehelper';
+import {deepCopy} from '../../util';
 
 
 @Directive({
@@ -81,11 +82,12 @@ export class AlleleInfoReferences {
     }
 
     hasReferenceAssessment(reference) {
-        return AlleleStateHelper.getExistingReferenceAssessment(
+        return AlleleStateHelper.hasReferenceAssessment(
             this.allele,
             reference,
             this.alleleState
         );
+
     }
 
     getEvaluateBtnText(reference) {
@@ -97,6 +99,21 @@ export class AlleleInfoReferences {
             return 'Re-evaluate';
         }
         return 'Evaluate';
+    }
+
+    quickIgnore(reference) {
+        let referenceAssessment = deepCopy(this.getReferenceAssessment(reference));
+
+        referenceAssessment.evaluation = {relevance: "Ignore"};
+        AlleleStateHelper.updateReferenceAssessment(
+            this.allele,
+            reference,
+            this.alleleState,
+            referenceAssessment
+        );
+        if (this.onSave) {
+            this.onSave()
+        }
     }
 
     showReferenceEval(reference) {

@@ -11,6 +11,9 @@
           <button class="blue id-reference-evaluate"
                   ng-click="vm.showReferenceEval(ref)"
           >{{vm.getEvaluateBtnText(ref)}}</button>
+          <button class="blue id-reference-evaluate" ng-disabled="vm.readOnly || (vm.hasReferenceAssessment(ref) && vm.getReferenceAssessment(ref).evaluation.relevance === 'Ignore')"
+                  ng-click="vm.quickIgnore(ref)"
+          >Ignore</button>
         </div>
       </section>
 
