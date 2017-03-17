@@ -192,6 +192,13 @@ class PubMedFetcher(object):
                     log.error(r_err % (count+1, e1))
                     t_prev_query = self.control_query_frequency(t_prev_query,
                                                                 wait_time=self.WAIT_TIME)
+                except IOError as e2:
+                    # Entrez occationally has some problems with SSL
+                    # Try again
+                    r_err = "Attempt %s: IOError from Entrez %s"
+                    log.error(r_err % (count+1, e2))
+                    t_prev_query = self.control_query_frequency(t_prev_query,
+                                                                wait_time=self.WAIT_TIME)
                 else:
                     break
 
@@ -259,7 +266,7 @@ def main():
               a list of references (currently empty), and a
               namespace of parsed command line arguments
     """
-    LOG_FILENAME = path.join(path.dirname(__file__), 'log/fetcher.log')
+    LOG_FILENAME = path.join(path.dirname(__file__), 'fetcher.log')
     logging.basicConfig(filename=LOG_FILENAME, filemode='w',
                         level=logging.DEBUG)
 
