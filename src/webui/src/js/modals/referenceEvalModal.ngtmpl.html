@@ -71,7 +71,7 @@
       </div>
       <div class="right line-wrapper">
         <div class="multiple-question-element" ng-repeat="elem in vm.sources[source].elements">
-          <div class="bttn-set" ng-if="::elem.type == 'button'">
+          <div class="bttn-set" ng-if="elem.type == 'button'">
               <label tabindex=0
                      class="bttn"
                      ng-model="vm.referenceAssessment.evaluation[elem.store]"
@@ -80,7 +80,7 @@
                      ng-disabled="vm.isDisabled(source) || vm.readOnly">{{item[0]}}</label>
           </div>
           <div class="dropdown"
-               ng-if="::elem.type == 'dropdown'"
+               ng-if="elem.type == 'dropdown'"
                ng-disabled="vm.isDisabled(source)">
               <select ng-options="v[1] as v[0] for v in elem.options"
                       ng-model="vm.referenceAssessment.evaluation[elem.store]"
@@ -91,7 +91,7 @@
                   </option>
               </select>
           </div>
-          <div ng-if="::elem.type == 'text'">
+          <div ng-if="elem.type == 'text'">
               <input type="text"
                      placeholder="{{elem.placeholder || ''}}"
                      ng-disabled="vm.isDisabled(source) || vm.readOnly"

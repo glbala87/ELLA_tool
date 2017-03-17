@@ -54,7 +54,7 @@
                 on-toggle="vm.includeACMG(code)"
                 toggle-text="+"
                 comment-model="code.comment"
-                ng-if="::vm.isIncludable(code.code)"
+                ng-if="vm.isIncludable(code.code)"
                 editable="vm.isEditable() && !vm.readOnly">
           </acmg>
         </section>

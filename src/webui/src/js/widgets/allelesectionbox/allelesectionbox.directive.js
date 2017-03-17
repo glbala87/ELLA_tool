@@ -72,6 +72,35 @@ export class AlleleSectionBoxController {
         this.classificationOptions = [{name: 'Unclassified', value: null}].concat(this.config.classification.options);
     }
 
+    getSectionUserState() {
+        if (!('sections' in this.alleleUserState)) {
+            this.alleleUserState.sections = {};
+        }
+        if (!(this.section.name in this.alleleUserState.sections)) {
+            this.alleleUserState.sections[this.section.name] = {
+                collapsed: false
+            }
+        }
+        return this.alleleUserState.sections[this.section.name];
+    }
+
+    collapseAll() {
+        let section_states = Object.values(this.alleleUserState.sections);
+        let current_collapsed = section_states.map(s => s.collapsed);
+        let some_collapsed = current_collapsed.some(c => c);
+        for (let section_state of section_states) {
+            section_state.collapsed = !some_collapsed;
+        }
+    }
+
+    showControls() {
+        if (this.section.options &&
+            'hide_controls_on_collapse' in this.section.options) {
+            return !(this.section.options.hide_controls_on_collapse &&
+                        this.getSectionUserState().collapsed);
+        }
+    }
+
     /**
      * Whether the card is editable or not. If reusing alleleassessment, user cannot edit the card.
      * Defaults to true if no data.

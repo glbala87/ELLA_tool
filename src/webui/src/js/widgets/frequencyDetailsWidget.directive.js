@@ -10,16 +10,17 @@ import {Directive, Inject} from '../ng-decorators';
     },
     templateUrl: 'ngtmpl/frequencyDetailsWidget.ngtmpl.html'
 })
-@Inject('Config')
+@Inject('Config', '$scope')
 export class FrequencyDetailsWidget {
 
 
-    constructor(Config) {
+    constructor(Config, $scope) {
         this.config = Config.getConfig();
         this.precision = this.config.frequencies.view.precision;
         this.frequencies = [];
-        this.setFrequencies();
         this.exac_fields = ['count', 'num', 'hom', 'freq']
+
+        $scope.$watch(() => this.allele, () => {this.setFrequencies()});
     }
 
     setFrequencies() {

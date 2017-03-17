@@ -3,32 +3,32 @@
 
     <!-- <div class="tabular-row">
       <div class="cell"><h5>Verify:</h5></div>
-      <div class="cell"><p>{{::vm.getVerificationText()}}</p></div>
+      <div class="cell"><p>{{vm.getVerificationText()}}</p></div>
     </div> -->
   <div class="cb-table">
     <div class="tabular-row">
       <div class="cell"><h5>Filter:</h5></div>
-      <div class="cell"><p>{{::vm.getGenotypeForSample().filter_status}}</p></div>
+      <div class="cell"><p>{{vm.getGenotypeForSample().filter_status}}</p></div>
     </div>
     <div class="tabular-row">
       <div class="cell"><h5>Quality:</h5></div>
-      <div class="cell"><p>{{::vm.getGenotypeForSample().variant_quality}}</p></div>
+      <div class="cell"><p>{{vm.getGenotypeForSample().variant_quality}}</p></div>
     </div>
     <div class="tabular-row">
       <div class="cell"><h5>GQ:</h5></div>
-      <div class="cell"><p>{{::vm.getGenotypeForSample().genotype}}</p></div>
+      <div class="cell"><p>{{vm.getGenotypeForSample().genotype}}</p></div>
     </div>
     <div class="tabular-row">
       <div class="cell"><h5>DP:</h5></div>
-      <div class="cell"><p>{{::vm.getGenotypeForSample().sequencing_depth}}</p></div>
+      <div class="cell"><p>{{vm.getGenotypeForSample().sequencing_depth}}</p></div>
     </div>
     <div class="tabular-row">
       <div class="cell"><h5>AD:</h5></div>
       <div class="cell"></div>
     </div>
-    <div class="tabular-row" ng-repeat="(k, v) in ::vm.getGenotypeForSample().allele_depth">
-      <div class="cell"><p> - {{::k}}:</p></div>
-      <div class="cell"><p>{{::v}}</p></div>
+    <div class="tabular-row" ng-repeat="(k, v) in vm.getGenotypeForSample().allele_depth">
+      <div class="cell"><p> - {{k}}:</p></div>
+      <div class="cell"><p>{{v}}</p></div>
     </div>
   </div>
 

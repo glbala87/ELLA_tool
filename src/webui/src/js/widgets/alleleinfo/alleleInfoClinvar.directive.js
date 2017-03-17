@@ -9,20 +9,19 @@ import {Directive, Inject} from '../../ng-decorators';
     },
     templateUrl: 'ngtmpl/alleleInfoClinvar.ngtmpl.html'
 })
-@Inject('Config')
+@Inject('Config', '$scope')
 export class AlleleInfoClinvar {
 
-    constructor(Config) {
+    constructor(Config, $scope) {
         this.config = Config.getConfig();
         this.previous = {};
         this.maxstars = new Array(4);
 
-        if (!this.hasContent()) {
-            this.collapsed = true;
-        } else {
+        $scope.$watch(() => this.allele, () => {
             this.revtext = this.allele.annotation.external.CLINVAR["variant_description"];
             this.revstars = this.config.annotation.clinvar.clinical_significance_status[this.revtext];
-        }
+        })
+
     }
 
     formatClinvar() {

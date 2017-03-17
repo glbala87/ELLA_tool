@@ -1,4 +1,4 @@
-<contentbox title="Clinvar" title-url="{{vm.allele.getClinvarUrl()}}" disabled="::!vm.hasContent()">
+<contentbox title="Clinvar" title-url="{{vm.allele.getClinvarUrl()}}" disabled="!vm.hasContent()">
   <cbbody>
     <div class="cb-table" ng-if="vm.hasContent()">
       <div class="tabular-row">
@@ -20,7 +20,7 @@
       <div class="cell"><h5 class="wrap">
             Submissions:
       </h5></div>
-      <div class="tabular-row" ng-repeat="c in ::vm.idempoClinvar()">
+      <div class="tabular-row" ng-repeat="c in vm.idempoClinvar()">
         <div class="cell"><h5 class="wrap">
           <p>{{c.last_evaluated}} - {{c.sigtext}} - {{c.phenotypetext}} - {{c.submitter}}</p>
         </h5></div>

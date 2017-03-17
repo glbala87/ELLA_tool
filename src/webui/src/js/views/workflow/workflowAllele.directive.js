@@ -52,9 +52,10 @@ export class WorkflowAlleleController {
                     {
                         title: 'Classification',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: false
                         },
                         controls: [
+                            'collapse_all',
                             'classification',
                             'reuse_classification'
                         ],
@@ -74,7 +75,7 @@ export class WorkflowAlleleController {
                     {   name: 'frequency',
                         title: 'Frequency & QC',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'copy_alamut',
@@ -97,7 +98,7 @@ export class WorkflowAlleleController {
                         name: 'external',
                         title: 'External',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'custom_external'
@@ -116,7 +117,7 @@ export class WorkflowAlleleController {
                         name: 'prediction',
                         title: 'Prediction',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'custom_prediction'
@@ -135,7 +136,7 @@ export class WorkflowAlleleController {
                         name: 'references',
                         title: 'References',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'references'
@@ -335,16 +336,18 @@ export class WorkflowAlleleController {
     loadAllele() {
         console.log("(Re)loading allele...");
         this.alleles_loaded = false;
-        this.selected_interpretation_alleles = [];
         if (this.allele_id && this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 'allele',
                 this.allele_id,
                 this.selected_interpretation,
-            ).then(alleles => {
-                this.selected_interpretation_alleles = alleles;
-                this.alleles_loaded = true;
-            });
+            ).then(
+                alleles => {
+                    this.selected_interpretation_alleles = alleles;
+                    this.alleles_loaded = true;
+                },
+                () => { this.selected_interpretation_alleles = []; } // On error
+            )
         }
     }
 

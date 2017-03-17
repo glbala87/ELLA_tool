@@ -13,9 +13,6 @@ import {Directive, Inject} from '../../ng-decorators';
 export class AlleleInfoFrequencyExac {
 
     constructor() {
-        if (!this.hasContent()) {
-            this.collapsed = true;
-        }
     }
 
     hasContent() {

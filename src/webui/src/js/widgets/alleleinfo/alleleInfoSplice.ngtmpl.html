@@ -1,6 +1,6 @@
-<contentbox title="Splice" disabled="::!vm.hasContent()">
+<contentbox title="Splice" disabled="!vm.hasContent()">
   <cbbody>
-    <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.transcript"
+    <div ng-repeat="t in vm.allele.annotation.filtered track by t.transcript"
       popover-append-to-body="true"
       popover-trigger="outsideClick"
       uib-popover-template="'ngtmpl/alleleInfoSplicePopover.ngtmpl.html'"
@@ -8,8 +8,8 @@
       popover-placement="auto top"
     >
       <transcript-wrapper transcript="t">
-        <p class="clickable" ng-repeat="c in ::t.splice">
-            {{::c.effect | noUnderscores}}
+        <p class="clickable" ng-repeat="c in t.splice">
+            {{c.effect | noUnderscores}}
         </p>
       </transcript-wrapper>
     </div>

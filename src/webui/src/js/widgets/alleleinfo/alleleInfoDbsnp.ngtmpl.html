@@ -1,8 +1,8 @@
-<contentbox title="dbSNP" disabled="::!vm.hasContent()">
+<contentbox title="dbSNP" disabled="!vm.hasContent()">
   <cbbody>
-    <div ng-repeat="t in ::vm.allele.annotation.filtered track by t.transcript">
+    <div ng-repeat="t in vm.allele.annotation.filtered track by t.transcript">
         <transcript-wrapper transcript="t">
-            <div ng-repeat="dbsnp in ::t.dbsnp track by $index"> <p><a-clip href="{{::vm.getUrl(dbsnp)}}" target="{{::dbsnp}}">{{::dbsnp}}</a-clip></p> </div>
+            <div ng-repeat="dbsnp in t.dbsnp track by $index"> <p><a-clip href="{{vm.getUrl(dbsnp)}}" target="{{dbsnp}}">{{dbsnp}}</a-clip></p> </div>
         </transcript-wrapper>
     </div>
   </cbbody>
