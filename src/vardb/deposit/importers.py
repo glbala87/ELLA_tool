@@ -107,6 +107,16 @@ class SampleImporter(object):
             self.counter['nSamplesAdded'] += 1
         return db_samples
 
+    def get(self, sample_names, analysis):
+        db_samples = []
+        for sample_name in sample_names:
+            db_sample = self.session.query(sm.Sample).filter(
+                sm.Sample.identifier == sample_name,
+                sm.Sample.analysis == analysis,
+            ).all()
+            assert len(db_sample) == 1, db_sample
+            db_samples += db_sample
+        return db_samples
 
 class GenotypeImporter(object):
 
@@ -667,6 +677,12 @@ class AnalysisImporter(object):
         self.session.add(analysis)
         return analysis
 
+    def get(self, analysis_config, genepanel):
+        return self.session.query(sm.Analysis).filter(
+            sm.Analysis.name == analysis_config['name'],
+            genepanel == genepanel
+        ).one()
+
 
 class AnalysisInterpretationImporter(object):
 
@@ -682,4 +698,16 @@ class AnalysisInterpretationImporter(object):
             )
         return db_interpretation
 
+class AlleleInterpretationImporter(object):
 
+    def __init__(self, session):
+        self.session = session
+
+    def process(self, genepanel, allele_id):
+        db_interpretation, _ = wf.AlleleInterpretation.get_or_create(
+            self.session,
+            allele_id=allele_id,
+            genepanel=genepanel,
+            status="Not started"
+            )
+        return db_interpretation

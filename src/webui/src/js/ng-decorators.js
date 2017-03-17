@@ -10,7 +10,9 @@ let app = angular.module('workbench', ['ui.bootstrap',
     'ngCookies',
     'checklist-model',
     'angular-clipboard',
-    'toastr'
+    'toastr',
+    'selector',
+    'ngSanitize'
 ]);
 
 function Run() {

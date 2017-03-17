@@ -90,6 +90,9 @@ class ApiV1(object):
         self._add_resource(r.genepanel.GenepanelResource,
                            '/api/v1/genepanels/<name>/<version>/')
 
+        self._add_resource(r.genepanel.GenepanelListResource,
+                           '/api/v1/genepanels/')
+
         self._add_resource(r.overview.OverviewAlleleResource,
                            '/api/v1/overviews/alleles/')
 
@@ -116,6 +119,13 @@ class ApiV1(object):
 
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
+
+        self._add_resource(r.annotationjob.AnnotationJob,
+                           '/api/v1/annotationjobs/',
+                           '/api/v1/annotationjobs/<int:id>')
+
+        self._add_resource(r.annotationjob.AnnotationServiceRunning,
+                           '/api/v1/annotationservice/running/')
 
         self._add_resource(r.workflow.allele.AlleleInterpretationListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/interpretations/')

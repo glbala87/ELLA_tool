@@ -57,6 +57,7 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-animate.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-route.js',
         'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-cookies.js',
+        'src/webui/src/thirdparty/angular/1.5.0-rc2/angular-sanitize.min.js',
         'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
         'src/webui/src/thirdparty/ui-router/angular-ui-router.min.js',
         'src/webui/src/thirdparty/angular-clipboard/angular-clipboard.js',
@@ -69,9 +70,9 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/igv/jquery.min.js',  // <-- Beware, we're using jquery here (in case of conflicts)
         'src/webui/src/thirdparty/igv/jquery-ui.min.js',
         'src/webui/src/thirdparty/igv/igv-1.0.5.min.js',
+        'src/webui/src/thirdparty/angular-selector/angular-selector.min.js',
         'src/webui/src/thirdparty/wysiwygjs/wysiwyg.js',
         'src/webui/src/thirdparty/vanilla-color-picker/vanilla-color-picker.min.js'
-
     ];
 
     return gulp.src(sourcePaths)

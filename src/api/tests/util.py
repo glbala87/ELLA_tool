@@ -1,12 +1,8 @@
-import subprocess
 import json
 import os
 
 from api import app
 from api.main import api
-
-import vardb.datamodel
-
 
 DB_PATH = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),

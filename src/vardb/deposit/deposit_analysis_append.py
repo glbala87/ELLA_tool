@@ -11,14 +11,14 @@ import sys
 import argparse
 import json
 import logging
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 
 from sqlalchemy import and_
 import sqlalchemy.orm.exc
 
 import vardb.datamodel
 from vardb.datamodel import gene
-from vardb.util import DB, vcfiterator
+from vardb.util import vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
                                     inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
@@ -29,7 +29,7 @@ from deposit_from_vcf import DepositFromVCF
 log = logging.getLogger(__name__)
 
 
-class DepositAnalysis(DepositFromVCF):
+class DepositAnalysisAppend(DepositFromVCF):
     def process_records(self, records, db_analysis, vcf_sample_names, db_samples):
         for k,v in records.iteritems():
             # Import alleles
@@ -58,19 +58,18 @@ class DepositAnalysis(DepositFromVCF):
         vcf_sample_names = vi.samples
         self.check_samples(vcf_sample_names, sample_configs)
 
-        # Only import sample/analysis if not importing assessments
-        db_samples = self.sample_importer.process(vcf_sample_names, sample_configs=sample_configs)
-
-        if not db_samples or len(db_samples) != len(vcf_sample_names):
-            raise RuntimeError("Couldn't import samples to database.")
+        # if not db_samples or len(db_samples) != len(vcf_sample_names):
+        #     raise RuntimeError("Couldn't import samples to database.")
 
         db_genepanel = self.get_genepanel(analysis_config)
 
-        db_analysis = self.analysis_importer.process(
-            db_samples,
+        db_analysis = self.analysis_importer.get(
             analysis_config=analysis_config,
             genepanel=db_genepanel
         )
+
+        # Only import sample/analysis if not importing assessments
+        db_samples = self.sample_importer.get(vcf_sample_names, db_analysis)
 
         self.analysis_interpretation_importer.process(db_analysis)
         records_cache = OrderedDict()
@@ -98,63 +97,3 @@ class DepositAnalysis(DepositFromVCF):
                 N = 1
 
         self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
-
-
-
-def main(argv=None):
-    """Example: ./deposit.py --vcf=./myvcf.vcf"""
-    argv = argv or sys.argv[1:]
-    parser = argparse.ArgumentParser(description="""Deposit variants and genotypes from a VCF file into varDB.""")
-    parser.add_argument("--vcf", action="store", dest="vcfPath", required=True, help="Path to VCF file to deposit")
-    parser.add_argument("--samplecfgs", action="store", nargs="+", dest="sample_config_files", required=True,
-                        help="Configuration file(s) (JSON) for sample(s) from pipeline")
-    parser.add_argument("--analysiscfg", action="store", dest="analysis_config_file", required=True,
-                        help="Configuration file (JSON) for analysis from pipeline")
-    parser.add_argument("--skip", action="store", dest="skipInfoFields", required=False, nargs='*',
-                        default=["NS", "DP", "AN", "CIGAR"],
-                        help="The VCF INFO fields that should NOT be added as annotation to varDB.")
-    parser.add_argument("--refgenome", action="store", dest="refGenome", required=False,
-                        default="GRCh37", help="Reference genome name")
-    parser.add_argument("-f", action="store_true", dest="nonInteractive", required=False,
-                        default=False, help="Do not ask for confirmation before deposit")
-
-    args = parser.parse_args(argv)
-
-    sample_configs = list()
-    for sample_config_file in args.sample_config_files:
-        with open(sample_config_file) as f:
-            sample_configs.append(json.load(f))
-
-    with open(args.analysis_config_file) as f:
-        analysis_config = json.load(f)
-
-    db = DB()
-    db.connect()
-    session = db.session
-
-    da = DepositAnalysis(session)
-    try:
-        da.import_vcf(
-            args.vcfPath,
-            sample_configs=sample_configs,
-            analysis_config=analysis_config
-        )
-    except UserWarning as e:
-        log.error(str(e))
-        sys.exit()
-
-    if not args.nonInteractive:
-        print "You are about to commit the following changes to the database:"
-        da.printStats()
-        print "Proceed? (Y/n)"
-        if not raw_input() == "Y":
-            log.warning("Aborting deposit! Rolling back changes.")
-            session.rollback()
-            return -1
-
-    session.commit()
-    print "Deposit complete."
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())

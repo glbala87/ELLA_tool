@@ -13,3 +13,4 @@ from genepanels import GenepanelSchema
 from annotations import AnnotationSchema
 from customannotations import CustomAnnotationSchema
 from genotypes import GenotypeSchema
+from annotationjobs import AnnotationJobSchema

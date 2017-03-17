@@ -8,8 +8,10 @@ export default class Annotation {
      */
     constructor(data) {
         Object.assign(this, data);
-        if (this.filtered_transcripts) {
+        if (this.filtered_transcripts.length) {
             this.filtered = this.transcripts.filter(anno => this.filtered_transcripts.includes(anno.transcript));
+        } else {
+            this.filtered = this.transcripts;
         }
     }
 
