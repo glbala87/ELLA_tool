@@ -139,7 +139,7 @@ function getCurrentColors(nodes) {
             buttons[name] = button;
         }
 
-        placeholderelement.innerHTML = scope.placeholder;
+        placeholderelement.innerHTML = scope.placeholder || '';
 
         var options = {
             element: editorelement,
@@ -189,7 +189,7 @@ function getCurrentColors(nodes) {
 
         // Attach existing $viewValue to editor
         ngModel.$render = () => {
-            if (ngModel.$viewValue !== undefined &&
+            if (typeof(ngModel.$viewValue) === 'string' &&
                 ngModel.$viewValue !== '') {
                 editor.setHTML(ngModel.$viewValue);
                 placeholderelement.hidden = true;
