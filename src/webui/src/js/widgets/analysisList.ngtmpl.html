@@ -3,18 +3,18 @@
    href="/analyses/{{analysis.id}}"
    ng-repeat="analysis in vm.sorted_analyses track by analysis.name">
 
-  <div class="analysis-date">{{::analysis.deposit_date | date:"dd-MM-yyyy"}}</div>
+  <div class="analysis-date">{{analysis.deposit_date | date:"dd-MM-yyyy"}}</div>
   <div class="analysis-priority">{{vm.getPriorityText(analysis)}}</div>
-  <h3 class="id-analysis-name full-title ref-title"><b>{{::analysis.name}}</b></h3>
+  <h3 class="id-analysis-name full-title ref-title"><b>{{analysis.name}}</b></h3>
   <div class="analysis-extras">
     <span class="id-analysis-comment"
           ng-if="!vm.isAnalysisDone(analysis) && vm.getReviewComment(analysis)">
-      {{::vm.getReviewComment(analysis)}}
+      {{vm.getReviewComment(analysis)}}
     </span>
   </div>
   <div class="analysis-users">
     <div ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
-      <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • <b>{{::vm.abbreviateUser(interpretation.user)}}</b> • <i>{{::interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}}</i></h3></div>
+      <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • <b>{{vm.abbreviateUser(interpretation.user)}}</b> • <i>{{interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}}</i></h3></div>
     </div>
   </div>
 </a>

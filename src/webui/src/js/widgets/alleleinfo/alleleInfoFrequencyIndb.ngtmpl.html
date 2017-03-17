@@ -1,6 +1,6 @@
-<contentbox title="InDB" disabled="::!vm.hasContent()">
+<contentbox title="InDB" disabled="!vm.hasContent()">
   <cbbody>
     <frequency-details group="inDB" allele="vm.allele"></frequency-details>
-    <acmg class="suggested disabled" code="c" editable="::false" ng-repeat="c in ::vm.allele.getACMGCodes('frequencies.cutoff.inDB')"></acmg>
+    <acmg class="suggested disabled" code="c" editable="false" ng-repeat="c in vm.allele.getACMGCodes('frequencies.cutoff.inDB')"></acmg>
   </cbbody>
 </contentbox>

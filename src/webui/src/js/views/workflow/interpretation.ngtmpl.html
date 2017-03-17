@@ -12,7 +12,6 @@
 
         <div ng-switch-when="Frequency & QC">
           <!-- Recompiles the DOM upon change. <allele-sectionbox> uses one-time bindings for perf, as sometimes you might show lots of them on same page -->
-          <div recompile-on="vm.allele_sidebar.selected">
             <allele-sectionbox
               read-only="vm.readOnly"
               header="section.title"
@@ -31,13 +30,11 @@
               allelereport-comment="section.report_comment"
               ng-repeat="section in vm.getComponent('Frequency & QC').sections">
             </allele-sectionbox>
-          </div>
           <div ng-if="!vm.hasResults()" class="no-alleles">
             <h2>No variants with frequency data</h2>
           </div>
         </div>
         <div ng-switch-when="Classification">
-          <div recompile-on="vm.allele_sidebar.selected">
             <allele-sectionbox
               read-only="vm.readOnly"
               header="section.title"
@@ -56,7 +53,6 @@
               allelereport-comment="section.report_comment"
               ng-repeat="section in vm.getComponent('Classification').sections">
             </allele-sectionbox>
-          </div>
           <div ng-if="!vm.hasResults()" class="no-alleles">
             <h2>No variants to classify.</h2>
           </div>
