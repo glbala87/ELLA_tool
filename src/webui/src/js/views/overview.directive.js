@@ -57,8 +57,9 @@ export class MainController {
     }
 
     pollForAnnotationJobs() {
-        let cancel = this.interval(() => this.getAnnotationjobs(), 5000);
+        let cancel = this.interval(() => this.getAnnotationjobs(), 10000);
         this.scope.$on('$destroy', () => this.interval.cancel(cancel));
+        this.getAnnotationjobs();
     }
 
 
