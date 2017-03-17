@@ -189,9 +189,14 @@ function getCurrentColors(nodes) {
 
         // Attach existing $viewValue to editor
         ngModel.$render = () => {
-            if (ngModel.$viewValue) {
+            if (ngModel.$viewValue !== undefined &&
+                ngModel.$viewValue !== '') {
                 editor.setHTML(ngModel.$viewValue);
                 placeholderelement.hidden = true;
+            }
+            else {
+                editor.setHTML('');
+                placeholderelement.hidden = false;
             }
         };
 
