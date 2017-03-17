@@ -64,6 +64,13 @@
                   ng-if="control == 'references'">Add references
           </button>
 
+          <button class="id-show-ignored-references"
+                  ng-click="vm.showHideExcludedReferences()"
+                  ng-if="control == 'references'">{{vm.getExcludeReferencesBtnText()}}
+          </button>
+
+
+
           <button class="id-add-external"
                   ng-if="control == 'custom_external'"
                   ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
@@ -122,6 +129,7 @@
       allele="vm.allele"
       references="vm.references"
       allele-state="vm.alleleState"
+      allele-user-state="vm.alleleUserState"
       boxes="vm.section.content"
       boxes-options="vm.sectionOptions"
       on-save="vm.onUpdate()"

@@ -34,8 +34,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         //   custom_external: bool
         //}
         //
-    }
-
+    },
 })
 @Inject(
     '$rootScope',
@@ -173,6 +172,17 @@ export class AlleleSectionBoxController {
                 }
             }
         });
+    }
+
+    showHideExcludedReferences() {
+        this.alleleUserState.showExcludedReferences = !this.alleleUserState.showExcludedReferences;
+        if (this.onUpdate) {
+            this.onUpdate()
+        }
+    }
+
+    getExcludeReferencesBtnText() {
+        return this.alleleUserState.showExcludedReferences ? "Hide excluded" : "Show excluded"
     }
 
     changeClassification() {

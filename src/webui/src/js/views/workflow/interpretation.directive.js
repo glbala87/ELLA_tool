@@ -435,6 +435,7 @@ export class InterpretationController {
         if (!(allele.id in this.interpretation.user_state.allele)) {
             let allele_state = {
                 allele_id: allele.id,
+                showExcludedReferences: false,
             };
             this.interpretation.user_state.allele[allele.id] = allele_state;
         }

@@ -32,6 +32,7 @@ import {Directive, Inject} from '../../ng-decorators';
         allele: '=',
         references: '=',
         alleleState: '=',
+        alleleUserState: '=',
         onSave: '&?',
         readOnly: '=?',
         boxes: '='  // Array of objects.
@@ -66,6 +67,7 @@ import {Directive, Inject} from '../../ng-decorators';
                     allele="vm.allele"
                     references="vm.references"
                     allele-state="vm.alleleState"
+                    allele-user-state="vm.alleleUserState"
                     read-only="vm.readOnly"
                     ${on_save}
                     ${attrs}
