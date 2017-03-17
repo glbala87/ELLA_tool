@@ -52,9 +52,10 @@ export class WorkflowAlleleController {
                     {
                         title: 'Classification',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: false
                         },
                         controls: [
+                            'collapse_all',
                             'classification',
                             'reuse_classification'
                         ],
@@ -74,7 +75,7 @@ export class WorkflowAlleleController {
                     {   name: 'frequency',
                         title: 'Frequency & QC',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'copy_alamut',
@@ -97,7 +98,7 @@ export class WorkflowAlleleController {
                         name: 'external',
                         title: 'External',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'custom_external'
@@ -116,7 +117,7 @@ export class WorkflowAlleleController {
                         name: 'prediction',
                         title: 'Prediction',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'custom_prediction'
@@ -135,7 +136,7 @@ export class WorkflowAlleleController {
                         name: 'references',
                         title: 'References',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'references'

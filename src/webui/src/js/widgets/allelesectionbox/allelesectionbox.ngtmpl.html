@@ -1,4 +1,4 @@
-<sectionbox class="id-sectionbox-{{section.name}}" color="purple" collapsed="vm.section.options.collapsed">
+<sectionbox class="id-sectionbox-{{section.name}}" color="purple" collapsed="vm.getSectionUserState().collapsed">
 
   <maintitle>
   {{vm.header}}
@@ -8,8 +8,12 @@
 
     <!-- Controls -->
     <section class="line-wrapper" ng-if=vm.controls.length>
-      <div class="button" ng-repeat="control in vm.controls">
+      <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
 
+          <button class="id-collapse-all"
+                  ng-if="control == 'collapse_all'"
+                  ng-click="vm.collapseAll()">Collapse all
+          </button>
           <button class="id-igv"
                   ng-if="control == 'igv'"
                   ng-click="vm.showIgv()">Show in IGV

@@ -54,9 +54,10 @@ export class AnalysisController {
                         name: 'classification',
                         title: 'Classification',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: false
                         },
                         controls: [
+                            'collapse_all',
                             'classification',
                             'reuse_classification'
                         ],
@@ -76,7 +77,7 @@ export class AnalysisController {
                         name: 'frequency',
                         title: 'Frequency & QC',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'copy_alamut',
@@ -100,7 +101,7 @@ export class AnalysisController {
                         name: 'external',
                         title: 'External',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'custom_external'
@@ -119,7 +120,7 @@ export class AnalysisController {
                         name: 'prediction',
                         title: 'Prediction',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'custom_prediction'
@@ -138,7 +139,7 @@ export class AnalysisController {
                         name: 'references',
                         title: 'References',
                         options: {
-                            collapsed: false
+                            hide_controls_on_collapse: true
                         },
                         controls: [
                             'references'
