@@ -230,38 +230,41 @@ def polling(session):
         while True:
             try:
                 session.connection()
-            except OperationalError:
-                # Database is not alive
-                time.sleep(5)
-                continue
 
-            if len(session.bind.table_names()) == 0:
-                # Database is not populated
+                if len(session.bind.table_names()) == 0:
+                    # Database is not populated
+                    session.remove()
+                    time.sleep(5)
+                    continue
+
+                # Process running
+                running_jobs = annotation_jobs.get_with_status("RUNNING")
+                for id, update in process_running(annotation_service, running_jobs):
+                    annotation_jobs.patch(id, **update)
+                annotation_jobs.commit()
+
+                # Process submitted
+                submitted_jobs = annotation_jobs.get_with_status("SUBMITTED")
+                for id, update in process_submitted(annotation_service, submitted_jobs):
+                    annotation_jobs.patch(id, **update)
+                annotation_jobs.commit()
+
+                # Process annotated
+                annotated_jobs = annotation_jobs.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
+                for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
+                    annotation_jobs.patch(id, **update)
+                annotation_jobs.commit()
+
+                # Remove session to avoid a hanging session
+                session.remove()
+                log.info("Completed polling of annotation jobs")
+                time.sleep(5)
+            except OperationalError,e:
+                # Database is not alive
+                log.warning("Failed to poll annotation jobs (%s)" %e.message)
                 session.remove()
                 time.sleep(5)
                 continue
-
-            # Process running
-            running_jobs = annotation_jobs.get_with_status("RUNNING")
-            for id, update in process_running(annotation_service, running_jobs):
-                annotation_jobs.patch(id, **update)
-            annotation_jobs.commit()
-
-            # Process submitted
-            submitted_jobs = annotation_jobs.get_with_status("SUBMITTED")
-            for id, update in process_submitted(annotation_service, submitted_jobs):
-                annotation_jobs.patch(id, **update)
-            annotation_jobs.commit()
-
-            # Process annotated
-            annotated_jobs = annotation_jobs.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-            for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
-                annotation_jobs.patch(id, **update)
-            annotation_jobs.commit()
-
-            # Remove session to avoid a hanging session
-            session.remove()
-            time.sleep(5)
 
     try:
         loop(session)
