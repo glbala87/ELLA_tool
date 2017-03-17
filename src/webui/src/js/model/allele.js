@@ -11,7 +11,6 @@ export class Allele {
      * @param  {object} Allele data from server.
      */
     constructor(data) {
-        console.log(data)
         Object.assign(this, data);
         this._createAnnotations();
     }
