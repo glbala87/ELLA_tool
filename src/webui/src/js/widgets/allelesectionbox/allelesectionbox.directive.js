@@ -176,9 +176,6 @@ export class AlleleSectionBoxController {
 
     showHideExcludedReferences() {
         this.alleleUserState.showExcludedReferences = !this.alleleUserState.showExcludedReferences;
-        if (this.onUpdate) {
-            this.onUpdate()
-        }
     }
 
     getExcludeReferencesBtnText() {

@@ -33,8 +33,7 @@
     <section ng-if="vm.alleleUserState.showExcludedReferences">
       <h4 class="faded-title content-top" >Excluded references</h4>
 
-     <article class="acmg-body" ng-repeat="ref in vm.allele_references">
-      <div ng-if="['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) >= 0">
+     <article class="acmg-body" ng-repeat="ref in vm.allele_references" ng-if="['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) >= 0">
         <section class="line-wrapper spaced">
           <div>
             <h5 class="wrap"><a-clip class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
@@ -47,7 +46,6 @@
             >{{vm.getEvaluateBtnText(ref)}}</button>
           </div>
         </section>
-      </div>
     </article>
       </section>
 
