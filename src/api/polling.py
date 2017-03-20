@@ -257,7 +257,6 @@ def polling(session):
 
                 # Remove session to avoid a hanging session
                 session.remove()
-                log.info("Completed polling of annotation jobs")
                 time.sleep(5)
             except OperationalError,e:
                 # Database is not alive
@@ -279,4 +278,4 @@ def setup_polling(session):
             t = threading.Thread(target=polling, args=(session,))
             t.setDaemon(True)
             t.start()
-            print "Started polling thread"
+            log.info("Started polling thread")
