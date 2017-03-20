@@ -80,7 +80,7 @@ export class InterpretationController {
         $scope.$watch(
             () => this.alleles,
             () => {
-                this.updateAlleleSidebar();
+                this.setup();
                 this.loadReferences();  // Reload references in case there are new alleles added
             }
         );
