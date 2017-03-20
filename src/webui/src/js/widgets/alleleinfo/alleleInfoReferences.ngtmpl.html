@@ -1,24 +1,25 @@
 <contentbox class="max-width id-references-box " title="References" ng-if="vm.allele_references.length+vm.missing_references.length">
   <cbbody>
     <article class="acmg-body" ng-repeat="ref in vm.allele_references">
+      <div ng-if="!vm.hasReferenceAssessment(ref) || ['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) < 0">
       <section class="line-wrapper spaced">
         <div>
           <h5 class="wrap"><a-clip class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
           <p>{{ref.getShortDesc()}}</p>
 
         </div>
-        <div>
+        <div class="nowrap">
           <button class="blue id-reference-evaluate"
                   ng-click="vm.showReferenceEval(ref)"
           >{{vm.getEvaluateBtnText(ref)}}</button>
-          <button class="blue id-reference-evaluate" ng-disabled="vm.readOnly || (vm.hasReferenceAssessment(ref) && vm.getReferenceAssessment(ref).evaluation.relevance === 'Ignore')"
+          <button class="blue id-reference-evaluate" ng-disabled="vm.readOnly"
                   ng-click="vm.quickIgnore(ref)"
           >Ignore</button>
         </div>
       </section>
 
-      <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
-
+        <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
+      </div>
     </article>
 
     <article ng-repeat="ref in vm.missing_references">
@@ -28,6 +29,26 @@
         </div>
       </section>
     </article>
+
+    <section ng-if="vm.alleleUserState.showExcludedReferences">
+      <h4 class="faded-title content-top" >Excluded references</h4>
+
+     <article class="acmg-body" ng-repeat="ref in vm.allele_references" ng-if="['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) >= 0">
+        <section class="line-wrapper spaced">
+          <div>
+            <h5 class="wrap"><a-clip class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
+            <p>{{ref.getShortDesc()}}</p>
+
+          </div>
+          <div>
+            <button class="blue id-reference-evaluate"
+                    ng-click="vm.showReferenceEval(ref)"
+            >{{vm.getEvaluateBtnText(ref)}}</button>
+          </div>
+        </section>
+    </article>
+      </section>
+
   </cbbody>
 </contentbox>
 

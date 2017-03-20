@@ -13,6 +13,7 @@ import {deepCopy} from '../../util';
         allele: '=',
         references: '=',
         alleleState: '=',
+        alleleUserState: '=',
         onSave: '&?',
         readOnly: '=?'
     }
