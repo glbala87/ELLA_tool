@@ -25,7 +25,7 @@
       <div class="dropdown white" ng-if="vm.showHistory()">
         <select
           class="id-interpretationrounds-dropdown"
-          ng-options="i as ( vm.interpretations.indexOf(i) + 1 + ' • ' + i.user.first_name + ' ' + i.user.last_name + ' • ' + (i.date_last_update | date:'dd-MM-yyyy HH:mm')) for i in vm.history_interpretations track by i.id"
+          ng-options="i as vm.formatHistoryOption(i) for i in vm.history_interpretations"
           ng-model="vm.selected_interpretation">
         </select>
       </div>

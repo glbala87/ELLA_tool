@@ -148,17 +148,19 @@ describe('Sample workflow', function () {
         overview.selectFinished(1);
 
         // then
-        expect(analysisPage.roundCount).toBe(2);
+        expect(analysisPage.roundCount).toBe(3);  // 'Current data' "round" is added at end
 
         const numberOfClassified = alleleSidebar.countOfClassified();
         expect(alleleSidebar.countOfUnclassified()).toBe(0);
         expect(numberOfClassified).toBeGreaterThan(1);
 
-        // in last round all alleles was set to class 2
+        // current data round: Three alleles were classified as T in this sample, and two as 2 in the other sample
+
+        let current_classifications = ['2', '2', 'T', 'T', 'T'];
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
-            expect(classification).toBe('2', 'Class 2 for all alleles in newest (default) round');
+            expect(classification).toBe(current_classifications[i-1], 'Class matches for all alleles in current data (default) round');
         }
 
         // in first round all alleles was set to class 1
@@ -176,7 +178,7 @@ describe('Sample workflow', function () {
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
-            expect(classification).toBe('2', 'Class 2 for all alleles in newest (default) round');
+            expect(classification).toBe('2', 'Class 2 for all alleles in second (newest) round');
             expect(alleleSectionBox.hasExistingClassification()).toBe(false, 'no alleles from round two' +
                 ' had an existing classification');
         }
@@ -190,13 +192,14 @@ describe('Sample workflow', function () {
         overview.open();
         overview.selectFinished(2);
 
-        expect(analysisPage.roundCount).toBe(1);
+        expect(analysisPage.roundCount).toBe(2);
 
         const numberOfUnclassified = alleleSidebar.countOfUnclassified();
         expect(numberOfUnclassified).toBe(0);
         const numberOfClassified = alleleSidebar.countOfClassified();
         expect(numberOfClassified).toBeGreaterThan(1);
 
+        analysisPage.chooseRound(1);
         // expect all to be T, with existing classificaiton of 2 for some
         let numberOfAllelesWithExistingClassification = 0;
         for (let i=1; i<=numberOfClassified; i++) {

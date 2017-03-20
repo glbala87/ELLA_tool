@@ -152,13 +152,4 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
     });
 
 
-    it('shows previous rounds when opening a finalized variant', function () {
-        loginPage.selectSecondUser();
-        variantSelectionPage.expandFinishedSection();
-        variantSelectionPage.selectFinished(1);
-        expect(analysisPage.roundCount).toBe(2);
-
-    });
-
-
 });

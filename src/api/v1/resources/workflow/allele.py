@@ -1,6 +1,6 @@
 from flask import request
 
-from api.util.util import request_json
+from api.util.util import request_json, ApiError
 from api.v1.resource import Resource
 
 
@@ -28,7 +28,7 @@ class AlleleInterpretationResource(Resource):
           200:
             schema:
                 $ref: '#/definitions/AlleleInterpretation'
-            description: AnalysisInterpretation object
+            description: AlleleInterpretation object
         """
         return helpers.get_interpretation(session, alleleinterpretation_id=interpretation_id)
 
@@ -90,9 +90,21 @@ class AlleleInterpretationResource(Resource):
 class AlleleInterpretationAllelesListResource(Resource):
 
     def get(self, session, allele_id, interpretation_id):
-
+        if not session.query(AlleleInterpretation).filter(
+            AlleleInterpretation.id == interpretation_id,
+            AlleleInterpretation.allele_id == allele_id
+        ).count():
+            raise ApiError("Interpretation id {} is not part of allele with id {}".format(
+                interpretation_id, allele_id
+            ))
         allele_ids = request.args.get('allele_ids').split(',')
-        return helpers.get_alleles(session, allele_ids, alleleinterpretation_id=interpretation_id)
+        current = request.args.get('current', '').lower() == 'true'
+        return helpers.get_alleles(
+          session,
+          allele_ids,
+          alleleinterpretation_id=interpretation_id,
+          current_allele_data=current
+        )
 
 
 class AlleleInterpretationListResource(Resource):

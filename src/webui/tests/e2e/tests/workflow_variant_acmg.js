@@ -63,14 +63,14 @@ describe(`ACMG`, function () {
         it('hidden when seeing a finished interpretation', function () {
             // browser.debug();
             // expect(acmg.collapsed).toBe(true);
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBe(null);
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined();
             expectSuggestedFeatureIsHidden();
         });
 
         it('are hidden after opening a finished interpretation', function () {
             // reopen the interpretation
             analysisPage.startButton.click();
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBe(null);
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined();
             expectSuggestedFeatureIsHidden();
         });
 
