@@ -66,6 +66,27 @@ class ReferenceResource {
             });
         });
     }
+
+    search(searchString) {
+        return new Promise(resolve => {
+            if (searchString.length < 3) {
+                resolve([]);
+            }
+            else {
+                let s = JSON.stringify({'search_string': searchString});
+                let r = this.resource(`${this.base}/references/?s=${encodeURIComponent(s)}&num_per_page=${encodeURIComponent("10")}`);
+                let references = r.query(() => {
+                    let refs = [];
+                    for (let o of references) {
+                        refs.push(new Reference(o));
+                    }
+                    resolve(refs);
+                });
+            }
+        })
+    }
+
+
 }
 
 export default ReferenceResource;

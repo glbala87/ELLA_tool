@@ -8,8 +8,10 @@ import {Service, Inject} from '../ng-decorators';
  * annotation. Reference mode is triggered when
  * category === 'references'.
  */
+
 export class CustomAnnotationController {
-    constructor(modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, placeholder, alleles, category) {
+    constructor($scope, modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, placeholder, alleles, category) {
+        this.scope = $scope;
         this.modal = modalInstance;
         this.category = category;
         this.config = Config.getConfig();
@@ -38,6 +40,19 @@ export class CustomAnnotationController {
         this.reference_xml = ''; // Holds user pasted xml
         this.reference_error = false;
         this.references = [];  // Holds reference objects for showing details
+
+        this.referenceModes = ['Search', 'Manual', 'PubMed'];
+        this.referenceMode = this.referenceModes[0];
+        this.referenceSearchPhrase = "";
+        this.referenceSearchResults = [];
+
+        if (this.category === "references") {
+            $scope.$watch(() => this.referenceSearchPhrase, () => {
+                this.referenceResource.search(this.referenceSearchPhrase).then(results => {
+                    this.referenceSearchResults = results;
+                })
+            })
+        }
 
         this.setup();
     }
@@ -283,7 +298,7 @@ export class CustomAnnotationModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
-            controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'placeholder', 'alleles', 'category', CustomAnnotationController],
+            controller: ['$scope','$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'placeholder', 'alleles', 'category', CustomAnnotationController],
             controllerAs: 'vm',
             size: 'lg',
             resolve: {
