@@ -134,10 +134,9 @@ export class AlleleStateHelper {
     static hasReferenceAssessment(allele, reference, allele_state) {
         let a = this.getExistingReferenceAssessment(allele, reference)
         let b = this.getStateReferenceAssessment(allele, reference, allele_state)
-
         return !(
             (a === undefined || a.evaluation.relevance === undefined)
-            && (b === undefined || b.evaluation.relevance === undefined)
+            && (b === undefined || b.evaluation === undefined || b.evaluation.relevance === undefined)
         )
 
     }
