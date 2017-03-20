@@ -142,7 +142,6 @@ export class InterpretationController {
 
         this.autoReuseExistingAssessments();
         this.onInterpretationStateChange();
-        this.onComponentChange();
 
     }
 
