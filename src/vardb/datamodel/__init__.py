@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session as SessionType
-
+from sqlalchemy_searchable import make_searchable
 
 class CustomBase(object):
 
@@ -74,6 +74,7 @@ convention = {
 
 
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
+make_searchable()
 Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:

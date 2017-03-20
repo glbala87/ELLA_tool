@@ -1,7 +1,7 @@
 from vardb.datamodel import assessment
 
 from api import schemas
-from api.util.util import paginate, rest_filter, request_json
+from api.util.util import paginate, rest_filter, search_filter, request_json
 
 from pubmed import PubMedParser
 
@@ -12,7 +12,8 @@ class ReferenceListResource(Resource):
 
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=100):
+    @search_filter
+    def get(self, session, rest_filter=None, search_filter=None, page=None, num_per_page=100):
         """
         Returns a list of references.
 
@@ -35,14 +36,23 @@ class ReferenceListResource(Resource):
                 $ref: '#/definitions/Reference'
             description: List of references
         """
-        return self.list_query(
-            session,
-            assessment.Reference,
-            schemas.ReferenceSchema(strict=True),
-            rest_filter=rest_filter,
-            page=page,
-            num_per_page=num_per_page
-        )
+        if search_filter is not None:
+            assert rest_filter is None
+            return self.list_search(session,
+                                    assessment.Reference,
+                                    search_filter=search_filter,
+                                    schema=schemas.ReferenceSchema(strict=True),
+                                    page=page,
+                                    num_per_page=num_per_page)
+        else:
+            return self.list_query(
+                session,
+                assessment.Reference,
+                schemas.ReferenceSchema(strict=True),
+                rest_filter=rest_filter,
+                page=page,
+                num_per_page=num_per_page
+            )
 
     @request_json(['xml'], True)
     def post(self, session, data=None):

@@ -25,6 +25,21 @@ def rest_filter(func):
 
     return inner
 
+def search_filter(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        s_filter = None
+        if request:
+            s = request.args.get('s')
+            print s
+            if s:
+                s_filter = json.loads(s)
+        print s_filter
+        return func(*args, search_filter=s_filter, **kwargs)
+
+    return inner
+
+
 
 def link_filter(func):
 
@@ -72,7 +87,7 @@ def paginate(func):
         if request:
             num_per_page = request.args.get('num_per_page')
         if num_per_page is not None:
-            kwargs['num_per_page'] = int(num_per_page)
+            num_per_page = int(num_per_page)
         else:
             num_per_page = 2000  # FIXME: Figure out the pagination stuff
         kwargs['page'] = page
