@@ -66,9 +66,6 @@ export class AlleleSectionBoxController {
         this.clipboard = clipboard;
         this.toastr = toastr;
 
-        this.selected_class = null; // Stores selected class in dropdown
-        this.calculated_config = null; // calculated at request.
-
         this.classificationOptions = [{name: 'Unclassified', value: null}].concat(this.config.classification.options);
     }
 

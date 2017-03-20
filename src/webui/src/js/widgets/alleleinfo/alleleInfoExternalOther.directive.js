@@ -14,10 +14,6 @@ export class AlleleInfoExternalOther {
 
     constructor(Config) {
         this.config = Config.getConfig();
-
-        if (!this.hasContent()) {
-            this.collapsed = true;
-        }
     }
 
     hasContent() {

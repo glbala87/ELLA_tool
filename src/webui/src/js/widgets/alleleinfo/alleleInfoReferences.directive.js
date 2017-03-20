@@ -32,6 +32,12 @@ export class AlleleInfoReferences {
                 this.setAlleleReferences();
             }
         );
+        $scope.$watch(
+            () => this.allele,
+            () => {
+                this.setAlleleReferences();
+            }
+        );
         this.refEvalModal = ReferenceEvalModal;
     }
 

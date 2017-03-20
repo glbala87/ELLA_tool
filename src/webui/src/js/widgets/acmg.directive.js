@@ -16,15 +16,19 @@ import {Directive, Inject} from '../ng-decorators';
     },
     templateUrl: 'ngtmpl/acmg.ngtmpl.html'
 })
-@Inject('Config')
+@Inject('Config', '$scope')
 export class AcmgController {
 
-    constructor(Config) {
+    constructor(Config, $scope) {
         this.config = Config.getConfig();
         this.popover = {
             templateUrl: 'ngtmpl/acmgPopover.ngtmpl.html'
         };
-        this.matches = this.getMatches();
+
+        $scope.$watch(
+            () => this.code,
+            () => { this.matches = this.getMatches(); }
+        )
     }
 
     toggle() {
