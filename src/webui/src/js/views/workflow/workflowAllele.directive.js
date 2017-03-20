@@ -341,9 +341,9 @@ export class WorkflowAlleleController {
         return `${interpretation_idx} • ${interpretation.user.first_name} ${interpretation.user.last_name} • ${interpretation_date}`;
     }
 
-
     reloadInterpretationData() {
-        this._loadInterpretations().then(() => {
+        return this.workflowResource.getInterpretations('allele', this.allele_id).then(interpretations => {
+            this.interpretations = interpretations;
             this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
             let last_interpretation = this.interpretations[this.interpretations.length-1];
 
@@ -396,12 +396,6 @@ export class WorkflowAlleleController {
         return this.genepanelResource.get(gp_name, gp_version).then(
             gp => this.selected_interpretation_genepanel = gp
         );
-    }
-
-    _loadInterpretations() {
-        return this.workflowResource.getInterpretations('allele', this.allele_id).then(interpretations => {
-            this.interpretations = interpretations;
-        });
     }
 
     _getQueryFromSelector() {
