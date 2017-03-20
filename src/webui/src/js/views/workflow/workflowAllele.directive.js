@@ -341,29 +341,40 @@ export class WorkflowAlleleController {
         return `${interpretation_idx} • ${interpretation.user.first_name} ${interpretation.user.last_name} • ${interpretation_date}`;
     }
 
+    /**
+     * Loads interpretations from backend and sets:
+     * - selected_interpretation
+     * - history_interpretations
+     * - interpretations
+     */
     reloadInterpretationData() {
         return this.workflowResource.getInterpretations('allele', this.allele_id).then(interpretations => {
             this.interpretations = interpretations;
-            this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
+            let done_interpretations = this.interpretations.filter(i => i.status === 'Done');
             let last_interpretation = this.interpretations[this.interpretations.length-1];
-
             // If an interpretation is Ongoing, we assign it directly
             if (last_interpretation && last_interpretation.status === 'Ongoing') {
                 this.selected_interpretation = last_interpretation;
+                this.history_interpretations = done_interpretations;
             }
             // Otherwise, make a copy of the last historical one to act as "current" entry.
             // Current means get latest allele data (instead of historical)
             // We make a copy, to prevent the state of the original to be modified
-            else if (this.history_interpretations.length) {
-                this.selected_interpretation = deepCopy(this.history_interpretations[this.history_interpretations.length-1]);
-                this.selected_interpretation.current = true;
-                this.history_interpretations.push(this.selected_interpretation);
+            else if (done_interpretations.length) {
+                let current_entry_copy = deepCopy(done_interpretations[done_interpretations.length-1]);
+                current_entry_copy.current = true;
+                this.selected_interpretation = current_entry_copy;
+                this.history_interpretations = done_interpretations.concat([current_entry_copy]);
             }
+            // If we have no history, set selected to null
             else {
                 this.selected_interpretation = null;
+                this.history_interpretations = [];
             }
             this.interpretations_loaded = true;
-            console.log("Reloaded interpretation data:", this.selected_interpretation)
+            console.log('(Re)Loaded ' + interpretations.length + ' interpretations');
+            console.log('Setting selected interpretation:', this.selected_interpretation);
+
         });
     }
 
