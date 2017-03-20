@@ -1,9 +1,11 @@
 from collections import defaultdict
 
 from api import schemas
+from api.config import config
 from rule_engine.grc import ACMGClassifier2015
 from rule_engine.gre import GRE
 from rule_engine.mapping_rules import rules
+from api.util.allelefilter import AlleleFilter, TempAlleleFilterTable
 from api.util.genepanelconfig import GenepanelConfigResolver
 from .alleledataloader import AlleleDataLoader
 
@@ -77,15 +79,30 @@ class ACMGDataLoader(object):
 
         resolver = GenepanelConfigResolver(genepanel)
 
+        allele_ids = [a['id'] for a in alleles]
         allele_classifications = dict()
 
         ra_per_allele = defaultdict(list)
         for ra in reference_assessments:
             ra_per_allele[ra['allele_id']].append(ra)
 
+        af = AlleleFilter(self.session, config)
+        gp_key = (genepanel.name, genepanel.version)
+        with TempAlleleFilterTable(self.session, allele_ids, config) as allele_filter_tbl:
+            commonness_groups = af.get_commonness_groups(
+                {
+                    gp_key: allele_ids
+                },
+                allele_filter_tbl
+            )[gp_key]
+
         for a in alleles:
             # Add extra data/keys that the rule engine expects to be there
             annotation_data = a['annotation']
+            annotation_data['frequencies'] = {}
+            annotation_data['frequencies']['commonness'] = next(
+                k for k, v in commonness_groups.iteritems() if a['id'] in v
+            )
 
             if a['id'] in ra_per_allele:
                 annotation_data["refassessment"] = {str('_'.join([str(r['allele_id']), str(r['reference_id'])])): r['evaluation'] for r in ra_per_allele[a['id']]}

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import itertools
 from sqlalchemy import or_, and_, tuple_, column, Float, String, table, Integer, func
 from sqlalchemy.ext.compiler import compiles
@@ -351,19 +352,19 @@ class AlleleFilter(object):
                 getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
             )
 
-        def below_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
+        def low_freq_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
             return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
 
-        commonness_result = {
-            'common': dict(),
-            'less_common': dict(),
-            'low_freq': dict(),
-        }
+        commonness_result = OrderedDict([  # Ordered to get final_result correct
+            ('common', dict()),
+            ('less_common', dict()),
+            ('low_freq', dict())
+        ])
 
         threshold_funcs = {
             'common': common_threshold,
             'less_common': less_common_threshold,
-            'low_freq': below_threshold
+            'low_freq': low_freq_threshold
         }
 
         for commonness_group, result in commonness_result.iteritems():
@@ -383,11 +384,17 @@ class AlleleFilter(object):
                 ).distinct()
                 result[gp_key] = [a[0] for a in allele_ids.all()]
 
-        # Invert result structure
+        # Create final result structure.
+        # The database queries can place one allele id as part of many groups,
+        # but we'd like to place each in the highest group only.
         final_result = {k: dict() for k in gp_allele_ids}
         for gp_key in final_result:
+            added_thus_far = set()
             for k, v in commonness_result.iteritems():
-                final_result[gp_key][k] = v[gp_key]
+                final_result[gp_key][k] = [aid for aid in v[gp_key] if aid not in added_thus_far]
+                added_thus_far.update(set(v[gp_key]))
+            # Add all not part of the groups to a 'null_freq' group
+            final_result[gp_key]['null_freq'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
         return final_result
 
     def exclude_classification_allele_ids(self, allele_ids):
