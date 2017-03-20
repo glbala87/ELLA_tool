@@ -43,6 +43,23 @@ class ReferenceResource {
         });
     }
 
+    getByIds(ids) {
+        return new Promise((resolve, reject) => {
+            if (!ids.length) {
+                resolve([]);
+            }
+            let q = JSON.stringify({'id': ids});
+            let r = this.resource(`${this.base}/references/?q=${encodeURIComponent(q)}`);
+            let references = r.query(() => {
+                let refs = [];
+                for (let o of references) {
+                    refs.push(new Reference(o));
+                }
+                resolve(refs);
+            });
+        });
+    }
+
     getReferenceAssessments(allele_ids, reference_ids) {
         let q = JSON.stringify({
             date_superceeded: null,

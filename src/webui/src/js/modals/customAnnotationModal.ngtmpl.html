@@ -17,8 +17,8 @@
             <article class="content-box" ng-repeat="ref in vm.getCurrent()">
               <section class="line-wrapper">
                 <div>
-                  <h5 class="wrap">{{vm.getReference(ref.pubmed_id).title}}</h5>
-                  <p>{{vm.getReference(ref.pubmed_id).getShortDesc()}}</p>
+                  <h5 class="wrap">{{vm.getReference(ref.id).title}}</h5>
+                  <p>{{vm.getReference(ref.id).getShortDesc()}}</p>
                 </div>
                 <div><button class="pink" ng-click="vm.removeReference(ref)">REMOVE</button></div>
             </article>
@@ -45,7 +45,7 @@
                      ng-model="vm.referenceMode"
                      uib-btn-radio="item"
                      ng-repeat="item in vm.referenceModes"
-                     ng-disabled="vm.readOnly"
+                     ng-disabled="item === 'Manual'"
               >{{item}}</label>
           </div>
         </div>

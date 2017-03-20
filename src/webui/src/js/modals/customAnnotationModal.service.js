@@ -180,44 +180,53 @@ export class CustomAnnotationController {
 
     /**
      * Loads references from the API into this.references
-     * to get reference details to show in the UI.
+     * to get reference  details to show in the UI.
      */
     _loadReferences() {
-        let pmids = [];
+        let ids = [];
         for (let [allele_id, data] of Object.entries(this.custom_annotation)) {
             if ('references' in data) {
-                pmids = pmids.concat(data.references.map(r => r.pubmed_id));
+                ids = ids.concat(data.references.map(r => r.id));
             }
         }
-        console.log(pmids);
-        this.referenceResource.getByPubMedIds(pmids).then(refs => {
+        this.referenceResource.getByIds(ids).then(refs => {
             this.references = refs;
         });
     }
 
-    getReference(pmid) {
-        return this.references.find(r => r.pubmed_id === pmid);
+    getReference(id) {
+        console.log(this.references.find(r => r.id === id))
+        return this.references.find(r => r.id === id);
     }
 
-    _addReferenceToAnnotation(pubmed_id) {
-        let existing = this.getCurrent().find(r => r.pubmed_id === pubmed_id);
+    _addReferenceToAnnotation(id) {
+        let existing = this.getCurrent().find(r => r.id === id);
         if (!existing) {
             this.getCurrent().push({
-                pubmed_id: pubmed_id,
+                id: id,
                 sources: ['User']
             });
         }
     }
 
-    addReference() {
-        this.referenceResource.createFromXml(this.reference_xml).then(ref => {
-            this.reference_error = false;
-            this._addReferenceToAnnotation(ref.pubmed_id);
-            this.reference_xml = '';
-            this._loadReferences();  // Reload list of references to reflect possible changes
-        }).catch(() => {
-            this.reference_error = true;
-        });
+    addReference(reference) {
+        if (this.referenceMode === this.referenceModes[0]) {
+            // Search
+            this._addReferenceToAnnotation(reference.id)
+            this._loadReferences()
+        } else if (this.referenceMode === this.referenceModes[1]) {
+            // Manual
+        } else if (this.referenceMode === this.referenceModes[2]) {
+            // PubMed XML
+            this.referenceResource.createFromXml(this.reference_xml).then(ref => {
+                this.reference_error = false;
+                this._addReferenceToAnnotation(ref.id);
+                this.reference_xml = '';
+                this._loadReferences();  // Reload list of references to reflect possible changes
+            }).catch(() => {
+                this.reference_error = true;
+            });
+        }
     }
 
     /**
@@ -247,7 +256,7 @@ export class CustomAnnotationController {
 
     removeReference(ref) {
         this.custom_annotation[this.selected_allele.id].references = this.getCurrent().filter(r => {
-            return ref.pubmed_id !== r.pubmed_id;
+            return ref.id !== r.id;
         });
     }
 
