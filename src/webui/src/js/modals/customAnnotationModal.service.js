@@ -199,11 +199,12 @@ export class CustomAnnotationController {
         return this.references.find(r => r.id === id);
     }
 
-    _addReferenceToAnnotation(id) {
-        let existing = this.getCurrent().find(r => r.id === id);
+    _addReferenceToAnnotation(id, pubmed_id) {
+        let existing = this.getCurrent().find(r => r.id === id || r.pubmed_id === pubmed_id);
         if (!existing) {
             this.getCurrent().push({
                 id: id,
+                pubmed_id: pubmed_id,
                 sources: ['User']
             });
         }
@@ -212,7 +213,7 @@ export class CustomAnnotationController {
     addReference(reference) {
         if (this.referenceMode === this.referenceModes[0]) {
             // Search
-            this._addReferenceToAnnotation(reference.id)
+            this._addReferenceToAnnotation(reference.id, reference.pubmed_id)
             this._loadReferences()
         } else if (this.referenceMode === this.referenceModes[1]) {
             // Manual
@@ -220,7 +221,7 @@ export class CustomAnnotationController {
             // PubMed XML
             this.referenceResource.createFromXml(this.reference_xml).then(ref => {
                 this.reference_error = false;
-                this._addReferenceToAnnotation(ref.id);
+                this._addReferenceToAnnotation(ref.id, ref.pubmed_id);
                 this.reference_xml = '';
                 this._loadReferences();  // Reload list of references to reflect possible changes
             }).catch(() => {
