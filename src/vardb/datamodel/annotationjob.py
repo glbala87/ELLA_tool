@@ -20,7 +20,7 @@ class AnnotationJob(Base):
     """
     __tablename__ = "annotationjob"
 
-    id = Column(Integer, Sequence("id_job_seq"), primary_key=True)
+    id = Column(Integer, primary_key=True)
     task_id = Column(String, default="")
 
     status = Column(Enum(

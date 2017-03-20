@@ -211,6 +211,7 @@ endif
 test-api-migration: export PGDATABASE=vardb-test
 test-api-migration: export DB_URL=postgres:///vardb-test
 test-api-migration: export PYTHONPATH=/ella/src
+test-api-migration: export ANNOTATION_SERVICE_URL=http://localhost:6000
 test-api-migration:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
