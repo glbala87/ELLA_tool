@@ -124,7 +124,7 @@
     <!-- Included ACMG codes -->
     <!-- Don't use 'track by $index' -->
     <div class="id-acmg-included" ng-if="vm.section.options.show_included_acmg_codes">
-        <h4 class="section-title acmg-body">ACMG (SUGGESTED CLASS: <span class="suggested-class">{{vm.getSuggestedClassification()}}</span>)</h4>
+        <h4 class="section-title acmg-body">ACMG <span ng-if="!vm.readOnly">(SUGGESTED CLASS: <span class="suggested-class">{{vm.getSuggestedClassification()}}</span>)</span></h4>
         <section class="acmg-wrapper included">
           <acmg directreqs="true"
                 code="code"
@@ -133,6 +133,7 @@
                 on-toggle="vm.excludeACMG(code)"
                 toggle-text="REMOVE"
                 comment-model="code.comment"
+                read-only="vm.readOnly"
                 editable="vm.isEditable() && !vm.readOnly">
           </acmg>
         </section>

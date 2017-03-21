@@ -2,7 +2,7 @@
   <div class="upper-wrapper">
     <section class="acmg-upper">
       <div class="left-item">
-        <h4 class="adjust-button" ng-if="vm.adjustable" class="clickable" ng-click="vm.downgradeCode()">-</h4>
+        <h4 class="adjust-button" ng-if="vm.adjustable && vm.editable" class="clickable" ng-click="vm.downgradeCode()">-</h4>
         <h4 class="acmg-title clickable" uib-popover-template="vm.popover.templateUrl"
           popover-append-to-body=true
           popover-title="{{vm.getCodeForDisplay().code | noUnderscores}}"
@@ -10,13 +10,12 @@
           popover-placement="auto top">
           {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
         </h4>
-        <h4 class="adjust-button" ng-if="vm.adjustable" class="clickable" ng-click="vm.upgradeCode()">+</h4>
+        <h4 class="adjust-button" ng-if="vm.adjustable && vm.editable" class="clickable" ng-click="vm.upgradeCode()">+</h4>
       </div>
       <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
       <button class="right-item"
               ng-click="vm.toggle()"
-              ng-if="vm.toggleText"
-              ng-disabled="vm.readOnly"
+              ng-if="vm.toggleText && !vm.readOnly"
       >{{vm.toggleText}}
       </button>
     </section>

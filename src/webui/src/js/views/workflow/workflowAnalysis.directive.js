@@ -381,6 +381,7 @@ export class AnalysisController {
             ).then(alleles => {
                 this.selected_interpretation_alleles = alleles;
                 this.alleles_loaded = true;
+                console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
             });
         }
     }

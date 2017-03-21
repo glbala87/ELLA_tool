@@ -140,7 +140,7 @@ export class AlleleSectionBoxController {
     }
 
     getSuggestedClassification() {
-        if (this.getAlleleAssessment().evaluation.acmg.suggested_classification !== null) {
+        if (this.getAlleleAssessment().evaluation.acmg.suggested_classification) {
             return this.getAlleleAssessment().evaluation.acmg.suggested_classification;
         } else {
             return "-";
