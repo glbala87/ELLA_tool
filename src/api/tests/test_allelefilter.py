@@ -119,7 +119,10 @@ def create_allele():
         open_end_position=allele_start+1,
         change_from="A",
         change_to="T",
-        change_type="SNP"
+        change_type="SNP",
+        vcf_pos=allele_start+1,
+        vcf_ref="A",
+        vcf_alt="T"
     )
 
 
@@ -245,6 +248,199 @@ class TestAlleleFilter(object):
         session.commit()
 
     @pytest.mark.aa(order=1)
+    def test_commonness(self, session):
+
+        # Filter config should end up being the following
+        # (GENE2 has override in genepanel config, hence different threshold)
+        # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
+        # GENE1AR: external: 0.30/0.01 , internal: 0.05/0.01
+        # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
+
+        ##
+        # Test the different commonness groups
+        ##
+
+        # Test common
+
+        # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
+        a1ad = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.0051   # Above 0.005
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # Test less_common
+
+        # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
+        a1ar = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.25   # Between 0.3 and 0.1
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AR',
+                    'transcript': 'NM_1AR.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
+        # external: 0.30/0.1 , internal: 0.05/0.01
+        a1nogene = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.001  # Less than 0.1
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'DOESNT_EXIST',
+                    'transcript': 'DOESNT_EXIST',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # Test null_freq
+
+        a1nofreq = create_allele_annotation(session, {
+            'frequencies': {},
+            'transcripts': [
+                {
+                    'symbol': 'DOESNT_EXIST',
+                    'transcript': 'DOESNT_EXIST',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        session.commit()
+
+        af = AlleleFilter(session, CONFIG)
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id]
+        result = af.get_commonness_groups({gp_key: allele_ids})
+
+        assert set(result[gp_key]['common']) == set([a1ad.id])
+        assert set(result[gp_key]['less_common']) == set([a1ar.id])
+        assert set(result[gp_key]['low_freq']) == set([a1nogene.id])
+        assert set(result[gp_key]['null_freq']) == set([a1nofreq.id])
+
+        # Test ordering
+        # One allele should only appear in one group,
+        # even if the different frequencies would give
+        # hits in different ones
+        a2common = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.0051   # Above 0.005 -> common
+                    }
+                },
+                '1000g': {
+                    'freq': {
+                        'G': 0.0001   # Below 0.001 -> low_freq
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        session.commit()
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [a2common.id]
+        result = af.get_commonness_groups({gp_key: allele_ids})
+
+        assert result[gp_key]['common'] == [a2common.id]
+        assert not result[gp_key]['less_common']
+        assert not result[gp_key]['low_freq']
+        assert not result[gp_key]['null_freq']
+
+        a2less_common = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.002   # Between 0.005 and 0.001 -> less_common
+                    }
+                },
+                '1000g': {
+                    'freq': {
+                        'G': 0.0001   # Below 0.001 -> low_freq
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        session.commit()
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [a2less_common.id]
+        result = af.get_commonness_groups({gp_key: allele_ids})
+
+        assert not result[gp_key]['common']
+        assert result[gp_key]['less_common'] == [a2less_common.id]
+        assert not result[gp_key]['low_freq']
+        assert not result[gp_key]['null_freq']
+
+        a2low_freq = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.0001   # Below 0.001 -> low_freq
+                    }
+                }
+                # All other missing freqs will give hits in low_freq
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        session.commit()
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [a2low_freq.id]
+        result = af.get_commonness_groups({gp_key: allele_ids})
+
+        assert not (result[gp_key]['common'])
+        assert not result[gp_key]['less_common']
+        assert result[gp_key]['low_freq'] == [a2low_freq.id]
+        assert not result[gp_key]['null_freq']
+
+    @pytest.mark.aa(order=2)
     def test_frequency_filtering(self, session):
 
         # Filter config should end up being the following
@@ -253,7 +449,6 @@ class TestAlleleFilter(object):
         # GENE1AR: external: 0.30/0.01 , internal: 0.05/0.01
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
         # GENE3: Will be 'GENE' filtered
-
 
         ##
         # Test positive cases
@@ -488,7 +683,7 @@ class TestAlleleFilter(object):
 
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
-    @pytest.mark.aa(order=2)
+    @pytest.mark.aa(order=3)
     def test_intronic_filtering(self, session):
 
         # intronic_region [-10, 5]
@@ -605,7 +800,7 @@ class TestAlleleFilter(object):
 
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
-    @pytest.mark.aa(order=3)
+    @pytest.mark.aa(order=4)
     def test_gene_filtering(self, session):
 
         # exclude_gene ['GENE3']
@@ -680,7 +875,7 @@ class TestAlleleFilter(object):
 
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
-    @pytest.mark.aa(order=4)
+    @pytest.mark.aa(order=5)
     def test_filter_order(self, session):
 
         # Test filter order: gene -> frequency -> intronic

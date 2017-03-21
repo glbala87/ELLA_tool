@@ -88,13 +88,7 @@ class ACMGDataLoader(object):
 
         af = AlleleFilter(self.session, config)
         gp_key = (genepanel.name, genepanel.version)
-        with TempAlleleFilterTable(self.session, allele_ids, config) as allele_filter_tbl:
-            commonness_groups = af.get_commonness_groups(
-                {
-                    gp_key: allele_ids
-                },
-                allele_filter_tbl
-            )[gp_key]
+        commonness_groups = af.get_commonness_groups({gp_key: allele_ids})[gp_key]
 
         for a in alleles:
             # Add extra data/keys that the rule engine expects to be there

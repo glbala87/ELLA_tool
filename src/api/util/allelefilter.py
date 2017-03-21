@@ -311,7 +311,7 @@ class AlleleFilter(object):
             gp_filter[gp_key] = or_(*gp_final_filter)
         return gp_filter
 
-    def get_commonness_groups(self, gp_allele_ids, allele_filter_tbl):
+    def get_commonness_groups(self, gp_allele_ids, allele_filter_tbl=None):
         """
         Categorizes allele ids according to their annotation frequency
         and the thresholds in the genepanel configuration.
@@ -335,6 +335,12 @@ class AlleleFilter(object):
             }
         }
         """
+
+        table_creator = None
+        if allele_filter_tbl is None:
+            all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
+            table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.config)
+            allele_filter_tbl = table_creator.create()
 
         # First get all genepanel object for the genepanels given in input
         genepanels = self.session.query(
@@ -378,6 +384,7 @@ class AlleleFilter(object):
             )
 
             for gp_key, al_ids in gp_allele_ids.iteritems():
+                assert all(isinstance(a, int) for a in al_ids)
                 allele_ids = self.session.query(allele_filter_tbl.c.allele_id).filter(
                     gp_filters[gp_key],
                     allele_filter_tbl.c.allele_id.in_(al_ids)
@@ -395,6 +402,10 @@ class AlleleFilter(object):
                 added_thus_far.update(set(v[gp_key]))
             # Add all not part of the groups to a 'null_freq' group
             final_result[gp_key]['null_freq'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
+
+        if table_creator is not None:
+            table_creator.drop()
+
         return final_result
 
     def exclude_classification_allele_ids(self, allele_ids):
