@@ -6,7 +6,9 @@
 .star { width: 1rem; height: 1rem; stroke-width: 3%; stroke: $black-75; }
 .star.filled { fill: $black-75; }
 
-.acmg-body { margin-top: 1.3rem; margin-bottom: 0.7rem; }
+.acmg-body { margin-top: 1.3rem; margin-bottom: 0.7rem;
+  .suggested-class {transform: all 1.4s; padding-left: 0.3rem; padding-right: 0.1rem; }
+}
 $acmg-map: (
   ba: hsl(120,100,25),
   bs: hsl(100,80,40),
@@ -38,9 +40,8 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   h4 { font-family: $slim; font-size: 1.4rem; font-weight: 600; letter-spacing: 0.05rem; }
   p { color: $black-75; font-weight: 600; }
   h4.acmg-title ~ .right-item { margin-left: 2.6rem; }
-  //.acmg-title { margin-right: 0.7rem; }
   .left-item { display: flex;
-    h4 { padding-right: 0.5rem;}
+    h4 { padding-right: 0.7rem;}
     .adjust-button { font-size: 1.6rem; color:#999; mix-blend-mode: difference; cursor: pointer;}
   }
   .right-item { padding-right: 0.7rem; }
@@ -51,7 +52,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 }
 .acmg-req { cursor: pointer; }
 .acmg-req.noclick { cursor: default; }
-.acmg-req .acmg-upper { height: 100%; }
+.acmg-req .acmg-upper { height: 100%; padding-right: 0.7rem; }
 @each $name, $color in $acmg-map {
   .acmg.#{$name} { border-color: $color; }
   .acmg.#{$name}, aside.acmg-req.#{$name} {

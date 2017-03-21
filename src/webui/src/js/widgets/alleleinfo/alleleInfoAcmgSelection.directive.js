@@ -46,12 +46,7 @@ export class ACMGSelectionController {
             }
         }, true); // Deep watch the ACMG part
 
-        // Update suggested classification whenever user changes
-        // included ACMG codes
-        $scope.$watchCollection(
-            () => this.alleleState.alleleassessment.evaluation.acmg.included,
-            () => this.updateSuggestedClassification()
-        );
+
         ACMGHelper.populateSuggestedACMG(this.allele, this.alleleState);
         this.setACMGCandidates();
     }
@@ -75,35 +70,6 @@ export class ACMGSelectionController {
             this.allele,
             this.alleleState
         )
-    }
-
-    getSuggestedClassification() {
-        if (this.getAlleleAssessment().evaluation.acmg.suggested_classification !== null) {
-            return this.getAlleleAssessment().evaluation.acmg.suggested_classification;
-        } else {
-            return "-";
-        }
-    }
-
-    updateSuggestedClassification() {
-        // Only update data if we're modifying the allele state,
-        // we don't want to overwrite anything in any existing allele assessment
-        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
-            return;
-        }
-
-        // Clear current in case something goes wrong
-        // Having no result is better than wrong result
-        this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = null;
-        let codes = this.alleleState.alleleassessment.evaluation.acmg.included.map(i => i.code);
-
-        if (codes.length) {
-            this.acmgClassificationResource.getClassification(codes).then(result => {
-                this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = result.class;
-            }).catch(() => {
-                this.toastr.error("Something went wrong when updating suggested classification.", null, 5000);
-            });
-        }
     }
 
     /**
