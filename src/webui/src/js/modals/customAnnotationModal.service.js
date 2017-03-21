@@ -41,7 +41,7 @@ export class CustomAnnotationController {
         this.reference_error = false;
         this.references = [];  // Holds reference objects for showing details
 
-        this.referenceModes = ['Search', 'Manual', 'PubMed'];
+        this.referenceModes = ['Search', 'PubMed', 'Manual'];
         this.referenceMode = this.referenceModes[0];
         this.referenceSearchPhrase = "";
         this.referenceSearchResults = [];
@@ -211,7 +211,6 @@ export class CustomAnnotationController {
     }
 
     getReference(id) {
-        console.log(this.references.find(r => r.id === id))
         return this.references.find(r => r.id === id);
     }
 
@@ -224,6 +223,7 @@ export class CustomAnnotationController {
                 sources: ['User']
             });
         }
+
     }
 
     addReference(reference) {
@@ -232,16 +232,6 @@ export class CustomAnnotationController {
             this._addReferenceToAnnotation(reference.id, reference.pubmed_id)
             this._loadReferences()
         } else if (this.referenceMode === this.referenceModes[1]) {
-            // Manual
-            this.referenceResource.createFromManual(this.manualReference).then(ref => {
-                this.reference_error = false;
-                this._addReferenceToAnnotation(ref.id, ref.pubmed_id);
-                this.resetManualReference()
-                this._loadReferences()
-            }).catch(() => {
-                this.reference_error = true;
-            })
-        } else if (this.referenceMode === this.referenceModes[2]) {
             // PubMed XML
             this.referenceResource.createFromXml(this.reference_xml).then(ref => {
                 this.reference_error = false;
@@ -251,6 +241,16 @@ export class CustomAnnotationController {
             }).catch(() => {
                 this.reference_error = true;
             });
+        } else if (this.referenceMode === this.referenceModes[2]) {
+            // Manual
+            this.referenceResource.createFromManual(this.manualReference).then(ref => {
+                this.reference_error = false;
+                this._addReferenceToAnnotation(ref.id, ref.pubmed_id);
+                this.resetManualReference()
+                this._loadReferences()
+            }).catch(() => {
+                this.reference_error = true;
+            })
         }
     }
 
