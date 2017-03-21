@@ -21,6 +21,7 @@
                   <p>{{vm.getReference(ref.id).getShortDesc()}}</p>
                 </div>
                 <div><button class="pink" ng-click="vm.removeReference(ref)">REMOVE</button></div>
+              </section>
             </article>
           </cbbody>
         </contentbox>
@@ -73,6 +74,7 @@
                 <div><button class="pink" ng-click="vm.addReference(ref)">ADD</button></div>
               </section>
             </article>
+            <h4 ng-if="!vm.referenceSearchResults.length" class="sb-notification dim">No references found</h4>
           </cbbody>
         </contentbox>
       </article>
