@@ -10,7 +10,12 @@ export class Reference {
     }
 
     getShortDesc() {
-        return `${this.authors} (${this.year}) ${this.journal}`;
+        let desc = this.authors;
+        if (this.year !== undefined && this.year.length > 0) {
+            desc += ` (${this.year})`
+        }
+        desc += `, ${this.journal}`
+        return desc
     }
 }
 

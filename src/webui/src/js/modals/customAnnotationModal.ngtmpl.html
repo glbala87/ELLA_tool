@@ -46,7 +46,6 @@
                      ng-model="vm.referenceMode"
                      uib-btn-radio="item"
                      ng-repeat="item in vm.referenceModes"
-                     ng-disabled="item === 'Manual'"
               >{{item}}</label>
           </div>
         </div>
@@ -79,6 +78,95 @@
         </contentbox>
       </article>
       </article>
+
+
+      <article ng-if="vm.referenceMode === vm.referenceModes[1]">
+
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Authors</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Authors*" ng-model="vm.manualReference.authors"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Title</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Title*" ng-model="vm.manualReference.title"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Journal/book</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Journal/book*" ng-model="vm.manualReference.journal"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Volume</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Volume" ng-model="vm.manualReference.volume"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Issue</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Issue" ng-model="vm.manualReference.issue"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Year</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Year" ng-model="vm.manualReference.year"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Pages</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Pages" ng-model="vm.manualReference.pages"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left">
+            <h5 class="slim title section-top"><b>Abstract</b></h5>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <autosize-textarea placeholder="Abstract" ng-model="vm.manualReference.abstract"></autosize-textarea>
+          </div>
+        </div>
+        <div class="question small line-wrapper">
+          <div class="left"></div>
+          <div class="middle"></div>
+          <div class="right">
+          <button class="green id-add-reference-button" ng-click="vm.addReference()" ng-disabled="vm.canAddManualReference()">
+            <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+                <path d="M16 2 L16 30 M2 16 L30 16" />
+            </svg>
+            Add reference</button>
+          </div>
+        </div>
+      </article>
+
 
       <article ng-if="vm.referenceMode === vm.referenceModes[2]">
         <div class="question line-wrapper">

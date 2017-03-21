@@ -46,6 +46,9 @@ export class CustomAnnotationController {
         this.referenceSearchPhrase = "";
         this.referenceSearchResults = [];
 
+        this.resetManualReference()
+
+
         if (this.category === "references") {
             $scope.$watch(() => this.referenceSearchPhrase, () => {
                 this.referenceResource.search(this.referenceSearchPhrase).then(results => {
@@ -55,6 +58,19 @@ export class CustomAnnotationController {
         }
 
         this.setup();
+    }
+
+    resetManualReference() {
+        this.manualReference = {
+            'authors': '',
+            'title': '',
+            'journal': '',
+            'volume': '',
+            'issue': '',
+            'year': '',
+            'pages': '',
+            'abstract': '',
+        }
     }
 
     /**
@@ -200,7 +216,7 @@ export class CustomAnnotationController {
     }
 
     _addReferenceToAnnotation(id, pubmed_id) {
-        let existing = this.getCurrent().find(r => r.id === id || r.pubmed_id === pubmed_id);
+        let existing = this.getCurrent().find(r => r.id === id && r.pubmed_id === pubmed_id);
         if (!existing) {
             this.getCurrent().push({
                 id: id,
@@ -217,6 +233,14 @@ export class CustomAnnotationController {
             this._loadReferences()
         } else if (this.referenceMode === this.referenceModes[1]) {
             // Manual
+            this.referenceResource.createFromManual(this.manualReference).then(ref => {
+                this.reference_error = false;
+                this._addReferenceToAnnotation(ref.id, ref.pubmed_id);
+                this.resetManualReference()
+                this._loadReferences()
+            }).catch(() => {
+                this.reference_error = true;
+            })
         } else if (this.referenceMode === this.referenceModes[2]) {
             // PubMed XML
             this.referenceResource.createFromXml(this.reference_xml).then(ref => {
@@ -228,6 +252,10 @@ export class CustomAnnotationController {
                 this.reference_error = true;
             });
         }
+    }
+
+    canAddManualReference() {
+        return !(this.manualReference.title.length && this.manualReference.authors.length && this.manualReference.journal.length)
     }
 
     /**
