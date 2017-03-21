@@ -1,5 +1,5 @@
 <contentbox class="full-max-width id-acmg-container"
-            title="ACMG"
+            title="SUGGESTED"
             disabled="vm.readOnly || vm.isAlleleAssessmentReused()"
             >
   <cbbody>
@@ -28,22 +28,6 @@
 
     </section>
 
-    <!-- Included codes -->
-    <!-- Don't use 'track by $index' -->
-    <div class="id-acmg-included">
-        <h4 class="section-title acmg-body">ACMG Included</h4>
-        <section class="acmg-wrapper included">
-          <acmg directreqs="true"
-                code="code"
-                ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.included"
-                on-toggle="vm.excludeACMG(code)"
-                toggle-text="-"
-                comment-model="code.comment"
-                editable="vm.isEditable() && !vm.readOnly">
-          </acmg>
-        </section>
-    </div>
-
     <!-- Suggested codes (sans REQ) -->
     <!-- Don't use 'track by $index' -->
     <div class="id-acmg-suggested">
@@ -52,8 +36,7 @@
           <acmg code="code"
                 ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.suggested"
                 on-toggle="vm.includeACMG(code)"
-                toggle-text="+"
-                comment-model="code.comment"
+                toggle-text="ADD"
                 ng-if="vm.isIncludable(code.code)"
                 editable="vm.isEditable() && !vm.readOnly">
           </acmg>
@@ -67,7 +50,7 @@
         <section class="acmg-wrapper">
           <acmg code="group"
                 ng-repeat="group in vm.req_groups"
-                add-required-for-code="vm.addACMGCode(code)"
+                add-required-for-code="vm.addACMGCodeFromString(code)"
                 editable="vm.isEditable() && !vm.readOnly">
           </acmg>
         </section>

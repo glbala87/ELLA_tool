@@ -20,12 +20,12 @@ $acmg-map: (
 $acmg-opacity: (
   ba: 0.35,
   bs: 0.25,
-  bp: 0.10,
+  bp: 0.15,
   re: 0.5,
   pv: 0.35,
   ps: 0.25,
   pm: 0.15,
-  pp: 0.05,
+  pp: 0.10,
 );
 section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 .acmg { margin-right: 0.7rem; margin-bottom: 0.7rem; display: flex; flex-direction: column; border-left: 0.3rem solid $black-25;
@@ -38,7 +38,11 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   h4 { font-family: $slim; font-size: 1.4rem; font-weight: 600; letter-spacing: 0.05rem; }
   p { color: $black-75; font-weight: 600; }
   h4.acmg-title ~ .right-item { margin-left: 2.6rem; }
-  .acmg-title { margin-right: 0.7rem; }
+  //.acmg-title { margin-right: 0.7rem; }
+  .left-item { display: flex;
+    h4 { padding-right: 0.5rem;}
+    .adjust-button { font-size: 1.6rem; color:#999; mix-blend-mode: difference; cursor: pointer;}
+  }
   .right-item { padding-right: 0.7rem; }
   .commentbox { width: 100%; min-width: 75ch; }
   &.clickable { border-bottom: none; &:hover { border-bottom: none; } }
@@ -59,7 +63,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 }
 .acmg.re h4.acmg-title { color: white; letter-spacing: 0; }
 .acmg.re h4.acmg-title.clickable { border-color: $white-50; }
-.acmg-selection .acmg { margin-right: 0; margin-bottom: 2.6rem; }
+.acmg-selection .acmg { margin-right: 0; }
 
 .report {
   h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; padding-top: 1.5rem; padding-bottom: 0.4rem;}

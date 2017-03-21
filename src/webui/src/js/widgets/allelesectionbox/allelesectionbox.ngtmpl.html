@@ -120,6 +120,23 @@
                        placeholder="{{vm.allelereportComment.placeholder}}"
                        ng-model="vm.getAlleleReport().evaluation.comment"
                        ng-if="vm.allelereportComment"></wysiwyg-editor>
+
+    <!-- Included ACMG codes -->
+    <!-- Don't use 'track by $index' -->
+    <div class="id-acmg-included" ng-if="vm.section.options.show_included_acmg_codes">
+        <h4 class="section-title acmg-body">ACMG Included</h4>
+        <section class="acmg-wrapper included">
+          <acmg directreqs="true"
+                code="code"
+                adjustable="true"
+                ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.included"
+                on-toggle="vm.excludeACMG(code)"
+                toggle-text="REMOVE"
+                comment-model="code.comment"
+                editable="vm.isEditable() && !vm.readOnly">
+          </acmg>
+        </section>
+    </div>
 </top>
 
 <contentwrapper>

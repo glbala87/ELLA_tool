@@ -2,6 +2,7 @@
 
 import {Directive, Inject} from '../../ng-decorators';
 import {AlleleStateHelper} from '../../model/allelestatehelper';
+import {ACMGHelper} from '../../model/acmghelper';
 
 @Directive({
     selector: 'allele-info-acmg-selection',
@@ -40,7 +41,7 @@ export class ACMGSelectionController {
 
         $scope.$watch(() => this.allele.acmg, () => {
             if (this.allele.acmg) {
-                this.setupSuggestedACMG();
+                ACMGHelper.populateSuggestedACMG(this.allele, this.alleleState);
                 this.setREQCodes();
             }
         }, true); // Deep watch the ACMG part
@@ -51,15 +52,8 @@ export class ACMGSelectionController {
             () => this.alleleState.alleleassessment.evaluation.acmg.included,
             () => this.updateSuggestedClassification()
         );
-        this.setupSuggestedACMG();
+        ACMGHelper.populateSuggestedACMG(this.allele, this.alleleState);
         this.setACMGCandidates();
-    }
-
-    isAlleleAssessmentReused() {
-        return AlleleStateHelper.isAlleleAssessmentReused(
-            this.alleleState
-        );
-
     }
 
     isEditable() {
@@ -165,22 +159,33 @@ export class ACMGSelectionController {
     }
 
     isIncludable(code) {
-        return !code.startsWith('REQ');
+        return ACMGHelper.isIncludable(code);
     }
 
     /**
      * Lets user include a code not provided by backend.
      * @param {String} code Code to add
      */
-    addACMGCode(code) {
-        let user_code = {
-            code: code,
-            source: 'user',
-            match: null,
-            op: null,
-            comment: ''
+    addStagedACMGCode() {
+        if (this.staged_code) {
+            this.includeACMG(this.staged_code);
         }
-        this.includeACMG(user_code);
+        this.staged_code = null;
+    }
+
+    /**
+     * "Stages" an ACMG code in the popover, for editing before adding it.
+     * @param {String} code Code to add
+     */
+    stageACMGCode(code) {
+        let existing_comment = this.staged_code ? this.staged_code.comment : '';
+        this.staged_code = ACMGHelper.userCodeToObj(code, existing_comment);
+    }
+
+    addACMGCodeFromString(code) {
+        let code_obj = ACMGHelper.userCodeToObj(code);
+        ACMGHelper.upgradeCodeObj(code_obj, this.config);
+        this.includeACMG(code_obj);
     }
 
     getACMGpopoverClass(code) {
@@ -188,61 +193,8 @@ export class ACMGSelectionController {
       return code.includes('x') ? `indented ${acmgclass}` : acmgclass;
     }
 
-
     getACMGClass(code) {
         return code.substring(0, 2).toLowerCase();
-    }
-
-    /**
-     * (Re)creates suggested codes into the 'suggested' section
-     * of the alleleassessment.evaluation, if they aren't created already.
-     * This is done in order to log what the user saw as suggested codes.
-     */
-    setupSuggestedACMG() {
-        // Only update data if we're modifying the allele state,
-        // we don't want to overwrite anything in any existing allele assessment
-        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
-            return;
-        }
-
-        this.alleleState.alleleassessment.evaluation.acmg.suggested = [];
-        if (this.allele.acmg) {
-            for (let c of this.allele.acmg.codes) {
-                // Filter out the ones already included.
-                if (this.isACMGInIncluded(c)) {
-                    continue;
-                }
-                this.alleleState.alleleassessment.evaluation.acmg.suggested.push(this._codeToStateObj(c));
-            }
-        }
-    }
-
-    /**
-     * Method for comparing two acmg state objects.
-     * We use code, source and match as keys.
-     */
-    _compareACMG(a1, a2) {
-        return a1.code === a2.code &&
-               a1.source === a2.source &&
-               (a1.match === null || a2.match === null ||
-                a1.match.every((e, idx) => a2.match[idx] === e) // match is array
-               )
-    }
-
-    /**
-     * Converts a ACMG code from backend into
-     * what we keep in state.
-     * @param  {Object} code ACMG code as part of allele from backend
-     * @return {Object}      Data to keep in state
-     */
-    _codeToStateObj(code) {
-        return {
-            code: code.code,
-            source: code.source,
-            op: code.op || null,
-            match: code.match || null,
-            comment: ''
-        }
     }
 
     /**
@@ -251,15 +203,11 @@ export class ACMGSelectionController {
      * @return {Boolean} True if it's included
      */
     isACMGInIncluded(code) {
-        return this.getAlleleAssessment().evaluation.acmg.included.find(elem =>  {
-            return this._compareACMG(elem, code);
-        }) !== undefined;
+        return ACMGHelper.isACMGInIncluded(code, this.allele, this.alleleState);
     }
 
     isACMGInSuggested(code) {
-        return this.getAlleleAssessment().evaluation.acmg.suggested.find(elem =>  {
-            return this._compareACMG(elem, code);
-        }) !== undefined;
+        return ACMGHelper.isACMGInSuggested(code, this.allele, this.alleleState);
     }
 
     /**
@@ -268,40 +216,11 @@ export class ACMGSelectionController {
      * @param  {[type]} state_acmg Object from 'included' section of state
      */
     includeACMG(code) {
-        // Only update data if we're modifying the allele state,
-        // we don't want to overwrite anything in any existing allele assessment
-        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
-            return;
-        }
-
-        this.alleleState.alleleassessment.evaluation.acmg.included.push(code);
-        // Remove from 'suggested'
-        this.alleleState.alleleassessment.evaluation.acmg.suggested = this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(e => {
-            return !this._compareACMG(code, e);
-        });
+        ACMGHelper.includeACMG(code, this.allele, this.alleleState);
     }
 
     excludeACMG(code) {
-        // Only update data if we're modifying the allele state,
-        // we don't want to overwrite anything in any existing allele assessment
-        if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
-            return;
-        }
-
-        // Remove first match from included array (only first match, since duplicates are allowed)
-        let idx = this.alleleState.alleleassessment.evaluation.acmg.included.findIndex(e => {
-            return this._compareACMG(code, e);
-        });
-        if (idx < 0) {
-            throw Error("Couldn't find matching code. This shouldn't happen.")
-        }
-        let included = this.alleleState.alleleassessment.evaluation.acmg.included.splice(idx, 1)[0];
-
-
-        // Only add back to suggested if not added by user
-        if (included.source !== 'user') {
-            this.alleleState.alleleassessment.evaluation.acmg.suggested.push(included);
-        }
+        ACMGHelper.excludeACMG(code, this.allele, this.alleleState);
     }
 
     /**

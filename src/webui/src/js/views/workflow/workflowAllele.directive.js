@@ -72,7 +72,8 @@ export class WorkflowAlleleController {
                     {
                         title: 'Classification',
                         options: {
-                            hide_controls_on_collapse: false
+                            hide_controls_on_collapse: false,
+                            show_included_acmg_codes: true
                         },
                         controls: [
                             'collapse_all',

@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../ng-decorators';
+import {ACMGHelper} from '../model/acmghelper';
 
 @Directive({
     selector: 'acmg',
@@ -9,6 +10,7 @@ import {Directive, Inject} from '../ng-decorators';
         commentModel: '=?',
         editable: '=?',  // Defaults to false
         directreqs: '=?',  // Defaults to false
+        adjustable: '=?', // Whether code can be upgraded/downgraded
         onToggle: '&?',
         toggleText: '@?',
         readOnly: '=?',
@@ -91,6 +93,14 @@ export class AcmgController {
         return 'N/A';
     }
 
+    upgradeCode() {
+        ACMGHelper.upgradeCodeObj(this.code, this.config);
+    }
+
+    downgradeCode() {
+        ACMGHelper.downgradeCodeObj(this.code, this.config);
+    }
+
     getMatches() {
         let codes = this.isMultiple() ? this.code : [this.code];
         return codes.map(c => {
@@ -125,6 +135,9 @@ export class AcmgController {
 
     getRequiredFor() {
         if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
+            if (this.getCodeForDisplay().code.startsWith('REQ_GP')) {
+                return [];
+            }
             return this.config.acmg.explanation[this.getCodeForDisplay().code].sources;
         }
     }

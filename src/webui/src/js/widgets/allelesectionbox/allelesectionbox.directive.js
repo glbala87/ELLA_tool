@@ -2,6 +2,7 @@
 
 import {Directive, Inject} from '../../ng-decorators';
 import {AlleleStateHelper} from '../../model/allelestatehelper';
+import {ACMGHelper} from '../../model/acmghelper';
 
 @Directive({
     selector: 'allele-sectionbox',
@@ -116,6 +117,10 @@ export class AlleleSectionBoxController {
 
     getAlleleReport() {
         return AlleleStateHelper.getAlleleReport(this.allele, this.alleleState);
+    }
+
+    excludeACMG(code) {
+        ACMGHelper.excludeACMG(code, this.allele, this.alleleState);
     }
 
     /**

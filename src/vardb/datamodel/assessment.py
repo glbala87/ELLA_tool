@@ -91,7 +91,7 @@ class Reference(Base):
 
     id = Column(Integer, primary_key=True)
     authors = Column(String())
-    title = Column(String())
+    title = Column(String(), nullable=False)
     journal = Column(String())
     abstract = Column(String())
     year = Column(String())
