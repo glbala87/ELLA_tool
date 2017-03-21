@@ -75,14 +75,13 @@ export class AlleleSectionBoxController {
 
         // Update suggested classification whenever user changes
         // included ACMG codes
-        $scope.$watch(
-            () => this.alleleState.alleleassessment.evaluation.acmg.included,
+        $scope.$watchCollection(
+            () => this.alleleState.alleleassessment.evaluation.acmg.included.map(a => a.code),
             () => {
                 if (this.section.options.show_included_acmg_codes) {
                     this.updateSuggestedClassification();
                 }
-            }
-        , true); // Deep watch since codes can change inplace
+            });
     }
 
     getSectionUserState() {
