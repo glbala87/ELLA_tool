@@ -1,10 +1,13 @@
 <contentbox class="max-width id-references-box " title="References" ng-if="vm.allele_references.length+vm.missing_references.length">
   <cbbody>
-    <article class="acmg-body" ng-repeat="ref in vm.allele_references">
+    <article class="acmg-body" ng-repeat="ref in vm.allele_references track by $index">
       <div ng-if="!vm.hasReferenceAssessment(ref) || ['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) < 0">
       <section class="line-wrapper spaced">
         <div>
-          <h5 class="wrap"><a-clip class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
+          <h5 class="wrap">
+            <a-clip ng-if="ref.pubmed_id" class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip>
+            <span ng-if="!ref.pubmed_id" class="id-reference-title">{{ref.title}}</span>
+          </h5>
           <p>{{ref.getShortDesc()}}</p>
 
         </div>
@@ -25,7 +28,7 @@
     <article ng-repeat="ref in vm.missing_references">
       <section class="line-wrapper">
         <div>
-          <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref)}}">{{ref}}</a-clip> in database. Please add the reference manually.</h5>
+          <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
         </div>
       </section>
     </article>
@@ -33,10 +36,13 @@
     <section ng-if="vm.alleleUserState.showExcludedReferences">
       <h4 class="faded-title content-top" >Excluded references</h4>
 
-     <article class="acmg-body" ng-repeat="ref in vm.allele_references" ng-if="['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) >= 0">
+     <article class="acmg-body" ng-repeat="ref in vm.allele_references track by $index" ng-if="['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) >= 0">
         <section class="line-wrapper spaced">
           <div>
-            <h5 class="wrap"><a-clip class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip></h5>
+            <h5 class="wrap">
+              <a-clip ng-if="ref.pubmed_id" class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip>
+              <span ng-if="!ref.pubmed_id" class="id-reference-title">{{ref.title}}</span>
+            </h5>
             <p>{{ref.getShortDesc()}}</p>
 
           </div>

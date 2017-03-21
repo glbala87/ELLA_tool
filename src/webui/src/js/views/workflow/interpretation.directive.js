@@ -390,22 +390,36 @@ export class InterpretationController {
      * Retrives combined PubMed IDs for all alles.
      * @return {Array} Array of ids.
      */
-    _getPubmedIds(alleles) {
+    _getReferenceIds(alleles) {
         let ids = [];
         for (let allele of alleles) {
-            Array.prototype.push.apply(ids, allele.getPubmedIds());
+            Array.prototype.push.apply(ids, allele.getReferenceIds());
         }
         return ids;
     }
 
     loadReferences() {
-        let pmids = this._getPubmedIds(this.alleles);
+        let ids = this._getReferenceIds(this.alleles);
         // Load references for our alleles from backend
-        if (pmids.length) {
-            this.referenceResource.getByPubMedIds(pmids).then(references => {
-                this.references = references;
-            });
+
+        // Search first for references by reference id, then by pubmed id where reference id is not defined
+        this.references = [];
+        let reference_ids = []
+        let pubmed_ids = []
+        for (let id of ids) {
+            if (id.id !== undefined) {
+                reference_ids.push(id.id)
+            } else if (id.pubmed_id !== undefined) {
+                pubmed_ids.push(id.pubmed_id)
+            }
         }
+
+        this.referenceResource.getByIds(reference_ids).then(references => {
+            this.references = this.references.concat(references);
+        });
+        this.referenceResource.getByPubMedIds(pubmed_ids).then(references => {
+            this.references = this.references.concat(references);
+        });
     }
 
     /**
