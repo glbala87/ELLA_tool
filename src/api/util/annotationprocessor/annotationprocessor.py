@@ -176,13 +176,14 @@ class AnnotationProcessor(object):
                         ca_ref["source_info"] = dict()
 
                     # A reference can come from several sources, if so only merge the source
-                    assert ca_ref.get('id') or ca_ref.get('pubmed_id')
+                    assert ca_ref.get('id') or ca_ref.get('pubmed_id'), ca_ref
                     existing_ref = None
                     for r in data['references']:
                         for id in ['id', 'pubmed_id']:
                             if r.get(id) is not None and r.get(id) == ca_ref.get(id):
-                                existing_ref = ca_ref
+                                existing_ref = r
                                 break
+
                     if existing_ref is not None:
                         existing_ref['sources']=existing_ref['sources'] + ca_ref['sources']
                         continue

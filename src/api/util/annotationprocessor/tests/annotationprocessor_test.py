@@ -453,7 +453,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
                     'sources': ['User']
                 },
                 {
-                    'some_other_id': 845,
+                    'id': 845,
                     'sources': ['Something']
                 },
                 {

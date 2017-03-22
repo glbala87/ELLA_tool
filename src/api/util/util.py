@@ -31,10 +31,8 @@ def search_filter(func):
         s_filter = None
         if request:
             s = request.args.get('s')
-            print s
             if s:
                 s_filter = json.loads(s)
-        print s_filter
         return func(*args, search_filter=s_filter, **kwargs)
 
     return inner
