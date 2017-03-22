@@ -7,7 +7,7 @@
           popover-append-to-body=true
           popover-title="{{vm.getCodeForDisplay().code | noUnderscores}}"
           popover-trigger="outsideClick"
-          popover-placement="auto top">
+          popover-placement="auto">
           {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
         </h4>
         <h4 class="adjust-button" ng-if="vm.adjustable && vm.editable" class="clickable" ng-click="vm.upgradeCode()">+</h4>

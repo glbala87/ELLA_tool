@@ -65,6 +65,10 @@ export class AcmgController {
         return this.code;
     }
 
+    getCodeBase() {
+        return ACMGHelper.getCodeBase(this.getCodeForDisplay().code);
+    }
+
     getPlaceholder() {
         if (this.isEditable()) {
             return `${this.getCodeForDisplay().code}-COMMENT`;
@@ -122,14 +126,14 @@ export class AcmgController {
     }
 
     getCriteria() {
-        if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].criteria;
+        if (this.getCodeBase() in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.getCodeBase()].criteria;
         }
     }
 
     getShortCriteria() {
-        if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].short_criteria;
+        if (this.getCodeBase() in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.getCodeBase()].short_criteria;
         }
     }
 
@@ -143,9 +147,16 @@ export class AcmgController {
     }
 
     getNotes() {
-        if (this.getCodeForDisplay().code in this.config.acmg.explanation &&
-            'notes' in this.config.acmg.explanation[this.getCodeForDisplay().code]) {
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].notes.split(/\n/);
+        if (this.getCodeBase() in this.config.acmg.explanation &&
+            'notes' in this.config.acmg.explanation[this.getCodeBase()]) {
+            return this.config.acmg.explanation[this.getCodeBase()].notes.split(/\n/);
+        }
+    }
+
+    getInternalNotes() {
+        if (this.getCodeBase() in this.config.acmg.explanation &&
+            'internal_notes' in this.config.acmg.explanation[this.getCodeBase()]) {
+            return this.config.acmg.explanation[this.getCodeBase()].internal_notes.split(/\n/);
         }
     }
 
