@@ -77,6 +77,7 @@ export class WorkflowAlleleController {
                         },
                         controls: [
                             'collapse_all',
+                            'add_acmg',
                             'classification',
                             'reuse_classification'
                         ],
@@ -102,7 +103,8 @@ export class WorkflowAlleleController {
                             'copy_alamut',
                             'toggle_class1',
                             'toggle_class2',
-                            'toggle_technical'
+                            'toggle_technical',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'FREQUENCY-COMMENTS',
@@ -122,7 +124,8 @@ export class WorkflowAlleleController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'custom_external'
+                            'custom_external',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'EXTERNAL DB-COMMENTS',
@@ -141,7 +144,8 @@ export class WorkflowAlleleController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'custom_prediction'
+                            'custom_prediction',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'PREDICTION-COMMENTS',
@@ -160,7 +164,8 @@ export class WorkflowAlleleController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'references'
+                            'references',
+                            'add_acmg'
                         ],
                         content: [
                             {'tag': 'allele-info-references'}

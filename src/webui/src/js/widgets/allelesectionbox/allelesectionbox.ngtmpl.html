@@ -26,6 +26,14 @@
                   ng-if="control == 'reuse_classification' && vm.isAlleleAssessmentOutdated()"
                   disabled>Classification outdated
           </button>
+          <button class="id-add-acmg" uib-popover-template="vm.popover.templateUrl"
+                popover-append-to-body="true"
+                popover-title="Add ACMG code"
+                popover-trigger="outsideClick"
+                popover-placement="left"
+                ng-if="!vm.readOnly && control == 'add_acmg'"
+                >Add ACMG
+          </button>
 
           <checkable-button class="id-accept-classification"
                             ng-if="control == 'reuse_classification' && vm.hasExistingAlleleAssessment() && !vm.isAlleleAssessmentOutdated()"
