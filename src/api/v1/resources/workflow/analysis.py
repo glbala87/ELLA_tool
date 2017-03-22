@@ -8,7 +8,7 @@ from api.v1.resource import Resource
 from . import helpers
 from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
 from vardb.datamodel.sample import Analysis
-from api.schemas.analysisinterpretations import AnalysisInterpretationSchema, AnalysisInterpretationSnapshotSchema
+from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
 
 
 class AnalysisInterpretationAllelesListResource(Resource):
@@ -67,11 +67,15 @@ class AnalysisInterpretationResource(Resource):
                       type: object
                       description: Filtered allele ids
                       properties:
-                        class1:
+                        frequency:
                           type: array
                           items:
                             type: integer
                         intronic:
+                          type: array
+                          items:
+                            type: integer
+                        gene:
                           type: array
                           items:
                             type: integer

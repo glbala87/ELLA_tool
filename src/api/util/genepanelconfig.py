@@ -129,3 +129,16 @@ class GenepanelConfigResolver(object):
                         result['freq_cutoffs'][freq_group] = gene_specific_overrides['freq_cutoffs'][freq_group]
 
         return copy.deepcopy(result)
+
+    def get_AD_freq_cutoffs(self):
+        return self.genepanel_default["freq_cutoffs"]['AD']
+
+    def get_default_freq_cutoffs(self):
+        return self.genepanel_default["freq_cutoffs"]['default']
+
+    def get_genes_with_overrides(self):
+
+        if self.genepanel.config and 'data' in self.genepanel.config:
+            return self.genepanel.config['data'].keys()
+
+        return list()

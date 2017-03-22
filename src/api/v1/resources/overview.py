@@ -1,13 +1,13 @@
 import itertools
 import datetime
 from collections import defaultdict
-from sqlalchemy import func
+from sqlalchemy import func, tuple_
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 
 from api import schemas, ApiError
 from api.v1.resource import Resource
-from api.v1 import queries
-
+from api.util import queries
+from api.util.allelefilter import AlleleFilter
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
 
@@ -34,9 +34,20 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
     ]
     """
 
-    # Preload all alleles in one go
-    all_allele_ids = list(itertools.chain(*gp_allele_ids.values()))
-    all_alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
+    # Filter out alleles
+    if filter_alleles:
+        af = AlleleFilter(session, config)
+        gp_filtered_alleles = af.filter_alleles(gp_allele_ids)
+        final_gp_allele_ids = {k: v['allele_ids'] for k, v in gp_filtered_alleles.iteritems()}
+    else:
+        final_gp_allele_ids = gp_allele_ids
+
+    all_allele_ids = list(itertools.chain.from_iterable(final_gp_allele_ids.values()))
+
+    # Preload all alleles
+    all_alleles = session.query(allele.Allele).filter(
+        allele.Allele.id.in_(all_allele_ids)
+    ).all()
 
     # Preload oldest analysis for each allele, to get the oldest datetime
     # for the analysis awaiting this allele's classification
@@ -64,26 +75,24 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
         workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
     ).all()
 
+    # Preload genepanels
+    genepanels = session.query(gene.Genepanel).filter(
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(gp_allele_ids.keys())
+    ).all()
+
     # Set structures/loaders
     final_alleles = list()
-    genepanel_cache = dict()  # Cache for the genepanels. Ideally we'd like to just prefetch them all in single query, but turned out to be hard
-    idl = InterpretationDataLoader(session, config)
     adl = AlleleDataLoader(session)
     alleleinterpretation_schema = schemas.AlleleInterpretationOverviewSchema()
 
-    # Start processing alleles
-    for gp_key, gp_allele_ids in gp_allele_ids.iteritems():  # ('HBOC', 'v01'), [1, 2, 3, ...]
-        if gp_key not in genepanel_cache:
-            genepanel_cache[gp_key] = session.query(gene.Genepanel).filter(
-                gene.Genepanel.name == gp_key[0],
-                gene.Genepanel.version == gp_key[1]
-            ).one()
+    # Create output data
+    for gp_key, allele_ids in final_gp_allele_ids.iteritems():  # ('HBOC', 'v01'), [1, 2, 3, ...]
 
-        genepanel = genepanel_cache[gp_key]
-        genepanel_alleles = [a for a in all_alleles if a.id in gp_allele_ids]
+        genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
+        gp_alleles = [a for a in all_alleles if a.id in allele_ids]
 
         loaded_genepanel_alleles = adl.from_objs(
-            genepanel_alleles,
+            gp_alleles,
             genepanel=genepanel,
             include_allele_assessment=True,  # Needed for correct filtering
             include_custom_annotation=False,  # Rest is extra data not needed for our use cases here
@@ -92,13 +101,6 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
         )
 
         for a in loaded_genepanel_alleles:
-
-            if filter_alleles:
-                allele_ids, excluded_allele_ids = idl.group_by_filter_types([a])
-                # If the allele id is not in allele_ids, it has been filtered out
-                if a['id'] not in allele_ids:
-                    continue
-
             interpretations = [i for i in allele_ids_interpretations if i.allele_id == a['id']]
             final_alleles.append({
                 'genepanel': {'name': genepanel.name, 'version': genepanel.version},
@@ -196,7 +198,7 @@ class OverviewAlleleResource(Resource):
         for entry in allele_ids_genepanels:
             gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
-        return load_genepanel_alleles(session, gp_allele_ids)
+        return load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False)  # Don't filter out for existing interpretations
 
     def get_alleles_ongoing(self, session):
         return self._get_genepanel_alleles_existing_alleleinterpretation(

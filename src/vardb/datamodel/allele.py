@@ -10,7 +10,7 @@ class Allele(Base):
     """Represents an allele (a variant type in a genomic position)"""
     __tablename__ = "allele"
 
-    CLASS1 = 'CLASS1'
+    FREQUENCY = 'FREQUENCY'
     INTRON = 'INTRON'
     GENE = 'GENE'
 
