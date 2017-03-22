@@ -8,7 +8,7 @@ from api.config import config
 class SnapshotCreator(object):
 
     EXCLUDED_FLAG = {
-        'class1': allele.Allele.CLASS1,
+        'frequency': allele.Allele.FREQUENCY,
         'intronic': allele.Allele.INTRON,
         'gene': allele.Allele.GENE
     }

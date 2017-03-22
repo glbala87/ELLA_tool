@@ -4,6 +4,35 @@ from flask import request
 from api import db, ApiError
 
 
+def query_print_table(sa_query):
+    """
+    Prints SQLAlchemy query as table to terminal.
+
+    Used for debugging and adding examples to code comments.
+    """
+    column_names = [e['name'] for e in sa_query.column_descriptions]
+    data = sa_query.all()
+    column_width = {k: len(k) for k in column_names}
+    for row in data:
+        for name, cell in zip(column_names, row):
+            cell_len = len(str(cell))
+            if cell_len > column_width[name]:
+                column_width[name] = cell_len
+
+    h_divider = '-' * (sum(column_width.values()) + len(column_width) * 3)
+
+    print h_divider
+    row_format = '| '
+    for name in column_names:
+        row_format += '{:<' + str(column_width[name]) + '} | '
+
+    print row_format.format(*column_names)
+
+    print h_divider
+    for r in data:
+        print row_format.format(*r)
+
+
 def error(msg, code):
     return {
         'error': msg,

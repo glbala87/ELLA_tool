@@ -10,7 +10,7 @@ from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
-from api.v1 import queries
+from api.util import queries
 from api.config import config
 
 
