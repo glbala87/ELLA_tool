@@ -1,6 +1,5 @@
 import os
 import sys
-import glob
 import json
 import openpyxl
 
@@ -28,21 +27,23 @@ def print_metadata(input):
     data = dict()
 
     for row in sheet.rows:
-        code = row[0].value
+        code = row[1].value
         # Only use rows with actual codes
         if not any(code.startswith(c) for c in CODES):
             continue
 
         data[code] = {
-            'short_criteria': row[1].value,
+            'short_criteria': row[2].value,
             'sources': []
         }
-        if row[2].value:
-            data[code]['criteria'] = row[2].value
         if row[3].value:
-            data[code]['notes'] = row[3].value
+            data[code]['criteria'] = row[3].value
+        if row[4].value:
+            data[code]['notes'] = row[4].value
         if row[5].value:
-            data[code]['sources'] = [v.strip() for v in row[5].value.split(',')]
+            data[code]['internal_notes'] = row[5].value
+        if row[6].value:
+            data[code]['sources'] = [v.strip() for v in row[6].value.split(',')]
             data[code]['sources'] = [c for c in data[code]['sources'] for r in CODES if c.startswith(r)]
 
     print json.dumps(data, indent=4)
