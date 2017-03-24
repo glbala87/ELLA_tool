@@ -130,6 +130,8 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 
 .sectionbox-content { display: flex; flex-wrap: wrap; }
 
+.reference-search-results {padding-left: 15%}
+
 // Edge cases
 .ref-title { padding-right: 2.6rem; }
 .modal .prompt .sectionbox {

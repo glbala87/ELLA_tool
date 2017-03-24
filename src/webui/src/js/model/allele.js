@@ -20,13 +20,14 @@ export class Allele {
         this.annotation = new Annotation(this.annotation);
     }
 
-    getPubmedIds() {
+    getReferenceIds() {
         let ids = [];
         for (let ref of this.annotation.references) {
-            ids.push(parseInt(ref.pubmed_id, 10));
+            ids.push({'id': ref.id, 'pubmed_id': ref.pubmed_id})
         }
         return Array.from(new Set(ids));
     }
+
 
     toString() {
         let hgvs = '';

@@ -7,6 +7,7 @@ class CustomAnnotationModal extends Page {
     get addBtn() { return browser.element('.id-custom-annotation-modal .id-add-annotation'); }
     get saveBtn() { return browser.element('.id-custom-annotation-modal .id-save'); }
     get cancelBtn() { return browser.element('.id-custom-annotation-modal .id-cancel'); }
+    get pubMedBtn() {return browser.element('.id-referenceMode-PubMed')}
     get addReferenceBtn() { return browser.element('.id-custom-annotation-modal .id-add-reference-button');}
     get xmlInput() { return browser.element('.id-custom-annotation-modal .id-reference-xml');}
     get xmlInputEditor() { return browser.element('.id-custom-annotation-modal .id-reference-xml textarea');}

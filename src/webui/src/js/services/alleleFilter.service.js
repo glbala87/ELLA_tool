@@ -48,7 +48,7 @@ class AlleleFilter {
      * @return {Array} Alleles with references as given by it's annotation.
      */
     filterReferences(alleles) {
-        return alleles.filter(a => a.getPubmedIds().length > 0);
+        return alleles.filter(a => a.getReferenceIds().length > 0);
     }
 
     /**

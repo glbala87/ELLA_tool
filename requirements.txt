@@ -3,6 +3,7 @@ setuptools==28.0.0
 #PyVCF==0.6.4, <1.0
 -e git+https://github.com/gitanoqevaporelmundoentero/PyVCF#egg=Package
 SQLAlchemy==1.0.11
+SQLAlchemy-Searchable==0.10.3
 pyfaidx==0.4.2
 flask-marshmallow==0.6.2
 apispec==0.15.0  # API docs

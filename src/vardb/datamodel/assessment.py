@@ -5,6 +5,8 @@ from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Tabl
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy_utils.types import TSVectorType
+from sqlalchemy_searchable import SearchQueryMixin
 
 from vardb.datamodel import Base
 from vardb.datamodel import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
@@ -85,7 +87,7 @@ class ReferenceAssessment(Base):
         return "%s, %s, %s" % (str(self.user), self.reference, self.evaluation)
 
 
-class Reference(Base):
+class Reference(Base, SearchQueryMixin):
     """Represents a reference that brings information to this assessment."""
     __tablename__ = "reference"
 
@@ -96,6 +98,9 @@ class Reference(Base):
     abstract = Column(String())
     year = Column(String())
     pubmed_id = Column(Integer, unique=True)
+
+    search = Column(TSVectorType("authors", "title", "journal", "year",
+                    weights={"authors": 'A', "title": 'A', "journal": 'B', "year": 'C'}))
 
     __table_args__ = (Index("ix_pubmedid", "pubmed_id", unique=True), )
 

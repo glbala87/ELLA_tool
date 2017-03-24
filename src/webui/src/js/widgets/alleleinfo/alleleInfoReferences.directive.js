@@ -22,6 +22,7 @@ import {deepCopy} from '../../util';
 export class AlleleInfoReferences {
     constructor($scope, ReferenceEvalModal) {
 
+
         this.allele_references = [];
         // If we have PMID in annotation,
         // but not the reference in the database.
@@ -32,6 +33,7 @@ export class AlleleInfoReferences {
             () => {
                 this.setAlleleReferences();
             }
+
         );
         $scope.$watch(
             () => this.allele,
@@ -42,40 +44,32 @@ export class AlleleInfoReferences {
         this.refEvalModal = ReferenceEvalModal;
     }
 
-    /**
-     * Retrives combined PubMed IDs for all alles.
-     * @return {Array} Array of ids.
-     */
-    _getPubmedIds(alleles) {
-        let ids = [];
-        for (let allele of alleles) {
-            Array.prototype.push.apply(ids, allele.getPubmedIds());
-        }
-        return ids;
-    }
-
     getPubmedUrl(pmid) {
         return `http://www.ncbi.nlm.nih.gov/pubmed/${pmid}`;
     }
 
-    /**
-     * Returns a list of references for this.allele
-     * @return {Array} List of [Reference, ...].
-     */
     setAlleleReferences() {
         this.allele_references = [];
         this.missing_references = [];
-        for (let pmid of this.allele.getPubmedIds()) {
+
+        for (let ids of this.allele.getReferenceIds()) {
+            let pmid = ids.pubmed_id;
+            let id = ids.id;
             let reference_found = false;
             if (this.references) {
-                let reference = this.references.find(r => r.pubmed_id === pmid);
+                if (pmid !== undefined) {
+                    var reference = this.references.find(r => r.pubmed_id === pmid);
+                } else {
+                    var reference = this.references.find(r => r.id === id);
+                }
+
                 if (reference) {
                     this.allele_references.push(reference);
                     reference_found = true;
                 }
             }
             if (!reference_found) {
-                this.missing_references.push(pmid);
+                this.missing_references.push(ids);
             }
         }
     }

@@ -3,7 +3,7 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
-
+from sqlalchemy_searchable import make_searchable
 
 class CustomBase(object):
 
@@ -70,6 +70,7 @@ convention = {
 
 
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
+make_searchable() # Create triggers to keep search vectors up to date
 Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:

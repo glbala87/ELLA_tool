@@ -174,12 +174,20 @@ class AnnotationProcessor(object):
                 for ca_ref in custom_annotation['references']:
                     if "source_info" not in ca_ref:
                         ca_ref["source_info"] = dict()
-                    # A pubmed reference can exist in both, if so only merge the source
-                    if 'pubmed_id' in ca_ref:
-                        existing_ref = next((r for r in data['references'] if r.get('pubmed_id') == ca_ref['pubmed_id']), None)
-                        if existing_ref:
-                            existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
-                            continue
+
+                    # A reference can come from several sources, if so only merge the source
+                    assert ca_ref.get('id') or ca_ref.get('pubmed_id'), ca_ref
+                    existing_ref = None
+                    for r in data['references']:
+                        for id in ['id', 'pubmed_id']:
+                            if r.get(id) is not None and r.get(id) == ca_ref.get(id):
+                                existing_ref = r
+                                break
+
+                    if existing_ref is not None:
+                        existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
+                        continue
+
                     data['references'].append(ca_ref)
 
         return data

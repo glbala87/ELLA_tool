@@ -83,8 +83,7 @@ gulp.task('tp-js', function() {
 });
 
 var bundler = browserify('./src/webui/src/js/index.js', {
-    // debug: production ? false : true,
-    debug: false, // include sourcemap
+    debug: production ? false : true, // include source map
     cache: {}, packageCache: {}, fullPaths: true // for watchify
 }).transform(babelify.configure({
     presets: ["es2015", "stage-0"],

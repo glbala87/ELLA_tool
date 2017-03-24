@@ -8,8 +8,10 @@ import {Service, Inject} from '../ng-decorators';
  * annotation. Reference mode is triggered when
  * category === 'references'.
  */
+
 export class CustomAnnotationController {
-    constructor(modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, placeholder, alleles, category) {
+    constructor($scope, modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, placeholder, alleles, category) {
+        this.scope = $scope;
         this.modal = modalInstance;
         this.category = category;
         this.config = Config.getConfig();
@@ -39,7 +41,36 @@ export class CustomAnnotationController {
         this.reference_error = false;
         this.references = [];  // Holds reference objects for showing details
 
+        this.referenceModes = ['Search', 'PubMed', 'Manual'];
+        this.referenceMode = this.referenceModes[0];
+        this.referenceSearchPhrase = "";
+        this.referenceSearchResults = [];
+
+        this.resetManualReference()
+
+
+        if (this.category === "references") {
+            $scope.$watch(() => this.referenceSearchPhrase, () => {
+                this.referenceResource.search(this.referenceSearchPhrase).then(results => {
+                    this.referenceSearchResults = results;
+                })
+            })
+        }
+
         this.setup();
+    }
+
+    resetManualReference() {
+        this.manualReference = {
+            'authors': '',
+            'title': '',
+            'journal': '',
+            'volume': '',
+            'issue': '',
+            'year': '',
+            'pages': '',
+            'abstract': '',
+        }
     }
 
     /**
@@ -165,44 +196,66 @@ export class CustomAnnotationController {
 
     /**
      * Loads references from the API into this.references
-     * to get reference details to show in the UI.
+     * to get reference  details to show in the UI.
      */
     _loadReferences() {
-        let pmids = [];
+        let ids = [];
         for (let [allele_id, data] of Object.entries(this.custom_annotation)) {
             if ('references' in data) {
-                pmids = pmids.concat(data.references.map(r => r.pubmed_id));
+                ids = ids.concat(data.references.map(r => r.id));
             }
         }
-        console.log(pmids);
-        this.referenceResource.getByPubMedIds(pmids).then(refs => {
+        this.referenceResource.getByIds(ids).then(refs => {
             this.references = refs;
         });
     }
 
-    getReference(pmid) {
-        return this.references.find(r => r.pubmed_id === pmid);
+    getReference(id) {
+        return this.references.find(r => r.id === id);
     }
 
-    _addReferenceToAnnotation(pubmed_id) {
-        let existing = this.getCurrent().find(r => r.pubmed_id === pubmed_id);
+    _addReferenceToAnnotation(id, pubmed_id) {
+        let existing = this.getCurrent().find(r => r.id === id && r.pubmed_id === pubmed_id);
         if (!existing) {
             this.getCurrent().push({
+                id: id,
                 pubmed_id: pubmed_id,
                 sources: ['User']
             });
         }
+
     }
 
-    addReference() {
-        this.referenceResource.createFromXml(this.reference_xml).then(ref => {
-            this.reference_error = false;
-            this._addReferenceToAnnotation(ref.pubmed_id);
-            this.reference_xml = '';
-            this._loadReferences();  // Reload list of references to reflect possible changes
-        }).catch(() => {
-            this.reference_error = true;
-        });
+    addReference(reference) {
+        if (this.referenceMode === this.referenceModes[0]) {
+            // Search
+            this._addReferenceToAnnotation(reference.id, reference.pubmed_id)
+            this._loadReferences()
+        } else if (this.referenceMode === this.referenceModes[1]) {
+            // PubMed XML
+            this.referenceResource.createFromXml(this.reference_xml).then(ref => {
+                this.reference_error = false;
+                this._addReferenceToAnnotation(ref.id, ref.pubmed_id);
+                this.reference_xml = '';
+                this._loadReferences();  // Reload list of references to reflect possible changes
+            }).catch(() => {
+                this.reference_error = true;
+            });
+        } else if (this.referenceMode === this.referenceModes[2]) {
+            // Manual
+            this.referenceResource.createFromManual(this.manualReference).then(ref => {
+                this.reference_error = false;
+                this._addReferenceToAnnotation(ref.id, ref.pubmed_id);
+                this.resetManualReference()
+                this._loadReferences()
+            }).catch(() => {
+                this.reference_error = true;
+            })
+        }
+    }
+
+    canAddManualReference() {
+        return !(this.manualReference.title.length && this.manualReference.authors.length && this.manualReference.journal.length)
     }
 
     /**
@@ -232,7 +285,7 @@ export class CustomAnnotationController {
 
     removeReference(ref) {
         this.custom_annotation[this.selected_allele.id].references = this.getCurrent().filter(r => {
-            return ref.pubmed_id !== r.pubmed_id;
+            return ref.id !== r.id;
         });
     }
 
@@ -283,7 +336,7 @@ export class CustomAnnotationModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
-            controller: ['$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'placeholder', 'alleles', 'category', CustomAnnotationController],
+            controller: ['$scope','$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'placeholder', 'alleles', 'category', CustomAnnotationController],
             controllerAs: 'vm',
             size: 'lg',
             resolve: {
