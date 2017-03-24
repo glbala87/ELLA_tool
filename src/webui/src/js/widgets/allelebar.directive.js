@@ -14,9 +14,7 @@ import {Directive, Inject} from '../ng-decorators';
 export class Allelebar {
 
     constructor(Config) {
-
         this.config = Config.getConfig();
-
     }
 
     getInheritanceCodes(geneSymbol) {

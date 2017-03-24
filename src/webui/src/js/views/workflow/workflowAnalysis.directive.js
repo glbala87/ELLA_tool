@@ -28,6 +28,7 @@ import {deepCopy} from '../../util'
 @Inject('$rootScope',
     '$scope',
     'WorkflowResource',
+    'GenepanelResource',
     'AnalysisResource',
     'Workflow',
     'Navbar',
@@ -41,6 +42,7 @@ export class AnalysisController {
     constructor(rootScope,
                 scope,
                 WorkflowResource,
+                GenepanelResource,
                 AnalysisResource,
                 Workflow,
                 Navbar,
@@ -53,6 +55,7 @@ export class AnalysisController {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
+        this.genepanelResource = GenepanelResource;
         this.analysisResource = AnalysisResource;
         this.workflowService = Workflow;
         this.addExcludedAllelesModal = AddExcludedAllelesModal;
@@ -402,6 +405,9 @@ export class AnalysisController {
         this.analysisResource.getAnalysis(this.analysisId).then(a => {
             this.analysis = a;
             this.setupNavbar();
+            this.genepanelResource.get(a.genepanel.name, a.genepanel.version).then(gp => {
+                this.genepanel = gp;
+            });
         });
 
         this.workflowResource.getCollisions('analysis', this.analysisId).then(c => {

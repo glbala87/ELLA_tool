@@ -1,8 +1,8 @@
 
     <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()">
-
         <allele-sidebar ng-if="vm.showSidebar"
                         read-only="vm.readOnly"
+                        genepanel="vm.genepanel"
                         alleles="vm.allele_sidebar.alleles"
                         selected="vm.allele_sidebar.selected"
                         checked="vm.interpretation.state.report.included">

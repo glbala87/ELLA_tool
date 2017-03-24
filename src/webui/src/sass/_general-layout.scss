@@ -230,7 +230,7 @@ button { outline: none; border: 1px solid Transparent;
   }
   .container { margin-left: 2rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
   .container.no-secondary-nav { margin-top: 12rem; }
-  .container.inner { width: 100%; margin-left: 25.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+  .container.inner { width: 100%; margin-left: 35.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
 
 
   // View specific stuff
@@ -317,38 +317,52 @@ nav.warning { z-index: 99; position: fixed; bottom: 0; left: 0; right: 0; displa
   .no-results { height: auto; padding-top: 3.9rem; padding-bottom: 1.3rem; }
 }
 
-.sidebar .ng-enter { opacity: 0; transition: all 0.6s ease-in-out; }
+.sidebar .ng-enter { opacity: 0; transition: all 0.8s ease-in-out; }
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 24rem; min-height: 540px; position: fixed; left: 1.3rem; bottom: 1.3rem; top: 14.5rem; transition: top 0.6s;
+.sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 34rem; min-height: 540px; position: fixed; left: 1.3rem; bottom: 1.3rem; top: 14.5rem; transition: top 0.6s;
   .higher & { top: 7.5rem; }
-  section.enabled, section.disabled { flex-basis: auto; overflow-y: scroll; }
+  section.enabled, section.disabled { flex-basis: auto; overflow-y: auto; max-height: 40vh; }
   section > div:first-child { margin-top: 1rem; }
   section > div:last-child { margin-bottom: 1rem; }
   h4 { font-family: $slim; font-weight: 600; margin: 0; font-size: 1.4rem; display: flex; justify-content: space-between; }
   h4.section-title { @extend h4.section-title; margin: 0.3rem 0; }
   .variant { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .variant span { width: 13.0rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
-  i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
+  i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; flex-basis: 10rem; }
   b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
-  .nav-row { display: flex; align-items: center; color: $black-50; background-color: inherit; width: 24rem;
+
+  .nav-table { display: table; width: 34rem; }
+  .nav-row { display: table-row; align-items: center; color: $black-50; background-color: inherit; width: 34rem; font-family: $slim; font-size: 1.4rem;
+
+    .cell { display: table-cell; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; transition: all 0.3s ease-in-out; text-overflow: ellipsis; overflow: hidden;
+      &.gene { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
+      &.hgvsc { max-width: 12rem; text-overflow: ellipsis; overflow: hidden; }
+      &.consequence { max-width: 10rem;}
+      &.classification { max-width: 2rem; }
+      &.tab { max-width: 0.3rem; width: 0.3rem; padding: 0; min-width: 0.3rem; height: 2.6rem; background-color: inherit;
+      }
+    }
+
+    &.togglable .cell {
+      &.tab { align-items: center; text-align: center; justify-content: center; max-width: 2.6rem; width: 2.6rem; background-color: $black-50; cursor: pointer; }
+      &.consequence { max-width: 6.8rem; }  // Steal some width, give it to toggle button
+    }
+    &.toggled { color: $blue;
+      .cell.tab { background-color: $blue; }
+    }
+
     &.disabled { color: $black-25; }
-    & .tab, & .variant { transition: all 0.3s ease-in-out; }
-    &:not(.disabled):hover { cursor: pointer; }
-    &:not(.disabled):hover .tab { background-color: $blue-50; }
-    &:not(.disabled):hover .variant { color: $black-75; }
+    &:hover { cursor: pointer; color: $black-75; }
+    &:hover .tab { background-color: $blue-50; }
     &.active:not(.toggled):hover { cursor: default; }
-    &.active .variant, &.active:hover .variant { color: $blue; }
+    &.active , &.active:hover { color: $blue; }
     &.active .tab, &.active:hover .tab { background-color: $blue; }
-    &.toggled h4 b { color: $blue; }
+    .added h5 { margin: 0; font-size: 1.3rem; font-weight: 600; color: white; }
+    &.active.toggled {
+      &:hover .tab.togglable { background-color: $black-75; }
+    }
   }
-  .nav-row.active.toggled {
-    &:hover .tab.togglable { background-color: $black-75; }
-  }
-  .indented { padding-left: 2rem; }
-  .tab { width: 0.35rem; min-width: 0.35rem; height: 2.6rem; background-color: inherit; }
-  .tab.togglable { display: flex; align-items: center; justify-content: center; width: 2.6rem; background-color: $black-50; cursor: pointer; }
-  .added h5 { margin: 0; font-size: 1.3rem; font-weight: 600; color: white; }
 }
 
 #toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;

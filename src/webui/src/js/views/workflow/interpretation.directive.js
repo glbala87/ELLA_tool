@@ -24,9 +24,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         interpretation: '=',
         components: '=',
         selectedComponent: '=',
-        genepanelName: '=',
-        genepanelVersion: '=',
-        analysis: '=?',
+        genepanel: '=',
         updateAlleles: '&',
         alleles: '=',
         showSidebar: '=?',
@@ -92,21 +90,15 @@ export class InterpretationController {
 
         this.allele_sidebar = {
             alleles: { // Holds data used by <allele-sidebar>
-                unclassified: {
-                    active: [],
-                    inactive: []
-                },
-                classified: {
-                    active: [],
-                    inactive: []
-                }
+                unclassified: [],
+                classified: []
             },
             selected: null // Holds selected Allele from <allele-sidebar>
         };
 
         $scope.$watch(
             () => this.allele_sidebar.selected,
-            () => this.navbar.setAllele(this.allele_sidebar.selected, this.analysis ? this.analysis.genepanel : null)
+            () => this.navbar.setAllele(this.allele_sidebar.selected, this.genepanel)
         );
 
         $scope.$watch(
@@ -126,16 +118,6 @@ export class InterpretationController {
         // Create state objects
         if (!('allele' in this.interpretation.state)) {
             this.interpretation.state.allele = {};
-        }
-
-        if (!('analysis' in this.interpretation.state)) {
-            this.interpretation.state.analysis = {};
-        }
-        if (!('properties' in this.interpretation.state.analysis)) {
-            this.interpretation.state.analysis.properties = {
-                tags: [],
-                review_comment: ''
-            }
         }
 
         this.setupSidebar();
@@ -163,7 +145,6 @@ export class InterpretationController {
             }
         }
     }
-
 
     /**
      * Called by <allele-sectionbox> whenever an allele needs
@@ -208,26 +189,14 @@ export class InterpretationController {
      * FIXME: updateAlleleSidebar is called 5 times on page load: through $watch, $watchCollection, setup(), $watch, $watchCollection
      */
     updateAlleleSidebar() {
-        let alleles = {
-            unclassified: {
-                active: [],
-                inactive: []
-            },
-            classified: {
-                active: [],
-                inactive: []
-            }
-        };
-
-        let unclassified = this.filterClassifications(this.alleles);
-        let classified = this.alleleFilter.invert(unclassified, this.alleles);
 
         // Mapping function for creating objects used by <allele-sidebar>
         let create_allele_obj = allele => {
             return {
                 allele: allele,
                 alleleState: this.getAlleleState(allele),
-                togglable: this.selectedComponent.title === 'Report',  // When Report is select, we use checkable mode
+                checkable: this.selectedComponent.title === 'Report',
+                togglable: this.selectedComponent.title === 'Report' && Boolean(AlleleStateHelper.getClassification(allele, this.getAlleleState(allele))),  // When Report is select, we use checkable mode
                 isToggled: () => {
                     let state = this.getAlleleState(allele);
                     if (!('report' in state)) {
@@ -259,48 +228,21 @@ export class InterpretationController {
             }
         };
 
-        // Component name -> filter function for active alleles in this component
-        let components = {
-            'VarDB': alleles => this.alleleFilter.filterAlleleAssessment(alleles),
-            'Report': alleles => {
-                return alleles.filter(a => {
-                    return Boolean(AlleleStateHelper.getClassification(a, this.getAlleleState(a)));
-                });
-            }
+        // Populate the input to alleleSidebar, separating classified and unclassified alleles
+        let unclassified = this.filterClassifications(this.alleles);
+        let alleles = {
+            unclassified: unclassified.map(create_allele_obj),
+            classified: this.alleleFilter.invert(unclassified, this.alleles).map(create_allele_obj)
         };
 
-        let comp_title = this.selectedComponent.title;
-        if (comp_title in components) {
-            let filtered_alleles = components[comp_title](unclassified);
-            alleles.unclassified.active = filtered_alleles.map(create_allele_obj);
-            alleles.unclassified.inactive = this.alleleFilter.invert(
-                filtered_alleles,
-                unclassified
-            ).map(create_allele_obj);
-
-            filtered_alleles = components[comp_title](classified);
-            alleles.classified.active = filtered_alleles.map(create_allele_obj);
-            alleles.classified.inactive = this.alleleFilter.invert(
-                filtered_alleles,
-                classified
-            ).map(create_allele_obj);
-        }
-        else {  // Default -> all are active
-            alleles.unclassified.active = unclassified.map(create_allele_obj);
-            alleles.classified.active = classified.map(create_allele_obj);
-        }
-
         // Sort data
-
         // Sort unclassified by (gene, hgvsc)
-        let unclassified_sort = firstBy(a => a.allele.annotation.filtered[0].symbol)
+        let unclassified_sort = firstBy(a => this.genepanel.getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
+                                .thenBy(a => a.allele.annotation.filtered[0].symbol)
                                 .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
-        if (alleles.unclassified.active.length) {
-            alleles.unclassified.active.sort(unclassified_sort);
-        }
-        if (alleles.unclassified.inactive.length) {
-            alleles.unclassified.inactive.sort(unclassified_sort);
+        if (alleles.unclassified.length) {
+            alleles.unclassified.sort(unclassified_sort);
         }
 
         // Sort classified by (classification, gene, hgvsc)
@@ -308,14 +250,12 @@ export class InterpretationController {
                 let classification = AlleleStateHelper.getClassification(a.allele, this.getAlleleState(a.allele));
                return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
+            .thenBy(a => this.genepanel.getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
             .thenBy(a => a.allele.annotation.filtered[0].symbol)
             .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
-        if (alleles.classified.active.length) {
-            alleles.classified.active.sort(classified_sort);
-        }
-        if (alleles.classified.inactive.length) {
-            alleles.classified.inactive.sort(classified_sort);
+        if (alleles.classified.length) {
+            alleles.classified.sort(classified_sort);
         }
 
         this.allele_sidebar.alleles = alleles;
@@ -328,7 +268,6 @@ export class InterpretationController {
                 this.allele_sidebar.selected = this.alleles[0];
             }
         }
-
     }
 
     getComponent(component_name) {
@@ -336,13 +275,13 @@ export class InterpretationController {
     }
 
     hasResults() {
-        return this.allele_sidebar.alleles.unclassified.active.length > 0 ||
-               this.allele_sidebar.alleles.classified.active.length > 0;
+        return this.allele_sidebar.alleles.unclassified.length > 0 ||
+               this.allele_sidebar.alleles.classified.length > 0;
     }
 
     /**
      * Calls updateAlleleSidebar and checks that the currently selected allele
-     * is among the unclassified, active options. If not, select the first one.
+     * is among the unclassified options. If not, select the first one.
      */
 
     onComponentChange() {
@@ -354,11 +293,11 @@ export class InterpretationController {
             return;
         };
 
-        if (this.allele_sidebar.alleles.unclassified.active.length) {
-            this.allele_sidebar.selected = this.allele_sidebar.alleles.unclassified.active[0].allele;
+        if (this.allele_sidebar.alleles.unclassified.length) {
+            this.allele_sidebar.selected = this.allele_sidebar.alleles.unclassified[0].allele;
         }
-        else if (this.allele_sidebar.alleles.classified.active.length) {
-            this.allele_sidebar.selected = this.allele_sidebar.alleles.classified.active[0].allele;
+        else if (this.allele_sidebar.alleles.classified.length) {
+            this.allele_sidebar.selected = this.allele_sidebar.alleles.classified[0].allele;
         }
         else {
             this.allele_sidebar.selected = null;
@@ -380,7 +319,7 @@ export class InterpretationController {
         return alleles.filter(al => {
             let allele_state = this.getAlleleState(al);
             if (allele_state !== undefined) {
-                return AlleleStateHelper.getClassification(al, allele_state) === null;
+                return !Boolean(AlleleStateHelper.getClassification(al, allele_state));
             }
             return true;
         });
