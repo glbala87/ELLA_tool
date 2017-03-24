@@ -185,7 +185,7 @@ class AnnotationProcessor(object):
                                 break
 
                     if existing_ref is not None:
-                        existing_ref['sources']=existing_ref['sources'] + ca_ref['sources']
+                        existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
                         continue
 
                     data['references'].append(ca_ref)
