@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../ng-decorators';
+import {ACMGHelper} from '../model/acmghelper';
 
 @Directive({
     selector: 'acmg',
@@ -9,6 +10,7 @@ import {Directive, Inject} from '../ng-decorators';
         commentModel: '=?',
         editable: '=?',  // Defaults to false
         directreqs: '=?',  // Defaults to false
+        adjustable: '=?', // Whether code can be upgraded/downgraded
         onToggle: '&?',
         toggleText: '@?',
         readOnly: '=?',
@@ -63,6 +65,10 @@ export class AcmgController {
         return this.code;
     }
 
+    getCodeBase() {
+        return ACMGHelper.getCodeBase(this.getCodeForDisplay().code);
+    }
+
     getPlaceholder() {
         if (this.isEditable()) {
             return `${this.getCodeForDisplay().code}-COMMENT`;
@@ -91,6 +97,14 @@ export class AcmgController {
         return 'N/A';
     }
 
+    upgradeCode() {
+        ACMGHelper.upgradeCodeObj(this.code, this.config);
+    }
+
+    downgradeCode() {
+        ACMGHelper.downgradeCodeObj(this.code, this.config);
+    }
+
     getMatches() {
         let codes = this.isMultiple() ? this.code : [this.code];
         return codes.map(c => {
@@ -112,27 +126,37 @@ export class AcmgController {
     }
 
     getCriteria() {
-        if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].criteria;
+        if (this.getCodeBase() in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.getCodeBase()].criteria;
         }
     }
 
     getShortCriteria() {
-        if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].short_criteria;
+        if (this.getCodeBase() in this.config.acmg.explanation) {
+            return this.config.acmg.explanation[this.getCodeBase()].short_criteria;
         }
     }
 
     getRequiredFor() {
         if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
+            if (this.getCodeForDisplay().code.startsWith('REQ_GP')) {
+                return [];
+            }
             return this.config.acmg.explanation[this.getCodeForDisplay().code].sources;
         }
     }
 
     getNotes() {
-        if (this.getCodeForDisplay().code in this.config.acmg.explanation &&
-            'notes' in this.config.acmg.explanation[this.getCodeForDisplay().code]) {
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].notes.split(/\n/);
+        if (this.getCodeBase() in this.config.acmg.explanation &&
+            'notes' in this.config.acmg.explanation[this.getCodeBase()]) {
+            return this.config.acmg.explanation[this.getCodeBase()].notes.split(/\n/);
+        }
+    }
+
+    getInternalNotes() {
+        if (this.getCodeBase() in this.config.acmg.explanation &&
+            'internal_notes' in this.config.acmg.explanation[this.getCodeBase()]) {
+            return this.config.acmg.explanation[this.getCodeBase()].internal_notes.split(/\n/);
         }
     }
 

@@ -73,11 +73,13 @@ export class AnalysisController {
                         name: 'classification',
                         title: 'Classification',
                         options: {
-                            hide_controls_on_collapse: false
+                            hide_controls_on_collapse: false,
+                            show_included_acmg_codes: true
                         },
                         controls: [
                             'collapse_all',
-                            'classification',
+                            'add_acmg',
+                            'classification',,
                             'reuse_classification'
                         ],
                         alleleassessment_comment: {
@@ -102,7 +104,8 @@ export class AnalysisController {
                             'copy_alamut',
                             'toggle_class1',
                             'toggle_class2',
-                            'toggle_technical'
+                            'toggle_technical',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'FREQUENCY-COMMENTS',
@@ -123,7 +126,8 @@ export class AnalysisController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'custom_external'
+                            'custom_external',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'EXTERNAL DB-COMMENTS',
@@ -142,7 +146,8 @@ export class AnalysisController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'custom_prediction'
+                            'custom_prediction',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'PREDICTION-COMMENTS',
@@ -161,7 +166,8 @@ export class AnalysisController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'references'
+                            'references',
+                            'add_acmg'
                         ],
                         content: [
                             {'tag': 'allele-info-references'}
@@ -380,6 +386,7 @@ export class AnalysisController {
             ).then(alleles => {
                 this.selected_interpretation_alleles = alleles;
                 this.alleles_loaded = true;
+                console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
             });
         }
     }

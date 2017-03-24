@@ -72,10 +72,12 @@ export class WorkflowAlleleController {
                     {
                         title: 'Classification',
                         options: {
-                            hide_controls_on_collapse: false
+                            hide_controls_on_collapse: false,
+                            show_included_acmg_codes: true
                         },
                         controls: [
                             'collapse_all',
+                            'add_acmg',
                             'classification',
                             'reuse_classification'
                         ],
@@ -101,7 +103,8 @@ export class WorkflowAlleleController {
                             'copy_alamut',
                             'toggle_class1',
                             'toggle_class2',
-                            'toggle_technical'
+                            'toggle_technical',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'FREQUENCY-COMMENTS',
@@ -121,7 +124,8 @@ export class WorkflowAlleleController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'custom_external'
+                            'custom_external',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'EXTERNAL DB-COMMENTS',
@@ -140,7 +144,8 @@ export class WorkflowAlleleController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'custom_prediction'
+                            'custom_prediction',
+                            'add_acmg'
                         ],
                         alleleassessment_comment: {
                             placeholder: 'PREDICTION-COMMENTS',
@@ -159,7 +164,8 @@ export class WorkflowAlleleController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
-                            'references'
+                            'references',
+                            'add_acmg'
                         ],
                         content: [
                             {'tag': 'allele-info-references'}
@@ -379,7 +385,6 @@ export class WorkflowAlleleController {
     }
 
     loadAllele() {
-        console.log("(Re)loading allele...");
         this.alleles_loaded = false;
         if (this.allele_id && this.selected_interpretation) {
             return this.workflowService.loadAlleles(
@@ -391,8 +396,10 @@ export class WorkflowAlleleController {
                 alleles => {
                     this.selected_interpretation_alleles = alleles;
                     this.alleles_loaded = true;
+                    console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
                 },
                 () => { this.selected_interpretation_alleles = []; } // On error
+
             );
         }
     }
