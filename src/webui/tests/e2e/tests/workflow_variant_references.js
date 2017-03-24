@@ -44,6 +44,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         alleleSectionBox.addReferencesBtn.click();
         let referenceList = customAnnotationModal.referenceList();
         const beforeCount = referenceList ? referenceList.value.length : 0;
+        customAnnotationModal.pubMedBtn.click();
         customAnnotationModal.xmlInput.click();
         customAnnotationModal.xmlInputEditor.setValue(XML_PUBMED);
         customAnnotationModal.addReferenceBtn.click();
