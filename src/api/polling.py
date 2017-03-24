@@ -96,7 +96,7 @@ class AnnotationJobsInterface:
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysisAppend(self.session)
                 deposit.import_vcf(fd,
-                                   ".".join([analysis_name, genepanel]),
+                                   analysis_name,
                                    gp_name,
                                    gp_version)
         elif mode == "Variants":

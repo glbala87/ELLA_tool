@@ -660,9 +660,9 @@ class AnalysisImporter(object):
         self.session.add(analysis)
         return analysis
 
-    def get(self, analysis_config, genepanel):
+    def get(self, analysis_name, genepanel):
         return self.session.query(sm.Analysis).filter(
-            sm.Analysis.name == analysis_config['name'],
+            sm.Analysis.name == analysis_name,
             genepanel == genepanel
         ).one()
 
