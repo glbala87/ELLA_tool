@@ -57,7 +57,8 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   .acmg.#{$name} { border-color: $color; }
   .acmg.#{$name}, aside.acmg-req.#{$name} {
     .acmg-upper { background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name)); }
-    h4.acmg-title { color: darken($color,10); }
+    .acmg-title-wrapper { min-width: 7rem; display: flex; justify-content: center; }
+    h4.acmg-title { color: darken($color,10); padding-right: 0; }
     h4.acmg-title.clickable { border-color: hsla(hue($color),saturation($color),lightness($color), 0.5); }
     .acmg-lower { background-color: hsla(hue($color),saturation($color),lightness($color),0.02); }
   }

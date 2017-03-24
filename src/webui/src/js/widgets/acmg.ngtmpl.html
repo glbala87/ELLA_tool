@@ -3,13 +3,15 @@
     <section class="acmg-upper">
       <div class="left-item">
         <h4 class="adjust-button" ng-if="vm.adjustable && vm.editable" class="clickable" ng-click="vm.downgradeCode()">-</h4>
-        <h4 class="acmg-title clickable" uib-popover-template="vm.popover.templateUrl"
-          popover-append-to-body=true
-          popover-title="{{vm.getCodeForDisplay().code | noUnderscores}}"
-          popover-trigger="outsideClick"
-          popover-placement="auto">
-          {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
-        </h4>
+        <div class="acmg-title-wrapper">
+          <h4 class="acmg-title clickable" uib-popover-template="vm.popover.templateUrl"
+            popover-append-to-body=true
+            popover-title="{{vm.getCodeForDisplay().code | noUnderscores}}"
+            popover-trigger="outsideClick"
+            popover-placement="auto">
+            {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
+          </h4>
+        </div>
         <h4 class="adjust-button" ng-if="vm.adjustable && vm.editable" class="clickable" ng-click="vm.upgradeCode()">+</h4>
       </div>
       <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
