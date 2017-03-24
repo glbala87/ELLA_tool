@@ -3,7 +3,7 @@ import Genepanel from '../../src/js/model/genepanel'
 const genepanel_defaults = {
     'disease_mode': "ANY",
     'inheritance': "AD",
-    'last_exon': true,
+    'last_exon_important': true,
     'freq_cutoffs': {
         'AD': {
             'external': {
@@ -35,7 +35,7 @@ describe("Model Genepanel", function() {
             'data': {
                 'BRCA1': {
                     'inheritance': 'XX',
-                    'last_exon': false,
+                    'last_exon_important': false,
                     'freq_cutoffs': {
                         'external': {
                             'hi_freq_cutoff': 0.98,
@@ -91,17 +91,17 @@ describe("Model Genepanel", function() {
         expect(new Genepanel(createPanel(true)).getInheritanceCodes('BRCA1')).toBe('XX');
     });
 
-    it("can find genepanel config overrides for last_exon and inheritance", function() {
+    it("can find genepanel config overrides for last_exon_important and inheritance", function() {
 
         let genepanelConfig_brca1 = new Genepanel(createPanel(true)).calculateGenepanelConfig('BRCA1', genepanel_defaults);
         expect(typeof genepanelConfig_brca1['inheritance']).toBe('string'); // now wrapper for inheritance
         expect(genepanelConfig_brca1['inheritance']).toBe('XX');
         expect(genepanelConfig_brca1['_overridden']).toContain('inheritance');
-        expect(genepanelConfig_brca1['last_exon']).toBe(false);
-        expect(genepanelConfig_brca1['_overridden']).toContain('last_exon');
+        expect(genepanelConfig_brca1['last_exon_important']).toBe(false);
+        expect(genepanelConfig_brca1['_overridden']).toContain('last_exon_important');
 
         let genepanelConfig_brca3 = new Genepanel(createPanel(true)).calculateGenepanelConfig('BRCA3', genepanel_defaults);
-        expect(genepanelConfig_brca3['last_exon']).toBe(true);
+        expect(genepanelConfig_brca3['last_exon_important']).toBe(true);
         expect(genepanelConfig_brca3['_overridden']).toContain('inheritance');
     });
 

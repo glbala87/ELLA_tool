@@ -245,5 +245,5 @@ endif
 test-js:
 	rm -f /ella/node_modules
 	ln -s /dist/node_modules/ /ella/node_modules
-	gulp unit
+	/ella/node_modules/gulp/bin/gulp.js unit
 
