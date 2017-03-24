@@ -70,7 +70,7 @@ convention = {
 
 
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
-make_searchable()
+make_searchable() # Create triggers to keep search vectors up to date
 Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:
