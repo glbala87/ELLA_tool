@@ -57,7 +57,12 @@ export class AlleleInfoReferences {
             let id = ids.id;
             let reference_found = false;
             if (this.references) {
-                let reference = this.references.find(r => r.id === id && r.pubmed_id === pmid);
+                if (pmid !== undefined) {
+                    var reference = this.references.find(r => r.pubmed_id === pmid);
+                } else {
+                    var reference = this.references.find(r => r.id === id);
+                }
+
                 if (reference) {
                     this.allele_references.push(reference);
                     reference_found = true;
