@@ -1,16 +1,89 @@
-import click
+import os
 import logging
 import json
+import re
+import click
 
 from vardb.datamodel import DB
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users
+from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.deposit.deposit_alleles import DepositAlleles
+
+
+VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf')
 
 
 @click.group(help='Data deposit')
 def deposit():
     pass
+
+
+@deposit.command('analysis')
+@click.argument('vcf')
+def cmd_deposit_analysis(vcf):
+    """
+    Deposit an analysis given input vcf.
+    File should be in format of {analysis_name}.{genepanel_name}_{genepanel_version}.vcf
+    """
+    logging.basicConfig(level=logging.DEBUG)
+
+    matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
+    db = DB()
+    db.connect()
+    da = DepositAnalysis(db.session)
+    da.import_vcf(
+        vcf,
+        matches.group('analysis_name'),
+        matches.group('genepanel_name'),
+        matches.group('genepanel_version')
+    )
+    db.session.commit()
+
+
+@deposit.command('alleles')
+@click.argument('vcf')
+def cmd_deposit_alleles(vcf):
+    """
+    Deposit alleles given input vcf.
+    File should be in format of {something}.{genepanel_name}_{genepanel_version}.vcf
+    """
+    logging.basicConfig(level=logging.DEBUG)
+
+    matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
+    db = DB()
+    db.connect()
+    da = DepositAlleles(db.session)
+    da.import_vcf(
+        vcf,
+        matches.group('genepanel_name'),
+        matches.group('genepanel_version')
+    )
+    db.session.commit()
+
+
+@deposit.command('annotation')
+@click.argument('vcf')
+def cmd_deposit_annotation(vcf):
+    """
+    Update/deposit alleles with annotation only given input vcf.
+    No analysis/variant interpretation is created.
+    File should be in format of {something}.{genepanel_name}_{genepanel_version}.vcf
+    """
+    logging.basicConfig(level=logging.DEBUG)
+
+    matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
+    db = DB()
+    db.connect()
+    da = DepositAlleles(db.session)
+    da.import_vcf(
+        vcf,
+        matches.group('genepanel_name'),
+        matches.group('genepanel_version'),
+        annotation_only=True
+    )
+    db.session.commit()
 
 
 @deposit.command('references')

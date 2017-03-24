@@ -8,6 +8,7 @@ import sys
 import logging
 import json
 import glob
+import re
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -104,6 +105,8 @@ CUSTOM_ANNO = '../testdata/custom_annotation_test.json'
 
 class DepositTestdata(object):
 
+    ANALYSIS_FILE_RE = re.compile('(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf')
+
     def __init__(self, db):
         self.engine = db.engine
         self.session = db.session
@@ -134,26 +137,21 @@ class DepositTestdata(object):
             if not os.path.isdir(analysis_path):
                 continue
             try:
-                analysis_config_path = glob.glob(os.path.join(analysis_path, '*.analysis'))[0]
-                with open(analysis_config_path) as f:
-                    analysis_config = json.load(f)
+                analysis_vcf_path = glob.glob(os.path.join(analysis_path, '*.vcf'))[0]
+                filename = os.path.basename(analysis_vcf_path)
+                matches = re.match(DepositTestdata.ANALYSIS_FILE_RE, filename)
 
-                sample_configs = []
-                for sample_name in analysis_config['samples']:
-                    sample_config_path = os.path.join(analysis_path, sample_name + '.sample')
-                    with open(sample_config_path) as f:
-                        sample_config = json.load(f)
-                        sample_configs.append(sample_config)
-
-                analysis_name = analysis_config['name']
-                vcf_path = os.path.join(analysis_path, analysis_name + '.vcf')
+                analysis_name = matches.group('analysis_name')
+                gp_name = matches.group('genepanel_name')
+                gp_version = matches.group('genepanel_version')
 
                 da = DepositAnalysis(self.session)
 
                 da.import_vcf(
-                    vcf_path,
-                    sample_configs=sample_configs,
-                    analysis_config=analysis_config
+                    analysis_vcf_path,
+                    analysis_name,
+                    gp_name,
+                    gp_version
                 )
                 log.info("Deposited {}".format(analysis_name))
                 self.session.commit()
