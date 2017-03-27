@@ -437,6 +437,8 @@ def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
     reused_referenceassessments = grouped_alleleassessments['referenceassessments']['reused']
     created_referenceassessments = grouped_alleleassessments['referenceassessments']['created']
 
+    session.add_all(created_referenceassessments)
+
     all_referenceassessments = reused_referenceassessments + created_referenceassessments
     all_allelereports = reused_allelereports + created_allelereports
 
@@ -446,7 +448,7 @@ def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
         'alleleassessments': schemas.AlleleAssessmentSchema().dump(
             all_alleleassessments, many=True).data,
         'referenceassessments': schemas.ReferenceAssessmentSchema().dump(all_referenceassessments,
-                                                                            many=True).data,
+                                                                         many=True).data,
     }
 
 
