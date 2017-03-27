@@ -1,7 +1,7 @@
 import itertools
 import datetime
 from collections import defaultdict
-from sqlalchemy import func, tuple_
+from sqlalchemy import func, tuple_, or_, and_
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 
 from api import schemas, ApiError
@@ -299,7 +299,10 @@ class OverviewAnalysisResource(Resource):
 
             'missing_alleleassessments': session.query(allele.Allele.id).outerjoin(assessment.AlleleAssessment).filter(
                 allele.Allele.id.in_(filtered_allele_ids),
-                assessment.AlleleAssessment.allele_id.is_(None)
+                or_(
+                    assessment.AlleleAssessment.allele_id.is_(None),
+                    ~and_(*queries.valid_alleleassessments_filter(session))  # Include cases where classification isn't valid anymore (e.g. outdated)
+                )
             ).all()
 
         }
