@@ -233,8 +233,6 @@ class AssessmentImporter(object):
         Create an assessment for allele if it doesn't exist already
         """
 
-        # Imported assessments are set as outdated by default
-        ass_info['dateLastUpdate'] = datetime.datetime.min
 
         existing = self.session.query(asm.AlleleAssessment).filter(
             asm.AlleleAssessment.allele == allele,
@@ -284,7 +282,8 @@ class AssessmentImporter(object):
 
         allele = db_alleles[0]
 
-        ass_info['dateLastUpdate'] = datetime.datetime.min
+        # Imported assessments are set as outdated by default
+        ass_info['date_created'] = datetime.datetime.min
         ass_info['genepanel'] = genepanel
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
         if db_assessment:

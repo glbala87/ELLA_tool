@@ -16,8 +16,7 @@ import sqlalchemy.orm.exc
 import vardb.datamodel
 from vardb.datamodel import gene, DB
 from vardb.util import vcfiterator
-from vardb.deposit.importers import AnnotationImporter, AssessmentImporter, \
-                                    GenotypeImporter, AlleleImporter, InterpretationImporter, \
+from vardb.deposit.importers import AnnotationImporter, AssessmentImporter, AlleleImporter, \
                                     inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor
 
@@ -69,7 +68,7 @@ class DepositAssessments(object):
             db_alleles = self.allele_importer.process(record)
 
             # Import annotation for these alleles
-            self.annotation_importer.process(record, db_alleles, skip_anno=skip_anno)
+            self.annotation_importer.process(record, db_alleles)
 
             # Import assessment for these alleles
             self.assessment_importer.process(
