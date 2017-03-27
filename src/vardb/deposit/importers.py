@@ -7,25 +7,15 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
-import sys
-import argparse
 import re
-import json
-import itertools
 import logging
 import datetime
 from collections import defaultdict
 
-from sqlalchemy import and_
-import sqlalchemy.orm.exc
-
-import vardb.datamodel
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf
 from vardb.datamodel import annotation as annm, assessment as asm
-from vardb.datamodel import gene
 from vardb.util import vcfiterator, annotationconverters
 from vardb.deposit.vcfutil import vcfhelper
-
 
 log = logging.getLogger(__name__)
 
@@ -89,20 +79,14 @@ class SampleImporter(object):
         self.session = session
         self.counter = defaultdict(int)
 
-    def process(self, sample_names, sample_configs=None):
+    def process(self, sample_names, analysis, sample_type='HTS'):
         db_samples = list()
-        sample_type = 'HTS'  # TODO: Agree on values for Sample.sampleType enums and get from sample_config
-        if sample_configs:
-            assert isinstance(sample_names, list)
-            assert isinstance(sample_configs, list)
-            assert len(sample_names) == len(sample_configs)
         for sample_idx, sample_name in enumerate(sample_names):
             db_sample = sm.Sample(
                 identifier=sample_name,
                 sample_type=sample_type,
-                deposit_date=datetime.datetime.now(),
-                sample_config=sample_configs[sample_idx] if sample_configs else None
-                )
+                analysis=analysis
+            )
             db_samples.append(db_sample)
             self.counter['nSamplesAdded'] += 1
         return db_samples
@@ -118,6 +102,7 @@ class SampleImporter(object):
             db_samples += db_sample
         return db_samples
 
+
 class GenotypeImporter(object):
 
     ALLELE_DELIMITER = re.compile(r'''[|/]''')  # to split a genotype into alleles
@@ -131,7 +116,7 @@ class GenotypeImporter(object):
 
     def is_sample_het(self, records_sample):
         for record in records_sample:
-            gt1, gt2=GenotypeImporter.ALLELE_DELIMITER.split(record['GT'])
+            gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record['GT'])
             if gt1 == gt2 == "1":
                 return False
 
@@ -659,27 +644,25 @@ class AnalysisImporter(object):
     def __init__(self, session):
         self.session = session
 
-    def process(self, db_samples, analysis_config, genepanel):
+    def process(self, analysis_name, genepanel):
         """Create analysis with a default gene panel for a sample"""
 
         if self.session.query(sm.Analysis).filter(
-            sm.Analysis.name == analysis_config['name'],
+            sm.Analysis.name == analysis_name,
             genepanel == genepanel
         ).count():
-            raise RuntimeError("Analysis {} is already imported.".format(analysis_config['name']))
+            raise RuntimeError("Analysis {} is already imported.".format(analysis_name))
 
         analysis = sm.Analysis(
-            name=analysis_config['name'],
-            samples=db_samples,
+            name=analysis_name,
             genepanel=genepanel,
-            analysis_config=analysis_config
         )
         self.session.add(analysis)
         return analysis
 
-    def get(self, analysis_config, genepanel):
+    def get(self, analysis_name, genepanel):
         return self.session.query(sm.Analysis).filter(
-            sm.Analysis.name == analysis_config['name'],
+            sm.Analysis.name == analysis_name,
             genepanel == genepanel
         ).one()
 
@@ -689,14 +672,26 @@ class AnalysisInterpretationImporter(object):
     def __init__(self, session):
         self.session = session
 
-    def process(self, db_analysis):
-        db_interpretation, _ = wf.AnalysisInterpretation.get_or_create(
-            self.session,
-            analysis=db_analysis,
-            genepanel=db_analysis.genepanel,
-            status="Not started"
-            )
+    def process(self, db_analysis, reopen_if_exists=False):
+        existing = self.session.query(wf.AnalysisInterpretation).filter(
+            wf.AnalysisInterpretation.analysis_id == db_analysis.id
+        ).one_or_none()
+        if not existing:
+            db_interpretation, _ = wf.AnalysisInterpretation.get_or_create(
+                self.session,
+                analysis=db_analysis,
+                genepanel=db_analysis.genepanel,
+                status="Not started"
+                )
+        else:
+            # If the existing is Done, we reopen the analysis since we have added new
+            if reopen_if_exists and existing.status == 'Done':
+                import api.v1.resources.workflow.helpers as helpers  # TODO: Placed here due to circular imports...
+                db_interpretation = helpers.reopen_interpretation(analysis_id=existing.analysis_id)[1]
+            else:
+                db_interpretation = None
         return db_interpretation
+
 
 class AlleleInterpretationImporter(object):
 

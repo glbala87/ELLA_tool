@@ -3,7 +3,7 @@
 
 import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Sequence
+from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -30,7 +30,6 @@ class Sample(Base):
     analysis = relationship('Analysis', backref='samples')
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     deposit_date = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    sample_config = Column(JSONMutableDict.as_mutable(JSONB))  # includes capturekit and more
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
@@ -52,7 +51,6 @@ class Analysis(Base):
     genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
-    analysis_config = Column(JSONMutableDict.as_mutable(JSONB))
     interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
     priority = Column(Integer, nullable=False, default=1)

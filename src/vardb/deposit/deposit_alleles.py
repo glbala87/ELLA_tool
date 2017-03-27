@@ -7,22 +7,10 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
-import sys
-import argparse
-import json
 import logging
-from collections import defaultdict
 
-from sqlalchemy import and_
-import sqlalchemy.orm.exc
-
-import vardb.datamodel
-from vardb.datamodel import gene
 from vardb.util import vcfiterator
-from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
-    GenotypeImporter, AlleleImporter, AlleleInterpretationImporter, \
-    inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
-    SplitToDictInfoProcessor
+from vardb.deposit.importers import inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -30,6 +18,7 @@ log = logging.getLogger(__name__)
 
 
 class DepositAlleles(DepositFromVCF):
+
     def is_inside_transcripts(self, record, genepanel):
         chr = record["CHROM"]
         pos = record["POS"]
@@ -38,7 +27,7 @@ class DepositAlleles(DepositFromVCF):
                 return True
         return False
 
-    def import_vcf(self, path, sample_configs=None, allele_config=None, assess_class=None):
+    def import_vcf(self, path, gp_name, gp_version, annotation_only=False):
 
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
@@ -46,7 +35,7 @@ class DepositAlleles(DepositFromVCF):
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
-        db_genepanel = self.get_genepanel(allele_config)
+        db_genepanel = self.get_genepanel(gp_name, gp_version)
 
         is_not_inside_transcripts = []
         for record in vi.iter():
@@ -66,7 +55,9 @@ class DepositAlleles(DepositFromVCF):
             # Import annotation for these alleles
             self.annotation_importer.process(record, db_alleles)
 
-            for allele in db_alleles:
-                self.allele_interpretation_importer.process(db_genepanel, allele.id)
+            if not annotation_only:
+                # Create allele interpretations so variant shows up in variant workflow view
+                for allele in db_alleles:
+                    self.allele_interpretation_importer.process(db_genepanel, allele.id)
 
             self.counter['nVariantsInFile'] += 1

@@ -10,8 +10,7 @@ class SampleSchema(Schema):
         fields = ('id',
                   'identifier',
                   'sample_type',
-                  'deposit_date',
-                  'sample_config')
+                  'deposit_date')
 
 
 class UserSchema(Schema):

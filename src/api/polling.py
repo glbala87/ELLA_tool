@@ -19,7 +19,7 @@ from werkzeug.serving import is_running_from_reloader
 StringIO.__exit__ = lambda *args: args[0]
 StringIO.__enter__ = lambda *args: args[0]
 
-log=logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 ANNOTATION_SERVICE_URL = config["app"]["annotation_service"]
 
@@ -29,7 +29,7 @@ class AnnotationJobsInterface:
         self.session = session
 
     def get_all(self):
-        query=self.session.query(annotationjob.AnnotationJob)
+        query = self.session.query(annotationjob.AnnotationJob)
         return query.all()
 
     def get_with_status(self, status):
@@ -49,14 +49,14 @@ class AnnotationJobsInterface:
         return annotationjob.AnnotationJob(**data)
 
     def patch(self, id, **kwargs):
-        job=self.get_with_id(id)
+        job = self.get_with_id(id)
         allowed_keys = ["status", "message", "task_id"]
         assert len(set(kwargs) - set(allowed_keys)) == 0, "Illegal values passed to patch: " + str(
             set(kwargs) - set(allowed_keys))
 
         if kwargs.get("status") and kwargs["status"] != job.status:
             if "history" not in job.status_history:
-                job.status_history["history"]=list()
+                job.status_history["history"] = list()
 
             job.status_history["history"].insert(0, {
                 'time': datetime.datetime.now().isoformat(),
@@ -68,7 +68,7 @@ class AnnotationJobsInterface:
             if v is not None and getattr(job, k) != v:
                 setattr(job, k, v)
 
-        job.date_last_update=datetime.datetime.now()
+        job.date_last_update = datetime.datetime.now()
         return job
 
     def deposit(self, id, annotated_vcf):
@@ -80,46 +80,30 @@ class AnnotationJobsInterface:
         fd.flush()
         fd.seek(0)
 
-        from vardb.util.vcfiterator import VcfIterator
-        samples = VcfIterator(fd).getSamples()
-        sample_config = [{"name": sname} for sname in samples]
         genepanel = job.properties["genepanel"]
+        gp_name, gp_version = job.properties["genepanel"].split('_', 1)
 
         if mode == "Analysis":
             type = job.properties["create_or_append"]
             if type == "Create":
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysis(self.session)
-                analysis_config = {
-                    "params": {"genepanel": genepanel},
-                    "samples": samples,
-                    "name": ".".join([analysis_name, genepanel])
-                }
                 deposit.import_vcf(fd,
-                                   sample_configs=sample_config,
-                                   analysis_config=analysis_config)
+                                   ".".join([analysis_name, genepanel]),
+                                   gp_name,
+                                   gp_version)
             else:
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysisAppend(self.session)
-                analysis_config = {
-                    "params": {"genepanel": genepanel},
-                    "samples": samples,
-                    "name": analysis_name,
-                }
                 deposit.import_vcf(fd,
-                                   sample_configs=sample_config,
-                                   analysis_config=analysis_config)
+                                   analysis_name,
+                                   gp_name,
+                                   gp_version)
         elif mode == "Variants":
             deposit = DepositAlleles(self.session)
-            allele_config = {
-                "params": {"genepanel": genepanel},
-                "samples": samples,
-                "name": ".".join(["independent", genepanel])
-            }
-
             deposit.import_vcf(fd,
-                               sample_configs=sample_config,
-                               allele_config=allele_config)
+                               gp_name,
+                               gp_version)
 
     def delete(self, job):
         self.session.delete(job)

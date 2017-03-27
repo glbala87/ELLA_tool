@@ -41,28 +41,16 @@ class DepositFromVCF(object):
         self.allele_interpretation_importer = AlleleInterpretationImporter(self.session)
         self.counter = defaultdict(int)
 
-    def check_samples(self, sample_names_in_vcf, sample_configs):
-        """
-        Returns name of sample(s) where:
-        - Name of sample in VCF matches name in sample_config (if given).
-        """
-        for sample_name in sample_names_in_vcf:
-            if sample_name not in [s['name'] for s in sample_configs]:
-                raise RuntimeError("Missing sample configuration for sample '{}' given in vcf".format(sample_name))
-        return True
-
-    def get_genepanel(self, analysis_config):
-        genepanel_name = analysis_config["params"]["genepanel"].split('_')[0]
-        genepanel_version = analysis_config["params"]["genepanel"].split('_')[1]
+    def get_genepanel(self, gp_name, gp_version):
         try:
             genepanel = self.session.query(gene.Genepanel).filter(and_(
-                gene.Genepanel.name == genepanel_name,
-                gene.Genepanel.version == genepanel_version)).one()
+                gene.Genepanel.name == gp_name,
+                gene.Genepanel.version == gp_version)).one()
         except sqlalchemy.orm.exc.NoResultFound:
             log.warning("Genepanel {} version {} not available in varDB".format(
-                genepanel_name, genepanel_version))
+                gp_name, gp_version))
             raise RuntimeError("Genepanel {} version {} not available in varDB".format(
-                genepanel_name, genepanel_version))
+                gp_name, gp_version))
         return genepanel
 
     def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None):
