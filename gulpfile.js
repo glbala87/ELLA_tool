@@ -18,7 +18,7 @@ var gulp = require('gulp'),
     templateCache = require('gulp-angular-templatecache'),
     os = require('os'),
     path = require('path'),
-    __basedir = 'src/webui/dev/';
+    __basedir = 'src/webui/build/';
 
 var production = !!util.env.production;
 

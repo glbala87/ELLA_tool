@@ -15,9 +15,7 @@ from cli.commands.database import drop_db, make_db
 
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-
-PROD_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/prod')
-DEV_STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/dev')
+STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/build')
 
 log = app.logger
 
@@ -47,31 +45,23 @@ def shutdown_session(exception=None):
     db.session.remove()
 
 
-def serve_static_factory(dev=False):
-    static_path = PROD_STATIC_FILE_DIR
-    if dev:
-        static_path = DEV_STATIC_FILE_DIR
+def serve_static(path=None):
+    if not path:
+        path = 'index.html'
 
-    def serve_static(path=None):
-        if not path:
-            path = 'index.html'
+    valid_files = [
+        'app.css',
+        'base.css',
+        'app.js',
+        'thirdparty.js',
+        'templates.js',
+        'fonts'
+    ]
 
-        valid_files = [
-            'app.css',
-            'base.css',
-            'app.js',
-            'thirdparty.js',
-            'templates.js',
-            'fonts'
-        ]
+    if not any(v == path or path.startswith(v) for v in valid_files):
+        path = 'index.html'
 
-        if not any(v == path or path.startswith(v) for v in valid_files):
-            path = 'index.html'
-
-        return send_from_directory(static_path,
-                                   path)
-
-    return serve_static
+    return send_from_directory(STATIC_FILE_DIR, path)
 
 
 # Only enabled on "DEVELOP=true"
@@ -86,9 +76,11 @@ def reset_testdata():
 
     return do_testdata_reset(test_set, blocking=blocking)
 
+
 def reset_testdata_from_cli():
     test_set = os.getenv('RESET_DB', 'small')
     do_testdata_reset(test_set)
+
 
 def do_testdata_reset(test_set, blocking=True):
     def worker():
@@ -111,6 +103,8 @@ api = Api(app)
 # Setup resources for v1
 ApiV1(app, api).setup_api()
 
+app.add_url_rule('/', 'index', serve_static)
+app.add_url_rule('/<path:path>', 'index_redirect', serve_static)
 
 # This is used by development - production will not trigger it
 if __name__ == '__main__':
@@ -127,11 +121,9 @@ if __name__ == '__main__':
     if is_dev:
         opts['use_reloader'] = True
         app.add_url_rule('/reset', 'reset', reset_testdata)
-
         os.environ['ANALYSES_PATH'] = '/ella/src/vardb/testdata/analyses/small/'
 
     if is_dev:
         print "!!!!!DEVELOPMENT MODE!!!!!"
-    app.add_url_rule('/', 'index', serve_static_factory(dev=is_dev))
-    app.add_url_rule('/<path:path>', 'index_redirect', serve_static_factory(dev=is_dev))
+
     app.run(**opts)
