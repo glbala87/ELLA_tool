@@ -147,15 +147,20 @@ class GenotypeImporter(object):
         a2 = None
         for i, record_sample in enumerate(records_sample):
             gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
+            is_unphased = "/" in record_sample["GT"]
 
             assert gt1 in ['0', '.', '1']
             assert gt2 in ['0', '.', '1']
 
             if gt1 == "1":
+                if is_unphased and a1 is not None:
+                    a1,a2 = a2,a1
                 assert a1 is None
                 a1 = db_alleles[i]
 
             if gt2 == "1":
+                if is_unphased and a2 is not None:
+                    a1,a2 = a2,a1
                 assert a2 is None
                 a2 = db_alleles[i]
 

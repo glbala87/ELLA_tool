@@ -70,7 +70,7 @@ class TestGenotypeImporter():
                 'DP': 12
             },
             'TEST_3': {
-                'GT': './1',
+                'GT': '0/1',
                 'GQ': 234.4,
                 'DP': 12
             }
@@ -86,7 +86,7 @@ class TestGenotypeImporter():
                 'DP': 12
             },
             'TEST_3': {
-                'GT': '1/.',
+                'GT': '0/1',
                 'GQ': 234.4,
                 'DP': 12
             }
@@ -178,8 +178,9 @@ class TestGenotypeImporter():
         ]
 
         result3 = genotype_importer.process(data3, 'TEST_3', db_analysis, db_sample, db_alleles)
-        assert result3.allele == db_alleles[1]
-        assert result3.secondallele == db_alleles[0]
+        assert len(db_alleles) == 2
+        assert result3.allele in db_alleles
+        assert result3.secondallele in db_alleles
         assert result3.homozygous is False
         assert result3.sample == db_sample
         assert result3.genotype_quality == 234.4
