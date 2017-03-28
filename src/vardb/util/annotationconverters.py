@@ -288,21 +288,30 @@ def indb_frequencies(annotation):
 
     frequencies = dict(freq=dict(), count=dict(), indications=dict())
     if "AF_OUSWES" in annotation["inDB"]:
-        frequencies["freq"]["AF"] = annotation["inDB"]["AF_OUSWES"][0]
+        if isinstance(annotation["inDB"]["AF_OUSWES"], (float, int)):
+            frequencies["freq"]["AF"] = annotation["inDB"]["AF_OUSWES"]
+        else:
+            frequencies["freq"]["AF"] = annotation["inDB"]["AF_OUSWES"][0]
     elif 'alleleFreq' in annotation["inDB"]:
         frequencies["freq"]["AF"] = annotation["inDB"]["alleleFreq"]
     else:
         log.warning("inDB key present, bug missing supported frequency key")
 
     if "AC_OUSWES" in annotation["inDB"]:
-        frequencies["count"]["AF"] = annotation["inDB"]["AC_OUSWES"][0]
+        if isinstance(annotation["inDB"]["AC_OUSWES"], (float, int)):
+            frequencies["count"]["AF"] = annotation["inDB"]["AC_OUSWES"]
+        else:
+            frequencies["count"]["AF"] = annotation["inDB"]["AC_OUSWES"][0]
     elif 'noMutInd' in annotation['inDB']:
         frequencies["count"]["AF"] = annotation["inDB"]["noMutInd"]
     else:
         log.warning("inDB key present, bug missing supported allele count key")
 
     if "indications_OUSWES" in annotation["inDB"]:
-        frequencies["indications"] = annotation['inDB']['indications_OUSWES'][0]
+        if isinstance(['indications_OUSWES'], (float, int)):
+            frequencies["indications"] = annotation['inDB']['indications_OUSWES']
+        else:
+            frequencies["indications"] = annotation['inDB']['indications_OUSWES'][0]
     elif 'indications' in annotation['inDB']:
         frequencies["indications"] = annotation['inDB']['indications']
     else:
