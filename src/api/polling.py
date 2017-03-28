@@ -1,7 +1,7 @@
 import datetime
 import json
 import logging
-import threading
+
 import time
 import urllib2
 from StringIO import StringIO
@@ -13,7 +13,6 @@ from vardb.datamodel import annotationjob
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
-from werkzeug.serving import is_running_from_reloader
 
 # Make StringIO objects work fine in with-statements
 StringIO.__exit__ = lambda *args: args[0]
@@ -208,9 +207,10 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
 
 
 def polling(session):
+    annotation_jobs = AnnotationJobsInterface(session)
+    annotation_service = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
+
     def loop(session):
-        annotation_jobs = AnnotationJobsInterface(session)
-        annotation_service = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
         while True:
             try:
                 session.connection()
@@ -242,9 +242,9 @@ def polling(session):
                 # Remove session to avoid a hanging session
                 session.remove()
                 time.sleep(5)
-            except OperationalError,e:
+            except OperationalError, e:
                 # Database is not alive
-                log.warning("Failed to poll annotation jobs (%s)" %e.message)
+                log.warning("Failed to poll annotation jobs (%s)" % e.message)
                 session.remove()
                 time.sleep(5)
                 continue
@@ -256,10 +256,14 @@ def polling(session):
         raise e
 
 
-def setup_polling(session):
-    if not is_running_from_reloader():
-        if session.bind.url.database != "vardb-test":
-            t = threading.Thread(target=polling, args=(session,))
-            t.setDaemon(True)
-            t.start()
-            log.info("Started polling thread")
+if __name__ == '__main__':
+
+    logging.basicConfig(level=logging.INFO)
+    from vardb.datamodel import DB
+
+    db = DB()
+    db.connect()
+
+    log.info("Starting polling worker")
+    log.info("Using annotation service at: {}".format(ANNOTATION_SERVICE_URL))
+    polling(db.session)
