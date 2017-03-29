@@ -36,7 +36,7 @@ class DepositAnalysisAppend(DepositFromVCF):
             for sample_name, db_sample in zip(vcf_sample_names, db_samples):
                 self.genotype_importer.process(v, sample_name, db_analysis, db_sample, db_alleles)
 
-    def import_vcf(self, path, analysis_name, gp_name, gp_version, cache_size=1000):
+    def import_vcf(self, path, analysis_name, gp_name, gp_version, cache_size=1000, sample_type="HTS"):
 
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
@@ -51,7 +51,7 @@ class DepositAnalysisAppend(DepositFromVCF):
             analysis_name,
             db_genepanel
         )
-        db_samples = self.sample_importer.get(vcf_sample_names, db_analysis)
+        db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type)
 
         self.analysis_interpretation_importer.process(db_analysis, reopen_if_exists=True)
         records_cache = OrderedDict()

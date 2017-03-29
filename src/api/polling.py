@@ -84,20 +84,23 @@ class AnnotationJobsInterface:
 
         if mode == "Analysis":
             type = job.properties["create_or_append"]
+            sample_type = job.properties["sample_type"]
             if type == "Create":
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysis(self.session)
                 deposit.import_vcf(fd,
                                    ".".join([analysis_name, genepanel]),
                                    gp_name,
-                                   gp_version)
+                                   gp_version,
+                                   sample_type=sample_type)
             else:
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysisAppend(self.session)
                 deposit.import_vcf(fd,
                                    analysis_name,
                                    gp_name,
-                                   gp_version)
+                                   gp_version,
+                                   sample_type=sample_type)
         elif mode == "Variants":
             deposit = DepositAlleles(self.session)
             deposit.import_vcf(fd,
