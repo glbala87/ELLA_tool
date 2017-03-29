@@ -1,39 +1,33 @@
 <contentbox title="Quality">
   <cbbody>
-
-    <!-- <div class="tabular-row">
-      <div class="cell"><h5>Verify:</h5></div>
-      <div class="cell"><p>{{vm.getVerificationText()}}</p></div>
-    </div> -->
-  <div class="cb-table">
-    <div class="tabular-row">
-      <div class="cell"><h5>Filter:</h5></div>
-      <div class="cell"><p>{{vm.getGenotypeForSample().filter_status}}</p></div>
+    <div ng-repeat="sample in vm.allele.samples" ng-if="sample.sample_type == 'HTS'">
+      <h4>{{sample.identifier}}</h4>
+      <div class="cb-table">
+        <div class="tabular-row">
+          <div class="cell"><h5>Filter:</h5></div>
+          <div class="cell"><p>{{sample.genotype.filter_status}}</p></div>
+        </div>
+        <div class="tabular-row">
+          <div class="cell"><h5>Quality:</h5></div>
+          <div class="cell"><p>{{sample.genotype.variant_quality}}</p></div>
+        </div>
+        <div class="tabular-row">
+          <div class="cell"><h5>GQ:</h5></div>
+          <div class="cell"><p>{{sample.genotype.genotype_quality}}</p></div>
+        </div>
+        <div class="tabular-row">
+          <div class="cell"><h5>DP:</h5></div>
+          <div class="cell"><p>{{sample.genotype.sequencing_depth}}</p></div>
+        </div>
+        <div class="tabular-row">
+          <div class="cell"><h5>AD:</h5></div>
+          <div class="cell"></div>
+        </div>
+        <div class="tabular-row" ng-repeat="(k, v) in sample.genotype.allele_depth">
+          <div class="cell"><p> - {{k}}:</p></div>
+          <div class="cell"><p>{{v}}</p></div>
+        </div>
+      </div>
     </div>
-    <div class="tabular-row">
-      <div class="cell"><h5>Quality:</h5></div>
-      <div class="cell"><p>{{vm.getGenotypeForSample().variant_quality}}</p></div>
-    </div>
-    <div class="tabular-row">
-      <div class="cell"><h5>GQ:</h5></div>
-      <div class="cell"><p>{{vm.getGenotypeForSample().genotype_quality}}</p></div>
-    </div>
-    <div class="tabular-row">
-      <div class="cell"><h5>DP:</h5></div>
-      <div class="cell"><p>{{vm.getGenotypeForSample().sequencing_depth}}</p></div>
-    </div>
-    <div class="tabular-row">
-      <div class="cell"><h5>AD:</h5></div>
-      <div class="cell"></div>
-    </div>
-    <div class="tabular-row" ng-repeat="(k, v) in vm.getGenotypeForSample().allele_depth">
-      <div class="cell"><p> - {{k}}:</p></div>
-      <div class="cell"><p>{{v}}</p></div>
-    </div>
-  </div>
-
-
   </cbbody>
 </contentbox>
-
-

@@ -1,16 +1,6 @@
 from marshmallow import fields, Schema
 
-from api.schemas import analysisinterpretations
-
-
-class SampleSchema(Schema):
-    class Meta:
-        title = "Sample"
-        description = 'Represents one sample. There can be many samples per analysis.'
-        fields = ('id',
-                  'identifier',
-                  'sample_type',
-                  'deposit_date')
+from api.schemas import analysisinterpretations, samples
 
 
 class UserSchema(Schema):
@@ -43,6 +33,6 @@ class AnalysisSchema(Schema):
                   'genepanel',
                   'samples')
 
-    samples = fields.Nested(SampleSchema, many=True)
+    samples = fields.Nested(samples.SampleSchema, many=True)
     genepanel = fields.Nested(GenepanelSchema)
     interpretations = fields.Nested(analysisinterpretations.AnalysisInterpretationOverviewSchema, many=True)

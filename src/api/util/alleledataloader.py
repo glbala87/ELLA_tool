@@ -3,7 +3,7 @@ from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
 from sqlalchemy import or_
 
-from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema
+from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
 from api.util.annotationprocessor import AnnotationProcessor
 
 
@@ -14,6 +14,7 @@ KEY_ALLELE_REPORT = 'allele_report'
 KEY_CUSTOM_ANNOTATION = 'custom_annotation'
 KEY_ANNOTATION = 'annotation'
 KEY_GENOTYPE = 'genotype'
+KEY_SAMPLES = 'samples'
 KEY_ALLELE = 'allele'
 
 KEY_ANNOTATIONS = 'annotations'
@@ -75,6 +76,7 @@ class AlleleDataLoader(object):
 
         allele_schema = AlleleSchema()
         genotype_schema = GenotypeSchema()
+        sample_schema = SampleSchema()
         accumulated_allele_data = dict()
         for idx, al in enumerate(alleles):
             accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
@@ -82,7 +84,12 @@ class AlleleDataLoader(object):
         allele_ids = accumulated_allele_data.keys()
 
         if include_genotype_samples:
+            samples = self.session.query(sample.Sample).filter(
+                sample.Sample.id.in_(include_genotype_samples)
+            ).all()
             for sample_id in include_genotype_samples:
+                sample_obj = next(s for s in samples if s.id == sample_id)
+
                 genotypes = self.session.query(genotype.Genotype).join(sample.Sample).filter(
                     sample.Sample.id == sample_id,
                     or_(
@@ -91,15 +98,17 @@ class AlleleDataLoader(object):
                     )
                 ).all()
 
-                # Add genotype into 'genotypes': { '{sample_id}': {..data..} }
+                # Add genotype into ['samples'][n]['genotype']
                 if genotypes:
                     for gt in genotypes:
                         for attr in ['allele_id', 'secondallele_id']:
                             allele_id = getattr(gt, attr)
                             if allele_id is not None:
-                                if KEY_GENOTYPE not in accumulated_allele_data[allele_id]:
-                                    accumulated_allele_data[allele_id][KEY_GENOTYPE] = dict()
-                                accumulated_allele_data[allele_id][KEY_GENOTYPE][str(sample_id)] = genotype_schema.dump(gt).data
+                                if KEY_SAMPLES not in accumulated_allele_data[allele_id]:
+                                    accumulated_allele_data[allele_id][KEY_SAMPLES] = list()
+                                sample_serialized = sample_schema.dump(sample_obj).data  # We need to recreate here, we cannot reuse sample object
+                                sample_serialized[KEY_GENOTYPE] = genotype_schema.dump(gt).data
+                                accumulated_allele_data[allele_id][KEY_SAMPLES].append(sample_serialized)
 
         allele_annotations = list()
         if include_annotation:
@@ -145,7 +154,7 @@ class AlleleDataLoader(object):
         final_alleles = list()
         for allele_id, data in accumulated_allele_data.iteritems():
             final_allele = data[KEY_ALLELE]
-            for key in [KEY_GENOTYPE, KEY_ALLELE_ASSESSMENT, KEY_REFERENCE_ASSESSMENTS, KEY_ALLELE_REPORT]:
+            for key in [KEY_SAMPLES, KEY_ALLELE_ASSESSMENT, KEY_REFERENCE_ASSESSMENTS, KEY_ALLELE_REPORT]:
                 if key in data:
                     final_allele[key] = data[key]
 

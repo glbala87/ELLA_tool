@@ -1,4 +1,5 @@
 from analyses import AnalysisSchema
+from samples import SampleSchema
 from analysisinterpretations import AnalysisInterpretationSchema, AnalysisInterpretationOverviewSchema
 from alleles import AlleleSchema
 from alleleinterpretations import AlleleInterpretationSchema, AlleleInterpretationOverviewSchema
