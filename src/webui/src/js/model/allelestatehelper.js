@@ -4,37 +4,40 @@ import {deepCopy} from '../util';
 
 export class AlleleStateHelper {
 
-    /**
-     * Helper class for working with alleleState objects
-     * (alleleState objects are part of the interpretation's state,
-     * describing the state for one allele).
-    */
+    static checkAlleleStateModel(allele_state) {
+        // We need to check every key for itself, as we can have older, partial models as input
 
-    static setupAlleleState(allele, allele_state) {
-        // If not existing, return the object from the state, or create empty one
         if (!('alleleassessment' in allele_state)) {
-            allele_state.alleleassessment = {
-                reuse: false,
-                evaluation: {
-                    prediction: {
-                        comment: ''
-                    },
-                    classification: {
-                        comment: ''
-                    },
-                    external: {
-                        comment: ''
-                    },
-                    frequency: {
-                        comment: ''
-                    },
-                    acmg: {
-                        included: [],
-                        suggested: []
-                    }
-                },
-                classification: null
-            };
+            allele_state.alleleassessment = {}
+        }
+
+        let alleleassesment = allele_state.alleleassessment;
+        if (!('reuse' in alleleassesment)) {
+            alleleassesment.reuse = false;
+        }
+
+        if (!('classification' in alleleassesment)) {
+            alleleassesment.classification = null;
+        }
+
+        if (!('evaluation' in alleleassesment)) {
+            alleleassesment.evaluation = {};
+        }
+
+        let evaluation = alleleassesment.evaluation;
+        for (let key of ['prediction', 'classification', 'external', 'frequency']) {
+            if (!(key in evaluation)) {
+                evaluation[key] = {
+                    comment: ''
+                };
+            }
+        }
+
+        if (!('acmg' in evaluation)) {
+            evaluation.acmg = {
+                included: [],
+                suggested: []
+            }
         }
 
         if (!('referenceassessments' in allele_state)) {
@@ -48,7 +51,18 @@ export class AlleleStateHelper {
                 }
             };
         }
+    }
 
+    /**
+     * Helper class for working with alleleState objects
+     * (alleleState objects are part of the interpretation's state,
+     * describing the state for one allele).
+    */
+
+    static setupAlleleState(allele, allele_state) {
+        // If not existing, return the object from the state, or create empty one
+
+        this.checkAlleleStateModel(allele_state);
         if (allele.allele_assessment) {
             allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
         }
@@ -270,6 +284,9 @@ export class AlleleStateHelper {
             allele_state.alleleassessment.evaluation = deepCopy(allele.allele_assessment.evaluation);
             allele_state.alleleassessment.classification = allele.allele_assessment.classification;
             allele_state.alleleAssessmentCopiedFromId = allele.allele_assessment.id;
+            // The copied alleleassessment can have an older model that is lacking fields.
+            // We need to check the model and add any missing fields to make it up to date.
+            this.checkAlleleStateModel(allele_state);
         }
     }
 
