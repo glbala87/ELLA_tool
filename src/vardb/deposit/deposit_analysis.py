@@ -39,7 +39,7 @@ class DepositAnalysis(DepositFromVCF):
             for sample_name, db_sample in zip(vcf_sample_names, db_samples):
                 self.genotype_importer.process(v, sample_name, db_analysis, db_sample, db_alleles)
 
-    def import_vcf(self, path, analysis_name, gp_name, gp_version, cache_size=1000):
+    def import_vcf(self, path, analysis_name, gp_name, gp_version, cache_size=1000, sample_type="HTS"):
 
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
@@ -51,7 +51,7 @@ class DepositAnalysis(DepositFromVCF):
 
         db_genepanel = self.get_genepanel(gp_name, gp_version)
         db_analysis = self.analysis_importer.process(analysis_name, db_genepanel)
-        db_samples = self.sample_importer.process(vcf_sample_names, db_analysis)
+        db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type)
 
         if not db_samples or len(db_samples) != len(vcf_sample_names):
             raise RuntimeError("Couldn't import samples to database.")
