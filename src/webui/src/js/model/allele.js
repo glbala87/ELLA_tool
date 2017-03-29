@@ -28,7 +28,6 @@ export class Allele {
         return Array.from(new Set(ids));
     }
 
-
     toString() {
         let hgvs = '';
         for (let t of this.annotation.filtered) {
