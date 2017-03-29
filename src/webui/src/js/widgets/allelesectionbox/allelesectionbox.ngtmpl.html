@@ -32,6 +32,7 @@
                 popover-trigger="outsideClick"
                 popover-placement="left"
                 ng-if="!vm.readOnly && control == 'add_acmg'"
+                ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                 >Add ACMG
           </button>
 
@@ -132,7 +133,7 @@
     <!-- Included ACMG codes -->
     <!-- Don't use 'track by $index' -->
     <div class="id-acmg-included" ng-if="vm.section.options.show_included_acmg_codes">
-        <h4 class="section-title acmg-body">ACMG <span ng-if="!vm.readOnly">(SUGGESTED CLASS: <span class="suggested-class">{{vm.getSuggestedClassification()}}</span>)</span></h4>
+        <h4 class="section-title acmg-body">ACMG <span ng-if="!vm.readOnly && !vm.isAlleleAssessmentReused()">(SUGGESTED CLASS: <span class="suggested-class">{{vm.getSuggestedClassification()}}</span>)</span></h4>
         <section class="acmg-wrapper included">
           <acmg directreqs="true"
                 code="code"
