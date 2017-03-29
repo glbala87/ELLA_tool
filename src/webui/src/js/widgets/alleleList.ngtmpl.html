@@ -14,7 +14,7 @@
   <div class="allele-genepanel">{{item.genepanel.name}}_{{item.genepanel.version}}</div>
 
   <div class="allele-extras">
-    <span class="id-allele-comment" ng-if="!vm.isalleleDone(allele) && vm.getReviewComment(item)">{{vm.getReviewComment(item)}}</span>
+    <span class="analysis-comment id-allele-comment" ng-if="!vm.isalleleDone(allele) && vm.getReviewComment(item)">{{vm.getReviewComment(item)}}</span>
   </div>
 
   <div class="allele-users">

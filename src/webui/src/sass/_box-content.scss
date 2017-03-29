@@ -103,12 +103,14 @@ div.existing-classification-comments .tabular-row:last-child .wysiwygeditor {
 
 .allele-list { display: flex; flex-direction: column;
 
-  .list-item { display: flex; margin-bottom: 1.2rem; font-size: 1.4rem;
+  .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem;
     .analysis-date { color: $black-50; }
     .full-title { flex-grow: 1; padding-left: 1.2rem; }
     .allele-priority { color: $red-75; padding-left: 1.3rem; text-transform: uppercase; }
     .allele-users { padding-right: 2.0rem; }
     .allele-genepanel { padding-right: 2.0rem; }
-    .allele-extras { padding-right: 1rem; }
+    .allele-extras { padding-right: 1rem;
+      .analysis-comment { background-color: $green-25; padding: 0.3rem; }
+    }
   }
 }
