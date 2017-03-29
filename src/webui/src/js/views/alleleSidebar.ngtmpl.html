@@ -5,8 +5,14 @@
   <section class="id-unclassified enabled">
     <div class="nav-table">
       <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj)}" ng-repeat="allele_obj in vm.alleles.unclassified track by allele_obj.allele.id" ng-click="vm.select(allele_obj)">
+        <div class="cell sample-type id-sample-type">
+          {{vm.getSampleType(allele_obj.allele)}}
+        </div>
+        <div class="cell inheritance id-inheritance">
+          {{vm.getInheritance(allele_obj.allele)}}
+        </div>
         <div class="cell gene id-gene">
-          {{vm.getInheritance(allele_obj.allele)}} {{allele_obj.allele.annotation.filtered[0].symbol}}
+          {{allele_obj.allele.annotation.filtered[0].symbol}}
         </div>
         <div class="cell hgvsc id-hgvsc">
           {{allele_obj.allele.annotation.filtered[0].HGVSc_short}}
@@ -29,8 +35,14 @@
            ng-class="{'active': vm.isSelected(allele_obj) || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj)}"
            ng-repeat="allele_obj in vm.alleles.classified track by allele_obj.allele.id"
            ng-click="vm.select(allele_obj)">
+        <div class="cell sample-type id-sample-type">
+          {{vm.getSampleType(allele_obj.allele)}}
+        </div>
+        <div class="cell inheritance id-inheritance">
+          {{vm.getInheritance(allele_obj.allele)}}
+        </div>
         <div class="cell gene id-gene">
-          {{vm.getInheritance(allele_obj.allele)}} {{allele_obj.allele.annotation.filtered[0].symbol}}
+          {{allele_obj.allele.annotation.filtered[0].symbol}}
         </div>
         <div class="cell hgvsc id-hgvsc">
           {{allele_obj.allele.annotation.filtered[0].HGVSc_short}}

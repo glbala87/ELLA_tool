@@ -44,7 +44,6 @@ export class ReportCardController {
     }
 
     getAlleleReportComment(allele) {
-        console.log(this.sce.trustAsHtml(this.getAlleleReport(allele).evaluation.comment));
         return this.sce.trustAsHtml(this.getAlleleReport(allele).evaluation.comment);
     }
 
@@ -65,7 +64,7 @@ export class ReportCardController {
         for (let t of allele.annotation.filtered) {
             hgvs += `${t.transcript}(${t.symbol}):`;
             let part = t.HGVSc_short.split("c.", 2)[1]; // remove 'c.'
-            if (allele.genotype.homozygous) {
+            if (allele.samples[0].genotype.homozygous) {
                 hgvs += `c.[${part}];[(${part})]`; // c.[76A>C];[(76A>C)]
             }
             else {

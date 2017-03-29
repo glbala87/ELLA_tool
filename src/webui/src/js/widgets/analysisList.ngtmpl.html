@@ -3,11 +3,14 @@
    href="/analyses/{{analysis.id}}"
    ng-repeat="analysis in vm.sorted_analyses track by analysis.name">
 
-  <div class="analysis-date">{{analysis.deposit_date | date:"dd-MM-yyyy"}}</div>
+  <div class="analysis-date">{{analysis.deposit_date | date:"yyyy-MM-dd"}}</div>
   <div class="analysis-priority">{{vm.getPriorityText(analysis)}}</div>
-  <h3 class="id-analysis-name full-title ref-title"><b>{{analysis.name}}</b></h3>
+  <div class="id-analysis-name full-title">
+    <b class="ref-title">{{analysis.name}}</b>
+    <span class="sample-type id-sample-type" ng-repeat="sample in analysis.samples">{{sample.sample_type.toUpperCase()}}</span>
+  </div>
   <div class="analysis-extras">
-    <span class="id-analysis-comment"
+    <span class="analysis-comment id-analysis-comment"
           ng-if="!vm.isAnalysisDone(analysis) && vm.getReviewComment(analysis)">
       {{vm.getReviewComment(analysis)}}
     </span>

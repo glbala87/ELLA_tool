@@ -28,7 +28,6 @@ export class Allele {
         return Array.from(new Set(ids));
     }
 
-
     toString() {
         let hgvs = '';
         for (let t of this.annotation.filtered) {
@@ -90,6 +89,29 @@ export class Allele {
         else {
             return this.acmg.codes;
         }
+    }
+
+    /**
+     * Returns formatted genotype string for allele.
+     * If no sample data is present, an empty string is returned.
+     *
+     * Otherwise:
+     *  - If single sample, return genotype directly: 'A/G'
+     *  - If multiple samples, put sample type letter in front: 'S: A/G, H: A/A'
+     */
+    formatGenotype() {
+        if ('samples' in this) {
+            if (this.samples.length > 1) {
+                // If multiple, return 'S: A/T, H: A/G'
+                return this.samples.map(s => {
+                    return s.sample_type.substring(0, 1).toUpperCase() + ': ' + s.genotype.genotype
+                }).join(', ');
+            }
+            else {
+                return this.samples[0].genotype.genotype;
+            }
+        }
+        return '';
     }
 
     /**
