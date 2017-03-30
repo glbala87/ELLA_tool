@@ -54,7 +54,8 @@ class DepositAnalysis(DepositFromVCF):
         db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type)
 
         if not db_samples or len(db_samples) != len(vcf_sample_names):
-            raise RuntimeError("Couldn't import samples to database.")
+            self.session.rollback()
+            raise RuntimeError("Couldn't import samples to database. (db_samples: %s, vcf_sample_names: %s)" %(str(db_samples), str(vcf_sample_names)))
 
         self.analysis_interpretation_importer.process(db_analysis)
         records_cache = OrderedDict()
