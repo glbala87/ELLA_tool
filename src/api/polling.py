@@ -242,7 +242,7 @@ def polling(session):
                 annotation_jobs.commit()
 
                 # Process annotated
-                annotated_jobs = annotation_jobs.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
+                annotated_jobs = annotation_jobs.get_with_status("ANNOTATED")
                 for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
                     annotation_jobs.patch(id, **update)
                     log.info("Processed annotated job {} with data {}".format(id, str(update)))
