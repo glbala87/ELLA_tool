@@ -88,7 +88,7 @@ class AlleleDataLoader(object):
                 sample.Sample.id.in_(include_genotype_samples)
             ).all()
             for sample_id in include_genotype_samples:
-                sample_obj = next(s for s in samples if s.id == sample_id)
+                sample_obj = next(s for s in samples if s.id == int(sample_id))
 
                 genotypes = self.session.query(genotype.Genotype).join(sample.Sample).filter(
                     sample.Sample.id == sample_id,
