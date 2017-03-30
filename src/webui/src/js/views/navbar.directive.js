@@ -6,15 +6,16 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'navbar',
     templateUrl: 'ngtmpl/navbar.ngtmpl.html'
 })
-@Inject('Navbar', 'User', '$location')
+@Inject('Navbar', 'User', 'Config', '$location')
 export class NavbarController {
 
-    constructor(Navbar, User, $location) {
+    constructor(Navbar, User, Config, $location) {
         this.navbarService = Navbar;
         this.user = {};
         User.getCurrentUser().then(user => {
             this.user = user;
         });
+        this.config = Config.getConfig();
         this.location = $location;
     }
 

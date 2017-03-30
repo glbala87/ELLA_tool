@@ -22,3 +22,8 @@
     <allelebar ng-if="vm.hasAllele()" allele="vm.getAllele()" genepanel="vm.getGenepanel()"></allelebar>
   </section>
 </nav>
+
+<!--Test/demo/staging warning-->
+<div class="non-production-warning" ng-if="vm.config.app.non_production_warning">
+  {{vm.config.app.non_production_warning}}
+</div>
