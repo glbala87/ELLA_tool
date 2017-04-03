@@ -15,7 +15,7 @@ from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
 
 # Make StringIO objects work fine in with-statements
-StringIO.__exit__ = lambda *args: args[0]
+StringIO.__exit__ = lambda *args: False
 StringIO.__enter__ = lambda *args: args[0]
 
 log = logging.getLogger(__name__)
@@ -101,11 +101,14 @@ class AnnotationJobsInterface:
                                    gp_name,
                                    gp_version,
                                    sample_type=sample_type)
-        elif mode == "Variants":
+        elif mode in ["Variants", "Single variant"]:
             deposit = DepositAlleles(self.session)
             deposit.import_vcf(fd,
                                gp_name,
                                gp_version)
+        else:
+            raise RuntimeError("Unknown mode: %s" %mode)
+
 
     def delete(self, job):
         self.session.delete(job)
@@ -228,18 +231,21 @@ def polling(session):
                 running_jobs = annotation_jobs.get_with_status("RUNNING")
                 for id, update in process_running(annotation_service, running_jobs):
                     annotation_jobs.patch(id, **update)
+                    log.info("Processed running job {} with data {}".format(id, str(update)))
                 annotation_jobs.commit()
 
                 # Process submitted
                 submitted_jobs = annotation_jobs.get_with_status("SUBMITTED")
                 for id, update in process_submitted(annotation_service, submitted_jobs):
                     annotation_jobs.patch(id, **update)
+                    log.info("Processed submitted job {} with data {}".format(id, str(update)))
                 annotation_jobs.commit()
 
                 # Process annotated
-                annotated_jobs = annotation_jobs.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
+                annotated_jobs = annotation_jobs.get_with_status("ANNOTATED")
                 for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
                     annotation_jobs.patch(id, **update)
+                    log.info("Processed annotated job {} with data {}".format(id, str(update)))
                 annotation_jobs.commit()
 
                 # Remove session to avoid a hanging session
