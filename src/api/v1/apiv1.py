@@ -182,3 +182,8 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.analysis.AnalysisCollisionResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/collisions/')
+
+        self._add_resource(r.user.LoginResource,
+                            '/api/v1/users/<username>/<password>',
+                            '/api/v1/users/<username>/<password>/<new_password>'
+                           )

@@ -2,31 +2,49 @@
     {
         "username": "testuser1",
         "first_name": "Henrik",
-        "last_name": "Ibsen"
+        "last_name": "Ibsen",
+        "password_salt": "$2b$12$SCdM4aUZmdmsg3BATgkt3O",
+        "password": "$2b$12$SCdM4aUZmdmsg3BATgkt3OLUb679uHmu0Qok/Z7s1TMqO0Nuhy4Cy",
+        "password_expiry": "2027-03-30 15:03:01.396863"
     },
     {
         "username": "testuser2",
         "first_name": "Bjørnstjerne",
-        "last_name": "Bjørnson"
+        "last_name": "Bjørnson",
+        "password_salt": "$2b$12$RydyzgreUptQruxEQ.DmSu",
+        "password": "$2b$12$RydyzgreUptQruxEQ.DmSuk/7TJ2/UxjGGhvw59K9Azr7wNM2c5KK",
+        "password_expiry": "2027-03-30 15:03:01.396863"
     },
     {
         "username": "testuser3",
         "first_name": "Camilla",
-        "last_name": "Collett"
+        "last_name": "Collett",
+        "password_salt": "$2b$12$nr5YwDAPACGw8gqSDoAIFe",
+        "password": "$2b$12$nr5YwDAPACGw8gqSDoAIFeQd79Rz7d4Fw0yTwPr9uexFILx3ycFda",
+        "password_expiry": "2027-03-30 15:03:01.396863"
     },
     {
         "username": "testuser4",
         "first_name": "Alexander",
-        "last_name": "Kielland"
+        "last_name": "Kielland",
+        "password_salt": "$2b$12$BEtYwhjMn3KB7ReSwCr6G.",
+        "password": "$2b$12$BEtYwhjMn3KB7ReSwCr6G.SMo5fketlja69RCs.NC.6rHl4CAlOpq",
+        "password_expiry": "2027-03-30 15:03:01.396863"
     },
     {
         "username": "testuser5",
         "first_name": "Jonas",
-        "last_name": "Lie"
+        "last_name": "Lie",
+        "password_salt": "$2b$12$Mwc6tA7r/ogw2YWJ5sB1sO",
+        "password": "$2b$12$Mwc6tA7r/ogw2YWJ5sB1sOZr6bcJH/c9HD/i7jeV8bYLiSh8gTI5S",
+        "password_expiry": "2027-03-30 15:03:01.396863"
     },
     {
         "username": "testuser6",
         "first_name": "Henrik",
-        "last_name": "Wergeland"
+        "last_name": "Wergeland",
+        "password_salt": "$2b$12$GJ30AFP8.6LlcyLn3Z7BmO",
+        "password": "$2b$12$GJ30AFP8.6LlcyLn3Z7BmOwzxVDBXuKUhLAsw7F60T4q03/.yWDtS",
+        "password_expiry": "2027-03-30 15:03:01.396863"
     }
 ]
