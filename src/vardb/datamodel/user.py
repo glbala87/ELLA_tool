@@ -14,17 +14,17 @@ class User(Base):
     first_name = Column(String(), nullable=False)
     last_name = Column(String(), nullable=False)
     password = Column(String(), nullable=False)
-    password_salt = Column(String(), nullable=False)
     password_expiry = Column(DateTime, nullable=False)
 
 
-class Session(Base):
+class UserSession(Base):
     """Represents a user session"""
-    __tablename__ = "session"
+    __tablename__ = "usersession"
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"))
     token = Column(String(), nullable=False, unique=True)
-    valid = Column(Boolean, default=True, nullable=False)
-    issuedate = Column(DateTime, default=datetime.datetime.now, nullable=False)
-    logoutdate = Column(DateTime)
+    issued = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    lastactivity = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    expired = Column(DateTime)
+

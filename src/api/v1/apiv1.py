@@ -184,6 +184,7 @@ class ApiV1(object):
                            '/api/v1/workflows/analyses/<int:analysis_id>/collisions/')
 
         self._add_resource(r.user.LoginResource,
-                            '/api/v1/users/<username>/<password>',
-                            '/api/v1/users/<username>/<password>/<new_password>'
-                           )
+                            '/api/v1/users/actions/login')
+
+        self._add_resource(r.user.ChangePasswordResource,
+                           '/api/v1/users/actions/changepassword')
