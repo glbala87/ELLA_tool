@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import re
 import copy
 
 from api import config
-from genepanelprocessor import GenepanelCutoffsAnnotationProcessor
 
 
 class TranscriptAnnotation(object):
@@ -97,49 +95,6 @@ class TranscriptAnnotation(object):
         return result
 
 
-class FrequencyAnnotation(object):
-
-    def __init__(self, config, genepanel=None):
-        self.config = config
-        self.genepanel = genepanel
-
-    def process(self, annotation, symbols=None, genepanel=None):
-        """
-        :param annotation:
-        :param symbol: the gene symbol
-        :param genepanel:
-        :type genepanel: vardb.datamodel.gene.Genepanel
-        :return:
-        """
-        processor = GenepanelCutoffsAnnotationProcessor(self.config, genepanel)
-        frequencies = annotation['frequencies']
-        frequencies.update(processor.cutoff_frequencies(frequencies, symbols))
-
-        return {'frequencies': frequencies}
-
-
-def find_symbols(annotation):
-    transcripts = annotation.get('transcripts', None)
-    filtered_transcripts = annotation.get('filtered_transcripts', None)
-
-    # filtered contains only the refSeq ID, must find full transcript:
-    found = None
-    if filtered_transcripts:
-        look_for = filtered_transcripts[0]
-        found = filter(lambda t: t['transcript'] == look_for, transcripts)
-
-    # prefer filtered transcripts:
-    if found:
-        symbols = [t['symbol'] for t in found if 'symbol' in t]
-    else:
-        symbols = [t['symbol'] for t in transcripts if 'symbol' in t]
-
-    if symbols:
-        return sorted(list(set(symbols)))
-    else:
-        return None
-
-
 class AnnotationProcessor(object):
 
     @staticmethod
@@ -157,9 +112,6 @@ class AnnotationProcessor(object):
         data = copy.deepcopy(annotation)
         if 'transcripts' in data:
             data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
-        if 'transcripts' in data and 'frequencies' in data:
-            gene_symbols = find_symbols(data)
-            data.update(FrequencyAnnotation(config.config).process(annotation, symbols=gene_symbols, genepanel=genepanel))
 
         if custom_annotation:
             # Merge/overwrite data with custom_annotation
