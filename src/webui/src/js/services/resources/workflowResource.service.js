@@ -45,6 +45,10 @@ class WorkflowResource {
 
     getAlleles(type, id, interpretation_id, allele_ids, current_data=false) {
         return new Promise((resolve, reject) => {
+            if (!allele_ids.length) {
+                resolve([]);
+                return;
+            }
             var AnalysisRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/interpretations/${interpretation_id}/alleles/`,
                 {
                     allele_ids: allele_ids.join(','),
