@@ -311,7 +311,7 @@ class AlleleFilter(object):
             gp_filter[gp_key] = or_(*gp_final_filter)
         return gp_filter
 
-    def get_commonness_groups(self, gp_allele_ids, allele_filter_tbl=None):
+    def get_commonness_groups(self, gp_allele_ids, common_only=False, allele_filter_tbl=None):
         """
         Categorizes allele ids according to their annotation frequency
         and the thresholds in the genepanel configuration.
@@ -324,6 +324,7 @@ class AlleleFilter(object):
         :note: Allele ids with no frequencies are not excluded from the results.
 
         :param gp_allele_ids: {('HBOC', 'v01'): [1, 2, 3, ...], ...}
+        :param common_only: Whether to only check for 'common' group. Use when you only need the common group, as it's faster.
         :returns: Structure with results for the three categories.
 
         Example for returned data:
@@ -361,11 +362,16 @@ class AlleleFilter(object):
         def low_freq_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
             return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
 
-        commonness_result = OrderedDict([  # Ordered to get final_result correct
+        commonness_entries = [
             ('common', dict()),
-            ('less_common', dict()),
-            ('low_freq', dict())
-        ])
+
+        ]
+        if not common_only:
+            commonness_entries += [
+                ('less_common', dict()),
+                ('low_freq', dict())
+            ]
+        commonness_result = OrderedDict(commonness_entries)  # Ordered to get final_result processing correct later
 
         threshold_funcs = {
             'common': common_threshold,
@@ -400,8 +406,10 @@ class AlleleFilter(object):
             for k, v in commonness_result.iteritems():
                 final_result[gp_key][k] = [aid for aid in v[gp_key] if aid not in added_thus_far]
                 added_thus_far.update(set(v[gp_key]))
-            # Add all not part of the groups to a 'null_freq' group
-            final_result[gp_key]['null_freq'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
+
+            if not common_only:
+                # Add all not part of the groups to a 'null_freq' group
+                final_result[gp_key]['null_freq'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
 
         if table_creator is not None:
             table_creator.drop()
@@ -570,7 +578,7 @@ class AlleleFilter(object):
             table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.config)
             allele_filter_tbl = table_creator.create()
 
-        commonness_result = self.get_commonness_groups(gp_allele_ids, allele_filter_tbl)
+        commonness_result = self.get_commonness_groups(gp_allele_ids, common_only=True, allele_filter_tbl=allele_filter_tbl)
         frequency_filtered = dict()
         for gp_key, commonness_group in commonness_result.iteritems():
             frequency_filtered[gp_key] = self.exclude_classification_allele_ids(commonness_group['common'])
