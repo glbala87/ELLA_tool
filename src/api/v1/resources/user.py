@@ -75,7 +75,7 @@ class UserResource(Resource):
 
 
 def password_correct(user, password):
-    return bcrypt.checkpw(str(password), str(user.password))
+    return bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))
 
 def password_expired(user):
     return user.password_expiry < datetime.datetime.now()
@@ -132,7 +132,7 @@ class LoginResource(Resource):
 
 class ChangePasswordResource(Resource):
     @request_json(["username", "password", "new_password"], only_required=True)
-    def post(self, session, data=None):
+    def post(self, session, override=False, data=None):
         username = data.get("username")
         password = data.get("password")
         new_password = data.get("new_password")
@@ -153,7 +153,7 @@ class ChangePasswordResource(Resource):
             new_salt = bcrypt.gensalt()
 
             # bcrypt
-            new_pwhash = bcrypt.hashpw(str(new_password), str(new_salt))
+            new_pwhash = bcrypt.hashpw(new_password.encode('utf-8'), new_salt.encode('utf-8'))
 
             # Set expiry date
             expiry_date = datetime.datetime.now() + datetime.timedelta(days=config["users"]["password_expiry_days"])
