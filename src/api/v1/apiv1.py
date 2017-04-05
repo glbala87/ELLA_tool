@@ -188,3 +188,6 @@ class ApiV1(object):
 
         self._add_resource(r.user.ChangePasswordResource,
                            '/api/v1/users/actions/changepassword')
+
+        self._add_resource(r.user.CurrentUser,
+                           '/api/v1/users/currentuser')

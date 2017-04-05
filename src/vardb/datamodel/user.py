@@ -1,6 +1,6 @@
 import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
-
+from sqlalchemy.orm import relationship
 
 from vardb.datamodel import Base
 
@@ -23,6 +23,7 @@ class UserSession(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"))
+    user = relationship("User")
     token = Column(String(), nullable=False, unique=True)
     issued = Column(DateTime, default=datetime.datetime.now, nullable=False)
     lastactivity = Column(DateTime, default=datetime.datetime.now, nullable=False)

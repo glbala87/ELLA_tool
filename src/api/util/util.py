@@ -4,6 +4,7 @@ import datetime
 from flask import request, Response
 from api import db, ApiError
 from vardb.datamodel import user
+from sqlalchemy.orm import joinedload
 
 
 def query_print_table(sa_query):
@@ -214,28 +215,27 @@ def request_json(required, only_required=False, allowed=None):
 
 
 def authenticate(user_role=None, user_group=None):
-    def _isValidToken(session, token):
-        userSession = session.query(user.UserSession).filter(
-            user.UserSession.token == token
-        ).one_or_none()
-
-        if userSession is None:
-            return False
-
-        if userSession.expired is None:
-            userSession.lastactivity = datetime.datetime.now()
-            session.commit()
-            return True
-        else:
-            return False
-
-    def _userHasAccess(session, token, user_role=None, user_group=None):
-        if user_role is None and user_group is None:
-            return True
-        else:
-            return False  # TODO: Implement user roles and user groups
-
     def _authenticate(func):
+        def _isValidToken(session, token):
+            userSession = session.query(user.UserSession).options(joinedload("user")).filter(
+                user.UserSession.token == token).one_or_none()
+
+            if userSession is None:
+                return False, None
+
+            if userSession.expired is None:
+                userSession.lastactivity = datetime.datetime.now()
+                session.commit()
+                return True, userSession.user
+            else:
+                return False, None
+
+        def _userHasAccess(session, token, user_role=None, user_group=None):
+            if user_role is None and user_group is None:
+                return True
+            else:
+                return False  # TODO: Implement user roles and user groups
+
         @wraps(func)
         def inner(*args, **kwargs):
             session = args[1]
@@ -243,14 +243,21 @@ def authenticate(user_role=None, user_group=None):
                 return Response("Authentication required", 403, {'WWWAuthenticate': 'Basic realm="Login Required"'})
 
             token = request.cookies.get("AuthenticationToken")
-            if not _isValidToken(session, token):
+            valid, user = _isValidToken(session, token)
+            if not valid:
                 return Response("Token %s is invalid" % token, 403,
                                 {'WWWAuthenticate': 'Basic realm="Login Required"'})
             else:
-                if not _userHasAccess(session, token, user_role, user_group):
-                    return Response("User associated with token %s does not have access to this function (required user_role: %s, user_group: %s." % (token, user_role, user_group),
-                                    401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
+                # TODO: Setup user roles and groups
+                # user_role = None # user.role
+                # user_group = None # user.group
+                if not _userHasAccess(session, token, None, None):
+                    return Response(
+                        "User associated with token %s does not have access to this function (required user_role: %s, user_group: %s." % (
+                        token, user_role, user_group),
+                        401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
                 else:
+                    kwargs["user"] = user
                     return func(*args, **kwargs)
 
         return inner

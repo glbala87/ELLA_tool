@@ -4,11 +4,11 @@ import uuid
 from vardb.datamodel import user
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter, request_json
+from api.util.util import paginate, rest_filter, request_json, authenticate
 from api.config import config
 
 from api.v1.resource import Resource
-from flask import Response, make_response
+from flask import Response, make_response, redirect
 
 
 class UserListResource(Resource):
@@ -173,7 +173,10 @@ class ChangePasswordResource(Resource):
             return Response("Password for user %s changed. You can now log in." %username)
             #return schemas.UserSchema(strict=True).dump(u).data, 200
 
-
+class CurrentUser(Resource):
+    @authenticate()
+    def get(self, session, user=None):
+        return schemas.UserSchema().dump(user).data
 
 
 class LogoutResource(Resource):
