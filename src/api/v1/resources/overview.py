@@ -7,6 +7,7 @@ from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 from api import schemas, ApiError
 from api.v1.resource import Resource
 from api.util import queries
+from api.util.util import authenticate
 from api.util.allelefilter import AlleleFilter
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
@@ -114,8 +115,7 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
 
 
 class OverviewAlleleResource(Resource):
-
-    def get_alleles_no_alleleassessment(self, session):
+    def get_alleles_no_alleleassessment(self, session, user=None):
         """
         Returns a list of (allele + genepanel) that are missing alleleassessments.
 
@@ -160,7 +160,7 @@ class OverviewAlleleResource(Resource):
         # Load and return loaded allele data
         return load_genepanel_alleles(session, gp_allele_ids, filter_alleles=True)
 
-    def get_alleles_missing_interpretation(self, session):
+    def get_alleles_missing_interpretation(self, session, user=None):
         alleles_no_alleleassessment = self.get_alleles_no_alleleassessment(session)
 
         # Only include alleles that don't already have an AlleleInterpretation
@@ -171,7 +171,7 @@ class OverviewAlleleResource(Resource):
         allele_ids_has_interpretations = [a[0] for a in allele_ids_has_interpretations]
         return [a for a in alleles_no_alleleassessment if a['allele']['id'] not in allele_ids_has_interpretations]
 
-    def _get_genepanel_alleles_existing_alleleinterpretation(self, session, allele_filter):
+    def _get_genepanel_alleles_existing_alleleinterpretation(self, session, allele_filter, user=None):
         """
         Loads in allele data for given allele filter. Related genepanel
         for each allele is fetched from connected AlleleInterpretation.
@@ -224,7 +224,8 @@ class OverviewAlleleResource(Resource):
             allele.Allele.id.in_(queries.workflow_alleles_not_started(session))
         )
 
-    def get(self, session):
+    @authenticate()
+    def get(self, session, user=None):
         return {
             'missing_alleleassessment': self.get_alleles_missing_interpretation(session)+self.get_alleles_not_started(session),
             'marked_review': self.get_alleles_markedreview(session),
@@ -355,6 +356,7 @@ class OverviewAnalysisResource(Resource):
 
         return final_analyses
 
-    def get(self, session):
+    @authenticate()
+    def get(self, session, user=None):
 
         return self.get_categorized_analyses(session)

@@ -1,13 +1,15 @@
 from vardb.datamodel import gene
 
-from api.util.util import paginate, rest_filter
+from api.util.util import paginate, rest_filter, authenticate
 from api import schemas, ApiError
 from api.v1.resource import Resource
 
 class GenepanelListResource(Resource):
+
+    @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None):
+    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
         """
         Returns a list of genepanles.
 
@@ -34,7 +36,8 @@ class GenepanelListResource(Resource):
         return genepanels
 
 class GenepanelResource(Resource):
-    def get(self, session, name=None, version=None):
+    @authenticate()
+    def get(self, session, name=None, version=None, user=None):
         """
         Returns a single genepanel.
         ---

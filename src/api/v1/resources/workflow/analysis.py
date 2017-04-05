@@ -2,7 +2,7 @@ from flask import request
 
 from vardb.datamodel import sample, genotype, allele
 
-from api.util.util import request_json, ApiError
+from api.util.util import request_json, ApiError, authenticate
 from api.v1.resource import Resource
 
 from . import helpers
@@ -13,7 +13,8 @@ from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSc
 
 class AnalysisInterpretationAllelesListResource(Resource):
 
-    def get(self, session, analysis_id, interpretation_id):
+    @authenticate()
+    def get(self, session, analysis_id, interpretation_id, user=None):
         if not session.query(AnalysisInterpretation).filter(
             AnalysisInterpretation.id == interpretation_id,
             AnalysisInterpretation.analysis_id == analysis_id
@@ -33,7 +34,8 @@ class AnalysisInterpretationAllelesListResource(Resource):
 
 class AnalysisInterpretationResource(Resource):
 
-    def get(self, session, analysis_id, interpretation_id):
+    @authenticate()
+    def get(self, session, analysis_id, interpretation_id, user=None):
         """
         Returns analysisinterpretation for analysis.
         ---
@@ -84,6 +86,7 @@ class AnalysisInterpretationResource(Resource):
         """
         return helpers.get_interpretation(session, analysisinterpretation_id=interpretation_id)
 
+    @authenticate()
     @request_json(
         ['id'],
         allowed=[
@@ -92,7 +95,7 @@ class AnalysisInterpretationResource(Resource):
             'user_id'
         ]
     )
-    def patch(self, session, analysis_id, interpretation_id, data=None):
+    def patch(self, session, analysis_id, interpretation_id, data=None, user=None):
         """
         Updates the current interpretation inplace.
 
@@ -136,7 +139,8 @@ class AnalysisInterpretationResource(Resource):
 
 class AnalysisInterpretationListResource(Resource):
 
-    def get(self, session, analysis_id):
+    @authenticate()
+    def get(self, session, analysis_id, user=None):
         """
         Returns all interpretations for analysis.
         ---
@@ -163,8 +167,9 @@ class AnalysisInterpretationListResource(Resource):
 
 class AnalysisActionOverrideResource(Resource):
 
+    @authenticate()
     @request_json(['user_id'])
-    def post(self, session, analysis_id, data=None):
+    def post(self, session, analysis_id, data=None, user=None):
         """
         Lets an user take over an analysis, by replacing the
         analysis' current interpretation's user_id with the input user_id.
@@ -209,8 +214,9 @@ class AnalysisActionOverrideResource(Resource):
 
 class AnalysisActionStartResource(Resource):
 
+    @authenticate()
     @request_json(['user_id'])
-    def post(self, session, analysis_id, data=None):
+    def post(self, session, analysis_id, data=None, user=None):
         """
         Starts an analysisinterpretation.
 
@@ -254,6 +260,7 @@ class AnalysisActionStartResource(Resource):
 
 class AnalysisActionMarkReviewResource(Resource):
 
+    @authenticate()
     @request_json(
         [
             'alleleassessments',
@@ -262,7 +269,7 @@ class AnalysisActionMarkReviewResource(Resource):
             'allelereports'
         ]
     )
-    def post(self, session, analysis_id, data=None):
+    def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis for review.
 
@@ -308,7 +315,8 @@ class AnalysisActionMarkReviewResource(Resource):
 
 class AnalysisActionReopenResource(Resource):
 
-    def post(self, session, analysis_id):
+    @authenticate()
+    def post(self, session, analysis_id, user=None):
         """
         Reopens an analysis workflow that has previously been finalized.
 
@@ -355,6 +363,7 @@ class AnalysisActionReopenResource(Resource):
 
 class AnalysisActionFinalizeResource(Resource):
 
+    @authenticate()
     @request_json(
         [
             'alleleassessments',
@@ -362,7 +371,7 @@ class AnalysisActionFinalizeResource(Resource):
             'allelereports'
         ]
     )
-    def post(self, session, analysis_id, data=None):
+    def post(self, session, analysis_id, data=None, user=None):
         """
         Finalizes an analysis.
 
@@ -668,7 +677,8 @@ class AnalysisActionFinalizeResource(Resource):
 
         return result, 200
 
-    def get(self, session, analysis_id):
+    @authenticate()
+    def get(self, session, analysis_id, user=None):
         f = session.query(AnalysisInterpretationSnapshot).filter(
             Analysis.id == analysis_id
         ).join(AnalysisInterpretation, Analysis).all()
@@ -678,7 +688,8 @@ class AnalysisActionFinalizeResource(Resource):
 
 
 class AnalysisCollisionResource(Resource):
-    def get(self, session, analysis_id):
+    @authenticate()
+    def get(self, session, analysis_id, user_id=None):
         analysis_allele_ids = session.query(allele.Allele.id).join(
             genotype.Genotype.alleles,
             sample.Sample,

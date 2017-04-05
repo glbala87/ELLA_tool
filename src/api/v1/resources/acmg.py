@@ -4,14 +4,15 @@ from vardb.datamodel import allele, gene
 from api import ApiError
 
 from api.util.acmgdataloader import ACMGDataLoader
-from api.util.util import request_json
+from api.util.util import request_json, authenticate
 
 from api.v1.resource import Resource
 
 
 class ACMGAlleleResource(Resource):
 
-    def get_alleles(self, session, allele_ids):
+    @authenticate()
+    def get_alleles(self, session, allele_ids, user=None):
         """
 
         :param session:
@@ -26,7 +27,8 @@ class ACMGAlleleResource(Resource):
         else:
             return []
 
-    def get_genepanel(self, session, gp_name, gp_version):
+    @authenticate()
+    def get_genepanel(self, session, gp_name, gp_version, user=None):
         """
         Look up a genepanel
 
@@ -43,7 +45,7 @@ class ACMGAlleleResource(Resource):
             gene.Genepanel.version == gp_version
         ).one()
 
-
+    @authenticate()
     @request_json(
         None,
         allowed=[
@@ -54,7 +56,7 @@ class ACMGAlleleResource(Resource):
             'analysis_id'
         ]
     )
-    def post(self, session, data=None):
+    def post(self, session, data=None, user=None):
         """
         Returns calculated ACMG codes for provided alleles and related data.
 

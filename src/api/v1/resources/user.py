@@ -114,16 +114,21 @@ class LoginResource(Resource):
         username = data.get("username")
         password = data.get("password")
 
-        u = session.query(user.User).filter(user.User.username == username).one()
+        u = session.query(user.User).filter(user.User.username == username).one_or_none()
+        if u is None:
+            return Response("Invalid credentials", 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
 
         credentials_correct, message = _check_credentials(u, password)
         if not credentials_correct:
             return Response(message, 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
         else:
             token = _createSession(session, u.id).token
-            resp = make_response("Login successful")
+            #resp = make_response("Login successful")
+            resp = make_response(redirect("/"))
             resp.set_cookie("AuthenticationToken", token, httponly=True, expires=u.password_expiry)
             return resp
+            #print resp
+            #return redirect("/", Response=resp)
 
 class ChangePasswordResource(Resource):
     @request_json(["username", "password", "new_password"], only_required=True)
@@ -136,7 +141,9 @@ class ChangePasswordResource(Resource):
         print "\tUsername: ", username
         print "\tPassword: ", password
 
-        u = session.query(user.User).filter(user.User.username == username).one()
+        u = session.query(user.User).filter(user.User.username == username).one_or_none()
+        if u is None:
+            return Response("Invalid credentials", 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
 
         credentials_correct, message = _check_credentials(u, password)
         if not credentials_correct:

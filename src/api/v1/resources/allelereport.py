@@ -1,14 +1,15 @@
 from vardb.datamodel import assessment
 
 from api import schemas
-from api.util.util import paginate, rest_filter, request_json
+from api.util.util import paginate, rest_filter, request_json, authenticate
 from api.v1.resource import Resource
 from api.util.allelereportcreator import AlleleReportCreator
 
 
 class AlleleReportResource(Resource):
 
-    def get(self, session, ar_id=None):
+    @authenticate()
+    def get(self, session, ar_id=None, user=None):
         """
         Returns a single allelereport.
         ---
@@ -35,9 +36,10 @@ class AlleleReportResource(Resource):
 
 class AlleleReportListResource(Resource):
 
+    @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=10000):
+    def get(self, session, rest_filter=None, page=None, num_per_page=10000, user=None):
         """
         Returns a list of allelereports.
 
@@ -70,6 +72,7 @@ class AlleleReportListResource(Resource):
             num_per_page=num_per_page
         )
 
+    @authenticate()
     @request_json(
         [
             'allele_id',
@@ -81,7 +84,7 @@ class AlleleReportListResource(Resource):
             'analysis_id'
         ]
     )
-    def post(self, session, data=None):
+    def post(self, session, data=None, user=None):
         """
         Creates a new AlleleReport(s) for a given allele(s).
 

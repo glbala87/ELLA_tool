@@ -3,15 +3,16 @@ import datetime
 from vardb.datamodel import annotation
 
 from api import schemas
-from api.util.util import rest_filter, request_json
+from api.util.util import rest_filter, request_json, authenticate
 
 from api.v1.resource import Resource
 
 
 class CustomAnnotationList(Resource):
 
+    @authenticate()
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None):
+    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
         """
         Returns a list of customannotations.
 
@@ -39,6 +40,7 @@ class CustomAnnotationList(Resource):
                                schemas.CustomAnnotationSchema(),
                                rest_filter=rest_filter)
 
+    @authenticate()
     @request_json(
         [
             'user_id',
@@ -47,7 +49,7 @@ class CustomAnnotationList(Resource):
         ],
         True
     )
-    def post(self, session, data=None):
+    def post(self, session, data=None, user=None):
         """
         Creates new CustomAnnotation(s) for a given allele id(s).
 

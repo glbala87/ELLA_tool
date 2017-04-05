@@ -2,15 +2,16 @@
 from vardb.datamodel import assessment, sample, genotype, workflow
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter
+from api.util.util import paginate, rest_filter, authenticate
 from api.v1.resource import Resource
 
 
 class AnalysisListResource(Resource):
 
+    @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None):
+    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
         """
         Returns a list of analyses.
 
@@ -39,7 +40,8 @@ class AnalysisListResource(Resource):
 
 class AnalysisResource(Resource):
 
-    def get(self, session, analysis_id):
+    @authenticate()
+    def get(self, session, analysis_id, user=None):
         """
         Returns a single analysis.
         ---
@@ -61,7 +63,8 @@ class AnalysisResource(Resource):
         analysis = schemas.AnalysisSchema().dump(a).data
         return analysis
 
-    def delete(self, session, analysis_id, override=False):
+    @authenticate()
+    def delete(self, session, analysis_id, override=False, user=None):
         """
         Deletes an analysis from the system, including corresponding samples, genotypes
         and interpretations. Alleles that were imported as part of the analysis are

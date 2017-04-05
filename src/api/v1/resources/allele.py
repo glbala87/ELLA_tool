@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from vardb.datamodel import sample, genotype, allele, gene
 
 from api import schemas, ApiError
-from api.util.util import rest_filter, link_filter
+from api.util.util import rest_filter, link_filter, authenticate
 
 from api.util.alleledataloader import AlleleDataLoader
 
@@ -12,9 +12,10 @@ from api.v1.resource import Resource
 
 class AlleleListResource(Resource):
 
+    @authenticate()
     @link_filter
     @rest_filter
-    def get(self, session, rest_filter=None,  link_filter=None):
+    def get(self, session, rest_filter=None,  link_filter=None, user=None):
         """
         Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
         See decorator link_filter  and AlleleDataLoader for details about the possible values of link_filter
@@ -95,7 +96,8 @@ class AlleleListResource(Resource):
 
 class AlleleGenepanelListResource(Resource):
 
-    def get(self, session, allele_id):
+    @authenticate()
+    def get(self, session, allele_id, user=None):
         """
         Returns a list of genepanels associated with provided allele_id.
         ---

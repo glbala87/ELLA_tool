@@ -8,6 +8,7 @@ from api.config import config
 from vardb.datamodel import sample
 
 from api.v1.resource import Resource
+from api.util.util import authenticate
 
 
 def get_range(request):
@@ -66,8 +67,8 @@ def get_partial_response(path, start, end):
 
 
 class IgvResource(Resource):
-
-    def get(self, session, filename):
+    @authenticate()
+    def get(self, session, filename, user=None):
 
         if 'IGV_DATA' not in os.environ:
             raise ApiError("Missing IGV data location (env: $IGV_DATA).")
@@ -92,7 +93,8 @@ class BamResource(Resource):
     TODO: Add access control and logging when in place.
     """
 
-    def get(self, session, analysis_id, sample_id):
+    @authenticate()
+    def get(self, session, analysis_id, sample_id, user=None):
 
         serve_bai = False
         if request.args.get('index'):
@@ -131,7 +133,8 @@ class VcfResource(Resource):
     TODO: Add access control and logging when in place.
     """
 
-    def get(self, session, analysis_id):
+    @authenticate()
+    def get(self, session, analysis_id, user=None):
 
         if 'ANALYSES_PATH' not in os.environ:
             raise ApiError("Missing env ANALYSES_PATH. Cannot serve BAM files.")
