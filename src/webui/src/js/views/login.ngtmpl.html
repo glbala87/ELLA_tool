@@ -3,16 +3,21 @@
   <article class="container no-secondary-nav">
     <sectionbox collapsible="false" color="green" topcontrols="true">
       <maintitle>
-        available users
+        Login
       </maintitle>
-      <controls>
-        <input class="full-width" type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
-      </controls>
       <contentwrapper>
         <section>
-          <div class="line-wrapper list-item clickable" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
-            <h3 class="full-title"><b>{{user.first_name}} {{user.last_name}}</b></h3>
-          </div>
+          <form ng-submit="vm.login()">
+            <br><br>
+            <h3 class="full-title upper"><i>Username</i><input ng-model="vm.loginForm.username" name="username"></h3>
+            <br><br><br><br>
+            <h3 class="full-title upper"><i>Password</i><input ng-model="vm.loginForm.password" type="password" name="password"></h3>
+            <br><br>
+            <input class="bttn" type="submit" value="LOGIN">
+          </form>
+          <!--<div class="line-wrapper list-item clickable" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">-->
+            <!--<h3 class="full-title"><b>{{user.first_name}} {{user.last_name}}</b></h3>-->
+          <!--</div>-->
         </section>
       </contentwrapper>
     </sectionbox>

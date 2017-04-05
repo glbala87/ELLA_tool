@@ -30,6 +30,7 @@ import './services/resources/annotationjobResource.service';
 import './services/resources/finalizationResource.service';
 import './services/resources/overviewResource.service';
 import './services/resources/workflowResource.service';
+import './services/resources/loginResource.service';
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
@@ -169,12 +170,16 @@ class AppConfig {
     @Run()
     @Inject('$rootScope', '$location', 'User')
     run($rootScope, $location, User) {
-        // Redirect to login if no user is selected
+        // Redirect to login if no user is logged in
         $rootScope.$on('$stateChangeStart', (event, toState, toParams) => {
-            if (!User.getCurrentUserId()) {
-                $location.path('/login');
-            }
-        });
+            if (!User.hasUser()) {
+                console.log("Did not find user, trying to load...")
+                User.loadUser().catch( () => {
+                    console.log("Did not load user, redirecting...")
+                    $location.path('/login');
+                    }
+                )}
+        })
     }
 }
 

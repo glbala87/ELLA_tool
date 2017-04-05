@@ -12,50 +12,23 @@ class LoginResource {
         this.resource = resource;
     }
 
-    login(user_id, password) {
+    login(username, password) {
         return new Promise((resolve, reject) => {
-            var r = this.resource(`/api/v1/users/${user_id}/${password}`, {}, {
+            let credentials = {
+                "username": username,
+                "password": password
+            }
+            var r = this.resource(`/api/v1/users/actions/login`, {}, {
                 login: {
-                    isArray: false
+                    method: "POST",
                 }
             });
-            var result = r.login( () => {
+
+            var result = r.login(credentials, () => {
                 resolve(result)
             }, reject)
         });
     }
-    //
-    // get(query) {
-    //     return new Promise((resolve, reject) => {
-    //         var r = this.resource(`/api/v1/search/?q=${encodeURIComponent(query)}`, {}, {
-    //             get: {
-    //                 isArray: false
-    //             }
-    //         });
-    //         var result = r.get(function () {
-    //             for (let item of result.alleles) {
-    //                 let alleles = [];
-    //                 for (let a of item.alleles) {
-    //                     alleles.push(new Allele(a));
-    //                 }
-    //                 item.alleles = alleles;
-    //             }
-    //             for (let item of result.alleleassessments) {
-    //                 let aa = [];
-    //                 for (let a of item.alleles) {
-    //                     aa.push(new Allele(a));
-    //                 }
-    //                 item.alleles = aa;
-    //             }
-    //             let analyses = [];
-    //             for (let a of result.analyses) {
-    //                 analyses.push(new Analysis(a));
-    //             }
-    //             result.analyses = analyses;
-    //             resolve(result);
-    //         }, reject);
-    //     });
-    // }
 }
 
 export default LoginResource;
