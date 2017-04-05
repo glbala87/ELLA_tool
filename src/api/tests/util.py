@@ -39,14 +39,25 @@ class FlaskClientProxy(object):
             cookie_value = cookie_value.split(';')[0]
             client.set_cookie('localhost', cookie_name, cookie_value)
 
-        if self.cookie is not None:
-            _set_cookie(self.cookie)
-        else:
+        def _create_cookie():
             r = client.post("/api/v1/users/actions/login",
                             data=json.dumps({"username": "testuser1", "password": "ibsen123"}),
                             content_type='application/json')
             self.cookie = r.headers.get("Set-Cookie")
+
+        if self.cookie is not None:
             _set_cookie(self.cookie)
+
+            # Check if cookie is still valid
+            r = client.get("/api/v1/users/currentuser")
+            if r.status_code == 403:
+                # Database has been wiped, create new cookie
+                _create_cookie()
+                _set_cookie(self.cookie)
+        else:
+            _create_cookie()
+            _set_cookie(self.cookie)
+
 
     @json_out
     def get(self, url):
