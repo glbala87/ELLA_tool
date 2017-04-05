@@ -38,11 +38,10 @@
       ></workflow-buttons>
     </section>
   </nav>
-  <nav class="warning" ng-if="vm.allele_collisions.collisions.count > 0">
-    <div class="id-collision-warning">
-      <h2>There are currently {{vm.allele_collisions.collisions.count}} variant(s) being worked on in other workflows.</h2>
-    </div>
+  <nav class="warning" ng-if="vm.allele_collisions.length > 0">
+    <collision-warning collisions="vm.allele_collisions"></collision-warning>
   </nav>
+
   <div class="interpretation">
     <interpretation
       components="vm.components"
@@ -60,6 +59,7 @@
       <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
     </div>
   </div>
+
 
 </div>
 
