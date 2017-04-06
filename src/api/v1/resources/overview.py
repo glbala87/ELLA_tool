@@ -273,9 +273,13 @@ class OverviewAnalysisResource(Resource):
             'missing_alleleassessments': session.query(allele.Allele.id).outerjoin(assessment.AlleleAssessment).filter(
                 allele.Allele.id.in_(allele_ids),
                 or_(
-                    assessment.AlleleAssessment.allele_id.is_(None),
-                    ~and_(*queries.valid_alleleassessments_filter(session))  # Include cases where classification isn't valid anymore (e.g. outdated)
-                )
+                    assessment.AlleleAssessment.allele_id.is_(None),  # outerjoin() gives null values when missing alleleassessment
+                    ~and_(*queries.valid_alleleassessments_filter(session))  # Include cases where classification isn't valid anymore (notice inversion operator)
+                ),
+                # The filter below is part of the queries.valid_alleleassessments_filter above.
+                # Since we negate that query, we end up including all alleleassessment that are superceeded.
+                # We therefore need to explicitly exclude those here.
+                assessment.AlleleAssessment.date_superceeded.is_(None)
             ).all()
         }
 
@@ -366,7 +370,7 @@ class OverviewAnalysisResource(Resource):
             # All alleles are without findings
             # Special case: All alleles were filtered out. Treat as without_findings.
             elif ((analysis_nonfiltered_allele_ids and
-                   analysis_nonfiltered_allele_ids < categorized_allele_ids['without_findings']) or
+                   analysis_nonfiltered_allele_ids <= categorized_allele_ids['without_findings']) or
                   analysis_allele_ids == analysis_filtered_allele_ids):
                 final_analyses['without_findings'].append(analysis)
             # All possible cases should have been taken care of above
