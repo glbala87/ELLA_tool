@@ -370,7 +370,7 @@ class OverviewAnalysisResource(Resource):
             # All alleles are without findings
             # Special case: All alleles were filtered out. Treat as without_findings.
             elif ((analysis_nonfiltered_allele_ids and
-                   analysis_nonfiltered_allele_ids < categorized_allele_ids['without_findings']) or
+                   analysis_nonfiltered_allele_ids <= categorized_allele_ids['without_findings']) or
                   analysis_allele_ids == analysis_filtered_allele_ids):
                 final_analyses['without_findings'].append(analysis)
             # All possible cases should have been taken care of above
