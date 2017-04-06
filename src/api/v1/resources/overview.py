@@ -351,7 +351,7 @@ class OverviewAnalysisResource(Resource):
         # Next, compare the allele ids for each analysis and see which category they end up in
         # with regards to the categorized_allele_ids we created earlier.
         # Working with sets only for simplicity (& is intersection, < is subset)
-        categorized_allele_ids = self._categorize_allele_ids_findings(nonfiltered_allele_ids)
+        categorized_allele_ids = self._categorize_allele_ids_findings(session, nonfiltered_allele_ids)
         for analysis_id, analysis_allele_ids in analysis_ids_allele_ids_map.iteritems():
             analysis_nonfiltered_allele_ids = analysis_allele_ids & nonfiltered_allele_ids
             analysis_filtered_allele_ids = analysis_allele_ids - analysis_nonfiltered_allele_ids
