@@ -17,4 +17,4 @@ class UserSchema(Schema):
         return ' '.join([obj.first_name, obj.last_name])
 
     def get_abbreviated_name(self, obj):
-        return '{}. {}'.format(obj.first_name.substring(0, 1), obj.last_name)
+        return '{}. {}'.format(obj.first_name[:1], obj.last_name)
