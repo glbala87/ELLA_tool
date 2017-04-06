@@ -131,14 +131,18 @@ class WorkflowService {
                     return p;
                 }, []);
             }
-
-            // Updates allele.acmg inplace
-            return this.alleleService.updateACMG(
-                alleles,
-                interpretation.genepanel_name,
-                interpretation.genepanel_version,
-                referenceassessments
-            ).then(() => alleles);
+            if (alleles.length) {
+                // Updates allele.acmg inplace
+                return this.alleleService.updateACMG(
+                    alleles,
+                    interpretation.genepanel_name,
+                    interpretation.genepanel_version,
+                    referenceassessments
+                ).then(() => alleles);
+            }
+            else {
+                return alleles;
+            }
         });
     }
 

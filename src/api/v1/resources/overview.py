@@ -9,7 +9,6 @@ from api.v1.resource import Resource
 from api.util import queries
 from api.util.allelefilter import AlleleFilter
 from api.util.alleledataloader import AlleleDataLoader
-from api.util.interpretationdataloader import InterpretationDataLoader
 
 from api.config import config
 
@@ -37,8 +36,8 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
     # Filter out alleles
     if filter_alleles:
         af = AlleleFilter(session, config)
-        gp_filtered_alleles = af.filter_alleles(gp_allele_ids)
-        final_gp_allele_ids = {k: v['allele_ids'] for k, v in gp_filtered_alleles.iteritems()}
+        gp_nonfiltered_alleles = af.filter_alleles(gp_allele_ids)
+        final_gp_allele_ids = {k: v['allele_ids'] for k, v in gp_nonfiltered_alleles.iteritems()}
     else:
         final_gp_allele_ids = gp_allele_ids
 
@@ -235,13 +234,62 @@ class OverviewAlleleResource(Resource):
 
 class OverviewAnalysisResource(Resource):
 
+    def _categorize_allele_ids_findings(self, session, allele_ids):
+        """
+        Categorizes alleles based on their classification findings.
+        A finding is defined from the 'include_analysis_with_findings' flag in config.
+
+        The allele ids are divided into three categories:
+
+        - with_findings:
+            alleles that have valid alleleassessments and classification is in findings.
+
+        - with_findings:
+            alleles that have valid alleleassessments, but classification is not in findings.
+
+        - missing_alleleassessments:
+            alleles that are missing alleleassessments or the alleleassessment is outdated.
+
+        :returns: A dict() of set()
+        """
+        classification_options = config['classification']['options']
+        classification_findings = [o['value'] for o in classification_options if o.get('include_analysis_with_findings')]
+        classification_wo_findings = [o['value'] for o in classification_options if not o.get('include_analysis_with_findings')]
+
+        categorized_allele_ids = {
+
+            'with_findings': session.query(assessment.AlleleAssessment.allele_id).filter(
+                assessment.AlleleAssessment.allele_id.in_(allele_ids),
+                assessment.AlleleAssessment.classification.in_(classification_findings),
+                *queries.valid_alleleassessments_filter(session)
+            ).all(),
+
+            'without_findings': session.query(assessment.AlleleAssessment.allele_id).filter(
+                assessment.AlleleAssessment.allele_id.in_(allele_ids),
+                assessment.AlleleAssessment.classification.in_(classification_wo_findings),
+                *queries.valid_alleleassessments_filter(session)
+            ).all(),
+
+            'missing_alleleassessments': session.query(allele.Allele.id).outerjoin(assessment.AlleleAssessment).filter(
+                allele.Allele.id.in_(allele_ids),
+                or_(
+                    assessment.AlleleAssessment.allele_id.is_(None),
+                    ~and_(*queries.valid_alleleassessments_filter(session))  # Include cases where classification isn't valid anymore (e.g. outdated)
+                )
+            ).all()
+        }
+
+        # Strip out the tuples from db results and convert to set()
+        categorized_allele_ids = {k: set([a[0] for a in v]) for k, v in categorized_allele_ids.iteritems()}
+        return categorized_allele_ids
+
     def get_categorized_analyses(self, session):
 
         # Get all (analysis_id, allele_id) combinations for analyses that are 'Not started'.
         # We want to categorize these analyses into with_findings, without_findings and missing_alleleassessments
         # based on the state of their alleles' alleleassessments
 
-        # First get rid of all variants that would be filtered out, per analysis
+        # First fetch all not-started analyses, with their allele_ids
         workflow_analyses_not_started = queries.workflow_analyses_not_started(session)
         analysis_ids_allele_ids = session.query(sample.Analysis.id, allele.Allele.id).join(
             genotype.Genotype.alleles,
@@ -253,7 +301,8 @@ class OverviewAnalysisResource(Resource):
 
         # Now we have all the alleles, so what remains is to see which alleles are
         # filtered out, which have findings, which are normal and which are without alleleassessments
-        # For performance, we first categorize allele ids, then connect them to the analyses afterwards
+        # For performance, we first categorize the allele ids in isolation,
+        # then connect them to the analyses afterwards
         all_allele_ids = [a[1] for a in analysis_ids_allele_ids]
 
         # Get a list of candidate genepanels per allele id
@@ -270,58 +319,28 @@ class OverviewAnalysisResource(Resource):
             allele.Allele.id.in_(all_allele_ids)
         ).all()
 
-        # Make a dict of (gp_name, gp_version): [allele_ids], since we must process as many alleles as possible at once with AlleleDataLoader
+        # Make a dict of (gp_name, gp_version): [allele_ids] for use with AlleleFilter
         gp_allele_ids = defaultdict(list)
         for entry in allele_ids_genepanels:
             gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
-        # Filter out alleles (it also loads the data, which we don't really need here)
-        genepanels_alleles = load_genepanel_alleles(session, gp_allele_ids, filter_alleles=True)
-        filtered_allele_ids = list(set([a['allele']['id'] for a in genepanels_alleles]))
+        # Filter out alleles
+        af = AlleleFilter(session, config)
+        gp_nonfiltered_allele_ids = af.filter_alleles(gp_allele_ids)
+        nonfiltered_allele_ids = set(itertools.chain.from_iterable([v['allele_ids'] for v in gp_nonfiltered_allele_ids.values()]))
 
-        classification_options = config['classification']['options']
-        classification_findings = [o['value'] for o in classification_options if o.get('include_analysis_with_findings')]
-        classification_wo_findings = [o['value'] for o in classification_options if not o.get('include_analysis_with_findings')]
-
-        categorized_allele_ids = {
-
-            'with_findings': session.query(assessment.AlleleAssessment.allele_id).filter(
-                assessment.AlleleAssessment.allele_id.in_(filtered_allele_ids),
-                assessment.AlleleAssessment.classification.in_(classification_findings),
-                *queries.valid_alleleassessments_filter(session)
-            ).all(),
-
-            'without_findings': session.query(assessment.AlleleAssessment.allele_id).filter(
-                assessment.AlleleAssessment.allele_id.in_(filtered_allele_ids),
-                assessment.AlleleAssessment.classification.in_(classification_wo_findings),
-                *queries.valid_alleleassessments_filter(session)
-            ).all(),
-
-            'missing_alleleassessments': session.query(allele.Allele.id).outerjoin(assessment.AlleleAssessment).filter(
-                allele.Allele.id.in_(filtered_allele_ids),
-                or_(
-                    assessment.AlleleAssessment.allele_id.is_(None),
-                    ~and_(*queries.valid_alleleassessments_filter(session))  # Include cases where classification isn't valid anymore (e.g. outdated)
-                )
-            ).all()
-
-        }
-
-        # Strip out the tuples..
-        categorized_allele_ids = {k: [a[0] for a in v] for k, v in categorized_allele_ids.iteritems()}
-
-        # Now we can check our analyses and categorize them
-        # Sort into {analysis_id: [allele_ids]}
-        analysis_ids_allele_ids_map = defaultdict(list)
+        # Now we can start to check our analyses and categorize them
+        # First, sort into {analysis_id: [allele_ids]}
+        analysis_ids_allele_ids_map = defaultdict(set)
         for a in analysis_ids_allele_ids:
-            if a[1] in filtered_allele_ids:
-                analysis_ids_allele_ids_map[a[0]].append(a[1])
+            analysis_ids_allele_ids_map[a[0]].add(a[1])
 
+        # Load analysis data to insert into final response
         analyses_not_started = session.query(sample.Analysis).filter(
             sample.Analysis.id.in_(workflow_analyses_not_started)
         ).all()
         aschema = schemas.AnalysisSchema()
-        analyses_not_started_serialized = [aschema.dump(a).data for a in analyses_not_started]
+        analyses_not_started_serialized = aschema.dump(analyses_not_started, many=True).data
 
         final_analyses = {
             'with_findings': [],
@@ -329,18 +348,32 @@ class OverviewAnalysisResource(Resource):
             'missing_alleleassessments': []
         }
 
-        for analysis_id, allele_ids in analysis_ids_allele_ids_map.iteritems():
+        # Next, compare the allele ids for each analysis and see which category they end up in
+        # with regards to the categorized_allele_ids we created earlier.
+        # Working with sets only for simplicity (& is intersection, < is subset)
+        categorized_allele_ids = self._categorize_allele_ids_findings(nonfiltered_allele_ids)
+        for analysis_id, analysis_allele_ids in analysis_ids_allele_ids_map.iteritems():
+            analysis_nonfiltered_allele_ids = analysis_allele_ids & nonfiltered_allele_ids
+            analysis_filtered_allele_ids = analysis_allele_ids - analysis_nonfiltered_allele_ids
             analysis = next(a for a in analyses_not_started_serialized if a['id'] == analysis_id)
-            if any(a in categorized_allele_ids['missing_alleleassessments'] for a in allele_ids):
+
+            # One or more allele is missing alleleassessment
+            if analysis_nonfiltered_allele_ids & categorized_allele_ids['missing_alleleassessments']:
                 final_analyses['missing_alleleassessments'].append(analysis)
-            elif any(a in categorized_allele_ids['with_findings'] for a in allele_ids):
+            # One or more allele has a finding
+            elif analysis_nonfiltered_allele_ids & categorized_allele_ids['with_findings']:
                 final_analyses['with_findings'].append(analysis)
-            elif all(a in categorized_allele_ids['without_findings'] for a in allele_ids):
+            # All alleles are without findings
+            # Special case: All alleles were filtered out. Treat as without_findings.
+            elif ((analysis_nonfiltered_allele_ids and
+                   analysis_nonfiltered_allele_ids < categorized_allele_ids['without_findings']) or
+                  analysis_allele_ids == analysis_filtered_allele_ids):
                 final_analyses['without_findings'].append(analysis)
+            # All possible cases should have been taken care of above
             else:
                 raise ApiError("Allele was not categorized correctly. This may indicate a bug.")
 
-        # Add the rest of categories
+        # Finally, add the rest of the categories and their analysis data
         other_categories = [
             ('marked_review', queries.workflow_analyses_marked_review(session)),
             ('ongoing', queries.workflow_analyses_ongoing(session)),
@@ -351,7 +384,7 @@ class OverviewAnalysisResource(Resource):
             analyses = session.query(sample.Analysis).filter(
                 sample.Analysis.id.in_(subquery)
             ).all()
-            final_analyses[key] = [aschema.dump(a).data for a in analyses]
+            final_analyses[key] = aschema.dump(analyses, many=True).data
 
         return final_analyses
 
