@@ -89,8 +89,9 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
 
         alleleSectionBox.classificationCommentElement.scroll();
 
-        alleleSectionBox.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');
+        alleleSectionBox.addAcmgCode('benign', 'BP2','ACMG_ROUND_1', -1); // Adjust down to BSxBP2
         alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1');
+        alleleSectionBox.addAcmgCode('pathogenic', 'PM1','ACMG_ROUND_1', 2); // Adjust up to PVSxPM1
         alleleSectionBox.classSelection.selectByVisibleText('Class 1');
 
         interpretation_expected_values = {
@@ -117,12 +118,17 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
                 classification: '1',
                 acmg: [
                     {
-                        code: 'BP2',
+                        code: 'BSxBP2',
                         category: 'benign',
                         comment: 'ACMG_ROUND_1'
                     },
                     {
                         code: 'PS2',
+                        category: 'pathogenic',
+                        comment: 'ACMG_ROUND_1'
+                    },
+                    {
+                        code: 'PVSxPM1',
                         category: 'pathogenic',
                         comment: 'ACMG_ROUND_1'
                     },
