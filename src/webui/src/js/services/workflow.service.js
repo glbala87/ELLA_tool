@@ -108,6 +108,14 @@ class WorkflowService {
 
         // Add any manually added alleles
         if ('manuallyAddedAlleles' in interpretation.state) {
+            // First clean the state, since previously manually added might now not be
+            // part of the excluded ones. This can happen when a user had included
+            // a previously filtered allele, and then given it a classification.
+            interpretation.state.manuallyAddedAlleles = interpretation.state.manuallyAddedAlleles.filter(m => {
+                return Object.values(interpretation.excluded_allele_ids).some(excluded => {
+                    return excluded.includes(m);
+                });
+            });
             allele_ids = allele_ids.concat(interpretation.state.manuallyAddedAlleles);
         }
 
