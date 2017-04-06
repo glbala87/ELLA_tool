@@ -1,5 +1,8 @@
-
-    <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()">
+    <div class="no-alleles" ng-if="!vm.alleles.length">
+      <h2>No variants to show for analysis.</h2>
+      <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
+    </div>
+    <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.alleles.length">
         <allele-sidebar ng-if="vm.showSidebar"
                         read-only="vm.readOnly"
                         genepanel="vm.genepanel"
