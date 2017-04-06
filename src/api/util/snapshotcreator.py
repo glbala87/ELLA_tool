@@ -55,7 +55,7 @@ class SnapshotCreator(object):
     def create_from_data(
             self,
             interpretation_snapshot_model,  # 'allele' or 'analysis'
-            interpretation_id,
+            interpretation,  # interpretation object from InterpretationDataLoader
             annotations,
             presented_alleleassessments,
             presented_allelereports,
@@ -75,20 +75,13 @@ class SnapshotCreator(object):
         # Get working list of alleles straigt from interpretation to ensure we log all data
         excluded = {}
         if interpretation_snapshot_model == 'analysis':
-            analysisinterpretation_obj = self.session.query(workflow.AnalysisInterpretation).filter(
-                workflow.AnalysisInterpretation.id == interpretation_id
-            ).one()
-            analysisinterpretation = InterpretationDataLoader(self.session, config).from_obj(analysisinterpretation_obj)
-            excluded = analysisinterpretation['excluded_allele_ids']
-            allele_ids = analysisinterpretation['allele_ids'] + \
+            excluded = interpretation['excluded_allele_ids']
+            allele_ids = interpretation['allele_ids'] + \
                          list(itertools.chain(*excluded.values()))
 
         # 'excluded' is not a concept for alleleinterpretation
         elif interpretation_snapshot_model == 'allele':
-            alleleinterpretation = self.session.query(workflow.AlleleInterpretation).filter(
-                workflow.AlleleInterpretation.id == interpretation_id
-            ).one()
-            allele_ids = [alleleinterpretation.allele_id]
+            allele_ids = interpretation['allele_ids']
 
         snapshot_objects = list()
         for allele_id in allele_ids:
@@ -96,7 +89,7 @@ class SnapshotCreator(object):
             # Check if allele_id is in any of the excluded categories
             snapshot_object = self._create_snapshot_object(
                 interpretation_snapshot_model,
-                interpretation_id,
+                interpretation['id'],
                 allele_id,
                 annotations,
                 custom_annotations,

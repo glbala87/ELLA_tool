@@ -381,6 +381,10 @@ def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
     if not interpretation.status == 'Ongoing':
         raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
 
+    # We must load it _before_ we create assessments, since assessments
+    # can affect the filtering (e.g. alleleassessments created for filtered alleles)
+    loaded_interpretation = InterpretationDataLoader(session, config).from_obj(interpretation)
+
     # Create/reuse assessments
     grouped_alleleassessments = AssessmentCreator(session).create_from_data(
         data['annotations'],
@@ -419,13 +423,13 @@ def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
 
     snapshot_objects = SnapshotCreator(session).create_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
-        interpretation.id,
+        loaded_interpretation,
         data['annotations'],
         presented_alleleassessments,
         presented_allelereports,
         used_alleleassessments=created_alleleassessments + reused_alleleassessments,
         used_allelereports=created_allelereports + reused_allelereports,
-        custom_annotations=data.get('custom_annotations'),
+        custom_annotations=data.get('custom_annotations')
     )
 
     session.add_all(snapshot_objects)
