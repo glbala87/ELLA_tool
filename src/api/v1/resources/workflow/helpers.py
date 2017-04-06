@@ -467,6 +467,9 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     to see a collision with itself. You would pass in analysis_id=3 to exclude it.
     """
 
+    # Remove if you need to check collisions in general
+    assert (analysis_id is not None) or (allele_id is not None), "No object passed to compute collisions with"
+
     # Get all analysis workflows that are either Ongoing, or waiting for review
     # i.e having not only 'Not started' interpretations or not only 'Done' interpretations.
     workflow_analysis_ids = session.query(sample.Analysis.id).filter(
@@ -515,11 +518,11 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         )
 
     # Next, we need to filter the alleles so we don't report collisions
-    # on alleles that would anyways be filtered out
-    # Organize by genepanel for correct filtering
-    # Also keep track of which user had which variant, so we can
-    # report that as well
-    total_gp_allele_ids = defaultdict(set)  # {('HBOC', 'v01': [1, 2, 3, ...], ...)}
+    # on alleles that would anyways be filtered out.
+    # Organize by genepanel for correct filtering.
+    # Also, keep track of which user had which variant, so we can
+    # report that as well.
+    total_gp_allele_ids = defaultdict(set)  # {('HBOC', 'v01'): [1, 2, 3, ...], ...}
     user_ids = set()
     wf_analysis_gp_allele_ids = wf_analysis_gp_allele_ids.all()
     wf_allele_gp_allele_ids = wf_allele_gp_allele_ids.all()
@@ -558,7 +561,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             include_allele_assessment=False
         )
 
-    # Preload all users
+    # Preload the users
     users = session.query(user.User).filter(
         user.User.id.in_(user_ids)
     ).all()
