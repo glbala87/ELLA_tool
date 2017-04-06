@@ -214,7 +214,7 @@ class AlleleSectionBox  {
      */
     addAcmgCode(category, code, comment, adjust_levels=0) {
 
-        let buttonSelector = 'allele-sectionbox button.id-add-acmg';
+        let buttonSelector = 'allele-sectionbox:nth-child(1) button.id-add-acmg'; // Select top sectionbox' button
         browser.click(buttonSelector);
         browser.waitForExist('.id-acmg-selection-popover', 100); // make sure the popover appeared
         browser.pause(500); // Wait for popover animation to settle
