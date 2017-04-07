@@ -26,11 +26,10 @@ This should import as:
     - One genotype in all three samples (13, 32914550, GAACA->G)
 """
 
-import json
 import pytest
 import os
 from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.datamodel import genotype, allele, sample
+from vardb.datamodel import genotype, sample
 
 import vardb
 VARDB_PATH = os.path.split(vardb.__file__)[0]
@@ -45,14 +44,16 @@ def deposit(session):
     assert os.path.isdir(trio)
     files = os.listdir(trio)
     assert len(files) == 1+1+3
-    sample_configs_files = [os.path.join(trio, f)  for f in files if f.endswith(".sample")]
-    analysis_config_file = os.path.join(trio, [f for f in files if f.endswith(".analysis")][0])
     vcf_file = os.path.join(trio, [f for f in files if f.endswith(".vcf")][0])
-    sample_configs = [json.load(open(f, 'r')) for f in sample_configs_files]
-    analysis_config = json.load(open(analysis_config_file, 'r'))
 
     deposit_analysis = DepositAnalysis(session)
-    deposit_analysis.import_vcf(vcf_file, sample_configs=sample_configs, analysis_config=analysis_config)
+    deposit_analysis.import_vcf(
+        vcf_file,
+        'trio_analysis_1.HBOC_v01',
+        'HBOC',
+        'v01'
+    )
+
 
 @pytest.fixture(scope="module")
 def analysis_name():
@@ -68,7 +69,6 @@ def all_genotypes(session, analysis_name):
         sample.Analysis.name == analysis_name,
     ).all()
     return all_genotypes
-
 
 
 ## TESTS
@@ -120,7 +120,7 @@ def test_homozygous(all_genotypes):
     homozygous = [gt for gt in all_genotypes if gt.homozygous]
     assert len(homozygous) == 1
     homozygous = homozygous[0]
-    assert homozygous.secondallele == None
+    assert homozygous.secondallele is None
     allele = homozygous.allele
     assert allele.chromosome == '13'
     assert allele.vcf_pos == 32914484
@@ -137,11 +137,11 @@ def test_multiallelic_heterozygous(all_genotypes):
 def test_common_genotype(all_genotypes):
     """One genotype in all three samples (13, 32914550, GAACA->G)"""
     genotypes = [gt for gt in all_genotypes
-                 if (gt.allele.chromosome == '13'
-                     and gt.allele.vcf_pos == 32914550
-                     and gt.allele.vcf_ref == "GAACA"
-                     and gt.allele.vcf_alt == 'G'
-                     and gt.secondallele == None)
+                 if (gt.allele.chromosome == '13' and
+                     gt.allele.vcf_pos == 32914550 and
+                     gt.allele.vcf_ref == "GAACA" and
+                     gt.allele.vcf_alt == 'G' and
+                     gt.secondallele is None)
                  ]
     assert len(genotypes) == 3
     gt_samples = [gt.sample.identifier for gt in genotypes]

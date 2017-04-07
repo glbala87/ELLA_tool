@@ -1,13 +1,13 @@
-import json
 import pytest
 import os
 from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.datamodel import genotype, allele, sample
+from vardb.datamodel import genotype, sample
 
 import vardb
 VARDB_PATH = os.path.split(vardb.__file__)[0]
 
 ## HELPER FUNCTIONS
+
 
 def get_genotype(genotypes, first_change, second_change, _ret=[]):
     gts = []
@@ -25,6 +25,7 @@ def get_genotype(genotypes, first_change, second_change, _ret=[]):
 
 ## FIXTURES
 
+
 @pytest.fixture(scope="module", autouse=True)
 def deposit_single(session):
     """Deposit test analysis"""
@@ -32,14 +33,16 @@ def deposit_single(session):
     assert os.path.isdir(single)
     files = os.listdir(single)
     assert len(files) == 3
-    sample_configs_file = os.path.join(single, [f for f in files if f.endswith(".sample")][0])
-    analysis_config_file = os.path.join(single, [f for f in files if f.endswith(".analysis")][0])
     vcf_file = os.path.join(single, [f for f in files if f.endswith(".vcf")][0])
-    sample_configs = [json.load(open(sample_configs_file, 'r'))]
-    analysis_config = json.load(open(analysis_config_file, 'r'))
 
     deposit_analysis = DepositAnalysis(session)
-    deposit_analysis.import_vcf(vcf_file, sample_configs=sample_configs, analysis_config=analysis_config)
+    deposit_analysis.import_vcf(
+        vcf_file,
+        'brca_decomposed.HBOC_v01',
+        'HBOC',
+        'v01'
+    )
+
 
 @pytest.fixture(scope="module")
 def all_genotypes_single(session):
@@ -68,10 +71,10 @@ def test_single_singlealleic(all_genotypes_single, variant_type):
 
 
 @pytest.mark.parametrize("variant_types", (
-        ("SNP","SNP"),
-        ("SNP","ins"),
-        ("SNP","del"),
-        ("ins","del")
+        ("SNP", "SNP"),
+        ("SNP", "ins"),
+        ("SNP", "del"),
+        ("ins", "del")
     ))
 def test_single_multiallelic(all_genotypes_single, variant_types):
     # There should be one heterozygous SNP,SNP (multiallelic)
