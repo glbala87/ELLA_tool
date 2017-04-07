@@ -81,7 +81,7 @@ class LoginResource(Resource):
         username = data.get("username")
         password = data.get("password")
 
-        u = authenticate_user(username, password)
+        u = authenticate_user(session, username, password)
 
         token = create_session(session, u.id).token
         resp = make_response(redirect("/"))
@@ -99,7 +99,8 @@ class ChangePasswordResource(Resource):
         print "\tUsername: ", username
         print "\tPassword: ", password
 
-        change_password(session, username, old_password, new_password)
+        # change_password performs the authentication
+        change_password(session, username, password, new_password)
         return Response("Password for user %s changed. You can now log in." %username)
 
 
