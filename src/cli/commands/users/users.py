@@ -2,10 +2,12 @@ import base64
 import click
 import datetime
 import sys
+from copy import deepcopy
 from functools import wraps
 
 import bcrypt
 from api.schemas.users import UserSchema
+from api.util.useradmin import hash_password, change_password, lock_user, open_user, modify_user
 from vardb.datamodel import DB
 from vardb.datamodel import user
 
@@ -77,7 +79,7 @@ def convert(join, *split_args):
 
 def generate_password():
     password = base64.b64encode(bcrypt.gensalt())[-10:-2]
-    password_hash = bcrypt.hashpw(password, bcrypt.gensalt())
+    password_hash = hash_password(password)
     return password, password_hash
 
 
@@ -165,15 +167,11 @@ def cmd_reset_password(username):
     db.connect()
     session = db.session()
 
+    password, _ = generate_password()
+    change_password(session, username, None, password, override=True)
     u = session.query(user.User).filter(
-        user.User.username == username,
+        user.User.username == username
     ).one()
-
-    password, password_hash = generate_password()
-    print password_hash
-    u.password = password_hash
-    u.password_expiry = datetime.datetime.fromtimestamp(0)
-    session.commit()
 
     click.echo("Reset password for user {username} ({last_name}, {first_name}) with password {password}".format(
         username=username,
@@ -183,7 +181,7 @@ def cmd_reset_password(username):
     ))
 
 
-@users.command("invalidate")
+@users.command("lock")
 @click.argument("username")
 def cmd_invalidate_user(username):
     """
@@ -191,28 +189,13 @@ def cmd_invalidate_user(username):
     
     TODO: Add possibility to delete user, but only allow if user is not associated with any assessments or interpretations
     """
+
     db = DB()
     db.connect()
     session = db.session()
+    lock_user(session, username)
 
-    u = session.query(user.User).filter(
-        user.User.username == username,
-    ).one()
-
-    raise NotImplementedError("Awaiting implementation of user.valid")
-
-    u.valid = False
-
-    user_sessions = session.query(user.UserSession).filter(
-        user.UserSession.user_id == u.id,
-    ).all()
-    for s in user_sessions:
-        if s.expired is not None:
-            s.expired = datetime.datetime.now()
-
-    session.commit()
-
-    click.echo("User {username} ({last_name}, {first_name}) has been invalidated".format(
+    click.echo("User {username} ({last_name}, {first_name}) has been locked".format(
         username=username,
         first_name=u.first_name,
         last_name=u.last_name,
@@ -225,9 +208,43 @@ def cmd_invalidate_user(username):
 @click.option("--new_username")
 @click.option("--first_name")
 @click.option("--last_name")
-@click.option("--user_role")
-@click.option("--user_group")
+#@click.option("--user_role")
+#@click.option("--user_group")
 @convert(False, "--first_name", "--last_name")
 def cmd_modify_user(username, **kwargs):
-    print kwargs
-    raise NotImplementedError()
+    db = DB()
+    db.connect()
+    session = db.session()
+
+    u_before = deepcopy(session.query(user.User).filter(
+        user.User.username == username
+    ).one())
+
+    kwargs["username"] = kwargs.pop("new_username")
+    modified = {k: v for k,v in kwargs.iteritems() if v is not None}
+
+    modify_user(session, username, **modified)
+
+    u_after = session.query(user.User).filter(
+        user.User.username == username
+    ).one()
+
+    click.echo("User {username} ({last_name}, {first_name}) has been modified: ".format(
+        username=username,
+        first_name=u_after.first_name,
+        last_name=u_after.last_name,
+    ))
+
+    N_changes = 0
+    for k in modified:
+        from_val = encode(getattr(u_before, k))
+        to_val = encode(getattr(u_after, k))
+        if from_val != to_val:
+            N_changes += 1
+            click.echo("\t{key}: {from_val} ---> {to_val}".format(key=k, from_val=from_val, to_val=to_val))
+
+    if N_changes == 0:
+        click.echo("No modifications made!")
+
+
+

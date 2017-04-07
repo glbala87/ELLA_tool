@@ -5,6 +5,7 @@ from vardb.datamodel import user
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json, authenticate
+from api.util.useradmin import authenticate_user, create_session, change_password, logout
 from api.config import config
 
 from api.v1.resource import Resource
@@ -74,61 +75,18 @@ class UserResource(Resource):
         return schemas.UserSchema(strict=True).dump(u).data
 
 
-def password_correct(user, password):
-    return bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))
-
-def password_expired(user):
-    return user.password_expiry < datetime.datetime.now()
-
-def check_password_strength(password):
-    return True
-
-
-def _createSession(session, user_id):
-    token = str(uuid.uuid1())
-
-    userSession = user.UserSession(
-        token=token,
-        user_id=user_id,
-        issued=datetime.datetime.now(),
-    )
-    session.add(userSession)
-    session.commit()
-    return userSession
-
-def logout(userSession):
-    userSession.expired = datetime.datetime.now()
-
-def _check_credentials(user, password):
-    if not password_correct(user, password):
-        #return Response("Invalid credentials", 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
-        return False, "Invalid credentials"
-    elif password_expired(user):
-        return False, "Password expired"
-        #return Response("Password expired", 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
-    return True, "Credentials correct"
-
 class LoginResource(Resource):
     @request_json(["username", "password"], only_required=True)
     def post(self, session, data=None):
         username = data.get("username")
         password = data.get("password")
 
-        u = session.query(user.User).filter(user.User.username == username).one_or_none()
-        if u is None:
-            return Response("Invalid credentials", 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
+        u = authenticate_user(username, password)
 
-        credentials_correct, message = _check_credentials(u, password)
-        if not credentials_correct:
-            return Response(message, 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
-        else:
-            token = _createSession(session, u.id).token
-            #resp = make_response("Login successful")
-            resp = make_response(redirect("/"))
-            resp.set_cookie("AuthenticationToken", token, httponly=True, expires=u.password_expiry)
-            return resp
-            #print resp
-            #return redirect("/", Response=resp)
+        token = create_session(session, u.id).token
+        resp = make_response(redirect("/"))
+        resp.set_cookie("AuthenticationToken", token, httponly=True, expires=u.password_expiry)
+        return resp
 
 class ChangePasswordResource(Resource):
     @request_json(["username", "password", "new_password"], only_required=True)
@@ -137,48 +95,13 @@ class ChangePasswordResource(Resource):
         password = data.get("password")
         new_password = data.get("new_password")
 
-        print "Login: "
+        print "Change password: "
         print "\tUsername: ", username
         print "\tPassword: ", password
 
-        u = session.query(user.User).filter(user.User.username == username).one_or_none()
-        if u is None:
-            return Response("Invalid credentials", 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
+        change_password(session, username, old_password, new_password)
+        return Response("Password for user %s changed. You can now log in." %username)
 
-        credentials_correct, message = _check_credentials(u, password)
-        if not credentials_correct:
-            return Response(message, 401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
-        else:
-            # Generate salt
-            new_salt = bcrypt.gensalt()
-
-            # bcrypt
-            new_pwhash = bcrypt.hashpw(new_password.encode('utf-8'), new_salt.encode('utf-8'))
-
-            # Set expiry date
-            expiry_date = datetime.datetime.now() + datetime.timedelta(days=config["users"]["password_expiry_days"])
-
-
-
-            # Patch user
-            # print "\tOld password hash: ", pwhash
-            # print "\tNew password hash: ", new_pwhash
-            # print "\tOld salt: ", salt
-            # print "\tNew salt: ", new_salt
-
-            u.password = new_pwhash
-            u.password_expiry = expiry_date
-
-            # Logout existing sessions
-            existing_sessions = session.query(user.UserSession).filter(
-                user.UserSession.user_id == user_id
-            ).all()
-            for exisingUserSession in existing_sessions:
-                logout(exisingUserSession)
-
-            session.commit()
-            return Response("Password for user %s changed. You can now log in." %username)
-            #return schemas.UserSchema(strict=True).dump(u).data, 200
 
 class CurrentUser(Resource):
     @authenticate()
