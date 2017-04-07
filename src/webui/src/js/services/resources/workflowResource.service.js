@@ -162,7 +162,10 @@ class WorkflowResource {
     getCollisions(type, id) {
         return new Promise((resolve, reject) => {
             var CollistionRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/collisions/`);
-            var data = CollistionRS.get(() => {
+            var data = CollistionRS.query(() => {
+                for (let d of data) {
+                    d.allele = new Allele(d.allele);
+                }
                 resolve(data);
             }, reject);
         });

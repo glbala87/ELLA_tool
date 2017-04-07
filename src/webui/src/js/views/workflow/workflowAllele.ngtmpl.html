@@ -30,10 +30,8 @@
         ></workflow-buttons>
     </section>
   </nav>
-  <nav class="warning" ng-if="vm.allele_collisions.collisions.count > 0">
-    <div class="id-collision-warning">
-      <h2>This variant is currently being worked on as part of another workflow.</h2>
-    </div>
+  <nav class="warning" ng-if="vm.allele_collisions.length > 0">
+    <collision-warning mode="'single'" collisions="vm.allele_collisions"></collision-warning>
   </nav>
   <div class="interpretation">
     <interpretation
