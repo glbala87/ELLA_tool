@@ -86,7 +86,7 @@ export class InterpretationController {
 
         this.config = Config.getConfig();
 
-        this.references = [];  // Loaded references from backend
+        this.references = null;  // Loaded references from backend. null = not loaded.
 
         this.allele_sidebar = {
             alleles: { // Holds data used by <allele-sidebar>
@@ -342,7 +342,7 @@ export class InterpretationController {
         // Load references for our alleles from backend
 
         // Search first for references by reference id, then by pubmed id where reference id is not defined
-        this.references = [];
+        this.references = null;
         let reference_ids = []
         let pubmed_ids = []
         for (let id of ids) {
@@ -352,13 +352,18 @@ export class InterpretationController {
                 pubmed_ids.push(id.pubmed_id)
             }
         }
-
-        this.referenceResource.getByIds(reference_ids).then(references => {
-            this.references = this.references.concat(references);
-        });
-        this.referenceResource.getByPubMedIds(pubmed_ids).then(references => {
-            this.references = this.references.concat(references);
-        });
+        // Load references from backend in two requests
+        if (reference_ids.length || pubmed_ids.length) {
+            let ref_by_id = this.referenceResource.getByIds(reference_ids);
+            let ref_by_pmid = this.referenceResource.getByPubMedIds(pubmed_ids);
+            Promise.all([ref_by_id, ref_by_pmid]).then(args => {
+                let [ref_id, ref_pmid] = args;
+                this.references = ref_id.concat(ref_pmid);
+            });
+        }
+        else {
+            this.references = [];
+        }
     }
 
     /**
