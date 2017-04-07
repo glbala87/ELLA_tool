@@ -42,9 +42,9 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   h4.acmg-title ~ .right-item { margin-left: 2.6rem; }
   .left-item { display: flex;
     h4 { padding-right: 0.7rem;}
-    .adjust-button { font-size: 1.6rem; color:#999; mix-blend-mode: difference; cursor: pointer;}
+    .adjust-button { font-size: 1.6rem; color:#333; cursor: pointer;}
   }
-  .right-item { padding-right: 0.7rem; }
+  .right-item { padding-right: 0.7rem; color:#333; }
   .commentbox { width: 100%; }
   &.clickable { border-bottom: none; &:hover { border-bottom: none; } }
   &.indented { margin-top: -2.6rem; }
