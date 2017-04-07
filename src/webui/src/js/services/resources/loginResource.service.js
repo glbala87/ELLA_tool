@@ -26,8 +26,33 @@ class LoginResource {
 
             var result = r.login(credentials, () => {
                 resolve(result)
-            }, reject)
+            }, (error) => {
+                console.log(error.data)
+                reject(error.data)
+            })
         });
+    }
+
+    resetPassword(username, password, new_password) {
+        return new Promise((resolve, reject) => {
+            let credentials = {
+                "username": username,
+                "password": password,
+                "new_password": new_password,
+            }
+            var r = this.resource(`/api/v1/users/actions/changepassword`, {}, {
+                reset: {
+                    method: "POST",
+                }
+            });
+
+            var result = r.reset(credentials, () => {
+                resolve(result)
+            }, (error) => {
+                console.log(error.data)
+                reject(error.data)
+            })
+        })
     }
 }
 
