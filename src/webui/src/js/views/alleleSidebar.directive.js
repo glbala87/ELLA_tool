@@ -103,6 +103,10 @@ export class AlleleSidebarController {
     }
 
     getClassification(allele, allele_state) {
-        return AlleleStateHelper.getClassification(allele, allele_state);
+        let classification = AlleleStateHelper.getClassification(allele, allele_state);
+        if (AlleleStateHelper.isAlleleAssessmentOutdated(allele, this.config)) {
+            return `${classification}*`;
+        }
+        return classification;
     }
 }
