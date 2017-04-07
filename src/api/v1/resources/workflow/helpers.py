@@ -308,6 +308,10 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     if not interpretation.status == 'Ongoing':
         raise ApiError("Cannot mark for review when latest interpretation is not 'Ongoing'")
 
+    # We must load it _before_ we create assessments, since assessments
+    # can affect the filtering (e.g. alleleassessments created for filtered alleles)
+    loaded_interpretation = InterpretationDataLoader(session, config).from_obj(interpretation)
+
     presented_alleleassessment_ids = [a['presented_alleleassessment_id'] for a in data['alleleassessments'] if 'presented_alleleassessment_id' in a]
     presented_alleleassessments = session.query(assessment.AlleleAssessment).filter(
         assessment.AlleleAssessment.id.in_(presented_alleleassessment_ids)
@@ -320,7 +324,7 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
 
     snapshot_objects = SnapshotCreator(session).create_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
-        interpretation.id,
+        loaded_interpretation,
         data['annotations'],
         presented_alleleassessments,
         presented_allelereports,
