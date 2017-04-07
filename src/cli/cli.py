@@ -9,6 +9,7 @@ from commands.database.database import database
 from commands.deposit.deposit import deposit
 from commands.analyses.analyses import analyses
 from commands.export.export import export
+from commands.users.users import users
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -28,6 +29,7 @@ cli.add_command(deposit)
 cli.add_command(analyses)
 cli.add_command(download_igv)
 cli.add_command(export)
+cli.add_command(users)
 
 if __name__ == '__main__':
     cli()
