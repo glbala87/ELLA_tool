@@ -7,7 +7,7 @@ from functools import wraps
 
 import bcrypt
 from api.schemas.users import UserSchema
-from api.util.useradmin import hash_password, change_password, lock_user, open_user, modify_user
+from api.util.useradmin import hash_password, change_password, lock_user, open_user, modify_user, check_password_strength
 from vardb.datamodel import DB
 from vardb.datamodel import user
 
@@ -79,6 +79,8 @@ def convert(join, *split_args):
 
 def generate_password():
     password = base64.b64encode(bcrypt.gensalt())[-10:-2]
+    if not check_password_strength(password):
+        return generate_password()
     password_hash = hash_password(password)
     return password, password_hash
 
