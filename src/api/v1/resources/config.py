@@ -1,11 +1,9 @@
 from api import config
 from api.v1.resource import Resource
-from api.util.util import authenticate
 
 
 class ConfigResource(Resource):
-    @authenticate()
-    def get(self, session, user=None):
+    def get(self, session):
         """
         Returns application configuration.
         ---
