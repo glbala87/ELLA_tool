@@ -2,6 +2,7 @@ import base64
 import click
 import datetime
 import sys
+import os
 from copy import deepcopy
 from functools import wraps
 
@@ -78,7 +79,8 @@ def convert(join, *split_args):
 # Helper functions
 
 def generate_password():
-    password = base64.b64encode(bcrypt.gensalt())[-10:-2]
+    password = base64.b64encode(os.urandom(10))[-10:-2]
+    print password
     if not check_password_strength(password):
         return generate_password()
     password_hash = hash_password(password)
