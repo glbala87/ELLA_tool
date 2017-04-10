@@ -6,26 +6,48 @@
         Login
       </maintitle>
       <contentwrapper>
-        <section>
-          <form>
-            <br><br>
-
-            <h3 class="full-title upper"><i>Username</i><input ng-model="vm.loginForm.username" name="username"></h3>
-            <br><br><br><br>
-            <h3 class="full-title upper"><i>Password</i><input ng-model="vm.loginForm.password" type="password" name="password"></h3>
-            <br><br><br><br>
-            <div ng-if="vm.resetPasswordFlag">
-              <h3 class="full-title upper"><i>New password</i><input ng-model="vm.loginForm.new_password" type="password" name="new_password"></h3>
-              <br><br><br><br>
-              <h3 class="full-title upper"><i>Repeat new password</i><input ng-model="vm.loginForm.confirm_password" type="password"></h3>
-              <br><br><br><br>
+        <div class="bttn-set">
+          <label tabindex=0 class="bttn" uib-btn-radio="item" ng-model="vm.mode"
+                 ng-repeat="item in vm.modes">{{item}}</label>
+        </div>
+        <section class="line-wrapper">
+          <form class="table">
+            <div class="table">
+              <div class="spacer2"></div>
+              <div class="tabular-row spacer">
+                <h3 class="full-title upper cell"><i>Username</i></h3>
+                <input class="cell" ng-model="vm.loginForm.username" name="username">
+              </div>
+              <div class="tabular-row spacer">
+                <h3 class="full-title upper cell"><i>Password</i></h3>
+                <input class="cell" ng-model="vm.loginForm.password" type="password">
+              </div>
+              <div class="tabular-row spacer" ng-if="vm.mode === vm.modes[1]">
+                <h3 class="full-title upper cell"><i>New password</i></h3>
+                <input class="cell" ng-class="{'inputerror': !vm.checkPasswordStrength() && vm.loginForm.new_password.length}" ng-model="vm.loginForm.new_password" type="password">
+              </div>
+              <div class="tabular-row spacer" ng-if="vm.mode === vm.modes[1]">
+                <h3 class="full-title upper cell"><i>Confirm new password</i></h3>
+                <input class="cell" ng-class="{'inputerror': vm.checkPasswordsEqual() && vm.loginForm.confirm_password.length}" ng-model="vm.loginForm.confirm_password" type="password">
+              </div>
+              <div class="spacer2"></div>
+              <div class="tabular-row spacer">
+                <button ng-click="vm.submit()" class="cell bttn">SUBMIT</button>
+              </div>
             </div>
-              <button ng-click="vm.login()" ng-disabled="vm.resetPasswordFlag" class="bttn">LOGIN</button>
-              <button ng-click="vm.resetPassword()" ng-disabled="vm.passwordChangeOk()" class="bttn" >CHANGE PASSWORD</button>
+            <div class="cell spacer-horizontal"></div>
+            <div class="cell" ng-show="vm.mode === vm.modes[1]">
+              <h3 class="full-title upper"><i>Password requirements:</i></h3>
+              <div ng-repeat="check in vm.passWordChecks track by $index">
+                <h3 class="full-title upper" ng-if="$index == 1"><i>{{vm.config["users"]["password_num_match_groups"]}} of the following:</i></h3>
+                <h3>
+                  <span class="full-title" ng-if="check[1]"><i class="ok" >&#10003;</i></span>
+                  <span class="full-title" ng-if="!check[1]"><i class="error" >&#10007;</i></span>
+                  <span class="full-title"><i>{{check[0]}}</i></span>
+                </h3>
+              </div>
+            </div>
           </form>
-          <!--<div class="line-wrapper list-item clickable" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">-->
-            <!--<h3 class="full-title"><b>{{user.first_name}} {{user.last_name}}</b></h3>-->
-          <!--</div>-->
         </section>
       </contentwrapper>
     </sectionbox>

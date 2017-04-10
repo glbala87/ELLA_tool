@@ -6,18 +6,55 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'login',
     templateUrl: 'ngtmpl/login.ngtmpl.html'
 })
-@Inject('$location', 'User', 'Navbar', 'LoginResource', 'toastr')
+@Inject('$scope', '$location', 'Config', 'User', 'Navbar', 'LoginResource', 'toastr')
 export class LoginController {
-    constructor(location, User,Navbar, LoginResource, toastr) {
+    constructor($scope, location, Config, User,Navbar, LoginResource, toastr) {
         this.location = location;
         this.user = User;
         this.users = [];
         this.toastr = toastr;
-        this.name_filter = '';
+        this.config = Config.getConfig()
+
+        this.modes = ["Login", "Change password"];
+        this.mode = this.modes[0];
+
         this.loginResource = LoginResource;
-        this.resetPasswordFlag = false;
         this.reset()
         Navbar.clearItems();
+
+        $scope.$watch(
+            () => this.loginForm.new_password,
+            () => {this.checkPasswordStrength()}
+        )
+
+    }
+
+    checkPasswordStrength() {
+
+        let pw = this.loginForm.new_password;
+        let group_matches = 0
+        let groups = this.config["users"]["password_match_groups"]
+        let num_match_groups = this.config["users"]["password_num_match_groups"]
+        let min_length = this.config["users"]["password_minimum_length"]
+        this.passWordChecks[0][1] = pw.length >= min_length;
+
+        for (let i in groups) {
+            let g = groups[i];
+            let r = new RegExp(g)
+            let test = r.test(pw);
+            this.passWordChecks[parseInt(i)+1][1] = test;
+            group_matches += test;
+        }
+
+        return group_matches >= num_match_groups && pw.length >= min_length;
+    }
+
+    checkPasswordsEqual() {
+        return this.loginForm.new_password === this.loginForm.confirm_password;
+    }
+
+    checkValidUsername() {
+        return this.loginForm.username.length > 0 && !this.loginForm.username.contains(" ");
     }
 
     reset() {
@@ -27,6 +64,13 @@ export class LoginController {
             "new_password": "",
             "confirm_password": "",
         }
+
+        // Create list of password requirements
+        let minLength = this.config["users"]["password_minimum_length"]
+        this.passWordChecks = [[`Minimum ${minLength} letters`, false]]
+        for (let s of this.config["users"]["password_match_groups_descr"]) {
+            this.passWordChecks.push([s, false])
+        }
     }
 
     selectUser(user) {
@@ -34,7 +78,26 @@ export class LoginController {
         this.location.path('/');
     }
 
+    submit() {
+        if (this.mode === this.modes[0]) {
+            this.login()
+        } else {
+            this.resetPassword()
+        }
+    }
+
+
     login() {
+        let error = false;
+        if (!this.checkValidUsername()) {
+            this.toastr.error("Invalid username")
+            error = true;
+        }
+
+        if (error) {
+            return;
+        }
+
         // Reset current user
         this.user.setCurrentUser(null);
 
@@ -56,9 +119,25 @@ export class LoginController {
     }
 
     resetPassword() {
-        if (!this.resetPasswordFlag) {
-            this.resetPasswordFlag = true;
-            return
+        let error = false;
+
+        if (!this.checkValidUsername()) {
+            this.toastr.error("Invalid username")
+            error = true;
+        }
+
+        if (!this.checkPasswordStrength()) {
+            this.toastr.error("Password not strong enough.")
+            error = true;
+        }
+
+        if (!this.checkPasswordsEqual()) {
+            this.toastr.error("Passwords do not match.")
+            error = true;
+        }
+
+        if (error) {
+            return;
         }
 
         let username = this.loginForm.username;
@@ -77,15 +156,4 @@ export class LoginController {
         })
 
     }
-
-    changePasswordOk() {
-        if (!this.resetPasswordFlag) {
-            return false
-        }
-
-        return this.loginForm.new_password === this.loginForm.confirm_password
-
-    }
-
-
 }
