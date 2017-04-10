@@ -103,7 +103,8 @@ class AlleleDataLoader(object):
                     for gt in genotypes:
                         for attr in ['allele_id', 'secondallele_id']:
                             allele_id = getattr(gt, attr)
-                            if allele_id is not None:
+                            # If both gt.allele_id and gt.secondallele_id has data, one might not be in required list
+                            if allele_id is not None and allele_id in accumulated_allele_data:
                                 if KEY_SAMPLES not in accumulated_allele_data[allele_id]:
                                     accumulated_allele_data[allele_id][KEY_SAMPLES] = list()
                                 sample_serialized = sample_schema.dump(sample_obj).data  # We need to recreate here, we cannot reuse sample object

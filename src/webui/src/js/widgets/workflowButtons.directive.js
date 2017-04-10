@@ -23,7 +23,7 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
 export class WorkflowButtonsController {
     constructor(Workflow, Config, User, InterpretationOverrideModal, $location, toastr) {
         this.workflowService = Workflow;
-        this.config = Config;
+        this.config = Config.getConfig();
         this.user = User;
         this.interpretationOverrideModal = InterpretationOverrideModal;
         this.location = $location;
@@ -124,7 +124,7 @@ export class WorkflowButtonsController {
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
             // TODO: Redirect user
-        this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles).then(() => {
+        this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles, this.config).then(() => {
             this.location.path('/overview');
         });
     }

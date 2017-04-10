@@ -75,6 +75,7 @@ import './widgets/analysisList.directive';
 import './widgets/alleleAssessment.directive';
 import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
+import './widgets/collisionWarning.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/repeatWrapper.directive';
@@ -104,11 +105,7 @@ class AppConfig {
     @Inject('$urlRouterProvider', '$stateProvider', '$resourceProvider', '$locationProvider')
     configFactory($urlRouterProvider, $stateProvider, $resourceProvider, $locationProvider) {
         $stateProvider.state('app', {
-                views: {
-                    app: {
-                        template: '<main></main>'
-                    }
-                },
+                abstract: true,
                 resolve: {
                     // Preload global config before app starts
                     config: ['Config', (Config) => {
@@ -116,10 +113,18 @@ class AppConfig {
                     }]
                 }
             })
-            .state('app.analyses', {
+            .state('app.main', {
+                abstract: true,
+                views: {
+                    'app@': {  // https://github.com/angular-ui/ui-router/wiki/Multiple-Named-Views#view-names---relative-vs-absolute-names
+                        template: '<main></main>'
+                    }
+                }
+            })
+            .state('app.main.analyses', {
                 url: '/overview/:view',
                 views: {
-                    content: {
+                    'content': {
                         template: '<overview selected-view="selectedView"></overview>',
                         controller: ['$scope', '$stateParams', function($scope, $stateParams) {
                             $scope.selectedView = $stateParams.view || 'variants';
@@ -127,10 +132,10 @@ class AppConfig {
                     }
                 }
             })
-            .state('app.analysisinterpretation', {
+            .state('app.main.analysisinterpretation', {
                 url: '/analyses/:analysisId',
                 views: {
-                    content: {
+                    'content': {
                         template: '<workflow-analysis analysis-id="{{analysisId}}"></workflow-analysis>',
                         controller: ['$scope', '$stateParams', '$location', function($scope, $stateParams, $location) {
                             $scope.analysisId = $stateParams.analysisId;
@@ -138,10 +143,10 @@ class AppConfig {
                     }
                 }
             })
-            .state('app.variantinterpretation', {
+            .state('app.main.variantinterpretation', {
                 url: '/variants/{reference_genome}/{variant_selector}?gp_name&gp_version',
                 views: {
-                    content: {
+                    'content': {
                         template: '<workflow-allele reference-genome="{{reference_genome}}" variant-selector="{{variant_selector}}" genepanel-name="{{gp_name}}" genepanel-version="{{gp_version}}"></workflow-allele>',
                         controller: ['$scope', '$stateParams', function($scope, $stateParams) {
                             $scope.reference_genome = $stateParams.reference_genome;
@@ -152,10 +157,10 @@ class AppConfig {
                     }
                 }
             })
-            .state('login', {
+            .state('app.login', {
                 url: '/login',
                 views: {
-                    app: {
+                    'app@': {
                         template: '<login></login>'
                     }
                 }

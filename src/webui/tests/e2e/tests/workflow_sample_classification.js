@@ -137,7 +137,8 @@ describe('Sample workflow', function () {
             browser.click('body'); // a trick to unfocus the above report comment
             alleleSectionBox.classificationCommentElement.scroll();
             alleleSectionBox.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');
-            alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1');
+            alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', -2); // Adjust down to PPxPS2
+            alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx+1}`);
 
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
@@ -170,7 +171,12 @@ describe('Sample workflow', function () {
                         comment: 'ACMG_ROUND_1'
                     },
                     {
-                        code: 'PS2',
+                        code: 'PPxPS2',
+                        category: 'pathogenic',
+                        comment: 'ACMG_ROUND_1'
+                    },
+                    {
+                        code: 'PVSxPS1',
                         category: 'pathogenic',
                         comment: 'ACMG_ROUND_1'
                     },

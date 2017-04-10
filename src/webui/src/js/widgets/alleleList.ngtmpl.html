@@ -2,7 +2,7 @@
 <a class="id-variant list-item clickable"
    href="{{vm.getItemUrl(item)}}"
    ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]">
-  <div>{{item.oldest_analysis | date:"dd-MM-yyyy"}}</div>
+  <div>{{item.oldest_analysis | date:"yyyy-MM-dd"}}</div>
   <div class="allele-priority">{{vm.getPriorityText(item)}}</div>
   <div class="full-title ref-title id-variant-name">
       <span ng-repeat="t in item.allele.annotation.filtered">

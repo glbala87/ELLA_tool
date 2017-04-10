@@ -31,14 +31,18 @@ export class AlleleInfoReferences {
         $scope.$watchCollection(
             () => this.references,
             () => {
-                this.setAlleleReferences();
+                if (this.allele && this.references) {
+                    this.setAlleleReferences();
+                }
             }
 
         );
         $scope.$watch(
             () => this.allele,
             () => {
-                this.setAlleleReferences();
+                if (this.allele && this.references) {
+                    this.setAlleleReferences();
+                }
             }
         );
         this.refEvalModal = ReferenceEvalModal;

@@ -396,8 +396,10 @@ export class AlleleStateHelper {
         if (allele.allele_assessment) {
             if (!('autoReuseAlleleAssessmentCheckedId' in allele_state) ||
                 allele_state.autoReuseAlleleAssessmentCheckedId < allele.allele_assessment.id) {
-                this.enableReuseAlleleAssessment(allele, allele_state, config)
-                allele_state.autoReuseAlleleAssessmentCheckedId = allele.allele_assessment.id;
+                if (!this.isAlleleAssessmentOutdated(allele, config)) {
+                    this.enableReuseAlleleAssessment(allele, allele_state, config)
+                    allele_state.autoReuseAlleleAssessmentCheckedId = allele.allele_assessment.id;
+                }
                 return true;
             }
         }
@@ -474,8 +476,6 @@ export class AlleleStateHelper {
             return false;
         }
     }
-
-
 
     static hasExistingReferenceAssessment(allele, reference, allele_state) {
         if (this.allele.reference_assessments) {

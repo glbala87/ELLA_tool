@@ -12,10 +12,7 @@ export class NavbarController {
     constructor(Navbar, User, Config, $location) {
         this.navbarService = Navbar;
         this.user = User;
-        Config.loadConfig().then(() => {
-            this.config = Config.getConfig();
-            })
-
+        this.config = Config.getConfig();
         this.location = $location;
 
     }

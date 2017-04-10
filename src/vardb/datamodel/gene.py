@@ -68,8 +68,8 @@ class Genepanel(Base):
     name = Column(String(), primary_key=True)
     version = Column(String(), primary_key=True)
     genome_reference = Column(String(15), nullable=False)
-    transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
-    phenotypes = relationship("Phenotype", lazy='joined')
+    transcripts = relationship("Transcript", secondary=genepanel_transcript)
+    phenotypes = relationship("Phenotype")
 
     config = Column(JSONMutableDict.as_mutable(JSONB), default={})  # format defined by
 

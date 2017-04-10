@@ -108,6 +108,14 @@ class WorkflowService {
 
         // Add any manually added alleles
         if ('manuallyAddedAlleles' in interpretation.state) {
+            // First clean the state, since previously manually added might now not be
+            // part of the excluded ones. This can happen when a user had included
+            // a previously filtered allele, and then given it a classification.
+            interpretation.state.manuallyAddedAlleles = interpretation.state.manuallyAddedAlleles.filter(m => {
+                return Object.values(interpretation.excluded_allele_ids).some(excluded => {
+                    return excluded.includes(m);
+                });
+            });
             allele_ids = allele_ids.concat(interpretation.state.manuallyAddedAlleles);
         }
 
@@ -131,34 +139,58 @@ class WorkflowService {
                     return p;
                 }, []);
             }
-
-            // Updates allele.acmg inplace
-            return this.alleleService.updateACMG(
-                alleles,
-                interpretation.genepanel_name,
-                interpretation.genepanel_version,
-                referenceassessments
-            ).then(() => alleles);
+            if (alleles.length) {
+                // Updates allele.acmg inplace
+                return this.alleleService.updateACMG(
+                    alleles,
+                    interpretation.genepanel_name,
+                    interpretation.genepanel_version,
+                    referenceassessments
+                ).then(() => alleles);
+            }
+            else {
+                return alleles;
+            }
         });
     }
 
     /**
      * Checks whether user is allowed to finalize the analysis.
-     * Criteria is that every allele must have an alleleassessment _with a classification_.
+     * Criteria is that every allele must:
+     *  - have an alleleassessment with a classification.
+     *  - if the classification is reused it must not be outdated
+     *
      * @return {bool}
      */
-    canFinalize(interpretation, alleles) {
-        return interpretation &&
-               interpretation.status === 'Ongoing' &&
-               alleles &&
-               'allele' in interpretation.state &&
-               alleles.every(a => {
-                   return a.id in interpretation.state.allele &&
-                          AlleleStateHelper.getClassification(
-                              a,
-                              interpretation.state.allele[a.id]
-                          );
-               });
+    canFinalize(interpretation, alleles, config) {
+        if (!alleles) {
+            return false;
+        }
+        if (alleles.length === 0) {
+            return true;
+        }
+        // Ensure that we have an interpretation with a state
+        if (interpretation &&
+            interpretation.status === 'Ongoing' &&
+            'allele' in interpretation.state) {
+
+                // Check that all alleles
+                // - have classification
+                // - if reused, that they're not outdated
+                return alleles.every(a => {
+                    if (a.id in interpretation.state.allele) {
+                        let allele_state = interpretation.state.allele[a.id];
+                        let has_classification = Boolean(AlleleStateHelper.getClassification(a, allele_state));
+                        let not_reused_outdated = true;
+                        if (AlleleStateHelper.isAlleleAssessmentReused(allele_state)) {
+                            not_reused_outdated = !AlleleStateHelper.isAlleleAssessmentOutdated(a, config);
+                        }
+                        return has_classification && not_reused_outdated;
+                    }
+                });
+            }
+
+        return false;
     }
 
     /**
@@ -167,13 +199,13 @@ class WorkflowService {
      * @param  {Array(Allele)} alleles  Alleles to include allele/referenceassessments for.
      * @return {Promise}  Resolves upon completed submission.
      */
-    confirmCompleteFinalize(type, id, interpretation, alleles) {
+    confirmCompleteFinalize(type, id, interpretation, alleles, config) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
             controller: ['canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
             size: 'lg',
             resolve: {
-                canFinalize: () => this.canFinalize(interpretation, alleles)
+                canFinalize: () => this.canFinalize(interpretation, alleles, config)
             },
             controllerAs: 'vm'
         });

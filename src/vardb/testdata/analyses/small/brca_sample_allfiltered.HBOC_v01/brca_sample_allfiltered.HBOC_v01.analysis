@@ -1,0 +1,9 @@
+{
+    "params": {
+        "genepanel": "HBOC_v01"
+    }, 
+    "name": "brca_sample_allfiltered.HBOC_v01", 
+    "samples": [
+        "brca_sample_allfiltered"
+    ]
+}

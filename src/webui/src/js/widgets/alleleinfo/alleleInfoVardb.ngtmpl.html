@@ -1,10 +1,9 @@
 <contentbox class="vardb" title="Existing classification" ng-if="vm.hasContent()">
   <cbbody>
     <section class="button-row">
-      <button class="blue" ng-click="vm.reset()" ng-if="!vm.readOnly">RESET</button>
       <button class="blue" ng-click="vm.showHistory()">History</button>
     </section>
 
-    <allele-assessment alleleassessment="vm.allele.allele_assessment"></allele-assessment>
+    <allele-assessment alleleassessment="vm.allele.allele_assessment" summary-only="true"></allele-assessment>
   </cbbody>
 </contentbox>

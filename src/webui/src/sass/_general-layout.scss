@@ -301,14 +301,12 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
   input:focus:hover { background-color: $white-75; }
 }
 
-nav.warning { z-index: 99; position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; color: $white-95; background-color: $red-95; padding: 1.3rem;
+nav.warning { display: flex; align-items: center; justify-content: space-between; color: $white-95; background-color: $red-95; padding: 1.3rem;
   h2 {  font-weight: 400; font-size: 1.4rem; color: $white-75;}
   h3 {  font-weight: 400; font-size: 1.4rem; }
   h4 {  font-weight: 400; font-size: 1.2rem; padding-left: 1rem; }
 
 }
-
-
 
 .search-results .ng-enter { animation: 1s fade-in; }
 .search-results { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
@@ -329,7 +327,7 @@ nav.warning { z-index: 99; position: fixed; bottom: 0; left: 0; right: 0; displa
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
 .sidebar { display: flex; flex-direction: column; justify-content: flex-start; min-width: 34rem; min-height: 540px; position: fixed; left: 1.3rem; bottom: 1.3rem; top: 14.5rem; transition: top 0.6s;
-  .higher & { top: 7.5rem; }
+  // 'top' is overridden in javascript to create sticky effect, see sidebar.directive
   section.enabled, section.disabled { flex-basis: auto; overflow-y: auto; max-height: 40vh; }
   section > div:first-child { margin-top: 1rem; }
   section > div:last-child { margin-bottom: 1rem; }
@@ -349,7 +347,7 @@ nav.warning { z-index: 99; position: fixed; bottom: 0; left: 0; right: 0; displa
       &.gene { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
       &.hgvsc { max-width: 12rem; text-overflow: ellipsis; overflow: hidden; }
       &.consequence { max-width: 10rem;}
-      &.classification { max-width: 2rem; }
+      &.classification { max-width: 3rem; }
       &.tab { max-width: 0.3rem; width: 0.3rem; padding: 0; min-width: 0.3rem; height: 2.6rem; background-color: inherit;
       }
     }

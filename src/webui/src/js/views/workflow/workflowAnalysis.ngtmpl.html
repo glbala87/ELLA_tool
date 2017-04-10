@@ -38,11 +38,10 @@
       ></workflow-buttons>
     </section>
   </nav>
-  <nav class="warning" ng-if="vm.allele_collisions.collisions.count > 0">
-    <div class="id-collision-warning">
-      <h2>There are currently {{vm.allele_collisions.collisions.count}} variant(s) being worked on in other workflows.</h2>
-    </div>
+  <nav class="warning" ng-if="vm.allele_collisions.length > 0">
+    <collision-warning collisions="vm.allele_collisions"></collision-warning>
   </nav>
+
   <div class="interpretation">
     <interpretation
       components="vm.components"
@@ -56,6 +55,7 @@
       read-only="vm.readOnly()"
     ></interpretation>
   </div>
+
 
 </div>
 

@@ -7,6 +7,7 @@ import {Directive, Inject} from '../ng-decorators';
     scope: {
         allele: '=',
         alleleassessment: '=',
+        summaryOnly: '=?'
     },
     templateUrl: 'ngtmpl/alleleAssessment.ngtmpl.html'
 })
