@@ -66,11 +66,15 @@ def hash_password(password):
 
 def create_session(session, user_id):
     token = str(uuid.uuid1())
+    u = session.query(user.User).filter(
+        user.User.id == user_id,
+    ).one()
 
     userSession = user.UserSession(
         token=token,
         user_id=user_id,
         issued=datetime.datetime.now(),
+        expires=u.password_expiry,
     )
     session.add(userSession)
     session.commit()

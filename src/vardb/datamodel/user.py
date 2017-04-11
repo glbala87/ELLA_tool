@@ -31,6 +31,7 @@ class UserSession(Base):
     token = Column(String(), nullable=False, unique=True)
     issued = Column(DateTime, default=datetime.datetime.now, nullable=False)
     lastactivity = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    expires = Column(DateTime, nullable=False)
     expired = Column(DateTime)
 
 
