@@ -16,11 +16,11 @@
               <div class="spacer2"></div>
               <div class="tabular-row spacer">
                 <h3 class="full-title upper cell"><i>Username</i></h3>
-                <input class="cell" ng-model="vm.loginForm.username" name="username">
+                <input class="cell id-username" ng-model="vm.loginForm.username">
               </div>
               <div class="tabular-row spacer">
                 <h3 class="full-title upper cell"><i>Password</i></h3>
-                <input class="cell" ng-model="vm.loginForm.password" type="password">
+                <input class="cell id-password" ng-model="vm.loginForm.password" type="password">
               </div>
               <div class="tabular-row spacer" ng-if="vm.mode === vm.modes[1]">
                 <h3 class="full-title upper cell"><i>New password</i></h3>
@@ -32,7 +32,7 @@
               </div>
               <div class="spacer2"></div>
               <div class="tabular-row spacer">
-                <button ng-click="vm.submit()" class="cell bttn">SUBMIT</button>
+                <button ng-click="vm.submit()" class="cell bttn id-login-submit">SUBMIT</button>
               </div>
             </div>
             <div class="cell spacer-horizontal"></div>

@@ -689,7 +689,7 @@ class AnalysisActionFinalizeResource(Resource):
 
 class AnalysisCollisionResource(Resource):
     @authenticate()
-    def get(self, session, analysis_id, user_id=None):
+    def get(self, session, analysis_id, user=None):
         analysis_allele_ids = session.query(allele.Allele.id).join(
             genotype.Genotype.alleles,
             sample.Sample,
