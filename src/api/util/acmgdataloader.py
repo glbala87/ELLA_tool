@@ -7,7 +7,6 @@ from rule_engine.gre import GRE
 from rule_engine.mapping_rules import rules
 from api.util.allelefilter import AlleleFilter, TempAlleleFilterTable
 from api.util.genepanelconfig import GenepanelConfigResolver
-from api.util.util import authenticate
 from .alleledataloader import AlleleDataLoader
 
 

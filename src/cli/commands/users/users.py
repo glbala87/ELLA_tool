@@ -80,7 +80,6 @@ def convert(join, *split_args):
 
 def generate_password():
     password = base64.b64encode(os.urandom(10))[-10:-2]
-    print password
     if not check_password_strength(password):
         return generate_password()
     password_hash = hash_password(password)

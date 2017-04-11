@@ -95,10 +95,6 @@ class ChangePasswordResource(Resource):
         password = data.get("password")
         new_password = data.get("new_password")
 
-        print "Change password: "
-        print "\tUsername: ", username
-        print "\tPassword: ", password
-
         # change_password performs the authentication
         change_password(session, username, password, new_password)
         return Response("Password for user %s changed. You can now log in." %username)

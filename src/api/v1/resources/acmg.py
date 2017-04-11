@@ -11,7 +11,6 @@ from api.v1.resource import Resource
 
 class ACMGAlleleResource(Resource):
 
-    @authenticate()
     def get_alleles(self, session, allele_ids, user=None):
         """
 
@@ -27,7 +26,6 @@ class ACMGAlleleResource(Resource):
         else:
             return []
 
-    @authenticate()
     def get_genepanel(self, session, gp_name, gp_version, user=None):
         """
         Look up a genepanel
