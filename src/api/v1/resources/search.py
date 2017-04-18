@@ -103,17 +103,13 @@ class SearchResource(Resource):
         # Search analysis
         matches['analyses'] = self._search_analysis(session, query)
 
-        # Search alleles
-        matches['alleles'] = self._alleles_by_genepanel(
-            session,
-            self._search_allele(session, query)
-        )
+        # Search alleles with assessments
+        alleles_with_assessment = self._search_alleleassessment(session, query)
+        matches['alleleassessments'] = self._alleles_by_genepanel(session, alleles_with_assessment)
 
-        # Search alleleassessments
-        matches['alleleassessments'] = self._alleles_by_genepanel(
-            session,
-            self._search_alleleassessment(session, query)
-        )
+        # Search alleles without assessments
+        alleles_without_assessment = self._search_allele(session, query, skip=[a["id"] for a in alleles_with_assessment])
+        matches['alleles'] = self._alleles_by_genepanel(session, alleles_without_assessment)
 
         return matches
 
@@ -288,8 +284,10 @@ class SearchResource(Resource):
 
         return alleles_by_genepanel
 
-    def _search_allele(self, session, query):
+    def _search_allele(self, session, query, skip=None):
         allele_ids = self._search_allele_ids(session, query)
+        if skip is not None:
+            allele_ids = list(set(allele_ids)-set(skip))
 
         if allele_ids:
             alleles = session.query(allele.Allele).filter(
