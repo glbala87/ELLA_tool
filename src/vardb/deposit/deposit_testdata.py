@@ -123,6 +123,8 @@ class DepositTestdata(object):
         """
         :param test_set: Which set to import.
         """
+        if test_set == "empty":
+            return
 
         if test_set is None:
             testset = next(v for v in ANALYSES if v.get('default'))
