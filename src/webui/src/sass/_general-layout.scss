@@ -222,7 +222,7 @@ button { outline: none; border: 1px solid Transparent;
   min-height: calc(100vh - 11rem);
   height: 100%;
 
-  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; min-height: calc(100vh - 11rem);
+  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; min-height: calc(100vh - 11rem); position: fixed;
     .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
       .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
         &.active {
@@ -236,7 +236,7 @@ button { outline: none; border: 1px solid Transparent;
       }
     }
   }
-  .container { margin-left: 2rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  .container { margin-left: 9rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
   .container.no-secondary-nav { margin-top: 12rem; }
   .container.inner { width: 100%; margin-left: 35.3rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
 
