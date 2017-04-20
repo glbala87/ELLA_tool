@@ -148,13 +148,34 @@ class TempAlleleFilterTable(object):
         self.allele_ids = allele_ids
         self.config = config
 
-    def create(self):
-
+    def get_freq_columns(self):
+        """
+        Creates SQLAlchemy column queries for the frequency groups specified in config.
+        """
         frequency_groups = self.config['variant_criteria']['frequencies']['groups']
         freqs = list()
         for freq_group in frequency_groups:
             for freq_provider, freq_keys in frequency_groups[freq_group].iteritems():  # 'ExAC', ['G', 'SAS', ...]
                 freqs += [(freq_provider, freq_key) for freq_key in freq_keys]
+
+        columns = [column(k + '.' + v, Float) for k, v in freqs]
+        column_queries = [annotation.Annotation.annotations[('frequencies', k, 'freq', v)].cast(Float).label(k + '.' + v) for k, v in freqs]
+        return columns, column_queries
+
+    def get_freq_num_threshold_columns(self):
+        """
+        Creates SQLAlchemy column queries for the frequency number thresholds specified in config.
+        """
+        config_thresholds = self.config['variant_criteria']['genepanel_config']['freq_num_thresholds']
+        column_queries = list()
+        columns = list()
+        for freq_provider, freq_thresholds in config_thresholds.iteritems():  # 'ExAC', {'G': 2000, ...}
+            column_queries += [annotation.Annotation.annotations[('frequencies', freq_provider, 'num', freq_key)].cast(Integer).label(freq_provider + '_num.' + freq_key) for freq_key in freq_thresholds]
+            columns += [column(freq_provider + '_num.' + freq_key, Integer) for freq_key in freq_thresholds]
+
+        return columns, column_queries
+
+    def create(self):
 
         class jsonb_to_recordset_func(ColumnFunction):
             name = 'jsonb_to_recordset'
@@ -162,12 +183,17 @@ class TempAlleleFilterTable(object):
 
         transcript_records = jsonb_to_recordset_func(annotation.Annotation.annotations['transcripts']).alias('j')
 
+        freq_columns, freq_column_queries = self.get_freq_columns()
+        freq_num_columns, freq_num_column_queries = self.get_freq_num_threshold_columns()
+
+        additional_column_queries = freq_column_queries + freq_num_column_queries
+
         tmp_allele_filter_q = self.session.query(
             annotation.Annotation.allele_id,
             transcript_records.c.symbol.label('symbol'),
             transcript_records.c.transcript.label('transcript'),
             transcript_records.c.exon_distance.label('exon_distance'),
-            *[annotation.Annotation.annotations[('frequencies', k, 'freq', v)].cast(Float).label(k + '.' + v) for k, v in freqs]
+            *additional_column_queries
         ).filter(
             annotation.Annotation.allele_id.in_(self.allele_ids),
             annotation.Annotation.date_superceeded.is_(None)  # Important!
@@ -181,13 +207,14 @@ class TempAlleleFilterTable(object):
 
         self.session.execute('ANALYZE tmp_allele_filter_internal_only')
 
+        additional_columns = freq_columns + freq_num_columns
         return table(
             'tmp_allele_filter_internal_only',
             column('allele_id', Integer),
             column('symbol', String),
             column('transcript', String),
             column('exon_distance', Integer),
-            *[column(k + '.' + v, Float) for k, v in freqs]
+            *additional_columns
         )
 
     def drop(self):
@@ -208,6 +235,76 @@ class AlleleFilter(object):
 
         self.session = session
         self.config = config
+
+    def _get_freq_num_threshold_filter(self, allele_filter_tbl, genepanel_config, freq_provider, freq_key):
+        """
+        Check whether we have a 'num' threshold in config for given freq_provider and freq_key (e.g. ExAC->G).
+        If it's defined, the num column in allelefilter table must be greater or equal to the threshold.
+        """
+        freq_num_thresholds = genepanel_config['freq_num_thresholds']
+        if freq_provider in freq_num_thresholds and freq_key in freq_num_thresholds[freq_provider]:
+            num_threshold = freq_num_thresholds[freq_provider][freq_key]
+            assert isinstance(num_threshold, int), 'Provided frequency num threshold is not an integer'
+            # num column is defined in allelefilter table as e.g. ExAC_num.G
+            return getattr(allele_filter_tbl.c, freq_provider + '_num.' + freq_key) >= num_threshold
+
+    def _common_threshold(self, allele_filter_tbl, genepanel_config, freq_provider, freq_key, thresholds):
+        """
+        Creates SQLAlchemy filter for common threshold for a single frequency provider and key.
+        Example: ExAG.G > hi_freq_cutoff
+        """
+        freq_key_filters = list()
+        num_filter = self._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
+        if num_filter is not None:
+            freq_key_filters.append(num_filter)
+
+        freq_key_filters.append(
+            getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
+        )
+
+        return and_(*freq_key_filters)
+
+    def _less_common_threshold(self, allele_filter_tbl, genepanel_config, freq_provider, freq_key, thresholds):
+        """
+        Creates SQLAlchemy filter for less_common threshold for a single frequency provider and key.
+        Example: ExAG.G < hi_freq_cutoff AND ExAG.G >= lo_freq_cutoff
+        """
+        freq_key_filters = list()
+        num_filter = self._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
+        if num_filter is not None:
+            freq_key_filters.append(num_filter)
+
+        freq_key_filters.append(
+            and_(
+                getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['hi_freq_cutoff'],
+                getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
+            )
+        )
+
+        return and_(*freq_key_filters)
+
+    def _low_freq_threshold(self, allele_filter_tbl, genepanel_config, freq_provider, freq_key, thresholds):
+        """
+        Creates SQLAlchemy filter for low_freq threshold for a single frequency provider and key.
+        Example: ExAG.G < lo_freq_cutoff
+        """
+        freq_key_filters = list()
+        num_filter = self._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
+        if num_filter is not None:
+            freq_key_filters.append(num_filter)
+        freq_key_filters.append(
+            getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
+        )
+
+        return and_(*freq_key_filters)
+
+    @staticmethod
+    def _null_freq_threshold(allele_filter_tbl, genepanel_config, freq_provider, freq_key, thresholds):
+        """
+        Creates SQLAlchemy filter for null_freq threshold for a single frequency provider and key.
+        Example: ExAG.G IS NULL
+        """
+        return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key).is_(None)
 
     def _get_AD_genes(self, gp_key):
         """
@@ -239,31 +336,35 @@ class AlleleFilter(object):
         ).distinct().all()
         return [g[0] for g in genes]
 
-    def _get_freq_threshold_filter(self, af_table, group_thresholds, threshold_func):
+    def _get_freq_threshold_filter(self, af_table, genepanel_config, group_thresholds, threshold_func, combine_func=or_):
         # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
-        # TODO: Get from merged genepanel config when ready
+        # TODO: Get from merged genepanel config when freq groups are moved into genepanel
         frequency_groups = self.config['variant_criteria']['frequencies']['groups']
+
         filters = list()
         for group, thresholds in group_thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
             if group not in frequency_groups:
                 raise RuntimeError("Group {} specified in freq_cutoffs, but it doesn't exist in configuration".format(group))
+
             for freq_provider, freq_keys in frequency_groups[group].iteritems():  # 'ExAC', ['G', 'SAS', ...]
                 for freq_key in freq_keys:
                     filters.append(
-                        threshold_func(af_table, freq_provider, freq_key, thresholds)
+                        threshold_func(af_table, genepanel_config, freq_provider, freq_key, thresholds)
                     )
-        return or_(*filters)
 
-    def _create_freq_filter(self, af_table, genepanels, gp_allele_ids, threshold_func):
+        return combine_func(*filters)
+
+    def _create_freq_filter(self, af_table, genepanels, gp_allele_ids, threshold_func, combine_func=or_):
 
         gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
 
         for gp_key in gp_allele_ids:  # loop over every genepanel, with related genes
 
             genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
+            genepanel_config = self.config['variant_criteria']['genepanel_config']
             gp_config_resolver = GenepanelConfigResolver(
                 genepanel=genepanel,
-                genepanel_default=self.config['variant_criteria']['genepanel_config']
+                genepanel_default=genepanel_config
             )
 
             # Create the different kinds of filters
@@ -279,11 +380,13 @@ class AlleleFilter(object):
             # Example: af.symbol = "BRCA2" AND (af."ExAC.G" > 0.04 OR af."1000g.G" > 0.01)
             override_genes = gp_config_resolver.get_genes_with_overrides()
             for symbol in override_genes:
-                symbol_group_thresholds = gp_config_resolver.resolve(symbol)['freq_cutoffs']
+                # Get merged genepanel for this gene/symbol
+                symbol_genepanel_config = gp_config_resolver.resolve(symbol)
+                symbol_group_thresholds = symbol_genepanel_config['freq_cutoffs']
                 gp_final_filter.append(
                     and_(
                         af_table.c.symbol == symbol,
-                        self._get_freq_threshold_filter(af_table, symbol_group_thresholds, threshold_func)
+                        self._get_freq_threshold_filter(af_table, symbol_genepanel_config, symbol_group_thresholds, threshold_func, combine_func=combine_func)
                     )
                 )
 
@@ -294,7 +397,7 @@ class AlleleFilter(object):
                 gp_final_filter.append(
                     and_(
                         af_table.c.symbol.in_(ad_genes),
-                        self._get_freq_threshold_filter(af_table, ad_group_thresholds, threshold_func)
+                        self._get_freq_threshold_filter(af_table, genepanel_config, ad_group_thresholds, threshold_func, combine_func=combine_func)
                     )
                 )
 
@@ -303,7 +406,7 @@ class AlleleFilter(object):
             gp_final_filter.append(
                 and_(
                     ~af_table.c.symbol.in_(override_genes + ad_genes),
-                    self._get_freq_threshold_filter(af_table, default_group_thresholds, threshold_func)
+                    self._get_freq_threshold_filter(af_table, genepanel_config, default_group_thresholds, threshold_func, combine_func=combine_func)
                 )
             )
 
@@ -350,18 +453,6 @@ class AlleleFilter(object):
             tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(gp_allele_ids.keys())
         ).all()
 
-        def common_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
-            return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
-
-        def less_common_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
-            return and_(
-                getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['hi_freq_cutoff'],
-                getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
-            )
-
-        def low_freq_threshold(allele_filter_tbl, freq_provider, freq_key, thresholds):
-            return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
-
         commonness_entries = [
             ('common', dict()),
 
@@ -369,14 +460,16 @@ class AlleleFilter(object):
         if not common_only:
             commonness_entries += [
                 ('less_common', dict()),
-                ('low_freq', dict())
+                ('low_freq', dict()),
+                ('null_freq', dict())
             ]
         commonness_result = OrderedDict(commonness_entries)  # Ordered to get final_result processing correct later
 
         threshold_funcs = {
-            'common': common_threshold,
-            'less_common': less_common_threshold,
-            'low_freq': low_freq_threshold
+            'common': (self._common_threshold, or_),
+            'less_common': (self._less_common_threshold, or_),
+            'low_freq': (self._low_freq_threshold, or_),
+            'null_freq': (self._null_freq_threshold, and_)
         }
 
         for commonness_group, result in commonness_result.iteritems():
@@ -386,7 +479,8 @@ class AlleleFilter(object):
                 allele_filter_tbl,
                 genepanels,
                 gp_allele_ids,
-                threshold_funcs[commonness_group]
+                threshold_funcs[commonness_group][0],
+                combine_func=threshold_funcs[commonness_group][1]
             )
 
             for gp_key, al_ids in gp_allele_ids.iteritems():
@@ -408,8 +502,9 @@ class AlleleFilter(object):
                 added_thus_far.update(set(v[gp_key]))
 
             if not common_only:
-                # Add all not part of the groups to a 'null_freq' group
-                final_result[gp_key]['null_freq'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
+                # Add all not part of the groups to a 'num_threshold' group,
+                # since they must have missed freq num threshold
+                final_result[gp_key]['num_threshold'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
 
         if table_creator is not None:
             table_creator.drop()
@@ -603,6 +698,7 @@ class AlleleFilter(object):
             excluded = gp_filtered_gene + gp_filtered_frequency
             gp_filtered_intronic = [i for i in filtered_intronic[gp_key] if i not in excluded]
             excluded = excluded + gp_filtered_intronic
+
             # Subtract the ones we excluded to get the ones not filtred out
             not_filtered = list(set(gp_allele_ids[gp_key]) - set(excluded))
             result[gp_key] = {

@@ -35,13 +35,19 @@ CONFIG = {
                         "lo_freq_cutoff": 0.01
                     }
                 }
+            },
+            "freq_num_thresholds": {
+                "ExAC": {
+                    "G": 2000,
+                    "FIN": 2000,
+                }
             }
         },
         "exclude_genes": ['GENE3'],
         "frequencies": {
             "groups": {
                 "external": {
-                    "ExAC": ["G"],
+                    "ExAC": ["G", "FIN"],
                     "1000g": ["G"],
                     "esp6500": ["AA", "EA"]
                 },
@@ -100,6 +106,18 @@ GP_CONFIG = {
                 "internal": {
                     "hi_freq_cutoff": 0.7,
                     "lo_freq_cutoff": 0.6
+                }
+            },
+            "freq_num_thresholds": {
+                "ExAC": {
+                    "G": 1000,
+                    "AFR": 1000,
+                    "AMR": 1000,
+                    "EAS": 1000,
+                    "FIN": 1000,
+                    "NFE": 1000,
+                    "OTH": 1000,
+                    "SAS": 1000
                 }
             }
         }
@@ -268,6 +286,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.0051   # Above 0.005
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -288,6 +309,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.25   # Between 0.3 and 0.1
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -307,6 +331,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.001  # Less than 0.1
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -344,15 +371,131 @@ class TestAlleleFilter(object):
         assert set(result[gp_key]['low_freq']) == set([a1nogene.id])
         assert set(result[gp_key]['null_freq']) == set([a1nofreq.id])
 
+        ##
+        # Test num thresholds
+        ##
+
+        # Test below threshold, one source
+        anum1 = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.0051   # Above 0.005
+                    },
+                    'num': {
+                        'G': 1999  # Below 2000
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # Test threshold, two sources, one above one below
+        anum2 = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.0051,   # Above 0.005
+                        'FIN': 0.0051   # Above 0.005
+                    },
+                    'num': {
+                        'G': 1999,  # Below 2000
+                        'FIN': 2000  # Equal 2000
+                    }
+                },
+                '1000g': {
+                    'freq': {
+                        'G': 0.01   # Above 0.005
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # Test below threshold, two sources, one without num threshold filtering
+        anum3 = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.0051   # Above 0.005
+                    },
+                    'num': {
+                        'G': 1999  # Below 2000
+                    }
+                },
+                '1000g': {
+                    'freq': {
+                        'G': 0.01   # Above 0.005
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # Test gene specific threshold override, above threshold
+        anum4 = create_allele_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.6   # Above 0.5
+                    },
+                    'num': {
+                        'G': 1001  # Above 1000
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE2',
+                    'transcript': 'NM_2.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        session.commit()
+
+        af = AlleleFilter(session, CONFIG)
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [anum1.id, anum2.id, anum3.id, anum4.id]
+        result = af.get_commonness_groups({gp_key: allele_ids})
+
+        assert set(result[gp_key]['num_threshold']) == set([anum1.id])
+        assert set(result[gp_key]['common']) == set([anum2.id, anum3.id, anum4.id])
+
+        ##
         # Test ordering
+        #
         # One allele should only appear in one group,
         # even if the different frequencies would give
         # hits in different ones
+        ##
         a2common = create_allele_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
                         'G': 0.0051   # Above 0.005 -> common
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 },
                 '1000g': {
@@ -385,6 +528,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.002   # Between 0.005 and 0.001 -> less_common
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 },
                 '1000g': {
@@ -417,6 +563,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.0001   # Below 0.001 -> low_freq
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
                 # All other missing freqs will give hits in low_freq
@@ -462,6 +611,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.0051   # Above 0.005
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -480,6 +632,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.31   # Above 0.30
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -499,6 +654,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.31   # Above 0.30
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -537,6 +695,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.0051  # Above 0.005
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 },
                 'inDB': {
@@ -561,6 +722,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.005  # == 0.005
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -593,6 +757,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.0049   # Below 0.005
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -611,6 +778,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.2999   # Below 0.3
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -662,6 +832,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -886,6 +1059,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.0051   # Above 0.005
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -904,6 +1080,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0.31   # Above 0.3
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
@@ -922,6 +1101,9 @@ class TestAlleleFilter(object):
                 'ExAC': {
                     'freq': {
                         'G': 0   # BELOW 0.3
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
                     }
                 }
             },
