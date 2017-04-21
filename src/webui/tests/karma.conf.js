@@ -5,7 +5,7 @@ module.exports = function(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '../dev/',
+    basePath: '../build/',
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -15,12 +15,12 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser (relative to karma.conf.js)
       files: [
           "../../../node_modules/js-polyfills/es6.js", // needed by phantomjs
-          "../dev/thirdparty.js",
+          "../build/thirdparty.js",
           "../src/thirdparty/angular/1.5.0-rc2/angular-mocks.js",
-          "../dev/app.js",
+          "../build/app.js",
           "../src/js/**/*.js",
           "../tests/unit/**/*.spec.js",
-          "../dev/templates.js"
+          "../build/templates.js"
     ],
 
     // list of files to exclude
@@ -47,7 +47,7 @@ module.exports = function(config) {
 
     // Note! no comma after last object member:
     preprocessors: {
-        '../dev/ngtmpl/*.ngtmpl.html': ['ng-html2js'],
+        '../build/ngtmpl/*.ngtmpl.html': ['ng-html2js'],
         '../tests//unit/**/*.spec.js' : ['browserify'],
         '../src/js/**/*.js': ['browserify']
     },
