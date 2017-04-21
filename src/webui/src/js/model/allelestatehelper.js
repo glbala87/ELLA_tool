@@ -25,7 +25,7 @@ export class AlleleStateHelper {
         }
 
         let evaluation = alleleassesment.evaluation;
-        for (let key of ['prediction', 'classification', 'external', 'frequency']) {
+        for (let key of ['prediction', 'classification', 'external', 'frequency', 'reference']) {
             if (!(key in evaluation)) {
                 evaluation[key] = {
                     comment: ''

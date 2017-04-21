@@ -167,6 +167,10 @@ export class WorkflowAlleleController {
                             'references',
                             'add_acmg'
                         ],
+                        alleleassessment_comment: {
+                            placeholder: 'REFERENCE-COMMENTS',
+                            name: 'reference'
+                        },
                         content: [
                             {'tag': 'allele-info-references'}
                         ],
