@@ -132,7 +132,7 @@ class SearchResource(Resource):
             }
             try:
                 if data.get('pos1'):
-                    new_data['pos1'] = int(data['pos1'])
+                    new_data['pos1'] = int(data['pos1']) - 1  # Database is 0-indexed
                 if data.get('pos2'):
                     new_data['pos2'] = int(data['pos2'])
             except ValueError:
