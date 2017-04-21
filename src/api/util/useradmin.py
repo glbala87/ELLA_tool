@@ -39,7 +39,7 @@ def check_password(password, password_hash):
     return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 
 
-def authenticate_user(session, user_or_username, password, verify_not_expired=False):
+def authenticate_user(session, user_or_username, password):
     user_object = get_user(session, user_or_username)
     if user_object.incorrect_logins >= 6:
         raise AuthenticationError("Invalid credentials. Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
@@ -52,8 +52,8 @@ def authenticate_user(session, user_or_username, password, verify_not_expired=Fa
             raise AuthenticationError("Invalid credentials. Too many failed logins. User {} has been locked. Contact support to unlock.".format(user_object.username))
 
         raise AuthenticationError("Invalid credentials")
-    elif password_expired(user_object) and verify_not_expired:
-        raise AuthenticationError("Password expired", 403)
+    elif password_expired(user_object):
+        raise AuthenticationError("Password expired")
 
     user_object.incorrect_logins = 0
     session.commit()
