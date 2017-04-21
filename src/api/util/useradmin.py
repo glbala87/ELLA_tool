@@ -21,8 +21,8 @@ def get_user(session, user_or_username):
         return user_or_username
 
 # Password check functions
-def password_expired(userObj):
-    return userObj.password_expiry < datetime.datetime.now()
+def password_expired(user_object):
+    return user_object.password_expiry < datetime.datetime.now()
 
 
 def check_password_strength(password):
@@ -39,24 +39,24 @@ def check_password(password, password_hash):
 
 
 def authenticate_user(session, user_or_username, password, verify_not_expired=False):
-    userObj = get_user(session, user_or_username)
-    if userObj.incorrect_logins >= 6:
-        raise AuthenticationError("Invalid credentials. Too many failed logins. User {} is locked. Contact support to unlock.".format(userObj.username))
+    user_object = get_user(session, user_or_username)
+    if user_object.incorrect_logins >= 6:
+        raise AuthenticationError("Invalid credentials. Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
 
-    if not check_password(password, userObj.password):
-        userObj.incorrect_logins += 1
+    if not check_password(password, user_object.password):
+        user_object.incorrect_logins += 1
         session.commit()
-        if userObj.incorrect_logins >= 6:
-            lock_user(session, userObj)
-            raise AuthenticationError("Invalid credentials. Too many failed logins. User {} has been locked. Contact support to unlock.".format(userObj.username))
+        if user_object.incorrect_logins >= 6:
+            lock_user(session, user_object)
+            raise AuthenticationError("Invalid credentials. Too many failed logins. User {} has been locked. Contact support to unlock.".format(user_object.username))
 
         raise AuthenticationError("Invalid credentials")
-    elif password_expired(userObj) and verify_not_expired:
+    elif password_expired(user_object) and verify_not_expired:
         raise AuthenticationError("Password expired", 403)
 
-    userObj.incorrect_logins = 0
+    user_object.incorrect_logins = 0
     session.commit()
-    return userObj
+    return user_object
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -87,72 +87,81 @@ def logout(userSession):
 def logout_all(session, user_id):
     open_user_sessions = session.query(user.UserSession).filter(
         user.UserSession.user_id == user_id,
-        user.UserSession.expired is None,
+        user.UserSession.expired.is_(None),
     ).all()
     for user_session in open_user_sessions:
         logout(user_session)
 
 
 def change_password(session, user_or_username, old_password, new_password, override=False):
-    userObj = get_user(session, user_or_username)
+    """
+    Change password for user
 
-    if not override and not check_password(old_password, userObj.password):
+    :param session: scoped_session object
+    :param user_or_username: user or username, extract user if username is provided
+    :param old_password: Existing password
+    :param new_password: New password to set
+    :param override: If this is True, then it is called from command line, and does not verify the old_password. It also sets the password as expired, so that it needs to be changed. 
+    """
+    user_object = get_user(session, user_or_username)
+
+    if not override and not check_password(old_password, user_object.password):
         raise AuthenticationError("Invalid credentials.")
 
-    if userObj.locked and not override:
+    if user_object.locked and not override:
         raise AuthenticationError("User is locked. Unable to change password. Contact support.")
 
     if not check_password_strength(new_password):
         raise AuthenticationError("Password doesn't follow password strength guidelines.", 403)
 
-    old_passwords = session.query(user.OldPassword).filter(
-        user.OldPassword.user_id == userObj.id
+    old_passwords = session.query(user.UserOldPassword).filter(
+        user.UserOldPassword.user_id == user_object.id
     ).order_by(
-        desc(user.OldPassword.expired)
+        desc(user.UserOldPassword.expired)
     ).limit(
         13
     ).all()
 
 
-    if check_password(new_password, userObj.password):
+    if check_password(new_password, user_object.password):
         raise AuthenticationError("Password is equal to an old password. Choose a different password.")
     for old_pw in old_passwords:
         if check_password(new_password, old_pw.password):
             raise AuthenticationError("Password is equal to an old password. Choose a different password.")
 
-    session.add(user.OldPassword(
-        user_id=userObj.id,
-        password=userObj.password
+    session.add(user.UserOldPassword(
+        user_id=user_object.id,
+        password=user_object.password
     ))
-    logout_all(session, userObj.id)
-    userObj.password = hash_password(new_password)
+    logout_all(session, user_object.id)
+    user_object.password = hash_password(new_password)
     if override:
-        userObj.password_expiry = datetime.datetime.fromtimestamp(0)
+        user_object.password_expiry = datetime.datetime.fromtimestamp(0)
     else:
-        userObj.password_expiry = datetime.datetime.now()+datetime.timedelta(days=config["users"]["password_expiry_days"])
+        user_object.password_expiry = datetime.datetime.now()+datetime.timedelta(days=config["users"]["password_expiry_days"])
 
     if override:
-        userObj.locked = False
-    userObj.incorrect_logins = 0
+        user_object.locked = False
+    user_object.incorrect_logins = 0
 
     session.commit()
 
 
 def lock_user(session, user_or_username):
-    userObj = get_user(session, user_or_username)
-    userObj.locked = True
-    logout_all(session, userObj.id)
+    user_object = get_user(session, user_or_username)
+    user_object.locked = True
+    logout_all(session, user_object.id)
     session.commit()
 
 
 def open_user(session, user_or_username):
-    userObj = get_user(session, user_or_username)
-    userObj.locked = False
+    user_object = get_user(session, user_or_username)
+    user_object.locked = False
     session.commit()
 
 
 def modify_user(session, user_or_username, **kwargs):
-    userObj = get_user(session, user_or_username)
+    user_object = get_user(session, user_or_username)
     for k, v in kwargs.items():
-        setattr(userObj, k, v)
+        setattr(user_object, k, v)
     session.commit()
