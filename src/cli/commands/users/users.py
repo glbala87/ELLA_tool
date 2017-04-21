@@ -90,7 +90,7 @@ def encode(s):
     if isinstance(s, (str, unicode)):
         return s.encode('utf-8')
     else:
-        return s
+        return str(s)
 
 
 # Commands
@@ -108,15 +108,15 @@ def cmd_users_list():
     db = DB()
     db.connect()
     session = db.session()
-    users = UserSchema().dump(session.query(user.User).all(), many=True).data
+    users = session.query(user.User).all()
 
-    header = {'id': 'id', 'username': 'username', 'first_name': 'first_name', 'last_name': 'last_name', 'password': 'password', 'password_expiry': 'password_expiry'}
-    row_format = "{id:^10}| {username:<20} | {first_name:<30} | {last_name:<30} | {password:<60} | {password_expiry:<30}"
+    header = {'id': 'id', 'username': 'username', 'first_name': 'first_name', 'last_name': 'last_name', 'password_expiry': 'password_expiry'}
+    row_format = "{id:^10}| {username:<20} | {first_name:<30} | {last_name:<30} | {password_expiry:<30}"
     click.echo(row_format.format(**header))
     click.echo(row_format.format(
         **{'id': '-' * 10, 'username': '-' * 20, 'first_name': '-' * 30, 'last_name': '-' * 30, 'password': '-' * 60, 'password_expiry': '-' * 40}))
     for u in users:
-        click.echo(row_format.format(**{h: encode(u[h]) for h in header}))
+        click.echo(row_format.format(**{h: encode(getattr(u,h)) for h in header}))
 
 
 @users.command('add')
