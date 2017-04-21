@@ -125,22 +125,22 @@ class TempAlleleFilterTable(object):
         ...
 
     When used as a context manager, the table is explicitly dropped at exit.
-    Otherwise, it should be dropped at end of transaction.
+    Otherwise, it will automatically be dropped at end of transaction.
 
     The returned table is a SQLAlchemy table() description of the created table.
 
     Table example:
-    -------------------------------------------------------------------------------------------------------------------------
-    | allele_id | symbol  | transcript      | exon_distance | inDB.AF | ExAC.G           | esp6500.AA | esp6500.EA | 1000g.G |
-    -------------------------------------------------------------------------------------------------------------------------
-    | 3         | PLOD1   | ENST00000196061 | -89           | 0.0422  | None             | None       | None       | 0.008   |
-    | 3         | PLOD1   | ENST00000376369 | -89           | 0.0422  | None             | None       | None       | 0.008   |
-    | 3         | PLOD1   | ENST00000465920 | None          | 0.0422  | None             | None       | None       | 0.008   |
-    | 3         | PLOD1   | ENST00000470133 | None          | 0.0422  | None             | None       | None       | 0.008   |
-    | 3         | PLOD1   | ENST00000485046 | None          | 0.0422  | None             | None       | None       | 0.008   |
-    | 3         | PLOD1   | ENST00000491536 | None          | 0.0422  | None             | None       | None       | 0.008   |
-    | 3         | PLOD1   | NM_000302.3     | -89           | 0.0422  | None             | None       | None       | 0.008   |
-    | 3         | PLOD1   | XM_005263474.1  | -89           | 0.0422  | None             | None       | None       | 0.008   |
+    ----------------------------------------------------------------------------------------------------
+    | allele_id | symbol  | transcript      | exon_distance | inDB.AF | ExAC.G  | ExAC_num.G | 1000g.G |
+    ----------------------------------------------------------------------------------------------------
+    | 3         | PLOD1   | ENST00000196061 | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
+    | 3         | PLOD1   | ENST00000376369 | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
+    | 3         | PLOD1   | ENST00000465920 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
+    | 3         | PLOD1   | ENST00000470133 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
+    | 3         | PLOD1   | ENST00000485046 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
+    | 3         | PLOD1   | ENST00000491536 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
+    | 3         | PLOD1   | NM_000302.3     | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
+    | 3         | PLOD1   | XM_005263474.1  | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
     """
 
     def __init__(self, session, allele_ids, config):
@@ -236,7 +236,8 @@ class AlleleFilter(object):
         self.session = session
         self.config = config
 
-    def _get_freq_num_threshold_filter(self, allele_filter_tbl, genepanel_config, freq_provider, freq_key):
+    @staticmethod
+    def _get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key):
         """
         Check whether we have a 'num' threshold in config for given freq_provider and freq_key (e.g. ExAC->G).
         If it's defined, the num column in allelefilter table must be greater or equal to the threshold.
@@ -248,13 +249,15 @@ class AlleleFilter(object):
             # num column is defined in allelefilter table as e.g. ExAC_num.G
             return getattr(allele_filter_tbl.c, freq_provider + '_num.' + freq_key) >= num_threshold
 
+        return None
+
     def _common_threshold(self, allele_filter_tbl, genepanel_config, freq_provider, freq_key, thresholds):
         """
         Creates SQLAlchemy filter for common threshold for a single frequency provider and key.
         Example: ExAG.G > hi_freq_cutoff
         """
         freq_key_filters = list()
-        num_filter = self._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
+        num_filter = AlleleFilter._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
         if num_filter is not None:
             freq_key_filters.append(num_filter)
 
@@ -270,7 +273,7 @@ class AlleleFilter(object):
         Example: ExAG.G < hi_freq_cutoff AND ExAG.G >= lo_freq_cutoff
         """
         freq_key_filters = list()
-        num_filter = self._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
+        num_filter = AlleleFilter._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
         if num_filter is not None:
             freq_key_filters.append(num_filter)
 
@@ -289,7 +292,7 @@ class AlleleFilter(object):
         Example: ExAG.G < lo_freq_cutoff
         """
         freq_key_filters = list()
-        num_filter = self._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
+        num_filter = AlleleFilter._get_freq_num_threshold_filter(allele_filter_tbl, genepanel_config, freq_provider, freq_key)
         if num_filter is not None:
             freq_key_filters.append(num_filter)
         freq_key_filters.append(
@@ -299,10 +302,12 @@ class AlleleFilter(object):
         return and_(*freq_key_filters)
 
     @staticmethod
-    def _null_freq_threshold(allele_filter_tbl, genepanel_config, freq_provider, freq_key, thresholds):
+    def _is_freq_null(allele_filter_tbl, genepanel_config, freq_provider, freq_key, thresholds):
         """
-        Creates SQLAlchemy filter for null_freq threshold for a single frequency provider and key.
+        Creates SQLAlchemy filter for checking whether frequency is null for a single frequency provider and key.
         Example: ExAG.G IS NULL
+
+        :note: Function signature is same as other threshold filters in order for them to be called dynamically.
         """
         return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key).is_(None)
 
@@ -336,7 +341,7 @@ class AlleleFilter(object):
         ).distinct().all()
         return [g[0] for g in genes]
 
-    def _get_freq_threshold_filter(self, af_table, genepanel_config, group_thresholds, threshold_func, combine_func=or_):
+    def _get_freq_threshold_filter(self, af_table, genepanel_config, group_thresholds, threshold_func, combine_func):
         # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
         # TODO: Get from merged genepanel config when freq groups are moved into genepanel
         frequency_groups = self.config['variant_criteria']['frequencies']['groups']
@@ -354,7 +359,7 @@ class AlleleFilter(object):
 
         return combine_func(*filters)
 
-    def _create_freq_filter(self, af_table, genepanels, gp_allele_ids, threshold_func, combine_func=or_):
+    def _create_freq_filter(self, af_table, genepanels, gp_allele_ids, threshold_func, combine_func):
 
         gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
 
@@ -386,7 +391,7 @@ class AlleleFilter(object):
                 gp_final_filter.append(
                     and_(
                         af_table.c.symbol == symbol,
-                        self._get_freq_threshold_filter(af_table, symbol_genepanel_config, symbol_group_thresholds, threshold_func, combine_func=combine_func)
+                        self._get_freq_threshold_filter(af_table, symbol_genepanel_config, symbol_group_thresholds, threshold_func, combine_func)
                     )
                 )
 
@@ -397,7 +402,7 @@ class AlleleFilter(object):
                 gp_final_filter.append(
                     and_(
                         af_table.c.symbol.in_(ad_genes),
-                        self._get_freq_threshold_filter(af_table, genepanel_config, ad_group_thresholds, threshold_func, combine_func=combine_func)
+                        self._get_freq_threshold_filter(af_table, genepanel_config, ad_group_thresholds, threshold_func, combine_func)
                     )
                 )
 
@@ -406,7 +411,7 @@ class AlleleFilter(object):
             gp_final_filter.append(
                 and_(
                     ~af_table.c.symbol.in_(override_genes + ad_genes),
-                    self._get_freq_threshold_filter(af_table, genepanel_config, default_group_thresholds, threshold_func, combine_func=combine_func)
+                    self._get_freq_threshold_filter(af_table, genepanel_config, default_group_thresholds, threshold_func, combine_func)
                 )
             )
 
@@ -418,11 +423,14 @@ class AlleleFilter(object):
         """
         Categorizes allele ids according to their annotation frequency
         and the thresholds in the genepanel configuration.
-        There are three categories: 'common', 'less_common' and 'low_freq'.
+        There are five categories:
+            'common', 'less_common', 'low_freq', 'null_freq' and 'num_threshold'.
 
         common:       {freq} >= 'hi_freq_cutoff'
         less_common:  'lo_freq_cutoff' >= {freq} < 'hi_freq_cutoff'
         low_freq:     {freq} < 'lo_freq_cutoff'
+        null_freq:     All {freq} == null
+        num_threshold: Not part of above groups, and below 'num' threshold for all relevant {freq}
 
         :note: Allele ids with no frequencies are not excluded from the results.
 
@@ -435,7 +443,9 @@ class AlleleFilter(object):
             ('HBOC', 'v01'): {
                 'common': [1, 2, ...],
                 'less_common': [5, 84, ...],
-                'low_freq': [13, 40, ...]
+                'low_freq': [13, 40, ...],
+                'null_freq': [14, 34, ...],
+                'num_threshold': [50],
             }
         }
         """
@@ -455,7 +465,6 @@ class AlleleFilter(object):
 
         commonness_entries = [
             ('common', dict()),
-
         ]
         if not common_only:
             commonness_entries += [
@@ -469,7 +478,7 @@ class AlleleFilter(object):
             'common': (self._common_threshold, or_),
             'less_common': (self._less_common_threshold, or_),
             'low_freq': (self._low_freq_threshold, or_),
-            'null_freq': (self._null_freq_threshold, and_)
+            'null_freq': (self._is_freq_null, and_)
         }
 
         for commonness_group, result in commonness_result.iteritems():
