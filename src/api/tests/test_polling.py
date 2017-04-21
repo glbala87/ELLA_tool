@@ -9,6 +9,7 @@ from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, \
 from api.polling import process_annotated, process_submitted, process_running
 ANNOTATION_JOBS_PATH = "/api/v1/annotationjobs/"
 
+
 def test_annotationserver_running(client):
     response = client.get('/api/v1/annotationservice/running/')
     assert response.status_code == 200
@@ -24,6 +25,7 @@ def test_polling(session, client, test_database):
                     analysis_name="abc",
                     create_or_append="Create",
                     genepanel="HBOC_v01",
+                    sample_type="HTS"
                 ))
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
@@ -46,7 +48,6 @@ def test_polling(session, client, test_database):
     assert len(updates_running) == 0
     assert len(updates_annotated) == 0
 
-
     id, update = updates_submitted[0]
     assert update["status"] == "RUNNING"
     assert update["task_id"] == "123456789"
@@ -56,14 +57,14 @@ def test_polling(session, client, test_database):
 
     # Process running #1
     # First call to test annotation service status should return "PENDING" ("RUNNING")
-    submitted=annotationjob_interface.get_with_status("SUBMITTED")
-    updates_submitted=list(process_submitted(annotationservice_interface, submitted))
+    submitted = annotationjob_interface.get_with_status("SUBMITTED")
+    updates_submitted = list(process_submitted(annotationservice_interface, submitted))
 
-    running=annotationjob_interface.get_with_status("RUNNING")
-    updates_running=list(process_running(annotationservice_interface, running))
+    running = annotationjob_interface.get_with_status("RUNNING")
+    updates_running = list(process_running(annotationservice_interface, running))
 
-    annotated=annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-    updates_annotated=list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
+    annotated = annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
+    updates_annotated = list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
 
     assert len(updates_submitted) == 0
     assert len(updates_running) == 1
@@ -75,14 +76,14 @@ def test_polling(session, client, test_database):
 
     # Process running #2
     # Second call to test annotation service status should return "SUCCESS" ("ANNOTATED")
-    submitted=annotationjob_interface.get_with_status("SUBMITTED")
-    updates_submitted=list(process_submitted(annotationservice_interface, submitted))
+    submitted = annotationjob_interface.get_with_status("SUBMITTED")
+    updates_submitted = list(process_submitted(annotationservice_interface, submitted))
 
-    running=annotationjob_interface.get_with_status("RUNNING")
-    updates_running=list(process_running(annotationservice_interface, running))
+    running = annotationjob_interface.get_with_status("RUNNING")
+    updates_running = list(process_running(annotationservice_interface, running))
 
-    annotated=annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-    updates_annotated=list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
+    annotated = annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
+    updates_annotated = list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
 
     assert len(updates_submitted) == 0
     assert len(updates_running) == 1
@@ -96,18 +97,18 @@ def test_polling(session, client, test_database):
     annotationjob_interface.patch(id, status=update["status"], message=update["message"], task_id=update["task_id"])
 
     # Process annotated
-    submitted=annotationjob_interface.get_with_status("SUBMITTED")
-    updates_submitted=list(process_submitted(annotationservice_interface, submitted))
+    submitted = annotationjob_interface.get_with_status("SUBMITTED")
+    updates_submitted = list(process_submitted(annotationservice_interface, submitted))
 
-    running=annotationjob_interface.get_with_status("RUNNING")
-    updates_running=list(process_running(annotationservice_interface, running))
+    running = annotationjob_interface.get_with_status("RUNNING")
+    updates_running = list(process_running(annotationservice_interface, running))
 
-    annotated=annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-    updates_annotated=list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
+    annotated = annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
+    updates_annotated = list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
 
     assert len(updates_submitted) == 0
     assert len(updates_running) == 0
     assert len(updates_annotated) == 1
 
     id, update = updates_annotated[0]
-    assert update["message"] == "Couldn't import samples to database."
+    assert update["message"] == "Couldn't import samples to database. (db_samples: [], vcf_sample_names: [])"
