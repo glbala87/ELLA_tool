@@ -3,18 +3,19 @@ import os
 import pytest
 import subprocess
 
+import vardb
 from api.polling import AnnotationJobsInterface
 from vardb.datamodel import sample, annotationjob, allele, genotype
 from vardb.deposit.importers import AlleleImporter
 
 ANNOTATION_JOBS_PATH = "/api/v1/annotationjobs/"
 
-import vardb
 TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
 assert os.path.isdir(TESTDATA_DIR)
 
 ANALYSIS = "brca_sample_3"
 GENEPANEL = "HBOCUTV_v01"
+
 
 @pytest.fixture(scope="session")
 def unannotated_vcf():
@@ -33,6 +34,7 @@ def annotated_vcf():
     with open(full_path, 'r') as f:
         vcf = f.read()
     return vcf
+
 
 def split_vcf(vcf):
     lines = vcf.split('\n')
@@ -57,12 +59,13 @@ def split_vcf(vcf):
     first = header+"\n"+"\n".join(variants1)
     second = header + "\n" + "\n".join(variants2)
 
-    return first,second, N1,N2
+    return first, second, N1, N2
 
 
 @pytest.fixture
 def split_annotated_vcf(annotated_vcf):
     return split_vcf(annotated_vcf)
+
 
 @pytest.fixture
 def split_unannotated_vcf(unannotated_vcf):
@@ -79,6 +82,7 @@ def test_submit_annotationjob(session, client):
             "analysis_name": "abc",
             "create_or_append": "Create",
             "genepanel": GENEPANEL,
+            "sample_type": 'HTS'
         }
     }
 
@@ -110,7 +114,8 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
         "properties": {
             "analysis_name": "abc",
             "create_or_append": "Create",
-            "genepanel": GENEPANEL
+            "genepanel": GENEPANEL,
+            "sample_type": 'HTS'
         }
     }
 
@@ -131,7 +136,6 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
     assert len(analyses) == 1
 
 
-
 def test_status_update_annotationjob(session, client):
     # Submit annotation job
     data = {
@@ -142,6 +146,7 @@ def test_status_update_annotationjob(session, client):
             "analysis_name": "abc",
             "create_or_append": "Create",
             "genepanel": GENEPANEL,
+            "sample_type": 'HTS'
         }
     }
 
@@ -155,7 +160,7 @@ def test_status_update_annotationjob(session, client):
         "task_id": "123456789"
     }
 
-    annotationjob_interface=AnnotationJobsInterface(session)
+    annotationjob_interface = AnnotationJobsInterface(session)
     annotationjob_interface.patch(id, **update_data)
 
     annotation_jobs = session.query(annotationjob.AnnotationJob).filter(
@@ -167,7 +172,7 @@ def test_status_update_annotationjob(session, client):
 
     assert annotation_job.message == update_data["message"]
     assert annotation_job.status == update_data["status"]
-    assert annotation_job.task_id== update_data["task_id"]
+    assert annotation_job.task_id == update_data["task_id"]
     assert len(annotation_job.status_history) == 1
 
 
@@ -195,7 +200,6 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
     alleles = get_alleles(annotated_vcf, session)
     existing = session.query(allele.Allele).all()
     alleles_to_be_added = list(set(alleles)-set(existing))
-    alleles_already_added = list(set(alleles)-set(alleles_to_be_added))
 
     data = {
         "mode": "Variants",
@@ -204,7 +208,8 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
         "user_id": 1,
         "vcf": annotated_vcf,
         "properties": {
-            "genepanel": GENEPANEL
+            "genepanel": GENEPANEL,
+            "sample_type": 'Sanger'
         }
     }
 
@@ -245,6 +250,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
             "analysis_name": "abc",
             "create_or_append": "Create",
             "genepanel": GENEPANEL,
+            "sample_type": 'HTS'
         }
     }
 
@@ -253,7 +259,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    annotationjob_interface=AnnotationJobsInterface(session)
+    annotationjob_interface = AnnotationJobsInterface(session)
     annotationjob_interface.deposit(id, first_vcf)
     session.commit()
 
@@ -279,6 +285,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
             "analysis_name": analysis_name,
             "create_or_append": "Append",
             "genepanel": GENEPANEL,
+            "sample_type": 'HTS'
         }
     }
 
@@ -287,7 +294,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     id = json.loads(response.get_data())["id"]
 
     # Annotation job deposit
-    annotationjob_interface=AnnotationJobsInterface(session)
+    annotationjob_interface = AnnotationJobsInterface(session)
     annotationjob_interface.deposit(id, second_vcf)
     session.commit()
 
@@ -296,5 +303,5 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
         genotype.Genotype.analysis_id == analysis_id,
     ).all()
 
-    assert len(genotypes) == N1+N2
+    assert len(genotypes) == N1 + N2
 
