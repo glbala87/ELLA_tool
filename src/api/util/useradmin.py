@@ -113,7 +113,7 @@ def change_password(session, user_or_username, old_password, new_password, overr
         raise AuthenticationError("User is locked. Unable to change password. Contact support.")
 
     if not check_password_strength(new_password):
-        raise AuthenticationError("Password doesn't follow password strength guidelines.", 403)
+        raise AuthenticationError("Password doesn't follow password strength guidelines.")
 
     old_passwords = session.query(user.UserOldPassword).filter(
         user.UserOldPassword.user_id == user_object.id

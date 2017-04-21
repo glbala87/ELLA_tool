@@ -11,7 +11,7 @@ from api.v1.resource import Resource
 
 class ACMGAlleleResource(Resource):
 
-    def get_alleles(self, session, allele_ids, user=None):
+    def get_alleles(self, session, allele_ids):
         """
 
         :param session:
@@ -26,7 +26,7 @@ class ACMGAlleleResource(Resource):
         else:
             return []
 
-    def get_genepanel(self, session, gp_name, gp_version, user=None):
+    def get_genepanel(self, session, gp_name, gp_version):
         """
         Look up a genepanel
 
