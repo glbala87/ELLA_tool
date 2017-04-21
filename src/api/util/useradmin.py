@@ -1,7 +1,8 @@
 from sqlalchemy import desc
 import bcrypt
 import datetime
-import uuid
+import binascii
+import os
 import re
 from vardb.datamodel import user
 from api import AuthenticationError
@@ -65,7 +66,7 @@ def hash_password(password):
 # Utility functions
 
 def create_session(session, user_id):
-    token = str(uuid.uuid1())
+    token = binascii.hexlify(os.urandom(32))
     u = session.query(user.User).filter(
         user.User.id == user_id,
     ).one()
