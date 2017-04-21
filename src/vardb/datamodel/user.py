@@ -17,7 +17,7 @@ class User(Base):
     last_name = Column(String(), nullable=False)
     password = Column(String(), nullable=False)
     password_expiry = Column(DateTime, nullable=False)
-    locked = Column(Boolean, default=False, nullable=False)
+    active = Column(Boolean, default=True, nullable=False)
     incorrect_logins = Column(Integer, default=0, nullable=False)
 
 

@@ -48,7 +48,6 @@ def authenticate_user(session, user_or_username, password):
         user_object.incorrect_logins += 1
         session.commit()
         if user_object.incorrect_logins >= 6:
-            lock_user(session, user_object)
             raise AuthenticationError("Invalid credentials. Too many failed logins. User {} has been locked. Contact support to unlock.".format(user_object.username))
 
         raise AuthenticationError("Invalid credentials")
@@ -109,8 +108,8 @@ def change_password(session, user_or_username, old_password, new_password, overr
     if not override and not check_password(old_password, user_object.password):
         raise AuthenticationError("Invalid credentials.")
 
-    if user_object.locked and not override:
-        raise AuthenticationError("User is locked. Unable to change password. Contact support.")
+    if not user_object.active and not override:
+        raise AuthenticationError("User is deactivated. Unable to change password. Contact support.")
 
     if not check_password_strength(new_password):
         raise AuthenticationError("Password doesn't follow password strength guidelines.")
@@ -141,23 +140,21 @@ def change_password(session, user_or_username, old_password, new_password, overr
     else:
         user_object.password_expiry = datetime.datetime.now()+datetime.timedelta(days=config["users"]["password_expiry_days"])
 
-    if override:
-        user_object.locked = False
     user_object.incorrect_logins = 0
 
     session.commit()
 
 
-def lock_user(session, user_or_username):
+def deactivate_user(session, user_or_username):
     user_object = get_user(session, user_or_username)
-    user_object.locked = True
+    user_object.active = False
     logout_all(session, user_object.id)
     session.commit()
 
 
-def open_user(session, user_or_username):
+def activate_user(session, user_or_username):
     user_object = get_user(session, user_or_username)
-    user_object.locked = False
+    user_object.active = True
     session.commit()
 
 
