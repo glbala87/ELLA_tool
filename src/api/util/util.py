@@ -5,6 +5,7 @@ from flask import request, Response
 from api import db, ApiError
 from vardb.datamodel import user
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.scoping import scoped_session
 
 
 def query_print_table(sa_query):
@@ -216,9 +217,10 @@ def request_json(required, only_required=False, allowed=None):
 
 def authenticate(user_role=None, user_group=None):
     def _authenticate(func):
-        def _isValidToken(session, token):
+        def _is_valid_token(session, token):
             userSession = session.query(user.UserSession).options(joinedload("user")).filter(
-                user.UserSession.token == token).one_or_none()
+                user.UserSession.token == token
+            ).one_or_none()
 
             if userSession is None:
                 return False, None
@@ -238,12 +240,13 @@ def authenticate(user_role=None, user_group=None):
 
         @wraps(func)
         def inner(*args, **kwargs):
+            assert isinstance(args[1], scoped_session), "No session provided. Is the decorator @authenticate used outside a resource method?"
             session = args[1]
             if not request or request.cookies.get("AuthenticationToken") is None:
                 return Response("Authentication required", 403, {'WWWAuthenticate': 'Basic realm="Login Required"'})
 
             token = request.cookies.get("AuthenticationToken")
-            valid, user = _isValidToken(session, token)
+            valid, user = _is_valid_token(session, token)
             if not valid:
                 return Response("Token %s is invalid" % token, 403,
                                 {'WWWAuthenticate': 'Basic realm="Login Required"'})
