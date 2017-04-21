@@ -59,5 +59,4 @@ def test_calculation_of_cutoffs(client, url, expected_1000g, expected_6500, expe
 
     frequency_annotations = our_allele['annotation']['frequencies']
     assert expected_1000g == frequency_annotations['cutoff']['external']['1000g']
-    assert expected_6500 == frequency_annotations['cutoff']['external']['esp6500']
     assert expected_exac == frequency_annotations['cutoff']['external']['ExAC']
