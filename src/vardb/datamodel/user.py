@@ -35,8 +35,8 @@ class UserSession(Base):
     expired = Column(DateTime)
 
 
-class OldPassword(Base):
-    __tablename__ = "oldpasswords"
+class UserOldPassword(Base):
+    __tablename__ = "useroldpassword"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"))
     password = Column(String(), nullable=False)
