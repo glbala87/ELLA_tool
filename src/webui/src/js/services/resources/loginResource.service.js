@@ -18,7 +18,7 @@ class LoginResource {
                 "username": username,
                 "password": password
             }
-            var r = this.resource(`/api/v1/users/actions/login`, {}, {
+            var r = this.resource(`/api/v1/users/actions/login/`, {}, {
                 login: {
                     method: "POST",
                 }
@@ -40,7 +40,7 @@ class LoginResource {
                 "password": password,
                 "new_password": new_password,
             }
-            var r = this.resource(`/api/v1/users/actions/changepassword`, {}, {
+            var r = this.resource(`/api/v1/users/actions/changepassword/`, {}, {
                 reset: {
                     method: "POST",
                 }

@@ -86,6 +86,7 @@ class LoginResource(Resource):
         token = create_session(session, u.id).token
         resp = make_response(redirect("/"))
         resp.set_cookie("AuthenticationToken", token, httponly=True, expires=u.password_expiry)
+
         return resp
 
 class ChangePasswordResource(Resource):

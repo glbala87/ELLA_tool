@@ -39,7 +39,7 @@ class UserService {
             if (this.user !== null) {
                 resolve(this.user)
             } else {
-                let r = this.resource(`${this.base}/users/currentuser`);
+                let r = this.resource(`${this.base}/users/currentuser/`);
                 let user = r.get(() => {
                     this.setCurrentUser(user)
                     resolve(user)
