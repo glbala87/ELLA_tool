@@ -8,7 +8,7 @@ from functools import wraps
 
 import bcrypt
 from api.schemas.users import UserSchema
-from api.util.useradmin import hash_password, change_password, lock_user, open_user, modify_user, check_password_strength
+from api.util.useradmin import hash_password, change_password, lock_user, open_user, modify_user, check_password_strength, get_user
 from vardb.datamodel import DB
 from vardb.datamodel import user
 
@@ -196,7 +196,8 @@ def cmd_invalidate_user(username):
     db = DB()
     db.connect()
     session = db.session()
-    lock_user(session, username)
+    u = get_user(session, username)
+    lock_user(session, u)
 
     click.echo("User {username} ({last_name}, {first_name}) has been locked".format(
         username=username,
