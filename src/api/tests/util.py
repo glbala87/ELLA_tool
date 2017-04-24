@@ -41,7 +41,7 @@ class FlaskClientProxy(object):
 
         def _create_cookie():
             r = client.post("/api/v1/users/actions/login/",
-                            data=json.dumps({"username": "testuser1", "password": "ibsen123"}),
+                            data=json.dumps({"username": "testuser1", "password": "demo"}),
                             content_type='application/json')
             self.cookie = r.headers.get("Set-Cookie")
             assert self.cookie is not None

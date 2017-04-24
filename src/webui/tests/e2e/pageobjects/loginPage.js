@@ -1,9 +1,9 @@
 var Page = require('./page')
 
 var users = [
-    ["testuser1", "ibsen123"],
-    ["testuser2", "bjørnson123"],
-    ["testuser3", "collett123"]
+    ["testuser1", "demo"],
+    ["testuser2", "demo"],
+    ["testuser3", "demo"]
 ]
 
 
