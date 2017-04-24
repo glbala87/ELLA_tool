@@ -28,7 +28,7 @@
               </div>
               <div class="tabular-row spacer" ng-if="vm.mode === vm.modes[1]">
                 <h3 class="full-title upper cell"><i>Confirm new password</i></h3>
-                <input class="cell" ng-class="{'inputerror': vm.checkPasswordsEqual() && vm.loginForm.confirm_password.length}" ng-model="vm.loginForm.confirm_password" type="password">
+                <input class="cell" ng-class="{'inputerror': !vm.checkPasswordsEqual() && vm.loginForm.confirm_password.length}" ng-model="vm.loginForm.confirm_password" type="password">
               </div>
               <div class="spacer2"></div>
               <div class="tabular-row spacer">

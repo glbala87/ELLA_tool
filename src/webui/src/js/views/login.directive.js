@@ -18,6 +18,13 @@ export class LoginController {
         this.modes = ["Login", "Change password"];
         this.mode = this.modes[0];
 
+        this.loginForm = {
+            "username": "",
+            "password": "",
+            "new_password": "",
+            "confirm_password": "",
+        }
+
         this.loginResource = LoginResource;
         this.reset()
         Navbar.clearItems();
@@ -30,7 +37,7 @@ export class LoginController {
     }
 
     checkPasswordStrength() {
-
+        console.log("foo")
         let pw = this.loginForm.new_password;
         let group_matches = 0
         let groups = this.config["users"]["password_match_groups"]
@@ -58,12 +65,9 @@ export class LoginController {
     }
 
     reset() {
-        this.loginForm = {
-            "username": "",
-            "password": "",
-            "new_password": "",
-            "confirm_password": "",
-        }
+        this.loginForm.password = "";
+        this.loginForm.new_password = "";
+        this.loginForm.confirm_password = "";
 
         // Create list of password requirements
         let minLength = this.config["users"]["password_minimum_length"]
