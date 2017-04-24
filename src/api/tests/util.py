@@ -61,31 +61,36 @@ class FlaskClientProxy(object):
 
 
     @json_out
-    def get(self, url):
+    def get(self, url, logged_in=True):
         with self.app.test_client() as client:
-            self.set_cookie(client)
+            if logged_in:
+                self.set_cookie(client)
             return client.get(self.url_prefix + url, content_type='application/json')
 
     @json_out
-    def post(self, url, data):
+    def post(self, url, data, logged_in=True):
         with self.app.test_client() as client:
-            self.set_cookie(client)
+            if logged_in:
+                self.set_cookie(client)
             return client.post(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
-    def put(self, url, data):
+    def put(self, url, data, logged_in=True):
         with self.app.test_client() as client:
-            self.set_cookie(client)
+            if logged_in:
+                self.set_cookie(client)
             return client.put(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
-    def patch(self, url, data):
+    def patch(self, url, data, logged_in=True):
         with self.app.test_client() as client:
-            self.set_cookie(client)
+            if logged_in:
+                self.set_cookie(client)
             return client.patch(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
-    def delete(self, url, data):
+    def delete(self, url, data, logged_in=True):
         with self.app.test_client() as client:
-            self.set_cookie(client)
+            if logged_in:
+                self.set_cookie(client)
             return client.delete(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
