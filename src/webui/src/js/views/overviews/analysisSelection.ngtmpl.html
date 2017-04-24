@@ -11,7 +11,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" class="id-analysis-findings" collapsed="true" ng-if="vm.overview">
+<sectionbox color="green" class="id-analysis-findings" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     ANALYSES WITH CLASS 3-5 VARIANTS
   </maintitle>
@@ -24,7 +24,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" class="id-analysis-findings-normal" collapsed="true" ng-if="vm.overview">
+<sectionbox color="green" class="id-analysis-findings-normal" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     ANALYSES WITH NORMAL VARIANTS
   </maintitle>
@@ -34,6 +34,19 @@
   <contentwrapper>
     <analysis-list analyses="vm.overview.without_findings"></analysis-list>
     <h4 class="sb-notification dim" ng-if="!vm.overview.without_findings.length">No analyses with normal variants</h4>
+  </contentwrapper>
+</sectionbox>
+
+<sectionbox color="green" class="id-analysis-pending" collapsed="true" ng-if="vm.overview && !vm.byFindings">
+  <maintitle>
+    PENDING ANALYSES
+  </maintitle>
+  <subtitle>
+    {{vm.overview.not_started.length}}
+  </subtitle>
+  <contentwrapper>
+    <analysis-list analyses="vm.overview.not_started"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.not_started.length">No pending analyses</h4>
   </contentwrapper>
 </sectionbox>
 
@@ -52,7 +65,7 @@
 
 <div class="spacer"></div>
 
-<sectionbox color="green" class="id-analysis-assessments-missing" collapsed="true" ng-if="vm.overview">
+<sectionbox color="green" class="id-analysis-assessments-missing" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     ANALYSES WITH MISSING CLASSIFICATIONS
   </maintitle>

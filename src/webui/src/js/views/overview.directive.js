@@ -9,21 +9,33 @@ import {Directive, Inject} from '../ng-decorators';
         selectedView: '='
     }
 })
-@Inject('$scope', '$interval', 'SearchResource', 'AnnotationjobResource', 'AnnotateVCFFileModal')
+@Inject('$scope', '$interval', 'Config', 'SearchResource', 'AnnotationjobResource', 'AnnotateVCFFileModal')
 export class MainController {
-    constructor($scope, $interval, SearchResource, AnnotationjobResource, AnnotateVCFFileModal) {
+    constructor($scope, $interval, Config, SearchResource, AnnotationjobResource, AnnotateVCFFileModal) {
         this.scope = $scope;
         this.interval = $interval;
+        this.config = Config.getConfig();
         this.searchResource = SearchResource;
         this.annotationjobResource = AnnotationjobResource;
         this.annotateVCFFileModal = AnnotateVCFFileModal;
-
-
 
         this.search = {
             results: null,
             query: ''
         }
+
+        this.views = [
+            'analyses',
+            'analyses-by-findings',
+            'variants'
+        ]
+
+        this.view_names = {
+            variants: 'Variants',
+            analyses: 'Analyses',
+            'analyses-by-findings': 'Analyses'
+        }
+
         this.annotationJobStatus = {running: 0, completed: 0, failed: 0}; // Number of running, completed and failed jobs
         this.pollForAnnotationJobs();
 
@@ -38,6 +50,11 @@ export class MainController {
         else {
             this.search.results = null;
         }
+    }
+
+    shouldShowView(view) {
+        // TODO: Change this to use user config when implemented.
+        return this.config.user.user_config.overview.views.includes(view);
     }
 
     hasSearchResults() {
