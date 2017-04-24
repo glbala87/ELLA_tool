@@ -17,6 +17,7 @@ export class FrequencyDetailsWidget {
     constructor(Config, $scope) {
         this.config = Config.getConfig();
         this.precision = this.config.frequencies.view.precision;
+        this.scientific_threshold = this.config.frequencies.view.scientific_threshold;
         this.frequencies = [];
         this.exac_fields = ['count', 'num', 'hom', 'freq']
 
@@ -58,20 +59,26 @@ export class FrequencyDetailsWidget {
 
     formatExACValue(freq_data, name) {
       if(name === "freq") {
-        return parseFloat(freq_data[name]).toFixed(this.precision);
+        return this.getFreqValue(freq_data)
       } else {
         return freq_data[name];
       }
     }
 
     /**
-     * Gets the value to display for the fiven freq data.
+     * Gets the value to display for the given freq data.
      * ExAC has more information, so we include that as well.
      * @return {string} Value to display for this freq data
      */
     getFreqValue(freq_data) {
-        let value = parseFloat(freq_data.freq).toFixed(this.precision);
-        return value;
+        let value = parseFloat(freq_data.freq);
+        if (value === 0) {
+            return value;
+        } else if (value < Math.pow(10, -this.scientific_threshold)) {
+            return value.toExponential(this.precision-this.scientific_threshold+1)
+        } else {
+            return value.toFixed(this.precision);
+        }
     }
 
     exacNames(freq_data) {
