@@ -41,8 +41,12 @@ def check_password(password, password_hash):
 
 def authenticate_user(session, user_or_username, password):
     user_object = get_user(session, user_or_username)
+
+    if not user_object.active:
+        raise AuthenticationError("User {} is inactive. Contact support to re-activate.".format(user_object.username))
+
     if user_object.incorrect_logins >= 6:
-        raise AuthenticationError("Invalid credentials. Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
+        raise AuthenticationError("Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
 
     if not check_password(password, user_object.password):
         user_object.incorrect_logins += 1
@@ -104,6 +108,9 @@ def change_password(session, user_or_username, old_password, new_password, overr
     :param override: If this is True, then it is called from command line, and does not verify the old_password. It also sets the password as expired, so that it needs to be changed. 
     """
     user_object = get_user(session, user_or_username)
+
+    if user_object.incorrect_logins >= 6 and not override:
+        raise AuthenticationError("Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
 
     if not override and not check_password(old_password, user_object.password):
         raise AuthenticationError("Invalid credentials.")
