@@ -9,6 +9,7 @@ class UserSchema(Schema):
                   'last_name',
                   'full_name',
                   'abbrev_name',
+                  'active',
         )
 
     full_name = fields.Method('get_full_name')
