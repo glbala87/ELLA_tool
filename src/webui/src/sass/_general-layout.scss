@@ -16,6 +16,10 @@ textarea, .wysiwygeditor { font-size: 1.4rem; font-family: $slim; line-height: 2
   &::placeholder { font-family: $full; font-size: 1.3rem; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
 }
 
+.inputerror { border-bottom: 3px solid $red-75 !important; }
+.error {color: $red !important; }
+.ok {color: $green !important; }
+
 .non-production-warning {
   position: fixed;
   bottom: 1vh;
@@ -400,6 +404,8 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 .toast-close-button:hover, .toast-close-button:focus { color: $white; text-decoration: none; cursor: pointer; opacity: 0.4; }
 
 .spacer { height: 4rem; }
+.spacer2 { height: 2rem; }
+.spacer-horizontal {width: 4rem; }
 
 .genepanel {
   @extend .dropdown;

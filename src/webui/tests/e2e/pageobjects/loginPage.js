@@ -1,5 +1,11 @@
 var Page = require('./page')
 
+var users = [
+    ["testuser1", "demo"],
+    ["testuser2", "demo"],
+    ["testuser3", "demo"]
+]
+
 
 class LoginPage extends Page {
 
@@ -12,20 +18,22 @@ class LoginPage extends Page {
     _selectUser(number) {
        this.open();
        browser.waitForExist(this.login);
-       browser.click(`.list-item.clickable:nth-child(${number})`);
+       browser.setValue(`.id-username`, users[number][0]);
+       browser.setValue(`.id-password`, users[number][1]);
+       browser.click(`.id-login-submit`);
        browser.waitForExist(this.login, 1000, true)
     }
 
     selectFirstUser() {
-        this._selectUser(1);
+        this._selectUser(0);
     }
 
     selectSecondUser() {
-        this._selectUser(2);
+        this._selectUser(1);
     }
 
     selectThirdUser() {
-        this._selectUser(3);
+        this._selectUser(2);
     }
 
 }

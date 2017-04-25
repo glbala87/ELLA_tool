@@ -1,9 +1,15 @@
+import bcrypt
+import datetime
+import uuid
 from vardb.datamodel import user
 
 from api import schemas, ApiError
-from api.util.util import paginate, rest_filter
+from api.util.util import paginate, rest_filter, request_json, authenticate
+from api.util.useradmin import authenticate_user, create_session, change_password, logout
+from api.config import config
 
 from api.v1.resource import Resource
+from flask import Response, make_response, redirect
 
 
 class UserListResource(Resource):
@@ -67,3 +73,54 @@ class UserResource(Resource):
             raise ApiError("No user id provided")
         u = session.query(user.User).filter(user.User.id == user_id).one()
         return schemas.UserSchema(strict=True).dump(u).data
+
+
+class LoginResource(Resource):
+    @request_json(["username", "password"], only_required=True)
+    def post(self, session, data=None):
+        username = data.get("username")
+        password = data.get("password")
+
+        u = authenticate_user(session, username, password)
+
+        token = create_session(session, u.id).token
+        resp = make_response(redirect("/"))
+        resp.set_cookie("AuthenticationToken", token, httponly=True, expires=u.password_expiry)
+
+        return resp
+
+class ChangePasswordResource(Resource):
+    @request_json(["username", "password", "new_password"], only_required=True)
+    def post(self, session, override=False, data=None):
+        username = data.get("username")
+        password = data.get("password")
+        new_password = data.get("new_password")
+
+        # change_password performs the authentication
+        change_password(session, username, password, new_password)
+        return Response("Password for user %s changed. You can now log in." %username)
+
+
+class CurrentUser(Resource):
+    @authenticate()
+    def get(self, session, user=None):
+        return schemas.UserSchema().dump(user).data
+
+
+class LogoutResource(Resource):
+    def patch(self, session, token):
+        userSession = session.query(user.UserSession).filter(
+            user.UserSession.token==token
+        ).one_or_none()
+
+        if userSession is None:
+            log.warning("Trying to logout with non-existing token %s" %token)
+            return
+
+        if not userSession.valid:
+            log.warning("Trying to logout with invalid token %s" %token)
+            return
+
+        logout(userSession)
+        session.commit()
+

@@ -1,7 +1,7 @@
 from vardb.datamodel import assessment
 
 from api import schemas
-from api.util.util import paginate, rest_filter, search_filter, request_json
+from api.util.util import paginate, rest_filter, search_filter, request_json, authenticate
 
 from pubmed import PubMedParser
 
@@ -10,10 +10,11 @@ from api.v1.resource import Resource
 
 class ReferenceListResource(Resource):
 
+    @authenticate()
     @paginate
     @rest_filter
     @search_filter
-    def get(self, session, rest_filter=None, search_filter=None, page=None, num_per_page=100):
+    def get(self, session, rest_filter=None, search_filter=None, page=None, num_per_page=100, user=None):
         """
         Returns a list of references.
 
@@ -54,8 +55,9 @@ class ReferenceListResource(Resource):
                 num_per_page=num_per_page
             )
 
+    @authenticate()
     @request_json([], allowed=['xml', 'manual'])
-    def post(self, session, data=None):
+    def post(self, session, data=None, user=None):
         """
         Creates a new Reference from the input [Pubmed](http://www.ncbi.nlm.nih.gov/pubmed) XML.
 

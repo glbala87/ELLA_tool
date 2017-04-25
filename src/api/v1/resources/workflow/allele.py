@@ -1,6 +1,6 @@
 from flask import request
 
-from api.util.util import request_json, ApiError
+from api.util.util import request_json, authenticate
 from api.v1.resource import Resource
 
 
@@ -12,7 +12,8 @@ from . import helpers
 
 class AlleleInterpretationResource(Resource):
 
-    def get(self, session, allele_id, interpretation_id):
+    @authenticate()
+    def get(self, session, allele_id, interpretation_id, user=None):
         """
         Returns current alleleinterpretation for allele.
         ---
@@ -32,6 +33,7 @@ class AlleleInterpretationResource(Resource):
         """
         return helpers.get_interpretation(session, alleleinterpretation_id=interpretation_id)
 
+    @authenticate()
     @request_json(
         [],
         allowed=[
@@ -40,7 +42,7 @@ class AlleleInterpretationResource(Resource):
             'user_id'
         ]
     )
-    def patch(self, session, allele_id, interpretation_id, data=None):
+    def patch(self, session, allele_id, interpretation_id, data=None, user=None):
         """
         Updates current interpretation inplace.
 
@@ -89,7 +91,8 @@ class AlleleInterpretationResource(Resource):
 
 class AlleleInterpretationAllelesListResource(Resource):
 
-    def get(self, session, allele_id, interpretation_id):
+    @authenticate()
+    def get(self, session, allele_id, interpretation_id, user=None):
         if not session.query(AlleleInterpretation).filter(
             AlleleInterpretation.id == interpretation_id,
             AlleleInterpretation.allele_id == allele_id
@@ -109,7 +112,8 @@ class AlleleInterpretationAllelesListResource(Resource):
 
 class AlleleInterpretationListResource(Resource):
 
-    def get(self, session, allele_id):
+    @authenticate()
+    def get(self, session, allele_id, user=None):
         """
         Returns all interpretations for allele.
         ---
@@ -136,8 +140,9 @@ class AlleleInterpretationListResource(Resource):
 
 class AlleleActionOverrideResource(Resource):
 
+    @authenticate()
     @request_json(['user_id'])
-    def post(self, session, allele_id, data=None):
+    def post(self, session, allele_id, data=None, user=None):
         """
         Lets an user take over an allele, by replacing the
         allele's current interpretation's user_id with the input user_id.
@@ -181,8 +186,9 @@ class AlleleActionOverrideResource(Resource):
 
 class AlleleActionStartResource(Resource):
 
+    @authenticate()
     @request_json(['user_id', 'gp_name', 'gp_version'])
-    def post(self, session, allele_id, data=None):
+    def post(self, session, allele_id, data=None, user=None):
         """
         Starts an alleleinterpretation.
 
@@ -229,6 +235,7 @@ class AlleleActionStartResource(Resource):
 
 class AlleleActionMarkReviewResource(Resource):
 
+    @authenticate()
     @request_json(
         [
             'alleleassessments',
@@ -237,7 +244,7 @@ class AlleleActionMarkReviewResource(Resource):
             'allelereports'
         ]
     )
-    def post(self, session, allele_id, data=None):
+    def post(self, session, allele_id, data=None, user=None):
         """
         Marks an allele interpretation for review.
 
@@ -283,7 +290,8 @@ class AlleleActionMarkReviewResource(Resource):
 
 class AlleleActionReopenResource(Resource):
 
-    def post(self, session, allele_id):
+    @authenticate()
+    def post(self, session, allele_id, user=None):
         """
         Reopens an allele workflow that has previously been finalized.
 
@@ -328,6 +336,7 @@ class AlleleActionReopenResource(Resource):
 
 class AlleleActionFinalizeResource(Resource):
 
+    @authenticate()
     @request_json(
         [
             'alleleassessments',
@@ -335,7 +344,7 @@ class AlleleActionFinalizeResource(Resource):
             'allelereports'
         ]
     )
-    def post(self, session, allele_id, data=None):
+    def post(self, session, allele_id, data=None, user=None):
         """
         Finalizes an analysis.
 
@@ -548,7 +557,8 @@ class AlleleActionFinalizeResource(Resource):
 
         return result, 200
 
-    def get(self, session, allele_id):
+    @authenticate()
+    def get(self, session, allele_id, user=None):
         f = session.query(AlleleInterpretationSnapshot).filter(
             AlleleInterpretationSnapshot.allele_id == allele_id
         ).join().all()
@@ -558,5 +568,6 @@ class AlleleActionFinalizeResource(Resource):
 
 
 class AlleleCollisionResource(Resource):
-    def get(self, session, allele_id):
+    @authenticate()
+    def get(self, session, allele_id, user=None):
         return helpers.get_workflow_allele_collisions(session, [allele_id], allele_id=allele_id)

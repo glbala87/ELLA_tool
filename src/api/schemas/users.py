@@ -8,7 +8,9 @@ class UserSchema(Schema):
                   'first_name',
                   'last_name',
                   'full_name',
-                  'abbrev_name')
+                  'abbrev_name',
+                  'active',
+        )
 
     full_name = fields.Method('get_full_name')
     abbrev_name = fields.Method('get_abbreviated_name')

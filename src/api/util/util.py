@@ -1,7 +1,11 @@
 from functools import wraps
 import json
-from flask import request
+import datetime
+from flask import request, Response
 from api import db, ApiError
+from vardb.datamodel import user
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.scoping import scoped_session
 
 
 def query_print_table(sa_query):
@@ -65,7 +69,6 @@ def search_filter(func):
         return func(*args, search_filter=s_filter, **kwargs)
 
     return inner
-
 
 
 def link_filter(func):
@@ -212,3 +215,53 @@ def request_json(required, only_required=False, allowed=None):
         return array_wrapper
 
 
+def authenticate(user_role=None, user_group=None):
+    def _authenticate(func):
+        def _is_valid_token(session, token):
+            userSession = session.query(user.UserSession).options(joinedload("user")).filter(
+                user.UserSession.token == token
+            ).one_or_none()
+
+            if userSession is None:
+                return False, None
+
+            if userSession.expired is None:
+                userSession.lastactivity = datetime.datetime.now()
+                session.commit()
+                return True, userSession.user
+            else:
+                return False, None
+
+        def _userHasAccess(session, token, user_role=None, user_group=None):
+            if user_role is None and user_group is None:
+                return True
+            else:
+                return False  # TODO: Implement user roles and user groups
+
+        @wraps(func)
+        def inner(*args, **kwargs):
+            assert isinstance(args[1], scoped_session), "No session provided. Is the decorator @authenticate used outside a resource method?"
+            session = args[1]
+            if not request or request.cookies.get("AuthenticationToken") is None:
+                return Response("Authentication required", 403, {'WWWAuthenticate': 'Basic realm="Login Required"'})
+
+            token = request.cookies.get("AuthenticationToken")
+            valid, user = _is_valid_token(session, token)
+            if not valid:
+                return Response("Token %s is invalid" % token, 403,
+                                {'WWWAuthenticate': 'Basic realm="Login Required"'})
+            else:
+                # TODO: Setup user roles and groups
+                # user_role = None # user.role
+                # user_group = None # user.group
+                if not _userHasAccess(session, token, None, None):
+                    return Response(
+                        "User associated with token %s does not have access to this function (required user_role: %s, user_group: %s." % (
+                        token, user_role, user_group),
+                        401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
+                else:
+                    kwargs["user"] = user
+                    return func(*args, **kwargs)
+
+        return inner
+    return _authenticate

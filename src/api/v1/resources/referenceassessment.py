@@ -3,14 +3,15 @@ import datetime
 from vardb.datamodel import assessment
 
 from api import schemas
-from api.util.util import paginate, rest_filter, request_json
+from api.util.util import paginate, rest_filter, request_json, authenticate
 
 from api.v1.resource import Resource
 
 
 class ReferenceAssessmentResource(Resource):
 
-    def get(self, session, ra_id=None):
+    @authenticate()
+    def get(self, session, ra_id=None, user=None):
         """
         Returns a single referenceassessment.
         ---
@@ -37,9 +38,10 @@ class ReferenceAssessmentResource(Resource):
 
 class ReferenceAssessmentListResource(Resource):
 
+    @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None):
+    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
         """
         Returns a list of referenceassessment.
 
@@ -71,6 +73,7 @@ class ReferenceAssessmentListResource(Resource):
             num_per_page=100000  # FIXME: Fix proper pagination...
         )
 
+    @authenticate()
     @request_json(
         [
             'allele_id',
@@ -83,7 +86,7 @@ class ReferenceAssessmentListResource(Resource):
         ],
         True
     )
-    def post(self, session, data=None):
+    def post(self, session, data=None, user=None):
         """
         Creates a new ReferenceAssessment(s) for a given allele(s).
 

@@ -5,56 +5,51 @@ import {Service, Inject} from '../ng-decorators';
 @Service({
     serviceName: 'User'
 })
-@Inject('$resource', '$cookies')
+@Inject('$resource')
 class UserService {
 
-    constructor(resource, cookies) {
+    constructor(resource) {
         this.resource = resource;
-        this.cookies = cookies;
-        this.currentUserKey = 'currentUserId';
         this.base = '/api/v1';
-        this.currentUser = null;
+        this.user = null;
+    }
+
+    hasUser() {
+        return this.user !== null
     }
 
     getCurrentUserId() {
-        return parseInt(this.cookies.get(this.currentUserKey), 10);
+        if (this.hasUser()) {
+            return this.user.id
+        }
+
+        return undefined
+
     }
 
     getCurrentUser() {
-        return new Promise((resolve, reject) => {
-            if (this.currentUser) {
-
-                return resolve(this.currentUser);
-            }
-            else {
-                // Check cookie whether user has selected a user
-                let user_id = this.getCurrentUserId();
-                if (user_id) {
-                    let r = this.resource(`${this.base}/users/${user_id}/`);
-                    let user = r.get(() => {
-                        this.currentUser = user;
-                        resolve(user);
-                    });
-                }
-                else {
-                    reject("No user id selected");
-                }
-            }
-        });
+        if (this.hasUser()) {
+            return this.user
+        }
+        return this.user
     }
 
-    getUsers() {
+    loadUser() {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/users/`);
-            let users = r.query(() => {
-                resolve(users);
-            });
-        });
+            if (this.user !== null) {
+                resolve(this.user)
+            } else {
+                let r = this.resource(`${this.base}/users/currentuser/`);
+                let user = r.get(() => {
+                    this.setCurrentUser(user)
+                    resolve(user)
+                }, reject)
+            }
+        })
     }
 
     setCurrentUser(user) {
-        this.currentUser = user;
-        this.cookies.put(this.currentUserKey, user.id);
+        this.user = user;
     }
 }
 

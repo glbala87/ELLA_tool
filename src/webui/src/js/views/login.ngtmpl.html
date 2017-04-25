@@ -3,16 +3,51 @@
   <article class="container no-secondary-nav">
     <sectionbox collapsible="false" color="green" topcontrols="true">
       <maintitle>
-        available users
+        Login
       </maintitle>
-      <controls>
-        <input class="full-width" type="text" placeholder="SEARCH FOR USER" ng-model="vm.name_filter">
-      </controls>
       <contentwrapper>
-        <section>
-          <div class="line-wrapper list-item clickable" ng-click="vm.selectUser(user)" ng-repeat="user in vm.users | filter:vm.name_filter">
-            <h3 class="full-title"><b>{{user.first_name}} {{user.last_name}}</b></h3>
-          </div>
+        <div class="bttn-set">
+          <label tabindex=0 class="bttn" uib-btn-radio="item" ng-model="vm.mode"
+                 ng-repeat="item in vm.modes">{{item}}</label>
+        </div>
+        <section class="line-wrapper">
+          <form class="table">
+            <div class="table">
+              <div class="spacer2"></div>
+              <div class="tabular-row spacer">
+                <h3 class="full-title upper cell"><i>Username</i></h3>
+                <input class="cell id-username" ng-model="vm.loginForm.username">
+              </div>
+              <div class="tabular-row spacer">
+                <h3 class="full-title upper cell"><i>Password</i></h3>
+                <input class="cell id-password" ng-model="vm.loginForm.password" type="password">
+              </div>
+              <div class="tabular-row spacer" ng-if="vm.mode === vm.modes[1]">
+                <h3 class="full-title upper cell"><i>New password</i></h3>
+                <input class="cell" ng-class="{'inputerror': !vm.checkPasswordStrength() && vm.loginForm.new_password.length}" ng-model="vm.loginForm.new_password" type="password">
+              </div>
+              <div class="tabular-row spacer" ng-if="vm.mode === vm.modes[1]">
+                <h3 class="full-title upper cell"><i>Confirm new password</i></h3>
+                <input class="cell" ng-class="{'inputerror': !vm.checkPasswordsEqual() && vm.loginForm.confirm_password.length}" ng-model="vm.loginForm.confirm_password" type="password">
+              </div>
+              <div class="spacer2"></div>
+              <div class="tabular-row spacer">
+                <button ng-click="vm.submit()" class="cell bttn id-login-submit">SUBMIT</button>
+              </div>
+            </div>
+            <div class="cell spacer-horizontal"></div>
+            <div class="cell" ng-show="vm.mode === vm.modes[1]">
+              <h3 class="full-title upper"><i>Password requirements:</i></h3>
+              <div ng-repeat="check in vm.passWordChecks track by $index">
+                <h3 class="full-title upper" ng-if="$index == 1"><i>{{vm.config["users"]["password_num_match_groups"]}} of the following:</i></h3>
+                <h3>
+                  <span class="full-title" ng-if="check[1]"><i class="ok" >&#10003;</i></span>
+                  <span class="full-title" ng-if="!check[1]"><i class="error" >&#10007;</i></span>
+                  <span class="full-title"><i>{{check[0]}}</i></span>
+                </h3>
+              </div>
+            </div>
+          </form>
         </section>
       </contentwrapper>
     </sectionbox>

@@ -9,7 +9,7 @@ from api.v1.resource import Resource
 from api.util.alleledataloader import AlleleDataLoader
 
 from api.util.annotationprocessor.annotationprocessor import TranscriptAnnotation
-
+from api.util.util import authenticate
 
 class SearchResource(Resource):
 
@@ -28,7 +28,8 @@ class SearchResource(Resource):
 
     TSQUERY_ESCAPE = ['&', ':', '(', ')', '*', '!', '|']
 
-    def get(self, session):
+    @authenticate()
+    def get(self, session, user=None):
         """
         Provides basic search functionality.
 

@@ -17,7 +17,6 @@ def test_annotationserver_running(client):
 
 
 def test_polling(session, client, test_database):
-    test_database.refresh()
     # Submit to database
     data = dict(mode="Analysis",
                 user_id=1,

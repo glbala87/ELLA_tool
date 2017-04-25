@@ -11,10 +11,7 @@ export class SidebarController {
 
     constructor(Sidebar, User) {
         this.sidebar = Sidebar;
-        this.user = {};
-        User.getCurrentUser().then(user => {
-            this.user = user;
-        });
+        this.user = User.getCurrentUser()
     }
 
     activate(item) {

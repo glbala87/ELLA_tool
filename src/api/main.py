@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request
 from flask_restful import Api
-from api import app, db
+from api import app, db, AuthenticationError
 from api.v1 import ApiV1
 
 # For /reset purposes
@@ -18,7 +18,6 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/build')
 
 log = app.logger
-
 
 @app.before_first_request
 def setup_logging():
@@ -98,7 +97,15 @@ def do_testdata_reset(test_set, blocking=True):
         t.start()
         return "Test database is resetting. It should be ready in a minute."
 
-api = Api(app)
+class ApiErrorHandling(Api):
+    def handle_error(self, e):
+        if isinstance(e, AuthenticationError):
+            return self.make_response(e.message, e.status_code)
+        else:
+            return super(ApiErrorHandling, self).handle_error(e)
+
+
+api = ApiErrorHandling(app)
 
 # Setup resources for v1
 ApiV1(app, api).setup_api()
