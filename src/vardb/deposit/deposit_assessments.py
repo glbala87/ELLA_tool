@@ -51,7 +51,6 @@ class DepositAssessments(object):
 
     def import_vcf(self,
                    path,
-                   skip_anno=None,
                    genepanel_name=None,
                    genepanel_version=None):
 
@@ -105,9 +104,6 @@ def main(argv=None):
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser(description="""Deposit variants and genotypes from a VCF file into varDB.""")
     parser.add_argument("--vcf", action="store", dest="vcfPath", required=True, help="Path to VCF file to deposit")
-    parser.add_argument("--skip", action="store", dest="skipInfoFields", required=False, nargs='*',
-                        default=["NS", "DP", "AN", "CIGAR"],
-                        help="The VCF INFO fields that should NOT be added as annotation to varDB.")
     parser.add_argument("--genepanel-name", action="store", dest="gp_name", required=True, help="Name of genepanel for assessments")
     parser.add_argument("--genepanel-version", action="store", dest="gp_version", required=True, help="Version of genepanel for assessments")
 
@@ -122,7 +118,6 @@ def main(argv=None):
     try:
         da.import_vcf(
             args.vcfPath,
-            skip_anno=args.skipInfoFields,
             genepanel_name=args.gp_name,
             genepanel_version=args.gp_version,
         )

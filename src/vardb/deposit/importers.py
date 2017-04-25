@@ -20,8 +20,9 @@ from vardb.deposit.vcfutil import vcfhelper
 log = logging.getLogger(__name__)
 
 
-ASSESSMENT_CLASS_FIELD = 'class'
-ASSESSMENT_COMMENT_FIELD = 'ASSC'
+ASSESSMENT_CLASS_FIELD = 'CLASS'
+ASSESSMENT_COMMENT_FIELD = 'COMMENT'
+ASSESSMENT_DATE_FIELD = 'DATE'
 
 
 def ordered(obj):
@@ -238,10 +239,9 @@ class AssessmentImporter(object):
         Create an assessment for allele if it doesn't exist already
         """
 
-
         existing = self.session.query(asm.AlleleAssessment).filter(
             asm.AlleleAssessment.allele == allele,
-            asm.AlleleAssessment.date_superceeded == None
+            asm.AlleleAssessment.date_superceeded.is_(None)
         ).first()
 
         if not existing:
@@ -257,38 +257,41 @@ class AssessmentImporter(object):
     def process(self, record, db_alleles, assess_class=None, genepanel=None):
         """
         Add assessment of allele if present.
-
-        If one field is present, we require all of them to avoid incomplete assessments.
-        Sets assessment status to 1 (curated), but sets dateLastUpdate to
-        datetime.datetime.min (i.e. year 1) to demand re-assessment of variant.
         """
-
-        db_assessments = list()
-        all_info = record['INFO']['ALL']
-
-        # Get required fields
-        ass_info = {
-            'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
-            'evaluation': {'classification': {'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)}}
-        }
-
-        # If no fields are specified, don't insert anything to db
-        if all(v is None for v in ass_info.values()):
-            return db_assessments
-
-        if any(v is None for v in ass_info.values()):
-            raise RuntimeError("All fields ({}) are required for importing an assessment".format(
-                ', '.join([ASSESSMENT_CLASS_FIELD,
-                           ASSESSMENT_COMMENT_FIELD]
-                          )))
 
         if len(db_alleles) > 1:
             raise RuntimeError("Importing assessments is not supported for multiallelic sites")
 
+        db_assessments = list()
+        all_info = record['INFO']['ALL']
+
+        if not isinstance(all_info.get(ASSESSMENT_CLASS_FIELD), basestring) or not \
+           all_info.get(ASSESSMENT_CLASS_FIELD) in ('1', '2', '3', '4', '5', 'T'):
+            return
+
+        # Get required fields
+        ass_info = {
+            'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
+        }
+
+        if isinstance(all_info.get(ASSESSMENT_COMMENT_FIELD), basestring) and \
+           all_info.get(ASSESSMENT_COMMENT_FIELD):
+            ass_info['evaluation'] = {'classification': {'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)}}
+        else:
+            ass_info['evaluation'] = {'classification': {'comment': 'Comment missing.'}}
+
         allele = db_alleles[0]
 
-        # Imported assessments are set as outdated by default
-        ass_info['date_created'] = datetime.datetime.min
+        if isinstance(all_info.get(ASSESSMENT_DATE_FIELD), basestring) and \
+           all_info.get(ASSESSMENT_DATE_FIELD):
+            try:
+                ass_info['date_created'] = datetime.datetime.strptime(all_info[ASSESSMENT_DATE_FIELD], '%Y-%m-%d')
+            except ValueError:
+                ass_info['date_created'] = datetime.datetime.min
+        else:
+            # If no date data, set as 1970-00-00
+            ass_info['date_created'] = datetime.datetime.min
+
         ass_info['genepanel'] = genepanel
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
         if db_assessment:
