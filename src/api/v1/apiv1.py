@@ -76,7 +76,7 @@ class ApiV1(object):
                            '/api/v1/analyses/<int:analysis_id>/')
 
         self._add_resource(r.igv.BamResource,
-                           '/api/v1/analyses/<int:analysis_id>/bams/<int:sample_id>/')
+                           '/api/v1/samples/<int:sample_id>/bams/')
 
         self._add_resource(r.igv.VcfResource,
                            '/api/v1/analyses/<int:analysis_id>/vcf/')

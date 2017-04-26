@@ -6,30 +6,24 @@ export class IgvModalController {
      * Controller for showing IGV.js in a modal
      */
 
-    constructor(modalInstance, Config, analysis, allele) {
+    constructor(modalInstance, Config, allele) {
         let config = Config.getConfig();
 
         let padding = 50;
 
         let tracks = []
-        // Not working correctly...
-        /*tracks.push({
-            type: 'variant',
-            url: `api/v1/analyses/${analysis.id}/vcf/`,
-            indexURL: `api/v1/analyses/${analysis.id}/vcf/?index=true`,
-            name: 'Variants'
-        });*/
+
         tracks.push({
             name: 'Gencode',
             url: config.igv.tracks.gencode,
             displayMode: 'EXPANDED'
         });
-        for (let sample of analysis.samples) {
+        for (let sample of allele.samples) {
             tracks.unshift({
                 type: 'alignment',
                 height: 400,
-                url: `api/v1/analyses/${analysis.id}/bams/${sample.id}/`,
-                indexURL: `api/v1/analyses/${analysis.id}/bams/${sample.id}/?index=true`,
+                url: `api/v1/samples/${sample.id}/bams/`,
+                indexURL: `api/v1/samples/${sample.id}/bams/?index=true`,
                 name: sample.identifier
             });
         }
@@ -72,13 +66,11 @@ export class IgvModal {
             controller: [
                 '$uibModalInstance',
                 'Config',
-                'analysis',
                 'allele',
                 IgvModalController
             ],
             controllerAs: 'vm',
             resolve: {
-                'analysis': () => analysis,
                 'allele': () => allele
             },
             size: 'lg'

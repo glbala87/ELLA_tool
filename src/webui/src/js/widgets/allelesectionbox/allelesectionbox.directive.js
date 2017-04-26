@@ -14,7 +14,6 @@ import {ACMGHelper} from '../../model/acmghelper';
         references: '=',
         alleleState: '=',
         alleleUserState: '=',
-        analysis: '=?', // Used for IGV (optional)
         alleleassessmentComment: '=?',  // {name: string, placeholder: string}
         allelereportComment: '=?',  // {name: string, placeholder: string}
         section: '=',  // Section to display using <allelesectionboxcontent>

@@ -104,6 +104,7 @@ export class AnalysisController {
                             hide_controls_on_collapse: true
                         },
                         controls: [
+                            'igv',
                             'copy_alamut',
                             'toggle_class1',
                             'toggle_class2',

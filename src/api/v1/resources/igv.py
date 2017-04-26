@@ -94,7 +94,7 @@ class BamResource(Resource):
     """
 
     @authenticate()
-    def get(self, session, analysis_id, sample_id, user=None):
+    def get(self, session, sample_id, user=None):
 
         serve_bai = False
         if request.args.get('index'):
@@ -104,13 +104,11 @@ class BamResource(Resource):
             raise ApiError("Missing env ANALYSES_PATH. Cannot serve BAM files.")
 
         # Get analysis and sample names
-        analysis_name = session.query(sample.Analysis.name).filter(
-            sample.Analysis.id == analysis_id
-        ).scalar()
-
-        sample_name = session.query(sample.Sample.identifier).filter(
+        analysis_name, sample_name = session.query(sample.Analysis.name, sample.Sample.identifier).join(
+            sample.Sample
+        ).filter(
             sample.Sample.id == sample_id
-        ).scalar()
+        ).one()
 
         if serve_bai:
             path = os.path.join(os.environ['ANALYSES_PATH'], analysis_name, sample_name + '.bai')

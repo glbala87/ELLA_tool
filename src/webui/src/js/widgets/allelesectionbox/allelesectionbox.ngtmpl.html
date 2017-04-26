@@ -15,7 +15,7 @@
                   ng-click="vm.collapseAll()">Collapse all
           </button>
           <button class="id-igv"
-                  ng-if="control == 'igv'"
+                  ng-if="control == 'igv' && vm.config.app.enable_igv"
                   ng-click="vm.showIgv()">Show in IGV
           </button>
           <button class="id-copy-alamut"
