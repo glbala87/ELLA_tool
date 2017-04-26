@@ -153,7 +153,6 @@ export class WorkflowAlleleController {
                         },
                         content: [
                             {'tag': 'allele-info-consequence'},
-                            {'tag': 'allele-info-splice'},
                             {'tag': 'allele-info-prediction-other'},
                         ],
                     },
