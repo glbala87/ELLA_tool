@@ -14,7 +14,7 @@ import logging
 from collections import OrderedDict
 
 from vardb.util import DB, vcfiterator
-from vardb.deposit.importers import inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
+from vardb.deposit.importers import SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -42,7 +42,6 @@ class DepositAnalysis(DepositFromVCF):
     def import_vcf(self, path, analysis_name, gp_name, gp_version, cache_size=1000, sample_type="HTS"):
 
         vi = vcfiterator.VcfIterator(path)
-        vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))

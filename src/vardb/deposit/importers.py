@@ -438,52 +438,6 @@ class SpliceInfoProcessor(vcfiterator.BaseInfoProcessor):
         info_data['ALL'][key] = data
 
 
-class inDBInfoProcessor(vcfiterator.BaseInfoProcessor):
-    """
-    Processes inDB data.
-    """
-
-    def __init__(self, meta):
-        self.meta = meta
-        self.processors = {
-            'inDB__inDB_filter': lambda x: x,
-            'inDB__inDB_indications': self._split_to_dict_factory(int),
-            'inDB__inDB_alleleFreq': self._split_to_dict_factory(float),
-            'inDB__inDB_genotypeFreq': self._split_to_dict_factory(float),
-            'inDB__inDB_noMutInd': lambda x: int(x)
-        }
-
-    def _split_to_dict_factory(self, func):
-
-        def split_to_dict(value):
-            result = dict()
-            for entry in value.split(','):
-                key_value = entry.split(':')
-                if key_value:
-                    result[key_value[0]] = func(key_value[1])
-            return result
-
-        return split_to_dict
-
-    def accepts(self, key, value, processed):
-        return key in self.processors
-
-    def process(self, key, value, info_data, alleles, processed):
-        if 'inDB' not in info_data['ALL']:
-            info_data['ALL']['inDB'] = dict()
-
-        data = self.processors[key](value)
-
-        # Put alleleFreq into allele specific keys
-        if key == 'inDB__inDB_alleleFreq':
-            for allele in alleles:
-                if allele in data:
-                    info_data[allele]['inDB'] = {'alleleFreq': data[allele]}
-        else:
-            name = key.split('__inDB_')[1]
-            info_data['ALL']['inDB'][name] = data
-
-
 class AnnotationImporter(object):
 
     def __init__(self, session):

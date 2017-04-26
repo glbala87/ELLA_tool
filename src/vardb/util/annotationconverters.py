@@ -308,10 +308,7 @@ def indb_frequencies(annotation):
         log.warning("inDB key present, bug missing supported allele count key")
 
     if "indications_OUSWES" in annotation["inDB"]:
-        if isinstance(['indications_OUSWES'], (float, int)):
-            frequencies["indications"] = annotation['inDB']['indications_OUSWES']
-        else:
-            frequencies["indications"] = annotation['inDB']['indications_OUSWES'][0]
+        frequencies["indications"] = {f.split(':', 1)[0]: f.split(':', 1)[1] for f in annotation['inDB']['indications_OUSWES'].split(',')}
     elif 'indications' in annotation['inDB']:
         frequencies["indications"] = annotation['inDB']['indications']
     else:

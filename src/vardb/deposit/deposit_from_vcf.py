@@ -21,7 +21,7 @@ from vardb.datamodel import gene
 from vardb.util import vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
-                                    inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    SpliceInfoProcessor, HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor, AlleleInterpretationImporter
 
 

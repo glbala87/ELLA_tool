@@ -17,7 +17,7 @@ import vardb.datamodel
 from vardb.datamodel import gene, DB
 from vardb.util import vcfiterator
 from vardb.deposit.importers import AnnotationImporter, AssessmentImporter, AlleleImporter, \
-                                    inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    SpliceInfoProcessor, HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor
 
 logging.basicConfig(level=logging.DEBUG)
@@ -55,7 +55,6 @@ class DepositAssessments(object):
                    genepanel_version=None):
 
         vi = vcfiterator.VcfIterator(path)
-        vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))

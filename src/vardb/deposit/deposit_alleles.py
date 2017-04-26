@@ -10,7 +10,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import logging
 
 from vardb.util import vcfiterator
-from vardb.deposit.importers import inDBInfoProcessor, SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
+from vardb.deposit.importers import SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -30,7 +30,6 @@ class DepositAlleles(DepositFromVCF):
     def import_vcf(self, path, gp_name, gp_version, annotation_only=False):
 
         vi = vcfiterator.VcfIterator(path)
-        vi.addInfoProcessor(inDBInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
