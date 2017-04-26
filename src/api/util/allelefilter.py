@@ -575,14 +575,18 @@ class AlleleFilter(object):
 
         gene_filtered = dict()
         for gp_key, allele_ids in gp_allele_ids.iteritems():
-            gene_filtered_q = self.session.query(
-                allele_filter_tbl.c.allele_id
-            ).filter(
-                allele_filter_tbl.c.symbol.in_(exclude_genes),
-                allele_filter_tbl.c.allele_id.in_(allele_ids)
-            ).distinct()
+            gene_filtered_alleles = list()
+            if exclude_genes:
+                gene_filtered_q = self.session.query(
+                    allele_filter_tbl.c.allele_id
+                ).filter(
+                    allele_filter_tbl.c.symbol.in_(exclude_genes),
+                    allele_filter_tbl.c.allele_id.in_(allele_ids)
+                ).distinct()
 
-            gene_filtered[gp_key] = [a[0] for a in gene_filtered_q.all()]
+                gene_filtered_alleles = [a[0] for a in gene_filtered_q.all()]
+
+            gene_filtered[gp_key] = gene_filtered_alleles
 
         # Remove the ones with existing classification
         for gp_key, allele_ids in gene_filtered.iteritems():
