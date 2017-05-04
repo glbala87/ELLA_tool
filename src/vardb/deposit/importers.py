@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Code for loading the contents of VCF files into the vardb database.
 
@@ -6,23 +7,27 @@ Use one transaction for whole file, and prompts user before committing.
 Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
-
+import base64
+import json
 import re
 import logging
 import datetime
 from collections import defaultdict
 
-from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf
+from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm, assessment as asm
 from vardb.util import vcfiterator, annotationconverters
 from vardb.deposit.vcfutil import vcfhelper
+from vardb.datamodel.user import User
 
 log = logging.getLogger(__name__)
 
 
 ASSESSMENT_CLASS_FIELD = 'CLASS'
-ASSESSMENT_COMMENT_FIELD = 'COMMENT'
+ASSESSMENT_COMMENT_FIELD = 'ASSESSMENT_COMMENT'
 ASSESSMENT_DATE_FIELD = 'DATE'
+ASSESSMENT_USERNAME_FIELD = 'USERNAME'
+REPORT_FIELD = 'REPORT_COMMENT'
 
 
 def ordered(obj):
@@ -67,6 +72,10 @@ def deepmerge(source, destination):
             destination[key] = value
 
     return destination
+
+
+def is_non_empty_text(input):
+    return isinstance(input, basestring) and input
 
 
 class SampleImporter(object):
@@ -265,39 +274,65 @@ class AssessmentImporter(object):
         db_assessments = list()
         all_info = record['INFO']['ALL']
 
-        if not isinstance(all_info.get(ASSESSMENT_CLASS_FIELD), basestring) or not \
-           all_info.get(ASSESSMENT_CLASS_FIELD) in ('1', '2', '3', '4', '5', 'T'):
+        class_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
+        if not is_non_empty_text(class_raw) or class_raw not in ('1', '2', '3', '4', '5', 'T'):
+            logging.warning("Unknown class {}".format(class_raw))
             return
 
         # Get required fields
         ass_info = {
-            'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
+            'classification': class_raw,
+            'evaluation': {'classification': {'comment': 'Comment missing.'}}
         }
 
-        if isinstance(all_info.get(ASSESSMENT_COMMENT_FIELD), basestring) and \
-           all_info.get(ASSESSMENT_COMMENT_FIELD):
-            ass_info['evaluation'] = {'classification': {'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)}}
-        else:
-            ass_info['evaluation'] = {'classification': {'comment': 'Comment missing.'}}
+        assessment_comment = all_info.get(ASSESSMENT_COMMENT_FIELD)
+        if is_non_empty_text(assessment_comment):
+            ass_info['evaluation']['classification'].update({'comment': base64.b64decode(assessment_comment).decode('utf-8')})
+
+        user = None
+        username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
+        if is_non_empty_text(username_raw):
+            user = self.session.query(User).filter(
+                User.username == username_raw
+            ).one()
+            ass_info['user_id'] = user.id
 
         allele = db_alleles[0]
 
-        if isinstance(all_info.get(ASSESSMENT_DATE_FIELD), basestring) and \
-           all_info.get(ASSESSMENT_DATE_FIELD):
+        ass_info['date_created'] = datetime.datetime.min  # 1970-00-00 if not proper
+        date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
+        if is_non_empty_text(date_raw):
             try:
-                ass_info['date_created'] = datetime.datetime.strptime(all_info[ASSESSMENT_DATE_FIELD], '%Y-%m-%d')
+                ass_info['date_created'] = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
             except ValueError:
-                ass_info['date_created'] = datetime.datetime.min
-        else:
-            # If no date data, set as 1970-00-00
-            ass_info['date_created'] = datetime.datetime.min
+                pass
 
         ass_info['genepanel'] = genepanel
+
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
         if db_assessment:
+            if self.session.query(assessment.AlleleReport).filter(
+                            assessment.AlleleReport.allele_id == allele.id
+            ).count():
+                raise RuntimeError("Found an existing allele report, won't create a new one")
+
+            report_data = {'allele_id': allele.id,
+                           'user_id': user.id,
+                           'alleleassessment_id': db_assessment.id
+                           }
+
+            report_raw = all_info.get(REPORT_FIELD)
+            if is_non_empty_text(report_raw):
+                report_data['evaluation'] = {'comment': base64.b64decode(report_raw).decode('utf-8')}
+
+            report = assessment.AlleleReport(**report_data)
+            self.session.add(report)
+
             self.counter['nAssessmentsUpdated'] += 1
             db_assessments.append(db_assessment)
         return db_assessments
+
+
 
 
 class SplitToDictInfoProcessor(vcfiterator.BaseInfoProcessor):
@@ -483,6 +518,7 @@ class AnnotationImporter(object):
         frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
         frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
 
+        print merged_annotation
         transcripts = annotationconverters.convert_csq(merged_annotation)
         splice_transcripts = annotationconverters.convert_splice(merged_annotation)
         # Merge splice's transcript objects into the ones from CSQ
@@ -495,6 +531,8 @@ class AnnotationImporter(object):
                 # Remove transcript from splice, we use version from CSQ.
                 st.pop('transcript')
                 transcript.update(st)
+
+        print transcripts
 
         external = dict()
         external.update(annotationconverters.convert_hgmd(merged_annotation))

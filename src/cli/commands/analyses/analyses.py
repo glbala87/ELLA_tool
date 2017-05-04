@@ -1,6 +1,9 @@
 import click
 import logging
 
+from flask import Response
+
+
 from vardb.datamodel import DB, sample
 
 from api.v1 import resources
@@ -21,6 +24,11 @@ def cmd_analysis_list():
 
     res = resources.analysis.AnalysisListResource()
     analyses = res.get(db.session)
+    if analyses.status_code != 200:
+        click.echo("API request not OK: {}".format(analyses.status_code))
+        db.disconnect()
+        return
+
     header = {'id': 'id', 'name': 'name', 'deposit_date': 'deposit_date', 'i_count': 'interp.', 'status': 'status'}
     row_format = "{id:^10}| {name:<50} | {deposit_date:^33} | {i_count:^7} | {status:^12} |"
     click.echo(row_format.format(**header))
