@@ -9,6 +9,16 @@ class Filters {
     Convert one or several gene panel values to a string value
     */
 
+
+    @Filter({
+        filterName: 'base64'
+    })
+    base64Filter() {
+        return (input) => {
+                return atob(input);
+        };
+    }
+
     @Filter({
         filterName: 'split'
     })

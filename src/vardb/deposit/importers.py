@@ -23,6 +23,8 @@ log = logging.getLogger(__name__)
 ASSESSMENT_CLASS_FIELD = 'CLASS'
 ASSESSMENT_COMMENT_FIELD = 'COMMENT'
 ASSESSMENT_DATE_FIELD = 'DATE'
+ASSESSMENT_HISTORIC_ANSWER_FIELD = 'HISTORIC_ANSWER'
+ASSESSMENT_HISTORIC_CLASSIFICATION_FIELD = 'HISTORIC_CLASSIFICATION'
 
 
 def ordered(obj):
@@ -270,15 +272,16 @@ class AssessmentImporter(object):
             return
 
         # Get required fields
-        ass_info = {
-            'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
-        }
+        ass_info = {'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
+                    'evaluation': {'classification': {'comment': 'Comment missing.'}}}
 
         if isinstance(all_info.get(ASSESSMENT_COMMENT_FIELD), basestring) and \
            all_info.get(ASSESSMENT_COMMENT_FIELD):
-            ass_info['evaluation'] = {'classification': {'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)}}
-        else:
-            ass_info['evaluation'] = {'classification': {'comment': 'Comment missing.'}}
+            ass_info['evaluation']['classification'].update({'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)})
+
+        if isinstance(all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD), basestring) and \
+           all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD):
+            ass_info['evaluation']['classification'].update({'historic_answer': all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)})
 
         allele = db_alleles[0]
 
