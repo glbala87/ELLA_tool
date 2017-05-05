@@ -15,6 +15,17 @@ class Filters {
     })
     base64Filter() {
         return (input) => {
+            return decodeURIComponent(atob(input).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        };
+    }
+
+    @Filter({
+        filterName: 'base64old'
+    })
+    base64Filterold() {
+        return (input) => {
                 return atob(input);
         };
     }
