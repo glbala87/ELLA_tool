@@ -14,7 +14,7 @@
     <div class="existing-classification-comments">
         <div class="tabular-row">
         <div class="cell top-align"> <h5>Evaluation</h5> </div>
-        <div class="cell"> <p>
+        <div class="cell">
             <wysiwyg-editor
                 class="id-existing-comment-classification"
                 ng-disabled="true"
@@ -24,13 +24,19 @@
         </div>
         <div class="tabular-row">
         <div class="cell top-align"> <h5>svartekst</h5> </div>
-        <div class="cell"> <p>
-            {{ vm.alleleassessment.evaluation.classification.historic_answer | base64}}
+        <div class="cell">
+            <pre style="white-space: pre-wrap;  margin-bottom: 1.4rem; border-bottom: 1px solid rgba(0, 0, 0, 0.25);">{{ vm.alleleassessment.evaluation.classification.historic_answer | base64}}</pre>
+        </div>
+        </div>
+        <div class="tabular-row">
+        <div class="cell top-align"> <h5>tidligere vurderinger</h5> </div>
+        <div class="cell">
+            <pre style="white-space: pre-wrap;  margin-bottom: 1.4rem; border-bottom: 1px solid rgba(0, 0, 0, 0.25);">{{ vm.alleleassessment.evaluation.classification.historic_assessments | base64}}</pre>
         </div>
         </div>
         <div class="tabular-row">
         <div class="cell top-align"> <h5>Frequency</h5> </div>
-        <div class="cell"> <p>
+        <div class="cell">
             <wysiwyg-editor
                 class="id-existing-comment-frequency"
                 ng-disabled="true"
@@ -40,7 +46,7 @@
         </div>
         <div class="tabular-row">
         <div class="cell top-align"> <h5>External DB</h5> </div>
-        <div class="cell"> <p>
+        <div class="cell">
             <wysiwyg-editor
                 class="id-existing-comment-external"
                 ng-disabled="true"
@@ -50,7 +56,7 @@
         </div>
         <div class="tabular-row">
         <div class="cell top-align"> <h5>Prediction</h5> </div>
-        <div class="cell"> <p>
+        <div class="cell">
             <wysiwyg-editor
                 class="id-existing-comment-prediction"
                 ng-disabled="true"
@@ -60,7 +66,7 @@
         </div>
         <div class="tabular-row">
         <div class="cell top-align"> <h5>Reference</h5> </div>
-        <div class="cell"> <p>
+        <div class="cell">
             <wysiwyg-editor
                 class="id-existing-comment-prediction"
                 ng-disabled="true"
