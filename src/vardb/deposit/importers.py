@@ -24,7 +24,7 @@ ASSESSMENT_CLASS_FIELD = 'CLASS'
 ASSESSMENT_COMMENT_FIELD = 'COMMENT'
 ASSESSMENT_DATE_FIELD = 'DATE'
 ASSESSMENT_HISTORIC_ANSWER_FIELD = 'HISTORIC_ANSWER'
-ASSESSMENT_HISTORIC_CLASSIFICATION_FIELD = 'HISTORIC_CLASSIFICATION'
+ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD = 'HISTORIC_ASSESSMENTS'
 
 
 def ordered(obj):
@@ -282,6 +282,10 @@ class AssessmentImporter(object):
         if isinstance(all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD), basestring) and \
            all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD):
             ass_info['evaluation']['classification'].update({'historic_answer': all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)})
+
+        if isinstance(all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD), basestring) and \
+           all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD):
+            ass_info['evaluation']['classification'].update({'historic_assessments': all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD)})
 
         allele = db_alleles[0]
 
