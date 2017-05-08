@@ -326,14 +326,6 @@ class ConvertReferences(object):
         "SAR": "Additional report",
     }
 
-    def _csq_pubmeds(self, annotation):
-        if 'CSQ' not in annotation:
-            return dict()
-        # Get first elem which has PUBMED ids (it's the same in all elements)
-        pubmed_data = next((d['PUBMED'] for d in annotation['CSQ'] if 'PUBMED' in d), list())
-        pubmed_data = dict(zip(pubmed_data, [""]*len(pubmed_data)))  # Return as dict (empty values)
-        return pubmed_data
-
     def _hgmd_pubmeds(self, annotation):
         if 'HGMD' not in annotation:
             return dict()
@@ -346,7 +338,7 @@ class ConvertReferences(object):
             comments = "No comments." if comments == "None" else comments
             total[pmid] = [reftag, comments]
 
-        for er in annotation["HGMD"].get("extrarefs",[]):
+        for er in annotation["HGMD"].get("extrarefs", []):
             if "pmid" in er:
                 pmid = er['pmid']
                 reftag = ConvertReferences.REFTAG.get(er.get("reftag"), "Reftag not specified")
@@ -367,7 +359,6 @@ class ConvertReferences(object):
 
         clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
 
-
         pubmeds = clinvarjson["pubmeds"]
         pubmeds = dict(zip(pubmeds, [""]*len(pubmeds)))  # Return as dict (empty values)
 
@@ -387,20 +378,15 @@ class ConvertReferences(object):
         return int_pmids
 
     def process(self, annotation):
-        csq_pubmeds = self._ensure_int_pmids(self._csq_pubmeds(annotation))
         hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
         clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
 
         # Merge references and restructure to list
-        all_pubmeds = csq_pubmeds.keys()+hgmd_pubmeds.keys()+clinvar_pubmeds.keys()
+        all_pubmeds = hgmd_pubmeds.keys() + clinvar_pubmeds.keys()
         references = list()
         for pmid in sorted(set(all_pubmeds), key=all_pubmeds.count, reverse=True):
             sources = []
             sourceInfo = dict()
-            if pmid in csq_pubmeds:
-                sources.append("VEP")
-                if csq_pubmeds[pmid] != "":
-                    sourceInfo["VEP"] = csq_pubmeds[pmid]
             if pmid in hgmd_pubmeds:
                 sources.append("HGMD")
                 if hgmd_pubmeds[pmid] != "":
