@@ -36,7 +36,7 @@ describe(`ACMG`, function () {
 
     function expectSuggestedFeatureIsShown() {
         expect(acmg.suggestedElement.isVisible()).toBe(true);
-        expect(acmg.suggestedReqElement.isVisible()).toBe(true);
+        expect(acmg.suggestedReqElement.isVisible()).toBe(false); // Now hidden by default
         expect(acmg.showHideBtn.isVisible()).toBe(true);
     }
 

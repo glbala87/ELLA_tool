@@ -26,7 +26,7 @@ export class ACMGSelectionController {
         this.config = Config.getConfig();
         this.toastr = toastr;
 
-        this.show_req = true;
+        this.show_req = false;
         this.req_groups = []; // Updated by setREQCodes()
 
         $scope.$watch(() => this.allele.acmg, () => {
