@@ -76,6 +76,7 @@
                      class="bttn"
                      ng-model="vm.referenceAssessment.evaluation[elem.store]"
                      uib-btn-radio="item[1]"
+                     uib-uncheckable="true"
                      ng-repeat="item in elem.options"
                      ng-disabled="vm.isDisabled(source) || vm.readOnly">{{item[0]}}</label>
           </div>
