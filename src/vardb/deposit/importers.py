@@ -8,12 +8,13 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 import base64
+import json
 import re
 import logging
 import datetime
 from collections import defaultdict
 
-from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf
+from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm, assessment as asm
 from vardb.util import vcfiterator, annotationconverters
 from vardb.deposit.vcfutil import vcfhelper
@@ -319,26 +320,21 @@ class EKGAssessmentImporter(AssessmentImporter):
         if len(db_alleles) > 1:
             raise RuntimeError("Importing assessments is not supported for multiallelic sites")
 
-
+        allele = db_alleles[0]
         db_assessments = list()
 
         all_info = record['INFO']['ALL']
-
-        print all_info
 
         classification_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
         if not isinstance(classification_raw, basestring) or not classification_raw in ('1', '2', '3', '4', '5', 'T'):
             logging.warning("Unknown class {}".format(classification_raw))
             return
 
-
-
         # Get required fields
         ass_info = {'classification': classification_raw,
                     'evaluation': {'classification': {'comment': 'Comment missing.'}}}
 
-
-
+        user = None
         username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
         if isinstance(username_raw, basestring) and username_raw:
             user = self.session.query(User).filter(
@@ -346,23 +342,18 @@ class EKGAssessmentImporter(AssessmentImporter):
             ).one()
             ass_info['user_id'] = user.id
 
-        ## report element instead!!!
+
         comment_raw = all_info.get(ASSESSMENT_COMMENT_FIELD)
         if isinstance(comment_raw, basestring) and comment_raw:
             ass_info['evaluation']['classification'].update({'comment': comment_raw})
 
-        historic_answer_raw = all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)
-        if isinstance(historic_answer_raw, basestring) and historic_answer_raw:
-            encoded = base64.b64decode(historic_answer_raw).decode('utf-8')
-            print historic_answer_raw
-            print encoded
-            ass_info['evaluation']['classification'].update({'comment': u"<h2>Prøvesvar</h2>" + encoded.replace('\n', '<br/>')})
-
+        # TODO: append to classification comment
         history_raw = all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD)
         if isinstance(history_raw, basestring) and history_raw:
-            ass_info['evaluation']['classification'].update({'historic_assessments': history_raw})
+            encoded = base64.b64decode(history_raw).decode('utf-8')
+            ass_info['evaluation']['classification'].update({'comment':
+                                                                 u"<h2>Vurderingshistorikk</h2>" + encoded.replace('\n', '<br/>')})
 
-        allele = db_alleles[0]
 
         if isinstance(all_info.get(ASSESSMENT_DATE_FIELD), basestring) and \
            all_info.get(ASSESSMENT_DATE_FIELD):
@@ -379,6 +370,30 @@ class EKGAssessmentImporter(AssessmentImporter):
 
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
         if db_assessment:
+
+            ## report element instead!!!
+            all_existing_reports = self.session.query(assessment.AlleleReport).filter(
+                assessment.AlleleReport.allele_id == allele.id
+            ).all()
+
+            if len(all_existing_reports) > 0:
+                raise RuntimeError("Found an existing alleleReport, won't create a new one")
+
+
+            report_data = {'allele_id': allele.id,
+                           'user_id': user.id,
+                           'alleleassessment_id': db_assessment.id
+                           }
+
+            historic_answer_raw = all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)
+            if isinstance(historic_answer_raw, basestring) and historic_answer_raw:
+                encoded = base64.b64decode(historic_answer_raw).decode('utf-8')
+                report_data['evaluation'] = {'comment': u"<h2>Prøvesvar</h2>" + encoded.replace('\n', '<br/>')}
+
+
+            report = assessment.AlleleReport(**report_data)
+            self.session.add(report)
+
             self.counter['nAssessmentsUpdated'] += 1
             db_assessments.append(db_assessment)
         return db_assessments
