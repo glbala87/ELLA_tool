@@ -6,33 +6,6 @@ from .. import annotationconverters
 
 class TestReferences():
 
-    def test_get_pubmeds_CSQ(self):
-        data = {
-            'CSQ': [
-                {
-                    'PUBMED': [
-                        1,
-                        2
-                    ]
-                },
-                {}
-            ]
-
-        }
-
-        pubmeds = annotationconverters.ConvertReferences().process(data)
-        assert pubmeds[0] == {
-                'pubmed_id': 1,
-                'sources': ['VEP'],
-                'source_info': {},
-            }
-
-        assert pubmeds[1] == {
-                'pubmed_id': 2,
-                'sources': ['VEP'],
-                'source_info': {},
-            }
-
     def test_get_pubmeds_HGMD(self):
         data = {
             'HGMD': {
@@ -59,49 +32,6 @@ class TestReferences():
         assert pubmeds[1] == {
                 'pubmed_id': 2,
                 'sources': ['HGMD'],
-                'source_info': {'HGMD': "Reftag not specified. No comments."},
-            }
-
-        assert pubmeds[2] == {
-                'pubmed_id': 3,
-                'sources': ['HGMD'],
-                'source_info': {'HGMD': "Reftag not specified. No comments."},
-            }
-
-    def test_get_pubmeds_both(self):
-        data = {
-            'CSQ': [
-                {
-                    'PUBMED': [
-                        1,
-                        2
-                    ]
-                }
-            ],
-            'HGMD': {
-                'pmid': 1,
-                'extrarefs': [
-                    {
-                        'pmid': 2
-                    },
-                    {
-                        'pmid': 3
-                    },
-                ]
-            },
-
-        }
-
-        pubmeds = annotationconverters.ConvertReferences().process(data)
-        assert pubmeds[0] == {
-                'pubmed_id': 1,
-                'sources': ['VEP', 'HGMD'],
-                'source_info': {"HGMD": "Primary literature report. No comments."},
-            }
-
-        assert pubmeds[1] == {
-                'pubmed_id': 2,
-                'sources': ['VEP', 'HGMD'],
                 'source_info': {'HGMD': "Reftag not specified. No comments."},
             }
 
