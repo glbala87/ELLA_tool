@@ -91,8 +91,7 @@ class AnalysisInterpretationResource(Resource):
         ['id'],
         allowed=[
             'state',
-            'user_state',
-            'user_id'
+            'user_state'
         ]
     )
     def patch(self, session, analysis_id, interpretation_id, data=None, user=None):
@@ -116,9 +115,6 @@ class AnalysisInterpretationResource(Resource):
               title: AnalysisInterpretation data
               type: object
               properties:
-                user_id:
-                  description: User id of user performing update
-                  type: integer
                 state:
                   description: State data
                   type: object
@@ -130,8 +126,7 @@ class AnalysisInterpretationResource(Resource):
             type: null
             description: OK
         """
-
-        helpers.update_interpretation(session, data, analysisinterpretation_id=interpretation_id)
+        helpers.update_interpretation(session, user.id, data, analysisinterpretation_id=interpretation_id)
         session.commit()
 
         return None, 200
@@ -168,11 +163,10 @@ class AnalysisInterpretationListResource(Resource):
 class AnalysisActionOverrideResource(Resource):
 
     @authenticate()
-    @request_json(['user_id'])
-    def post(self, session, analysis_id, data=None, user=None):
+    def post(self, session, analysis_id, user=None):
         """
         Lets an user take over an analysis, by replacing the
-        analysis' current interpretation's user_id with the input user_id.
+        analysis' current interpretation's user_id with the authenticated user_id.
 
         **Only works for analyses with a `Ongoing` current interpretation**
         ---
@@ -184,20 +178,6 @@ class AnalysisActionOverrideResource(Resource):
             in: path
             type: integer
             description: Analysis id
-          - name: data
-            in: body
-            type: object
-            required: true
-            schema:
-              title: User id object
-              required:
-                - user_id
-              properties:
-                user_id:
-                  type: integer
-                example:
-                  user_id: 1
-            description: User id
 
         responses:
           200:
@@ -206,7 +186,7 @@ class AnalysisActionOverrideResource(Resource):
             description: Error
         """
 
-        helpers.override_interpretation(session, data, analysis_id=analysis_id)
+        helpers.override_interpretation(session, user.id, analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -215,8 +195,7 @@ class AnalysisActionOverrideResource(Resource):
 class AnalysisActionStartResource(Resource):
 
     @authenticate()
-    @request_json(['user_id'])
-    def post(self, session, analysis_id, data=None, user=None):
+    def post(self, session, analysis_id, user=None):
         """
         Starts an analysisinterpretation.
 
@@ -230,20 +209,6 @@ class AnalysisActionStartResource(Resource):
             in: path
             type: integer
             description: Analysis id
-          - name: data
-            in: body
-            type: object
-            required: true
-            schema:
-              title: User id object
-              required:
-                - user_id
-              properties:
-                user_id:
-                  type: integer
-              example:
-                user_id: 1
-            description: User id
 
         responses:
           200:
@@ -252,7 +217,7 @@ class AnalysisActionStartResource(Resource):
             description: Error
         """
 
-        helpers.start_interpretation(session, data, analysis_id=analysis_id)
+        helpers.start_interpretation(session, user.id, {}, analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -286,20 +251,7 @@ class AnalysisActionMarkReviewResource(Resource):
             in: path
             type: integer
             description: Analysis id
-          - name: data
-            in: body
-            type: object
-            required: true
-            schema:
-              title: User id object
-              required:
-                - user_id
-              properties:
-                user_id:
-                  type: integer
-              example:
-                user_id: 1
-            description: User id
+
         responses:
           200:
             description: Returns null
@@ -334,20 +286,7 @@ class AnalysisActionReopenResource(Resource):
             in: path
             type: integer
             description: Analysis id
-          - name: data
-            in: body
-            type: object
-            required: true
-            schema:
-                title: User id object
-                required:
-                    - user_id
-                properties:
-                    user_id:
-                        type: integer
-                example:
-                    user_id: 1
-            description: User id
+
         responses:
           200:
             description: Returns null
@@ -410,7 +349,6 @@ class AnalysisActionFinalizeResource(Resource):
           "referenceassessments": [
                 {
                     // New assessment will be created, superceding any old one
-                    "user_id": 1,
                     "analysis_id": 3,
                     "reference_id": 123
                     "evaluation": {...data...},
@@ -427,7 +365,6 @@ class AnalysisActionFinalizeResource(Resource):
             "alleleassessments": [
                 {
                     // New assessment will be created, superceding any old one
-                    "user_id": 1,
                     "allele_id": 2,
                     "classification": "3",
                     "evaluation": {...data...},
@@ -445,7 +382,6 @@ class AnalysisActionFinalizeResource(Resource):
             "allelereports": [
                 {
                     // New report will be created, superceding any old one
-                    "user_id": 1,
                     "allele_id": 2,
                     "evaluation": {...data...},
                     "analysis_id": 3,
@@ -496,9 +432,6 @@ class AnalysisActionFinalizeResource(Resource):
                       id:
                         description: Existing referenceassessment id. If provided, existing object will be reused
                         type: integer
-                      user_id:
-                        description: User id. Required if not reusing existing object
-                        type: integer
                       analysis_id:
                         description: Analysis id. Required if not reusing existing object
                         type: integer
@@ -526,9 +459,6 @@ class AnalysisActionFinalizeResource(Resource):
                       reuse:
                         description: The objects signals reuse of an existing alleleassessment
                         type: boolean
-                      user_id:
-                        description: User id. Required if not reusing existing object
-                        type: integer
                       analysis_id:
                         description: Analysis id. Required if not reusing existing object
                         type: integer
@@ -559,9 +489,6 @@ class AnalysisActionFinalizeResource(Resource):
                       reuse:
                         description: The objects signals reuse of an existing report
                         type: boolean
-                      user_id:
-                        description: User id. Required if not reusing existing object
-                        type: integer
                       analysis_id:
                         description: Analysis id. Required if not reusing existing object
                         type: integer
@@ -581,8 +508,7 @@ class AnalysisActionFinalizeResource(Resource):
                   - allele_id: 1
                     custom_annotation_id: 102
                 referenceassessments:
-                  - user_id: 1
-                    analysis_id: 3
+                  - analysis_id: 3
                     reference_id: 123
                     evaluation: {}
                     allele_id: 14
@@ -590,8 +516,7 @@ class AnalysisActionFinalizeResource(Resource):
                     allele_id: 13
                     reference_id: 1
                 alleleassessments:
-                  - user_id: 1
-                    allele_id: 2
+                  - allele_id: 2
                     classification: '3'
                     evaluation: {}
                     analysis_id: 3
@@ -599,8 +524,7 @@ class AnalysisActionFinalizeResource(Resource):
                     reuse: true
                     allele_id: 6
                 allelereports:
-                  - user_id: 1
-                    allele_id: 2
+                  - allele_id: 2
                     evaluation: {}
                     analysis_id: 3
                   - presented_report_id: 9
@@ -623,7 +547,6 @@ class AnalysisActionFinalizeResource(Resource):
             "referenceassessments": [
                 {
                     # New assessment will be created, superceding any old one
-                    "user_id": 1,
                     "analysis_id": 3,
                     "reference_id": 123
                     "evaluation": {...data...},
@@ -640,7 +563,6 @@ class AnalysisActionFinalizeResource(Resource):
             "alleleassessments": [
                 {
                     # New assessment will be created, superceding any old one
-                    "user_id": 1,
                     "allele_id": 2,
                     "classification": "3",
                     "evaluation": {...data...},
@@ -656,7 +578,6 @@ class AnalysisActionFinalizeResource(Resource):
             "allelereports": [
                 {
                     # New report will be created, superceding any old one
-                    "user_id": 1,
                     "allele_id": 2,
                     "evaluation": {...data...},
                     "analysis_id": 3,
@@ -672,7 +593,7 @@ class AnalysisActionFinalizeResource(Resource):
 
         """
 
-        result = helpers.finalize_interpretation(session, data, analysis_id=analysis_id)
+        result = helpers.finalize_interpretation(session, user.id, data, analysis_id=analysis_id)
         session.commit()
 
         return result, 200

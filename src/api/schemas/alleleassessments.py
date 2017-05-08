@@ -56,13 +56,11 @@ class AlleleAssessmentInputSchema(Schema):
                   'analysis_id',
                   'genepanel_name',
                   'genepanel_version',
-                  'user_id',
                   'classification',
                   'evaluation',
                   'referenceassessments'
 )
 
-    user_id = fields.Integer()
     evaluation = fields.Field(required=False, default={})
     classification = fields.Field(required=True)
 

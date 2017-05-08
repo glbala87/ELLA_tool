@@ -77,7 +77,6 @@ class AlleleReportListResource(Resource):
         [
             'allele_id',
             'evaluation',
-            'user_id',
         ],
         allowed=[
             # 'id' is excluded on purpose, as the endpoint should always result in a new report
@@ -97,7 +96,6 @@ class AlleleReportListResource(Resource):
         [
             {
                 // New report will be created, superceding any old one
-                "user_id": 1,
                 "allele_id": 2,
                 "evaluation": {...data...},
                 "analysis_id": 3,  // Optional, should be given when report is made in context of analysis
@@ -127,7 +125,6 @@ class AlleleReportListResource(Resource):
                 title: AlleleReport data
                 type: object
                 required:
-                  - user_id
                   - allele_id
                   - evaluation
                 properties:
@@ -137,9 +134,6 @@ class AlleleReportListResource(Resource):
                   reuse:
                     description: If true, reuse exisisting object, se presented_report_id
                     type: boolean
-                  user_id:
-                    description: User id
-                    type: integer
                   analysis_id:
                     description: Analysis id
                     type: integer
@@ -154,8 +148,7 @@ class AlleleReportListResource(Resource):
                     type: object
 
               example:
-                - user_id: 3
-                  allele_id: 2
+                - allele_id: 2
                   evaluation: {}
                   analysis_id: 3
                   alleleassessment_id: 3
@@ -181,8 +174,9 @@ class AlleleReportListResource(Resource):
         ).all()
 
         grouped_allelereports = AlleleReportCreator(session).create_from_data(
+            user.id,
             data,
-            alleleassessments = existing_assessments
+            alleleassessments=existing_assessments
         )
 
         created_allele_reports = grouped_allelereports['created']
@@ -193,4 +187,4 @@ class AlleleReportListResource(Resource):
         session.add_all(created_allele_reports)
         session.commit()
 
-        return schemas.AlleleReportSchema().dump(created_allele_reports,many=True).data
+        return schemas.AlleleReportSchema().dump(created_allele_reports, many=True).data

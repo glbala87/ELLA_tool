@@ -154,7 +154,7 @@ def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinter
     )
 
 
-def update_interpretation(session, data, alleleinterpretation_id=None, analysisinterpretation_id=None):
+def update_interpretation(session, user_id, data, alleleinterpretation_id=None, analysisinterpretation_id=None):
     """
     Updates the current interpretation inplace.
 
@@ -171,7 +171,7 @@ def update_interpretation(session, data, alleleinterpretation_id=None, analysisi
             'user_id': interpretation.user_id
         })
 
-    def check_update_allowed(interpretation, patch_data):
+    def check_update_allowed(interpretation, user_id, patch_data):
         if interpretation.status == 'Done':
             raise ApiError("Cannot PATCH interpretation with status 'DONE'")
         elif interpretation.status == 'Not started':
@@ -179,7 +179,7 @@ def update_interpretation(session, data, alleleinterpretation_id=None, analysisi
 
         # Check that user is same as before
         if interpretation.user_id:
-            if interpretation.user_id != patch_data['user_id']:
+            if interpretation.user_id != user_id:
                 raise ApiError("Interpretation owned by {} cannot be updated by other user ({})"
                                .format(interpretation.user_id, patch_data['user_id']))
 
@@ -190,7 +190,7 @@ def update_interpretation(session, data, alleleinterpretation_id=None, analysisi
         interpretation_model.id == interpretation_id
     ).one()
 
-    check_update_allowed(interpretation, data)
+    check_update_allowed(interpretation, user_id, data)
 
     # Add current state to history if new state is different:
     if data['state'] != interpretation.state:
@@ -239,13 +239,13 @@ def get_interpretations(session, allele_id=None, analysis_id=None):
     return loaded_interpretations
 
 
-def override_interpretation(session, data, allele_id=None, analysis_id=None):
+def override_interpretation(session, user_id, allele_id=None, analysis_id=None):
 
     interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
 
     # Get user by username
     new_user = session.query(user.User).filter(
-        user.User.id == data['user_id']
+        user.User.id == user_id
     ).one()
 
     if interpretation.status != 'Ongoing':
@@ -257,13 +257,13 @@ def override_interpretation(session, data, allele_id=None, analysis_id=None):
     return interpretation
 
 
-def start_interpretation(session, data, allele_id=None, analysis_id=None):
+def start_interpretation(session, user_id, data, allele_id=None, analysis_id=None):
 
     interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
 
     # Get user by username
     start_user = session.query(user.User).filter(
-        user.User.id == data['user_id']
+        user.User.id == user_id
     ).one()
 
     if not interpretation:
@@ -361,7 +361,7 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
     return interpretation, interpretation_next
 
 
-def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
+def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=None):
     """
     Finalizes an interpretation.
 
@@ -394,6 +394,7 @@ def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
 
     # Create/reuse assessments
     grouped_alleleassessments = AssessmentCreator(session).create_from_data(
+        user_id,
         data['annotations'],
         data['alleleassessments'],
         data['custom_annotations'],
@@ -408,6 +409,7 @@ def finalize_interpretation(session, data, allele_id=None, analysis_id=None):
     # Create/reuse allelereports
     all_alleleassessments = reused_alleleassessments + created_alleleassessments
     grouped_allelereports = AlleleReportCreator(session).create_from_data(
+        user_id,
         data['allelereports'],
         all_alleleassessments
     )

@@ -43,7 +43,6 @@ class CustomAnnotationList(Resource):
     @authenticate()
     @request_json(
         [
-            'user_id',
             'allele_id',
             'annotations'
         ],
@@ -69,13 +68,9 @@ class CustomAnnotationList(Resource):
               title: CustomAnnotation data
               type: object
               required:
-                - user_id
                 - allele_id
                 - annotations
               properties:
-                user_id:
-                  description: User id
-                  type: integer
                 allele_id:
                   description: Allele id
                   type: integer
@@ -98,7 +93,7 @@ class CustomAnnotationList(Resource):
         ).one_or_none()
 
         ca_data = {
-            'user_id': data['user_id'],
+            'user_id': user.id,
             'annotations': data['annotations'],
             'allele_id': allele_id
         }
