@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Code for loading the contents of VCF files into the vardb database.
 
@@ -6,7 +7,7 @@ Use one transaction for whole file, and prompts user before committing.
 Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
-
+import base64
 import re
 import logging
 import datetime
@@ -16,6 +17,7 @@ from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow
 from vardb.datamodel import annotation as annm, assessment as asm
 from vardb.util import vcfiterator, annotationconverters
 from vardb.deposit.vcfutil import vcfhelper
+from vardb.datamodel.user import User
 
 log = logging.getLogger(__name__)
 
@@ -23,6 +25,7 @@ log = logging.getLogger(__name__)
 ASSESSMENT_CLASS_FIELD = 'CLASS'
 ASSESSMENT_COMMENT_FIELD = 'COMMENT'
 ASSESSMENT_DATE_FIELD = 'DATE'
+ASSESSMENT_USERNAME_FIELD = 'USERNAME'
 ASSESSMENT_HISTORIC_ANSWER_FIELD = 'HISTORIC_ANSWER'
 ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD = 'HISTORIC_ASSESSMENTS'
 
@@ -272,20 +275,15 @@ class AssessmentImporter(object):
             return
 
         # Get required fields
-        ass_info = {'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
-                    'evaluation': {'classification': {'comment': 'Comment missing.'}}}
+        ass_info = {
+            'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
+        }
 
         if isinstance(all_info.get(ASSESSMENT_COMMENT_FIELD), basestring) and \
            all_info.get(ASSESSMENT_COMMENT_FIELD):
-            ass_info['evaluation']['classification'].update({'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)})
-
-        if isinstance(all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD), basestring) and \
-           all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD):
-            ass_info['evaluation']['classification'].update({'historic_answer': all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)})
-
-        if isinstance(all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD), basestring) and \
-           all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD):
-            ass_info['evaluation']['classification'].update({'historic_assessments': all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD)})
+            ass_info['evaluation'] = {'classification': {'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)}}
+        else:
+            ass_info['evaluation'] = {'classification': {'comment': 'Comment missing.'}}
 
         allele = db_alleles[0]
 
@@ -300,6 +298,85 @@ class AssessmentImporter(object):
             ass_info['date_created'] = datetime.datetime.min
 
         ass_info['genepanel'] = genepanel
+        db_assessment = self.create_or_skip_assessment(allele, ass_info)
+        if db_assessment:
+            self.counter['nAssessmentsUpdated'] += 1
+            db_assessments.append(db_assessment)
+        return db_assessments
+
+
+class EKGAssessmentImporter(AssessmentImporter):
+
+    def __init__(self, session):
+        super(EKGAssessmentImporter, self).__init__(session)
+
+    def process(self, record, db_alleles, assess_class=None, genepanel=None):
+        """
+        Add assessment of allele if present.
+        """
+
+
+        if len(db_alleles) > 1:
+            raise RuntimeError("Importing assessments is not supported for multiallelic sites")
+
+
+        db_assessments = list()
+
+        all_info = record['INFO']['ALL']
+
+        print all_info
+
+        classification_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
+        if not isinstance(classification_raw, basestring) or not classification_raw in ('1', '2', '3', '4', '5', 'T'):
+            logging.warning("Unknown class {}".format(classification_raw))
+            return
+
+
+
+        # Get required fields
+        ass_info = {'classification': classification_raw,
+                    'evaluation': {'classification': {'comment': 'Comment missing.'}}}
+
+
+
+        username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
+        if isinstance(username_raw, basestring) and username_raw:
+            user = self.session.query(User).filter(
+                User.username == username_raw
+            ).one()
+            ass_info['user_id'] = user.id
+
+        ## report element instead!!!
+        comment_raw = all_info.get(ASSESSMENT_COMMENT_FIELD)
+        if isinstance(comment_raw, basestring) and comment_raw:
+            ass_info['evaluation']['classification'].update({'comment': comment_raw})
+
+        historic_answer_raw = all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)
+        if isinstance(historic_answer_raw, basestring) and historic_answer_raw:
+            encoded = base64.b64decode(historic_answer_raw).decode('utf-8')
+            print historic_answer_raw
+            print encoded
+            ass_info['evaluation']['classification'].update({'comment': u"<h2>Prøvesvar</h2>" + encoded.replace('\n', '<br/>')})
+
+        history_raw = all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD)
+        if isinstance(history_raw, basestring) and history_raw:
+            ass_info['evaluation']['classification'].update({'historic_assessments': history_raw})
+
+        allele = db_alleles[0]
+
+        if isinstance(all_info.get(ASSESSMENT_DATE_FIELD), basestring) and \
+           all_info.get(ASSESSMENT_DATE_FIELD):
+            try:
+                ass_info['date_created'] = datetime.datetime.strptime(all_info[ASSESSMENT_DATE_FIELD], '%Y-%m-%d')
+            except ValueError:
+                ass_info['date_created'] = datetime.datetime.min
+        else:
+            # If no date data, set as 1970-00-00
+            ass_info['date_created'] = datetime.datetime.min
+
+        ass_info['genepanel'] = genepanel
+
+
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
         if db_assessment:
             self.counter['nAssessmentsUpdated'] += 1
