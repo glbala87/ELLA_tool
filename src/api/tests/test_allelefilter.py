@@ -89,6 +89,7 @@ CONFIG = {
             {
                 "name": "Class 5",
                 "value": "5",
+                "outdated_after_days": 180,
                 "exclude_filtering_existing_assessment": True
             }
         ]
