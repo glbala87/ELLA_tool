@@ -365,7 +365,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
           color: $red-75;
         }
       }
-      &.classification { max-width: 3rem; }
+      &.classification { max-width: 3rem; padding-left: 1rem; padding-right: 0.5rem; }
       &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }
 
       @mixin indicator {
