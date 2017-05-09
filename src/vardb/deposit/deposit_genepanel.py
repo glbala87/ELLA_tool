@@ -22,7 +22,9 @@ def load_phenotypes(phenotypes_path):
         phenotypes = []
         header = None
         for line in f:
-            if line.startswith('gene symbol'):
+            if line.startswith('gene symbol') or line.startswith('#gene symbol'):
+                if line.startswith('#gene symbol'):
+                    line = line.replace('#gene', 'gene')
                 header = line.strip().split('\t')
                 continue
             if line.startswith('#') or line.isspace():

@@ -12,29 +12,6 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         selected: '=', // Selected Allele
         readOnly: '=?' // if readOnly the allele can't be added to report
     },
-    link: (scope, element) => {
-      let navbar_height = 30;
-      // element has position 'fixed', so use parent offset as base instead
-      let original_position = element[0].parentElement.offsetTop + navbar_height;
-      element.children().css('top', `${original_position}px`);
-      let scrollFunction = function() {
-        let offset = parseInt(window.pageYOffset);
-        if (offset >= navbar_height) {
-            if (offset <= original_position - 80) {
-                element.children().css('top', `${original_position - offset}px`);
-            }
-            else {
-                element.children().css('top', `80px`);
-            }
-        } else {
-          element.children().css('top', `${original_position}px`);
-        }
-      };
-      angular.element(window).on("scroll", scrollFunction);
-      scope.$on('$destroy', function() {
-        angular.element(window).off('scroll', scrollFunction);
-      });
-    }
 })
 @Inject('Config')
 export class AlleleSidebarController {
@@ -108,5 +85,51 @@ export class AlleleSidebarController {
             return `${classification}*`;
         }
         return classification;
+    }
+
+    isHomozygous(allele) {
+        return allele.samples[0].genotype.homozygous;
+    }
+
+    isLowQual(allele) {
+        return allele.samples.some(s => s.genotype.filter_status !== 'PASS');
+    }
+
+    isNonsense(allele) {
+        let nonsense_consequences = [
+            "start_lost",
+            "initiator_codon_variant",
+            "transcript_ablation",
+            "splice_donor_variant",
+            "splice_acceptor_variant",
+            "stop_gained",
+            "frameshift_variant"
+        ];
+        return allele.annotation.filtered.some(t => {
+            return nonsense_consequences.some(c => {
+                return t.consequences.includes(c);
+            });
+        });
+    }
+
+    isImportantSource(allele) {
+        return 'HGMD' in allele.annotation.external &&
+               allele.annotation.external.HGMD.tag;
+    }
+
+    isMultipleInAlleleGenes(allele) {
+        let other_alleles = this.alleles.classified.concat(
+            this.alleles.unclassified
+        ).map(
+            a => a.allele
+        ).filter( // Exclude "ourself"
+            a => a !== allele
+        );
+        let other_alleles_genes = [];
+        for (let other_allele of other_alleles) {
+            other_alleles_genes.push(...other_allele.annotation.filtered.map(f => f.symbol))
+        }
+        let our_genes = allele.annotation.filtered.map(f => f.symbol);
+        return our_genes.some(s => other_alleles_genes.includes(s));
     }
 }
