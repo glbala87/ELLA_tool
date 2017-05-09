@@ -352,7 +352,9 @@ class EKGAssessmentImporter(AssessmentImporter):
         if isinstance(history_raw, basestring) and history_raw:
             encoded = base64.b64decode(history_raw).decode('utf-8')
             ass_info['evaluation']['classification'].update({'comment':
-                                                                 u"<h2>Vurderingshistorikk</h2>" + encoded.replace('\n', '<br/>')})
+                                                                 u"<h2>Vurderingshistorikk</h2>"
+                                                                 + "<pre>" + encoded.replace('\n', '<br/>')
+                                                                 + "</pre>"})
 
 
         if isinstance(all_info.get(ASSESSMENT_DATE_FIELD), basestring) and \
