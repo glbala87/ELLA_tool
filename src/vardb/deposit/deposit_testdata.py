@@ -52,9 +52,10 @@ GENEPANELS = [
         'version': 'v02'
     },
     {
-        'path': '../testdata/clinicalGenePanels/Ciliopati_v03.transcripts.csv',
+        'transcripts': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.phenotypes.csv',
         'name': 'Ciliopati',
-        'version': 'v03'
+        'version': 'v05'
     },
     {
         'path': '../testdata/clinicalGenePanels/EEogPU_v02.transcripts.csv',
