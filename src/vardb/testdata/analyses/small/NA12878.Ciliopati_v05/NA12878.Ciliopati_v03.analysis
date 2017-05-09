@@ -1,0 +1,9 @@
+{
+    "params": {
+        "genepanel": "Ciliopati_v03"
+    }, 
+    "name": "NA12878.Ciliopati_v03", 
+    "samples": [
+        "NA12878"
+    ]
+}
