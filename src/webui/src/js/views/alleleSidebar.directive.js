@@ -12,29 +12,6 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         selected: '=', // Selected Allele
         readOnly: '=?' // if readOnly the allele can't be added to report
     },
-    link: (scope, element) => {
-      let navbar_height = 30;
-      // element has position 'fixed', so use parent offset as base instead
-      let original_position = element[0].parentElement.offsetTop + navbar_height;
-      element.children().css('top', `${original_position}px`);
-      let scrollFunction = function() {
-        let offset = parseInt(window.pageYOffset);
-        if (offset >= navbar_height) {
-            if (offset <= original_position - 80) {
-                element.children().css('top', `${original_position - offset}px`);
-            }
-            else {
-                element.children().css('top', `80px`);
-            }
-        } else {
-          element.children().css('top', `${original_position}px`);
-        }
-      };
-      angular.element(window).on("scroll", scrollFunction);
-      scope.$on('$destroy', function() {
-        angular.element(window).off('scroll', scrollFunction);
-      });
-    }
 })
 @Inject('Config')
 export class AlleleSidebarController {
