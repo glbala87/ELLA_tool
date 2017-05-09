@@ -75,6 +75,10 @@ def deepmerge(source, destination):
     return destination
 
 
+def is_non_empty_text(input):
+    return isinstance(input, basestring) and input
+
+
 class SampleImporter(object):
     """
     Note: there can be multiple samples with same name in database, and they might differ in genotypes.
@@ -271,8 +275,8 @@ class AssessmentImporter(object):
         db_assessments = list()
         all_info = record['INFO']['ALL']
 
-        if not isinstance(all_info.get(ASSESSMENT_CLASS_FIELD), basestring) or not \
-           all_info.get(ASSESSMENT_CLASS_FIELD) in ('1', '2', '3', '4', '5', 'T'):
+        class_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
+        if not is_non_empty_text(class_raw) or class_raw not in ('1', '2', '3', '4', '5', 'T'):
             return
 
         # Get required fields
@@ -280,23 +284,21 @@ class AssessmentImporter(object):
             'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
         }
 
-        if isinstance(all_info.get(ASSESSMENT_COMMENT_FIELD), basestring) and \
-           all_info.get(ASSESSMENT_COMMENT_FIELD):
-            ass_info['evaluation'] = {'classification': {'comment': all_info.get(ASSESSMENT_COMMENT_FIELD)}}
+        comment_raw = all_info.get(ASSESSMENT_COMMENT_FIELD)
+        if is_non_empty_text(comment_raw):
+            ass_info['evaluation'] = {'classification': {'comment': comment_raw}}
         else:
             ass_info['evaluation'] = {'classification': {'comment': 'Comment missing.'}}
 
         allele = db_alleles[0]
 
-        if isinstance(all_info.get(ASSESSMENT_DATE_FIELD), basestring) and \
-           all_info.get(ASSESSMENT_DATE_FIELD):
+        ass_info['date_created'] = datetime.datetime.min  # 1970-00-00 if not proper
+        date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
+        if is_non_empty_text(date_raw):
             try:
-                ass_info['date_created'] = datetime.datetime.strptime(all_info[ASSESSMENT_DATE_FIELD], '%Y-%m-%d')
+                ass_info['date_created'] = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
             except ValueError:
-                ass_info['date_created'] = datetime.datetime.min
-        else:
-            # If no date data, set as 1970-00-00
-            ass_info['date_created'] = datetime.datetime.min
+                pass
 
         ass_info['genepanel'] = genepanel
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
@@ -316,7 +318,6 @@ class EKGAssessmentImporter(AssessmentImporter):
         Add assessment of allele if present.
         """
 
-
         if len(db_alleles) > 1:
             raise RuntimeError("Importing assessments is not supported for multiallelic sites")
 
@@ -326,7 +327,7 @@ class EKGAssessmentImporter(AssessmentImporter):
         all_info = record['INFO']['ALL']
 
         classification_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
-        if not isinstance(classification_raw, basestring) or not classification_raw in ('1', '2', '3', '4', '5', 'T'):
+        if not is_non_empty_text(classification_raw) or classification_raw not in ('1', '2', '3', '4', '5', 'T'):
             logging.warning("Unknown class {}".format(classification_raw))
             return
 
@@ -336,51 +337,37 @@ class EKGAssessmentImporter(AssessmentImporter):
 
         user = None
         username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
-        if isinstance(username_raw, basestring) and username_raw:
+        if is_non_empty_text(username_raw):
             user = self.session.query(User).filter(
                 User.username == username_raw
             ).one()
             ass_info['user_id'] = user.id
 
-
-        comment_raw = all_info.get(ASSESSMENT_COMMENT_FIELD)
-        if isinstance(comment_raw, basestring) and comment_raw:
-            ass_info['evaluation']['classification'].update({'comment': comment_raw})
-
-        # TODO: append to classification comment
         history_raw = all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD)
-        if isinstance(history_raw, basestring) and history_raw:
+
+        if is_non_empty_text(history_raw):
             encoded = base64.b64decode(history_raw).decode('utf-8')
             ass_info['evaluation']['classification'].update({'comment':
-                                                                 u"<h2>Vurderingshistorikk</h2>"
+                                                                 u"<h2>Vurderingshistorikk fra Excel</h2>"
                                                                  + "<pre>" + encoded.replace('\n', '<br/>')
                                                                  + "</pre>"})
 
-
-        if isinstance(all_info.get(ASSESSMENT_DATE_FIELD), basestring) and \
-           all_info.get(ASSESSMENT_DATE_FIELD):
+        date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
+        ass_info['date_created'] = datetime.datetime.min  # 1970-00-00 unless proper
+        if is_non_empty_text(date_raw):
             try:
-                ass_info['date_created'] = datetime.datetime.strptime(all_info[ASSESSMENT_DATE_FIELD], '%Y-%m-%d')
+                ass_info['date_created'] = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
             except ValueError:
-                ass_info['date_created'] = datetime.datetime.min
-        else:
-            # If no date data, set as 1970-00-00
-            ass_info['date_created'] = datetime.datetime.min
+                pass
 
         ass_info['genepanel'] = genepanel
 
-
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
         if db_assessment:
-
-            ## report element instead!!!
-            all_existing_reports = self.session.query(assessment.AlleleReport).filter(
+            if self.session.query(assessment.AlleleReport).filter(
                 assessment.AlleleReport.allele_id == allele.id
-            ).all()
-
-            if len(all_existing_reports) > 0:
-                raise RuntimeError("Found an existing alleleReport, won't create a new one")
-
+            ).count():
+                raise RuntimeError("Found an existing allele report, won't create a new one")
 
             report_data = {'allele_id': allele.id,
                            'user_id': user.id,
@@ -388,10 +375,9 @@ class EKGAssessmentImporter(AssessmentImporter):
                            }
 
             historic_answer_raw = all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)
-            if isinstance(historic_answer_raw, basestring) and historic_answer_raw:
+            if is_non_empty_text(historic_answer_raw):
                 encoded = base64.b64decode(historic_answer_raw).decode('utf-8')
-                report_data['evaluation'] = {'comment': u"<h2>Prøvesvar</h2>" + encoded.replace('\n', '<br/>')}
-
+                report_data['evaluation'] = {'comment': u"<h2>Prøvesvar fra Excel</h2>" + encoded.replace('\n', '<br/>')}
 
             report = assessment.AlleleReport(**report_data)
             self.session.add(report)
@@ -584,6 +570,7 @@ class AnnotationImporter(object):
         frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
         frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
 
+        print merged_annotation
         transcripts = annotationconverters.convert_csq(merged_annotation)
         splice_transcripts = annotationconverters.convert_splice(merged_annotation)
         # Merge splice's transcript objects into the ones from CSQ
@@ -596,6 +583,8 @@ class AnnotationImporter(object):
                 # Remove transcript from splice, we use version from CSQ.
                 st.pop('transcript')
                 transcript.update(st)
+
+        print transcripts
 
         external = dict()
         external.update(annotationconverters.convert_hgmd(merged_annotation))
