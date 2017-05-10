@@ -1,12 +1,8 @@
-import bcrypt
-import datetime
-import uuid
 from vardb.datamodel import user
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json, authenticate
 from api.util.useradmin import authenticate_user, create_session, change_password, logout
-from api.config import config
 
 from api.v1.resource import Resource
 from flask import Response, make_response, redirect
@@ -89,6 +85,7 @@ class LoginResource(Resource):
 
         return resp
 
+
 class ChangePasswordResource(Resource):
     @request_json(["username", "password", "new_password"], only_required=True)
     def post(self, session, override=False, data=None):
@@ -98,7 +95,7 @@ class ChangePasswordResource(Resource):
 
         # change_password performs the authentication
         change_password(session, username, password, new_password)
-        return Response("Password for user %s changed. You can now log in." %username)
+        return Response("Password for user %s changed. You can now log in." % username)
 
 
 class CurrentUser(Resource):
@@ -110,15 +107,15 @@ class CurrentUser(Resource):
 class LogoutResource(Resource):
     def patch(self, session, token):
         userSession = session.query(user.UserSession).filter(
-            user.UserSession.token==token
+            user.UserSession.token == token
         ).one_or_none()
 
         if userSession is None:
-            log.warning("Trying to logout with non-existing token %s" %token)
+            log.warning("Trying to logout with non-existing token %s" % token)
             return
 
         if not userSession.valid:
-            log.warning("Trying to logout with invalid token %s" %token)
+            log.warning("Trying to logout with invalid token %s" % token)
             return
 
         logout(userSession)

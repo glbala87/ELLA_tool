@@ -1,5 +1,4 @@
 import os
-import re
 import subprocess
 import tempfile
 import pytest
@@ -20,12 +19,6 @@ class TestDatabase(object):
         # which prevents us from dropping/creating database
         db.disconnect()
         self.conn = db.connect(engine_kwargs={"poolclass": NullPool}, query_cls=RestQuery)
-
-        if "@" in os.environ["DB_URL"]:
-            self.host = re.findall(".*@([^/]*).*", os.environ["DB_URL"])[0]
-        else:
-            self.host = "localhost"
-
         self.create_dump()
 
     def get_dump_path(self):
@@ -37,9 +30,10 @@ class TestDatabase(object):
         Creates a dump of the test database into file specified in self.dump_path.
         """
         with open(os.devnull, "w") as f:
-            subprocess.call('createdb --host={host} vardb-test'.format(host=self.host), shell=True, stdout=f)
+            subprocess.call('createdb {uri}'.format(uri=os.environ["DB_URL"]), shell=True, stdout=f)
         DepositTestdata(db).deposit_all(test_set='integration_testing')
-        subprocess.check_call('pg_dumpall --host={host} --file={path} --clean'.format(host=self.host, path=self.dump_path), shell=True)
+        # Note the --clean and --create flags, which will recreate db when run
+        subprocess.check_call('pg_dump {uri} --file={path} --clean --create'.format(uri=os.environ["DB_URL"], path=self.dump_path), shell=True)
         print "Temporary database file created at {}.".format(self.dump_path)
 
     def refresh(self):
@@ -48,13 +42,14 @@ class TestDatabase(object):
         """
         print "Refreshing database with data from dump"
         with open(os.devnull, "w") as f:
-            subprocess.check_call('psql --host={host} -d postgres < {path}'.format(host=self.host, path=self.dump_path), shell=True, stdout=f)
+            # Connect to template1 so we can remove whatever db name
+            subprocess.check_call('psql postgres://postgres@/template1 < {path}'.format(uri=os.environ["DB_URL"], path=self.dump_path), shell=True, stdout=f)
 
     def cleanup(self):
         print "Disconnecting..."
         db.disconnect()
         print "Removing database"
-        subprocess.call('dropdb --host={host} vardb-test'.format(host=self.host), shell=True)
+        subprocess.call('dropdb {uri}'.format(uri=os.environ["DB_URL"]), shell=True)
         try:
             os.remove(self.dump_path)
             print "Temporary database file removed."

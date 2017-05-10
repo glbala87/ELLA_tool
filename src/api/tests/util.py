@@ -31,66 +31,69 @@ class FlaskClientProxy(object):
         api.init_app(app)
         self.app = app
         self.url_prefix = url_prefix
-        self.cookie = None
+        self.user_cookie = dict()  # Holds cookie tokens per user: {username: cookie}
 
-    def set_cookie(self, client):
-        def _set_cookie(cookie):
+    def is_logged_in(self, client):
+        r = client.get("/api/v1/users/currentuser/")
+        return r.status_code != 403
+
+    def login(self, client, username):
+        r = client.post("/api/v1/users/actions/login/",
+                        data=json.dumps({"username": username, "password": "demo"}),
+                        content_type='application/json')
+        self.user_cookie[username] = r.headers.get("Set-Cookie")
+        assert self.user_cookie[username] is not None
+
+    def ensure_logged_in(self, client, username):
+
+        def _set_client_cookie(client, cookie):
             cookie_name, cookie_value = cookie.split('=', 1)
             cookie_value = cookie_value.split(';')[0]
             client.set_cookie('localhost', cookie_name, cookie_value)
 
-        def _create_cookie():
-            r = client.post("/api/v1/users/actions/login/",
-                            data=json.dumps({"username": "testuser1", "password": "demo"}),
-                            content_type='application/json')
-            self.cookie = r.headers.get("Set-Cookie")
-            assert self.cookie is not None
+        if username in self.user_cookie:
+            _set_client_cookie(client, self.user_cookie[username])
 
-        if self.cookie is not None:
-            _set_cookie(self.cookie)
-
-            # Check if cookie is still valid
-            r = client.get("/api/v1/users/currentuser/")
-            if r.status_code == 403:
-                # Database has been wiped, create new cookie
-                _create_cookie()
-                _set_cookie(self.cookie)
+            # Check if session token is still valid
+            if not self.is_logged_in(client):
+                self.login(client, username)
         else:
-            _create_cookie()
-            _set_cookie(self.cookie)
+            self.login(client, username=username)
 
+        assert self.user_cookie[username] is not None
+        _set_client_cookie(client, self.user_cookie[username])
 
     @json_out
-    def get(self, url, logged_in=True):
+    def get(self, url, username='testuser1'):
         with self.app.test_client() as client:
-            if logged_in:
-                self.set_cookie(client)
+            if username:
+                self.ensure_logged_in(client, username)
             return client.get(self.url_prefix + url, content_type='application/json')
 
     @json_out
-    def post(self, url, data, logged_in=True):
+    def post(self, url, data, username='testuser1'):
         with self.app.test_client() as client:
-            if logged_in:
-                self.set_cookie(client)
+            if username:
+                self.ensure_logged_in(client, username)
             return client.post(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
-    def put(self, url, data, logged_in=True):
+    def put(self, url, data, username='testuser1'):
         with self.app.test_client() as client:
-            if logged_in:
-                self.set_cookie(client)
+            if username:
+                self.ensure_logged_in(client, username)
             return client.put(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
-    def patch(self, url, data, logged_in=True):
+    def patch(self, url, data, username='testuser1'):
         with self.app.test_client() as client:
-            if logged_in:
-                self.set_cookie(client)
+            if username:
+                self.ensure_logged_in(client, username)
             return client.patch(self.url_prefix + url, data=json.dumps(data), content_type='application/json')
 
     @json_out
-    def delete(self, url, data, logged_in=True):
+    def delete(self, url, data, username='testuser1'):
         with self.app.test_client() as client:
-            if logged_in:
-                self.set_cookie(client)
+            if username:
+                self.ensure_logged_in(client, username)
             return client.delete(self.url_prefix + url, data=json.dumps(data), content_type='application/json')

@@ -11,7 +11,6 @@ def report_template(allele_id):
     return {
         "allele_id": allele_id,
         "analysis_id": 1,
-        "user_id": 1,
         "classification": "1",
         "evaluation": {
             "comment": "Some comment",
@@ -53,7 +52,6 @@ class TestAlleleReports(object):
         # Create one AlleleReport for each allele in the interpretation:
         interpretation = get_interpretation("analysis", ANALYSIS_ID,
                                             get_interpretation_id_of_first("analysis", ANALYSIS_ID))
-
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
         previous_reports = get_entities_by_query('allelereports', q)
