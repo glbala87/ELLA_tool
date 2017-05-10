@@ -286,31 +286,41 @@ function getCurrentColors(nodes) {
             }
         }
 
-        // Add color picker[
-        let highlightpicker = addColorPicker(buttons["highlightcolor"], [
-            DEFAULT_COLOR.HEX,
-            '#FF1C0B', // red
+        let fontcolors = [
+            '#000000', // black
+            '#FF1C2B', // red
             '#23D801', // green
+            '#0918A9', // blue
+        ]
+
+        let highlightcolors = [
+            DEFAULT_COLOR.HEX,
+            '#D90309', // red
+            '#66FF33', // green
             '#FDFF16', // yellow
-            '#FF8C1B', // purple
-            '#BF12C3' // pink);
-        ]);
+            '#0967F9', // blue
+        ]
+
+        // Add color picker
+        let fontpicker = addColorPicker(buttons["fontcolor"], fontcolors);
+
+        let highlightpicker = addColorPicker(buttons["highlightcolor"], highlightcolors);
         highlightpicker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
         highlightpicker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.highlight(color); editor.openPopup();});
-
-        let fontpicker = addColorPicker(buttons["fontcolor"], [
-            '#000000', // black
-            '#A92309', // red
-            '#0967A9', // blue
-            '#09A99C', // green
-            '#DABF00', // yellow
-            '#0918A9', // purple
-            '#6709A9' // pink
-        ]);
         fontpicker.on("pickerClosed", () => {editor.closePopup(); scope.vm.blurBlocked=false;});
         fontpicker.on('colorChosen', function(color, targetElem) {editor.closePopup(); editor.forecolor(color); editor.openPopup();});
 
-
+        // Debug colors (remember to comment out editor.setHTML('') further up)
+        // let html = "";
+        // for (let i=0; i<highlightcolors.length; i++) {
+        //     for (let j=0; j<fontcolors.length; j++) {
+        //         html += `<div></div><font color=${fontcolors[j]} style="background-color: ${highlightcolors[i]};"> Sample ${i},${j}</font></div>`
+        //         // <font color="#ff1c0b" style="background-color: rgb(9, 169, 92);">dgdsghdfshdfhdfhdf</font>
+        //
+        //     }
+        // }
+        // editor.setHTML(html);
+        // console.log(editor.getHTML())
 
 
         // Add eventhandlers on link-form
