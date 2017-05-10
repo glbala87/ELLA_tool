@@ -27,8 +27,8 @@ def item_connected_to_allele_has_been_superceeded(allele_id, items_source, expec
 
 
 USER_ID_OF = {  # actually the index of a list of users
-    ANALYSIS_WORKFLOW: {"round_1": 1, "round_2": 2, "round_3": 3},
-    VARIANT_WORKFLOW: {"round_1": 3, "round_2": 4, "round_3": 5}
+    ANALYSIS_WORKFLOW: {"round_1": 1, "round_2": 1, "round_3": 1},
+    VARIANT_WORKFLOW: {"round_1": 1, "round_2": 1, "round_3": 1}
 }
 
 INTERPRETATION_INIT_DATA = {
