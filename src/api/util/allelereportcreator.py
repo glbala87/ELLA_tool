@@ -19,7 +19,7 @@ class AlleleReportCreator(object):
     def _possible_reuse(item):
         return 'reuse' in item and item['reuse']
 
-    def create_from_data(self, allelereports, alleleassessments=None):
+    def create_from_data(self, user_id, allelereports, alleleassessments=None):
         """
         Takes in lists of data and either reuse or creates new reports in database.
 
@@ -32,7 +32,7 @@ class AlleleReportCreator(object):
         :returns: Dict with keys 'reused' and 'created'
         """
 
-        created_reports, reused_reports = self._create_or_reuse_allelereports(allelereports)
+        created_reports, reused_reports = self._create_or_reuse_allelereports(user_id, allelereports)
 
         if alleleassessments:
             for created_report in created_reports:
@@ -59,12 +59,12 @@ class AlleleReportCreator(object):
 
         return match
 
-    def _create_or_reuse_allelereports(self, allelereports):
+    def _create_or_reuse_allelereports(self, user_id, allelereports):
         allele_ids = [a['allele_id'] for a in allelereports]
 
         all_existing_reports = self.session.query(assessment.AlleleReport).filter(
             assessment.AlleleReport.allele_id.in_(allele_ids),
-            assessment.AlleleReport.date_superceeded == None  # Only allowed to reuse valid allelereport
+            assessment.AlleleReport.date_superceeded.is_(None)  # Only allowed to reuse valid allelereport
         ).all()
 
         reused = list()
@@ -78,6 +78,7 @@ class AlleleReportCreator(object):
                 if 'id' in report_data:
                     del report_data['id']
                 report_object_to_create = AlleleReportSchema(strict=True).load(report_data).data
+                report_object_to_create.user_id = user_id
 
                 # Check if there's an existing allelereport for this allele. If so, we want to supercede it
                 old_report = next((e for e in all_existing_reports if e.allele_id == report_data['allele_id']), None)

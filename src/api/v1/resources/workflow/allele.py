@@ -38,8 +38,7 @@ class AlleleInterpretationResource(Resource):
         [],
         allowed=[
             'state',
-            'user_state',
-            'user_id'
+            'user_state'
         ]
     )
     def patch(self, session, allele_id, interpretation_id, data=None, user=None):
@@ -68,9 +67,6 @@ class AlleleInterpretationResource(Resource):
                 id:
                   description: Id of object to update
                   type: integer
-                user_id:
-                  description: User id of user performing update
-                  type: integer
                 state:
                   description: State data
                   type: object
@@ -83,7 +79,7 @@ class AlleleInterpretationResource(Resource):
             description: OK
         """
 
-        helpers.update_interpretation(session, data, alleleinterpretation_id=interpretation_id)
+        helpers.update_interpretation(session, user.id, data, alleleinterpretation_id=interpretation_id)
         session.commit()
 
         return None, 200
@@ -141,11 +137,10 @@ class AlleleInterpretationListResource(Resource):
 class AlleleActionOverrideResource(Resource):
 
     @authenticate()
-    @request_json(['user_id'])
-    def post(self, session, allele_id, data=None, user=None):
+    def post(self, session, allele_id, user=None):
         """
         Lets an user take over an allele, by replacing the
-        allele's current interpretation's user_id with the input user_id.
+        allele's current interpretation's user_id with the authenticated user id.
 
         **Only works for alleles with an `Ongoing` current interpretation**
         ---
@@ -157,20 +152,6 @@ class AlleleActionOverrideResource(Resource):
             in: path
             type: integer
             description: Allele id
-          - name: data
-            in: body
-            type: object
-            required: true
-            schema:
-              title: User id object
-              required:
-                - user_id
-              properties:
-                user_id:
-                  type: integer
-                example:
-                  user_id: 1
-            description: User id
 
         responses:
           200:
@@ -178,7 +159,7 @@ class AlleleActionOverrideResource(Resource):
           500:
             description: Error
         """
-        helpers.override_interpretation(session, data, allele_id=allele_id)
+        helpers.override_interpretation(session, user.id, allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -187,7 +168,7 @@ class AlleleActionOverrideResource(Resource):
 class AlleleActionStartResource(Resource):
 
     @authenticate()
-    @request_json(['user_id', 'gp_name', 'gp_version'])
+    @request_json(['gp_name', 'gp_version'])
     def post(self, session, allele_id, data=None, user=None):
         """
         Starts an alleleinterpretation.
@@ -210,15 +191,19 @@ class AlleleActionStartResource(Resource):
             type: object
             required: true
             schema:
-              title: User id object
+              title: Genepanel
               required:
-                - user_id
+                - gp_name
+                - gp_version
               properties:
-                user_id:
-                  type: integer
+                gp_name:
+                  type: string
+                gp_version:
+                  type: string
               example:
-                user_id: 1
-            description: User id
+                gp_name: HBOC
+                gp_version: v01
+            description: Genepanel
 
         responses:
           200:
@@ -227,7 +212,7 @@ class AlleleActionStartResource(Resource):
             description: Error
         """
 
-        helpers.start_interpretation(session, data, allele_id=allele_id)
+        helpers.start_interpretation(session, user.id, data, allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -261,20 +246,7 @@ class AlleleActionMarkReviewResource(Resource):
             in: path
             type: integer
             description: Allele id
-          - name: data
-            in: body
-            type: object
-            required: true
-            schema:
-              title: User id object
-              required:
-                - user_id
-              properties:
-                user_id:
-                  type: integer
-              example:
-                user_id: 1
-            description: User id
+
         responses:
           200:
             description: Returns null
@@ -307,20 +279,7 @@ class AlleleActionReopenResource(Resource):
             in: path
             type: integer
             description: Allele id
-          - name: data
-            in: body
-            type: object
-            required: true
-            schema:
-                title: User id object
-                required:
-                    - user_id
-                properties:
-                    user_id:
-                        type: integer
-                example:
-                    user_id: 1
-            description: User id
+
         responses:
           200:
             description: Returns null
@@ -372,7 +331,6 @@ class AlleleActionFinalizeResource(Resource):
             "referenceassessments": [
                 {
                     // New assessment will be created, superceding any old one
-                    "user_id": 1,
                     "analysis_id": 3,
                     "reference_id": 123
                     "evaluation": {...data...},
@@ -389,7 +347,6 @@ class AlleleActionFinalizeResource(Resource):
             "alleleassessments": [
                 {
                     // New assessment will be created, superceding any old one
-                    "user_id": 1,
                     "allele_id": 2,
                     "classification": "3",
                     "evaluation": {...data...},
@@ -404,7 +361,6 @@ class AlleleActionFinalizeResource(Resource):
             "allelereports": [
                 {
                     // New report will be created, superceding any old one
-                    "user_id": 1,
                     "allele_id": 2,
                     "evaluation": {...data...},
                     "analysis_id": 3,
@@ -451,9 +407,6 @@ class AlleleActionFinalizeResource(Resource):
                       id:
                         description: Existing referenceassessment id. If provided, existing object will be reused
                         type: integer
-                      user_id:
-                        description: User id. Required if not reusing existing object
-                        type: integer
                       analysis_id:
                         description: Analysis id. Required if not reusing existing object
                         type: integer
@@ -477,9 +430,6 @@ class AlleleActionFinalizeResource(Resource):
                     properties:
                       id:
                         description: Existing alleleassessment id. If provided, existing object will be reused
-                        type: integer
-                      user_id:
-                        description: User id. Required if not reusing existing object
                         type: integer
                       analysis_id:
                         description: Analysis id. Required if not reusing existing object
@@ -505,9 +455,6 @@ class AlleleActionFinalizeResource(Resource):
                       id:
                         description: Existing reference id. If provided, existing object will be reused
                         type: integer
-                      user_id:
-                        description: User id. Required if not reusing existing object
-                        type: integer
                       analysis_id:
                         description: Analysis id. Required if not reusing existing object
                         type: integer
@@ -519,8 +466,7 @@ class AlleleActionFinalizeResource(Resource):
                         type: object
               example:
                 referenceassessments:
-                  - user_id: 1
-                    analysis_id: 3
+                  - analysis_id: 3
                     reference_id: 123
                     evaluation: {}
                     allele_id: 14
@@ -528,16 +474,14 @@ class AlleleActionFinalizeResource(Resource):
                     allele_id: 13
                     reference_id: 1
                 alleleassessments:
-                  - user_id: 1
-                    allele_id: 2
+                  - allele_id: 2
                     classification: '3'
                     evaluation: {}
                     analysis_id: 3
                   - id: 9
                     allele_id: 6
                 allelereports:
-                  - user_id: 1
-                    allele_id: 2
+                  - allele_id: 2
                     evaluation: {}
                     analysis_id: 3
                   - id: 9
@@ -552,7 +496,7 @@ class AlleleActionFinalizeResource(Resource):
             description: Error
         """
 
-        result = helpers.finalize_interpretation(session, data, allele_id=allele_id)
+        result = helpers.finalize_interpretation(session, user.id, data, allele_id=allele_id)
         session.commit()
 
         return result, 200

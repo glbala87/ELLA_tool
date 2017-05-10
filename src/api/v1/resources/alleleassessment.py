@@ -8,7 +8,8 @@ from api.v1.resource import Resource
 
 class AlleleAssessmentResource(Resource):
 
-    def get(self, session, aa_id=None):
+    @authenticate()
+    def get(self, session, aa_id=None, user=None):
         """
         Returns a single alleleassessment.
         ---
@@ -35,9 +36,10 @@ class AlleleAssessmentResource(Resource):
 
 class AlleleAssessmentListResource(Resource):
 
+    @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=10000):
+    def get(self, session, rest_filter=None, page=None, num_per_page=10000, user=None):
         """
         Returns a list of alleleassessments.
 
@@ -70,12 +72,12 @@ class AlleleAssessmentListResource(Resource):
             num_per_page=num_per_page
         )
 
+    @authenticate()
     @request_json(
         ["allele_assessments", "annotations"],
         # required fields for dict of dict not supported
         allowed={
             "allele_assessments": [
-                'user_id',
                 'allele_id',
                 'analysis_id',
                 'classification',
@@ -94,7 +96,7 @@ class AlleleAssessmentListResource(Resource):
                 'allele_id',
             ]
         })
-    def post(self, session, data=None):
+    def post(self, session, data=None, user=None):
         """
         Creates a new AlleleAssessment(s) for a given allele(s).
 
@@ -155,8 +157,7 @@ class AlleleAssessmentListResource(Resource):
                   - custom_annotation_id: 45
                     allele_id: 4
                 allele_assessments:
-                    - user_id: 3
-                      allele_id: 2
+                    - allele_id: 2
                       classification: "3"
                       evaluation: {}
                       analysis_id: 3
@@ -168,8 +169,7 @@ class AlleleAssessmentListResource(Resource):
                         - id: 3
                           allele_id: 2
                           reference_id: 23
-                    - user_id: 3
-                      allele_id: 3
+                    - allele_id: 3
                       classification: "4"
                       evaluation: {}
                       genepanel_name: "HBOC"
@@ -188,9 +188,12 @@ class AlleleAssessmentListResource(Resource):
         allelele_assessments = data["allele_assessments"]
 
         ac = AssessmentCreator(session)
-        grouped_alleleassessments = ac.create_from_data(annotations,
-                                     allelele_assessments,
-                                     custom_annotations=custom_annotations)
+        grouped_alleleassessments = ac.create_from_data(
+            user.id,
+            annotations,
+            allelele_assessments,
+            custom_annotations=custom_annotations
+        )
         created_alleleassessments = grouped_alleleassessments['alleleassessments']['created']
 
         session.add_all(created_alleleassessments)

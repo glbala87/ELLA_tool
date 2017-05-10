@@ -88,6 +88,7 @@ def create_session(session, user_id):
 def logout(userSession):
     userSession.expired = datetime.datetime.now()
 
+
 def logout_all(session, user_id):
     open_user_sessions = session.query(user.UserSession).filter(
         user.UserSession.user_id == user_id,
@@ -105,10 +106,9 @@ def change_password(session, user_or_username, old_password, new_password, overr
     :param user_or_username: user or username, extract user if username is provided
     :param old_password: Existing password
     :param new_password: New password to set
-    :param override: If this is True, then it is called from command line, and does not verify the old_password. It also sets the password as expired, so that it needs to be changed. 
+    :param override: If this is True, then it is called from command line, and does not verify the old_password. It also sets the password as expired, so that it needs to be changed.
     """
     user_object = get_user(session, user_or_username)
-
     if user_object.incorrect_logins >= 6 and not override:
         raise AuthenticationError("Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
 
@@ -128,7 +128,6 @@ def change_password(session, user_or_username, old_password, new_password, overr
     ).limit(
         13
     ).all()
-
 
     if check_password(new_password, user_object.password):
         raise AuthenticationError("Password is equal to an old password. Choose a different password.")

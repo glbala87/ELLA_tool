@@ -23,7 +23,7 @@ def finalize_template(annotations, custom_annotations, alleleassessments, refere
 }
 
 
-def review_template(annotations = None, custom_annotations = None, alleleassessments = None, allelereports = None):
+def review_template(annotations=None, custom_annotations=None, alleleassessments=None, allelereports=None):
     return {
        'annotations': annotations if annotations else [],
        'custom_annotations': custom_annotations if custom_annotations else [],
@@ -37,22 +37,19 @@ def interpretation_template(interpretation):
         'id': interpretation['id'],
         'user_state': interpretation['user_state'],
         'state': interpretation['state'],
-        'user_id': interpretation['user_id']
     }
 
 
-def allele_assessment_template_for_variant_workflow(allele, user):
+def allele_assessment_template_for_variant_workflow(allele):
     return {
-        'user_id': user['id'],
         'allele_id': allele['id'],
         'evaluation': {'comment': 'Original comment'},
         'classification': 5
     }
 
 
-def allele_assessment_template(workflow_type, workflow_id, allele, user, extra):
+def allele_assessment_template(workflow_type, workflow_id, allele, extra):
     base = {
-            'user_id': user['id'],
             'allele_id': allele['id'],
             'evaluation': {'comment': 'Original comment'},
             'classification': 5,
@@ -73,15 +70,15 @@ def allele_assessment_template(workflow_type, workflow_id, allele, user, extra):
     return base
 
 
-def reference_assessment_template(workflow_type, workflow_id, allele, reference, user, extra):
-    base = {'user_id': user['id'],
-            'allele_id': allele['id'],
-            'reference_id': reference['id'],
-            'evaluation': {'comment': 'Original comment'},
-            'analysis_id': None,
-            'genepanel_name': None,
-            'genepanel_version': None
-            }
+def reference_assessment_template(workflow_type, workflow_id, allele, reference, extra):
+    base = {
+        'allele_id': allele['id'],
+        'reference_id': reference['id'],
+        'evaluation': {'comment': 'Original comment'},
+        'analysis_id': None,
+        'genepanel_name': None,
+        'genepanel_version': None
+    }
 
     if workflow_type == ANALYSIS_WORKFLOW:
         base['analysis_id'] = workflow_id
@@ -92,13 +89,11 @@ def reference_assessment_template(workflow_type, workflow_id, allele, reference,
         base['genepanel_name'] = extra['genepanel_name']
         base['genepanel_version'] = extra['genepanel_version']
 
-
     return base
 
 
-def allele_report_template(workflow_type, workflow_id, allele, user, extra):
+def allele_report_template(workflow_type, workflow_id, allele, extra):
     base = {
-        'user_id': user['id'],
         'allele_id': allele['id'],
         'evaluation': {'comment': 'Original comment'},
         'analysis_id': None,
@@ -115,8 +110,8 @@ def allele_report_template(workflow_type, workflow_id, allele, user, extra):
         base['genepanel_name'] = extra['genepanel_name']
         base['genepanel_version'] = extra['genepanel_version']
 
-
     return base
+
 
 def get_interpretation_id_of_last(workflow_type, workflow_id):
     response = api.get('/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id))
@@ -149,29 +144,32 @@ def get_interpretation(workflow_type, workflow_id, interpretation_id):
 
 def get_interpretations(workflow_type, workflow_id):
     response = api.get(
-        '/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id))
+        '/workflows/{}/{}/interpretations/'.format(uri_part[workflow_type], workflow_id)
+    )
     assert response
     assert response.status_code == 200
     interpretations = response.json
     return interpretations
 
 
-def save_interpretation_state(workflow_type, interpretation, workflow_id):
+def save_interpretation_state(workflow_type, interpretation, workflow_id, user):
     api.patch(
-    '/workflows/{}/{}/interpretations/{}/'
+        '/workflows/{}/{}/interpretations/{}/'
         .format(uri_part[workflow_type], workflow_id, interpretation['id']),
-        interpretation_template(interpretation)
+        interpretation_template(interpretation),
+        username=user['username']
     )
 
 
 def start_interpretation(workflow_type, id, user, extra=None):
-    post_data = {'user_id': user['id']}
-    if extra: # variant interpretation needs more than user
-        for k,v in extra.iteritems():
+    post_data = {}
+    if extra:
+        for k, v in extra.iteritems():
             post_data[k] = v
     response = api.post(
         '/workflows/{}/{}/actions/start/'.format(uri_part[workflow_type], id),
-        post_data
+        post_data,
+        username=user['username']
     )
     assert response.status_code == 200
     interpretation = get_last_interpretation(workflow_type, id)
@@ -244,10 +242,11 @@ def get_variant_workflow(id):
     return get_entity_by_id('variants', id)
 
 
-def mark_review(workflow_type, workflow_id, data):
+def mark_review(workflow_type, workflow_id, data, user):
     response = api.post(
         '/workflows/{}/{}/actions/markreview/'.format(uri_part[workflow_type], workflow_id),
-        data
+        data,
+        username=user['username']
     )
     assert response.status_code == 200
 
@@ -255,16 +254,18 @@ def mark_review(workflow_type, workflow_id, data):
 def reopen_analysis(workflow_type, workflow_id, user):
     response = api.post(
         '/workflows/{}/{}/actions/reopen/'.format(uri_part[workflow_type], workflow_id),
-        {'user_id': user['id']}
+        {},
+        username=user['username']
     )
     assert response.status_code == 200
 
 
 def finalize(workflow_type, analysis_id, annotations, custom_annotations, alleleassessments, referenceassessments,
-             allelereports):
+             allelereports, user):
     response = api.post(
         '/workflows/{}/{}/actions/finalize/'.format(uri_part[workflow_type], analysis_id),
-        finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports)
+        finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports),
+        username=user['username']
     )
     assert response.status_code == 200
     return response.json

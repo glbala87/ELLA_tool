@@ -21,7 +21,6 @@ class ConfirmCompleteInterpretationController {
 @Inject('$rootScope',
         'Allele',
         'WorkflowResource',
-        'User',
         '$uibModal',
         '$location')
 class WorkflowService {
@@ -29,14 +28,12 @@ class WorkflowService {
     constructor(rootScope,
         Allele,
         WorkflowResource,
-        User,
         ModalService,
         LocationService) {
 
 
         //this._setWatchers(rootScope);
         this.alleleService = Allele;
-        this.user = User;
         this.workflowResource = WorkflowResource;
         this.modalService = ModalService;
         this.locationService = LocationService;
@@ -71,15 +68,15 @@ class WorkflowService {
     }
 
     start(type, id, gp_name=null, gp_version=null) {
-        return this.workflowResource.start(type, id, this.user.getCurrentUserId(), gp_name, gp_version);
+        return this.workflowResource.start(type, id, gp_name, gp_version);
     }
 
     reopen(type, id) {
-        return this.workflowResource.reopen(type, id, this.user.getCurrentUserId());
+        return this.workflowResource.reopen(type, id);
     }
 
     override(type, id) {
-        return this.workflowResource.override(type, id, this.user.getCurrentUserId());
+        return this.workflowResource.override(type, id);
     }
 
     /**
@@ -313,7 +310,6 @@ class WorkflowService {
             assessment_data.reuse = true;
         } else {
             Object.assign(assessment_data, {
-                user_id: this.user.getCurrentUserId(),
                 classification: allelestate.alleleassessment.classification,
                 evaluation: allelestate.alleleassessment.evaluation
             });
@@ -350,7 +346,6 @@ class WorkflowService {
                 else {
                     // Fill in fields expected by backend
                     ra.evaluation = reference_state.evaluation || {};
-                    ra.user_id = this.user.getCurrentUserId();
                 }
                 referenceassessments_data.push(ra);
             }
@@ -376,7 +371,6 @@ class WorkflowService {
         } else {
             // Fill in fields expected by backend
             Object.assign(report_data, {
-                user_id: this.user.getCurrentUserId(),
                 evaluation: allelestate.allelereport.evaluation
             });
         }

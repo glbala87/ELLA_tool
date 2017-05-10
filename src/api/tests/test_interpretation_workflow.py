@@ -26,9 +26,9 @@ def item_connected_to_allele_has_been_superceeded(allele_id, items_source, expec
                "no assessment/report for allele {} that has been superceeded has the comment '{}' ".format(allele_id, expected_comment)
 
 
-USER_ID_OF = {  # actually the index of a list of users
-    ANALYSIS_WORKFLOW: {"round_1": 1, "round_2": 2, "round_3": 3},
-    VARIANT_WORKFLOW: {"round_1": 3, "round_2": 4, "round_3": 5}
+USERNAME_OF = {  # actually the index of a list of users
+    ANALYSIS_WORKFLOW: {"round_1": 'testuser1', "round_2": 'testuser2', "round_3": 'testuser3'},
+    VARIANT_WORKFLOW: {"round_1": 'testuser4', "round_2": 'testuser5', "round_3": 'testuser6'}
 }
 
 INTERPRETATION_INIT_DATA = {
@@ -93,7 +93,7 @@ class TestInterpretationWorkflow(object):
     def test_round_one_review(self, workflow_type):
 
         users = get_users()
-        user = users[USER_ID_OF[workflow_type]["round_1"]]
+        user = next(u for u in users if u['username'] == USERNAME_OF[workflow_type]["round_1"])
 
         # Start interpretation
         interpretation = start_interpretation(workflow_type,
@@ -117,7 +117,6 @@ class TestInterpretationWorkflow(object):
                 allele_assessment_template(workflow_type,
                                            ID_OF[workflow_type],
                                            allele,
-                                           user,
                                            extra=ASSESSMENT_EXTRA_DATA[workflow_type])
             )
 
@@ -131,7 +130,6 @@ class TestInterpretationWorkflow(object):
                                                   ID_OF[workflow_type],
                                                   allele,
                                                   reference,
-                                                  user,
                                                   extra=REFERENCEASSESSMENT_EXTRA_DATA[workflow_type])
                 )
 
@@ -139,15 +137,14 @@ class TestInterpretationWorkflow(object):
                 allele_report_template(workflow_type,
                                        ID_OF[workflow_type],
                                        allele,
-                                       user,
                                        extra=ASSESSMENT_EXTRA_DATA[workflow_type])
             )
 
         interpretation['state'] = state
 
-        save_interpretation_state(workflow_type, interpretation, ID_OF[workflow_type])
+        save_interpretation_state(workflow_type, interpretation, ID_OF[workflow_type], user)
 
-        mark_review(workflow_type, ID_OF[workflow_type], review_template())
+        mark_review(workflow_type, ID_OF[workflow_type], review_template(), user)
 
         reloaded_interpretation = get_interpretation(workflow_type, ID_OF[workflow_type], interpretation['id'])
 
@@ -165,7 +162,7 @@ class TestInterpretationWorkflow(object):
     def test_round_two_finalize(self, workflow_type, number_of_alleles_in_fixture):
         # Given
         users = get_users()
-        user = users[USER_ID_OF[workflow_type]["round_2"]]
+        user = next(u for u in users if u['username'] == USERNAME_OF[workflow_type]["round_2"])
 
         interpretation = start_interpretation(workflow_type,
                                               ID_OF[workflow_type],
@@ -184,7 +181,7 @@ class TestInterpretationWorkflow(object):
         for s in allele_assessments + reference_assessments + allele_reports:
             s['evaluation']['comment'] = 'Updated comment'
 
-        save_interpretation_state(workflow_type, interpretation, ID_OF[workflow_type])
+        save_interpretation_state(workflow_type, interpretation, ID_OF[workflow_type], user)
 
         # When
         # annotations are needed when finalizing:
@@ -194,7 +191,8 @@ class TestInterpretationWorkflow(object):
                                      custom_annotations,
                                      allele_assessments,
                                      reference_assessments,
-                                     allele_reports)
+                                     allele_reports,
+                                     user)
 
         # Then
         # Interpreations
@@ -206,7 +204,7 @@ class TestInterpretationWorkflow(object):
         snapshots = get_snapshots(workflow_type, ID_OF[workflow_type])
         assert len(snapshots) == len(allele_assessments) * 2  # review + finalize
         assert len(filter(lambda entry: entry['alleleassessment_id'] is None, snapshots)) == number_of_alleles_in_fixture  # no assessment created in review)
-        assert len(filter(lambda entry: entry['alleleassessment_id'] is not None, snapshots))  == number_of_alleles_in_fixture# from finalize
+        assert len(filter(lambda entry: entry['alleleassessment_id'] is not None, snapshots)) == number_of_alleles_in_fixture  # from finalize
 
         # Check the assessments/reports. We reload them from API to be sure they were stored
         for entity_type in ['alleleassessments', 'referenceassessments', 'allelereports']:
@@ -228,7 +226,7 @@ class TestInterpretationWorkflow(object):
 
         # Given
         users = get_users()
-        user = users[USER_ID_OF[workflow_type]["round_3"]]
+        user = next(u for u in users if u['username'] == USERNAME_OF[workflow_type]["round_3"])
         reopen_analysis(workflow_type, ID_OF[workflow_type], user)
 
         interpretation = start_interpretation(workflow_type,
@@ -249,7 +247,7 @@ class TestInterpretationWorkflow(object):
         for item in allele_assessments + reference_assessments + allele_reports:
             item['evaluation']['comment'] = 'Reopened comment'
 
-        save_interpretation_state(workflow_type, interpretation, ID_OF[workflow_type])
+        save_interpretation_state(workflow_type, interpretation, ID_OF[workflow_type], user)
 
         # annotation is required for finalization
         annotations, custom_annotations = self.build_dummy_annotations(map(lambda a: a['allele_id'], allele_assessments))
@@ -272,13 +270,16 @@ class TestInterpretationWorkflow(object):
             pass
 
         # When
-        _ = finalize(workflow_type,
-                     ID_OF[workflow_type],
-                     annotations,
-                     custom_annotations,
-                     allele_assessments,
-                     reference_assessments,
-                     allele_reports)
+        finalize(
+            workflow_type,
+            ID_OF[workflow_type],
+            annotations,
+            custom_annotations,
+            allele_assessments,
+            reference_assessments,
+            allele_reports,
+            user
+        )
 
         # Then
         # Interpretations
