@@ -97,6 +97,7 @@ def logout_all(session, user_id):
         logout(user_session)
 
 
+
 def change_password(session, user_or_username, old_password, new_password, override=False):
     """
     Change password for user

@@ -107,7 +107,7 @@ wysiwyg-editor:not([disabled]) > .wysiwygeditor {
     border-radius: 2px;}
 }
 
-#wysiwyg-src, #wysiwyg-underline, #wysiwyg-highlightcolor, #wysiwyg-paragraph, #wysiwyg-link {border-right: 1px solid $black-25}
+#wysiwyg-src, #wysiwyg-monospace, #wysiwyg-highlightcolor, #wysiwyg-paragraph, #wysiwyg-link {border-right: 1px solid $black-25}
 #wysiwyg-italic {font-style: italic;}
 #wysiwyg-underline {text-decoration: underline;}
 #wysiwyg-color {padding-top: 0.3rem;}
