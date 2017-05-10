@@ -12,12 +12,11 @@ import {Allele} from '../../model/allele';
 @Service({
     serviceName: 'WorkflowResource'
 })
-@Inject('$resource', 'User')
+@Inject('$resource')
 class WorkflowResource {
 
-    constructor(resource, User) {
+    constructor(resource) {
         this.base = '/api/v1';
-        this.user = User;
         this.resource = resource;
         this.types = {
             allele: 'alleles',
@@ -66,7 +65,6 @@ class WorkflowResource {
             this._resourceWithAction(type, 'markreview').doIt(
                 { id },
                 {
-                    user_id: this.user.getCurrentUserId(),
                     annotations: annotations,
                     custom_annotations: custom_annotations,
                     alleleassessments: alleleassessments,
@@ -85,7 +83,6 @@ class WorkflowResource {
             this._resourceWithAction(type, 'finalize').doIt(
                 { id },
                 {
-                    user_id: this.user.getCurrentUserId(),
                     annotations: annotations,
                     custom_annotations: custom_annotations,
                     alleleassessments: alleleassessments,
@@ -98,25 +95,22 @@ class WorkflowResource {
         });
     }
 
-    override(type, id, user_id) {
+    override(type, id) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'override').doIt(
                 { id },
-                {
-                    user_id: user_id
-                },
+                {},
                 resolve,
                 reject,
             );
         });
     }
 
-    start(type, id, user_id, gp_name=null, gp_version=null) {
+    start(type, id, gp_name=null, gp_version=null) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'start').doIt(
                 { id },
                 {
-                    user_id: user_id,
                     gp_name: gp_name,
                     gp_version: gp_version
                 },
@@ -126,11 +120,11 @@ class WorkflowResource {
         });
     }
 
-    reopen(type, id, user_id) {
+    reopen(type, id) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'reopen').doIt(
                 { id },
-                { user_id: user_id },
+                {},
                 resolve,
                 reject
             );
