@@ -1,12 +1,14 @@
 from functools import wraps
 import json
 import datetime
+from hashlib import sha256
 from flask import request, Response
-from api import db, ApiError
+from api import app, db, ApiError
 from vardb.datamodel import user
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.scoping import scoped_session
 
+log = app.logger
 
 def query_print_table(sa_query):
     """
@@ -85,6 +87,40 @@ def link_filter(func):
 
     return inner
 
+def log_request(obfuscate=False):
+    if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
+        return
+    if request.method in ['PUT', 'POST', 'DELETE']:
+        if obfuscate:
+            log_data = json.dumps({k: sha256(v).hexdigest()[:10] for k, v in request.get_json().items()})
+            log_data += " (data obfuscated)"
+        else:
+            log_data = request.get_json()
+        log.warning(" {method} - {endpoint} - {json}".format(
+            method=request.method,
+            endpoint=request.url,
+            json=log_data
+        )
+    )
+
+
+def logger_obfuscated(func):
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        log_request(obfuscate=True)
+        return func(*args, **kwargs)
+
+    return inner
+
+def logger(func):
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        log_request()
+        return func(*args, **kwargs)
+
+    return inner
 
 def provide_session(func):
 
@@ -152,7 +188,6 @@ def request_json(required, only_required=False, allowed=None):
                              "content": {"mode": "weak", "allele_id": 34, "annotation": 44, "archived": true}}
 
     """
-
     # used by request_json to mutate an array of dicts
     def _check_array_content(source_array, required_fields, only_required=False, allowed_fields=None):
         for idx, d in enumerate(source_array):

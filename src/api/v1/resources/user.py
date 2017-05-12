@@ -4,7 +4,7 @@ from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json, authenticate
 from api.util.useradmin import authenticate_user, create_session, change_password, logout
 
-from api.v1.resource import Resource
+from api.v1.resource import Resource, ObfuscateLogResource
 from flask import Response, make_response, redirect
 
 
@@ -71,7 +71,7 @@ class UserResource(Resource):
         return schemas.UserSchema(strict=True).dump(u).data
 
 
-class LoginResource(Resource):
+class LoginResource(ObfuscateLogResource):
     @request_json(["username", "password"], only_required=True)
     def post(self, session, data=None):
         username = data.get("username")
@@ -86,9 +86,9 @@ class LoginResource(Resource):
         return resp
 
 
-class ChangePasswordResource(Resource):
+class ChangePasswordResource(ObfuscateLogResource):
     @request_json(["username", "password", "new_password"], only_required=True)
-    def post(self, session, override=False, data=None):
+    def post(self, session, data=None):
         username = data.get("username")
         password = data.get("password")
         new_password = data.get("new_password")

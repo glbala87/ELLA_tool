@@ -26,19 +26,6 @@ def setup_logging():
         log.setLevel(logging.INFO)
 
 
-@app.before_request
-def before_request():
-    if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
-        return
-    if request.method in ['PUT', 'POST', 'DELETE']:
-        log.warning(" {method} - {endpoint} - {json}".format(
-            method=request.method,
-            endpoint=request.url,
-            json=request.get_json()
-            )
-        )
-
-
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db.session.remove()
