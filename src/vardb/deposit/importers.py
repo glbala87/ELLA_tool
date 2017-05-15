@@ -24,11 +24,10 @@ log = logging.getLogger(__name__)
 
 
 ASSESSMENT_CLASS_FIELD = 'CLASS'
-ASSESSMENT_COMMENT_FIELD = 'COMMENT'
+ASSESSMENT_COMMENT_FIELD = 'ASSESSMENT_COMMENT'
 ASSESSMENT_DATE_FIELD = 'DATE'
 ASSESSMENT_USERNAME_FIELD = 'USERNAME'
-ASSESSMENT_HISTORIC_ANSWER_FIELD = 'HISTORIC_ANSWER'
-ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD = 'HISTORIC_ASSESSMENTS'
+REPORT_FIELD = 'REPORT_COMMENT'
 
 
 def ordered(obj):
@@ -277,18 +276,26 @@ class AssessmentImporter(object):
 
         class_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
         if not is_non_empty_text(class_raw) or class_raw not in ('1', '2', '3', '4', '5', 'T'):
+            logging.warning("Unknown class {}".format(class_raw))
             return
 
         # Get required fields
         ass_info = {
-            'classification': all_info.get(ASSESSMENT_CLASS_FIELD),
+            'classification': class_raw,
+            'evaluation': {'classification': {'comment': 'Comment missing.'}}
         }
 
-        comment_raw = all_info.get(ASSESSMENT_COMMENT_FIELD)
-        if is_non_empty_text(comment_raw):
-            ass_info['evaluation'] = {'classification': {'comment': comment_raw}}
-        else:
-            ass_info['evaluation'] = {'classification': {'comment': 'Comment missing.'}}
+        assessment_comment = all_info.get(ASSESSMENT_COMMENT_FIELD)
+        if is_non_empty_text(assessment_comment):
+            ass_info['evaluation']['classification'].update({'comment': base64.b64decode(assessment_comment).decode('utf-8')})
+
+        user = None
+        username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
+        if is_non_empty_text(username_raw):
+            user = self.session.query(User).filter(
+                User.username == username_raw
+            ).one()
+            ass_info['user_id'] = user.id
 
         allele = db_alleles[0]
 
@@ -301,71 +308,11 @@ class AssessmentImporter(object):
                 pass
 
         ass_info['genepanel'] = genepanel
-        db_assessment = self.create_or_skip_assessment(allele, ass_info)
-        if db_assessment:
-            self.counter['nAssessmentsUpdated'] += 1
-            db_assessments.append(db_assessment)
-        return db_assessments
-
-
-class EKGAssessmentImporter(AssessmentImporter):
-
-    def __init__(self, session):
-        super(EKGAssessmentImporter, self).__init__(session)
-
-    def process(self, record, db_alleles, assess_class=None, genepanel=None):
-        """
-        Add assessment of allele if present.
-        """
-
-        if len(db_alleles) > 1:
-            raise RuntimeError("Importing assessments is not supported for multiallelic sites")
-
-        allele = db_alleles[0]
-        db_assessments = list()
-
-        all_info = record['INFO']['ALL']
-
-        classification_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
-        if not is_non_empty_text(classification_raw) or classification_raw not in ('1', '2', '3', '4', '5', 'T'):
-            logging.warning("Unknown class {}".format(classification_raw))
-            return
-
-        # Get required fields
-        ass_info = {'classification': classification_raw,
-                    'evaluation': {'classification': {'comment': 'Comment missing.'}}}
-
-        user = None
-        username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
-        if is_non_empty_text(username_raw):
-            user = self.session.query(User).filter(
-                User.username == username_raw
-            ).one()
-            ass_info['user_id'] = user.id
-
-        history_raw = all_info.get(ASSESSMENT_HISTORIC_ASSESSMENTS_FIELD)
-
-        if is_non_empty_text(history_raw):
-            encoded = base64.b64decode(history_raw).decode('utf-8')
-            ass_info['evaluation']['classification'].update({'comment':
-                                                                 u"<h2>Vurderingshistorikk fra Excel</h2>"
-                                                                 + "<pre>" + encoded.replace('\n', '<br/>')
-                                                                 + "</pre>"})
-
-        date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
-        ass_info['date_created'] = datetime.datetime.min  # 1970-00-00 unless proper
-        if is_non_empty_text(date_raw):
-            try:
-                ass_info['date_created'] = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
-            except ValueError:
-                pass
-
-        ass_info['genepanel'] = genepanel
 
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
         if db_assessment:
             if self.session.query(assessment.AlleleReport).filter(
-                assessment.AlleleReport.allele_id == allele.id
+                            assessment.AlleleReport.allele_id == allele.id
             ).count():
                 raise RuntimeError("Found an existing allele report, won't create a new one")
 
@@ -374,10 +321,9 @@ class EKGAssessmentImporter(AssessmentImporter):
                            'alleleassessment_id': db_assessment.id
                            }
 
-            historic_answer_raw = all_info.get(ASSESSMENT_HISTORIC_ANSWER_FIELD)
-            if is_non_empty_text(historic_answer_raw):
-                encoded = base64.b64decode(historic_answer_raw).decode('utf-8')
-                report_data['evaluation'] = {'comment': u"<h2>Prøvesvar fra Excel</h2>" + encoded.replace('\n', '<br/>')}
+            report_raw = all_info.get(REPORT_FIELD)
+            if is_non_empty_text(report_raw):
+                report_data['evaluation'] = {'comment': base64.b64decode(report_raw).decode('utf-8')}
 
             report = assessment.AlleleReport(**report_data)
             self.session.add(report)
@@ -385,6 +331,8 @@ class EKGAssessmentImporter(AssessmentImporter):
             self.counter['nAssessmentsUpdated'] += 1
             db_assessments.append(db_assessment)
         return db_assessments
+
+
 
 
 class SplitToDictInfoProcessor(vcfiterator.BaseInfoProcessor):
