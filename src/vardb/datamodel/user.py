@@ -7,18 +7,18 @@ from sqlalchemy.schema import ForeignKeyConstraint
 from vardb.datamodel import Base
 from vardb.util.mutjson import JSONMutableDict
 
-UserUserGroup = Table('userusergroup', Base.metadata,
-    Column('user_id', Integer, ForeignKey('user.id')),
-    Column('usergroup_id', Integer, ForeignKey('usergroup.id'))
-)
+# UserUserGroup = Table('userusergroup', Base.metadata,
+#     Column('user_id', Integer, ForeignKey('user.id')),
+#     Column('usergroup_id', Integer, ForeignKey('usergroup.id'))
+# )
 
 
 # Links user groups to genepanels
 UserGroupGenepanel = Table('usergroupgenepanel', Base.metadata,
     Column('usergroup_id', Integer, ForeignKey('usergroup.id')),
-    Column('genepanel_name', String),
-    Column('genepanel_version', String),
-    ForeignKeyConstraint(['genepanel_name', 'genepanel_version'], ['genepanel.name', 'genepanel.version'])
+    Column('genepanel_name', String, nullable=False),
+    Column('genepanel_version', String, nullable=False),
+    ForeignKeyConstraint(['genepanel_name', 'genepanel_version'], ['genepanel.name', 'genepanel.version'], ondelete="CASCADE")
 )
 
 
@@ -30,17 +30,18 @@ class User(Base):
     username = Column(String(), nullable=False, unique=True)
     first_name = Column(String(), nullable=False)
     last_name = Column(String(), nullable=False)
-    groups = relationship('UserGroup', secondary=UserUserGroup)
+    group_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
     password = Column(String(), nullable=False)
     password_expiry = Column(DateTime, nullable=False)
     active = Column(Boolean, default=True, nullable=False)
     incorrect_logins = Column(Integer, default=0, nullable=False)
 
+
 class UserGroup(Base):
     __tablename__ = "usergroup"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(), nullable=False)
+    name = Column(String(), nullable=False, unique=True)
     genepanels = relationship('Genepanel', secondary=UserGroupGenepanel)
 
 

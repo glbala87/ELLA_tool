@@ -5,7 +5,7 @@
         "last_name": "Ibsen",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
         "password_expiry": "2027-03-30 15:03:01.396863",
-        "groups": ["testgroup01"]
+        "group": "testgroup01"
     },
     {
         "username": "testuser2",
@@ -13,7 +13,7 @@
         "last_name": "Bjørnson",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
         "password_expiry": "2027-03-30 15:03:01.396863",
-        "groups": ["testgroup01"]
+        "group": "testgroup01"
     },
     {
         "username": "testuser3",
@@ -21,7 +21,7 @@
         "last_name": "Collett",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
         "password_expiry": "2027-03-30 15:03:01.396863",
-        "groups": ["testgroup01"]
+        "group": "testgroup01"
     },
     {
         "username": "testuser4",
@@ -29,7 +29,7 @@
         "last_name": "Kielland",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
         "password_expiry": "2027-03-30 15:03:01.396863",
-        "groups": ["testgroup01"]
+        "group": "testgroup01"
     },
     {
         "username": "testuser5",
@@ -37,7 +37,7 @@
         "last_name": "Lie",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
         "password_expiry": "2027-03-30 15:03:01.396863",
-        "groups": ["testgroup01", "testgroup02"]
+        "group": "testgroup02"
     },
     {
         "username": "testuser6",
@@ -45,6 +45,6 @@
         "last_name": "Wergeland",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
         "password_expiry": "2027-03-30 15:03:01.396863",
-        "groups": ["testgroup01", "testgroup02"]
+        "group": "testgroup02"
     }
 ]

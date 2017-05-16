@@ -2,6 +2,7 @@ import json
 import argparse
 import logging
 from sqlalchemy import tuple_
+from sqlalchemy.orm.exc import NoResultFound
 
 import vardb.datamodel
 from vardb.datamodel import DB, user, gene
@@ -14,9 +15,17 @@ def import_groups(session, groups):
         existing_group = session.query(user.UserGroup).filter(
             user.UserGroup.name == g['name']
         ).one_or_none()
-        g['genepanels'] = session.query(gene.Genepanel).filter(
+
+        db_genepanels = session.query(gene.Genepanel).filter(
             tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(g['genepanels'])
         ).all()
+
+        if len(db_genepanels) != len(g['genepanels']):
+            not_found = set(tuple(gp) for gp in g['genepanels'])-set((gp.name, gp.version,) for gp in db_genepanels)
+            raise NoResultFound("Unable to find all genepanels in database: %s" %str(list(not_found)))
+
+        g["genepanels"] = db_genepanels
+
         if not existing_group:
             new_group = user.UserGroup(**g)
             session.add(new_group)
@@ -35,14 +44,15 @@ def import_users(session, users):
         existing_user = session.query(user.User).filter(
             user.User.username == u['username']
         ).all()
-        if 'groups' not in u:
-            raise RuntimeError("User {} is not in any groups.".format(u['username']))
-        group_names = u['groups']
-        u['groups'] = session.query(user.UserGroup).filter(
-            user.UserGroup.name.in_(group_names)
-        ).all()
-        if len(group_names) != len(u['groups']):
-            raise RuntimeError("Couldn't find all references groups for user {} in system. Have you forgot to update the user groups?".format(u['username']))
+
+        if 'group' not in u:
+            raise RuntimeError("User {} is not in any group.".format(u['username']))
+        group = session.query(user.UserGroup).filter(
+            user.UserGroup.name == u["group"]
+        ).one()
+        u["group_id"] = group.id
+        u.pop("group")
+
         if not existing_user:
             new_user = user.User(**u)
             session.add(new_user)
