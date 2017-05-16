@@ -1,11 +1,7 @@
 import click
 import logging
 
-from flask import Response
-
-
 from vardb.datamodel import DB, sample
-
 from api.v1 import resources
 
 
