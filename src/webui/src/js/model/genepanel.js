@@ -68,6 +68,7 @@ export default class Genepanel {
         if ('comment' in config_override) {
             result['comment'] = config_override['comment'];
         }
+        result['omim_entry_id'] = this.getOmimEntryId(geneSymbol);
 
         return result;
     }
@@ -94,6 +95,16 @@ export default class Genepanel {
         } else {
             return '';
         }
+
+    }
+    /**
+     * Returns the OMIM entry ID for the gene as found in the phenotypes file,
+     * @param  {String} geneSymbol Gene symbol
+     * @return {String}            Entry ID like 113705
+     */
+    getOmimEntryId(geneSymbol) {
+        let phenotypes = this.phenotypesBy(geneSymbol);
+        return phenotypes ? phenotypes[0].gene.omim_entry_id : '';
 
     }
 

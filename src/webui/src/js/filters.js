@@ -10,6 +10,24 @@ class Filters {
     */
 
     @Filter({
+        filterName: 'omimLink'
+    })
+    omimLinkFilter() {
+        return (entryID) => {
+            return entryID ? `https://www.omim.org/entry/${entryID}` : '';
+        };
+    }
+
+    @Filter({
+        filterName: 'hgmdLink'
+    })
+    hgmdLinkFilter() {
+        return (gene) => {
+                return gene ? `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${gene}`: '';
+        };
+    }
+
+    @Filter({
         filterName: 'split'
     })
     splitFilter() {
