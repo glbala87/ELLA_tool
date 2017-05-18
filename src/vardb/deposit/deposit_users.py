@@ -47,11 +47,9 @@ def import_users(session, users):
 
         if 'group' not in u:
             raise RuntimeError("User {} is not in any group.".format(u['username']))
-        group = session.query(user.UserGroup).filter(
+        u["group"] = session.query(user.UserGroup).filter(
             user.UserGroup.name == u["group"]
         ).one()
-        u["group_id"] = group.id
-        u.pop("group")
 
         if not existing_user:
             new_user = user.User(**u)

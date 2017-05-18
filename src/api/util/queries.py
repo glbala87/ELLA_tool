@@ -112,6 +112,15 @@ def workflow_analyses_ongoing(session):
     ).distinct(sample.Analysis.id)
 
 
+def workflow_analyses_for_genepanels(session, genepanels):
+    return session.query(sample.Analysis.id).filter(
+        and_(
+            sample.Analysis.genepanel_version.in_([gp.version for gp in genepanels]),
+            sample.Analysis.genepanel_name.in_([gp.name for gp in genepanels])
+        )
+    )
+
+
 def allele_ids_nonfinalized_analyses(session):
     return session.query(
         allele.Allele.id,
@@ -205,6 +214,18 @@ def workflow_alleles_ongoing(session):
     ).filter(
         allele.Allele.id.in_(get_sub_query('Ongoing')),
     ).distinct(allele.Allele.id)
+
+
+def workflow_alleles_for_genepanels(session, genepanels):
+    analysis_ids = session.query(sample.Analysis.id).filter(
+        and_(
+            sample.Analysis.genepanel_version.in_([gp.version for gp in genepanels]),
+            sample.Analysis.genepanel_name.in_([gp.name for gp in genepanels])
+        )
+    )
+    return session.query(allele.Allele.id).join(genotype.Genotype.alleles).filter(
+        genotype.Genotype.analysis_id.in_(analysis_ids)
+    ).distinct()
 
 
 def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys):
