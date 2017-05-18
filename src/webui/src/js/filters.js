@@ -12,9 +12,11 @@ class Filters {
     @Filter({
         filterName: 'omimLink'
     })
+    // Retrun url of symbol search if the gene entry ID is missing
     omimLinkFilter() {
-        return (entryID) => {
-            return entryID ? `https://www.omim.org/entry/${entryID}` : '';
+        return (entryID, symbol) => {
+            const base = "https://www.omim.org/";
+            return entryID ? base + `entry/${entryID}` : base + `/search/?search=${symbol}`;
         };
     }
 

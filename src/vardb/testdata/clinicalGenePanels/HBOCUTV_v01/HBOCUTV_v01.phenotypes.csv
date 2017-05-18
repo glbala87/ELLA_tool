@@ -1,37 +1,37 @@
 # Genepanel: HBOCUTV Version: v01 Date: 2016-04-21
-gene symbol	phenotype	inheritance	omim_number	pmid	inheritance info	comment
-BRCA1	{Breast-ovarian cancer, familial, 1}	AD;	604370			
-BRCA2	Fanconi anemia, complementation group D1	AR	605724			
-BRCA2	Wilms tumor	AD;	194070			
-BRCA2	{Breast cancer, male, susceptibility to}	AD	114480			
-BRCA2	{Breast-ovarian cancer, familial, 2}	AD	612555			
-BRCA2	{Medulloblastoma}	AD	155255			
-BRCA2	{Pancreatic cancer 2}		613347			
-CDH1	Colorectal cancer, hereditary nonpolyposis, type 5	AD	614350			new
-CDH1	Gastric cancer, familial diffuse, with or without cleft lip and/or palate	AD	137215			
-CDH1	Ovarian carcinoma, somatic		167000			
-CDH1	{Breast cancer, lobular}	AD	114480			
-CDH1	{Prostate cancer, susceptibility to}	AD	176807			
-PALB2	Fanconi anemia, complementation group N		610832			
-PALB2	{Breast cancer, susceptibility to}	AD	114480			
-PALB2	{Pancreatic cancer, susceptibility to, 3}		613348			
-PTEN	Bannayan-Riley-Ruvalcaba syndrome	AD	153480			
-PTEN	Cowden syndrome 1	AD	158350			
-PTEN	Endometrial carcinoma, somatic		608089			
-PTEN	Lhermitte-Duclos syndrome	AD	158350			
-PTEN	Macrocephaly/autism syndrome	AD	605309			
-PTEN	PTEN hamartoma tumor syndrome					
-STK11	Melanoma, malignant, somatic					
-STK11	Pancreatic cancer	AD;;	260350			
-STK11	Peutz-Jeghers syndrome	AD	175200			
-STK11	Testicular tumor, somatic		273300			
-TP53	Adrenal cortical carcinoma	AR	202300			
-TP53	Breast cancer	AD	114480			
-TP53	Choroid plexus papilloma	AD	260500			
-TP53	Colorectal cancer	AD	114500			
-TP53	Hepatocellular carcinoma		114550			
-TP53	Li-Fraumeni syndrome	AD	151623			
-TP53	Osteosarcoma	AR	259500			
-TP53	Pancreatic cancer	AD;;	260350			
-TP53	{Basal cell carcinoma 7}		614740			
-TP53	{Glioma susceptibility 1}	AD;	137800			
+gene symbol	omim gene entry	phenotype	inheritance	omim_number	pmid	inheritance info	comment
+BRCA1	113705	{Breast-ovarian cancer, familial, 1}	AD;	604370			
+BRCA2	113705	Fanconi anemia, complementation group D1	AR	605724			
+BRCA2	113705	Wilms tumor	AD;	194070			
+BRCA2	113705	{Breast cancer, male, susceptibility to}	AD	114480			
+BRCA2	113705	{Breast-ovarian cancer, familial, 2}	AD	612555			
+BRCA2	113705	{Medulloblastoma}	AD	155255			
+BRCA2	113705	{Pancreatic cancer 2}		613347			
+CDH1	113705	Colorectal cancer, hereditary nonpolyposis, type 5	AD	614350			new
+CDH1	113705	Gastric cancer, familial diffuse, with or without cleft lip and/or palate	AD	137215			
+CDH1	113705	Ovarian carcinoma, somatic		167000			
+CDH1	113705	{Breast cancer, lobular}	AD	114480			
+CDH1	113705	{Prostate cancer, susceptibility to}	AD	176807			
+PALB2	113705	Fanconi anemia, complementation group N		610832			
+PALB2	113705	{Breast cancer, susceptibility to}	AD	114480			
+PALB2	113705	{Pancreatic cancer, susceptibility to, 3}		613348			
+PTEN	113705	Bannayan-Riley-Ruvalcaba syndrome	AD	153480			
+PTEN	113705	Cowden syndrome 1	AD	158350			
+PTEN	113705	Endometrial carcinoma, somatic		608089			
+PTEN	113705	Lhermitte-Duclos syndrome	AD	158350			
+PTEN	113705	Macrocephaly/autism syndrome	AD	605309			
+PTEN	113705	PTEN hamartoma tumor syndrome					
+STK11	113705	Melanoma, malignant, somatic					
+STK11	113705	Pancreatic cancer	AD;;	260350			
+STK11	113705	Peutz-Jeghers syndrome	AD	175200			
+STK11	113705	Testicular tumor, somatic		273300			
+TP53	113705	Adrenal cortical carcinoma	AR	202300			
+TP53	113705	Breast cancer	AD	114480			
+TP53	113705	Choroid plexus papilloma	AD	260500			
+TP53	113705	Colorectal cancer	AD	114500			
+TP53	113705	Hepatocellular carcinoma		114550			
+TP53	113705	Li-Fraumeni syndrome	AD	151623			
+TP53	113705	Osteosarcoma	AR	259500			
+TP53	113705	Pancreatic cancer	AD;;	260350			
+TP53	113705	{Basal cell carcinoma 7}		614740			
+TP53	113705	{Glioma susceptibility 1}	AD;	137800			

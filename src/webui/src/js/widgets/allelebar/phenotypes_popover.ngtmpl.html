@@ -1,3 +1,4 @@
+<h3>Gene info on <a-clip href="{{ vm.getGenepanelValues(t.symbol).omim_entry_id | omimLink: t.symbol }}">OMIM</a-clip> or <a-clip href="{{ t.symbol | hgmdLink }}">HGMD</a-clip></h3>
 <h3 class="id_inheritance">Inheritance: <gpv source="vm.getGenepanelValues(t.symbol)" display="inheritance" mode="_"></gpv></h3>
 <h3>Phenotypes</h3>
 <ul class="popover-list indented">
@@ -11,5 +12,4 @@
 <h3>Disease mode: <gpv source="vm.getGenepanelValues(t.symbol)" display="disease_mode" mode="!"></gpv></h3>
 <h3>Last exon: <gpv source="vm.getGenepanelValues(t.symbol)" display="last_exon_important" mode="!"></gpv></h3>
 <h3>Gene information:</h3>
-<h3><a-clip href="{{ t.symbol | omimLink}}">OMIM</a-clip> or <a-clip href="{{ t.symbol | hgmdLink }}">HGMD</a-clip></h3>
 <gpv class="popover-list indented" source="vm.getGenepanelValues(t.symbol)" display="comment" mode="!"></gpv>

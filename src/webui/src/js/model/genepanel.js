@@ -104,6 +104,7 @@ export default class Genepanel {
      */
     getOmimEntryId(geneSymbol) {
         let phenotypes = this.phenotypesBy(geneSymbol);
+        // all phenotypes have the same gene and thus omim entry
         return phenotypes ? phenotypes[0].gene.omim_entry_id : '';
 
     }

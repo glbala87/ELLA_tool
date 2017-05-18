@@ -41,6 +41,8 @@ def import_references(session, filename):
     :return : update E||A database with references from 'filename'
     """
     log.info("Importing references from %s" % filename)
+    created = 0
+    updated = 0
     with open(filename) as f:
         for reference_batch in get_reference_batches(f):
             # Query by pubmed_id to get list of pointers to existing_references
@@ -52,16 +54,17 @@ def import_references(session, filename):
             for reference in reference_batch:
                 existing_reference = next((er for er in existing_references if er.pubmed_id == reference['pubmed_id']), None)
                 if existing_reference:
-                    log.info("Updating reference with PubmedID: %s" % reference['pubmed_id'])
+                    updated += 1
                     for key, value in reference.iteritems():
                         setattr(existing_reference, key, value)
                 else:
-                    log.info("Adding reference with PubmedID: %s" % reference['pubmed_id'])
+                    created += 1
                     session.add(assessment.Reference(**reference))
 
             session.commit()
 
-    log.info("References successfully imported!")
+    log.info("References successfully imported (created: {created}, updated: {updated})!"
+             .format(created=created, updated=updated))
 
 
 if __name__ == '__main__':

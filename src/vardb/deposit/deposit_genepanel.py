@@ -167,8 +167,8 @@ class DepositGenepanel(object):
                                                             genepanelVersion,
                                                             genes[ph['gene symbol']],
                                                             ph)
-                if 'omim_gene_entry' in ph:
-                    genes[ph['gene symbol']]['omim_gene_entry'] = ph['omim_gene_entry']
+                if 'omim gene entry' in ph:
+                    genes[ph['gene symbol']].omim_entry_id = ph['omim gene entry']
 
                 log.info("{} phenotype '{}'".format("Created" if created else "Loaded", ph['phenotype']))
 
