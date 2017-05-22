@@ -60,6 +60,7 @@ $sb-titlebar-height: 3.8rem;
   .sb-container {  display: flex; flex-direction: column;
     .sb-top {
        padding: 2rem;
+       padding-bottom: 1rem;
        flex-grow: 1;
        &:empty { padding: 0 }
     }
@@ -87,7 +88,7 @@ allele-sectionbox {
 
     .comments { padding-top: 1.3rem; }
     .comments {
-      .control-comment ~ .control-comment textarea { margin-top: 1.3rem; }
+      .control-comment ~ .control-comment { margin-top: 1.3rem; }
     }
   }
 }
