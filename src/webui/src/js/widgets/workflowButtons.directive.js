@@ -35,13 +35,13 @@ export class WorkflowButtonsController {
                 text: 'Save'
             },
             start: {
-                text: 'Start analysis'
+                text: 'Start'
             },
             review: {
                 text: 'Start review'
             },
             reopen: {
-                text: 'Reopen analysis'
+                text: 'Reopen'
             },
             override: {
                 text: 'Reassign to me'
