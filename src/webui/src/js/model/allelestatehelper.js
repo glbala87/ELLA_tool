@@ -394,7 +394,12 @@ export class AlleleStateHelper {
      */
     static autoReuseExistingAssessment(allele, allele_state, config) {
         if (allele.allele_assessment) {
-            if (!('autoReuseAlleleAssessmentCheckedId' in allele_state) ||
+            // Check whether it's outdated, if so force disabling reuse.
+            if (this.isAlleleAssessmentOutdated(allele, config)) {
+                this.disableReuseAlleleAssessment(allele, allele_state);
+                return false;
+            }
+            else if (!('autoReuseAlleleAssessmentCheckedId' in allele_state) ||
                 allele_state.autoReuseAlleleAssessmentCheckedId < allele.allele_assessment.id) {
                 if (!this.isAlleleAssessmentOutdated(allele, config)) {
                     this.enableReuseAlleleAssessment(allele, allele_state, config)
