@@ -4,6 +4,7 @@ import datetime
 import binascii
 import os
 import re
+import pytz
 from vardb.datamodel import user
 from api import AuthenticationError
 from api.config import config
@@ -23,7 +24,7 @@ def get_user(session, user_or_username):
 
 # Password check functions
 def password_expired(user_object):
-    return user_object.password_expiry < datetime.datetime.now()
+    return user_object.password_expiry < datetime.datetime.now(pytz.utc)
 
 
 def check_password_strength(password):
@@ -77,7 +78,7 @@ def create_session(session, user_id):
     userSession = user.UserSession(
         token=token,
         user_id=user_id,
-        issued=datetime.datetime.now(),
+        issued=datetime.datetime.now(pytz.utc),
         expires=u.password_expiry,
     )
     session.add(userSession)
@@ -86,7 +87,7 @@ def create_session(session, user_id):
 
 
 def logout(userSession):
-    userSession.expired = datetime.datetime.now()
+    userSession.expired = datetime.datetime.now(pytz.utc)
 
 
 def logout_all(session, user_id):
@@ -144,7 +145,7 @@ def change_password(session, user_or_username, old_password, new_password, overr
     if override:
         user_object.password_expiry = datetime.datetime.fromtimestamp(0)
     else:
-        user_object.password_expiry = datetime.datetime.now()+datetime.timedelta(days=config["users"]["password_expiry_days"])
+        user_object.password_expiry = datetime.datetime.now(pytz.utc)+datetime.timedelta(days=config["users"]["password_expiry_days"])
 
     user_object.incorrect_logins = 0
 

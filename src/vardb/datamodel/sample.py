@@ -2,6 +2,7 @@
 """varDB datamodel classes for entities that relate to samples."""
 
 import datetime
+import pytz
 
 from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy import ForeignKey
@@ -29,7 +30,7 @@ class Sample(Base):
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
-    deposit_date = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    deposit_date = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
@@ -50,7 +51,7 @@ class Analysis(Base):
     genepanel_name = Column(String)
     genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
-    deposit_date = Column("deposit_date", DateTime, nullable=False, default=datetime.datetime.now)
+    deposit_date = Column("deposit_date", DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
     priority = Column(Integer, nullable=False, default=1)
