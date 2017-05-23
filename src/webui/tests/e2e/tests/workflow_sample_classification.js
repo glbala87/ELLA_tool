@@ -33,7 +33,7 @@ let referenceEvalModal = new ReferenceEvalModal()
 
 jasmine.getEnv().addReporter(failFast.init());
 
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01';
 
 describe('Sample workflow', function () {
