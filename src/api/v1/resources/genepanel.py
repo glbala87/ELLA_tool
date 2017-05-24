@@ -2,9 +2,9 @@ from vardb.datamodel import gene
 
 from api.util.util import paginate, rest_filter, authenticate
 from api import schemas, ApiError
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
-class GenepanelListResource(Resource):
+class GenepanelListResource(LogRequestResource):
 
     @authenticate()
     @paginate
@@ -35,7 +35,7 @@ class GenepanelListResource(Resource):
         genepanels = self.list_query(session, gene.Genepanel, schema=schemas.GenepanelSchema(), rest_filter=rest_filter)
         return genepanels
 
-class GenepanelResource(Resource):
+class GenepanelResource(LogRequestResource):
     @authenticate()
     def get(self, session, name=None, version=None, user=None):
         """

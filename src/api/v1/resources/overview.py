@@ -5,7 +5,7 @@ from sqlalchemy import func, tuple_, or_, and_
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 
 from api import schemas, ApiError
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 from api.util import queries
 from api.util.util import authenticate
 from api.util.allelefilter import AlleleFilter
@@ -113,7 +113,7 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
     return final_alleles
 
 
-class OverviewAlleleResource(Resource):
+class OverviewAlleleResource(LogRequestResource):
     def get_alleles_no_alleleassessment(self, session, user=None):
         """
         Returns a list of (allele + genepanel) that are missing alleleassessments.
@@ -233,7 +233,7 @@ class OverviewAlleleResource(Resource):
         }
 
 
-class OverviewAnalysisResource(Resource):
+class OverviewAnalysisResource(LogRequestResource):
 
     def _categorize_allele_ids_findings(self, session, allele_ids):
         """

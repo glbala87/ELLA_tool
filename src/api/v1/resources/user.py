@@ -4,11 +4,11 @@ from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json, authenticate
 from api.util.useradmin import authenticate_user, create_session, change_password, logout
 
-from api.v1.resource import Resource, ObfuscateLogResource
+from api.v1.resource import Resource, LogRequestResource
 from flask import Response, make_response, redirect
 
 
-class UserListResource(Resource):
+class UserListResource(LogRequestResource):
 
     @paginate
     @rest_filter
@@ -45,7 +45,7 @@ class UserListResource(Resource):
         )
 
 
-class UserResource(Resource):
+class UserResource(LogRequestResource):
 
     def get(self, session, user_id=None):
         """
@@ -71,7 +71,7 @@ class UserResource(Resource):
         return schemas.UserSchema(strict=True).dump(u).data
 
 
-class LoginResource(ObfuscateLogResource):
+class LoginResource(Resource):
     @request_json(["username", "password"], only_required=True)
     def post(self, session, data=None):
         username = data.get("username")
@@ -86,7 +86,7 @@ class LoginResource(ObfuscateLogResource):
         return resp
 
 
-class ChangePasswordResource(ObfuscateLogResource):
+class ChangePasswordResource(Resource):
     @request_json(["username", "password", "new_password"], only_required=True)
     def post(self, session, data=None):
         username = data.get("username")
@@ -98,13 +98,13 @@ class ChangePasswordResource(ObfuscateLogResource):
         return Response("Password for user %s changed. You can now log in." % username)
 
 
-class CurrentUser(Resource):
+class CurrentUser(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
         return schemas.UserSchema().dump(user).data
 
 
-class LogoutResource(Resource):
+class LogoutResource(LogRequestResource):
     def patch(self, session, token):
         userSession = session.query(user.UserSession).filter(
             user.UserSession.token == token

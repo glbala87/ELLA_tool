@@ -1,11 +1,11 @@
 # -*- coding: latin1 -*-
-from api.util.util import provide_session, logger, logger_obfuscated
+from api.util.util import provide_session, logger#, logger_obfuscated
 from flask.ext.restful import Resource as flask_resource
 import sqlalchemy
 
 class Resource(flask_resource):
 
-    method_decorators = [logger, provide_session]
+    method_decorators = [logger(show_payload=False), provide_session]
 
     def _filter(self, query, model, rest_filter):
         args = list()
@@ -93,5 +93,5 @@ class Resource(flask_resource):
         else:
             return s
 
-class ObfuscateLogResource(Resource):
-    method_decorators = [logger_obfuscated, provide_session]
+class LogRequestResource(Resource):
+    method_decorators = [logger(show_payload=True), provide_session]

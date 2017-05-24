@@ -87,15 +87,14 @@ def link_filter(func):
 
     return inner
 
-def log_request(obfuscate=False):
+def log_request(show_payload):
     if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
         return
     if request.method in ['PUT', 'POST', 'DELETE']:
-        if obfuscate:
-            log_data = json.dumps({k: sha256(v).hexdigest()[:10] for k, v in request.get_json().items()})
-            log_data += " (data obfuscated)"
-        else:
+        if show_payload:
             log_data = request.get_json()
+        else:
+            log_data = "[PAYLOAD HIDDEN]"
         log.warning(" {method} - {endpoint} - {json}".format(
             method=request.method,
             endpoint=request.url,
@@ -104,23 +103,18 @@ def log_request(obfuscate=False):
     )
 
 
-def logger_obfuscated(func):
+def logger(show_payload=False):
 
-    @wraps(func)
-    def inner(*args, **kwargs):
-        log_request(obfuscate=True)
-        return func(*args, **kwargs)
+    def _logger(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            log_request(show_payload)
+            return func(*args, **kwargs)
 
-    return inner
+        return inner
 
-def logger(func):
+    return _logger
 
-    @wraps(func)
-    def inner(*args, **kwargs):
-        log_request()
-        return func(*args, **kwargs)
-
-    return inner
 
 def provide_session(func):
 

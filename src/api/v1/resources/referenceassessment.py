@@ -5,10 +5,10 @@ from vardb.datamodel import assessment
 from api import schemas
 from api.util.util import paginate, rest_filter, request_json, authenticate
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class ReferenceAssessmentResource(Resource):
+class ReferenceAssessmentResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, ra_id=None, user=None):
@@ -36,7 +36,7 @@ class ReferenceAssessmentResource(Resource):
         return result
 
 
-class ReferenceAssessmentListResource(Resource):
+class ReferenceAssessmentListResource(LogRequestResource):
 
     @authenticate()
     @paginate

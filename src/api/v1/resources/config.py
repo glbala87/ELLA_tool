@@ -1,8 +1,8 @@
 from api import config
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class ConfigResource(Resource):
+class ConfigResource(LogRequestResource):
     def get(self, session):
         """
         Returns application configuration.
