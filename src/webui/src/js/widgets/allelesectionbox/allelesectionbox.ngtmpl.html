@@ -1,4 +1,4 @@
-<sectionbox class="id-sectionbox-{{section.name}}" color="purple" collapsed="vm.getSectionUserState().collapsed">
+<sectionbox class="id-sectionbox-{{section.name}}" color="{{vm.getCardColor()}}" collapsed="vm.getSectionUserState().collapsed">
 
   <maintitle>
   {{vm.header}}
@@ -38,13 +38,12 @@
 
           <checkable-button class="id-accept-classification"
                             ng-if="control == 'reuse_classification' && vm.hasExistingAlleleAssessment() && !vm.isAlleleAssessmentOutdated()"
-                            show-mark="true"
                             check-model="vm.isAlleleAssessmentReused()"
                             ng-click="vm.toggleReuseAlleleAssessment()"
                             one-way="true"
                             ng-disabled="vm.readOnly">
-              Use existing
-              <checked>Existing reused</checked>
+              Undo reevaluation
+              <checked>Reevaluate</checked>
           </checkable-button>
           <button class="id-mark-technical"
                   ng-if="control == 'toggle_technical'"

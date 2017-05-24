@@ -1,5 +1,5 @@
 import datetime
-
+import pytz
 from sqlalchemy import Column, Integer, String, DateTime, Enum, Sequence
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -43,8 +43,8 @@ class AnnotationJob(Base):
     message = Column(String, default="")
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_submitted = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    date_last_update = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    date_submitted = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_last_update = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
 
     properties = Column(JSONMutableDict.as_mutable(JSONB))
 

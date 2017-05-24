@@ -1,4 +1,5 @@
 import datetime
+import pytz
 from flask.ext.marshmallow import Marshmallow
 from marshmallow import fields, Schema, post_load
 
@@ -40,7 +41,7 @@ class AlleleAssessmentSchema(Schema):
     seconds_since_update = fields.Method('get_seconds_since_created')
 
     def get_seconds_since_created(self, obj):
-        return (datetime.datetime.now() - obj.date_created).total_seconds()
+        return (datetime.datetime.now(pytz.utc) - obj.date_created).total_seconds()
 
     @post_load
     def make_object(self, data):
