@@ -12,9 +12,9 @@ rules = [
     { "code": "REQ_GP_LOF_only", "rule": {"genepanel.disease_mode": "LOF"}},
     { "code": "REQ_GP_missense_only", "rule": {"genepanel.disease_mode": "MISS"}},
     ### REQ
-    { "code": "REQ_>=4affected", "rule": {"refassessment.*.ref_population": "in_many_aff"}},
-    { "code": "REQ_2affected", "rule": {"refassessment.*.ref_population": "in_few_aff"}},
-    { "code": "REQ_3affected", "rule": {"refassessment.*.ref_population": "in_more_aff"}},
+    { "code": "REQ_>=4affected", "rule": {"refassessment.*.ref_population_affecteds": "in_many_aff"}},
+    { "code": "REQ_2affected", "rule": {"refassessment.*.ref_population_affecteds": "in_few_aff"}},
+    { "code": "REQ_3affected", "rule": {"refassessment.*.ref_population_affecteds": "in_more_aff"}},
     { "code": "REQ_aa_different", "rule": {"refassessment.*.ref_aa_overlap_sim": "diff_prop"}},
     { "code": "REQ_aa_similar", "rule": {"refassessment.*.ref_aa_overlap_sim": "sim_prop"}},
     { "code": "REQ_abnormal_protein", "rule": {"refassessment.*.ref_prot": "prot_abnormal"}},
@@ -44,6 +44,7 @@ rules = [
     { "code": "REQ_novel_aa", "rule": {"refassessment.*.ref_aa_overlap_same_novel": "novel_aa"}},
     { "code": "REQ_null_variant", "rule": {"transcript.consequences": {"$in": ["start_lost", "initiator_codon_variant", "transcript_ablation", "splice_donor_variant", "splice_acceptor_variant", "stop_gained", "frameshift_variant"]}}},
     { "code": "REQ_no_freq", "rule": {"frequencies.commonness": "null_freq"}},
+    { "code": "REQ_no_freq", "rule": {"refassessment.*.ref_population_healthy": "null_freq"}},
     { "code": "REQ_overlap_ben", "rule": {"refassessment.*.ref_aa_overlap": "overlap_ben"}},
     { "code": "REQ_overlap_HQ", "rule": {"refassessment.*.ref_aa_overlap_quality": "overlap_HQ"}},
     { "code": "REQ_overlap_MQ", "rule": {"refassessment.*.ref_aa_overlap_quality": "overlap_MQ"}},
@@ -65,6 +66,7 @@ rules = [
     ### PS*
     { "code": "PS1", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_same_aa", "REQ_overlap_HQ"]}}},
     { "code": "PS2", "rule": {"family.de_novo": "de_novo_confirmed"}},
+    { "code": "PS2", "rule": {"refassessment.*.ref_de_novo": "de_novo_confirmed"}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_abnormal_protein", "REQ_protein_HQ"]}}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_abnormal_RNA", "REQ_RNA_HQ"]}}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_MSI", "REQ_MSI_HQ"]}}},
@@ -84,6 +86,7 @@ rules = [
     { "code": "PM4", "rule": {"$$aggregate": {"$and": ["REQ_inframe", {"$not": {"$in": ["REQ_repeat"]}}]}}},
     { "code": "PM5", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_novel_aa", "REQ_aa_similar", "REQ_overlap_HQ"]}}},
     { "code": "PM6", "rule": {"family.de_novo": "de_novo_unconfirmed"}},
+    { "code": "PM6", "rule": {"refassessment.*.ref_de_novo": "de_novo_unconfirmed"}},
     { "code": "PMxPP1", "rule": {"$$aggregate": {"$all": ["REQ_segregation", "REQ_segregation_MQ"]}}},
     { "code": "PMxPS1", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_same_aa", "REQ_overlap_MQ"]}}},
     { "code": "PMxPS3", "rule": {"$$aggregate": {"$all": ["REQ_abnormal_protein", "REQ_protein_MQ"]}}},
@@ -123,7 +126,7 @@ rules = [
     { "code": "BPxPM5", "rule": {"$$aggregate": {"$all": ["REQ_overlap_ben", "REQ_same_aa", "REQ_overlap_HQ"]}}},
     ### BS*
     { "code": "BS1", "rule": {"$$aggregate": {"$all": ["REQ_less_common", "REQ_GP_AD"]}}},
-    { "code": "BS2", "rule": {"refassessment.*.ref_population": "in_healthy"}},
+    { "code": "BS2", "rule": {"refassessment.*.ref_population_healthy": "in_healthy"}},
     { "code": "BS3", "rule": {"$$aggregate": {"$all": ["REQ_normal_protein", "REQ_protein_HQ"]}}},
     { "code": "BS3", "rule": {"$$aggregate": {"$all": ["REQ_normal_RNA", "REQ_RNA_HQ"]}}},
     { "code": "BS3", "rule": {"$$aggregate": {"$all": ["REQ_no_MSI", "REQ_MSI_HQ"]}}},
@@ -132,7 +135,7 @@ rules = [
     { "code": "BSxBP4", "rule": {"external.IARC-BRCA": {"$in": ["1", "2"]}}},
     { "code": "BSxBP7", "rule": {"$$aggregate": {"$all": ["REQ_no_aa_change", "REQ_no_splice_effect"]}}},
     ### BA*
-    { "code": "BA1", "rule": {"frequencies.commonness": "common"}},
+    { "code": "BA1", "rule": {"frequencies.commonness": "common"}}
 
 
 

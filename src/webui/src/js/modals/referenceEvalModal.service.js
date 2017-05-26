@@ -245,11 +245,6 @@ export class ReferenceEvalModalController {
                     optional: true,
                     hide_when_source: 'review'
                 },
-                'other': {
-                    title: 'Other',
-                    desc: 'Specify below',
-                    optional: true
-                },
                 'auth_classification': {
                     title: 'Conclusion',
                     desc: 'Author variant classification',
@@ -259,14 +254,15 @@ export class ReferenceEvalModalController {
                             options: [
                                 ['Pathogenic', 'pathogenic'],
                                 ['VUS', 'vus'],
-                                ['Neutral', 'neutral']
+                                ['Neutral', 'neutral'],
+                                ['Not classified', 'not_classified']
                             ],
                             store: 'ref_auth_classification'
                         }
                     ]
                 },
                 'segregation': {
-                    title: 'Segregation',
+                    title: 'Family',
                     desc: 'Variant segregates with disease?',
                     elements: [
                         {
@@ -289,6 +285,21 @@ export class ReferenceEvalModalController {
                         }
                     ],
                     optional: true
+                },
+                'de_novo': {
+                    title: '',
+                    desc: 'Variant confirmed/unconfirmed de novo in patient?',
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Confirmed', 'de_novo_confirmed'],
+                                ['Unconfirmed', 'de_novo_unconfirmed']
+                            ],
+                            store: 'ref_de_novo'
+                        },
+                    ],
+                    optional_dep: 'segregation'
                 },
                 'protein': {
                     title: 'Protein',
@@ -414,22 +425,36 @@ export class ReferenceEvalModalController {
                     ],
                     optional: true
                 },
-                'population': {
+                'population_affecteds': {
                     title: 'Population',
-                    desc: 'Observed in UNRELATED affecteds or present in healthy?',
+                    desc: 'Observed in UNRELATED affecteds?',
                     elements: [
                         {
                             type: 'button',
                             options: [
                                 ['>=4 affected', 'in_many_aff'],
                                 ['3 affected', 'in_more_ff'],
-                                ['1-2 affected', 'in_few_affected'],
-                                ['Healthy', 'in_healthy'],
+                                ['1-2 affected', 'in_few_affected']
                             ],
-                            store: 'ref_population'
+                            store: 'ref_population_affecteds'
                         }
                     ],
                     optional: true
+                },
+                'population_healthy': {
+                    title: '',
+                    desc: 'Observed in healthy individual/population?',
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Yes', 'in_healthy'],
+                                ['No', 'null_freq']
+                            ],
+                            store: 'ref_population_healthy'
+                        },
+                    ],
+                    optional_dep: 'population_affecteds'
                 },
                 'quality': {
                     title: 'Overall quality',
@@ -454,7 +479,9 @@ export class ReferenceEvalModalController {
                 'Yes': [
                     'auth_classification',
                     'segregation',
-                    'population',
+                    'de_novo',
+                    'population_affecteds',
+                    'population_healthy',
                     'protein',
                     'rna',
                     'msi',
