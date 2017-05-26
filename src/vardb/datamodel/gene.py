@@ -56,10 +56,10 @@ class Transcript(Base):
 
 # Association table uses ForeignKeyContraint for referencing composite primary key in gene panel.
 genepanel_transcript = Table("genepanel_transcript", Base.metadata,
-                          Column("genepanel_name"),
-                          Column("genepanel_version"),
-                          Column("transcript_id", Integer, ForeignKey("transcript.id")),
-                          ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"], ondelete="CASCADE"))
+                          Column("genepanel_name", nullable=False),
+                          Column("genepanel_version", nullable=False),
+                          Column("transcript_id", Integer, ForeignKey("transcript.id"), nullable=False),
+                          ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"]), ondelete="CASCADE")
 
 
 class Genepanel(Base):

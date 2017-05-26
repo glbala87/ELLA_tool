@@ -8,6 +8,7 @@ import sys
 import argparse
 import logging
 import json
+from sqlalchemy import tuple_
 from vardb.datamodel import DB
 from vardb.datamodel import gene as gm
 from vardb.deposit.genepanel_config_validation import config_valid
@@ -73,170 +74,273 @@ def load_transcripts(transcripts_path):
         return transcripts
 
 
+def batch(iterable, n):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx + n, l)]
+
+
+def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=None, replace=False, batch_size=1000):
+    """
+    Inserts data in bulk according to batch_size.
+
+    :param model: Model to insert data into
+    :type model: SQLAlchemy model
+    :param rows: List of dict with data. Keys must correspond to attributes on model
+    :param include_pk: Key for which to get primary key for created and existing objects.
+                       Slows down performance by a lot, since we must query for the keys.
+    :type include_pk: str
+    :param compare_keys: Keys to be used for comparing whether an object exists already.
+    :type compare_keys: List
+    :param replace: Whether to replace (update) existing data. Requires include_pk and compare_keys.
+    :param batch_size: Size of each batch that should be inserted into database. Affects memory usage.
+    :yields: Type of (existing_objects, created_objects), each entry being a list of dictionaries.
+             If include_pk is set, a third list is returned containing all the primary keys for the input rows.
+    """
+
+    if replace and compare_keys is None:
+        raise RuntimeError("Using replace=True with no supplied compare_keys makes no sense, as there can be no data to replace.")
+    if replace and not include_pk:
+        raise RuntimeError("You must supply include_pk argument when replace=True.")
+
+    if compare_keys is None:
+        compare_keys = rows[0].keys()
+
+    def get_fields_filter(model, rows, compare_keys):
+        batch_values = [[b[k] for k in compare_keys] for b in rows]
+        q_fields = [getattr(model, k) for k in compare_keys]
+        q_filter = tuple_(*q_fields).in_(batch_values)
+        return q_fields, q_filter
+
+    for batch_rows in batch(rows, batch_size):
+
+        q_fields, q_filter = get_fields_filter(model, batch_rows, compare_keys)
+        if replace:
+            # If replacing data, we need to get the primary key as well
+            q_fields.append(getattr(model, include_pk))
+
+        db_existing = session.query(*q_fields).filter(q_filter).all()
+        db_existing = [r._asdict() for r in db_existing]
+
+        created = list()
+        input_existing = list()
+
+        if db_existing:
+            # Filter our batch_rows based on existing in db to see which objects we need to insert
+            for row in batch_rows:
+                should_create = True
+                for e in db_existing:
+                    if {k: e[k] for k in compare_keys} == {k: row[k] for k in compare_keys}:
+                        if include_pk:  # Copy over primary key if applicable
+                            row[include_pk] = e[include_pk]
+                        input_existing.append(row)
+                        should_create = False
+                if should_create:
+                    created.append(row)
+        else:
+            created = batch_rows
+
+        if replace and input_existing:
+            # Reinsert all existing data
+            log.debug("Replacing {} objects on {}".format(len(input_existing), str(model)))
+            session.bulk_update_mappings(model, input_existing)
+
+        session.bulk_insert_mappings(model, created)
+
+        if include_pk:
+            pks = session.query(getattr(model, include_pk)).filter(q_filter).all()
+            assert len(pks) == len(created) + len(input_existing)
+            yield input_existing, created, pks
+        else:
+            yield input_existing, created
+
+
 class DepositGenepanel(object):
 
     def __init__(self, session):
         self.session = session
 
+    def insert_genes(self, transcript_data):
+        # Avoid duplicate genes
+        distinct_genes = list(set([(t['geneSymbol'], t['eGeneID'], t.get('omim gene entry')) for t in transcript_data]))
+        gene_rows = list()
+        gene_rows = [{'hugo_symbol': d[0], 'ensembl_gene_id': d[1], 'omim_entry_id': d[2]} for d in distinct_genes]
+
+        gene_inserted_count = 0
+        gene_reused_count = 0
+        for existing, created in bulk_insert_nonexisting(self.session, gm.Gene, gene_rows):
+            gene_inserted_count += len(created)
+            gene_reused_count += len(existing)
+        return gene_inserted_count, gene_reused_count
+
+    def insert_transcripts(self, transcript_data, genepanel_name, genepanel_version, genome_ref, replace=False):
+        transcript_rows = list()
+        for t in transcript_data:
+            transcript_rows.append({
+                'gene_id': t['geneSymbol'],  # foreign key to gene
+                'refseq_name': t['refseq'],
+                'ensembl_id': t['eTranscriptID'],
+                'chromosome': t['chromosome'],
+                'tx_start': t['txStart'],
+                'tx_end': t['txEnd'],
+                'strand': t['strand'],
+                'cds_start': t['cdsStart'],
+                'cds_end': t['cdsEnd'],
+                'exon_starts': t['exonsStarts'],
+                'exon_ends': t['exonEnds'],
+                'genome_reference': genome_ref
+            })
+
+        transcript_inserted_count = 0
+        transcript_reused_count = 0
+
+        # If replacing, delete old connections in junction table
+        if replace:
+            log.debug("Replacing transcripts connected to genepanel.")
+            self.session.execute(gm.genepanel_transcript.delete(), {
+                'genepanel_name': genepanel_name,
+                'genepanel_version': genepanel_version
+            })
+
+        for existing, created, pks in bulk_insert_nonexisting(self.session,
+                                                              gm.Transcript,
+                                                              transcript_rows,
+                                                              include_pk='id',
+                                                              compare_keys=['refseq_name', 'ensembl_id'],
+                                                              replace=replace):
+            transcript_inserted_count += len(created)
+            transcript_reused_count += len(existing)
+
+            # Connect to genepanel by inserting into the junction table
+            junction_values = list()
+            for pk in pks:
+                junction_values.append({
+                    'genepanel_name': genepanel_name,
+                    'genepanel_version': genepanel_version,
+                    'transcript_id': pk
+                })
+            self.session.execute(gm.genepanel_transcript.insert(), junction_values)
+
+        return transcript_inserted_count, transcript_reused_count
+
+    def insert_phenotypes(self, phenotype_data, genepanel_name, genepanel_version, replace=False):
+
+        if replace:
+            # Phenotypes can be replaced in their entirety, since they're not shared.
+            count = self.session.query(gm.Phenotype).filter(
+                gm.Phenotype.genepanel_name == genepanel_name,
+                gm.Phenotype.genepanel_version == genepanel_version
+            ).delete()
+            log.debug("Removed {} phenotypes from {} {}".format(count, genepanel_name, genepanel_version))
+
+        phenotype_rows = list()
+        phenotype_inserted_count = 0
+        phenotype_reused_count = 0
+        for ph in phenotype_data:
+            phenotype_rows.append({
+                'genepanel_name': genepanel_name,
+                'genepanel_version': genepanel_version,
+                'gene_id': ph['gene symbol'],
+                'description': ph['phenotype'],
+                'inheritance': ph['inheritance'],
+                'inheritance_info': ph.get('inheritance info'),
+                'omim_id': ph.get('omim_number'),
+                'pmid': ph.get('pmid'),
+                'comment': ph.get('comment')
+            })
+
+        for existing, created in bulk_insert_nonexisting(self.session, gm.Phenotype, phenotype_rows):
+            phenotype_inserted_count += len(created)
+            phenotype_reused_count += len(existing)
+
+        return phenotype_inserted_count, phenotype_reused_count
+
     def add_genepanel(self,
                       transcripts_path,
                       phenotypes_path,
-                      genepanelName,
-                      genepanelVersion,
+                      genepanel_name,
+                      genepanel_version,
                       genomeRef='GRCh37',
                       configPath=None,
-                      replace=False,
-                      log=log.info):
+                      replace=False):
 
-        existing_panel = None
-        if self.session.query(gm.Genepanel).filter(
-            gm.Genepanel.name == genepanelName,
-            gm.Genepanel.version == genepanelVersion
-        ).count():
-            existing_panel = self.session.query(gm.Genepanel).filter(
-                gm.Genepanel.name == genepanelName,
-                gm.Genepanel.version == genepanelVersion).one()
+        # Insert genepanel
+        config = load_config(configPath) if configPath else None
+        existing_panel = self.session.query(gm.Genepanel).filter(
+            gm.Genepanel.name == genepanel_name,
+            gm.Genepanel.version == genepanel_version
+        ).one_or_none()
+
+        if not existing_panel:
+            # We connect transcripts and phenotypes to genepanel later
+            genepanel = gm.Genepanel(
+                name=genepanel_name,
+                version=genepanel_version,
+                genome_reference=genomeRef,
+                config=config
+            )
+            self.session.add(genepanel)
+
+        else:
             if replace:
-                log("Genepanel {} {} exists in database, will overwrite.".format(genepanelName, genepanelVersion))
+                log.info("Genepanel {} {} exists in database, will overwrite.".format(genepanel_name, genepanel_version))
+                existing_panel.config = config
+                existing_panel.genome_reference = genomeRef
             else:
-                log("Genepanel {} {} exists in database, backing out. Use the 'replace' to force overwrite."
-                         .format(genepanelName, genepanelVersion))
+                log.info("Genepanel {} {} exists in database, backing out. Use the 'replace' to force overwrite."
+                         .format(genepanel_name, genepanel_version))
                 return
 
-        db_transcripts = []
-        db_phenotypes = []
-        transcripts = load_transcripts(transcripts_path) if transcripts_path else None
-        phenotypes = load_phenotypes(phenotypes_path) if phenotypes_path else None
-        config = load_config(configPath) if configPath else None
+        transcript_data = load_transcripts(transcripts_path) if transcripts_path else None
+        phenotype_data = load_phenotypes(phenotypes_path) if phenotypes_path else None
 
-        if transcripts:
-            genes = {}
-            for transcript in transcripts:
-                db_gene, created = gm.Gene.get_or_create(
-                    self.session,
-                    hugo_symbol=transcript['geneSymbol'],
-                    ensembl_gene_id=transcript['eGeneID'],
-                    omim_entry_id=transcript['omim gene entry'] if 'omim gene entry' in transcript else None
-                )
+        gene_inserted_count = 0
+        gene_reused_count = 0
+        transcript_inserted_count = 0
+        transcript_reused_count = 0
+        phenotype_inserted_count = 0
+        phenotype_reused_count = 0
 
-                genes[db_gene.hugo_symbol] = db_gene
-                if created:
-                    log('Gene {} created.'.format(db_gene))
-                else:
-                    log("Gene {} already in database, not creating/updating.".format(db_gene))
+        if transcript_data:
 
-                db_transcript, created = self.do_transcript(db_gene, genomeRef, transcript, replace)
+            # Genes
+            gene_inserted_count, gene_reused_count = self.insert_genes(transcript_data)
+            log.info('GENES: Created {}, reused {}'.format(gene_inserted_count, gene_reused_count))
 
-                if created:
-                    log("Transcript {} created".format(db_transcript))
-                else:
-                    log("Transcript {} already in database, {}.".format(db_transcript, "updated" if replace else "not created"))
-                db_transcripts.append(db_transcript)
+            # Transcripts
+            transcript_inserted_count, transcript_reused_count = self.insert_transcripts(
+                transcript_data,
+                genepanel_name,
+                genepanel_version,
+                genomeRef,
+                replace=replace
+            )
 
-        if phenotypes:
-            # get the genes:
-            genes = {}
-            db_genes = self.session.query(gm.Gene)
-            for db_gene in db_genes:
-                genes[db_gene.hugo_symbol] = db_gene
+            log.info('TRANSCRIPTS: Created {}, reused {}'.format(transcript_inserted_count, transcript_reused_count))
 
-            if replace: # remove all phenotypes
-                count = self.session.query(gm.Phenotype)\
-                    .filter(gm.Phenotype.genepanel_name == genepanelName,
-                            gm.Phenotype.genepanel_version == genepanelVersion)\
-                    .delete()
-                log("Removed {} phenotypes from {} {}".format(count, genepanelName, genepanelVersion))
+        if phenotype_data:
 
-            for ph in phenotypes:
-                if ph['gene symbol'] not in genes:
-                    raise Exception("Cannot add phenotype '{}' for panel {}, the gene {} wasn't found in database"
-                                    .format(ph['phenotype'], genepanelName, ph['gene symbol']))
+            # Phenotypes
+            phenotype_inserted_count, phenotype_reused_count = self.insert_phenotypes(
+                phenotype_data,
+                genepanel_name,
+                genepanel_version,
+                replace=replace
+            )
 
-                # always create new:
-                db_phenotype, created,  = self.do_phenotype(genepanelName,
-                                                            genepanelVersion,
-                                                            genes[ph['gene symbol']],
-                                                            ph)
-
-                log("{} phenotype '{}'".format("Created" if created else "Loaded", ph['phenotype']))
-
-                db_phenotypes.append(db_phenotype)
-
-        if existing_panel:
-            if len(db_transcripts) > 0:
-                existing_panel.transcripts =  db_transcripts
-            if len(db_phenotypes) > 0:
-                existing_panel.phenotypes = db_phenotypes
-            if config:
-                existing_panel.config = config
-
-        else:
-            # new panel
-            genepanel = gm.Genepanel(
-                name=genepanelName,
-                version=genepanelVersion,
-                genome_reference=genomeRef,
-                transcripts=db_transcripts if len(db_transcripts) > 0 else [],
-                phenotypes=db_phenotypes if len(db_phenotypes) > 0 else [],
-                config=config)
-            self.session.merge(genepanel)
+            log.info('PHENOTYPES: Created {}, reused {}'.format(phenotype_inserted_count, phenotype_reused_count))
 
         self.session.commit()
-        log('Added {} {} with {} transcripts and {} phenotypes to database'
-                 .format(genepanelName, genepanelVersion, len(db_transcripts), len(db_phenotypes)))
-        return 0
-
-    def do_phenotype(self, genepanelName, genepanelVersion, gene, ph):
-        return gm.Phenotype.get_or_create(  # phenotypes are never updated
-            self.session,
-            genepanel_name=genepanelName,
-            genepanel_version=genepanelVersion,
-            gene=gene,
-            description=ph['phenotype'],
-            inheritance=ph['inheritance'],
-            inheritance_info=ph.get('inheritance info'),
-            omim_id=ph.get('omim_number'),
-            pmid=ph.get('pmid'),
-            comment=ph.get('comment')
+        log.info(
+            'Added {} {} with {} genes, {} transcripts and {} phenotypes to database'.format(
+                genepanel_name,
+                genepanel_version,
+                gene_inserted_count + gene_reused_count,
+                transcript_inserted_count + transcript_reused_count,
+                phenotype_inserted_count + phenotype_reused_count
+            )
         )
-
-    def do_transcript(self, db_gene, genomeRef, t, replace):
-        if replace:
-            return gm.Transcript.update_or_create(
-                self.session,
-                gene=db_gene,
-                refseq_name=t['refseq'],
-                ensembl_id=t['eTranscriptID'],
-                genome_reference=genomeRef,
-                defaults={
-                    'chromosome': t['chromosome'],
-                    'tx_start': t['txStart'],
-                    'tx_end': t['txEnd'],
-                    'strand': t['strand'],
-                    'cds_start': t['cdsStart'],
-                    'cds_end': t['cdsEnd'],
-                    'exon_starts': t['exonsStarts'],
-                    'exon_ends': t['exonEnds']
-                }
-            )
-        else:
-            return gm.Transcript.get_or_create(
-                self.session,
-                defaults={
-                    'chromosome': t['chromosome'],
-                    'tx_start': t['txStart'],
-                    'tx_end': t['txEnd'],
-                    'strand': t['strand'],
-                    'cds_start': t['cdsStart'],
-                    'cds_end': t['cdsEnd'],
-                    'exon_starts': t['exonsStarts'],
-                    'exon_ends': t['exonEnds']
-                },
-                gene=db_gene,
-                refseq_name=t['refseq'],
-                ensembl_id=t['eTranscriptID'],
-                genome_reference=genomeRef
-            )
+        return 0
 
 
 def main(argv=None):
@@ -270,9 +374,9 @@ def main(argv=None):
 
     logging.basicConfig(level=logging.INFO)
 
-    genepanelName = args.genepanelName
-    genepanelVersion = args.genepanelVersion
-    assert genepanelVersion.startswith('v')
+    genepanel_name = args.genepanelName
+    genepanel_version = args.genepanelVersion
+    assert genepanel_version.startswith('v')
 
     db = DB()
     db.connect()
@@ -280,8 +384,8 @@ def main(argv=None):
     dg = DepositGenepanel(db.session)
     return dg.add_genepanel(args.transcriptsPath,
                             args.phenotypesPath,
-                            genepanelName,
-                            genepanelVersion,
+                            genepanel_name,
+                            genepanel_version,
                             genomeRef=args.genomeRef,
                             configPath=args.configPath,
                             replace=args.replace)
