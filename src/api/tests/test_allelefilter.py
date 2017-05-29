@@ -225,10 +225,10 @@ def create_allele_with_annotation_tuple(session, annotations):
 def create_genepanel(genepanel_config):
     # Create fake genepanel for testing purposes
 
-    g1_ad = gene.Gene(hugo_symbol="GENE1AD")
-    g1_ar = gene.Gene(hugo_symbol="GENE1AR")
-    g2 = gene.Gene(hugo_symbol="GENE2")
-    g3 = gene.Gene(hugo_symbol="GENE3")
+    g1_ad = gene.Gene(hgnc_id=1, hgnc_symbol="GENE1AD")
+    g1_ar = gene.Gene(hgnc_id=2, hgnc_symbol="GENE1AR")
+    g2 = gene.Gene(hgnc_id=3, hgnc_symbol="GENE2")
+    g3 = gene.Gene(hgnc_id=4, hgnc_symbol="GENE3")
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
