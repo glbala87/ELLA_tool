@@ -65,11 +65,11 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
         // Add prediction annotation
         alleleSectionBox.addPredictionBtn.scroll();
         alleleSectionBox.addPredictionBtn.click();
-        customAnnotationModal.annotationSelect.selectByVisibleText('Conservation');
+        customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
         customAnnotationModal.valueSelect.selectByVisibleText('conserved');
         customAnnotationModal.addBtn.click();
         customAnnotationModal.saveBtn.click();
-        expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Conservation:');
+        expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Ortholog conservation:');
         expect(alleleSectionBox.getPredictionOtherValue()).toEqual('conserved');
 
         // Set comments/classification
