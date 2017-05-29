@@ -1,18 +1,8 @@
 import datetime
-from collections import defaultdict
 import pytz
-from sqlalchemy import or_, and_, tuple_, func, cast, text, column, Numeric, String, table
-from sqlalchemy.dialects.postgresql import JSONB
-
+from sqlalchemy import or_, and_, tuple_, func, text, literal_column
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
-from api.util.util import query_print_table
 from api.config import config
-from api.util.genepanelconfig import GenepanelConfigResolver
-
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable, literal_column
-from sqlalchemy.dialects import postgresql
-
 
 
 def valid_alleleassessments_filter(session):
@@ -221,7 +211,44 @@ def workflow_alleles_for_genepanels(session, genepanels):
     ).distinct()
 
 
+def ad_genes_for_genepanel(session, gp_name, gp_version):
+    """
+    Fetches all genes with _only_ 'AD' phenotypes.
+    """
+    distinct_inheritance = session.query(
+        gene.Phenotype.genepanel_name,
+        gene.Phenotype.genepanel_version,
+        gene.Phenotype.gene_id,
+    ).filter(
+        gene.Phenotype.genepanel_name == gp_name,
+        gene.Phenotype.genepanel_version == gp_version
+    ).group_by(
+        gene.Phenotype.genepanel_name,
+        gene.Phenotype.genepanel_version,
+        gene.Phenotype.gene_id
+    ).having(func.count(gene.Phenotype.inheritance) == 1).subquery()
+
+    return session.query(
+        gene.Gene.hgnc_symbol,
+    ).join(
+        gene.Phenotype,
+        gene.Phenotype.gene_id == gene.Gene.hgnc_id
+    ).join(
+        distinct_inheritance,
+        and_(
+            gene.Phenotype.genepanel_name == distinct_inheritance.c.genepanel_name,
+            gene.Phenotype.genepanel_version == distinct_inheritance.c.genepanel_version,
+            gene.Phenotype.gene_id == distinct_inheritance.c.gene_id
+        )
+    ).filter(
+        gene.Phenotype.genepanel_name == gp_name,
+        gene.Phenotype.genepanel_version == gp_version,
+        gene.Phenotype.inheritance == 'AD'
+    ).distinct()
+
+
 def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, inclusion_regex):
+
     """
     Filters annotation transcripts for input allele_ids against genepanel transcripts
     for given genepanel_keys.

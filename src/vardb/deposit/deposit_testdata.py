@@ -50,30 +50,10 @@ GENEPANELS = [
         'version': 'v01'
     },
     {
-        'path': '../testdata/clinicalGenePanels/Bindevev_v02.transcripts.csv',
-        'name': 'Bindevev',
-        'version': 'v02'
-    },
-    {
         'transcripts': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.phenotypes.csv',
         'name': 'Ciliopati',
         'version': 'v05'
-    },
-    {
-        'path': '../testdata/clinicalGenePanels/EEogPU_v02.transcripts.csv',
-        'name': 'EEogPU',
-        'version': 'v02'
-    },
-    {
-        'path': '../testdata/clinicalGenePanels/Iktyose_v02.transcripts.csv',
-        'name': 'Iktyose',
-        'version': 'v02'
-    },
-    {
-        'path': '../testdata/clinicalGenePanels/Joubert_v02.transcripts.csv',
-        'name': 'Joubert',
-        'version': 'v02'
     }
 ]
 

@@ -14,10 +14,10 @@ class Gene(Base):
     """Represents a gene abstraction"""
     __tablename__ = "gene"
 
-    hugo_symbol = Column(String(), primary_key=True)
+    hgnc_id = Column(Integer, primary_key=True)
+    hgnc_symbol = Column(String(), unique=True, nullable=False)
     ensembl_gene_id = Column(String(15), unique=True)
     omim_entry_id = Column(Integer)
-    # dominance = Column(String(20))
 
     def __repr__(self):
         return "<Gene('%s')>" % self.hugo_symbol
@@ -28,11 +28,10 @@ class Transcript(Base):
     __tablename__ = "transcript"
     __table_args__ = (
         UniqueConstraint('refseq_name', 'ensembl_id', name='transcript_unique'),
-
     )
 
     id = Column(Integer, primary_key=True)
-    gene_id = Column(String(20), ForeignKey("gene.hugo_symbol"), nullable=False)
+    gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", lazy="joined")
     refseq_name = Column(String(15))
     ensembl_id = Column(String(15))
@@ -43,7 +42,7 @@ class Transcript(Base):
     strand = Column(String(1), nullable=False)
     cds_start = Column(Integer, nullable=False)
     cds_end = Column(Integer, nullable=False)
-    exon_starts = Column(ARRAY(Integer), nullable=False) # giving dimensions does not work
+    exon_starts = Column(ARRAY(Integer), nullable=False)  # giving dimensions does not work
     exon_ends = Column(ARRAY(Integer), nullable=False)
 
     def __repr__(self):
@@ -115,7 +114,7 @@ class Phenotype(Base):
     genepanel_version = Column(String(10), nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
 
-    gene_id = Column(String(20), ForeignKey("gene.hugo_symbol"), nullable=False)
+    gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", lazy="joined")
 
     description = Column(String(250), nullable=False)

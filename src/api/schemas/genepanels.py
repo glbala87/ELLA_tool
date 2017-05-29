@@ -4,7 +4,8 @@ from marshmallow import fields, Schema
 class GeneSchema(Schema):
     class Meta:
         title = 'Gene'
-        fields = ('hugo_symbol',
+        fields = ('hgnc_id',
+                  'hgnc_symbol',
                   'ensembl_gene_id',
                   'omim_entry_id')
 

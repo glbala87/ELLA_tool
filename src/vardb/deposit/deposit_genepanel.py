@@ -8,7 +8,7 @@ import sys
 import argparse
 import logging
 import json
-from sqlalchemy import tuple_
+from sqlalchemy import tuple_, and_
 from vardb.datamodel import DB
 from vardb.datamodel import gene as gm
 from vardb.deposit.genepanel_config_validation import config_valid
@@ -121,7 +121,6 @@ def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=
 
         db_existing = session.query(*q_fields).filter(q_filter).all()
         db_existing = [r._asdict() for r in db_existing]
-
         created = list()
         input_existing = list()
 
@@ -139,7 +138,6 @@ def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=
                     created.append(row)
         else:
             created = batch_rows
-
         if replace and input_existing:
             # Reinsert all existing data
             log.debug("Replacing {} objects on {}".format(len(input_existing), str(model)))
@@ -161,10 +159,10 @@ class DepositGenepanel(object):
         self.session = session
 
     def insert_genes(self, transcript_data):
+
         # Avoid duplicate genes
-        distinct_genes = list(set([(t['geneSymbol'], t['eGeneID'], t.get('omim gene entry')) for t in transcript_data]))
-        gene_rows = list()
-        gene_rows = [{'hugo_symbol': d[0], 'ensembl_gene_id': d[1], 'omim_entry_id': d[2]} for d in distinct_genes]
+        distinct_genes = list(set([(int(t['HGNC'])), (t['geneSymbol'], t['eGeneID'], t.get('omim gene entry')) for t in transcript_data]))
+        gene_rows = [{'hgnc_id': d[0], 'hugo_symbol': d[1], 'ensembl_gene_id': d[2], 'omim_entry_id': d[3]} for d in distinct_genes]
 
         gene_inserted_count = 0
         gene_reused_count = 0
@@ -177,7 +175,7 @@ class DepositGenepanel(object):
         transcript_rows = list()
         for t in transcript_data:
             transcript_rows.append({
-                'gene_id': t['geneSymbol'],  # foreign key to gene
+                'gene_id': int(t['HGNC']),  # foreign key to gene
                 'refseq_name': t['refseq'],
                 'ensembl_id': t['eTranscriptID'],
                 'chromosome': t['chromosome'],
@@ -197,10 +195,12 @@ class DepositGenepanel(object):
         # If replacing, delete old connections in junction table
         if replace:
             log.debug("Replacing transcripts connected to genepanel.")
-            self.session.execute(gm.genepanel_transcript.delete(), {
-                'genepanel_name': genepanel_name,
-                'genepanel_version': genepanel_version
-            })
+            self.session.execute(gm.genepanel_transcript.delete().where(
+                and_(
+                    gm.genepanel_transcript.columns.genepanel_name == genepanel_name,
+                    gm.genepanel_transcript.columns.genepanel_version == genepanel_version
+                )
+            ))
 
         for existing, created, pks in bulk_insert_nonexisting(self.session,
                                                               gm.Transcript,
@@ -240,7 +240,7 @@ class DepositGenepanel(object):
             phenotype_rows.append({
                 'genepanel_name': genepanel_name,
                 'genepanel_version': genepanel_version,
-                'gene_id': ph['gene symbol'],
+                'gene_id': ph['HGNC'],
                 'description': ph['phenotype'],
                 'inheritance': ph['inheritance'],
                 'inheritance_info': ph.get('inheritance info'),

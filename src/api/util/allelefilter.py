@@ -391,34 +391,10 @@ class AlleleFilter(object):
         return getattr(allele_filter_tbl.c, freq_provider + '.' + freq_key).is_(None)
 
     def _get_AD_genes(self, gp_key):
-        """
-        Fetches all genes with _only_ 'AD' phenotypes.
-        """
-        distinct_inheritance = self.session.query(
-            gene.Phenotype.genepanel_name,
-            gene.Phenotype.genepanel_version,
-            gene.Phenotype.gene_id,
-        ).group_by(
-            gene.Phenotype.genepanel_name,
-            gene.Phenotype.genepanel_version,
-            gene.Phenotype.gene_id
-        ).having(func.count(gene.Phenotype.inheritance.distinct()) == 1).subquery()
-
-        genes = self.session.query(
-            gene.Phenotype.gene_id,
-        ).join(
-            distinct_inheritance,
-            and_(
-                gene.Phenotype.genepanel_name == distinct_inheritance.c.genepanel_name,
-                gene.Phenotype.genepanel_version == distinct_inheritance.c.genepanel_version,
-                gene.Phenotype.gene_id == distinct_inheritance.c.gene_id
-            )
-        ).filter(
-            gene.Phenotype.genepanel_name == gp_key[0],
-            gene.Phenotype.genepanel_version == gp_key[1],
-            gene.Phenotype.inheritance == 'AD'
-        ).distinct().all()
-        return [g[0] for g in genes]
+        result = queries.ad_genes_for_genepanel(
+            self.session, gp_key[0], gp_key[1]
+        ).all()
+        return [r[0] for r in result]
 
 
     def _create_freq_filter(self, af_table, genepanels, gp_allele_ids, threshold_func, combine_func):
