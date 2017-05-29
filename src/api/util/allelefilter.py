@@ -442,10 +442,15 @@ class AlleleFilter(object):
                     and_(
                         ~af_table.c.symbol.in_(override_genes),
                         af_table.c.symbol.in_(ad_genes),
+<<<<<<< 3ebb68cbb1b4f6c737de605c6c753544156356f2
                         self._get_freq_threshold_filter(af_table,
                                                         ad_group_thresholds,
                                                         threshold_func,
                                                         combine_func)
+=======
+                        ~af_table.c.symbol.in_(override_genes),  # Exclude already overriden genes
+                        self._get_freq_threshold_filter(af_table, genepanel_config, ad_group_thresholds, threshold_func, combine_func)
+>>>>>>> [api] Fix "bug" in allelefilter where overridden gene wasn't excluded
                     )
                 )
 
