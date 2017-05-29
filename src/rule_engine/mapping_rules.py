@@ -39,6 +39,7 @@ rules = [
     { "code": "REQ_no_segregation", "rule": {"refassessment.*.ref_segregation": "no_segr"}},
     # Manual edit
     { "code": "REQ_no_splice_effect", "rule": {"transcript.splice_Effect": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
+    { "code": "REQ_no_splice_effect", "rule": {"prediction.splice_Effect_manual": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
     { "code": "REQ_normal_protein", "rule": {"refassessment.*.ref_prot": "prot_normal"}},
     { "code": "REQ_normal_RNA", "rule": {"refassessment.*.ref_rna": "rna_normal"}},
     { "code": "REQ_not_in_last_exon", "rule": {"transcript.in_last_exon": "no"}},
@@ -99,7 +100,8 @@ rules = [
     { "code": "PP1", "rule": {"$$aggregate": {"$all": ["REQ_segregation", "REQ_segregation_WQ"]}}},
     # Manual edit
     { "code": "PP2","rule": {"$$aggregate": {"$and":["REQ_missense",{"$in": ["REQ_GP_LOF_missense","REQ_GP_missense_only"]}]}}},
-    { "code": "PP3", "rule": {"transcript.splice_Effect": {"$in": ["predicted_lost ", "de_novo"]}}},
+    { "code": "PP3", "rule": {"transcript.splice_Effect": {"$in": ["predicted_lost", "de_novo"]}}},
+    { "code": "PP3", "rule": {"prediction.splice_Effect_manual": {"$in": ["predicted_lost", "de_novo"]}}},
     { "code": "PP3", "rule": {"prediction.orth_conservation": "conserved"}},
     { "code": "PP3", "rule": {"prediction.para_conservation": "conserved"}},
     { "code": "PP3", "rule": {"external.IARC-BRCA": {"$in": ["4", "5"]}}},
@@ -118,6 +120,7 @@ rules = [
     { "code": "BP3", "rule": {"$$aggregate": {"$all": ["REQ_inframe", "REQ_repeat"]}}},
     # Manual edit
     { "code": "BP4", "rule": {"transcript.splice_Effect": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
+    { "code": "BP4", "rule": {"prediction.splice_Effect_manual": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
     { "code": "BP4", "rule": {"prediction.orth_conservation": "non-conserved"}},
     { "code": "BP4", "rule": {"prediction.para_conservation": "non-conserved"}},
     # BP5 (no rule)
@@ -140,7 +143,6 @@ rules = [
     { "code": "BSxBP7", "rule": {"$$aggregate": {"$all": ["REQ_no_aa_change", "REQ_no_splice_effect"]}}},
     ### BA*
     { "code": "BA1", "rule": {"frequencies.commonness": "common"}}
-
 
 
 
