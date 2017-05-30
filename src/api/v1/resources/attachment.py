@@ -7,7 +7,7 @@ from flask import request, send_file
 from hashlib import sha256
 from vardb.datamodel import attachment
 from api import schemas
-from api.util.util import request_json
+from api.util.util import request_json, authenticate
 
 
 # https://stackoverflow.com/questions/600268
@@ -23,7 +23,7 @@ def mkdir_p(path):
 
 class AttachmentResource(Resource):
     @authenticate()
-    def post(self, session):
+    def post(self, session, user=None):
         file_obj = request.files["file"]
         file_obj.stream.seek(0)  # Make sure we read from the beginning
         content = file_obj.read()
@@ -82,7 +82,7 @@ class AttachmentResource(Resource):
 class AlleleAssessmentAttachmentResource(Resource):
     @authenticate()
     @request_json(["attachment_id", "alleleassessment_id"])
-    def post(self, session, data):
+    def post(self, session, data, user=None):
         obj = attachment.AlleleAssessment(**data)
         session.add(obj)
         session.commit()
