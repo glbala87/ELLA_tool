@@ -133,6 +133,16 @@ export class AlleleSectionBoxController {
         return !this.isAlleleAssessmentReused();
     }
 
+    /**
+     * Whether the report comment is editable or not. Even if reusing alleleassessment, the user can edit the comment.
+     * The alleleassessment is reused when hitting 'Finish > Finalize'.
+     * The purpose is to allow for updating the report comment without changing the classification (classification date).
+     * @return {Boolean}
+     */
+    isReportEditable() {
+        return true; //!this.isAlleleAssessmentReused();  || vm.readOnly
+    }
+
     getClassification() {
         return AlleleStateHelper.getClassification(this.allele, this.alleleState);
     }

@@ -89,6 +89,7 @@ allele-sectionbox {
     .comments { padding-top: 1.3rem; }
     .comments {
       .control-comment ~ .control-comment { margin-top: 1.3rem; }
+      .control-comment.always-editable {border-left: 2px dashed}
     }
   }
 }
