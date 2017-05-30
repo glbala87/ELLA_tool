@@ -2,12 +2,14 @@ from functools import wraps
 import json
 import datetime
 import pytz
+from hashlib import sha256
 from flask import request, Response
-from api import db, ApiError
+from api import app, db, ApiError
 from vardb.datamodel import user
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.scoping import scoped_session
 
+log = app.logger
 
 def query_print_table(sa_query):
     """
@@ -85,6 +87,34 @@ def link_filter(func):
         return func(*args, link_filter=link_filter, **kwargs)
 
     return inner
+
+def log_request(show_payload):
+    if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
+        return
+    if request.method in ['PUT', 'POST', 'DELETE']:
+        if show_payload:
+            log_data = request.get_json()
+        else:
+            log_data = "[PAYLOAD HIDDEN]"
+        log.warning(" {method} - {endpoint} - {json}".format(
+            method=request.method,
+            endpoint=request.url,
+            json=log_data
+        )
+    )
+
+
+def logger(show_payload=False):
+
+    def _logger(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            log_request(show_payload)
+            return func(*args, **kwargs)
+
+        return inner
+
+    return _logger
 
 
 def provide_session(func):

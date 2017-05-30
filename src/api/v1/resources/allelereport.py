@@ -2,11 +2,11 @@ from vardb.datamodel import assessment
 
 from api import schemas
 from api.util.util import paginate, rest_filter, request_json, authenticate
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 from api.util.allelereportcreator import AlleleReportCreator
 
 
-class AlleleReportResource(Resource):
+class AlleleReportResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, ar_id=None, user=None):
@@ -34,7 +34,7 @@ class AlleleReportResource(Resource):
         return result
 
 
-class AlleleReportListResource(Resource):
+class AlleleReportListResource(LogRequestResource):
 
     @authenticate()
     @paginate

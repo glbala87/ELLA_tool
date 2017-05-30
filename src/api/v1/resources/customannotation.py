@@ -5,10 +5,10 @@ from vardb.datamodel import annotation
 from api import schemas
 from api.util.util import rest_filter, request_json, authenticate
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class CustomAnnotationList(Resource):
+class CustomAnnotationList(LogRequestResource):
 
     @authenticate()
     @rest_filter
