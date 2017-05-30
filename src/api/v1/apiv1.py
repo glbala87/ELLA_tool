@@ -193,5 +193,8 @@ class ApiV1(object):
                            '/api/v1/users/currentuser/')
 
         self._add_resource(r.attachment.AttachmentResource,
-                           '/api/v1/attachments/',
+                           '/api/v1/attachments/upload/',
                            '/api/v1/attachments/<int:attachment_id>')
+
+        self._add_resource(r.attachment.AttachmentListResource,
+                           '/api/v1/attachments/')

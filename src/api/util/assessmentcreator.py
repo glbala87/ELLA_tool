@@ -22,7 +22,7 @@ class AssessmentCreator(object):
         return 'reuse' in item and item['reuse']
 
     def create_from_data(self, user_id, annotations, alleleassessments, custom_annotations=list(),
-                         referenceassessments=list()):
+                         referenceassessments=list(), attachments=list()):
         """
         Takes in lists of assessment data and (possible) creates new assessments in database.
 

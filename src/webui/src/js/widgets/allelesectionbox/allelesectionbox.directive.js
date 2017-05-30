@@ -12,6 +12,7 @@ import {ACMGHelper} from '../../model/acmghelper';
         genepanel: '=',
         allele: '=',
         references: '=',
+        attachments: '=',
         alleleState: '=',
         alleleUserState: '=',
         alleleassessmentComment: '=?',  // {name: string, placeholder: string}
@@ -89,15 +90,8 @@ export class AlleleSectionBoxController {
         $scope.uploadFile = (elm) => {
             if (elm.files.length == 0) return;
             let file = elm.files[0];
-            this.attachmentResource.post(file).then((attachment) => {
-                // this.alleleState.alleleassessment.attachments.push({
-                //     "id": attachment.id,
-                //     "mimetype": attachment.mimetype,
-                //     "filename": attachment.filename,
-                // })
-                console.log(attachment)
-                this.alleleState.alleleassessment.attachments.push(attachment);
-                console.log(this.alleleState.attachments)
+            this.attachmentResource.post(file).then((attachment_id) => {
+                this.alleleState.alleleassessment.attachments.push(attachment_id);
             })
         }
 

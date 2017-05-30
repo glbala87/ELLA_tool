@@ -15,33 +15,34 @@ class AttachmentResource {
         return new Promise(resolve => {
             let fd = new FormData()
             fd.append("file", file)
-            let r = this.resource(`${this.base}/attachments/`, {},
+            let r = this.resource(`${this.base}/attachments/upload/`, {},
                 {
                     post: {
                         method: 'POST',
                         transformRequest: angular.identity,
-                        headers: {'Content-Type': undefined}
+                        headers: {'Content-Type': undefined},
+                        isArray: false,
                     }
                 });
             r.post(fd, o => {
-                resolve(o)
+                resolve(o.id)
             });
         })
     }
 
-    getAttachment(id) {
+    getByIds(ids) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/attachments/${id}`, {}, {
-                get: {
-                    isArray: false
-                }
-            });
-            let attachment = r.get(function () {
-                console.log(attachment)
-                resolve(attachment);
+            if (!ids.length) {
+                resolve([]);
+            }
+            let q = JSON.stringify({'id': ids});
+            let r = this.resource(`${this.base}/attachments/?q=${encodeURIComponent(q)}`);
+            let attachments = r.query(() => {
+                resolve(attachments);
             });
         });
     }
+
 }
 
 

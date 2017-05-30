@@ -7,7 +7,7 @@ from flask import request, send_file
 from hashlib import sha256
 from vardb.datamodel import attachment
 from api import schemas
-from api.util.util import request_json, authenticate
+from api.util.util import request_json, authenticate, rest_filter
 
 
 # https://stackoverflow.com/questions/600268
@@ -19,6 +19,19 @@ def mkdir_p(path):
             pass
         else:
             raise
+
+
+class AttachmentListResource(LogRequestResource):
+    @authenticate()
+    @rest_filter
+    def get(self, session, rest_filter=None, user=None):
+        vals = self.list_query(
+            session,
+            attachment.Attachment,
+            schemas.AttachmentSchema(strict=True),
+            rest_filter=rest_filter,
+        )
+        return vals
 
 
 class AttachmentResource(LogRequestResource):
@@ -34,7 +47,7 @@ class AttachmentResource(LogRequestResource):
             attachment.Attachment.sha256 == sha_val
         ).one_or_none()
         if existing is not None:
-            return schemas.AttachmentSchema().dump(existing).data, 200
+            return {"id": existing.id}, 200
 
         folder = os.path.join(config["app"]["attachment_storage"], sha_val[:2])
 
@@ -66,7 +79,7 @@ class AttachmentResource(LogRequestResource):
         session.add(atchmt)
         session.commit()
 
-        return schemas.AttachmentSchema().dump(atchmt).data, 200
+        return {"id": atchmt.id}, 200
 
     @authenticate()
     def get(self, session, attachment_id, user=None):
