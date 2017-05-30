@@ -140,7 +140,7 @@ export class AlleleSectionBoxController {
      * @return {Boolean}
      */
     isReportEditable() {
-        return true; //!this.isAlleleAssessmentReused();  || vm.readOnly
+        return  !this.readOnly
     }
 
     getClassification() {

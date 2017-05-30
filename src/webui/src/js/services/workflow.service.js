@@ -260,9 +260,10 @@ class WorkflowService {
             // Only include assessments/reports for alleles part of the supplied list.
             // This is to avoid submitting assessments for alleles that have been
             // removed from classification during interpretation process.
-            if (alleles.find(a => a.id === allele_state.allele_id)) {
+            let found_allele = alleles.find(a => a.id === allele_state.allele_id);
+            if (found_allele) {
                 alleleassessments.push(this.prepareAlleleAssessmentsForApi(
-                    allele_state.allele_id,
+                    found_allele,
                     allele_state,
                     type === 'analysis' ? id : null,
                     interpretation.genepanel_name,
@@ -275,7 +276,7 @@ class WorkflowService {
                     interpretation.genepanel_version
                 ));
                 allelereports.push(this.prepareAlleleReportForApi(
-                    allele_state.allele_id,
+                    found_allele,
                     allele_state,
                     type === 'analysis' ? id : null
                 ));
@@ -291,9 +292,9 @@ class WorkflowService {
         }
     }
 
-    prepareAlleleAssessmentsForApi(allele_id, allelestate, analysis_id=null, genepanel_name=null, genepanel_version=null) {
+    prepareAlleleAssessmentsForApi(allele, allelestate, analysis_id=null, genepanel_name=null, genepanel_version=null) {
         let assessment_data = {
-            allele_id: allele_id,
+            allele_id: allele.id,
 
         };
         if (analysis_id) {
@@ -353,9 +354,10 @@ class WorkflowService {
         return referenceassessments_data;
     }
 
-    prepareAlleleReportForApi(allele_id, allelestate, analysis_id=null, alleleassessment_id=null) {
+    prepareAlleleReportForApi(allele, allelestate, analysis_id=null, alleleassessment_id=null) {
+
         let report_data = {
-            allele_id: allele_id,
+            allele_id: allele.id,
         };
         if (analysis_id) {
             report_data.analysis_id = analysis_id;
@@ -366,6 +368,7 @@ class WorkflowService {
 
         report_data.presented_allelereport_id = allelestate.presented_allelereport_id;
         // possible reuse:
+        // TODO: set reuse flag based on diff allelestate.allelereport and allele.allelereport
         if (AlleleStateHelper.isAlleleReportReused(allelestate)) {
             report_data.reuse = true;
         } else {

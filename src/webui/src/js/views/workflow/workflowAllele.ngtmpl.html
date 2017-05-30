@@ -49,12 +49,13 @@
 
 </div>
 
-<!-- - ->
+<!-- -->
 <h4>Debug:</h4>
 <br><br>
 <h5>Interpretation state:</h5>
-<p><pre>{{vm.interpretation.state | prettyJSON}}</pre></p>
+<p><b>Dirty? {{vm.selected_interpretation.dirty}} Status: {{vm.selected_interpretation.status}}</b></p>
+<p><pre>{{vm.selected_interpretation.state| prettyJSON}}</pre></p>
 <h5>Interpretation user state:</h5>
-<p><pre>{{vm.interpretation.user_state | prettyJSON}}</pre></p>
+<p><pre>{{vm.selected_interpretation.user_state | prettyJSON}}</pre></p>
 
- <!- - -->
+ <!-- -->
