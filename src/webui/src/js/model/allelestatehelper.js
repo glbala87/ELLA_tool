@@ -230,7 +230,7 @@ export class AlleleStateHelper {
             return allele.allele_report;
         }
         else {
-            if (!('allelereport' in allele_state)) {
+            if (!('allelereport' in allele_state)) { // TODO: remove if checkAlleleStateModel covers this case
                 allele_state.allelereport = {
                     evaluation: {}
                 }

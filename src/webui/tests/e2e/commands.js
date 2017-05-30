@@ -19,7 +19,10 @@ module.exports = function addCommands() {
     });
 
     browser.addCommand('getClass', (selector) => browser.getAttribute(selector, 'class').split(' '));
-
+    browser.addCommand('isCommentEditable', (selector) => {
+        let res = browser.getAttribute(selector, 'contenteditable');
+        return res === 'true';
+    });
     browser.addCommand('waitForAngular', waitForAngular);
 
-}
+};

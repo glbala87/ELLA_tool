@@ -367,11 +367,14 @@ class WorkflowService {
         }
 
         report_data.presented_allelereport_id = allelestate.presented_allelereport_id;
+
         // possible reuse:
-        // TODO: set reuse flag based on diff allelestate.allelereport and allele.allelereport
-        if (AlleleStateHelper.isAlleleReportReused(allelestate)) {
+        if (allelestate.allelereport
+            && allele.allele_report
+            && angular.toJson(allelestate.allelereport.evaluation) == angular.toJson(allele.allele_report.evaluation)) {
             report_data.reuse = true;
         } else {
+            report_data.reuse = false;
             // Fill in fields expected by backend
             Object.assign(report_data, {
                 evaluation: allelestate.allelereport.evaluation
