@@ -1,5 +1,6 @@
 """vardb datamodel Assessment class"""
 import datetime
+import pytz
 
 from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
@@ -28,8 +29,8 @@ class AlleleAssessment(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    date_superceeded = Column(DateTime)
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_superceeded = Column(DateTime(timezone=True))
     previous_assessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
     previous_assessment = relationship("AlleleAssessment", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
@@ -71,8 +72,8 @@ class ReferenceAssessment(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    date_superceeded = Column(DateTime)
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_superceeded = Column(DateTime(timezone=True))
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
@@ -125,8 +126,8 @@ class AlleleReport(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    date_superceeded = Column(DateTime)
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_superceeded = Column(DateTime(timezone=True))
     previous_report_id = Column(Integer, ForeignKey("allelereport.id"))
     previous_report = relationship("AlleleReport", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)

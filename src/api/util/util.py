@@ -1,6 +1,7 @@
 from functools import wraps
 import json
 import datetime
+import pytz
 from flask import request, Response
 from api import db, ApiError
 from vardb.datamodel import user
@@ -226,7 +227,7 @@ def authenticate(user_role=None, user_group=None):
                 return False, None
 
             if userSession.expired is None:
-                userSession.lastactivity = datetime.datetime.now()
+                userSession.lastactivity = datetime.datetime.now(pytz.utc)
                 session.commit()
                 return True, userSession.user
             else:

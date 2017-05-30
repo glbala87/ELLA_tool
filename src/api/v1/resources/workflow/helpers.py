@@ -1,5 +1,6 @@
 import datetime
 import itertools
+import pytz
 from collections import defaultdict
 
 from sqlalchemy import tuple_
@@ -166,7 +167,7 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
         if 'history' not in interpretation.state_history:
             interpretation.state_history['history'] = list()
         interpretation.state_history['history'].insert(0, {
-            'time': datetime.datetime.now().isoformat(),
+            'time': datetime.datetime.now(pytz.utc).isoformat(),
             'state': interpretation.state,
             'user_id': interpretation.user_id
         })
@@ -199,7 +200,7 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
     # Overwrite state fields with new values
     interpretation.state = data['state']
     interpretation.user_state = data['user_state']
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
     return interpretation
 
 
@@ -283,7 +284,7 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     # since it's a foreign key
     interpretation.user = start_user
     interpretation.status = 'Ongoing'
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     if analysis_id is not None:
         analysis = session.query(sample.Analysis).filter(
@@ -334,7 +335,7 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     session.add_all(snapshot_objects)
 
     interpretation.status = 'Done'
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     # Create next interpretation
     interpretation_next = interpretation_model.create_next(interpretation)
@@ -445,7 +446,7 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
     # Update interpretation and return data
     interpretation.status = 'Done'
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     reused_referenceassessments = grouped_alleleassessments['referenceassessments']['reused']
     created_referenceassessments = grouped_alleleassessments['referenceassessments']['created']

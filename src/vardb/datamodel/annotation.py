@@ -1,5 +1,6 @@
 """varDB datamodel Annotation class"""
 import datetime
+import pytz
 from sqlalchemy import Column, Integer, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import ForeignKey
@@ -21,8 +22,8 @@ class Annotation(Base):
                                     ForeignKey("annotation.id"))
     # use remote_side to store foreignkey for previous_annotation in 'this' parent:
     previous_annotation = relationship("Annotation", uselist=False, remote_side=id)
-    date_superceeded = Column("date_superceeded", DateTime)
-    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    date_superceeded = Column("date_superceeded", DateTime(timezone=True))
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
 
     def __repr__(self):
         return "<Annotation('%s', '%s', '%s')>" % (self.annotations,
@@ -44,8 +45,8 @@ class CustomAnnotation(Base):
                                     ForeignKey("customannotation.id"))
     # use remote_side to store foreignkey for previous_annotation in 'this' parent:
     previous_annotation = relationship("CustomAnnotation", uselist=False, remote_side=id)
-    date_superceeded = Column(DateTime)
-    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    date_superceeded = Column(DateTime(timezone=True))
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
 
     def __repr__(self):
         return "<CustomAnnotation('%s')>" % (self.annotations)
