@@ -31,6 +31,8 @@ RUN apt-get update && \
     nano \
     nginx-light \
     htop \
+    imagemagick \
+    ghostscript \
     fontconfig && \
 
     # Additional tools

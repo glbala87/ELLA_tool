@@ -4,7 +4,8 @@ TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
-ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
+ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:
+ATTACHMENT_STORAGE ?= "/ella/attachments/"
 RESET_DB_SET ?= 'small'
 
 # e2e test:
@@ -106,6 +107,7 @@ dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \
 	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
+	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	-p $(API_PORT):5000 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
