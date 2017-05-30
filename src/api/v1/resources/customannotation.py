@@ -1,5 +1,5 @@
 import datetime
-
+import pytz
 from vardb.datamodel import annotation
 
 from api import schemas
@@ -101,7 +101,7 @@ class CustomAnnotationList(LogRequestResource):
         if existing_ca:
             # Replace current
             ca_data['previous_annotation_id'] = existing_ca.id
-            existing_ca.date_superceeded = datetime.datetime.now()
+            existing_ca.date_superceeded = datetime.datetime.now(pytz.utc)
 
         ca = annotation.CustomAnnotation(**ca_data)
         session.add(ca)

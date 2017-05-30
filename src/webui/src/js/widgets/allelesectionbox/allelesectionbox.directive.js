@@ -188,10 +188,10 @@ export class AlleleSectionBoxController {
     }
 
     getCardColor() {
-        if (this.isAlleleAssessmentReused()) {
-                return 'yellow';
+        if (AlleleStateHelper.isAlleleAssessmentReused(this.alleleState)) {
+                return 'green';
         }
-        return 'blue';
+        return 'purple';
     }
 
     hasExistingAlleleAssessment() {

@@ -1,6 +1,7 @@
 from functools import wraps
 import json
 import datetime
+import pytz
 from hashlib import sha256
 from flask import request, Response
 from api import app, db, ApiError
@@ -182,6 +183,7 @@ def request_json(required, only_required=False, allowed=None):
                              "content": {"mode": "weak", "allele_id": 34, "annotation": 44, "archived": true}}
 
     """
+
     # used by request_json to mutate an array of dicts
     def _check_array_content(source_array, required_fields, only_required=False, allowed_fields=None):
         for idx, d in enumerate(source_array):
@@ -255,7 +257,7 @@ def authenticate(user_role=None, user_group=None):
                 return False, None
 
             if userSession.expired is None:
-                userSession.lastactivity = datetime.datetime.now()
+                userSession.lastactivity = datetime.datetime.now(pytz.utc)
                 session.commit()
                 return True, userSession.user
             else:

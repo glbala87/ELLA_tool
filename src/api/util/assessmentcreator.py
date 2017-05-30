@@ -1,4 +1,5 @@
 import datetime
+import pytz
 from vardb.datamodel import assessment, sample
 
 
@@ -164,7 +165,7 @@ class AssessmentCreator(object):
                 # Check if there's an existing assessment for this allele. If so, we want to supercede it
                 to_supercede = next((e for e in all_existing_assessments if e.allele_id == assessment_data['allele_id']), None)
                 if to_supercede:
-                    to_supercede.date_superceeded = datetime.datetime.now()
+                    to_supercede.date_superceeded = datetime.datetime.now(pytz.utc)
                     assessment_obj.previous_assessment_id = to_supercede.id
 
                 presented_assessment = self.find_assessment_presented(assessment_data, all_existing_assessments, error_if_not_found=False)
@@ -235,7 +236,7 @@ class AssessmentCreator(object):
                 # Check if there's an existing assessment for this allele/reference. If so, we want to supercede it
                 to_supercede = next((e for e in existing if ra['allele_id'] == e.allele_id and ra['reference_id'] == e.reference_id), None)
                 if to_supercede:
-                    to_supercede.date_superceeded = datetime.datetime.now()
+                    to_supercede.date_superceeded = datetime.datetime.now(pytz.utc)
                     assessment_obj.previous_assessment_id = to_supercede.id
                 created.append(assessment_obj)
 

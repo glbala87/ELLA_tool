@@ -101,6 +101,7 @@ build:
 
 dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
 dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
+#dev: export OFFLINE_MODE="false"
 dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \

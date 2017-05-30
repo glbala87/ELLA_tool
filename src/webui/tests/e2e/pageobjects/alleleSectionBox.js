@@ -15,7 +15,7 @@ const SELECTOR_COMMENT_REPORT = 'allele-sectionbox .id-comment-report';
 const SELECTOR_COMMENT_REPORT_EDITOR = `${SELECTOR_COMMENT_REPORT} .wysiwygeditor`;
 
 const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification';
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 
 
 class AlleleSectionBox  {

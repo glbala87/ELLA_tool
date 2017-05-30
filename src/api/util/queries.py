@@ -1,5 +1,6 @@
 import datetime
 from collections import defaultdict
+import pytz
 from sqlalchemy import or_, and_, tuple_, func, cast, text, column, Numeric, String, table
 from sqlalchemy.dialects.postgresql import JSONB
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
@@ -22,7 +23,7 @@ def valid_alleleassessments_filter(session):
     for option in config['classification']['options']:
         internal_filters = [assessment.AlleleAssessment.classification == option['value']]
         if 'outdated_after_days' in option:
-            outdated_time = datetime.datetime.now() - datetime.timedelta(days=option['outdated_after_days'])
+            outdated_time = datetime.datetime.now(pytz.utc) - datetime.timedelta(days=option['outdated_after_days'])
             internal_filters.append(assessment.AlleleAssessment.date_created > outdated_time)
         # Add our filter using and_
         classification_filters.append(and_(*internal_filters))
