@@ -44,6 +44,7 @@ import {ACMGHelper} from '../../model/acmghelper';
     'ACMGClassificationResource',
     'IgvModal',
     'Analysis',
+    'AttachmentResource',
     'clipboard',
     'toastr',
     '$scope'
@@ -58,6 +59,7 @@ export class AlleleSectionBoxController {
                 ACMGClassificationResource,
                 IgvModal,
                 Analysis,
+                AttachmentResource,
                 clipboard,
                 toastr,
                 $scope) {
@@ -67,6 +69,7 @@ export class AlleleSectionBoxController {
         this.acmgClassificationResource = ACMGClassificationResource;
         this.igvModal = IgvModal;
         this.analysisService = Analysis;
+        this.attachmentResource = AttachmentResource;
         this.clipboard = clipboard;
         this.toastr = toastr;
 
@@ -82,6 +85,22 @@ export class AlleleSectionBoxController {
                 }
             }
         );
+
+        $scope.uploadFile = (elm) => {
+            if (elm.files.length == 0) return;
+            let file = elm.files[0];
+            this.attachmentResource.post(file).then((attachment) => {
+                // this.alleleState.alleleassessment.attachments.push({
+                //     "id": attachment.id,
+                //     "mimetype": attachment.mimetype,
+                //     "filename": attachment.filename,
+                // })
+                console.log(attachment)
+                this.alleleState.alleleassessment.attachments.push(attachment);
+                console.log(this.alleleState.attachments)
+            })
+        }
+
 
         this.pathogenicPopoverToggle = {
           buttons: [ 'Pathogenic', 'Benign' ],
@@ -400,6 +419,5 @@ export class AlleleSectionBoxController {
     includeACMG(code) {
         ACMGHelper.includeACMG(code, this.allele, this.alleleState);
     }
-
 
 }

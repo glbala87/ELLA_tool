@@ -6,9 +6,19 @@
 
   <controls>
 
+
     <!-- Controls -->
     <section class="line-wrapper" ng-if=vm.controls.length>
       <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
+          <label for="file-input" class="input-label" ng-if="control == 'upload'">
+            <div class="bttn">Upload file</div>
+            <input
+                    type="file"
+                    id="file-input"
+                    hidden="true"
+                    onchange="angular.element(this).scope().uploadFile(this)"
+            >
+          </label>
 
           <button class="id-collapse-all"
                   ng-if="control == 'collapse_all'"

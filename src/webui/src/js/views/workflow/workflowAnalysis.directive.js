@@ -80,6 +80,7 @@ export class AnalysisController {
                             show_included_acmg_codes: true
                         },
                         controls: [
+                            'upload',
                             'collapse_all',
                             'add_acmg',
                             'classification',,
@@ -94,7 +95,8 @@ export class AnalysisController {
                         },
                         content: [
                             {'tag': 'allele-info-acmg-selection'},
-                            {'tag': 'allele-info-vardb'}
+                            {'tag': 'allele-info-vardb'},
+                            {'tag': 'allele-info-attachments'}
                         ],
                     },
                     {

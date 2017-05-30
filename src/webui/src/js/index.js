@@ -31,6 +31,7 @@ import './services/resources/finalizationResource.service';
 import './services/resources/overviewResource.service';
 import './services/resources/workflowResource.service';
 import './services/resources/loginResource.service';
+import './services/resources/attachmentResource.service';
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
@@ -70,6 +71,7 @@ import './widgets/alleleinfo/alleleInfoHgmd.directive';
 import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
+import './widgets/alleleinfo/alleleInfoAttachments.directive';
 
 import './widgets/analysisList.directive';
 import './widgets/alleleAssessment.directive';
