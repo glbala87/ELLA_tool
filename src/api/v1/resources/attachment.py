@@ -69,7 +69,7 @@ class AttachmentResource(LogRequestResource):
         return schemas.AttachmentSchema().dump(atchmt).data, 200
 
     @authenticate()
-    def get(self, session, attachment_id):
+    def get(self, session, attachment_id, user=None):
         atchmt = session.query(attachment.Attachment).filter(
             attachment.Attachment.id == attachment_id
         ).one()
