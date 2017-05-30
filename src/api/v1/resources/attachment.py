@@ -1,7 +1,7 @@
 import os
 import errno
 import subprocess
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 from api.config import config
 from flask import request, send_file
 from hashlib import sha256
@@ -21,7 +21,7 @@ def mkdir_p(path):
             raise
 
 
-class AttachmentResource(Resource):
+class AttachmentResource(LogRequestResource):
     @authenticate()
     def post(self, session, user=None):
         file_obj = request.files["file"]
@@ -76,14 +76,3 @@ class AttachmentResource(Resource):
         atchmt_schema = schemas.AttachmentSchema(strict=True)
 
         return send_file(atchmt_schema.get_path(atchmt), as_attachment=True, attachment_filename=atchmt.filename)
-
-
-
-class AlleleAssessmentAttachmentResource(Resource):
-    @authenticate()
-    @request_json(["attachment_id", "alleleassessment_id"])
-    def post(self, session, data, user=None):
-        obj = attachment.AlleleAssessment(**data)
-        session.add(obj)
-        session.commit()
-        return None, 200
