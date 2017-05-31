@@ -37,6 +37,12 @@ USERGROUPS = '../testdata/usergroups.json'
 
 GENEPANELS = [
     {
+        'transcripts': '../testdata/clinicalGenePanels/OMIM_v01/OMIM_v01.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/OMIM_v01/OMIM_v01.phenotypes.csv',
+        'name': 'OMIM',
+        'version': 'v01'
+    },
+    {
         'transcripts': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv',
         'name': 'HBOCUTV',
