@@ -15,6 +15,8 @@ class ApiV1(object):
         Loads our marshmallow schemas into docs.
         """
         self.api_v1_docs.add_schema('Analysis', schemas.AnalysisFullSchema())
+        self.api_v1_docs.add_schema('AnalysisInterpretation', schemas.AnalysisInterpretationSchema())
+        self.api_v1_docs.add_schema('AlleleInterpretation', schemas.AlleleInterpretationSchema())
         self.api_v1_docs.add_schema('Interpretation', schemas.AnalysisInterpretationSchema())
         self.api_v1_docs.add_schema('Allele', schemas.AlleleSchema())
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
@@ -147,22 +149,23 @@ class ApiV1(object):
         # ---------------------------------------------------------------------------------------------------------
         # Annotation
         # ---------------------------------------------------------------------------------------------------------
+        self._add_resource(r.importallele.ImportAlleleList,
+                           '/api/v1/import/alleles/')
+
+        self._add_resource(r.annotationjob.AnnotationJobList,
+                           '/api/v1/import/jobs/')
 
         self._add_resource(r.annotationjob.AnnotationJob,
-                           '/api/v1/annotationjobs/',
-                           '/api/v1/annotationjobs/<int:id>')
+                           '/api/v1/import/jobs/<int:id>/')
 
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
-                           '/api/v1/annotationservice/running/')
+                           '/api/v1/import/service/running/')
 
-<<<<<<< 0174a84c9b1f0eefc6ac990932399c47a5a38ff2
         # ---------------------------------------------------------------------------------------------------------
         # Workflow variant
         # ---------------------------------------------------------------------------------------------------------
-=======
         self._add_resource(r.workflow.allele.AlleleGenepanelResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/genepanels/<gp_name>/<gp_version>/')
->>>>>>> [api] Make genepanels load faster by making transcripts/phenotypes optional + specific resource
 
         self._add_resource(r.workflow.allele.AlleleGenepanelsListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/genepanels/')
