@@ -3,7 +3,7 @@ import itertools
 import pytz
 from collections import defaultdict
 
-from sqlalchemy import tuple_
+from sqlalchemy import tuple_, or_
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
@@ -484,8 +484,10 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     # Get all analysis workflows that are either Ongoing, or waiting for review
     # i.e having not only 'Not started' interpretations or not only 'Done' interpretations.
     workflow_analysis_ids = session.query(sample.Analysis.id).filter(
-        ~sample.Analysis.id.in_(queries.workflow_analyses_finalized(session)),
-        ~sample.Analysis.id.in_(queries.workflow_analyses_not_started(session)),
+        or_(
+            sample.Analysis.id.in_(queries.workflow_analyses_marked_review(session)),
+            sample.Analysis.id.in_(queries.workflow_analyses_ongoing(session)),
+        )
     )
 
     # Exclude "ourself" if applicable
@@ -507,8 +509,9 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         workflow.AnalysisInterpretation
     ).filter(
         sample.Analysis.id.in_(workflow_analysis_ids),
-        allele.Allele.id.in_(allele_ids)
-    )
+        allele.Allele.id.in_(allele_ids),
+        workflow.AnalysisInterpretation.status != 'Done'
+    ).distinct()
 
     # Get all allele ids connected to allele workflows that are ongoing
     wf_allele_gp_allele_ids = session.query(
@@ -517,10 +520,13 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         workflow.AlleleInterpretation.user_id,
         workflow.AlleleInterpretation.allele_id,
     ).filter(
-        ~workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_finalized(session)),
-        ~workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_not_started(session)),
+        or_(
+            workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_marked_review(session)),
+            workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_ongoing(session))
+        ),
+        workflow.AlleleInterpretation.status != 'Done',
         workflow.AlleleInterpretation.allele_id.in_(allele_ids)
-    )
+    ).distinct()
 
     # Exclude "ourself" if applicable
     if allele_id is not None:
@@ -586,7 +592,8 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             dumped_allele = next((a for a in gp_dumped_alleles[gp_key] if a['id'] == al_id), None)
             if not dumped_allele:  # Allele might have been filtered out..
                 continue
-            dumped_user = next(u for u in dumped_users if u['id'] == user_id)
+            # If an workflow is in review, it will have no user assigned...
+            dumped_user = next((u for u in dumped_users if u['id'] == user_id), None)
             collisions.append({
                 'type': wf_type,
                 'user': dumped_user,
