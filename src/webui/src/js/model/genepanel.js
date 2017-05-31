@@ -98,14 +98,14 @@ export default class Genepanel {
 
     }
     /**
-     * Returns the OMIM entry ID for the gene as found in the phenotypes file,
+     * Returns the OMIM entry ID for the gene as found in the transcripts file,
      * @param  {String} geneSymbol Gene symbol
      * @return {String}            Entry ID like 113705
      */
     getOmimEntryId(geneSymbol) {
-        let phenotypes = this.phenotypesBy(geneSymbol);
-        // all phenotypes have the same gene and thus omim entry
-        return phenotypes ? phenotypes[0].gene.omim_entry_id : '';
+        let transcripts = this.transcriptsBy(geneSymbol);
+        // all have the same gene and thus omim entry
+        return transcripts ? transcripts[0].gene.omim_entry_id : '';
 
     }
 
@@ -120,6 +120,9 @@ export default class Genepanel {
         } else {
             return null;
         }
+    }
+    transcriptsBy(geneSymbol) {
+            return this.transcripts.filter(t => t.gene.hugo_symbol == geneSymbol);
     }
 }
 

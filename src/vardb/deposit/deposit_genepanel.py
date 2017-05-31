@@ -126,7 +126,8 @@ class DepositGenepanel(object):
                 db_gene, created = gm.Gene.get_or_create(
                     self.session,
                     hugo_symbol=transcript['geneSymbol'],
-                    ensembl_gene_id=transcript['eGeneID']
+                    ensembl_gene_id=transcript['eGeneID'],
+                    omim_entry_id=transcript['omim gene entry'] if 'omim gene entry' in transcript else None
                 )
 
                 genes[db_gene.hugo_symbol] = db_gene
@@ -167,8 +168,6 @@ class DepositGenepanel(object):
                                                             genepanelVersion,
                                                             genes[ph['gene symbol']],
                                                             ph)
-                if 'omim gene entry' in ph:
-                    genes[ph['gene symbol']].omim_entry_id = ph['omim gene entry']
 
                 log.info("{} phenotype '{}'".format("Created" if created else "Loaded", ph['phenotype']))
 
