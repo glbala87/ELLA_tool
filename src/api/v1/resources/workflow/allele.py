@@ -11,6 +11,16 @@ from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
 from . import helpers
 
 
+class AlleleGenepanelResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, allele_id, gp_name, gp_version, user=None):
+        """
+        Returns genepanel for allele, only including relevant transcripts and phenotypes.
+        """
+        return helpers.load_genepanel_for_allele_ids(session, [allele_id], gp_name, gp_version)
+
+
 class AlleleInterpretationResource(LogRequestResource):
 
     @authenticate()

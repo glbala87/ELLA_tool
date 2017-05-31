@@ -155,9 +155,14 @@ class ApiV1(object):
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
                            '/api/v1/annotationservice/running/')
 
+<<<<<<< 0174a84c9b1f0eefc6ac990932399c47a5a38ff2
         # ---------------------------------------------------------------------------------------------------------
         # Workflow variant
         # ---------------------------------------------------------------------------------------------------------
+=======
+        self._add_resource(r.workflow.allele.AlleleGenepanelResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/genepanels/<gp_name>/<gp_version>/')
+>>>>>>> [api] Make genepanels load faster by making transcripts/phenotypes optional + specific resource
 
         self._add_resource(r.workflow.allele.AlleleGenepanelsListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/genepanels/')
@@ -197,6 +202,9 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
+
+        self._add_resource(r.workflow.analysis.AnalysisGenepanelResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/genepanels/<gp_name>/<gp_version>/')
 
         self._add_resource(r.workflow.analysis.AnalysisInterpretationResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/')

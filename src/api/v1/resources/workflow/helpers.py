@@ -4,6 +4,7 @@ import pytz
 from collections import defaultdict
 
 from sqlalchemy import tuple_, or_
+from sqlalchemy.orm import joinedload
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
@@ -154,6 +155,41 @@ def get_alleles(session, allele_ids, genepanels, alleleinterpretation_id=None, a
         alleles,
         **kwargs
     )
+
+
+def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
+    """
+    Loads genepanel data using input allele_ids as filter
+    for what transcripts and phenotypes to include.
+    """
+    genepanel = session.query(gene.Genepanel).filter(
+        gene.Genepanel.name == gp_name,
+        gene.Genepanel.version == gp_version
+    ).one()
+
+    alleles_filtered_genepanel = queries.alleles_transcript_filtered_genepanel(
+        session,
+        allele_ids,
+        [(gp_name, gp_version)]
+    ).subquery()
+
+    transcripts = session.query(gene.Transcript).options(joinedload(gene.Transcript.gene)).join(
+        gene.Genepanel.transcripts
+    ).filter(
+        gene.Transcript.refseq_name == alleles_filtered_genepanel.c.genepanel_transcript
+    ).all()
+
+    phenotypes = session.query(gene.Phenotype).filter(
+        gene.Transcript.refseq_name == alleles_filtered_genepanel.c.genepanel_transcript,
+        gene.Phenotype.gene_id == gene.Transcript.gene_id,
+        gene.Phenotype.genepanel_name == gp_name,
+        gene.Phenotype.genepanel_version == gp_version
+    ).all()
+
+    genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
+    genepanel_data['transcripts'] = schemas.TranscriptSchema().dump(transcripts, many=True).data
+    genepanel_data['phenotypes'] = schemas.PhenotypeSchema().dump(phenotypes, many=True).data
+    return genepanel_data
 
 
 def update_interpretation(session, user_id, data, alleleinterpretation_id=None, analysisinterpretation_id=None):

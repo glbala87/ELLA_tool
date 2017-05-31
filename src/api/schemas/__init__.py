@@ -10,7 +10,7 @@ from alleleassessments import AlleleAssessmentInputSchema
 from allelereports import AlleleReportSchema
 from users import UserSchema, UserFullSchema
 from classifications import ClassificationSchema, RuleSchema
-from genepanels import GenepanelFullSchema, GenepanelSchema
+from genepanels import GenepanelSchema, GenepanelFullSchema, TranscriptSchema, PhenotypeSchema
 from annotations import AnnotationSchema
 from customannotations import CustomAnnotationSchema
 from genotypes import GenotypeSchema

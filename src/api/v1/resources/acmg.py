@@ -195,10 +195,10 @@ class ACMGAlleleResource(LogRequestResource):
                 raise ApiError("You need to provide both 'gp_name' and 'gp_version' when 'allele_ids' is given")
 
         return ACMGDataLoader(session).from_objs(
-            alleles,
-            data.get('referenceassessments'),
-            genepanel
-        )
+                alleles,
+                data.get('referenceassessments'),
+                genepanel
+            )
 
 
 class ACMGClassificationResource(LogRequestResource):

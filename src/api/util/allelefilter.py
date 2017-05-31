@@ -405,6 +405,7 @@ class AlleleFilter(object):
 
             genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
             gp_config_resolver = GenepanelConfigResolver(
+                self.session,
                 genepanel=genepanel,
                 genepanel_default=self.global_config['variant_criteria']['genepanel_config']
             )

@@ -47,33 +47,6 @@ class TranscriptAnnotation(object):
 
             return worst_consequences
 
-    @staticmethod
-    def get_genepanel_transcripts(transcript_names, genepanel):
-        """
-        Searches input transcripts for matching RefSeq transcript names in the genepanel,
-        and returns the list of matches. If no matches are done, returns all RefSeq
-        transcripts.
-
-        *The transcript version is stripped off during matching.*
-
-        :param transcript_names: List of transcript names (without version) to search for
-        :param genepanel:
-        :type genepanel: vardb.datamodel.gene.Genepanel
-        :return: list of matching transcript names
-        """
-
-        gp_transcripts = list()
-        for transcript in genepanel.transcripts:
-            gp_transcripts.append(transcript.refseq_name)
-
-        transcript_names_in_genepanel = [t.split('.', 1)[0] for t in gp_transcripts if t.startswith('NM_')]
-
-        filtered_transcript_names = list()
-        for transcript_name in transcript_names:
-            if transcript_name.split('.', 1)[0] in transcript_names_in_genepanel:
-                filtered_transcript_names.append(transcript_name)
-        return filtered_transcript_names
-
     def process(self, annotation, genepanel=None):
         """
         :param annotation

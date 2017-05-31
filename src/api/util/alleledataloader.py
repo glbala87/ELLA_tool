@@ -3,6 +3,8 @@ from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
 from sqlalchemy import or_
 
+from api.util.util import query_print_table
+from api.util import queries
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
 from api.util.annotationprocessor import AnnotationProcessor
 
@@ -151,6 +153,14 @@ class AlleleDataLoader(object):
         self.dump(accumulated_allele_data, allele_ids, allele_reports, AlleleReportSchema(), KEY_ALLELE_REPORT)
 
         # Create final data
+
+        # Get annotation transcripts filtered on genepanel
+        alleles_filtered_genepanel = queries.alleles_transcript_filtered_genepanel(
+            self.session,
+            allele_ids,
+            [(genepanel.name, genepanel.version)]
+        ).all()
+
         final_alleles = list()
         for allele_id, data in accumulated_allele_data.iteritems():
             final_allele = data[KEY_ALLELE]
@@ -159,13 +169,16 @@ class AlleleDataLoader(object):
                     final_allele[key] = data[key]
 
             if KEY_ANNOTATION in data:
+
                 # Convert annotation using annotationprocessor
                 processed_annotation = AnnotationProcessor.process(
                     data[KEY_ANNOTATION][KEY_ANNOTATIONS],
                     custom_annotation=data.get(KEY_CUSTOM_ANNOTATION, {}).get(KEY_ANNOTATIONS),
                     genepanel=genepanel
                 )
+
                 final_allele[KEY_ANNOTATION] = processed_annotation
+                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = [a[4] for a in alleles_filtered_genepanel if a[0] == allele_id]
                 final_allele[KEY_ANNOTATION]['annotation_id'] = data[KEY_ANNOTATION]['id']
 
                 if KEY_CUSTOM_ANNOTATION in data:

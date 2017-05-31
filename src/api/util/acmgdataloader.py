@@ -77,7 +77,7 @@ class ACMGDataLoader(object):
         :returns: dict with converted data using schema data.
         """
 
-        resolver = GenepanelConfigResolver(genepanel)
+        resolver = GenepanelConfigResolver(self.session, genepanel)
 
         allele_ids = [a['id'] for a in alleles]
         allele_classifications = dict()
@@ -101,6 +101,7 @@ class ACMGDataLoader(object):
             if a['id'] in ra_per_allele:
                 annotation_data["refassessment"] = {str('_'.join([str(r['allele_id']), str(r['reference_id'])])): r['evaluation'] for r in ra_per_allele[a['id']]}
 
+            # FIXME: This should probably be made better
             transcript = ACMGDataLoader._find_single_transcript(annotation_data)
             annotation_data['transcript'] = transcript
             if transcript:
