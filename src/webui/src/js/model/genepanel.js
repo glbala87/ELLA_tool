@@ -112,15 +112,16 @@ export default class Genepanel {
 
     _filterCollectionByGene(collection, geneSymbol) {
         if (collection) {
-            return collection.filter(entry => entry.gene.hugo_symbol == geneSymbol);
+            return collection.filter(entry => entry.gene.hgnc_symbol == geneSymbol);
         } else {
             return null;
         }
-
     }
+
     phenotypesBy(geneSymbol) {
         return this._filterCollectionByGene(this.phenotypes, geneSymbol)
     }
+
     transcriptsBy(geneSymbol) {
         return this._filterCollectionByGene(this.transcripts, geneSymbol)
     }

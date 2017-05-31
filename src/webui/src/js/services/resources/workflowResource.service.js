@@ -3,6 +3,7 @@
 import {Service, Inject} from '../../ng-decorators';
 import {Interpretation} from '../../model/interpretation';
 import {Allele} from '../../model/allele';
+import Genepanel from '../../model/genepanel';
 
 /**
  * - retrieve analyses
@@ -180,6 +181,15 @@ class WorkflowResource {
         });
     }
 
+
+    getGenepanel(type, id, gp_name, gp_version) {
+        return new Promise((resolve, reject) => {
+            var GenepanelRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/genepanels/${gp_name}/${gp_version}/`);
+            var data = GenepanelRS.get(() => {
+                resolve(new Genepanel(data));
+            }, reject);
+        });
+    }
 
     /**
      * Returns information about alleles that are currently being interpreted in

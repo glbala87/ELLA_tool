@@ -277,7 +277,80 @@ export class WorkflowAlleleController {
         }
         let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
         let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
+<<<<<<< e1d76f16e9eef5461c66204478e1b6e500ea9537
         return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
+=======
+        return `${interpretation_idx} • ${interpretation.user.first_name} ${interpretation.user.last_name} • ${interpretation_date}`;
+    }
+
+    /**
+     * Loads interpretations from backend and sets:
+     * - selected_interpretation
+     * - history_interpretations
+     * - interpretations
+     */
+    reloadInterpretationData() {
+        return this.workflowResource.getInterpretations('allele', this.allele_id).then(interpretations => {
+            this.interpretations = interpretations;
+            let done_interpretations = this.interpretations.filter(i => i.status === 'Done');
+            let last_interpretation = this.interpretations[this.interpretations.length-1];
+            // If an interpretation is Ongoing, we assign it directly
+            if (last_interpretation && last_interpretation.status === 'Ongoing') {
+                this.selected_interpretation = last_interpretation;
+                this.history_interpretations = done_interpretations;
+            }
+            // Otherwise, make a copy of the last historical one to act as "current" entry.
+            // Current means get latest allele data (instead of historical)
+            // We make a copy, to prevent the state of the original to be modified
+            else if (done_interpretations.length) {
+                let current_entry_copy = deepCopy(done_interpretations[done_interpretations.length-1]);
+                current_entry_copy.current = true;
+                this.selected_interpretation = current_entry_copy;
+                this.history_interpretations = done_interpretations.concat([current_entry_copy]);
+            }
+            // If we have no history, set selected to null
+            else {
+                this.selected_interpretation = null;
+                this.history_interpretations = [];
+            }
+            this.interpretations_loaded = true;
+            console.log('(Re)Loaded ' + interpretations.length + ' interpretations');
+            console.log('Setting selected interpretation:', this.selected_interpretation);
+
+        });
+    }
+
+    loadAllele() {
+        this.alleles_loaded = false;
+        if (this.allele_id && this.selected_interpretation) {
+            return this.workflowService.loadAlleles(
+                'allele',
+                this.allele_id,
+                this.selected_interpretation,
+                this.selected_interpretation.current // Whether to show current allele data or historical data
+            ).then(
+                alleles => {
+                    this.selected_interpretation_alleles = alleles;
+                    this.alleles_loaded = true;
+                    console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
+                },
+                () => { this.selected_interpretation_alleles = []; } // On error
+
+            );
+        }
+    }
+
+    loadGenepanel() {
+        let gp_name = this.genepanelName;
+        let gp_version = this.genepanelVersion;
+        if (this.selected_interpretation) {
+            gp_name = this.selected_interpretation.genepanel_name;
+            gp_version = this.selected_interpretation.genepanel_version;
+        }
+        return this.workflowResource.getGenepanel('allele', this.allele_id, gp_name, gp_version).then(
+            gp => this.selected_interpretation_genepanel = gp
+        );
+>>>>>>> [webui] Sync up webui with genepanel performance changes
     }
 
     _getQueryFromSelector() {
