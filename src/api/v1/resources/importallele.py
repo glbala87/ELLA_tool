@@ -13,6 +13,7 @@ class ImportAlleleList(Resource):
         Imports alleles into the database and creates AlleleInterpretation objects
         if not existing, adding them to the list of alleles that needs interpretation.
 
+        Can also be used for updating the annotation for an allele.
         ---
         summary: Import alleles
         tags:
@@ -271,6 +272,8 @@ class ImportAlleleList(Resource):
             description: Error
         """
 
+        imported_allele_ids = list()
+
         for item in data:
 
             # Create or update allele + annotation
@@ -293,6 +296,8 @@ class ImportAlleleList(Resource):
             ali = importers.AlleleInterpretationImporter(session)
             ali.process(genepanel, allele.id)
 
+            imported_allele_ids.append(allele.id)
+
         session.commit()
 
-        return None
+        return {'allele_ids': imported_allele_ids}
