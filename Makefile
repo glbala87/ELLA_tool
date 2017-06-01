@@ -4,8 +4,8 @@ TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
-ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:
-ATTACHMENT_STORAGE ?= "/ella/attachments/"
+ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
+ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
 
 # e2e test:
