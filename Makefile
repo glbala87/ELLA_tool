@@ -199,6 +199,7 @@ test-api: export PGDATABASE=vardb-test
 test-api: export DB_URL=postgres:///vardb-test
 test-api: export PYTHONPATH=/ella/src
 test-api: export ANNOTATION_SERVICE_URL=http://localhost:6000
+test-api: export ATTACHMENT_STORAGE=/ella/attachments
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
@@ -215,6 +216,7 @@ test-api-migration: export PGDATABASE=vardb-test
 test-api-migration: export DB_URL=postgres:///vardb-test
 test-api-migration: export PYTHONPATH=/ella/src
 test-api-migration: export ANNOTATION_SERVICE_URL=http://localhost:6000
+test-api-migration: export ATTACHMENT_STORAGE=/ella/attachments
 test-api-migration:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
@@ -233,6 +235,7 @@ endif
 test-common: export PGDATABASE=vardb-test
 test-common: export DB_URL=postgres:///vardb-test
 test-common: export PYTHONPATH=/ella/src
+test-common: export ATTACHMENT_STORAGE=/ella/attachments
 test-common:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
