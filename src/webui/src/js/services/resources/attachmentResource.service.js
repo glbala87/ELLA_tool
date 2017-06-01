@@ -38,7 +38,11 @@ class AttachmentResource {
             let q = JSON.stringify({'id': ids});
             let r = this.resource(`${this.base}/attachments/?q=${encodeURIComponent(q)}`);
             let attachments = r.query(() => {
-                resolve(attachments);
+                let attchmts = [];
+                for (let o of attachments) {
+                    attchmts.push(o);
+                }
+                resolve(attchmts);
             });
         });
     }

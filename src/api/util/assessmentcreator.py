@@ -1,6 +1,6 @@
 import datetime
 import pytz
-from vardb.datamodel import assessment, sample
+from vardb.datamodel import assessment, sample, attachment
 
 
 from api.schemas import AlleleAssessmentSchema, ReferenceAssessmentSchema
@@ -69,6 +69,8 @@ class AssessmentCreator(object):
         ra_created, ra_reused = self._create_or_reuse_referenceassessments(user_id, all_reference_assessments)
 
         self._attach_referenceassessments(ra_created + ra_reused, aa_created)
+
+        self._attach_attachments(attachments, aa_created)
 
         return {
             'referenceassessments': {
@@ -242,4 +244,15 @@ class AssessmentCreator(object):
 
         return created, reused
 
+    def _attach_attachments(self, attachments, created_alleleassessments):
+        all_attachment_ids = sum([atchmt["attachments"] for atchmt in attachments], [])
+        attachment_objs = self.session.query(attachment.Attachment).filter(
+            attachment.Attachment.id.in_(all_attachment_ids)
+        ).all()
+
+        assert len(all_attachment_ids) == len(attachment_objs), "Not all attachments were found in the database"
+
+        for aa in created_alleleassessments:
+            attachment_ids = next(atchmt["attachments"] for atchmt in attachments)
+            aa.attachments = [at for at in attachment_objs if at.id in attachment_ids]
 

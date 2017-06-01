@@ -398,13 +398,14 @@ export class InterpretationController {
      */
     loadAttachments(attachment_ids) {
         let attachments = {};
-        this.attachmentResource.getByIds(attachment_ids).then((attachments) => {
-            for (let atchmt of attachments) {
+        this.attachmentResource.getByIds(attachment_ids).then((a) => {
+            for (let atchmt of a) {
                 attachments[atchmt.id] = atchmt;
             }
             this.attachments = attachments;
         })
     }
+
 
     /**
      * Returns allelestate object for the provided allele.
