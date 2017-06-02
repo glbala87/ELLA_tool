@@ -14,7 +14,7 @@ class ApiV1(object):
         """
         Loads our marshmallow schemas into docs.
         """
-        self.api_v1_docs.add_schema('Analysis', schemas.AnalysisSchema())
+        self.api_v1_docs.add_schema('Analysis', schemas.AnalysisFullSchema())
         self.api_v1_docs.add_schema('Interpretation', schemas.AnalysisInterpretationSchema())
         self.api_v1_docs.add_schema('Allele', schemas.AlleleSchema())
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
@@ -98,6 +98,9 @@ class ApiV1(object):
 
         self._add_resource(r.overview.OverviewAnalysisResource,
                            '/api/v1/overviews/analyses/')
+
+        self._add_resource(r.overview.OverviewDashboardResource,
+                           '/api/v1/overviews/dashboard/')
 
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')

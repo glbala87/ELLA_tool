@@ -3,7 +3,7 @@ import datetime
 import pytz
 from collections import defaultdict
 from sqlalchemy import func, tuple_, or_, and_
-from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
+from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, user as model_user
 
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
@@ -398,3 +398,82 @@ class OverviewAnalysisResource(LogRequestResource):
     def get(self, session, user=None):
 
         return self.get_categorized_analyses(session)
+
+
+class OverviewDashboardResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, user=None):
+        """
+        Provides dashboard data for authenticated user.
+        """
+
+        # Get latest workflows where the user has been involved
+        sq_wf_allele_user = session.query(workflow.AlleleInterpretation.allele_id).filter(
+            workflow.AlleleInterpretation.user == user
+        ).subquery()
+
+        wf_allele_user = session.query(workflow.AlleleInterpretation).filter(
+            workflow.AlleleInterpretation.allele_id.in_(sq_wf_allele_user),
+            workflow.AlleleInterpretation.status != 'Not started'
+        ).order_by(workflow.AlleleInterpretation.date_last_update).limit(20).all()
+
+        sq_wf_analysis_user = session.query(workflow.AnalysisInterpretation.analysis_id).filter(
+            workflow.AnalysisInterpretation.user == user
+        ).subquery()
+
+        wf_analysis_user = session.query(workflow.AnalysisInterpretation).filter(
+            workflow.AnalysisInterpretation.analysis_id.in_(sq_wf_analysis_user),
+            workflow.AnalysisInterpretation.status != 'Not started'
+        ).order_by(workflow.AnalysisInterpretation.date_last_update).limit(20).all()
+
+        # Create activity stream for user
+
+        workflow_stream_objs = sorted(wf_allele_user + wf_analysis_user, key=lambda x: x.date_last_update)
+
+        # Preload data
+        stream_users = session.query(model_user.User).filter(
+            model_user.User.id.in_([o.user_id for o in workflow_stream_objs])
+        ).all()
+        stream_users = schemas.UserSchema(strict=True).dump(stream_users, many=True).data
+
+        genepanels = session.query(gene.Genepanel).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_([(o.genepanel_name, o.genepanel_version) for o in wf_allele_user])
+        ).all()
+
+        stream_alleles = session.query(allele.Allele).filter(
+            allele.Allele.id.in_([o.allele_id for o in wf_allele_user])
+        ).all()
+
+        stream_analyses = session.query(sample.Analysis).filter(
+            sample.Analysis.id.in_([o.analysis_id for o in wf_analysis_user])
+        ).all()
+
+        adl = AlleleDataLoader(session)
+
+        workflow_stream = list()
+
+        for obj in workflow_stream_objs:
+            stream_obj = {
+                'user': next(u for u in stream_users if u['id'] == obj.user_id),
+                'date_last_update': obj.date_last_update.isoformat()
+            }
+            if isinstance(obj, workflow.AlleleInterpretation):
+                stream_obj_allele = next(a for a in stream_alleles if a.id == obj.allele_id)
+                stream_obj_genepanel = next(gp for gp in genepanels if gp.name == obj.genepanel_name and gp.version == obj.genepanel_version)
+                # TODO: This can by optimized to preload in
+                # batches per genepanel. Shouldn't matter too much.
+                stream_obj['allele'] = adl.from_objs(
+                    [stream_obj_allele],
+                    genepanel=stream_obj_genepanel,
+                    include_reference_assessments=False,
+                    include_custom_annotation=False,
+                    include_allele_report=False
+                )
+            elif isinstance(obj, workflow.AnalysisInterpretation):
+                stream_obj_analysis = next(a for a in stream_analyses if a.id == obj.analysis_id)
+                stream_obj['analysis'] = schemas.AnalysisSchema(strict=True).dump(stream_obj_analysis).data
+            workflow_stream.append(stream_obj)
+
+        return workflow_stream
+
