@@ -80,10 +80,10 @@ export class AnalysisController {
                             show_included_acmg_codes: true
                         },
                         controls: [
-                            'upload',
                             'collapse_all',
+                            'upload',
                             'add_acmg',
-                            'classification',,
+                            'classification',
                             'reuse_classification'
                         ],
                         alleleassessment_comment: {
@@ -96,7 +96,6 @@ export class AnalysisController {
                         content: [
                             {'tag': 'allele-info-acmg-selection'},
                             {'tag': 'allele-info-vardb'},
-                            {'tag': 'allele-info-attachments'}
                         ],
                     },
                     {
@@ -122,7 +121,7 @@ export class AnalysisController {
                             {'tag': 'allele-info-frequency-thousandg'},
                             {'tag': 'allele-info-frequency-indb'},
                             {'tag': 'allele-info-dbsnp'},
-                            {'tag': 'allele-info-quality'},
+                            {'tag': 'allele-info-quality'}
                         ],
                     },
                     {

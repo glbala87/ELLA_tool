@@ -71,12 +71,12 @@ import './widgets/alleleinfo/alleleInfoHgmd.directive';
 import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
-import './widgets/alleleinfo/alleleInfoAttachments.directive';
 
 import './widgets/analysisList.directive';
 import './widgets/alleleAssessment.directive';
 import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
+import './widgets/attachment.directive';
 import './widgets/collisionWarning.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';

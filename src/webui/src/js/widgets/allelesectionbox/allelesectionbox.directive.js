@@ -154,7 +154,7 @@ export class AlleleSectionBoxController {
     }
 
     getAlleleAssessment() {
-        return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState);
+        return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState)
     }
 
     getAlleleReport() {

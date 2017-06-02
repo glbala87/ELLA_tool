@@ -11,14 +11,16 @@
     <section class="line-wrapper" ng-if=vm.controls.length>
       <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
           <label for="file-input" class="input-label" ng-if="control == 'upload'">
-            <div class="bttn">Upload file</div>
+            <div class="id-upload bttn" ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly">Upload file</div>
+            <!--<button>Upload file</button>-->
             <!-- Angular doesn't have binding support for file uploads: https://stackoverflow.com/questions/17922557-->
-            <input
-                    type="file"
+            <input  type="file"
+                    ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
                     id="file-input"
                     hidden="true"
                     onchange="angular.element(this).scope().uploadFile(this)"
             >
+
           </label>
 
           <button class="id-collapse-all"
@@ -140,6 +142,23 @@
                        ng-model="vm.getAlleleReport().evaluation.comment"
                        ng-if="vm.allelereportComment"></wysiwyg-editor>
 
+
+      <div class="id-attachments" ng-if="vm.section.options.show_included_acmg_codes">
+        <h4 class="section-title acmg-body">Attachments</h4>
+        <section class="attachment-wrapper">
+          <attachment
+                ng-repeat="attachment_id in vm.getAlleleAssessment().attachments"
+                attachment="vm.attachments[attachment_id]"
+                read-only="vm.readOnly || vm.isAlleleAssessmentReused()"
+                allele="vm.allele"
+                allele-state="vm.alleleState"
+          >
+          </attachment>
+        </section>
+    </div>
+
+
+
     <!-- Included ACMG codes -->
     <!-- Don't use 'track by $index' -->
     <div class="id-acmg-included" ng-if="vm.section.options.show_included_acmg_codes">
@@ -165,7 +184,6 @@
       analysis="vm.analysis"
       allele="vm.allele"
       references="vm.references"
-      attachments="vm.attachments"
       allele-state="vm.alleleState"
       allele-user-state="vm.alleleUserState"
       boxes="vm.section.content"

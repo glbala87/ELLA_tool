@@ -76,8 +76,8 @@ export class WorkflowAlleleController {
                             show_included_acmg_codes: true
                         },
                         controls: [
-                            'upload',
                             'collapse_all',
+                            'upload',
                             'add_acmg',
                             'classification',
                             'reuse_classification'
@@ -92,8 +92,7 @@ export class WorkflowAlleleController {
                         },
                         content: [
                             {'tag': 'allele-info-acmg-selection'},
-                            {'tag': 'allele-info-vardb'},
-                            {'tag': 'allele-info-attachments'}
+                            {'tag': 'allele-info-vardb'}
                         ],
                     },
                     {   name: 'frequency',
