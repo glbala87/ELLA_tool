@@ -250,7 +250,7 @@ class AssessmentCreator(object):
             attachment.Attachment.id.in_(all_attachment_ids)
         ).all()
 
-        assert len(all_attachment_ids) == len(attachment_objs), "Not all attachments were found in the database"
+        assert set(all_attachment_ids) == set(a.id for a in attachment_objs), "Not all attachments were found in the database"
 
         for aa in created_alleleassessments:
             attachment_ids = next(atchmt["attachments"] for atchmt in attachments)

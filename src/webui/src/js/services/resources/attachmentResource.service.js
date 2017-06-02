@@ -20,6 +20,7 @@ class AttachmentResource {
                     post: {
                         method: 'POST',
                         transformRequest: angular.identity,
+                        // Let's the browser determine the correct content type (https://snippetrepo.com/snippets/file-upload-in-angularjs)
                         headers: {'Content-Type': undefined},
                         isArray: false,
                     }

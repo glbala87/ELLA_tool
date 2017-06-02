@@ -1,6 +1,7 @@
 import os
 import errno
 import subprocess
+import uuid
 from api.v1.resource import LogRequestResource
 from api.config import config
 from flask import request, send_file
@@ -39,39 +40,46 @@ class AttachmentResource(LogRequestResource):
     def post(self, session, user=None):
         file_obj = request.files["file"]
         file_obj.stream.seek(0)  # Make sure we read from the beginning
-        content = file_obj.read()
-        file_obj.stream.close()
 
-        sha_val = sha256(content).hexdigest()
-        existing = session.query(attachment.Attachment).filter(
-            attachment.Attachment.sha256 == sha_val
-        ).one_or_none()
-        if existing is not None:
-            return {"id": existing.id}, 200
+        # Create temporary file to write to
+        tmp_folder = os.path.join(config["app"]["attachment_storage"], "tmp")
+        mkdir_p(tmp_folder)
+        tmp_path = os.path.join(tmp_folder, uuid.uuid4().get_hex())
+        sha_val = sha256()
+        size = 0
 
+        # Read and write file in blocks of 64kb, and update hash
+        with open(tmp_path, 'w') as tmp_file:
+            while True:
+                s = file_obj.read(65536)
+                if s == '':
+                    break
+                size += len(s)
+                tmp_file.write(s)
+                sha_val.update(s)
+
+        # Move file to attachment_storage/sha_val[:2]/sha_val
+        sha_val = sha_val.hexdigest()
         folder = os.path.join(config["app"]["attachment_storage"], sha_val[:2])
-
-        # Make sure folder structure exists
-        mkdir_p(folder)
-
-        # Write file to attachment storage
+        mkdir_p(folder) # Make sure folder structure exists
         path = os.path.join(folder, sha_val)
-        with open(path, 'w') as f:
-            f.write(content)
+        os.rename(tmp_path, path)
 
         # Try to create thumbnail
-        try:
-            cmd = "convert {ifile}[0] -thumbnail 10000@ -gravity center -background white -extent 100x100 jpeg:{ofile}"
-            subprocess.check_call(cmd.format(ifile=path, ofile=path + ".thumbnail"), shell=True)
-        except subprocess.CalledProcessError, e:
-            pass
+        thumbnail_path = path+".thumbnail"
+        if not os.path.isfile(thumbnail_path):
+            try:
+                cmd = "convert {ifile}[0] -thumbnail 10000@ -gravity center -background white -extent 100x100 jpeg:{ofile}"
+                subprocess.check_call(cmd.format(ifile=path, ofile=thumbnail_path), shell=True)
+            except subprocess.CalledProcessError, e:
+                pass
 
-
+        # Create database object
         data = {
             "sha256": sha_val,
             "filename": file_obj.filename,
-            "size": len(content),
-            "extension": file_obj.filename.rsplit('.',1)[-1],
+            "size": size,
+            "extension": file_obj.filename.rsplit('.',1)[-1] if "." in file_obj.filename else "",
             "mimetype": file_obj.content_type
         }
 
