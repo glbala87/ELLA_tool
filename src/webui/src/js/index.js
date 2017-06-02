@@ -92,6 +92,7 @@ import './widgets/searchResults.directive';
 import './widgets/workflowButtons.directive';
 import './widgets/allelesectionbox/allelesectionbox.directive';
 import './widgets/allelesectionbox/allelesectionboxcontent.directive';
+import './widgets/allelesectionbox/upload.directive';
 import './widgets/reportcard/reportcard.directive';
 import './widgets/isolateclick.directive';
 import './widgets/genepanelvalue/genepanelvalue.directive.js';

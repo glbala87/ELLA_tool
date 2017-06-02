@@ -10,19 +10,11 @@
     <!-- Controls -->
     <section class="line-wrapper" ng-if=vm.controls.length>
       <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
-          <label for="file-input" class="input-label" ng-if="control == 'upload'">
-            <div class="id-upload bttn" ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly">Upload file</div>
-            <!--<button>Upload file</button>-->
-            <!-- Angular doesn't have binding support for file uploads: https://stackoverflow.com/questions/17922557-->
-            <input  type="file"
-                    ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
-                    id="file-input"
-                    hidden="true"
-                    onchange="angular.element(this).scope().uploadFile(this)"
-            >
-
-          </label>
-
+          <upload ng-if="control == 'upload'"
+                  mode="'browse'"
+                  allele-state="vm.alleleState"
+                  read-only="vm.isAlleleAssessmentReused() || vm.readOnly">
+          </upload>
           <button class="id-collapse-all"
                   ng-if="control == 'collapse_all'"
                   ng-click="vm.collapseAll()">Collapse all

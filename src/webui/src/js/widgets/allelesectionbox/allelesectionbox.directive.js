@@ -87,17 +87,6 @@ export class AlleleSectionBoxController {
             }
         );
 
-        // Function on scope rather than on the class because angular doesn't support file uploads binding
-        // See https://stackoverflow.com/questions/17922557
-        // TODO: Rewrite as custom directive (see above link)
-        $scope.uploadFile = (elm) => {
-            if (elm.files.length == 0) return;
-            let file = elm.files[0];
-            this.attachmentResource.post(file).then((attachment_id) => {
-                this.alleleState.alleleassessment.attachments.push(attachment_id);
-            })
-        }
-
         this.pathogenicPopoverToggle = {
           buttons: [ 'Pathogenic', 'Benign' ],
           model: 'Pathogenic'
