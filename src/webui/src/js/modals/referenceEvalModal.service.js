@@ -301,6 +301,21 @@ export class ReferenceEvalModalController {
                     ],
                     optional_dep: 'segregation'
                 },
+                'phase': {
+                    title: '',
+                    desc: 'Variant cis/trans with pathogenic?',
+                    elements: [
+                        {
+                            type: 'button',
+                            options: [
+                                ['Cis', 'in_cis_pathogenic'],
+                                ['Trans', 'in_trans_pathogenic']
+                            ],
+                            store: 'ref_phase'
+                        },
+                    ],
+                    optional_dep: 'segregation'
+                },
                 'protein': {
                     title: 'Protein',
                     desc: 'Abnormal protein function?',
@@ -480,6 +495,7 @@ export class ReferenceEvalModalController {
                     'auth_classification',
                     'segregation',
                     'de_novo',
+                    'phase',
                     'population_affecteds',
                     'population_healthy',
                     'protein',
