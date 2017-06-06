@@ -3,7 +3,7 @@ from flask import request
 from vardb.datamodel import sample, genotype, allele
 
 from api.util.util import request_json, ApiError, authenticate
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 from . import helpers
 from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
@@ -11,7 +11,7 @@ from vardb.datamodel.sample import Analysis
 from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
 
 
-class AnalysisInterpretationAllelesListResource(Resource):
+class AnalysisInterpretationAllelesListResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, analysis_id, interpretation_id, user=None):
@@ -32,7 +32,7 @@ class AnalysisInterpretationAllelesListResource(Resource):
         )
 
 
-class AnalysisInterpretationResource(Resource):
+class AnalysisInterpretationResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, analysis_id, interpretation_id, user=None):
@@ -132,7 +132,7 @@ class AnalysisInterpretationResource(Resource):
         return None, 200
 
 
-class AnalysisInterpretationListResource(Resource):
+class AnalysisInterpretationListResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, analysis_id, user=None):
@@ -160,7 +160,7 @@ class AnalysisInterpretationListResource(Resource):
         return helpers.get_interpretations(session, analysis_id=analysis_id)
 
 
-class AnalysisActionOverrideResource(Resource):
+class AnalysisActionOverrideResource(LogRequestResource):
 
     @authenticate()
     def post(self, session, analysis_id, user=None):
@@ -192,7 +192,7 @@ class AnalysisActionOverrideResource(Resource):
         return None, 200
 
 
-class AnalysisActionStartResource(Resource):
+class AnalysisActionStartResource(LogRequestResource):
 
     @authenticate()
     def post(self, session, analysis_id, user=None):
@@ -223,7 +223,7 @@ class AnalysisActionStartResource(Resource):
         return None, 200
 
 
-class AnalysisActionMarkReviewResource(Resource):
+class AnalysisActionMarkReviewResource(LogRequestResource):
 
     @authenticate()
     @request_json(
@@ -265,7 +265,7 @@ class AnalysisActionMarkReviewResource(Resource):
         return None, 200
 
 
-class AnalysisActionReopenResource(Resource):
+class AnalysisActionReopenResource(LogRequestResource):
 
     @authenticate()
     def post(self, session, analysis_id, user=None):
@@ -300,7 +300,7 @@ class AnalysisActionReopenResource(Resource):
         return None, 200
 
 
-class AnalysisActionFinalizeResource(Resource):
+class AnalysisActionFinalizeResource(LogRequestResource):
 
     @authenticate()
     @request_json(
@@ -608,7 +608,7 @@ class AnalysisActionFinalizeResource(Resource):
         return result
 
 
-class AnalysisCollisionResource(Resource):
+class AnalysisCollisionResource(LogRequestResource):
     @authenticate()
     def get(self, session, analysis_id, user=None):
         analysis_allele_ids = session.query(allele.Allele.id).join(

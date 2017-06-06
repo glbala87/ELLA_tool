@@ -6,10 +6,10 @@ from api import ApiError
 from api.util.acmgdataloader import ACMGDataLoader
 from api.util.util import request_json, authenticate
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class ACMGAlleleResource(Resource):
+class ACMGAlleleResource(LogRequestResource):
 
     def get_alleles(self, session, allele_ids):
         """
@@ -201,7 +201,7 @@ class ACMGAlleleResource(Resource):
         )
 
 
-class ACMGClassificationResource(Resource):
+class ACMGClassificationResource(LogRequestResource):
 
     def get(self, session):
         """

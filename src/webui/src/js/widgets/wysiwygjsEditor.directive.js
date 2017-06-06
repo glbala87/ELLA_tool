@@ -105,6 +105,7 @@ function getCurrentColors(nodes) {
                 '<button class="wysiwygbutton" title="Bold (Ctrl+B)" style="font-weight: bold" id="wysiwyg-bold">B</button>' +
                 '<button class="wysiwygbutton" title="Italic (Ctrl+I)" id="wysiwyg-italic">I</button>' +
                 '<button class="wysiwygbutton" title="Underline (Ctrl+U)" id="wysiwyg-underline">U</button>' +
+                '<button class="wysiwygbutton" title="Code/Monospace font" id="wysiwyg-monospace">M</button>' +
                 '<button class="wysiwygbutton" title="Set text color" id="wysiwyg-fontcolor">A<span style="color: rgb(0,0,0); vertical-align: sub; margin-left: -0.0rem">&#9646</span></button>' +
                 '<button class="wysiwygbutton" title="Set highlight color" id="wysiwyg-highlightcolor"><svg width="60%" height="60%" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z" /></svg><span style="color: rgb(0,0,0);">&#9646</span></button>' +
                 '<button class="wysiwygbutton" title="Heading 1" id="wysiwyg-heading1">H1</button>' +
@@ -258,6 +259,7 @@ function getCurrentColors(nodes) {
         eventListeners.add(buttons["bold"], "click", editor.bold);
         eventListeners.add(buttons["italic"], "click", editor.italic);
         eventListeners.add(buttons["underline"], "click", editor.underline);
+        eventListeners.add(buttons["monospace"], "click", () => {editor.fontName("monospace")});
         eventListeners.add(buttons["orderedList"], "click", () => {editor.insertList(true)});
         eventListeners.add(buttons["unorderedList"], "click", () => {editor.insertList(false)});
         eventListeners.add(buttons["heading1"], "click", () => {editor.format("h1")});
