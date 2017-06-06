@@ -80,7 +80,8 @@ class AttachmentResource(LogRequestResource):
             "filename": file_obj.filename,
             "size": size,
             "extension": file_obj.filename.rsplit('.',1)[-1] if "." in file_obj.filename else "",
-            "mimetype": file_obj.content_type
+            "mimetype": file_obj.content_type,
+            "user_id": user.id
         }
 
         atchmt = attachment.Attachment(**data)

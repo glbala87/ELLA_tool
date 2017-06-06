@@ -2,6 +2,7 @@ import os
 import base64
 from marshmallow import Schema, fields
 from api.config import config
+from users import UserSchema
 
 
 class AttachmentSchema(Schema):
@@ -13,10 +14,12 @@ class AttachmentSchema(Schema):
                   'date_created',
                   'mimetype',
                   'extension',
-                  'thumbnail'
+                  'thumbnail',
+                  'user'
         )
 
     thumbnail = fields.Method('get_thumbnail')
+    user = fields.Nested(UserSchema)
 
     def get_path(self, obj):
         return os.path.join(config["app"]["attachment_storage"], obj.sha256[:2], obj.sha256)
