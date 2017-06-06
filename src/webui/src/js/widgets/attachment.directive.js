@@ -2,6 +2,7 @@
 
 import {Directive, Inject} from '../ng-decorators';
 import {AlleleStateHelper} from '../model/allelestatehelper';
+import {printedFileSize} from '../util'
 
 @Directive({
     selector: 'attachment',
@@ -48,9 +49,6 @@ export class AttachmentController {
     }
 
     getPrintedFileSize() {
-        let size = this.attachment.size;
-        var i = Math.floor( Math.log(size) / Math.log(1024) );
-        if (i > 2) i = 2;
-        return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB'][i];
+        return printedFileSize(this.attachment.size)
     }
 }
