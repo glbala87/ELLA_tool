@@ -8,6 +8,7 @@ import {printedFileSize} from '../../util'
     templateUrl: "ngtmpl/upload.ngtmpl.html",
     scope: {
         mode: "=",
+        buttontext: "=",
         alleleState: "=",
         readOnly: '=?'
     },

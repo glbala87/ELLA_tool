@@ -12,6 +12,7 @@
       <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
           <upload ng-if="control == 'upload'"
                   mode="'browse'"
+                  buttontext="'Add attachment'"
                   allele-state="vm.alleleState"
                   read-only="vm.isAlleleAssessmentReused() || vm.readOnly">
           </upload>
