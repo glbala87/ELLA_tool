@@ -38,7 +38,7 @@ class UserListResource(LogRequestResource):
         return self.list_query(
             session,
             user.User,
-            schemas.UserSchema(strict=True),
+            schemas.UserFullSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
             num_per_page=num_per_page
@@ -68,7 +68,7 @@ class UserResource(LogRequestResource):
         if user_id is None:
             raise ApiError("No user id provided")
         u = session.query(user.User).filter(user.User.id == user_id).one()
-        return schemas.UserSchema(strict=True).dump(u).data
+        return schemas.UserFullSchema(strict=True).dump(u).data
 
 
 class LoginResource(Resource):
@@ -101,7 +101,7 @@ class ChangePasswordResource(Resource):
 class CurrentUser(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
-        return schemas.UserSchema().dump(user).data
+        return schemas.UserFullSchema().dump(user).data
 
 
 class LogoutResource(LogRequestResource):

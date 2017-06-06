@@ -99,8 +99,8 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewAnalysisResource,
                            '/api/v1/overviews/analyses/')
 
-        self._add_resource(r.overview.OverviewDashboardResource,
-                           '/api/v1/overviews/dashboard/')
+        self._add_resource(r.overview.OverviewActivitiesResource,
+                           '/api/v1/overviews/activities/')
 
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
