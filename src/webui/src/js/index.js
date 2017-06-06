@@ -47,6 +47,7 @@ import './views/workflow/workflowAllele.directive';
 import './views/workflow/interpretation.directive';
 import './views/overviews/analysisSelection.directive';
 import './views/overviews/alleleSelection.directive';
+import './views/userDashboard.directive';
 import './views/main.directive';
 import './views/overview.directive';
 import './views/login.directive';
@@ -154,6 +155,14 @@ class AppConfig {
                             $scope.gp_name = $stateParams.gp_name;
                             $scope.gp_version = $stateParams.gp_version;
                         }]
+                    }
+                }
+            })
+            .state('app.main.dashboard', {
+                url: '/dashboard',
+                views: {
+                    'content': {
+                        template: '<user-dashboard></user-dashboard>'
                     }
                 }
             })

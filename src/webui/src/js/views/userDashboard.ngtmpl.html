@@ -1,0 +1,51 @@
+<div class="main">
+    <nav class="secondary">
+        <button>LOGOUT</button>
+    </nav>
+
+    <div class="dashboard">
+        <div class="container">
+            <sectionbox color="green" class="profile id-user-profile" collapsible="false">
+                <maintitle>
+                    YOUR PROFILE
+                </maintitle>
+                <subtitle>
+                </subtitle>
+                <contentwrapper>
+                    <p>Name: {{vm.user.getCurrentUser().full_name}}</p>
+                    <p>Password expires: {{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</p>
+                </contentwrapper>
+            </sectionbox>
+
+            <sectionbox color="green" class="activities id-activity-stream" collapsible="false">
+                <maintitle>
+                    ACTIVITY STREAM
+                </maintitle>
+                <subtitle>
+                </subtitle>
+                <contentwrapper>
+                    <div ng-repeat="item in vm.activity_stream">
+                        <article class="sectionbox-content analysis-list">
+                            <a class="id-analysis list-item clickable" href="{{vm.getActivityUrl(item)}}">
+                                <span class="analysis-date">{{item.date_last_update | date:'yyyy-MM-dd HH:mm'}}</span>
+                                <span class="full-title"><b>{{vm.getActivityUser(item)}}</b> {{vm.getActivityStartAction(item)}} <b>{{vm.getActivityName(item)}}</b><span ng-if="!vm.isUserAction(item)"> (which you've previously worked on)</span>{{vm.getActivityEndAction(item)}}.</span>
+                            </a>
+                        </article>
+                    </div>
+
+                </contentwrapper>
+            </sectionbox>
+        </div>
+    </div>
+
+</div>
+
+<!-- - ->
+<h4>Debug:</h4>
+<br><br>
+<h5>Interpretation state:</h5>
+<p><pre>{{vm.interpretation.state | prettyJSON}}</pre></p>
+<h5>Interpretation user state:</h5>
+<p><pre>{{vm.interpretation.user_state | prettyJSON}}</pre></p>
+
+ <!- - -->

@@ -52,5 +52,25 @@ export class OverviewResource {
         });
     }
 
+    getActivities() {
+        return new Promise((resolve, reject) => {
+            let uri = `${this.base}/overviews/activities/`;
+            let r = this.resource(uri);
+            let overview = r.query((data) => {
+
+                for (let d of data) {
+                    if ('allele' in d) {
+                        d['allele'] = new Allele(d['allele'])
+                    }
+                    if ('analysis' in d) {
+                        d['analysis'] = d['analysis']
+                    }
+                }
+
+                resolve(overview);
+            }, reject);
+        });
+    }
+
 }
 
