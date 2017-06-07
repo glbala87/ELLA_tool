@@ -21,6 +21,7 @@ export class UploadController {
         this.max_file_size = Config.config.app.max_upload_size;
         $element.bind('change', (e) => {
             this.uploadFiles(e.target.files)
+            e.target.value = "";
         })
     }
 
