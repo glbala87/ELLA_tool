@@ -1,6 +1,6 @@
 <div class="main">
     <nav class="secondary">
-        <button>LOGOUT</button>
+        <button class="id-logout-btn logout-btn" ng-click="vm.logout()">LOGOUT</button>
     </nav>
 
     <div class="dashboard">
@@ -12,14 +12,18 @@
                 <subtitle>
                 </subtitle>
                 <contentwrapper>
-                    <p>Name: {{vm.user.getCurrentUser().full_name}}</p>
-                    <p>Password expires: {{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</p>
+                    <p>Username: {{vm.user.getCurrentUser().username}}</p>
+                    <p>Full name: {{vm.user.getCurrentUser().full_name}}</p>
+                    <p>Password expiry: {{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</p>
+                    <br>
+                    <p>Number of analyses worked on: {{vm.user_stats.analyses_cnt}}</p>
+                    <p>Number of variants worked on: {{vm.user_stats.alleles_cnt}}</p>
                 </contentwrapper>
             </sectionbox>
 
             <sectionbox color="green" class="activities id-activity-stream" collapsible="false">
                 <maintitle>
-                    ACTIVITY STREAM
+                    YOUR ACTIVITY
                 </maintitle>
                 <subtitle>
                 </subtitle>
@@ -28,7 +32,7 @@
                         <article class="sectionbox-content analysis-list">
                             <a class="id-analysis list-item clickable" href="{{vm.getActivityUrl(item)}}">
                                 <span class="analysis-date">{{item.date_last_update | date:'yyyy-MM-dd HH:mm'}}</span>
-                                <span class="full-title"><b>{{vm.getActivityUser(item)}}</b> {{vm.getActivityStartAction(item)}} <b>{{vm.getActivityName(item)}}</b><span ng-if="!vm.isUserAction(item)"> (which you've previously worked on)</span>{{vm.getActivityEndAction(item)}}.</span>
+                                <span class="full-title"><b>{{vm.getActivityUser(item)}}</b> {{vm.getActivityStartAction(item)}} <b>{{vm.getActivityName(item)}}</b><span ng-if="!vm.isUserAction(item)"> (which you've also worked on)</span>{{vm.getActivityEndAction(item)}}.</span>
                             </a>
                         </article>
                     </div>

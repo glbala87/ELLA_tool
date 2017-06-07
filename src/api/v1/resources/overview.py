@@ -345,7 +345,7 @@ class OverviewAnalysisResource(LogRequestResource):
         analyses_not_started = session.query(sample.Analysis).filter(
             sample.Analysis.id.in_(workflow_analyses_not_started)
         ).all()
-        aschema = schemas.AnalysisSchema()
+        aschema = schemas.AnalysisFullSchema()
         analyses_not_started_serialized = aschema.dump(analyses_not_started, many=True).data
 
         final_analyses = {
@@ -398,6 +398,28 @@ class OverviewAnalysisResource(LogRequestResource):
     def get(self, session, user=None):
 
         return self.get_categorized_analyses(session)
+
+
+class OverviewUserStatsResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, user=None):
+
+        stats = dict()
+
+        stats['analyses_cnt'] = session.query(sample.Analysis).join(
+            workflow.AnalysisInterpretation
+        ).filter(
+            workflow.AnalysisInterpretation.user_id == user.id
+        ).distinct().count()
+
+        stats['alleles_cnt'] = session.query(allele.Allele).join(
+            workflow.AlleleInterpretation
+        ).filter(
+            workflow.AlleleInterpretation.user_id == user.id
+        ).distinct().count()
+
+        return stats
 
 
 class OverviewActivitiesResource(LogRequestResource):

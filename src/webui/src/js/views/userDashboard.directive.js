@@ -6,20 +6,43 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'user-dashboard',
     templateUrl: 'ngtmpl/userDashboard.ngtmpl.html'
 })
-@Inject('$scope', '$location', 'Config', 'User', 'Navbar', 'OverviewResource', 'toastr')
+@Inject('$scope', '$timeout', '$location', 'Config', 'User', 'Navbar', 'OverviewResource', 'LoginResource', 'toastr')
 export class UserDashboardController {
-    constructor($scope, location, Config, User,Navbar, OverviewResource, toastr) {
+    constructor($scope, $timeout, location, Config, User,Navbar, OverviewResource, LoginResource, toastr) {
         this.location = location;
+        this.timeout = $timeout;
         this.user = User;
         this.users = [];
-        this.toastr = toastr;
         this.overviewResource = OverviewResource;
+        this.loginResource = LoginResource;
+        this.toastr = toastr;
         this.config = Config.getConfig()
 
+        Navbar.clearAllele();
+        Navbar.replaceItems([
+            {
+                url: '/overviews',
+                title: 'Back to overview'
+            }
+        ])
 
         this.overviewResource.getActivities().then(d => {
             this.activity_stream = d;
         });
+
+        this.overviewResource.getUserStats().then(d => {
+            this.user_stats = d;
+        });
+    }
+
+    logout() {
+        this.toastr.info('Logging out...', '', {timeOut: 1000});
+        this.timeout(() => {
+                this.loginResource.logout().then(a => {
+                this.location.path('/login');
+            });
+        }, 1000);
+
     }
 
     getActivityStartAction(item) {

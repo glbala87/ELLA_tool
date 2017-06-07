@@ -102,6 +102,9 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewActivitiesResource,
                            '/api/v1/overviews/activities/')
 
+        self._add_resource(r.overview.OverviewUserStatsResource,
+                           '/api/v1/overviews/userstats/')
+
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
 
@@ -187,7 +190,10 @@ class ApiV1(object):
                            '/api/v1/workflows/analyses/<int:analysis_id>/collisions/')
 
         self._add_resource(r.user.LoginResource,
-                            '/api/v1/users/actions/login/')
+                           '/api/v1/users/actions/login/')
+
+        self._add_resource(r.user.LogoutResource,
+                           '/api/v1/users/actions/logout/')
 
         self._add_resource(r.user.ChangePasswordResource,
                            '/api/v1/users/actions/changepassword/')

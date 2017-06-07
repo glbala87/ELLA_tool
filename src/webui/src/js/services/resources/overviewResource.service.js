@@ -72,5 +72,15 @@ export class OverviewResource {
         });
     }
 
+    getUserStats() {
+        return new Promise((resolve, reject) => {
+            let uri = `${this.base}/overviews/userstats/`;
+            let r = this.resource(uri);
+            let overview = r.get((data) => {
+                resolve(overview);
+            }, reject);
+        });
+    }
+
 }
 
