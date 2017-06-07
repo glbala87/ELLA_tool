@@ -247,6 +247,19 @@ class AlleleSectionBox  {
 
     }
 
+    addAttachment() {
+        let uploadSelector = 'allele-sectionbox:nth-child(1) .input-label #file-input';
+        // let uploadSelector = '#file-input';
+        browser.chooseFile(uploadSelector, __filename)
+        browser.pause(1000)
+        console.log("Added attachment")
+    }
+
+    getNumberOfAttachments() {
+        let elements = browser.elements('.attachment-wrapper attachment')
+        return elements.value.length;
+    }
+
     evaluateReference(index) {
         let referenceSelector = `allele-info-references article:nth-child(${index})`;
         let title = browser.getText(`${referenceSelector} .id-reference-title`);
