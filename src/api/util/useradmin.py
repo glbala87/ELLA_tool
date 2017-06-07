@@ -87,17 +87,16 @@ def create_session(session, user_id):
 
 
 def logout(userSession):
-    userSession.expired = datetime.datetime.now(pytz.utc)
+    userSession.logged_out = datetime.datetime.now(pytz.utc)
 
 
 def logout_all(session, user_id):
     open_user_sessions = session.query(user.UserSession).filter(
         user.UserSession.user_id == user_id,
-        user.UserSession.expired.is_(None),
+        user.UserSession.logged_out.is_(None),
     ).all()
     for user_session in open_user_sessions:
         logout(user_session)
-
 
 
 def change_password(session, user_or_username, old_password, new_password, override=False):
