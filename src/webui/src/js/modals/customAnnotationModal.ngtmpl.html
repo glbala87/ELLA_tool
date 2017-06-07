@@ -226,8 +226,8 @@
       <article class="question small line-wrapper">
         <div class="left"> <h5 class="slim title"> <b>Value:</b> </h5> </div>
         <div class="right">
-          <div class="dropdown">
-            <select class="id-value-select" ng-if="vm.selected_annotation_group.options" ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"><option value="" disabled selected>Choose value</option></select>
+          <div class="dropdown" ng-if="vm.selected_annotation_group.options">
+            <select class="id-value-select" ng-options="v as v[0] for v in vm.selected_annotation_group.options" ng-model="vm.selected_annotation_value"><option value="" disabled selected>Choose value</option></select>
           </div>
           <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.selected_annotation_value" ng-if="vm.selected_annotation_group.text"> </autosize-textarea>
         </div>

@@ -62,6 +62,7 @@ class AlleleSectionBox  {
 
     get reportCommentElement() { return browser.element(SELECTOR_COMMENT_REPORT); }
     get reportComment() { return browser.getText(SELECTOR_COMMENT_REPORT_EDITOR); }
+    get reportCommentEditable() { return browser.isCommentEditable(SELECTOR_COMMENT_REPORT_EDITOR)}
 
     setReportComment(text) {
         this.reportCommentElement.scroll();
