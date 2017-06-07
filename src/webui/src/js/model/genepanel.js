@@ -105,7 +105,7 @@ export default class Genepanel {
     getOmimEntryId(geneSymbol) {
         let transcripts = this.transcriptsBy(geneSymbol);
         // all have the same gene and thus omim entry
-        return transcripts ? transcripts[0].gene.omim_entry_id : '';
+        return transcripts && transcripts.length > 0 ? transcripts[0].gene.omim_entry_id : '';
 
     }
 
@@ -113,16 +113,19 @@ export default class Genepanel {
         return this.getInheritanceCodes(gene_symbol);
     }
 
-    phenotypesBy(geneSymbol) {
-        let phenotypes = this.phenotypes;
-        if (phenotypes) {
-            return phenotypes.filter(ph => ph.gene.hugo_symbol == geneSymbol);
+    _filterCollectionByGene(collection, geneSymbol) {
+        if (collection) {
+            return collection.filter(entry => entry.gene.hugo_symbol == geneSymbol);
         } else {
             return null;
         }
+
+    }
+    phenotypesBy(geneSymbol) {
+        return this._filterCollectionByGene(this.phenotypes, geneSymbol)
     }
     transcriptsBy(geneSymbol) {
-            return this.transcripts.filter(t => t.gene.hugo_symbol == geneSymbol);
+        return this._filterCollectionByGene(this.transcripts, geneSymbol)
     }
 }
 
