@@ -30,7 +30,7 @@ class AlleleAssessmentSchema(Schema):
                   'seconds_since_update',
                   'evaluation',
                   'referenceassessments',
-                  'attachments')
+                  'attachment_ids')
 
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
@@ -40,7 +40,7 @@ class AlleleAssessmentSchema(Schema):
     date_superceeded = fields.DateTime(allow_none=True)
     referenceassessments = fields.Nested(referenceassessments.ReferenceAssessmentSchema, many=True, attribute='referenceassessments')
     seconds_since_update = fields.Method('get_seconds_since_created')
-    attachments = fields.Method('get_attachment_ids')
+    attachment_ids = fields.Method('get_attachment_ids')
 
     def get_seconds_since_created(self, obj):
         return (datetime.datetime.now(pytz.utc) - obj.date_created).total_seconds()

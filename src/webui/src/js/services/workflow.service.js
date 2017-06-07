@@ -284,7 +284,7 @@ class WorkflowService {
                     type === 'analysis' ? id : null
                 ));
 
-                attachments.push({"allele_id": allele_state.allele_id, "attachments": allele_state.alleleassessment.attachments})
+                attachments.push({"allele_id": allele_state.allele_id, "attachment_ids": allele_state.alleleassessment.attachment_ids})
             }
         }
 

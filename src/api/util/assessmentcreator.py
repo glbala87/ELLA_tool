@@ -245,7 +245,7 @@ class AssessmentCreator(object):
         return created, reused
 
     def _attach_attachments(self, attachments, created_alleleassessments):
-        all_attachment_ids = sum([atchmt["attachments"] for atchmt in attachments], [])
+        all_attachment_ids = sum([atchmt["attachment_ids"] for atchmt in attachments], [])
         attachment_objs = self.session.query(attachment.Attachment).filter(
             attachment.Attachment.id.in_(all_attachment_ids)
         ).all()
@@ -253,6 +253,6 @@ class AssessmentCreator(object):
         assert set(all_attachment_ids) == set(a.id for a in attachment_objs), "Not all attachments were found in the database"
 
         for aa in created_alleleassessments:
-            attachment_ids = next((atchmt["attachments"] for atchmt in attachments if atchmt["allele_id"] == aa.allele_id), [])
+            attachment_ids = next((atchmt["attachment_ids"] for atchmt in attachments if atchmt["allele_id"] == aa.allele_id), [])
             aa.attachments = [at for at in attachment_objs if at.id in attachment_ids]
 

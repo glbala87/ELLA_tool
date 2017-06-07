@@ -36,10 +36,10 @@ export class AttachmentController {
 
     removeAttachment() {
         if (this.readOnly) return;
-        let attachments = AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState).attachments;
-        let index = attachments.indexOf(this.attachment.id);
+        let attachment_ids = AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState).attachment_ids;
+        let index = attachment_ids.indexOf(this.attachment.id);
         if (index > -1) {
-            attachments.splice(index, 1); // Remove attachment
+            attachment_ids.splice(index, 1); // Remove attachment
         }
     }
 

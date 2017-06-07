@@ -79,8 +79,8 @@ export class InterpretationController {
         );
 
         $scope.$watchCollection(
-            () => this.getAttachments(),
-            () => this.loadAttachments(this.getAttachments()),
+            () => this.getAttachmentIds(),
+            () => this.loadAttachments(this.getAttachmentIds()),
         );
 
         $scope.$watch(
@@ -382,16 +382,16 @@ export class InterpretationController {
      * Retrieves attachment ids for all allele states
      * @return {Array} Array of ids.
      */
-    getAttachments() {
+    getAttachmentIds() {
         let attachment_ids = []
         for (let allele_id in this.interpretation.state.allele) {
             if ("alleleassessment" in this.interpretation.state.allele[allele_id]) {
-                attachment_ids = attachment_ids.concat(this.interpretation.state.allele[allele_id].alleleassessment.attachments)
+                attachment_ids = attachment_ids.concat(this.interpretation.state.allele[allele_id].alleleassessment.attachment_ids)
             }
         }
         for (let allele of this.alleles) {
             if ("allele_assessment" in allele) {
-                attachment_ids = attachment_ids.concat(allele.allele_assessment.attachments)
+                attachment_ids = attachment_ids.concat(allele.allele_assessment.attachment_ids)
             }
         }
         attachment_ids = [... new Set(attachment_ids)]

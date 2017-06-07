@@ -72,7 +72,7 @@ export class UploadController {
                 continue;
             }
             this.attachmentResource.post(file).then((attachment_id) => {
-                this.alleleState.alleleassessment.attachments.push(attachment_id);
+                this.alleleState.alleleassessment.attachment_ids.push(attachment_id);
             })
         }
     }

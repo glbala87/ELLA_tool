@@ -141,7 +141,7 @@
         <h4 class="section-title acmg-body">Attachments</h4>
         <section class="attachment-wrapper">
           <attachment
-                ng-repeat="attachment_id in vm.getAlleleAssessment().attachments"
+                ng-repeat="attachment_id in vm.getAlleleAssessment().attachment_ids"
                 attachment="vm.attachments[attachment_id]"
                 read-only="vm.readOnly || vm.isAlleleAssessmentReused()"
                 allele="vm.allele"

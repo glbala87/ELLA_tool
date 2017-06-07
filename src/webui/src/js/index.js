@@ -234,7 +234,7 @@ window.onload = () => {
     let events = ["dragleave", "dragenter", "drop"]
     for (let event of events) {
         body.addEventListener(event, function (e) {
-            if (!e.dataTransfer.files.length) return;
+            if (e.dataTransfer.types.indexOf('Files') < 0) return; // Elements other than files being dragged
             if (e.type === "dragenter") {
                 this.dragCount++;
             } else if (e.type === "dragleave") {
