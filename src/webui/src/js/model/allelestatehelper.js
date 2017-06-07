@@ -234,7 +234,7 @@ export class AlleleStateHelper {
             return allele.allele_report;
         }
         else {
-            if (!('allelereport' in allele_state)) {
+            if (!('allelereport' in allele_state)) { // TODO: remove if checkAlleleStateModel covers this case
                 allele_state.allelereport = {
                     evaluation: {}
                 }
@@ -342,14 +342,6 @@ export class AlleleStateHelper {
             allele_state.alleleassessment.reuse = true;
         }
 
-        // TODO: allelereport reuse is now tied to alleleassessment reuse,
-        // we might want to decouple this in case user only wants to update either of them..
-        if ('allele_report' in allele) {
-            allele_state.allelereport.id = allele.allele_report.id;
-            allele_state.presented_allelereport_id = allele.allele_report.id;
-            allele_state.allelereport.reuse = true;
-        }
-
         return true;
     }
 
@@ -364,11 +356,6 @@ export class AlleleStateHelper {
         this.setupAlleleState(allele, allele_state);
 
         allele_state.alleleassessment.reuse = false;
-
-        allele_state.allelereport.reuse = false;
-        if ('id' in allele_state.allelereport) {
-            delete allele_state.allelereport.id;
-        }
 
         return false;
     }
