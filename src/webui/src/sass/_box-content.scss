@@ -127,6 +127,8 @@ div.existing-classification-comments .tabular-row:last-child .wysiwygeditor {
 .attachmentcontrollers {
   padding-left: 0.6rem;
   padding-right: 0.6rem;
+  width: 100px;
+  height: 17px;
   color: $black-75;
   display: flex;
   flex-direction: row;
@@ -154,3 +156,6 @@ div.existing-classification-comments .tabular-row:last-child .wysiwygeditor {
   padding: 0.4rem;
 }
 
+.droparea-hidden {
+  display: none;
+}

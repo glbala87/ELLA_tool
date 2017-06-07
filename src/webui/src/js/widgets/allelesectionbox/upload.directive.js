@@ -13,16 +13,55 @@ import {printedFileSize} from '../../util'
         readOnly: '=?'
     },
 })
-@Inject('Config', '$element', 'toastr', 'AttachmentResource')
+@Inject('$scope', 'Config', '$element', 'toastr', 'AttachmentResource')
 export class UploadController {
-    constructor(Config, $element, toastr, AttachmentResource) {
+    constructor($scope, Config, $element, toastr, AttachmentResource) {
+        this.scope = $scope;
         this.attachmentResource = AttachmentResource;
         this.toastr = toastr;
         this.max_file_size = Config.config.app.max_upload_size;
-        $element.bind('change', (e) => {
+        this.element = $element;
+        if (this.mode === "browse") {
+            this.setupBrowseMode()
+        } else if (this.mode === "drop") {
+            this.dragCount = 0;
+            this.setupDropMode()
+        }
+
+
+    }
+
+    setupBrowseMode() {
+        this.element.bind('change', (e) => {
             this.uploadFiles(e.target.files)
             e.target.value = "";
         })
+    }
+
+    setupDropMode() {
+        this.element.bind('drop', (e) => {
+            this.dragCount = 0;
+            e.preventDefault()
+            this.uploadFiles(e.dataTransfer.files)
+        })
+
+        this.element.bind('dragenter', () => {
+            this.dragCount++;
+            this.scope.$digest()
+        })
+
+        this.element.bind('dragleave', () => {
+            this.dragCount--;
+            this.scope.$digest()
+        })
+    }
+
+    getOpacity() {
+        if (this.dragCount > 0) {
+            return 0.75
+        } else {
+            return 0.25
+        }
     }
 
     uploadFiles(files) {

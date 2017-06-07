@@ -1,4 +1,4 @@
-<label for="file-input" class="input-label">
+<label ng-if="vm.mode === 'browse'" for="file-input" class="input-label">
   <div class="id-upload bttn" ng-disabled="vm.readOnly">{{vm.buttontext}}</div>
   <input  type="file"
           ng-disabled="vm.readOnly"
@@ -6,3 +6,10 @@
           hidden="true"
   >
 </label>
+<article ng-if="vm.mode === 'drop' && !vm.readOnly" class="attachment droparea droparea-hidden" ng-style="{opacity: vm.getOpacity()}">
+    <div>
+      <svg id="i-upload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="100" height="100" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 22 C0 23 1 12 9 13 6 2 23 2 22 10 32 7 32 23 23 22 M11 18 L16 14 21 18 M16 14 L16 29" /></svg>
+    </div>
+    <section class="attachmentcontrollers">
+  </section>
+</article>
