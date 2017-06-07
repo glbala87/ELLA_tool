@@ -5,7 +5,8 @@ class GeneSchema(Schema):
     class Meta:
         title = 'Gene'
         fields = ('hugo_symbol',
-                  'ensembl_gene_id')
+                  'ensembl_gene_id',
+                  'omim_entry_id')
 
 
 class TranscriptSchema(Schema):

@@ -11,10 +11,11 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'a-clip',
     scope: {
         href: '@?',
+        title: '@?',
         toClipboard: '=?'
     },
     transclude: true,
-    template: `<span><a ng-if="::!vm.shouldCopy()" ng-href="{{::vm.href}}" target="{{::vm.href}}" ng-transclude></a><a style="cursor: pointer;" ng-if="::vm.shouldCopy()" ng-click="vm.copyToClipboard()" ng-transclude></a></span>`
+    template: `<span><a title="{{title}}" ng-if="::!vm.shouldCopy()" ng-href="{{::vm.href}}" target="{{::vm.href}}" ng-transclude></a><a style="cursor: pointer;" ng-if="::vm.shouldCopy()" title="{{title}}" ng-click="vm.copyToClipboard()" ng-transclude></a></span>`
 })
 @Inject('clipboard', 'Config', 'toastr')
 export class HrefController {
