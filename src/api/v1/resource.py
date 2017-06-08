@@ -14,7 +14,7 @@ class Resource(flask_resource):
             if isinstance(v, list):
                 if v:  # Asking for empty list doesn't make sense
                     if isinstance(k, tuple):
-                        args.append(tuple_(*tuple(getattr(model, _k) for _k in k)).in_(v))
+                        args.append(tuple_(*(getattr(model, _k) for _k in k)).in_(v))
                     else:
                         args.append(getattr(model, k).in_(v))
             else:

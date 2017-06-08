@@ -14,7 +14,8 @@ TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
 assert os.path.isdir(TESTDATA_DIR)
 
 ANALYSIS = "brca_sample_3"
-GENEPANEL = "HBOCUTV_v01"
+GENEPANEL_NAME = "HBOCUTV"
+GENEPANEL_VERSION = "v01"
 
 
 @pytest.fixture(scope="session")
@@ -29,7 +30,7 @@ def unannotated_vcf():
 
 @pytest.fixture(scope="session")
 def annotated_vcf():
-    filename = ".".join([ANALYSIS, GENEPANEL]) + ".vcf"
+    filename = "{}.{}_{}.vcf".format(ANALYSIS, GENEPANEL_NAME, GENEPANEL_VERSION)
     full_path = subprocess.check_output("find %s -type f -name %s" % (TESTDATA_DIR, filename), shell=True).strip()
     with open(full_path, 'r') as f:
         vcf = f.read()
@@ -78,12 +79,13 @@ def test_submit_annotationjob(session, client):
         "mode": "Analysis",
         "user_id": 1,
         "vcf": "Dummy vcf data",
+        "genepanel_name": GENEPANEL_NAME,
+        "genepanel_version": GENEPANEL_VERSION,
         "properties": {
             "analysis_name": "abc",
             "create_or_append": "Create",
-            "genepanel": GENEPANEL,
             "sample_type": 'HTS'
-        }
+        },
     }
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
@@ -96,12 +98,13 @@ def test_submit_annotationjob(session, client):
     assert annotation_job.status == "SUBMITTED"
     assert annotation_job.vcf == data["vcf"]
     assert annotation_job.mode == "Analysis"
+    assert annotation_job.genepanel_name == GENEPANEL_NAME
+    assert annotation_job.genepanel_version == GENEPANEL_VERSION
     assert annotation_job.status_history == {}
     assert annotation_job.user_id == 1
     assert annotation_job.task_id == ""
     assert annotation_job.properties["analysis_name"] == data["properties"]["analysis_name"]
     assert annotation_job.properties["create_or_append"] == data["properties"]["create_or_append"]
-    assert annotation_job.properties["genepanel"] == data["properties"]["genepanel"]
 
 
 def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
@@ -111,10 +114,11 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
         "task_id": "123456789",
         "user_id": 1,
         "vcf": unannotated_vcf,
+        "genepanel_name": GENEPANEL_NAME,
+        "genepanel_version": GENEPANEL_VERSION,
         "properties": {
             "analysis_name": "abc",
             "create_or_append": "Create",
-            "genepanel": GENEPANEL,
             "sample_type": 'HTS'
         }
     }
@@ -130,7 +134,7 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
 
     # Check that annotation job is deposited
     analyses = session.query(sample.Analysis).filter(
-        sample.Analysis.name == ".".join([data["properties"]["analysis_name"], data["properties"]["genepanel"]])
+        sample.Analysis.name == "{}.{}_{}".format(data["properties"]["analysis_name"], data["genepanel_name"], data["genepanel_version"])
     ).all()
 
     assert len(analyses) == 1
@@ -142,10 +146,11 @@ def test_status_update_annotationjob(session, client):
         "mode": "Analysis",
         "user_id": 1,
         "vcf": "Dummy vcf data",
+        "genepanel_name": GENEPANEL_NAME,
+        "genepanel_version": GENEPANEL_VERSION,
         "properties": {
             "analysis_name": "abc",
             "create_or_append": "Create",
-            "genepanel": GENEPANEL,
             "sample_type": 'HTS'
         }
     }
@@ -207,8 +212,9 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
         "task_id": "123456789",
         "user_id": 1,
         "vcf": annotated_vcf,
+        "genepanel_name": GENEPANEL_NAME,
+        "genepanel_version": GENEPANEL_VERSION,
         "properties": {
-            "genepanel": GENEPANEL,
             "sample_type": 'Sanger'
         }
     }
@@ -246,10 +252,11 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
         "mode": "Analysis",
         "user_id": 1,
         "vcf": first_vcf,
+        "genepanel_name": GENEPANEL_NAME,
+        "genepanel_version": GENEPANEL_VERSION,
         "properties": {
             "analysis_name": "abc",
             "create_or_append": "Create",
-            "genepanel": GENEPANEL,
             "sample_type": 'HTS'
         }
     }
@@ -264,7 +271,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     session.commit()
 
     # Check that annotation job is deposited
-    analysis_name = ".".join([data1["properties"]["analysis_name"], data1["properties"]["genepanel"]])
+    analysis_name = "{}.{}_{}".format(data1["properties"]["analysis_name"], data1["genepanel_name"], data1["genepanel_version"])
     analyses = session.query(sample.Analysis).filter(
         sample.Analysis.name == analysis_name,
     ).all()
@@ -281,10 +288,11 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
         "mode": "Analysis",
         "user_id": 1,
         "vcf": second_vcf,
+        "genepanel_name": GENEPANEL_NAME,
+        "genepanel_version": GENEPANEL_VERSION,
         "properties": {
             "analysis_name": analysis_name,
             "create_or_append": "Append",
-            "genepanel": GENEPANEL,
             "sample_type": 'HTS'
         }
     }

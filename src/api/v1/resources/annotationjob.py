@@ -10,6 +10,9 @@ class AnnotationJob(Resource):
     @authenticate()
     @rest_filter
     def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+        if rest_filter is None:
+            rest_filter = dict()
+        rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
         val = self.list_query(session,
                               annotationjob.AnnotationJob,
                               schemas.AnnotationJobSchema(),

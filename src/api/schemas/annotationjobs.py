@@ -16,7 +16,9 @@ class AnnotationJobSchema(Schema):
                   'date_submitted',
                   'date_last_update',
                   'user',
-                  'properties')
+                  'properties',
+                  'genepanel_name',
+                  'genepanel_version')
         skip_missing = True
 
     user = fields.Nested(UserSchema)
