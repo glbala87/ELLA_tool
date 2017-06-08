@@ -1,5 +1,5 @@
 from flask import request
-
+from sqlalchemy import tuple_
 from vardb.datamodel import sample, genotype, allele
 
 from api.util.util import request_json, ApiError, authenticate
@@ -27,6 +27,7 @@ class AnalysisInterpretationAllelesListResource(Resource):
         return helpers.get_alleles(
             session,
             allele_ids,
+            user.group.genepanels,
             analysisinterpretation_id=interpretation_id,
             current_allele_data=current
         )
@@ -84,7 +85,7 @@ class AnalysisInterpretationResource(Resource):
 
             description: Interpretation object
         """
-        return helpers.get_interpretation(session, analysisinterpretation_id=interpretation_id)
+        return helpers.get_interpretation(session, user.group.genepanels, analysisinterpretation_id=interpretation_id)
 
     @authenticate()
     @request_json(
@@ -157,7 +158,7 @@ class AnalysisInterpretationListResource(Resource):
             description: AnalysisInterpretation objects
         """
 
-        return helpers.get_interpretations(session, analysis_id=analysis_id)
+        return helpers.get_interpretations(session, user.group.genepanels, analysis_id=analysis_id)
 
 
 class AnalysisActionOverrideResource(Resource):
@@ -601,7 +602,8 @@ class AnalysisActionFinalizeResource(Resource):
     @authenticate()
     def get(self, session, analysis_id, user=None):
         f = session.query(AnalysisInterpretationSnapshot).filter(
-            Analysis.id == analysis_id
+            Analysis.id == analysis_id,
+            tuple_(Analysis.genepanel_name, Analysis.genepanel_version).in_((gp.name, gp.version) for gp in user.group.genepanels)
         ).join(AnalysisInterpretation, Analysis).all()
 
         result = AnalysisInterpretationSnapshotSchema(strict=True).dump(f, many=True).data

@@ -1,4 +1,4 @@
-
+from sqlalchemy import tuple_
 from vardb.datamodel import assessment, sample, genotype, workflow
 
 from api import schemas, ApiError
@@ -59,7 +59,10 @@ class AnalysisResource(Resource):
                 $ref: '#/definitions/Analysis'
             description: Analysis object
         """
-        a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
+        a = session.query(sample.Analysis).filter(
+            sample.Analysis.id == analysis_id,
+            tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in user.group.genepanels)
+        ).one()
         analysis = schemas.AnalysisSchema().dump(a).data
         return analysis
 

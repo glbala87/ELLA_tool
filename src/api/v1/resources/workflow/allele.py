@@ -1,4 +1,5 @@
 from flask import request
+from sqlalchemy import tuple_
 
 from api.util.util import request_json, authenticate
 from api.v1.resource import Resource
@@ -31,7 +32,7 @@ class AlleleInterpretationResource(Resource):
                 $ref: '#/definitions/AlleleInterpretation'
             description: AlleleInterpretation object
         """
-        return helpers.get_interpretation(session, alleleinterpretation_id=interpretation_id)
+        return helpers.get_interpretation(session, user.group.genepanels, alleleinterpretation_id=interpretation_id)
 
     @authenticate()
     @request_json(
@@ -99,10 +100,11 @@ class AlleleInterpretationAllelesListResource(Resource):
         allele_ids = request.args.get('allele_ids').split(',')
         current = request.args.get('current', '').lower() == 'true'
         return helpers.get_alleles(
-          session,
-          allele_ids,
-          alleleinterpretation_id=interpretation_id,
-          current_allele_data=current
+            session,
+            allele_ids,
+            user.group.genepanels,
+            alleleinterpretation_id=interpretation_id,
+            current_allele_data=current
         )
 
 
@@ -131,7 +133,7 @@ class AlleleInterpretationListResource(Resource):
             description: AlleleInterpretation objects
         """
 
-        return helpers.get_interpretations(session, allele_id=allele_id)
+        return helpers.get_interpretations(session, user.group.genepanels, allele_id=allele_id)
 
 
 class AlleleActionOverrideResource(Resource):
@@ -504,8 +506,9 @@ class AlleleActionFinalizeResource(Resource):
     @authenticate()
     def get(self, session, allele_id, user=None):
         f = session.query(AlleleInterpretationSnapshot).filter(
-            AlleleInterpretationSnapshot.allele_id == allele_id
-        ).join().all()
+            AlleleInterpretationSnapshot.allele_id == allele_id,
+            tuple_(AlleleInterpretation.genepanel_name, AlleleInterpretation.genepanel_version).in_((gp.name, gp.version) for gp in user.group.genepanels),
+        ).join(AlleleInterpretation).all()
 
         result = AlleleInterpretationSnapshotSchema(strict=True).dump(f, many=True).data
         return result

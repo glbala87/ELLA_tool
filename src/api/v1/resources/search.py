@@ -1,5 +1,6 @@
 import re
 from flask import request
+from sqlalchemy import tuple_
 from sqlalchemy.sql import text
 from vardb.datamodel import sample, assessment, allele, gene, genotype
 
@@ -100,17 +101,18 @@ class SearchResource(Resource):
             return {}
 
         matches = dict()
+        genepanels = user.group.genepanels
 
         # Search analysis
-        matches['analyses'] = self._search_analysis(session, query)
+        matches['analyses'] = self._search_analysis(session, query, genepanels)
 
         # Search alleles with assessments
         alleles_with_assessment = self._search_alleleassessment(session, query)
-        matches['alleleassessments'] = self._alleles_by_genepanel(session, alleles_with_assessment)
+        matches['alleleassessments'] = self._alleles_by_genepanel(session, alleles_with_assessment, genepanels)
 
         # Search alleles without assessments
         alleles_without_assessment = self._search_allele(session, query, skip=[a["id"] for a in alleles_with_assessment])
-        matches['alleles'] = self._alleles_by_genepanel(session, alleles_without_assessment)
+        matches['alleles'] = self._alleles_by_genepanel(session, alleles_without_assessment, genepanels)
 
         return matches
 
@@ -230,7 +232,7 @@ class SearchResource(Resource):
 
         return allele_ids
 
-    def _alleles_by_genepanel(self, session, alleles):
+    def _alleles_by_genepanel(self, session, alleles, genepanels):
         """
         Structures the alleles according the the genepanel(s)
         they belong to, and filters the transcripts
@@ -251,13 +253,10 @@ class SearchResource(Resource):
             sample.Analysis,
             gene.Genepanel
         ).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_((gp.name, gp.version) for gp in genepanels),
             genotype.Genotype.sample_id == sample.Sample.id,
             allele.Allele.id.in_(allele_ids)
         ).distinct().all()
-
-        # Load all genepanels
-        # TODO: Optimize to load only relevant ones
-        genepanels = session.query(gene.Genepanel).all()
 
         # Iterate, filter transcripts and add to final data
         alleles_by_genepanel = list()
@@ -320,13 +319,14 @@ class SearchResource(Resource):
             )
         return []
 
-    def _search_analysis(self, session, query):
+    def _search_analysis(self, session, query, genepanels):
         # Escape special characters before sending to tsquery
         for t in SearchResource.TSQUERY_ESCAPE:
             query = query.replace(t, '\\' + t)
 
         analyses = session.query(sample.Analysis).filter(
-            sample.Analysis.name.op('~*')('.*{}.*'.format(query))
+            sample.Analysis.name.op('~*')('.*{}.*'.format(query)),
+            tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
         ).limit(SearchResource.ANALYSIS_LIMIT).all()
         if analyses:
             return schemas.AnalysisSchema().dump(analyses, many=True).data

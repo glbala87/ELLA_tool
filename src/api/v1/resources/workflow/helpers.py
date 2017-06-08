@@ -71,11 +71,12 @@ def _get_latest_interpretation(session, allele_id, analysis_id):
         model_id = allele_id
     elif analysis_id is not None:
         model_id = analysis_id
+    return session.query(model).filter(
+        field == model_id,
+    ).order_by(model.id.desc()).first()
 
-    return session.query(model).filter(field == model_id).order_by(model.id.desc()).first()
 
-
-def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinterpretation_id=None, current_allele_data=False):
+def get_alleles(session, allele_ids, genepanels, alleleinterpretation_id=None, analysisinterpretation_id=None, current_allele_data=False):
     """
     Loads all alleles for an interpretation. The interpretation model is dynamically chosen
     based on which argument (alleleinterpretation_id, analysisinterpretation_id) is given.
@@ -102,7 +103,8 @@ def get_alleles(session, allele_ids, alleleinterpretation_id=None, analysisinter
     interpretationsnapshot_field = _get_interpretationsnapshot_field(alleleinterpretation_id, analysisinterpretation_id)
 
     interpretation = session.query(interpretation_model).filter(
-        interpretation_model.id == interpretation_id
+        interpretation_model.id == interpretation_id,
+        tuple_(interpretation_model.genepanel_name, interpretation_model.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
     ).one()
 
     link_filter = None  # In case of loading specific data rather than latest available for annotation, custom_annotation etc..
@@ -203,12 +205,13 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
     return interpretation
 
 
-def get_interpretation(session, alleleinterpretation_id=None, analysisinterpretation_id=None):
+def get_interpretation(session, genepanels, alleleinterpretation_id=None, analysisinterpretation_id=None):
     interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
     interpretation_model = _get_interpretation_model(alleleinterpretation_id, analysisinterpretation_id)
 
     interpretation = session.query(interpretation_model).filter(
-        interpretation_model.id == interpretation_id
+        interpretation_model.id == interpretation_id,
+        tuple_(interpretation_model.genepanel_name, interpretation_model.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
     ).one()
 
     idl = InterpretationDataLoader(session, config)
@@ -216,7 +219,7 @@ def get_interpretation(session, alleleinterpretation_id=None, analysisinterpreta
     return obj
 
 
-def get_interpretations(session, allele_id=None, analysis_id=None):
+def get_interpretations(session, genepanels, allele_id=None, analysis_id=None):
 
     interpretation_model = _get_interpretation_model(allele_id, analysis_id)
     interpretation_model_field = _get_interpretation_model_field(allele_id, analysis_id)
@@ -227,7 +230,8 @@ def get_interpretations(session, allele_id=None, analysis_id=None):
         model_id = analysis_id
 
     interpretations = session.query(interpretation_model).filter(
-        interpretation_model_field == model_id
+        interpretation_model_field == model_id,
+        tuple_(interpretation_model.genepanel_name, interpretation_model.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
     ).order_by(interpretation_model.id).all()
 
     loaded_interpretations = list()
