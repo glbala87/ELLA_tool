@@ -1,12 +1,12 @@
 # -*- coding: latin1 -*-
-from api.util.util import provide_session
+from api.util.util import provide_session, logger#, logger_obfuscated
 from flask.ext.restful import Resource as flask_resource
 import sqlalchemy
 from sqlalchemy import tuple_
 
 class Resource(flask_resource):
 
-    method_decorators = [provide_session]
+    method_decorators = [logger(show_payload=False), provide_session]
 
     def _filter(self, query, model, rest_filter):
         args = list()
@@ -96,3 +96,6 @@ class Resource(flask_resource):
             return result.data
         else:
             return s
+
+class LogRequestResource(Resource):
+    method_decorators = [logger(show_payload=True), provide_session]

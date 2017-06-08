@@ -16,6 +16,7 @@ class Gene(Base):
 
     hugo_symbol = Column(String(), primary_key=True)
     ensembl_gene_id = Column(String(15), unique=True)
+    omim_entry_id = Column(Integer)
     # dominance = Column(String(20))
 
     def __repr__(self):

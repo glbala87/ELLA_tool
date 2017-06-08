@@ -68,6 +68,7 @@ export default class Genepanel {
         if ('comment' in config_override) {
             result['comment'] = config_override['comment'];
         }
+        result['omim_entry_id'] = this.getOmimEntryId(geneSymbol);
 
         return result;
     }
@@ -96,18 +97,35 @@ export default class Genepanel {
         }
 
     }
+    /**
+     * Returns the OMIM entry ID for the gene as found in the transcripts file,
+     * @param  {String} geneSymbol Gene symbol
+     * @return {String}            Entry ID like 113705
+     */
+    getOmimEntryId(geneSymbol) {
+        let transcripts = this.transcriptsBy(geneSymbol);
+        // all have the same gene and thus omim entry
+        return transcripts && transcripts.length > 0 ? transcripts[0].gene.omim_entry_id : '';
+
+    }
 
     getDisplayInheritance(gene_symbol) {
         return this.getInheritanceCodes(gene_symbol);
     }
 
-    phenotypesBy(geneSymbol) {
-        let phenotypes = this.phenotypes;
-        if (phenotypes) {
-            return phenotypes.filter(ph => ph.gene.hugo_symbol == geneSymbol);
+    _filterCollectionByGene(collection, geneSymbol) {
+        if (collection) {
+            return collection.filter(entry => entry.gene.hugo_symbol == geneSymbol);
         } else {
             return null;
         }
+
+    }
+    phenotypesBy(geneSymbol) {
+        return this._filterCollectionByGene(this.phenotypes, geneSymbol)
+    }
+    transcriptsBy(geneSymbol) {
+        return this._filterCollectionByGene(this.transcripts, geneSymbol)
     }
 }
 

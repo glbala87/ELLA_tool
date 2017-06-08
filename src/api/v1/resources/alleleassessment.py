@@ -3,10 +3,10 @@ from vardb.datamodel import assessment
 from api import schemas
 from api.util.util import paginate, rest_filter, request_json, authenticate
 from api.util.assessmentcreator import AssessmentCreator
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class AlleleAssessmentResource(Resource):
+class AlleleAssessmentResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, aa_id=None, user=None):
@@ -34,7 +34,7 @@ class AlleleAssessmentResource(Resource):
         return result
 
 
-class AlleleAssessmentListResource(Resource):
+class AlleleAssessmentListResource(LogRequestResource):
 
     @authenticate()
     @paginate

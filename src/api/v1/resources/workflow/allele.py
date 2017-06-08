@@ -2,7 +2,7 @@ from flask import request
 from sqlalchemy import tuple_
 
 from api.util.util import request_json, authenticate
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
 from vardb.datamodel.workflow import AlleleInterpretationSnapshot, AlleleInterpretation
@@ -11,7 +11,7 @@ from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
 from . import helpers
 
 
-class AlleleInterpretationResource(Resource):
+class AlleleInterpretationResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, allele_id, interpretation_id, user=None):
@@ -86,7 +86,7 @@ class AlleleInterpretationResource(Resource):
         return None, 200
 
 
-class AlleleInterpretationAllelesListResource(Resource):
+class AlleleInterpretationAllelesListResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, allele_id, interpretation_id, user=None):
@@ -108,7 +108,7 @@ class AlleleInterpretationAllelesListResource(Resource):
         )
 
 
-class AlleleInterpretationListResource(Resource):
+class AlleleInterpretationListResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, allele_id, user=None):
@@ -136,7 +136,7 @@ class AlleleInterpretationListResource(Resource):
         return helpers.get_interpretations(session, user.group.genepanels, allele_id=allele_id)
 
 
-class AlleleActionOverrideResource(Resource):
+class AlleleActionOverrideResource(LogRequestResource):
 
     @authenticate()
     def post(self, session, allele_id, user=None):
@@ -167,7 +167,7 @@ class AlleleActionOverrideResource(Resource):
         return None, 200
 
 
-class AlleleActionStartResource(Resource):
+class AlleleActionStartResource(LogRequestResource):
 
     @authenticate()
     @request_json(['gp_name', 'gp_version'])
@@ -220,7 +220,7 @@ class AlleleActionStartResource(Resource):
         return None, 200
 
 
-class AlleleActionMarkReviewResource(Resource):
+class AlleleActionMarkReviewResource(LogRequestResource):
 
     @authenticate()
     @request_json(
@@ -262,7 +262,7 @@ class AlleleActionMarkReviewResource(Resource):
         return None, 200
 
 
-class AlleleActionReopenResource(Resource):
+class AlleleActionReopenResource(LogRequestResource):
 
     @authenticate()
     def post(self, session, allele_id, user=None):
@@ -295,7 +295,7 @@ class AlleleActionReopenResource(Resource):
         return None, 200
 
 
-class AlleleActionFinalizeResource(Resource):
+class AlleleActionFinalizeResource(LogRequestResource):
 
     @authenticate()
     @request_json(
@@ -514,7 +514,7 @@ class AlleleActionFinalizeResource(Resource):
         return result
 
 
-class AlleleCollisionResource(Resource):
+class AlleleCollisionResource(LogRequestResource):
     @authenticate()
     def get(self, session, allele_id, user=None):
         return helpers.get_workflow_allele_collisions(session, [allele_id], allele_id=allele_id)

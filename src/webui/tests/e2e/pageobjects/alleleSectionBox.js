@@ -15,7 +15,7 @@ const SELECTOR_COMMENT_REPORT = 'allele-sectionbox .id-comment-report';
 const SELECTOR_COMMENT_REPORT_EDITOR = `${SELECTOR_COMMENT_REPORT} .wysiwygeditor`;
 
 const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification';
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'EXISTING REUSED';
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 
 
 class AlleleSectionBox  {
@@ -62,6 +62,7 @@ class AlleleSectionBox  {
 
     get reportCommentElement() { return browser.element(SELECTOR_COMMENT_REPORT); }
     get reportComment() { return browser.getText(SELECTOR_COMMENT_REPORT_EDITOR); }
+    get reportCommentEditable() { return browser.isCommentEditable(SELECTOR_COMMENT_REPORT_EDITOR)}
 
     setReportComment(text) {
         this.reportCommentElement.scroll();

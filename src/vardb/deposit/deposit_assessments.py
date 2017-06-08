@@ -9,11 +9,9 @@ import sys
 import argparse
 import logging
 from collections import defaultdict
-
 from sqlalchemy import and_
 import sqlalchemy.orm.exc
 
-import vardb.datamodel
 from vardb.datamodel import gene, DB
 from vardb.util import vcfiterator
 from vardb.deposit.importers import AnnotationImporter, AssessmentImporter, AlleleImporter, \

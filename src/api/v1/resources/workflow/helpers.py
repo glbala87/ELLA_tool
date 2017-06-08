@@ -1,8 +1,9 @@
 import datetime
 import itertools
+import pytz
 from collections import defaultdict
 
-from sqlalchemy import tuple_
+from sqlalchemy import tuple_, or_
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
@@ -168,7 +169,7 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
         if 'history' not in interpretation.state_history:
             interpretation.state_history['history'] = list()
         interpretation.state_history['history'].insert(0, {
-            'time': datetime.datetime.now().isoformat(),
+            'time': datetime.datetime.now(pytz.utc).isoformat(),
             'state': interpretation.state,
             'user_id': interpretation.user_id
         })
@@ -201,7 +202,7 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
     # Overwrite state fields with new values
     interpretation.state = data['state']
     interpretation.user_state = data['user_state']
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
     return interpretation
 
 
@@ -287,7 +288,7 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     # since it's a foreign key
     interpretation.user = start_user
     interpretation.status = 'Ongoing'
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     if analysis_id is not None:
         analysis = session.query(sample.Analysis).filter(
@@ -338,7 +339,7 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     session.add_all(snapshot_objects)
 
     interpretation.status = 'Done'
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     # Create next interpretation
     interpretation_next = interpretation_model.create_next(interpretation)
@@ -449,7 +450,7 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
     # Update interpretation and return data
     interpretation.status = 'Done'
-    interpretation.date_last_update = datetime.datetime.now()
+    interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     reused_referenceassessments = grouped_alleleassessments['referenceassessments']['reused']
     created_referenceassessments = grouped_alleleassessments['referenceassessments']['created']
@@ -487,8 +488,10 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     # Get all analysis workflows that are either Ongoing, or waiting for review
     # i.e having not only 'Not started' interpretations or not only 'Done' interpretations.
     workflow_analysis_ids = session.query(sample.Analysis.id).filter(
-        ~sample.Analysis.id.in_(queries.workflow_analyses_finalized(session)),
-        ~sample.Analysis.id.in_(queries.workflow_analyses_not_started(session)),
+        or_(
+            sample.Analysis.id.in_(queries.workflow_analyses_marked_review(session)),
+            sample.Analysis.id.in_(queries.workflow_analyses_ongoing(session)),
+        )
     )
 
     # Exclude "ourself" if applicable
@@ -510,8 +513,9 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         workflow.AnalysisInterpretation
     ).filter(
         sample.Analysis.id.in_(workflow_analysis_ids),
-        allele.Allele.id.in_(allele_ids)
-    )
+        allele.Allele.id.in_(allele_ids),
+        workflow.AnalysisInterpretation.status != 'Done'
+    ).distinct()
 
     # Get all allele ids connected to allele workflows that are ongoing
     wf_allele_gp_allele_ids = session.query(
@@ -520,10 +524,13 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         workflow.AlleleInterpretation.user_id,
         workflow.AlleleInterpretation.allele_id,
     ).filter(
-        ~workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_finalized(session)),
-        ~workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_not_started(session)),
+        or_(
+            workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_marked_review(session)),
+            workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_ongoing(session))
+        ),
+        workflow.AlleleInterpretation.status != 'Done',
         workflow.AlleleInterpretation.allele_id.in_(allele_ids)
-    )
+    ).distinct()
 
     # Exclude "ourself" if applicable
     if allele_id is not None:
@@ -589,7 +596,8 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             dumped_allele = next((a for a in gp_dumped_alleles[gp_key] if a['id'] == al_id), None)
             if not dumped_allele:  # Allele might have been filtered out..
                 continue
-            dumped_user = next(u for u in dumped_users if u['id'] == user_id)
+            # If an workflow is in review, it will have no user assigned...
+            dumped_user = next((u for u in dumped_users if u['id'] == user_id), None)
             collisions.append({
                 'type': wf_type,
                 'user': dumped_user,

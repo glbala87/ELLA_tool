@@ -7,10 +7,10 @@ from api.util.util import rest_filter, link_filter, authenticate
 
 from api.util.alleledataloader import AlleleDataLoader
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class AlleleListResource(Resource):
+class AlleleListResource(LogRequestResource):
 
     @authenticate()
     @link_filter
@@ -94,7 +94,7 @@ class AlleleListResource(Resource):
         )
 
 
-class AlleleGenepanelListResource(Resource):
+class AlleleGenepanelListResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, allele_id, user=None):

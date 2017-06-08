@@ -1,14 +1,14 @@
 import datetime
-
+import pytz
 from vardb.datamodel import annotation
 
 from api import schemas
 from api.util.util import rest_filter, request_json, authenticate
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class CustomAnnotationList(Resource):
+class CustomAnnotationList(LogRequestResource):
 
     @authenticate()
     @rest_filter
@@ -101,7 +101,7 @@ class CustomAnnotationList(Resource):
         if existing_ca:
             # Replace current
             ca_data['previous_annotation_id'] = existing_ca.id
-            existing_ca.date_superceeded = datetime.datetime.now()
+            existing_ca.date_superceeded = datetime.datetime.now(pytz.utc)
 
         ca = annotation.CustomAnnotation(**ca_data)
         session.add(ca)

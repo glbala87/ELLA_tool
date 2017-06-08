@@ -58,6 +58,9 @@ describe("Model Genepanel", function() {
                 {'gene': {'hugo_symbol': 'BRCA2'}, 'inheritance': 'AR', 'description': "a phenotype"},
                 {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': 'AD'},
                 {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': ''}
+            ],
+            'transcripts': [
+                {'gene': {'hugo_symbol': 'BRCA1', 'omim_entry_id': 113705}},
             ]
         };
 
@@ -122,8 +125,14 @@ describe("Model Genepanel", function() {
         expect(genepanelConfig_brca3['freq_cutoffs']['internal']['hi_freq_cutoff']).toBe(0.05);
         expect(genepanelConfig_brca3['freq_cutoffs']['internal']['lo_freq_cutoff']).toBe(1);
 
-    })
+    });
 
+    it("can find a gene's Omim entry ID", function () {
+        let genepanel = new Genepanel(createPanel(true));
+        expect(genepanel.getOmimEntryId('BRCA1')).toBe(113705);
+        let genepanel_config = genepanel.calculateGenepanelConfig('BRCA1', genepanel_defaults);
+        expect(genepanel_config['omim_entry_id']).toBe(113705);
+    })
 
 
 });

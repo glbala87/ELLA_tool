@@ -6,13 +6,13 @@ from vardb.datamodel import sample, assessment, allele, gene, genotype
 
 from api import schemas
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 from api.util.alleledataloader import AlleleDataLoader
 
 from api.util.annotationprocessor.annotationprocessor import TranscriptAnnotation
 from api.util.util import authenticate
 
-class SearchResource(Resource):
+class SearchResource(LogRequestResource):
 
 
     ANALYSIS_LIMIT = 10

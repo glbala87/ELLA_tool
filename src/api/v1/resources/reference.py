@@ -5,10 +5,10 @@ from api.util.util import paginate, rest_filter, search_filter, request_json, au
 
 from pubmed import PubMedParser
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class ReferenceListResource(Resource):
+class ReferenceListResource(LogRequestResource):
 
     @authenticate()
     @paginate

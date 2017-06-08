@@ -1,11 +1,11 @@
 from api import schemas
 from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
 from api.util.util import request_json, rest_filter, authenticate
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 from vardb.datamodel import annotationjob
 
 
-class AnnotationJob(Resource):
+class AnnotationJob(LogRequestResource):
 
     @authenticate()
     @rest_filter
@@ -50,7 +50,7 @@ class AnnotationJob(Resource):
         return None, 200
 
 
-class AnnotationServiceRunning(Resource):
+class AnnotationServiceRunning(LogRequestResource):
     def get(self, session):
         annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
         return annotationservice_interface.annotation_service_running()

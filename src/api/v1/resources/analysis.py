@@ -3,10 +3,10 @@ from vardb.datamodel import assessment, sample, genotype, workflow
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, authenticate
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 
 
-class AnalysisListResource(Resource):
+class AnalysisListResource(LogRequestResource):
 
     @authenticate()
     @paginate
@@ -38,7 +38,7 @@ class AnalysisListResource(Resource):
         return analyses
 
 
-class AnalysisResource(Resource):
+class AnalysisResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, analysis_id, user=None):

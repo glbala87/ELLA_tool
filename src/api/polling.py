@@ -6,6 +6,7 @@ import time
 import urllib2
 from StringIO import StringIO
 from os.path import join
+import pytz
 from sqlalchemy.exc import OperationalError
 
 from api.config import config
@@ -58,7 +59,7 @@ class AnnotationJobsInterface:
                 job.status_history["history"] = list()
 
             job.status_history["history"].insert(0, {
-                'time': datetime.datetime.now().isoformat(),
+                'time': datetime.datetime.now(pytz.utc).isoformat(),
                 'status': job.status,
             })
 
@@ -67,7 +68,7 @@ class AnnotationJobsInterface:
             if v is not None and getattr(job, k) != v:
                 setattr(job, k, v)
 
-        job.date_last_update = datetime.datetime.now()
+        job.date_last_update = datetime.datetime.now(pytz.utc)
         return job
 
     def deposit(self, id, annotated_vcf):

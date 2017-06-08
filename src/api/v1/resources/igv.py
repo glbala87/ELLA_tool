@@ -7,7 +7,7 @@ from api.config import config
 
 from vardb.datamodel import sample
 
-from api.v1.resource import Resource
+from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
 
 
@@ -66,7 +66,7 @@ def get_partial_response(path, start, end):
     return rv
 
 
-class IgvResource(Resource):
+class IgvResource(LogRequestResource):
     @authenticate()
     def get(self, session, filename, user=None):
 
@@ -85,7 +85,7 @@ class IgvResource(Resource):
             return get_partial_response(final_path, start, end)
 
 
-class BamResource(Resource):
+class BamResource(LogRequestResource):
     """
     We serve the file through python to have control
     over the access of the bam files.
@@ -123,7 +123,7 @@ class BamResource(Resource):
             return get_partial_response(path, start, end)
 
 
-class VcfResource(Resource):
+class VcfResource(LogRequestResource):
     """
     We serve the file through python to have control
     over the access of the vcf files.
