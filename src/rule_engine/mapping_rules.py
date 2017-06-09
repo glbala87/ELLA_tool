@@ -99,7 +99,8 @@ rules = [
     # Manual edit
     { "code": "PP2","rule": {"$$aggregate": {"$and":["REQ_missense",{"$in": ["REQ_GP_LOF_missense","REQ_GP_missense_only"]}]}}},
     { "code": "PP3", "rule": {"transcript.splice_Effect": {"$in": ["predicted_lost ", "de_novo"]}}},
-    { "code": "PP3", "rule": {"prediction.conservation": "conserved"}},
+    { "code": "PP3", "rule": {"prediction.orth_conservation": "conserved"}},
+    { "code": "PP3", "rule": {"prediction.para_conservation": "conserved"}},
     { "code": "PP3", "rule": {"external.IARC-BRCA": {"$in": ["4", "5"]}}},
     # PP4 (no rule)
     { "code": "PP5", "rule": {"external.[Trusted source]": "Pathogenic"}},
@@ -115,7 +116,8 @@ rules = [
     { "code": "BP3", "rule": {"$$aggregate": {"$all": ["REQ_inframe", "REQ_repeat"]}}},
     # Manual edit
     { "code": "BP4", "rule": {"transcript.splice_Effect": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
-    { "code": "BP4", "rule": {"prediction.conservation": "non-conserved"}},
+    { "code": "BP4", "rule": {"prediction.orth_conservation": "non-conserved"}},
+    { "code": "BP4", "rule": {"prediction.para_conservation": "non-conserved"}},
     # BP5 (no rule)
     { "code": "BP6", "rule": {"external.[Trusted source]": "Benign"}},
     # BP7 (no rule)
