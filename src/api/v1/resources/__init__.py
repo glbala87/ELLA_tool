@@ -4,6 +4,7 @@ import allelereport
 import alleleassessment
 import analysis
 import annotationjob
+import attachment
 import config
 import customannotation
 import overview

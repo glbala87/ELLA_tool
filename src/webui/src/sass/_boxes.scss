@@ -12,9 +12,9 @@ $bar-colors: (
      .sb-title-container { background-color: hsla(hue($color),saturation($color),lightness($color), 0.25); }
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
-   .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
-   .#{$name} .sb-controls button:disabled, button.#{$name}:disabled { color: $color; border-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
-   .#{$name} .sb-controls button:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
+   .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown, .#{$name} .sb-controls .bttn { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
+   .#{$name} .sb-controls button:disabled, button.#{$name}:disabled, .#{$name} .sb-controls .bttn[disabled] { color: $color; border-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
+   .#{$name} .sb-controls button:hover:not([disabled]), .#{$name} .sb-controls .bttn:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
 }
 
 .sectionbox .title, .sectionbox .icon { color: $black-50; }

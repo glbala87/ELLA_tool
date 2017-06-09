@@ -49,7 +49,8 @@ class WorkflowService {
             prepared_data.custom_annotations,
             prepared_data.alleleassessments,
             prepared_data.referenceassessments,
-            prepared_data.allelereports
+            prepared_data.allelereports,
+            prepared_data.attachments
         );
     }
 
@@ -63,7 +64,8 @@ class WorkflowService {
             prepared_data.custom_annotations,
             prepared_data.alleleassessments,
             prepared_data.referenceassessments,
-            prepared_data.allelereports
+            prepared_data.allelereports,
+            prepared_data.attachments
         );
     }
 
@@ -237,6 +239,7 @@ class WorkflowService {
         let alleleassessments = [];
         let referenceassessments = [];
         let allelereports = [];
+        let attachments = [];
 
         // collection annotation ids for the alleles:
         for (let allele_state of Object.values(interpretation.state.allele)) {
@@ -280,6 +283,8 @@ class WorkflowService {
                     allele_state,
                     type === 'analysis' ? id : null
                 ));
+
+                attachments.push({"allele_id": allele_state.allele_id, "attachment_ids": allele_state.alleleassessment.attachment_ids})
             }
         }
 
@@ -288,7 +293,8 @@ class WorkflowService {
             custom_annotations,
             alleleassessments,
             referenceassessments,
-            allelereports
+            allelereports,
+            attachments,
         }
     }
 

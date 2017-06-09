@@ -40,6 +40,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         'Allele',
         'WorkflowResource',
         'ReferenceResource',
+        'AttachmentResource',
         'AlleleFilter',
         'CustomAnnotationModal')
 export class InterpretationController {
@@ -53,6 +54,7 @@ export class InterpretationController {
                 Allele,
                 WorkflowResource,
                 ReferenceResource,
+                AttachmentResource,
                 AlleleFilter,
                 CustomAnnotationModal) {
 
@@ -63,6 +65,7 @@ export class InterpretationController {
         this.alleleService = Allele;
         this.workflowResource = WorkflowResource;
         this.referenceResource = ReferenceResource;
+        this.attachmentResource = AttachmentResource;
 
         this.customAnnotationModal = CustomAnnotationModal;
         this.alleleFilter = AlleleFilter;
@@ -73,6 +76,11 @@ export class InterpretationController {
             () => this.interpretation.state,
             () => this.onInterpretationStateChange(),
             true // Deep watch
+        );
+
+        $scope.$watchCollection(
+            () => this.getAttachmentIds(),
+            () => this.loadAttachments(this.getAttachmentIds()),
         );
 
         $scope.$watch(
@@ -87,6 +95,7 @@ export class InterpretationController {
         this.config = Config.getConfig();
 
         this.references = null;  // Loaded references from backend. null = not loaded.
+        this.attachments = {};
 
         this.allele_sidebar = {
             alleles: { // Holds data used by <allele-sidebar>
@@ -112,6 +121,9 @@ export class InterpretationController {
         );
 
     }
+
+
+
 
     setup() {
 
@@ -365,6 +377,42 @@ export class InterpretationController {
             this.references = [];
         }
     }
+
+    /**
+     * Retrieves attachment ids for all allele states
+     * @return {Array} Array of ids.
+     */
+    getAttachmentIds() {
+        let attachment_ids = []
+        for (let allele_id in this.interpretation.state.allele) {
+            if ("alleleassessment" in this.interpretation.state.allele[allele_id]) {
+                attachment_ids = attachment_ids.concat(this.interpretation.state.allele[allele_id].alleleassessment.attachment_ids)
+            }
+        }
+        for (let allele of this.alleles) {
+            if ("allele_assessment" in allele) {
+                attachment_ids = attachment_ids.concat(allele.allele_assessment.attachment_ids)
+            }
+        }
+        attachment_ids = [... new Set(attachment_ids)]
+
+        return attachment_ids;
+    }
+
+    /**
+     * Loads attachments from backend
+     * @param {Array} attachment_ids
+     */
+    loadAttachments(attachment_ids) {
+        let attachments = {};
+        this.attachmentResource.getByIds(attachment_ids).then((a) => {
+            for (let atchmt of a) {
+                attachments[atchmt.id] = atchmt;
+            }
+            this.attachments = attachments;
+        })
+    }
+
 
     /**
      * Returns allelestate object for the provided allele.

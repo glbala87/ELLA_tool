@@ -399,7 +399,8 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
         data['annotations'],
         data['alleleassessments'],
         data['custom_annotations'],
-        data['referenceassessments']
+        data['referenceassessments'],
+        data['attachments']
     )
 
     reused_alleleassessments = grouped_alleleassessments['alleleassessments']['reused']

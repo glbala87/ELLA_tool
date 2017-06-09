@@ -77,6 +77,7 @@ export class WorkflowAlleleController {
                         },
                         controls: [
                             'collapse_all',
+                            'upload',
                             'add_acmg',
                             'classification',
                             'reuse_classification'

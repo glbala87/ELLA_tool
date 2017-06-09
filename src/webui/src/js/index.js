@@ -31,6 +31,7 @@ import './services/resources/finalizationResource.service';
 import './services/resources/overviewResource.service';
 import './services/resources/workflowResource.service';
 import './services/resources/loginResource.service';
+import './services/resources/attachmentResource.service';
 import "./services/allele.service";
 import "./services/user.service";
 import './services/ConfigService';
@@ -75,6 +76,7 @@ import './widgets/analysisList.directive';
 import './widgets/alleleAssessment.directive';
 import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
+import './widgets/attachment.directive';
 import './widgets/collisionWarning.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
@@ -90,6 +92,7 @@ import './widgets/searchResults.directive';
 import './widgets/workflowButtons.directive';
 import './widgets/allelesectionbox/allelesectionbox.directive';
 import './widgets/allelesectionbox/allelesectionboxcontent.directive';
+import './widgets/allelesectionbox/upload.directive';
 import './widgets/reportcard/reportcard.directive';
 import './widgets/isolateclick.directive';
 import './widgets/genepanelvalue/genepanelvalue.directive.js';
@@ -205,3 +208,52 @@ Promise.all = function() {
     };
     return temp;
 };
+
+
+
+// Sets up general event handlers for drag and drop events on the window and body
+window.onload = () => {
+    // Prevent default behaviour of drag and drop of files
+    window.addEventListener("dragover", function (e) {
+        e = e || event;
+        e.preventDefault();
+    }, false);
+    window.addEventListener("drop", function (e) {
+        e = e || event;
+        e.preventDefault();
+    }, false);
+
+    // This seems very hackish
+    // Purpose: Keep track of whether or not a file is currently being dragged
+    // Increment on dragenter, decrease on dragleave
+    // A positive value indicates that a file is currently being dragged
+    let body = document.body;
+    body.dragCount = 0;
+
+
+    let events = ["dragleave", "dragenter", "drop"]
+    for (let event of events) {
+        body.addEventListener(event, function (e) {
+            if (e.dataTransfer.types.indexOf('Files') < 0) return; // Elements other than files being dragged
+            if (e.type === "dragenter") {
+                this.dragCount++;
+            } else if (e.type === "dragleave") {
+                this.dragCount--;
+            } else if (e.type === "drop") {
+                this.dragCount = 0;
+            }
+
+            // Hide/show droparea elements based on dragcount value
+            let dropAreas = document.getElementsByClassName("droparea")
+            for (let dropArea of dropAreas) {
+                if (this.dragCount > 0) {
+                    dropArea.classList.remove("droparea-hidden")
+                } else {
+                    dropArea.classList.add("droparea-hidden")
+                }
+            }
+
+            e.preventDefault();
+        }, false);
+    }
+}

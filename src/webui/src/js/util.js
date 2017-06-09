@@ -16,5 +16,11 @@ export let UUID = function generateUUID () { // http://stackoverflow.com/a/88094
     });
 }
 
+export let printedFileSize = function(size) {
+    var i = Math.floor( Math.log(size) / Math.log(1024) );
+    if (i > 2) i = 2;
+    return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB'][i];
+}
+
 
 

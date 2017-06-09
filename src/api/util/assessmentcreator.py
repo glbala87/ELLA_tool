@@ -1,6 +1,6 @@
 import datetime
 import pytz
-from vardb.datamodel import assessment, sample
+from vardb.datamodel import assessment, sample, attachment
 
 
 from api.schemas import AlleleAssessmentSchema, ReferenceAssessmentSchema
@@ -22,7 +22,7 @@ class AssessmentCreator(object):
         return 'reuse' in item and item['reuse']
 
     def create_from_data(self, user_id, annotations, alleleassessments, custom_annotations=list(),
-                         referenceassessments=list()):
+                         referenceassessments=list(), attachments=list()):
         """
         Takes in lists of assessment data and (possible) creates new assessments in database.
 
@@ -69,6 +69,8 @@ class AssessmentCreator(object):
         ra_created, ra_reused = self._create_or_reuse_referenceassessments(user_id, all_reference_assessments)
 
         self._attach_referenceassessments(ra_created + ra_reused, aa_created)
+
+        self._attach_attachments(attachments, aa_created)
 
         return {
             'referenceassessments': {
@@ -242,4 +244,15 @@ class AssessmentCreator(object):
 
         return created, reused
 
+    def _attach_attachments(self, attachments, created_alleleassessments):
+        all_attachment_ids = sum([atchmt["attachment_ids"] for atchmt in attachments], [])
+        attachment_objs = self.session.query(attachment.Attachment).filter(
+            attachment.Attachment.id.in_(all_attachment_ids)
+        ).all()
+
+        assert set(all_attachment_ids) == set(a.id for a in attachment_objs), "Not all attachments were found in the database"
+
+        for aa in created_alleleassessments:
+            attachment_ids = next((atchmt["attachment_ids"] for atchmt in attachments if atchmt["allele_id"] == aa.allele_id), [])
+            aa.attachments = [at for at in attachment_objs if at.id in attachment_ids]
 

@@ -10,7 +10,7 @@ from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
 
 from vardb.datamodel import Base
-from vardb.datamodel import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
+from vardb.datamodel import gene, annotation, user, sample, attachment  # Needed, implicit imports used by sqlalchemy
 from vardb.util.mutjson import JSONMutableDict
 
 
@@ -19,6 +19,10 @@ AlleleAssessmentReferenceAssessment = Table('alleleassessmentreferenceassessment
     Column('referenceassessment_id', Integer, ForeignKey('referenceassessment.id'))
 )
 
+AlleleAssessmentAttachment = Table('alleleassessmentattachment', Base.metadata,
+    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id')),
+    Column('attachment_id', Integer, ForeignKey('attachment.id')),
+)
 
 class AlleleAssessment(Base):
     """Represents an assessment of one allele."""
@@ -47,6 +51,7 @@ class AlleleAssessment(Base):
 
     referenceassessments = relationship("ReferenceAssessment",
                                         secondary=AlleleAssessmentReferenceAssessment)
+    attachments = relationship("Attachment", secondary=AlleleAssessmentAttachment)
 
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 

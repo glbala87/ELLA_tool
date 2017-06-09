@@ -1,0 +1,6 @@
+<div class='acmg-popover'>
+  <p><b>Filename: </b> <span>{{vm.attachment.filename}}</span></p>
+  <p><b>File size: </b> <span>{{vm.getPrintedFileSize()}}</span></p>
+  <p><b>MIME type: </b> <span>{{vm.attachment.mimetype}}</span></p>
+  <p><b>Uploaded: </b> <span>{{vm.attachment.date_created | date:"dd-MM-yyyy HH:mm"}} by {{vm.attachment.user.full_name}}</span></p>
+</div>

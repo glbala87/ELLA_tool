@@ -12,6 +12,7 @@ import {ACMGHelper} from '../../model/acmghelper';
         genepanel: '=',
         allele: '=',
         references: '=',
+        attachments: '=',
         alleleState: '=',
         alleleUserState: '=',
         alleleassessmentComment: '=?',  // {name: string, placeholder: string}
@@ -44,6 +45,7 @@ import {ACMGHelper} from '../../model/acmghelper';
     'ACMGClassificationResource',
     'IgvModal',
     'Analysis',
+    'AttachmentResource',
     'clipboard',
     'toastr',
     '$scope'
@@ -58,6 +60,7 @@ export class AlleleSectionBoxController {
                 ACMGClassificationResource,
                 IgvModal,
                 Analysis,
+                AttachmentResource,
                 clipboard,
                 toastr,
                 $scope) {
@@ -67,6 +70,7 @@ export class AlleleSectionBoxController {
         this.acmgClassificationResource = ACMGClassificationResource;
         this.igvModal = IgvModal;
         this.analysisService = Analysis;
+        this.attachmentResource = AttachmentResource;
         this.clipboard = clipboard;
         this.toastr = toastr;
 
@@ -94,6 +98,7 @@ export class AlleleSectionBoxController {
 
         this.setACMGCandidates();
     }
+
 
     getSectionUserState() {
         if (!('sections' in this.alleleUserState)) {
@@ -148,7 +153,7 @@ export class AlleleSectionBoxController {
     }
 
     getAlleleAssessment() {
-        return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState);
+        return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState)
     }
 
     getAlleleReport() {
@@ -410,6 +415,5 @@ export class AlleleSectionBoxController {
     includeACMG(code) {
         ACMGHelper.includeACMG(code, this.allele, this.alleleState);
     }
-
 
 }
