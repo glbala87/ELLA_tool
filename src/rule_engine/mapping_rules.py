@@ -25,6 +25,7 @@ rules = [
     { "code": "REQ_IHC_HQ", "rule": {"refassessment.*.ref_ihc_quality": "ihc_HQ"}},
     { "code": "REQ_IHC_MQ", "rule": {"refassessment.*.ref_ihc_quality": "ihc_MQ"}},
     { "code": "REQ_in_last_exon", "rule": {"transcript.in_last_exon": "yes"}},
+    { "code": "REQ_in_trans_pathogenic", "rule": {"refassessment.*.ref_phase": "in_trans_pathogenic"}},
     { "code": "REQ_in_trans_pathogenic", "rule": {"genomic.phase": "in_trans_pathogenic"}},
     { "code": "REQ_inframe", "rule": {"transcript.consequences": {"$in": ["inframe_insertion", "inframe_deletion"]}}},
     { "code": "REQ_less_common", "rule": {"frequencies.commonness": "less_common"}},
@@ -65,8 +66,8 @@ rules = [
     { "code": "PVS1","rule": {"$$aggregate": {"$and":["REQ_null_variant",{"$in": ["REQ_GP_LOF_missense", "REQ_GP_LOF_only"]},{"$or": ["REQ_not_in_last_exon",{"$all": ["REQ_in_last_exon","REQ_GP_last_exon_important"]}]}]}}},
     ### PS*
     { "code": "PS1", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_same_aa", "REQ_overlap_HQ"]}}},
-    { "code": "PS2", "rule": {"family.de_novo": "de_novo_confirmed"}},
     { "code": "PS2", "rule": {"refassessment.*.ref_de_novo": "de_novo_confirmed"}},
+    { "code": "PS2", "rule": {"family.de_novo": "de_novo_confirmed"}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_abnormal_protein", "REQ_protein_HQ"]}}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_abnormal_RNA", "REQ_RNA_HQ"]}}},
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_MSI", "REQ_MSI_HQ"]}}},
@@ -85,8 +86,8 @@ rules = [
     # Manual edit
     { "code": "PM4", "rule": {"$$aggregate": {"$and": ["REQ_inframe", {"$not": {"$in": ["REQ_repeat"]}}]}}},
     { "code": "PM5", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_novel_aa", "REQ_aa_similar", "REQ_overlap_HQ"]}}},
-    { "code": "PM6", "rule": {"family.de_novo": "de_novo_unconfirmed"}},
     { "code": "PM6", "rule": {"refassessment.*.ref_de_novo": "de_novo_unconfirmed"}},
+    { "code": "PM6", "rule": {"family.de_novo": "de_novo_unconfirmed"}},
     { "code": "PMxPP1", "rule": {"$$aggregate": {"$all": ["REQ_segregation", "REQ_segregation_MQ"]}}},
     { "code": "PMxPS1", "rule": {"$$aggregate": {"$all": ["REQ_overlap_pat", "REQ_same_aa", "REQ_overlap_MQ"]}}},
     { "code": "PMxPS3", "rule": {"$$aggregate": {"$all": ["REQ_abnormal_protein", "REQ_protein_MQ"]}}},
@@ -111,6 +112,7 @@ rules = [
     { "code": "PPxPS4", "rule": {"$$aggregate": {"$all": ["REQ_2affected", "REQ_no_freq"]}}},
     ### BP*
     { "code": "BP1", "rule": {"$$aggregate": {"$all": ["REQ_missense", "REQ_GP_LOF_only"]}}},
+    { "code": "BP2", "rule": {"refassessment.*.ref_phase": "in_cis_pathogenic"}},
     { "code": "BP2", "rule": {"family.phase": "in_cis_pathogenic"}},
     { "code": "BP2", "rule": {"$$aggregate": {"$all": ["REQ_in_trans_pathogenic", "REQ_GP_AD"]}}},
     { "code": "BP3", "rule": {"$$aggregate": {"$all": ["REQ_inframe", "REQ_repeat"]}}},
