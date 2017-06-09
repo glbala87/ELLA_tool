@@ -20,6 +20,7 @@ export class UploadController {
         this.attachmentResource = AttachmentResource;
         this.toastr = toastr;
         this.max_file_size = Config.config.app.max_upload_size;
+        this.uploadEnabled = Boolean(Config.config.app.attachment_storage);
         this.element = $element;
         if (this.mode === "browse") {
             this.setupBrowseMode()

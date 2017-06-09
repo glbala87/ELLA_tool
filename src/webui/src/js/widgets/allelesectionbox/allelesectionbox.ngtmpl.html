@@ -10,7 +10,7 @@
     <!-- Controls -->
     <section class="line-wrapper" ng-if=vm.controls.length>
       <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
-          <upload ng-if="control == 'upload'"
+          <upload ng-if="!vm.readOnly && control == 'upload'"
                   mode="'browse'"
                   buttontext="'Add attachment'"
                   allele-state="vm.alleleState"
@@ -142,6 +142,7 @@
         <section class="attachment-wrapper">
           <attachment
                 ng-repeat="attachment_id in vm.getAlleleAssessment().attachment_ids"
+                ng-if="vm.attachments[attachment_id]"
                 attachment="vm.attachments[attachment_id]"
                 read-only="vm.readOnly || vm.isAlleleAssessmentReused()"
                 allele="vm.allele"
