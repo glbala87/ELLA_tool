@@ -49,8 +49,9 @@ The annotation contains information about a *single* allele's population frequen
 predicted effects and various other data from external databases. Annotation can change often,
 and whenever it is updated, the previous annotation is archived.
 Therefore there is only one current annotation for every allele.
-The current annotation points
-to the previous to keep track on historic annotations. 
+The current annotation points to the previous to keep track on historic annotations. 
+
+The annotation is created outside e||a by the pipeline.
 
 The annotation has:
 - the action annotation data (json)
@@ -58,8 +59,12 @@ The annotation has:
 The user-generated annotation (called **custom annotation**) is separate from the pipeline generated.
 
 #### Genotype
-
-TBD
+The pair of alleles is described by the **Genotype**. If homzygous only one allele is defined.
+The genotype is connected to/has:
+- sample
+- analysis
+- genotype quality
+- variant quality
 
 
 ### Classifications and assessments
@@ -70,7 +75,7 @@ The *official* classification (1-5) and complementary data like AMCG codes and c
 The assessment has:
 - classification (1-5)
 - evaluation (json, free tekst and ACMG codes)
-- link to allele/variant
+- link to allele
 - genepanel
 - annotation
 
@@ -111,19 +116,48 @@ A reference assessment has:
 
 <div style="text-align:center"><img src="img/datamodel-analysis.png"></div>
 
-#### Analysis
+#### Analysis and sample
+An **Analysis** is bioinformatic calcalutation producing a list of variants that are to be interpreted. An analysis is done in the context of a
+specific gene panel used as a basis for variant filtering. The sequencing data is taken from a **Sample**. The data from a sample can be used in different analyeses, and the database will have a pair of sample/analysis for each. Thus there can be multiple rows for the same physical sample.
+
+An Analysis has:
+- genepanel
+- a priority (for prioritizing the interpretation work)
+- various data (like comment, tags)
+- the history of interpretations for the analysis' variants
+
+A Sample:
+- identifies the physical sample/sequencing data
+- the analysis to be done on the data
+- the source of the sequencing data (Sanger, HTS)
+
 Mentions models that have a link to *Analysis* and why.
 
-#### Sample
-
 ### Workflow
+In the step-wise process of interpreting variants and analyses, each step/round is saved in either **AlleleInterpretation** or **AnalysisInterpetation**.
+They are very similiar with InterpretationMixin as the common basis, see [Mixins](http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html)
+
+Each round (created when starting, setting to review or finalizing) captures the work of the user (comments, ACMG codes, references assessed etc) and UI-specific properties. We can refere to this data as **state** (interpretation and ui state?). The info is persisted as a json field called 'state'. Each time the users clicks 'Save' the state field is updated, and the previous state is appended to the list 'state_history' (json).
+
+For each round (clicking Reopen/Review) a new Interpreation is created with the state copied from the previous Interpretation.
+The copying is done using a class method that is passed either a VariantInterpretation or AnalysisIntepretation thus giving access to that specific type's attributes.
+
+See diagram:
+
+     InterpretationState: S [] --save--> S' [S] --save--> S'' [S' S] etc
+           |
+	Review
+	   |
+	  \/
+			 S'' [] --save--> S''' [S''] --save--> S'''' [S''' S''] etc
 
 <div style="text-align:center"><img style="zoom: 50%;" src="img/datamodel-workflow.png"></div>
 
-#### AlleleInterpretation
+
+### Finalization an interpretation
+When a round is finalized
 
 #### AlleleInterpretationSnapshot
 
-#### AnalysisInterpretation
 
 #### AnalysisInterpretationSnapshot

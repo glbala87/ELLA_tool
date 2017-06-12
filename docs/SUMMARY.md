@@ -8,4 +8,5 @@
     * [Classifications and assessments](datamodel.md#classifications-and-assessments)
     * [Analyses and samples](datamodel.md#analyses-and-samples)
     * [Workflow](datamodel.md#workflow)
+* [Data in and out](inout.md)
 
