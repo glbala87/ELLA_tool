@@ -42,7 +42,17 @@
     </div>
 
     <article class='line-wrapper question id-relevance'>
-      <div class="left"> <h5 class="slim title"> <b>Relevance</b> </h5> <p> Is the reference relevant? </p> </div>
+      <div class="left"
+           popover-title="Help"
+           popover-trigger="mouseenter"
+           uib-popover-template="'ngtmpl/referenceEvalHelpTextPopover.ngtmpl.html'"
+           popover-placement="bottom-right"
+           popover-append-to-body="true"
+           ng-repeat="source in ['relevance']"
+           class="faded-title">
+        <h5 class="slim title"> <b>Relevance</b> </h5>
+        <p> Is the reference relevant? </p>
+      </div>
       <div class="middle"></div>
       <div class="right">
         <div class="bttn-set">
@@ -59,7 +69,15 @@
       <article class='line-wrapper question'
                ng-repeat="source in vm.getSources() track by source"
                ng-if="vm.shouldShow(source)">
-      <div class="left"> <h5 class="slim title"> <b>{{vm.sources[source].title}}</b> </h5> <p> {{vm.sources[source].desc}} </p> </div>
+      <div class="left"
+           popover-title="Help"
+           popover-trigger="mouseenter"
+           uib-popover-template="'ngtmpl/referenceEvalHelpTextPopover.ngtmpl.html'"
+           popover-placement="bottom-right"
+           popover-append-to-body="true"
+           popover-enable="{{vm.sources[source]['help']}}"
+           class="faded-title">
+        <h5 class="slim title"> <b>{{vm.sources[source].title}}</b> </h5> <p> {{vm.sources[source].desc}} </p> </div>
       <div class="middle">
         <span ng-if="vm.sources[source].optional">
           <input type="checkbox"
@@ -88,7 +106,7 @@
                       ng-disabled="vm.isDisabled(source) || vm.readOnly">
                   <option value=""
                           disabled
-                          selected>Choose quality
+                          selected>{{elem.placeholder}}
                   </option>
               </select>
           </div>
