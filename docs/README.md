@@ -3,6 +3,13 @@
 
 ella is a variant analysis and interpretation tool blablabla
 
+Data in: pipeline, deposit, CLI. Types of data. Data stored in database
+User updates the database with classification, adding references etc.
+Export: dump of all classifications to Excel/XML
+Diagram:
+     pipeline  --vcf--> deposit --> e||a
+     CLI ---vcf, genepanel, users, annotation ---> e||a
+
 
 ## The application
 

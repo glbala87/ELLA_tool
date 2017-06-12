@@ -11,6 +11,10 @@ a **genepanel** as variant filter. From one sample there can be multiple analyse
 Before a classification is official it must be reviewed by at least one other person.
 An official classification will be available when the same variant is found later.
 
+
+## Data policy
+In general e||a has an append-only data model, where noe data is delete or overwritten. Instead an updated copy is made and the version is linked to the previous.
+
 ## Workflow
 E||a uses the concept **workflow** to guide the users through the classification process.
 
