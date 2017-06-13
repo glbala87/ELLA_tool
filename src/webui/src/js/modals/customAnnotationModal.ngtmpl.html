@@ -12,7 +12,7 @@
     <section ng-if="vm.category == 'references'">
 
       <article class="sectionbox-content allele-control-bar">
-        <contentbox class="id-references-list" title="references" collapsible="false" class="max-width">
+        <contentbox class="id-references-list" title="studies" collapsible="false" class="max-width">
           <cbbody>
             <article class="content-box" ng-repeat="ref in vm.getCurrent()">
               <section class="line-wrapper">
@@ -37,7 +37,10 @@
 
 
       <article class='line-wrapper question id-relevance'>
-        <div class="left"> <h5 class="slim title"> <b>Mode</b> </h5> <p> Add reference by searching, extracting from pubmed, <br>or manually entering data</p> </div>
+        <div class="left">
+          <h5 class="slim title"> <b>Mode</b> </h5>
+          <p> Add reference by searching, extracting from pubmed, <br>or add manually (published or unpublished study, e.g. in-house)</p>
+        </div>
         <div class="middle"></div>
         <div class="right">
           <div class="bttn-set">
@@ -106,13 +109,32 @@
       </article>
 
       <article ng-if="vm.referenceMode === vm.referenceModes[2]">
+        <article class='line-wrapper question id-relevance'>
+          <div class="left">
+            <h5 class="slim title"> <b>Mode</b> </h5>
+            <p> Add reference by searching, extracting from pubmed, <br>or add manually (published or unpublished study, e.g. in-house)</p>
+          </div>
+          <div class="middle"></div>
+          <div class="right">
+            <div class="bttn-set">
+              <label tabindex=0
+                     class="bttn id-referenceMode-{{item}}"
+                     ng-class="{active: item===vm.referencePublishStatus}"
+                     ng-model="vm.manualReference.published"
+                     uib-btn-radio="item==='Published'"
+                     ng-repeat="item in vm.referencePublishStatuses"
+              >{{item}}</label>
+            </div>
+          </div>
+        </article>
         <div class="question small line-wrapper">
           <div class="left">
             <h5 class="slim title section-top"><b>Authors</b></h5>
           </div>
           <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Authors*" ng-model="vm.manualReference.authors"></autosize-textarea>
+          <div class="right" ng-switch="vm.manualReference.published">
+            <autosize-textarea placeholder="Authors*" ng-switch-when="true" ng-model="vm.manualReference.authors"></autosize-textarea>
+            <autosize-textarea placeholder="Authors/responsible*" ng-switch-when="false" ng-model="vm.manualReference.authors"></autosize-textarea>
           </div>
         </div>
         <div class="question small line-wrapper">
@@ -120,20 +142,23 @@
             <h5 class="slim title section-top"><b>Title</b></h5>
           </div>
           <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Title*" ng-model="vm.manualReference.title"></autosize-textarea>
+          <div class="right" ng-switch="vm.manualReference.published">
+            <autosize-textarea placeholder="Title*" ng-switch-when="true" ng-model="vm.manualReference.title"></autosize-textarea>
+            <autosize-textarea placeholder="Title/short description*" ng-switch-when="false" ng-model="vm.manualReference.title"></autosize-textarea>
           </div>
         </div>
         <div class="question small line-wrapper">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Journal/book</b></h5>
+          <div class="left" ng-switch="vm.manualReference.published">
+            <h5 class="slim title section-top" ng-switch-when="true"><b>Journal/book</b></h5>
+            <h5 class="slim title section-top" ng-switch-when="false"><b>Place</b></h5>
           </div>
           <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Journal/book*" ng-model="vm.manualReference.journal"></autosize-textarea>
+          <div class="right" ng-switch="vm.manualReference.published">
+            <autosize-textarea placeholder="Journal/book*" ng-switch-when="true" ng-model="vm.manualReference.journal"></autosize-textarea>
+            <autosize-textarea placeholder="Place of study*" ng-switch-when="false" ng-model="vm.manualReference.journal"></autosize-textarea>
           </div>
         </div>
-        <div class="question small line-wrapper">
+        <div class="question small line-wrapper" ng-if="vm.manualReference.published">
           <div class="left">
             <h5 class="slim title section-top"><b>Volume</b></h5>
           </div>
@@ -142,7 +167,7 @@
             <autosize-textarea placeholder="Volume" ng-model="vm.manualReference.volume"></autosize-textarea>
           </div>
         </div>
-        <div class="question small line-wrapper">
+        <div class="question small line-wrapper" ng-if="vm.manualReference.published">
           <div class="left">
             <h5 class="slim title section-top"><b>Issue</b></h5>
           </div>
@@ -157,10 +182,10 @@
           </div>
           <div class="middle"></div>
           <div class="right">
-            <autosize-textarea placeholder="Year" ng-model="vm.manualReference.year"></autosize-textarea>
+            <autosize-textarea placeholder="Year*" ng-model="vm.manualReference.year"></autosize-textarea>
           </div>
         </div>
-        <div class="question small line-wrapper">
+        <div class="question small line-wrapper" ng-if="vm.manualReference.published">
           <div class="left">
             <h5 class="slim title section-top"><b>Pages</b></h5>
           </div>

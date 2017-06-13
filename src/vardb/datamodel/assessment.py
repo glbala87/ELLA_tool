@@ -2,7 +2,7 @@
 import datetime
 import pytz
 
-from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Table
+from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
@@ -104,6 +104,7 @@ class Reference(Base, SearchQueryMixin):
     abstract = Column(String())
     year = Column(String())
     pubmed_id = Column(Integer, unique=True)
+    published = Column(Boolean(), default=True, nullable=False)
 
     search = Column(TSVectorType("authors", "title", "journal", "year",
                     weights={"authors": 'A', "title": 'A', "journal": 'B', "year": 'C'}))
