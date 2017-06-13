@@ -139,8 +139,7 @@ They are very similiar with InterpretationMixin as the common basis, see [Mixins
 
 Each round (created when starting, setting to review or finalizing) captures the work of the user (comments, ACMG codes, references assessed etc) and UI-specific properties. We can refere to this data as **state** (interpretation and ui state?). The info is persisted as a json field called 'state'. Each time the users clicks 'Save' the state field is updated, and the previous state is appended to the list 'state_history' (json).
 
-For each round (clicking Reopen/Review) a new Interpreation is created with the state copied from the previous Interpretation.
-The copying is done using a class method that is passed either a VariantInterpretation or AnalysisIntepretation thus giving access to that specific type's attributes.
+For each round (clicking Reopen/Review) a new Interpreation is created with the state (and some other fields) copied from the previous Interpretation.
 
 See diagram:
 
@@ -149,15 +148,41 @@ See diagram:
 	Review
 	   |
 	  \/
-			 S'' [] --save--> S''' [S''] --save--> S'''' [S''' S''] etc
+     InterpretationState':  S'' [] --save--> S''' [S''] --save--> S'''' [S''' S''] etc
 
 <div style="text-align:center"><img style="zoom: 50%;" src="img/datamodel-workflow.png"></div>
 
 
-### Finalization an interpretation
-When a round is finalized
+In addition to passing the state to a new round,  the context of the interpretation is persisted in so-called snapshot objects.
 
-#### AlleleInterpretationSnapshot
+# Interpretation snapshots
+The context of each interpretation round is saved in either AnalysisInterpretationSnapshot or AlleleInterpretationSnapshot, depending on the type of worklow.For each allele (in allele workflow there is only one) one snapshot instance is saved.
+
+The context saved in a snapshot:
+- the annotation
+- custom annotation created by the user
+- the assessment (if any) that already existed and was displayed to user
+- the report (if any) that already existed and was displayed to user 
+
+When finalizing the snapshow also contain:
+- the assessment (including the classification) made by the user
+- the reference assessments made by the user
+- the report made by the user
+
+The snapshot is also linked to the interpretation round (AlleleInterpretation or AnalysisInterpretation) having the state info.
+
+This enables a time-travelling feature where the tool can show the info that was available at the and of round.
 
 
-#### AnalysisInterpretationSnapshot
+### Finalizing an interpretation
+When a round is finalized, the interpretation work is persisted by creating (possibly many) AlleleAssessments, ReferenceAssessments and AlleleReports. The user can choose to reuse existing objects; so after a finalization the number of new objects won't always be the same as number of alleles.
+
+[**Diagram:**]
+Mark review:  SnapshotCreator (creates AlleleInterpretationSnapshot or AnalysisInterpretationSnapshot)
+
+Finalize:     SnapshotCreator
+	      AssessmentCreator (creates AlleleAssessment, ReferenceAssessment)
+	      AlleleReportCreator (creates AlleleReport)
+
+
+	      
