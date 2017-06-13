@@ -13,67 +13,53 @@ An official classification will be available when the same variant is found late
 
 
 ## Data policy
-In general e||a has an append-only data model, where noe data is delete or overwritten. Instead an updated copy is made and the version is linked to the previous.
+In general e||a has an append-only data model, where noe data is delete or overwritten. Instead an updated copy is made and the versions are linked.
 
 ## Workflow
-E||a uses the concept **workflow** to guide the users through the classification process.
+E||a uses the concept **workflow** to guide the users through the interpretation process.
 
-A workflow is a multi-step process where a user interpret the variant using the information presented by the tool or that is found
-outside and then entered into the tool. After the interpretation the user marks the workflow to be ready for review.
- Another user continues the interpretation and can either mark it for review again or finalize it, the latter meaning the variant(s)
-  get an official assessment/classification. Each 'review' or 'finalize' is called a **round**. When a workflow is finished
-  there could have been many rounds, all available later if one needs to audit the work done in each round. 
+At the end of the workflow the interpretation if **finalized**, making the interpetation work available in other workflows. Until then
+the classifications (and other info) made of the variants/alleles in that workflow  is available for users.
 
-The workflow for single variants and analyses are slightly different.
+A workflow is a multi-step process where a user interpret the variant(s) using the information presented by the tool or that is found
+outside and then entered into the tool. After the interpretation the user marks the workflow/interpretation to be ready for review.
+Another user continues the interpretation and can either mark it for review again or finalize it, the latter meaning the variant(s)
+get an official assessment/classification. Each 'review' or 'finalize' step is called a **round**. When a workflow is finished
+all the rounds are available later if one needs to audit the work done in each round. 
 
-## Single variant
-*Allele workflow*
-Before an interpretation can be finalized, the variant must be given a classification (1-5).
-
-## Analysis (multiple variants)
-*Analysis workflow*
-All variants in the analysis must be given a classification before the interpretation is finalized.
+The workflow for single variants and analyses are slightly different:
+In an **allele workflow** a single variant is interpreted and eventually given a classification (1-5).
+In an **analysis workflow** multiple variants are interpreted, and they all need a classification before the analysis can be finalized.
 Variants that are initially filtered out can be manually included by the user. These variants must
 also classified.
 
 # A typical analysis interpretation
  A user selects an analysis and goes through each variant giving them a classification using
-  the information made available in the tool. The user can select or enter information like:
-  - picking or uploading references and highlighting important or relevant information from them
-  - ACMG codes
+  the information made available in the tool. The classification is set given supporting info like:
+  - relevant references
+  - proteting predictions
+  - ACMG codes calculated by a rules engine
+The user will add info like:
   - free text
   - attachments (like images)
  
  The analysis is then set to review and another user will either continue the interpretation
-  (like adding info, changing classification) of finalizing the analysis.
+  (like adding info, changing classification) or finalizing the analysis.
   
- So the interpretation goes through multiple review rounds before being finalized (see figure):
+ So the interpretation goes through (possibly multiple)  review rounds before being finalized (see figure):
  
-  [Initial round] ---review--> [second round] --review--> [third round] ..... [...] --finalize--> [last round]
+  [Initial round] ---review--> [second round] --review--> [third round] ..... [...] --finalize--> Done
   
  
 # Interpretation rounds and history
 When later opening an analysis, all the rounds of the analysis are available read-only. Any round can be selected
- and the information displayed and entered by the user at that particular round is displayed.
+ and the UI will reflect the context at the point of interpreation.
  
-Also interpretation of single variant will build an increasing list of rounds. 
+The interpretation of single a variant will also build an increasing list of rounds.
    
   
 # Reopening an analysis
-A finalized variant/analysis can be reopened for further interpretation, thus increasing the list of rounds.
-  
-     
-# Interpretation snapshots
-When a variant or analysis is finalized we record several pieces of info in the database:
-- classification made by user
-- the assessment made by user
-- the report made by user
-- the annotation/custom annotation that was the foundation what was shown
-- the assessment (if any) that already existed and was displayed to user
-- the report (if any) that already existed and was displayed to user 
-
- This enables an audit feature where the tool can show info that was available at the instance a classification was done.
- Otherwise the tool could only display the latest info/most recent info about a variant.
-
+A finalized variant/analysis can be reopened for further interpretation, thus increasing the list of rounds. It must be finalized before
+any changes are available in other workflows.
 
 
