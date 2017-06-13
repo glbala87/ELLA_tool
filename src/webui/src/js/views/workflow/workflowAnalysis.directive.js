@@ -178,7 +178,8 @@ export class AnalysisController {
                             name: 'reference'
                         },
                         content: [
-                            {'tag': 'allele-info-references'}
+                            {'tag': 'allele-info-unpublished-references'},
+                            {'tag': 'allele-info-published-references'}
                         ],
                     }
                 ]

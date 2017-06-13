@@ -238,7 +238,7 @@ export class AlleleSectionBoxController {
     }
 
     showAddReferenceModal() {
-        let title = 'ADD REFERENCES';
+        let title = 'ADD STUDIES';
         let placeholder = "Not used";
         this.customAnnotationModal.show(title, placeholder, [this.allele], 'references').then(result => {
             if (result) {
