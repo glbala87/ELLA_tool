@@ -4,17 +4,31 @@ The datamodel is defined using [SQLAlchemy](https://www.sqlalchemy.org).
 
 It's implementation can be found in `src/vardb/datamodel/`.
 
-## Concepts
-
 The main concepts of the datamodel are described below. For a complete list of tables and fields check the code.
 
-### Common
-To enable going back in history to see old data, we generally
-don't overwrite any data. Instead we create new instances and point
-to the previous one. Must models have fields to keep track of changes:
+### Introduction
+The variants are interpreted in a stepwise **workflow**, either either one variant at a time or several ones
+in an analysis. An **analysis** is the set of variants that are found in a patient **sample** using
+a **genepanel** as variant filter. From one sample there can be multiple analyses, one for each gene panel chosen. 
+In a workflow the work is done across several **interpretations**, with the last being **finalized**
+(usually) by a different user than the ones having done the previous interpretations. The previous interpretations
+ are marked for **review**. The workflow goes through a start-review-finalize phases.
+
+When a workflow is finalized one or several **assessments** are created. The result and context of each
+step is captured in a **snapshot** enabling time-travelling. The assessment include a classification (1-5).
+A description intended for the referring doctor is persisted as a **report**. The references relevant for
+the assessment is captured seperately in a **reference assessment**. When interpreting variants in an analysis
+it's common practice to reuse assessments and reports made earlier.
+ 
+### Common features
+
+To enable time-travelling and auditing, data is generally not over-written. Instead copies are made
+and old and new entities are linked together.
+
+To impement this most models have these fields:
 - date of creation
-- date when a new instance was replaced by a newer
-- the id of the instance that was replace be a newer one
+- date when the object became the old one
+- the id of the new object that "replaces" it
 
 Models with previous/current semantics are:
 - annotations
@@ -31,6 +45,14 @@ Genetic data, currently genetic variation represented as SNVs and indels, are st
 
 
 #### Allele
+
+**I admit**: I struggle with the meaning of variant and allele. I consider an allele a variant form of a gene (not a).
+ In diploid organisms a cell can have max to alleles. The allele differs from the reference gene by one
+ or several variants. In e||a we use the word "allele" for what the genetic community would call a variant.
+ This [wiki](https://en.wikipedia.org/wiki/Single-nucleotide_polymorphism) says "... and the two possible nucleotide variations – C or A – are said to be alleles for this base position",
+ which doesn't helping me understand the precise meaning of variant and allele. This [nih primer](https://ghr.nlm.nih.gov/primer/basics/gene) makes sense to me: "Alleles are forms of the same gene with small differences in their sequence of DNA bases."
+ 
+ 
 
 An allele represents a change with regards to a reference genome. It's among the most important objects in the mode, and if combined with an annotation it can exists in isolation.
 The allele has:
@@ -137,18 +159,21 @@ Mentions models that have a link to *Analysis* and why.
 In the step-wise process of interpreting variants and analyses, each step/round is saved in either **AlleleInterpretation** or **AnalysisInterpetation**.
 They are very similiar with InterpretationMixin as the common basis, see [Mixins](http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html)
 
-Each round (created when starting, setting to review or finalizing) captures the work of the user (comments, ACMG codes, references assessed etc) and UI-specific properties. We can refere to this data as **state** (interpretation and ui state?). The info is persisted as a json field called 'state'. Each time the users clicks 'Save' the state field is updated, and the previous state is appended to the list 'state_history' (json).
+Each round (created when starting, setting to review or finalizing) captures the work of the user 
+(comments, ACMG codes, references assessed etc) and UI-specific properties.
+ We can refere to this data as **state** (interpretation and ui state?).
+ The info is persisted as a json field called 'state'. Each time the users clicks 'Save' the state field is updated, and the previous state is appended to the list 'state_history' (json).
 
 For each round (clicking Reopen/Review) a new Interpreation is created with the state (and some other fields) copied from the previous Interpretation.
 
-See diagram:
+See diagram (S=state, [..] list of previous states):
 
-     InterpretationState: S [] --save--> S' [S] --save--> S'' [S' S] etc
+     AnalysisInterpretation: S [] --save--> S' [S] --save--> S'' [S' S] etc
            |
-	Review
-	   |
-	  \/
-     InterpretationState':  S'' [] --save--> S''' [S''] --save--> S'''' [S''' S''] etc
+	     Review
+	       |
+	      \/
+     AnalysisInterpretationState':  S'' [] --save--> S''' [S''] --save--> S'''' [S''' S''] etc
 
 <div style="text-align:center"><img style="zoom: 50%;" src="img/datamodel-workflow.png"></div>
 
@@ -171,18 +196,18 @@ When finalizing the snapshow also contain:
 
 The snapshot is also linked to the interpretation round (AlleleInterpretation or AnalysisInterpretation) having the state info.
 
-This enables a time-travelling feature where the tool can show the info that was available at the and of round.
+This enables a time-travelling feature where the tool can show the info that was available at the end of the round.
 
 
 ### Finalizing an interpretation
 When a round is finalized, the interpretation work is persisted by creating (possibly many) AlleleAssessments, ReferenceAssessments and AlleleReports. The user can choose to reuse existing objects; so after a finalization the number of new objects won't always be the same as number of alleles.
 
 [**Diagram:**]
-Mark review:  SnapshotCreator (creates AlleleInterpretationSnapshot or AnalysisInterpretationSnapshot)
 
-Finalize:     SnapshotCreator
-	      AssessmentCreator (creates AlleleAssessment, ReferenceAssessment)
-	      AlleleReportCreator (creates AlleleReport)
+       Mark review:  SnapshotCreator (creates AlleleInterpretationSnapshot or AnalysisInterpretationSnapshot)
+       Finalize:     SnapshotCreator
+	          AssessmentCreator (creates AlleleAssessment, ReferenceAssessment)
+	          AlleleReportCreator (creates AlleleReport)
 
 
 	      
