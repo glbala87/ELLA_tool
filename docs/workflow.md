@@ -1,20 +1,3 @@
-# Concepts
-
-
-(Describe how the workflow works with interpretation rounds etc...)
-
-E||a's purpose is to help the users classify variants. The users will either
-classify a **single variant** or several variants belonging togehther in an analysis.
-An **analysis** is the set of variants that are found in a patient **sample** using
-a **genepanel** as variant filter. From one sample there can be multiple analyses, one for each gene panel chosen. 
-
-Before a classification is official it must be reviewed by at least one other person.
-An official classification will be available when the same variant is found later.
-
-
-## Data policy
-In general e||a has an append-only data model, where noe data is delete or overwritten. Instead an updated copy is made and the versions are linked.
-
 ## Workflow
 E||a uses the concept **workflow** to guide the users through the interpretation process.
 
@@ -33,7 +16,7 @@ In an **analysis workflow** multiple variants are interpreted, and they all need
 Variants that are initially filtered out can be manually included by the user. These variants must
 also classified.
 
-# A typical analysis interpretation
+## A typical analysis interpretation
  A user selects an analysis and goes through each variant giving them a classification using
   the information made available in the tool. The classification is set given supporting info like:
   - relevant references
@@ -51,14 +34,14 @@ The user will add info like:
   [Initial round] ---review--> [second round] --review--> [third round] ..... [...] --finalize--> Done
   
  
-# Interpretation rounds and history
+## Interpretation rounds and history
 When later opening an analysis, all the rounds of the analysis are available read-only. Any round can be selected
  and the UI will reflect the context at the point of interpreation.
  
 The interpretation of single a variant will also build an increasing list of rounds.
    
   
-# Reopening an analysis
+## Reopening an analysis
 A finalized variant/analysis can be reopened for further interpretation, thus increasing the list of rounds. It must be finalized before
 any changes are available in other workflows.
 
