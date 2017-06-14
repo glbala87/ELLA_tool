@@ -87,9 +87,7 @@ export class UserDashboardController {
 
     getActivityUrl(item) {
         if (item.allele) {
-            return `/variants/${item.allele.genome_reference}/` +
-            `${item.allele.chromosome}-${item.allele.start_position}-${item.allele.open_end_position}-${item.allele.change_from}-${item.allele.change_to}` +
-            `?gp_name=${item.genepanel.name}&gp_version=${item.genepanel.version}&allele_id=${item.allele.id}`;
+            return item.allele.getWorkflowUrl(item.genepanel);
         }
         if (item.analysis) {
             return `/analyses/${item.analysis.id}`

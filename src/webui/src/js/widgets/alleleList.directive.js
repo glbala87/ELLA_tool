@@ -87,9 +87,7 @@ class AlleleListWidget {
 
     getItemUrl(item) {
         let allele = item.allele;
-        return `/variants/${allele.genome_reference}/` +
-            `${allele.chromosome}-${allele.start_position}-${allele.open_end_position}-${allele.change_from}-${allele.change_to}` +
-            `?gp_name=${item.genepanel.name}&gp_version=${item.genepanel.version}&allele_id=${allele.id}`;
+        return item.allele.getWorkflowUrl(item.genepanel);
     }
 }
 
