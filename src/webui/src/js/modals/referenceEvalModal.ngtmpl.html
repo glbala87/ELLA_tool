@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <article class='line-wrapper question id-relevance'>
+    <article class='line-wrapper question medium id-relevance'>
       <div class="left"
            popover-title="Help"
            popover-trigger="mouseenter"
@@ -67,6 +67,9 @@
       </div>
     </article>
       <article class='line-wrapper question'
+               ng-class="{'small': vm.sources[source].optional_dep !== undefined,
+                          'medium': vm.sources[source].optional_dep === undefined,
+                          'parent': vm.sources[source].parent_question}"
                ng-repeat="source in vm.getSources() track by source"
                ng-if="vm.shouldShow(source)">
       <div class="left"
@@ -75,7 +78,6 @@
            uib-popover-template="'ngtmpl/referenceEvalHelpTextPopover.ngtmpl.html'"
            popover-placement="bottom-right"
            popover-append-to-body="true"
-           popover-enable="{{vm.sources[source]['help']}}"
            class="faded-title">
         <h5 class="slim title"> <b>{{vm.sources[source].title}}</b> </h5> <p> {{vm.sources[source].desc}} </p> </div>
       <div class="middle">
@@ -119,7 +121,7 @@
         </div>
       </div>
     </article>
-    <article class="line-wrapper question">
+    <article class="line-wrapper question medium">
       <div class="middle"></div>
       <div class="right">
           <wysiwyg-editor

@@ -87,6 +87,7 @@ export class ReferenceEvalModalController {
                         }
                     ],
                     optional: true,
+                    parent_question: true,
                     hide_when_source: 'review'
                 },
                 'aa_overlap_same_novel': {
@@ -203,6 +204,7 @@ export class ReferenceEvalModalController {
                     ],
                     buttons_store: 'ref_domain_overlap',
                     optional: true,
+                    parent_question: true,
                     hide_when_source: 'review'
                 },
                 'crit_site': {
@@ -319,6 +321,7 @@ export class ReferenceEvalModalController {
                             store: 'ref_segregation_quality'
                         }
                     ],
+                    parent_question: true,
                     optional: true
                 },
                 'de_novo': {
@@ -524,6 +527,7 @@ export class ReferenceEvalModalController {
                             store: 'ref_population_affecteds'
                         }
                     ],
+                    parent_question: true,
                     optional: true
                 },
                 'population_healthy': {
