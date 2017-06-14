@@ -239,13 +239,20 @@ button { outline: none; border: 1px solid Transparent;
       }
     }
   }
-  .container { margin-left: 9rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  .container { margin-left: 2.0rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
   .container.no-secondary-nav { margin-top: 12rem; }
+  .container.with-sidenavbar { margin-left: 9rem; }
   .container.inner { width: 100%; margin-left: 46.2rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
 
 
   // View specific stuff
+  .logout-btn { margin-left: auto; }
   .overviewcontainer { display: flex; }
+  .dashboard {
+    display: flex;
+    .profile section { width: 50rem; }
+  }
+
 }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
