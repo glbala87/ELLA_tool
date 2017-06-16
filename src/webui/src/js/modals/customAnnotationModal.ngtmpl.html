@@ -120,6 +120,7 @@
               <label tabindex=0
                      class="bttn id-referenceMode-{{item}}"
                      ng-class="{active: item===vm.referencePublishStatus}"
+                     ng-change="vm.resetManualReference(vm.manualReference.published)"
                      ng-model="vm.manualReference.published"
                      uib-btn-radio="item==='Published'"
                      ng-repeat="item in vm.referencePublishStatuses"

@@ -59,13 +59,6 @@ export class CustomAnnotationController {
                     this.referenceSearchResults = results;
                 })
             })
-
-            $scope.$watch(
-                () => this.manualReference.published,
-                () => {
-                    this.resetManualReference(this.manualReference.published)
-                }
-            )
         }
 
         this.setup();
