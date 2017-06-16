@@ -262,19 +262,19 @@ class AlleleSectionBox  {
     }
 
     evaluateReference(index) {
-        let referenceSelector = `allele-info-references article:nth-child(${index})`;
+        let referenceSelector = `allele-info-published-references article:nth-child(${index})`;
         let title = browser.getText(`${referenceSelector} .id-reference-title`);
         browser.click(`${referenceSelector} button.id-reference-evaluate`);
         return title;
     }
 
     getReferenceComment(index) {
-        const selector = `allele-info-references article:nth-child(${index}) .id-reference-comment .wysiwygeditor`;
+        const selector = `allele-info-published-references article:nth-child(${index}) .id-reference-comment .wysiwygeditor`;
         return browser.getText(selector);
     }
 
     getReferenceRelevance(index) {
-        return browser.getText(`allele-info-references article:nth-child(${index}) .id-reference-relevance p`)
+        return browser.getText(`allele-info-published-references article:nth-child(${index}) .id-reference-relevance p`)
     }
 
     getExternalOtherAnnotation() {
@@ -316,7 +316,6 @@ class AlleleSectionBox  {
     getReferences() {
         return browser.elements('allele-sectionbox .id-references-box article');
     }
-
 }
 
 module.exports = AlleleSectionBox;
