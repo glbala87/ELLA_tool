@@ -253,9 +253,15 @@ class AssessmentImporter(object):
             asm.AlleleAssessment.date_superceeded.is_(None)
         ).first()
 
+        annotation = self.session.query(annm.Annotation).filter(
+            annm.Annotation.allele == allele,
+            annm.Annotation.date_superceeded.is_(None)
+        ).one()
+
         if not existing:
             assessment = asm.AlleleAssessment(**ass_info)
             assessment.allele = allele
+            assessment.annotation = annotation
             self.session.add(assessment)
             self.counter["nNovelAssessments"] += 1
             return assessment
@@ -317,7 +323,7 @@ class AssessmentImporter(object):
                 raise RuntimeError("Found an existing allele report, won't create a new one")
 
             report_data = {'allele_id': allele.id,
-                           'user_id': user.id,
+                           'user_id': user.id if user else None,
                            'alleleassessment_id': db_assessment.id
                            }
 
