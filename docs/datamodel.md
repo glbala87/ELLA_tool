@@ -210,4 +210,4 @@ When a round is finalized, the interpretation work is persisted by creating (pos
 	          AlleleReportCreator (creates AlleleReport)
 
 
-	      
+Relate to loading data from backend when starting interpretation.
