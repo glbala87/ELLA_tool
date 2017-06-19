@@ -105,6 +105,8 @@ class Reference(Base, SearchQueryMixin):
     year = Column(String())
     pubmed_id = Column(Integer, unique=True)
     published = Column(Boolean(), default=True, nullable=False)
+    attachment_id = Column(Integer, ForeignKey('attachment.id'))
+    attachment = relationship('Attachment', uselist=False)
 
     search = Column(TSVectorType("authors", "title", "journal", "year",
                     weights={"authors": 'A', "title": 'A', "journal": 'B', "year": 'C'}))
