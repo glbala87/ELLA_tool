@@ -8,6 +8,5 @@
     * [Classifications and assessments](datamodel.md#classifications-and-assessments)
     * [Analyses and samples](datamodel.md#analyses-and-samples)
     * [Workflow](datamodel.md#workflow)
-* [Loading data from backend](loading.md)
 * [UI components](uicomponents.md)
 * [Testing](testing.md)
