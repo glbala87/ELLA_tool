@@ -12,6 +12,18 @@
             comment-model="code.comment"
             editable="false"></acmg>
 
+    <div class="id-attachments">
+        <h4 class="section-title acmg-body">Attachments</h4>
+        <section class="attachment-wrapper">
+            <attachment
+                    ng-repeat="attachment_id in vm.alleleassessment.attachment_ids"
+                    attachment="vm.attachments[attachment_id]"
+                    read-only="true"
+            >
+            </attachment>
+        </section>
+    </div>
+
     <div class="existing-classification-comments">
         <div class="tabular-row">
         <div class="cell top-align"> <h5>Evaluation</h5> </div>
