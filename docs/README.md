@@ -19,6 +19,27 @@ Export: dump of all classifications to Excel/XML
 
 Diagram (e||a surroundings):
 
+                                                  +-----+                                             
+                                                  |     |                 +-------------+             
+               +---------------------+            |     |                 |             |             
+               |                     |            |     |                 |             |             
+               |                     |            |     |                 |             |             
+               |                     |            |  A  |                 |    DB       |             
+               |      Web client     |            |  P  |                 |             |             
+               |                     |            |  I  |                 |             |             
+               |                     |            |     |                 |             |             
+               |                     |            | +   |                 |             |             
+               |                     |            |     |                 |             |             
+               |                     |            |     |                 +-------------+             
+               |                     |            |     |                                             
+               |                     |            |     |                                             
+               +---------------------+            |     |                                             
+                                                  |     |        +-----------------------------------+
+                                                  |     |        |          CLI                      |
+                                                  |     |        |                                   |
+                                                  |     |        +-----------------------------------+
+                                                  +-----+                                             
+
      pipeline  --vcf--> deposit --> e||a
      CLI ---vcf, genepanel, users, annotation ---> e||a
      e||a --xml, reports --> user
