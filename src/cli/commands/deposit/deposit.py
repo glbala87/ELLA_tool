@@ -4,12 +4,13 @@ import json
 import re
 import click
 
-from vardb.datamodel import DB
+from vardb.datamodel import DB, user, gene
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.deposit.deposit_genepanel import DepositGenepanel
 
 
 VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf')
@@ -165,4 +166,65 @@ def cmd_deposit_usergroups(usergroups_json):
 
     import_groups(db.session, groups)
 
+@deposit.command('genepanel')
+@click.option('--genepanel_name')
+@click.option('--genepanel_version')
+@click.option('--transcripts_path')
+@click.option('--phenotypes_path')
+@click.option('--config_path')
+@click.option('--replace', is_flag=True)
+def cmd_deposit_genepanel(genepanel_name, genepanel_version, transcripts_path, phenotypes_path, config_path, replace):
+    """
+    Create or replace genepanel. If replacing genepanel, use --replace flag.
+    :param genepanel_name:
+    :param genepanel_version:
+    :param transcripts_path:
+    :param phenotypes_path:
+    :param config_path:
+    :param replace:
+    :return:
+    """
+    db = DB()
+    db.connect()
+    dg = DepositGenepanel(db.session)
+    dg.add_genepanel(transcripts_path,
+                     phenotypes_path,
+                     genepanel_name,
+                     genepanel_version,
+                     configPath=config_path,
+                     replace=replace)
 
+
+@deposit.command('append_genepanel_to_usergroup')
+@click.argument("genepanel_name", required=True)
+@click.argument("genepanel_version", required=True)
+@click.argument("user_group_name", required=True)
+def cmd_append_genepanel_to_usergroup(genepanel_name, genepanel_version, user_group_name):
+    """
+    Append a genepanel to the given user group.
+    :param genepanel_name:
+    :param genepanel_version:
+    :param user_group_name:
+    :return:
+    """
+    db = DB()
+    db.connect()
+
+    user_group = db.session.query(user.UserGroup).filter(
+        user.UserGroup.name == user_group_name
+    ).one()
+
+    gp = db.session.query(gene.Genepanel).filter(
+        gene.Genepanel.name == genepanel_name,
+        gene.Genepanel.version == genepanel_version
+    ).one()
+
+    if gp in user_group.genepanels:
+        click.echo("Genepanel ({gp_name},{gp_version}) already exists in user group {user_group}".format(gp_name=genepanel_name, gp_version=genepanel_version, user_group=user_group_name))
+        return
+
+    user_group.genepanels.append(gp)
+
+    db.session.commit()
+
+    click.echo("Appended genepanel ({gp_name},{gp_version}) to user group {user_group}".format(gp_name=genepanel_name, gp_version=genepanel_version, user_group=user_group_name))
