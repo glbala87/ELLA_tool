@@ -9,5 +9,5 @@
     * [Analyses and samples](datamodel.md#analyses-and-samples)
     * [Workflow](datamodel.md#workflow)
 * [Loading data from backend](loading.md)
-* [Data in and out](inout.md)
+* [UI components](uicomponents.md)
 * [Testing](testing.md)
