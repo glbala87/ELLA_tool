@@ -13,8 +13,8 @@ The interpretation work must be approved by another person in multi-step **workf
 In general e||a has an append-only data model, where no data is deleted or overwritten.
 Instead an updated copy is made and the versions are linked.
 
-High-level system diagram of e||a:
-<div style="text-align:center"><img style="zoom: 50%;" src="img/system.png"></div>
+**High-level system diagram of e||a:**
+<div style="text-align:center"><img style="zoom: 90%;" src="img/system.png"></div>
 
 ella is built as a web application, divided between a frontend and a backend. The frontend runs fully in the user's browser, while the backend runs on a server. The frontend communicates with the backend via a JSON based REST API.
 

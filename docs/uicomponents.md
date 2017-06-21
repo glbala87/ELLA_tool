@@ -70,5 +70,5 @@ Note that interpreation rounds are not needed to load allele data.
 
 **Code*
 - api/schemas
-- webui/src/js/views/workflow/workflowAnalysis.directive.js
+- webui/src/js/views/workflow/workflowAllele.directive.js
 - webui/src/js/views/workflow/interpretation.directive.j
