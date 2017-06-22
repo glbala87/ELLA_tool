@@ -5,8 +5,8 @@
 
 mkdir $PGDATA
 chown postgres $PGDATA
-gosu postgres /usr/lib/postgresql/9.4/bin/initdb
-gosu postgres /usr/lib/postgresql/9.4/bin/postgres --single -jE <<-EOSQL
+gosu postgres /usr/lib/postgresql/9.6/bin/initdb
+gosu postgres /usr/lib/postgresql/9.6/bin/postgres --single -jE <<-EOSQL
   CREATE USER root WITH SUPERUSER PASSWORD 'omgenetics' ;
 EOSQL
-gosu postgres /usr/lib/postgresql/9.4/bin/postgres
+gosu postgres /usr/lib/postgresql/9.6/bin/postgres
