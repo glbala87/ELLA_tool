@@ -143,7 +143,7 @@ def change_password(session, user_or_username, old_password, new_password, overr
     logout_all(session, user_object.id)
     user_object.password = hash_password(new_password)
     if override:
-        user_object.password_expiry = datetime.datetime.fromtimestamp(0)
+        user_object.password_expiry = datetime.datetime(1970,1,1, tzinfo=pytz.utc)
     else:
         user_object.password_expiry = datetime.datetime.now(pytz.utc)+datetime.timedelta(days=config["users"]["password_expiry_days"])
 
