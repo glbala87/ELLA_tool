@@ -299,7 +299,7 @@ class AssessmentImporter(object):
 
         allele = db_alleles[0]
 
-        ass_info['date_created'] = datetime.datetime.min  # 1970-00-00 if not proper
+        ass_info['date_created'] = datetime.datetime.fromtimestamp(0)  # 1970-00-00 if not proper
         date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
         if is_non_empty_text(date_raw):
             try:
