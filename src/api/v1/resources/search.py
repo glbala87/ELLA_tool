@@ -329,6 +329,6 @@ class SearchResource(LogRequestResource):
             tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
         ).limit(SearchResource.ANALYSIS_LIMIT).all()
         if analyses:
-            return schemas.AnalysisSchema().dump(analyses, many=True).data
+            return schemas.AnalysisFullSchema().dump(analyses, many=True).data
         else:
             return []

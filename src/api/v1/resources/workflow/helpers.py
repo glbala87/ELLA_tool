@@ -339,6 +339,7 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     session.add_all(snapshot_objects)
 
     interpretation.status = 'Done'
+    interpretation.end_action = 'Mark review'
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     # Create next interpretation
@@ -403,7 +404,8 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
         data['annotations'],
         data['alleleassessments'],
         data['custom_annotations'],
-        data['referenceassessments']
+        data['referenceassessments'],
+        data['attachments']
     )
 
     reused_alleleassessments = grouped_alleleassessments['alleleassessments']['reused']
@@ -450,6 +452,7 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
     # Update interpretation and return data
     interpretation.status = 'Done'
+    interpretation.end_action = 'Finalize'
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     reused_referenceassessments = grouped_alleleassessments['referenceassessments']['reused']

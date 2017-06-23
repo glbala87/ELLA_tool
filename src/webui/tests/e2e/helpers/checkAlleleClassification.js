@@ -51,6 +51,9 @@ function checkAlleleClassification(allele_data) {
         if ('report' in data) {
             expect(alleleSectionBox.reportComment).toEqual(data.report);
         }
+        if ('num_attachments' in data) {
+            expect(alleleSectionBox.getNumberOfAttachments()).toEqual(data.num_attachments)
+        }
     }
 }
 

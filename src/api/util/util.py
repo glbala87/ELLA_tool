@@ -258,7 +258,10 @@ def authenticate(user_role=None, user_group=None):
             if userSession is None:
                 return False, None
 
-            if userSession.expired is None:
+            if userSession.expires < datetime.datetime.now(pytz.utc):
+                return False, None
+
+            if userSession.logged_out is None:
                 userSession.lastactivity = datetime.datetime.now(pytz.utc)
                 session.commit()
                 return True, userSession.user

@@ -33,6 +33,23 @@ class LoginResource {
         });
     }
 
+    logout() {
+        return new Promise((resolve, reject) => {
+            var r = this.resource(`/api/v1/users/actions/logout/`, {}, {
+                login: {
+                    method: "POST",
+                }
+            });
+
+            var result = r.login({}, () => {
+                resolve(result)
+            }, (error) => {
+                console.log(error.data)
+                reject(error.data)
+            })
+        });
+    }
+
     resetPassword(username, password, new_password) {
         return new Promise((resolve, reject) => {
             let credentials = {

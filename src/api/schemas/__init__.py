@@ -1,4 +1,4 @@
-from analyses import AnalysisSchema
+from analyses import AnalysisSchema, AnalysisFullSchema
 from samples import SampleSchema
 from analysisinterpretations import AnalysisInterpretationSchema, AnalysisInterpretationOverviewSchema
 from alleles import AlleleSchema
@@ -8,10 +8,11 @@ from referenceassessments import ReferenceAssessmentSchema
 from alleleassessments import AlleleAssessmentSchema
 from alleleassessments import AlleleAssessmentInputSchema
 from allelereports import AlleleReportSchema
-from users import UserSchema
+from users import UserSchema, UserFullSchema
 from classifications import ClassificationSchema, RuleSchema
 from genepanels import GenepanelSchema
 from annotations import AnnotationSchema
 from customannotations import CustomAnnotationSchema
 from genotypes import GenotypeSchema
 from annotationjobs import AnnotationJobSchema
+from attachments import AttachmentSchema

@@ -13,13 +13,14 @@ ANALYSIS_WORKFLOW = "analysis"
 VARIANT_WORKFLOW = "variant"
 
 
-def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports):
+def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments):
     return {
        'annotations': annotations,
        'custom_annotations': custom_annotations,
        'alleleassessments': alleleassessments,
        'referenceassessments': referenceassessments,
-       'allelereports': allelereports
+       'allelereports': allelereports,
+       'attachments': attachments,
 }
 
 
@@ -51,6 +52,7 @@ def allele_assessment_template_for_variant_workflow(allele):
 def allele_assessment_template(workflow_type, workflow_id, allele, extra):
     base = {
             'allele_id': allele['id'],
+            'attachments': [],
             'evaluation': {'comment': 'Original comment'},
             'classification': 5,
             'analysis_id': None,
@@ -261,10 +263,10 @@ def reopen_analysis(workflow_type, workflow_id, user):
 
 
 def finalize(workflow_type, analysis_id, annotations, custom_annotations, alleleassessments, referenceassessments,
-             allelereports, user):
+             allelereports, attachments, user):
     response = api.post(
         '/workflows/{}/{}/actions/finalize/'.format(uri_part[workflow_type], analysis_id),
-        finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports),
+        finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments),
         username=user['username']
     )
     assert response.status_code == 200

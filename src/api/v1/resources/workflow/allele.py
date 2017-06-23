@@ -302,7 +302,8 @@ class AlleleActionFinalizeResource(LogRequestResource):
         [
             'alleleassessments',
             'referenceassessments',
-            'allelereports'
+            'allelereports',
+            'attachments'
         ]
     )
     def post(self, session, allele_id, data=None, user=None):

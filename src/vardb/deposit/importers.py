@@ -12,6 +12,7 @@ import json
 import re
 import logging
 import datetime
+import pytz
 from collections import defaultdict
 
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
@@ -253,9 +254,15 @@ class AssessmentImporter(object):
             asm.AlleleAssessment.date_superceeded.is_(None)
         ).first()
 
+        annotation = self.session.query(annm.Annotation).filter(
+            annm.Annotation.allele == allele,
+            annm.Annotation.date_superceeded.is_(None)
+        ).one()
+
         if not existing:
             assessment = asm.AlleleAssessment(**ass_info)
             assessment.allele = allele
+            assessment.annotation = annotation
             self.session.add(assessment)
             self.counter["nNovelAssessments"] += 1
             return assessment
@@ -299,7 +306,7 @@ class AssessmentImporter(object):
 
         allele = db_alleles[0]
 
-        ass_info['date_created'] = datetime.datetime.min  # 1970-00-00 if not proper
+        ass_info['date_created'] = datetime.datetime(1970,1,1, tzinfo=pytz.utc)  # Set to epoch if not proper
         date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
         if is_non_empty_text(date_raw):
             try:
@@ -317,7 +324,7 @@ class AssessmentImporter(object):
                 raise RuntimeError("Found an existing allele report, won't create a new one")
 
             report_data = {'allele_id': allele.id,
-                           'user_id': user.id,
+                           'user_id': user.id if user else None,
                            'alleleassessment_id': db_assessment.id
                            }
 

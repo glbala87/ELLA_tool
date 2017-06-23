@@ -3,7 +3,7 @@ import datetime
 import pytz
 from collections import defaultdict
 from sqlalchemy import func, tuple_, or_, and_
-from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
+from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, user as model_user
 
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
@@ -389,8 +389,7 @@ class OverviewAnalysisResource(LogRequestResource):
         analyses_not_started = analyses_base_query.filter(
             sample.Analysis.id.in_(workflow_analyses_not_started),
         ).all()
-
-        aschema = schemas.AnalysisSchema()
+        aschema = schemas.AnalysisFullSchema()
         analyses_not_started_serialized = aschema.dump(analyses_not_started, many=True).data
 
         final_analyses = {
@@ -442,3 +441,196 @@ class OverviewAnalysisResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
         return self.get_categorized_analyses(session, user)
+
+
+class OverviewUserStatsResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, user=None):
+
+        stats = dict()
+
+        stats['analyses_cnt'] = session.query(sample.Analysis).join(
+            workflow.AnalysisInterpretation
+        ).filter(
+            workflow.AnalysisInterpretation.user_id == user.id
+        ).distinct().count()
+
+        stats['alleles_cnt'] = session.query(allele.Allele).join(
+            workflow.AlleleInterpretation
+        ).filter(
+            workflow.AlleleInterpretation.user_id == user.id
+        ).distinct().count()
+
+        return stats
+
+
+class OverviewActivitiesResource(LogRequestResource):
+
+    @staticmethod
+    def _get_start_end_action_workflow(session, model, model_id_field, model_objs):
+        """
+        Fetches the start and end action for provided interpretation model.
+
+        :param session: SQLAlchemy session
+        :param model: Either workflow.AlleleInterpretation or workflow.AnalysisInterpretation
+        :param model_id_field: Field name for the connected object id, e.g. 'allele_id' or 'analysis_id'
+        :param model_objs: The interpretation objects for which to get the actions.
+        :returns: dict of {id: (start_action, end_action)}
+        """
+
+        obj_ids = [getattr(obj, model_id_field) for obj in model_objs]
+
+        # Get all objects and their current status, sorted ascending (oldest first)
+        status_order = session.query(
+            # e.g. workflow.AlleleInterpretation.allele_id
+            getattr(model, model_id_field),
+            model.id,
+            model.status,
+            model.date_created,
+        ).filter(
+            # e.g. workflow.AlleleInterpretation.allele_id.in_(...)
+            getattr(model, model_id_field).in_(obj_ids)
+        ).order_by(
+            model.date_created
+        ).all()
+
+        status = dict()  # {id: (start_action, end_action)}
+        for obj in model_objs:
+            obj_wfs = [w for w in status_order if w[0] == getattr(obj, model_id_field)]
+            is_first = obj_wfs[0][1] == obj.id  # Was sorted oldest first above
+
+            # Get start action
+            start_action = None
+            if is_first:
+                # If our object is the first in the list (i.e. oldest),
+                # we must have started a new workflow
+                start_action = 'started'
+            else:
+                # If not first, then we are either doing
+                # or have done a review
+                if obj.status == 'Ongoing':
+                    start_action = 'started_review'
+                else:
+                    start_action = 'review'
+
+            # Get end action
+            end_action = None
+            if obj.end_action == 'Mark review':
+                end_action = 'marked_review'
+            elif obj.end_action == 'Finalize':
+                end_action = 'finalized'
+            status[obj.id] = (start_action, end_action)
+
+        return status
+
+    @staticmethod
+    def _get_latest_workflows(session, model, model_id_field, user, limit=20):
+        """
+        Fetches {limit} latest interpretations for provided model.
+
+        :param session: SQLAlchemy session
+        :param model: Either workflow.AlleleInterpretation or workflow.AnalysisInterpretation
+        :param model_id_field: Field name for the connected object id, e.g. 'allele_id' or 'analysis_id'
+        :param user: User model object
+        :returns: Objects of type {model}
+        """
+        sq_wf_for_user = session.query(getattr(model, model_id_field)).filter(
+            model.user == user
+        ).subquery()
+
+        wf_latest = session.query(model).filter(
+            getattr(model, model_id_field).in_(sq_wf_for_user),
+            model.status != 'Not started'
+        ).order_by(model.date_created.desc()).limit(limit).all()
+        return wf_latest
+
+    @authenticate()
+    def get(self, session, user=None):
+        """
+        Provides dashboard data for authenticated user.
+        """
+
+        # Get latest workflows where the user has been involved
+        wf_allele_user = OverviewActivitiesResource._get_latest_workflows(
+            session,
+            workflow.AlleleInterpretation,
+            'allele_id',
+            user
+        )
+
+        wf_analysis_user = OverviewActivitiesResource._get_latest_workflows(
+            session,
+            workflow.AnalysisInterpretation,
+            'analysis_id',
+            user
+        )
+
+        # Create activity stream for user
+        workflow_stream_objs = sorted(wf_allele_user + wf_analysis_user, key=lambda x: x.date_last_update, reverse=True)
+
+        # Preload data
+        stream_users = session.query(model_user.User).filter(
+            model_user.User.id.in_([o.user_id for o in workflow_stream_objs])
+        ).all()
+        stream_users = schemas.UserSchema(strict=True).dump(stream_users, many=True).data
+
+        genepanels = session.query(gene.Genepanel).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_([(o.genepanel_name, o.genepanel_version) for o in wf_allele_user])
+        ).all()
+
+        stream_alleles = session.query(allele.Allele).filter(
+            allele.Allele.id.in_([o.allele_id for o in wf_allele_user])
+        ).all()
+
+        stream_analyses = session.query(sample.Analysis).filter(
+            sample.Analysis.id.in_([o.analysis_id for o in wf_analysis_user])
+        ).all()
+
+        # Get start/end actions for each workflow type
+        wf_allele_actions = OverviewActivitiesResource._get_start_end_action_workflow(
+            session,
+            workflow.AlleleInterpretation,
+            'allele_id',
+            wf_allele_user
+        )
+
+        wf_analysis_actions = OverviewActivitiesResource._get_start_end_action_workflow(
+            session,
+            workflow.AnalysisInterpretation,
+            'analysis_id',
+            wf_analysis_user
+        )
+
+        adl = AlleleDataLoader(session)
+        workflow_stream = list()
+
+        for obj in workflow_stream_objs:
+            stream_obj = {
+                'user': next(u for u in stream_users if u['id'] == obj.user_id),
+                'date_last_update': obj.date_last_update.isoformat()
+            }
+            if isinstance(obj, workflow.AlleleInterpretation):
+                stream_obj['start_action'], stream_obj['end_action'] = wf_allele_actions.get(obj.id)
+                stream_obj_allele = next(a for a in stream_alleles if a.id == obj.allele_id)
+                stream_obj_genepanel = next(gp for gp in genepanels if gp.name == obj.genepanel_name and gp.version == obj.genepanel_version)
+                stream_obj['allele'] = adl.from_objs(
+                    [stream_obj_allele],
+                    genepanel=stream_obj_genepanel,
+                    include_reference_assessments=False,
+                    include_custom_annotation=False,
+                    include_allele_report=False
+                )[0]
+                stream_obj['genepanel'] = {
+                    'name': stream_obj_genepanel.name,
+                    'version': stream_obj_genepanel.version
+                }
+            elif isinstance(obj, workflow.AnalysisInterpretation):
+                stream_obj['start_action'], stream_obj['end_action'] = wf_analysis_actions.get(obj.id)
+                stream_obj_analysis = next(a for a in stream_analyses if a.id == obj.analysis_id)
+                stream_obj['analysis'] = schemas.AnalysisSchema(strict=True).dump(stream_obj_analysis).data
+
+            workflow_stream.append(stream_obj)
+
+        return workflow_stream
+

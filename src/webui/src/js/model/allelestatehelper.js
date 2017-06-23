@@ -24,6 +24,10 @@ export class AlleleStateHelper {
             alleleassesment.evaluation = {};
         }
 
+        if (!('attachment_ids' in alleleassesment)) {
+            alleleassesment.attachment_ids = [];
+        }
+
         let evaluation = alleleassesment.evaluation;
         for (let key of ['prediction', 'classification', 'external', 'frequency', 'reference']) {
             if (!(key in evaluation)) {
@@ -282,6 +286,7 @@ export class AlleleStateHelper {
              )
             ) {
             allele_state.alleleassessment.evaluation = deepCopy(allele.allele_assessment.evaluation);
+            allele_state.alleleassessment.attachment_ids = deepCopy(allele.allele_assessment.attachment_ids)
             allele_state.alleleassessment.classification = allele.allele_assessment.classification;
             allele_state.alleleAssessmentCopiedFromId = allele.allele_assessment.id;
             // The copied alleleassessment can have an older model that is lacking fields.

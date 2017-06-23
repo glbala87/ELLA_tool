@@ -2,7 +2,7 @@
 import datetime
 import pytz
 
-from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Table
+from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
@@ -10,7 +10,7 @@ from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
 
 from vardb.datamodel import Base
-from vardb.datamodel import gene, annotation, user, sample  # Needed, implicit imports used by sqlalchemy
+from vardb.datamodel import gene, annotation, user, sample, attachment  # Needed, implicit imports used by sqlalchemy
 from vardb.util.mutjson import JSONMutableDict
 
 
@@ -19,6 +19,10 @@ AlleleAssessmentReferenceAssessment = Table('alleleassessmentreferenceassessment
     Column('referenceassessment_id', Integer, ForeignKey('referenceassessment.id'))
 )
 
+AlleleAssessmentAttachment = Table('alleleassessmentattachment', Base.metadata,
+    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id')),
+    Column('attachment_id', Integer, ForeignKey('attachment.id')),
+)
 
 class AlleleAssessment(Base):
     """Represents an assessment of one allele."""
@@ -47,6 +51,7 @@ class AlleleAssessment(Base):
 
     referenceassessments = relationship("ReferenceAssessment",
                                         secondary=AlleleAssessmentReferenceAssessment)
+    attachments = relationship("Attachment", secondary=AlleleAssessmentAttachment)
 
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
@@ -54,7 +59,7 @@ class AlleleAssessment(Base):
         return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.classification, str(self.user))
 
     def __str__(self):
-        return "%s, %s" % (self.classification, self.date_last_update)
+        return "%s, %s" % (self.classification, self.date_created)
 
 
 class ReferenceAssessment(Base):
@@ -99,6 +104,9 @@ class Reference(Base, SearchQueryMixin):
     abstract = Column(String())
     year = Column(String())
     pubmed_id = Column(Integer, unique=True)
+    published = Column(Boolean(), default=True, nullable=False)
+    attachment_id = Column(Integer, ForeignKey('attachment.id'))
+    attachment = relationship('Attachment', uselist=False)
 
     search = Column(TSVectorType("authors", "title", "journal", "year",
                     weights={"authors": 'A', "title": 'A', "journal": 'B', "year": 'C'}))

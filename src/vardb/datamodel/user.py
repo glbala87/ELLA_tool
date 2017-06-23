@@ -58,7 +58,7 @@ class UserSession(Base):
     issued = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(pytz.utc), nullable=False)
     lastactivity = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(pytz.utc), nullable=False)
     expires = Column(DateTime(timezone=True), nullable=False)
-    expired = Column(DateTime(timezone=True))
+    logged_out = Column(DateTime(timezone=True))
 
 
 class UserOldPassword(Base):
