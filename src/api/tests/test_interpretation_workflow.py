@@ -173,6 +173,7 @@ class TestInterpretationWorkflow(object):
         allele_assessments = interpretation['state']['alleleassessments']
         reference_assessments = interpretation['state']['referenceassessments']
         allele_reports = interpretation['state']['allelereports']
+        attachments = []
 
         assert all([item['evaluation']['comment'] == 'Original comment'
                     for item in allele_assessments + reference_assessments + allele_reports])
@@ -192,6 +193,7 @@ class TestInterpretationWorkflow(object):
                                      allele_assessments,
                                      reference_assessments,
                                      allele_reports,
+                                     attachments,
                                      user)
 
         # Then
@@ -240,6 +242,7 @@ class TestInterpretationWorkflow(object):
         allele_assessments = interpretation['state']['alleleassessments']
         reference_assessments = interpretation['state']['referenceassessments']
         allele_reports = interpretation['state']['allelereports']
+        attachments = []
 
         assert all([item['evaluation']['comment'] == 'Updated comment' for item in allele_assessments + reference_assessments + allele_reports])
 
@@ -278,6 +281,7 @@ class TestInterpretationWorkflow(object):
             allele_assessments,
             reference_assessments,
             allele_reports,
+            attachments,
             user
         )
 

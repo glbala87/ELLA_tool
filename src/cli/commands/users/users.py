@@ -1,6 +1,7 @@
 import base64
 import click
 import datetime
+import pytz
 import sys
 import os
 from copy import deepcopy
@@ -146,7 +147,7 @@ def cmd_add_user(username, first_name, last_name):
         first_name=first_name,
         last_name=last_name,
         password=password_hash,
-        password_expiry=datetime.datetime.fromtimestamp(0)
+        password_expiry=datetime.datetime(1970,1,1,tzinfo=pytz.utc)
     )
 
     session.add(u)

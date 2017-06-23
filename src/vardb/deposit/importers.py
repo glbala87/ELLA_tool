@@ -12,6 +12,7 @@ import json
 import re
 import logging
 import datetime
+import pytz
 from collections import defaultdict
 
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
@@ -299,7 +300,7 @@ class AssessmentImporter(object):
 
         allele = db_alleles[0]
 
-        ass_info['date_created'] = datetime.datetime.min  # 1970-00-00 if not proper
+        ass_info['date_created'] = datetime.datetime(1970,1,1, tzinfo=pytz.utc)  # Set to epoch if not proper
         date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
         if is_non_empty_text(date_raw):
             try:

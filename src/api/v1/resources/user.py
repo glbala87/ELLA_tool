@@ -1,11 +1,14 @@
-from vardb.datamodel import user
+import logging
+from vardb.datamodel import user as user_model
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json, authenticate
 from api.util.useradmin import authenticate_user, create_session, change_password, logout
 
 from api.v1.resource import Resource, LogRequestResource
-from flask import Response, make_response, redirect
+from flask import Response, make_response, redirect, request
+
+log = logging.getLogger(__name__)
 
 
 class UserListResource(LogRequestResource):
@@ -37,8 +40,8 @@ class UserListResource(LogRequestResource):
         """
         return self.list_query(
             session,
-            user.User,
-            schemas.UserSchema(strict=True),
+            user_model.User,
+            schemas.UserFullSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
             num_per_page=num_per_page
@@ -67,8 +70,8 @@ class UserResource(LogRequestResource):
         """
         if user_id is None:
             raise ApiError("No user id provided")
-        u = session.query(user.User).filter(user.User.id == user_id).one()
-        return schemas.UserSchema(strict=True).dump(u).data
+        u = session.query(user_model.User).filter(user_model.User.id == user_id).one()
+        return schemas.UserFullSchema(strict=True).dump(u).data
 
 
 class LoginResource(Resource):
@@ -101,23 +104,26 @@ class ChangePasswordResource(Resource):
 class CurrentUser(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
-        return schemas.UserSchema().dump(user).data
+        return schemas.UserFullSchema().dump(user).data
 
 
 class LogoutResource(LogRequestResource):
-    def patch(self, session, token):
-        userSession = session.query(user.UserSession).filter(
-            user.UserSession.token == token
-        ).one_or_none()
 
-        if userSession is None:
+    @authenticate()
+    def post(self, session, user=None):
+
+        token = request.cookies.get("AuthenticationToken")  # We only logout specific token
+        user_session = session.query(user_model.UserSession).filter(
+            user_model.UserSession.token == token
+        ).one_or_none()
+        if user_session is None:
             log.warning("Trying to logout with non-existing token %s" % token)
             return
 
-        if not userSession.valid:
-            log.warning("Trying to logout with invalid token %s" % token)
+        if user_session.logged_out:
+            log.warning("Trying to logout already logged out token %s" % token)
             return
 
-        logout(userSession)
+        logout(user_session)
         session.commit()
 

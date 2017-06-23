@@ -172,7 +172,7 @@ gulp.task('sass', function () {
           browsers: ['last 2 versions'],
           cascade: false
           }))
-        .pipe(production ? cssnano() : util.noop())
+        .pipe(production ? cssnano({ zindex: false }) : util.noop())
         .pipe(gulp.dest(__basedir))
         .pipe(production ? util.noop() : livereload());
 });

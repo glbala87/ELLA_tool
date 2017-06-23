@@ -89,6 +89,11 @@ describe('Sample workflow', function () {
             selected_allele = alleleSidebar.getSelectedAllele();
             console.log(`Classifying variant ${selected_allele} in loop with idx=${idx}`);
 
+            // Add attachment
+            expect(alleleSectionBox.getNumberOfAttachments()).toEqual(0);
+            alleleSectionBox.addAttachment()
+            expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1);
+
             // Evaluate one reference
             let referenceTitle = alleleSectionBox.evaluateReference(1);
             console.log(`Evaluating reference ${referenceTitle}`);
@@ -113,11 +118,11 @@ describe('Sample workflow', function () {
             // Add prediction annotation
             alleleSectionBox.addPredictionBtn.scroll();
             alleleSectionBox.addPredictionBtn.click();
-            customAnnotationModal.annotationSelect.selectByVisibleText('Conservation');
+            customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
             customAnnotationModal.valueSelect.selectByVisibleText('conserved');
             customAnnotationModal.addBtn.click();
             customAnnotationModal.saveBtn.click();
-            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Conservation:');
+            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Ortholog conservation:');
             expect(alleleSectionBox.getPredictionOtherValue()).toEqual('conserved');
 
             // Set comments/classification
@@ -180,7 +185,8 @@ describe('Sample workflow', function () {
                         category: 'pathogenic',
                         comment: 'ACMG_ROUND_1'
                     },
-                ]
+                ],
+                num_attachments: 1,
             }
         }
 
@@ -273,6 +279,8 @@ describe('Sample workflow', function () {
         analysisPage.saveButton.click();
         alleleSectionBox.setReportComment('REPORT_UPDATED');
         alleleSectionBox.classSelection.selectByVisibleText('Class 5');
+        alleleSectionBox.addAttachment()
+        expect(alleleSectionBox.getNumberOfAttachments()).toEqual(2);
         // :end
 
         expected_analysis_2_round_1['c.581G>A'] = expected_analysis_1_round_1['c.581G>A'];
@@ -288,7 +296,8 @@ describe('Sample workflow', function () {
                     comment: 'REFERENCE_EVAL_UPDATED',
                     relevance: 'Indirectly'
                 }
-            }
+            },
+            num_attachments: 2,
         });
 
         analysisPage.finishButton.click();

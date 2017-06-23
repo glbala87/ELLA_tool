@@ -173,4 +173,10 @@ export class Allele {
             return `${this.chromosome}:${this.start_position+1}-${this.open_end_position}`;
         }
     }
+
+    getWorkflowUrl(genepanel) {
+        return `/variants/${this.genome_reference}/` +
+            `${this.chromosome}-${this.start_position}-${this.open_end_position}-${this.change_from}-${this.change_to}` +
+            `?gp_name=${genepanel.name}&gp_version=${genepanel.version}&allele_id=${this.id}`;
+    }
 }

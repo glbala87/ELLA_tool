@@ -16,5 +16,32 @@ export let UUID = function generateUUID () { // http://stackoverflow.com/a/88094
     });
 }
 
+export let printedFileSize = function(size) {
+    var i = Math.floor( Math.log(size) / Math.log(1024) );
+    if (i > 2) i = 2;
+    return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB'][i];
+}
 
+/** Class to contain eventlisteners, so they can be detached using removeAll */
+export class EventListeners {
+    constructor() {
+        this.eventListeners = [];
+    }
+
+    add(el, type, func) {
+        el.addEventListener(type, func);
+        this.eventListeners.push({"element": el, "type": type, "function": func});
+    }
+
+    remove(el, type, func) {
+        el.removeEventListener(type, func);
+    }
+
+    removeAll() {
+        for (let i=0; i<this.eventListeners.length; i++) {
+            let el = this.eventListeners[i];
+            this.remove(el.element, el.type, el.function);
+        }
+    }
+}
 

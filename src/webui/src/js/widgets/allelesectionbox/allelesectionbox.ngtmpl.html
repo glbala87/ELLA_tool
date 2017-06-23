@@ -6,10 +6,16 @@
 
   <controls>
 
+
     <!-- Controls -->
     <section class="line-wrapper" ng-if=vm.controls.length>
       <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
-
+          <upload ng-if="!vm.readOnly && control == 'upload'"
+                  mode="'browse'"
+                  buttontext="'Add attachment'"
+                  allele-state="vm.alleleState"
+                  read-only="vm.isAlleleAssessmentReused() || vm.readOnly">
+          </upload>
           <button class="id-collapse-all"
                   ng-if="control == 'collapse_all'"
                   ng-click="vm.collapseAll()">Collapse all
@@ -69,7 +75,7 @@
           <button class="id-add-references"
                   ng-click="vm.showAddReferenceModal()"
                   ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
-                  ng-if="control == 'references'">Add references
+                  ng-if="control == 'references'">Add studies
           </button>
 
           <button class="id-show-ignored-references"
@@ -129,6 +135,26 @@
                        placeholder="{{vm.allelereportComment.placeholder}}"
                        ng-model="vm.getAlleleReport().evaluation.comment"
                        ng-if="vm.allelereportComment"></wysiwyg-editor>
+
+
+      <div class="id-attachments" ng-if="vm.section.options.show_included_acmg_codes">
+        <h4 class="section-title acmg-body">Attachments</h4>
+        <section class="attachment-wrapper">
+          <attachment
+                ng-repeat="attachment_id in vm.getAlleleAssessment().attachment_ids"
+                ng-if="vm.attachments[attachment_id]"
+                attachment="vm.attachments[attachment_id]"
+                read-only="vm.readOnly || vm.isAlleleAssessmentReused()"
+                allele="vm.allele"
+                allele-state="vm.alleleState"
+          >
+          </attachment>
+          <upload mode="'drop'"
+                  allele-state="vm.alleleState"
+                  read-only="vm.isAlleleAssessmentReused() || vm.readOnly">
+          </upload>
+        </section>
+    </div>
 
     <!-- Included ACMG codes -->
     <!-- Don't use 'track by $index' -->

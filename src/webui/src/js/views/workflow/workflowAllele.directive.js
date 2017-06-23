@@ -77,6 +77,7 @@ export class WorkflowAlleleController {
                         },
                         controls: [
                             'collapse_all',
+                            'upload',
                             'add_acmg',
                             'classification',
                             'reuse_classification'
@@ -158,7 +159,7 @@ export class WorkflowAlleleController {
                     },
                     {
                         name: 'references',
-                        title: 'References',
+                        title: 'Studies & References',
                         options: {
                             hide_controls_on_collapse: true
                         },
@@ -167,11 +168,12 @@ export class WorkflowAlleleController {
                             'add_acmg'
                         ],
                         alleleassessment_comment: {
-                            placeholder: 'REFERENCE-COMMENTS',
+                            placeholder: 'STUDIES-COMMENTS',
                             name: 'reference'
                         },
                         content: [
-                            {'tag': 'allele-info-references'}
+                            {'tag': 'allele-info-unpublished-references'},
+                            {'tag': 'allele-info-published-references'}
                         ],
                     }
                 ]
