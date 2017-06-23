@@ -47,7 +47,8 @@ help :
 	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release		- Noop. See the README.md file"
+	@echo "make release			- Noop. See the README.md file"
+	@echo "make bundle-static	- Bundle HTML and JS."
 
 
 #---------------------------------------------
@@ -57,6 +58,9 @@ help :
 .PHONY: release
 release:
 	@echo "See the README.md file, section 'Production'"
+
+bundle-static:
+	docker exec $(CONTAINER_NAME) /dist/node_modules/gulp/bin/gulp.js build
 
 #---------------------------------------------
 # DEMO
