@@ -8,6 +8,7 @@ import {Directive, Inject} from '../ng-decorators';
         allele: '=',
         alleleassessment: '=',
         allelereport: '=?',
+        attachments: '=',
         summaryOnly: '=?'
     },
     templateUrl: 'ngtmpl/alleleAssessment.ngtmpl.html'
