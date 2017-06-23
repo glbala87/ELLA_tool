@@ -5,21 +5,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
 import {deepCopy} from '../../util';
 
 
-@Directive({
-    selector: 'allele-info-references',
-    templateUrl: 'ngtmpl/alleleInfoReferences.ngtmpl.html',
-    scope: {
-        analysis: '=',
-        allele: '=',
-        references: '=',
-        alleleState: '=',
-        alleleUserState: '=',
-        onSave: '&?',
-        readOnly: '=?'
-    }
-})
-@Inject('$scope', 'ReferenceEvalModal')
-export class AlleleInfoReferences {
+class AlleleInfoReferencesCommon {
     constructor($scope, ReferenceEvalModal) {
 
 
@@ -59,9 +45,10 @@ export class AlleleInfoReferences {
         for (let ids of this.allele.getReferenceIds()) {
             let pmid = ids.pubmed_id;
             let id = ids.id;
+
             let reference_found = false;
             if (this.references) {
-                if (pmid !== undefined) {
+                if (pmid) {
                     var reference = this.references.find(r => r.pubmed_id === pmid);
                 } else {
                     var reference = this.references.find(r => r.id === id);
@@ -155,5 +142,60 @@ export class AlleleInfoReferences {
             }
         });
 
+    }
+
+    hasReferences() {
+        for (let ref of this.allele_references) {
+            if (ref.published == this.published) {
+                return true
+            }
+        }
+        return this.missing_references.length && this.published;
+    }
+}
+
+
+@Directive({
+    selector: 'allele-info-published-references',
+    templateUrl: 'ngtmpl/alleleInfoReferences.ngtmpl.html',
+    scope: {
+        analysis: '=',
+        allele: '=',
+        references: '=',
+        alleleState: '=',
+        alleleUserState: '=',
+        onSave: '&?',
+        readOnly: '=?',
+    }
+})
+@Inject('$scope', 'ReferenceEvalModal')
+export class AlleleInfoReferencesPublished extends AlleleInfoReferencesCommon {
+    constructor($scope, ReferenceEvalModal) {
+        super($scope, ReferenceEvalModal)
+        this.published = true;
+        this.title = "References"
+    }
+}
+
+
+@Directive({
+    selector: 'allele-info-unpublished-references',
+    templateUrl: 'ngtmpl/alleleInfoReferences.ngtmpl.html',
+    scope: {
+        analysis: '=',
+        allele: '=',
+        references: '=',
+        alleleState: '=',
+        alleleUserState: '=',
+        onSave: '&?',
+        readOnly: '=?',
+    }
+})
+@Inject('$scope', 'ReferenceEvalModal')
+export class AlleleInfoReferencesUnpublished extends AlleleInfoReferencesCommon {
+    constructor($scope, ReferenceEvalModal) {
+        super($scope, ReferenceEvalModal)
+        this.published = false;
+        this.title = "Unpublished"
     }
 }

@@ -60,7 +60,7 @@ class WorkflowResource {
         });
     }
 
-    markreview(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports) {
+    markreview(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'markreview').doIt(
                 { id },
@@ -69,7 +69,8 @@ class WorkflowResource {
                     custom_annotations: custom_annotations,
                     alleleassessments: alleleassessments,
                     referenceassessments: referenceassessments,
-                    allelereports: allelereports
+                    allelereports: allelereports,
+                    attachments: attachments
                 },
                 resolve,
                 reject
@@ -77,7 +78,7 @@ class WorkflowResource {
         });
     }
 
-    finalize(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports) {
+    finalize(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
 
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'finalize').doIt(
@@ -87,7 +88,8 @@ class WorkflowResource {
                     custom_annotations: custom_annotations,
                     alleleassessments: alleleassessments,
                     referenceassessments: referenceassessments,
-                    allelereports: allelereports
+                    allelereports: allelereports,
+                    attachments: attachments
                 },
                 resolve,
                 reject

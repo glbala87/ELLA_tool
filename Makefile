@@ -5,6 +5,7 @@ CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 IMAGE_NAME = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
+ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
 
 # e2e test:
@@ -46,7 +47,8 @@ help :
 	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release		- Noop. See the README.md file"
+	@echo "make release			- Noop. See the README.md file"
+	@echo "make bundle-static	- Bundle HTML and JS."
 
 
 #---------------------------------------------
@@ -56,6 +58,9 @@ help :
 .PHONY: release
 release:
 	@echo "See the README.md file, section 'Production'"
+
+bundle-static:
+	docker exec $(CONTAINER_NAME) /dist/node_modules/gulp/bin/gulp.js build
 
 #---------------------------------------------
 # DEMO
@@ -106,6 +111,7 @@ dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \
 	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
+	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	-p $(API_PORT):5000 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
@@ -197,6 +203,7 @@ test-api: export PGDATABASE=vardb-test
 test-api: export DB_URL=postgres:///vardb-test
 test-api: export PYTHONPATH=/ella/src
 test-api: export ANNOTATION_SERVICE_URL=http://localhost:6000
+test-api: export ATTACHMENT_STORAGE=/ella/attachments
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
@@ -213,6 +220,7 @@ test-api-migration: export PGDATABASE=vardb-test
 test-api-migration: export DB_URL=postgres:///vardb-test
 test-api-migration: export PYTHONPATH=/ella/src
 test-api-migration: export ANNOTATION_SERVICE_URL=http://localhost:6000
+test-api-migration: export ATTACHMENT_STORAGE=/ella/attachments
 test-api-migration:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
@@ -231,6 +239,7 @@ endif
 test-common: export PGDATABASE=vardb-test
 test-common: export DB_URL=postgres:///vardb-test
 test-common: export PYTHONPATH=/ella/src
+test-common: export ATTACHMENT_STORAGE=/ella/attachments
 test-common:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep

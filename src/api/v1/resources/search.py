@@ -329,6 +329,6 @@ class SearchResource(LogRequestResource):
             sample.Analysis.name.op('~*')('.*{}.*'.format(query))
         ).limit(SearchResource.ANALYSIS_LIMIT).all()
         if analyses:
-            return schemas.AnalysisSchema().dump(analyses, many=True).data
+            return schemas.AnalysisFullSchema().dump(analyses, many=True).data
         else:
             return []

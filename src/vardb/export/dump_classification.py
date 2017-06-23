@@ -1,16 +1,20 @@
 #!/usr/bin/env python
 
-from vardb.datamodel import DB, assessment
-from api.util import alleledataloader
-from sqlalchemy.orm import subqueryload, joinedload
+import datetime
 import logging
 import time
-from openpyxl import Workbook
-from openpyxl.writer.write_only import WriteOnlyCell
-from openpyxl.styles import Font
 from os import path, mkdir
 from collections import defaultdict, OrderedDict
 import argparse
+import pytz
+from sqlalchemy.orm import subqueryload, joinedload
+from openpyxl.writer.write_only import WriteOnlyCell
+from openpyxl.styles import Font
+from openpyxl import Workbook
+
+from vardb.datamodel import DB, assessment, allele
+from api.util import alleledataloader
+
 
 """
 Dump current classification, i.e. alleleassessments for which
@@ -21,7 +25,7 @@ BATCH_SIZE = 200
 SCRIPT_DIR = path.abspath(path.dirname(__file__))
 log = logging.getLogger(__name__)
 
-REF_FORMAT = "{title} (Pubmed {pmid}): {evaluation}"
+REF_FORMAT = u"{title} (Pubmed {pmid}): {evaluation}"
 
 REF_ORDER = ['relevance', 'ref_auth_classification', 'comment']
 # Ref evaluation fields, order not specified:
@@ -36,7 +40,7 @@ DATE_FORMAT = "%Y-%m-%d"
 
 # (field name, [Column header, Column width])
 COLUMN_PROPERTIES = OrderedDict([
-    ('gene', ['Genes', 6]),
+    ('gene', ['Gene', 6]),
     ('transcript', ['Transcript', 15]),
     ('hgvsc', ['HGVSc', 26]),
     ('class', ['Class', 6]),
@@ -44,7 +48,7 @@ COLUMN_PROPERTIES = OrderedDict([
     ('prev_class', ['Prev. class', 6]),
     ('prev_class_date', ['Prev. class date', 11]),
     ('hgvsp', ['HGVSp', 26]),
-    ('exon', ['Exon/Intron', 11]),
+    ('exon', ['Exon/intron', 11]),
     ('rsnum', ['RS number', 11]),
     ('consequence', ['Consequence', 20]),
     ('coordinate', ['GRCh37', 20]),
@@ -94,15 +98,19 @@ def format_transcripts(allele_annotation):
             'consequences': 'consequences'}
 
     formatted_transcripts = defaultdict(list)
-    for filtered_transcript in allele_annotation['filtered_transcripts']:
-        for transcript in allele_annotation['transcripts']:
-            if filtered_transcript == transcript['transcript']:
-                for key, allele_key in keys.items():
-                    formatted_transcript = transcript.get(allele_key)
-                    if hasattr(formatted_transcript, '__iter__'):
-                        formatted_transcript = ', '.join(formatted_transcript)
-                    if formatted_transcript:
-                        formatted_transcripts[key].append(formatted_transcript)
+    filtered_transcripts = [t for t in allele_annotation['transcripts'] if t['transcript'] in allele_annotation['filtered_transcripts']]
+
+    # If we have no filtered transcripts, include all of them so we can show something
+    if not filtered_transcripts:
+        filtered_transcripts = allele_annotation['transcripts']
+
+    for transcript in filtered_transcripts:
+        for key, allele_key in keys.items():
+            formatted_transcript = transcript.get(allele_key)
+            if hasattr(formatted_transcript, '__iter__'):
+                formatted_transcript = ', '.join(formatted_transcript)
+            if formatted_transcript:
+                formatted_transcripts[key].append(formatted_transcript)
 
     return {key: ' | '.join(value) for key, value in formatted_transcripts.items()}
 
@@ -116,7 +124,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
     """
 
     link_filter = {
-        'annotation_id': [alleleassessment.annotation.id]
+        'annotation_id': [alleleassessment.annotation_id]
     }
     allele_dict = adl.from_objs([alleleassessment.allele],
                                 link_filter=link_filter,
@@ -127,10 +135,14 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
                                 include_reference_assessments=False,
                                 include_allele_report=False)[0]
 
-    date = alleleassessment.date_last_update.strftime(DATE_FORMAT)
+    # Imported assessments without date can have 0000-00-00 as created_time. strftime doesn't like that..
+    if alleleassessment.date_created < datetime.datetime(year=1950, month=1, day=1, tzinfo=pytz.utc):
+        date = '0000-00-00'
+    else:
+        date = alleleassessment.date_created.strftime(DATE_FORMAT)
     acmg_evals = ' | '.join(
         [': '.join([ae['code'], ae['comment']]) if ae['comment'] else ae['code']
-         for ae in alleleassessment.evaluation['acmg']['included']]
+         for ae in alleleassessment.evaluation.get('acmg', {}).get('included', [])]
     )
 
     # Note that the order of the first ref evaluation fields are specified by
@@ -141,7 +153,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
             title=re.reference.title,
             pmid=re.reference.pubmed_id,
             evaluation=', '.join(
-                ['='.join(map(str, [key, re.evaluation[key]]))
+                ['='.join(map(unicode, [key, re.evaluation[key]]))
                  for key in REF_ORDER+list(set(re.evaluation.keys())-set(REF_ORDER))
                  if key in re.evaluation]
             )
@@ -171,7 +183,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         'transcript': formatted_transcript.get('transcript'),
         'hgvsc': formatted_transcript.get('hgvsc'),
         'prev_class': previous_alleleassessment.classification if previous_alleleassessment else '',
-        'prev_class_date': previous_alleleassessment.date_last_update.strftime(DATE_FORMAT) if previous_alleleassessment else '',
+        'prev_class_date': previous_alleleassessment.date_created.strftime(DATE_FORMAT) if previous_alleleassessment else '',
         'date': date,
         'hgvsp': formatted_transcript.get('hgvsp'),
         'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
@@ -179,11 +191,11 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         'consequence': formatted_transcript.get('consequences'),
         'coordinate': coordinate,
         'n_samples': n_samples,
-        'classification_eval': alleleassessment.evaluation['classification']['comment'],
+        'classification_eval': alleleassessment.evaluation.get('classification', {}).get('comment', ''),
         'acmg_eval': acmg_evals,
-        'freq_eval': alleleassessment.evaluation['frequency']['comment'],
-        'extdb_eval': alleleassessment.evaluation['external']['comment'],
-        'pred_eval': alleleassessment.evaluation['prediction']['comment'],
+        'freq_eval': alleleassessment.evaluation.get('frequency', {}).get('comment', ''),
+        'extdb_eval': alleleassessment.evaluation.get('external', {}).get('comment', ''),
+        'pred_eval': alleleassessment.evaluation.get('prediction', {}).get('comment', ''),
         'ref_eval': ref_evals
     }
 
@@ -197,9 +209,7 @@ def dump_alleleassessments(session, filename=None):
     :param filename: Filename ending with .xlsx
     """
 
-    alleleassessments = session.query(assessment.AlleleAssessment).order_by(
-        assessment.AlleleAssessment.allele_id
-    ).options(
+    alleleassessments = session.query(assessment.AlleleAssessment).options(
         subqueryload(assessment.AlleleAssessment.annotation).
         subqueryload('allele').joinedload('genotypes'),
         joinedload(assessment.AlleleAssessment.genepanel),
@@ -228,6 +238,7 @@ def dump_alleleassessments(session, filename=None):
 
     t_start = time.time()
     t_total = 0
+    rows = list()
     for batch_alleleassessments in get_batch(alleleassessments):
         t_query = time.time()
         log.info("Loaded %s allele assessments in %s seconds" %
@@ -239,16 +250,19 @@ def dump_alleleassessments(session, filename=None):
             ).filter(
                 assessment.AlleleAssessment.allele_id == alleleassessment.allele_id
             ).order_by(assessment.AlleleAssessment.date_superceeded.desc()).limit(1).one_or_none()
-            print previous_alleleassessment
             classification = format_classification(alleleassessment, adl, previous_alleleassessment=previous_alleleassessment)
-            if filename:
-                worksheet.append(classification)
+            rows.append(classification)
 
         t_get = time.time()
         log.info("Read the allele assessments in %s seconds" %
                  str(t_get-t_query))
         t_total += t_get-t_start
         t_start = time.time()
+
+    rows.sort(key=lambda x: (x[0], x[1], x[2]))
+    if filename:
+        for r in rows:
+            worksheet.append(r)
 
     log.info("Dumped database in %s seconds" % t_total)
 

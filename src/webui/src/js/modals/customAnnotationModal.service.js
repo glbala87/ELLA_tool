@@ -43,10 +43,14 @@ export class CustomAnnotationController {
 
         this.referenceModes = ['Search', 'PubMed', 'Manual'];
         this.referenceMode = this.referenceModes[0];
+        this.referencePublishStatuses = ['Published', 'Unpublished']
+        this.referencePublishStatus = this.referencePublishStatuses[1];
         this.referenceSearchPhrase = "";
         this.referenceSearchResults = [];
 
-        this.resetManualReference()
+
+
+        this.resetManualReference(false)
 
 
         if (this.category === "references") {
@@ -60,7 +64,7 @@ export class CustomAnnotationController {
         this.setup();
     }
 
-    resetManualReference() {
+    resetManualReference(published) {
         this.manualReference = {
             'authors': '',
             'title': '',
@@ -70,6 +74,7 @@ export class CustomAnnotationController {
             'year': '',
             'pages': '',
             'abstract': '',
+            'published': published,
         }
     }
 
@@ -246,7 +251,7 @@ export class CustomAnnotationController {
             this.referenceResource.createFromManual(this.manualReference).then(ref => {
                 this.reference_error = false;
                 this._addReferenceToAnnotation(ref.id, ref.pubmed_id);
-                this.resetManualReference()
+                this.resetManualReference(this.manualReference.published)
                 this._loadReferences()
             }).catch(() => {
                 this.reference_error = true;
@@ -255,7 +260,7 @@ export class CustomAnnotationController {
     }
 
     canAddManualReference() {
-        return !(this.manualReference.title.length && this.manualReference.authors.length && this.manualReference.journal.length)
+        return !(this.manualReference.title.length && this.manualReference.authors.length && this.manualReference.journal.length && this.manualReference.year.length)
     }
 
     /**

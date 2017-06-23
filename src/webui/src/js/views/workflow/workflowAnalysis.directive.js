@@ -81,8 +81,9 @@ export class WorkflowAnalysisController {
                         },
                         controls: [
                             'collapse_all',
+                            'upload',
                             'add_acmg',
-                            'classification',,
+                            'classification',
                             'reuse_classification'
                         ],
                         alleleassessment_comment: {
@@ -94,7 +95,7 @@ export class WorkflowAnalysisController {
                         },
                         content: [
                             {'tag': 'allele-info-acmg-selection'},
-                            {'tag': 'allele-info-vardb'}
+                            {'tag': 'allele-info-vardb'},
                         ],
                     },
                     {
@@ -120,7 +121,7 @@ export class WorkflowAnalysisController {
                             {'tag': 'allele-info-frequency-thousandg'},
                             {'tag': 'allele-info-frequency-indb'},
                             {'tag': 'allele-info-dbsnp'},
-                            {'tag': 'allele-info-quality'},
+                            {'tag': 'allele-info-quality'}
                         ],
                     },
                     {
@@ -177,7 +178,8 @@ export class WorkflowAnalysisController {
                             name: 'reference'
                         },
                         content: [
-                            {'tag': 'allele-info-references'}
+                            {'tag': 'allele-info-unpublished-references'},
+                            {'tag': 'allele-info-published-references'}
                         ],
                     }
                 ]

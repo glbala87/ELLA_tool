@@ -51,7 +51,8 @@ class ReferenceResource {
                 'title': manualReference.title,
                 'journal': journal,
                 'abstract': manualReference.abstract,
-                'year': manualReference.year
+                'year': manualReference.year,
+                'published': manualReference.published,
             }
         }
         return new Promise((resolve, reject) => {

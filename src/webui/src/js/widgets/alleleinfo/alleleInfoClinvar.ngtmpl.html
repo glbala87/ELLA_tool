@@ -20,7 +20,7 @@
       <div class="cell"><h5 class="wrap">
             Submissions:
       </h5></div>
-      <div class="tabular-row" ng-repeat="c in vm.idempoClinvar()">
+      <div class="tabular-row" ng-repeat="c in vm.idempoClinvar() | orderBy: vm.sort">
         <div class="cell"><h5 class="wrap">
           <p>{{c.last_evaluated}} - {{c.sigtext}} - {{c.phenotypetext}} - {{c.submitter}}</p>
         </h5></div>

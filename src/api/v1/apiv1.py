@@ -14,7 +14,7 @@ class ApiV1(object):
         """
         Loads our marshmallow schemas into docs.
         """
-        self.api_v1_docs.add_schema('Analysis', schemas.AnalysisSchema())
+        self.api_v1_docs.add_schema('Analysis', schemas.AnalysisFullSchema())
         self.api_v1_docs.add_schema('Interpretation', schemas.AnalysisInterpretationSchema())
         self.api_v1_docs.add_schema('Allele', schemas.AlleleSchema())
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
@@ -132,6 +132,12 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewAnalysisResource,
                            '/api/v1/overviews/analyses/')
 
+        self._add_resource(r.overview.OverviewActivitiesResource,
+                           '/api/v1/overviews/activities/')
+
+        self._add_resource(r.overview.OverviewUserStatsResource,
+                           '/api/v1/overviews/userstats/')
+
         # ---------------------------------------------------------------------------------------------------------
         # Annotation
         # ---------------------------------------------------------------------------------------------------------
@@ -213,10 +219,20 @@ class ApiV1(object):
         # ---------------------------------------------------------------------------------------------------------
 
         self._add_resource(r.user.LoginResource,
-                            '/api/v1/users/actions/login/')
+                           '/api/v1/users/actions/login/')
+
+        self._add_resource(r.user.LogoutResource,
+                           '/api/v1/users/actions/logout/')
 
         self._add_resource(r.user.ChangePasswordResource,
                            '/api/v1/users/actions/changepassword/')
 
         self._add_resource(r.user.CurrentUser,
                            '/api/v1/users/currentuser/')
+
+        self._add_resource(r.attachment.AttachmentResource,
+                           '/api/v1/attachments/upload/',
+                           '/api/v1/attachments/<int:attachment_id>')
+
+        self._add_resource(r.attachment.AttachmentListResource,
+                           '/api/v1/attachments/')

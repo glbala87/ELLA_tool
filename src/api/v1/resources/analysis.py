@@ -34,7 +34,7 @@ class AnalysisListResource(LogRequestResource):
                 $ref: '#/definitions/Analysis'
             description: List of analyses
         """
-        analyses = self.list_query(session, sample.Analysis, schema=schemas.AnalysisSchema(), rest_filter=rest_filter)
+        analyses = self.list_query(session, sample.Analysis, schema=schemas.AnalysisFullSchema(), rest_filter=rest_filter)
         return analyses
 
 
@@ -60,7 +60,7 @@ class AnalysisResource(LogRequestResource):
             description: Analysis object
         """
         a = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
-        analysis = schemas.AnalysisSchema().dump(a).data
+        analysis = schemas.AnalysisFullSchema().dump(a).data
         return analysis
 
     @authenticate()

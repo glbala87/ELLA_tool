@@ -31,6 +31,7 @@ import {Directive, Inject} from '../../ng-decorators';
         analysis: '=',
         allele: '=',
         references: '=',
+        attachments: '=',
         alleleState: '=',
         alleleUserState: '=',
         onSave: '&?',
@@ -66,6 +67,7 @@ import {Directive, Inject} from '../../ng-decorators';
                     analysis="vm.analysis"
                     allele="vm.allele"
                     references="vm.references"
+                    attachments="vm.attachments"
                     allele-state="vm.alleleState"
                     allele-user-state="vm.alleleUserState"
                     read-only="vm.readOnly"
