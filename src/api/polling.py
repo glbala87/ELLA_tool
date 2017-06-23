@@ -80,8 +80,8 @@ class AnnotationJobsInterface:
         fd.flush()
         fd.seek(0)
 
-        genepanel = job.properties["genepanel"]
-        gp_name, gp_version = job.properties["genepanel"].split('_', 1)
+        gp_name = job.genepanel_name
+        gp_version = job.genepanel_version
 
         if mode == "Analysis":
             type = job.properties["create_or_append"]
@@ -90,7 +90,7 @@ class AnnotationJobsInterface:
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysis(self.session)
                 deposit.import_vcf(fd,
-                                   ".".join([analysis_name, genepanel]),
+                                   "{}.{}_{}".format(analysis_name, gp_name, gp_version),
                                    gp_name,
                                    gp_version,
                                    sample_type=sample_type)

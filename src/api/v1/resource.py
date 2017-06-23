@@ -2,6 +2,7 @@
 from api.util.util import provide_session, logger#, logger_obfuscated
 from flask.ext.restful import Resource as flask_resource
 import sqlalchemy
+from sqlalchemy import tuple_
 
 class Resource(flask_resource):
 
@@ -12,7 +13,10 @@ class Resource(flask_resource):
         for k, v in rest_filter.iteritems():
             if isinstance(v, list):
                 if v:  # Asking for empty list doesn't make sense
-                    args.append(getattr(model, k).in_(v))
+                    if isinstance(k, tuple):
+                        args.append(tuple_(*(getattr(model, _k) for _k in k)).in_(v))
+                    else:
+                        args.append(getattr(model, k).in_(v))
             else:
                 args.append(getattr(model, k) == v)
         if args:

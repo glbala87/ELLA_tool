@@ -21,10 +21,11 @@ def test_polling(session, client, test_database):
     data = dict(mode="Analysis",
                 user_id=1,
                 vcf="Dummy vcf data for testing",
+                genepanel_name="HBOC",
+                genepanel_version="v01",
                 properties=dict(
                     analysis_name="abc",
                     create_or_append="Create",
-                    genepanel="HBOC_v01",
                     sample_type="HTS"
                 ))
 

@@ -32,6 +32,9 @@ class GenepanelListResource(LogRequestResource):
                 $ref: '#/definitions/Genepanel'
             description: List of genepanels
         """
+        if rest_filter is None:
+            rest_filter = dict()
+        rest_filter[("name", "version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
         genepanels = self.list_query(session, gene.Genepanel, schema=schemas.GenepanelSchema(), rest_filter=rest_filter)
         return genepanels
 
@@ -63,8 +66,6 @@ class GenepanelResource(LogRequestResource):
             raise ApiError("No genepanel name is provided")
         if version is None:
             raise ApiError("No genepanel version is provided")
-        genepanel = session.query(gene.Genepanel) \
-                    .filter(gene.Genepanel.name == name) \
-                    .filter(gene.Genepanel.version == version).one()
+        genepanel = next(gp for gp in user.group.genepanels if gp.name == name and gp.version == version)
         k = schemas.GenepanelSchema(strict=True).dump(genepanel).data
         return k

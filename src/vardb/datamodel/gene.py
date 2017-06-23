@@ -59,7 +59,7 @@ genepanel_transcript = Table("genepanel_transcript", Base.metadata,
                           Column("genepanel_name"),
                           Column("genepanel_version"),
                           Column("transcript_id", Integer, ForeignKey("transcript.id")),
-                          ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"]))
+                          ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"], ondelete="CASCADE"))
 
 
 class Genepanel(Base):
