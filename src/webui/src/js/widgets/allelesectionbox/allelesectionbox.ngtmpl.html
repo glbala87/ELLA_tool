@@ -128,12 +128,14 @@
                        ng-disabled="!vm.isEditable() || vm.readOnly"
                        placeholder="{{vm.alleleassessmentComment.placeholder}}"
                        ng-model="vm.getAlleleAssessment().evaluation[vm.alleleassessmentComment.name].comment"
+                       paste-attachment-callback="vm.getAlleleAssessment().attachment_ids.push(attachment_id)"
                        ng-if="vm.alleleassessmentComment"></wysiwyg-editor>
 
     <wysiwyg-editor class="control-comment id-comment-report"
                        ng-disabled="!vm.isReportEditable()"
                        placeholder="{{vm.allelereportComment.placeholder}}"
                        ng-model="vm.getAlleleReport().evaluation.comment"
+                       paste-attachment-callback="vm.getAlleleAssessment().attachment_ids.push(attachment_id)"
                        ng-if="vm.allelereportComment"></wysiwyg-editor>
 
 
