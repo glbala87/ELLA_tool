@@ -119,7 +119,7 @@ describe('Sample workflow', function () {
             alleleSectionBox.addPredictionBtn.scroll();
             alleleSectionBox.addPredictionBtn.click();
             customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
-            customAnnotationModal.valueSelect.selectByVisibleText('conserved');
+            customAnnotationModal.valueSelect.selectByVisibleText('Conserved');
             customAnnotationModal.addBtn.click();
             customAnnotationModal.saveBtn.click();
             expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Ortholog conservation:');

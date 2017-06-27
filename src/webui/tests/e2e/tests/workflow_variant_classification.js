@@ -59,6 +59,7 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
         customAnnotationModal.valueSelect.selectByVisibleText('+/+');
         customAnnotationModal.addBtn.click();
         customAnnotationModal.saveBtn.click();
+        // browser.debug();
         expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD:');
         expect(alleleSectionBox.getExternalOtherValue()).toEqual('+/+');
 
@@ -66,7 +67,7 @@ describe(`Variant workflow (using ${OUR_VARIANT}`, function () {
         alleleSectionBox.addPredictionBtn.scroll();
         alleleSectionBox.addPredictionBtn.click();
         customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
-        customAnnotationModal.valueSelect.selectByVisibleText('conserved');
+        customAnnotationModal.valueSelect.selectByVisibleText('Conserved');
         customAnnotationModal.addBtn.click();
         customAnnotationModal.saveBtn.click();
         expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Ortholog conservation:');
