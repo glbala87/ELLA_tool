@@ -401,6 +401,7 @@ class AlleleFilter(object):
                 ad_group_thresholds = gp_config_resolver.get_AD_freq_cutoffs()
                 gp_final_filter.append(
                     and_(
+                        ~af_table.c.symbol.in_(override_genes),
                         af_table.c.symbol.in_(ad_genes),
                         self._get_freq_threshold_filter(af_table, genepanel_config, ad_group_thresholds, threshold_func, combine_func)
                     )
