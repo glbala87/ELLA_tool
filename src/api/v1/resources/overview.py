@@ -327,7 +327,7 @@ def get_categorized_analyses(session, user=None):
             sample.Analysis.id.in_(analyses_for_genepanels)
         )
 
-    other_categories = [
+    categories = [
         ('not_started', queries.workflow_analyses_not_started(session)),
         ('marked_review', queries.workflow_analyses_marked_review(session)),
         ('ongoing', queries.workflow_analyses_ongoing(session)),
@@ -336,7 +336,7 @@ def get_categorized_analyses(session, user=None):
 
     aschema = schemas.AnalysisFullSchema()
     final_analyses = dict()
-    for key, subquery in other_categories:
+    for key, subquery in categories:
         analyses = analyses_base_query.filter(
             sample.Analysis.id.in_(subquery),
         ).all()
@@ -345,34 +345,20 @@ def get_categorized_analyses(session, user=None):
     return final_analyses
 
 
-def get_categorized_analyses_by_findings(session, user=None):
+def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
 
-    # Get all (analysis_id, allele_id) combinations for analyses that are 'Not started'.
+    # Get all (analysis_id, allele_id) combinations for input analyses.
     # We want to categorize these analyses into with_findings, without_findings and missing_alleleassessments
     # based on the state of their alleles' alleleassessments
 
-    # First fetch all not-started analyses, with their allele_ids
-    # Restrict analyses to analyses matching this user's group's genepanels
-    analyses_base_query = session.query(sample.Analysis)
-    analysis_ids_allele_ids_base_query = session.query(sample.Analysis.id, allele.Allele.id)
+    analysis_ids = [a['id'] for a in not_started_analyses]
 
-    if user is not None:
-        analyses_for_genepanels = queries.workflow_analyses_for_genepanels(session, user.group.genepanels)
-        analyses_base_query = analyses_base_query.filter(
-            sample.Analysis.id.in_(analyses_for_genepanels)
-        )
-        analysis_ids_allele_ids_base_query = analysis_ids_allele_ids_base_query.filter(
-            sample.Analysis.id.in_(analyses_for_genepanels)
-        )
-
-    workflow_analyses_not_started = queries.workflow_analyses_not_started(session)
-
-    analysis_ids_allele_ids = analysis_ids_allele_ids_base_query.join(
+    analysis_ids_allele_ids = session.query(sample.Analysis.id, allele.Allele.id).join(
         genotype.Genotype.alleles,
         sample.Sample,
         sample.Analysis,
     ).filter(
-        sample.Analysis.id.in_(workflow_analyses_not_started)
+        sample.Analysis.id.in_(analysis_ids)
     ).all()
 
     # Now we have all the alleles, so what remains is to see which alleles are
@@ -411,14 +397,7 @@ def get_categorized_analyses_by_findings(session, user=None):
     for a in analysis_ids_allele_ids:
         analysis_ids_allele_ids_map[a[0]].add(a[1])
 
-    # Load analysis data to insert into final response
-    analyses_not_started = analyses_base_query.filter(
-        sample.Analysis.id.in_(workflow_analyses_not_started),
-    ).all()
-    aschema = schemas.AnalysisFullSchema()
-    analyses_not_started_serialized = aschema.dump(analyses_not_started, many=True).data
-
-    final_analyses = {
+    categories = {
         'with_findings': [],
         'without_findings': [],
         'missing_alleleassessments': []
@@ -431,25 +410,25 @@ def get_categorized_analyses_by_findings(session, user=None):
     for analysis_id, analysis_allele_ids in analysis_ids_allele_ids_map.iteritems():
         analysis_nonfiltered_allele_ids = analysis_allele_ids & nonfiltered_allele_ids
         analysis_filtered_allele_ids = analysis_allele_ids - analysis_nonfiltered_allele_ids
-        analysis = next(a for a in analyses_not_started_serialized if a['id'] == analysis_id)
+        analysis = next(a for a in not_started_analyses if a['id'] == analysis_id)
 
         # One or more allele is missing alleleassessment
         if analysis_nonfiltered_allele_ids & categorized_allele_ids['missing_alleleassessments']:
-            final_analyses['missing_alleleassessments'].append(analysis)
+            categories['missing_alleleassessments'].append(analysis)
         # One or more allele has a finding
         elif analysis_nonfiltered_allele_ids & categorized_allele_ids['with_findings']:
-            final_analyses['with_findings'].append(analysis)
+            categories['with_findings'].append(analysis)
         # All alleles are without findings
         # Special case: All alleles were filtered out. Treat as without_findings.
         elif ((analysis_nonfiltered_allele_ids and
                 analysis_nonfiltered_allele_ids <= categorized_allele_ids['without_findings']) or
                 analysis_allele_ids == analysis_filtered_allele_ids):
-            final_analyses['without_findings'].append(analysis)
+            categories['without_findings'].append(analysis)
         # All possible cases should have been taken care of above
         else:
             raise ApiError("Allele was not categorized correctly. This may indicate a bug.")
 
-    return final_analyses
+    return categories
 
 
 class OverviewAnalysisResource(LogRequestResource):
@@ -464,7 +443,8 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
         categorized_analyses = get_categorized_analyses(session, user=user)
-        categorized_analyses.update(get_categorized_analyses_by_findings(session, user=user))
+        not_started_analyses = categorized_analyses['not_started']
+        categorized_analyses.update(categorize_nonstarted_analyses_by_findings(session, not_started_analyses))
         return categorized_analyses
 
 
