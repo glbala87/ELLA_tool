@@ -28,11 +28,11 @@ def password_expired(user_object):
 
 
 def check_password_strength(password):
-    if len(password) < config["users"]["password_minimum_length"]:
+    if len(password) < config["user"]["auth"]["password_minimum_length"]:
         return False
 
-    N = config["users"]["password_num_match_groups"]
-    n = sum([re.match(p, password) is not None for p in config["users"]["password_match_groups"]])
+    N = config["user"]["auth"]["password_num_match_groups"]
+    n = sum([re.match(p, password) is not None for p in config["user"]["auth"]["password_match_groups"]])
     return n >= N
 
 
@@ -143,9 +143,9 @@ def change_password(session, user_or_username, old_password, new_password, overr
     logout_all(session, user_object.id)
     user_object.password = hash_password(new_password)
     if override:
-        user_object.password_expiry = datetime.datetime(1970,1,1, tzinfo=pytz.utc)
+        user_object.password_expiry = datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
     else:
-        user_object.password_expiry = datetime.datetime.now(pytz.utc)+datetime.timedelta(days=config["users"]["password_expiry_days"])
+        user_object.password_expiry = datetime.datetime.now(pytz.utc)+datetime.timedelta(days=config["user"]["auth"]["password_expiry_days"])
 
     user_object.incorrect_logins = 0
 

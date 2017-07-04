@@ -28,8 +28,7 @@
     <div class="overviewcontainer">
         <div class="sidenavbar">
             <div class="item-row">
-                <div class="item" ng-class="{'active': vm.isActive('analyses')}" ng-click="vm.setView('analyses')">Analyses</div>
-                <div class="item" ng-class="{'active': vm.isActive('variants')}" ng-click="vm.setView('variants')">Variants</div>
+                <div class="item" ng-repeat="view in vm.views" ng-if="vm.shouldShowView(view)" ng-class="{'active': vm.isActive(view)}" ng-click="vm.setView(view)">{{vm.view_names[view]}}</div>
             </div>
         </div>
 
@@ -37,6 +36,7 @@
             <search-results></search-results>
             <div ng-switch="vm.selectedView">
                 <analysis-selection ng-switch-when="analyses"></analysis-selection>
+                <analysis-selection by-findings="true" ng-switch-when="analyses-by-findings"></analysis-selection>
                 <allele-selection ng-switch-when="variants"></allele-selection>
             </div>
          </div>
