@@ -161,6 +161,12 @@ export class ACMGHelper {
         if (code_str.includes('x')) {
             [code_strength, base] = code_str.split('x', 2);
         }
+
+        // If code is benign, upgrading the code should mean 'more benign' and vice versa
+        if (this._extractCodeType(code_str) === "benign") {
+            upgrade = !upgrade;
+        }
+
         for (let strengths of Object.values(config.acmg.codes)) {
             // If strength is given (i.e. the code is not already upgraded/downgraded)
             // we need to find the strength of the base.
@@ -204,4 +210,12 @@ export class ACMGHelper {
         return code;
     }
 
+    static _extractCodeType(code_str) {
+        let base = this.getCodeBase(code_str);
+        if (base.startsWith("B")) {
+            return "benign"
+        } else {
+            return "pathogenic"
+        }
+    }
 }
