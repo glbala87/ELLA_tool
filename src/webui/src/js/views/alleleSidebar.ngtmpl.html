@@ -6,10 +6,10 @@
     <div class="nav-table">
       <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj), 'multiple': vm.isMultipleInAlleleGenes(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.unclassified track by allele_obj.allele.id" ng-click="vm.select(allele_obj)">
 
-        <div class="cell sample-type id-sample-type">
+        <div title="{{vm.getSampleTypesFull(allele_obj.allele)}}" class="cell sample-type id-sample-type">
           {{vm.getSampleType(allele_obj.allele)}}
         </div>
-        <div class="cell inheritance id-inheritance">
+        <div title="Inheritance" class="cell inheritance id-inheritance">
           {{vm.getInheritance(allele_obj.allele)}}
         </div>
         <div class="cell gene id-gene">
@@ -22,17 +22,17 @@
           {{vm.getConsequence(allele_obj.allele)}}
         </div>
         <div class="cell indicators id-indicators">
-          <div class="hom">
+          <div title="Homozygous" class="hom">
             <div class="hit" ng-if="vm.isHomozygous(allele_obj.allele)">
               <span>O</span>
             </div>
           </div>
-          <div class="low-qual">
+          <div title="Quality issues" class="low-qual">
             <div class="hit" ng-if="vm.isLowQual(allele_obj.allele)">
               <span>Q</span>
             </div>
           </div>
-          <div class="important-source">
+          <div title="Reference(s) available" class="important-source">
             <div class="hit" ng-if="vm.isImportantSource(allele_obj.allele)">
               <span>R</span>
             </div>
@@ -54,10 +54,10 @@
            ng-class="{'active': vm.isSelected(allele_obj) || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj)}"
            ng-repeat="allele_obj in vm.alleles.classified track by allele_obj.allele.id"
            ng-click="vm.select(allele_obj)">
-        <div class="cell sample-type id-sample-type">
+        <div title="{{vm.getSampleTypesFull(allele_obj.allele)}}" class="cell sample-type id-sample-type">
           {{vm.getSampleType(allele_obj.allele)}}
         </div>
-        <div class="cell inheritance id-inheritance">
+        <div title="Inheritance" class="cell inheritance id-inheritance">
           {{vm.getInheritance(allele_obj.allele)}}
         </div>
         <div class="cell gene id-gene">
@@ -70,18 +70,18 @@
           {{vm.getConsequence(allele_obj.allele)}}
         </div>
         <div class="cell indicators id-indicators">
-          <div class="hom">
+          <div title="Homozygous" class="hom">
             <div class="hit" ng-if="vm.isHomozygous(allele_obj.allele)">
               <span>O</span>
             </div>
           </div>
-          <div class="low-qual">
+          <div title="Quality issues"  class="low-qual">
             <div class="hit" ng-if="vm.isLowQual(allele_obj.allele)">
               <span>Q</span>
             </div>
           </div>
           <div class="important-source">
-            <div class="hit" ng-if="vm.isImportantSource(allele_obj.allele)">
+            <div title="Reference(s) available"  class="hit" ng-if="vm.isImportantSource(allele_obj.allele)">
               <span>R</span>
             </div>
           </div>

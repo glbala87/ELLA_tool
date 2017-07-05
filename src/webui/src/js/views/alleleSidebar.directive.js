@@ -63,6 +63,10 @@ export class AlleleSidebarController {
         return allele.samples.map(s => s.sample_type.substring(0, 1)).join('').toUpperCase();
     }
 
+    getSampleTypesFull(allele) {
+        return allele.samples.map(s => s.sample_type).join(', ').toUpperCase();
+    }
+
     getConsequence(allele) {
         let consequence_priority = this.config.transcripts.consequences;
         let sort_func = (a, b) => {
