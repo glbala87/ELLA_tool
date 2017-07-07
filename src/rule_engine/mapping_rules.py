@@ -21,7 +21,7 @@ rules = [
     { "code": "REQ_aa_similar", "rule": {"refassessment.*.ref_aa_overlap_sim": "sim_prop"}},
     { "code": "REQ_abnormal_protein", "rule": {"refassessment.*.ref_prot": "prot_abnormal"}},
     { "code": "REQ_abnormal_RNA", "rule": {"refassessment.*.ref_rna": "rna_abnormal"}},
-    { "code": "REQ_crit_domain_hotspot", "rule": {"refassessment.*.ref_domain_overlap": {"$in": ["crit_domain", "mut_hotpot"]}}},
+    { "code": "REQ_crit_domain_hotspot", "rule": {"refassessment.*.ref_domain_overlap": {"$in": ["crit_domain", "mut_hotspot"]}}},
     { "code": "REQ_crit_site", "rule": {"refassessment.*.ref_domain_overlap": "crit_site"}},
     { "code": "REQ_domain_no_benign", "rule": {"refassessment.*.ref_domain_benign": "no_benign_variation"}},
     { "code": "REQ_hi_freq", "rule": {"frequencies.commonness": "common"}},
@@ -109,6 +109,7 @@ rules = [
     { "code": "PP5", "rule": {"external.[Trusted source]": "Pathogenic"}},
     # Manual edit
     { "code": "PPxPM2", "rule": {"$$aggregate": {"$and": ["REQ_no_freq", {"$not": {"$in": ["REQ_less_common","REQ_hi_freq"]}}]}}},
+    # Manual edit
     { "code": "PPxPM5", "rule": {"$$aggregate": {"$or": [{"$all": ["REQ_overlap_pat", "REQ_novel_aa", "REQ_aa_similar", "REQ_overlap_MQ"]}, {"$all": ["REQ_overlap_pat", "REQ_novel_aa", "REQ_aa_different", "REQ_overlap_HQ"]}]}}},
     { "code": "PPxPS4", "rule": {"$$aggregate": {"$all": ["REQ_2affected", "REQ_no_freq"]}}},
     ### BA*
