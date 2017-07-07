@@ -186,18 +186,19 @@ export class ReferenceEvalModalController {
                     show_when_selection: ['ref_aa_overlap_same_novel', 'novel_aa']
                 },
                 'domain_overlap': {
-                    title: 'Critical domain',
-                    desc: 'Does the domain have known benign variation?',
-                    help: ['Choose this if the present variant is located in a critical functional domain that is ' +
-                           'described in the paper. Choose YES if there is known benign variation in this domain, ' +
-                           'otherwise choose NO (equal to PM1), or UNKNOWN if the issue is not discussed.'],
+                    title: 'Critical domain/site or hotspot',
+                    desc: 'In mutational hotspot or critical functional domain/site?',
+                    help: ['Choose this if the present variant is located in a mutational hotspot or critical ' +
+                           'domain or site that is described in the study. Choose HOTSPOT if located in a known ' +
+                           'mutation hotspot, DOMAIN if the variant is located in a critical functional domain, ' +
+                           'or SITE if the variant is located in a specific, critical amino acid.'],
                     elements: [
                         {
                             type: 'button',
                             options: [
-                                ['Yes', 'crit_domain_ben'],
-                                ['No', 'crit_domain'],
-                                ['Unknown', 'crit_domain_unknown'],
+                                ['Hotspot', 'mut_hotspot'],
+                                ['Domain', 'crit_domain'],
+                                ['Site', 'crit_site'],
                             ],
                             store: 'ref_domain_overlap'
                         }
@@ -207,24 +208,24 @@ export class ReferenceEvalModalController {
                     parent_question: true,
                     hide_when_source: 'review'
                 },
-                'crit_site': {
+                'domain_benign': {
                     title: '',
-                    desc: 'In amino acid with a critical function?',
-                    help: ['Choose YES if the function of the amino acid is known to be critical (equal to PSxPM1), ' +
-                          'otherwise choose NO, or UNKNOWN if the issue is not discussed.'],
+                    desc: 'Does the domain/site/hotspot have known benign variation?',
+                    help: ['Choose YES if there is known benign variation in this hotspot/domain/site, otherwise ' +
+                           'choose NO (equal to PM1/PSxPM1), or UNKNOWN if unsure.'],
                     elements: [
                         {
                             type: 'button',
                             options: [
-                                ['Yes', 'crit_site'],
-                                ['No', 'crit_site_no'],
-                                ['Unknown', 'crit_site_unknown'],
+                                ['Yes', 'benign_variation'],
+                                ['No', 'no_benign_variation'],
+                                ['Unknown', 'benign_variation_unknown'],
                             ],
-                            store: 'ref_crit_site'
+                            store: 'ref_domain_benign'
                         }
                     ],
                     optional_dep: 'domain_overlap',
-                    hide_when_source: 'review'
+                    hide_when_source: 'review',
                 },
                 'repeat_overlap': {
                     title: 'Overlapping repeat region',
@@ -244,26 +245,6 @@ export class ReferenceEvalModalController {
                         }
                     ],
                     buttons_store: 'ref_repeat_overlap',
-                    optional: true,
-                    hide_when_source: 'review'
-                },
-                'mutational_hotspot': {
-                    title: 'Mutational hot spot',
-                    desc: '',
-                    help: ['Choose this if the present variant is located in a mutational hotspot that is described ' +
-                           'in the paper. Choose YES if the hotspot status is clear (equal to PM1), or UNKNOWN if the ' +
-                           'hotspot status cannot be determined on the basis of the paper.'],
-                    elements: [
-                        {
-                            type: 'button',
-                            options: [
-                                ['Yes', 'mut_hotspot'],
-                                ['Unknown', 'mut_hotspot_unknown'],
-                            ],
-                            store: 'ref_mut_hotspot'
-                        }
-                    ],
-                    buttons_store: 'ref_mut_hotspot',
                     optional: true,
                     hide_when_source: 'review'
                 },
@@ -521,8 +502,8 @@ export class ReferenceEvalModalController {
                             type: 'button',
                             options: [
                                 ['>=4 affected', 'in_many_aff'],
-                                ['3 affected', 'in_more_ff'],
-                                ['1-2 affected', 'in_few_affected']
+                                ['3 affected', 'in_more_aff'],
+                                ['1-2 affected', 'in_few_aff']
                             ],
                             store: 'ref_population_affecteds'
                         }
@@ -535,7 +516,7 @@ export class ReferenceEvalModalController {
                     desc: 'Observed in healthy individual/population?',
                     help: ['- YES: Observed in at least one well-documented healthy adult for a recessive ' +
                            '(homozygous), dominant (heterozygous), or X-linked (hemizygous) disorder. Equal to BS2.',
-                           '- NO: Not observed in a healthy population.'],
+                           '- NO: Not observed in a healthy population (as reported  in the study).'],
                     elements: [
                         {
                             type: 'button',
@@ -591,8 +572,7 @@ export class ReferenceEvalModalController {
                     'aa_overlap_same_novel',
                     'aa_overlap_sim',
                     'domain_overlap',
-                    'crit_site',
-                    'mutational_hotspot',
+                    'domain_benign',
                     'repeat_overlap',
                     'quality'
                 ],
