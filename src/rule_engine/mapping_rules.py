@@ -42,8 +42,7 @@ rules = [
     { "code": "REQ_no_segregation", "rule": {"refassessment.*.ref_segregation": "no_segr"}},
     # Manual edit
     { "code": "REQ_no_splice_effect", "rule": {"$or": [{"prediction.splice_Effect": {"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}},{"prediction.splice_Effect": {"$not": {"$in": ["de_novo"]}}}]}},
-    # Manual edit
-    { "code": "REQ_no_splice_effect", "rule": {"$or": [{"prediction.splice_Effect_manual": {"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}},{"prediction.splice_Effect_manual": {"$not": {"$in": ["de_novo"]}}}]}},
+    { "code": "REQ_no_splice_effect", "rule": {"prediction.splice_Effect_manual": {"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}}},
     { "code": "REQ_normal_protein", "rule": {"refassessment.*.ref_prot": "prot_normal"}},
     { "code": "REQ_normal_RNA", "rule": {"refassessment.*.ref_rna": "rna_normal"}},
     { "code": "REQ_not_in_last_exon", "rule": {"transcript.in_last_exon": "no"}},
