@@ -60,7 +60,7 @@ Only a single allele is displayed. The various interpretation rounds are not acc
 
 Loading a single allele similar but simpler:
 - load allele data (variant, annotation): /alleles/?q=[genepanel, chr, position, ..]
-- load genepanel (phenotypes, transcript, config): /genepanels/NAME/VERSION/
+- load gene panel (phenotypes, transcript, config): /genepanels/NAME/VERSION/
 - find ACMG codes: /acmg/alleles/ (POST)
 - load interpretation rounds: /workflows/alleles/576/interpretations/
 - find references

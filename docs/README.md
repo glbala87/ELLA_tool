@@ -1,11 +1,13 @@
 # Introduction
 
-E||a is tool to interpret genetic variants found in patient samples.
+**This documentation is work in progress**
+
+ella is a tool for clinical interpretation of genetic variants.
  
 The users will either interpret a **single variant** or several variants belonging together in an analysis.
 
 The result of the interpretation work are **assessments** that include the
-classification of the variant (1-5, T). The assessments are the product of e||a. When the same varithe variant(s)
+classification of the variant (1-5, T). The assessments are the product of e||a. When the same variant(s)
  is seen in other samples the previous interpretation work can be reused, saving valuable time.
 
 The interpretation work must be approved by another person in multi-step **workflow**.
@@ -36,5 +38,5 @@ defined using [SQLAlchemy](https://www.sqlalchemy.org/)
 
 ### Command line interface
 
-e||a has command line tool (using [Click](http://click.pocoo.org/)) to import genepanels, users and variants.
+e||a has command line tool (using [Click](http://click.pocoo.org/)) to import gene panels, users and variants.
 
