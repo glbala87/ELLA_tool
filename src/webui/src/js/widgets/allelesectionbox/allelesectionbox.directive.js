@@ -363,7 +363,11 @@ export class AlleleSectionBoxController {
                 if (a_idx === b_idx) {
                     return a.localeCompare(b);
                 }
-                return a_idx - b_idx;
+                if (t === "benign") {
+                    return b_idx - a_idx;
+                } else {
+                    return a_idx - b_idx;
+                }
             });
             // Pull out any codes with an 'x' in them, and place them next after their parent code
             // This bugs out for a few codes that don't have parents, but is good enough for now

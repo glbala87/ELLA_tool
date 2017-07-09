@@ -37,12 +37,11 @@ export class LoginController {
     }
 
     checkPasswordStrength() {
-        console.log("foo")
         let pw = this.loginForm.new_password;
         let group_matches = 0
-        let groups = this.config["users"]["password_match_groups"]
-        let num_match_groups = this.config["users"]["password_num_match_groups"]
-        let min_length = this.config["users"]["password_minimum_length"]
+        let groups = this.config.user.auth["password_match_groups"]
+        let num_match_groups = this.config.user.auth["password_num_match_groups"]
+        let min_length = this.config.user.auth["password_minimum_length"]
         this.passWordChecks[0][1] = pw.length >= min_length;
 
         for (let i in groups) {
@@ -70,9 +69,9 @@ export class LoginController {
         this.loginForm.confirm_password = "";
 
         // Create list of password requirements
-        let minLength = this.config["users"]["password_minimum_length"]
+        let minLength = this.config.user.auth["password_minimum_length"]
         this.passWordChecks = [[`Minimum ${minLength} letters`, false]]
-        for (let s of this.config["users"]["password_match_groups_descr"]) {
+        for (let s of this.config.user.auth["password_match_groups_descr"]) {
             this.passWordChecks.push([s, false])
         }
     }

@@ -17,7 +17,7 @@ from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
-from vardb.deposit.deposit_users import import_users
+from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
 
 from vardb.util import vcfiterator
@@ -31,6 +31,7 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 # See vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
+USERGROUPS = '../testdata/usergroups.json'
 
 GENEPANELS = [
     {
@@ -117,6 +118,9 @@ class DepositTestdata(object):
         return vi.getSamples()
 
     def deposit_users(self):
+        with open(os.path.join(SCRIPT_DIR, USERGROUPS)) as f:
+            import_groups(self.session, json.load(f))
+
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
             import_users(self.session, json.load(f))
 
@@ -188,8 +192,8 @@ class DepositTestdata(object):
         log.info("Starting a DB reset")
         log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
         log.info("--------------------")
-        self.deposit_users()
         self.deposit_genepanels()
+        self.deposit_users()
         self.deposit_references()
         self.deposit_vcfs(test_set=test_set)
         self.deposit_custom_annotation()

@@ -7,6 +7,9 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'analysis-selection',
     templateUrl: 'ngtmpl/analysisSelection.ngtmpl.html',
+    scope: {
+        byFindings: '=?'
+    }
 })
 @Inject('$scope', '$interval', 'Navbar', 'OverviewResource', 'User')
 class AnalysisSelectionController {
@@ -35,7 +38,7 @@ class AnalysisSelectionController {
     }
 
     loadOverview() {
-        this.overviewResource.getAnalysesOverview().then(data => {
+        this.overviewResource.getAnalysesOverview(this.byFindings).then(data => {
             this.overview = data;
 
             this.ongoing_user = this.overview.ongoing.filter(item => {

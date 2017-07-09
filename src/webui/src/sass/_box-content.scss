@@ -96,7 +96,14 @@ div.existing-classification-comments .tabular-row:last-child .wysiwygeditor {
     .analysis-priority { color: $red-75; padding-left: 1.3rem; text-transform: uppercase; }
     .analysis-users { padding-right: 2.0rem; }
     .analysis-extras { font-size: 1.2rem; padding-right: 1rem;
-      .analysis-comment { background-color: $green-25; padding: 0.3rem; }
+      .analysis-comment:before {
+        content: "i";
+        background-color: rgb(230,110,11);
+        width: 1.5rem;
+        height: 1.5rem;
+        text-align: center;
+        display: inline-block;
+      }
     }
   }
 }

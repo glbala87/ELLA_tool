@@ -8,14 +8,15 @@ import {EventListeners} from '../util';
     scope: {
         placeholder: '@?',
         ngModel: '=',
-        ngDisabled: '=?'
+        ngDisabled: '=?',
+        pasteAttachmentCallback: '&?',
     },
     require: '?ngModel', // get a hold of NgModelController
     templateUrl: 'ngtmpl/wysiwygEditor.ngtmpl.html',
 })
-@Inject('$scope', '$element')
+@Inject('$scope', '$element', 'AttachmentResource')
 export class WysiwygEditorController {
-    constructor($scope, $element) {
+    constructor($scope, $element, AttachmentResource) {
         this.scope = $scope
         this.element = $element[0];
         this.editorelement = $element.children()[0];
@@ -28,6 +29,8 @@ export class WysiwygEditorController {
             this.buttons[name] = button;
         }
         this.linkform = this.buttonselement.children[this.buttonselement.children.length-1];
+
+        this.attachmentResource = AttachmentResource;
 
         this.ngModelController = $element.controller('ngModel'); // Get controller for editors ngmodel
 
@@ -155,6 +158,21 @@ export class WysiwygEditorController {
             eventListeners.add(linkinputs[i], "blur", () => {setTimeout(() => {this.closeLinkForm(false, this)}, 1, false)}); // Close if active element not in link form
             eventListeners.add(linkinputs[i], "keyup", (e) => {this.handleLinkForm(e)}); // Only handles esc and enter
         }
+
+        if (this.pasteAttachmentCallback) {
+            eventListeners.add(this.editorelement, "paste", (e) => {
+                if (!e.clipboardData.files.length) return;
+                for (let file of e.clipboardData.files) {
+                    this.attachmentResource.post(file).then((id) => {
+                        this.editor.insertHTML(`Attachment ${id}`)
+                        this.pasteAttachmentCallback({attachment_id: id})
+                    })
+
+                }
+                e.preventDefault()
+            })
+        }
+
 
         // Remove all event listeners on destroy
         this.scope.$on('$destroy', function () {eventListeners.removeAll;});

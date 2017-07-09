@@ -1,11 +1,26 @@
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.schema import ForeignKeyConstraint
 
 from vardb.datamodel import Base
 from vardb.util.mutjson import JSONMutableDict
+
+# UserUserGroup = Table('userusergroup', Base.metadata,
+#     Column('user_id', Integer, ForeignKey('user.id')),
+#     Column('usergroup_id', Integer, ForeignKey('usergroup.id'))
+# )
+
+
+# Links user groups to genepanels
+UserGroupGenepanel = Table('usergroupgenepanel', Base.metadata,
+    Column('usergroup_id', Integer, ForeignKey('usergroup.id')),
+    Column('genepanel_name', String, nullable=False),
+    Column('genepanel_version', String, nullable=False),
+    ForeignKeyConstraint(['genepanel_name', 'genepanel_version'], ['genepanel.name', 'genepanel.version'], ondelete="CASCADE")
+)
 
 
 class User(Base):
@@ -16,10 +31,20 @@ class User(Base):
     username = Column(String(), nullable=False, unique=True)
     first_name = Column(String(), nullable=False)
     last_name = Column(String(), nullable=False)
+    group_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
+    group = relationship("UserGroup", uselist=False)
     password = Column(String(), nullable=False)
     password_expiry = Column(DateTime(timezone=True), nullable=False)
     active = Column(Boolean, default=True, nullable=False)
     incorrect_logins = Column(Integer, default=0, nullable=False)
+
+
+class UserGroup(Base):
+    __tablename__ = "usergroup"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(), nullable=False, unique=True)
+    genepanels = relationship('Genepanel', secondary=UserGroupGenepanel)
 
 
 class UserSession(Base):

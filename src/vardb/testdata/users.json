@@ -4,41 +4,47 @@
         "first_name": "Henrik",
         "last_name": "Ibsen",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
-        "password_expiry": "2027-03-30 15:03:01.396863"
+        "password_expiry": "2027-03-30 15:03:01.396863",
+        "group": "testgroup01"
     },
     {
         "username": "testuser2",
         "first_name": "Bjørnstjerne",
         "last_name": "Bjørnson",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
-        "password_expiry": "2027-03-30 15:03:01.396863"
+        "password_expiry": "2027-03-30 15:03:01.396863",
+        "group": "testgroup01"
     },
     {
         "username": "testuser3",
         "first_name": "Camilla",
         "last_name": "Collett",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
-        "password_expiry": "2027-03-30 15:03:01.396863"
+        "password_expiry": "2027-03-30 15:03:01.396863",
+        "group": "testgroup01"
     },
     {
         "username": "testuser4",
         "first_name": "Alexander",
         "last_name": "Kielland",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
-        "password_expiry": "2027-03-30 15:03:01.396863"
+        "password_expiry": "2027-03-30 15:03:01.396863",
+        "group": "testgroup01"
     },
     {
         "username": "testuser5",
         "first_name": "Jonas",
         "last_name": "Lie",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
-        "password_expiry": "2027-03-30 15:03:01.396863"
+        "password_expiry": "2027-03-30 15:03:01.396863",
+        "group": "testgroup02"
     },
     {
         "username": "testuser6",
         "first_name": "Henrik",
         "last_name": "Wergeland",
         "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
-        "password_expiry": "2027-03-30 15:03:01.396863"
+        "password_expiry": "2027-03-30 15:03:01.396863",
+        "group": "testgroup02"
     }
 ]

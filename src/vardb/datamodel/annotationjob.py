@@ -1,6 +1,6 @@
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Sequence
+from sqlalchemy import Column, Integer, String, DateTime, Enum, Sequence, ForeignKeyConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
@@ -45,17 +45,13 @@ class AnnotationJob(Base):
     user = relationship("User", uselist=False)
     date_submitted = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     date_last_update = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    genepanel_name = Column(String)
+    genepanel_version = Column(String)
+    genepanel = relationship("Genepanel", uselist=False)
 
     properties = Column(JSONMutableDict.as_mutable(JSONB))
 
-    """
-    # Properties should be on the form
-    properties = dict(
-        create_or_append="",
-        genepanel="",
-        analysis_name="",
-    )
-    """
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
         return "<AnnotationJob('{}', '{}', '{}')".format(str(self.id), self.task_id, self.status)

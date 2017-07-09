@@ -39,6 +39,8 @@ def query_print_table(sa_query):
     for r in data:
         print row_format.format(*r)
 
+from vardb.datamodel import user
+
 
 def error(msg, code):
     return {

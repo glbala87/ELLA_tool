@@ -33,13 +33,31 @@ export class OverviewResource {
         });
     }
 
-    getAnalysesOverview() {
+    getAnalysesOverview(by_findings=false) {
         return new Promise((resolve, reject) => {
             let uri = `${this.base}/overviews/analyses/`;
+            if (by_findings) {
+                uri += 'by-findings/';
+            }
             let r = this.resource(uri);
             let overview = r.get((data) => {
 
-                for (let key of ['with_findings', 'without_findings', 'missing_alleleassessments', 'ongoing', 'marked_review', 'finalized']) {
+                let categories = [
+                    'not_started',
+                    'ongoing',
+                    'marked_review',
+                    'finalized'
+                ]
+
+                if (by_findings) {
+                    categories = categories.concat([
+                        'with_findings',
+                        'without_findings',
+                        'missing_alleleassessments'
+                    ]);
+                }
+
+                for (let key of categories) {
                     let analyses_objs = [];
                     for (let a of data[key]) {
                         analyses_objs.push(new Analysis(a));

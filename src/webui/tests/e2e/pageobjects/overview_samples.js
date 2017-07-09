@@ -18,7 +18,7 @@ const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
 class SampleSelection extends Page {
 
     open() {
-        super.open('overview/analyses');
+        super.open('overview/analyses-by-findings');
     }
 
     get analysisList() { return browser.element('analysis-list') }
