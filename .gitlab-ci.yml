@@ -20,6 +20,7 @@ test_api_migration:
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+  allow_failure: true
 
 test_js:
   stage: test
@@ -28,7 +29,6 @@ test_js:
   except:
     - /^ui-.*$/
     - /^ops-.*$/
-  allow_failure: true
 
 test_python:
   stage: test
