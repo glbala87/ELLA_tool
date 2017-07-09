@@ -2,6 +2,15 @@ ella is a web app based on AngularJS with a Flask REST backend.
 
 Most functionality is now baked into a Makefile, run `make help` to see a quick overview of available commands.
 
+# Documentation
+More info about the app can be found in the docs folder.
+The docs is written in Markdown and compiled using GitBook. See https://toolchain.gitbook.com/ for more info.
+
+The create a web-based view of the doc:
+- install GitBook: `npm install gitbook-cli -g`
+- `cd docs; gitbook serve`
+
+
 # Deployment
 
 ## Production

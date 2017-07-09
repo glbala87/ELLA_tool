@@ -45,11 +45,19 @@ class ApiV1(object):
 
         self._add_schemas()
 
+        # ---------------------------------------------------------------------------------------------------------
+        # Rule engine
+        # ---------------------------------------------------------------------------------------------------------
+
         self._add_resource(r.acmg.ACMGAlleleResource,
                            '/api/v1/acmg/alleles/')
 
         self._add_resource(r.acmg.ACMGClassificationResource,
                            '/api/v1/acmg/classifications/')
+
+        # ---------------------------------------------------------------------------------------------------------
+        # Entities
+        # ---------------------------------------------------------------------------------------------------------
 
         self._add_resource(r.allele.AlleleListResource,
                            '/api/v1/alleles/')
@@ -93,21 +101,6 @@ class ApiV1(object):
         self._add_resource(r.genepanel.GenepanelListResource,
                            '/api/v1/genepanels/')
 
-        self._add_resource(r.overview.OverviewAlleleResource,
-                           '/api/v1/overviews/alleles/')
-
-        self._add_resource(r.overview.OverviewAnalysisResource,
-                           '/api/v1/overviews/analyses/')
-
-        self._add_resource(r.overview.OverviewActivitiesResource,
-                           '/api/v1/overviews/activities/')
-
-        self._add_resource(r.overview.OverviewUserStatsResource,
-                           '/api/v1/overviews/userstats/')
-
-        self._add_resource(r.overview.OverviewAnalysisByFindingsResource,
-                           '/api/v1/overviews/analyses/by-findings/')
-
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
 
@@ -129,12 +122,36 @@ class ApiV1(object):
         self._add_resource(r.user.UserResource,
                            '/api/v1/users/<int:user_id>/')
 
+        # ---------------------------------------------------------------------------------------------------------
+        # Overview
+        # ---------------------------------------------------------------------------------------------------------
+
+        self._add_resource(r.overview.OverviewAlleleResource,
+                           '/api/v1/overviews/alleles/')
+
+        self._add_resource(r.overview.OverviewAnalysisResource,
+                           '/api/v1/overviews/analyses/')
+
+        self._add_resource(r.overview.OverviewActivitiesResource,
+                           '/api/v1/overviews/activities/')
+
+        self._add_resource(r.overview.OverviewUserStatsResource,
+                           '/api/v1/overviews/userstats/')
+
+        # ---------------------------------------------------------------------------------------------------------
+        # Annotation
+        # ---------------------------------------------------------------------------------------------------------
+
         self._add_resource(r.annotationjob.AnnotationJob,
                            '/api/v1/annotationjobs/',
                            '/api/v1/annotationjobs/<int:id>')
 
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
                            '/api/v1/annotationservice/running/')
+
+        # ---------------------------------------------------------------------------------------------------------
+        # Workflow variant
+        # ---------------------------------------------------------------------------------------------------------
 
         self._add_resource(r.workflow.allele.AlleleInterpretationListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/interpretations/')
@@ -164,6 +181,11 @@ class ApiV1(object):
         self._add_resource(r.workflow.allele.AlleleCollisionResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/collisions/')
 
+        # ---------------------------------------------------------------------------------------------------------
+        # Workflow analysis
+        # ---------------------------------------------------------------------------------------------------------
+
+
         self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
 
@@ -191,6 +213,10 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.analysis.AnalysisCollisionResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/collisions/')
+
+        # ---------------------------------------------------------------------------------------------------------
+        # Security
+        # ---------------------------------------------------------------------------------------------------------
 
         self._add_resource(r.user.LoginResource,
                            '/api/v1/users/actions/login/')

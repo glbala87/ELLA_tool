@@ -38,7 +38,7 @@ import {deepCopy} from '../../util'
     'clipboard',
     'toastr',
     '$filter')
-export class AnalysisController {
+export class WorkflowAnalysisController {
     constructor(rootScope,
                 scope,
                 WorkflowResource,
