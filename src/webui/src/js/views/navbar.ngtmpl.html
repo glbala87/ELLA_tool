@@ -3,7 +3,7 @@
   <section class="left">
     <aside class="row up">
       <div ng-if="!vm.isLogin()">
-        <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ vm.abbreviateUser() }}</i></h3></a>
+        <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ vm.user.getCurrentUser().abbrev_name }}</i></h3></a>
       </div>
       <div ng-if="vm.isLogin()">
         <h3 class="full-title"><i>Welcome!</i></h3>

@@ -17,15 +17,6 @@ export class NavbarController {
 
     }
 
-    abbreviateUser() {
-      let user = this.user.getCurrentUser()
-      if(user !== null && Object.keys(user).length != 0) {
-        return `${user.first_name.substring(0,1)}. ${user.last_name}`;
-      } else {
-        return "";
-      }
-    }
-
     hasAllele() {
       return Boolean(this.navbarService.getAllele());
     }
