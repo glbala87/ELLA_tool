@@ -308,7 +308,7 @@ export class AlleleStateHelper {
         if (allele.allele_report &&
             (force_copy ||
              (!allele_state.alleleReportCopiedFromId ||
-              allele.allele_assessment.id > allele_state.alleleReportCopiedFromId)
+              allele.allele_report.id > allele_state.alleleReportCopiedFromId)
             )
            ) {
             allele_state.allelereport.evaluation = deepCopy(allele.allele_report.evaluation);
