@@ -358,7 +358,7 @@ export class WorkflowAnalysisController {
         }
         let interpretation_idx = this.interpretations.indexOf(interpretation) + 1;
         let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
-        return `${interpretation_idx} • ${interpretation.user.first_name} ${interpretation.user.last_name} • ${interpretation_date}`;
+        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
     }
 
     reloadInterpretationData() {

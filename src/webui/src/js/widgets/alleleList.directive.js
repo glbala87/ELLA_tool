@@ -62,14 +62,6 @@ class AlleleListWidget {
         );
     }
 
-    abbreviateUser(user) {
-      if(Object.keys(user).length != 0) {
-        return `${user.first_name.substring(0,1)}. ${user.last_name}`;
-      } else {
-        return "";
-      }
-    }
-
     getPriorityText(item) {
         if (item.highest_analysis_priority > 1) {
             return this.config.analysis.priority.display[item.highest_analysis_priority];

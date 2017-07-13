@@ -19,7 +19,7 @@
 
   <div class="allele-users">
     <div ng-repeat="interpretation in item.interpretations track by interpretation.id">
-      <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • <b>{{vm.abbreviateUser(interpretation.user)}}</b> • <i>{{interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}}</i></h3></div>
+      <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • <b>{{interpretation.user.abbrev_name}}</b> • <i>{{interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}}</i></h3></div>
     </div>
   </div>
 </a>

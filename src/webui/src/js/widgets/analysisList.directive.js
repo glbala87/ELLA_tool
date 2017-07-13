@@ -57,14 +57,6 @@ class AnalysisListWidget {
     getReviewComment(analysis) {
         return analysis.interpretations[analysis.interpretations.length-1].review_comment;
     }
-
-    abbreviateUser(user) {
-      if(Object.keys(user).length != 0) {
-        return `${user.first_name.substring(0,1)}. ${user.last_name}`;
-      } else {
-        return "";
-      }
-    }
 }
 
 export default AnalysisListWidget;
