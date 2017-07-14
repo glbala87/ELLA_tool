@@ -199,6 +199,11 @@ export class CustomAnnotationController {
         }
     }
 
+    getSelectedAnnotationValue() {
+        this.selected_annotation_value = this.getCurrent()[this.selected_annotation_group.key]
+        return this.selected_annotation_value
+    }
+
     /**
      * Loads references from the API into this.references
      * to get reference  details to show in the UI.
