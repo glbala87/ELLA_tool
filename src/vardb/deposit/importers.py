@@ -676,9 +676,11 @@ class AnalysisInterpretationImporter(object):
         self.session = session
 
     def process(self, db_analysis, reopen_if_exists=False):
+        # Get latest interpretation (largest ID), if exists
         existing = self.session.query(wf.AnalysisInterpretation).filter(
-            wf.AnalysisInterpretation.analysis_id == db_analysis.id
-        ).one_or_none()
+            wf.AnalysisInterpretation.analysis_id == db_analysis.id,
+        ).order_by(wf.AnalysisInterpretation.id.desc()).limit(1).one_or_none()
+
         if not existing:
             db_interpretation, _ = wf.AnalysisInterpretation.get_or_create(
                 self.session,
