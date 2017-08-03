@@ -2,12 +2,14 @@
 Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
-
-
 import pytest
 
 from api.util.allelefilter import AlleleFilter
 from vardb.datamodel import allele, annotation, gene
+
+# prevent screen getting filled with output (useful when testing manually)
+#import logging
+#logging.getLogger('vardb.deposit.deposit_genepanel').setLevel(logging.CRITICAL)
 
 
 CONFIG = {
