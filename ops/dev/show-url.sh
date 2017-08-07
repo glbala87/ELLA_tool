@@ -7,8 +7,8 @@
 defaultContainer="ella-$(git rev-parse --abbrev-ref HEAD)-$USER" # see Makefile
 container=${1:-$defaultContainer} # use $defaultContainer if $1 is not set
 
-# echo "Finding port used by container $container"
-port=$(docker port "$container" | cut -d: -f2)
+# echo "Finding http port used by container $container assuming it's in range [8000,>"
+port=$(docker port "$container" | cut -d: -f2 | grep 80)
 
 if [[ "$port" == "" ]]
 then
