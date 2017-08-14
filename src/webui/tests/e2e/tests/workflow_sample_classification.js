@@ -80,6 +80,13 @@ describe('Sample workflow', function () {
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
         expected_analysis_1_round_1[selected_allele] = {classification: 'T'};
 
+        const exacElement = alleleSectionBox.exacElement;
+        expect(exacElement).toBeDefined("Missing ExAC data on the page");
+        let exacContent = browser.getText('allele-sectionbox-content contentbox frequency-details')
+        expect(exacContent[0]).toContain('AFR', 'Missing the AFR population from ExAC');
+        expect(exacContent[0]).toContain('TOT', 'Missing the TOTal population key from ExAC');
+
+
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
         for (let idx = 2; idx < 5; idx++) {
@@ -198,13 +205,13 @@ describe('Sample workflow', function () {
         analysisPage.markReviewButton.click();
     });
 
-    it('shows the review comment on overview page', function () {
+    xit('shows the review comment on overview page', function () {
         loginPage.selectSecondUser();
         sampleSelectionPage.expandReviewSection();
         expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1');
     });
 
-    it('keeps the classification from the previous round', function () {
+    xit('keeps the classification from the previous round', function () {
 
         loginPage.selectSecondUser();
         sampleSelectionPage.expandReviewSection();
@@ -215,7 +222,7 @@ describe('Sample workflow', function () {
         analysisPage.finalizeButton.click();
     });
 
-    it('reuses classified variants from a different sample', function() {
+    xit('reuses classified variants from a different sample', function() {
 
         loginPage.selectFirstUser();
         sampleSelectionPage.selectTopPending();
@@ -305,7 +312,7 @@ describe('Sample workflow', function () {
 
     });
 
-    it('reuses the latest variant classification done in another sample', function() {
+    xit('reuses the latest variant classification done in another sample', function() {
 
         loginPage.selectFirstUser();
         sampleSelectionPage.selectFindings(1);

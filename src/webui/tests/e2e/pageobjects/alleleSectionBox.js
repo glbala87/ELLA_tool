@@ -14,12 +14,15 @@ const SELECTOR_COMMENT_PREDICTION_EDITOR = `${SELECTOR_COMMENT_PREDICTION} .wysi
 const SELECTOR_COMMENT_REPORT = 'allele-sectionbox .id-comment-report';
 const SELECTOR_COMMENT_REPORT_EDITOR = `${SELECTOR_COMMENT_REPORT} .wysiwygeditor`;
 
+const SELECTOR_FREQ_EXAC = `allele-sectionbox contentbox[title="ExAC"]`;
+
 const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification';
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 
 
 class AlleleSectionBox  {
 
+    get exacElement() { return browser.element(SELECTOR_FREQ_EXAC); }
 
     get reviewCommentElement() { return browser.element('.workflow-options input.id-review-comment'); }
 

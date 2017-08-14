@@ -27,6 +27,10 @@ export class FrequencyDetailsWidget {
     setFrequencies() {
         this.frequencies = [];
         let freqs = this.config.frequencies.view.groups[this.group];
+        if (!freqs) {
+            return;
+        }
+
         for (let freq of freqs) {
             if (this.group in this.allele.annotation.frequencies) {
                 let group_data = this.allele.annotation.frequencies[this.group];
@@ -86,7 +90,7 @@ export class FrequencyDetailsWidget {
     }
 
     isExAC() {
-       return this.group === 'ExAC'
+       return ['ExAC', 'GNOMAD_EXOMES', 'GNOMAD_GENOMES'].includes(this.group)
     }
 
     inDbIndicationThreshold() {

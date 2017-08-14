@@ -4,7 +4,10 @@
 
   <section class="id-unclassified enabled">
     <div class="nav-table">
-      <div class="nav-row" ng-class="{'active': vm.isSelected(allele_obj), 'multiple': vm.isMultipleInAlleleGenes(allele_obj.allele)}" ng-repeat="allele_obj in vm.alleles.unclassified track by allele_obj.allele.id" ng-click="vm.select(allele_obj)">
+      <div class="nav-row" title="Allele ID {{ allele_obj.allele.id }}"
+           ng-class="{'active': vm.isSelected(allele_obj), 'multiple': vm.isMultipleInAlleleGenes(allele_obj.allele)}"
+           ng-repeat="allele_obj in vm.alleles.unclassified track by allele_obj.allele.id"
+           ng-click="vm.select(allele_obj)">
 
         <div title="{{vm.getSampleTypesFull(allele_obj.allele)}}" class="cell sample-type id-sample-type">
           {{vm.getSampleType(allele_obj.allele)}}
@@ -50,7 +53,7 @@
 
   <section class="id-classified enabled">
     <div class="nav-table">
-      <div class="nav-row"
+      <div class="nav-row" title="Allele ID {{ allele_obj.allele.id }}"
            ng-class="{'active': vm.isSelected(allele_obj) || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj)}"
            ng-repeat="allele_obj in vm.alleles.classified track by allele_obj.allele.id"
            ng-click="vm.select(allele_obj)">

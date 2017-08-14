@@ -7,6 +7,16 @@ import logging
 
 log = logging.getLogger(__name__)
 
+# the annotation key is found in the VCF
+# the result key is put in our annotation database
+EXAC_ANNOTATION_KEY = 'EXAC'
+EXAC_RESULT_KEY = 'ExAC'
+
+GNOMAD_EXOMES_ANNOTATION_KEY = 'GNOMAD_EXOMES'
+GNOMAD_EXOMES_RESULT_KEY = 'GNOMAD_EXOMES'
+
+GNOMAD_GENOMES_ANNOTATION_KEY = 'GNOMAD_GENOMES'
+GNOMAD_GENOMES_RESULT_KEY = 'GNOMAD_GENOMES'
 
 SPLICE_FIELDS = [
     ('Effect', 'effect'),
@@ -190,7 +200,7 @@ def exac_frequencies(annotation):
     :returns: dict with key 'ExAC'
     """
 
-    if 'EXAC' not in annotation:
+    if EXAC_ANNOTATION_KEY not in annotation:
         return {}
     frequencies = defaultdict(dict)
 
@@ -199,7 +209,7 @@ def exac_frequencies(annotation):
     num = {}
     hom = {}
     het = {}
-    for key, value in annotation['EXAC'].iteritems():
+    for key, value in annotation[EXAC_ANNOTATION_KEY].iteritems():
         # Be careful if rearranging!
         if key == 'AC_Adj':
             assert len(value) == 1
@@ -238,15 +248,155 @@ def exac_frequencies(annotation):
             freq[key] = float(count[key]) / num[key]
 
     if freq:
-        frequencies['ExAC'].update({'freq': freq})
+        frequencies[EXAC_RESULT_KEY].update({'freq': freq})
     if hom:
-        frequencies['ExAC'].update({'hom': hom})
+        frequencies[EXAC_RESULT_KEY].update({'hom': hom})
     if het:
-        frequencies['ExAC'].update({'het': het})
+        frequencies[EXAC_RESULT_KEY].update({'het': het})
     if num:
-        frequencies['ExAC'].update({'num': num})
+        frequencies[EXAC_RESULT_KEY].update({'num': num})
     if count:
-        frequencies['ExAC'].update({'count': count})
+        frequencies[EXAC_RESULT_KEY].update({'count': count})
+
+    return dict(frequencies)
+
+
+def gnomad_exomes_frequencies(annotation):
+    """
+    Manually calculate frequencies from raw GNOMAD Exomoes data.
+
+    :param: annotation: a dict with key 'GNOMAD_EXOMES'
+    :returns: dict with key 'GNOMAD_EXOMES'
+    """
+
+    if GNOMAD_EXOMES_ANNOTATION_KEY not in annotation:
+        return {}
+
+    frequencies = defaultdict(dict)
+
+    freq = {}
+    count = {}
+    num = {}
+    hom = {}
+    het = {}
+    for key, value in annotation[GNOMAD_EXOMES_ANNOTATION_KEY].iteritems():
+        # Be careful if rearranging!
+        if key == 'AC':
+            assert len(value) == 1
+            count['G'] = value[0]
+        elif key == 'AC_Het':
+            assert len(value) == 1
+            het['G'] = value[0]
+        elif key == 'AC_Hom':
+            assert len(value) == 1
+            hom['G'] = value[0]
+        elif key == 'AN_Adj':
+            num['G'] = value
+        elif key.startswith('AC_'):
+            pop = key.split('AC_')[1]
+            assert len(value) == 1
+            count[pop] = value[0]
+        elif key.startswith('AN_'):
+            pop = key.split('AN_')[1]
+            num[pop] = value
+        elif key.startswith('Hom_'):
+            pop = key.split('Hom_')[1]
+            # TODO: Remove me when we got our annotation under control...
+            if isinstance(value, list):
+                hom[pop] = value[0]
+            else:
+                hom[pop] = value
+        elif key.startswith('Het_'):
+            pop = key.split('Het_')[1]
+            if isinstance(value, list):
+                het[pop] = value[0]
+            else:
+                het[pop] = value
+
+    for key in count:
+        if key in num and num[key]:
+            freq[key] = float(count[key]) / num[key]
+
+    if freq:
+        frequencies[GNOMAD_EXOMES_RESULT_KEY].update({'freq': freq})
+    if hom:
+        frequencies[GNOMAD_EXOMES_RESULT_KEY].update({'hom': hom})
+    if het:
+        frequencies[GNOMAD_EXOMES_RESULT_KEY].update({'het': het})
+    if num:
+        frequencies[GNOMAD_EXOMES_RESULT_KEY].update({'num': num})
+    if count:
+        frequencies[GNOMAD_EXOMES_RESULT_KEY].update({'count': count})
+
+    return dict(frequencies)
+
+
+def gnomad_genomes_frequencies(annotation):
+    """
+    Manually calculate frequencies from raw Gnomad Genomes data.
+
+    :param: annotation: a dict with key 'GNOMAD_GENOMES'
+    :returns: dict with key 'GNOMAD_GENOMES'
+    """
+
+    if GNOMAD_GENOMES_ANNOTATION_KEY not in annotation:
+        return {}
+
+    frequencies = defaultdict(dict)
+
+    freq = {}
+    count = {}
+    num = {}
+    hom = {}
+    het = {}
+    for key, value in annotation[GNOMAD_GENOMES_ANNOTATION_KEY].iteritems():
+        # Be careful if rearranging!
+        if key == 'AC':
+            assert len(value) == 1
+            count['G'] = value[0]
+        elif key == 'AC_Het':
+            assert len(value) == 1
+            het['G'] = value[0]
+        elif key == 'AC_Hom':
+            assert len(value) == 1
+            hom['G'] = value[0]
+        elif key == 'AN_Adj':
+            num['G'] = value
+        elif key.startswith('AC_'):
+            pop = key.split('AC_')[1]
+            assert len(value) == 1
+            count[pop] = value[0]
+        elif key.startswith('AN_'):
+            pop = key.split('AN_')[1]
+            num[pop] = value
+        elif key.startswith('Hom_'):
+            pop = key.split('Hom_')[1]
+            # TODO: Remove me when we got our annotation under control...
+            if isinstance(value, list):
+                hom[pop] = value[0]
+            else:
+                hom[pop] = value
+        elif key.startswith('Het_'):
+            pop = key.split('Het_')[1]
+            if isinstance(value, list):
+                het[pop] = value[0]
+            else:
+                het[pop] = value
+
+    for key in count:
+        if key in num and num[key]:
+            freq[key] = float(count[key]) / num[key]
+
+    if freq:
+        frequencies[GNOMAD_GENOMES_RESULT_KEY].update({'freq': freq})
+    if hom:
+        frequencies[GNOMAD_GENOMES_RESULT_KEY].update({'hom': hom})
+    if het:
+        frequencies[GNOMAD_GENOMES_RESULT_KEY].update({'het': het})
+    if num:
+        frequencies[GNOMAD_GENOMES_RESULT_KEY].update({'num': num})
+    if count:
+        frequencies[GNOMAD_GENOMES_RESULT_KEY].update({'count': count})
 
     return dict(frequencies)
 
