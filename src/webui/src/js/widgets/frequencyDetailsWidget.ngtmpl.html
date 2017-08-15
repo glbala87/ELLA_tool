@@ -1,4 +1,4 @@
-<div class="cb-table" ng-if="vm.isExACOrGnomad() && vm.frequencies.length > 0">
+<div class="cb-table id-frequency-{{ vm.group }}" ng-if="vm.isExACOrGnomad() && vm.frequencies.length > 0">
   <div class="tabular-row">
   <div class="cell"><h4 class="faded-title">Pop</h4></div>
   <div class="cell" ng-repeat="kind_of_number in vm.exac_fields"> <!-- table headers -->
