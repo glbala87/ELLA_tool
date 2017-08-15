@@ -12,10 +12,6 @@ export class Allele {
      */
     constructor(data) {
         Object.assign(this, data);
-        this._createAnnotations();
-    }
-
-    _createAnnotations() {
         // Convert pure annotation data to model object
         this.annotation = new Annotation(this.annotation);
     }
@@ -37,10 +33,6 @@ export class Allele {
             hgvs += `${t.transcript}(${t.symbol}):${t.HGVSc_short}`;
         }
         return hgvs;
-    }
-
-    getExACUrl() {
-        return `http://exac.broadinstitute.org/variant/${this.chromosome}-${this.vcf_pos}-${this.vcf_ref}-${this.vcf_alt}`;
     }
 
     getHGMDUrl() {

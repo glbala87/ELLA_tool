@@ -58,7 +58,7 @@ export class FrequencyDetailsWidget {
         var translations;
         switch (this.group) {
             case 'ExAC':
-                translations = this.config.frequencies.view.ExAc;
+                translations = this.config.frequencies.view.ExAC;
                 break;
             case 'GNOMAD_EXOMES':
                 translations = this.config.frequencies.view.GNOMAD_EXOMES;
@@ -73,7 +73,7 @@ export class FrequencyDetailsWidget {
         }
     }
 
-    getExACHeaderName(name) {
+    getExACHeaderName(name) { // like 'freq' -> 'Allele freq'
       return this.config.frequencies.view.ExAC_fields[name];
     }
 

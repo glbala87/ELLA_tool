@@ -30,6 +30,24 @@ class Filters {
     }
 
     @Filter({
+        filterName: 'gnomadLink'
+    })
+    gnomadLinkFilter() {
+        return (allele) => {
+                return allele ? `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}`: '';
+        };
+    }
+
+    @Filter({
+        filterName: 'exacLink'
+    })
+    exacLinkFilter() {
+        return (allele) => {
+                return allele ? `http://exac.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}`: '';
+        };
+    }
+
+    @Filter({
         filterName: 'split'
     })
     splitFilter() {
