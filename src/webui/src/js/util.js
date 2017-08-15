@@ -22,6 +22,25 @@ export let printedFileSize = function(size) {
     return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB'][i];
 }
 
+export function hasDataAtKey(container, ...keys) {
+        if (keys.length < 1) {
+            return false;
+        }
+
+        for(let i = 0; i < keys.length;  i++ ) {
+            if (container[keys[i]]) {
+                if (i === keys.length -1) { // last key
+                      return true;
+                } else {
+                    return hasDataAtKey(container[keys[i]], keys.slice(1));
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+
 /** Class to contain eventlisteners, so they can be detached using removeAll */
 export class EventListeners {
     constructor() {

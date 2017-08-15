@@ -290,7 +290,7 @@ def gnomad_exomes_frequencies(annotation):
         elif key == 'AC_Hom':
             assert len(value) == 1
             hom['G'] = value[0]
-        elif key == 'AN_Adj':
+        elif key == 'AN':
             num['G'] = value
         elif key.startswith('AC_'):
             pop = key.split('AC_')[1]
@@ -360,7 +360,7 @@ def gnomad_genomes_frequencies(annotation):
         elif key == 'AC_Hom':
             assert len(value) == 1
             hom['G'] = value[0]
-        elif key == 'AN_Adj':
+        elif key == 'AN':
             num['G'] = value
         elif key.startswith('AC_'):
             pop = key.split('AC_')[1]

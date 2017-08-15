@@ -1,8 +1,8 @@
-<div class="cb-table" ng-if="vm.isExAC() && vm.frequencies.length > 0">
+<div class="cb-table" ng-if="vm.isExACOrGnomad() && vm.frequencies.length > 0">
   <div class="tabular-row">
   <div class="cell"><h4 class="faded-title">Pop</h4></div>
-  <div class="cell" ng-repeat="name in vm.exac_fields">
-    <h4 class="faded-title">{{name}}</h4>
+  <div class="cell" ng-repeat="kind_of_number in vm.exac_fields"> <!-- table headers -->
+    <h4 class="faded-title">{{kind_of_number}}</h4>
   </div>
   </div>
   <div class="tabular-row exac" ng-repeat="freq_data in vm.frequencies | orderBy:'name'">
@@ -12,7 +12,7 @@
     </div>
   </div>
 </div>
-<div class="cb-table" ng-if="vm.isExAC() == false">
+<div class="cb-table" ng-if="vm.isExACOrGnomad() == false">
   <div class="tabular-row" ng-repeat="freq_data in vm.frequencies">
     <div class="cell"><h5>{{freq_data.name}}:</h5></div>
     <div class="cell"><p>{{vm.getFreqValue(freq_data)}}</p></div>
