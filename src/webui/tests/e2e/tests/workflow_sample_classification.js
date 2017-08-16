@@ -89,9 +89,6 @@ describe('Sample workflow', function () {
 
         const exacElement = alleleSectionBox.exacElement;
         expect(exacElement).toBeDefined("Missing ExAC box on the page");
-
-        const exacElement = alleleSectionBox.exacElement;
-        expect(exacElement).toBeDefined("Missing ExAC box on the page");
         let exacContent = browser.getText('allele-sectionbox-content contentbox frequency-details[group="ExAC"]'); // array
         expect(exacContent[0]).toContain('AFR', 'Missing the AFR population from ExAC');
         expect(exacContent[0]).toContain('TOT', 'Missing the TOTal population key from ExAC');
