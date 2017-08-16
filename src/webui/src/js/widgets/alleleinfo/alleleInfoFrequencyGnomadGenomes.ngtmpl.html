@@ -1,0 +1,6 @@
+<contentbox title="gnomAD Genomes" title-url="{{ vm.allele | gnomadLink }}" disabled="!vm.hasContent()">
+  <cbbody>
+    <frequency-details group="GNOMAD_GENOMES" allele="vm.allele"></frequency-details>
+    <acmg class="suggested disabled" code="c" editable="false" ng-repeat="c in vm.allele.getACMGCodes('frequencies.cutoff.GNOMAD_GENOMES')"></acmg>
+  </cbbody>
+</contentbox>

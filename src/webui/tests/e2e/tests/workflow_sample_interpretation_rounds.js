@@ -26,7 +26,7 @@ const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 
 jasmine.getEnv().addReporter(failFast.init());
 
-describe('Sample workflow', function () {
+describe('Sample workflow ', function () {
 
     beforeAll(() => {
         browser.resetDb();
@@ -38,6 +38,8 @@ describe('Sample workflow', function () {
         overview.open();
         overview.selectWithMissingAssessments(1);
         analysisPage.startButton.click();
+
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01');
 
         const numberOfUnclassified = alleleSidebar.countOfUnclassified();
 
@@ -59,6 +61,9 @@ describe('Sample workflow', function () {
         overview.open();
         overview.selectTopReview();
         analysisPage.startButton.click();
+
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01');
+
         const numberOfClassifiedBefore = alleleSidebar.countOfClassified();
         expect(numberOfClassifiedBefore).toBeGreaterThan(0);
         expect(alleleSidebar.countOfUnclassified()).toBe(0);
@@ -86,10 +91,13 @@ describe('Sample workflow', function () {
     it('shows existing classifications and finalize', function () {
         //  start a second analysis
         // brca_e2e_test02.HBOCUTV_v01
+
         loginPage.selectThirdUser();
         overview.open();
         overview.selectWithMissingAssessments(1); // some variants assessed in another analysis
         analysisPage.startButton.click();
+
+        expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01');
 
         const numberOfUnclassifiedBefore = alleleSidebar.countOfUnclassified();
         const numberOfClassifiedBefore = alleleSidebar.countOfClassified();
@@ -138,6 +146,7 @@ describe('Sample workflow', function () {
 
 
     it('can navigate through interpretation rounds and see current official assessment', function() {
+
         // brca_e2e_test01.HBOCUTV_v01
 
         // given
@@ -148,6 +157,7 @@ describe('Sample workflow', function () {
         overview.selectFinished(1);
 
         // then
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01');
         expect(analysisPage.roundCount).toBe(3);  // 'Current data' "round" is added at end
 
         const numberOfClassified = alleleSidebar.countOfClassified();
@@ -191,6 +201,8 @@ describe('Sample workflow', function () {
         loginPage.selectFirstUser();
         overview.open();
         overview.selectFinished(2);
+
+        expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01');
 
         expect(analysisPage.roundCount).toBe(2);
 

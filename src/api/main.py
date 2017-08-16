@@ -2,6 +2,10 @@ import threading
 import os
 import sys
 import logging
+
+DEFAULT_TESTSET = 'small'  # should match the dataset having 'default' in deposit_testdata.py
+KEYWORD_DEVELOPER_MODE = 'DEVELOP'
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request
@@ -52,19 +56,18 @@ def serve_static(path=None):
 
 # Only enabled on "DEVELOP=true"
 def reset_testdata():
-    if os.environ.get('DEVELOP', '').upper() != 'TRUE':
-        raise RuntimeError("Tried to access reset resource, but not running in development mode")
+    if os.environ.get(KEYWORD_DEVELOPER_MODE, '').upper() != 'TRUE':
+        raise RuntimeError("Access to the reset endpoint is only allowed when running in development mode." +
+                           " Set variable " + KEYWORD_DEVELOPER_MODE)
 
-    test_set = 'small'
-    if request.args.get('testset'):
-        test_set = request.args.get('testset')
-    blocking = request.args.get('blocking')
-
-    return do_testdata_reset(test_set, blocking=blocking)
+    # use default if none is given:
+    test_set = request.args.get('testset', DEFAULT_TESTSET)
+    test_set = test_set if test_set else DEFAULT_TESTSET
+    return do_testdata_reset(test_set, blocking=request.args.get('blocking'))
 
 
 def reset_testdata_from_cli():
-    test_set = os.getenv('RESET_DB', 'small')
+    test_set = os.getenv('RESET_DB', DEFAULT_TESTSET)
     do_testdata_reset(test_set)
 
 
@@ -82,7 +85,7 @@ def do_testdata_reset(test_set, blocking=True):
     else:
         t = threading.Thread(target=worker)
         t.start()
-        return "Test database is resetting. It should be ready in a minute."
+        return "Test database is resetting using test set '{}'. It should be ready in a minute.".format(test_set)
 
 class ApiErrorHandling(Api):
     def handle_error(self, e):
@@ -112,7 +115,7 @@ if __name__ == '__main__':
     opts['port'] = int(os.getenv('API_PORT', '5000'))
 
     # Dev mode stuff
-    is_dev = os.getenv('DEVELOP', '').lower() == 'true'
+    is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, '').lower() == 'true'
     if is_dev:
         opts['use_reloader'] = True
         app.add_url_rule('/reset', 'reset', reset_testdata)

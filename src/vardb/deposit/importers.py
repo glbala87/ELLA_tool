@@ -522,6 +522,8 @@ class AnnotationImporter(object):
         # Convert the mess of input annotation into database annotation format
         frequencies = dict()
         frequencies.update(annotationconverters.exac_frequencies(merged_annotation))
+        frequencies.update(annotationconverters.gnomad_genomes_frequencies(merged_annotation))
+        frequencies.update(annotationconverters.gnomad_exomes_frequencies(merged_annotation))
         frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
         frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
 

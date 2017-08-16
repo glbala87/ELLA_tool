@@ -3,6 +3,9 @@ import unittest
 import pytest
 
 from .. import annotationconverters
+from .. import GNOMAD_EXOMES_RESULT_KEY, GNOMAD_EXOMES_ANNOTATION_KEY
+from .. import GNOMAD_GENOMES_RESULT_KEY, GNOMAD_GENOMES_ANNOTATION_KEY
+from .. import EXAC_RESULT_KEY, EXAC_ANNOTATION_KEY
 
 class TestReferences():
 
@@ -92,9 +95,8 @@ class TestFrequencyAnnotation():
         assert 'EUR_MAF' not in freq['1000g']['freq']
 
     def test_exac_conversion(self):
-
-        data = {
-            'EXAC': {
+        annotation_source = {
+            EXAC_ANNOTATION_KEY: {
                 'AC_TEST': [13],
                 'AN_TEST': 2,
                 'AC_ZERO': [0],
@@ -102,22 +104,53 @@ class TestFrequencyAnnotation():
             }
         }
 
-        freqs = annotationconverters.exac_frequencies(data)
-        assert 'TEST' in freqs['ExAC']['freq']
-        assert float(13)/2 == freqs['ExAC']['freq']['TEST']
-        assert 'ZERO' not in freqs['ExAC']['freq']
+        converted = annotationconverters.exac_frequencies(annotation_source)[EXAC_RESULT_KEY]
+        assert 'TEST' in converted['freq']
+        assert float(13)/2 == converted['freq']['TEST']
+        assert 'ZERO' not in converted['freq']
+
+    def test_gnomad_exomes_conversion(self):
+
+        annotation_source = {
+            GNOMAD_EXOMES_ANNOTATION_KEY: {
+                'AC_TEST': [13],
+                'AN_TEST': 2,
+                'AC_ZERO': [0],
+                'AN_ZERO': 0
+            }
+        }
+
+        converted = annotationconverters.gnomad_exomes_frequencies(annotation_source)[GNOMAD_EXOMES_RESULT_KEY]
+        assert 'TEST' in converted['freq']
+        assert float(13)/2 == converted['freq']['TEST']
+        assert 'ZERO' not in converted['freq']
+
+    def test_gnomad_genomes_conversion(self):
+
+        annotation_source = {
+            GNOMAD_GENOMES_ANNOTATION_KEY: {
+                'AC_TEST': [13],
+                'AN_TEST': 2,
+                'AC_ZERO': [0],
+                'AN_ZERO': 0
+            }
+        }
+
+        converted = annotationconverters.gnomad_genomes_frequencies(annotation_source)[GNOMAD_GENOMES_RESULT_KEY]
+        assert 'TEST' in converted['freq']
+        assert float(13)/2 == converted['freq']['TEST']
+        assert 'ZERO' not in converted['freq']
 
     def test_exac_hom_count_inclusion(self):
-
-        data = {
+        annotation_source = {
             'EXAC': {
                 'Hom_TEST': [13],
             }
         }
 
-        freqs = annotationconverters.exac_frequencies(data)
-        assert 'TEST' in freqs['ExAC']['hom']
-        assert 13 == freqs['ExAC']['hom']['TEST']
+        converted = annotationconverters.exac_frequencies(annotation_source)[EXAC_RESULT_KEY]
+        assert 'TEST' in converted['hom']
+        assert 13 == converted['hom']['TEST']
 
     def test_esp_hom_count_inclusion(self):
 

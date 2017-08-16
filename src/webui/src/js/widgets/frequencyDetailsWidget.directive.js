@@ -1,12 +1,13 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../ng-decorators';
+import {hasDataAtKey} from '../util';
 
 @Directive({
     selector: 'frequency-details',
     scope: {
         allele: '=',
-        group: '@'
+        group: '@' // e.g. name of data set, like ExAC or GNOMAD_EXOMES
     },
     templateUrl: 'ngtmpl/frequencyDetailsWidget.ngtmpl.html'
 })
@@ -24,36 +25,55 @@ export class FrequencyDetailsWidget {
         $scope.$watch(() => this.allele, () => {this.setFrequencies()});
     }
 
+
     setFrequencies() {
         this.frequencies = [];
-        let freqs = this.config.frequencies.view.groups[this.group];
-        for (let freq of freqs) {
+        let freq_types = this.config.frequencies.view.groups[this.group];
+        if (!freq_types) {
+            return;
+        }
+
+        for (let freq_type of freq_types) {
             if (this.group in this.allele.annotation.frequencies) {
-                let group_data = this.allele.annotation.frequencies[this.group];
+                let annotation_data_for_group = this.allele.annotation.frequencies[this.group];
                 // Filter based on frequencies group names from config, since we
                 // might not want to show everything
-                if (freq in group_data.freq) {
-                    let freq_data = {
-                        name: freq,
-                        freq: group_data.freq[freq]
+                if (freq_type in annotation_data_for_group.freq) {
+                    let data_container = {
+                        name: freq_type,
+                        freq: annotation_data_for_group.freq[freq_type]
                     }
                     // Add ExAC specific values
-                    for (let group of ['het', 'hom', 'count', 'num']) {
-                        if (group in group_data &&
-                            freq in group_data[group]) {
-                            freq_data[group] = group_data[group][freq];
+                    for (let category of ['het', 'hom', 'count', 'num']) {
+                        if (hasDataAtKey(annotation_data_for_group, category, freq_type)) {
+                            data_container[category] = annotation_data_for_group[category][freq_type];
                         }
                     }
-                    this.frequencies.push(freq_data);
+                    this.frequencies.push(data_container);
                 }
             }
         }
-        if(this.isExAC()) {
-          this.frequencies.forEach( (e) => { e.name = this.config.frequencies.view.ExAC[e.name] } );
+
+        // rename labels:
+        var translations;
+        switch (this.group) {
+            case 'ExAC':
+                translations = this.config.frequencies.view.ExAC;
+                break;
+            case 'GNOMAD_EXOMES':
+                translations = this.config.frequencies.view.GNOMAD_EXOMES;
+                break;
+            case 'GNOMAD_GENOMES':
+                translations = this.config.frequencies.view.GNOMAD_GENOMES;
+                break;
+        }
+
+         if (translations) {
+          this.frequencies.forEach( (e) => { e.name = translations[e.name] } );
         }
     }
 
-    getExACHeaderName(name) {
+    getExACHeaderName(name) { // like 'freq' -> 'Allele freq'
       return this.config.frequencies.view.ExAC_fields[name];
     }
 
@@ -85,8 +105,8 @@ export class FrequencyDetailsWidget {
         return freq_data;
     }
 
-    isExAC() {
-       return this.group === 'ExAC'
+    isExACOrGnomad() {
+       return ['ExAC', 'GNOMAD_EXOMES', 'GNOMAD_GENOMES'].includes(this.group)
     }
 
     inDbIndicationThreshold() {

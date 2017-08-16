@@ -2,7 +2,7 @@ var Page = require('./page')
 
 class AnalysisPage extends Page {
 
-    get title() { return browser.element('.full-title').getText(); }
+    get title() { return browser.element('.id-workflow-instance').getText(); }
     get analysis() { return browser.element('analysis'); }
 
     // button has many uses, where button text varies:

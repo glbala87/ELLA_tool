@@ -9,6 +9,8 @@ require('core-js/fn/object/entries');
  * - Sample 3: confirm that the changed classification in 2nd sample is carried
  *             over correctly, and that it's using the latest classification rather
  *             than the first one made as part of 1st sample.
+ *
+ *  For some alleles we have ExAC/gnomeAD data. For those we test that the data is present on page.
  */
 
 let LoginPage = require('../pageobjects/loginPage')
@@ -79,6 +81,18 @@ describe('Sample workflow', function () {
         alleleSectionBox.markAsTechnical();
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
         expected_analysis_1_round_1[selected_allele] = {classification: 'T'};
+
+        const exomesElement = alleleSectionBox.gnomADExomesElement;
+        expect(exomesElement).toBeDefined("Missing gnomeAD exomes box on the page");
+        const genomesElement = alleleSectionBox.gnomADGenomesElement;
+        expect(genomesElement).toBeDefined("Missing gnomeAD genomes box on the page");
+
+        const exacElement = alleleSectionBox.exacElement;
+        expect(exacElement).toBeDefined("Missing ExAC box on the page");
+        let exacContent = browser.getText('allele-sectionbox-content contentbox frequency-details[group="ExAC"]'); // array
+        expect(exacContent).toContain('AFR', 'Missing the AFR population from ExAC');
+        expect(exacContent).toContain('TOT', 'Missing the TOTal population key from ExAC');
+
 
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
