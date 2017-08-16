@@ -90,8 +90,8 @@ describe('Sample workflow', function () {
         const exacElement = alleleSectionBox.exacElement;
         expect(exacElement).toBeDefined("Missing ExAC box on the page");
         let exacContent = browser.getText('allele-sectionbox-content contentbox frequency-details[group="ExAC"]'); // array
-        expect(exacContent[0]).toContain('AFR', 'Missing the AFR population from ExAC');
-        expect(exacContent[0]).toContain('TOT', 'Missing the TOTal population key from ExAC');
+        expect(exacContent).toContain('AFR', 'Missing the AFR population from ExAC');
+        expect(exacContent).toContain('TOT', 'Missing the TOTal population key from ExAC');
 
 
         // For the rest we perform more extensive classifications
@@ -212,13 +212,13 @@ describe('Sample workflow', function () {
         analysisPage.markReviewButton.click();
     });
 
-    xit('shows the review comment on overview page', function () {
+    it('shows the review comment on overview page', function () {
         loginPage.selectSecondUser();
         sampleSelectionPage.expandReviewSection();
         expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1');
     });
 
-    xit('keeps the classification from the previous round', function () {
+    it('keeps the classification from the previous round', function () {
 
         loginPage.selectSecondUser();
         sampleSelectionPage.expandReviewSection();
@@ -229,7 +229,7 @@ describe('Sample workflow', function () {
         analysisPage.finalizeButton.click();
     });
 
-    xit('reuses classified variants from a different sample', function() {
+    it('reuses classified variants from a different sample', function() {
 
         loginPage.selectFirstUser();
         sampleSelectionPage.selectTopPending();
@@ -319,7 +319,7 @@ describe('Sample workflow', function () {
 
     });
 
-    xit('reuses the latest variant classification done in another sample', function() {
+    it('reuses the latest variant classification done in another sample', function() {
 
         loginPage.selectFirstUser();
         sampleSelectionPage.selectFindings(1);
