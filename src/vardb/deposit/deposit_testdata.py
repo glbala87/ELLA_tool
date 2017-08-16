@@ -10,6 +10,8 @@ import json
 import glob
 import re
 
+SPECIAL_TESTSET_SKIPPING_VCF = "empty"
+
 logging.basicConfig(level=logging.DEBUG)
 
 import vardb.datamodel
@@ -128,8 +130,6 @@ class DepositTestdata(object):
         """
         :param test_set: Which set to import.
         """
-        if test_set == "empty":
-            return
 
         if test_set is None:
             testset = next(v for v in ANALYSES if v.get('default'))
@@ -195,8 +195,12 @@ class DepositTestdata(object):
         self.deposit_genepanels()
         self.deposit_users()
         self.deposit_references()
-        self.deposit_vcfs(test_set=test_set)
-        self.deposit_custom_annotation()
+        if test_set in [SPECIAL_TESTSET_SKIPPING_VCF.upper(), SPECIAL_TESTSET_SKIPPING_VCF.lower()]:
+            log.info("Skipping deposit of vcf and custom annotations")
+        else:
+            self.deposit_vcfs(test_set=test_set)
+            self.deposit_custom_annotation()
+
         log.info("--------------------")
         log.info(" DB Reset Complete!")
         log.info("--------------------")
