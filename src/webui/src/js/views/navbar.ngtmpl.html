@@ -14,7 +14,7 @@
         <h3 class="full-title"><b>Please login</b></h3>
       </div>
       <div ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">
-        <a href="{{item.url}}"><h3 class="full-title"><b>{{item.title}}</b></h3></a>
+        <a href="{{item.url}}"><h3 class="full-title id-workflow-instance"><b>{{item.title}}</b></h3></a>
       </div>
     </aside>
   </section>
