@@ -29,7 +29,7 @@ class ACMGClassifier2015:
     """
     def classify(self, passed_codes):
          # Special rule for AMG, not official ACMG guidelines
-#        likely_benign_amg = self.likely_benign_amg(passed_codes)
+        likely_benign_amg = self.likely_benign_amg(passed_codes)
         pathogenic = self.pathogenic(passed_codes)
         likely_pathogenic = self.likely_pathogenic(passed_codes)
         benign = self.benign(passed_codes)
@@ -37,6 +37,8 @@ class ACMGClassifier2015:
         contradiction = self.contradict(passed_codes)
         if contradiction:
             return ClassificationResult(3, "Uncertain significance", contradiction, "Contradiction")
+        if likely_benign_amg:
+            return ClassificationResult(2, "Likely benign", likely_benign_amg, "Likely benign")
         if pathogenic:
             return ClassificationResult(5, "Pathogenic", pathogenic, "Pathogenic")
         if benign:
@@ -51,11 +53,14 @@ class ACMGClassifier2015:
     If the codes given satisfy the speical AMG requirements for likely benign, return list of all codes
     contributing otherwise empty list.
     """
-#    def likely_benign_amg(self, codes):
-#        return(
-#    self._OR(
-#    )
-#        )
+    def likely_benign_amg(self, codes):
+        return(
+            self._OR(
+                self.contrib(self.BS1, codes, lambda n : n >= 1),
+                self.contrib(self.BS2, codes, lambda n : n >= 1),
+                self.contrib(self.BP7, codes, lambda n : n >= 1)
+            )
+        )
 
     """
     If the codes given satisfy the requirements for pathogenic, return list of all codes contributing, otherwise
@@ -110,8 +115,7 @@ class ACMGClassifier2015:
                     # NB: PVS + PP = class 4 is not based on official ACMG guidelines, but added to fill logical gap
                     self.contrib(self.PP, codes, lambda n: n >= 1)
                 )
-            ),
-            
+            ),            
             self._AND(
                       self.contrib(self.PS, codes, lambda n : n == 1),
                       self.contrib(self.PM, codes, lambda n : n == 1)

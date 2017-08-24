@@ -432,6 +432,29 @@ class ACMGClassifier2015Test(unittest.TestCase):
              ], "Likely benign"))
 
         passed = [
+                "PM1",
+                "BP6",
+                "PP6",                
+                "BP7"]        
+        self.assertEquals(classifier.classify(passed), 
+            ClassificationResult(2, "Likely benign",
+                ["BP7"], 
+                "Likely benign"
+                )
+            )
+            
+        passed = [
+                "BS1",
+                "BP6",
+                "PP6",                
+                "BP7"]        
+        self.assertEquals(classifier.classify(passed), 
+            ClassificationResult(2, "Likely benign",
+                ["BS1",
+                 "BP7"
+                ], "Likely benign"))
+
+        passed = [
                 "BP6",
                 "PM1"]
         self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
