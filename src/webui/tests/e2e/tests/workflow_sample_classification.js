@@ -37,6 +37,7 @@ jasmine.getEnv().addReporter(failFast.init());
 
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01';
+const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v01';
 
 describe('Sample workflow', function () {
 
@@ -53,11 +54,13 @@ describe('Sample workflow', function () {
         loginPage.selectFirstUser();
         sampleSelectionPage.selectTopPending();
 
+        expect(analysisPage.title).toBe(SAMPLE_ONE);
+
         analysisPage.startButton.click();
 
         // Add excluded allele
         let number_of_variants_before_filter_change = alleleSidebar.getUnclassifiedAlleles().length;
-        expect(number_of_variants_before_filter_change).toEqual(5, `Wrong number of variants of sample ${SAMPLE_ONE}`);
+        expect(number_of_variants_before_filter_change).toBe(5, `Wrong number of variants of sample ${SAMPLE_ONE}. Please check the filtering rules or the annotation data in the vcf`);
         analysisPage.addExcludedButton.click();
         addExcludedAllelesModal.includeAlleleBtn.click();
         addExcludedAllelesModal.closeBtn.click();
@@ -65,17 +68,20 @@ describe('Sample workflow', function () {
 
         // Classify first three alleles quickly
         alleleSidebar.selectFirstUnclassified();
+        // alleleSidebar.selectUnclassifiedAllele('c.72A>T');
         let selected_allele = alleleSidebar.getSelectedAllele();
         alleleSectionBox.markAsClass1();
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
         expected_analysis_1_round_1[selected_allele] = {classification: '1'};
 
+        // alleleSidebar.selectFirstUnclassified();
         alleleSidebar.selectUnclassifiedAllele('c.925dupT');
         selected_allele = alleleSidebar.getSelectedAllele();
         alleleSectionBox.markAsClass2();
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
         expected_analysis_1_round_1[selected_allele] = {classification: '2'};
 
+        // alleleSidebar.selectFirstUnclassified();
         alleleSidebar.selectUnclassifiedAllele('c.1788T>C');
         selected_allele = alleleSidebar.getSelectedAllele();
         alleleSectionBox.markAsTechnical();
@@ -105,7 +111,7 @@ describe('Sample workflow', function () {
 
             // Add attachment
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(0);
-            alleleSectionBox.addAttachment()
+            alleleSectionBox.addAttachment();
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1);
 
             // Evaluate one reference
@@ -223,6 +229,7 @@ describe('Sample workflow', function () {
         loginPage.selectSecondUser();
         sampleSelectionPage.expandReviewSection();
         sampleSelectionPage.selectTopReview();
+        expect(analysisPage.title).toBe(SAMPLE_ONE);
         analysisPage.startButton.click();
         checkAlleleClassification(expected_analysis_1_round_1);
         analysisPage.finishButton.click();
@@ -233,6 +240,9 @@ describe('Sample workflow', function () {
 
         loginPage.selectFirstUser();
         sampleSelectionPage.selectTopPending();
+
+        expect(analysisPage.title).toBe(SAMPLE_TWO);
+
         analysisPage.startButton.click();
 
         // First check alleles overlapping with prev sample
