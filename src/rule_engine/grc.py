@@ -194,31 +194,26 @@ class ACMGClassifier2015:
         return []
 
     """
+    All codes should be counted exactly once, hence [PM1, PM1] should be 
+    counted only as one PM1. This method checks if we already have an 
+    existing sample code (i.e. PM1 etc.) in the occurences list.
+    """
+    def occurence_has_been_counted(self, code, occurences):
+        for occurence in occurences:
+            if occurence == code:
+                return True
+        return False
+
+    """
     The occurences matching the given pattern in the codes list.
-    Takes into account special counting codes for PP3 and BP4.
     """
     def occurences(self, pattern, codes):
         occ = []
-        # These to be counted only once each:
-        n_PP3 = 0
-        n_BP4 = 0
-        n_BS1 = 0
+        
         for code in codes:
-            if pattern.match(code):
-                if code == "PP3":
-                    if not n_PP3:
-                        occ.append(code)
-                        n_PP3 += 1
-                elif code == "BP4":
-                    if not n_BP4:
-                        occ.append(code)
-                        n_BP4 += 1
-                elif code == "BS1":
-                    if not n_BS1:
-                        occ.append(code)
-                        n_BS1 += 1
-                else:
-                    occ.append(code)
+            hasBeenCounted =  self.occurence_has_been_counted(code, occ)
+            if pattern.match(code) and hasBeenCounted == False:
+                occ.append(code)
         return occ
 
     """
