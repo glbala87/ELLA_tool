@@ -110,6 +110,7 @@ dev: export OFFLINE_MODE="false"
 dev:
 	docker run -d \
 	--name $(CONTAINER_NAME) \
+	--hostname $(CONTAINER_NAME) \
 	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	-p $(API_PORT):5000 \
