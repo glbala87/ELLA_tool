@@ -3,9 +3,6 @@ import os
 import sys
 import logging
 
-DEFAULT_TESTSET = 'small'  # should match the dataset having 'default' in deposit_testdata.py
-KEYWORD_DEVELOPER_MODE = 'DEVELOP'
-
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request
@@ -14,10 +11,10 @@ from api import app, db, AuthenticationError
 from api.v1 import ApiV1
 
 # For /reset purposes
-from vardb.deposit.deposit_testdata import DepositTestdata
+from vardb.deposit.deposit_testdata import DepositTestdata, DEFAULT_TESTSET, AVAILABLE_TESTSETS
 from cli.commands.database import drop_db, make_db
 
-
+KEYWORD_DEVELOPER_MODE = 'DEVELOP'
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/build')
 
@@ -78,6 +75,9 @@ def do_testdata_reset(test_set, blocking=True):
 
         dt = DepositTestdata(db)
         dt.deposit_all(test_set=test_set)
+
+    if test_set not in AVAILABLE_TESTSETS:
+        return "Unknown test set '{0}'. Please specify one of {1}".format(test_set, ", ".join(AVAILABLE_TESTSETS))
 
     if blocking:
         worker()
