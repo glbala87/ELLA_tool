@@ -16,18 +16,27 @@ class ACMGClassifier2015:
     BA = re.compile("BA.*")
     BS = re.compile("BS.*")
     BP = re.compile("BP.*")
-
+    
+    """
+    Patterns only used in special AMG rule
+    """
+    BS1 = re.compile("BS1")
+    BS2 = re.compile("BS2")
+    BP7 = re.compile("BP7")
+    
     """
     Call with a list of passed codes to get the correct ClassificationResult.
     """
     def classify(self, passed_codes):
+         # Special rule for AMG, not official ACMG guidelines
+#        likely_benign_amg = self.likely_benign_amg(passed_codes)
         pathogenic = self.pathogenic(passed_codes)
         likely_pathogenic = self.likely_pathogenic(passed_codes)
         benign = self.benign(passed_codes)
         likely_benign = self.likely_benign(passed_codes)
-        (cont_rules, cont_message) = self.contradict(pathogenic, likely_pathogenic, benign, likely_benign)
-        if cont_rules:
-            return ClassificationResult(3, "Uncertain significance", cont_rules, cont_message)
+        contradiction = self.contradict(passed_codes)
+        if contradiction:
+            return ClassificationResult(3, "Uncertain significance", contradiction, "Contradiction")
         if pathogenic:
             return ClassificationResult(5, "Pathogenic", pathogenic, "Pathogenic")
         if benign:
@@ -37,6 +46,16 @@ class ACMGClassifier2015:
         if likely_benign:
             return ClassificationResult(2, "Likely benign", likely_benign, "Likely benign")
         return ClassificationResult(3, "Uncertain significance", [], "None")
+
+    """
+    If the codes given satisfy the speical AMG requirements for likely benign, return list of all codes
+    contributing otherwise empty list.
+    """
+#    def likely_benign_amg(self, codes):
+#        return(
+#    self._OR(
+#    )
+#        )
 
     """
     If the codes given satisfy the requirements for pathogenic, return list of all codes contributing, otherwise
@@ -85,6 +104,7 @@ class ACMGClassifier2015:
         return  (
         self._OR(
             self._AND(
+            # update
                       self.contrib(self.PVS, codes, lambda n : n == 1),
                       self.contrib(self.PM, codes, lambda n : n == 1)
                       ),
@@ -194,17 +214,25 @@ class ACMGClassifier2015:
         return occ
 
     """
-    If criteria are in contradiction:
-      Return tuple (contributing codes,message)
-    Else
-      (None, None)
+    If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
+    empty list.
     """
-    def contradict(self, pathogenic, likely_pathogenic, benign, likely_benign):
-        if (pathogenic or likely_pathogenic) and (benign or likely_benign):
-            return (pathogenic + likely_pathogenic + benign + likely_benign, "Contradiction")
-        return (None, None)
-
-
+    def contradict(self, codes):
+        return (
+        self._AND(
+            self._OR(
+                      self.contrib(self.PVS, codes, lambda n : n >= 1),
+                      self.contrib(self.PS, codes, lambda n : n >= 1),
+                      self.contrib(self.PM, codes, lambda n : n >= 1),
+                     ),
+            self._OR(
+                      self.contrib(self.BA, codes, lambda n : n >= 1),
+                      self.contrib(self.BS, codes, lambda n : n >= 1),
+                     )
+                  )
+        )
+        
+        
 """
 Result of ACMG classification. Aggregate of classification and metadata.
 """

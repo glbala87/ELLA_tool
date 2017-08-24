@@ -324,7 +324,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
     def test_contradict(self):
         classifier = ACMGClassifier2015()
         pathogenic = ["PVS1",
-                      "PS3"]
+            "PS3"]
         likely_pathogenic = ["PS4",
             "PM1",
             "PS4",
@@ -332,22 +332,37 @@ class ACMGClassifier2015Test(unittest.TestCase):
             "PP6",
             "PP3"]
         benign = ["BA3",
-             "BS2",
-             "BS1",
-             "BS2"]
+            "BS2",
+            "BS1",
+            "BS2"]
         likely_benign = ["BS2",
-                        "BP3"]
-        cont = classifier.contradict(pathogenic, [], benign, [])
-        self.assertEquals(cont, (pathogenic + benign, "Contradiction"))
+            "BP3"]
+        contradict = ["BS2",
+            "PVS1",
+            "PM3"]
+        contradict2 = ["BS2",
+                  "PVS1",
+                  "PS3",
+                  "PS3",
+                  "PS3",
+                  "PP1"]              
+        contributors = classifier.contradict(pathogenic)
+        self.assertEquals(contributors, [])
+        
+        contributors = classifier.contradict(likely_pathogenic)
+        self.assertEquals(contributors, [])
 
-        cont = classifier.contradict([], likely_pathogenic, [], likely_benign)
-        self.assertEquals(cont, (likely_pathogenic + likely_benign, "Contradiction"))
+        contributors = classifier.contradict(benign)
+        self.assertEquals(contributors, [])
 
-        cont = classifier.contradict([], likely_pathogenic, benign, [])
-        self.assertEquals(cont, (likely_pathogenic + benign, "Contradiction"))
-
-        self.assertEquals(classifier.contradict([], [], benign, likely_benign), (None, None))
-        self.assertEquals(classifier.contradict([], [], [], likely_benign), (None, None))
+        contributors = classifier.contradict(likely_benign)
+        self.assertEquals(contributors, [])
+        
+        contributors = classifier.contradict(contradict)
+        self.assertEquals(contributors, ["PVS1", "PM3", "BS2"])
+        
+        contributors = classifier.contradict(contradict2)
+        self.assertEquals(contributors, ["PVS1", "PS3", "PS3", "PS3", "BS2"])
 
     def test_classify(self):
         classifier = ACMGClassifier2015()
@@ -367,24 +382,27 @@ class ACMGClassifier2015Test(unittest.TestCase):
                   "PS3",
                   "PS3",
                   "PP1"]
-        self.assertEquals(classifier.classify(passed), ClassificationResult(5, "Pathogenic",
+        
+        self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
             ["PVS1",
             "PS3",
             "PS3",
             "PS3",
-            "PS3",
-            "PS3",
-            "PS3"
-            ], "Pathogenic"))
-
+            "BS2"], "Contradiction"))
+        
         passed = ["BS2",
                   "PVS1",
                   "PM3"]
-        self.assertEquals(classifier.classify(passed), ClassificationResult(4, "Likely pathogenic",
+        result = classifier.classify(passed)
+        
+        expected = ClassificationResult(3, "Uncertain significance",
             ["PVS1",
-            "PM3"
-            ], "Likely pathogenic"))
-
+            "PM3", 
+            "BS2"
+            ], "Contradiction")
+        
+        self.assertEquals(result.message, expected.message)
+    
         passed = [
                 "BS2",
                 "PP4",
@@ -393,12 +411,16 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "BS1",
                 "BS2",
                 "PM1"]
-        self.assertEquals(classifier.classify(passed), ClassificationResult(1, "Benign",
-            ["BA3",
+                
+        result = classifier.classify(passed)
+        expected = ClassificationResult(3, "Uncertain significance",
+            ["PM1",
+             "BA3",
              "BS2",
              "BS1",
              "BS2"
-             ], "Benign"))
+             ], "Contradiction")
+        self.assertEquals(result.contributors, expected.contributors)
 
         passed = [
                 "BP4",
