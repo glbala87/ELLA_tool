@@ -1,5 +1,5 @@
 function waitForAngular() {
-    browser.timeoutsAsyncScript(15000).executeAsync(function(done) {
+    browser.timeouts('script', 15000).executeAsync(function(done) {
         // use 'window.'' to work around weird bug when testing for undefined..
         if(window.angular && window.angular.getTestability) {
             window.angular.getTestability(document.body).whenStable(done);
