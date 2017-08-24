@@ -104,10 +104,14 @@ class ACMGClassifier2015:
         return  (
         self._OR(
             self._AND(
-            # update
-                      self.contrib(self.PVS, codes, lambda n : n == 1),
-                      self.contrib(self.PM, codes, lambda n : n == 1)
-                      ),
+                self.contrib(self.PVS, codes, lambda n: n == 1),
+                self._OR(
+                    self.contrib(self.PM, codes, lambda n: n == 1),
+                    # NB: PVS + PP = class 4 is not based on official ACMG guidelines, but added to fill logical gap
+                    self.contrib(self.PP, codes, lambda n: n >= 1)
+                )
+            ),
+            
             self._AND(
                       self.contrib(self.PS, codes, lambda n : n == 1),
                       self.contrib(self.PM, codes, lambda n : n == 1)

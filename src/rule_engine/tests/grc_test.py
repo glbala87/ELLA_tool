@@ -265,7 +265,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PVS3", # 1PVFS* AND 1PM*
                 "PM3"])
 
-        self.assertFalse(classifier.likely_pathogenic([
+        self.assertTrue(classifier.likely_pathogenic([
              "PVSX1",
              "PP6",
              "BS2"]))
