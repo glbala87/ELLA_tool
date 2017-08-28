@@ -196,7 +196,8 @@ class ACMGClassifier2015:
     """
     ACMG guideline: "If multiple pieces of evidence point to the same basic argument, only the strongest
     piece of eveidence is considered". This is relevant especially for the use of derived codes (with "x").
-    If original AND derived code, use strongest ONLY. 
+    
+    If original AND derived code, use strongest ONLY.
     
     Order of precedence:
     PVS > PS > PM and BA > BS > BP
@@ -223,6 +224,9 @@ class ACMGClassifier2015:
         if pm:
             relevant_criterias = self.exclude_patterns(occ, [re.compile(".*PM.*")])
             return pm + relevant_criterias
+        
+        #TODO: check if pp also need to be implemented, although it is left out from the requirements
+        #pp = self.collect_pattern(occ, re.compile(".*PP.*"))
         
         return occ
 
@@ -260,6 +264,9 @@ class ACMGClassifier2015:
                 result.append(el)
         return result
     
+    """
+    Remove all items from the list that is matched in the given patterns.
+    """
     def exclude_patterns(self, lst, patterns):    
         result = []
         for el in lst:
@@ -280,12 +287,16 @@ class ACMGClassifier2015:
         for code in codes:
             if pattern.match(code):
                 occ.add(code)
-                
+          
+        # TODO:        
+        # This must probably be done after the rules have been applied to make sense ...                
+        # Recon they should be implemented in the contrib for the classified class
+        # They don't do any impact here it seems ...
         pathogenic = self.normalize_pathogenic(list(occ))        
-        benign = self.normalize_benign(list(occ))
-        return pathogenic + benign
+        pathogenic_with_benign = self.normalize_benign(pathogenic)
+        
+        return sorted(pathogenic_with_benign)
             
-
     """
     If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
     empty list.
