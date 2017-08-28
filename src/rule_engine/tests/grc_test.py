@@ -459,3 +459,34 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PM1"]
         self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
             [], "None"))
+            
+            
+    def test_normalization_pathogenic(self):
+        classifier = ACMGClassifier2015()
+        sample1 = ["PM2PVS3"]
+        sample2 = ["PVS1PM1", "PS3", "PM3"]
+        sample3 = ["PM3PS1", "PM1", "PM2", "PM3"]
+        sample4 = ["PVS1"]
+        sample5 = ["PS1"]
+        sample6 = ["PM1", "BA1"]
+        
+        sample7 = ["PM3PS2", "PM4PS1", "PM1", "PM2", "PM3"]
+        self.assertEquals(classifier.normalize_pathogenic(sample1),sample1)
+        self.assertEquals(classifier.normalize_pathogenic(sample2),["PVS1PM1"])
+        self.assertEquals(classifier.normalize_pathogenic(sample3),["PM3PS1"])
+        self.assertEquals(classifier.normalize_pathogenic(sample4), sample4)
+        self.assertEquals(classifier.normalize_pathogenic(sample5), sample5)
+        self.assertEquals(classifier.normalize_pathogenic(sample6), sample6)
+        # Awaiting further instructions on this one ...
+        #self.assertEquals(classifier.normalize_pathogenic(sample7), ["PM3PS1"] )
+        
+    def test_normalization_benign(self):    
+        classifier = ACMGClassifier2015()
+        sample1 = ["BA1"]
+        sample2 = ["BA1", "BP2", "BS3"]
+        sample3 = ["BS2", "BP3"]
+        sample4 = ["BP1", "PVS1"]
+        self.assertEquals(classifier.normalize_benign(sample1), sample1)
+        self.assertEquals(classifier.normalize_benign(sample2), ["BA1"])
+        self.assertEquals(classifier.normalize_benign(sample3), ["BS2"])
+        self.assertEquals(classifier.normalize_benign(sample4), sample4)        

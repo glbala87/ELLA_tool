@@ -194,16 +194,97 @@ class ACMGClassifier2015:
         return []
 
     """
+    ACMG guideline: "If multiple pieces of evidence point to the same basic argument, only the strongest
+    piece of eveidence is considered". This is relevant especially for the use of derived codes (with "x").
+    If original AND derived code, use strongest ONLY. 
+    
+    Order of precedence:
+    PVS > PS > PM and BA > BS > BP
+    
+    Examples:
+    PS3 and PMxPS3 => use PS3 only
+    PSxPM1 and PM1 => use PSxPM1 only
+    """
+    def normalize_pathogenic(self, occ):
+        pvs = self.collect_pattern(occ, re.compile(".*PVS.*"))
+        
+        if pvs:
+            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*PVS.*"), re.compile(".*PS.*"), re.compile(".*PM.*")])
+            return pvs + relevant_criterias
+        
+        ps = self.collect_pattern(occ, re.compile(".*PS.*"))
+        
+        if ps:
+            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*PS.*"), re.compile(".*PM.*")])
+            return ps + relevant_criterias
+        
+        pm = self.collect_pattern(occ, re.compile(".*PM.*"))
+        
+        if pm:
+            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*PM.*")])
+            return pm + relevant_criterias
+        
+        return occ
+
+    """
+    See documenation on the function normalize_pathogenic
+    """
+    def normalize_benign(self, occ):    
+        ba = self.collect_pattern(occ, re.compile(".*BA.*"))
+        
+        if ba:
+            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*BA.*"), re.compile(".*BS.*"), re.compile(".*BP.*")])
+            return ba + relevant_criterias
+        
+        bs = self.collect_pattern(occ, re.compile(".*BS.*"))
+        
+        if bs:
+            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*BS.*"), re.compile(".*BP.*")])
+            return bs + relevant_criterias
+        
+        bp = self.collect_pattern(occ, re.compile(".*BP.*"))
+        
+        if bp:
+            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*BP.*")])
+            return bp + relevant_criterias
+        
+        return occ
+
+    """
+    Collect all items in a list given a reg exp pattern
+    """
+    def collect_pattern(self, lst, pattern):
+        result = []
+        for el in lst:
+            if pattern.match(el):
+                result.append(el)
+        return result
+    
+    def exclude_patterns(self, lst, patterns):    
+        result = []
+        for el in lst:
+            exists = []
+            for p in patterns:
+                if p.match(el):
+                    exists.append(p)
+            if not exists:
+                result.append(el)
+        return result
+    
+    """
     The occurences matching the given pattern in the codes list. Each occurence
     of a specific code is only counted once.
     """
     def occurences(self, pattern, codes):
-        occ = []
+        occ = set()
         for code in codes:
-            hasAlreadyBeenCounted = code in occ
-            if pattern.match(code) and hasAlreadyBeenCounted == False:
-                occ.append(code)
-        return occ
+            if pattern.match(code):
+                occ.add(code)
+                
+        pathogenic = self.normalize_pathogenic(list(occ))        
+        benign = self.normalize_benign(list(occ))
+        return pathogenic + benign
+            
 
     """
     If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
