@@ -637,6 +637,23 @@ class AlleleFilter(object):
         # TODO: Add support for per gene/genepanel configuration when ready.
         intronic_filtered = dict()
         for gp_key, allele_ids in gp_allele_ids.iteritems():
+
+            # Determine which allele ids are in an exon (with exon_distance == None)
+            exonic_alleles_q = self.session.query(
+                    allele_filter_tbl.c.allele_id,
+                ).join(
+                    filtered_transcripts,
+                    allele_filter_tbl.c.transcript == filtered_transcripts.c.annotation_transcript
+                ).filter(
+                    tuple_(filtered_transcripts.c.name, filtered_transcripts.c.version) == gp_key,
+                    allele_filter_tbl.c.exon_distance.is_(None),
+                    allele_filter_tbl.c.allele_id.in_(allele_ids)
+                ).distinct()
+
+            exonic_allele_ids = [a[0] for a in exonic_alleles_q.all()]
+            non_exonic_allele_ids = list(set(allele_ids)-set(exonic_allele_ids))
+
+            # Filter the intronic allele ids outside the specified intronic region
             intronic_filtered_q = self.session.query(
                 allele_filter_tbl.c.allele_id
             ).join(
@@ -648,7 +665,7 @@ class AlleleFilter(object):
                     allele_filter_tbl.c.exon_distance < intronic_region[0],
                     allele_filter_tbl.c.exon_distance > intronic_region[1]
                 ),
-                allele_filter_tbl.c.allele_id.in_(allele_ids)
+                allele_filter_tbl.c.allele_id.in_(non_exonic_allele_ids),
             ).distinct()
 
             intronic_filtered[gp_key] = [a[0] for a in intronic_filtered_q.all()]
