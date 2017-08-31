@@ -246,6 +246,7 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys):
         gene.Genepanel.version,
         gene.Transcript.refseq_name,
         gene.Transcript.ensembl_id,
+        gene.Transcript.gene_id,
     ).join(gene.Genepanel.transcripts).filter(
         tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
     ).subquery()
@@ -277,9 +278,10 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys):
         genepanel_transcripts.c.version.label('version'),
         literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
         literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
+        genepanel_transcripts.c.gene_id.label('genepanel_symbol'),
         genepanel_transcripts.c.refseq_name.label('genepanel_transcript'),
     ).filter(
-        text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(refseq_name, '.', 1)")
+        text("transcripts::jsonb ->> 'symbol' = gene_id")
     ).distinct()
 
     return result
