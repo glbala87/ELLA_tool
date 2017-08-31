@@ -2,6 +2,7 @@ from .. grc import ACMGClassifier2015,ClassificationResult
 from .. grm import GRM
 import unittest
 import re
+from itertools import takewhile
 
 class ACMGClassifier2015Test(unittest.TestCase):
 
@@ -478,4 +479,72 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEquals(classifier.normalize_benign(sample1), sample1)
         self.assertEquals(classifier.normalize_benign(sample2), ["BA1"])
         self.assertEquals(classifier.normalize_benign(sample3), ["BS2"])
-        self.assertEquals(classifier.normalize_benign(sample4), sample4)        
+        self.assertEquals(classifier.normalize_benign(sample4), sample4)    
+        
+    def test_presedence(self):    
+        classifier = ACMGClassifier2015()
+        
+        self.assertEquals(classifier.has_higher_precedense("PVS", "PS"), True)
+        self.assertEquals(classifier.has_higher_precedense("PS", "PVS"), False)
+        self.assertEquals(classifier.has_higher_precedense("PS3", "PMxPS3"), True)
+        self.assertEquals(classifier.has_higher_precedense("PMxPS3", "PS3"), False)
+        self.assertEquals(classifier.has_higher_precedense("PMxPS3", "PVSxPS3"), False)
+        self.assertEquals(classifier.has_higher_precedense("PVSxPS3", "PMxPS3"), True)
+         
+#    def test_inner_filter(self):    
+#        classifier = ACMGClassifier2015()
+#        self.assertEquals(classifier.inner_filter(["PMxPS1", "PS1"]), ("PS1", True))
+#        self.assertEquals(classifier.inner_filter(["PMxPS1", "PS1"]), ("PS1", True))
+        
+    def test_find_source(self):    
+        classifier = ACMGClassifier2015()
+        self.assertEquals(classifier.find_source("PMxPS1"), "PS1")
+        self.assertEquals(classifier.find_source("PS1"), "PS1")
+        
+    def test_filter_out_criteria_with_lower_presedence(self):    
+        classifier = ACMGClassifier2015()
+        
+        self.assertEquals(
+            classifier.filter_out_criteria_with_lower_precedense(
+                ["PM1", "PVSxPM1", "PS3", "PMxPS3"]
+            ), ["PVSxPM1", "PS3"]
+        )
+
+    def test_normalization(self):    
+        classifier = ACMGClassifier2015()
+      
+        sample1 = ["PS3", "PMxPS3", "PM1"]
+        sample2 = ["PSxPM1", "PM1"]
+        sample3 = ["PPxPM1"]
+
+        pattern = "PM"
+        any_match = re.compile(".*" + pattern + ".*")
+        x_pattern = re.compile("(" + pattern + "x" + ")")
+        no_x_pattern = re.compile("(^"+ pattern + "x" + ")")
+        number_pattern = re.compile("(" + pattern + "\d" + ")")
+        
+        complex_pattern = classifier.match_on_complex_pattern("PM", sample2[0])
+        self.assertEquals(complex_pattern, ["PSxPM1"])
+        
+        presedence = classifier.handle_presedence("PM", sample2)
+        self.assertEquals(presedence, ["PSxPM1"])
+        
+        
+        for s in sample2:
+            if s.find('x') >= 0:
+                if x_pattern.match(s):
+                    False
+                else: True
+                  
+            
+        
+        
+        
+#        x = re.search(x_pattern, "PSxPM1")
+#        nr = re.search(no_x_pattern, "PSxPM1")
+#        self.assertEquals(x.group(1), "PSx")
+#        self.assertEquals(nr.group(1), "PM1")
+        
+        
+#        self.assertEquals(classifier.occ("PS", sample1), ["PS3"])
+#        self.assertEquals(classifier.occ("PM", sample2), ["PSxPM1"])        

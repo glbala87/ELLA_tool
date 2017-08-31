@@ -1,4 +1,7 @@
 import re
+from itertools import takewhile
+from functools import reduce
+import logging
 
 """
 GenAP Rule Classifier, GRC
@@ -8,6 +11,9 @@ Uses regexp programs to represent code patterns.
 """
 class ACMGClassifier2015:
 
+    logging.basicConfig(level=logging.DEBUG)
+    log = logging.getLogger("test_1")
+    
     # Regexp patterns
     PVS = re.compile("PVS.*")
     PS = re.compile("PS.*")
@@ -296,6 +302,148 @@ class ACMGClassifier2015:
         pathogenic_with_benign = self.normalize_benign(pathogenic)
         
         return sorted(pathogenic_with_benign)
+    
+    def find_highest_precedense(self, a, b):
+        precedense = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
+        if(precedense.index(a) < precedense.index(b)):
+            return a
+        else:
+            return b
+        
+    def has_higher_precedense(self, a_criteria, b_criteria):   
+        # The presedence is given by this order
+        # The criteria with lowest index thus has the highest precedense
+        precedense = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
+        
+        # extracting numbers from criterias so it is possible to 
+        # do lookup in precedense list using index
+        a = ''.join(takewhile(lambda x: not x.isdigit(), a_criteria))
+        b = ''.join(takewhile(lambda x: not x.isdigit(), b_criteria))
+        
+        if "x" in a and "x" in b:
+            # Exploiting the fact that derived codes are 
+            # always written like this: [PVS/PS/PM/PP/BP/BS/BA]x[source]
+            derivedA, sourceA = a.split("x")
+            derivedB, sourceB = b.split("x")
+            
+            ah = self.find_highest_precedense(sourceA, derivedA)
+            bh = self.find_highest_precedense(sourceB, derivedB)
+            
+            if(self.has_higher_precedense(ah, bh)):
+                return True
+            else: 
+                return False
+        
+        if "x" in a:
+            return not self.has_higher_precedense(b_criteria, a_criteria)
+        
+        if "x" in b:
+            derivedB, sourceB = b.split("x")
+            if(self.has_higher_precedense(sourceB, derivedB)):
+              return True
+            else:
+              return False  
+        
+        # The criteria with the lowest index has the highest precedense
+        if precedense.index(a) < precedense.index(b):
+          return True
+        else:
+            return False
+    
+    def find_source(self, criteria):
+        derived = criteria.split("x")
+        if len(derived) == 1:
+            return criteria
+        else:
+            return derived[1]
+        
+    def select_criteria_by_precedense(self, existing_sources, source, selectedCriteria):
+        if len(existing_sources) == 0:
+            return existing_sources + [selectedCriteria]
+        elif self.has_higher_precedense(selectedCriteria, existing_sources[0]):
+            low_precedense_removed = filter(lambda x: source not in x, existing_sources)
+            return [selectedCriteria] + low_precedense_removed
+        else:
+            return existing_sources
+        
+    def handle_criteria(self, accum, selectedCriteria):
+        if len(accum) == 0:
+            return accum + [selectedCriteria]
+        else:
+            source = self.find_source(selectedCriteria)
+            existing_sources = filter(lambda x: source in x, accum)
+            others = filter(lambda x: source not in x, accum)
+            return others + self.select_criteria_by_precedense(existing_sources, source, selectedCriteria)
+            
+    def filter_out_criteria_with_lower_precedense(self, criterias):
+        return reduce(lambda accum, y: self.handle_criteria(accum, y), criterias, [])
+       
+    def has_presedence(self, a, b):    
+        order_of_presedence = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
+        index_of_a = order_of_presedence.index(a)
+        index_of_b = order_of_presedence.index(b)
+        if index_of_a < index_of_b:
+            return True
+        else:
+            return False
+        
+    """
+    Match on complex pattern, i.e. pattern = PM, we want to find the
+    PSxPM1
+    """
+    def match_on_complex_pattern(self, pattern, code):        
+        result = []
+        regexp = re.compile(".*" + pattern + "\d")
+        
+        if regexp.match(code) and code.find('x') >= 0:
+            result.append(code)
+            return result
+        
+        return result    
+            
+    """
+    Need to somehow count PSxPM1 instead of PM1 because this has higher 
+    presedence
+    """        
+    def handle_presedence(self, pattern, codes):
+        result = []
+        
+        x_pattern = re.compile("(" + pattern + "x" + ")")
+        
+        for code in codes:
+            if self.match_on_complex_pattern(pattern, code):
+                # If it has a higher presedence, add it if not ignore it
+                result.append(code)
+                
+        return result        
+            
+    def occ(self, pattern, codes):
+        
+        any_match = re.compile(".*" + pattern + ".*")
+        x_pattern = re.compile(pattern + "x")
+        number_pattern = re.compile(pattern + "\d")
+        
+        tmp = []
+        occ = set()
+        for code in codes:
+            if pattern.match(code):
+                tmp.append(code)
+                
+        if len(tmp) > 1:
+            for c in tmp:
+                if c.find('x') == -1:
+                   occ.add(c) 
+            return list(occ)
+        else: 
+            return tmp
+            
+    def occ1(self, pattern, codes):
+        occ = set()
+        for code in codes:
+            results = re.search(pattern, code)
+            if results:
+                occ.add(results.group(1))
+        return list(occ)
             
     """
     If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
