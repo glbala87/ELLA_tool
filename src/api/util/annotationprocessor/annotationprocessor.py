@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import re
 
 from api import config
 
@@ -12,6 +13,9 @@ class TranscriptAnnotation(object):
 
     def __init__(self, config):
         self.config = config
+        self.inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
+        if self.inclusion_regex is not None:
+            self.inclusion_regex = re.compile(self.inclusion_regex)
 
     def _get_worst_consequence(self, transcripts):
         """
@@ -84,14 +88,18 @@ class TranscriptAnnotation(object):
             return result
 
         transcripts = annotation['transcripts']
-        result['transcripts'] = transcripts
 
         if genepanel:
             transcript_names = [t['transcript'] for t in transcripts]
             result['filtered_transcripts'] \
                 = TranscriptAnnotation.get_genepanel_transcripts(transcript_names, genepanel)
 
-        result['worst_consequence'] = self._get_worst_consequence(transcripts)
+        if self.inclusion_regex is not None:
+            result['transcripts'] = [t for t in transcripts if (re.match(self.inclusion_regex, t["transcript"]) or t["transcript"] in result.get("filtered_transcripts", []))]
+        else:
+            result['transcripts'] = transcripts
+
+        result['worst_consequence'] = self._get_worst_consequence(result["transcripts"])
         return result
 
 

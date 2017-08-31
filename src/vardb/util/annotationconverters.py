@@ -73,11 +73,10 @@ CSQ_FIELDS = [
 
 # Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
 # but not NM_007294.3:c.4535G>T
-CSQ_INTRON_CHECK_REGEX = re.compile(r'.*c\.[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
+CSQ_INTRON_CHECK_REGEX = re.compile(r'.*[cn]\.[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
 
 
 def convert_csq(annotation):
-
     def _get_is_last_exon(transcript_data):
         exon = transcript_data.get('exon')
         if exon:
