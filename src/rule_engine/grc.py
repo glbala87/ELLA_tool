@@ -220,6 +220,9 @@ class ACMGClassifier2015:
                 occ.add(code)
         return sorted(list(occ))
     
+    """
+    Help method for has_higher_precedence
+    """
     def find_highest_precedense(self, a, b):
         precedense = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
         if(precedense.index(a) < precedense.index(b)):
@@ -227,6 +230,13 @@ class ACMGClassifier2015:
         else:
             return b
         
+    """
+    Returns True if criteria a has higher precedence than criteria b, else
+    Returns False.
+    
+    Input may be normal criterias like PS1, PM1 etc. or derived criterias
+    like PMxPS1, PMxPVS1 etc.
+    """    
     def has_higher_precedense(self, a_criteria, b_criteria):   
         # The presedence is given by this order
         # The criteria with lowest index thus has the highest precedense
@@ -267,6 +277,13 @@ class ACMGClassifier2015:
         else:
             return False
     
+    """
+    Finding the source criteria from the derived criteria, if this is not a
+    derived criteria, the same criteria is returned.
+    
+    Derived codes are always written like this:
+    [PVS/PS/PM/PP/BP/BS/BA]x[source]
+    """
     def find_source_criteria(self, criteria):
         derived = criteria.split("x")
         if len(derived) == 1:
@@ -274,15 +291,24 @@ class ACMGClassifier2015:
         else:
             return derived[1]
         
-    def select_criteria_by_precedense(self, existing_sources, source, selectedCriteria):
-        if len(existing_sources) == 0:
-            return existing_sources + [selectedCriteria]
-        elif self.has_higher_precedense(selectedCriteria, existing_sources[0]):
-            low_precedense_removed = filter(lambda x: source not in x, existing_sources)
+    """
+    Selecting the criteria of highest precedence from the existing criterias of this kind
+    that we already have found.
+    """    
+    def select_criteria_by_precedense(self, existing_criterias, selected_criteria, selectedCriteria):
+        if len(existing_criterias) == 0:
+            return existing_criterias + [selectedCriteria]
+        elif self.has_higher_precedense(selectedCriteria, existing_criterias[0]):
+            low_precedense_removed = filter(lambda x: selected_criteria not in x, existing_criterias)
             return [selectedCriteria] + low_precedense_removed
         else:
-            return existing_sources
-        
+            return existing_criterias
+    
+    """
+    Adding up criterias according to their precedence. The criteria is 
+    added to the accum list if it has higher precedence. If a criteria
+    with lower precedence exists in accum list, it is removed.
+    """    
     def handle_criteria(self, accum, criteria):
         if len(accum) == 0:
             return accum + [criteria]
@@ -292,6 +318,10 @@ class ACMGClassifier2015:
             other_criterias = filter(lambda x: source_criteria not in x, accum)
             return other_criterias + self.select_criteria_by_precedense(existing_criterias_of_this_kind, source_criteria, criteria)
             
+    """
+    Filter out all criterias with lower precedence using the reduce built-in 
+    function.
+    """        
     def filter_out_criteria_with_lower_precedense(self, criterias):
         return reduce(lambda accum, criteria: self.handle_criteria(accum, criteria), criterias, [])
          

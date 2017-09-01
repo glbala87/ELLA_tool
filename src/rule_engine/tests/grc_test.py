@@ -472,7 +472,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
                 ["PM1", "PVSxPM1", "PS3", "PMxPS3"]), ["PVSxPM1", "PS3"])
                 
-        # Tests below are given by domain expert Morten
+        # Tests data below are given by domain expert Morten Eike
         self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
             # Duplicates PP1 is filtered out
             ["PM1", "PP1", "PP1", "PP2", "PP3"]), ["PM1", "PP1", "PP2", "PP3"])
@@ -501,7 +501,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
         
         case1 = classifier.classify(["PM1", "PP1", "PP1", "PP2", "PP3"])
         
-        # Tests below are given by domain expert Morten
+        # Tests below are given by domain expert Morten Eike
         self.assertEquals(case1.clazz, 3)
         self.assertEquals(case1.contributors, [])
             
@@ -515,12 +515,14 @@ class ACMGClassifier2015Test(unittest.TestCase):
 
         case4 = classifier.classify(["PSxPM1", "PS1", "PM1"]) 
         self.assertEquals(case4.clazz, 5)
-        # 2*PS will short circuit PM thus PM will not be counted as a contributor
+        # 2*PS will short circuit PM according to the rule,
+        # thus PM will not be counted as a contributor
         self.assertEquals(case4.contributors, ["PS1", "PSxPM1"])
             
         case5 = classifier.classify(["BSxBP1", "BP1", "BS1"])
         self.assertEquals(case5.clazz, 1)
-        # 2*BS, BP1 will not be counted and therefor BP1 is not a contributor
+        # 2*BS is the rule for benign, BP1 will not be counted and 
+        # therefore BP1 is not a contributor
         self.assertEquals(case5.contributors, ["BS1", "BSxBP1"])
         
         case6 = classifier.classify(["BS1", "BS2"])
