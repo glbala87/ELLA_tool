@@ -194,8 +194,12 @@ class TestTranscriptAnnotation():
         assert annotationconverters.convert_csq(generate_data('ENST123123:c.4535+1insAAA'))[0]['exon_distance'] == 1
         assert annotationconverters.convert_csq(generate_data('ENST123123:c.4535-1dupTTT'))[0]['exon_distance'] == -1
         assert annotationconverters.convert_csq(generate_data('ENST123123:c.4535+0dupTTT'))[0]['exon_distance'] == 0
+        assert annotationconverters.convert_csq(generate_data('ENST123123:n.4535+1insAAA'))[0]['exon_distance'] == 1
+        assert annotationconverters.convert_csq(generate_data('ENST123123:n.4535-1dupTTT'))[0]['exon_distance'] == -1
         assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('ENST123123:c.4535G>T'))[0]
         assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('NM_007294.3:c.4535G>T'))[0]
+        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('ENST123123:n.4535G>T'))[0]
+        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('NM_007294.3:n.4535G>T'))[0]
 
         with pytest.raises(AssertionError):
             annotationconverters.convert_csq(generate_data('NM_007294.3:c.4535-0G>T'))
