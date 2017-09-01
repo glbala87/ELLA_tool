@@ -34,21 +34,25 @@ class ACMGClassifier2015:
     Call with a list of passed codes to get the correct ClassificationResult.
     """
     def classify(self, passed_codes):
+        
+        codes_by_precedence = self.filter_out_criteria_with_lower_precedense(passed_codes)
+        
          # Special rule for AMG, not official ACMG guidelines
-        likely_benign_amg = self.likely_benign_amg(passed_codes)
-        pathogenic = self.pathogenic(passed_codes)
-        likely_pathogenic = self.likely_pathogenic(passed_codes)
-        benign = self.benign(passed_codes)
-        likely_benign = self.likely_benign(passed_codes)
-        contradiction = self.contradict(passed_codes)
+        likely_benign_amg = self.likely_benign_amg(codes_by_precedence)
+        pathogenic = self.pathogenic(codes_by_precedence)
+        likely_pathogenic = self.likely_pathogenic(codes_by_precedence)
+        benign = self.benign(codes_by_precedence)
+        likely_benign = self.likely_benign(codes_by_precedence)
+        contradiction = self.contradict(codes_by_precedence)
+        
         if contradiction:
             return ClassificationResult(3, "Uncertain significance", contradiction, "Contradiction")
+        if benign:
+            return ClassificationResult(1, "Benign", benign, "Benign")
         if likely_benign_amg:
             return ClassificationResult(2, "Likely benign", likely_benign_amg, "Likely benign")
         if pathogenic:
             return ClassificationResult(5, "Pathogenic", pathogenic, "Pathogenic")
-        if benign:
-            return ClassificationResult(1, "Benign", benign, "Benign")
         if likely_pathogenic:
             return ClassificationResult(4, "Likely pathogenic", likely_pathogenic, "Likely pathogenic")
         if likely_benign:
@@ -200,91 +204,6 @@ class ACMGClassifier2015:
         return []
 
     """
-    ACMG guideline: "If multiple pieces of evidence point to the same basic argument, only the strongest
-    piece of eveidence is considered". This is relevant especially for the use of derived codes (with "x").
-    
-    If original AND derived code, use strongest ONLY.
-    
-    Order of precedence:
-    PVS > PS > PM and BA > BS > BP
-    
-    Examples:
-    PS3 and PMxPS3 => use PS3 only
-    PSxPM1 and PM1 => use PSxPM1 only
-    """
-    def normalize_pathogenic(self, occ):
-        pvs = self.collect_pattern(occ, re.compile(".*PVS.*"))
-        
-        if pvs:
-            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*PVS.*"), re.compile(".*PS.*"), re.compile(".*PM.*")])
-            return pvs + relevant_criterias
-        
-        ps = self.collect_pattern(occ, re.compile(".*PS.*"))
-        
-        if ps:
-            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*PS.*"), re.compile(".*PM.*")])
-            return ps + relevant_criterias
-        
-        pm = self.collect_pattern(occ, re.compile(".*PM.*"))
-        
-        if pm:
-            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*PM.*")])
-            return pm + relevant_criterias
-        
-        #TODO: check if pp also need to be implemented, although it is left out from the requirements
-        #pp = self.collect_pattern(occ, re.compile(".*PP.*"))
-        
-        return occ
-
-    """
-    See documenation on the function normalize_pathogenic
-    """
-    def normalize_benign(self, occ):    
-        ba = self.collect_pattern(occ, re.compile(".*BA.*"))
-        
-        if ba:
-            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*BA.*"), re.compile(".*BS.*"), re.compile(".*BP.*")])
-            return ba + relevant_criterias
-        
-        bs = self.collect_pattern(occ, re.compile(".*BS.*"))
-        
-        if bs:
-            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*BS.*"), re.compile(".*BP.*")])
-            return bs + relevant_criterias
-        
-        bp = self.collect_pattern(occ, re.compile(".*BP.*"))
-        
-        if bp:
-            relevant_criterias = self.exclude_patterns(occ, [re.compile(".*BP.*")])
-            return bp + relevant_criterias
-        
-        return occ
-
-    """
-    Collect all items in a list given a reg exp pattern
-    """
-    def collect_pattern(self, lst, pattern):
-        result = []
-        for el in lst:
-            if pattern.match(el):
-                result.append(el)
-        return result
-    
-    """
-    Remove all items from the list that is matched in the given patterns.
-    """
-    def exclude_patterns(self, lst, patterns):    
-        result = []
-        for el in lst:
-            exists = []
-            for p in patterns:
-                if p.match(el):
-                    exists.append(p)
-            if not exists:
-                result.append(el)
-        return result
-    
-    """
     The occurences matching the given pattern in the codes list. Each occurence
     of a specific code is only counted once.
     """
@@ -293,15 +212,7 @@ class ACMGClassifier2015:
         for code in codes:
             if pattern.match(code):
                 occ.add(code)
-          
-        # TODO:        
-        # This must probably be done after the rules have been applied to make sense ...                
-        # Recon they should be implemented in the contrib for the classified class
-        # They don't do any impact here it seems ...
-        pathogenic = self.normalize_pathogenic(list(occ))        
-        pathogenic_with_benign = self.normalize_benign(pathogenic)
-        
-        return sorted(pathogenic_with_benign)
+        return sorted(list(occ))
     
     def find_highest_precedense(self, a, b):
         precedense = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
@@ -350,7 +261,7 @@ class ACMGClassifier2015:
         else:
             return False
     
-    def find_source(self, criteria):
+    def find_source_criteria(self, criteria):
         derived = criteria.split("x")
         if len(derived) == 1:
             return criteria
@@ -366,85 +277,18 @@ class ACMGClassifier2015:
         else:
             return existing_sources
         
-    def handle_criteria(self, accum, selectedCriteria):
+    def handle_criteria(self, accum, criteria):
         if len(accum) == 0:
-            return accum + [selectedCriteria]
+            return accum + [criteria]
         else:
-            source = self.find_source(selectedCriteria)
-            existing_sources = filter(lambda x: source in x, accum)
-            others = filter(lambda x: source not in x, accum)
-            return others + self.select_criteria_by_precedense(existing_sources, source, selectedCriteria)
+            source_criteria = self.find_source_criteria(criteria)
+            existing_criterias_of_this_kind = filter(lambda x: source_criteria in x, accum)
+            other_criterias = filter(lambda x: source_criteria not in x, accum)
+            return other_criterias + self.select_criteria_by_precedense(existing_criterias_of_this_kind, source_criteria, criteria)
             
     def filter_out_criteria_with_lower_precedense(self, criterias):
-        return reduce(lambda accum, y: self.handle_criteria(accum, y), criterias, [])
-       
-    def has_presedence(self, a, b):    
-        order_of_presedence = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
-        index_of_a = order_of_presedence.index(a)
-        index_of_b = order_of_presedence.index(b)
-        if index_of_a < index_of_b:
-            return True
-        else:
-            return False
-        
-    """
-    Match on complex pattern, i.e. pattern = PM, we want to find the
-    PSxPM1
-    """
-    def match_on_complex_pattern(self, pattern, code):        
-        result = []
-        regexp = re.compile(".*" + pattern + "\d")
-        
-        if regexp.match(code) and code.find('x') >= 0:
-            result.append(code)
-            return result
-        
-        return result    
-            
-    """
-    Need to somehow count PSxPM1 instead of PM1 because this has higher 
-    presedence
-    """        
-    def handle_presedence(self, pattern, codes):
-        result = []
-        
-        x_pattern = re.compile("(" + pattern + "x" + ")")
-        
-        for code in codes:
-            if self.match_on_complex_pattern(pattern, code):
-                # If it has a higher presedence, add it if not ignore it
-                result.append(code)
-                
-        return result        
-            
-    def occ(self, pattern, codes):
-        
-        any_match = re.compile(".*" + pattern + ".*")
-        x_pattern = re.compile(pattern + "x")
-        number_pattern = re.compile(pattern + "\d")
-        
-        tmp = []
-        occ = set()
-        for code in codes:
-            if pattern.match(code):
-                tmp.append(code)
-                
-        if len(tmp) > 1:
-            for c in tmp:
-                if c.find('x') == -1:
-                   occ.add(c) 
-            return list(occ)
-        else: 
-            return tmp
-            
-    def occ1(self, pattern, codes):
-        occ = set()
-        for code in codes:
-            results = re.search(pattern, code)
-            if results:
-                occ.add(results.group(1))
-        return list(occ)
-            
+        return reduce(lambda accum, criteria: self.handle_criteria(accum, criteria), criterias, [])
+         
     """
     If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
     empty list.

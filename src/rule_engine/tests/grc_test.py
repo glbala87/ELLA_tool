@@ -451,36 +451,9 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
             [], "None"))
             
-    def test_normalization_pathogenic(self):
-        classifier = ACMGClassifier2015()
-        sample1 = ["PM2PVS3"]
-        sample2 = ["PVS1PM1", "PS3", "PM3"]
-        sample3 = ["PM3PS1", "PM1", "PM2", "PM3"]
-        sample4 = ["PVS1"]
-        sample5 = ["PS1"]
-        sample6 = ["PM1", "BA1"]
-        
-        self.assertEquals(classifier.normalize_pathogenic(sample1),sample1)
-        self.assertEquals(classifier.normalize_pathogenic(sample2),["PVS1PM1"])
-        self.assertEquals(classifier.normalize_pathogenic(sample3),["PM3PS1"])
-        self.assertEquals(classifier.normalize_pathogenic(sample4), sample4)
-        self.assertEquals(classifier.normalize_pathogenic(sample5), sample5)
-        self.assertEquals(classifier.normalize_pathogenic(sample6), sample6)
-        
-    def test_normalization_benign(self):    
-        classifier = ACMGClassifier2015()
-        sample1 = ["BA1"]
-        sample2 = ["BA1", "BP2", "BS3"]
-        sample3 = ["BS2", "BP3"]
-        sample4 = ["BP1", "PVS1"]
-        self.assertEquals(classifier.normalize_benign(sample1), sample1)
-        self.assertEquals(classifier.normalize_benign(sample2), ["BA1"])
-        self.assertEquals(classifier.normalize_benign(sample3), ["BS2"])
-        self.assertEquals(classifier.normalize_benign(sample4), sample4)    
         
     def test_presedence(self):    
         classifier = ACMGClassifier2015()
-        
         self.assertEquals(classifier.has_higher_precedense("PVS", "PS"), True)
         self.assertEquals(classifier.has_higher_precedense("PS", "PVS"), False)
         self.assertEquals(classifier.has_higher_precedense("PS3", "PMxPS3"), True)
@@ -490,17 +463,15 @@ class ACMGClassifier2015Test(unittest.TestCase):
         
     def test_find_source(self):    
         classifier = ACMGClassifier2015()
-        self.assertEquals(classifier.find_source("PMxPS1"), "PS1")
-        self.assertEquals(classifier.find_source("PS1"), "PS1")
+        self.assertEquals(classifier.find_source_criteria("PMxPS1"), "PS1")
+        self.assertEquals(classifier.find_source_criteria("PS1"), "PS1")
         
     def test_filter_out_criteria_with_lower_presedence(self):    
         classifier = ACMGClassifier2015()
         
-        self.assertEquals(
-            classifier.filter_out_criteria_with_lower_precedense(
-                ["PM1", "PVSxPM1", "PS3", "PMxPS3"]
-            ), ["PVSxPM1", "PS3"]
-        )
+        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+                ["PM1", "PVSxPM1", "PS3", "PMxPS3"]), ["PVSxPM1", "PS3"])
+                
         # Tests below are given by domain expert Morten
         self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
             # Duplicates PP1 is filtered out
@@ -524,3 +495,29 @@ class ACMGClassifier2015Test(unittest.TestCase):
         
         self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
             ["BS1", "BS2"]), ["BS1", "BS2"])
+            
+    def test_classification_codes_with_precedence(self):        
+        classifier = ACMGClassifier2015()
+        
+        # Tests below are given by domain expert Morten
+        self.assertEquals(classifier.classify(
+            ["PM1", "PP1", "PP1", "PP2", "PP3"]).clazz, 3)
+            
+        self.assertEquals(classifier.classify(
+            # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
+            ["PM1", "PP1", "PP2", "PP3", "PPxPM1"]).clazz, 3)
+        
+        self.assertEquals(classifier.classify(
+            # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
+            ["PMxPP1", "PM1", "PP1", "PP2", "PPxPS1"]).clazz, 4)
+            
+        self.assertEquals(classifier.classify(
+            # PSxPM1 takes precedence above PS1, hence PS1 gets filtered out
+            ["PSxPM1", "PS1", "PM1"]).clazz, 5)
+            
+        self.assertEquals(classifier.classify(
+            # BSxBP1 takes precedence above BS1, hence BP1 gets filtered out
+            ["BSxBP1", "BP1", "BS1"]).clazz, 1)
+        
+        self.assertEquals(classifier.classify(
+            ["BS1", "BS2"]).clazz, 1)        
