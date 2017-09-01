@@ -460,15 +460,12 @@ class ACMGClassifier2015Test(unittest.TestCase):
         sample5 = ["PS1"]
         sample6 = ["PM1", "BA1"]
         
-        sample7 = ["PM3PS2", "PM4PS1", "PM1", "PM2", "PM3"]
         self.assertEquals(classifier.normalize_pathogenic(sample1),sample1)
         self.assertEquals(classifier.normalize_pathogenic(sample2),["PVS1PM1"])
         self.assertEquals(classifier.normalize_pathogenic(sample3),["PM3PS1"])
         self.assertEquals(classifier.normalize_pathogenic(sample4), sample4)
         self.assertEquals(classifier.normalize_pathogenic(sample5), sample5)
         self.assertEquals(classifier.normalize_pathogenic(sample6), sample6)
-        # Awaiting further instructions on this one ...
-        #self.assertEquals(classifier.normalize_pathogenic(sample7), ["PM3PS1"] )
         
     def test_normalization_benign(self):    
         classifier = ACMGClassifier2015()
@@ -490,11 +487,6 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEquals(classifier.has_higher_precedense("PMxPS3", "PS3"), False)
         self.assertEquals(classifier.has_higher_precedense("PMxPS3", "PVSxPS3"), False)
         self.assertEquals(classifier.has_higher_precedense("PVSxPS3", "PMxPS3"), True)
-         
-#    def test_inner_filter(self):    
-#        classifier = ACMGClassifier2015()
-#        self.assertEquals(classifier.inner_filter(["PMxPS1", "PS1"]), ("PS1", True))
-#        self.assertEquals(classifier.inner_filter(["PMxPS1", "PS1"]), ("PS1", True))
         
     def test_find_source(self):    
         classifier = ACMGClassifier2015()
@@ -509,42 +501,26 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 ["PM1", "PVSxPM1", "PS3", "PMxPS3"]
             ), ["PVSxPM1", "PS3"]
         )
-
-    def test_normalization(self):    
-        classifier = ACMGClassifier2015()
-      
-        sample1 = ["PS3", "PMxPS3", "PM1"]
-        sample2 = ["PSxPM1", "PM1"]
-        sample3 = ["PPxPM1"]
-
-        pattern = "PM"
-        any_match = re.compile(".*" + pattern + ".*")
-        x_pattern = re.compile("(" + pattern + "x" + ")")
-        no_x_pattern = re.compile("(^"+ pattern + "x" + ")")
-        number_pattern = re.compile("(" + pattern + "\d" + ")")
-        
-        complex_pattern = classifier.match_on_complex_pattern("PM", sample2[0])
-        self.assertEquals(complex_pattern, ["PSxPM1"])
-        
-        presedence = classifier.handle_presedence("PM", sample2)
-        self.assertEquals(presedence, ["PSxPM1"])
-        
-        
-        for s in sample2:
-            if s.find('x') >= 0:
-                if x_pattern.match(s):
-                    False
-                else: True
-                  
+        # Tests below are given by domain expert Morten
+        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+            # Duplicates PP1 is filtered out
+            ["PM1", "PP1", "PP1", "PP2", "PP3"]), ["PM1", "PP1", "PP2", "PP3"])
             
+        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+            # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
+            ["PM1", "PP1", "PP2", "PP3", "PPxPM1"]), ["PP1", "PP2", "PP3", "PM1"])
         
+        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+            # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
+            ["PMxPP1", "PM1", "PP1", "PP2", "PPxPS1"]), ["PM1", "PMxPP1", "PP2", "PPxPS1"])
+            
+        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+            # PSxPM1 takes precedence above PS1, hence PS1 gets filtered out
+            ["PSxPM1", "PS1", "PM1"]), ["PS1", "PSxPM1"])
+            
+        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+            # BSxBP1 takes precedence above BS1, hence BP1 gets filtered out
+            ["BSxBP1", "BP1", "BS1"]), ["BSxBP1", "BS1"])
         
-        
-#        x = re.search(x_pattern, "PSxPM1")
-#        nr = re.search(no_x_pattern, "PSxPM1")
-#        self.assertEquals(x.group(1), "PSx")
-#        self.assertEquals(nr.group(1), "PM1")
-        
-        
-#        self.assertEquals(classifier.occ("PS", sample1), ["PS3"])
-#        self.assertEquals(classifier.occ("PM", sample2), ["PSxPM1"])        
+        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+            ["BS1", "BS2"]), ["BS1", "BS2"])
