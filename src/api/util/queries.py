@@ -220,7 +220,7 @@ def workflow_alleles_for_genepanels(session, genepanels):
     ).distinct()
 
 
-def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys):
+def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, inclusion_regex):
     """
     Filters annotation transcripts for input allele_ids against genepanel transcripts
     for given genepanel_keys.
@@ -285,7 +285,6 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys):
     )
 
     # Only filter on annotation transcripts defined in config inclusion regex and genepanel transcripts
-    inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
     if inclusion_regex is not None:
         result = result.filter(
             or_(
