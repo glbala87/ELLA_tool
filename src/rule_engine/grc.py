@@ -46,17 +46,23 @@ class ACMGClassifier2015:
         contradiction = self.contradict(codes_by_precedence)
         
         if contradiction:
-            return ClassificationResult(3, "Uncertain significance", contradiction, "Contradiction")
+            contributors = self.contradict(passed_codes)
+            return ClassificationResult(3, "Uncertain significance", contributors, "Contradiction")
         if benign:
-            return ClassificationResult(1, "Benign", benign, "Benign")
+            contributors = self.benign(passed_codes)
+            return ClassificationResult(1, "Benign", contributors, "Benign")
         if likely_benign_amg:
-            return ClassificationResult(2, "Likely benign", likely_benign_amg, "Likely benign")
+            contributors = self.likely_benign_amg(passed_codes)
+            return ClassificationResult(2, "Likely benign", contributors, "Likely benign")
         if pathogenic:
-            return ClassificationResult(5, "Pathogenic", pathogenic, "Pathogenic")
+            contributors = self.pathogenic(passed_codes)
+            return ClassificationResult(5, "Pathogenic", contributors, "Pathogenic")
         if likely_pathogenic:
-            return ClassificationResult(4, "Likely pathogenic", likely_pathogenic, "Likely pathogenic")
+            contributors = self.likely_pathogenic(passed_codes)
+            return ClassificationResult(4, "Likely pathogenic", contributors, "Likely pathogenic")
         if likely_benign:
-            return ClassificationResult(2, "Likely benign", likely_benign, "Likely benign")
+            contributors = self.likely_benign(passed_codes)
+            return ClassificationResult(2, "Likely benign", contributors, "Likely benign")
         return ClassificationResult(3, "Uncertain significance", [], "None")
 
     """
