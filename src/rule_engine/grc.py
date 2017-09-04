@@ -2,6 +2,7 @@ import re
 from itertools import takewhile
 from functools import reduce
 import logging
+logging.basicConfig(level=logging.INFO)
 
 """
 GenAP Rule Classifier, GRC
@@ -10,9 +11,6 @@ Creates the final ACMG classification based on result from the GRE rule engine.
 Uses regexp programs to represent code patterns.
 """
 class ACMGClassifier2015:
-
-    logging.basicConfig(level=logging.DEBUG)
-    log = logging.getLogger("test_1")
     
     # Regexp patterns
     PVS = re.compile("PVS.*")
@@ -35,10 +33,11 @@ class ACMGClassifier2015:
     """
     def classify(self, passed_codes):
         
-        codes_by_precedence = self.filter_out_criteria_with_lower_precedense(passed_codes)
+        codes_by_precedence = self.normalize_codes(passed_codes)
         
          # Special rule for AMG, not official ACMG guidelines
         likely_benign_amg = self.likely_benign_amg(codes_by_precedence)
+        # Rules according to the official ACMG guidelines
         pathogenic = self.pathogenic(codes_by_precedence)
         likely_pathogenic = self.likely_pathogenic(codes_by_precedence)
         benign = self.benign(codes_by_precedence)
@@ -72,9 +71,9 @@ class ACMGClassifier2015:
     def likely_benign_amg(self, codes):
         return(
             self._OR(
-                self.contrib(self.BS1, codes, lambda n : n >= 1),
-                self.contrib(self.BS2, codes, lambda n : n >= 1),
-                self.contrib(self.BP7, codes, lambda n : n >= 1)
+                self.contrib(self.BS1, codes, lambda n: n >= 1),
+                self.contrib(self.BS2, codes, lambda n: n >= 1),
+                self.contrib(self.BP7, codes, lambda n: n >= 1)
             )
         )
 
@@ -85,32 +84,32 @@ class ACMGClassifier2015:
     def pathogenic(self, codes):
         return (
         self._OR(
-            self.contrib(self.PVS, codes, lambda n : n >= 2),
+            self.contrib(self.PVS, codes, lambda n: n >= 2),
             self._AND(
-                      self.contrib(self.PVS, codes, lambda n : n == 1),
+                      self.contrib(self.PVS, codes, lambda n: n == 1),
                       (self._OR(
-                                self.contrib(self.PS, codes, lambda n : n >= 1),
-                                self.contrib(self.PM, codes, lambda n : n >= 2),
+                                self.contrib(self.PS, codes, lambda n: n >= 1),
+                                self.contrib(self.PM, codes, lambda n: n >= 2),
                                 self._AND(
-                                          self.contrib(self.PM, codes, lambda n : n == 1),
-                                          self.contrib(self.PP, codes, lambda n : n == 1)
+                                          self.contrib(self.PM, codes, lambda n: n == 1),
+                                          self.contrib(self.PP, codes, lambda n: n == 1)
                                           ),
-                                self.contrib(self.PP, codes, lambda n : n >= 2)
+                                self.contrib(self.PP, codes, lambda n: n >= 2)
                                 )
                        )
                       ),
-            self.contrib(self.PS, codes, lambda n : n >= 2),
+            self.contrib(self.PS, codes, lambda n: n >= 2),
             self._AND(
-                      self.contrib(self.PS, codes, lambda n : n == 1),
+                      self.contrib(self.PS, codes, lambda n: n == 1),
                       self._OR(
-                               self.contrib(self.PM, codes, lambda n : n >= 3),
+                               self.contrib(self.PM, codes, lambda n: n >= 3),
                                self._AND(
-                                         self.contrib(self.PM, codes, lambda n : n == 2),
-                                         self.contrib(self.PP, codes, lambda n : n >= 2)
+                                         self.contrib(self.PM, codes, lambda n: n == 2),
+                                         self.contrib(self.PP, codes, lambda n: n >= 2)
                                          ),
                                self._AND(
-                                         self.contrib(self.PM, codes, lambda n : n == 1),
-                                         self.contrib(self.PP, codes, lambda n : n >= 4)
+                                         self.contrib(self.PM, codes, lambda n: n == 1),
+                                         self.contrib(self.PP, codes, lambda n: n >= 4)
                                          )
                                )
                       )
@@ -133,21 +132,21 @@ class ACMGClassifier2015:
                 )
             ),            
             self._AND(
-                      self.contrib(self.PS, codes, lambda n : n == 1),
-                      self.contrib(self.PM, codes, lambda n : n == 1)
+                      self.contrib(self.PS, codes, lambda n: n == 1),
+                      self.contrib(self.PM, codes, lambda n: n == 1)
                       ),
             self._AND(
-                      self.contrib(self.PS, codes, lambda n : n == 1),
-                      self.contrib(self.PP, codes, lambda n : n >= 2)
+                      self.contrib(self.PS, codes, lambda n: n == 1),
+                      self.contrib(self.PP, codes, lambda n: n >= 2)
                       ),
-            self.contrib(self.PM, codes, lambda n : n >= 3),
+            self.contrib(self.PM, codes, lambda n: n >= 3),
             self._AND(
-                      self.contrib(self.PM, codes, lambda n : n == 2),
-                      self.contrib(self.PP, codes, lambda n : n >= 2)
+                      self.contrib(self.PM, codes, lambda n: n == 2),
+                      self.contrib(self.PP, codes, lambda n: n >= 2)
                       ),
             self._AND(
-                      self.contrib(self.PM, codes, lambda n : n == 1),
-                      self.contrib(self.PP, codes, lambda n : n >= 4)
+                      self.contrib(self.PM, codes, lambda n: n == 1),
+                      self.contrib(self.PP, codes, lambda n: n >= 4)
                       )
                 )
         )
@@ -159,8 +158,8 @@ class ACMGClassifier2015:
     def benign(self, codes):
         return  (
         self._OR(
-                 self.contrib(self.BA, codes, lambda n : n >= 1),
-                 self.contrib(self.BS, codes, lambda n : n >= 2)
+                 self.contrib(self.BA, codes, lambda n: n >= 1),
+                 self.contrib(self.BS, codes, lambda n: n >= 2)
                  )
         )
 
@@ -172,10 +171,10 @@ class ACMGClassifier2015:
         return  (
         self._OR(
                  self._AND(
-                           self.contrib(self.BS, codes, lambda n : n == 1),
-                           self.contrib(self.BP, codes, lambda n : n == 1)
+                           self.contrib(self.BS, codes, lambda n: n == 1),
+                           self.contrib(self.BP, codes, lambda n: n == 1)
                            ),
-                 self.contrib(self.BP, codes, lambda n : n >= 2)
+                 self.contrib(self.BP, codes, lambda n: n >= 2)
                  )
         )
 
@@ -210,10 +209,11 @@ class ACMGClassifier2015:
         return []
 
     """
-    The occurences matching the given pattern in the codes list. Each occurence
-    of a specific code is only counted once.
+    The occurences matching the given pattern in the codes list. The returned list
+    has only unique elements and is sorted.
     """
-    def occurences(self, pattern, codes):
+    @staticmethod
+    def occurences(pattern, codes):
         occ = set()
         for code in codes:
             if pattern.match(code):
@@ -221,109 +221,116 @@ class ACMGClassifier2015:
         return sorted(list(occ))
     
     """
-    Help method for has_higher_precedence
+    Precedence for criteria, index 0 has highest precedence
     """
-    def find_highest_precedense(self, a, b):
-        precedense = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
-        if(precedense.index(a) < precedense.index(b)):
-            return a
-        else:
-            return b
+    precedence = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
+    
+    
+    #    Help method for __has_higher_precedence__, returns the criteria with highest
+    #    precedence.
+    #    
+    def __find_highest_precedence__(self, code_a, code_b):
+        if(self.precedence.index(code_a) < self.precedence.index(code_b)):
+            return code_a
+        return code_b
         
     """
     Returns True if criteria a has higher precedence than criteria b, else
     Returns False.
     
     Input may be normal criterias like PS1, PM1 etc. or derived criterias
-    like PMxPS1, PMxPVS1 etc.
+    like PMxPS1, PMxPVS1 etc. They must be preselected by criteria source (done
+    in __accumulate_criteria__).
     """    
-    def has_higher_precedense(self, a_criteria, b_criteria):   
-        # The presedence is given by this order
-        # The criteria with lowest index thus has the highest precedense
-        precedense = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
-        
+    def __has_higher_precedence__(self, code_a, code_b):   
         # extracting numbers from criterias so it is possible to 
-        # do lookup in precedense list using index
-        a = ''.join(takewhile(lambda x: not x.isdigit(), a_criteria))
-        b = ''.join(takewhile(lambda x: not x.isdigit(), b_criteria))
+        # do lookup in precedense list using index, i.e. PS1 is
+        # converted to PS.
+        a = ''.join(takewhile(lambda x: not x.isdigit(), code_a))
+        b = ''.join(takewhile(lambda x: not x.isdigit(), code_b))
         
         if "x" in a and "x" in b:
             # Exploiting the fact that derived codes are 
             # always written like this: [PVS/PS/PM/PP/BP/BS/BA]x[source]
-            derivedA, sourceA = a.split("x")
-            derivedB, sourceB = b.split("x")
+            derived_a, source_a = a.split("x")
+            derived_b, source_b = b.split("x")
             
-            ah = self.find_highest_precedense(sourceA, derivedA)
-            bh = self.find_highest_precedense(sourceB, derivedB)
+            ah = self.__find_highest_precedence__(source_a, derived_a)
+            bh = self.__find_highest_precedence__(source_b, derived_b)
             
-            if(self.has_higher_precedense(ah, bh)):
+            if(self.__has_higher_precedence__(ah, bh)):
                 return True
-            else: 
-                return False
+            
+            return False
         
         if "x" in a:
-            return not self.has_higher_precedense(b_criteria, a_criteria)
+            return not self.__has_higher_precedence__(code_b, code_a)
         
         if "x" in b:
-            derivedB, sourceB = b.split("x")
-            if(self.has_higher_precedense(sourceB, derivedB)):
+            derived_b, source_b = b.split("x")
+            bh = self.__find_highest_precedence__(source_b, derived_b)
+            
+            # PS3 and PMxPS3 --> use PS3 only, the PM part would be
+            # filtered out in the previous step
+            if a == bh:
               return True
-            else:
-              return False  
+          
+            if(self.__has_higher_precedence__(a, bh)):
+              return True
+          
+            return False  
         
-        # The criteria with the lowest index has the highest precedense
-        if precedense.index(a) < precedense.index(b):
+        # The criteria with the lowest index has the highest precedence
+        if self.precedence.index(a) < self.precedence.index(b):
           return True
-        else:
-            return False
+        
+        return False
     
     """
-    Finding the source criteria from the derived criteria, if this is not a
-    derived criteria, the same criteria is returned.
+    Finding the base code from the derived code, if this is not a
+    derived code, the same code is returned.
     
     Derived codes are always written like this:
-    [PVS/PS/PM/PP/BP/BS/BA]x[source]
+    [PVS/PS/PM/PP/BP/BS/BA]x[base]
     """
-    def find_source_criteria(self, criteria):
-        derived = criteria.split("x")
+    @staticmethod
+    def find_base_code(code):
+        derived = code.split("x")
         if len(derived) == 1:
-            return criteria
-        else:
-            return derived[1]
+            return code
+        return derived[1]
         
-    """
-    Selecting the criteria of highest precedence from the existing criterias of this kind
-    that we already have found.
-    """    
-    def select_criteria_by_precedense(self, existing_criterias, selected_criteria, selectedCriteria):
-        if len(existing_criterias) == 0:
-            return existing_criterias + [selectedCriteria]
-        elif self.has_higher_precedense(selectedCriteria, existing_criterias[0]):
-            low_precedense_removed = filter(lambda x: selected_criteria not in x, existing_criterias)
-            return [selectedCriteria] + low_precedense_removed
+    #    Selecting the criteria of highest precedence
+    def __select_codes_by_precedence__(self, existing_code, base_code, code):
+        if len(existing_code) > 1:
+            logging.exception("Internal error when selecting criteria with highest precedence: {}, there should never be more than one criteria at this state.".format(existing_code))
+            raise RuntimeError("An error")
+        
+        if not existing_code:
+            return existing_code + [code]
+        elif self.__has_higher_precedence__(code, existing_code[0]):
+            low_precedense_removed = filter(lambda x: base_code not in x, existing_code)
+            return [code] + low_precedense_removed
         else:
-            return existing_criterias
+            return existing_code
     
-    """
-    Adding up criterias according to their precedence. The criteria is 
-    added to the accum list if it has higher precedence. If a criteria
-    with lower precedence exists in accum list, it is removed.
-    """    
-    def handle_criteria(self, accum, criteria):
-        if len(accum) == 0:
-            return accum + [criteria]
-        else:
-            source_criteria = self.find_source_criteria(criteria)
-            existing_criterias_of_this_kind = filter(lambda x: source_criteria in x, accum)
-            other_criterias = filter(lambda x: source_criteria not in x, accum)
-            return other_criterias + self.select_criteria_by_precedense(existing_criterias_of_this_kind, source_criteria, criteria)
+    #    Accumulate criterias according to their precedence. Criterias with higher precedence
+    #    are added. Already existing criterias with lower precedence are removed from the accum
+    #    list.
+    def __accumulate_codes__(self, accum, code):
+        if not accum:
+            return accum + [code]
+        
+        base_code = self.find_base_code(code)
+        existing_codes_of_this_kind = filter(lambda x: base_code in x, accum)
+        other_codes = filter(lambda x: base_code not in x, accum)
+        return other_codes + self.__select_codes_by_precedence__(existing_codes_of_this_kind, base_code, code)
             
     """
-    Filter out all criterias with lower precedence using the reduce built-in 
-    function.
+    Returning a list where all codes with lower precedence are filtered out.
     """        
-    def filter_out_criteria_with_lower_precedense(self, criterias):
-        return reduce(lambda accum, criteria: self.handle_criteria(accum, criteria), criterias, [])
+    def normalize_codes(self, codes):
+        return reduce(lambda accum, criteria: self.__accumulate_codes__(accum, criteria), codes, [])
          
     """
     If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
@@ -333,17 +340,16 @@ class ACMGClassifier2015:
         return (
         self._AND(
             self._OR(
-                      self.contrib(self.PVS, codes, lambda n : n >= 1),
-                      self.contrib(self.PS, codes, lambda n : n >= 1),
-                      self.contrib(self.PM, codes, lambda n : n >= 1),
+                      self.contrib(self.PVS, codes, lambda n: n >= 1),
+                      self.contrib(self.PS, codes, lambda n: n >= 1),
+                      self.contrib(self.PM, codes, lambda n: n >= 1),
                      ),
             self._OR(
-                      self.contrib(self.BA, codes, lambda n : n >= 1),
-                      self.contrib(self.BS, codes, lambda n : n >= 1),
+                      self.contrib(self.BA, codes, lambda n: n >= 1),
+                      self.contrib(self.BS, codes, lambda n: n >= 1),
                      )
                   )
         )
-        
         
 """
 Result of ACMG classification. Aggregate of classification and metadata.
@@ -358,5 +364,4 @@ class ClassificationResult:
         self.meta = dict()
 
     def __eq__(self, other):
-            return (isinstance(other, self.__class__)
-            and self.__dict__ == other.__dict__)
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__

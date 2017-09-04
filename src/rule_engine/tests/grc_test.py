@@ -2,7 +2,6 @@ from .. grc import ACMGClassifier2015,ClassificationResult
 from .. grm import GRM
 import unittest
 import re
-from itertools import takewhile
 
 class ACMGClassifier2015Test(unittest.TestCase):
 
@@ -265,6 +264,16 @@ class ACMGClassifier2015Test(unittest.TestCase):
              "PP6",
              "BS2"]))
 
+    def test_likely_benign_amg(self):
+        classifier = ACMGClassifier2015()
+        lb_amg = classifier.likely_benign_amg([
+            "BS1", "BS2"
+        ])
+
+        self.assertListEqual(lb_amg,
+            ["BS1", "BS2"]
+        )
+
     def test_classify_benign(self):
         classifier = ACMGClassifier2015()
         lp_res = classifier.benign([
@@ -454,46 +463,48 @@ class ACMGClassifier2015Test(unittest.TestCase):
         
     def test_presedence(self):    
         classifier = ACMGClassifier2015()
-        self.assertEquals(classifier.has_higher_precedense("PVS", "PS"), True)
-        self.assertEquals(classifier.has_higher_precedense("PS", "PVS"), False)
-        self.assertEquals(classifier.has_higher_precedense("PS3", "PMxPS3"), True)
-        self.assertEquals(classifier.has_higher_precedense("PMxPS3", "PS3"), False)
-        self.assertEquals(classifier.has_higher_precedense("PMxPS3", "PVSxPS3"), False)
-        self.assertEquals(classifier.has_higher_precedense("PVSxPS3", "PMxPS3"), True)
+        self.assertEquals(classifier.__has_higher_precedence__("PVS1", "PS1"), True)
+        self.assertEquals(classifier.__has_higher_precedence__("PS1", "PVS1"), False)
+        self.assertEquals(classifier.__has_higher_precedence__("PS3", "PMxPS3"), True)
+        self.assertEquals(classifier.__has_higher_precedence__("PMxPS3", "PS3"), False)
+        self.assertEquals(classifier.__has_higher_precedence__("PMxPS3", "PVSxPS3"), False)
+        self.assertEquals(classifier.__has_higher_precedence__("PVSxPS3", "PMxPS3"), True)
+        self.assertEquals(classifier.__has_higher_precedence__("PVS1", "PVSxPS3"), True)
+        self.assertEquals(classifier.__has_higher_precedence__("PVSxPS3", "PVS1"), False)
         
-    def test_find_source(self):    
+    def test_find_base_code(self):    
         classifier = ACMGClassifier2015()
-        self.assertEquals(classifier.find_source_criteria("PMxPS1"), "PS1")
-        self.assertEquals(classifier.find_source_criteria("PS1"), "PS1")
+        self.assertEquals(classifier.find_base_code("PMxPS1"), "PS1")
+        self.assertEquals(classifier.find_base_code("PS1"), "PS1")
         
-    def test_filter_out_criteria_with_lower_presedence(self):    
+    def test_normalize_codes(self):    
         classifier = ACMGClassifier2015()
         
-        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+        self.assertEquals(classifier.normalize_codes(
                 ["PM1", "PVSxPM1", "PS3", "PMxPS3"]), ["PVSxPM1", "PS3"])
                 
         # Tests data below are given by domain expert Morten Eike
-        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+        self.assertEquals(classifier.normalize_codes(
             # Duplicates PP1 is filtered out
             ["PM1", "PP1", "PP1", "PP2", "PP3"]), ["PM1", "PP1", "PP2", "PP3"])
             
-        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+        self.assertEquals(classifier.normalize_codes(
             # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
             ["PM1", "PP1", "PP2", "PP3", "PPxPM1"]), ["PP1", "PP2", "PP3", "PM1"])
         
-        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+        self.assertEquals(classifier.normalize_codes(
             # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
             ["PMxPP1", "PM1", "PP1", "PP2", "PPxPS1"]), ["PM1", "PMxPP1", "PP2", "PPxPS1"])
             
-        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+        self.assertEquals(classifier.normalize_codes(
             # PSxPM1 takes precedence above PS1, hence PS1 gets filtered out
             ["PSxPM1", "PS1", "PM1"]), ["PS1", "PSxPM1"])
             
-        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+        self.assertEquals(classifier.normalize_codes(
             # BSxBP1 takes precedence above BS1, hence BP1 gets filtered out
             ["BSxBP1", "BP1", "BS1"]), ["BSxBP1", "BS1"])
         
-        self.assertEquals(classifier.filter_out_criteria_with_lower_precedense(
+        self.assertEquals(classifier.normalize_codes(
             ["BS1", "BS2"]), ["BS1", "BS2"])
             
     def test_classification_codes_with_precedence(self):        
