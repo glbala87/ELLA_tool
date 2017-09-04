@@ -96,6 +96,9 @@ CONFIG = {
             }
         ]
     },
+    'transcripts': {
+        'inclusion_regex': "NM_.*"
+    }
 }
 
 GP_CONFIG = {
@@ -908,11 +911,27 @@ class TestAlleleFilter(object):
             ]
         })
 
+        pa5 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': -1000000
+                },
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'SOME_OTHER_TRANSCRIPT_NOT_FOR_FILTERING',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+
         session.commit()
 
         af = AlleleFilter(session, CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id]
+        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id, pa5.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
         assert set(result[gp_key]['excluded_allele_ids']['intronic']) == set(allele_ids)
@@ -951,8 +970,18 @@ class TestAlleleFilter(object):
             ]
         })
 
-        # Check that annotation transcripts are filtered properly on genepanel transcripts
         na4 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # Check that annotation transcripts are filtered properly on genepanel transcripts
+        na5 = create_allele_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -967,11 +996,43 @@ class TestAlleleFilter(object):
             ]
         })
 
+        # Test that annotation transcripts matching config include_regex are included in filter
+        na6 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': -1000
+                },
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT_NOT_IN_GENEPANEL', # Should filter on NM_.*
+                    'exon_distance': None
+                }
+            ]
+        })
+
+        na7 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': -100
+                },
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT',
+                    'exon_distance': -1
+                }
+            ]
+        })
+
+
         session.commit()
 
         af = AlleleFilter(session, CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [na1.id, na2.id, na3.id, na4.id]
+        allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id, na6.id, na7.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
