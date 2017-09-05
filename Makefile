@@ -7,6 +7,7 @@ API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
+#RELEASE_TAG =
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -51,6 +52,20 @@ help :
 	@echo "make bundle-static	- Bundle HTML and JS."
 
 
+# Check that given variables are set and all have non-empty values,
+# die with an error otherwise.
+#
+# From: https://stackoverflow.com/questions/10858261/abort-makefile-if-variable-not-set
+#
+# Params:
+#   1. Variable name(s) to test.
+#   2. (optional) Error message to print.
+check_defined = \
+    $(strip $(foreach 1,$1, \
+        $(call __check_defined,$1,$(strip $(value 2)))))
+__check_defined = \
+    $(if $(value $1),, \
+      $(error Undefined $1$(if $2, ($2))))
 #---------------------------------------------
 # Production / release
 #---------------------------------------------
@@ -60,7 +75,23 @@ release:
 	@echo "See the README.md file, section 'Production'"
 
 bundle-static:
-	docker exec $(CONTAINER_NAME) /dist/node_modules/gulp/bin/gulp.js build
+	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
+	docker build -t local/web-assets .
+	-rm ella-build-web-assets/*
+	-rmdir ella-build-web-assets
+	mkdir -p ella-build-web-assets
+	-docker stop ella-web-assets
+	-docker rm ella-web-assets
+	docker run -d \
+		--name ella-web-assets \
+		local/web-assets \
+		sleep infinity
+	docker exec -i ella-web-assets  /ella/ops/common/gulp_build
+#	docker cp ella-web-assets:/ella/src/webui/build/. ella-build-web-assets/
+	docker exec ella-web-assets tar cz -C /ella/src/webui/build -f - . > ella-$(RELEASE_TAG)-static.tgz
+	@echo "Bundled static web files in ella-$(RELEASE_TAG)-static.tgz:"
+	@tar tf ella-$(RELEASE_TAG)-static.tgz
+	docker stop ella-web-assets
 
 #---------------------------------------------
 # DEMO
@@ -114,6 +145,7 @@ dev:
 	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	-p $(API_PORT):5000 \
+	-p 35729:35729 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
 	$(IMAGE_NAME) \
