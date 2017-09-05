@@ -125,8 +125,9 @@ def cmd_users_list():
 @click.option('--username')
 @click.option('--first_name')
 @click.option('--last_name')
+@click.option('--usergroup')
 @convert(False, "--first_name", "--last_name")
-def cmd_add_user(username, first_name, last_name):
+def cmd_add_user(username, first_name, last_name, usergroup):
     """
     Add user with a generated password
     """
@@ -140,12 +141,17 @@ def cmd_add_user(username, first_name, last_name):
 
     assert existing_user is None, "Username %s already exists" % username
 
+    group = session.query(user.UserGroup).filter(
+        user.UserGroup.name == usergroup
+    ).one()
+
     password, password_hash = generate_password()
 
     u = user.User(
         username=username,
         first_name=first_name,
         last_name=last_name,
+        group_id=group.id,
         password=password_hash,
         password_expiry=datetime.datetime(1970,1,1,tzinfo=pytz.utc)
     )
