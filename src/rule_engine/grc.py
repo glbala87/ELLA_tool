@@ -288,34 +288,40 @@ class ACMGClassifier2015:
         return derived[1]
         
     #    Selecting the criteria of highest precedence
-    def _select_codes_by_precedence(self, existing_code, base_code, code):
-        assert len(existing_code) <= 1, "Internal error when selecting criteria with highest precedence: %s, there should never be more than one criteria at this state." % existing_code
+    def _select_codes_by_precedence(self, existing_codes, base_code, target_code):
+        assert len(existing_codes) <= 1, "Internal error when selecting criteria with highest precedence: %s, there should never be more than one criteria at this state." % existing_codes
         
-        if not existing_code:
-            return existing_code + [code]
-        elif self._has_higher_precedence(code, existing_code[0]):
-            low_precedense_removed = filter(lambda x: base_code not in x, existing_code)
-            return [code] + low_precedense_removed
+        try:
+            existing_code = existing_codes.pop(0)
+        except IndexError:
+            existing_code = None
+        
+        if existing_code == None:
+            return [target_code]
+        elif self._has_higher_precedence(target_code, existing_code):
+            return [target_code]
         else:
-            return existing_code
+            return [existing_code]
+        
     
     #    Accumulate criterias according to their precedence. Criterias with higher precedence
     #    are added. Already existing criterias with lower precedence are removed from the accum
     #    list.
-    def _accumulate_codes(self, accum, code):
-        if not accum:
-            return accum + [code]
+    def _accumulate_codes(self, accum, target_code):
+        if accum == []:
+            return accum + [target_code]
         
-        base_code = self.find_base_code(code)
-        existing_codes_of_this_kind = filter(lambda x: base_code in x, accum)
-        other_codes = filter(lambda x: base_code not in x, accum)
-        return other_codes + self._select_codes_by_precedence(existing_codes_of_this_kind, base_code, code)
+        base_code = self.find_base_code(target_code)
+        existing_codes_of_this_kind = [code for code in accum if base_code in code]
+        other_codes = [code for code in accum if base_code not in code]
+        
+        return other_codes + self._select_codes_by_precedence(existing_codes_of_this_kind, base_code, target_code)
     
     """
     Returning a list where all codes with lower precedence are filtered out.
     """        
     def normalize_codes(self, codes):
-        return reduce(lambda accum, criteria: self._accumulate_codes(accum, criteria), codes, [])
+        return reduce(lambda accum, code: self._accumulate_codes(accum, code), codes, [])
          
     """
     If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
