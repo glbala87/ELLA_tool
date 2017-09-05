@@ -463,14 +463,14 @@ class ACMGClassifier2015Test(unittest.TestCase):
         
     def test_presedence(self):    
         classifier = ACMGClassifier2015()
-        self.assertEquals(classifier.__has_higher_precedence__("PVS1", "PS1"), True)
-        self.assertEquals(classifier.__has_higher_precedence__("PS1", "PVS1"), False)
-        self.assertEquals(classifier.__has_higher_precedence__("PS3", "PMxPS3"), True)
-        self.assertEquals(classifier.__has_higher_precedence__("PMxPS3", "PS3"), False)
-        self.assertEquals(classifier.__has_higher_precedence__("PMxPS3", "PVSxPS3"), False)
-        self.assertEquals(classifier.__has_higher_precedence__("PVSxPS3", "PMxPS3"), True)
-        self.assertEquals(classifier.__has_higher_precedence__("PVS1", "PVSxPS3"), True)
-        self.assertEquals(classifier.__has_higher_precedence__("PVSxPS3", "PVS1"), False)
+        self.assertEquals(classifier._has_higher_precedence("PVS1", "PS1"), True)
+        self.assertEquals(classifier._has_higher_precedence("PS1", "PVS1"), False)
+        self.assertEquals(classifier._has_higher_precedence("PS3", "PMxPS3"), True)
+        self.assertEquals(classifier._has_higher_precedence("PMxPS3", "PS3"), False)
+        self.assertEquals(classifier._has_higher_precedence("PMxPS3", "PVSxPS3"), False)
+        self.assertEquals(classifier._has_higher_precedence("PVSxPS3", "PMxPS3"), True)
+        self.assertEquals(classifier._has_higher_precedence("PVS1", "PVSxPS3"), True)
+        self.assertEquals(classifier._has_higher_precedence("PVSxPS3", "PVS1"), False)
         
     def test_find_base_code(self):    
         classifier = ACMGClassifier2015()
@@ -507,6 +507,9 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEquals(classifier.normalize_codes(
             ["BS1", "BS2"]), ["BS1", "BS2"])
             
+        self.assertEquals(classifier.normalize_codes(
+            ["PVS1", "BA1"]), ["PVS1", "BA1"])    
+            
     def test_classification_codes_with_precedence(self):        
         classifier = ACMGClassifier2015()
         
@@ -539,3 +542,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
         case6 = classifier.classify(["BS1", "BS2"])
         self.assertEquals(case6.clazz, 1)
         self.assertEquals(case6.contributors, ["BS1", "BS2"])
+        
+        case7 = classifier.classify(["PVS1", "BA1"])
+        self.assertEquals(case7.clazz, 3)
+        self.assertEquals(case7.contributors, ["PVS1", "BA1"])

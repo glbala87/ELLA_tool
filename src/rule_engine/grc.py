@@ -1,6 +1,4 @@
 import re
-from itertools import takewhile
-from functools import reduce
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -214,11 +212,8 @@ class ACMGClassifier2015:
     """
     @staticmethod
     def occurences(pattern, codes):
-        occ = set()
-        for code in codes:
-            if pattern.match(code):
-                occ.add(code)
-        return sorted(list(occ))
+        occ = [code for code in set(codes) if pattern.match(code)]
+        return sorted(occ)
     
     """
     Precedence for criteria, index 0 has highest precedence
@@ -226,10 +221,10 @@ class ACMGClassifier2015:
     precedence = ["PVS", "PS", "PM", "PP", "BA", "BS", "BP"]
     
     
-    #    Help method for __has_higher_precedence__, returns the criteria with highest
+    #    Help method for _has_higher_precedence, returns the criteria with highest
     #    precedence.
     #    
-    def __find_highest_precedence__(self, code_a, code_b):
+    def _find_highest_precedence(self, code_a, code_b):
         if(self.precedence.index(code_a) < self.precedence.index(code_b)):
             return code_a
         return code_b
@@ -242,12 +237,13 @@ class ACMGClassifier2015:
     like PMxPS1, PMxPVS1 etc. They must be preselected by criteria source (done
     in __accumulate_criteria__).
     """    
-    def __has_higher_precedence__(self, code_a, code_b):   
+    def _has_higher_precedence(self, code_a, code_b):   
         # extracting numbers from criterias so it is possible to 
         # do lookup in precedense list using index, i.e. PS1 is
         # converted to PS.
-        a = ''.join(takewhile(lambda x: not x.isdigit(), code_a))
-        b = ''.join(takewhile(lambda x: not x.isdigit(), code_b))
+        
+        a = re.split(r"\d", code_a)[0]
+        b = re.split(r"\d", code_b)[0]
         
         if "x" in a and "x" in b:
             # Exploiting the fact that derived codes are 
@@ -255,36 +251,27 @@ class ACMGClassifier2015:
             derived_a, source_a = a.split("x")
             derived_b, source_b = b.split("x")
             
-            ah = self.__find_highest_precedence__(source_a, derived_a)
-            bh = self.__find_highest_precedence__(source_b, derived_b)
+            ah = self._find_highest_precedence(source_a, derived_a)
+            bh = self._find_highest_precedence(source_b, derived_b)
             
-            if(self.__has_higher_precedence__(ah, bh)):
-                return True
-            
-            return False
+            return self._has_higher_precedence(ah, bh)
         
         if "x" in a:
-            return not self.__has_higher_precedence__(code_b, code_a)
+            return not self._has_higher_precedence(code_b, code_a)
         
         if "x" in b:
             derived_b, source_b = b.split("x")
-            bh = self.__find_highest_precedence__(source_b, derived_b)
+            bh = self._find_highest_precedence(source_b, derived_b)
             
             # PS3 and PMxPS3 --> use PS3 only, the PM part would be
             # filtered out in the previous step
             if a == bh:
               return True
           
-            if(self.__has_higher_precedence__(a, bh)):
-              return True
-          
-            return False  
+            return self._has_higher_precedence(a, bh)
         
         # The criteria with the lowest index has the highest precedence
-        if self.precedence.index(a) < self.precedence.index(b):
-          return True
-        
-        return False
+        return self.precedence.index(a) < self.precedence.index(b)
     
     """
     Finding the base code from the derived code, if this is not a
@@ -301,14 +288,12 @@ class ACMGClassifier2015:
         return derived[1]
         
     #    Selecting the criteria of highest precedence
-    def __select_codes_by_precedence__(self, existing_code, base_code, code):
-        if len(existing_code) > 1:
-            logging.exception("Internal error when selecting criteria with highest precedence: {}, there should never be more than one criteria at this state.".format(existing_code))
-            raise RuntimeError("An error")
+    def _select_codes_by_precedence(self, existing_code, base_code, code):
+        assert len(existing_code) <= 1, "Internal error when selecting criteria with highest precedence: %s, there should never be more than one criteria at this state." % existing_code
         
         if not existing_code:
             return existing_code + [code]
-        elif self.__has_higher_precedence__(code, existing_code[0]):
+        elif self._has_higher_precedence(code, existing_code[0]):
             low_precedense_removed = filter(lambda x: base_code not in x, existing_code)
             return [code] + low_precedense_removed
         else:
@@ -317,20 +302,20 @@ class ACMGClassifier2015:
     #    Accumulate criterias according to their precedence. Criterias with higher precedence
     #    are added. Already existing criterias with lower precedence are removed from the accum
     #    list.
-    def __accumulate_codes__(self, accum, code):
+    def _accumulate_codes(self, accum, code):
         if not accum:
             return accum + [code]
         
         base_code = self.find_base_code(code)
         existing_codes_of_this_kind = filter(lambda x: base_code in x, accum)
         other_codes = filter(lambda x: base_code not in x, accum)
-        return other_codes + self.__select_codes_by_precedence__(existing_codes_of_this_kind, base_code, code)
-            
+        return other_codes + self._select_codes_by_precedence(existing_codes_of_this_kind, base_code, code)
+    
     """
     Returning a list where all codes with lower precedence are filtered out.
     """        
     def normalize_codes(self, codes):
-        return reduce(lambda accum, criteria: self.__accumulate_codes__(accum, criteria), codes, [])
+        return reduce(lambda accum, criteria: self._accumulate_codes(accum, criteria), codes, [])
          
     """
     If the codes given satisfy the requirements for contradiction, return list of all codes contributing, otherwise
