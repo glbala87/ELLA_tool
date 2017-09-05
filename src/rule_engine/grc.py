@@ -288,7 +288,7 @@ class ACMGClassifier2015:
         return derived[1]
         
     #    Selecting the criteria of highest precedence
-    def _select_codes_by_precedence(self, existing_codes, base_code, target_code):
+    def _select_codes_by_precedence(self, existing_codes, target_code):
         assert len(existing_codes) <= 1, "Internal error when selecting criteria with highest precedence: %s, there should never be more than one criteria at this state." % existing_codes
         
         try:
@@ -315,7 +315,7 @@ class ACMGClassifier2015:
         existing_codes_of_this_kind = [code for code in accum if base_code in code]
         other_codes = [code for code in accum if base_code not in code]
         
-        return other_codes + self._select_codes_by_precedence(existing_codes_of_this_kind, base_code, target_code)
+        return other_codes + self._select_codes_by_precedence(existing_codes_of_this_kind, target_code)
     
     """
     Returning a list where all codes with lower precedence are filtered out.
