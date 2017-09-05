@@ -119,6 +119,25 @@ def cmd_users_list():
     for u in users:
         click.echo(row_format.format(**{h: encode(getattr(u,h)) for h in header}))
 
+@users.command('activity')
+def cmd_users_activity():
+    """
+    List latest activity by users, sorted by last activity
+    """
+
+    db = DB()
+    db.connect()
+    session = db.session()
+    usersessions = session.query(user.UserSession).order_by(user.UserSession.lastactivity.desc()).all()
+
+    header = {'id': 'id', 'username': 'username', 'first_name': 'first_name', 'last_name': 'last_name', 'last_activity': 'last_activity'}
+    row_format = "{id:^10}| {username:<20} | {first_name:<30} | {last_name:<30} | {last_activity:<35} |"
+    click.echo(row_format.format(**header))
+    click.echo(row_format.format(id='-'*10, username='-'*20, first_name='-'*30, last_name='-'*30, last_activity='-'*35))
+
+    for u in usersessions:
+        click.echo(row_format.format(id=u.user.id, username=u.user.username, first_name=u.user.first_name, last_name=u.user.last_name, last_activity=str(u.lastactivity)))
+
 
 @users.command('add')
 @convert(True, "--first_name", "--last_name")
