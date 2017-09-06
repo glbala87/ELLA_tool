@@ -323,7 +323,7 @@ class AlleleFilter(object):
             gene.Phenotype.genepanel_name,
             gene.Phenotype.genepanel_version,
             gene.Phenotype.gene_id
-        ).having(func.count(gene.Phenotype.inheritance) == 1).subquery()
+        ).having(func.count(gene.Phenotype.inheritance.distinct()) == 1).subquery()
 
         genes = self.session.query(
             gene.Phenotype.gene_id,
