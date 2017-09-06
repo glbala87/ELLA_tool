@@ -62,6 +62,28 @@ release:
 bundle-static:
 	docker exec $(CONTAINER_NAME) /dist/node_modules/gulp/bin/gulp.js build
 
+
+#---------------------------------------------
+# Create diagram of the datamodel
+#---------------------------------------------
+
+.PHONY: diagrams build-diagram-image start-diagram-container create-diagram stop-diagram-container
+
+diagrams: build-diagram-image start-diagram-container create-diagram stop-diagram-container
+
+build-diagram-image:
+	docker build -t local/ella-diagram -f Dockerfile-diagrams .
+
+start-diagram-container:
+	-docker rm ella-diagram-container
+	docker run --name ella-diagram-container -d local/ella-diagram  sleep 10s
+
+stop-diagram-container:
+	docker stop ella-diagram-container
+
+create-diagram:
+	docker exec ella-diagram-container /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
+
 #---------------------------------------------
 # DEMO
 #---------------------------------------------
