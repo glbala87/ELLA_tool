@@ -8,6 +8,8 @@ ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
 #RELEASE_TAG =
+WEB_BUNDLE=ella-$(RELEASE_TAG)-web.tgz
+API_BUNDLE=ella-$(RELEASE_TAG)-api.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -70,29 +72,43 @@ __check_defined = \
 # Production / release
 #---------------------------------------------
 
-.PHONY: release
+.PHONY: release bundle-static check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
+
+CONTAINER_NAME_BUNDLE_STATIC=ella-web-assets
+IMAGE_BUNDLE_STATIC=local/ella-web-assets
+
 release:
 	@echo "See the README.md file, section 'Production'"
 
-bundle-static:
+bundle-static: check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
+
+check-release-tag:
 	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
-	docker build -t local/web-assets .
-	-rm ella-build-web-assets/*
-	-rmdir ella-build-web-assets
-	mkdir -p ella-build-web-assets
-	-docker stop ella-web-assets
-	-docker rm ella-web-assets
+	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{tag}"
+	git ls-remote --exit-code --tags origin "refs/tags/$(RELEASE_TAG)"
+
+build-bundle-image:
+	docker build -t $(IMAGE_BUNDLE_STATIC) .
+
+start-bundle-container:
+	-docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
+	-docker rm $(CONTAINER_NAME_BUNDLE_STATIC)
 	docker run -d \
-		--name ella-web-assets \
+		--name $(CONTAINER_NAME_BUNDLE_STATIC) \
 		local/web-assets \
 		sleep infinity
-	docker exec -i ella-web-assets  /ella/ops/common/gulp_build
-#	docker cp ella-web-assets:/ella/src/webui/build/. ella-build-web-assets/
-	docker exec ella-web-assets tar cz -C /ella/src/webui/build -f - . > ella-$(RELEASE_TAG)-static.tgz
-	@echo "Bundled static web files in ella-$(RELEASE_TAG)-static.tgz:"
-	@tar tf ella-$(RELEASE_TAG)-static.tgz
-	docker stop ella-web-assets
 
+copy-bundle:
+	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp_build
+	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
+	@echo "Bundled static web files in $(WEB_BUNDLE)"
+
+stop-bundle-container:
+	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
+
+
+bundle-api: check-release-tag
+	git archive --worktree-attributes -o $(API_BUNDLE) $(RELEASE_TAG)
 #---------------------------------------------
 # DEMO
 #---------------------------------------------

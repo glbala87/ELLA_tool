@@ -4,6 +4,7 @@ stages:
   - deploy
   - review
   - notify
+  - release
 
 test_api:
   stage: test
@@ -109,5 +110,18 @@ stop_review:
   tags:
     - web
 
+
+release:
+  stage: release
+  script:
+    - RELEASE_TAG=${CI_COMMIT_TAG} make bundle-api
+    - RELEASE_TAG=${CI_COMMIT_TAG} make bundle-static
+  artifacts:
+    paths:
+    - ella-$(CI_COMMIT_TAG)-web.tgz
+    - ella-$(CI_COMMIT_TAG)-api.tgz
+  when: on_success
+  only:
+    - tags
 
 
