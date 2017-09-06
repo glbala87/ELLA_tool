@@ -1,0 +1,39 @@
+FROM debian:latest
+MAINTAINER OUS AMG <erik@ousamg.io>
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV LANGUAGE C.UTF-8
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+ENV PACKAGES="\
+    python \
+    bash \
+    curl \
+    less \
+	graphviz \
+    nano \
+    "
+
+# Install as much as reasonable in one go to reduce image size
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends $PACKAGES  && \
+    curl -SLk 'https://bootstrap.pypa.io/get-pip.py' | python && \
+    # Cleanup
+    cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
+    rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
+
+# Add our requirements files
+COPY diagrams/requirements.txt /dist/requirements.txt
+
+#  pip
+RUN cd /dist && pip install --no-cache-dir -r requirements.txt
+
+# See .dockerignore for files that won't be copied
+COPY diagrams/. /ella
+COPY src/vardb/datamodel/ /ella/src/vardb/datamodel/
+COPY src/vardb/__init__.py /ella/src/vardb/
+COPY src/vardb/util/ /ella/src/vardb/util/
+COPY src/vardb/util/__init__.py /ella/src/vardb/util/
+
+WORKDIR /ella
