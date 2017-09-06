@@ -237,6 +237,10 @@ else
 	$(TEST_COMMAND)
 endif
 
+test-rule-engine: export PYTHONPATH=/ella/src
+test-rule-engine:
+	py.test --color=yes "/ella/src/rule_engine/tests"
+
 test-common: export PGDATABASE=vardb-test
 test-common: export DB_URL=postgres:///vardb-test
 test-common: export PYTHONPATH=/ella/src
