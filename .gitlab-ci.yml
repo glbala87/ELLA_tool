@@ -38,6 +38,15 @@ test_python:
     - /^ui-.*$/
     - /^ops-.*$/
 
+test_rule_engine:
+  stage: test
+  script:
+    - make single-test TEST_NAME=rule-engine
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+
 test_e2e:
   stage: test
   script:
