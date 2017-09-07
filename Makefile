@@ -110,7 +110,7 @@ stop-bundle-container:
 
 
 bundle-api: check-release-tag
-	git archive --worktree-attributes -o $(API_BUNDLE) $(RELEASE_TAG)
+	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
 #---------------------------------------------
 # DEMO
 #---------------------------------------------
