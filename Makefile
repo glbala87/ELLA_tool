@@ -73,7 +73,7 @@ __check_defined = \
 # Production / release
 #---------------------------------------------
 
-.PHONY: release bundle-static check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
+.PHONY: release bundle-api bundle-static check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
 
 CONTAINER_NAME_BUNDLE_STATIC=ella-web-assets
 IMAGE_BUNDLE_STATIC=local/ella-web-assets
@@ -109,6 +109,8 @@ stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
 
+bundle-api: check-release-tag
+	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
 
 #---------------------------------------------
 # Create diagram of the datamodel
