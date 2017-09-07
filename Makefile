@@ -109,8 +109,28 @@ stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
 
-bundle-api: check-release-tag
-	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
+
+#---------------------------------------------
+# Create diagram of the datamodel
+#---------------------------------------------
+
+.PHONY: diagrams build-diagram-image start-diagram-container create-diagram stop-diagram-container
+
+diagrams: build-diagram-image start-diagram-container create-diagram stop-diagram-container
+
+build-diagram-image:
+	docker build -t local/ella-diagram -f Dockerfile-diagrams .
+
+start-diagram-container:
+	-docker rm ella-diagram-container
+	docker run --name ella-diagram-container -d local/ella-diagram  sleep 10s
+
+stop-diagram-container:
+	docker stop ella-diagram-container
+
+create-diagram:
+	docker exec ella-diagram-container /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
+
 #---------------------------------------------
 # DEMO
 #---------------------------------------------
@@ -286,6 +306,10 @@ ifeq ($(TEST_COMMAND),) # empty?
 else
 	$(TEST_COMMAND)
 endif
+
+test-rule-engine: export PYTHONPATH=/ella/src
+test-rule-engine:
+	py.test --color=yes "/ella/src/rule_engine/tests"
 
 test-common: export PGDATABASE=vardb-test
 test-common: export DB_URL=postgres:///vardb-test

@@ -10,6 +10,9 @@ The create a web-based view of the doc:
 - install GitBook: `npm install gitbook-cli -g`
 - `cd docs; gitbook serve`
 
+To create diagrams of the datamodel, run `make diagrams`. The diagrams is created inside a container and streamed
+to a local file PNG file.
+
 
 # Deployment
 
