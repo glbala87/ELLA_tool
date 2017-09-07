@@ -36,9 +36,8 @@ class ACMGClassifier2015Test(unittest.TestCase):
                                                                  "PM3",
                                                                  "PP2",
                                                                  "PM1"]),
-                                                                ["PM3",
-                                                                 "PM3",
-                                                                 "PM1"])
+                                                                ["PM1",
+                                                                 "PM3"])
 
     def test_count_occurences_special_cases(self):
         classifier = ACMGClassifier2015()
@@ -52,9 +51,9 @@ class ACMGClassifier2015Test(unittest.TestCase):
                                                                  "PP3",
                                                                  "PP1",
                                                                  "PP2"]),
-                                                                ["PP3", # The first of the PP3s returned.
-                                                                 "PP1",
-                                                                 "PP2"])
+                                                                ["PP1", # The first of the PP3s returned.
+                                                                 "PP2",
+                                                                 "PP3"])
 
         self.assertListEqual(classifier.occurences(re.compile("PP.*"), ["BS2",
                                                                  "PP3",
@@ -65,9 +64,8 @@ class ACMGClassifier2015Test(unittest.TestCase):
                                                                  "PP3",
                                                                  "PP1",
                                                                  "PP1"]),
-                                                                ["PP3", # The first of the PP3s returned.
-                                                                 "PP1",
-                                                                 "PP1"])
+                                                                ["PP1", # The first of the PP3s returned.
+                                                                 "PP3"])
 
         self.assertListEqual(classifier.occurences(re.compile("BP.*"), ["BP4",
                                                                  "PP3",
@@ -80,9 +78,9 @@ class ACMGClassifier2015Test(unittest.TestCase):
                                                                  "PP1",
                                                                  "BP4",
                                                                  "BP4"]),
-                                                                ["BP4",
-                                                                 "BP3"])
-
+                                                                ["BP3",
+                                                                 "BP4"])
+        
         self.assertListEqual(classifier.occurences(re.compile("BS.*"), ["BS1",
                                                                  "BS1",
                                                                  "BP4",
@@ -126,12 +124,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PP1"])
         self.assertListEqual(path_res,
             ["PVS1", # First 1PVS* AND >=1PS*
-            "PS3",
-            "PS3",
-            "PS3",
             "PS3", # Then >=2 PS*, because of not shortcut/conversion to set:
-            "PS3",
-            "PS3"
             ])
 
         path_res = classifier.pathogenic([
@@ -144,10 +137,10 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PP1"])
         self.assertListEqual(path_res,
             ["PS4", # 1PS* AND 2PM* AND >=2PP*
-            "PM2",
             "PM1",
-            "PP3",
-            "PP1"
+            "PM2",
+            "PP1",
+            "PP3"
             ])
 
         path_res = classifier.pathogenic([
@@ -163,10 +156,10 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertListEqual(path_res,
             ["PS4", # 1PS* AND 1PM* AND >=4PP*
             "PM1",
-            "PP4",
-            "PP6",
             "PP1",
-            "PP3"
+            "PP3",
+            "PP4",
+            "PP6"
             ])
 
         self.assertFalse(classifier.pathogenic([
@@ -204,9 +197,9 @@ class ACMGClassifier2015Test(unittest.TestCase):
             ["PS4", # 1PS* AND 1PM*
             "PM1",
             "PS4", # 1PS* AND >=2PP*
+            "PP3",
             "PP4",
-            "PP6",
-            "PP3"
+            "PP6"
             ])
 
         lp_res = classifier.likely_pathogenic([
@@ -219,21 +212,22 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PP3",
                 "PP3",
                 "PM1"])
-        self.assertListEqual(lp_res,
-            ["PS4", # First 1PS* AND 1PM*
-            "PM1",
-            "PS4", # Then 1PS* AND >=2PP*
-            "PP4",
-            "PP6",
-            "PP1",
-            "PP3",
-            "PM1", # Then 1PM* AND >=4PP*
-            "PP4",
-            "PP6",
-            "PP1",
-            "PP3"
-            ])
-
+                
+        expected =  ['PS4', # First 1PS* AND 1PM*
+                    'PM1',
+                    'PS4', # Then 1PS* AND >=2PP*
+                    'PP1',
+                    'PP3',
+                    'PP4',
+                    'PP6',
+                    'PM1', # Then 1PM* AND >=4PP*
+                    'PP1',
+                    'PP3',
+                    'PP4',
+                    'PP6']
+                    
+        self.assertListEqual(lp_res, expected)
+     
         lp_res = classifier.likely_pathogenic([
                 "BS2",
                 "PP4",
@@ -245,10 +239,10 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PM1"])
         self.assertListEqual(lp_res,
             ["PM1", # 1PM* AND >=4PP*
-            "PP4",
-            "PP6",
             "PP1",
-            "PP3"
+            "PP3",
+            "PP4",
+            "PP6"
             ])
 
         lp_res = classifier.likely_pathogenic([
@@ -265,10 +259,20 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PVS3", # 1PVFS* AND 1PM*
                 "PM3"])
 
-        self.assertFalse(classifier.likely_pathogenic([
+        self.assertTrue(classifier.likely_pathogenic([
              "PVSX1",
              "PP6",
              "BS2"]))
+
+    def test_likely_benign_amg(self):
+        classifier = ACMGClassifier2015()
+        lb_amg = classifier.likely_benign_amg([
+            "BS1", "BS2"
+        ])
+
+        self.assertListEqual(lb_amg,
+            ["BS1", "BS2"]
+        )
 
     def test_classify_benign(self):
         classifier = ACMGClassifier2015()
@@ -282,9 +286,8 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "BS2",
                 "PM1"])
         self.assertListEqual(lp_res,
-            ["BAX1", # >=1BA* OR >=2BS*
-             "BA3",
-             "BS2",
+            ["BA3", 
+             "BAX1", # >=1BA* OR >=2BS*
              "BS1",
              "BS2"])
 
@@ -324,7 +327,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
     def test_contradict(self):
         classifier = ACMGClassifier2015()
         pathogenic = ["PVS1",
-                      "PS3"]
+            "PS3"]
         likely_pathogenic = ["PS4",
             "PM1",
             "PS4",
@@ -332,22 +335,37 @@ class ACMGClassifier2015Test(unittest.TestCase):
             "PP6",
             "PP3"]
         benign = ["BA3",
-             "BS2",
-             "BS1",
-             "BS2"]
+            "BS2",
+            "BS1",
+            "BS2"]
         likely_benign = ["BS2",
-                        "BP3"]
-        cont = classifier.contradict(pathogenic, [], benign, [])
-        self.assertEquals(cont, (pathogenic + benign, "Contradiction"))
+            "BP3"]
+        contradict = ["BS2",
+            "PVS1",
+            "PM3"]
+        contradict2 = ["BS2",
+                  "PVS1",
+                  "PS3",
+                  "PS3",
+                  "PS3",
+                  "PP1"]              
+        contributors = classifier.contradict(pathogenic)
+        self.assertEquals(contributors, [])
+        
+        contributors = classifier.contradict(likely_pathogenic)
+        self.assertEquals(contributors, [])
 
-        cont = classifier.contradict([], likely_pathogenic, [], likely_benign)
-        self.assertEquals(cont, (likely_pathogenic + likely_benign, "Contradiction"))
+        contributors = classifier.contradict(benign)
+        self.assertEquals(contributors, [])
 
-        cont = classifier.contradict([], likely_pathogenic, benign, [])
-        self.assertEquals(cont, (likely_pathogenic + benign, "Contradiction"))
-
-        self.assertEquals(classifier.contradict([], [], benign, likely_benign), (None, None))
-        self.assertEquals(classifier.contradict([], [], [], likely_benign), (None, None))
+        contributors = classifier.contradict(likely_benign)
+        self.assertEquals(contributors, [])
+        
+        contributors = classifier.contradict(contradict)
+        self.assertEquals(contributors, ["PVS1", "PM3", "BS2"])
+        
+        contributors = classifier.contradict(contradict2)
+        self.assertEquals(contributors, ["PVS1", "PS3", "BS2"])
 
     def test_classify(self):
         classifier = ACMGClassifier2015()
@@ -367,24 +385,25 @@ class ACMGClassifier2015Test(unittest.TestCase):
                   "PS3",
                   "PS3",
                   "PP1"]
-        self.assertEquals(classifier.classify(passed), ClassificationResult(5, "Pathogenic",
+        
+        self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
             ["PVS1",
             "PS3",
-            "PS3",
-            "PS3",
-            "PS3",
-            "PS3",
-            "PS3"
-            ], "Pathogenic"))
-
+            "BS2"], "Contradiction"))
+        
         passed = ["BS2",
                   "PVS1",
                   "PM3"]
-        self.assertEquals(classifier.classify(passed), ClassificationResult(4, "Likely pathogenic",
+        result = classifier.classify(passed)
+        
+        expected = ClassificationResult(3, "Uncertain significance",
             ["PVS1",
-            "PM3"
-            ], "Likely pathogenic"))
-
+            "PM3", 
+            "BS2"
+            ], "Contradiction")
+        
+        self.assertEquals(result.message, expected.message)
+    
         passed = [
                 "BS2",
                 "PP4",
@@ -393,12 +412,15 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "BS1",
                 "BS2",
                 "PM1"]
-        self.assertEquals(classifier.classify(passed), ClassificationResult(1, "Benign",
-            ["BA3",
-             "BS2",
+                
+        result = classifier.classify(passed)
+        expected = ClassificationResult(3, "Uncertain significance",
+            ["PM1",
+             "BA3",
              "BS1",
              "BS2"
-             ], "Benign"))
+             ], "Contradiction")
+        self.assertEquals(result.contributors, expected.contributors)
 
         passed = [
                 "BP4",
@@ -410,7 +432,117 @@ class ACMGClassifier2015Test(unittest.TestCase):
              ], "Likely benign"))
 
         passed = [
+                "PM1",
+                "BP6",
+                "PP6",                
+                "BP7"]        
+        self.assertEquals(classifier.classify(passed), 
+            ClassificationResult(2, "Likely benign",
+                ["BP7"], 
+                "Likely benign"
+                )
+            )
+            
+        passed = [
+                "BS1",
+                "BP6",
+                "PP6",                
+                "BP7"]        
+        self.assertEquals(classifier.classify(passed), 
+            ClassificationResult(2, "Likely benign",
+                ["BS1",
+                 "BP7"
+                ], "Likely benign"))
+
+        passed = [
                 "BP6",
                 "PM1"]
         self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
             [], "None"))
+            
+        
+    def test_presedence(self):    
+        classifier = ACMGClassifier2015()
+        self.assertEquals(classifier._has_higher_precedence("PVS1", "PS1"), True)
+        self.assertEquals(classifier._has_higher_precedence("PS1", "PVS1"), False)
+        self.assertEquals(classifier._has_higher_precedence("PS3", "PMxPS3"), True)
+        self.assertEquals(classifier._has_higher_precedence("PMxPS3", "PS3"), False)
+        self.assertEquals(classifier._has_higher_precedence("PMxPS3", "PVSxPS3"), False)
+        self.assertEquals(classifier._has_higher_precedence("PVSxPS3", "PMxPS3"), True)
+        self.assertEquals(classifier._has_higher_precedence("PVS1", "PVSxPS3"), True)
+        self.assertEquals(classifier._has_higher_precedence("PVSxPS3", "PVS1"), False)
+        
+    def test_find_base_code(self):    
+        classifier = ACMGClassifier2015()
+        self.assertEquals(classifier.find_base_code("PMxPS1"), "PS1")
+        self.assertEquals(classifier.find_base_code("PS1"), "PS1")
+        
+    def test_normalize_codes(self):    
+        classifier = ACMGClassifier2015()
+        
+        self.assertEquals(classifier.normalize_codes(
+                ["PM1", "PVSxPM1", "PS3", "PMxPS3"]), ["PVSxPM1", "PS3"])
+                
+        # Tests data below are given by domain expert Morten Eike
+        self.assertEquals(classifier.normalize_codes(
+            # Duplicates PP1 is filtered out
+            ["PM1", "PP1", "PP1", "PP2", "PP3"]), ["PM1", "PP1", "PP2", "PP3"])
+            
+        self.assertEquals(classifier.normalize_codes(
+            # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
+            ["PM1", "PP1", "PP2", "PP3", "PPxPM1"]), ["PP1", "PP2", "PP3", "PM1"])
+        
+        self.assertEquals(classifier.normalize_codes(
+            # PM1 takes precedence above PPxPM1, hence PPxPM1 gets filtered out
+            ["PMxPP1", "PM1", "PP1", "PP2", "PPxPS1"]), ["PM1", "PMxPP1", "PP2", "PPxPS1"])
+            
+        self.assertEquals(classifier.normalize_codes(
+            # PSxPM1 takes precedence above PS1, hence PS1 gets filtered out
+            ["PSxPM1", "PS1", "PM1"]), ["PS1", "PSxPM1"])
+            
+        self.assertEquals(classifier.normalize_codes(
+            # BSxBP1 takes precedence above BS1, hence BP1 gets filtered out
+            ["BSxBP1", "BP1", "BS1"]), ["BSxBP1", "BS1"])
+        
+        self.assertEquals(classifier.normalize_codes(
+            ["BS1", "BS2"]), ["BS1", "BS2"])
+            
+        self.assertEquals(classifier.normalize_codes(
+            ["PVS1", "BA1"]), ["PVS1", "BA1"])    
+            
+    def test_classification_codes_with_precedence(self):        
+        classifier = ACMGClassifier2015()
+        
+        case1 = classifier.classify(["PM1", "PP1", "PP1", "PP2", "PP3"])
+        
+        # Tests below are given by domain expert Morten Eike
+        self.assertEquals(case1.clazz, 3)
+        self.assertEquals(case1.contributors, [])
+            
+        case2 = classifier.classify(["PM1", "PP1", "PP2", "PP3", "PPxPM1"])    
+        self.assertEquals(case2.clazz, 3)
+        self.assertEquals(case2.contributors, [])
+        
+        case3 = classifier.classify(["PMxPP1", "PM1", "PP1", "PP2", "PPxPS1"])
+        self.assertEquals(case3.clazz, 4)
+        self.assertEquals(case3.contributors, ["PM1", "PMxPP1", "PP1" , "PP2", "PPxPS1"])
+
+        case4 = classifier.classify(["PSxPM1", "PS1", "PM1"]) 
+        self.assertEquals(case4.clazz, 5)
+        # 2*PS will short circuit PM according to the rule,
+        # thus PM will not be counted as a contributor
+        self.assertEquals(case4.contributors, ["PS1", "PSxPM1"])
+            
+        case5 = classifier.classify(["BSxBP1", "BP1", "BS1"])
+        self.assertEquals(case5.clazz, 1)
+        # 2*BS is the rule for benign, BP1 will not be counted and 
+        # therefore BP1 is not a contributor
+        self.assertEquals(case5.contributors, ["BS1", "BSxBP1"])
+        
+        case6 = classifier.classify(["BS1", "BS2"])
+        self.assertEquals(case6.clazz, 1)
+        self.assertEquals(case6.contributors, ["BS1", "BS2"])
+        
+        case7 = classifier.classify(["PVS1", "BA1"])
+        self.assertEquals(case7.clazz, 3)
+        self.assertEquals(case7.contributors, ["PVS1", "BA1"])
