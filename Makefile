@@ -96,7 +96,7 @@ start-bundle-container:
 	-docker rm $(CONTAINER_NAME_BUNDLE_STATIC)
 	docker run -d \
 		--name $(CONTAINER_NAME_BUNDLE_STATIC) \
-		local/web-assets \
+		$(IMAGE_BUNDLE_STATIC) \
 		sleep infinity
 
 copy-bundle:
