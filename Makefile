@@ -50,8 +50,9 @@ help :
 	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release			- Noop. See the README.md file"
-	@echo "make bundle-static	- Bundle HTML and JS."
+	@echo "make release	        - Noop. See the README.md file"
+	@echo "make bundle-static      - Bundle HTML and JS into a local tgz file"
+	@echo "make bundle-api         - Bundle the backend code into a local tgz file"
 
 
 # Check that given variables are set and all have non-empty values,
