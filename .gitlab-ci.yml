@@ -1,6 +1,115 @@
 ---
 stages:
+  - test
+  - deploy
+  - review
+  - notify
   - release
+
+test_api:
+  stage: test
+  script:
+    - make single-test TEST_NAME=api
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+test_api_migration:
+  stage: test
+  script:
+    - make single-test TEST_NAME=api-migration
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+  allow_failure: true
+
+test_js:
+  stage: test
+  script:
+    - make single-test TEST_NAME=js
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+test_python:
+  stage: test
+  script:
+    - make single-test TEST_NAME=common
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+test_e2e:
+  stage: test
+  script:
+    - make e2e-test
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+bot_build:
+  stage: deploy
+  script:
+    - if [ -n "${DEV_CHANNEL}" ]; then make demo DEMO_NAME=demo.allel.es; fi
+    - if [ -n "${BETA_CHANNEL}" ]; then make demo DEMO_NAME=beta.allel.es; fi
+  tags:
+    - web
+  only:
+    - triggers
+
+bot_notify_failure:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/failure'
+  when: on_failure
+  only:
+    - triggers
+    - branches
+
+bot_notify_success:
+  stage: notify
+  script:
+    - curl '127.0.0.1:8080/notify/success'
+  when: on_success
+  only:
+    - triggers
+    - branches
+
+start_review:
+  stage: review
+  script:
+    - make demo DEMO_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    url: http://$CI_BUILD_REF_SLUG.review.$APPS_DOMAIN
+    on_stop: stop_review
+  when: always
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - web
+
+# when: manual is also run upon branch deletion
+# Image name for removal (local/${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
+stop_review:
+  stage: review
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - docker rm -f ${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/${CI_BUILD_REF_SLUG}.review.ousamg.io;
+  when: manual
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    action: stop
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - web
+
 
 release:
   stage: release
@@ -9,11 +118,10 @@ release:
     - RELEASE_TAG=${CI_COMMIT_TAG} make bundle-static
   artifacts:
     paths:
-    - ella-${CI_COMMIT_TAG}-web.tgz
-    - ella-${CI_COMMIT_TAG}-api.tgz
-    name: ${CI_COMMIT_TAG}
-  when: always
+    - ella-release-${CI_COMMIT_TAG}-web.tgz
+    - ella-release-${CI_COMMIT_TAG}-api.tgz
+    name: ella-release-${CI_COMMIT_TAG}
+    when: on_success
+  when: on_success
   only:
     - tags
-
-
