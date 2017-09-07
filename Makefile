@@ -84,7 +84,8 @@ bundle-static: check-release-tag build-bundle-image start-bundle-container copy-
 
 check-release-tag:
 	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
-	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{tag}"
+#	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{tag}" in git >= 1.8.5, tomato is stuck on 1.8.3.1
+	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{commit}"
 	git ls-remote --exit-code --tags origin "refs/tags/$(RELEASE_TAG)"
 
 build-bundle-image:
