@@ -165,8 +165,9 @@ describe('Sample workflow ', function () {
         expect(numberOfClassified).toBeGreaterThan(1);
 
         // current data round: Three alleles were classified as T in this sample, and two as 2 in the other sample
+        // technical expire at once, thus T*
 
-        let current_classifications = ['2', '2', 'T', 'T', 'T'];
+        let current_classifications = ['2', '2', 'T*', 'T*', 'T*'];
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
