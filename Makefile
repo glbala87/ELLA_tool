@@ -7,6 +7,9 @@ API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
+#RELEASE_TAG =
+WEB_BUNDLE=ella-$(RELEASE_TAG)-web.tgz
+API_BUNDLE=ella-$(RELEASE_TAG)-api.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -47,21 +50,67 @@ help :
 	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release			- Noop. See the README.md file"
-	@echo "make bundle-static	- Bundle HTML and JS."
+	@echo "make release	        - Noop. See the README.md file"
+	@echo "make bundle-static      - Bundle HTML and JS into a local tgz file"
+	@echo "make bundle-api         - Bundle the backend code into a local tgz file"
 
 
+# Check that given variables are set and all have non-empty values,
+# die with an error otherwise.
+#
+# From: https://stackoverflow.com/questions/10858261/abort-makefile-if-variable-not-set
+#
+# Params:
+#   1. Variable name(s) to test.
+#   2. (optional) Error message to print.
+check_defined = \
+    $(strip $(foreach 1,$1, \
+        $(call __check_defined,$1,$(strip $(value 2)))))
+__check_defined = \
+    $(if $(value $1),, \
+      $(error Undefined $1$(if $2, ($2))))
 #---------------------------------------------
 # Production / release
 #---------------------------------------------
 
-.PHONY: release
+.PHONY: release bundle-api bundle-static check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
+
+CONTAINER_NAME_BUNDLE_STATIC=ella-web-assets
+IMAGE_BUNDLE_STATIC=local/ella-web-assets
+
 release:
 	@echo "See the README.md file, section 'Production'"
 
-bundle-static:
-	docker exec $(CONTAINER_NAME) /dist/node_modules/gulp/bin/gulp.js build
+bundle-static: check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
 
+check-release-tag:
+	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
+#	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{tag}" in git >= 1.8.5, tomato is stuck on 1.8.3.1
+	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{commit}"
+	git ls-remote --exit-code --tags origin "refs/tags/$(RELEASE_TAG)"
+
+build-bundle-image:
+	docker build -t $(IMAGE_BUNDLE_STATIC) .
+
+start-bundle-container:
+	-docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
+	-docker rm $(CONTAINER_NAME_BUNDLE_STATIC)
+	docker run -d \
+		--name $(CONTAINER_NAME_BUNDLE_STATIC) \
+		$(IMAGE_BUNDLE_STATIC) \
+		sleep infinity
+
+copy-bundle:
+	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp_build
+	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
+	@echo "Bundled static web files in $(WEB_BUNDLE)"
+
+stop-bundle-container:
+	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
+
+
+bundle-api: check-release-tag
+	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
 
 #---------------------------------------------
 # Create diagram of the datamodel
@@ -136,6 +185,7 @@ dev:
 	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	-p $(API_PORT):5000 \
+	-p 35729:35729 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
 	$(IMAGE_NAME) \

@@ -1,0 +1,13 @@
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/.idea export-ignore
+/.gitlab-ci.yml export-ignore
+/yarn.lock export-ignore
+/docs export-ignore
+/Makefile export-ignore
+/src/webui export-ignore
+testdata export-ignore
+tests export-ignore
+*.pyc export-ignore
+hooks export-ignore
+
