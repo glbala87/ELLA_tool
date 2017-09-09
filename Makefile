@@ -15,7 +15,7 @@ API_BUNDLE=ella-$(RELEASE_TAG)-api.tgz
 APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
 WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
-CHROMEBOX_IMAGE = ousamg/chromebox:1.2
+CHROMEBOX_IMAGE = ousamg/chromebox:1.1
 
 .PHONY: help
 
