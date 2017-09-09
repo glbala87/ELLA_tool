@@ -55,6 +55,12 @@ test_e2e:
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+  artifacts:
+      paths:
+      - errorShots/
+      name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
+      when: on_failure
+
 
 bot_build:
   stage: deploy
