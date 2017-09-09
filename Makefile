@@ -15,6 +15,7 @@ API_BUNDLE=ella-$(RELEASE_TAG)-api.tgz
 APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
 WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
+$(CHROMEBOX_IMAGE) = ousamg/chromebox:1.2
 
 .PHONY: help
 
@@ -220,11 +221,14 @@ test-build:
 	docker build -t $(IMAGE_NAME) .
 
 test: test-build run-test
+
 single-test: test-build run-test
+
 e2e-test: e2e-network-check e2e-run-chrome test-build
 	-docker stop ella-e2e
 	-docker rm ella-e2e
 	docker run -v errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
+
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
 	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(IMAGE_NAME) /bin/bash -c "make e2e-run-continous; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
@@ -252,6 +256,10 @@ e2e-gulp-once:
 	/ella/node_modules/gulp/bin/gulp.js build
 
 wdio-chromebox:
+	@echo "Running webdriverio against chromebox:"
+	@echo "checking cb:4444/status..."
+	@curl --silent cb:4444/status
+	@echo ""
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 wdio:
@@ -260,7 +268,9 @@ wdio:
 e2e-run-chrome:
 	-docker kill chromebox
 	-docker rm chromebox
-	docker run -d --name chromebox --network=local_only ousamg/chromebox
+	docker run -d --name chromebox --network=local_only $(CHROMEBOX_IMAGE)
+	@echo "Chromebox info: (chromedriver, chrome, linux, debian)"
+	docker exec chromebox /bin/sh -c "ps aux | grep -E 'chromedriver|Xvfb' | grep -v 'grep' ; chromedriver --version ; google-chrome --version ; cat /proc/version ; cat /etc/debian_version"
 
 e2e-network-check:
 	docker network ls | grep -q local_only || docker network create --subnet 172.25.0.0/16 local_only
