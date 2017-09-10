@@ -259,6 +259,8 @@ wdio-chromebox:
 	@echo "Running webdriverio against chromebox. Running if responds: `curl --silent cb:4444/status`"
 	@echo "pwd: '`pwd`'"
 #	screenshots on e2e test errors are defined in wdio.conf
+	@rm -rf errorShots
+	@mkdir -p errorShots
 	@echo "Content of ./errorShots:"
 	@if [ -s './errorShots' ] ; then ls './errorShots' ; else echo "Folder ./errorShots don't exist"; fi
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
