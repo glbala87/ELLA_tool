@@ -227,6 +227,8 @@ single-test: test-build run-test
 e2e-test: e2e-network-check e2e-run-chrome test-build
 	-docker stop ella-e2e
 	-docker rm ella-e2e
+	@rm -rf errorShots
+	@mkdir -p errorShots
 	docker run -v errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
 
 e2e-test-local: test-build
@@ -259,8 +261,6 @@ wdio-chromebox:
 	@echo "Running webdriverio against chromebox. Running if responds: `curl --silent cb:4444/status`"
 	@echo "pwd: '`pwd`'"
 #	screenshots on e2e test errors are defined in wdio.conf
-	@rm -rf errorShots
-	@mkdir -p errorShots
 	@echo "Content of ./errorShots:"
 	@if [ -s './errorShots' ] ; then ls './errorShots' ; else echo "Folder ./errorShots don't exist"; fi
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
