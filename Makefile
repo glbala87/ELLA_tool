@@ -229,7 +229,7 @@ e2e-test: e2e-network-check e2e-run-chrome test-build
 	-docker rm ella-e2e
 	@rm -rf errorShots
 	@mkdir -p errorShots
-	docker run -v errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
+	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
 
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
