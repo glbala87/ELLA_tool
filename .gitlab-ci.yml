@@ -57,7 +57,7 @@ test_e2e:
     - /^ops-.*$/
   artifacts:
       paths:
-      - errorShots/
+      - errorShots/*.png
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
 
