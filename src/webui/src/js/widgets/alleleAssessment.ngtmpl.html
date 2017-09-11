@@ -1,5 +1,5 @@
 <div>
-    <h2>{{vm.getClassName()}} <span class="outdated" ng-if="vm.isOutdated()"> (Outdated)</span></h2>
+    <h2 class="id-classification-name">{{vm.getClassName()}} <span class="outdated" ng-if="vm.isOutdated()"> (Outdated)</span></h2>
     <h5>made by {{vm.alleleassessment.user.full_name}} on {{vm.alleleassessment.date_created | date:'yyyy-MM-dd'}} for {{vm.alleleassessment.genepanel_name}}_{{vm.alleleassessment.genepanel_version}}</h5>
     <h5 ng-if="vm.allelereport">Report changed by {{vm.allelereport.user.full_name}} on {{vm.allelereport.date_created | date:'yyyy-MM-dd HH:mm'}}</h5>
 </div>
@@ -69,7 +69,7 @@
         <div class="cell top-align"> <h5>Reference</h5> </div>
         <div class="cell">
             <wysiwyg-editor
-                class="id-existing-comment-prediction"
+                class="id-existing-comment-reference"
                 ng-disabled="true"
                 ng-model="vm.alleleassessment.evaluation.reference.comment">
             </wysiwyg-editor>
