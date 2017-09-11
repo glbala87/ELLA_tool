@@ -18,6 +18,7 @@ const SELECTOR_FREQ_EXAC = `allele-sectionbox contentbox[title="ExAC"]`;
 const SELECTOR_FREQ_GNOMAD_EXOMES = `allele-sectionbox contentbox[title="GNOMAD_EXOMES"]`;
 const SELECTOR_FREQ_GNOMAD_GENOMES = `allele-sectionbox contentbox[title="GNOMAD_GENOMES"]`;
 
+const SELECTOR_EXISTING_CLASSIFICATION = 'allele-sectionbox contentbox.vardb .id-classification-name';
 const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification';
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 
@@ -32,6 +33,7 @@ class AlleleSectionBox  {
 
     get classificationCommentElement() { return browser.element(SELECTOR_COMMENT_CLASSIFICATION);}
     get classificationComment() { return browser.getText(SELECTOR_COMMENT_CLASSIFICATION_EDITOR); }
+    get existingClassificationName() { return browser.getText(SELECTOR_EXISTING_CLASSIFICATION); }
 
     setClassificationComment(text) {
         this.classificationCommentElement.scroll();

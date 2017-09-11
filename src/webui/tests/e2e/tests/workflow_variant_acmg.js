@@ -43,7 +43,7 @@ describe(`ACMG`, function () {
         variantSelectionPage.selectPending(5);
         analysisPage.startButton.click(); 
 
-        alleleSectionBox.markAsTechnical();
+        alleleSectionBox.markAsClass1();
         expectSuggestedFeatureIsShown();
 
         analysisPage.finishButton.click();
@@ -53,9 +53,20 @@ describe(`ACMG`, function () {
     describe('suggested coded and REQs are', function () {
 
         beforeAll(function () {
+            // classify one variant as 'T'
+            loginPage.selectFirstUser();
+            variantSelectionPage.selectPending(1);
+            analysisPage.startButton.click(); 
+            alleleSectionBox.markAsTechnical();
+            analysisPage.finishButton.click();
+            analysisPage.finalizeButton.click();
+
+            // select the first we finished, class 1
             loginPage.selectSecondUser();
             variantSelectionPage.expandFinishedSection();
-            variantSelectionPage.selectTopFinished();
+            variantSelectionPage.selectFinished(2);
+            expect(alleleSectionBox.isClass1()).toBe(true);
+
         });
 
         it('hidden when seeing a finished interpretation', function () {
@@ -96,6 +107,20 @@ describe(`ACMG`, function () {
             analysisPage.finishButton.click();
             analysisPage.finalizeButton.click();
         });
+
+         it('are shown when an expired interpretation is started', function () {
+            variantSelectionPage.expandFinishedSection();
+            variantSelectionPage.selectFinished(1);  // the second we classified, 'T'
+            analysisPage.startButton.click();
+            expect(alleleSectionBox.isClassT()).toBe(true);
+            expect(alleleSectionBox.existingClassificationName.toLowerCase()).toContain('outdated');
+            expectSuggestedFeatureIsShown();
+            alleleSectionBox.markAsClass2();
+
+            analysisPage.finishButton.click();
+            analysisPage.finalizeButton.click();
+        })
+
 
     });
 
