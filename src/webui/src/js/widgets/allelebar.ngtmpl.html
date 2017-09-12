@@ -21,7 +21,8 @@
         <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
           popover-trigger="outsideClick"
           uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
-          popover-title="HGVS c.DNA"
+          popover-title="HGVS cDNA"
+          popover-class="popover-title-no-uppercase"
           popover-placement="bottom">
             <i>{{t.transcript}}:</i><b>{{t.HGVSc_short}}</b> {{vm.getGenotype()}}
         </repeat-wrapper>
