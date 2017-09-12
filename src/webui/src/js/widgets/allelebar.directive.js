@@ -37,4 +37,17 @@ export class Allelebar {
         return this.allele.formatGenotype();
     }
 
+    formatCodons(codons) {
+        if (codons === undefined) return;
+
+        let shortCodon = (match, c) => {
+            if (c.length > 10) return `(${c.length})`
+            else return c
+        }
+
+        return codons.split('/').map((c) => {
+            return c.replace(/([ACGT]+)/, shortCodon)
+        }).join('/')
+    }
+
 }

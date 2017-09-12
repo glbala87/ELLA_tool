@@ -36,7 +36,7 @@
           uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
           popover-title="HGVS protein"
           popover-placement="bottom">
-            <i ng-if="t.HGVSp">{{t.HGVSp | proteinSequence}}:</i><b>{{t.HGVSp_short}}</b> ({{t.codons}})
+            <i ng-if="t.HGVSp">{{t.HGVSp | proteinSequence}}:</i><b>{{t.HGVSp_short}}</b> ({{vm.formatCodons(t.codons)}})
         </repeat-wrapper>
       </div>
     </h3>

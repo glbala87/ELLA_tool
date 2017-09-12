@@ -24,7 +24,7 @@ export class AlleleInfoQuality {
     }
 
     formatSequence(sequence) {
-        if (sequence.length > 10) return `(${sequence.length}bp)`
+        if (sequence.length > 10) return `(${sequence.length})`
         else return sequence
     }
 

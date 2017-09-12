@@ -93,8 +93,8 @@ export class Allele {
      */
     formatGenotype() {
         let shortGenotype = (match, gt1, gt2) => {
-            if (gt1.length >= 10) gt1 = `(${gt1.length}bp)`;
-            if (gt2.length >= 10) gt2 = `(${gt2.length}bp)`;
+            if (gt1.length >= 10) gt1 = `(${gt1.length})`;
+            if (gt2.length >= 10) gt2 = `(${gt2.length})`;
             return `${gt1}/${gt2}`
         }
 
