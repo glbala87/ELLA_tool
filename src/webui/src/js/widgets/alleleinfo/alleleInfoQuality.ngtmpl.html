@@ -23,7 +23,7 @@
           <div class="cell"></div>
         </div>
         <div class="tabular-row" ng-repeat="(k, v) in sample.genotype.allele_depth">
-          <div class="cell"><p> - {{k}}:</p></div>
+          <div class="cell"><p> - {{vm.formatSequence(k)}}:</p></div>
           <div class="cell"><p>{{v}}</p></div>
         </div>
       </div>
