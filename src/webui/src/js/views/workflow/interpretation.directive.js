@@ -194,6 +194,7 @@ export class InterpretationController {
                 return false;
             });
         }
+        this.updateAlleles();
         this.updateAlleleSidebar();
     }
     /**
