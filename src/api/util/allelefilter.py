@@ -679,7 +679,7 @@ class AlleleFilter(object):
                 allele_filter_tbl.c.allele_id.in_(non_exonic_allele_ids)
             ).distinct()
 
-            intronic_filtered[gp_key] = [a[0] for a in intronic_filtered_q.all()]
+            intronic_filtered[gp_key] = list(set([a[0] for a in intronic_filtered_q.all()]))
 
         # Remove the ones with existing classification
         for gp_key, allele_ids in intronic_filtered.iteritems():
