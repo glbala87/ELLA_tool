@@ -735,7 +735,17 @@ class AlleleFilter(object):
         :return: allele ids to be filtered out
         """
 
-        utr_consequence_index = min([self.config["transcripts"]["consequences"].index(c) for c in ['3_prime_UTR_variant', '5_prime_UTR_variant']])
+        consequences_ordered = self.config["transcripts"].get("consequences")
+
+        # An ordering of consequences has not been specified, return empty list
+        if consequences_ordered is None:
+            return []
+
+        # Also return empty list if *_prime_UTR_variant is not specified in consequences_ordered
+        if not ('3_prime_UTR_variant' in consequences_ordered and '5_prime_UTR_variant' in consequences_ordered):
+            return []
+
+        utr_consequence_index = min([consequences_ordered.index(c) for c in ['3_prime_UTR_variant', '5_prime_UTR_variant']])
 
         class jsonb_to_recordset_func(ColumnFunction):
             name = 'jsonb_to_recordset'
@@ -761,13 +771,16 @@ class AlleleFilter(object):
         # Concatenate all consequences for each allele id
         allele_consequences = defaultdict(list)
         for allele_id, transcript, consequences in allele_id_consequences:
-            allele_consequences[allele_id] += consequences
+            if consequences is None:
+                allele_consequences[allele_id] += [None]
+            else:
+                allele_consequences[allele_id] += consequences
 
         def get_consequence_index(consequences):
             indices = []
             for c in consequences:
-                if c in self.config["transcripts"]["consequences"]:
-                    i = self.config["transcripts"]["consequences"].index(c)
+                if c in consequences_ordered:
+                    i = consequences_ordered.index(c)
                 else:
                     i = -1
                 indices.append(i)
