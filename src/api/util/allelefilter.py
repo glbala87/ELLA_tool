@@ -1,11 +1,12 @@
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import itertools
-from sqlalchemy import or_, and_, tuple_, column, Float, String, table, Integer, func
+from sqlalchemy import or_, and_, tuple_, column, Float, String, table, Integer, func, text
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import ClauseElement, Executable
 from sqlalchemy.sql import functions
 from sqlalchemy.sql.selectable import FromClause, Alias
 from sqlalchemy.sql.elements import ColumnClause
+from sqlalchemy.dialects.postgresql import JSONB
 
 from vardb.datamodel import assessment, gene, annotation
 
@@ -725,6 +726,68 @@ class AlleleFilter(object):
 
         return frequency_filtered
 
+    def filter_utr(self, gp_key, allele_ids):
+        """
+        Filters out variants that have worst consequence equal to 3_prime_UTR_variant or 5_prime_UTR_variant in any
+        of the annotation transcripts included.
+        :param gp_key: (genepanel_name, genepanel_version) used for extracting transcripts
+        :param allele_ids: allele_ids to run filter on
+        :return: allele ids to be filtered out
+        """
+
+        utr_consequence_index = min([self.config["transcripts"]["consequences"].index(c) for c in ['3_prime_UTR_variant', '5_prime_UTR_variant']])
+
+        class jsonb_to_recordset_func(ColumnFunction):
+            name = 'jsonb_to_recordset'
+            column_names = [('consequences', JSONB()), ('transcript', String())]
+
+        transcript_records = jsonb_to_recordset_func(annotation.Annotation.annotations['transcripts']).alias('j')
+
+        # Get transcripts to be included for this genepanel
+        inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
+        filtered_transcripts = queries.alleles_transcript_filtered_genepanel(self.session, allele_ids, [gp_key], inclusion_regex).subquery()
+
+        # Fetch the consequences for each allele (several lines per allele id)
+        allele_id_consequences = self.session.query(
+            annotation.Annotation.allele_id,
+            transcript_records.c.transcript.label('transcript'),
+            transcript_records.c.consequences.label('consequences'),
+        ).filter(
+            annotation.Annotation.allele_id == filtered_transcripts.c.allele_id,
+            transcript_records.c.transcript == filtered_transcripts.c.annotation_transcript,
+            annotation.Annotation.date_superceeded.is_(None)  # Important!
+        ).all()
+
+        # Concatenate all consequences for each allele id
+        allele_consequences = defaultdict(list)
+        for allele_id, transcript, consequences in allele_id_consequences:
+            allele_consequences[allele_id] += consequences
+
+        def get_consequence_index(consequences):
+            indices = []
+            for c in consequences:
+                if c in self.config["transcripts"]["consequences"]:
+                    i = self.config["transcripts"]["consequences"].index(c)
+                else:
+                    i = -1
+                indices.append(i)
+
+            return indices
+
+        # Check if it has consequence 3_prime_UTR_variant/5_prime_UTR_variant, and if so, if this is the worst consequence
+        utr_filtered = []
+        for allele_id, consequences in allele_consequences.iteritems():
+            if '3_prime_UTR_variant' in consequences or '5_prime_UTR_variant' in consequences:
+                worst_consequence_index = min(get_consequence_index(consequences))
+                if worst_consequence_index >= utr_consequence_index:
+                    utr_filtered.append(allele_id)
+
+        # Remove the ones with existing classification
+        utr_filtered = self.exclude_classification_allele_ids(utr_filtered)
+
+        return utr_filtered
+
+
     def filter_alleles(self, gp_allele_ids):
 
         result = dict()
@@ -741,14 +804,19 @@ class AlleleFilter(object):
             gp_filtered_intronic = [i for i in filtered_intronic[gp_key] if i not in excluded]
             excluded = excluded + gp_filtered_intronic
 
-            # Subtract the ones we excluded to get the ones not filtred out
+            # Subtract the ones we excluded to get the ones not filtered out
             not_filtered = list(set(gp_allele_ids[gp_key]) - set(excluded))
+
+            filtered_utr = self.filter_utr(gp_key, not_filtered)
+            not_filtered = list(set(not_filtered)-set(filtered_utr))
+
             result[gp_key] = {
                 'allele_ids': not_filtered,
                 'excluded_allele_ids': {
                     'gene': gp_filtered_gene,
                     'intronic': gp_filtered_intronic,
-                    'frequency': gp_filtered_frequency
+                    'frequency': gp_filtered_frequency,
+                    'utr': filtered_utr,
                 }
             }
 
