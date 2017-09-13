@@ -21,7 +21,8 @@
         <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
           popover-trigger="outsideClick"
           uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
-          popover-title="HGVS c.DNA"
+          popover-title="HGVS cDNA"
+          popover-class="popover-title-no-uppercase"
           popover-placement="bottom">
             <i>{{t.transcript}}:</i><b>{{t.HGVSc_short}}</b> {{vm.getGenotype()}}
         </repeat-wrapper>
@@ -35,7 +36,7 @@
           uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
           popover-title="HGVS protein"
           popover-placement="bottom">
-            <i ng-if="t.HGVSp">{{t.HGVSp | proteinSequence}}:</i><b>{{t.HGVSp_short}}</b> ({{t.codons}})
+            <i ng-if="t.HGVSp">{{t.HGVSp | proteinSequence}}:</i><b>{{t.HGVSp_short}}</b> ({{vm.formatCodons(t.codons)}})
         </repeat-wrapper>
       </div>
     </h3>

@@ -92,15 +92,21 @@ export class Allele {
      *  - If multiple samples, put sample type letter in front: 'S: A/G, H: A/A'
      */
     formatGenotype() {
+        let shortGenotype = (match, gt1, gt2) => {
+            if (gt1.length >= 10) gt1 = `(${gt1.length})`;
+            if (gt2.length >= 10) gt2 = `(${gt2.length})`;
+            return `${gt1}/${gt2}`
+        }
+
         if ('samples' in this) {
             if (this.samples.length > 1) {
                 // If multiple, return 'S: A/T, H: A/G'
                 return this.samples.map(s => {
-                    return s.sample_type.substring(0, 1).toUpperCase() + ': ' + s.genotype.genotype
+                    return s.sample_type.substring(0, 1).toUpperCase() + ': ' + s.genotype.genotype.replace(/(.*)\/(.*)/g, shortGenotype)
                 }).join(', ');
             }
             else {
-                return this.samples[0].genotype.genotype;
+                return this.samples[0].genotype.genotype.replace(/(.*)\/(.*)/g, shortGenotype);
             }
         }
         return '';

@@ -125,8 +125,17 @@ def convert_csq(annotation):
 
         # Add custom types
         if 'HGVSc' in transcript_data:
-            # Split away transcript part
-            transcript_data['HGVSc_short'] = transcript_data['HGVSc'].split(':', 1)[1]
+            # Split away transcript part and remove long (>10 nt) insertions/deletions/duplications
+            t = transcript_data['HGVSc'].split(':', 1)[1]
+            def repl_len(m):
+                return "("+str(len(m.group()))+")"
+
+            s = re.sub('(?<=ins)([ACGT]{10,})', repl_len, t)
+            insertion = re.search('(?<=ins)([ACGT]{10,})', t)
+            if insertion is not None:
+                transcript_data["HGVSc_insertion"] = insertion.group()
+            s = re.sub('(?<=[del|dup])[ACGT]{10,}', '', s)
+            transcript_data['HGVSc_short'] = s
 
             exon_distance = _get_exon_distance(transcript_data)
             if exon_distance is not None:

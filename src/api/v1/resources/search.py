@@ -43,7 +43,7 @@ class SearchResource(LogRequestResource):
 
         ### Supported queries
         For Alleles and AlleleAssessments supported search queries are:
-        * HGVS c.DNA name, e.g. c.1312A>G (case insensitive) or NM_000059:c.920_921insT or
+        * HGVS cDNA name, e.g. c.1312A>G (case insensitive) or NM_000059:c.920_921insT or
           just NM_000059.
         * HGVS protein name, e.g. p.Ser309PhefsTer6 or NP_000050.2:p.Ser309PhefsTer6
           or just NP_000050.
@@ -142,7 +142,7 @@ class SearchResource(LogRequestResource):
     def _search_allele_hgvs(self, session, query):
         """
         Performs a search in the database using the
-        annotation table to lookup HGVS c.DNA or protein
+        annotation table to lookup HGVS cDNA or protein
         and get the allele_ids for matching annotations.
 
         For performance reasons there's a hardcoded
@@ -219,7 +219,7 @@ class SearchResource(LogRequestResource):
     def _search_allele_ids(self, session, query):
         """
         Search for alleles for the given input.
-        Try first a search on HGVS c.DNA and protein,
+        Try first a search on HGVS cDNA and protein,
         if not matches, try a position search.
         Idea is that user either searched by a HGVS name or
         by using the genomic position.

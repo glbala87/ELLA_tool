@@ -53,6 +53,7 @@
 .popover .popover-title { @extend .slim; @extend .title; @extend .upper; background-color: $white; color: $black-75;
                           font-weight: 600; font-size: 1.4rem !important; border: none; border-bottom: 1px solid $black-05;
                           padding-bottom: 0.2rem; padding-top: 0.3rem}
+.popover-title-no-uppercase * .popover-title {text-transform: none !important;}
 .popover-content {padding-top: 0.3rem}
 .popover-content * { @extend .slim; color: $black-75; font-size: 1.3rem !important;}
 .popover-content .gpv_override { color: $red; }
@@ -60,6 +61,8 @@
 .popover-list.indented { margin-left: 1.3rem; }
 .acmg-notes { margin-left: 2.6rem; }
 .popover h3.p-title { font-weight: 700; font-size: 1.4rem; color: $black-75;  margin: 0.7rem 0; }
+
+.popover * .small {font-weight: 300;}
 
 .acmg-popover {
   h3 { font-weight: 700; font-size: 1.4rem; color: $black-75;  margin: 0.7rem 0; }

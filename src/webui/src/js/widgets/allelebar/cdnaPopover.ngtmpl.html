@@ -1,3 +1,12 @@
 <ul class="popover-list">
-  <li ng-repeat="t in vm.allele.annotation.transcripts track by t.transcript" ng-if="t.HGVSc">{{t.HGVSc}}</li>
+  <!--<li ng-repeat="t in vm.allele.annotation.transcripts track by t.transcript" ng-if="t.HGVSc">{{t.HGVSc}}</li>-->
+  <div ng-repeat="t in vm.allele.annotation.transcripts track by t.transcript" ng-if="t.HGVSc">
+    <li >
+      {{t.transcript}}:{{t.HGVSc_short}}
+    </li>
+
+    <li class="small" ng-if="t.HGVSc_insertion">
+      Insertion: {{t.HGVSc_insertion}}
+    </li>
+  </div>
 </ul>

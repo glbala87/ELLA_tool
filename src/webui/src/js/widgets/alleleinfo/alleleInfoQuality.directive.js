@@ -22,4 +22,11 @@ export class AlleleInfoQuality {
         // TODO: Fix me when introducing multiple samples...
         return this.allele.samples[0].genotype;
     }
+
+    formatSequence(sequence) {
+        if (sequence.length > 10) return `(${sequence.length})`
+        else return sequence
+    }
+
+
 }
