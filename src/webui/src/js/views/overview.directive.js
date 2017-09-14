@@ -57,6 +57,10 @@ export class MainController {
         return this.configService.getConfig().user.user_config.overview.views.includes(view);
     }
 
+    hasMultipleViews() {
+        return this.views.filter((x) => this.shouldShowView(x)).length > 1
+    }
+
     hasSearchResults() {
         return this.search.results || false;
     }

@@ -26,7 +26,7 @@
     </nav>
 
     <div class="overviewcontainer">
-        <div class="sidenavbar">
+        <div class="sidenavbar" ng-if="vm.hasMultipleViews()">
             <div class="item-row">
                 <div class="item" ng-repeat="view in vm.views" ng-if="vm.shouldShowView(view)" ng-class="{'active': vm.isActive(view)}" ng-click="vm.setView(view)">{{vm.view_names[view]}}</div>
             </div>
