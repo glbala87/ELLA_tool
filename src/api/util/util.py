@@ -248,7 +248,7 @@ def request_json(required, only_required=False, allowed=None):
         return array_wrapper
 
 
-def authenticate(user_role=None, user_group=None):
+def authenticate(user_role=None, user_group=None, optional=False):
     def _authenticate(func):
         def _is_valid_token(session, token):
             userSession = session.query(user.UserSession).options(joinedload("user")).filter(
@@ -279,13 +279,19 @@ def authenticate(user_role=None, user_group=None):
             assert isinstance(args[1], scoped_session), "No session provided. Is the decorator @authenticate used outside a resource method?"
             session = args[1]
             if not request or request.cookies.get("AuthenticationToken") is None:
-                return Response("Authentication required", 403, {'WWWAuthenticate': 'Basic realm="Login Required"'})
+                if optional:
+                    return func(*args, **kwargs)
+                else:
+                    return Response("Authentication required", 403, {'WWWAuthenticate': 'Basic realm="Login Required"'})
 
             token = request.cookies.get("AuthenticationToken")
             valid, user = _is_valid_token(session, token)
             if not valid:
-                return Response("Token %s is invalid" % token, 403,
-                                {'WWWAuthenticate': 'Basic realm="Login Required"'})
+                if optional:
+                    return func(*args, **kwargs)
+                else:
+                    return Response("Token %s is invalid" % token, 403,
+                                    {'WWWAuthenticate': 'Basic realm="Login Required"'})
             else:
                 # TODO: Setup user roles and groups
                 # user_role = None # user.role
