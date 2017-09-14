@@ -45,6 +45,7 @@ class UserGroup(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(), nullable=False, unique=True)
     genepanels = relationship('Genepanel', secondary=UserGroupGenepanel)
+    config = Column(JSONMutableDict.as_mutable(JSONB), default={})
 
 
 class UserSession(Base):

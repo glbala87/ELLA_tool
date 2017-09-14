@@ -4,7 +4,15 @@
         "genepanels": [
             ["HBOC", "v01"],
             ["HBOCUTV", "v01"]
-        ]
+        ],
+        "config": {
+            "overview": {
+                "views": [
+                    "variants",
+                    "analyses-by-findings"
+                ]
+            }
+        }
     },
     {
         "name": "testgroup02",
@@ -14,6 +22,13 @@
             ["Iktyose", "v02"],
             ["Joubert", "v02"],
             ["EEogPU", "v02"]
-        ]
+        ],
+        "config": {
+            "overview": {
+                "views": [
+                    "analyses"
+                ]
+            }
+        }
     }
 ]
