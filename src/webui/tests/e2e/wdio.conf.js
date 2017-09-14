@@ -3,19 +3,36 @@ var addCommands = require('./commands');
 
 // when debugging it's useful to alter some config values
 var debug = process.env.DEBUG;
+
 var defaultCapabilities =  [{
         "chromeOptions" : {
-            // "args": ["--kiosk"] // maximizes the browser, but  still not-clickable errors happen
-            // these don't have any effect: ["--start-fullscreen", start-fullscreen", "--start-maximized", start-maximized"]
+             "args": ["headless", "disable-gpu", "--window-size=1440,1080"]
         },
         maxInstances: 1,
-        browserName: 'chrome'
+        browserName: 'chrome',
+        //loggingPrefs: {
+        //         'browser':     'ALL',
+        //         'driver':      'ALL',
+        //         'performance': 'ALL'
+        //     },
+    }];
+var debugCapabilities =  [{
+        "chromeOptions" : {
+             "args": ["--window-size=1440,1080", ]
+        },
+        maxInstances: 1,
+        browserName: 'chrome',
+        //loggingPrefs: {
+        //         'browser':     'ALL',
+        //         'driver':      'ALL',
+        //         'performance': 'ALL'
+        //     },
     }];
 var defaultTimeoutInterval = 120000; // ms
-var defaultMaxInstances = 10;
+var defaultMaxInstances = 1;
 let specHome = "src/webui/tests/e2e/tests/**";
 var defaultSpecs = [`${specHome}/*.js`];
-// var defaultSpecs = [`${specHome}/workflow_sample_classification.js`];
+// var defaultSpecs = [`${specHome}/workflow_sample_collisions.js`];
 var BUNDLED_APP = 'app.js'; // see gulp file
 
 exports.config = {
@@ -58,7 +75,7 @@ exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: debug ? [{browserName: 'chrome'}] : defaultCapabilities,
+    capabilities: debug ? debugCapabilities : defaultCapabilities,
     // maxInstances can get overwritten per capability. So if you have an in-house Selenium
     // grid with only 5 firefox instance available you can make sure that not more than
     // 5 instance gets started at a time.
@@ -84,6 +101,9 @@ exports.config = {
     //
     // Enables colors for log output.
     coloredLogs: true,
+    // If you only want to run your tests until a specific amount of tests have failed use
+    // bail (default is 0 - don't bail, run all tests).
+    bail: 1, // alert developer as soon as possible
     //
     // Saves a screenshot to a given path if a command fails.
     screenshotPath: './errorShots/',

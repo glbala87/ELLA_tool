@@ -110,7 +110,8 @@ describe('Read-only version of variant workflow ', function () {
         alleleSectionBox.reportCommentElement.click();
         expect(alleleSectionBox.reportCommentEditable).toBe(true);
 
-        alleleSectionBox.setReportComment('report changed'); // not taking effect; stays blank!
+        browser.click('body'); // a trick to unfocus the above report comment
+        alleleSectionBox.setReportComment('report changed');
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
 
@@ -119,7 +120,7 @@ describe('Read-only version of variant workflow ', function () {
         variantSelectionPage.selectFinished(1);
         alleleSectionBox.reportCommentElement.click();
         expect(alleleSectionBox.reportCommentEditable).toBe(false);
-        // expect(alleleSectionBox.reportComment).toBe('report changed'); // still blank!?
+        expect(alleleSectionBox.reportComment).toBe('report changed');
 
     });
 
