@@ -39,7 +39,13 @@ const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01';
 const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v01';
 
+
+// let timeOutForThisSpec = 3 * 60 * 1000;
+// let originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+// jasmine.DEFAULT_TIMEOUT_INTERVAL = timeOutForThisSpec;
+
 describe('Sample workflow', function () {
+    console.log("Starting test suite " + "'Sample workflow' with a timeout of " + jasmine.DEFAULT_TIMEOUT_INTERVAL);
 
     beforeAll(() => {
         browser.resetDb();
@@ -126,6 +132,7 @@ describe('Sample workflow', function () {
             expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1');
 
             // Add external annotation
+            console.log('Adding custom annotation');
             alleleSectionBox.addExternalBtn.scroll();
             alleleSectionBox.addExternalBtn.click();
             customAnnotationModal.annotationSelect.selectByVisibleText('LOVD');
@@ -136,6 +143,7 @@ describe('Sample workflow', function () {
             expect(alleleSectionBox.getExternalOtherValue()).toEqual('+/+');
 
             // Add prediction annotation
+            console.log('Adding prediction annotation');
             alleleSectionBox.addPredictionBtn.scroll();
             alleleSectionBox.addPredictionBtn.click();
             customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
@@ -146,6 +154,7 @@ describe('Sample workflow', function () {
             expect(alleleSectionBox.getPredictionOtherValue()).toEqual('conserved');
 
             // Set comments/classification
+            console.log('Adding comments');
             alleleSectionBox.setClassificationComment('EVALUATION_ROUND1');
             analysisPage.saveButton.click();
             alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1');
@@ -161,9 +170,13 @@ describe('Sample workflow', function () {
             alleleSectionBox.setReportComment('REPORT_ROUND1');
             browser.click('body'); // a trick to unfocus the above report comment
             alleleSectionBox.classificationCommentElement.scroll();
+
+            console.log("Adding ACMG codes")
             alleleSectionBox.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');
             alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', -2); // Adjust down to PPxPS2
             alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
+
+            console.log("Setting class " + (idx+1));
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx+1}`);
 
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
@@ -210,10 +223,17 @@ describe('Sample workflow', function () {
             }
         }
 
+        console.log('Changing to the report page');
         analysisPage.selectSectionReport();
+
+        console.log('Setting a review comment');
         alleleSectionBox.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1');
+        browser.click('body'); // a trick to unfocus the above report comment
+
         expect(alleleSidebar.getClassifiedAlleles().length)
             .toEqual(6, `Wrong number of variants of sample ${SAMPLE_ONE} before finish`);
+
+        console.log('Setting to review');
         analysisPage.finishButton.click();
         analysisPage.markReviewButton.click();
     });
@@ -291,19 +311,19 @@ describe('Sample workflow', function () {
         referenceEvalModal.saveBtn.click();
         alleleSectionBox.setClassificationComment('EVALUATION_UPDATED');
         analysisPage.saveButton.scroll();
-        analysisPage.saveButton.click();
+        // analysisPage.saveButton.click();
         alleleSectionBox.setFrequencyComment('FREQUENCY_UPDATED');
         analysisPage.saveButton.scroll();
-        analysisPage.saveButton.click();
+        // analysisPage.saveButton.click();
         alleleSectionBox.setPredictionComment('PREDICTION_UPDATED');
         analysisPage.saveButton.scroll();
-        analysisPage.saveButton.click();
+        // analysisPage.saveButton.click();
         alleleSectionBox.setExternalComment('EXTERNAL_UPDATED');
         analysisPage.saveButton.scroll();
-        analysisPage.saveButton.click();
+        // analysisPage.saveButton.click();
         alleleSectionBox.setReportComment('REPORT_UPDATED');
         alleleSectionBox.classSelection.selectByVisibleText('Class 5');
-        alleleSectionBox.addAttachment()
+        alleleSectionBox.addAttachment();
         expect(alleleSectionBox.getNumberOfAttachments()).toEqual(2);
         // :end
 
@@ -337,3 +357,4 @@ describe('Sample workflow', function () {
     });
 
 });
+

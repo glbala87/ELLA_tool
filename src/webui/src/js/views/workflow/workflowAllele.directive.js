@@ -368,6 +368,7 @@ export class WorkflowAlleleController {
             // If an interpretation is Ongoing, we assign it directly
             if (last_interpretation && last_interpretation.status === 'Ongoing') {
                 this.selected_interpretation = last_interpretation;
+                this.selected_interpretation.current = true;
                 this.history_interpretations = done_interpretations;
             }
             // Otherwise, make a copy of the last historical one to act as "current" entry.
@@ -403,7 +404,10 @@ export class WorkflowAlleleController {
                 alleles => {
                     this.selected_interpretation_alleles = alleles;
                     this.alleles_loaded = true;
-                    console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
+                    console.log("(Re)Loaded alleles using interpretation "
+                        +  this.selected_interpretation.id
+                        + "(" + this.selected_interpretation.current + ")"
+                        , this.selected_interpretation_alleles);
                 },
                 () => { this.selected_interpretation_alleles = []; } // On error
 
