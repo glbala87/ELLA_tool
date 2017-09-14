@@ -136,4 +136,13 @@ export class AlleleSidebarController {
         let our_genes = allele.annotation.filtered.map(f => f.symbol);
         return our_genes.some(s => other_alleles_genes.includes(s));
     }
+
+    is3hetAR(allele) {
+        if (this.isHomozygous(allele)) return false;
+        if (this.isMultipleInAlleleGenes(allele)) return false;
+        if (this.isImportantSource(allele)) return false;
+        if (this.getInheritance(allele) !== "AR") return false;
+        if (this.isNonsense(allele)) return false;
+        return true;
+    }
 }
