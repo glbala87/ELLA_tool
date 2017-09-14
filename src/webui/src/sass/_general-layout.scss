@@ -409,6 +409,14 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
             color: lighten($green-50, 5%);
           }
         }
+        .three-het-ar {
+          @include indicator;
+          .hit {
+            @include indicator-hit;
+            border-color: lighten($purple-50, 5%);
+            color: lighten($purple-50, 5%);
+          }
+        }
 
       }
     }
