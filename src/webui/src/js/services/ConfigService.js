@@ -12,6 +12,7 @@ class ConfigService {
     constructor(resource) {
         this.resource = resource;
         this.config = null;
+        this.overview = null;
     }
 
     /**
@@ -27,6 +28,7 @@ class ConfigService {
             let r = this.resource('/api/v1/config/');
             let config = r.get(() => {
                 this.config = config;
+                this.overview = config.user.user_config.overview.views[0];
                 resolve(config);
             });
         });
@@ -37,5 +39,13 @@ class ConfigService {
             throw Error("Config not loaded, call loadConfig() first.");
         }
         return this.config;
+    }
+
+    setOverview(view) {
+        this.overview = view;
+    }
+
+    getOverview() {
+        return this.overview
     }
 }
