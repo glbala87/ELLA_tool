@@ -5,16 +5,16 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'overview',
     templateUrl: 'ngtmpl/overview.ngtmpl.html',
-    scope: {
-        selectedView: '='
-    }
+    // scope: {
+    //     selectedView: '='
+    // }
 })
 @Inject('$scope', '$interval', 'Config', 'SearchResource', 'AnnotationjobResource', 'AnnotateVCFFileModal')
 export class MainController {
     constructor($scope, $interval, Config, SearchResource, AnnotationjobResource, AnnotateVCFFileModal) {
         this.scope = $scope;
         this.interval = $interval;
-        this.config = Config.getConfig();
+        this.configService = Config;
         this.searchResource = SearchResource;
         this.annotationjobResource = AnnotationjobResource;
         this.annotateVCFFileModal = AnnotateVCFFileModal;
@@ -54,7 +54,7 @@ export class MainController {
 
     shouldShowView(view) {
         // TODO: Change this to use user config when implemented.
-        return this.config.user.user_config.overview.views.includes(view);
+        return this.configService.getConfig().user.user_config.overview.views.includes(view);
     }
 
     hasSearchResults() {
@@ -62,11 +62,11 @@ export class MainController {
     }
 
     setView(view) {
-        this.selectedView = view;
+        this.configService.setOverview(view);
     }
 
     isActive(view) {
-        return this.selectedView === view;
+        return this.configService.getOverview() === view;
     }
 
     showAnnotateVCFFile() {

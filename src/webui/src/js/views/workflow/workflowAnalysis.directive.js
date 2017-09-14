@@ -273,10 +273,11 @@ export class WorkflowAnalysisController {
 
     setupNavbar() {
         let label = this.analysis ? this.analysis.name : '';
+
         this.navbar.replaceItems([
             {
                 title: label,
-                url: "/overview/analyses"
+                url: `/overview`
             }
         ]);
     }
