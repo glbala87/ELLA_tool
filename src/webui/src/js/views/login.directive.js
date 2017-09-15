@@ -112,6 +112,7 @@ export class LoginController {
         this.loginResource.login(username, password).then( () => {
             this.user.loadUser().then(
                 this.configService.loadConfig().then( () => {
+                        localStorage.removeItem("overview");
                         this.location.path('/');
                     }
                 )

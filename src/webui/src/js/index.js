@@ -133,7 +133,7 @@ class AppConfig {
                     'content': {
                         template: '<overview selected-view="selectedView"></overview>',
                         controller: ['$scope', '$stateParams', 'Config', function($scope, $stateParams, Config) {
-                            $scope.selectedView = $stateParams.view || Config.getOverview() || "analyses";
+                            $scope.selectedView = $stateParams.view || localStorage.getItem("overview") || "analyses";
                         }]
                     }
                 }

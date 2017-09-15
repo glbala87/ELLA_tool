@@ -34,7 +34,7 @@
 
         <div class="container with-sidenavbar">
             <search-results></search-results>
-            <div ng-switch="vm.configService.getOverview()">
+            <div ng-switch="vm.getSelectedView()">
                 <analysis-selection ng-switch-when="analyses"></analysis-selection>
                 <analysis-selection by-findings="true" ng-switch-when="analyses-by-findings"></analysis-selection>
                 <allele-selection ng-switch-when="variants"></allele-selection>

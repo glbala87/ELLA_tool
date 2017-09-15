@@ -40,12 +40,4 @@ class ConfigService {
         }
         return this.config;
     }
-
-    setOverview(view) {
-        this.overview = view;
-    }
-
-    getOverview() {
-        return this.overview
-    }
 }
