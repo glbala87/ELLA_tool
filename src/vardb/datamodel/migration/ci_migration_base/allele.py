@@ -10,7 +10,7 @@ class Allele(Base):
     """Represents an allele (a variant type in a genomic position)"""
     __tablename__ = "allele"
 
-    CLASS1 = 'CLASS1'
+    FREQUENCY = 'FREQUENCY'
     INTRON = 'INTRON'
     GENE = 'GENE'
 
@@ -24,9 +24,13 @@ class Allele(Base):
     change_from = Column(String, nullable=False)
     change_to = Column(String, nullable=False)
     change_type = Column(String, nullable=False)
+    vcf_pos = Column(Integer, nullable=False)
+    vcf_ref = Column(String, nullable=False)
+    vcf_alt = Column(String, nullable=False)
 
     __table_args__ = (Index("ix_alleleloci", "chromosome", "start_position", "open_end_position"),
-                      UniqueConstraint("chromosome", "start_position", "open_end_position", "change_from", "change_to", "change_type", name="ucAllele"), )
+                      UniqueConstraint("chromosome", "start_position", "open_end_position", "change_from", "change_to",
+                                       "change_type", "vcf_pos", "vcf_ref", "vcf_alt", name="ucAllele"), )
 
 
     def __repr__(self):
