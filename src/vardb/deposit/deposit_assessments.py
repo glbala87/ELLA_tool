@@ -50,7 +50,8 @@ class DepositAssessments(object):
     def import_vcf(self,
                    path,
                    genepanel_name=None,
-                   genepanel_version=None):
+                   genepanel_version=None,
+                   update_annotations=True):
 
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
@@ -64,7 +65,7 @@ class DepositAssessments(object):
             db_alleles = self.allele_importer.process(record)
 
             # Import annotation for these alleles
-            self.annotation_importer.process(record, db_alleles)
+            self.annotation_importer.process(record, db_alleles, update_annotations)
 
             # Import assessment for these alleles
             self.assessment_importer.process(
@@ -103,6 +104,7 @@ def main(argv=None):
     parser.add_argument("--vcf", action="store", dest="vcfPath", required=True, help="Path to VCF file to deposit")
     parser.add_argument("--genepanel-name", action="store", dest="gp_name", required=True, help="Name of genepanel for assessments")
     parser.add_argument("--genepanel-version", action="store", dest="gp_version", required=True, help="Version of genepanel for assessments")
+    parser.add_argument("--update-annotation", action="store_true", dest="update_annotations", help="Flag to update annotations")
 
     parser.add_argument("-f", action="store_true", dest="nonInteractive", required=False,
                         default=False, help="Do not ask for confirmation before deposit")
@@ -117,6 +119,7 @@ def main(argv=None):
             args.vcfPath,
             genepanel_name=args.gp_name,
             genepanel_version=args.gp_version,
+            update_annotations=args.update_annotations,
         )
     except UserWarning as e:
         log.error(str(e))
