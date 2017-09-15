@@ -37,6 +37,7 @@ class User(Base):
     password_expiry = Column(DateTime(timezone=True), nullable=False)
     active = Column(Boolean, default=True, nullable=False)
     incorrect_logins = Column(Integer, default=0, nullable=False)
+    config = Column(JSONMutableDict.as_mutable(JSONB), default={})
 
 
 class UserGroup(Base):

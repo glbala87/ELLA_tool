@@ -41,7 +41,6 @@ class ConfigResource(LogRequestResource):
         c = config.config
         if user is not None:
             dict_merge(c["user"]["user_config"], user.group.config)
-            # TODO: Add user config
-            #dict_merge(c["user"]["user_config"], user.config)
+            dict_merge(c["user"]["user_config"], user.config)
 
-        return config.config
+        return c
