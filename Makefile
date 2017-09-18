@@ -1,8 +1,8 @@
-BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
+BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD) # Configured on the outside when running in gitlab
 TEST_NAME ?= all
 TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
-IMAGE_NAME = local/ella-$(BRANCH)
+NAME_OF_GENERATED_IMAGE = local/ella-$(BRANCH)
 API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
@@ -26,8 +26,8 @@ help :
 	@echo ""
 	@echo " Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
 	@echo ""
-	@echo "make build		- build image $(IMAGE_NAME)"
-	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE)"
+	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
 	@echo "make db			- populates the db with fixture data"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
@@ -175,7 +175,7 @@ any:
 	@true
 
 build:
-	docker build -t $(IMAGE_NAME) .
+	docker build -t $(NAME_OF_GENERATED_IMAGE) .
 
 dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
 dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
@@ -190,7 +190,7 @@ dev:
 	-p 35729:35729 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
-	$(IMAGE_NAME) \
+	$(NAME_OF_GENERATED_IMAGE) \
 	supervisord -c /ella/ops/dev/supervisor.cfg
 
 db:
@@ -218,8 +218,7 @@ restart:
 .PHONY: test-build test single-test e2e-test e2e-test-local run-wdio-local run-wdio-against-chromebox run-test
 
 test-build:
-#	$(eval BRANCH = test)
-	docker build -t $(IMAGE_NAME) .
+	docker build -t $(NAME_OF_GENERATED_IMAGE) .
 
 test: test-build run-test
 
@@ -230,16 +229,16 @@ e2e-test: e2e-network-check e2e-start-chromebox test-build
 	-docker rm ella-e2e
 	@rm -rf errorShots
 	@mkdir -p errorShots
-	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(IMAGE_NAME) make e2e-start-ella-and-run-wdio
+	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio
 	make e2e-stop-chromebox
 
 
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
-	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(IMAGE_NAME) /bin/bash -c "make e2e-run-continous; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
+	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(NAME_OF_GENERATED_IMAGE) /bin/bash -c "make e2e-run-continous; echo \"Run 'make wdio' to run e2e tests\"; /bin/bash"
 
 run-test:
-	docker run $(IMAGE_NAME) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
+	docker run $(NAME_OF_GENERATED_IMAGE) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
 
 e2e-start-ella:
 	supervisord -c /ella/ops/test/supervisor-e2e.cfg

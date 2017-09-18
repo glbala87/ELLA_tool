@@ -1,4 +1,7 @@
 ---
+variables:
+  BRANCH: $CI_COMMIT_REF_NAME
+
 stages:
   - test
   - e2e
@@ -7,12 +10,6 @@ stages:
   - notify
   - release
   - cleanup
-
-failing-job:
-  stage: test
-  script:
-    - echo "failing-job is failing. Don't worry, it's only testing the CI system"
-    - exit 1
 
 test_api:
   stage: test
