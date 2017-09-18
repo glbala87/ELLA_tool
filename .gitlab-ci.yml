@@ -1,10 +1,18 @@
 ---
 stages:
   - test
+  - e2e
   - deploy
   - review
   - notify
   - release
+  - cleanup
+
+failing-job:
+  stage: test
+  script:
+    - echo "failing-job is failing. Don't worry, it's only testing the CI system"
+    - exit 1
 
 test_api:
   stage: test
@@ -49,7 +57,7 @@ test_rule_engine:
 
 
 test_e2e:
-  stage: test
+  stage: e2e
   script:
     - make e2e-test
   except:
@@ -61,6 +69,11 @@ test_e2e:
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
 
+cleanup_e2e:
+  stage: cleanup
+  script:
+    - make e2e-stop-chromebox
+  when: on_failure
 
 bot_build:
   stage: deploy

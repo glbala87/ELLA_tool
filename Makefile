@@ -16,6 +16,7 @@ APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
 WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
 CHROMEBOX_IMAGE = ousamg/chromebox:1.2
+CHROMEBOX_CONTAINER = chromebox-$(BRANCH)
 
 .PHONY: help
 
@@ -41,7 +42,7 @@ help :
 	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
 	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
-	@echo "make wdio		- For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
+	@echo "make run-wdio-local	- For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
 	@echo "                          Set these vars: APP_BASE_URL and CHROME_HOST"
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
@@ -214,22 +215,24 @@ restart:
 #---------------------------------------------
 # TESTING
 #---------------------------------------------
-.PHONY: test-build test single-test e2e-test e2e-test-local wdio wdio-chromebox run-test
+.PHONY: test-build test single-test e2e-test e2e-test-local run-wdio-local run-wdio-against-chromebox run-test
 
 test-build:
-	$(eval BRANCH = test)
+#	$(eval BRANCH = test)
 	docker build -t $(IMAGE_NAME) .
 
 test: test-build run-test
 
 single-test: test-build run-test
 
-e2e-test: e2e-network-check e2e-run-chrome test-build
+e2e-test: e2e-network-check e2e-start-chromebox test-build
 	-docker stop ella-e2e
 	-docker rm ella-e2e
 	@rm -rf errorShots
 	@mkdir -p errorShots
-	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link chromebox:cb $(IMAGE_NAME) make e2e-run-ci
+	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(IMAGE_NAME) make e2e-start-ella-and-run-wdio
+	make e2e-stop-chromebox
+
 
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
@@ -238,13 +241,13 @@ e2e-test-local: test-build
 run-test:
 	docker run $(IMAGE_NAME) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
 
-e2e-ella:
+e2e-start-ella:
 	supervisord -c /ella/ops/test/supervisor-e2e.cfg
 	make dbsleep
 
-e2e-run-ci: e2e-ella e2e-gulp-once wdio-chromebox
+e2e-start-ella-and-run-wdio: e2e-start-ella e2e-gulp-once run-wdio-against-chromebox
 
-e2e-run-continous: e2e-ella e2e-gulp-continous
+e2e-run-continous: e2e-start-ella e2e-gulp-continous
 
 e2e-gulp-continous:
 	rm -f /ella/node_modules
@@ -257,23 +260,25 @@ e2e-gulp-once:
 	ln -s /dist/node_modules/ /ella/node_modules
 	/ella/node_modules/gulp/bin/gulp.js build
 
-wdio-chromebox:
-	@echo "Running webdriverio against chromebox. Running if responds: `curl --silent cb:4444/status`"
+run-wdio-against-chromebox:
+	@echo "Running webdriverio against chromebox in container $(CHROMEBOX_CONTAINER). Running if responds: `curl --silent cb:4444/status`"
 	@echo "pwd: '`pwd`'"
 #	screenshots on e2e test errors are defined in wdio.conf
 	@echo "Content of ./errorShots:"
 	@if [ -s './errorShots' ] ; then ls './errorShots' ; else echo "Folder ./errorShots don't exist"; fi
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
-wdio:
+run-wdio-local:
 	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
-e2e-run-chrome:
-	-docker kill chromebox
-	-docker rm chromebox
-	docker run -d --name chromebox --network=local_only $(CHROMEBOX_IMAGE)
+e2e-stop-chromebox:
+	-docker stop $(CHROMEBOX_CONTAINER)
+
+e2e-start-chromebox:
+	@echo "Starting Chromebox container $(CHROMEBOX_CONTAINER) using $(CHROMEBOX_IMAGE)"
+	docker run -d --name $(CHROMEBOX_CONTAINER) --network=local_only $(CHROMEBOX_IMAGE)
 	@echo "Chromebox info: (chromedriver, chrome, linux, debian)"
-	docker exec chromebox /bin/sh -c "ps aux | grep -E 'chromedriver|Xvfb' | grep -v 'grep' ; chromedriver --version ; google-chrome --version ; cat /proc/version ; cat /etc/debian_version"
+	docker exec $(CHROMEBOX_CONTAINER) /bin/sh -c "ps aux | grep -E 'chromedriver|Xvfb' | grep -v 'grep' ; chromedriver --version ; google-chrome --version ; cat /proc/version ; cat /etc/debian_version"
 
 e2e-network-check:
 	docker network ls | grep -q local_only || docker network create --subnet 172.25.0.0/16 local_only
