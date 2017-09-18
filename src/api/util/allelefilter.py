@@ -777,15 +777,7 @@ class AlleleFilter(object):
                 allele_consequences[allele_id] += consequences
 
         def get_consequence_index(consequences):
-            indices = []
-            for c in consequences:
-                if c in consequences_ordered:
-                    i = consequences_ordered.index(c)
-                else:
-                    i = -1
-                indices.append(i)
-
-            return indices
+            return map(lambda c: consequences_ordered.index(c) if c in consequences_ordered else -1, consequences)
 
         # Check if it has consequence 3_prime_UTR_variant/5_prime_UTR_variant, and if so, if this is the worst consequence
         utr_filtered = []
