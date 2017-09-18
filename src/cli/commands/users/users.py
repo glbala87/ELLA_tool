@@ -4,6 +4,7 @@ import datetime
 import pytz
 import sys
 import os
+import json
 from copy import deepcopy
 from functools import wraps
 
@@ -139,20 +140,11 @@ def cmd_users_activity():
         click.echo(row_format.format(id=u.user.id, username=u.user.username, first_name=u.user.first_name, last_name=u.user.last_name, last_activity=str(u.lastactivity)))
 
 
-@users.command('add')
-@convert(True, "--first_name", "--last_name")
-@click.option('--username')
-@click.option('--first_name')
-@click.option('--last_name')
-@click.option('--usergroup')
-@convert(False, "--first_name", "--last_name")
-def cmd_add_user(username, first_name, last_name, usergroup):
+def _add_user(session, username, first_name, last_name, usergroup):
     """
     Add user with a generated password
     """
-    db = DB()
-    db.connect()
-    session = db.session()
+
 
     existing_user = session.query(user.User).filter(
         user.User.username == username,
@@ -176,14 +168,54 @@ def cmd_add_user(username, first_name, last_name, usergroup):
     )
 
     session.add(u)
+    return u, password
+
+@users.command('add')
+@convert(True, "--first_name", "--last_name")
+@click.option('--username')
+@click.option('--first_name')
+@click.option('--last_name')
+@click.option('--usergroup')
+@convert(False, "--first_name", "--last_name")
+def cmd_add_user(username, first_name, last_name, usergroup):
+    """
+    Add user with a generated password
+    """
+    db = DB()
+    db.connect()
+    session = db.session()
+
+    u, pw = _add_user(session, username, first_name, last_name, usergroup)
     session.commit()
 
-    click.echo("Added user {username} ({last_name}, {first_name}) with password {password}".format(
-        username=username,
-        first_name=first_name,
-        last_name=last_name,
-        password=password
+    click.echo(u"Added user {username} ({last_name}, {first_name}) with password {password}".format(
+        username=u.username,
+        first_name=u.first_name,
+        last_name=u.last_name,
+        password=pw
     ))
+
+@users.command('add_many')
+@click.argument("json_file")
+def cmd_add_many_users(json_file):
+    db = DB()
+    db.connect()
+    session = db.session()
+
+    users = json.load(open(json_file, 'r'))
+    for u in users:
+        try:
+            u, pw = _add_user(session, u["username"], u["first_name"], u["last_name"], u["usergroup"])
+        except AssertionError, e:
+            print e
+            continue
+        click.echo(u"Added user {username} ({last_name}, {first_name}) with password {password}".format(
+            username=u.username,
+            first_name=u.first_name,
+            last_name=u.last_name,
+            password=pw
+        ))
+    session.commit()
 
 
 @users.command('reset_password')
