@@ -107,6 +107,11 @@ export class AddExcludedAllelesController {
                 a => this.excluded_allele_ids.intronic.includes(a.id)
             );
         }
+        else if (this.category === 'utr') {
+            this.category_excluded_alleles = this.alleles.filter(
+                a => this.excluded_allele_ids.utr.includes(a.id)
+            );
+        }
 
         this.filtered_alleles = this.category_excluded_alleles.slice(0); // Clone array
 
@@ -188,7 +193,6 @@ export class AddExcludedAllelesModal {
      * @return {Promise} Promise that resolves when dialog is closed. Resolves with same array as included_allele_ids.
      */
     show(excluded_allele_ids, included_allele_ids, sample_id, gp_name, gp_version, read_only) {
-
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/addExcludedAllelesModal.ngtmpl.html',
             controller: [

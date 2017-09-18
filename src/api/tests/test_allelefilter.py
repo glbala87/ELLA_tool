@@ -97,6 +97,44 @@ CONFIG = {
         ]
     },
     'transcripts': {
+        "consequences": [
+            "transcript_ablation",
+            "splice_donor_variant",
+            "splice_acceptor_variant",
+            "stop_gained",
+            "frameshift_variant",
+            "start_lost",
+            "initiator_codon_variant",
+            "stop_lost",
+            "inframe_insertion",
+            "inframe_deletion",
+            "missense_variant",
+            "protein_altering_variant",
+            "transcript_amplification",
+            "splice_region_variant",
+            "incomplete_terminal_codon_variant",
+            "synonymous_variant",
+            "stop_retained_variant",
+            "coding_sequence_variant",
+            "mature_miRNA_variant",
+            "5_prime_UTR_variant",
+            "3_prime_UTR_variant",
+            "non_coding_transcript_exon_variant",
+            "non_coding_transcript_variant",
+            "intron_variant",
+            "NMD_transcript_variant",
+            "upstream_gene_variant",
+            "downstream_gene_variant",
+            "TFBS_ablation",
+            "TFBS_amplification",
+            "TF_binding_site_variant",
+            "regulatory_region_variant",
+            "regulatory_region_ablation",
+            "regulatory_region_amplification",
+            "feature_elongation",
+            "feature_truncation",
+            "intergenic_variant"
+        ],
         'inclusion_regex': "NM_.*"
     }
 }
@@ -1113,6 +1151,124 @@ class TestAlleleFilter(object):
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=5)
+    def test_utr_filtering(self, session):
+        ##
+        # Test positive case
+        ##
+
+        pa1 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'consequences': ['3_prime_UTR_variant']
+                }
+            ]
+        })
+
+        pa2 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'consequences': ['3_prime_UTR_variant', 'non_coding_transcript_exon_variant']
+                }
+            ]
+        })
+
+        pa3 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'consequences': ['non_coding_transcript_exon_variant']
+                },
+                {
+                    'symbol': 'GENE2',
+                    'transcript': 'NM_2.1',
+                    'consequences': ['5_prime_UTR_variant', 'intron_variant']
+                }
+            ]
+        })
+
+        session.commit()
+
+        af = AlleleFilter(session, CONFIG)
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [pa1.id, pa2.id, pa3.id]
+        result = af.filter_alleles({gp_key: allele_ids})
+
+        assert set(result[gp_key]['excluded_allele_ids']['utr']) == set(allele_ids)
+
+        ##
+        # Test negative cases
+        ##
+
+        na1 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                }
+            ]
+        })
+
+        na2 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'consequences': ['splice_region_variant']
+                },
+            ]
+        })
+
+        na3 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'consequences': ['SOME_DUMMY_CONSEQUENCE_NOT_DEFINED']
+                },
+            ]
+        })
+
+        na4 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'consequences': ['5_prime_UTR_variant', 'splice_region_variant']
+                },
+            ]
+        })
+
+        na5 = create_allele_annotation(session, {
+            'transcripts': [
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'consequences': ['5_prime_UTR_variant']
+                },
+                {
+                    'symbol': 'GENE2',
+                    'transcript': 'NM_2.1',
+                    'consequences': ['splice_region_variant']
+                }
+            ]
+        })
+
+        session.commit()
+
+        af = AlleleFilter(session, CONFIG)
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id]
+        result = af.filter_alleles({gp_key: allele_ids})
+
+        assert set(result[gp_key]['allele_ids']) == set(allele_ids)
+
+
+    @pytest.mark.aa(order=6)
     def test_filter_order(self, session):
 
         # Test filter order: gene -> frequency -> intronic
@@ -1202,3 +1358,4 @@ class TestAlleleFilter(object):
         assert a1.id not in result[gp_key]['allele_ids']
         assert a2.id not in result[gp_key]['allele_ids']
         assert a3.id not in result[gp_key]['allele_ids']
+
