@@ -1,10 +1,15 @@
 ---
+variables:
+  BRANCH: $CI_COMMIT_REF_NAME
+
 stages:
   - test
+  - e2e
   - deploy
   - review
   - notify
   - release
+  - cleanup
 
 test_api:
   stage: test
@@ -49,7 +54,7 @@ test_rule_engine:
 
 
 test_e2e:
-  stage: test
+  stage: e2e
   script:
     - make e2e-test
   except:
@@ -61,6 +66,11 @@ test_e2e:
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
 
+cleanup_e2e:
+  stage: cleanup
+  script:
+    - make e2e-stop-chromebox
+  when: on_failure
 
 bot_build:
   stage: deploy
