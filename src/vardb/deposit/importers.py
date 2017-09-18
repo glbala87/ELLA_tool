@@ -555,7 +555,7 @@ class AnnotationImporter(object):
         }
         return annotations
 
-    def create_or_update_annotation(self, session, db_allele, annotation_data, update_annotations, log=None):
+    def create_or_update_annotation(self, session, db_allele, annotation_data, update_annotations):
         existing_annotation = self.session.query(annm.Annotation).filter(
             annm.Annotation.allele_id == db_allele.id,
             annm.Annotation.date_superceeded.is_(None)
@@ -565,7 +565,7 @@ class AnnotationImporter(object):
             if not update_annotations:
                 return existing_annotation
 
-            if self.diff_annotation(existing_annotation.annotations, annotation_data):
+            if AnnotationImporter.diff_annotation(existing_annotation.annotations, annotation_data):
                 # Replace existing annotation
                 existing_annotation.date_superceeded = datetime.datetime.now()
                 annotation, _ = annm.Annotation.get_or_create(
@@ -599,8 +599,7 @@ class AnnotationImporter(object):
                     self.session,
                     db_allele,
                     annotation_data,
-                    update_annotations,
-                    AnnotationImporter.diff_annotation,
+                    update_annotations
                 )
             )
 
