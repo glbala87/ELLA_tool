@@ -1,6 +1,7 @@
 let Page = require('./page');
 let util = require('./util');
 
+const SELECTOR_OVERVIEW_VARIANTS = '#id-overview-sidenav-variants';
 const SELECTOR_FINISHED = '.id-variants-finished';
 const SELECTOR_PENDING = '.id-variants-pending'; // no assessment
 const SELECTOR_REVIEW = '.id-variants-review';
@@ -15,7 +16,9 @@ const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
 class VariantSelection extends Page {
 
     open() {
-        super.open('overview/variants');
+        super.open('overview/');
+        browser.waitForExist(SELECTOR_OVERVIEW_VARIANTS);
+        browser.click(SELECTOR_OVERVIEW_VARIANTS);
     }
 
     get variantList() { return browser.element('allele-list') }
