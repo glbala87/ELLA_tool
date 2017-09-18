@@ -82,7 +82,7 @@ gulp.task('tp-js', function() {
         .pipe(gulp.dest(__basedir));
 });
 
-var bundler = browserify('./src/webui/src/js/index.js', {
+var jsBundler = browserify('./src/webui/src/js/index.js', {
     debug: production ? false : true, // include source map
     cache: {}, packageCache: {}, fullPaths: true // for watchify
 }).transform(babelify.configure({
@@ -90,7 +90,7 @@ var bundler = browserify('./src/webui/src/js/index.js', {
     plugins: ["babel-plugin-transform-decorators-legacy"]
 }));
 
-function doBundling(watcher) {
+function doJsBundling(watcher) {
     d = new Date(); console.log(
       '[' + d.toTimeString().split(' ')[0] + ']' + ' Started bundling...'
     );
@@ -112,17 +112,17 @@ function doBundling(watcher) {
 }
 
 gulp.task('watch-js', function() {
-    var watcher  = watchify(bundler, {
+    var jsWatcher  = watchify(jsBundler, {
         // docker-machine: use 'true' since inotify doesn't seem to work;
         // Docker for Mac: use 'false' since polling makes CPU go crazy
         poll: false
     });
-    watcher
-        .on('update', function () { doBundling(watcher); });
+    jsWatcher
+        .on('update', function () { doJsBundling(jsWatcher); });
 
-    doBundling(watcher); // Run the bundle the first time (required for Watchify to kick in)
+    doJsBundling(jsWatcher); // Run the bundle the first time (required for Watchify to kick in)
 
-    return watcher;
+    return jsWatcher;
 });
 
 /*
@@ -132,7 +132,7 @@ gulp.task('watch-js', function() {
 gulp.task('js', function(done) {
     console.log('Gulp: starting js');
     // return browserify('./src/webui/src/js/index.js', {debug: true})
-    return bundler
+    return jsBundler
         .bundle()
         .on('error', function(err) { onError(err); this.emit('end'); })
         .pipe(plumber({
@@ -228,9 +228,14 @@ gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
     }, done).start();
 });
 
-gulp.task('watch', function() {
-    livereload.listen();
-    watch('src/webui/src/sass/*.scss', function(hmm) {
+
+gulp.task('livereload', function() {
+   console.log('Gulp: starting livereload server');
+   livereload.listen();
+});
+
+gulp.task('watch-css-html', function() {
+    watch('src/webui/src/sass/*.scss', function(unusedParameter) {
         console.log('*.scss changed');
         gulp.start('sass')
         });
@@ -243,5 +248,5 @@ gulp.task('watch', function() {
 
 gulp.task('build', ['index', 'tp-js', 'js', 'ngtmpl', 'fonts', 'sass', 'base-css']);
 
-gulp.task('default', ['build','watch-js', 'watch']);
+gulp.task('default', ['build', 'livereload', 'watch-js', 'watch-css-html']);
 
