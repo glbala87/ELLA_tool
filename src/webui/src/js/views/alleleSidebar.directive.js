@@ -68,6 +68,7 @@ export class AlleleSidebarController {
     }
 
     sortBy(alleles_selection, sortBy) {
+        // Sort alleles_selection (classified/unclassified) by sortBy
         if (this.orderBy[alleles_selection][0] === sortBy) {
             if (!this.orderBy[alleles_selection][1]) {
                 this.orderBy[alleles_selection][1] = true;
@@ -75,27 +76,13 @@ export class AlleleSidebarController {
                 this.orderBy[alleles_selection] = [undefined, false];
             }
         } else {
-            this.orderBy.unclassified[0] = sortBy;
+            this.orderBy[alleles_selection][0] = sortBy;
         }
 
+        // Update filter on classified and unclassified alleles
         this.classified_alleles = this.orderByFilter(this.alleles.classified, (allele) => {return this.sort(allele, this.orderBy.classified[0])}, this.orderBy.classified[1]);
         this.unclassified_alleles = this.orderByFilter(this.alleles.unclassified, (allele) => {return this.sort(allele, this.orderBy.unclassified[0])}, this.orderBy.unclassified[1]);
     }
-
-
-    // sort(alleles, sort_order, desc) {
-    //     this.sorted_alleles = deepCopy(alleles);
-    //     // let sorted_alleles = alleles;
-    //     if (sort_order === "inheritance") {
-    //         this.sortInheritance(alleles, desc)
-    //     }
-    //     if (sort_order === "gene") {
-    //         this.sorted_alleles.sort((a1,a2) => {
-    //             return a1.allele.annotation.filtered[0].symbol > a2.allele.annotation.filtered[0].symbol;
-    //         })
-    //     }
-    //     return this.sorted_alleles
-    // }
 
     select(allele_option) {
         // We have two modes, multiple checkable or normal radio selectiion (of single allele)
