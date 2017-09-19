@@ -4,9 +4,84 @@
 
   <section class="id-unclassified enabled">
     <div class="nav-table">
+      <div class="nav-row top">
+        <div class="cell" title="Sample type" ng-click="vm.sortBy('unclassified','type')">
+          T
+          <span ng-if="vm.orderBy.unclassified[0] === 'type'">
+            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="Inheritance" ng-click="vm.sortBy('unclassified','inheritance')">
+          I
+          <span ng-if="vm.orderBy.unclassified[0] === 'inheritance'">
+            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="Gene" ng-click="vm.sortBy('unclassified','gene')">
+          GENE
+          <span ng-if="vm.orderBy.unclassified[0] === 'gene'">
+            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="HGVSc" ng-click="vm.sortBy('unclassified','hgvsc')">
+          HGVSc
+          <span ng-if="vm.orderBy.unclassified[0] === 'hgvsc'">
+            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="Consequence" ng-click="vm.sortBy('unclassified','consequence')">
+          CSQ
+          <span ng-if="vm.orderBy.unclassified[0] === 'consequence'">
+            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell indicators">
+          <div title="Homozygous" class="hom">
+            <div class="hit" ng-click="vm.sortBy('unclassified', 'homozygous')">
+              <span>O</span>
+              <span ng-if="vm.orderBy.unclassified[0] === 'homozygous'">
+                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              </span>
+            </div>
+          </div>
+          <div title="Quality issues" class="low-qual">
+            <div class="hit" ng-click="vm.sortBy('unclassified', 'quality')">
+              <span>Q</span>
+              <div ng-if="vm.orderBy.unclassified[0] === 'quality'">
+                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              </div>
+            </div>
+          </div>
+          <div title="Reference(s) available" class="important-source">
+            <div class="hit" ng-click="vm.sortBy('unclassified', 'references')">
+              <span>R</span>
+              <div ng-if="vm.orderBy.unclassified[0] === 'references'">
+                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              </div>
+            </div>
+          </div>
+          <div class="three-het-ar">
+            <div title="3hetAR"  class="hit" ng-click="vm.sortBy('unclassified', '3hetAR')">
+              <span>3</span>
+              <div ng-if="vm.orderBy.unclassified[0] === '3hetAR'">
+                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
+                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="nav-row" title="Allele ID {{ allele_obj.allele.id }}"
            ng-class="{'active': vm.isSelected(allele_obj), 'multiple': vm.isMultipleInAlleleGenes(allele_obj.allele)}"
-           ng-repeat="allele_obj in vm.alleles.unclassified track by allele_obj.allele.id"
+           ng-repeat="allele_obj in vm.unclassified_alleles track by allele_obj.allele.id"
            ng-click="vm.select(allele_obj)">
 
         <div title="{{vm.getSampleTypesFull(allele_obj.allele)}}" class="cell sample-type id-sample-type">

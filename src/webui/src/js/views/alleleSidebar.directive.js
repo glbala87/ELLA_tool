@@ -2,6 +2,7 @@
 
 import {Directive, Inject} from '../ng-decorators';
 import {AlleleStateHelper} from '../model/allelestatehelper';
+import {deepCopy} from '../util'
 
 @Directive({
     selector: 'allele-sidebar',
@@ -13,12 +14,88 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
         readOnly: '=?' // if readOnly the allele can't be added to report
     },
 })
-@Inject('Config')
+@Inject('$scope', 'orderByFilter', 'Config')
 export class AlleleSidebarController {
 
-    constructor(Config) {
+    constructor($scope, orderByFilter, Config) {
         this.config = Config.getConfig();
+
+        this.orderBy = {
+            'classified': [undefined, false],
+            'unclassified': [undefined, false]
+        }
+
+        this.orderByFilter = orderByFilter;
+
+        $scope.$watch(
+            () => this.alleles,
+            () => {
+                this.classified_alleles = this.orderByFilter(this.alleles.classified, (allele) => {return this.sort(allele, this.orderBy.classified[0])}, this.orderBy.classified[1]);
+                this.unclassified_alleles = this.orderByFilter(this.alleles.unclassified, (allele) => {return this.sort(allele, this.orderBy.unclassified[0])}, this.orderBy.unclassified[1]);
+            }
+        )
     }
+
+
+    sort(allele_obj, orderBy) {
+        let allele = allele_obj.allele;
+        switch (orderBy) {
+            case "inheritance":
+                return this.getInheritance(allele);
+            case "gene":
+                return allele.annotation.filtered[0].symbol;
+            case "hgvsc":
+                let s = allele.annotation.filtered[0].HGVSc_short;
+                let d = parseInt(s.match(/c\.(\d+)/)[1]);
+                return d
+            case "consequence":
+                let consequence_priority = this.config.transcripts.consequences;
+                let consequences = allele.annotation.filtered.map(t => t.consequences);
+                consequences = [].concat.apply([], consequences);
+                let consequence_indices = consequences.map(c => consequence_priority.indexOf(c));
+                return Math.min( ...consequence_indices );
+            case "homozygous":
+                return !this.isHomozygous(allele);
+            case "quality":
+                return !this.isLowQual(allele);
+            case "references":
+                return !this.isImportantSource(allele);
+            case "3hetAR":
+                return !this.is3hetAR(allele);
+            default:
+                return 0
+        }
+    }
+
+    sortBy(alleles_selection, sortBy) {
+        if (this.orderBy[alleles_selection][0] === sortBy) {
+            if (!this.orderBy[alleles_selection][1]) {
+                this.orderBy[alleles_selection][1] = true;
+            } else {
+                this.orderBy[alleles_selection] = [undefined, false];
+            }
+        } else {
+            this.orderBy.unclassified[0] = sortBy;
+        }
+
+        this.classified_alleles = this.orderByFilter(this.alleles.classified, (allele) => {return this.sort(allele, this.orderBy.classified[0])}, this.orderBy.classified[1]);
+        this.unclassified_alleles = this.orderByFilter(this.alleles.unclassified, (allele) => {return this.sort(allele, this.orderBy.unclassified[0])}, this.orderBy.unclassified[1]);
+    }
+
+
+    // sort(alleles, sort_order, desc) {
+    //     this.sorted_alleles = deepCopy(alleles);
+    //     // let sorted_alleles = alleles;
+    //     if (sort_order === "inheritance") {
+    //         this.sortInheritance(alleles, desc)
+    //     }
+    //     if (sort_order === "gene") {
+    //         this.sorted_alleles.sort((a1,a2) => {
+    //             return a1.allele.annotation.filtered[0].symbol > a2.allele.annotation.filtered[0].symbol;
+    //         })
+    //     }
+    //     return this.sorted_alleles
+    // }
 
     select(allele_option) {
         // We have two modes, multiple checkable or normal radio selectiion (of single allele)
