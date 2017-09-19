@@ -1,4 +1,4 @@
-BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD) # Configured on the outside when running in gitlab
+BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)# Configured on the outside when running in gitlab
 TEST_NAME ?= all
 TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
