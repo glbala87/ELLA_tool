@@ -345,9 +345,16 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; flex-basis: 10rem; }
   b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
 
-  .nav-table { display: table; width: 45rem; }
+  .nav-table { display: table; width: 45rem; border-collapse: collapse; }
   .nav-row { display: table-row; align-items: center; color: $black-50; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
+    &.top {border-bottom: 1px solid $black-10;
+      &:hover {font-weight: 600; color: $black-50; }
+      .cell {font-weight: 600; margin: 0.2rem;
+        &:hover {color: $black-75; }
+      }
+    }
     &.multiple { background-color: $blue-10; }
+    &.spacer {height: 0.2rem}
     .cell { display: table-cell; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; transition: all 0.3s ease-in-out; text-overflow: ellipsis; overflow: hidden;
       &.sample-type { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
       &.inheritance { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
@@ -415,6 +422,16 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
             @include indicator-hit;
             border-color: lighten($purple-50, 5%);
             color: lighten($purple-50, 5%);
+          }
+        }
+
+        .top {
+          @include indicator;
+          .hit {
+            @include indicator-hit;
+            border: none;
+            color: $black-50;
+            &:hover {color: $black-75; }
           }
         }
 
