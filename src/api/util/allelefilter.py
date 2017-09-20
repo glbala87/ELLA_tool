@@ -131,17 +131,15 @@ class TempAlleleFilterTable(object):
     The returned table is a SQLAlchemy table() description of the created table.
 
     Table example:
-    ----------------------------------------------------------------------------------------------------
-    | allele_id | symbol  | transcript      | exon_distance | inDB.AF | ExAC.G  | ExAC_num.G | 1000g.G |
-    ----------------------------------------------------------------------------------------------------
-    | 3         | PLOD1   | ENST00000196061 | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
-    | 3         | PLOD1   | ENST00000376369 | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
-    | 3         | PLOD1   | ENST00000465920 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
-    | 3         | PLOD1   | ENST00000470133 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
-    | 3         | PLOD1   | ENST00000485046 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
-    | 3         | PLOD1   | ENST00000491536 | None          | 0.0422  | 0.023   | 250104     | 0.008   |
-    | 3         | PLOD1   | NM_000302.3     | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
-    | 3         | PLOD1   | XM_005263474.1  | -89           | 0.0422  | 0.023   | 250104     | 0.008   |
+    -------------------------------------------------------------------------------------------------------------------
+    | allele_id | symbol        | transcript      | exon_distance | inDB.AF | GNOMAD_GENOMES.G  | GNOMAD_GENOMES_num.G |
+    -------------------------------------------------------------------------------------------------------------------
+    | 1         | NPHP4         | XM_005263443.1  | 41            | 0.6456  | 0.645135047185    | 30730                |
+    | 1         | NPHP4         | ENST00000378169 | None          | 0.6456  | 0.645135047185    | 30730                |
+    | 1         | NPHP4         | NM_015102.3     | 41            | 0.6456  | 0.645135047185    | 30730                |
+    | 1         | NPHP4         | ENST00000478423 | 41            | 0.6456  | 0.645135047185    | 30730                |
+    | 1         | NPHP4         | XR_244787.1     | None          | 0.6456  | 0.645135047185    | 30730                |
+    | 1         | NPHP4         | XM_005263445.1  | 41            | 0.6456  | 0.645135047185    | 30730                |
     """
 
     def __init__(self, session, allele_ids, config):
@@ -176,28 +174,84 @@ class TempAlleleFilterTable(object):
 
         return columns, column_queries
 
-    def create(self):
-
+    def create_transcript(self):
         class jsonb_to_recordset_func(ColumnFunction):
             name = 'jsonb_to_recordset'
             column_names = [('transcript', String()), ('symbol', String()), ('exon_distance', Integer())]
 
         transcript_records = jsonb_to_recordset_func(annotation.Annotation.annotations['transcripts']).alias('j')
 
-        freq_columns, freq_column_queries = self.get_freq_columns()
-        freq_num_columns, freq_num_column_queries = self.get_freq_num_threshold_columns()
-
-        additional_column_queries = freq_column_queries + freq_num_column_queries
-
-        tmp_allele_filter_q = self.session.query(
+        tmp_allele_filter_transcripts_q = self.session.query(
             annotation.Annotation.allele_id,
             transcript_records.c.symbol.label('symbol'),
             transcript_records.c.transcript.label('transcript'),
             transcript_records.c.exon_distance.label('exon_distance'),
-            *additional_column_queries
         ).filter(
             annotation.Annotation.allele_id.in_(self.allele_ids),
             annotation.Annotation.date_superceeded.is_(None)  # Important!
+        )
+
+        res = self.session.execute(CreateTempTableAs('tmp_allele_filter_transcript_internal_only', tmp_allele_filter_transcripts_q))
+
+        # Create index if resulting table is of sufficient size
+        if res.rowcount > 1000:
+            for c in ["allele_id", "symbol", "transcript", "exon_distance"]:
+                self.session.execute('CREATE INDEX ix_tmp_allele_filter_transcripts_{0} ON tmp_allele_filter_transcript_internal_only ({0})'.format(c))
+
+        self.session.execute('ANALYZE tmp_allele_filter_transcript_internal_only')
+
+        return table(
+            'tmp_allele_filter_transcript_internal_only',
+            column('allele_id', Integer),
+            column('symbol', String),
+            column('transcript', String),
+            column('exon_distance', Integer),
+        )
+
+    def create_frequency(self):
+
+        freq_columns, freq_column_queries = self.get_freq_columns()
+        freq_num_columns, freq_num_column_queries = self.get_freq_num_threshold_columns()
+
+        column_queries = freq_column_queries + freq_num_column_queries
+
+        tmp_allele_filter_freq_q = self.session.query(
+            annotation.Annotation.allele_id,
+            *column_queries
+        ).filter(
+            annotation.Annotation.allele_id.in_(self.allele_ids),
+            annotation.Annotation.date_superceeded.is_(None)  # Important!
+        )
+
+        res = self.session.execute(CreateTempTableAs('tmp_allele_filter_frequency_internal_only', tmp_allele_filter_freq_q))
+
+        # Create index if resulting table is of sufficient size
+        if res.rowcount > 1000:
+            for c in freq_columns:
+                c_name = str(c).replace('"', '').replace('.', '_')
+                c = str(c)
+                self.session.execute('CREATE INDEX ix_tmp_allele_filter_frequency_{0} ON tmp_allele_filter_frequency_internal_only ({1})'.format(c_name, c))
+
+        self.session.execute('ANALYZE tmp_allele_filter_frequency_internal_only')
+
+        columns = freq_columns + freq_num_columns
+        return table(
+            'tmp_allele_filter_frequency_internal_only',
+            column('allele_id', Integer),
+            *columns
+        )
+
+    def create(self):
+        # Create separate temporary tables for transcript data and frequency data
+        tmp_allele_filter_transcript_tbl = self.create_transcript()
+        tmp_allele_filter_frequency_tbl = self.create_frequency()
+        all_columns = list(tmp_allele_filter_transcript_tbl.c)+list(tmp_allele_filter_frequency_tbl.c)[1:]
+
+        # Join the two temporary tables on allele id
+        tmp_allele_filter_q = self.session.query(
+            *all_columns
+        ).filter(
+            tmp_allele_filter_transcript_tbl.c.allele_id == tmp_allele_filter_frequency_tbl.c.allele_id
         )
 
         self.session.execute(CreateTempTableAs('tmp_allele_filter_internal_only', tmp_allele_filter_q))
@@ -208,24 +262,25 @@ class TempAlleleFilterTable(object):
 
         self.session.execute('ANALYZE tmp_allele_filter_internal_only')
 
-        additional_columns = freq_columns + freq_num_columns
+        # Drop intermediate tables
+        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_frequency_internal_only;')
+        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_intronic_internal_only;')
+
         return table(
             'tmp_allele_filter_internal_only',
-            column('allele_id', Integer),
-            column('symbol', String),
-            column('transcript', String),
-            column('exon_distance', Integer),
-            *additional_columns
+            *all_columns
         )
 
     def drop(self):
         self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_internal_only;')
+        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_frequency_internal_only;')
+        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_intronic_internal_only;')
 
     def __enter__(self):
         return self.create()
 
     def __exit__(self, type, value, traceback):
-        # Extra safety. Table should normally be dropped at end of transaction,
+        # Extra safety. Tables should normally be dropped at end of transaction,
         # but even better to be explicit.
         return self.drop()
 
@@ -794,7 +849,6 @@ class AlleleFilter(object):
 
 
     def filter_alleles(self, gp_allele_ids):
-
         result = dict()
         all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
         with TempAlleleFilterTable(self.session, all_allele_ids, self.config) as allele_filter_tbl:
