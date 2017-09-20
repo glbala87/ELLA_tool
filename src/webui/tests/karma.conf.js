@@ -55,7 +55,7 @@ module.exports = function(config) {
       browserify: {
           debug: true,
           transform:  [["babelify", {
-                            "presets": ["es2015", "stage-0"],
+                            "presets": ["env", "stage-0"],
                             "plugins": ["babel-plugin-transform-decorators-legacy"]
                         }]]
       },
