@@ -5,9 +5,6 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'overview',
     templateUrl: 'ngtmpl/overview.ngtmpl.html',
-    scope: {
-        selectedView: '='
-    }
 })
 @Inject('$scope', '$interval', 'Config', 'SearchResource', 'AnnotationjobResource', 'AnnotateVCFFileModal')
 export class MainController {
@@ -57,16 +54,24 @@ export class MainController {
         return this.config.user.user_config.overview.views.includes(view);
     }
 
+    hasMultipleViews() {
+        return this.views.filter((x) => this.shouldShowView(x)).length > 1
+    }
+
     hasSearchResults() {
         return this.search.results || false;
     }
 
     setView(view) {
-        this.selectedView = view;
+        localStorage.setItem("overview", view)
+    }
+
+    getSelectedView() {
+        return localStorage.getItem("overview") || this.config.user.user_config.overview.views[0];
     }
 
     isActive(view) {
-        return this.selectedView === view;
+        return this.getSelectedView() === view;
     }
 
     showAnnotateVCFFile() {

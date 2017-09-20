@@ -1,5 +1,6 @@
 var Page = require('./page');
 
+const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-findings'
 const SELECTOR_FINISHED = '.id-analysis-finished';
 const SELECTOR_EMPTY = '.id-analysis-assessments-none';
 const SELECTOR_ASSESSMENTS_MISSING = '.id-analysis-assessments-missing';
@@ -18,7 +19,9 @@ const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
 class SampleSelection extends Page {
 
     open() {
-        super.open('overview/analyses-by-findings');
+        super.open('overview/');
+        browser.waitForExist(SELECTOR_ANALYSES_OVERVIEW);
+        browser.click(SELECTOR_ANALYSES_OVERVIEW);
     }
 
     get analysisList() { return browser.element('analysis-list') }

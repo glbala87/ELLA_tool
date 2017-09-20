@@ -132,8 +132,8 @@ class AppConfig {
                 views: {
                     'content': {
                         template: '<overview selected-view="selectedView"></overview>',
-                        controller: ['$scope', '$stateParams', function($scope, $stateParams) {
-                            $scope.selectedView = $stateParams.view || 'variants';
+                        controller: ['$scope', '$stateParams', 'Config', function($scope, $stateParams, Config) {
+                            $scope.selectedView = $stateParams.view || localStorage.getItem("overview") || "analyses";
                         }]
                     }
                 }
@@ -181,7 +181,7 @@ class AppConfig {
             });
 
         // when there is an empty route, redirect to /analyses
-        $urlRouterProvider.otherwise('/overview/variants');
+        $urlRouterProvider.otherwise('/overview/');
         $locationProvider.html5Mode(true);
         $resourceProvider.defaults.stripTrailingSlashes = false;
     }

@@ -14,6 +14,7 @@ export class LoginController {
         this.users = [];
         this.toastr = toastr;
         this.config = Config.getConfig()
+        this.configService = Config;
 
         this.modes = ["Login", "Change password"];
         this.mode = this.modes[0];
@@ -110,7 +111,11 @@ export class LoginController {
 
         this.loginResource.login(username, password).then( () => {
             this.user.loadUser().then(
-                this.location.path('/')
+                this.configService.loadConfig().then( () => {
+                        localStorage.removeItem("overview");
+                        this.location.path('/');
+                    }
+                )
              )
              console.log("Successful login")
         }).catch((error) => {

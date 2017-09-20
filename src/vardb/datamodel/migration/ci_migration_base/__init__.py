@@ -1,11 +1,9 @@
-import os
 from vardb.util import DB
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm.session import Session as SessionType
-
+from sqlalchemy_searchable import make_searchable
 
 class CustomBase(object):
 
@@ -42,7 +40,6 @@ class CustomBase(object):
                 except NoResultFound:
                     raise e
 
-
     @classmethod
     def update_or_create(cls, session, defaults=None, **kwargs):
         """
@@ -72,9 +69,9 @@ convention = {
 }
 
 
-
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
+make_searchable() # Create triggers to keep search vectors up to date
 Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:
-from vardb.datamodel.migration.ci_migration_base import allele, annotation, sample, assessment, genotype, gene, user, workflow
+from vardb.datamodel.migration.ci_migration_base import allele, annotation, annotationjob, sample, assessment, genotype, gene, user, workflow

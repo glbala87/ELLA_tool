@@ -16,6 +16,7 @@ class Gene(Base):
 
     hugo_symbol = Column(String(), primary_key=True)
     ensembl_gene_id = Column(String(15), unique=True)
+    omim_entry_id = Column(Integer)
     # dominance = Column(String(20))
 
     def __repr__(self):
@@ -58,7 +59,7 @@ genepanel_transcript = Table("genepanel_transcript", Base.metadata,
                           Column("genepanel_name"),
                           Column("genepanel_version"),
                           Column("transcript_id", Integer, ForeignKey("transcript.id")),
-                          ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"]))
+                          ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"], ondelete="CASCADE"))
 
 
 class Genepanel(Base):
@@ -68,8 +69,8 @@ class Genepanel(Base):
     name = Column(String(), primary_key=True)
     version = Column(String(), primary_key=True)
     genome_reference = Column(String(15), nullable=False)
-    transcripts = relationship("Transcript", secondary=genepanel_transcript, lazy='joined')
-    phenotypes = relationship("Phenotype", lazy='joined')
+    transcripts = relationship("Transcript", secondary=genepanel_transcript)
+    phenotypes = relationship("Phenotype")
 
     config = Column(JSONMutableDict.as_mutable(JSONB), default={})  # format defined by
 

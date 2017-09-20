@@ -12,6 +12,7 @@ class ConfigService {
     constructor(resource) {
         this.resource = resource;
         this.config = null;
+        this.overview = null;
     }
 
     /**
@@ -27,6 +28,7 @@ class ConfigService {
             let r = this.resource('/api/v1/config/');
             let config = r.get(() => {
                 this.config = config;
+                this.overview = config.user.user_config.overview.views[0];
                 resolve(config);
             });
         });

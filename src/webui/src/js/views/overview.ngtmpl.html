@@ -26,15 +26,15 @@
     </nav>
 
     <div class="overviewcontainer">
-        <div class="sidenavbar">
+        <div class="sidenavbar" ng-if="vm.hasMultipleViews()">
             <div class="item-row">
-                <div class="item" ng-repeat="view in vm.views" ng-if="vm.shouldShowView(view)" ng-class="{'active': vm.isActive(view)}" ng-click="vm.setView(view)">{{vm.view_names[view]}}</div>
+                <div ng-attr-id="{{ 'id-overview-sidenav-' + view  }}" class="item" ng-repeat="view in vm.views" ng-if="vm.shouldShowView(view)" ng-class="{'active': vm.isActive(view)}" ng-click="vm.setView(view)">{{vm.view_names[view]}}</div>
             </div>
         </div>
 
         <div class="container with-sidenavbar">
             <search-results></search-results>
-            <div ng-switch="vm.selectedView">
+            <div ng-switch="vm.getSelectedView()">
                 <analysis-selection ng-switch-when="analyses"></analysis-selection>
                 <analysis-selection by-findings="true" ng-switch-when="analyses-by-findings"></analysis-selection>
                 <allele-selection ng-switch-when="variants"></allele-selection>
