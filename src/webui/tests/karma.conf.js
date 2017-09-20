@@ -88,16 +88,29 @@ module.exports = function(config) {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,
 
-      // Continuous Integration mode
-      // if true, Karma captures browsers, runs the tests and exits
-      singleRun: false,
+    // Continuous Integration mode
+    // if true, Karma captures browsers, runs the tests and exits
+    singleRun: false,
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-      browsers: ['PhantomJS'],
-      //browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
 
-
+    customLaunchers: {
+      ChromeHeadless: {
+        base: 'Chrome',
+        flags: [
+            // We must disable the Chrome sandbox when running Chrome inside Docker (Chrome's sandbox needs
+           // more permissions than Docker allows by default)
+          '--no-sandbox',
+          // See https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md
+          '--headless',
+          '--disable-gpu',
+          // Without a remote debugging port, Google Chrome exits immediately.
+          ' --remote-debugging-port=9222',
+        ]
+      }
+    },
 
     // Concurrency level
     // how many browser should be started simultaneous
