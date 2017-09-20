@@ -272,6 +272,7 @@ run-wdio-local:
 
 e2e-stop-chromebox:
 	-docker stop $(CHROMEBOX_CONTAINER)
+	-docker rm $(CHROMEBOX_CONTAINER)
 
 e2e-start-chromebox:
 	@echo "Starting Chromebox container $(CHROMEBOX_CONTAINER) using $(CHROMEBOX_IMAGE)"
