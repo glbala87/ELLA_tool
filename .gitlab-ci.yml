@@ -70,7 +70,7 @@ cleanup_e2e:
   stage: cleanup
   script:
     - make e2e-stop-chromebox
-  when: on_failure
+  when: always
 
 bot_build:
   stage: deploy

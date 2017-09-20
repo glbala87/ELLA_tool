@@ -86,7 +86,7 @@ var jsBundler = browserify('./src/webui/src/js/index.js', {
     debug: production ? false : true, // include source map
     cache: {}, packageCache: {}, fullPaths: true // for watchify
 }).transform(babelify.configure({
-    presets: ["es2015", "stage-0"],
+    presets: ["env", "stage-0"],
     plugins: ["babel-plugin-transform-decorators-legacy"]
 }));
 
