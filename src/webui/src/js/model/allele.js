@@ -13,30 +13,39 @@ export class Allele {
     constructor(data) {
         Object.assign(this, data);
         // Convert pure annotation data to model object
-        this.annotation = new Annotation(this.annotation);
+        // check if this.annotation is defined first
+        if (this.annotation) {
+            this.annotation = new Annotation(this.annotation);
+        }
     }
 
     getReferenceIds() {
         let ids = [];
-        for (let ref of this.annotation.references) {
-            ids.push({'id': ref.id, 'pubmed_id': ref.pubmed_id})
+        if (this.annotation) {
+            for (let ref of this.annotation.references) {
+                ids.push({'id': ref.id, 'pubmed_id': ref.pubmed_id})
+            }
         }
         return Array.from(new Set(ids));
     }
 
     toString() {
         let hgvs = '';
-        for (let t of this.annotation.filtered) {
-            if (hgvs !== '') {
-                hgvs += '|'
+        if (this.annotation && this.annotation.filtered) {
+            for (let t of this.annotation.filtered) {
+                if (hgvs !== '') {
+                    hgvs += '|'
+                }
+                hgvs += `${t.transcript}(${t.symbol}):${t.HGVSc_short}`;
             }
-            hgvs += `${t.transcript}(${t.symbol}):${t.HGVSc_short}`;
         }
         return hgvs;
     }
 
     getHGMDUrl() {
-        if ('HGMD' in this.annotation.external &&
+        if (this.annotation &&
+            this.annotation.external &&
+            'HGMD' in this.annotation.external &&
             'acc_num' in this.annotation.external.HGMD) {
             let acc_num = this.annotation.external.HGMD.acc_num;
             return `https://portal.biobase-international.com/hgmd/pro/mut.php?accession=${acc_num}`
@@ -44,9 +53,11 @@ export class Allele {
     }
 
     getClinvarUrl() {
-        if ('CLINVAR' in this.annotation.external) {
-            let variant_id = this.annotation.external.CLINVAR["variant_id"];
-            return "https://www.ncbi.nlm.nih.gov/clinvar/variation/" + variant_id;
+        if (this.annotation &&
+            this.annotation.external &&
+            'CLINVAR' in this.annotation.external) {
+                let variant_id = this.annotation.external.CLINVAR["variant_id"];
+                return "https://www.ncbi.nlm.nih.gov/clinvar/variation/" + variant_id;
         }
     }
 

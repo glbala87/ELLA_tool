@@ -8,7 +8,7 @@ export default class Annotation {
      */
     constructor(data) {
         Object.assign(this, data);
-        if (this.filtered_transcripts.length) {
+        if (this.filtered_transcripts && this.filtered_transcripts.length) {
             this.filtered = this.transcripts.filter(anno => this.filtered_transcripts.includes(anno.transcript));
         } else {
             this.filtered = this.transcripts;
@@ -25,6 +25,9 @@ export default class Annotation {
      * @return {Boolean} True if 'worse_consequence' contains transcripts not in 'filtered_transcripts'
      */
     hasWorseConsequence() {
+        if (!this.filtered_transcripts) {
+            return false;
+        }
         return !this.worst_consequence.some(n => {
             return this.filtered_transcripts.includes(n);
         });
