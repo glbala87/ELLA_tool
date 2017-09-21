@@ -13,6 +13,7 @@ class Allele(Base):
     FREQUENCY = 'FREQUENCY'
     INTRON = 'INTRON'
     GENE = 'GENE'
+    UTR = 'UTR'
 
     id = Column(Integer, primary_key=True)
     genome_reference = Column(String, nullable=False)
