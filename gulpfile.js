@@ -130,7 +130,6 @@ gulp.task('watch-js', function() {
  * Transpiles ES6 to ES5
  */
 gulp.task('js', function(done) {
-    console.log('Gulp: starting js');
     // return browserify('./src/webui/src/js/index.js', {debug: true})
     return jsBundler
         .bundle()
@@ -146,7 +145,6 @@ gulp.task('js', function(done) {
 });
 
 gulp.task('ngtmpl', function() {
-    console.log('Gulp: starting ngtmpl');
     return gulp.src('**/*.ngtmpl.html')
         .pipe(templateCache('templates.js', {
             transformUrl: function(file) {return 'ngtmpl/' + path.basename(file)},
@@ -178,8 +176,8 @@ gulp.task('sass', function () {
 });
 
 gulp.task('base-css', function () {
-  gulp.src('src/webui/src/css/base.css')
-    .pipe(gulp.dest(__basedir));
+    gulp.src('src/webui/src/css/base.css')
+        .pipe(gulp.dest(__basedir));
 });
 
 
@@ -230,7 +228,6 @@ gulp.task('unit-auto', ['tp-js', 'js'], function (done) {
 
 
 gulp.task('livereload', function() {
-   console.log('Gulp: starting livereload server');
    livereload.listen();
 });
 

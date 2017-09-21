@@ -6,4 +6,4 @@ mkdir /static
 cd /ella
 ln -s /dist/node_modules node_modules
 /dist/node_modules/gulp/bin/gulp.js build --production
-mv /ella/src/webui/build/* /static/
+mv -vf /ella/src/webui/build/* /static/
