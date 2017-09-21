@@ -116,11 +116,16 @@ Bringing up the production/development/demo/testing systems are handled by `Make
 Look in `Makefile` and in  `ops/` for more information.
 
 ### Migration:
-Whenever you make changes to the database model, you need to create migration scripts, so that the production database can be upgraded to the new version. We use Alembic to assist creating those scripts. Migration scripts are stored in `src/vardb/datamodel/migration/alembic/`. The current migration base is stored in `src/vardb/datamodel/migration/ci_migration_base`. This base serves as the base for which the migration scripts will be built against, and should represent the oldest database in production.
+Whenever you make changes to the database model, you need to create migration scripts, so that the production database
+can be upgraded to the new version. We use Alembic to assist creating those scripts. Migration scripts are stored in
+`src/vardb/datamodel/migration/alembic/`. The current migration base is stored in `src/vardb/datamodel/migration/ci_migration_base`.
+This base serves as the base for which the migration scripts will be built against, and should represent the oldest
+database in production.
 
 To create a new migration:
 
-1. Make all your changes to the normal datamodel in `src/vardb/datamodel/` and test them until you're satisfied. In general we don't want to make more migration scripts than necessary, so make sure things are proper.
+1. Make all your changes to the normal datamodel in `src/vardb/datamodel/` and test them until you're satisfied.
+   In general we don't want to make more migration scripts than necessary, so make sure things are proper.
 1. Make and enter a dev instance: `make dev` and `make shell`
 1. Inside it do:
     1. `export DB_URL=postgresql:///postgres`
@@ -130,7 +135,10 @@ To create a new migration:
      and compare it against the database state, generating a migration script from the differences.
 1. Go over the created script, clean it up and test it (`test-api-migration`).
 
-The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right. Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data present in the database if necessary.
+The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right.
+Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data
+present in the database if necessary.
+
 The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
 
 
