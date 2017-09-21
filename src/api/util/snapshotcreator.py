@@ -10,7 +10,8 @@ class SnapshotCreator(object):
     EXCLUDED_FLAG = {
         'frequency': allele.Allele.FREQUENCY,
         'intronic': allele.Allele.INTRON,
-        'gene': allele.Allele.GENE
+        'gene': allele.Allele.GENE,
+        'utr': allele.Allele.UTR
     }
 
     def __init__(self, session):
