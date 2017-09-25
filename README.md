@@ -148,6 +148,18 @@ To manually test the migration scripts you can run the upgrade/downgrade parts o
 - $ ./ella-cli database upgrade 94a80b8848df
 - $ ./ella-cli database downgrade e371dfeb38c1
 
+For migrations involving user generated data, it would be useful to run the migrations (both upgrade and downgrade)
+with the database populated through "real" use.
+ 
+Typically you call the `/reset` endpoint and then interact with the application through the GUI.
+The `reset` won't create the alembic table and the upgrade/downgrade scripts will fail.  
+
+So before manually running the upgrade/downgrade scripts, you need to create the alembic table:
+```
+ create table alembic_version (version_num varchar)
+```
+
+
 ### API documentation
 
 The API is documented using [apidocs](https://apispec.readthedocs.io/en/latest/) supporting the OpenAPI specification (f.k.a. Swagger 2.0).
