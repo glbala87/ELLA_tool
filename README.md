@@ -122,7 +122,7 @@ can be upgraded to the new version. We use Alembic to assist creating those scri
 This base serves as the base for which the migration scripts will be built against, and should represent the oldest
 database in production.
 
-To create a new migration:
+#### Ceate a new migration
 
 1. Make all your changes to the normal datamodel in `src/vardb/datamodel/` and test them until you're satisfied.
    In general we don't want to make more migration scripts than necessary, so make sure things are proper.
@@ -141,6 +141,12 @@ present in the database if necessary.
 
 The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
 
+#### Manully testing the migrations
+To manually test the migration scripts you can run the upgrade/downgrade parts of the various migrations:
+- $ ./ella-cli database ci-migration-base                                                                                                                                                           [0/1556]
+- $ ./ella-cli database upgrade e371dfeb38c1
+- $ ./ella-cli database upgrade 94a80b8848df
+- $ ./ella-cli database downgrade e371dfeb38c1
 
 ### API documentation
 
