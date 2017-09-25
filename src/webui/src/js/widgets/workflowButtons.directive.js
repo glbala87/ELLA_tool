@@ -124,12 +124,9 @@ export class WorkflowButtonsController {
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
             // TODO: Redirect user
-        this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles, this.config).then(() => {
-            if (type === 'allele') {
-                this.location.path('/overview/variants');
-            }
-            else {
-                this.location.path('/overview/analyses');
+        this.workflowService.confirmCompleteFinalize(type, id, this.selectedInterpretation, this.alleles, this.config).then((redirect) => {
+            if (redirect) {
+                this.location.path('/overview');
             }
         });
     }
