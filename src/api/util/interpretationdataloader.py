@@ -99,8 +99,8 @@ class InterpretationDataLoader(object):
                     excluded_allele_ids['intronic'].append(snapshot.allele_id)
                 elif snapshot.filtered == allele.Allele.GENE:
                     excluded_allele_ids['gene'].append(snapshot.allele_id)
-                # elif snapshot.filtered == allele.Allele.UTR:
-                #     excluded_allele_ids['utr'].append(snapshot.allele_id)
+                elif snapshot.filtered == allele.Allele.UTR:
+                    excluded_allele_ids['utr'].append(snapshot.allele_id)
                 else:
                     allele_ids.append(snapshot.allele_id)
             else:

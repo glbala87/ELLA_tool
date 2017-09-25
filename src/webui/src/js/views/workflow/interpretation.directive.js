@@ -241,8 +241,8 @@ export class InterpretationController {
         };
 
         // Populate the input to alleleSidebar, separating classified and unclassified alleles
-        let unclassified = this.filterClassifications(this.alleles);
-        let alleles = {
+        let unclassified = this.findUnclassified(this.alleles);
+        let grouped_alleles = {
             unclassified: unclassified.map(create_allele_obj),
             classified: this.alleleFilter.invert(unclassified, this.alleles).map(create_allele_obj)
         };
@@ -253,11 +253,10 @@ export class InterpretationController {
                                 .thenBy(a => a.allele.annotation.filtered[0].symbol)
                                 .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
-        if (alleles.unclassified.length) {
-            alleles.unclassified.sort(unclassified_sort);
+        if (grouped_alleles.unclassified.length) {
+            grouped_alleles.unclassified.sort(unclassified_sort);
         }
 
-        // Sort classified by (classification, gene, hgvsc)
         let classified_sort = firstBy(a => {
                 let classification = AlleleStateHelper.getClassification(a.allele, this.getAlleleState(a.allele));
                return this.config.classification.options.findIndex(o => o.value === classification);
@@ -266,11 +265,11 @@ export class InterpretationController {
             .thenBy(a => a.allele.annotation.filtered[0].symbol)
             .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
-        if (alleles.classified.length) {
-            alleles.classified.sort(classified_sort);
+        if (grouped_alleles.classified.length) {
+            grouped_alleles.classified.sort(classified_sort);
         }
 
-        this.allele_sidebar.alleles = alleles;
+        this.allele_sidebar.alleles = grouped_alleles;
         // Reassign selected allele in case the allele data has changed
         if (this.allele_sidebar.selected) {
             let selected = this.alleles.find(a => a.id === this.allele_sidebar.selected.id);
@@ -323,7 +322,7 @@ export class InterpretationController {
      * @param  {Array(Allele)} alleles to filter
      * @return {Array} Filtered array of Alleles
      */
-    filterClassifications(alleles) {
+    findUnclassified(alleles) {
         if (!('allele' in this.interpretation.state)) {
             return alleles;
         };
