@@ -165,8 +165,8 @@ export class WysiwygEditorController {
                 for (let file of e.clipboardData.items) {
                     if (file.kind !== "file") continue;
                     this.attachmentResource.post(file.getAsFile()).then((id) => {
-                        this.editor.insertHTML(`Attachment ${id}`)
                         this.pasteAttachmentCallback({attachment_id: id})
+                        this.editor.insertHTML(`<img src="/api/v1/attachments/${id}" alt="[Attachment ${id}]">`)
                     })
 
                 }
