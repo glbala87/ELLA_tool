@@ -215,20 +215,22 @@ class WorkflowService {
                     interpretation.analysis.id,
                     interpretation.state.analysis.properties
             )*/
-            if (res) {
-                return this.save(type, id, interpretation).then(() => {
-                    if (res === 'markreview') {
-                        return this.markreview(type, id, interpretation, alleles);
-                    }
-                    else if (res === 'finalize') {
-                        return this.finalize(type, id, interpretation, alleles);
-                    }
-                    else {
-                        throw `Got unknown option ${res} when confirming interpretation action.`;
-                    }
-                });
-            }
-            return true;
+
+            return this.save(type, id, interpretation).then(() => {
+                if (res === 'markreview') {
+                    this.markreview(type, id, interpretation, alleles);
+                    return true;
+                }
+                else if (res === 'finalize') {
+                    this.finalize(type, id, interpretation, alleles);
+                    return true;
+                }
+                else if (res === undefined) {
+                    return false; // Dismiss modal without redirecting
+                } else {
+                    throw `Got unknown option ${res} when confirming interpretation action.`;
+                }
+            });
         });
     }
 
