@@ -42,3 +42,11 @@ def migration_current():
     with db.engine.begin() as connection:
         alembic_cfg.attributes['connection'] = connection
         command.current(alembic_cfg)
+
+def migration_history(range=None, verbose=False):
+    alembic_cfg = _get_alembic_config()
+    db = DB()
+    db.connect()
+    with db.engine.begin() as connection:
+        alembic_cfg.attributes['connection'] = connection
+        command.history(alembic_cfg , rev_range=range, verbose=verbose)

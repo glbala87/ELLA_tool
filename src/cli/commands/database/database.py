@@ -7,7 +7,7 @@ import click
 from .drop_db import drop_db
 from .make_db import make_db
 from .ci_migration_db import ci_migration_db_remake, ci_migration_upgrade_downgrade, ci_migration_head, make_migration_base_db
-from .migration_db import migration_upgrade, migration_downgrade, migration_current
+from .migration_db import migration_upgrade, migration_downgrade, migration_current, migration_history
 
 
 def confirm(func, success_msg, force=False):
@@ -23,7 +23,7 @@ def confirm(func, success_msg, force=False):
         click.echo(success_msg)
 
 
-@click.group(help='Database management (create/drop/etc)')
+@click.group(help='Database management (create/drop/migrate/etc)')
 def database():
     pass
 
@@ -40,42 +40,66 @@ def cmd_make_db(f=None):
     confirm(make_db, "Tables should now have been created.", force=f)
 
 
-@database.command('make-migration-base', help='Creates MIGRATION BASE tables in database. Useful when testing migration scripts manually.')
+@database.command('make-migration-base',
+                  help='Creates MIGRATION BASE tables in database. Useful when testing migration scripts manually.',
+                  short_help='Create base database')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_make_migration_base(f=None):
     confirm(make_migration_base_db, "Tables should now have been created.", force=f)
 
 
-@database.command('ci-migration-test', help='Runs migration upgrade/downgrade test')
+@database.command('ci-migration-test',
+                  help='Runs all migrations through upgrades followed by downgrades',
+                  short_help='Runs all migrations up and down'
+                  )
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_ci_migration(f=None):
-    confirm(ci_migration_upgrade_downgrade, 'Test completed successfully', force=f)
+    confirm(ci_migration_upgrade_downgrade, 'Migrations completed successfully', force=f)
 
 
-@database.command('ci-migration-head', help='Creates base database then upgrades to head')
+@database.command('ci-migration-head',
+                  help='Creates base database then upgrades to newest revision',
+                  short_help='From base to newest revision')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_ci_migration_head(f=None):
-    confirm(ci_migration_head, 'Tables upgraded successfully.', force=f)
+    confirm(ci_migration_head, 'Migrations to newest revision was successful.', force=f)
 
 
-@database.command('ci-migration-base', help='Creates migration base database tables')
+@database.command('ci-migration-base',
+                  help='Creates base database tables')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_ci_migration_base(f=None):
-    confirm(ci_migration_db_remake, 'Tables created successfully.', force=f)
+    confirm(ci_migration_db_remake, 'Base database tables created successfully.', force=f)
 
 
-@database.command('upgrade', help='Upgrade database to revision.')
+@database.command('upgrade',
+                  help='Upgrade database from current to a specific revision.',
+                  short_help="Upgrade to version")
 @click.argument('revision')
 def cmd_upgrade(revision):
     migration_upgrade(revision)
 
 
-@database.command('downgrade', help='Downgrade database to revision.')
+@database.command('downgrade',
+                  help='Downgrade database from current to a specific revision.',
+                  short_help='Downgrade to version')
 @click.argument('revision')
 def cmd_downgrade(revision):
     migration_downgrade(revision)
 
 
-@database.command('current', help='Show current database revision.')
+@database.command('current',
+                  help='Show revision of current migration.',
+                  short_help="Show current")
 def cmd_current():
     migration_current()
+
+
+@database.command('history',
+                  help='Show all migrations that have been applied',
+                  short_help='Show all migrations'
+                  )
+@click.option('-v', is_flag=True, help='Verbose: more details.')
+@click.option('--range', help="Revision range")
+def cmd_history(v, range):
+    migration_history(range=range, verbose=v)
