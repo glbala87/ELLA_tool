@@ -31,7 +31,7 @@ class AlleleSidebar extends Page {
 
     _countOf(identifier) {
         this._ensureLoaded();
-        const groupSelector = `allele-sidebar ${identifier} .nav-row`;
+        const groupSelector = `allele-sidebar ${identifier} .nav-row.allele`;
         if (!browser.isExisting(groupSelector)) {
             return 0;
         }
@@ -88,7 +88,7 @@ class AlleleSidebar extends Page {
         const groupSelector = `allele-sidebar ${identifier} .nav-row`;
         let all = browser.getText(groupSelector);
         if (Array.isArray(all)) {
-            let selector_of_first = `${groupSelector}:nth-child(1)`;
+            let selector_of_first = `${groupSelector}:nth-child(3)`;
             // console.log(`selecting first in array using ${selector_of_first}`);
             browser.click(selector_of_first);
         } else {
@@ -105,9 +105,10 @@ class AlleleSidebar extends Page {
         let allele_idx = -1; // assume no match
         if (Array.isArray(all)) {
             allele_idx = all.findIndex(s => s === allele);
+
         } else { // not an array, there is only one
             if ( all === allele) { // match
-                allele_idx = 0
+                allele_idx = 2
             }
         }
 
@@ -118,7 +119,7 @@ class AlleleSidebar extends Page {
     }
 
     _selectAlleleByIdx(idx, identifier) {
-        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx})`;
+        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx+2})`;
         browser.click(allele_selector);
 
         // Check that we changed active allele
