@@ -113,6 +113,8 @@ wysiwyg-editor:not([disabled]) > .wysiwygeditor {
 #wysiwyg-color {padding-top: 0.3rem;}
 #wysiwyg-link {padding-top: 0.1rem;}
 
+#wysiwyg-src {display: none; } // Comment this out to debug the wysiwygeditor
+
 .vanilla-color-picker {
   background-color: #EAEAED; // $black-05 overlayed on $purple-05
   padding: 0.2rem;

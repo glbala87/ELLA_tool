@@ -80,7 +80,7 @@
         </div>
       </div>
       <div class="nav-row spacer"></div>
-      <div class="nav-row" title="Allele ID {{ allele_obj.allele.id }}"
+      <div class="nav-row allele" title="Allele ID {{ allele_obj.allele.id }}"
            ng-class="{'active': vm.isSelected(allele_obj), 'multiple': vm.isMultipleInAlleleGenes(allele_obj.allele)}"
            ng-repeat="allele_obj in vm.unclassified_alleles track by allele_obj.allele.id"
            ng-click="vm.select(allele_obj)">
@@ -210,7 +210,7 @@
         </div>
       </div>
       <div class="nav-row spacer"></div>
-      <div class="nav-row" title="Allele ID {{ allele_obj.allele.id }}"
+      <div class="nav-row allele" title="Allele ID {{ allele_obj.allele.id }}"
            ng-class="{'active': vm.isSelected(allele_obj) || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj)}"
            ng-repeat="allele_obj in vm.classified_alleles track by allele_obj.allele.id"
            ng-click="vm.select(allele_obj)">
