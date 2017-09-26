@@ -8,8 +8,8 @@ ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
 #RELEASE_TAG =
-WEB_BUNDLE=ella-$(RELEASE_TAG)-web.tgz
-API_BUNDLE=ella-$(RELEASE_TAG)-api.tgz
+WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
+API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
