@@ -188,7 +188,7 @@ class SearchResource(LogRequestResource):
             result = session.execute(allele_query, {'query': '.*'+query+'.*'})
             allele_ids = [r[0] for r in result]
             return allele_ids
-        return None
+        return []
 
     def _search_allele_position(self, session, query):
         # Searches for Alleles within the range provided in query (if any).
@@ -214,7 +214,7 @@ class SearchResource(LogRequestResource):
             allele_ids = [r[0] for r in result]
             return allele_ids
 
-        return None
+        return []
 
     def _search_allele_ids(self, session, query):
         """
@@ -227,9 +227,8 @@ class SearchResource(LogRequestResource):
 
         allele_ids = self._search_allele_hgvs(session, query)
 
-        if allele_ids is None:
+        if allele_ids == []:
             allele_ids = self._search_allele_position(session, query)
-
         return allele_ids
 
     def _alleles_by_genepanel(self, session, alleles, genepanels):
