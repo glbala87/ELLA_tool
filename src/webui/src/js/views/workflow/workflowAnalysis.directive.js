@@ -419,8 +419,8 @@ export class WorkflowAnalysisController {
             });
         });
 
-        this.workflowResource.getCollisions('analysis', this.analysisId).then(c => {
-            this.allele_collisions = c;
+        this.workflowResource.getCollisions('analysis', this.analysisId).then(result => {
+            this.allele_collisions = result;
         });
     }
 
