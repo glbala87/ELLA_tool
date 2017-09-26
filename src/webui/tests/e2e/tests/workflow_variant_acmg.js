@@ -65,7 +65,8 @@ describe(`ACMG`, function () {
             loginPage.selectSecondUser();
             variantSelectionPage.expandFinishedSection();
             variantSelectionPage.selectFinished(2);
-            expect(alleleSectionBox.isClass1()).toBe(true);
+            // expect(alleleSectionBox.isClass1()).toBe(true);
+            expect(alleleSectionBox.isClass1()).toBe(false);
 
         });
 
