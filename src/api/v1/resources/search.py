@@ -157,7 +157,6 @@ class SearchResource(LogRequestResource):
 
         :returns: List of allele_ids
         """
-        allele_ids = list()
 
         # Search by c.DNA and p. names
         # Query unwraps 'CSQ' JSON array as intermediate
@@ -216,6 +215,32 @@ class SearchResource(LogRequestResource):
 
         return []
 
+    def _search_allele_gene(self, session, query):
+        # Search by transcript symbol
+        # Query unwraps 'CSQ' JSON array as intermediate
+        # table then searches that table for a match.
+        allele_query = """with annotation_transcripts as (
+                    SELECT
+                       a.allele_id,
+                       jsonb_array_elements(a.annotations->'transcripts') AS transcript_list
+                    FROM annotation as a
+                )
+                SELECT DISTINCT allele_id FROM annotation_transcripts
+                WHERE {where_clause} LIMIT 5000
+                """
+
+        where_clause = "transcript_list->>'symbol' ~* :query"
+
+        if where_clause:
+            allele_query = text(allele_query.format(where_clause=where_clause))
+            # Use session.execute() and bind parameters to avoid injection risk.
+            # If you considered changing this to Python's format() function,
+            # please stop coding and take a course on SQL injections.
+            result = session.execute(allele_query, {'query': '.*' + query + '.*'})
+            allele_ids = [r[0] for r in result]
+            return allele_ids
+        return []
+
     def _search_allele_ids(self, session, query):
         """
         Search for alleles for the given input.
@@ -229,6 +254,9 @@ class SearchResource(LogRequestResource):
 
         if allele_ids == []:
             allele_ids = self._search_allele_position(session, query)
+
+        if allele_ids == []:
+            allele_ids = self._search_allele_gene(session, query)
         return allele_ids
 
     def _alleles_by_genepanel(self, session, alleles, genepanels):
