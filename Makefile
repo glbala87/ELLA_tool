@@ -260,11 +260,15 @@ e2e-gulp-once:
 	/ella/node_modules/gulp/bin/gulp.js build
 
 run-wdio-against-chromebox:
+	echo CHROMEBOX_CONTAINER = $(CHROMEBOX_CONTAINER)
+	echo BRANCH = $(BRANCH)
+# $(CHROMEBOX_CONTAINER) is 'chromebox_', seems the BRANCH isn't set properly in this task
 	@echo "Running webdriverio against chromebox in container $(CHROMEBOX_CONTAINER). Running if responds: `curl --silent cb:4444/status`"
 	@echo "pwd: '`pwd`'"
 #	screenshots on e2e test errors are defined in wdio.conf
 	@echo "Content of ./errorShots:"
 	@if [ -s './errorShots' ] ; then ls './errorShots' ; else echo "Folder ./errorShots don't exist"; fi
+	touch ./errorShots/funny.png
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 run-wdio-local:

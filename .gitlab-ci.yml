@@ -3,7 +3,6 @@ variables:
   BRANCH: $CI_COMMIT_REF_NAME
 
 stages:
-  - test
   - e2e
   - deploy
   - review
