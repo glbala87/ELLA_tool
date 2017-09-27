@@ -32,7 +32,7 @@ var defaultTimeoutInterval = 120000; // ms
 var defaultMaxInstances = 1;
 let specHome = "src/webui/tests/e2e/tests/**";
 var defaultSpecs = [`${specHome}/*.js`];
-// var defaultSpecs = [`${specHome}/workflow_sample_collisions.js`];
+// var defaultSpecs = [`${specHome}/workflow_variant_acmg.js`];
 var BUNDLED_APP = 'app.js'; // see gulp file
 
 exports.config = {
@@ -188,8 +188,7 @@ exports.config = {
         addCommands();
         // Despite these settings, not-clickable errors happen locally. (height is limited running on Mac)
         // browser.setViewportSize({ width: 1280, height: 1000});
-        console.log('\nbrowser window size:');
-        console.log(browser.windowHandleSize());
+        console.log('browser window size: ' + browser.windowHandleSize().value.height + 'x' + browser.windowHandleSize().value.width + ' (h x w)');
     },
     //
     // Hook that gets executed before the suite starts
@@ -204,7 +203,7 @@ exports.config = {
             path: '/' + BUNDLED_APP
         };
         var appUrl = "http://" + host + ":" + port + "/" + BUNDLED_APP;
-        console.log('Test suite waiting for ' + appUrl);
+        console.log(`Test suite '${suite.fullName}' is waiting for ${appUrl}`);
         browser.waitUntil(function () {
             return new Promise(function(resolve, reject) {
                 let callback = function(response) {
@@ -236,8 +235,16 @@ exports.config = {
     // },
     //
     // Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-    // beforeTest: function (test) {
-    // },
+    beforeTest: function (test) {
+        // construct a name describing our hierarchy:
+        var pathlikeName = test.fullName.replace(test.title, ' / ' + test.title);
+        if (test.parent) {
+            pathlikeName = pathlikeName.replace(test.parent, ' / ' + test.parent);
+        }
+        pathlikeName = pathlikeName.replace(/\s+\/\s+\/?\s?/g, ' / '); // remove repeated space and slash
+
+        console.log(`Running ${test.type} from ${test.file} for step \n ${pathlikeName}`);
+        },
     //
     // Runs before a WebdriverIO command gets executed.
     //beforeCommand: function (commandName, args) {
@@ -252,6 +259,28 @@ exports.config = {
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
     // afterTest: function (test) {
     // },
+    /**
+     * Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
+     * @param {Object} test test details
+     */
+    afterTest: function (test) {
+        // if test passed, ignore, else take and save screenshot.
+        if (test.passed) {return;}
+
+        // construct a filename describing our hierarchy:
+        var pathlikeName = test.fullName;
+        pathlikeName = pathlikeName.replace(test.title, '/' + test.title.trim());
+        if (test.parent) {
+            pathlikeName = pathlikeName.replace(test.parent, '/' + test.parent.trim());
+        }
+        var testID = encodeURIComponent(pathlikeName.replace(/\s?\/\s?/g, '__').replace(/\s+/g, '-'));
+
+        // build file path
+        var filePath = this.screenshotPath + test.file.split('/').pop().split('.')[0] + '___' +  testID + '.png';
+        // save screenshot
+        browser.saveScreenshot(filePath);
+        console.log('\n\tScreenshot location:', filePath, '\n');
+    }
     //
     // Hook that gets executed after the suite has ended
     // afterSuite: function (suite) {
