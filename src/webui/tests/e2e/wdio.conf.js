@@ -31,8 +31,8 @@ var debugCapabilities =  [{
 var defaultTimeoutInterval = 120000; // ms
 var defaultMaxInstances = 1;
 let specHome = "src/webui/tests/e2e/tests/**";
-// var defaultSpecs = [`${specHome}/*.js`];
-var defaultSpecs = [`${specHome}/workflow_variant_acmg.js`];
+var defaultSpecs = [`${specHome}/*.js`];
+// var defaultSpecs = [`${specHome}/workflow_variant_acmg.js`];
 var BUNDLED_APP = 'app.js'; // see gulp file
 
 exports.config = {

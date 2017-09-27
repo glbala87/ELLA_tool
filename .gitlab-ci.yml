@@ -14,7 +14,7 @@ stages:
 test_api:
   stage: test
   script:
-    - echo make single-test TEST_NAME=api
+    - make single-test TEST_NAME=api
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -22,7 +22,7 @@ test_api:
 test_api_migration:
   stage: test
   script:
-    - echo make single-test TEST_NAME=api-migration
+    - make single-test TEST_NAME=api-migration
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -31,7 +31,7 @@ test_api_migration:
 test_js:
   stage: test
   script:
-    - echo make single-test TEST_NAME=js
+    - make single-test TEST_NAME=js
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -39,7 +39,7 @@ test_js:
 test_python:
   stage: test
   script:
-    - echo make single-test TEST_NAME=common
+    - make single-test TEST_NAME=common
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -47,7 +47,7 @@ test_python:
 test_rule_engine:
   stage: test
   script:
-    - echo make single-test TEST_NAME=rule-engine
+    - make single-test TEST_NAME=rule-engine
   except:
     - /^ui-.*$/
     - /^ops-.*$/

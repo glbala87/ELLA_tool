@@ -268,7 +268,6 @@ run-wdio-against-chromebox:
 #	screenshots on e2e test errors are defined in wdio.conf
 	@echo "Content of ./errorShots:"
 	@if [ -s './errorShots' ] ; then ls './errorShots' ; else echo "Folder ./errorShots don't exist"; fi
-	touch ./errorShots/funny.png
 	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 run-wdio-local:
