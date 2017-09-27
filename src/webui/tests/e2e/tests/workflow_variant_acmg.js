@@ -50,7 +50,7 @@ describe(`ACMG`, function () {
         analysisPage.finalizeButton.click();
     });
 
-    describe('suggested coded and REQs are', function () {
+    describe('suggested codes and REQs are', function () {
 
         beforeAll(function () {
             // classify one variant as 'T'
