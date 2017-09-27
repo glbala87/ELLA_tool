@@ -51,6 +51,15 @@ class UserService {
     setCurrentUser(user) {
         this.user = user;
     }
+
+    getAll() {
+        return new Promise((resolve, reject) => {
+            let r = this.resource(`${this.base}/users/`);
+            let users = r.query(() => {
+                resolve(users);
+            }, reject);
+        });
+    }
 }
 
 
