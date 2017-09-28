@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 import {Directive, Inject} from '../ng-decorators';
-import {EventListeners} from '../util';
+import {EventListeners, UUID} from '../util';
 
 @Directive({
     selector: 'wysiwyg-editor',
@@ -159,6 +159,11 @@ export class WysiwygEditorController {
             eventListeners.add(linkinputs[i], "keyup", (e) => {this.handleLinkForm(e)}); // Only handles esc and enter
         }
 
+        eventListeners.add(this.editorelement, "click", (e) => {
+            this.handleImageScaling(e)
+        })
+
+
         if (this.pasteAttachmentCallback) {
             eventListeners.add(this.editorelement, "paste", (e) => {
                 if (!e.clipboardData.items.length) return;
@@ -166,7 +171,8 @@ export class WysiwygEditorController {
                     if (file.kind !== "file") continue;
                     this.attachmentResource.post(file.getAsFile()).then((id) => {
                         this.pasteAttachmentCallback({attachment_id: id})
-                        this.editor.insertHTML(`<img src="/api/v1/attachments/${id}" alt="[Attachment ${id}]">`)
+                        let uuid = UUID()
+                        this.editor.insertHTML(`<img id="${uuid}" src="/api/v1/attachments/${id}" alt="[Attachment ${id}]">`)
                     })
 
                 }
@@ -178,6 +184,63 @@ export class WysiwygEditorController {
         // Remove all event listeners on destroy
         this.scope.$on('$destroy', function () {eventListeners.removeAll;});
     }
+
+    handleImageScaling(e) {
+        if (e.target.tagName !== "IMG") return;
+
+        let img = e.target;
+        let imgId = img.id;
+
+        let currentScale = 1.0*img.width/img.naturalWidth;
+        let minScale = 0.1;
+        let maxScale = 1.5;
+
+        // Create div with slider
+        let sliderContainer = document.createElement("div")
+        let slider = document.createElement("input")
+        sliderContainer.appendChild(slider)
+
+        // Specify slider properties
+        slider.type = "range";
+        slider.min = minScale;
+        slider.max = maxScale;
+        slider.step = 0.01;
+
+        // Position slider
+        sliderContainer.style.zIndex = 1000000;
+        sliderContainer.style.position = "absolute";
+        sliderContainer.style.left = img.offsetLeft+"px";
+        sliderContainer.style.top = img.offsetTop+"px";
+
+        // Append slider to document body
+        document.body.appendChild(sliderContainer)
+        slider.value = currentScale;
+
+        // Focus slider without hiding editors toolbar
+        this.blurBlocked = true;
+        slider.focus()
+
+        slider.oninput = (e) => {
+            // We have to fetch img again (for some reason)
+            let imgElement = document.getElementById(imgId)
+
+            // Scale image proportionally with slider value
+            imgElement.width = slider.value*imgElement.naturalWidth;
+            imgElement.height = slider.value*imgElement.naturalHeight;
+        }
+
+        slider.onblur = () => {
+            // Allow editor to blur (will refocus if click is within editor)
+            this.blurBlocked = false;
+            this.blur();
+
+            // Remove slider element
+            document.body.removeChild(sliderContainer)
+            slider = null;
+            sliderContainer = null;
+        }
+    }
+
 
     setupColorPickers() {
         // Add font color picker
