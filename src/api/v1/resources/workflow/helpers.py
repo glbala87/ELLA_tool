@@ -20,6 +20,7 @@ from api.config import config
 STATUS_ONGOING = 'Ongoing'
 ANY_ONGOING_STATUS = [STATUS_ONGOING]
 
+
 def _check_interpretation_input(allele, analysis):
     if allele is None and analysis is None:
         raise RuntimeError("One of arguments allele or analysis is required.")
@@ -552,7 +553,6 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     total_gp_allele_ids = defaultdict(set)  # {('HBOC', 'v01'): [1, 2, 3, ...], ...}
     user_ids = set()
     wf_analysis_gp_allele_ids = wf_analysis_gp_allele_ids.all()
-    print wf_analysis_gp_allele_ids
     wf_allele_gp_allele_ids = wf_allele_gp_allele_ids.all()
 
     for gp_name, gp_version, user_id, al_id in itertools.chain(wf_allele_gp_allele_ids, wf_analysis_gp_allele_ids):
@@ -593,8 +593,6 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     users = session.query(user.User).filter(
         user.User.id.in_(user_ids)
     ).all()
-    print "users="
-    print users
     dumped_users = schemas.UserSchema().dump(users, many=True).data
 
     # Finally connect it all together (phew!)
