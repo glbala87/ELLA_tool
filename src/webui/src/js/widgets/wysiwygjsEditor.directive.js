@@ -159,10 +159,13 @@ export class WysiwygEditorController {
             eventListeners.add(linkinputs[i], "keyup", (e) => {this.handleLinkForm(e)}); // Only handles esc and enter
         }
 
-        eventListeners.add(this.editorelement, "click", (e) => {
-            this.handleImageScaling(e)
-        })
-
+        // No need to add custom image scaling on firefox (it's already available)
+        var isFirefox = typeof InstallTrigger !== 'undefined';
+        if (!isFirefox) {
+            eventListeners.add(this.editorelement, "click", (e) => {
+                this.handleImageScaling(e)
+            })
+        }
 
         if (this.pasteAttachmentCallback) {
             eventListeners.add(this.editorelement, "paste", (e) => {
