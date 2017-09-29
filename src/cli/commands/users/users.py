@@ -13,9 +13,10 @@ from api.schemas.users import UserSchema
 from api.util.useradmin import hash_password, change_password, deactivate_user, modify_user, check_password_strength, get_user
 from vardb.datamodel import DB
 from vardb.datamodel import user
-
+from vardb.deposit.deposit_users import import_groups
 
 # Decorators
+
 
 def convert(join, *split_args):
     """
@@ -216,6 +217,27 @@ def cmd_add_many_users(json_file):
             password=pw
         ))
     session.commit()
+
+@users.command('add_groups', help="Import user groups from a json file")
+@click.argument("json_file")
+@click.option('--name',  multiple=True, help="Limit the import to these groups, multiple options allowed")
+def cmd_add_many_groups(json_file, name):  # name is a tuple of names given as --name options
+    from functools import partial
+
+    db = DB()
+    db.connect()
+    session = db.session()
+
+    groups = json.load(open(json_file, 'r'))
+
+    def is_usergroup_configured_to_be_imported(group_filter, group):
+        return group["name"] \
+               and group["name"].strip() \
+               and group_filter \
+               and group["name"].strip().lower() in map(lambda s: s.strip().lower(), group_filter)
+
+    filtered_groups = groups if 'ALL' in name else filter(partial(is_usergroup_configured_to_be_imported, name), groups)
+    import_groups(session, filtered_groups)
 
 
 @users.command('reset_password')
