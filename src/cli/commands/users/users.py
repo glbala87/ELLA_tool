@@ -5,7 +5,6 @@ import pytz
 import sys
 import os
 import json
-from functools import partial
 from copy import deepcopy
 from functools import wraps
 
@@ -213,6 +212,8 @@ def cmd_add_user(username, first_name, last_name, usergroup):
 @click.option('--group', multiple=True, help="Limit the import to users belonging to specific usergroups, multiple options allowed." \
                 + "If 'ALL' is given as option all users are imported")
 def cmd_add_many_users(json_file, group):  # group is a tuple of names given as --group options
+    from functools import partial
+
     db = DB()
     db.connect()
     session = db.session()
