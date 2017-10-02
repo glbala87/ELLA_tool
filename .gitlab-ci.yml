@@ -148,4 +148,3 @@ release:
   when: on_success
   only:
     - tags
-    
