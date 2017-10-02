@@ -112,7 +112,7 @@ stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
 bundle-api: check-release-tag
-	git archive -o $(CLIENT_BUNDLE) $(RELEASE_TAG)
+	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
 
 bundle-dist: bundle-api bundle-client
 	@rm -rf dist-temp
