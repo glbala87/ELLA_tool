@@ -161,17 +161,17 @@ export class WysiwygEditorController {
 
         if (this.pasteAttachmentCallback) {
             eventListeners.add(this.editorelement, "paste", (e) => {
-                if (!e.clipboardData.items.length) return;
-                for (let file of e.clipboardData.items) {
-                    if (file.kind !== "file") continue;
-                    this.attachmentResource.post(file.getAsFile()).then((id) => {
-                        this.editor.insertHTML(`Attachment ${id}`)
-                        this.pasteAttachmentCallback({attachment_id: id})
-                    })
-
+                    if (e.clipboardData.files.length) {
+                        for (let file of e.clipboardData.files) {
+                            this.attachmentResource.post(file).then((id) => {
+                                this.editor.insertHTML(`Attachment ${id}`)
+                                this.pasteAttachmentCallback({attachment_id: id})
+                            })
+                        }
+                        e.preventDefault();
+                    }
                 }
-                e.preventDefault()
-            })
+            )
         }
 
 
