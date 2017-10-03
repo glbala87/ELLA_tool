@@ -17,7 +17,7 @@ class SearchResource {
 
     get(query) {
         return new Promise((resolve, reject) => {
-            var r = this.resource(`/api/v1/search/?q=${encodeURIComponent(query)}`, {}, {
+            var r = this.resource(`/api/v1/search/?q=${encodeURIComponent(JSON.stringify(query))}`, {}, {
                 get: {
                     isArray: false
                 }
@@ -30,13 +30,7 @@ class SearchResource {
                     }
                     item.alleles = alleles;
                 }
-                for (let item of result.alleleassessments) {
-                    let aa = [];
-                    for (let a of item.alleles) {
-                        aa.push(new Allele(a));
-                    }
-                    item.alleles = aa;
-                }
+
                 let analyses = [];
                 for (let a of result.analyses) {
                     analyses.push(new Analysis(a));

@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import {Service, Inject} from '../ng-decorators';
+import {deepCopy} from "../util";
 
 @Service({
     serviceName: 'Search'
@@ -21,17 +22,39 @@ export class SearchService {
     }
 
     search(query) {
-        this.model.query = query;
+        this.model.query = this._formatSearchQuery(query);
         this.updateSearch();
     }
 
+    _formatSearchQuery(query) {
+        let _query = deepCopy(query)
+        if (_query.genepanel) {
+            _query.genepanel = [_query.genepanel.name, _query.genepanel.version];
+        }
+        if (_query.user) {
+            _query.user = _query.user.id;
+        }
+        return _query
+
+    }
+
+    _isValidSearch() {
+        let a = this.model.query.freetext === undefined;
+        let b = this.model.query.gene === undefined;
+        let c = this.model.query.user === undefined;
+        let d = this.model.query.genepanel === undefined;
+
+        if (!a && (b && c && d)) {
+            return this.model.query.freetext.length > 2
+        } else {
+            return (!b || !c || !d);
+        }
+    }
+
     updateSearch() {
-        if (this.model.query.length > 2) {
+        if (this._isValidSearch()) {
             this.searchResource.get(this.model.query).then(r => {
-                // Recheck length in case it changed while request was inflight
-                if (this.model.query.length > 2) {
-                    this.results = r;
-                }
+                this.results = r;
                 this.error = false;
             }).catch(e => {
                 this.error = true;
