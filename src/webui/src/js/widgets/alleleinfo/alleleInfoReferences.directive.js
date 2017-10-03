@@ -84,7 +84,7 @@ class AlleleInfoReferencesCommon {
 
     getEvaluateBtnText(reference) {
         if (this.readOnly) {
-            return 'See details'
+            return 'See details';
         }
 
         if (this.hasReferenceAssessment(reference)) {
@@ -104,7 +104,7 @@ class AlleleInfoReferencesCommon {
             referenceAssessment
         );
         if (this.onSave) {
-            this.onSave()
+            this.onSave();
         }
     }
 
@@ -116,10 +116,21 @@ class AlleleInfoReferencesCommon {
             reference,
             this.alleleState
         );
+
+        let urlIfExists = () => {
+            if(reference.hasOwnProperty('pubmed_id') && reference.pubmed_id !== '') {
+                return this.getPubmedUrl(reference.pubmed_id);
+            } else {
+                return '';
+            }
+        };
+        
+        let referenceWithUrl = Object.assign(reference, { url : urlIfExists() } );
+
         this.refEvalModal.show(
             this.analysis,
             this.allele,
-            reference,
+            referenceWithUrl,
             existing_ra,
             this.readOnly
         ).then(dialogResult => {
@@ -132,7 +143,7 @@ class AlleleInfoReferencesCommon {
             if (dialogResult) {
                 AlleleStateHelper.updateReferenceAssessment(
                     this.allele,
-                    reference,
+                    referenceWithUrl,
                     this.alleleState,
                     dialogResult
                 );

@@ -13,7 +13,7 @@ export class ReferenceEvalModalController {
                 Analysis,
                 analysis,
                 allele,
-                reference,
+                referenceWithUrl,
                 referenceAssessment,
                 readOnly) {
         this.config = Config.getConfig();
@@ -21,7 +21,7 @@ export class ReferenceEvalModalController {
         this.analysis = analysis;
         this.modal = modalInstance;
         this.allele = allele;
-        this.reference = reference;
+        this.reference = referenceWithUrl;
         this.existingReferenceAssessment = referenceAssessment;
         this.referenceAssessment = deepCopy(referenceAssessment);
         this.readOnly = readOnly;
