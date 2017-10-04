@@ -21,6 +21,11 @@ class UserSchema(Schema):
     def get_abbreviated_name(self, obj):
         return u" ".join([v[0]+"." for v in [obj.first_name]+obj.last_name.split()[:-1]])+" "+obj.last_name.split()[-1]
 
+class UserGroupSchema(Schema):
+    class Meta:
+        fields = ( 'id',
+                   'name'     
+        )
 
 class UserFullSchema(Schema):
     class Meta:
@@ -31,11 +36,13 @@ class UserFullSchema(Schema):
                   'full_name',
                   'abbrev_name',
                   'active',
-                  'password_expiry'
+                  'password_expiry',
+                  'group'
         )
 
     full_name = fields.Method('get_full_name')
     abbrev_name = fields.Method('get_abbreviated_name')
+    group = fields.Nested(UserGroupSchema)
 
     def get_full_name(self, obj):
         return ' '.join([obj.first_name, obj.last_name])

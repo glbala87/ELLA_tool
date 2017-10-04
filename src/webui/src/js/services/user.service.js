@@ -15,37 +15,37 @@ class UserService {
     }
 
     hasUser() {
-        return this.user !== null
+        return this.user !== null;
     }
 
     getCurrentUserId() {
         if (this.hasUser()) {
-            return this.user.id
+            return this.user.id;
         }
 
-        return undefined
+        return undefined;
 
     }
 
     getCurrentUser() {
         if (this.hasUser()) {
-            return this.user
+            return this.user;
         }
-        return this.user
+        return this.user;
     }
 
     loadUser() {
         return new Promise((resolve, reject) => {
             if (this.user !== null) {
-                resolve(this.user)
+                resolve(this.user);
             } else {
                 let r = this.resource(`${this.base}/users/currentuser/`);
                 let user = r.get(() => {
-                    this.setCurrentUser(user)
-                    resolve(user)
-                }, reject)
+                    this.setCurrentUser(user);
+                    resolve(user);
+                }, reject);
             }
-        })
+        });
     }
 
     setCurrentUser(user) {
