@@ -10,7 +10,7 @@ from vardb.datamodel import DB, user, gene
 log = logging.getLogger(__name__)
 
 
-def import_groups(session, groups):
+def import_groups(session, groups, log=log.info):
     for g in groups:
         existing_group = session.query(user.UserGroup).filter(
             user.UserGroup.name == g['name']
@@ -29,9 +29,9 @@ def import_groups(session, groups):
         if not existing_group:
             new_group = user.UserGroup(**g)
             session.add(new_group)
-            log.info("Adding user group {}".format(g['name']))
+            log("Adding user group {}".format(g['name']))
         else:
-            log.info("User group {} already exists, updating record...".format(g['name']))
+            log("User group {} already exists, updating record...".format(g['name']))
             for k, v in g.iteritems():
                 setattr(existing_group, k, v)
 
