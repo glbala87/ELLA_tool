@@ -9,11 +9,18 @@ from copy import deepcopy
 from functools import wraps
 
 import bcrypt
+from sqlalchemy.orm.exc import NoResultFound
+
 from api.schemas.users import UserSchema
 from api.util.useradmin import hash_password, change_password, deactivate_user, modify_user, check_password_strength, get_user
 from vardb.datamodel import DB
 from vardb.datamodel import user
+from vardb.deposit.deposit_users import import_groups
 
+
+class UserGroupNotFound(NoResultFound):
+    """Raised when a named user grouped can't be found in the database"""
+    pass
 
 # Decorators
 
@@ -120,6 +127,7 @@ def cmd_users_list():
     for u in users:
         click.echo(row_format.format(**{h: encode(getattr(u,h)) for h in header}))
 
+
 @users.command('activity')
 def cmd_users_activity():
     """
@@ -145,16 +153,18 @@ def _add_user(session, username, first_name, last_name, usergroup):
     Add user with a generated password
     """
 
-
     existing_user = session.query(user.User).filter(
         user.User.username == username,
     ).one_or_none()
 
     assert existing_user is None, "Username %s already exists" % username
 
-    group = session.query(user.UserGroup).filter(
-        user.UserGroup.name == usergroup
-    ).one()
+    try:
+        group = session.query(user.UserGroup).filter(
+            user.UserGroup.name == usergroup
+        ).one()
+    except NoResultFound, e:
+        raise UserGroupNotFound("The user group '{}' was not found for user {}".format(usergroup, username), e)
 
     password, password_hash = generate_password()
 
@@ -169,6 +179,7 @@ def _add_user(session, username, first_name, last_name, usergroup):
 
     session.add(u)
     return u, password
+
 
 @users.command('add')
 @convert(True, "--first_name", "--last_name")
@@ -195,18 +206,42 @@ def cmd_add_user(username, first_name, last_name, usergroup):
         password=pw
     ))
 
-@users.command('add_many')
+
+@users.command('add_many', help="Import users from a json file")
 @click.argument("json_file")
-def cmd_add_many_users(json_file):
+@click.option('--group', multiple=True, help="Limit the import to users belonging to specific usergroups, multiple options allowed." \
+                + "If 'ALL' is given as option all users are imported")
+@click.option('-dry', is_flag=True, help="List users that would be imported")
+def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names given as --group options
+    from functools import partial
+    users = json.load(open(json_file, 'r'))
+
+    def is_usergroup_configured_to_be_imported(group_names, user):
+        return user["usergroup"] \
+               and user["usergroup"].strip() \
+               and group_names \
+               and user["usergroup"].strip().lower() in map(lambda s: s.strip().lower(), group_names)
+
+    filtered_users = users if 'ALL' in group else filter(partial(is_usergroup_configured_to_be_imported, group), users)
+
+    if dry:
+        for u in filtered_users:
+            click.echo(u"Would add user '{username}' ('{last_name}', '{first_name}') from '{usergroup}')".format(
+                username=u["username"],
+                first_name=u["first_name"],
+                last_name=u["last_name"],
+                usergroup=u["usergroup"]
+            ))
+        return
+
     db = DB()
     db.connect()
     session = db.session()
 
-    users = json.load(open(json_file, 'r'))
-    for u in users:
+    for u in filtered_users:
         try:
             u, pw = _add_user(session, u["username"], u["first_name"], u["last_name"], u["usergroup"])
-        except AssertionError, e:
+        except (AssertionError, UserGroupNotFound) as e:
             print e
             continue
         click.echo(u"Added user {username} ({last_name}, {first_name}) with password {password}".format(
@@ -297,15 +332,15 @@ def cmd_modify_user(username, **kwargs):
         last_name=u_after.last_name,
     ))
 
-    N_changes = 0
+    n_changes = 0
     for k in modified:
         from_val = encode(getattr(u_before, k))
         to_val = encode(getattr(u_after, k))
         if from_val != to_val:
-            N_changes += 1
+            n_changes += 1
             click.echo("\t{key}: {from_val} ---> {to_val}".format(key=k, from_val=from_val, to_val=to_val))
 
-    if N_changes == 0:
+    if n_changes == 0:
         click.echo("No modifications made!")
 
 
