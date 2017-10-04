@@ -8,8 +8,9 @@ ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
 #RELEASE_TAG =
-WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
+CLIENT_BUNDLE=ella-release-$(RELEASE_TAG)-client.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
+DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -22,39 +23,39 @@ CHROMEBOX_CONTAINER = chromebox-$(BRANCH)
 
 help :
 	@echo ""
-	@echo "-- DEV COMMANDS --"
+	@echo "Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
 	@echo ""
-	@echo " Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
+	@echo "-- DEV commands --"
+	@echo "make build              - build image $(NAME_OF_GENERATED_IMAGE)"
+	@echo "make dev                - run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make db                 - populates the db with fixture data"
+	@echo "make url                - shows the url of your Ella app"
+	@echo "make kill               - stop and remove $(CONTAINER_NAME)"
+	@echo "make shell              - get a bash shell into $(CONTAINER_NAME)"
+	@echo "make logs               - tail logs from $(CONTAINER_NAME)"
+	@echo "make restart            - restart container $(CONTAINER_NAME)"
+	@echo "make any                - can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
 	@echo ""
-	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE)"
-	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db			- populates the db with fixture data"
-	@echo "make url		- shows the url of your Ella app"
-	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
-	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
-	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
-	@echo "make restart		- restart container $(CONTAINER_NAME)"
-	@echo "make any		- can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
-	@echo ""
-	@echo "-- TEST COMMANDS --"
-	@echo "make test		- build image local/ella-test, then run all tests"
-	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js | api-migration} required as variable or will default to 'all'"
+	@echo "-- TEST commands --"
+	@echo "make test               - build image local/ella-test, then run all tests"
+	@echo "make single-test        - build image local/ella-test :: TEST_NAME={api | common | js | api-migration} required as variable or will default to 'all'"
 	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
-	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
-	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
-	@echo "make run-wdio-local	- For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
+	@echo "                          Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
+	@echo "make e2e-test           - build image local/ella-test, then run e2e tests"
+	@echo "make run-wdio-local     - For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
 	@echo "                          Set these vars: APP_BASE_URL and CHROME_HOST"
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
-	@echo "-- DEMO COMMANDS --"
-	@echo "make demo		- builds a container to work in tandem with the nginx-proxy container"
-	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
+	@echo "-- DEMO commands --"
+	@echo "make demo               - builds a container to work in tandem with the nginx-proxy container"
+	@echo "                          Set DEMO_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
-	@echo "-- RELEASE COMMANDS --"
-	@echo "make release	        - Noop. See the README.md file"
-	@echo "make bundle-static      - Bundle HTML and JS into a local tgz file"
-	@echo "make bundle-api         - Bundle the backend code into a local tgz file"
+	@echo "-- RELEASE commands --"
+	@echo "make release            - Noop. See the README.md file"
+	@echo "make bundle-client      - Bundle HTML, CSS, JS and fonts into a tgz file"
+	@echo "make bundle-api         - Bundle the backend code into a tgz file"
+	@echo "make bundle-dist        - Bundle both client and backend into a tgz file"	
 
 
 # Check that given variables are set and all have non-empty values,
@@ -83,7 +84,7 @@ IMAGE_BUNDLE_STATIC=local/ella-web-assets
 release:
 	@echo "See the README.md file, section 'Production'"
 
-bundle-static: check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
+bundle-client: check-release-tag build-bundle-image start-bundle-container tar-web-build stop-bundle-container
 
 check-release-tag:
 	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
@@ -102,17 +103,25 @@ start-bundle-container:
 		$(IMAGE_BUNDLE_STATIC) \
 		sleep infinity
 
-copy-bundle:
+tar-web-build:
 	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp_build
-	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
-	@echo "Bundled static web files in $(WEB_BUNDLE)"
+	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(CLIENT_BUNDLE)
+	@echo "Bundled static web files in $(CLIENT_BUNDLE)"
 
 stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
-
 bundle-api: check-release-tag
 	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
+
+bundle-dist: bundle-api bundle-client
+	@rm -rf dist-temp
+	@mkdir -p dist-temp/src/webui/build
+	@tar x -C dist-temp/src/webui/build -f $(CLIENT_BUNDLE)
+	@tar x -C dist-temp -f $(API_BUNDLE)
+	@tar cz -C dist-temp -f $(DIST_BUNDLE) .
+	@echo "Created distribution $(DIST_BUNDLE) ($(shell du -k $(DIST_BUNDLE) | cut -f1))"
+	@rm -rf dist-temp
 
 #---------------------------------------------
 # Create diagram of the datamodel

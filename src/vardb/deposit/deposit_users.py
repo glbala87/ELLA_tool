@@ -43,7 +43,7 @@ def import_users(session, users):
     for u in users:
         existing_user = session.query(user.User).filter(
             user.User.username == u['username']
-        ).all()
+        ).one_or_none()
 
         if 'group' not in u:
             raise RuntimeError("User {} is not in any group.".format(u['username']))
@@ -56,7 +56,6 @@ def import_users(session, users):
             session.add(new_user)
             log.info("Adding user {}".format(u['username']))
         else:
-            existing_user = existing_user[0]
             log.info("Username {} already exists, updating record...".format(u['username']))
             for k, v in u.iteritems():
                 setattr(existing_user, k, v)
