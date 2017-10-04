@@ -24,6 +24,7 @@ class UserGroupNotFound(NoResultFound):
 
 # Decorators
 
+
 def convert(join, *split_args):
     """
     Since click splits all options on whitespace, add this decorator before and after option decorators.
@@ -251,6 +252,34 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
             password=pw
         ))
     session.commit()
+
+@users.command('add_groups', help="Import user groups from a json file")
+@click.argument("json_file")
+@click.option('--name',  multiple=True, help="Limit the import to these groups, multiple options allowed."
+              + " Value 'ALL' imports all groups.")
+@click.option('-dry', is_flag=True, help="List groups that would be imported")
+def cmd_add_many_groups(json_file, name, dry):  # name is a tuple of names given as --name options
+    from functools import partial
+
+    groups = json.load(open(json_file, 'r'))
+
+    def is_usergroup_configured_to_be_imported(group_filter, group):
+        return group["name"] \
+               and group["name"].strip() \
+               and group_filter \
+               and group["name"].strip().lower() in map(lambda s: s.strip().lower(), group_filter)
+
+    filtered_groups = groups if 'ALL' in name else filter(partial(is_usergroup_configured_to_be_imported, name), groups)
+    if dry:
+        for g in filtered_groups:
+            click.echo(u"Would add group '{name}'".format(name=g["name"]))
+        return
+
+    db = DB()
+    db.connect()
+    session = db.session()
+
+    import_groups(session, filtered_groups, log=click.echo)
 
 
 @users.command('reset_password')
