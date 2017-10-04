@@ -465,14 +465,34 @@ class SearchResource(LogRequestResource):
             allele.Allele.id.in_(allele_ids)
         ).distinct().all()
 
+        # Filter alleles. Filter alleles in batches, to avoid filtering huge amount of allele ids
+        # We want to stop filtering when we reach SearchResource.ALLELE_LIMIT
         gp_allele_ids = defaultdict(list)
-        for gp_name, gp_version, allele_id in genepanel_alleles:
+        gp_nonfiltered_alleles = defaultdict(list)
+        N = 10*SearchResource.ALLELE_LIMIT # Number of variants to filter each round
+        for i, (gp_name, gp_version, allele_id) in enumerate(genepanel_alleles):
             gp_allele_ids[(gp_name, gp_version)].append(allele_id)
 
-        af = AlleleFilter(session, config)
-        gp_nonfiltered_alleles = af.filter_alleles(gp_allele_ids)
+            # Filter batch
+            if i>0 and (i%N == 0 or i == len(genepanel_alleles)-1):
+                af = AlleleFilter(session, config)
+                session.commit() # Commit to drop temporary tables
+                gp_nonfiltered_slice = af.filter_alleles(gp_allele_ids)
 
-        all_allele_ids = sum([v["allele_ids"] for v in gp_nonfiltered_alleles.values()], [])
+                # Reset gp_allele_ids, so we do not filter variants twice
+                gp_allele_ids = defaultdict(list)
+
+                for k in gp_nonfiltered_slice:
+                    gp_nonfiltered_alleles[k].extend(gp_nonfiltered_slice[k]["allele_ids"])
+
+                num_variants = sum(len(v) for v in gp_nonfiltered_alleles.values())
+
+                if num_variants >= SearchResource.ALLELE_LIMIT:
+                    break
+
+
+        # Load allele data for filtered variants
+        all_allele_ids = sum([v for v in gp_nonfiltered_alleles.values()], [])
         all_alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
 
         allele_data = AlleleDataLoader(session).from_objs(
@@ -486,7 +506,7 @@ class SearchResource(LogRequestResource):
 
         alleles_by_genepanel = []
         for (gp_name, gp_version) in gp_nonfiltered_alleles:
-            for allele_id in gp_nonfiltered_alleles[(gp_name, gp_version)]["allele_ids"]:
+            for allele_id in gp_nonfiltered_alleles[(gp_name, gp_version)]:
                 al = next(ad for ad in allele_data if ad["id"] == allele_id)
 
                 genepanel = next(gp for gp in genepanels if gp.name == gp_name and gp.version == gp_version)
