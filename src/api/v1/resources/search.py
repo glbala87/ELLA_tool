@@ -10,7 +10,7 @@ from api import schemas
 
 from api.v1.resource import LogRequestResource
 from api.util.alleledataloader import AlleleDataLoader
-
+from api.util.queries import alleles_transcript_filtered_genepanel
 from api.util.annotationprocessor.annotationprocessor import TranscriptAnnotation
 from api.util.util import authenticate
 
@@ -175,7 +175,7 @@ class SearchResource(LogRequestResource):
         q_user = query.get("user")
 
         if q_freetext is not None and q_freetext != "":
-            allele_ids = self._search_allele_freetext(session, q_freetext)
+            allele_ids = self._search_allele_freetext(session, q_freetext, genepanels)
             filters.append(allele.Allele.id.in_(allele_ids))
 
         if q_gene is not None:
@@ -250,7 +250,7 @@ class SearchResource(LogRequestResource):
 
             return new_data
 
-    def _search_allele_hgvs(self, session, freetext):
+    def _search_allele_hgvs(self, session, freetext, genepanels):
         """
         Performs a search in the database using the
         annotation table to lookup HGVS cDNA or protein
@@ -272,33 +272,30 @@ class SearchResource(LogRequestResource):
         # Search by c.DNA and p. names
         # Query unwraps 'CSQ' JSON array as intermediate
         # table then searches that table for a match.
-        allele_query = """with annotation_transcripts as (
-            SELECT
-               a.allele_id,
-               jsonb_array_elements(a.annotations->'transcripts') AS transcript_list
-            FROM annotation as a
-        )
-        SELECT DISTINCT allele_id FROM annotation_transcripts
-        WHERE {where_clause} LIMIT 5000
-        """
 
-        where_clause = ''
+
+        genepanel_transcripts = alleles_transcript_filtered_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels], None).subquery()
+
+        allele_query = session.query(
+            genepanel_transcripts.c.allele_id,
+        )
+
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in freetext:
-            where_clause = "transcript_list->>'HGVSp' ~* :query"
+            #where_clause = "transcript_list->>'HGVSp' ~* :query"
+            allele_query = allele_query.filter(
+                genepanel_transcripts.c.annotation_hgvsp.op('~*')(".*"+freetext+".*")
+            )
         elif 'c.' in freetext:
-            where_clause = "transcript_list->>'HGVSc' ~* :query"
+            allele_query = allele_query.filter(
+                genepanel_transcripts.c.annotation_hgvsc.op('~*')(".*" + freetext + ".*")
+            )
 
-        if where_clause:
-            allele_query = text(allele_query.format(where_clause=where_clause))
-            # Use session.execute() and bind parameters to avoid injection risk.
-            # If you considered changing this to Python's format() function,
-            # please stop coding and take a course on SQL injections.
-            result = session.execute(allele_query, {'query': '.*'+freetext+'.*'})
-            allele_ids = [r[0] for r in result]
-            return allele_ids
-        return []
+        result = allele_query.all()
+        allele_ids = [r[0] for r in result]
+        return allele_ids
+
 
     def _search_allele_position(self, session, query):
         # Searches for Alleles within the range provided in query (if any).
@@ -352,7 +349,7 @@ class SearchResource(LogRequestResource):
             return allele_ids
         return []
 
-    def _search_allele_freetext(self, session, freetext):
+    def _search_allele_freetext(self, session, freetext, genepanels):
         """
         Search for alleles for the given input.
         Try first a search on HGVS cDNA and protein,
@@ -361,7 +358,7 @@ class SearchResource(LogRequestResource):
         by using the genomic position.
         """
 
-        allele_ids = self._search_allele_hgvs(session, freetext)
+        allele_ids = self._search_allele_hgvs(session, freetext, genepanels)
 
         if allele_ids == []:
             allele_ids = self._search_allele_position(session, freetext)
@@ -546,6 +543,13 @@ if __name__ == "__main__":
     db.connect()
 
     session = db.session
+
+    session.query(
+        allele.Allele.id,
+
+    )
+
+
 
     u = session.query(
         user.User

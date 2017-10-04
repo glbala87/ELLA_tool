@@ -256,12 +256,14 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
     # ------------------------------------
     # | 1         | {... JSONB data ...} |
     # | 2         | {... JSONB data ...} |
+    filters = [annotation.Annotation.date_superceeded.is_(None)]  # Important!
+    if allele_ids is not None:
+        filters.append(annotation.Annotation.allele_id.in_(allele_ids))
     unwrapped_annotation = session.query(
         annotation.Annotation.allele_id,
         func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
     ).filter(
-        annotation.Annotation.allele_id.in_(allele_ids),
-        annotation.Annotation.date_superceeded.is_(None)  # Important!
+        *filters
     ).subquery()
 
     # Join the tables together, using transcript as key and splitting out the
@@ -278,6 +280,8 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
         genepanel_transcripts.c.version.label('version'),
         literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
         literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
+        literal_column("transcripts::jsonb ->> 'HGVSc'").label('annotation_hgvsc'),
+        literal_column("transcripts::jsonb ->> 'HGVSp'").label('annotation_hgvsp'),
         genepanel_transcripts.c.gene_id.label('genepanel_symbol'),
         genepanel_transcripts.c.refseq_name.label('genepanel_transcript'),
     ).filter(
@@ -285,14 +289,14 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
     )
 
     # Only filter on annotation transcripts defined in config inclusion regex and genepanel transcripts
+    transcript_filters = [text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(refseq_name, '.', 1)")]
+
     if inclusion_regex is not None:
-        result = result.filter(
-            or_(
-                text("transcripts::jsonb ->> 'transcript' ~ :reg").params(reg=inclusion_regex),
-                text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(refseq_name, '.', 1)")
-            )
+        transcript_filters.append(
+            text("transcripts::jsonb ->> 'transcript' ~ :reg").params(reg=inclusion_regex)
         )
 
+    result = result.filter(or_(*transcript_filters))
     result = result.distinct()
 
     return result
