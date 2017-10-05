@@ -139,13 +139,11 @@ stop_review:
 release:
   stage: release
   script:
-    - RELEASE_TAG=${CI_COMMIT_TAG} make bundle-api
-    - RELEASE_TAG=${CI_COMMIT_TAG} make bundle-static
+    - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
   artifacts:
     paths:
-    - ella-release-${CI_COMMIT_TAG}-web.tgz
-    - ella-release-${CI_COMMIT_TAG}-api.tgz
-    name: ella-release-${CI_COMMIT_TAG}
+    - ella-release-$CI_COMMIT_REF_NAME-*.tgz
+    name: ella-release-$CI_COMMIT_REF_NAME
     when: on_success
   when: on_success
   only:

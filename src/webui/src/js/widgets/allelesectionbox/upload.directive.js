@@ -69,7 +69,7 @@ export class UploadController {
         if (files.length == 0) return;
         for (let file of files) {
             if (file.size > this.max_file_size) {
-                this.toastr.error(`Max file size for uploads is ${printedFileSize(this.max_file_size)}`)
+                this.toastr.error(`File '${file.name}' is too big (${printedFileSize(file.size)}). Max size is ${printedFileSize(this.max_file_size)}.`);
                 continue;
             }
             this.attachmentResource.post(file).then((attachment_id) => {
