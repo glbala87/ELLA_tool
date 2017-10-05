@@ -4,116 +4,125 @@
       Search
     </maintitle>
 
-  <contentwrapper>
-    <article class="search-options">
-      <div class="question tiny line-wrapper">
-            <h1 class="left slim title">
+    <contentwrapper>
+      <article class="search-options">
+        <div class="question tiny line-wrapper">
+          <div class="left">
+            <h1 class="slim title search-option">
               <b>FREE TEXT</b>
             </h1>
-            <div class="right search-option">
-              <input ng-model="vm.query.freetext">
-            </div>
+          </div>
+          <div class="right search-option">
+            <input ng-model="vm.query.freetext">
+          </div>
         </div>
         <div class="question tiny line-wrapper">
-            <h1 class="left slim title">
+          <div class="left">
+            <h1 class="slim title search-option">
               <b>GENEPANEL</b>
             </h1>
-            <div class="right bttn-set">
-                  <div class="dropdown white search-option">
-                    <script type="text/ng-template" id="genepanelTemplate">
-                      {{option.name}} {{option.version}}
-                    </script>
-                    <select selector
-                            model="vm.query.genepanel"
-                            options="vm.genepanels"
-                            placeholder="choose genepanel"
-                            view-item-template="'genepanelTemplate'"
-                            dropdown-item-template="'genepanelTemplate'"
-                            disable-search="false"
-                            remove-button="true"
-                    >
-                    </select>
-              </div>
+          </div>
+          <div class="right bttn-set">
+            <div class="dropdown white search-option">
+              <script type="text/ng-template" id="genepanelTemplate">
+                {{option.name}} {{option.version}}
+              </script>
+              <select selector
+                      model="vm.query.genepanel"
+                      options="vm.genepanels"
+                      placeholder="choose genepanel"
+                      view-item-template="'genepanelTemplate'"
+                      dropdown-item-template="'genepanelTemplate'"
+                      disable-search="false"
+                      remove-button="true"
+              >
+              </select>
             </div>
+          </div>
         </div>
-      <div class="question tiny line-wrapper">
-            <h1 class="left slim title">
+        <div class="question tiny line-wrapper">
+          <div class="left">
+            <h1 class="slim title search-option">
               <b>GENE</b>
             </h1>
-            <div class="right bttn-set">
-                  <div class="dropdown white search-option">
-                    <select selector
-                            model="vm.query.gene"
-                            options="vm.genes"
-                            placeholder="choose gene"
-                            disable-search="false"
-                            remove-button="true"
-                    >
-                    </select>
-              </div>
+          </div>
+          <div class="right bttn-set">
+            <div class="dropdown white search-option">
+              <select selector
+                      model="vm.query.gene"
+                      options="vm.genes"
+                      placeholder="choose gene"
+                      disable-search="false"
+                      remove-button="true"
+              >
+              </select>
             </div>
+          </div>
         </div>
-      <div class="question tiny line-wrapper">
-            <h1 class="left slim title">
+        <div class="question tiny line-wrapper">
+          <div class="left">
+            <h1 class="slim title search-option">
               <b>USER</b>
             </h1>
-            <div class="right bttn-set">
-                  <div class="dropdown white search-option">
-                    <script type="text/ng-template" id="userTemplate">
-                      {{option.full_name}}
-                    </script>
-                    <select selector
-                            model="vm.query.user"
-                            options="vm.users"
-                            placeholder="choose user"
-                            view-item-template="'userTemplate'"
-                            dropdown-item-template="'userTemplate'"
-                            disable-search="false"
-                            remove-button="true"
-                    >
-                    </select>
-              </div>
+          </div>
+          <div class="right bttn-set">
+            <div class="dropdown white search-option">
+              <script type="text/ng-template" id="userTemplate">
+                {{option.full_name}}
+              </script>
+              <select selector
+                      model="vm.query.user"
+                      options="vm.users"
+                      placeholder="choose user"
+                      view-item-template="'userTemplate'"
+                      dropdown-item-template="'userTemplate'"
+                      disable-search="false"
+                      remove-button="true"
+              >
+              </select>
             </div>
+          </div>
         </div>
-      <div class="question tiny line-wrapper">
-        <div class="left">
-            <h1 class="slim title">
-              <b>FILTER</b>
+        <div class="question tiny line-wrapper">
+          <div class="left">
+            <h1 class="slim title search-option">
+              <b>UNFILTERED VARIANTS ONLY</b>
             </h1>
           </div>
-            <div class="right bttn-set">
-              <div class="search-option">
-                <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="vm.query.filter"
-                       ng-repeat="item in ['Yes', 'No']">{{item}}</label>
-              </div>
+          <div class="right bttn-set">
+            <div class="search-option">
+              <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="vm.query.filter"
+                     ng-repeat="item in ['Yes', 'No']">{{item}}</label>
             </div>
+          </div>
         </div>
       </article>
-    <div>
+      <div>
 
-  <h4 ng-if="vm.getResults().alleles.length" class="section-header">Variants</h4>
-  <section ng-if="vm.getResults().alleles.length">
-    <div class="element" ng-repeat="item in vm.getResults().alleles">
-      <h3 class="element-title"><b>{{item.name}} {{item.version}}</b></h3>
-      <a href="{{vm.getAlleleUrl(item.name, item.version, allele)}}" ng-repeat="allele in item.alleles">
-        <div class="element-item" ng-click="vm.openAllele(allele)">
-          <h4 ng-repeat="t in allele.annotation.filtered"><i>{{t.symbol}}</i> <b>{{t.HGVSc_short}}</b></h4>
-          <h4 ng-if="allele.allele_assessment">... class {{allele.allele_assessment.classification}} made on {{allele.allele_assessment.date_created | date:'yyyy-MM-dd'}} by {{allele.allele_assessment.user.abbrev_name}} for {{allele.allele_assessment.genepanel_name}}_{{allele.allele_assessment.genepanel_version}}</h4>
+        <h4 ng-if="vm.getResults().alleles.length" class="section-header">Variants</h4>
+        <section ng-if="vm.getResults().alleles.length">
+          <div class="element" ng-repeat="item in vm.getResults().alleles">
+            <h3 class="element-title"><b>{{item.name}} {{item.version}}</b></h3>
+            <a href="{{vm.getAlleleUrl(item.name, item.version, allele)}}" ng-repeat="allele in item.alleles">
+              <div class="element-item" ng-click="vm.openAllele(allele)">
+                <h4 ng-repeat="t in allele.annotation.filtered"><i>{{t.symbol}}</i> <b>{{t.HGVSc_short}}</b></h4>
+                <h4 ng-if="allele.allele_assessment">... class {{allele.allele_assessment.classification}} made on {{allele.allele_assessment.date_created | date:'yyyy-MM-dd'}} by {{allele.allele_assessment.user.abbrev_name}} for {{allele.allele_assessment.genepanel_name}}_{{allele.allele_assessment.genepanel_version}}</h4>
+              </div>
+            </a>
+          </div>
+        </section>
+
+
+        <h4 ng-if="vm.getResults().analyses.length" class="section-header">Analyses</h4>
+        <section ng-if="vm.getResults().analyses.length">
+          <analysis-list analyses="vm.getResults().analyses" on-select="vm.clear()"></analysis-list>
+        </section>
+
+        <div class="no-results" ng-if="vm.getResults().analyses.length == 0 && vm.getResults().alleles.length == 0">
+          <h4 class="sb-notification">No results</h4>
+          <h4 class="sb-notification">Search examples: c.198A>G, NM_000059.3:c.1275A>G, 5:16451845, 13:32893296-32893415</h4>
         </div>
-      </a>
-    </div>
-  </section>
-
-
-  <h4 ng-if="vm.getResults().analyses.length" class="section-header">Analyses</h4>
-  <section ng-if="vm.getResults().analyses.length">
-    <analysis-list analyses="vm.getResults().analyses" on-select="vm.clear()"></analysis-list>
-  </section>
-
-  <div class="no-results" ng-if="vm.getResults().analyses.length == 0 && vm.getResults().alleles.length == 0">
-    <h4 class="sb-notification">No results</h4>
-    <h4 class="sb-notification">Search examples: c.198A>G, NM_000059.3:c.1275A>G, 5:16451845, 13:32893296-32893415</h4>
-  </div>
-</contentwrapper>
+      </div>
+    </contentwrapper>
   </sectionbox>
 </div>
