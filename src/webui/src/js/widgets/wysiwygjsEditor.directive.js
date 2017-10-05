@@ -9,7 +9,6 @@ import {EventListeners, UUID} from '../util';
         placeholder: '@?',
         ngModel: '=',
         ngDisabled: '=?',
-        pasteAttachmentCallback: '&?',
     },
     require: '?ngModel', // get a hold of NgModelController
     templateUrl: 'ngtmpl/wysiwygEditor.ngtmpl.html',
@@ -167,22 +166,18 @@ export class WysiwygEditorController {
             })
         }
 
-        if (this.pasteAttachmentCallback) {
-            eventListeners.add(this.editorelement, "paste", (e) => {
-                if (!e.clipboardData.items.length) return;
-                for (let file of e.clipboardData.items) {
-                    if (file.kind !== "file") continue;
-                    this.attachmentResource.post(file.getAsFile()).then((id) => {
-                        this.pasteAttachmentCallback({attachment_id: id})
-                        let uuid = UUID()
-                        this.editor.insertHTML(`<img id="${uuid}" src="/api/v1/attachments/${id}" alt="[Attachment ${id}]">`)
-                    })
+        eventListeners.add(this.editorelement, "paste", (e) => {
+            if (!e.clipboardData.items.length) return;
+            for (let file of e.clipboardData.items) {
+                if (file.kind !== "file") continue;
+                this.attachmentResource.post(file.getAsFile()).then((id) => {
+                    let uuid = UUID()
+                    this.editor.insertHTML(`<img id="${uuid}" src="/api/v1/attachments/${id}" alt="[Attachment ${id}]">`)
+                })
 
-                }
-                e.preventDefault()
-            })
-        }
-
+            }
+            e.preventDefault()
+        })
 
         // Remove all event listeners on destroy
         this.scope.$on('$destroy', function () {eventListeners.removeAll;});
