@@ -167,6 +167,7 @@ export class WysiwygEditorController {
         }
 
         eventListeners.add(this.editorelement, "paste", (e) => {
+            // IMPORTANT: Use clipboardData.items rather than clipboardData.files, as this does not work for older versions of Chrome
             if (!e.clipboardData.items.length) return;
             for (let file of e.clipboardData.items) {
                 if (file.kind !== "file") continue;
