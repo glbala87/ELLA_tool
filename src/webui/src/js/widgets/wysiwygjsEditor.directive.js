@@ -174,9 +174,7 @@ export class WysiwygEditorController {
                     let uuid = UUID()
                     this.editor.insertHTML(`<img id="${uuid}" src="/api/v1/attachments/${id}" alt="[Attachment ${id}]">`)
                 })
-
             }
-            e.preventDefault()
         })
 
         // Remove all event listeners on destroy
