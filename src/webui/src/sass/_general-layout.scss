@@ -310,8 +310,8 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 
 }
 
-.search-results .ng-enter { animation: 1s fade-in; }
-.search-results { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
+.search-module .ng-enter { animation: 1s fade-in; }
+.search-module { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
   h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; }
   .element { margin: 1.3rem 0; margin-left: 2.3rem;
     &-title { @extend .full-title; margin-bottom: 0.7rem; color: $black-50; }

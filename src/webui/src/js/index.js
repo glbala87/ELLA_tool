@@ -91,7 +91,7 @@ import './widgets/autosizeTextarea.directive';
 import './widgets/contentbox.directive';
 import './widgets/sectionbox.directive';
 import './widgets/search.directive';
-import './widgets/searchResults.directive';
+import './widgets/searchModule.directive';
 import './widgets/workflowButtons.directive';
 import './widgets/allelesectionbox/allelesectionbox.directive';
 import './widgets/allelesectionbox/allelesectionboxcontent.directive';
