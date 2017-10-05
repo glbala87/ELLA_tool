@@ -19,7 +19,6 @@ from api.config import config
 
 class SearchResource(LogRequestResource):
 
-
     ANALYSIS_LIMIT = 10
     ALLELE_LIMIT = 10
     ALLELE_ASSESSMENT_LIMIT = 10
@@ -117,12 +116,7 @@ class SearchResource(LogRequestResource):
         else:
             matches["alleles"] = self._search_allele(session, query, genepanels)
 
-
-        for item in matches["alleles"]:
-            print item["name"], item["version"], len(item["alleles"])
-        #matches['alleles'] = self._alleles_by_genepanel(session, allele_ids, genepanels)
         return matches
-
 
     def _get_analyses_filters(self, session, query, genepanels):
         filters = list()
@@ -273,7 +267,6 @@ class SearchResource(LogRequestResource):
         # Query unwraps 'CSQ' JSON array as intermediate
         # table then searches that table for a match.
 
-
         genepanel_transcripts = alleles_transcript_filtered_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels], None).subquery()
 
         allele_query = session.query(
@@ -283,7 +276,6 @@ class SearchResource(LogRequestResource):
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in freetext:
-            #where_clause = "transcript_list->>'HGVSp' ~* :query"
             allele_query = allele_query.filter(
                 genepanel_transcripts.c.annotation_hgvsp.op('~*')(".*"+freetext+".*")
             )
@@ -291,11 +283,12 @@ class SearchResource(LogRequestResource):
             allele_query = allele_query.filter(
                 genepanel_transcripts.c.annotation_hgvsc.op('~*')(".*" + freetext + ".*")
             )
+        else:
+            return []
 
         result = allele_query.all()
         allele_ids = [r[0] for r in result]
         return allele_ids
-
 
     def _search_allele_position(self, session, query):
         # Searches for Alleles within the range provided in query (if any).
@@ -317,7 +310,7 @@ class SearchResource(LogRequestResource):
                     allele.Allele.open_end_position <= chr_pos['pos2'],
                 )
 
-            result = qallele.limit(SearchResource.ALLELE_LIMIT).all()
+            result = qallele.all()
             allele_ids = [r[0] for r in result]
             return allele_ids
 
@@ -365,18 +358,9 @@ class SearchResource(LogRequestResource):
 
         return allele_ids
 
-    def _alleles_by_genepanel(self, session, alleles, genepanels):
-        """
-        Structures the alleles according the the genepanel(s)
-        they belong to, and filters the transcripts
-        (sets allele.annotation.filtered to genepanel transcripts)
-
-        Alleles must already be dumped using AlleleDataLoader.
-        """
-        allele_ids = [a['id'] for a in alleles]
-
+    def _get_genepanel_allele_ids(self, session, allele_ids, genepanels):
         # Get genepanels for the alleles
-        genepanel_alleles = session.query(
+        genepanel_allele_ids = session.query(
             gene.Genepanel.name,
             gene.Genepanel.version,
             allele.Allele.id
@@ -391,9 +375,23 @@ class SearchResource(LogRequestResource):
             allele.Allele.id.in_(allele_ids)
         ).distinct().all()
 
+        return genepanel_allele_ids
+
+    def _alleles_by_genepanel(self, session, alleles, genepanels):
+        """
+        Structures the alleles according the the genepanel(s)
+        they belong to, and filters the transcripts
+        (sets allele.annotation.filtered to genepanel transcripts)
+
+        Alleles must already be dumped using AlleleDataLoader.
+        """
+        allele_ids = [a['id'] for a in alleles]
+
+        genepanel_allele_ids = self._get_genepanel_allele_ids(session, allele_ids, genepanels)
+
         # Iterate, filter transcripts and add to final data
         alleles_by_genepanel = list()
-        for gp_name, gp_version, allele_id in genepanel_alleles:
+        for gp_name, gp_version, allele_id in genepanel_allele_ids:
             al = next(a for a in alleles if a['id'] == allele_id)
             genepanel = next(gp for gp in genepanels if gp.name == gp_name and gp.version == gp_version)
 
@@ -417,12 +415,10 @@ class SearchResource(LogRequestResource):
 
         return alleles_by_genepanel
 
-
     def _search_allele(self, session, query, genepanels):
         alleles = session.query(allele.Allele).filter(
             *self._get_alleles_filters(session, query, genepanels)
         ).limit(SearchResource.ALLELE_LIMIT).all()
-
 
         allele_data = AlleleDataLoader(session).from_objs(
             alleles,
@@ -446,32 +442,18 @@ class SearchResource(LogRequestResource):
             *self._get_alleles_filters(session, query, genepanels)
         ).all()
 
-        # Get genepanels for the alleles
-        genepanel_alleles = session.query(
-            gene.Genepanel.name,
-            gene.Genepanel.version,
-            allele.Allele.id
-        ).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis,
-            gene.Genepanel
-        ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_((gp.name, gp.version) for gp in genepanels),
-            genotype.Genotype.sample_id == sample.Sample.id,
-            allele.Allele.id.in_(allele_ids)
-        ).distinct().all()
+        genepanel_allele_ids = self._get_genepanel_allele_ids(session, allele_ids, genepanels)
 
         # Filter alleles. Filter alleles in batches, to avoid filtering huge amount of allele ids
         # We want to stop filtering when we reach SearchResource.ALLELE_LIMIT
         gp_allele_ids = defaultdict(list)
         gp_nonfiltered_alleles = defaultdict(list)
         N = 10*SearchResource.ALLELE_LIMIT # Number of variants to filter each round
-        for i, (gp_name, gp_version, allele_id) in enumerate(genepanel_alleles):
+        for i, (gp_name, gp_version, allele_id) in enumerate(genepanel_allele_ids):
             gp_allele_ids[(gp_name, gp_version)].append(allele_id)
 
             # Filter batch
-            if i>0 and (i%N == 0 or i == len(genepanel_alleles)-1):
+            if i>0 and (i%N == 0 or i == len(genepanel_allele_ids)-1):
                 af = AlleleFilter(session, config)
                 session.commit() # Commit to drop temporary tables
                 gp_nonfiltered_slice = af.filter_alleles(gp_allele_ids)
@@ -487,10 +469,9 @@ class SearchResource(LogRequestResource):
                 if num_variants >= SearchResource.ALLELE_LIMIT:
                     break
 
-
         # Load allele data for filtered variants
         all_allele_ids = sum([v for v in gp_nonfiltered_alleles.values()], [])
-        all_alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
+        all_alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).limit(SearchResource.ALLELE_LIMIT).all()
 
         allele_data = AlleleDataLoader(session).from_objs(
             all_alleles,
@@ -501,31 +482,9 @@ class SearchResource(LogRequestResource):
             include_reference_assessments=False
         )
 
-        alleles_by_genepanel = []
-        for (gp_name, gp_version) in gp_nonfiltered_alleles:
-            for allele_id in gp_nonfiltered_alleles[(gp_name, gp_version)]:
-                al = next(ad for ad in allele_data if ad["id"] == allele_id)
-
-                genepanel = next(gp for gp in genepanels if gp.name == gp_name and gp.version == gp_version)
-
-                transcripts = [t['transcript'] for t in al['annotation']['transcripts']]
-                al['annotation']['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(
-                    transcripts,
-                    genepanel
-                )
-
-                item = next((a for a in alleles_by_genepanel if a['name'] == gp_name and a['version'] == gp_version), None)
-                if item is None:
-                    item = {
-                        'name': gp_name,
-                        'version': gp_version,
-                        'alleles': list()
-                    }
-                    alleles_by_genepanel.append(item)
-                item["alleles"].append(al)
+        alleles_by_genepanel = self._alleles_by_genepanel(session, allele_data, genepanels)
 
         return alleles_by_genepanel
-
 
     def _search_analysis(self, session, query, genepanels):
             analyses = session.query(sample.Analysis).filter(
@@ -535,39 +494,3 @@ class SearchResource(LogRequestResource):
                 return schemas.AnalysisFullSchema().dump(analyses, many=True).data
             else:
                 return []
-
-if __name__ == "__main__":
-    import json
-    from vardb.datamodel import DB
-    db = DB()
-    db.connect()
-
-    session = db.session
-
-    session.query(
-        allele.Allele.id,
-
-    )
-
-
-
-    u = session.query(
-        user.User
-    ).filter(
-        user.User.id == 5,
-    ).one()
-    print u.group.genepanels
-
-    s = SearchResource()
-    r = s._search_allele(session, {
-                                #"freetext": "13:32890646",
-                                #"gene": "CACNB4",
-                                "genepanel": ["Ciliopati", "v05"],
-                                #"user": 1,
-                            }, u.group.genepanels
-    )
-
-    for _r in r:
-        print json.dumps(_r, indent=4)
-        #print _r.keys()
-    print len(r)
