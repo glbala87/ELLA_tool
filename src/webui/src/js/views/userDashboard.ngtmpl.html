@@ -15,6 +15,12 @@
                     <p>Username: {{vm.user.getCurrentUser().username}}</p>
                     <p>Full name: {{vm.user.getCurrentUser().full_name}}</p>
                     <p>Group: {{vm.user.getCurrentUser().group.name}}</p>
+                    <p class='line-wrapper'>Other users in group:
+                      <span ng-repeat="user in vm.user.getCurrentUser().users">&nbsp;{{user}}</span>
+                    </p>
+                    <p class='line-wrapper'>Genepanels:
+                      <span ng-repeat="genepanel in vm.user.getCurrentUser().group.genepanels">&nbsp;{{genepanel.name}}</span>
+                    </p>
                     <p>Password expiry: {{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</p>
                     <br>
                     <p>Number of analyses worked on: {{vm.user_stats.analyses_cnt}}</p>
