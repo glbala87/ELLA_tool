@@ -5,27 +5,42 @@
 
     <div class="dashboard">
         <div class="container">
+
             <sectionbox color="green" class="profile id-user-profile" collapsible="false">
                 <maintitle>
-                    YOUR PROFILE
+                  YOUR PROFILE
                 </maintitle>
                 <subtitle>
                 </subtitle>
                 <contentwrapper>
-                    <p>Username: {{vm.user.getCurrentUser().username}}</p>
-                    <p>Full name: {{vm.user.getCurrentUser().full_name}}</p>
-                    <p>Group: {{vm.user.getCurrentUser().group.name}}</p>
-                    <p class='line-wrapper'>Other users in group:
-                      <span ng-repeat="user in vm.user.getCurrentUser().users">&nbsp;{{user}}</span>
+                  <p>Username: {{vm.user.getCurrentUser().username}}</p>
+                  <p>Full name: {{vm.user.getCurrentUser().full_name}}</p>
+                  <p>Password expiry: {{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</p>
+                  <br>
+                  <p>Group: {{vm.user.getCurrentUser().group.name}}</p>
+                  <p>Other users in group:
+                    <p ng-repeat="user in vm.user.getCurrentUser().otherUsersInGroup">
+                      &nbsp;&nbsp;{{user.first_name}}&nbsp;{{user.last_name}}
                     </p>
+                  </p>
+                  <br>
+                </contentwrapper>
+            </sectionbox>
+
+            <sectionbox color="green" class="profile id-user-profile" collapsible="false">
+            <maintitle>
+                GENEPANELS AND WORK
+            </maintitle>
+            <subtitle></subtitle>
+            <contentwrapper>
                     <p class='line-wrapper'>Genepanels:
                       <span ng-repeat="genepanel in vm.user.getCurrentUser().group.genepanels">&nbsp;{{genepanel.name}}</span>
                     </p>
-                    <p>Password expiry: {{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</p>
-                    <br>
+
                     <p>Number of analyses worked on: {{vm.user_stats.analyses_cnt}}</p>
                     <p>Number of variants worked on: {{vm.user_stats.alleles_cnt}}</p>
-                </contentwrapper>
+                    <br>
+            </contentwrapper>
             </sectionbox>
 
             <sectionbox color="green" class="activities id-activity-stream" collapsible="false">
