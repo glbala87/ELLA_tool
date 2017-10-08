@@ -111,22 +111,46 @@ def users():
 
 
 @users.command('list')
-def cmd_users_list():
-    """
-    List all users
-    """
+@click.option('--group', multiple=True, help="Limit the display to users belonging to specific usergroups, multiple options allowed." \
+                + "If 'ALL' is given as option all users are displayed")
+@click.option('--username', multiple=False, help="Display only a single user.")
+def cmd_users_list(group, username):
     db = DB()
     db.connect()
     session = db.session()
-    users = session.query(user.User).all()
+    accounts = None
+    if username:
+        accounts = session.query(user.User).filter(user.User.username == username).all()
+    elif group and 'ALL' not in group:
+        accounts = session.query(user.User).\
+            join(user.UserGroup).\
+            filter(user.UserGroup.name.in_(group)).all()
+    else:
+        accounts = session.query(user.User).all()
 
-    header = {'id': 'id', 'username': 'username', 'first_name': 'first_name', 'last_name': 'last_name', 'password_expiry': 'password_expiry'}
-    row_format = "{id:^10}| {username:<20} | {first_name:<30} | {last_name:<30} | {password_expiry:<30}"
+    if not accounts:
+        click.echo('No result')
+        return
+
+    header_user = {'id': 'id', 'username': 'username', 'first_name': 'first_name',
+                   'last_name': 'last_name', 'password_expiry': 'password_expiry'
+                  }
+    header_user_genpanel = {'usergroup': 'usergroup', 'genepanels': 'genepanels'}
+    header = header_user.copy()
+    header.update(header_user_genpanel)
+    row_format = "{id:^10}| {username:<20} | {first_name:<30} |" + \
+                 "{last_name:<30} | {password_expiry:<30} | " + \
+                 "{usergroup:<10} | {genepanels:<100}"
     click.echo(row_format.format(**header))
     click.echo(row_format.format(
-        **{'id': '-' * 10, 'username': '-' * 20, 'first_name': '-' * 30, 'last_name': '-' * 30, 'password': '-' * 60, 'password_expiry': '-' * 40}))
-    for u in users:
-        click.echo(row_format.format(**{h: encode(getattr(u,h)) for h in header}))
+        **{'id': '-' * 10, 'username': '-' * 20, 'first_name': '-' * 30,
+           'last_name': '-' * 30, 'password': '-' * 60, 'password_expiry': '-' * 40,
+           'usergroup': '-' * 10, 'genepanels': '-' * 20}))
+    for a in accounts:
+        d = {h: encode(getattr(a, h)) for h in header_user}
+        d.update({'usergroup': a.group.name,
+                  'genepanels': ", ".join([p.name + '_' + p.version for p in a.group.genepanels])})
+        click.echo(row_format.format(**d))
 
 
 @users.command('activity')
@@ -218,10 +242,10 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
     users = json.load(open(json_file, 'r'))
 
     def is_usergroup_configured_to_be_imported(group_names, user):
-        return user["usergroup"] \
-               and user["usergroup"].strip() \
+        return user["group"] \
+               and user["group"].strip() \
                and group_names \
-               and user["usergroup"].strip().lower() in map(lambda s: s.strip().lower(), group_names)
+               and user["group"].strip().lower() in map(lambda s: s.strip().lower(), group_names)
 
     filtered_users = users if 'ALL' in group else filter(partial(is_usergroup_configured_to_be_imported, group), users)
 
@@ -231,7 +255,7 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
                 username=u["username"],
                 first_name=u["first_name"],
                 last_name=u["last_name"],
-                usergroup=u["usergroup"]
+                usergroup=u["group"]
             ))
         return
 
@@ -241,7 +265,7 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
 
     for u in filtered_users:
         try:
-            u, pw = _add_user(session, u["username"], u["first_name"], u["last_name"], u["usergroup"])
+            u, pw = _add_user(session, u["username"], u["first_name"], u["last_name"], u["group"])
         except (AssertionError, UserGroupNotFound) as e:
             print e
             continue

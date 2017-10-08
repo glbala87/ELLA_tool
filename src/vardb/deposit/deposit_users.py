@@ -29,7 +29,7 @@ def import_groups(session, groups, log=log.info):
         if not existing_group:
             new_group = user.UserGroup(**g)
             session.add(new_group)
-            log("Adding user group {}".format(g['name']))
+            log("Added user group {}".format(g['name']))
         else:
             log("User group {} already exists, updating record...".format(g['name']))
             for k, v in g.iteritems():
