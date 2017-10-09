@@ -1,4 +1,5 @@
 $blue: hsl(205,45,35);
+$blue-95: hsla(hue($blue),saturation($blue),lightness($blue),0.95);
 $blue-75: hsla(hue($blue),saturation($blue),lightness($blue),0.75);
 $blue-50: hsla(hue($blue),saturation($blue),lightness($blue),0.50);
 $blue-25: hsla(hue($blue),saturation($blue),lightness($blue),0.25);
