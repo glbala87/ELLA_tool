@@ -169,11 +169,13 @@ export class WysiwygEditorController {
         eventListeners.add(this.editorelement, "paste", (e) => {
             // IMPORTANT: Use clipboardData.items rather than clipboardData.files, as this does not work for older versions of Chrome
             if (!e.clipboardData.items.length) return;
-            for (let file of e.clipboardData.items) {
-                if (file.kind !== "file") continue;
-                this.attachmentResource.post(file.getAsFile()).then((id) => {
-                    let uuid = UUID()
-                    this.editor.insertHTML(`<img id="${uuid}" src="/api/v1/attachments/${id}" alt="[Attachment ${id}]">`)
+            for (let item of e.clipboardData.items) {
+                if (item.kind !== "file") continue;
+                this.attachmentResource.post(item.getAsFile()).then((id) => {
+                    let uuid = UUID();
+                    let label = `[Attachment ${id}]`;
+                    let src = `/api/v1/attachments/${id}`;
+                    this.editor.insertHTML(`<img id="${uuid}" src="${src}" alt="${label}" title="${label}">`)
                 })
             }
         })
