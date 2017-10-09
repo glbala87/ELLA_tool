@@ -4,46 +4,55 @@
     </nav>
 
     <div class="dashboard">
-        <div class="container">
-
-            <sectionbox color="green" class="profile id-user-profile" collapsible="false">
+            <sectionbox color="white" class="profile id-user-profile" collapsible="false">
                 <maintitle>
                   YOUR PROFILE
                 </maintitle>
                 <subtitle>
                 </subtitle>
                 <contentwrapper>
-                  <p>Username: {{vm.user.getCurrentUser().username}}</p>
-                  <p>Full name: {{vm.user.getCurrentUser().full_name}}</p>
-                  <p>Password expiry: {{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</p>
-                  <br>
-                  <p>Group: {{vm.user.getCurrentUser().group.name}}</p>
-                  <p>Other users in group:
-                    <p ng-repeat="user in vm.user.getCurrentUser().otherUsersInGroup">
-                      &nbsp;&nbsp;{{user.first_name}}&nbsp;{{user.last_name}}
-                    </p>
-                  </p>
-                  <br>
+                    <p>Username: <span class="full-title"> {{vm.user.getCurrentUser().username}}</span></p>
+                    <p>Full name: <span class="full-title"> {{vm.user.getCurrentUser().full_name}}</span></p>
+                    <p>Password expiry: <span class="full-title">{{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</span></p>
                 </contentwrapper>
             </sectionbox>
 
-            <sectionbox color="green" class="profile id-user-profile" collapsible="false">
+            <sectionbox color="white" class="profile id-user-profile" collapsible="false">
             <maintitle>
                 GENEPANELS AND WORK
             </maintitle>
             <subtitle></subtitle>
             <contentwrapper>
-                    <p class='line-wrapper'>Genepanels:
-                      <span ng-repeat="genepanel in vm.user.getCurrentUser().group.genepanels">&nbsp;{{genepanel.name}}</span>
-                    </p>
-
-                    <p>Number of analyses worked on: {{vm.user_stats.analyses_cnt}}</p>
-                    <p>Number of variants worked on: {{vm.user_stats.alleles_cnt}}</p>
-                    <br>
+                <p>Group: <span class="full-title">{{vm.user.getCurrentUser().group.name}}</span></p>
+                  <p>Other users in group:</p>
+                  <div class="sectionbox-content general-list">
+                      <span ng-repeat="user in vm.user.getCurrentUser().otherUsersInGroup" class="list-item">
+                          <span class="full-title">{{user.first_name}}&nbsp;{{user.last_name}}</span>
+                      </span>
+                  </div>
             </contentwrapper>
             </sectionbox>
-
-            <sectionbox color="green" class="activities id-activity-stream" collapsible="false">
+        
+            <sectionbox color="white" class="profile id-user-profile" collapsible="false">
+            <maintitle>
+                GENEPANELS AND WORK
+            </maintitle>
+            <subtitle></subtitle>
+            <contentwrapper>
+                    <p>Genepanels:</p>
+                    <div class="sectionbox-content general-list">
+                        <span class="list-item" ng-repeat="genepanel in vm.user.getCurrentUser().group.genepanels">
+                            <span class="full-title">{{genepanel.name}}&nbsp;{{genepanel.version}}</span>
+                        </span>
+                    </div>
+                    <p>Number of analyses worked on: <span class="full-title">{{vm.user_stats.analyses_cnt}}</span></p>
+                    <p>Number of variants worked on: <span class="full-title">{{vm.user_stats.alleles_cnt}}</span></p>
+            </contentwrapper>
+            </sectionbox>
+    </div>
+    
+    <div class="dashboard-activity">
+          <sectionbox color="green" class="activities id-activity-stream" collapsible="false">
                 <maintitle>
                     YOUR ACTIVITY
                 </maintitle>
@@ -58,10 +67,7 @@
                             </a>
                         </article>
                     </div>
-
                 </contentwrapper>
             </sectionbox>
-        </div>
     </div>
-
 </div>
