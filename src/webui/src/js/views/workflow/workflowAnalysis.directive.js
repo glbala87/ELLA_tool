@@ -197,7 +197,7 @@ export class WorkflowAnalysisController {
         this.selected_interpretation_alleles = []; // Loaded alleles for current interpretation
         this.alleles_loaded = false;  // Loading indicators etc
 
-        this.allele_collisions = null;
+        this.collisionWarning = null;
 
         this.interpretations = []; // Holds interpretations from backend
         this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
@@ -221,6 +221,9 @@ export class WorkflowAnalysisController {
 
         // Unregister when scope is destroyed.
         this.scope.$on('$destroy', () => {
+            if (this.collisionWarning) {
+                this.toastr.clear(this.collisionWarning)
+            }
             unregister_func();
             window.onbeforeunload = null;
         });
@@ -420,7 +423,21 @@ export class WorkflowAnalysisController {
         });
 
         this.workflowResource.getCollisions('analysis', this.analysisId).then(result => {
-            this.allele_collisions = result;
+            if (result.length > 0) {
+                let html = "<h4>There "
+                if (result.length > 1) {
+                    html += `are currently ${result.length} variants being worked on in other workflows.</h4>`
+                } else {
+                    html += `is currently ${result.length} variant being worked on in another workflow.</h4>`
+                }
+
+                for (let c of result) {
+                    html += `<h3> ${c.allele.annotation.filtered[0].symbol} ${c.allele.annotation.filtered[0].HGVSc_short}`
+                    html += ` by ${c.user ? c.user.full_name : 'no user (IN REVIEW)'} (${c.type === 'analysis' ? 'ANALYSIS' : 'VARIANT'})</h3>`
+                }
+
+                this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-no-upper'})
+            }
         });
     }
 
