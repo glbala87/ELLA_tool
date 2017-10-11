@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields
-
+from genepanels import GenepanelSchema
 
 class UserSchema(Schema):
     class Meta:
@@ -21,13 +21,6 @@ class UserSchema(Schema):
     def get_abbreviated_name(self, obj):
         return u" ".join([v[0]+"." for v in [obj.first_name]+obj.last_name.split()[:-1]])+" "+obj.last_name.split()[-1]
 
-class UserGroupGenepanelSchema(Schema):
-    class Meta:
-        fields = (
-          'name',
-          'version',
-          'genome_reference'
-        )
 
 class UserGroupSchema(Schema):
     class Meta:
@@ -35,7 +28,7 @@ class UserGroupSchema(Schema):
                    'name',
                    'genepanels'
         )
-    genepanels = fields.Nested(UserGroupGenepanelSchema, many=True)
+    genepanels = fields.Nested(GenepanelSchema, many=True)
 
 class UserFullSchema(Schema):
     class Meta:

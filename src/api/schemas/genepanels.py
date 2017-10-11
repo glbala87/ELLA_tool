@@ -45,7 +45,7 @@ class PhenotypeSchema(Schema):
     gene = fields.Nested(GeneSchema)
 
 
-class GenepanelSchema(Schema):
+class GenepanelFullSchema(Schema):
     class Meta:
         title = "Genepanel"
         description = 'Panel of genes connected to a certain analysis'
@@ -56,3 +56,11 @@ class GenepanelSchema(Schema):
                   'config')
     transcripts = fields.Nested(TranscriptSchema, many=True)
     phenotypes = fields.Nested(PhenotypeSchema, many=True)
+
+class GenepanelSchema(Schema):
+    class Meta:
+        fields = (
+          'name',
+          'version',
+          'genome_reference'
+        )
