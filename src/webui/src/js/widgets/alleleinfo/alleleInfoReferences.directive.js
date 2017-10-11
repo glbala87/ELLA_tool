@@ -117,20 +117,10 @@ class AlleleInfoReferencesCommon {
             this.alleleState
         );
 
-        let urlIfExists = () => {
-            if(reference.hasOwnProperty('pubmed_id') && reference.pubmed_id !== '') {
-                return this.getPubmedUrl(reference.pubmed_id);
-            } else {
-                return '';
-            }
-        };
-        
-        let referenceWithUrl = Object.assign(reference, { url : urlIfExists() } );
-
         this.refEvalModal.show(
             this.analysis,
             this.allele,
-            referenceWithUrl,
+            reference,
             existing_ra,
             this.readOnly
         ).then(dialogResult => {
@@ -143,7 +133,7 @@ class AlleleInfoReferencesCommon {
             if (dialogResult) {
                 AlleleStateHelper.updateReferenceAssessment(
                     this.allele,
-                    referenceWithUrl,
+                    reference,
                     this.alleleState,
                     dialogResult
                 );

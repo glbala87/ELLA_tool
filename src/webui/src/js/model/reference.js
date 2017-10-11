@@ -17,6 +17,11 @@ export class Reference {
         desc += `, ${this.journal}`
         return desc
     }
+    
+    getPubmedUrl(pmid) {
+        return `http://www.ncbi.nlm.nih.gov/pubmed/${pmid}`;
+    }
+
 }
 
 

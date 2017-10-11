@@ -13,8 +13,8 @@
   <controls>
     <section class="line-wrapper spaced">
       <div class="ref-title">
-        <h3 class="slim" ng-if="vm.reference.url.length === 0"><b>{{vm.reference.title}}</b></h3>
-        <h3 class="slim" ng-if="vm.reference.url.length > 0">
+        <h3 class="slim" ng-if="vm.reference.url === undefined"><b>{{vm.reference.title}}</b></h3>
+        <h3 class="slim" ng-if="vm.reference.url !== undefined">
             <a-clip class="id-reference-title" href="{{vm.reference.url}}">{{vm.reference.title}}</a-clip>
         </h3>
         <p class="slim">{{vm.reference.getShortDesc()}}</p>

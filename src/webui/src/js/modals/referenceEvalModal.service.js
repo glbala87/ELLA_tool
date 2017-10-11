@@ -13,9 +13,17 @@ export class ReferenceEvalModalController {
                 Analysis,
                 analysis,
                 allele,
-                referenceWithUrl,
+                reference,
                 referenceAssessment,
                 readOnly) {
+        
+        let urlIfExists = () => {
+            if(reference.hasOwnProperty('pubmed_id') && reference.pubmed_id !== '')
+                return reference.getPubmedUrl(reference.pubmed_id);
+        };
+
+        let referenceWithUrl = Object.assign(reference, { url : urlIfExists() } );
+
         this.config = Config.getConfig();
         this.analysisService = Analysis;
         this.analysis = analysis;
