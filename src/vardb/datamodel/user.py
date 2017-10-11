@@ -38,7 +38,6 @@ class User(Base):
     active = Column(Boolean, default=True, nullable=False)
     incorrect_logins = Column(Integer, default=0, nullable=False)
     config = Column(JSONMutableDict.as_mutable(JSONB), default={})
-    otherUsersInGroup = relationship("User", primaryjoin="and_(User.group_id == User.group_id, User.id != User.id)", foreign_keys=[group_id, id])
 
 
 class UserGroup(Base):

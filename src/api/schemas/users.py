@@ -40,14 +40,12 @@ class UserFullSchema(Schema):
                   'abbrev_name',
                   'active',
                   'password_expiry',
-                  'group',
-                  'otherUsersInGroup'
+                  'group'
         )
 
     full_name = fields.Method('get_full_name')
     abbrev_name = fields.Method('get_abbreviated_name')
     group = fields.Nested(UserGroupSchema)
-    otherUsersInGroup = fields.Nested('self',exclude=('otherUsersInGroup'), only=['first_name', 'last_name', 'username'], many=True)
 
     def get_full_name(self, obj):
         return ' '.join([obj.first_name, obj.last_name])

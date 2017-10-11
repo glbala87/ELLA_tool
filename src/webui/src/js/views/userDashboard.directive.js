@@ -8,10 +8,22 @@ import {Directive, Inject} from '../ng-decorators';
 })
 @Inject('$scope', '$timeout', '$location', 'Config', 'User', 'Navbar', 'OverviewResource', 'LoginResource', 'toastr')
 export class UserDashboardController {
-    constructor($scope, $timeout, location, Config, User,Navbar, OverviewResource, LoginResource, toastr) {
+    constructor($scope, $timeout, location, Config, User, Navbar, OverviewResource, LoginResource, toastr) {
         this.location = location;
         this.timeout = $timeout;
         this.user = User;
+        this.usersInGroup = [];
+        
+        var parent = this;
+        
+        User.getAll().then( (users) => {
+            var pparent = parent;
+            $timeout(function() {
+                pparent.usersInGroup = users;
+                $scope.$apply();
+            });
+        });
+        
         this.users = [];
         this.overviewResource = OverviewResource;
         this.loginResource = LoginResource;
