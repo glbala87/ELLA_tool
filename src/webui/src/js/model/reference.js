@@ -22,6 +22,11 @@ export class Reference {
         return `http://www.ncbi.nlm.nih.gov/pubmed/${pmid}`;
     }
 
+    getPubmedLink() {
+      if(this.hasOwnProperty('pubmed_id') && this.pubmed_id !== '')
+        return this.getPubmedUrl(this.pubmed_id);
+    }
+
 }
 
 

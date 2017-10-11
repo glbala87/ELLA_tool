@@ -34,10 +34,6 @@ class AlleleInfoReferencesCommon {
         this.refEvalModal = ReferenceEvalModal;
     }
 
-    getPubmedUrl(pmid) {
-        return `http://www.ncbi.nlm.nih.gov/pubmed/${pmid}`;
-    }
-
     setAlleleReferences() {
         this.allele_references = [];
         this.missing_references = [];

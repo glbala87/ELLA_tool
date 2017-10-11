@@ -16,20 +16,13 @@ export class ReferenceEvalModalController {
                 reference,
                 referenceAssessment,
                 readOnly) {
-        
-        let urlIfExists = () => {
-            if(reference.hasOwnProperty('pubmed_id') && reference.pubmed_id !== '')
-                return reference.getPubmedUrl(reference.pubmed_id);
-        };
-
-        let referenceWithUrl = Object.assign(reference, { url : urlIfExists() } );
 
         this.config = Config.getConfig();
         this.analysisService = Analysis;
         this.analysis = analysis;
         this.modal = modalInstance;
         this.allele = allele;
-        this.reference = referenceWithUrl;
+        this.reference = reference;
         this.existingReferenceAssessment = referenceAssessment;
         this.referenceAssessment = deepCopy(referenceAssessment);
         this.readOnly = readOnly;
