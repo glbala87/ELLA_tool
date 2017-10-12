@@ -59,7 +59,6 @@ export class WorkflowAlleleController {
         this.genepanelResource = GenepanelResource;
         this.alleleService = Allele;
         this.workflowService = Workflow;
-        this.analysis = null;
         this.active_interpretation = null;
         this.navbar = Navbar;
         this.config = Config.getConfig();
@@ -334,6 +333,7 @@ export class WorkflowAlleleController {
     }
 
     getAlleles() {
+        /// return this.interpretationService.getAlleles() || [this.allele_id]
         if (this.interpretations.length && this.selected_interpretation) {
             return this.selected_interpretation_alleles;
         }
@@ -342,16 +342,19 @@ export class WorkflowAlleleController {
     }
 
     isInterpretationOngoing() {
+        /// return this.interpretationService.isInterpretationOngoing()
         let interpretation = this.getInterpretation();
         return interpretation && interpretation.status === 'Ongoing';
     }
 
     showHistory() {
+        /// return !this.isInterpretationOngoing() && this.interpretationService.getHistory().length
         return !this.isInterpretationOngoing()
                && this.history_interpretations.length;
     }
 
     formatHistoryOption(interpretation) {
+        /// TODO: Move to filter
         if (interpretation.current) {
             return 'Current data';
         }
@@ -399,6 +402,7 @@ export class WorkflowAlleleController {
     }
 
     loadAllele() {
+        /// this.interpretationService.loadAlleles()
         this.alleles_loaded = false;
         if (this.allele_id && this.selected_interpretation) {
             return this.workflowService.loadAlleles(
@@ -424,6 +428,7 @@ export class WorkflowAlleleController {
     loadGenepanel() {
         let gp_name = this.genepanelName;
         let gp_version = this.genepanelVersion;
+        /// if (this.interpretationService.getSelectedInterpretation()) {
         if (this.selected_interpretation) {
             gp_name = this.selected_interpretation.genepanel_name;
             gp_version = this.selected_interpretation.genepanel_version;

@@ -31,6 +31,7 @@ import {deepCopy} from '../../util'
     'GenepanelResource',
     'AnalysisResource',
     'Workflow',
+    'Interpretation',
     'Navbar',
     'Config',
     'User',
@@ -45,6 +46,7 @@ export class WorkflowAnalysisController {
                 GenepanelResource,
                 AnalysisResource,
                 Workflow,
+                Interpretation,
                 Navbar,
                 Config,
                 User,
@@ -58,6 +60,7 @@ export class WorkflowAnalysisController {
         this.genepanelResource = GenepanelResource;
         this.analysisResource = AnalysisResource;
         this.workflowService = Workflow;
+        this.interpretationService = Interpretation;
         this.addExcludedAllelesModal = AddExcludedAllelesModal;
         this.analysis = null;
         this.active_interpretation = null;
@@ -240,33 +243,33 @@ export class WorkflowAnalysisController {
         // Watch interpretation's state/user_state and call update whenever it changes
         let watchStateFn = () => {
             if (this.isInterpretationOngoing() &&
-                this.selected_interpretation.state) {
-                return this.selected_interpretation.state;
+                this.getSelectedInterpretation().state) {
+                return this.getSelectedInterpretation().state;
             }
         };
         let watchUserStateFn = () => {
             if (this.isInterpretationOngoing() &&
-                this.selected_interpretation.user_state) {
-                return this.selected_interpretation.user_state;
+                this.getSelectedInterpretation().user_state) {
+                return this.getSelectedInterpretation().user_state;
             }
         };
         this.rootScope.$watch(watchStateFn, (n, o) => {
             // If no old object, we're on the first iteration
             // -> don't set dirty
-            if (this.selected_interpretation && o) {
-                this.selected_interpretation.setDirty();
+            if (this.getSelectedInterpretation() && o) {
+                this.getSelectedInterpretation().setDirty();
             }
         }, true); // true -> Deep watch
 
         this.rootScope.$watch(watchUserStateFn, (n, o) => {
-            if (this.selected_interpretation && o) {
-                this.selected_interpretation.setDirty();
+            if (this.getSelectedInterpretation() && o) {
+                this.getSelectedInterpretation().setDirty();
             }
         }, true); // true -> Deep watch
 
 
         this.rootScope.$watch(
-            () => this.selected_interpretation,
+            () => this.getSelectedInterpretation(),
             () => {
                 this.alleles_loaded = false;  // Make <interpretation> redraw
                 this.loadAlleles()
@@ -328,13 +331,22 @@ export class WorkflowAnalysisController {
     }
 
     getInterpretation() {
-        // Force selected interpretation to be the Ongoing one, if it exists, to avoid mixups.
-        let ongoing_interpretation = this.interpretations.find(i => i.status === 'Ongoing');
-        if (ongoing_interpretation) {
-            this.selected_interpretation = ongoing_interpretation;
-        }
+        return this.interpretationService.getInterpretation()
+        // // Force selected interpretation to be the Ongoing one, if it exists, to avoid mixups.
+        // let ongoing_interpretation = this.interpretations.find(i => i.status === 'Ongoing');
+        // if (ongoing_interpretation) {
+        //     this.selected_interpretation = ongoing_interpretation;
+        // }
+        //
+        // return this.selected_interpretation;
+    }
 
-        return this.selected_interpretation;
+    getSelectedInterpretation() {
+        return this.interpretationService.getSelectedInterpretation()
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAllInterpretations()
     }
 
     isInterpretationOngoing() {
@@ -359,6 +371,7 @@ export class WorkflowAnalysisController {
     }
 
     formatHistoryOption(interpretation) {
+        ///TODO: Move to filter
         if (interpretation.current) {
             return 'Current data';
         }
@@ -368,45 +381,64 @@ export class WorkflowAnalysisController {
     }
 
     reloadInterpretationData() {
-        this._loadInterpretations().then(() => {
-            this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
-            let last_interpretation = this.interpretations[this.interpretations.length-1];
-            // If an interpretation is Ongoing, we assign it directly
-            if (last_interpretation.status === 'Ongoing') {
-                this.selected_interpretation = last_interpretation;
-            }
-            // Otherwise, make a copy of the last historical one to act as "current" entry.
-            // Current means get latest allele data (instead of historical)
-            // We make a copy, to prevent the state of the original to be modified
-            else if (this.history_interpretations.length) {
-                this.selected_interpretation = deepCopy(this.history_interpretations[this.history_interpretations.length-1]);
-                this.selected_interpretation.current = true;
-                this.history_interpretations.push(this.selected_interpretation);
-            }
-            // If we have no history, select the last interpretation
-            else {
-                this.selected_interpretation = last_interpretation;
-            }
-            console.log("Reloaded interpretation data:", this.selected_interpretation)
-        });
+        this.interpretationService.loadInterpretations("analysis", this.analysisId)
+        // this.selected_interpretation = this.interpretationService.getSelectedInterpretation()
+        // return
+        // this._loadInterpretations().then(() => {
+        //     this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
+        //     let last_interpretation = this.interpretations[this.interpretations.length-1];
+        //     // If an interpretation is Ongoing, we assign it directly
+        //     if (last_interpretation.status === 'Ongoing') {
+        //         this.selected_interpretation = last_interpretation;
+        //     }
+        //     // Otherwise, make a copy of the last historical one to act as "current" entry.
+        //     // Current means get latest allele data (instead of historical)
+        //     // We make a copy, to prevent the state of the original to be modified
+        //     else if (this.history_interpretations.length) {
+        //         this.selected_interpretation = deepCopy(this.history_interpretations[this.history_interpretations.length-1]);
+        //         this.selected_interpretation.current = true;
+        //         this.history_interpretations.push(this.selected_interpretation);
+        //     }
+        //     // If we have no history, select the last interpretation
+        //     else {
+        //         this.selected_interpretation = last_interpretation;
+        //     }
+        //     console.log("Reloaded interpretation data:", this.selected_interpretation)
+        // });
     }
 
     loadAlleles() {
-        if (this.selected_interpretation) {
-            return this.workflowService.loadAlleles(
-                'analysis',
-                this.analysisId,
-                this.selected_interpretation,
-                this.selected_interpretation.current // Whether to show current allele data or historical data
-            ).then(alleles => {
-                this.selected_interpretation_alleles = alleles;
+
+        this.alleles_loaded = false;
+        let p = this.interpretationService.loadAlleles();
+        if (p) {
+            p.then( () => {
                 this.alleles_loaded = true;
-                console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
-            });
+            })
         }
+        
+        //
+        // if (this.getSelectedInterpretation()) {
+        //     return this.workflowService.loadAlleles(
+        //         'analysis',
+        //         this.analysisId,
+        //         this.selected_interpretation,
+        //         this.selected_interpretation.current // Whether to show current allele data or historical data
+        //     ).then(alleles => {
+        //         this.selected_interpretation_alleles = alleles;
+        //         this.alleles_loaded = true;
+        //         console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
+        //     });
+        // }
     }
 
+    getAlleles() {
+        return this.interpretationService.getAlleles()
+    }
+
+
     _loadInterpretations() {
+        /// this.interpretationsService.loadIntepretations("analysis", this.analysisId)
         return this.workflowResource.getInterpretations('analysis', this.analysisId).then(interpretations => {
             this.interpretations = interpretations;
             console.log('Loaded ' + interpretations.length + ' interpretations');
