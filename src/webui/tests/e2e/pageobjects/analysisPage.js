@@ -16,7 +16,7 @@ class AnalysisPage extends Page {
     get finalizeButton() { return browser.element('.id-finalize'); }
 
     get addExcludedButton() { return browser.element('.id-add-excluded') }
-    get collisionWarningBar() { return browser.element('.id-collision-warning'); }
+    get collisionWarningBar() { return browser.element('.toast-message-collision'); }
 
     get roundCount() {
         let selector = '.id-interpretationrounds-dropdown option';
