@@ -3,6 +3,7 @@
 
 import {Service, Inject} from '../ng-decorators';
 import {STATUS_ONGOING, STATUS_NOT_STARTED} from '../model/interpretation'
+import {deepCopy} from '../util'
 
 @Service({
     serviceName: 'Interpretation'
@@ -123,6 +124,10 @@ class InterpretationService {
 
     }
 
+    getInterpretationHistory() {
+        return this.history_interpretations;
+    }
+
     loadAlleles() {
         if (this.selected_interpretation) {
                 return this.workflowService.loadAlleles(
@@ -206,7 +211,7 @@ class InterpretationService {
             // Get interpretation at index
         }
 
-        return this.selected_interpretation ? this.selected_interpretation : this.dummy_interpretation;
+        return this.selected_interpretation ? this.selected_interpretation : undefined;
     }
 
     getAlleles() {

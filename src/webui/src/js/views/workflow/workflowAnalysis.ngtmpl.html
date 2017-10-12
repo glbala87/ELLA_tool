@@ -25,15 +25,15 @@
       <div class="dropdown white" ng-if="vm.showHistory()">
         <select
           class="id-interpretationrounds-dropdown"
-          ng-options="i as vm.formatHistoryOption(i) for i in vm.history_interpretations"
-          ng-model="vm.selected_interpretation">
+          ng-options="i as vm.formatHistoryOption(i) for i in vm.getHistory()"
+          ng-model="vm.interpretationService.selected_interpretation">
         </select>
       </div>
-      <workflow-buttons alleles="vm.selected_interpretation_alleles"
+      <workflow-buttons alleles="vm.getAlleles()"
                         analysis-id="vm.analysis.id"
                         reload="vm.reloadInterpretationData()"
-                        selected-interpretation="vm.selected_interpretation"
-                        interpretations="vm.interpretations"
+                        selected-interpretation="vm.getSelectedInterpretation()"
+                        interpretations="vm.getAllInterpretations()"
                         readOnly="vm.readOnly"
       ></workflow-buttons>
     </section>

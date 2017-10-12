@@ -69,7 +69,6 @@ export class InterpretationController {
 
         this.customAnnotationModal = CustomAnnotationModal;
         this.alleleFilter = AlleleFilter;
-        console.log($scope)
 
         this.showSidebar = 'showSidebar' in this ? this.showSidebar : true;
 

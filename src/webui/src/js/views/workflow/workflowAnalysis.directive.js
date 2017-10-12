@@ -16,7 +16,7 @@
  */
 
 import {Directive, Inject} from '../../ng-decorators';
-import {deepCopy} from '../../util'
+
 
 @Directive({
     selector: 'workflow-analysis',
@@ -63,7 +63,6 @@ export class WorkflowAnalysisController {
         this.interpretationService = Interpretation;
         this.addExcludedAllelesModal = AddExcludedAllelesModal;
         this.analysis = null;
-        this.active_interpretation = null;
         this.navbar = Navbar;
         this.config = Config.getConfig();
         this.user = User;
@@ -196,14 +195,10 @@ export class WorkflowAnalysisController {
         ];
         this.selected_component = this.components[0];
 
-        this.selected_interpretation = null; // Holds displayed interpretation
-        this.selected_interpretation_alleles = []; // Loaded alleles for current interpretation
         this.alleles_loaded = false;  // Loading indicators etc
 
         this.collisionWarning = null;
 
-        this.interpretations = []; // Holds interpretations from backend
-        this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
 
         this.setUpListeners();
         this._setWatchers();
@@ -217,7 +212,7 @@ export class WorkflowAnalysisController {
         // Setup listener for asking user if they really want to navigate
         // away from page if unsaved changes
         let unregister_func = this.rootScope.$on('$stateChangeStart', (event) => {  // TODO: create switch to disable in CI/test
-            if (this.config.app.user_confirmation_on_state_change && this.isInterpretationOngoing() && this.selected_interpretation.dirty) {
+            if (this.config.app.user_confirmation_on_state_change && this.isInterpretationOngoing() && this.getSelectedInterpretation().dirty) {
                 this.confirmAbortInterpretation(event);
             }
         });
@@ -233,7 +228,7 @@ export class WorkflowAnalysisController {
 
         // Ask user when reloading/closing if unsaved changes
         window.onbeforeunload = (event) => {
-            if (this.config.app.user_confirmation_to_discard_changes && this.isInterpretationOngoing() && this.selected_interpretation.dirty) { // TODO: create switch to disable in CI/test
+            if (this.config.app.user_confirmation_to_discard_changes && this.isInterpretationOngoing() && this.getSelectedInterpretation().dirty) { // TODO: create switch to disable in CI/test
                 event.returnValue = "You have unsaved work. Do you really want to exit application?";
             }
         };
@@ -289,8 +284,8 @@ export class WorkflowAnalysisController {
     }
 
     getExcludedAlleleCount() {
-        if (this.selected_interpretation) {
-            return Object.values(this.selected_interpretation.excluded_allele_ids)
+        if (this.getInterpretation()) {
+            return Object.values(this.getInterpretation().excluded_allele_ids)
                 .map(excluded_group => excluded_group.length)
                 .reduce((total_length, length) => total_length + length);
         }
@@ -332,13 +327,6 @@ export class WorkflowAnalysisController {
 
     getInterpretation() {
         return this.interpretationService.getInterpretation()
-        // // Force selected interpretation to be the Ongoing one, if it exists, to avoid mixups.
-        // let ongoing_interpretation = this.interpretations.find(i => i.status === 'Ongoing');
-        // if (ongoing_interpretation) {
-        //     this.selected_interpretation = ongoing_interpretation;
-        // }
-        //
-        // return this.selected_interpretation;
     }
 
     getSelectedInterpretation() {
@@ -364,10 +352,13 @@ export class WorkflowAnalysisController {
 
     }
 
-
     showHistory() {
         return !this.isInterpretationOngoing()
-               && this.history_interpretations.length;
+               && this.interpretationService.getInterpretationHistory().length;
+    }
+
+    getHistory() {
+        return this.interpretationService.getInterpretationHistory()
     }
 
     formatHistoryOption(interpretation) {
@@ -375,36 +366,13 @@ export class WorkflowAnalysisController {
         if (interpretation.current) {
             return 'Current data';
         }
-        let interpretation_idx = this.interpretations.indexOf(interpretation) + 1;
+        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
         let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
         return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
     }
 
     reloadInterpretationData() {
         this.interpretationService.loadInterpretations("analysis", this.analysisId)
-        // this.selected_interpretation = this.interpretationService.getSelectedInterpretation()
-        // return
-        // this._loadInterpretations().then(() => {
-        //     this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
-        //     let last_interpretation = this.interpretations[this.interpretations.length-1];
-        //     // If an interpretation is Ongoing, we assign it directly
-        //     if (last_interpretation.status === 'Ongoing') {
-        //         this.selected_interpretation = last_interpretation;
-        //     }
-        //     // Otherwise, make a copy of the last historical one to act as "current" entry.
-        //     // Current means get latest allele data (instead of historical)
-        //     // We make a copy, to prevent the state of the original to be modified
-        //     else if (this.history_interpretations.length) {
-        //         this.selected_interpretation = deepCopy(this.history_interpretations[this.history_interpretations.length-1]);
-        //         this.selected_interpretation.current = true;
-        //         this.history_interpretations.push(this.selected_interpretation);
-        //     }
-        //     // If we have no history, select the last interpretation
-        //     else {
-        //         this.selected_interpretation = last_interpretation;
-        //     }
-        //     console.log("Reloaded interpretation data:", this.selected_interpretation)
-        // });
     }
 
     loadAlleles() {
@@ -416,33 +384,10 @@ export class WorkflowAnalysisController {
                 this.alleles_loaded = true;
             })
         }
-        
-        //
-        // if (this.getSelectedInterpretation()) {
-        //     return this.workflowService.loadAlleles(
-        //         'analysis',
-        //         this.analysisId,
-        //         this.selected_interpretation,
-        //         this.selected_interpretation.current // Whether to show current allele data or historical data
-        //     ).then(alleles => {
-        //         this.selected_interpretation_alleles = alleles;
-        //         this.alleles_loaded = true;
-        //         console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
-        //     });
-        // }
     }
 
     getAlleles() {
         return this.interpretationService.getAlleles()
-    }
-
-
-    _loadInterpretations() {
-        /// this.interpretationsService.loadIntepretations("analysis", this.analysisId)
-        return this.workflowResource.getInterpretations('analysis', this.analysisId).then(interpretations => {
-            this.interpretations = interpretations;
-            console.log('Loaded ' + interpretations.length + ' interpretations');
-        });
     }
 
     _loadAnalysis() {
@@ -475,7 +420,7 @@ export class WorkflowAnalysisController {
 
     copyAlamut() {
         this.clipboard.copyText(
-            this.selected_interpretation_alleles.map(a => a.formatAlamut() + '\n').join('')
+            this.interpretationService.getAlleles().map(a => a.formatAlamut() + '\n').join('')
         );
         this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
     }
