@@ -388,6 +388,7 @@ export class InterpretationController {
                 attachment_ids = attachment_ids.concat(this.interpretation.state.allele[allele_id].alleleassessment.attachment_ids)
             }
         }
+
         for (let allele of this.alleles) {
             if ("allele_assessment" in allele) {
                 attachment_ids = attachment_ids.concat(allele.allele_assessment.attachment_ids)
