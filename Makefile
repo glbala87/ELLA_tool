@@ -104,8 +104,8 @@ start-bundle-container:
 
 tar-web-build:
 	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp_build
-	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(CLIENT_BUNDLE)
-	@echo "Bundled static web files in $(CLIENT_BUNDLE)"
+	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
+	@echo "Bundled static web files in $(WEB_BUNDLE)"
 
 stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
@@ -116,7 +116,7 @@ bundle-api: check-release-tag
 bundle-dist: bundle-api bundle-client
 	@rm -rf dist-temp
 	@mkdir -p dist-temp/src/webui/build
-	@tar x -C dist-temp/src/webui/build -f $(CLIENT_BUNDLE)
+	@tar x -C dist-temp/src/webui/build -f $(WEB_BUNDLE)
 	@tar x -C dist-temp -f $(API_BUNDLE)
 	@tar cz -C dist-temp -f $(DIST_BUNDLE) .
 	@echo "Created distribution $(DIST_BUNDLE) ($(shell du -k $(DIST_BUNDLE) | cut -f1))"
