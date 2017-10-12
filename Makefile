@@ -122,6 +122,9 @@ bundle-dist: bundle-api bundle-client
 	@echo "Created distribution $(DIST_BUNDLE) ($(shell du -k $(DIST_BUNDLE) | cut -f1))"
 	@rm -rf dist-temp
 
+release-notes:
+	@ops/create_release_notes_wrapper.sh
+
 #---------------------------------------------
 # Create diagram of the datamodel
 #---------------------------------------------
