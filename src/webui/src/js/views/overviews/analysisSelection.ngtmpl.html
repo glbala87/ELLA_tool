@@ -1,4 +1,4 @@
-<sectionbox color="green" class="id-analysis-ours" collapsed="true" ng-if="vm.overview">
+<sectionbox color="green" ng-attr-id="'analysis-ours'" class="id-analysis-ours" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
     YOUR ANALYSES
   </maintitle>
@@ -11,7 +11,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" class="id-analysis-findings" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="green" ng-attr-id="'analysis-finding'" class="id-analysis-findings" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     ANALYSES WITH CLASS 3-5 VARIANTS
   </maintitle>
@@ -24,7 +24,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" class="id-analysis-findings-normal" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="green" ng-attr-id="'analysis-findings-normal'" class="id-analysis-findings-normal" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     ANALYSES WITH NORMAL VARIANTS
   </maintitle>
@@ -37,7 +37,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" class="id-analysis-pending" collapsed="true" ng-if="vm.overview && !vm.byFindings">
+<sectionbox color="green" ng-attr-id="'analysis-pending'" class="id-analysis-pending" remember-collapse="true" collapsed="true" ng-if="vm.overview && !vm.byFindings">
   <maintitle>
     PENDING ANALYSES
   </maintitle>
@@ -50,7 +50,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox class="id-analysis-review" color="purple" collapsed="true" ng-if="vm.overview">
+<sectionbox color="purple" ng-attr-id="'analysis-review'" class="id-analysis-review" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
     ANALYSES PENDING REVIEW
   </maintitle>
@@ -65,7 +65,7 @@
 
 <div class="spacer"></div>
 
-<sectionbox color="green" class="id-analysis-assessments-missing" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="green" ng-attr-id="'analysis-assessments-missing'" class="id-analysis-assessments-missing" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     ANALYSES WITH MISSING CLASSIFICATIONS
   </maintitle>
@@ -78,7 +78,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="blue" class="id-analysis-others" collapsed="true" ng-if="vm.overview">
+<sectionbox color="blue" ng-attr-id="'analysis-others'" class="id-analysis-others" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
     OTHERS' ANALYSIS
   </maintitle>
@@ -91,7 +91,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox class="id-analysis-finished" color="blue" collapsed="true" ng-if="vm.overview">
+<sectionbox color="blue" ng-attr-id="'analysis-finished'" class="id-analysis-finished" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
     FINISHED ANALYSIS
   </maintitle>
