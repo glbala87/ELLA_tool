@@ -8,9 +8,8 @@ ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 RESET_DB_SET ?= 'small'
 #RELEASE_TAG =
-CLIENT_BUNDLE=ella-release-$(RELEASE_TAG)-client.tgz
+WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
-DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -23,39 +22,39 @@ CHROMEBOX_CONTAINER = chromebox-$(BRANCH)
 
 help :
 	@echo ""
-	@echo "Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
+	@echo "-- DEV COMMANDS --"
 	@echo ""
-	@echo "-- DEV commands --"
-	@echo "make build              - build image $(NAME_OF_GENERATED_IMAGE)"
-	@echo "make dev                - run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db                 - populates the db with fixture data"
-	@echo "make url                - shows the url of your Ella app"
-	@echo "make kill               - stop and remove $(CONTAINER_NAME)"
-	@echo "make shell              - get a bash shell into $(CONTAINER_NAME)"
-	@echo "make logs               - tail logs from $(CONTAINER_NAME)"
-	@echo "make restart            - restart container $(CONTAINER_NAME)"
-	@echo "make any                - can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
+	@echo " Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
 	@echo ""
-	@echo "-- TEST commands --"
-	@echo "make test               - build image local/ella-test, then run all tests"
-	@echo "make single-test        - build image local/ella-test :: TEST_NAME={api | common | js | api-migration} required as variable or will default to 'all'"
+	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE)"
+	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make db			- populates the db with fixture data"
+	@echo "make url		- shows the url of your Ella app"
+	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
+	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
+	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
+	@echo "make restart		- restart container $(CONTAINER_NAME)"
+	@echo "make any		- can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
+	@echo ""
+	@echo "-- TEST COMMANDS --"
+	@echo "make test		- build image local/ella-test, then run all tests"
+	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js | cli | api-migration} required as variable or will default to 'all'"
 	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
-	@echo "                          Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
-	@echo "make e2e-test           - build image local/ella-test, then run e2e tests"
-	@echo "make run-wdio-local     - For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
+	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
+	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
+	@echo "make run-wdio-local	- For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
 	@echo "                          Set these vars: APP_BASE_URL and CHROME_HOST"
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
-	@echo "-- DEMO commands --"
-	@echo "make demo               - builds a container to work in tandem with the nginx-proxy container"
-	@echo "                          Set DEMO_NAME to assign a value to VIRTUAL_HOST"
+	@echo "-- DEMO COMMANDS --"
+	@echo "make demo		- builds a container to work in tandem with the nginx-proxy container"
+	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
-	@echo "-- RELEASE commands --"
-	@echo "make release            - Noop. See the README.md file"
-	@echo "make bundle-client      - Bundle HTML, CSS, JS and fonts into a tgz file"
-	@echo "make bundle-api         - Bundle the backend code into a tgz file"
-	@echo "make bundle-dist        - Bundle both client and backend into a tgz file"	
+	@echo "-- RELEASE COMMANDS --"
+	@echo "make release	        - Noop. See the README.md file"
+	@echo "make bundle-static      - Bundle HTML and JS into a local tgz file"
+	@echo "make bundle-api         - Bundle the backend code into a local tgz file"
 
 
 # Check that given variables are set and all have non-empty values,
@@ -298,9 +297,9 @@ e2e-network-check:
 #---------------------------------------------
 # TESTING - INSIDE CONTAINER ONLY
 #---------------------------------------------
-.PHONY: test-all test-api test-api-migration test-common test-js test-e2e
+.PHONY: test-all test-api test-api-migration test-common test-js test-cli test-e2e
 
-test-all: test-js test-common test-api
+test-all: test-js test-common test-api test-cli
 
 test-api: export PGDATABASE=vardb-test
 test-api: export DB_URL=postgres:///vardb-test
@@ -310,6 +309,7 @@ test-api: export ATTACHMENT_STORAGE=/ella/attachments
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	dropdb --if-exists vardb-test
 	createdb vardb-test
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
@@ -327,6 +327,7 @@ test-api-migration: export ATTACHMENT_STORAGE=/ella/attachments
 test-api-migration:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	dropdb --if-exists vardb-test
 	createdb vardb-test
 ifeq ($(TEST_COMMAND),) # empty?
 	# Run migration scripts test
@@ -350,6 +351,7 @@ test-common: export ATTACHMENT_STORAGE=/ella/attachments
 test-common:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	dropdb --if-exists vardb-test
 	createdb vardb-test
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
@@ -364,3 +366,22 @@ test-js:
 	@ln -s /dist/node_modules/ /ella/node_modules
 	/ella/node_modules/gulp/bin/gulp.js unit
 
+
+test-cli: export PGDATABASE=vardb-test
+test-cli: export DB_URL=postgres:///vardb-test
+test-cli: export PYTHONPATH=/ella/src
+test-cli: export PANEL_PATH=/ella/src/vardb/testdata/clinicalGenePanels
+test-cli:
+	supervisord -c /ella/ops/test/supervisor.cfg
+	@make dbsleep
+	@dropdb --if-exists vardb-test
+	@createdb vardb-test
+	@/ella/ella-cli database drop -f
+	@/ella/ella-cli database make -f
+	/ella/ella-cli deposit genepanel --folder $(PANEL_PATH)/HBOC_v01
+	/ella/ella-cli deposit genepanel --folder $(PANEL_PATH)/HBOCUTV_v01
+	/ella/ella-cli users add_groups --name testgroup01 src/vardb/testdata/usergroups.json
+	/ella/ella-cli users add_many --group testgroup01 src/vardb/testdata/users.json
+	/ella/ella-cli users list --username testuser1 > cli_output
+	@grep "HBOC_v01" cli_output | grep "HBOCUTV_v01" | grep "testuser1" || \
+(echo "Missing genepanels for testuser1. CLI output is:"; cat cli_output; exit 1)
