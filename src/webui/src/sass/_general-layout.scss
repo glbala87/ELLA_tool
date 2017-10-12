@@ -472,7 +472,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   .toast-info { background-color: $purple-50; &:before { content: "INFORMATION"; } }
   .toast-warning { background-color: $red-75; &:before { content: "WARNING"; } }
   .toast-message { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; text-transform: uppercase; color: white; padding-top: 0.3rem; }
-  .toast-message-no-upper { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; color: white; padding-top: 0.3rem; }
+  .toast-message-collision { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; color: white; padding-top: 0.3rem; }
   .toast.ng-enter { max-height: 0px ; transition: all 0.6s ease-in-out; }
   .toast.ng-enter.ng-enter-active { max-height: 1000px; }
   .toast.ng-leave { max-height: 1000px; transition: all 0.6s ease-in-out; }

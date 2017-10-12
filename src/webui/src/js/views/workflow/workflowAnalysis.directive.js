@@ -436,7 +436,7 @@ export class WorkflowAnalysisController {
                     html += ` by ${c.user ? c.user.full_name : 'no user (IN REVIEW)'} (${c.type === 'analysis' ? 'ANALYSIS' : 'VARIANT'})</h3>`
                 }
 
-                this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-no-upper'})
+                this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-collision'})
             }
         });
     }
