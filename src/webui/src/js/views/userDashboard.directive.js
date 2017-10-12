@@ -12,14 +12,15 @@ export class UserDashboardController {
         this.location = location;
         this.timeout = $timeout;
         this.user = User;
-        this.usersInGroup = [];
+        this.otherUsersInGroup = [];
         
         var parent = this;
         
         User.getAll().then( (users) => {
-            var pparent = parent;
-            $timeout(function() {
-                pparent.usersInGroup = users;
+            $timeout(() => {
+                parent.otherUsersInGroup = users.filter(user => 
+                    user.id !== parent.user.user.id
+                );
                 $scope.$apply();
             });
         });
