@@ -12,23 +12,17 @@ export class Reference {
     getShortDesc() {
         let desc = this.authors;
         if (this.year !== undefined && this.year.length > 0) {
-            desc += ` (${this.year})`
+            desc += ` (${this.year})`;
         }
-        desc += `, ${this.journal}`
-        return desc
+        desc += `, ${this.journal}`;
+        return desc;
     }
     
-    getPubmedUrl(pmid) {
-        return `http://www.ncbi.nlm.nih.gov/pubmed/${pmid}`;
-    }
-
-    getPubmedLink() {
-      if(this.hasOwnProperty('pubmed_id') && this.pubmed_id !== '')
-        return this.getPubmedUrl(this.pubmed_id);
+    getPubmedUrl() {
+      return this.pubmed_id ? `http://www.ncbi.nlm.nih.gov/pubmed/${this.pubmed_id}`:undefined;
     }
 
 }
-
 
 export class ReferenceAssessment {
 
