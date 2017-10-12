@@ -83,6 +83,7 @@ class InterpretationService {
                 // this.interpretations_loaded = true;
                 console.log('(Re)Loaded ' + interpretations.length + ' interpretations');
                 console.log('Setting selected interpretation:', this.selected_interpretation);
+                this.interpretations_loaded = true;
 
 
                 //     this.history_interpretations = this.interpretations.filter(i => i.status === 'Done');
@@ -149,7 +150,6 @@ class InterpretationService {
     }
 
     getAllInterpretations() {
-        console.log("interpretationService.interpretations: ", this.interpretations)
         return this.interpretations;
     }
 
@@ -162,9 +162,9 @@ class InterpretationService {
     }
 
     loadAlleles() {
-        if (this.selected_interpretation) {
+        if (this.interpretations_loaded && this.type === "analysis") {
                 return this.workflowService.loadAlleles(
-                    'analysis',
+                    this.type,
                     this.id,
                     this.selected_interpretation,
                     this.selected_interpretation.current // Whether to show current allele data or historical data

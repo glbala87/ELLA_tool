@@ -57,6 +57,7 @@ export class InterpretationController {
                 AttachmentResource,
                 AlleleFilter,
                 CustomAnnotationModal) {
+        console.log($scope)
 
         this.clipboard = clipboard;
         this.toastr = toastr;

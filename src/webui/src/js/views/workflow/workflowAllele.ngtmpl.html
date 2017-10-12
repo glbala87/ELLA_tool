@@ -18,16 +18,13 @@
           ng-model="vm.selected_interpretation">
         </select>
       </div>
-        <!--<workflow-buttons alleles="vm.getAlleles()"-->
-                          <!--allele-id="vm.allele_id"-->
-                          <!--genepanel-name="vm.genepanelName"-->
-                          <!--genepanel-version="vm.genepanelVersion"-->
-                          <!--reload="vm.reloadInterpretationData()"-->
-                          <!--selected-interpretation="vm.getSelectedInterpretation()"-->
-                          <!--interpretations="vm.getAllInterpretations()"-->
-                          <!--read-only="vm.readOnly()"-->
-                          <!--start-when-reopen="true"-->
-        <!--&gt;</workflow-buttons>-->
+        <workflow-buttons alleles="vm.getAlleles()"
+                          allele-id="vm.allele_id"
+                          genepanel-name="vm.genepanelName"
+                          genepanel-version="vm.genepanelVersion"
+                          read-only="vm.readOnly()"
+                          start-when-reopen="true"
+        ></workflow-buttons>
     </section>
 
   </nav>
@@ -38,10 +35,10 @@
       selected-component="vm.selected_component"
       interpretation="vm.getInterpretation()"
       genepanel="vm.selected_interpretation_genepanel"
-      alleles="vm.getAlleles()"
+      alleles="vm.alleles"
       update-alleles="vm.loadAllele()"
       show-sidebar="false"
-      ng-if="vm.getAlleles().length && vm.interpretations_loaded"
+      ng-if="vm.alleles.length"
       read-only="vm.readOnly()"
     ></interpretation>
   </div>
