@@ -10,6 +10,7 @@ RESET_DB_SET ?= 'small'
 #RELEASE_TAG =
 WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
+DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -115,10 +116,10 @@ bundle-api: check-release-tag
 
 bundle-dist: bundle-api bundle-client
 	@rm -rf dist-temp
-	@mkdir -p dist-temp/src/webui/build
-	@tar x -C dist-temp/src/webui/build -f $(WEB_BUNDLE)
-	@tar x -C dist-temp -f $(API_BUNDLE)
-	@tar cz -C dist-temp -f $(DIST_BUNDLE) .
+	mkdir -p dist-temp/src/webui/build
+	tar x -C dist-temp/src/webui/build -f $(WEB_BUNDLE)
+	tar x -C dist-temp -f $(API_BUNDLE)
+	tar cz -C dist-temp -f $(DIST_BUNDLE) .
 	@echo "Created distribution $(DIST_BUNDLE) ($(shell du -k $(DIST_BUNDLE) | cut -f1))"
 	@rm -rf dist-temp
 
