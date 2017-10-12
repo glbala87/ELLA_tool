@@ -67,5 +67,5 @@ class GenepanelResource(LogRequestResource):
         if version is None:
             raise ApiError("No genepanel version is provided")
         genepanel = next(gp for gp in user.group.genepanels if gp.name == name and gp.version == version)
-        k = schemas.GenepanelSchema(strict=True).dump(genepanel).data
+        k = schemas.GenepanelFullSchema(strict=True).dump(genepanel).data
         return k
