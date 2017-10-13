@@ -262,14 +262,21 @@ export class WorkflowAnalysisController {
             }
         }, true); // true -> Deep watch
 
-
+        // Reload alleles if interpretation allele_ids change
         this.rootScope.$watch(
-            () => this.getSelectedInterpretation(),
+            () => {
+                let interpretation = this.getSelectedInterpretation()
+                return interpretation ? interpretation.allele_ids : undefined;
+            },
             () => {
                 this.alleles_loaded = false;  // Make <interpretation> redraw
-                this.loadAlleles()
-            }
-        );
+                let p = this.loadAlleles()
+                if (p) {
+                    p.then(() => {
+                        this.alleles_loaded = true;
+                    })
+                }
+            });
     }
 
     setupNavbar() {
@@ -376,14 +383,8 @@ export class WorkflowAnalysisController {
     }
 
     loadAlleles() {
+        return this.interpretationService.loadAlleles();
 
-        this.alleles_loaded = false;
-        let p = this.interpretationService.loadAlleles();
-        if (p) {
-            p.then( () => {
-                this.alleles_loaded = true;
-            })
-        }
     }
 
     getAlleles() {
