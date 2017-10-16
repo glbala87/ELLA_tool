@@ -14,8 +14,8 @@
       <div class="dropdown white" ng-if="false">  <!--Hide for now, add back when we have admin users-->
         <select
           class="id-interpretationrounds-dropdown"
-          ng-options="i as vm.formatHistoryOption(i) for i in vm.history_interpretations"
-          ng-model="vm.selected_interpretation">
+          ng-options="i as vm.formatHistoryOption(i) for i in vm.getHistory()"
+          ng-model="vm.interpretationService.selected_interpretation">
         </select>
       </div>
         <workflow-buttons alleles="vm.getAlleles()"
@@ -33,12 +33,9 @@
     <interpretation
       components="vm.components"
       selected-component="vm.selected_component"
-      interpretation="vm.getInterpretation()"
       genepanel="vm.selected_interpretation_genepanel"
-      alleles="vm.alleles"
-      update-alleles="vm.loadAllele()"
       show-sidebar="false"
-      ng-if="vm.alleles.length"
+      ng-if="vm.interpretations_loaded"
       read-only="vm.readOnly()"
     ></interpretation>
   </div>

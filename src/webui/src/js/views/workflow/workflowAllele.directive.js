@@ -398,27 +398,31 @@ export class WorkflowAlleleController {
     }
 
     loadAllele() {
-        /// this.interpretationService.loadAlleles()
-        this.alleles_loaded = false;
-        if (this.allele_id && this.getSelectedInterpretation()) {
-            return this.workflowService.loadAlleles(
-                'allele',
-                this.allele_id,
-                this.getSelectedInterpretation(),
-                this.getSelectedInterpretation().current // Whether to show current allele data or historical data
-            ).then(
-                alleles => {
-                    this.selected_interpretation_alleles = alleles;
-                    this.alleles_loaded = true;
-                    console.log("(Re)Loaded alleles using interpretation "
-                        +  this.getSelectedInterpretation().id
-                        + "(" + this.getSelectedInterpretation().current + ")"
-                        , this.selected_interpretation_alleles);
-                },
-                () => { this.selected_interpretation_alleles = []; } // On error
+        this.interpretationService.loadAlleles()
+        // this.alleles_loaded = false;
+        // if (this.allele_id && this.getSelectedInterpretation()) {
+        //     return this.workflowService.loadAlleles(
+        //         'allele',
+        //         this.allele_id,
+        //         this.getSelectedInterpretation(),
+        //         this.getSelectedInterpretation().current // Whether to show current allele data or historical data
+        //     ).then(
+        //         alleles => {
+        //             this.selected_interpretation_alleles = alleles;
+        //             this.alleles_loaded = true;
+        //             console.log("(Re)Loaded alleles using interpretation "
+        //                 +  this.getSelectedInterpretation().id
+        //                 + "(" + this.getSelectedInterpretation().current + ")"
+        //                 , this.selected_interpretation_alleles);
+        //         },
+        //         () => { this.selected_interpretation_alleles = []; } // On error
+        //
+        //     );
+        // }
+    }
 
-            );
-        }
+    getHistory() {
+        return this.interpretationService.getInterpretationHistory()
     }
 
     getSelectedInterpretation() {
@@ -431,13 +435,13 @@ export class WorkflowAlleleController {
     }
 
     loadGenepanel() {
-        let gp_name = this.genepanelName;
-        let gp_version = this.genepanelVersion;
+        let gp_name = this.getSelectedInterpretation().genepanel_name || this.genepanelName;
+        let gp_version = this.getSelectedInterpretation().genepanel_version || this.genepanelVersion;
         /// if (this.interpretationService.getSelectedInterpretation()) {
-        if (this.getSelectedInterpretation()) {
-            gp_name = this.getSelectedInterpretation().genepanel_name;
-            gp_version = this.getSelectedInterpretation().genepanel_version;
-        }
+        // if (this.getSelectedInterpretation()) {
+        //     gp_name = this.getSelectedInterpretation().genepanel_name;
+        //     gp_version = this.getSelectedInterpretation().genepanel_version;
+        // }
         return this.genepanelResource.get(gp_name, gp_version).then(
             gp => this.selected_interpretation_genepanel = gp
         );
@@ -479,7 +483,10 @@ export class WorkflowAlleleController {
         return this.alleleService.getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {
             this.allele_id = a[0].id;
             return this.alleleService.updateACMG(a, this.genepanelName, this.genepanelVersion, []).then(
-                () => this.alleles = a
+                () => {
+                    this.alleles = a
+                    this.interpretationService.alleles = a;
+                }
             );
         });
     }

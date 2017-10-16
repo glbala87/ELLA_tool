@@ -185,6 +185,7 @@ export class InterpretationController {
         return this.selectedComponent.title;
     }
 
+
     /**
      * Called when interpretations state changes.
      * Updates AlleleSidebar and alleles to be included in report.
