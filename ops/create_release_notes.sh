@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # exit on first failure
+
 # Create release notes using 'git log'
 
 from=$1

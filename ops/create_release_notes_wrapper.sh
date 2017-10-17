@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e # exit on first failure
+
 # Create release notes based on versions in revisions.txt
 LATEST=`cat revisions.txt | grep -v '^[[:space:]]*#' | tr ' ' '\n' | head -n 1`
 PREVIOUS=`cat revisions.txt | grep -v '^[[:space:]]*#' | tr ' ' '\n'  | tail -n +2`
