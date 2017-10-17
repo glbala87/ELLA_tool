@@ -10,7 +10,7 @@
         <input type="text"
                class="id-review-comment"
                placeholder="REVIEW COMMENT"
-               ng-model="vm.getInterpretation().state.review_comment"
+               ng-model="vm.getSelectedInterpretation().state.review_comment"
                ng-disabled="vm.readOnly()"></input>
       </div>
     </div>
@@ -19,7 +19,7 @@
         <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
             <path d="M16 2 L16 30 M2 16 L30 16" />
         </svg>
-        <span> {{vm.getInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
+        <span> {{vm.getSelectedInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
       <button ng-click="vm.copyAlamut()">Copy all to alamut</button>
 
       <div class="dropdown white" ng-if="vm.showHistory()">
@@ -54,8 +54,8 @@
 <h4>Debug:</h4>
 <br><br>
 <h5>Interpretation state:</h5>
-<p><pre>{{vm.getInterpretation().state | prettyJSON}}</pre></p>
+<p><pre>{{vm.getSelectedInterpretation().state | prettyJSON}}</pre></p>
 <h5>Interpretation user state:</h5>
-<p><pre>{{vm.getInterpretation().user_state | prettyJSON}}</pre></p>
+<p><pre>{{vm.getSelectedInterpretation().user_state | prettyJSON}}</pre></p>
 </section>
  <!- - -->

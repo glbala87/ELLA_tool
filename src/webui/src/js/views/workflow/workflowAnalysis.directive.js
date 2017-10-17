@@ -291,8 +291,8 @@ export class WorkflowAnalysisController {
     }
 
     getExcludedAlleleCount() {
-        if (this.getInterpretation()) {
-            return Object.values(this.getInterpretation().excluded_allele_ids)
+        if (this.getSelectedInterpretation()) {
+            return Object.values(this.getSelectedInterpretation().excluded_allele_ids)
                 .map(excluded_group => excluded_group.length)
                 .reduce((total_length, length) => total_length + length);
         }
@@ -302,20 +302,20 @@ export class WorkflowAnalysisController {
      * Popups a dialog for adding excluded alleles
      */
     modalAddExcludedAlleles() {
-        if (this.getInterpretation().state.manuallyAddedAlleles === undefined) {
-            this.getInterpretation().state.manuallyAddedAlleles = [];
+        if (this.getSelectedInterpretation().state.manuallyAddedAlleles === undefined) {
+            this.getSelectedInterpretation().state.manuallyAddedAlleles = [];
         }
         this.addExcludedAllelesModal.show(
-            this.getInterpretation().excluded_allele_ids,
-            this.getInterpretation().state.manuallyAddedAlleles,
+            this.getSelectedInterpretation().excluded_allele_ids,
+            this.getSelectedInterpretation().state.manuallyAddedAlleles,
             this.analysis.samples[0].id, // FIXME: Support multiple samples
-            this.getInterpretation().genepanel_name,
-            this.getInterpretation().genepanel_version,
+            this.getSelectedInterpretation().genepanel_name,
+            this.getSelectedInterpretation().genepanel_version,
             this.readOnly()
         ).then(added => {
             if (this.isInterpretationOngoing()) { // noop if analysis is finalized
                 // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
-                this.getInterpretation().state.manuallyAddedAlleles = added;
+                this.getSelectedInterpretation().state.manuallyAddedAlleles = added;
                 this.loadAlleles(this.selected_interpretation);
             }
         }).catch(() => {
@@ -332,8 +332,8 @@ export class WorkflowAnalysisController {
         }
     }
 
-    getInterpretation() {
-        return this.interpretationService.getInterpretation()
+    getSelectedInterpretation() {
+        return this.interpretationService.getSelectedInterpretation()
     }
 
     getSelectedInterpretation() {
@@ -345,12 +345,12 @@ export class WorkflowAnalysisController {
     }
 
     isInterpretationOngoing() {
-        let interpretation = this.getInterpretation();
+        let interpretation = this.getSelectedInterpretation();
         return interpretation && interpretation.status === 'Ongoing';
     }
 
     readOnly() {
-        let interpretation = this.getInterpretation();
+        let interpretation = this.getSelectedInterpretation();
         if (!interpretation) {
             return true;
         }

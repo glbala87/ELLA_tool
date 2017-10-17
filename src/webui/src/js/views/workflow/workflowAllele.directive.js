@@ -190,9 +190,6 @@ export class WorkflowAlleleController {
 
         this.alleles = []; // Holds allele based on directive params. Array since "everything" expects an array...
 
-        // this.selected_interpretation = null; // Holds displayed interpretation
-        // this.selected_interpretation_alleles = []; // Loaded allele for current interpretation (annotation etc data can change based on interpretation snapshot)
-        // this.selected_interpretation_genepanel = null; // Loaded genepanel for current interpretation (used in navbar)
         this.alleles_loaded = false;  // Loading indicators etc
 
         this.collisionWarning = null;
@@ -229,7 +226,7 @@ export class WorkflowAlleleController {
     }
 
     readOnly() {
-        let interpretation = this.getInterpretation();
+        let interpretation = this.getSelectedInterpretation();
         if (!interpretation) {
             return true;
         }
@@ -294,7 +291,7 @@ export class WorkflowAlleleController {
 
 
         this.rootScope.$watch(
-            () => this.getInterpretation(),
+            () => this.getSelectedInterpretation(),
             () => {
                 this.alleles_loaded = false;
                 let a = this.loadAllele();
@@ -327,8 +324,8 @@ export class WorkflowAlleleController {
         }
     }
 
-    getInterpretation() {
-        let interpretation = this.interpretationService.getInterpretation()
+    getSelectedInterpretation() {
+        let interpretation = this.interpretationService.getSelectedInterpretation()
         return interpretation ? interpretation : this.dummy_interpretation;
 
     }
@@ -355,6 +352,11 @@ export class WorkflowAlleleController {
         return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
     }
 
+    allelesLoaded() {
+        console.log(this.interpretationService.alleles_loaded)
+        return this.interpretationService.alleles_loaded
+    }
+
     /**
      * Loads interpretations from backend and sets:
      * - selected_interpretation
@@ -363,62 +365,10 @@ export class WorkflowAlleleController {
      */
     reloadInterpretationData() {
         return this.interpretationService.loadInterpretations("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
-
-
-        // return this.interpretationService.loadInterpretations("allele", this.allele_id)
-        // return this.workflowResource.getInterpretations('allele', this.allele_id).then(interpretations => {
-        //     this.interpretations = interpretations;
-        //     let done_interpretations = this.interpretations.filter(i => i.status === 'Done');
-        //     let last_interpretation = this.interpretations[this.interpretations.length-1];
-        //     // If an interpretation is Ongoing, we assign it directly
-        //     if (last_interpretation && last_interpretation.status === 'Ongoing') {
-        //         this.selected_interpretation = last_interpretation;
-        //         this.selected_interpretation.current = true;
-        //         this.history_interpretations = done_interpretations;
-        //     }
-        //     // Otherwise, make a copy of the last historical one to act as "current" entry.
-        //     // Current means get latest allele data (instead of historical)
-        //     // We make a copy, to prevent the state of the original to be modified
-        //     else if (done_interpretations.length) {
-        //         let current_entry_copy = deepCopy(done_interpretations[done_interpretations.length-1]);
-        //         current_entry_copy.current = true;
-        //         this.selected_interpretation = current_entry_copy;
-        //         this.history_interpretations = done_interpretations.concat([current_entry_copy]);
-        //     }
-        //     // If we have no history, set selected to null
-        //     else {
-        //         this.selected_interpretation = null;
-        //         this.history_interpretations = [];
-        //     }
-        //     this.interpretations_loaded = true;
-        //     console.log('(Re)Loaded ' + interpretations.length + ' interpretations');
-        //     console.log('Setting selected interpretation:', this.selected_interpretation);
-        //
-        // });
     }
 
     loadAllele() {
         return this.interpretationService.loadAlleles()
-        // this.alleles_loaded = false;
-        // if (this.allele_id && this.getSelectedInterpretation()) {
-        //     return this.workflowService.loadAlleles(
-        //         'allele',
-        //         this.allele_id,
-        //         this.getSelectedInterpretation(),
-        //         this.getSelectedInterpretation().current // Whether to show current allele data or historical data
-        //     ).then(
-        //         alleles => {
-        //             this.selected_interpretation_alleles = alleles;
-        //             this.alleles_loaded = true;
-        //             console.log("(Re)Loaded alleles using interpretation "
-        //                 +  this.getSelectedInterpretation().id
-        //                 + "(" + this.getSelectedInterpretation().current + ")"
-        //                 , this.selected_interpretation_alleles);
-        //         },
-        //         () => { this.selected_interpretation_alleles = []; } // On error
-        //
-        //     );
-        // }
     }
 
     getHistory() {
@@ -482,14 +432,6 @@ export class WorkflowAlleleController {
         let q = this._getQueryFromSelector();
         return this.alleleService.getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {
             this.allele_id = a[0].id;
-            // return this.alleleService.updateACMG(a, this.genepanelName, this.genepanelVersion, []).then(
-            //     () => {
-            //         this.alleles = a
-            //         this.interpretationService.alleles = a;
-            //     }
-            // );
         });
     }
-
-
 }

@@ -8,7 +8,7 @@
                         genepanel="vm.genepanel"
                         alleles="vm.allele_sidebar.alleles"
                         selected="vm.allele_sidebar.selected"
-                        checked="vm.getInterpretation().state.report.included">
+                        checked="vm.getSelectedInterpretation().state.report.included">
         </allele-sidebar>
 
       <section class="container" ng-class="{'inner': vm.showSidebar}">
@@ -16,13 +16,13 @@
             <allele-sectionbox
               read-only="vm.readOnly"
               header="section.title"
-              genepanel="vm.getInterpretation().analysis.genepanel"
+              genepanel="vm.getSelectedInterpretation().analysis.genepanel"
               allele="vm.allele_sidebar.selected"
               references="vm.references"
               attachments="vm.attachments"
               allele-state="vm.getAlleleState(vm.allele_sidebar.selected)"
               allele-user-state="vm.getAlleleUserState(vm.allele_sidebar.selected)"
-              analysis="vm.getInterpretation().analysis"
+              analysis="vm.getSelectedInterpretation().analysis"
               controls="section.controls"
               on-change-class="vm.onChangeClass(allele)"
               on-update="vm.onUpdate()"
@@ -41,11 +41,11 @@
           read-only="vm.readOnly"
           class="single-sample-analysis-item"
           ng-switch-when="Report"
-          analysis="vm.getInterpretation().analysis"
+          analysis="vm.getSelectedInterpretation().analysis"
           alleles="vm.getComponent('Report').alleles"
           references="vm.references"
-          state="vm.getInterpretation().state"
-          user-state="vm.getInterpretation().user_state">
+          state="vm.getSelectedInterpretation().state"
+          user-state="vm.getSelectedInterpretation().user_state">
         </report-card>
 
 

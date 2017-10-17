@@ -46,6 +46,13 @@ class InterpretationService {
         this.genepanel_version = null;
     }
 
+    load(type, id, genepanel_name, genepanel_version) {
+        return this.loadInterpretations(type, id, genepanel_name, genepanel_version).then( () => {
+            this.loadAlleles()
+            this.loadGenepanel()
+        })
+    }
+
     /**
      * Loads interpretations from backend and sets:
      * - selected_interpretation
@@ -116,6 +123,7 @@ class InterpretationService {
 
     loadAlleles() {
         // if (this.interpretations_loaded && this.type === "analysis") {
+        this.alleles_loaded = false;
         if (this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 this.type,
@@ -132,6 +140,7 @@ class InterpretationService {
             return this.alleleService.getAlleles(this.id, null, this.genepanel_name, this.genepanel_version).then(a => {
                 return this.alleleService.updateACMG(a, this.genepanel_name, this.genepanel_version, []).then(
                     () => {
+                        this.alleles_loaded = true;
                         this.alleles = a
                     }
                 );
@@ -140,12 +149,12 @@ class InterpretationService {
     }
 
     isInterpretationOngoing() {
-        let interpretation = this.getInterpretation();
+        let interpretation = this.getSelectedInterpretation();
         return interpretation && interpretation.status === 'Ongoing';
     }
 
     getGenepanel() {
-
+        return this.selected_interpretation_genepanel
     }
 
     getExcludedAlleleCount() {
@@ -157,7 +166,7 @@ class InterpretationService {
     }
 
     readOnly() {
-        let interpretation = this.getInterpretation();
+        let interpretation = this.getSelectedInterpretation();
         if (!interpretation) {
             return true;
         }
@@ -165,14 +174,6 @@ class InterpretationService {
         return !this.isInterpretationOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
 
     }
-
-    setupNavbar() {
-        if (this.getAlleles().length) {
-            this.navbar.replaceItems([this.genepanelName+" "+this.genepanelVersion]);
-            // this.navbar.setAllele(this.getAlleles()[0], this.selected_interpretation_genepanel);
-        }
-    }
-
 
     confirmAbortInterpretation(event) {
         if (this.isInterpretationOngoing() && !event.defaultPrevented) {
@@ -183,67 +184,43 @@ class InterpretationService {
         }
     }
 
-
-    getInterpretation(index) {
-        return this.getSelectedInterpretation()
-        if (!this.interpretations) return;
-        if (index === undefined) {
-            // Force selected interpretation to be the Ongoing one, if it exists, to avoid mixups.
-            let ongoing_interpretation = this.interpretations.find(i => i.isOngoing());
-            if (ongoing_interpretation) {
-                console.log("getInterpretation")
-                console.log("selected_interpretation: ", this.selected_interpretation.id)
-                console.log("ongoing_interpretation: ", ongoing_interpretation.id)
-                this.selected_interpretation = ongoing_interpretation;
-            }
-        } else {
-            // Get interpretation at index
-        }
-
-        return this.selected_interpretation ? this.selected_interpretation : undefined;
-    }
-
     getAlleles() {
         // Fall back to this.alleles when no interpretation exists on backend
         return this.selected_interpretation_alleles || this.alleles;
     }
 
     isInterpretationOngoing() {
-        let interpretation = this.getInterpretation();
+        let interpretation = this.getSelectedInterpretation();
         return interpretation && interpretation.status === 'Ongoing';
     }
 
-
-    loadAllele() {
-        this.alleles_loaded = false;
-        if (this.allele_id && this.selected_interpretation) {
-            return this.workflowService.loadAlleles(
-                'allele',
-                this.allele_id,
-                this.selected_interpretation,
-                this.selected_interpretation.current // Whether to show current allele data or historical data
-            ).then(
-                alleles => {
-                    this.selected_interpretation_alleles = alleles;
-                    this.alleles_loaded = true;
-                    console.log("(Re)Loaded alleles using interpretation "
-                        +  this.selected_interpretation.id
-                        + "(" + this.selected_interpretation.current + ")"
-                        , this.selected_interpretation_alleles);
-                },
-                () => { this.selected_interpretation_alleles = []; } // On error
-
-            );
-        }
-    }
+    // loadAllele() {
+    //     this.alleles_loaded = false;
+    //     if (this.allele_id && this.selected_interpretation) {
+    //         return this.workflowService.loadAlleles(
+    //             'allele',
+    //             this.allele_id,
+    //             this.selected_interpretation,
+    //             this.selected_interpretation.current // Whether to show current allele data or historical data
+    //         ).then(
+    //             alleles => {
+    //                 this.selected_interpretation_alleles = alleles;
+    //                 this.alleles_loaded = true;
+    //                 console.log("(Re)Loaded alleles using interpretation "
+    //                     +  this.selected_interpretation.id
+    //                     + "(" + this.selected_interpretation.current + ")"
+    //                     , this.selected_interpretation_alleles);
+    //             },
+    //             () => { this.selected_interpretation_alleles = []; } // On error
+    //
+    //         );}
+    //     }
+    //
 
     loadGenepanel() {
-        let gp_name = this.genepanelName;
-        let gp_version = this.genepanelVersion;
-        if (this.selected_interpretation) {
-            gp_name = this.selected_interpretation.genepanel_name;
-            gp_version = this.selected_interpretation.genepanel_version;
-        }
+        let gp_name = this.getSelectedInterpretation().genepanel_name || this.genepanel_name;
+        let gp_version = this.getSelectedInterpretation().genepanel_version || this.genepanel_version
+
         return this.genepanelResource.get(gp_name, gp_version).then(
             gp => this.selected_interpretation_genepanel = gp
         );

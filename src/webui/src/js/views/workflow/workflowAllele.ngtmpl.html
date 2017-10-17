@@ -6,7 +6,7 @@
         <input type="text"
                class="id-review-comment"
                placeholder="REVIEW COMMENT"
-               ng-model="vm.getInterpretation().state.review_comment"
+               ng-model="vm.getSelectedInterpretation().state.review_comment"
                ng-disabled="vm.readOnly()"></input>
       </div>
     </div>
@@ -33,9 +33,8 @@
     <interpretation
       components="vm.components"
       selected-component="vm.selected_component"
-      genepanel="vm.selected_interpretation_genepanel"
       show-sidebar="false"
-      ng-if="vm.alleles_loaded"
+      ng-if="vm.allelesLoaded()"
       read-only="vm.readOnly()"
     ></interpretation>
   </div>
