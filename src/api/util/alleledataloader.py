@@ -151,7 +151,6 @@ class AlleleDataLoader(object):
         self.dump(accumulated_allele_data, allele_ids, allele_reports, AlleleReportSchema(), KEY_ALLELE_REPORT)
 
         # Create final data
-        # genepanel_data = GenepanelFullSchema().dump(genepanel).data
         final_alleles = list()
         for allele_id, data in accumulated_allele_data.iteritems():
             final_allele = data[KEY_ALLELE]

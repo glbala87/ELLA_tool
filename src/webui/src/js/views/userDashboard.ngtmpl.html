@@ -27,7 +27,7 @@
                   <p>Other users in group:</p>
                   <div class="sectionbox-content general-list">
                       <span ng-repeat="user in vm.usersInGroup" class="list-item">
-                          <span class="full-title">{{user.first_name}}&nbsp;{{user.last_name}}</span>
+                          <span class="full-title">{{user.full_name}}</span>
                       </span>
                   </div>
             </contentwrapper>
@@ -42,7 +42,7 @@
                     <p>Genepanels:</p>
                     <div class="sectionbox-content general-list">
                         <span class="list-item" ng-repeat="genepanel in vm.user.getCurrentUser().group.genepanels">
-                            <span class="full-title">{{genepanel.name}}&nbsp;{{genepanel.version}}</span>
+                            <span class="full-title">{{genepanel.name}} {{genepanel.version}}</span>
                         </span>
                     </div>
                     <p>Number of analysis worked on: <span class="full-title">{{vm.user_stats.analyses_cnt}}</span></p>

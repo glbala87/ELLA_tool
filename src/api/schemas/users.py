@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields
-from genepanels import GenepanelSchema
+from api.schemas.genepanels import GenepanelSchema
 
 class UserSchema(Schema):
     class Meta:
