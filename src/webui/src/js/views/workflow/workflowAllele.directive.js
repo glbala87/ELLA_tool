@@ -188,58 +188,32 @@ export class WorkflowAlleleController {
 
         this.selected_component = this.components[0];
 
-        this.alleles = []; // Holds allele based on directive params. Array since "everything" expects an array...
-
-        this.alleles_loaded = false;  // Loading indicators etc
-
         this.collisionWarning = null;
 
-        this.interpretations = []; // Holds interpretations from backend
-        this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
-        this.interpretations_loaded = false; // For hiding view until we've checked whether we have interpretations
-
-        this.dummy_interpretation = { // Dummy data for letting the user browse the view before starting interpretation. Never stored!
-            genepanel_name: this.genepanelName,
-            genepanel_version: this.genepanelVersion,
-            dirty: false,
-            state: {},
-            user_state: {},
-            status: STATUS_NOT_STARTED
-        };
-
         this.setUpListeners();
-        this._setWatchers();
-        this.alleles_loaded = false;
+
+        this.scope.$watch(
+            () => this.getGenepanel(),
+            () => this.setupNavbar()
+        )
+
         this.loadAlleleId().then(() => {
             this.checkForCollisions();
-            this.dummy_interpretation.allele_ids = [this.allele_id];
-            this.reloadInterpretationData().then( () => {
-                this.loadAllele().then(() => {
-                    this.alleles_loaded = true;
-                    this.loadGenepanel().then(() => {
-                        this.setupNavbar();
-                    })
-                });
-            });
+            this.reloadInterpretationData()
 
         });
+        // this.config.app.user_confirmation_on_state_change = true
     }
 
     readOnly() {
-        let interpretation = this.getSelectedInterpretation();
-        if (!interpretation) {
-            return true;
-        }
-
-        return !this.isInterpretationOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
-
+        return this.interpretationService.readOnly()
     }
 
     setUpListeners() {
         // Setup listener for asking user if they really want to navigate
         // away from page if unsaved changes
         let unregister_func = this.rootScope.$on('$stateChangeStart', (event) => {  // TODO: create switch to disable in CI/test
-            if (this.config.app.user_confirmation_on_state_change && this.isInterpretationOngoing() && this.selected_interpretation.dirty) {
+            if (this.config.app.user_confirmation_on_state_change && this.isInterpretationOngoing() && this.getSelectedInterpretation().dirty) {
                 this.confirmAbortInterpretation(event);
             }
         });
@@ -255,54 +229,13 @@ export class WorkflowAlleleController {
 
         // Ask user when reloading/closing if unsaved changes
         window.onbeforeunload = (event) => {
-            if (this.config.app.user_confirmation_to_discard_changes && this.isInterpretationOngoing() && this.selected_interpretation.dirty) { // TODO: create switch to disable in CI/test
+            if (this.config.app.user_confirmation_to_discard_changes && this.isInterpretationOngoing() && this.getSelectedInterpretation().dirty) { // TODO: create switch to disable in CI/test
                 event.returnValue = "You have unsaved work. Do you really want to exit application?";
             }
         };
     }
 
-    _setWatchers(rootScope) {
-        // Watch interpretation's state/user_state and call update whenever it changes
-        let watchStateFn = () => {
-            if (this.isInterpretationOngoing() && this.selected_interpretation &&
-                this.selected_interpretation.state) {
-                return this.selected_interpretation.state;
-            }
-        };
-        let watchUserStateFn = () => {
-            if (this.isInterpretationOngoing() && this.selected_interpretation &&
-                this.selected_interpretation.user_state) {
-                return this.selected_interpretation.user_state;
-            }
-        };
-        this.rootScope.$watch(watchStateFn, (n, o) => {
-            // If no old object, we're on the first iteration
-            // -> don't set dirty
-            if (this.selected_interpretation && o) {
-                this.selected_interpretation.setDirty();
-            }
-        }, true); // true -> Deep watch
-
-        this.rootScope.$watch(watchUserStateFn, (n, o) => {
-            if (this.selected_interpretation && o) {
-                this.selected_interpretation.setDirty();
-            }
-        }, true); // true -> Deep watch
-
-
-        this.rootScope.$watch(
-            () => this.getSelectedInterpretation(),
-            () => {
-                this.alleles_loaded = false;
-                let a = this.loadAllele();
-                let g = this.loadGenepanel();  // Reload genepanel in case it was different
-                Promise.all([a, g]).then(() => this.setupNavbar());
-            }
-        );
-    }
-
     setupNavbar() {
-
         if (this.getAlleles() && this.getAlleles().length) {
             let label = `${this.getAlleles()[0].toString()} ${this.genepanelName}_${this.genepanelVersion}`;
             this.navbar.replaceItems([
@@ -310,8 +243,9 @@ export class WorkflowAlleleController {
                     title: label,
                     url: "/overview"
                 }
-            ]);
-            this.navbar.setAllele(this.getAlleles()[0], this.selected_interpretation_genepanel);
+            ])
+
+            this.navbar.setAllele(this.getAlleles()[0], this.getGenepanel());
         }
     }
 
@@ -334,6 +268,10 @@ export class WorkflowAlleleController {
         return this.interpretationService.getAlleles()
     }
 
+    getGenepanel() {
+        return this.interpretationService.getGenepanel()
+    }
+
     isInterpretationOngoing() {
         return this.interpretationService.isInterpretationOngoing()
     }
@@ -352,9 +290,8 @@ export class WorkflowAlleleController {
         return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
     }
 
-    allelesLoaded() {
-        console.log(this.interpretationService.alleles_loaded)
-        return this.interpretationService.alleles_loaded
+    isViewReady() {
+        return this.interpretationService.isViewReady
     }
 
     /**
@@ -364,7 +301,8 @@ export class WorkflowAlleleController {
      * - interpretations
      */
     reloadInterpretationData() {
-        return this.interpretationService.loadInterpretations("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
+        // return this.interpretationService.loadInterpretations("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
+        return this.interpretationService.load("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
     }
 
     loadAllele() {
@@ -385,16 +323,7 @@ export class WorkflowAlleleController {
     }
 
     loadGenepanel() {
-        let gp_name = this.getSelectedInterpretation().genepanel_name || this.genepanelName;
-        let gp_version = this.getSelectedInterpretation().genepanel_version || this.genepanelVersion;
-        /// if (this.interpretationService.getSelectedInterpretation()) {
-        // if (this.getSelectedInterpretation()) {
-        //     gp_name = this.getSelectedInterpretation().genepanel_name;
-        //     gp_version = this.getSelectedInterpretation().genepanel_version;
-        // }
-        return this.genepanelResource.get(gp_name, gp_version).then(
-            gp => this.selected_interpretation_genepanel = gp
-        );
+        return this.interpretationService.loadGenepanel()
     }
 
     _getQueryFromSelector() {

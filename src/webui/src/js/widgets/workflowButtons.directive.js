@@ -67,7 +67,7 @@ export class WorkflowButtonsController {
 
     _callReload() {
         let [type, id] = this.getTypeAndId()
-        this.interpretationService.loadInterpretations(type, id)
+        this.interpretationService.load(type, id, this.genepanelName, this.genepanelVersion)
         // // Let parent know that it should reload data
         // if (this.reload) {
         //     this.reload();
