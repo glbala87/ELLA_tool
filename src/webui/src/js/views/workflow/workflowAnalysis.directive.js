@@ -384,7 +384,6 @@ export class WorkflowAnalysisController {
 
     loadAlleles() {
         return this.interpretationService.loadAlleles();
-
     }
 
     getAlleles() {

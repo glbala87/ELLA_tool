@@ -8,14 +8,15 @@ import {deepCopy} from '../util'
 @Service({
     serviceName: 'Interpretation'
 })
-@Inject('$rootScope', 'WorkflowResource', 'Workflow')
+@Inject('$rootScope', 'WorkflowResource', 'Workflow', 'Allele')
 class InterpretationService {
 
-    constructor($rootScope, WorkflowResource, Workflow) {
+    constructor($rootScope, WorkflowResource, Workflow, Allele) {
         // this.resource = resource;
         this.rootScope = $rootScope;
         this.workflowResource = WorkflowResource;
         this.workflowService = Workflow;
+        this.alleleService = Allele;
 
         this.dummy_interpretation = { // Dummy data for letting the user browse the view before starting interpretation. Never stored!
             genepanel_name: this.genepanelName,
@@ -41,6 +42,8 @@ class InterpretationService {
         this.interpretations_loaded = false; // For hiding view until we've checked whether we have interpretations
         this.type = null;
         this.id = null;
+        this.genepanel_name = null;
+        this.genepanel_version = null;
     }
 
     /**
@@ -49,11 +52,17 @@ class InterpretationService {
      * - history_interpretations
      * - interpretations
      */
-    loadInterpretations(type, id) {
+    loadInterpretations(type, id, genepanel_name, genepanel_version) {
         this.resetInterpretations()
         this.type = type;
         this.id = id;
+        this.genepanel_name = genepanel_name;
+        this.genepanel_version = genepanel_version;
+        console.log("loadInterpretations: ", type, id, genepanel_name, genepanel_version)
+
         if (this.type === "allele") {
+            // Set dummy interpretation allele ids for allele interpretations
+            // Analysis interpretations should always be present in the database, this is not the case for allele interpretations
             this.dummy_interpretation.allele_ids = [this.id]
         }
         return this.workflowResource.getInterpretations(type, id).then(interpretations => {
@@ -89,16 +98,16 @@ class InterpretationService {
 
     getSelectedInterpretation() {
         // Fall back to dummy interpretation, if selected interpretation is not defined
-        return this.selected_interpretation || this.dummy_interpretation;
-
+        if (this.selected_interpretation) {
+            return this.selected_interpretation;
+        } else if (this.type === "allele") {
+            return this.dummy_interpretation
+        }
+        // return this.selected_interpretation || this.dummy_interpretation;
     }
 
     getAllInterpretations() {
         return this.interpretations;
-    }
-
-    getAlleles() {
-
     }
 
     getInterpretationHistory() {
@@ -118,22 +127,16 @@ class InterpretationService {
                 this.alleles_loaded = true;
                 console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
             });
-        } else {
-
+        } else if (this.type === "allele") {
+            // Fetch allele directly if no interpretation is set
+            return this.alleleService.getAlleles(this.id, null, this.genepanel_name, this.genepanel_version).then(a => {
+                return this.alleleService.updateACMG(a, this.genepanel_name, this.genepanel_version, []).then(
+                    () => {
+                        this.alleles = a
+                    }
+                );
+            });
         }
-        //
-        // if (this.selected_interpretation) {
-        //     return this.workflowService.loadAlleles(
-        //         'analysis',
-        //         this.analysisId,
-        //         this.selected_interpretation,
-        //         this.selected_interpretation.current // Whether to show current allele data or historical data
-        //     ).then(alleles => {
-        //         this.selected_interpretation_alleles = alleles;
-        //         this.alleles_loaded = true;
-        //         console.log("(Re)Loaded alleles...", this.selected_interpretation_alleles);
-        //     });
-        // }
     }
 
     isInterpretationOngoing() {
@@ -182,11 +185,15 @@ class InterpretationService {
 
 
     getInterpretation(index) {
+        return this.getSelectedInterpretation()
         if (!this.interpretations) return;
         if (index === undefined) {
             // Force selected interpretation to be the Ongoing one, if it exists, to avoid mixups.
             let ongoing_interpretation = this.interpretations.find(i => i.isOngoing());
             if (ongoing_interpretation) {
+                console.log("getInterpretation")
+                console.log("selected_interpretation: ", this.selected_interpretation.id)
+                console.log("ongoing_interpretation: ", ongoing_interpretation.id)
                 this.selected_interpretation = ongoing_interpretation;
             }
         } else {
@@ -197,15 +204,8 @@ class InterpretationService {
     }
 
     getAlleles() {
+        // Fall back to this.alleles when no interpretation exists on backend
         return this.selected_interpretation_alleles || this.alleles;
-        if (this.interpretations && this.interpretations.length && this.selected_interpretation) {
-            return this.selected_interpretation_alleles;
-        }
-        // Fall back to this.allele when no interpretation exists on backend
-        // console.log("Fall back to this.allele when no interpretation exists on backend", this.alleles)
-        return this.alleles;
-
-
     }
 
     isInterpretationOngoing() {
