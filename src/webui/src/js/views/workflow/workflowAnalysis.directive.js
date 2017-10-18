@@ -195,13 +195,9 @@ export class WorkflowAnalysisController {
         ];
         this.selected_component = this.components[0];
 
-        this.alleles_loaded = false;  // Loading indicators etc
-
         this.collisionWarning = null;
 
-
         this.setUpListeners();
-        this._setWatchers();
         this.setupNavbar();
 
         this._loadAnalysis();
@@ -232,51 +228,6 @@ export class WorkflowAnalysisController {
                 event.returnValue = "You have unsaved work. Do you really want to exit application?";
             }
         };
-    }
-
-    _setWatchers(rootScope) {
-        // Watch interpretation's state/user_state and call update whenever it changes
-        let watchStateFn = () => {
-            if (this.isInterpretationOngoing() &&
-                this.getSelectedInterpretation().state) {
-                return this.getSelectedInterpretation().state;
-            }
-        };
-        let watchUserStateFn = () => {
-            if (this.isInterpretationOngoing() &&
-                this.getSelectedInterpretation().user_state) {
-                return this.getSelectedInterpretation().user_state;
-            }
-        };
-        this.rootScope.$watch(watchStateFn, (n, o) => {
-            // If no old object, we're on the first iteration
-            // -> don't set dirty
-            if (this.getSelectedInterpretation() && o) {
-                this.getSelectedInterpretation().setDirty();
-            }
-        }, true); // true -> Deep watch
-
-        this.rootScope.$watch(watchUserStateFn, (n, o) => {
-            if (this.getSelectedInterpretation() && o) {
-                this.getSelectedInterpretation().setDirty();
-            }
-        }, true); // true -> Deep watch
-
-        // Reload alleles if interpretation allele_ids change
-        this.rootScope.$watch(
-            () => {
-                let interpretation = this.getSelectedInterpretation()
-                return interpretation ? interpretation.allele_ids : undefined;
-            },
-            () => {
-                this.alleles_loaded = false;  // Make <interpretation> redraw
-                let p = this.loadAlleles()
-                if (p) {
-                    p.then(() => {
-                        this.alleles_loaded = true;
-                    })
-                }
-            });
     }
 
     setupNavbar() {
@@ -316,10 +267,10 @@ export class WorkflowAnalysisController {
             if (this.isInterpretationOngoing()) { // noop if analysis is finalized
                 // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
                 this.getSelectedInterpretation().state.manuallyAddedAlleles = added;
-                this.loadAlleles(this.selected_interpretation);
+                this.loadAlleles();
             }
         }).catch(() => {
-            this.loadAlleles(this.selected_interpretation);  // Also update on modal dismissal
+            this.loadAlleles();  // Also update on modal dismissal
         });
     }
 
@@ -332,42 +283,6 @@ export class WorkflowAnalysisController {
         }
     }
 
-    getSelectedInterpretation() {
-        return this.interpretationService.getSelectedInterpretation()
-    }
-
-    getSelectedInterpretation() {
-        return this.interpretationService.getSelectedInterpretation()
-    }
-
-    getAllInterpretations() {
-        return this.interpretationService.getAllInterpretations()
-    }
-
-    isInterpretationOngoing() {
-        let interpretation = this.getSelectedInterpretation();
-        return interpretation && interpretation.status === 'Ongoing';
-    }
-
-    readOnly() {
-        let interpretation = this.getSelectedInterpretation();
-        if (!interpretation) {
-            return true;
-        }
-
-        return !this.isInterpretationOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
-
-    }
-
-    showHistory() {
-        return !this.isInterpretationOngoing()
-               && this.interpretationService.getInterpretationHistory().length;
-    }
-
-    getHistory() {
-        return this.interpretationService.getInterpretationHistory()
-    }
-
     formatHistoryOption(interpretation) {
         ///TODO: Move to filter
         if (interpretation.current) {
@@ -378,25 +293,10 @@ export class WorkflowAnalysisController {
         return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
     }
 
-    reloadInterpretationData() {
-        this.interpretationService.loadInterpretations("analysis", this.analysisId)
-    }
-
-    loadAlleles() {
-        return this.interpretationService.loadAlleles();
-    }
-
-    getAlleles() {
-        return this.interpretationService.getAlleles()
-    }
-
     _loadAnalysis() {
         this.analysisResource.getAnalysis(this.analysisId).then(a => {
             this.analysis = a;
             this.setupNavbar();
-            this.genepanelResource.get(a.genepanel.name, a.genepanel.version).then(gp => {
-                this.genepanel = gp;
-            });
         });
 
         this.workflowResource.getCollisions('analysis', this.analysisId).then(result => {
@@ -425,4 +325,48 @@ export class WorkflowAnalysisController {
         this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
     }
 
+    // Trigger actions in interpretation service
+    reloadInterpretationData() {
+        this.interpretationService.load("analysis", this.analysisId)
+    }
+
+    loadAlleles() {
+        return this.interpretationService.loadAlleles();
+    }
+
+    // Get data from interpretation service
+    getAlleles() {
+        return this.interpretationService.getAlleles()
+    }
+
+    isViewReady() {
+        return this.interpretationService.isViewReady
+    }
+        getSelectedInterpretation() {
+        return this.interpretationService.getSelectedInterpretation()
+    }
+
+    getSelectedInterpretation() {
+        return this.interpretationService.getSelectedInterpretation()
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAllInterpretations()
+    }
+
+    isInterpretationOngoing() {
+        return this.interpretationService.isInterpretationOngoing()
+    }
+
+    readOnly() {
+        return this.interpretationService.readOnly()
+    }
+
+    showHistory() {
+        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
+    }
+
+    getInterpretationHistory() {
+        return this.interpretationService.getHistory()
+    }
 }

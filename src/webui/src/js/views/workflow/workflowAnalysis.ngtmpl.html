@@ -25,7 +25,8 @@
       <div class="dropdown white" ng-if="vm.showHistory()">
         <select
           class="id-interpretationrounds-dropdown"
-          ng-options="i as vm.formatHistoryOption(i) for i in vm.getHistory()"
+          ng-options="i as vm.formatHistoryOption(i) for i in vm.getInterpretationHistory()"
+          ng-change="vm.loadAlleles()"
           ng-model="vm.interpretationService.selected_interpretation">
         </select>
       </div>
@@ -40,13 +41,11 @@
     <interpretation
       components="vm.components"
       selected-component="vm.selected_component"
-      genepanel="vm.genepanel"
-      ng-if="vm.analysis && vm.alleles_loaded && vm.genepanel"
+      genepanel="vm.getGenepanel()"
+      ng-if="vm.isViewReady()"
       read-only="vm.readOnly()"
     ></interpretation>
   </div>
-
-
 </div>
 
 <!-- - ->

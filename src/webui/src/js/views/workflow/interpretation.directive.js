@@ -108,7 +108,7 @@ export class InterpretationController {
 
         $scope.$watch(
             () => this.allele_sidebar.selected,
-            () => this.navbar.setAllele(this.allele_sidebar.selected, this.genepanel)
+            () => this.navbar.setAllele(this.allele_sidebar.selected, this.getGenepanel())
         );
 
         $scope.$watch(
@@ -258,7 +258,7 @@ export class InterpretationController {
 
         // Sort data
         // Sort unclassified by (gene, hgvsc)
-        let unclassified_sort = firstBy(a => this.genepanel.getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
+        let unclassified_sort = firstBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
                                 .thenBy(a => a.allele.annotation.filtered[0].symbol)
                                 .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
@@ -270,7 +270,7 @@ export class InterpretationController {
                 let classification = AlleleStateHelper.getClassification(a.allele, this.getAlleleState(a.allele));
                return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
-            .thenBy(a => this.genepanel.getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
+            .thenBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
             .thenBy(a => a.allele.annotation.filtered[0].symbol)
             .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
@@ -297,6 +297,10 @@ export class InterpretationController {
     hasResults() {
         return this.allele_sidebar.alleles.unclassified.length > 0 ||
                this.allele_sidebar.alleles.classified.length > 0;
+    }
+
+    getGenepanel() {
+        return this.interpretationService.getGenepanel()
     }
 
     /**
