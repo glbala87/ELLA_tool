@@ -241,7 +241,7 @@ e2e-test: e2e-network-check e2e-start-chromebox test-build
 	-docker rm ella-e2e
 	@rm -rf errorShots
 	@mkdir -p errorShots
-	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio
+	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio BRANCH=$(BRANCH)
 	make e2e-stop-chromebox
 
 
@@ -272,9 +272,8 @@ e2e-gulp-once:
 	/ella/node_modules/gulp/bin/gulp.js build
 
 run-wdio-against-chromebox:
-	echo CHROMEBOX_CONTAINER = $(CHROMEBOX_CONTAINER)
-	echo BRANCH = $(BRANCH)
-# $(CHROMEBOX_CONTAINER) is 'chromebox_', seems the BRANCH isn't set properly in this task
+	@echo CHROMEBOX_CONTAINER = $(CHROMEBOX_CONTAINER)
+	@echo BRANCH = $(BRANCH)
 	@echo "Running webdriverio against chromebox in container $(CHROMEBOX_CONTAINER). Running if responds: `curl --silent cb:4444/status`"
 	@echo "pwd: '`pwd`'"
 #	screenshots on e2e test errors are defined in wdio.conf
