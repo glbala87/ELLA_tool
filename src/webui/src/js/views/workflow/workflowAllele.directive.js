@@ -202,11 +202,6 @@ export class WorkflowAlleleController {
             this.reloadInterpretationData()
 
         });
-        // this.config.app.user_confirmation_on_state_change = true
-    }
-
-    readOnly() {
-        return this.interpretationService.readOnly()
     }
 
     setUpListeners() {
@@ -258,26 +253,8 @@ export class WorkflowAlleleController {
         }
     }
 
-    getSelectedInterpretation() {
-        let interpretation = this.interpretationService.getSelectedInterpretation()
-        return interpretation ? interpretation : this.dummy_interpretation;
-
-    }
-
-    getAlleles() {
-        return this.interpretationService.getAlleles()
-    }
-
-    getGenepanel() {
-        return this.interpretationService.getGenepanel()
-    }
-
-    isInterpretationOngoing() {
-        return this.interpretationService.isInterpretationOngoing()
-    }
-
     showHistory() {
-        return !this.isInterpretationOngoing() && this.interpretationService.getHistory().length
+        return !this.isInterpretationOngoing() && this.getHistory().length
     }
 
     formatHistoryOption(interpretation) {
@@ -288,42 +265,6 @@ export class WorkflowAlleleController {
         let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
         let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
         return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
-    }
-
-    isViewReady() {
-        return this.interpretationService.isViewReady
-    }
-
-    /**
-     * Loads interpretations from backend and sets:
-     * - selected_interpretation
-     * - history_interpretations
-     * - interpretations
-     */
-    reloadInterpretationData() {
-        // return this.interpretationService.loadInterpretations("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
-        return this.interpretationService.load("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
-    }
-
-    loadAllele() {
-        return this.interpretationService.loadAlleles()
-    }
-
-    getHistory() {
-        return this.interpretationService.getInterpretationHistory()
-    }
-
-    getSelectedInterpretation() {
-        return this.interpretationService.getSelectedInterpretation() ? this.interpretationService.getSelectedInterpretation() : this.dummy_interpretation
-    }
-
-    getAllInterpretations() {
-        let interpretations = this.interpretationService.getAllInterpretations();
-        return interpretations && interpretations.length ? interpretations : [this.dummy_interpretation]
-    }
-
-    loadGenepanel() {
-        return this.interpretationService.loadGenepanel()
     }
 
     _getQueryFromSelector() {
@@ -363,4 +304,48 @@ export class WorkflowAlleleController {
             this.allele_id = a[0].id;
         });
     }
+
+    //
+    // Trigger actions in interpretation service
+    //
+    reloadInterpretationData() {
+        return this.interpretationService.load("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
+    }
+
+    //
+    // Get data from interpretation service
+    //
+    isViewReady() {
+        return this.interpretationService.isViewReady
+    }
+
+    getHistory() {
+        return this.interpretationService.getHistory()
+    }
+
+    getSelectedInterpretation() {
+        return this.interpretationService.getSelected()
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAll();
+    }
+
+    getAlleles() {
+        return this.interpretationService.getAlleles()
+    }
+
+    getGenepanel() {
+        return this.interpretationService.getGenepanel()
+    }
+
+    isInterpretationOngoing() {
+        return this.interpretationService.isOngoing()
+    }
+
+    readOnly() {
+        return this.interpretationService.readOnly()
+    }
+
+
 }

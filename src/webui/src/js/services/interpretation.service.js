@@ -19,44 +19,44 @@ class InterpretationService {
         this.genepanelResource = GenepanelResource;
         this.user = User;
 
-        this.resetInterpretations()
+        this.reset()
         this._setWatchers()
     }
 
     _setWatchers() {
         // Set interpretation dirty when changes have been made to the state
         let watchStateFn = () => {
-            if (this.isInterpretationOngoing() && this.getSelectedInterpretation().state) {
-                return this.getSelectedInterpretation().state;
+            if (this.isOngoing() && this.getSelected().state) {
+                return this.getSelected().state;
             }
         };
 
         let watchUserStateFn = () => {
-            if (this.isInterpretationOngoing() && this.getSelectedInterpretation().user_state) {
-                return this.getSelectedInterpretation().user_state;
+            if (this.isOngoing() && this.getSelected().user_state) {
+                return this.getSelected().user_state;
             }
         };
 
         this.rootScope.$watch(watchStateFn, (n, o) => {
             // If no old object, we're on the first iteration
             // -> don't set dirty
-            if (this.getSelectedInterpretation() && o) {
-                this.getSelectedInterpretation().setDirty();
+            if (this.getSelected() && o) {
+                this.getSelected().setDirty();
             }
         }, true); // true -> Deep watch
 
         this.rootScope.$watch(watchUserStateFn, (n, o) => {
-            if (this.getSelectedInterpretation() && o) {
-                this.getSelectedInterpretation().setDirty();
+            if (this.getSelected() && o) {
+                this.getSelected().setDirty();
             }
         }, true); // true -> Deep watch
 
         // Reset interpretations whenever we navigate away
-        this.rootScope.$on('$locationChangeSuccess', this.resetInterpretations())
+        this.rootScope.$on('$locationChangeSuccess', this.reset())
 
     }
 
-    resetInterpretations() {
+    reset() {
         this.selected_interpretation = null; // Holds displayed interpretation
         this.selected_interpretation_alleles = null; // Loaded allele for current interpretation (annotation etc data can change based on interpretation snapshot)
         this.selected_interpretation_genepanel = null; // Loaded genepanel for current interpretation (used in navbar)
@@ -97,9 +97,9 @@ class InterpretationService {
      * @returns {Promise.<TResult>|*}
      */
     load(type, id, genepanel_name, genepanel_version) {
-        return this.loadInterpretations(type, id, genepanel_name, genepanel_version).then( () => {
-            this.loadAlleles().then( () => {
-                this.loadGenepanel()
+        return this._loadInterpretations(type, id, genepanel_name, genepanel_version).then( () => {
+            return this.loadAlleles(true).then( () => {
+                return this.loadGenepanel()
             })
         })
     }
@@ -110,8 +110,8 @@ class InterpretationService {
      * - history_interpretations
      * - interpretations
      */
-    loadInterpretations(type, id, genepanel_name, genepanel_version) {
-        this.resetInterpretations()
+    _loadInterpretations(type, id, genepanel_name, genepanel_version) {
+        this.reset()
         this.type = type;
         this.id = id;
         this.genepanel_name = genepanel_name;
@@ -159,8 +159,9 @@ class InterpretationService {
      * Load alleles from interpretation if defined. If not defined, and interpretation type is 'allele',
      * load allele directly from id
      */
-    loadAlleles() {
-        this.isViewReady = false; // Reloading alleles should trigger a redraw of the view
+    loadAlleles(setViewReady) {
+        if (setViewReady) this.isViewReady = false; // Reloading alleles should potentially trigger a redraw of the full view
+
         if (this.selected_interpretation) {
             return this.workflowService.loadAlleles(
                 this.type,
@@ -169,18 +170,15 @@ class InterpretationService {
                 this.selected_interpretation.current // Whether to show current allele data or historical data
             ).then(alleles => {
                 this.selected_interpretation_alleles = alleles;
-                // this.alleles_loaded = true;
-                this.isViewReady = true;
+                if (setViewReady) this.isViewReady = true; // Reloading alleles should potentially trigger a redraw of the full view
                 console.log("(Re)Loaded alleles from interpretation...", this.selected_interpretation_alleles);
             });
         } else if (this.type === "allele") {
             // Fetch allele directly if no interpretation is set
             return this.alleleService.getAlleles(this.id, null, this.genepanel_name, this.genepanel_version).then(a => {
-                console.log(this.genepanel_name, this.genepanel_version)
                 return this.alleleService.updateACMG(a, this.genepanel_name, this.genepanel_version, []).then(
                     () => {
-                        // this.alleles_loaded = true;
-                        this.isViewReady = true;
+                        if (setViewReady) this.isViewReady = true; // Reloading alleles should potentially trigger a redraw of the full view
                         this.alleles = a
                         console.log("(Re)Loaded alleles directly...", this.alleles);
                     }
@@ -190,47 +188,37 @@ class InterpretationService {
     }
 
     loadGenepanel() {
-        this.isViewReady = false;
-        // let gp_name = this.genepanel_name;
-        // let gp_version = this.genepanel_version;
-        //
-        let interpretation = this.getSelectedInterpretation()
-        // if (interpretation) {
-        //     gp_name = interpretation.genepanel_name || this.genepanel_name;
-        //     gp_version = interpretation.genepanel_version || this.genepanel_version
-        // }
+        this.isViewReady = false; // Reloading genepanel should trigger a redraw of the full view
+        let interpretation = this.getSelected();
 
         let gp_name = interpretation.genepanel_name;
         let gp_version = interpretation.genepanel_version;
 
-
-        // if (gp_name && gp_version) {
-            return this.genepanelResource.get(gp_name, gp_version).then( (gp) => {
-                this.selected_interpretation_genepanel = gp
-                this.isViewReady = true;
-            });
-        // }
+        return this.genepanelResource.get(gp_name, gp_version).then( (gp) => {
+            this.selected_interpretation_genepanel = gp
+            this.isViewReady = true;
+        });
     }
 
-    getSelectedInterpretation() {
+    getSelected() {
         // Fall back to dummy interpretation, if selected interpretation is not defined (for alleles only)
         if (this.selected_interpretation) {
             return this.selected_interpretation;
         } else if (this.type === "allele") {
-            return this.dummy_interpretation
+            return this.dummy_interpretation;
         }
     }
 
-    getAllInterpretations() {
-        return this.interpretations;
+    getAll() {
+        return this.interpretations ? this.interpretations : [this.dummy_interpretation];
     }
 
     getHistory() {
         return this.history_interpretations;
     }
 
-    isInterpretationOngoing() {
-        let interpretation = this.getSelectedInterpretation();
+    isOngoing() {
+        let interpretation = this.getSelected();
         return interpretation && interpretation.status === 'Ongoing';
     }
 
@@ -239,12 +227,12 @@ class InterpretationService {
     }
 
     readOnly() {
-        let interpretation = this.getSelectedInterpretation();
+        let interpretation = this.getSelected();
         if (!interpretation) {
             return true;
         }
 
-        return !this.isInterpretationOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
+        return !this.isOngoing() || interpretation.user.id !== this.user.getCurrentUserId() ;
     }
 
     getAlleles() {

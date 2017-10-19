@@ -125,7 +125,7 @@ export class InterpretationController {
 
 
     getSelectedInterpretation() {
-        return this.interpretationService.getSelectedInterpretation()
+        return this.interpretationService.getSelected()
     }
 
     setup() {
@@ -167,7 +167,7 @@ export class InterpretationController {
      * refreshing from backend (data has changed)
      */
     onUpdate() {
-        this.interpretationService.loadAlleles();
+        this.interpretationService.loadAlleles(false); // false => Do not redraw full interpretation view
     }
 
     getAlleles() {
@@ -395,10 +395,11 @@ export class InterpretationController {
      * @return {Array} Array of ids.
      */
     getAttachmentIds() {
+        let selectedInterpretation = this.getSelectedInterpretation()
         let attachment_ids = []
-        for (let allele_id in this.getSelectedInterpretation().state.allele) {
-            if ("alleleassessment" in this.getSelectedInterpretation().state.allele[allele_id]) {
-                attachment_ids = attachment_ids.concat(this.getSelectedInterpretation().state.allele[allele_id].alleleassessment.attachment_ids)
+        for (let allele_id in selectedInterpretation.state.allele) {
+            if ("alleleassessment" in selectedInterpretation.state.allele[allele_id]) {
+                attachment_ids = attachment_ids.concat(selectedInterpretation.state.allele[allele_id].alleleassessment.attachment_ids)
             }
         }
 
@@ -434,30 +435,32 @@ export class InterpretationController {
      * @return {Object} allele state for given allele
      */
     getAlleleState(allele) {
-        if (!('allele' in this.getSelectedInterpretation().state)) {
-            this.getSelectedInterpretation().state.allele = {};
+        let selectedInterpretation = this.getSelectedInterpretation();
+        if (!('allele' in selectedInterpretation.state)) {
+            selectedInterpretation.state.allele = {};
         }
-        if (!(allele.id in this.getSelectedInterpretation().state.allele)) {
+        if (!(allele.id in selectedInterpretation.state.allele)) {
             let allele_state = {
                 allele_id: allele.id,
             };
-            this.getSelectedInterpretation().state.allele[allele.id] = allele_state;
+            selectedInterpretation.state.allele[allele.id] = allele_state;
         }
-        return this.getSelectedInterpretation().state.allele[allele.id];
+        return selectedInterpretation.state.allele[allele.id];
     }
 
     getAlleleUserState(allele) {
-        if (!('allele' in this.getSelectedInterpretation().user_state)) {
-            this.getSelectedInterpretation().user_state.allele = {};
+        let selectedInterpretation = this.getSelectedInterpretation();
+        if (!('allele' in selectedInterpretation.user_state)) {
+            selectedInterpretation.user_state.allele = {};
         }
-        if (!(allele.id in this.getSelectedInterpretation().user_state.allele)) {
+        if (!(allele.id in selectedInterpretation.user_state.allele)) {
             let allele_state = {
                 allele_id: allele.id,
                 showExcludedReferences: false,
             };
-            this.getSelectedInterpretation().user_state.allele[allele.id] = allele_state;
+            selectedInterpretation.user_state.allele[allele.id] = allele_state;
         }
-        return this.getSelectedInterpretation().user_state.allele[allele.id];
+        return selectedInterpretation.user_state.allele[allele.id];
     }
 
 

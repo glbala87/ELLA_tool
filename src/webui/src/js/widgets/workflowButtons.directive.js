@@ -6,14 +6,11 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
 @Directive({
     selector: 'workflow-buttons',
     scope: {
-        // selectedInterpretation: '=',
-        // interpretations: '=',
         alleles: '=',
         alleleId: '=?', // If allele workflow
         analysisId: '=?', // If analysis workflow
         genepanelName: '=?',
         genepanelVersion: '=?',
-        // reload: '&?',
         readOnly: '=',
         startWhenReopen: '=?' // Reopen and start analysis at the same time
     },
@@ -68,10 +65,6 @@ export class WorkflowButtonsController {
     _callReload() {
         let [type, id] = this.getTypeAndId()
         this.interpretationService.load(type, id, this.genepanelName, this.genepanelVersion)
-        // // Let parent know that it should reload data
-        // if (this.reload) {
-        //     this.reload();
-        // }
     }
 
     /**
@@ -87,7 +80,7 @@ export class WorkflowButtonsController {
      */
     clickStartSaveBtn() {
         let [type, id] = this.getTypeAndId();
-        let selected_interpretation = this.interpretationService.getSelectedInterpretation()
+        let selected_interpretation = this.getSelectedInterpretation()
         // Reassign/save mode
         if (selected_interpretation && selected_interpretation.status === 'Ongoing') {
             if (selected_interpretation.user.id !== this.user.getCurrentUserId()) {
@@ -106,7 +99,7 @@ export class WorkflowButtonsController {
             }
         }
         else {
-            let interpretations = this.interpretationService.getAllInterpretations()
+            let interpretations = this.getAllInterpretations()
             // Call reopen if applicable
             if (interpretations.length && interpretations.every(i => i.status === 'Done')) {
                 this.workflowService.reopen(type, id).then(() => {
@@ -128,7 +121,7 @@ export class WorkflowButtonsController {
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
             // TODO: Redirect user
-        this.workflowService.confirmCompleteFinalize(type, id, this.interpretationService.getSelectedInterpretation(), this.alleles, this.config).then((redirect) => {
+        this.workflowService.confirmCompleteFinalize(type, id, this.getSelectedInterpretation(), this.alleles, this.config).then((redirect) => {
             if (redirect) {
                 this.location.path('/overview');
             }
@@ -136,7 +129,7 @@ export class WorkflowButtonsController {
     }
 
     showFinishBtn() {
-        let selected_interpretation = this.interpretationService.getSelectedInterpretation()
+        let selected_interpretation = this.getSelectedInterpretation()
         if (selected_interpretation && selected_interpretation.status === 'Ongoing') {
                 return selected_interpretation.user.id === this.user.getCurrentUserId();
         }
@@ -144,7 +137,7 @@ export class WorkflowButtonsController {
     }
 
     _getSaveStatus() {
-        let interpretations = this.interpretationService.getAllInterpretations()
+        let interpretations = this.getAllInterpretations()
         if (!interpretations) {
             return 'start';
         }
@@ -191,8 +184,8 @@ export class WorkflowButtonsController {
             classes.push('red');
         }
         else {
-            if (this.selectedInterpretation &&
-                this.selectedInterpretation.dirty) {
+            if (this.getSelectedInterpretation() &&
+                this.getSelectedInterpretation().dirty) {
                 classes.push('pink');
             }
             else {
@@ -200,6 +193,14 @@ export class WorkflowButtonsController {
             }
         }
         return classes;
+    }
+
+    getSelectedInterpretation() {
+        return this.interpretationService.getSelected()
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAll()
     }
 
 

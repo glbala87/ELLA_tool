@@ -320,21 +320,29 @@ export class WorkflowAnalysisController {
 
     copyAlamut() {
         this.clipboard.copyText(
-            this.interpretationService.getAlleles().map(a => a.formatAlamut() + '\n').join('')
+            this.getAlleles().map(a => a.formatAlamut() + '\n').join('')
         );
         this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
     }
 
+    showHistory() {
+        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
+    }
+
+    //
     // Trigger actions in interpretation service
+    //
     reloadInterpretationData() {
-        this.interpretationService.load("analysis", this.analysisId)
+        this.interpretationService.load("analysis", this.analysisId, null, null)
     }
 
     loadAlleles() {
-        return this.interpretationService.loadAlleles();
+        return this.interpretationService.loadAlleles(true); // true => trigger redraw
     }
 
+    //
     // Get data from interpretation service
+    //
     getAlleles() {
         return this.interpretationService.getAlleles()
     }
@@ -342,28 +350,21 @@ export class WorkflowAnalysisController {
     isViewReady() {
         return this.interpretationService.isViewReady
     }
-        getSelectedInterpretation() {
-        return this.interpretationService.getSelectedInterpretation()
-    }
 
     getSelectedInterpretation() {
-        return this.interpretationService.getSelectedInterpretation()
+        return this.interpretationService.getSelected()
     }
 
     getAllInterpretations() {
-        return this.interpretationService.getAllInterpretations()
+        return this.interpretationService.getAll()
     }
 
     isInterpretationOngoing() {
-        return this.interpretationService.isInterpretationOngoing()
+        return this.interpretationService.isOngoing()
     }
 
     readOnly() {
         return this.interpretationService.readOnly()
-    }
-
-    showHistory() {
-        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
     }
 
     getInterpretationHistory() {
