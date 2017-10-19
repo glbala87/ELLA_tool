@@ -19,5 +19,5 @@ git tag --list $from $to --format='%(objecttype) %(refname:strip=2) (%(objectnam
 echo "$SEP" >> $file
 echo "$BLANK_LINE" >> $file
 # Only look at commits from merge requests (not 100%, will also pick up merges into feature branches)
-git log --merges "$from..$to" >> $file
+git log --merges "$to..$from" >> $file
 
