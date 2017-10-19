@@ -145,12 +145,13 @@ release:
   stage: release
   script:
     - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
+    - make release-notes
   artifacts:
     paths:
     - ella-release-$CI_COMMIT_REF_NAME-*.tgz
+    - ella-releasenotes*.txt
     name: ella-release-$CI_COMMIT_REF_NAME
     when: on_success
   when: on_success
   only:
     - tags
-
