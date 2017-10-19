@@ -2,7 +2,8 @@
   <div class="upper-wrapper">
     <section class="acmg-upper">
       <div class="left-item">
-        <h4 class="id-adjust-down adjust-button" ng-if="vm.adjustable && vm.editable" class="clickable" ng-click="vm.downgradeCode()">-</h4>
+          <h4 class="id-adjust-down adjust-button" ng-if="vm.editable && vm.isDowngradable()" class="clickable" ng-click="vm.downgradeCode()">-</h4>
+        <h4 class="id-adjust-down adjust-button-off" ng-if="!vm.isDowngradable()">&nbsp;</h4>
         <div class="acmg-title-wrapper">
           <h4 class="acmg-title clickable" uib-popover-template="vm.popover.templateUrl"
             popover-append-to-body=true
@@ -12,7 +13,8 @@
             {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
           </h4>
         </div>
-        <h4 class="id-adjust-up adjust-button" ng-if="vm.adjustable && vm.editable" class="clickable" ng-click="vm.upgradeCode()">+</h4>
+        <h4 class="id-adjust-up adjust-button" ng-if="vm.editable && vm.isUpgradable()" class="clickable" ng-click="vm.upgradeCode()">+</h4>
+        <h4 class="id-adjust-up adjust-button-off" ng-if="!vm.isUpgradable()">&nbsp;</h4>
       </div>
       <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
       <button class="right-item"
@@ -22,7 +24,7 @@
       </button>
     </section>
     <aside class="acmg-req noclick"
-           ng-if="! vm.isInACMGsection()"
+           ng-if="!vm.isInACMGsection()"
            ng-class="vm.getACMGclass(r)"
            ng-repeat="r in vm.getRequiredFor()"
            ng-disabled="vm.readOnly"

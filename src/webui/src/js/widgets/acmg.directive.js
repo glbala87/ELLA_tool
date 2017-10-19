@@ -10,7 +10,8 @@ import {ACMGHelper} from '../model/acmghelper';
         commentModel: '=?',
         editable: '=?',  // Defaults to false
         directreqs: '=?',  // Defaults to false
-        adjustable: '=?', // Whether code can be upgraded/downgraded
+        isUpgradable: '=?',
+        isDowngradable: '=?',
         onToggle: '&?',
         toggleText: '@?',
         readOnly: '=?',
@@ -30,7 +31,7 @@ export class AcmgController {
         $scope.$watch(
             () => this.code,
             () => { this.matches = this.getMatches(); }
-        )
+        );
     }
 
     toggle() {
@@ -44,6 +45,14 @@ export class AcmgController {
 
     isEditable() {
         return this.editable !== undefined ? this.editable : false;
+    }
+    
+    isUpgradable() {
+        return ACMGHelper.canUpgradeCodeObj(this.code, this.config);
+    }
+    
+    isDowngradable(){
+        return ACMGHelper.canDowngradeCodeObj(this.code, this.config);
     }
 
     isInACMGsection() {
