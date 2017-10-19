@@ -67,7 +67,6 @@ import './widgets/alleleinfo/alleleInfoPredictionOther.directive';
 import './widgets/alleleinfo/alleleInfoFrequencyExac.directive';
 import './widgets/alleleinfo/alleleInfoFrequencyGnomadGenomes.directive';
 import './widgets/alleleinfo/alleleInfoFrequencyGnomadExomes.directive';
-import './widgets/alleleinfo/alleleInfoFrequency1000g.directive';
 import './widgets/alleleinfo/alleleInfoFrequencyEsp6500.directive';
 import './widgets/alleleinfo/alleleInfoFrequencyIndb.directive';
 import './widgets/alleleinfo/alleleInfoDbsnp.directive';

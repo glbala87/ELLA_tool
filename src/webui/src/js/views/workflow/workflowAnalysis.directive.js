@@ -112,7 +112,6 @@ export class WorkflowAnalysisController {
                             {'tag': 'allele-info-frequency-gnomad-exomes'},
                             {'tag': 'allele-info-frequency-gnomad-genomes'},
                             {'tag': 'allele-info-frequency-exac'},
-                            {'tag': 'allele-info-frequency-thousandg'},
                             {'tag': 'allele-info-frequency-indb'},
                             {'tag': 'allele-info-dbsnp'},
                             {'tag': 'allele-info-quality'}
