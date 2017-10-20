@@ -5,8 +5,8 @@
       <section class="line-wrapper spaced">
         <div>
           <h5 class="wrap">
-            <a-clip ng-if="ref.pubmed_id" class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip>
-            <span ng-if="!ref.pubmed_id" class="id-reference-title">{{ref.title}}</span>
+            <a-clip ng-if="ref.getPubmedUrl()" class="id-reference-title" href="{{ref.getPubmedUrl()}}">{{ref.title}}</a-clip>
+            <span ng-if="!ref.getPubmedUrl()" class="id-reference-title">{{ref.title}}</span>
           </h5>
           <p>{{ref.getShortDesc()}}</p>
 
@@ -28,7 +28,7 @@
     <article ng-repeat="ref in vm.missing_references" ng-if="vm.published">
       <section class="line-wrapper">
         <div>
-          <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
+          <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{ref.getPubmedUrl()}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
         </div>
       </section>
     </article>
@@ -40,8 +40,8 @@
         <section class="line-wrapper spaced">
           <div>
             <h5 class="wrap">
-              <a-clip ng-if="ref.pubmed_id" class="id-reference-title" href="{{vm.getPubmedUrl(ref.pubmed_id)}}">{{ref.title}}</a-clip>
-              <span ng-if="!ref.pubmed_id" class="id-reference-title">{{ref.title}}</span>
+              <a-clip ng-if="ref.getPubmedUrl()" class="id-reference-title" href="{{ref.getPubmedUrl()}}">{{ref.title}}</a-clip>
+              <span ng-if="!ref.getPubmedUrl()" class="id-reference-title">{{ref.title}}</span>
             </h5>
             <p>{{ref.getShortDesc()}}</p>
 

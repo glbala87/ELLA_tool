@@ -34,10 +34,6 @@ class AlleleInfoReferencesCommon {
         this.refEvalModal = ReferenceEvalModal;
     }
 
-    getPubmedUrl(pmid) {
-        return `http://www.ncbi.nlm.nih.gov/pubmed/${pmid}`;
-    }
-
     setAlleleReferences() {
         this.allele_references = [];
         this.missing_references = [];
@@ -84,7 +80,7 @@ class AlleleInfoReferencesCommon {
 
     getEvaluateBtnText(reference) {
         if (this.readOnly) {
-            return 'See details'
+            return 'See details';
         }
 
         if (this.hasReferenceAssessment(reference)) {
@@ -104,7 +100,7 @@ class AlleleInfoReferencesCommon {
             referenceAssessment
         );
         if (this.onSave) {
-            this.onSave()
+            this.onSave();
         }
     }
 
@@ -116,6 +112,7 @@ class AlleleInfoReferencesCommon {
             reference,
             this.alleleState
         );
+
         this.refEvalModal.show(
             this.analysis,
             this.allele,
