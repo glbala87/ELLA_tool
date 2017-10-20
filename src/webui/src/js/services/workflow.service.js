@@ -218,12 +218,14 @@ class WorkflowService {
 
             return this.save(type, id, interpretation).then(() => {
                 if (res === 'markreview') {
-                    this.markreview(type, id, interpretation, alleles);
-                    return true;
+                    return this.markreview(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
                 }
                 else if (res === 'finalize') {
-                    this.finalize(type, id, interpretation, alleles);
-                    return true;
+                    return this.finalize(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
                 }
                 else if (res === undefined) {
                     return false; // Dismiss modal without redirecting
