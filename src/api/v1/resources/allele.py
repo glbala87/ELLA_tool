@@ -126,4 +126,4 @@ class AlleleGenepanelListResource(LogRequestResource):
             allele.Allele.id == allele_id
         ).all()
 
-        return schemas.GenepanelSchema(strict=True).dump(genepanels, many=True).data
+        return schemas.GenepanelFullSchema(strict=True).dump(genepanels, many=True).data

@@ -12,10 +12,10 @@ log = logging.getLogger(__name__)
 
 
 class UserListResource(LogRequestResource):
-
+    @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None):
+    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
         """
         Returns a list of users.
 
@@ -38,6 +38,10 @@ class UserListResource(LogRequestResource):
                 $ref: '#/definitions/User'
             description: List of users
         """
+        if rest_filter is None:
+            rest_filter = {}
+        rest_filter["group_id"] = user.group_id
+
         return self.list_query(
             session,
             user_model.User,
