@@ -13,6 +13,9 @@ The create a web-based view of the doc:
 To create diagrams of the datamodel, run `make diagrams`. The diagrams is created inside a container and streamed
 to a local file PNG file.
 
+## Release
+Some info about tagging, building release artefacts and making release notes.
+
 
 # Deployment
 

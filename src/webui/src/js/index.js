@@ -80,7 +80,6 @@ import './widgets/alleleAssessment.directive';
 import './widgets/alleleList.directive';
 import './widgets/allelebar.directive';
 import './widgets/attachment.directive';
-import './widgets/collisionWarning.directive';
 import './widgets/genomeBrowserWidget.directive';
 import './widgets/frequencyDetailsWidget.directive';
 import './widgets/repeatWrapper.directive';

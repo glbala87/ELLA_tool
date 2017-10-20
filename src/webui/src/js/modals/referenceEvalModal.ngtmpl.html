@@ -13,7 +13,10 @@
   <controls>
     <section class="line-wrapper spaced">
       <div class="ref-title">
-        <h3 class="slim"><b>{{vm.reference.title}}</b></h3>
+        <h3 class="slim" ng-if="vm.reference.getPubmedUrl() === undefined"><b>{{vm.reference.title}}</b></h3>
+        <h3 class="slim" ng-if="vm.reference.getPubmedUrl() !== undefined">
+            <a-clip class="id-reference-title" href="{{vm.reference.url}}">{{vm.reference.title}}</a-clip>
+        </h3>
         <p class="slim">{{vm.reference.getShortDesc()}}</p>
       </div>
       <div class="line-wrapper">

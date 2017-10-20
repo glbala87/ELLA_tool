@@ -9,13 +9,21 @@ from copy import deepcopy
 from functools import wraps
 
 import bcrypt
+from sqlalchemy.orm.exc import NoResultFound
+
 from api.schemas.users import UserSchema
 from api.util.useradmin import hash_password, change_password, deactivate_user, modify_user, check_password_strength, get_user
 from vardb.datamodel import DB
 from vardb.datamodel import user
+from vardb.deposit.deposit_users import import_groups
 
+
+class UserGroupNotFound(NoResultFound):
+    """Raised when a named user grouped can't be found in the database"""
+    pass
 
 # Decorators
+
 
 def convert(join, *split_args):
     """
@@ -103,22 +111,47 @@ def users():
 
 
 @users.command('list')
-def cmd_users_list():
-    """
-    List all users
-    """
+@click.option('--group', multiple=True, help="Limit the display to users belonging to specific usergroups, multiple options allowed." \
+                + "If 'ALL' is given as option all users are displayed")
+@click.option('--username', multiple=False, help="Display only a single user.")
+def cmd_users_list(group, username):
     db = DB()
     db.connect()
     session = db.session()
-    users = session.query(user.User).all()
+    accounts = None
+    if username:
+        accounts = session.query(user.User).filter(user.User.username == username).all()
+    elif group and 'ALL' not in group:
+        accounts = session.query(user.User).\
+            join(user.UserGroup).\
+            filter(user.UserGroup.name.in_(group)).all()
+    else:
+        accounts = session.query(user.User).all()
 
-    header = {'id': 'id', 'username': 'username', 'first_name': 'first_name', 'last_name': 'last_name', 'password_expiry': 'password_expiry'}
-    row_format = "{id:^10}| {username:<20} | {first_name:<30} | {last_name:<30} | {password_expiry:<30}"
+    if not accounts:
+        click.echo('No result')
+        return
+
+    header_user = {'id': 'id', 'username': 'username', 'first_name': 'first_name',
+                   'last_name': 'last_name', 'password_expiry': 'password_expiry'
+                  }
+    header_user_genpanel = {'usergroup': 'usergroup', 'genepanels': 'genepanels'}
+    header = header_user.copy()
+    header.update(header_user_genpanel)
+    row_format = "{id:^10}| {username:<20} | {first_name:<30} |" + \
+                 "{last_name:<30} | {password_expiry:<30} | " + \
+                 "{usergroup:<10} | {genepanels:<100}"
     click.echo(row_format.format(**header))
     click.echo(row_format.format(
-        **{'id': '-' * 10, 'username': '-' * 20, 'first_name': '-' * 30, 'last_name': '-' * 30, 'password': '-' * 60, 'password_expiry': '-' * 40}))
-    for u in users:
-        click.echo(row_format.format(**{h: encode(getattr(u,h)) for h in header}))
+        **{'id': '-' * 10, 'username': '-' * 20, 'first_name': '-' * 30,
+           'last_name': '-' * 30, 'password': '-' * 60, 'password_expiry': '-' * 40,
+           'usergroup': '-' * 10, 'genepanels': '-' * 20}))
+    for a in accounts:
+        d = {h: encode(getattr(a, h)) for h in header_user}
+        d.update({'usergroup': a.group.name,
+                  'genepanels': ", ".join([p.name + '_' + p.version for p in a.group.genepanels])})
+        click.echo(row_format.format(**d))
+
 
 @users.command('activity')
 def cmd_users_activity():
@@ -145,16 +178,18 @@ def _add_user(session, username, first_name, last_name, usergroup):
     Add user with a generated password
     """
 
-
     existing_user = session.query(user.User).filter(
         user.User.username == username,
     ).one_or_none()
 
     assert existing_user is None, "Username %s already exists" % username
 
-    group = session.query(user.UserGroup).filter(
-        user.UserGroup.name == usergroup
-    ).one()
+    try:
+        group = session.query(user.UserGroup).filter(
+            user.UserGroup.name == usergroup
+        ).one()
+    except NoResultFound, e:
+        raise UserGroupNotFound("The user group '{}' was not found for user {}".format(usergroup, username), e)
 
     password, password_hash = generate_password()
 
@@ -169,6 +204,7 @@ def _add_user(session, username, first_name, last_name, usergroup):
 
     session.add(u)
     return u, password
+
 
 @users.command('add')
 @convert(True, "--first_name", "--last_name")
@@ -195,18 +231,42 @@ def cmd_add_user(username, first_name, last_name, usergroup):
         password=pw
     ))
 
-@users.command('add_many')
+
+@users.command('add_many', help="Import users from a json file")
 @click.argument("json_file")
-def cmd_add_many_users(json_file):
+@click.option('--group', multiple=True, help="Limit the import to users belonging to specific usergroups, multiple options allowed." \
+                + "If 'ALL' is given as option all users are imported")
+@click.option('-dry', is_flag=True, help="List users that would be imported")
+def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names given as --group options
+    from functools import partial
+    users = json.load(open(json_file, 'r'))
+
+    def is_usergroup_configured_to_be_imported(group_names, user):
+        return user["group"] \
+               and user["group"].strip() \
+               and group_names \
+               and user["group"].strip().lower() in map(lambda s: s.strip().lower(), group_names)
+
+    filtered_users = users if 'ALL' in group else filter(partial(is_usergroup_configured_to_be_imported, group), users)
+
+    if dry:
+        for u in filtered_users:
+            click.echo(u"Would add user '{username}' ('{last_name}', '{first_name}') from '{usergroup}')".format(
+                username=u["username"],
+                first_name=u["first_name"],
+                last_name=u["last_name"],
+                usergroup=u["group"]
+            ))
+        return
+
     db = DB()
     db.connect()
     session = db.session()
 
-    users = json.load(open(json_file, 'r'))
-    for u in users:
+    for u in filtered_users:
         try:
-            u, pw = _add_user(session, u["username"], u["first_name"], u["last_name"], u["usergroup"])
-        except AssertionError, e:
+            u, pw = _add_user(session, u["username"], u["first_name"], u["last_name"], u["group"])
+        except (AssertionError, UserGroupNotFound) as e:
             print e
             continue
         click.echo(u"Added user {username} ({last_name}, {first_name}) with password {password}".format(
@@ -216,6 +276,34 @@ def cmd_add_many_users(json_file):
             password=pw
         ))
     session.commit()
+
+@users.command('add_groups', help="Import user groups from a json file")
+@click.argument("json_file")
+@click.option('--name',  multiple=True, help="Limit the import to these groups, multiple options allowed."
+              + " Value 'ALL' imports all groups.")
+@click.option('-dry', is_flag=True, help="List groups that would be imported")
+def cmd_add_many_groups(json_file, name, dry):  # name is a tuple of names given as --name options
+    from functools import partial
+
+    groups = json.load(open(json_file, 'r'))
+
+    def is_usergroup_configured_to_be_imported(group_filter, group):
+        return group["name"] \
+               and group["name"].strip() \
+               and group_filter \
+               and group["name"].strip().lower() in map(lambda s: s.strip().lower(), group_filter)
+
+    filtered_groups = groups if 'ALL' in name else filter(partial(is_usergroup_configured_to_be_imported, name), groups)
+    if dry:
+        for g in filtered_groups:
+            click.echo(u"Would add group '{name}'".format(name=g["name"]))
+        return
+
+    db = DB()
+    db.connect()
+    session = db.session()
+
+    import_groups(session, filtered_groups, log=click.echo)
 
 
 @users.command('reset_password')
@@ -297,15 +385,15 @@ def cmd_modify_user(username, **kwargs):
         last_name=u_after.last_name,
     ))
 
-    N_changes = 0
+    n_changes = 0
     for k in modified:
         from_val = encode(getattr(u_before, k))
         to_val = encode(getattr(u_after, k))
         if from_val != to_val:
-            N_changes += 1
+            n_changes += 1
             click.echo("\t{key}: {from_val} ---> {to_val}".format(key=k, from_val=from_val, to_val=to_val))
 
-    if N_changes == 0:
+    if n_changes == 0:
         click.echo("No modifications made!")
 
 

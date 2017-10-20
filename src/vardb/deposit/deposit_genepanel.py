@@ -97,7 +97,8 @@ class DepositGenepanel(object):
                       genepanelVersion,
                       genomeRef='GRCh37',
                       configPath=None,
-                      replace=False):
+                      replace=False,
+                      log=log.info):
 
         existing_panel = None
         if self.session.query(gm.Genepanel).filter(
@@ -108,9 +109,9 @@ class DepositGenepanel(object):
                 gm.Genepanel.name == genepanelName,
                 gm.Genepanel.version == genepanelVersion).one()
             if replace:
-                log.info("Genepanel {} {} exists in database, will overwrite.".format(genepanelName, genepanelVersion))
+                log("Genepanel {} {} exists in database, will overwrite.".format(genepanelName, genepanelVersion))
             else:
-                log.info("Genepanel {} {} exists in database, backing out. Use the 'replace' to force overwrite."
+                log("Genepanel {} {} exists in database, backing out. Use the 'replace' to force overwrite."
                          .format(genepanelName, genepanelVersion))
                 return
 
@@ -132,16 +133,16 @@ class DepositGenepanel(object):
 
                 genes[db_gene.hugo_symbol] = db_gene
                 if created:
-                    log.info('Gene {} created.'.format(db_gene))
+                    log('Gene {} created.'.format(db_gene))
                 else:
-                    log.info("Gene {} already in database, not creating/updating.".format(db_gene))
+                    log("Gene {} already in database, not creating/updating.".format(db_gene))
 
                 db_transcript, created = self.do_transcript(db_gene, genomeRef, transcript, replace)
 
                 if created:
-                    log.info("Transcript {} created".format(db_transcript))
+                    log("Transcript {} created".format(db_transcript))
                 else:
-                    log.info("Transcript {} already in database, {}.".format(db_transcript, "updated" if replace else "not created"))
+                    log("Transcript {} already in database, {}.".format(db_transcript, "updated" if replace else "not created"))
                 db_transcripts.append(db_transcript)
 
         if phenotypes:
@@ -156,7 +157,7 @@ class DepositGenepanel(object):
                     .filter(gm.Phenotype.genepanel_name == genepanelName,
                             gm.Phenotype.genepanel_version == genepanelVersion)\
                     .delete()
-                log.info("Removed {} phenotypes from {} {}".format(count, genepanelName, genepanelVersion))
+                log("Removed {} phenotypes from {} {}".format(count, genepanelName, genepanelVersion))
 
             for ph in phenotypes:
                 if ph['gene symbol'] not in genes:
@@ -169,7 +170,7 @@ class DepositGenepanel(object):
                                                             genes[ph['gene symbol']],
                                                             ph)
 
-                log.info("{} phenotype '{}'".format("Created" if created else "Loaded", ph['phenotype']))
+                log("{} phenotype '{}'".format("Created" if created else "Loaded", ph['phenotype']))
 
                 db_phenotypes.append(db_phenotype)
 
@@ -193,7 +194,7 @@ class DepositGenepanel(object):
             self.session.merge(genepanel)
 
         self.session.commit()
-        log.info('Added {} {} with {} transcripts and {} phenotypes to database'
+        log('Added {} {} with {} transcripts and {} phenotypes to database'
                  .format(genepanelName, genepanelVersion, len(db_transcripts), len(db_phenotypes)))
         return 0
 

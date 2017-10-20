@@ -41,7 +41,7 @@ class UserListResource(LogRequestResource):
         """
         if rest_filter is None:
             rest_filter = {}
-        rest_filter["group_id"] = user.group_id;
+        rest_filter["group_id"] = user.group_id
 
         return self.list_query(
             session,

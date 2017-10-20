@@ -16,6 +16,10 @@ from vardb.deposit.deposit_genepanel import DepositGenepanel
 VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf')
 
 
+def validate_file_exists(path):
+    return os.path.isfile(path)
+
+
 @click.group(help='Data deposit')
 def deposit():
     pass
@@ -117,6 +121,7 @@ def cmd_deposit_custom_annotations(custom_annotation_json):
     import_custom_annotations(db.session, custom_annotation_json)
 
 
+# TODO: duplicate command, see users.py
 @deposit.command('users')
 @click.argument('users_json')
 def cmd_deposit_users(users_json):
@@ -141,7 +146,7 @@ def cmd_deposit_users(users_json):
 
     import_users(db.session, users)
 
-
+# TODO: duplicate command, see users.py
 @deposit.command('usergroups')
 @click.argument('usergroups_json')
 def cmd_deposit_usergroups(usergroups_json):
@@ -173,17 +178,27 @@ def cmd_deposit_usergroups(usergroups_json):
 @click.option('--phenotypes_path')
 @click.option('--config_path')
 @click.option('--replace', is_flag=True)
-def cmd_deposit_genepanel(genepanel_name, genepanel_version, transcripts_path, phenotypes_path, config_path, replace):
+@click.option('--folder', help="Folder to look for files assuming standard filenames")
+def cmd_deposit_genepanel(genepanel_name,
+                          genepanel_version,
+                          transcripts_path,
+                          phenotypes_path,
+                          config_path,
+                          replace,
+                          folder):
     """
     Create or replace genepanel. If replacing genepanel, use --replace flag.
-    :param genepanel_name:
-    :param genepanel_version:
-    :param transcripts_path:
-    :param phenotypes_path:
-    :param config_path:
-    :param replace:
-    :return:
     """
+    if folder:
+        prefix = folder.split('/')[-1]
+        transcripts_path = folder + "/" + prefix + ".transcripts.csv"
+        phenotypes_path = folder + "/" + prefix + ".phenotypes.csv"
+        genepanel_name, genepanel_version = prefix.split('_',1)
+        assert genepanel_version.startswith('v')
+        config_path = folder + "/" + prefix + ".config.json"
+        config_path = config_path if validate_file_exists(config_path) else None  # not a mandatory file
+
+
     db = DB()
     db.connect()
     dg = DepositGenepanel(db.session)
@@ -192,7 +207,8 @@ def cmd_deposit_genepanel(genepanel_name, genepanel_version, transcripts_path, p
                      genepanel_name,
                      genepanel_version,
                      configPath=config_path,
-                     replace=replace)
+                     replace=replace,
+                     log=click.echo)
 
 
 @deposit.command('append_genepanel_to_usergroup')

@@ -86,6 +86,10 @@ div.existing-classification-comments .tabular-row:last-child .wysiwygeditor {
   border-bottom: none;
 }
 
+.general-list { display: flex; flex-direction: column;
+  .list-item { display: flex; padding-left: 1.2rem; }
+}
+
 .analysis-list { display: flex; flex-direction: column;
 
   .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem;

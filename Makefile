@@ -10,6 +10,7 @@ RESET_DB_SET ?= 'small'
 #RELEASE_TAG =
 WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
+DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -38,7 +39,7 @@ help :
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image local/ella-test, then run all tests"
-	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js | api-migration} required as variable or will default to 'all'"
+	@echo "make single-test	- build image local/ella-test :: TEST_NAME={api | common | js | cli | api-migration} required as variable or will default to 'all'"
 	@echo "                          optional variable TEST_COMMAND=... will override the py.test command"
 	@echo " 			  Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "make e2e-test		- build image local/ella-test, then run e2e tests"
@@ -83,7 +84,7 @@ IMAGE_BUNDLE_STATIC=local/ella-web-assets
 release:
 	@echo "See the README.md file, section 'Production'"
 
-bundle-static: check-release-tag build-bundle-image start-bundle-container copy-bundle stop-bundle-container
+bundle-client: check-release-tag build-bundle-image start-bundle-container tar-web-build stop-bundle-container
 
 check-release-tag:
 	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
@@ -102,7 +103,7 @@ start-bundle-container:
 		$(IMAGE_BUNDLE_STATIC) \
 		sleep infinity
 
-copy-bundle:
+tar-web-build:
 	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp_build
 	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
 	@echo "Bundled static web files in $(WEB_BUNDLE)"
@@ -110,9 +111,20 @@ copy-bundle:
 stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
-
 bundle-api: check-release-tag
 	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
+
+bundle-dist: bundle-api bundle-client
+	@rm -rf dist-temp
+	mkdir -p dist-temp/src/webui/build
+	tar x -C dist-temp/src/webui/build -f $(WEB_BUNDLE)
+	tar x -C dist-temp -f $(API_BUNDLE)
+	tar cz -C dist-temp -f $(DIST_BUNDLE) .
+	@echo "Created distribution $(DIST_BUNDLE) ($(shell du -k $(DIST_BUNDLE) | cut -f1))"
+	@rm -rf dist-temp
+
+release-notes:
+	@ops/create_release_notes_wrapper.sh
 
 #---------------------------------------------
 # Create diagram of the datamodel
@@ -229,7 +241,7 @@ e2e-test: e2e-network-check e2e-start-chromebox test-build
 	-docker rm ella-e2e
 	@rm -rf errorShots
 	@mkdir -p errorShots
-	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio
+	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio BRANCH=$(BRANCH)
 	make e2e-stop-chromebox
 
 
@@ -260,9 +272,8 @@ e2e-gulp-once:
 	/ella/node_modules/gulp/bin/gulp.js build
 
 run-wdio-against-chromebox:
-	echo CHROMEBOX_CONTAINER = $(CHROMEBOX_CONTAINER)
-	echo BRANCH = $(BRANCH)
-# $(CHROMEBOX_CONTAINER) is 'chromebox_', seems the BRANCH isn't set properly in this task
+	@echo CHROMEBOX_CONTAINER = $(CHROMEBOX_CONTAINER)
+	@echo BRANCH = $(BRANCH)
 	@echo "Running webdriverio against chromebox in container $(CHROMEBOX_CONTAINER). Running if responds: `curl --silent cb:4444/status`"
 	@echo "pwd: '`pwd`'"
 #	screenshots on e2e test errors are defined in wdio.conf
@@ -289,9 +300,9 @@ e2e-network-check:
 #---------------------------------------------
 # TESTING - INSIDE CONTAINER ONLY
 #---------------------------------------------
-.PHONY: test-all test-api test-api-migration test-common test-js test-e2e
+.PHONY: test-all test-api test-api-migration test-common test-js test-cli test-e2e
 
-test-all: test-js test-common test-api
+test-all: test-js test-common test-api test-cli
 
 test-api: export PGDATABASE=vardb-test
 test-api: export DB_URL=postgres:///vardb-test
@@ -301,6 +312,7 @@ test-api: export ATTACHMENT_STORAGE=/ella/attachments
 test-api:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	dropdb --if-exists vardb-test
 	createdb vardb-test
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
@@ -318,6 +330,7 @@ test-api-migration: export ATTACHMENT_STORAGE=/ella/attachments
 test-api-migration:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	dropdb --if-exists vardb-test
 	createdb vardb-test
 ifeq ($(TEST_COMMAND),) # empty?
 	# Run migration scripts test
@@ -341,6 +354,7 @@ test-common: export ATTACHMENT_STORAGE=/ella/attachments
 test-common:
 	supervisord -c /ella/ops/test/supervisor.cfg
 	make dbsleep
+	dropdb --if-exists vardb-test
 	createdb vardb-test
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
@@ -355,3 +369,22 @@ test-js:
 	@ln -s /dist/node_modules/ /ella/node_modules
 	/ella/node_modules/gulp/bin/gulp.js unit
 
+
+test-cli: export PGDATABASE=vardb-test
+test-cli: export DB_URL=postgres:///vardb-test
+test-cli: export PYTHONPATH=/ella/src
+test-cli: export PANEL_PATH=/ella/src/vardb/testdata/clinicalGenePanels
+test-cli:
+	supervisord -c /ella/ops/test/supervisor.cfg
+	@make dbsleep
+	@dropdb --if-exists vardb-test
+	@createdb vardb-test
+	@/ella/ella-cli database drop -f
+	@/ella/ella-cli database make -f
+	/ella/ella-cli deposit genepanel --folder $(PANEL_PATH)/HBOC_v01
+	/ella/ella-cli deposit genepanel --folder $(PANEL_PATH)/HBOCUTV_v01
+	/ella/ella-cli users add_groups --name testgroup01 src/vardb/testdata/usergroups.json
+	/ella/ella-cli users add_many --group testgroup01 src/vardb/testdata/users.json
+	/ella/ella-cli users list --username testuser1 > cli_output
+	@grep "HBOC_v01" cli_output | grep "HBOCUTV_v01" | grep "testuser1" || \
+(echo "Missing genepanels for testuser1. CLI output is:"; cat cli_output; exit 1)

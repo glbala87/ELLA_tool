@@ -25,7 +25,7 @@ class ApiV1(object):
         self.api_v1_docs.add_schema('User', schemas.UserSchema())
         self.api_v1_docs.add_schema('Classification', schemas.ClassificationSchema())
         self.api_v1_docs.add_schema('Rule', schemas.RuleSchema())
-        self.api_v1_docs.add_schema('Genepanel', schemas.GenepanelSchema())
+        self.api_v1_docs.add_schema('Genepanel', schemas.GenepanelFullSchema())
         self.api_v1_docs.add_schema('Annotation', schemas.AnnotationSchema())
         self.api_v1_docs.add_schema('CustomAnnotation', schemas.CustomAnnotationSchema())
         self.api_v1_docs.add_schema('Genotype', schemas.GenotypeSchema())

@@ -8,15 +8,21 @@ import {Directive, Inject} from '../ng-decorators';
 })
 @Inject('$scope', '$timeout', '$location', 'Config', 'User', 'Navbar', 'OverviewResource', 'LoginResource', 'toastr')
 export class UserDashboardController {
-    constructor($scope, $timeout, location, Config, User,Navbar, OverviewResource, LoginResource, toastr) {
+    constructor($scope, $timeout, location, Config, User, Navbar, OverviewResource, LoginResource, toastr) {
         this.location = location;
         this.timeout = $timeout;
         this.user = User;
+        this.usersInGroup = [];
+        
+        this.user.getAll().then(d => {
+            this.usersInGroup = d.filter(r => this.user.user.id !== r.id);
+        });
+        
         this.users = [];
         this.overviewResource = OverviewResource;
         this.loginResource = LoginResource;
         this.toastr = toastr;
-        this.config = Config.getConfig()
+        this.config = Config.getConfig();
 
         Navbar.clearAllele();
         Navbar.replaceItems([
@@ -24,7 +30,7 @@ export class UserDashboardController {
                 url: '/overviews',
                 title: 'Back to overview'
             }
-        ])
+        ]);
 
         this.overviewResource.getActivities().then(d => {
             this.activity_stream = d;
@@ -50,7 +56,7 @@ export class UserDashboardController {
             started: 'started analysing',
             started_review: 'started reviewing',
             review: 'reviewed'
-        }
+        };
         if (item.start_action in actions) {
             return actions[item.start_action];
         }
@@ -61,7 +67,7 @@ export class UserDashboardController {
         let actions = {
             finalized: ' and finalized it',
             marked_review: ' and marked it for review'
-        }
+        };
         if (item.end_action in actions) {
             return actions[item.end_action];
         }

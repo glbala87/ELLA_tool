@@ -58,14 +58,21 @@ class VariantSelection extends Page {
     _expandSection(sectionSelector) {
         this.open();
         browser.waitForExist(sectionSelector);
-        browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        // Expand if collapsed
+        if (browser.element(sectionSelector+" .collapsed")) {
+            browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        }
     }
 
     selectItemInSection(number, sectionSelector) {
         this.open();
         // expand box:
         browser.waitForExist(sectionSelector);
-        browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        // Expand if collapsed
+        if (browser.element(sectionSelector+" .collapsed")) {
+            browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        }
+
         let selector = `${sectionSelector} .id-variant:nth-child(${number})`;
         util.logSelector(selector);
         browser.waitForExist(selector);

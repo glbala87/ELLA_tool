@@ -39,7 +39,8 @@ import {deepCopy} from '../../util'
     'Navbar',
     'Config',
     'User',
-    '$filter')
+    '$filter',
+    'toastr')
 export class WorkflowAlleleController {
     constructor(rootScope,
                 scope,
@@ -50,7 +51,8 @@ export class WorkflowAlleleController {
                 Navbar,
                 Config,
                 User,
-                filter) {
+                filter,
+                toastr) {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
@@ -63,6 +65,7 @@ export class WorkflowAlleleController {
         this.config = Config.getConfig();
         this.user = User;
         this.filter = filter;
+        this.toastr = toastr;
 
         this.components = [ // instantiated/rendered in AlleleSectionboxContentController
             {
@@ -191,7 +194,7 @@ export class WorkflowAlleleController {
         this.selected_interpretation_genepanel = null; // Loaded genepanel for current interpretation (used in navbar)
         this.alleles_loaded = false;  // Loading indicators etc
 
-        this.allele_collisions = null;
+        this.collisionWarning = null;
 
         this.interpretations = []; // Holds interpretations from backend
         this.history_interpretations = []; // Filtered interpretations, containing only the finished ones. Used in dropdown
@@ -240,6 +243,9 @@ export class WorkflowAlleleController {
 
         // Unregister when scope is destroyed.
         this.scope.$on('$destroy', () => {
+            if (this.collisionWarning) {
+                this.toastr.clear(this.collisionWarning)
+            }
             unregister_func();
             window.onbeforeunload = null;
         });
@@ -444,8 +450,16 @@ export class WorkflowAlleleController {
     }
 
     checkForCollisions() {
-        this.workflowResource.getCollisions('allele', this.allele_id).then(c => {
-            this.allele_collisions = c;
+        this.workflowResource.getCollisions('allele', this.allele_id).then(result => {
+            if (result.length > 0) {
+                let html = `This variant is currently being worked on by `
+                for (let c of result) {
+                    html += `${c.user ? c.user.full_name : 'no user (IN REVIEW)'} `
+                }
+                html += "in another workflow."
+
+                this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-collision'})
+            }
         });
     }
 

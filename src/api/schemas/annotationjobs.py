@@ -1,5 +1,5 @@
 from marshmallow import fields, Schema
-from users import UserSchema
+from api.schemas.users import UserSchema
 
 class AnnotationJobSchema(Schema):
     class Meta:

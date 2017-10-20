@@ -52,6 +52,11 @@ test_rule_engine:
     - /^ui-.*$/
     - /^ops-.*$/
 
+test_cli:
+  stage: test
+  script:
+    - make single-test TEST_NAME=cli
+
 
 test_e2e:
   stage: e2e
@@ -139,13 +144,13 @@ stop_review:
 release:
   stage: release
   script:
-    - RELEASE_TAG=${CI_COMMIT_TAG} make bundle-api
-    - RELEASE_TAG=${CI_COMMIT_TAG} make bundle-static
+    - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
+    - make release-notes
   artifacts:
     paths:
-    - ella-release-${CI_COMMIT_TAG}-web.tgz
-    - ella-release-${CI_COMMIT_TAG}-api.tgz
-    name: ella-release-${CI_COMMIT_TAG}
+    - ella-release-$CI_COMMIT_REF_NAME-*.tgz
+    - ella-releasenotes*.txt
+    name: ella-release-$CI_COMMIT_REF_NAME
     when: on_success
   when: on_success
   only:
