@@ -63,5 +63,4 @@ class GenepanelSchema(Schema):
         fields = (
           'name',
           'version',
-          'genome_reference'
         )
