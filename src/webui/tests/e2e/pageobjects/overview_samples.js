@@ -47,14 +47,21 @@ class SampleSelection extends Page {
     _expandSection(sectionSelector) {
         this.open();
         browser.waitForExist(sectionSelector);
-        browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        // Expand if collapsed
+        if (browser.element(sectionSelector+" .collapsed")) {
+            browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        }
     }
 
     selectItemInSection(number, sectionSelector) {
         this.open();
         // expand box:
-        browser.waitForExist(sectionSelector);
-        browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        browser.waitForExist(sectionSelector)
+
+        // Expand if collapsed
+        if (browser.element(sectionSelector+" .collapsed")) {
+            browser.click(sectionSelector + SECTION_EXPAND_SELECTOR);
+        }
         let selector = `${sectionSelector} .id-analysis:nth-child(${number})`;
         // console.log('Going to click selector:' + selector);
         browser.waitForExist(selector);

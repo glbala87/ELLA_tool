@@ -63,11 +63,11 @@ export class MainController {
     }
 
     setView(view) {
-        localStorage.setItem("overview", view)
+        sessionStorage.setItem("overview", view)
     }
 
     getSelectedView() {
-        return localStorage.getItem("overview") || this.config.user.user_config.overview.views[0];
+        return sessionStorage.getItem("overview") || this.config.user.user_config.overview.views[0];
     }
 
     isActive(view) {

@@ -50,6 +50,7 @@ class UserService {
 
     setCurrentUser(user) {
         this.user = user;
+        sessionStorage.clear() // Clear session storage when user changes
     }
 }
 

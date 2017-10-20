@@ -43,6 +43,7 @@ class LoginResource {
 
             var result = r.login({}, () => {
                 resolve(result)
+                sessionStorage.clear() // Clear storage
             }, (error) => {
                 console.log(error.data)
                 reject(error.data)
