@@ -61,7 +61,6 @@ export class SearchModuleController {
 
     getUsers() {
         this.userResource.getAll().then(users => {
-            console.log(users)
             this.users = users;
         });
     }
