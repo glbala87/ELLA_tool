@@ -1,25 +1,42 @@
-<header class="hero" ng-if="!vm.hasAllele()"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
+<header class="hero" ng-if="!vm.getItems().length"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
 <nav class="top">
-  <section class="left">
-    <aside class="row up">
-      <div ng-if="!vm.isLogin()">
-        <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ vm.user.getCurrentUser().abbrev_name }}</i></h3></a>
-      </div>
-      <div ng-if="vm.isLogin()">
-        <h3 class="full-title"><i>Welcome!</i></h3>
-      </div>
-    </aside>
-    <aside class="row down">
-      <div ng-if="vm.isLogin()">
-        <h3 class="full-title"><b>Please login</b></h3>
-      </div>
-      <div ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">
-        <a href="{{item.url}}"><h3 class="full-title id-workflow-instance"><b>{{item.title}}</b></h3></a>
-      </div>
-    </aside>
+  <section>
+    <!--<aside class="row up">-->
+
+    <div ng-if="vm.isLogin()">
+      <h3 class="full-title"><i>Welcome!</i></h3>
+    </div>
+    <!--</aside>-->
+    <!--<aside class="row down">-->
+    <!--<div ng-if="vm.isLogin()">-->
+    <!--<h3 class="full-title"><b>Please login</b></h3>-->
+    <!--</div>-->
+    <!--<div ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" ng-repeat="item in vm.getItems()">-->
+    <!--<a href="{{item.url}}"><h3 class="full-title id-workflow-instance"><b>{{item.title}}</b></h3></a>-->
+    <!--</div>-->
+    <div>
+      <a id="home-bttn" href="/overview">
+        <h3 class="clickable white">
+          <svg class="home-svg" width="26" height="26" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1472 992v480q0 26-19 45t-45 19h-384v-384h-256v384h-384q-26 0-45-19t-19-45v-480q0-1 .5-3t.5-3l575-474 575 474q1 2 1 6zm223-69l-62 74q-8 9-21 11h-3q-13 0-21-7l-692-577-692 577q-12 8-24 7-13-2-21-11l-62-74q-8-10-7-23.5t11-21.5l719-599q32-26 76-26t76 26l244 204v-195q0-14 9-23t23-9h192q14 0 23 9t9 23v408l219 182q10 8 11 21.5t-7 23.5z"/></svg>
+        </h3>
+      </a>
+    </div>
+
+    <!--</aside>-->
   </section>
-  <section class="right">
-    <allelebar ng-if="vm.hasAllele()" allele="vm.getAllele()" genepanel="vm.getGenepanel()"></allelebar>
+  <section ng-repeat="item in vm.getItems()">
+    <div ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" >
+      <a href="{{item.url}}"><h3 class="full-title id-workflow-instance"><b>{{item.title}}</b></h3></a>
+    </div>
+  </section>
+  <section>
+    <div ng-if="!vm.isLogin()">
+      <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ vm.user.getCurrentUser().abbrev_name }}</i></h3></a>
+    </div>
+    <div ng-if="vm.isLogin()">
+      <h3 class="full-title"><b>Please login</b></h3>
+    </div>
+    <!--<allelebar ng-if="vm.hasAllele()" allele="vm.getAllele()" genepanel="vm.getGenepanel()"></allelebar>-->
   </section>
 </nav>
 

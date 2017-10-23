@@ -49,12 +49,12 @@ class AlleleSelectionController {
     }
 
     updateNavbar() {
-        this.navbarService.clearAllele();
-        this.navbarService.replaceItems([
-            {
-                title: 'Choose a variant'
-            }
-        ]);
+        this.navbarService.clearItems();
+        // this.navbarService.replaceItems([
+        //     {
+        //         title: 'Choose a variant'
+        //     }
+        // ]);
     }
 }
 

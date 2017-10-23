@@ -52,12 +52,12 @@ class AnalysisSelectionController {
     }
 
     updateNavbar() {
-        this.navbarService.clearAllele();
-        this.navbarService.replaceItems([
-            {
-                title: 'Choose an analysis'
-            }
-        ]);
+        this.navbarService.clearItems();
+        // this.navbarService.replaceItems([
+        //     {
+        //         title: 'Choose an analysis'
+        //     }
+        // ]);
     }
 }
 

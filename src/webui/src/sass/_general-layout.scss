@@ -302,29 +302,37 @@ button { outline: none; border: 1px solid Transparent;
 }
 
 
-.hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 1501; color: black; cursor: pointer;
-  h1 { font-size: 4rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
-  h1:hover { transform: rotateY(180deg); transform-style: preserve-3d; color: white; opacity: 0.75; }
+.hero { position: absolute; right: 50%; top: 0.15rem; z-index: 1501; color: black; cursor: pointer;
+  h1 { font-size: 3rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
+  h1:hover { transform: rotateY(180deg); transform-origin: 9rem; transform-style: preserve-3d; color: white; opacity: 0.75; }
   h1:hover #e { transform: rotateY(180deg); }
   h1:hover #les { visibility: visible; opacity: 1; }
   #e, #a, #les { font-size: 3.2rem; transition: all 1s; }
   #les { transform: rotateY(180deg); visibility: hidden; opacity: 0; }
 }
 
-nav.top { display: flex; flex-direction: row; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 1500;
-  section { display: flex; flex-direction: column; justify-content: space-between;
-    &.left { width: calc(30vw - 1.3rem); display: flex; justify-content: space-around; padding-bottom: 0.35rem }
-    &.right { width: calc(70vw - 1.3rem); margin-left: 0.35rem; margin-top: 5rem; margin-bottom: 3rem; }
-  }
-  .row { display: flex; flex-direction: row; align-items: center;
-    &.up h3 { font-size: 1.3rem; }
-    &.up { padding-bottom: 0.7rem; }
-    &.down h3 { font-size: 1.5rem; }
-    &.up, &.down { justify-content: space-between; padding-left: 0.5rem; }
+.home-svg {fill: $white-50; margin-bottom: -0.4rem;
+  :hover {
+    fill: $white-75;
   }
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-top: 6.5rem; padding: 0 1.3rem;
+
+
+nav {display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;}
+
+nav.top {
+  background-color: $blue;
+  color: white;
+  padding: 0.7rem;
+  height: 4.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-top: 4.5rem; padding: 0 1.3rem;
   section { display: flex;
     button { margin-left: 1.3rem; }
     .dropdown { margin-left: 1.3rem; }
