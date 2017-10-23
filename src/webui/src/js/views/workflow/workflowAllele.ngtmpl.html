@@ -6,7 +6,7 @@
         <input type="text"
                class="id-review-comment"
                placeholder="REVIEW COMMENT"
-               ng-model="vm.getInterpretation().state.review_comment"
+               ng-model="vm.getSelectedInterpretation().state.review_comment"
                ng-disabled="vm.readOnly()"></input>
       </div>
     </div>
@@ -14,33 +14,27 @@
       <div class="dropdown white" ng-if="false">  <!--Hide for now, add back when we have admin users-->
         <select
           class="id-interpretationrounds-dropdown"
-          ng-options="i as vm.formatHistoryOption(i) for i in vm.history_interpretations"
-          ng-model="vm.selected_interpretation">
+          ng-options="i as vm.formatHistoryOption(i) for i in vm.getHistory()"
+          ng-model="vm.interpretationService.selected_interpretation">
         </select>
       </div>
         <workflow-buttons alleles="vm.getAlleles()"
                           allele-id="vm.allele_id"
                           genepanel-name="vm.genepanelName"
                           genepanel-version="vm.genepanelVersion"
-                          reload="vm.reloadInterpretationData()"
-                          selected-interpretation="vm.getInterpretation()"
-                          interpretations="vm.interpretations"
                           read-only="vm.readOnly()"
                           start-when-reopen="true"
         ></workflow-buttons>
     </section>
+
   </nav>
 
   <div class="interpretation">
     <interpretation
       components="vm.components"
       selected-component="vm.selected_component"
-      interpretation="vm.getInterpretation()"
-      genepanel="vm.selected_interpretation_genepanel"
-      alleles="vm.getAlleles()"
-      update-alleles="vm.loadAllele()"
       show-sidebar="false"
-      ng-if="vm.getAlleles().length && vm.interpretations_loaded"
+      ng-if="vm.isViewReady()"
       read-only="vm.readOnly()"
     ></interpretation>
   </div>

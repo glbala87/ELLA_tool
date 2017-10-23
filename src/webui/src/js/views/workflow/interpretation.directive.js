@@ -8,10 +8,10 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
  * This is the main entry to the interpretation of a single-sampled analysis (as opposed to a trio sample).
  *
  * The main data stores are:
- * - this.alleles The variants/alleles and annotations for those. Fetched from backend upon page load or when
+ * - this.getAlleles() The variants/alleles and annotations for those. Fetched from backend upon page load or when
  * significant changes happen
- * - this.interpretation.state: stores the result of various user activities, like variant assessment.
- * More specifically the this.interpretation.state.allele is an array of with state for each variant/allele
+ * - this.getSelectedInterpretation().state: stores the result of various user activities, like variant assessment.
+ * More specifically the this.getSelectedInterpretation().state.allele is an array of with state for each variant/allele
  *
  */
 
@@ -25,8 +25,6 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         components: '=',
         selectedComponent: '=',
         genepanel: '=',
-        updateAlleles: '&',
-        alleles: '=',
         showSidebar: '=?',
         readOnly: '='
     }
@@ -38,6 +36,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         'Sidebar',
         'Config',
         'Allele',
+        'Interpretation',
         'WorkflowResource',
         'ReferenceResource',
         'AttachmentResource',
@@ -52,6 +51,7 @@ export class InterpretationController {
                 Sidebar,
                 Config,
                 Allele,
+                Interpretation,
                 WorkflowResource,
                 ReferenceResource,
                 AttachmentResource,
@@ -63,6 +63,7 @@ export class InterpretationController {
         this.navbar = Navbar;
         this.sidebar = Sidebar;
         this.alleleService = Allele;
+        this.interpretationService = Interpretation;
         this.workflowResource = WorkflowResource;
         this.referenceResource = ReferenceResource;
         this.attachmentResource = AttachmentResource;
@@ -73,7 +74,7 @@ export class InterpretationController {
         this.showSidebar = 'showSidebar' in this ? this.showSidebar : true;
 
         $scope.$watch(
-            () => this.interpretation.state,
+            () => this.getSelectedInterpretation().state,
             () => this.onInterpretationStateChange(),
             true // Deep watch
         );
@@ -84,7 +85,7 @@ export class InterpretationController {
         );
 
         $scope.$watch(
-            () => this.alleles,
+            () => this.getAlleles(),
             () => {
                 this.setup();
                 this.loadReferences();  // Reload references in case there are new alleles added
@@ -107,11 +108,11 @@ export class InterpretationController {
 
         $scope.$watch(
             () => this.allele_sidebar.selected,
-            () => this.navbar.setAllele(this.allele_sidebar.selected, this.genepanel)
+            () => this.navbar.setAllele(this.allele_sidebar.selected, this.getGenepanel())
         );
 
         $scope.$watch(
-            () => this.interpretation,
+            () => this.getSelectedInterpretation(),
             () => this.setup()
         );
 
@@ -123,14 +124,17 @@ export class InterpretationController {
     }
 
 
-
+    getSelectedInterpretation() {
+        return this.interpretationService.getSelected()
+    }
 
     setup() {
 
         // Create state objects
-        if (!('allele' in this.interpretation.state)) {
-            this.interpretation.state.allele = {};
+        if (!('allele' in this.getSelectedInterpretation().state)) {
+            this.getSelectedInterpretation().state.allele = {};
         }
+        this.allele_ids = this.getSelectedInterpretation().allele_ids
 
         this.setupSidebar();
 
@@ -148,7 +152,7 @@ export class InterpretationController {
      * as convenience for the user.
      */
     autoReuseExistingAssessments() {
-        for (let allele of this.alleles) {
+        for (let allele of this.getAlleles()) {
 
             let changed = AlleleStateHelper.autoReuseExistingAssessment(allele, this.getAlleleState(allele), this.config);
             if (changed) {
@@ -163,7 +167,11 @@ export class InterpretationController {
      * refreshing from backend (data has changed)
      */
     onUpdate() {
-        this.updateAlleles();
+        this.interpretationService.loadAlleles(false); // false => Do not redraw full interpretation view
+    }
+
+    getAlleles() {
+        return this.interpretationService.getAlleles()
     }
 
     /**
@@ -177,6 +185,7 @@ export class InterpretationController {
         return this.selectedComponent.title;
     }
 
+
     /**
      * Called when interpretations state changes.
      * Updates AlleleSidebar and alleles to be included in report.
@@ -185,7 +194,7 @@ export class InterpretationController {
         // Update report alleles
         let report_component = this.getComponent('Report');
         if (report_component) {
-            report_component.alleles = this.alleles.filter(a => {
+            report_component.alleles = this.getAlleles().filter(a => {
                 let state = this.getAlleleState(a);
                 if ('report' in state &&
                     'included' in state.report) {
@@ -241,15 +250,15 @@ export class InterpretationController {
         };
 
         // Populate the input to alleleSidebar, separating classified and unclassified alleles
-        let unclassified = this.findUnclassified(this.alleles);
+        let unclassified = this.findUnclassified(this.getAlleles());
         let grouped_alleles = {
             unclassified: unclassified.map(create_allele_obj),
-            classified: this.alleleFilter.invert(unclassified, this.alleles).map(create_allele_obj)
+            classified: this.alleleFilter.invert(unclassified, this.getAlleles()).map(create_allele_obj)
         };
 
         // Sort data
         // Sort unclassified by (gene, hgvsc)
-        let unclassified_sort = firstBy(a => this.genepanel.getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
+        let unclassified_sort = firstBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
                                 .thenBy(a => a.allele.annotation.filtered[0].symbol)
                                 .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
@@ -261,7 +270,7 @@ export class InterpretationController {
                 let classification = AlleleStateHelper.getClassification(a.allele, this.getAlleleState(a.allele));
                return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
-            .thenBy(a => this.genepanel.getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
+            .thenBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
             .thenBy(a => a.allele.annotation.filtered[0].symbol)
             .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
 
@@ -272,11 +281,11 @@ export class InterpretationController {
         this.allele_sidebar.alleles = grouped_alleles;
         // Reassign selected allele in case the allele data has changed
         if (this.allele_sidebar.selected) {
-            let selected = this.alleles.find(a => a.id === this.allele_sidebar.selected.id);
+            let selected = this.getAlleles().find(a => a.id === this.allele_sidebar.selected.id);
             if (selected) { // could be null if selected was an excluded allele manually included by user
                 this.allele_sidebar.selected = selected;
             } else {
-                this.allele_sidebar.selected = this.alleles[0];
+                this.allele_sidebar.selected = this.getAlleles()[0];
             }
         }
     }
@@ -288,6 +297,10 @@ export class InterpretationController {
     hasResults() {
         return this.allele_sidebar.alleles.unclassified.length > 0 ||
                this.allele_sidebar.alleles.classified.length > 0;
+    }
+
+    getGenepanel() {
+        return this.interpretationService.getGenepanel()
     }
 
     /**
@@ -323,7 +336,7 @@ export class InterpretationController {
      * @return {Array} Filtered array of Alleles
      */
     findUnclassified(alleles) {
-        if (!('allele' in this.interpretation.state)) {
+        if (!('allele' in this.getSelectedInterpretation().state)) {
             return alleles;
         };
 
@@ -349,7 +362,7 @@ export class InterpretationController {
     }
 
     loadReferences() {
-        let ids = this._getReferenceIds(this.alleles);
+        let ids = this._getReferenceIds(this.getAlleles());
         // Load references for our alleles from backend
 
         // Search first for references by reference id, then by pubmed id where reference id is not defined
@@ -382,13 +395,15 @@ export class InterpretationController {
      * @return {Array} Array of ids.
      */
     getAttachmentIds() {
+        let selectedInterpretation = this.getSelectedInterpretation()
         let attachment_ids = []
-        for (let allele_id in this.interpretation.state.allele) {
-            if ("alleleassessment" in this.interpretation.state.allele[allele_id]) {
-                attachment_ids = attachment_ids.concat(this.interpretation.state.allele[allele_id].alleleassessment.attachment_ids)
+        for (let allele_id in selectedInterpretation.state.allele) {
+            if ("alleleassessment" in selectedInterpretation.state.allele[allele_id]) {
+                attachment_ids = attachment_ids.concat(selectedInterpretation.state.allele[allele_id].alleleassessment.attachment_ids)
             }
         }
-        for (let allele of this.alleles) {
+
+        for (let allele of this.getAlleles()) {
             if ("allele_assessment" in allele) {
                 attachment_ids = attachment_ids.concat(allele.allele_assessment.attachment_ids)
             }
@@ -420,30 +435,32 @@ export class InterpretationController {
      * @return {Object} allele state for given allele
      */
     getAlleleState(allele) {
-        if (!('allele' in this.interpretation.state)) {
-            this.interpretation.state.allele = {};
+        let selectedInterpretation = this.getSelectedInterpretation();
+        if (!('allele' in selectedInterpretation.state)) {
+            selectedInterpretation.state.allele = {};
         }
-        if (!(allele.id in this.interpretation.state.allele)) {
+        if (!(allele.id in selectedInterpretation.state.allele)) {
             let allele_state = {
                 allele_id: allele.id,
             };
-            this.interpretation.state.allele[allele.id] = allele_state;
+            selectedInterpretation.state.allele[allele.id] = allele_state;
         }
-        return this.interpretation.state.allele[allele.id];
+        return selectedInterpretation.state.allele[allele.id];
     }
 
     getAlleleUserState(allele) {
-        if (!('allele' in this.interpretation.user_state)) {
-            this.interpretation.user_state.allele = {};
+        let selectedInterpretation = this.getSelectedInterpretation();
+        if (!('allele' in selectedInterpretation.user_state)) {
+            selectedInterpretation.user_state.allele = {};
         }
-        if (!(allele.id in this.interpretation.user_state.allele)) {
+        if (!(allele.id in selectedInterpretation.user_state.allele)) {
             let allele_state = {
                 allele_id: allele.id,
                 showExcludedReferences: false,
             };
-            this.interpretation.user_state.allele[allele.id] = allele_state;
+            selectedInterpretation.user_state.allele[allele.id] = allele_state;
         }
-        return this.interpretation.user_state.allele[allele.id];
+        return selectedInterpretation.user_state.allele[allele.id];
     }
 
 

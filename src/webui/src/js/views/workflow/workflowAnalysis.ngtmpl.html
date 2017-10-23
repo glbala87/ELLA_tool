@@ -10,7 +10,7 @@
         <input type="text"
                class="id-review-comment"
                placeholder="REVIEW COMMENT"
-               ng-model="vm.getInterpretation().state.review_comment"
+               ng-model="vm.getSelectedInterpretation().state.review_comment"
                ng-disabled="vm.readOnly()"></input>
       </div>
     </div>
@@ -19,21 +19,19 @@
         <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
             <path d="M16 2 L16 30 M2 16 L30 16" />
         </svg>
-        <span> {{vm.getInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
+        <span> {{vm.getSelectedInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>
       <button ng-click="vm.copyAlamut()">Copy all to alamut</button>
 
       <div class="dropdown white" ng-if="vm.showHistory()">
         <select
           class="id-interpretationrounds-dropdown"
-          ng-options="i as vm.formatHistoryOption(i) for i in vm.history_interpretations"
-          ng-model="vm.selected_interpretation">
+          ng-options="i as vm.formatHistoryOption(i) for i in vm.getInterpretationHistory()"
+          ng-change="vm.loadAlleles()"
+          ng-model="vm.interpretationService.selected_interpretation">
         </select>
       </div>
-      <workflow-buttons alleles="vm.selected_interpretation_alleles"
+      <workflow-buttons alleles="vm.getAlleles()"
                         analysis-id="vm.analysis.id"
-                        reload="vm.reloadInterpretationData()"
-                        selected-interpretation="vm.selected_interpretation"
-                        interpretations="vm.interpretations"
                         readOnly="vm.readOnly"
       ></workflow-buttons>
     </section>
@@ -43,17 +41,11 @@
     <interpretation
       components="vm.components"
       selected-component="vm.selected_component"
-      interpretation="vm.getInterpretation()"
-      genepanel="vm.genepanel"
-      allele-ids="vm.getInterpretation().allele_ids"
-      alleles="vm.selected_interpretation_alleles"
-      update-alleles="vm.loadAlleles()"
-      ng-if="vm.analysis && vm.alleles_loaded && vm.genepanel"
+      genepanel="vm.getGenepanel()"
+      ng-if="vm.isViewReady()"
       read-only="vm.readOnly()"
     ></interpretation>
   </div>
-
-
 </div>
 
 <!-- - ->
@@ -61,8 +53,8 @@
 <h4>Debug:</h4>
 <br><br>
 <h5>Interpretation state:</h5>
-<p><pre>{{vm.getInterpretation().state | prettyJSON}}</pre></p>
+<p><pre>{{vm.getSelectedInterpretation().state | prettyJSON}}</pre></p>
 <h5>Interpretation user state:</h5>
-<p><pre>{{vm.getInterpretation().user_state | prettyJSON}}</pre></p>
+<p><pre>{{vm.getSelectedInterpretation().user_state | prettyJSON}}</pre></p>
 </section>
  <!- - -->

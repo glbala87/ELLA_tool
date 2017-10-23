@@ -1,14 +1,14 @@
-    <div class="no-alleles" ng-if="!vm.alleles.length">
+    <div class="no-alleles" ng-if="!vm.getAlleles().length">
       <h2>No variants to show for analysis.</h2>
       <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
     </div>
-    <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.alleles.length">
+    <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.getAlleles().length">
         <allele-sidebar ng-if="vm.showSidebar"
                         read-only="vm.readOnly"
                         genepanel="vm.genepanel"
                         alleles="vm.allele_sidebar.alleles"
                         selected="vm.allele_sidebar.selected"
-                        checked="vm.interpretation.state.report.included">
+                        checked="vm.getSelectedInterpretation().state.report.included">
         </allele-sidebar>
 
       <section class="container" ng-class="{'inner': vm.showSidebar}">
@@ -16,13 +16,13 @@
             <allele-sectionbox
               read-only="vm.readOnly"
               header="section.title"
-              genepanel="vm.interpretation.analysis.genepanel"
+              genepanel="vm.getSelectedInterpretation().analysis.genepanel"
               allele="vm.allele_sidebar.selected"
               references="vm.references"
               attachments="vm.attachments"
               allele-state="vm.getAlleleState(vm.allele_sidebar.selected)"
               allele-user-state="vm.getAlleleUserState(vm.allele_sidebar.selected)"
-              analysis="vm.interpretation.analysis"
+              analysis="vm.getSelectedInterpretation().analysis"
               controls="section.controls"
               on-change-class="vm.onChangeClass(allele)"
               on-update="vm.onUpdate()"
@@ -41,12 +41,13 @@
           read-only="vm.readOnly"
           class="single-sample-analysis-item"
           ng-switch-when="Report"
-          analysis="vm.interpretation.analysis"
+          analysis="vm.getSelectedInterpretation().analysis"
           alleles="vm.getComponent('Report').alleles"
           references="vm.references"
-          state="vm.interpretation.state"
-          user-state="vm.interpretation.user_state">
+          state="vm.getSelectedInterpretation().state"
+          user-state="vm.getSelectedInterpretation().user_state">
         </report-card>
+
 
       </section>
     </article>

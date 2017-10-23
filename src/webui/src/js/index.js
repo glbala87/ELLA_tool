@@ -41,6 +41,7 @@ import './services/workflow.service';
 import './services/search.service';
 import './services/sidebar.service';
 import './services/navbar.service';
+import './services/interpretation.service'
 import './filters';
 
 import './views/workflow/workflowAnalysis.directive';
