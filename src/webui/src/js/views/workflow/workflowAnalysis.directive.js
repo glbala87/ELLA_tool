@@ -21,7 +21,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'workflow-analysis',
     scope: {
-        'analysisId': '@'
+        'analysisId': '='
     },
     templateUrl: 'ngtmpl/workflowAnalysis.ngtmpl.html'
 })
