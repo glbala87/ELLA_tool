@@ -12,13 +12,17 @@ export class Reference {
     getShortDesc() {
         let desc = this.authors;
         if (this.year !== undefined && this.year.length > 0) {
-            desc += ` (${this.year})`
+            desc += ` (${this.year})`;
         }
-        desc += `, ${this.journal}`
-        return desc
+        desc += `, ${this.journal}`;
+        return desc;
     }
-}
+    
+    getPubmedUrl() {
+      return this.pubmed_id ? `http://www.ncbi.nlm.nih.gov/pubmed/${this.pubmed_id}`:undefined;
+    }
 
+}
 
 export class ReferenceAssessment {
 

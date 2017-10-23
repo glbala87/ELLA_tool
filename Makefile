@@ -10,6 +10,7 @@ RESET_DB_SET ?= 'small'
 #RELEASE_TAG =
 WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
+DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
@@ -104,8 +105,8 @@ start-bundle-container:
 
 tar-web-build:
 	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp_build
-	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(CLIENT_BUNDLE)
-	@echo "Bundled static web files in $(CLIENT_BUNDLE)"
+	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
+	@echo "Bundled static web files in $(WEB_BUNDLE)"
 
 stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
@@ -115,12 +116,15 @@ bundle-api: check-release-tag
 
 bundle-dist: bundle-api bundle-client
 	@rm -rf dist-temp
-	@mkdir -p dist-temp/src/webui/build
-	@tar x -C dist-temp/src/webui/build -f $(CLIENT_BUNDLE)
-	@tar x -C dist-temp -f $(API_BUNDLE)
-	@tar cz -C dist-temp -f $(DIST_BUNDLE) .
+	mkdir -p dist-temp/src/webui/build
+	tar x -C dist-temp/src/webui/build -f $(WEB_BUNDLE)
+	tar x -C dist-temp -f $(API_BUNDLE)
+	tar cz -C dist-temp -f $(DIST_BUNDLE) .
 	@echo "Created distribution $(DIST_BUNDLE) ($(shell du -k $(DIST_BUNDLE) | cut -f1))"
 	@rm -rf dist-temp
+
+release-notes:
+	@ops/create_release_notes_wrapper.sh
 
 #---------------------------------------------
 # Create diagram of the datamodel
@@ -237,7 +241,7 @@ e2e-test: e2e-network-check e2e-start-chromebox test-build
 	-docker rm ella-e2e
 	@rm -rf errorShots
 	@mkdir -p errorShots
-	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio
+	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio BRANCH=$(BRANCH)
 	make e2e-stop-chromebox
 
 
@@ -268,9 +272,8 @@ e2e-gulp-once:
 	/ella/node_modules/gulp/bin/gulp.js build
 
 run-wdio-against-chromebox:
-	echo CHROMEBOX_CONTAINER = $(CHROMEBOX_CONTAINER)
-	echo BRANCH = $(BRANCH)
-# $(CHROMEBOX_CONTAINER) is 'chromebox_', seems the BRANCH isn't set properly in this task
+	@echo CHROMEBOX_CONTAINER = $(CHROMEBOX_CONTAINER)
+	@echo BRANCH = $(BRANCH)
 	@echo "Running webdriverio against chromebox in container $(CHROMEBOX_CONTAINER). Running if responds: `curl --silent cb:4444/status`"
 	@echo "pwd: '`pwd`'"
 #	screenshots on e2e test errors are defined in wdio.conf

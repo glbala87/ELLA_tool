@@ -1,6 +1,6 @@
 from marshmallow import fields, Schema
 
-from api.schemas import analysisinterpretations, samples
+from api.schemas import analysisinterpretations, samples, genepanels
 
 
 class UserSchema(Schema):
@@ -11,14 +11,6 @@ class UserSchema(Schema):
                   'username',
                   'first_name',
                   'last_name')
-
-
-class GenepanelSchema(Schema):
-    class Meta:
-        title = "Genepanel"
-        description = 'Panel of genes connected to a certain analysis'
-        fields = ('name',
-                  'version')
 
 
 class AnalysisFullSchema(Schema):
@@ -34,7 +26,7 @@ class AnalysisFullSchema(Schema):
                   'samples')
 
     samples = fields.Nested(samples.SampleSchema, many=True)
-    genepanel = fields.Nested(GenepanelSchema)
+    genepanel = fields.Nested(genepanels.GenepanelSchema)
     interpretations = fields.Nested(analysisinterpretations.AnalysisInterpretationOverviewSchema, many=True)
 
 

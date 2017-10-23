@@ -16,6 +16,7 @@ export class ReferenceEvalModalController {
                 reference,
                 referenceAssessment,
                 readOnly) {
+
         this.config = Config.getConfig();
         this.analysisService = Analysis;
         this.analysis = analysis;

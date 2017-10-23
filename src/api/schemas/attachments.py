@@ -2,7 +2,7 @@ import os
 import base64
 from marshmallow import Schema, fields
 from api.config import config
-from users import UserSchema
+from api.schemas.users import UserSchema
 
 
 class AttachmentSchema(Schema):
