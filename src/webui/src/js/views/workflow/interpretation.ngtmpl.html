@@ -1,3 +1,27 @@
+<nav class="secondary">
+    <div class="workflow-options">
+      <div class="review-comment">
+        <input type="text"
+               class="id-review-comment"
+               placeholder="REVIEW COMMENT"
+               ng-model="vm.getSelectedInterpretation().state.review_comment"
+               ng-disabled="vm.readOnly">
+      </div>
+    </div>
+    <section>
+      <div class="dropdown white" ng-if="false">  <!--Hide for now, add back when we have admin users-->
+        <select
+          class="id-interpretationrounds-dropdown"
+          ng-options="i as vm.formatHistoryOption(i) for i in vm.getHistory()"
+          ng-model="vm.interpretationService.selected_interpretation">
+        </select>
+      </div>
+        <workflow-buttons read-only="vm.readOnly"
+                          start-when-reopen="vm.getInterpretationType() === 'allele'"
+        ></workflow-buttons>
+    </section>
+  </nav>
+
     <div class="no-alleles" ng-if="!vm.getAlleles().length">
       <h2>No variants to show for analysis.</h2>
       <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>

@@ -123,6 +123,9 @@ export class InterpretationController {
 
     }
 
+    getInterpretationType() {
+        return this.interpretationService.type
+    }
 
     getSelectedInterpretation() {
         return this.interpretationService.getSelected()
