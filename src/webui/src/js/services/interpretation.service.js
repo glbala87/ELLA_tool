@@ -1,5 +1,16 @@
 /* jshint esnext: true */
 
+/**
+ * Interpretation service to act as state manager for the interpretation object and interpretation history
+ * during a workflow. Previously part of WorkflowAllele and WorkflowAnalysis directives. Separated here as
+ * a service to avoid duplicate code, and to allow for more flexibility, specifically that we can access
+ * and modify the interpretation object from different controllers.
+ *
+ * There are some minor differences between allele and analysis workflow. Most notably is the lack of a
+ * default interpretation object for allele. On import of analysis, an interpretation object is created
+ * with status NOT STARTED. This is not the case for alleles. To account for this, we create a dummy
+ * interpretation object that we use for alleles without an existing interpretation object.
+ */
 
 import {Service, Inject} from '../ng-decorators';
 import {STATUS_ONGOING, STATUS_NOT_STARTED} from '../model/interpretation'
@@ -22,6 +33,11 @@ class InterpretationService {
         this.reset()
         this._setWatchers()
     }
+
+    /**
+     * Watchers on scope should generally not be part of a service, but keep it here, as they are very
+     * specific to the interpretation state.
+     */
 
     _setWatchers() {
         // Set interpretation dirty when changes have been made to the state
@@ -51,7 +67,10 @@ class InterpretationService {
             }
         }, true); // true -> Deep watch
 
-        // Reset interpretations whenever we navigate away
+        /* Reset interpretations whenever we navigate away
+         * NOTE: This should ideally not be part of the service. The idea is that an interpretation is
+         * specific to a single view. Might need to be removed or moved to the separate views.
+         */
         this.rootScope.$on('$locationChangeSuccess', this.reset())
 
     }
@@ -239,6 +258,4 @@ class InterpretationService {
         // Fall back to this.alleles when no interpretation exists on backend
         return this.selected_interpretation_alleles || this.alleles;
     }
-
-
 }
