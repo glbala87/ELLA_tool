@@ -10,36 +10,13 @@
     <!-- Controls -->
     <section class="line-wrapper" ng-if=vm.controls.length>
       <div class="button" ng-repeat="control in vm.controls" ng-if="vm.showControls()">
-          <upload ng-if="!vm.readOnly && control == 'upload'"
-                  mode="'browse'"
-                  buttontext="'Add attachment'"
-                  allele-state="vm.alleleState"
-                  read-only="vm.isAlleleAssessmentReused() || vm.readOnly">
-          </upload>
-          <button class="id-collapse-all"
-                  ng-if="control == 'collapse_all'"
-                  ng-click="vm.collapseAll()">Collapse all
-          </button>
           <button class="id-igv"
                   ng-if="control == 'igv' && vm.config.app.enable_igv"
                   ng-click="vm.showIgv()">Show in IGV
           </button>
-          <button class="id-copy-alamut"
-                  ng-if="control == 'copy_alamut'"
-                  ng-click="vm.copyAlamut()">Copy to alamut
-          </button>
           <button class="id-classification-outdated"
                   ng-if="control == 'reuse_classification' && vm.isAlleleAssessmentOutdated()"
                   disabled>Classification outdated
-          </button>
-          <button class="id-add-acmg" uib-popover-template="vm.popover.templateUrl"
-                popover-append-to-body="true"
-                popover-title="Add ACMG code"
-                popover-trigger="outsideClick"
-                popover-placement="left"
-                ng-if="!vm.readOnly && control == 'add_acmg'"
-                ng-disabled="vm.isAlleleAssessmentReused() || vm.readOnly"
-                >Add ACMG
           </button>
 
           <checkable-button class="id-accept-classification"

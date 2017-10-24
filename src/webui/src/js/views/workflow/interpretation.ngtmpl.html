@@ -1,26 +1,13 @@
-<nav class="secondary">
-    <div class="workflow-options">
-      <div class="review-comment">
-        <input type="text"
-               class="id-review-comment"
-               placeholder="REVIEW COMMENT"
-               ng-model="vm.getSelectedInterpretation().state.review_comment"
-               ng-disabled="vm.readOnly">
-      </div>
-    </div>
-    <section>
-      <div class="dropdown white" ng-if="false">  <!--Hide for now, add back when we have admin users-->
-        <select
-          class="id-interpretationrounds-dropdown"
-          ng-options="i as vm.formatHistoryOption(i) for i in vm.getHistory()"
-          ng-model="vm.interpretationService.selected_interpretation">
-        </select>
-      </div>
-        <workflow-buttons read-only="vm.readOnly"
-                          start-when-reopen="vm.getInterpretationType() === 'allele'"
-        ></workflow-buttons>
-    </section>
-  </nav>
+
+
+<interpretationbar
+    analysis="vm.analysis"
+    allele="vm.allele_sidebar.selected"
+    components="vm.components"
+    selected-component="vm.selectedComponent"
+    on-component-change="vm.onComponentChange()"
+    read-only="vm.readOnly"
+></interpretationbar>
 
     <div class="no-alleles" ng-if="!vm.getAlleles().length">
       <h2>No variants to show for analysis.</h2>
@@ -49,7 +36,7 @@
               analysis="vm.getSelectedInterpretation().analysis"
               controls="section.controls"
               on-change-class="vm.onChangeClass(allele)"
-              on-update="vm.onUpdate()"
+              on-update="vm.onUpdate(false)"
               ng-if="vm.allele_sidebar.selected"
               section="section"
               alleleassessment-comment="section.alleleassessment_comment"

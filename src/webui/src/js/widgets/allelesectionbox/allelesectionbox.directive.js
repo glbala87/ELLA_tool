@@ -87,16 +87,6 @@ export class AlleleSectionBoxController {
             }
         );
 
-        this.pathogenicPopoverToggle = {
-          buttons: [ 'Pathogenic', 'Benign' ],
-          model: 'Pathogenic'
-        };
-
-        this.popover = {
-            templateUrl: 'ngtmpl/acmgSelectionPopover.ngtmpl.html'
-        };
-
-        this.setACMGCandidates();
     }
 
 
@@ -321,103 +311,6 @@ export class AlleleSectionBoxController {
         return this.updateText !== undefined ? this.updateText : 'Set class';
     }
 
-    copyAlamut() {
-        this.clipboard.copyText(this.allele.formatAlamut());
-        this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
-    }
 
-
-    ///////////////
-    /// ACMG popover
-    ///////////////
-
-    /**
-     * Create list of ACMG code candidates for showing
-     * in popover. Sorts the codes into array of arrays,
-     * one array for each group.
-     */
-    setACMGCandidates() {
-        this.acmgCandidates = {};
-
-        let candidates = Object.keys(this.config.acmg.explanation).filter(code => !code.startsWith('REQ'));
-
-        for (let t of ['benign', 'pathogenic']) {
-            this.acmgCandidates[t] = [];
-
-            // Map codes to group (benign/pathogenic)
-            for (let c of candidates) {
-                if (this.config.acmg.codes[t].some(e => c.startsWith(e))) {
-                    if (!this.acmgCandidates[t].includes(c)) {
-                        this.acmgCandidates[t].push(c);
-                    }
-                }
-            }
-
-            // Sort the codes
-            this.acmgCandidates[t].sort((a, b) => {
-                // Find the difference in index between the codes
-                let a_idx = this.config.acmg.codes[t].findIndex(elem => a.startsWith(elem));
-                let b_idx = this.config.acmg.codes[t].findIndex(elem => b.startsWith(elem));
-
-                // If same prefix, sort on text itself
-                if (a_idx === b_idx) {
-                    return a.localeCompare(b);
-                }
-                if (t === "benign") {
-                    return b_idx - a_idx;
-                } else {
-                    return a_idx - b_idx;
-                }
-            });
-            // Pull out any codes with an 'x' in them, and place them next after their parent code
-            // This bugs out for a few codes that don't have parents, but is good enough for now
-            let x_codes = [];
-            x_codes = this.acmgCandidates[t].filter( (e) => { if(e.includes('x')) { return true; } } );
-            x_codes.forEach( (e) => { this.acmgCandidates[t].splice(this.acmgCandidates[t].indexOf(e),1) } );
-            x_codes.forEach( (e) => {
-              this.acmgCandidates[t].splice(
-                (this.acmgCandidates[t].indexOf(e.split('x')[1])+1),
-                0, e
-              )
-            })
-        }
-    }
-
-    getExplanationForCode(code) {
-        return this.config.acmg.explanation[code];
-    }
-
-    getACMGpopoverClass(code) {
-      let acmgclass = this.getACMGClass(code);
-      return code.includes('x') ? `indented ${acmgclass}` : acmgclass;
-    }
-
-    /**
-     * Lets user include a code not provided by backend.
-     * @param {String} code Code to add
-     */
-    addStagedACMGCode() {
-        if (this.staged_code) {
-            this.includeACMG(this.staged_code);
-        }
-        this.staged_code = null;
-    }
-
-    /**
-     * "Stages" an ACMG code in the popover, for editing before adding it.
-     * @param {String} code Code to add
-     */
-    stageACMGCode(code) {
-        let existing_comment = this.staged_code ? this.staged_code.comment : '';
-        this.staged_code = ACMGHelper.userCodeToObj(code, existing_comment);
-    }
-
-    getACMGClass(code) {
-        return code.substring(0, 2).toLowerCase();
-    }
-
-    includeACMG(code) {
-        ACMGHelper.includeACMG(code, this.allele, this.alleleState);
-    }
 
 }

@@ -254,7 +254,7 @@ button { outline: none; border: 1px solid Transparent;
       }
     }
   }
-  .container { margin-left: 2.0rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  .container { margin-left: 2.0rem; margin-top: calc(4.5rem * 3); margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
   .container.no-secondary-nav { margin-top: 12rem; }
   .container.with-sidenavbar { margin-left: 9rem; }
   .container.inner { width: 100%; margin-left: 46.2rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
@@ -319,7 +319,7 @@ button { outline: none; border: 1px solid Transparent;
 
 
 
-nav {display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;}
+nav {position: fixed; width:100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;}
 
 nav.top {
   background-color: $blue;
@@ -332,7 +332,7 @@ nav.top {
   right: 0;
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-top: 4.5rem; padding: 0 1.3rem;
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-50-on-white; height: 4.5rem; margin-top: 4.5rem; padding: 0 1.3rem; z-index: 100;
   section { display: flex;
     button { margin-left: 1.3rem; }
     .dropdown { margin-left: 1.3rem; }
@@ -345,6 +345,13 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
       input { width: 25rem; }
     }
   }
+}
+
+nav.tertiary {
+  z-index: 100;
+  height: 4.5rem;
+  margin-top: 9rem;
+  background-color: $blue-25-on-white;
 }
 
 .search-box { margin-left: auto; margin-right: 1rem;

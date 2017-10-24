@@ -21,6 +21,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     selector: 'interpretation',
     templateUrl: 'ngtmpl/interpretation.ngtmpl.html',
     scope: {
+        analysis: '=?',
         interpretation: '=',
         components: '=',
         selectedComponent: '=',
@@ -41,7 +42,8 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         'ReferenceResource',
         'AttachmentResource',
         'AlleleFilter',
-        'CustomAnnotationModal')
+        'CustomAnnotationModal',
+        '$filter')
 export class InterpretationController {
 
     constructor($scope,
@@ -56,7 +58,8 @@ export class InterpretationController {
                 ReferenceResource,
                 AttachmentResource,
                 AlleleFilter,
-                CustomAnnotationModal) {
+                CustomAnnotationModal,
+                $filter) {
 
         this.clipboard = clipboard;
         this.toastr = toastr;
@@ -72,6 +75,8 @@ export class InterpretationController {
         this.alleleFilter = AlleleFilter;
 
         this.showSidebar = 'showSidebar' in this ? this.showSidebar : true;
+
+        this.filter = $filter;
 
         $scope.$watch(
             () => this.getSelectedInterpretation().state,
@@ -108,7 +113,9 @@ export class InterpretationController {
 
         $scope.$watch(
             () => this.allele_sidebar.selected,
-            () => this.navbar.setAllele(this.allele_sidebar.selected, this.getGenepanel())
+            () => {
+                this.navbar.setAllele(this.allele_sidebar.selected, this.getGenepanel())
+            }
         );
 
         $scope.$watch(
@@ -169,8 +176,8 @@ export class InterpretationController {
      * Called by <allele-sectionbox> whenever an allele needs
      * refreshing from backend (data has changed)
      */
-    onUpdate() {
-        this.interpretationService.loadAlleles(false); // false => Do not redraw full interpretation view
+    onUpdate(redraw) {
+        this.interpretationService.loadAlleles(redraw); // false => Do not redraw full interpretation view, true => redraw full interpretation view
     }
 
     getAlleles() {
@@ -187,6 +194,29 @@ export class InterpretationController {
     getSidebarSelected() {
         return this.selectedComponent.title;
     }
+
+    showHistory() {
+        return !this.interpretationService.isOngoing() && this.getInterpretationHistory().length;
+    }
+
+    getInterpretationHistory() {
+        return this.interpretationService.getHistory()
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAll()
+    }
+
+    formatHistoryOption(interpretation) {
+        ///TODO: Move to filter
+        if (interpretation.current) {
+            return 'Current data';
+        }
+        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
+        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
+        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
+    }
+
 
 
     /**
@@ -465,8 +495,6 @@ export class InterpretationController {
         }
         return selectedInterpretation.user_state.allele[allele.id];
     }
-
-
 }
 
 

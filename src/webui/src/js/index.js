@@ -102,6 +102,7 @@ import './widgets/genepanelvalue/genepanelvalue.directive.js';
 import './widgets/igv.directive.js';
 import './widgets/wysiwygjsEditor.directive';
 import './widgets/referenceAssessment.directive';
+import './widgets/interpretationbar.directive'
 
 import {Config, Inject, Run} from './ng-decorators';
 
