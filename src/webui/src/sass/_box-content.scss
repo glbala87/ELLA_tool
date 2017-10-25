@@ -43,7 +43,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   .left-item { display: flex;
     h4 { padding-right: 0.7rem;}
     .adjust-button { font-size: 1.6rem; color:#333; cursor: pointer; user-select: none;}
-    .adjust-button-off { font-size: 1.6rem; color:#333; cursor: auto; user-select: none;}
+    .adjust-button-off { font-size: 1.6rem; color:#333; cursor: default; user-select: none;}
   }
   .right-item { padding-right: 0.7rem; color:#333; }
   .commentbox { width: 100%; }
