@@ -1,45 +1,45 @@
-<aside class="row down">
-    <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.transcript" ng-if="vm.genepanel">
-      <div class="allele_popup clickable white" isolate-click>
-        <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
-          popover-trigger="outsideClick"
-          uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
-          popover-title="{{t.symbol}}"
-          popover-placement="bottom">
-          {{t.symbol}} ({{t.exon}})
-        </repeat-wrapper>
-      </div>
-    </h3>
-    <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.transcript" ng-if="!vm.genepanel">
-      <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html">
+<article ng-repeat="t in vm.allele.annotation.filtered track by t.transcript">
+  <h3 class="full-title"  ng-if="vm.genepanel">
+    <div class="allele_popup clickable" isolate-click>
+      <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
+        popover-trigger="outsideClick"
+        uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
+        popover-title="{{t.symbol}}"
+        popover-placement="bottom-left">
         {{t.symbol}} ({{t.exon}})
       </repeat-wrapper>
-    </h3>
+    </div>
+  </h3>
+  <h3 class="full-title" ng-if="!vm.genepanel">
+    <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html">
+      {{t.symbol}} ({{t.exon}})
+    </repeat-wrapper>
+  </h3>
 
-    <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.transcript">
-      <div class="allele_popup clickable white" isolate-click>
-        <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
-          popover-trigger="outsideClick"
-          uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
-          popover-title="HGVS cDNA"
-          popover-class="popover-title-no-uppercase"
-          popover-placement="bottom">
-            <i>{{t.transcript}}:</i><b>{{t.HGVSc_short}}</b> {{vm.getGenotype()}}
-        </repeat-wrapper>
-      </div>
-    </h3>
+  <h3 class="full-title">
+    <div class="allele_popup clickable" isolate-click>
+      <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
+        popover-trigger="outsideClick"
+        uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
+        popover-title="HGVS cDNA"
+        popover-class="popover-title-no-uppercase"
+        popover-placement="bottom">
+          <i>{{t.transcript}}:</i><b>{{t.HGVSc_short}}</b> {{vm.getGenotype()}}
+      </repeat-wrapper>
+    </div>
+  </h3>
 
-    <h3 class="full-title" ng-repeat="t in vm.allele.annotation.filtered track by t.transcript">
-      <div class="allele_popup clickable white" isolate-click>
-        <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
-          popover-trigger="outsideClick"
-          uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
-          popover-title="HGVS protein"
-          popover-placement="bottom">
-            <i ng-if="t.HGVSp">{{t.HGVSp | proteinSequence}}:</i><b>{{t.HGVSp_short}}</b> ({{vm.formatCodons(t.codons)}})
-        </repeat-wrapper>
-      </div>
-    </h3>
+  <h3 class="full-title">
+    <div class="allele_popup clickable" isolate-click>
+      <repeat-wrapper  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
+        popover-trigger="outsideClick"
+        uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
+        popover-title="HGVS protein"
+        popover-placement="bottom">
+          <i ng-if="t.HGVSp">{{t.HGVSp | proteinSequence}}:</i><b>{{t.HGVSp_short}}</b> ({{vm.formatCodons(t.codons)}})
+      </repeat-wrapper>
+    </div>
+  </h3>
 
-    <h3 class="full-title">{{vm.allele.formatGenomicPosition()}}</h3>
-</aside>
+  <h3 class="full-title">{{vm.allele.formatGenomicPosition()}}</h3>
+</article>

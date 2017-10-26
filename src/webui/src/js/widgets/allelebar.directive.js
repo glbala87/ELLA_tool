@@ -15,6 +15,7 @@ export class Allelebar {
 
     constructor(Config) {
         this.config = Config.getConfig();
+        console.log(this.genepanel)
     }
 
     getInheritanceCodes(geneSymbol) {

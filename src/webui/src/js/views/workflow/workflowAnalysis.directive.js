@@ -273,9 +273,7 @@ export class WorkflowAnalysisController {
         });
     }
 
-    showHistory() {
-        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
-    }
+
 
     //
     // Trigger actions in interpretation service

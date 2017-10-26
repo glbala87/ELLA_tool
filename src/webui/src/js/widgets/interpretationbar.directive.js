@@ -20,6 +20,7 @@ import {ACMGHelper} from '../model/acmghelper';
     'clipboard',
     'toastr',
     'Config',
+    '$filter'
     )
 export class Interpretationbar {
 
@@ -28,12 +29,14 @@ export class Interpretationbar {
                 AddExcludedAllelesModal,
                 clipboard,
                 toastr,
-                Config) {
+                Config,
+                $filter) {
         this.interpretationService = Interpretation;
         this.addExcludedAllelesModal = AddExcludedAllelesModal;
         this.clipboard = clipboard;
         this.toastr = toastr;
         this.config = Config.getConfig()
+        this.filter = $filter;
         $scope.$watch(
             () => this.allele,
             () => {
@@ -106,7 +109,7 @@ export class Interpretationbar {
 
     // Controls
     collapseAll() {
-        let section_states = Object.values(this.alleleUserState.sections);
+        let section_states = Object.values(this.getAlleleUserState(this.allele).sections);
         let current_collapsed = section_states.map(s => s.collapsed);
         let some_collapsed = current_collapsed.some(c => c);
         for (let section_state of section_states) {
@@ -167,7 +170,7 @@ export class Interpretationbar {
         this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
     }
 
-        ///////////////
+    ///////////////
     /// ACMG popover
     ///////////////
 
@@ -259,6 +262,43 @@ export class Interpretationbar {
     includeACMG(code) {
         ACMGHelper.includeACMG(code, this.allele, this.getAlleleState(this.allele));
     }
+
+    positionPopover() {
+        let popoverElement = document.getElementsByClassName("acmg-popover")[0];
+        console.log(popoverElement.style.top)
+        popoverElement.style.top = "400px !important"
+    }
+
+    showHistory() {
+        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
+    }
+
+    getInterpretationHistory() {
+        return this.interpretationService.getHistory()
+    }
+
+    formatHistoryOption(interpretation) {
+        ///TODO: Move to filter
+        if (interpretation.current) {
+            return 'Current data';
+        }
+        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
+        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
+        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAll()
+    }
+
+    isInterpretationOngoing() {
+        return this.interpretationService.isOngoing()
+    }
+
+    getGenepanel() {
+        return this.interpretationService.getGenepanel()
+    }
+
 
 
 }

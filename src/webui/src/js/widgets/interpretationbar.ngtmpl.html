@@ -1,26 +1,3 @@
-<!--<nav class="secondary" ng-if="vm.getInterpretationType() === 'allele'">-->
-<!--<div class="workflow-options">-->
-<!--<div class="review-comment">-->
-<!--<input type="text"-->
-<!--class="id-review-comment"-->
-<!--placeholder="REVIEW COMMENT"-->
-<!--ng-model="vm.getSelectedInterpretation().state.review_comment"-->
-<!--ng-disabled="vm.readOnly">-->
-<!--</div>-->
-<!--</div>-->
-<!--<section>-->
-<!--<div class="dropdown white" ng-if="false">  &lt;!&ndash;Hide for now, add back when we have admin users&ndash;&gt;-->
-<!--<select-->
-<!--class="id-interpretationrounds-dropdown"-->
-<!--ng-options="i as vm.formatHistoryOption(i) for i in vm.getHistory()"-->
-<!--ng-model="vm.interpretationService.selected_interpretation">-->
-<!--</select>-->
-<!--</div>-->
-<!--<workflow-buttons read-only="vm.readOnly"-->
-<!--start-when-reopen="vm.getInterpretationType() === 'allele'"-->
-<!--&gt;</workflow-buttons>-->
-<!--</section>-->
-<!--</nav>-->
 
 <nav class="secondary" ng-if="vm.getInterpretationType() === 'analysis'">
   <div class="workflow-options">
@@ -49,7 +26,7 @@
       <select
           class="id-interpretationrounds-dropdown"
           ng-options="i as vm.formatHistoryOption(i) for i in vm.getInterpretationHistory()"
-          ng-change="vm.onUpdate(true)"
+          ng-change="vm.loadAlleles()"
           ng-model="vm.interpretationService.selected_interpretation">
       </select>
     </div>
@@ -57,29 +34,49 @@
   </section>
 </nav>
 
-<nav class="tertiary" ng-if="vm.getInterpretationType() === 'analysis'">
-  <div></div>
-  <section class="line-wrapper">
-    <button class="id-copy-alamut" ng-click="vm.copySingleAlamut()">Copy to alamut</button>
-    <button class="id-add-acmg" uib-popover-template="vm.popover.templateUrl"
-            popover-append-to-body="true"
-            popover-title="Add ACMG code"
-            popover-trigger="outsideClick"
-            popover-placement="left"
-            ng-if="!vm.readOnly"
-            ng-disabled="vm.readOnly"
-    >Add ACMG
-    </button>
-    <upload ng-if="!vm.readOnly"
-            mode="'browse'"
-            buttontext="'Add attachment'"
-            allele-state="vm.getAlleleState(vm.allele)"
-            read-only="vm.readOnly">
-    </upload>
-    <button class="id-collapse-all"
-            ng-click="vm.collapseAll()">Collapse all
-    </button>
+<nav class="bottom" ng-class="{'has-secondary': vm.getInterpretationType() === 'analysis'}">
+  <allelebar allele="vm.allele" genepanel="vm.getGenepanel()"></allelebar>
+  <section>
+    <div class="workflow-options" ng-if="vm.getInterpretationType() === 'allele'">
+      <div class="review-comment">
+        <input type="text"
+               class="id-review-comment"
+               placeholder="REVIEW COMMENT"
+               ng-model="vm.getSelectedInterpretation().state.review_comment"
+               ng-disabled="vm.readOnly">
+      </div>
+    </div>
+    <section class="line-wrapper">
 
+      <section>
+        <button class="id-copy-alamut" ng-click="vm.copySingleAlamut()">Copy to alamut</button>
+        <button class="id-add-acmg" uib-popover-template="vm.popover.templateUrl"
+                popover-class="acmg-popover"
+                popover-append-to-body="true"
+                popover-title="Add ACMG code"
+                popover-trigger="outsideClick"
+                popover-placement="left"
+                ng-if="!vm.readOnly"
+                ng-disabled="vm.readOnly"
+        >Add ACMG
+        </button>
+        <upload ng-if="!vm.readOnly"
+                  mode="'browse'"
+                  buttontext="'Add attachment'"
+                  allele-state="vm.getAlleleState(vm.allele)"
+                  read-only="vm.readOnly">
+        </upload>
+        <button class="id-collapse-all"
+                ng-click="vm.collapseAll()">Collapse all
+        </button>
 
+        <workflow-buttons ng-if="vm.getInterpretationType() === 'allele'" readOnly="vm.readOnly"></workflow-buttons>
+
+      </section>
+    </section>
   </section>
 </nav>
+
+<div ng-if="vm.getInterpretationType() === 'analysis'" class="nav-secondary-spacer"></div>
+<div class="nav-bottom-allelebar-spacer"></div>
+<div class="nav-bottom-buttons-spacer"></div>

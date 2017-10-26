@@ -207,15 +207,7 @@ export class InterpretationController {
         return this.interpretationService.getAll()
     }
 
-    formatHistoryOption(interpretation) {
-        ///TODO: Move to filter
-        if (interpretation.current) {
-            return 'Current data';
-        }
-        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
-        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
-        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
-    }
+
 
 
 
