@@ -199,7 +199,6 @@ dev:
 	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	-p $(API_PORT):5000 \
-	-p 35729:35729 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
 	$(NAME_OF_GENERATED_IMAGE) \
@@ -223,6 +222,24 @@ logs:
 
 restart:
 	docker restart $(CONTAINER_NAME)
+
+
+#---------------------------------------------
+# Genepanel config
+#---------------------------------------------
+.PHONY: check-conf
+
+check-conf: export VALIDATION_CONTAINER="gp-config-check-container"
+check-conf: test-build
+	@-docker stop $(VALIDATION_CONTAINER)
+	@-docker rm $(VALIDATION_CONTAINER)
+	@docker run -d  --name $(VALIDATION_CONTAINER) $(NAME_OF_GENERATED_IMAGE) sleep infinity
+	@docker cp $(F) $(VALIDATION_CONTAINER):/tmp/validation-subject
+	@docker exec $(VALIDATION_CONTAINER) /bin/bash -c "PYTHONPATH=/ella/src python ops/dev/genepanel_config_check.py /tmp/validation-subject"
+	@echo "Stopping docker container $(VALIDATION_CONTAINER)"
+	@docker stop $(VALIDATION_CONTAINER)
+	@docker rm $(VALIDATION_CONTAINER)
+
 
 #---------------------------------------------
 # TESTING
