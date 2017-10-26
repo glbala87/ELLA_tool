@@ -238,7 +238,7 @@ check-gp-config: test-build
 	@-docker rm $(GP_VALIDATION_CONTAINER)
 	@docker run -d  --name $(GP_VALIDATION_CONTAINER) $(NAME_OF_GENERATED_IMAGE) sleep infinity
 	@docker cp $(F) $(GP_VALIDATION_CONTAINER):/tmp/validation-subject
-	@docker exec $(GP_VALIDATION_CONTAINER) /bin/bash -c "PYTHONPATH=/ella/src python ops/dev/genepanel_config_check.py /tmp/validation-subject"
+	@docker exec $(GP_VALIDATION_CONTAINER) /bin/bash -c "PYTHONPATH=/ella/src python ops/dev/check_genepanel_config.py /tmp/validation-subject"
 	@echo "Stopping docker container $(GP_VALIDATION_CONTAINER)"
 	@docker stop $(GP_VALIDATION_CONTAINER)
 	@docker rm $(GP_VALIDATION_CONTAINER)
