@@ -384,16 +384,27 @@ nav.bottom {
     }
   }
   workflow-buttons { margin-left: 1.4rem;}
-  allelebar {
+
+}
+allelebar {
     width: 100%;
     > table {
       width: 100%;
       * tr {
         height: $allelebar-row-height;
+        > td {
+          text-align: center;
+        }
+        > td:first-child {
+          text-align: left;
+        }
+        > td:last-child {
+          text-align: right;
+        }
+
       }
     }
   }
-}
 
 nav.bottom.has-secondary {
     margin-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height});

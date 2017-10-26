@@ -120,7 +120,6 @@ export class AlleleSidebarController {
     }
 
     isTogglable(allele_option) {
-        console.log(allele_option.togglable)
         return allele_option.togglable;
     }
 
