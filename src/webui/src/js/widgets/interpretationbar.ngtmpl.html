@@ -34,7 +34,7 @@
   </section>
 </nav>
 
-<nav class="bottom" ng-class="{'has-secondary': vm.getInterpretationType() === 'analysis'}">
+<nav class="bottom" ng-class="{'has-secondary': vm.getInterpretationType() === 'analysis'}" ng-if="vm.allele">
   <allelebar allele="vm.allele" genepanel="vm.getGenepanel()"></allelebar>
   <section>
     <div class="workflow-options" ng-if="vm.getInterpretationType() === 'allele'">
@@ -78,5 +78,5 @@
 </nav>
 
 <div ng-if="vm.getInterpretationType() === 'analysis'" class="nav-secondary-spacer"></div>
-<div class="nav-bottom-allelebar-spacer"></div>
+<div ng-repeat="t in vm.allele.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>
 <div class="nav-bottom-buttons-spacer"></div>

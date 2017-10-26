@@ -1,5 +1,9 @@
 <div class="sidebar">
 
+  <!--Spacers-->
+  <div class="nav-bottom-allelebar-spacer"></div>
+  <div ng-if="vm.selected" ng-repeat="t in vm.selected.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>
+
   <h4 class="section-title">Unclassified variants</h4>
 
   <section class="id-unclassified enabled">

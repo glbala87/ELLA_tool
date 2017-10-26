@@ -241,7 +241,6 @@ button { outline: none; border: 1px solid Transparent;
   height: 100%;
 
   .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; position: fixed;
-
     min-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
     .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
       .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
@@ -256,8 +255,8 @@ button { outline: none; border: 1px solid Transparent;
       }
     }
   }
-  .container { margin-left: 2.0rem; margin-top: 4.5rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
-  .container.no-secondary-nav { margin-top: 12rem; }
+  .container { margin-left: 2.0rem; margin-top: calc(#{$nav-bar-top-height} + 2rem); margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  //.container.no-secondary-nav { margin-top: 12rem; }
   .container.with-sidenavbar { margin-left: 9rem; }
   .container.inner { width: 100%; margin-left: 46.2rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
 
@@ -267,6 +266,7 @@ button { outline: none; border: 1px solid Transparent;
   .overviewcontainer { display: flex; padding-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height}); }
   .dashboard {
     display: flex;
+    padding-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
     .full-title { padding-left: 1.2rem; font-size: 1.4rem; font-weight: 300; } 
     .profile {
       flex: 1;
@@ -326,7 +326,7 @@ nav {position: fixed; width:100%; display: flex; flex-direction: row; align-item
 nav.top {
   background-color: $blue;
   color: white;
-  padding: 0.7rem;
+  padding: 0.7rem 1.3rem;
   height: 4.5rem;
   position: fixed;
   top: 0;
@@ -359,7 +359,7 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
 }
 
 .nav-bottom-allelebar-spacer {
-  height: calc(#{$nav-bar-bottom-allelebar-height} + 0.8rem);
+  height: calc(#{$allelebar-row-height} + 0.8rem);
 }
 
 nav.bottom {
@@ -375,7 +375,7 @@ nav.bottom {
   padding-top: 0.4rem;
   padding-bottom: 0.4rem;
   section { display: flex; width: 100%; justify-content: flex-end;  height: $nav-bar-bottom-buttons-height; }
-  article { display: flex; width: 100%; justify-content: space-between; height: $nav-bar-bottom-allelebar-height;  }
+  article { display: flex; width: 100%; justify-content: space-between; height: $allelebar-row-height;  }
 
   // Workflow specific
   .workflow-options { display: flex;
@@ -384,18 +384,14 @@ nav.bottom {
     }
   }
   workflow-buttons { margin-left: 1.4rem;}
-  //
-  //section {
-  //  display: flex;
-  //  justify-content: space-between;
-  //  justify-content: space-between;
-  //  flex-direction: row;
-  //  width: 100%;
-  //}
   allelebar {
-    display: flex;
-    justify-content: space-between;
     width: 100%;
+    > table {
+      width: 100%;
+      * tr {
+        height: $allelebar-row-height;
+      }
+    }
   }
 }
 
@@ -443,7 +439,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 .sidebar .ng-enter { opacity: 0; transition: all 0.8s ease-in-out; }
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; height: calc(100vh - 15rem); position: fixed; left: 1.3rem; bottom: 1.3rem; top: 14.5rem;
+.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: fixed; left: 1.3rem; bottom: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
   &::-webkit-scrollbar {
     width: 5px;
   }
