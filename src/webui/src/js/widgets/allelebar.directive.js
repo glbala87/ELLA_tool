@@ -49,14 +49,4 @@ export class Allelebar {
             return c.replace(/([ACGT]+)/, shortCodon)
         }).join('/')
     }
-
-    formatConsequences(consequences) {
-        let consequence_priority = this.config.transcripts.consequences;
-        let sort_func = (a, b) => {
-            return consequence_priority.indexOf(a) - consequence_priority.indexOf(b);
-        }
-        return consequences.sort(sort_func)[0].replace('_variant', '');
-    }
-
-
 }

@@ -1,6 +1,6 @@
 <table>
   <tr ng-repeat="t in vm.allele.annotation.filtered track by t.transcript">
-    <td ng-if="vm.genepanel">
+    <td ng-if="vm.genepanel && vm.getGenepanelValues(t.symbol).inheritance !== ''">
       <h3 class="full-title">
         <gpv source="vm.getGenepanelValues(t.symbol)" display="inheritance" mode="_"></gpv>
       </h3>
@@ -29,9 +29,7 @@
       </h3>
     </td>
 
-    <td>
-      <h3 class="full-title">{{vm.allele.formatGenomicPosition()}}</h3>
-    </td>
+
 
     <td>
       <h3 class="full-title">
@@ -66,8 +64,21 @@
 
     <td>
       <h3 class="full-title">
-        {{vm.formatConsequences(t.consequences)}}
+        <div ng-repeat="t in vm.allele.annotation.filtered track by t.transcript"
+              popover-trigger="outsideClick"
+              uib-popover-template="'ngtmpl/alleleInfoConsequencePopover.ngtmpl.html'"
+              popover-append-to-body="true"
+              popover-title="Consequences"
+              popover-placement="auto top">
+                <transcript-wrapper transcript="t">
+                    <span class="clickable" ng-repeat="c in t.consequences">{{c | noUnderscores}}</span>
+                </transcript-wrapper>
+            </div>
       </h3>
+    </td>
+
+    <td>
+      <h3 class="full-title">{{vm.allele.formatGenomicPosition()}}</h3>
     </td>
 
 
