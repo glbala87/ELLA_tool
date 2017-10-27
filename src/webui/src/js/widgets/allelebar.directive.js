@@ -49,4 +49,5 @@ export class Allelebar {
             return c.replace(/([ACGT]+)/, shortCodon)
         }).join('/')
     }
+
 }

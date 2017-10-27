@@ -37,18 +37,6 @@ export class Interpretationbar {
         this.toastr = toastr;
         this.config = Config.getConfig()
         this.filter = $filter;
-        $scope.$watch(
-            () => this.allele,
-            () => {
-                console.log(this.allele)
-            }
-        )
-        $scope.$watch(
-            () => this.analysis,
-            () => {
-                console.log(this.analysis)
-            }
-        )
 
         this.pathogenicPopoverToggle = {
           buttons: [ 'Pathogenic', 'Benign' ],
@@ -170,6 +158,37 @@ export class Interpretationbar {
         this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
     }
 
+    showHistory() {
+        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
+    }
+
+    getInterpretationHistory() {
+        return this.interpretationService.getHistory()
+    }
+
+    formatHistoryOption(interpretation) {
+        ///TODO: Move to filter
+        if (interpretation.current) {
+            return 'Current data';
+        }
+        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
+        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
+        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAll()
+    }
+
+    isInterpretationOngoing() {
+        return this.interpretationService.isOngoing()
+    }
+
+    getGenepanel() {
+        return this.interpretationService.getGenepanel()
+    }
+
+
     ///////////////
     /// ACMG popover
     ///////////////
@@ -262,43 +281,5 @@ export class Interpretationbar {
     includeACMG(code) {
         ACMGHelper.includeACMG(code, this.allele, this.getAlleleState(this.allele));
     }
-
-    positionPopover() {
-        let popoverElement = document.getElementsByClassName("acmg-popover")[0];
-        console.log(popoverElement.style.top)
-        popoverElement.style.top = "400px !important"
-    }
-
-    showHistory() {
-        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
-    }
-
-    getInterpretationHistory() {
-        return this.interpretationService.getHistory()
-    }
-
-    formatHistoryOption(interpretation) {
-        ///TODO: Move to filter
-        if (interpretation.current) {
-            return 'Current data';
-        }
-        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
-        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
-        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
-    }
-
-    getAllInterpretations() {
-        return this.interpretationService.getAll()
-    }
-
-    isInterpretationOngoing() {
-        return this.interpretationService.isOngoing()
-    }
-
-    getGenepanel() {
-        return this.interpretationService.getGenepanel()
-    }
-
-
 
 }

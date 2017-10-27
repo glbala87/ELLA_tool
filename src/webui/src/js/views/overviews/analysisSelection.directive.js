@@ -11,13 +11,12 @@ import {Directive, Inject} from '../../ng-decorators';
         byFindings: '=?'
     }
 })
-@Inject('$scope', '$interval', 'Navbar', 'OverviewResource', 'User')
+@Inject('$scope', '$interval', 'OverviewResource', 'User')
 class AnalysisSelectionController {
 
-    constructor($scope, $interval, Navbar, OverviewResource, User) {
+    constructor($scope, $interval, OverviewResource, User) {
         this.scope = $scope;
         this.interval = $interval;
-        this.navbarService = Navbar;
         this.overviewResource = OverviewResource;
         this.user = User;
         this.overview = null;
@@ -27,7 +26,6 @@ class AnalysisSelectionController {
     }
 
     _setup() {
-        this.updateNavbar();
         this.loadOverview();
         this.pollOverview();
     }
@@ -49,15 +47,6 @@ class AnalysisSelectionController {
                 return item.interpretations[item.interpretations.length-1].user.id !== this.user.getCurrentUserId();
             });
         });
-    }
-
-    updateNavbar() {
-        this.navbarService.clearItems();
-        // this.navbarService.replaceItems([
-        //     {
-        //         title: 'Choose an analysis'
-        //     }
-        // ]);
     }
 }
 

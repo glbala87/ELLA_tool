@@ -1,42 +1,4 @@
 <div class="main">
-
-  <!--<nav class="secondary">-->
-    <!--<div class="workflow-options">-->
-      <!--<div class="dropdown white">-->
-        <!--<select ng-options="c as c.title for c in vm.components"-->
-                <!--ng-model="vm.selected_component"></select>-->
-      <!--</div>-->
-      <!--<div class="review-comment">-->
-        <!--<input type="text"-->
-               <!--class="id-review-comment"-->
-               <!--placeholder="REVIEW COMMENT"-->
-               <!--ng-model="vm.getSelectedInterpretation().state.review_comment"-->
-               <!--ng-disabled="vm.readOnly()"></input>-->
-      <!--</div>-->
-    <!--</div>-->
-    <!--<section>-->
-      <!--<button class="id-add-excluded" ng-click="vm.modalAddExcludedAlleles()">-->
-        <!--<svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">-->
-            <!--<path d="M16 2 L16 30 M2 16 L30 16" />-->
-        <!--</svg>-->
-        <!--<span> {{vm.getSelectedInterpretation().state.manuallyAddedAlleles.length || 0}}/{{vm.getExcludedAlleleCount()}}</span></button>-->
-      <!--<button ng-click="vm.copyAlamut()">Copy all to alamut</button>-->
-
-      <!--<div class="dropdown white" ng-if="vm.showHistory()">-->
-        <!--<select-->
-          <!--class="id-interpretationrounds-dropdown"-->
-          <!--ng-options="i as vm.formatHistoryOption(i) for i in vm.getInterpretationHistory()"-->
-          <!--ng-change="vm.loadAlleles()"-->
-          <!--ng-model="vm.interpretationService.selected_interpretation">-->
-        <!--</select>-->
-      <!--</div>-->
-      <!--<workflow-buttons alleles="vm.getAlleles()"-->
-                        <!--analysis-id="vm.analysis.id"-->
-                        <!--readOnly="vm.readOnly"-->
-      <!--&gt;</workflow-buttons>-->
-    <!--</section>-->
-  <!--</nav>-->
-
   <div class="interpretation">
     <interpretation
       analysis="vm.analysis"

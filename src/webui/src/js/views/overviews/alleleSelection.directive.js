@@ -8,13 +8,12 @@ import {Directive, Inject} from '../../ng-decorators';
     selector: 'allele-selection',
     templateUrl: 'ngtmpl/alleleSelection.ngtmpl.html',
 })
-@Inject('$scope', '$interval', 'Navbar', 'OverviewResource', 'User')
+@Inject('$scope', '$interval', 'OverviewResource', 'User')
 class AlleleSelectionController {
 
-    constructor($scope, $interval, Navbar, OverviewResource, User) {
+    constructor($scope, $interval, OverviewResource, User) {
         this.scope = $scope;
         this.interval = $interval;
-        this.navbarService = Navbar;
         this.overviewResource = OverviewResource;
         this.user = User;
         this.overview = null;
@@ -24,7 +23,6 @@ class AlleleSelectionController {
     }
 
     _setup() {
-        this.updateNavbar();
         this.loadOverview();
         this.pollOverview();
     }
@@ -46,15 +44,6 @@ class AlleleSelectionController {
                 return item.interpretations[item.interpretations.length-1].user_id !== this.user.getCurrentUserId();
             });
         });
-    }
-
-    updateNavbar() {
-        this.navbarService.clearItems();
-        // this.navbarService.replaceItems([
-        //     {
-        //         title: 'Choose a variant'
-        //     }
-        // ]);
     }
 }
 

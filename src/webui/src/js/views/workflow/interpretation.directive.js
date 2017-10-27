@@ -42,8 +42,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
         'ReferenceResource',
         'AttachmentResource',
         'AlleleFilter',
-        'CustomAnnotationModal',
-        '$filter')
+        'CustomAnnotationModal')
 export class InterpretationController {
 
     constructor($scope,
@@ -58,8 +57,7 @@ export class InterpretationController {
                 ReferenceResource,
                 AttachmentResource,
                 AlleleFilter,
-                CustomAnnotationModal,
-                $filter) {
+                CustomAnnotationModal) {
 
         this.clipboard = clipboard;
         this.toastr = toastr;
@@ -75,8 +73,6 @@ export class InterpretationController {
         this.alleleFilter = AlleleFilter;
 
         this.showSidebar = 'showSidebar' in this ? this.showSidebar : true;
-
-        this.filter = $filter;
 
         $scope.$watch(
             () => this.getSelectedInterpretation().state,
@@ -206,10 +202,6 @@ export class InterpretationController {
     getAllInterpretations() {
         return this.interpretationService.getAll()
     }
-
-
-
-
 
     /**
      * Called when interpretations state changes.
