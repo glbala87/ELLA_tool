@@ -230,7 +230,6 @@ export class WorkflowAnalysisController {
         this.navbar.replaceItems([
             {
                 title: label,
-                url: `/overview`
             }
         ]);
     }

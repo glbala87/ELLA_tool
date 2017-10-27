@@ -232,11 +232,10 @@ export class WorkflowAlleleController {
 
     setupNavbar() {
         if (this.getAlleles() && this.getAlleles().length) {
-            let label = `${this.getAlleles()[0].toString()} ${this.genepanelName}_${this.genepanelVersion}`;
+            let label = `${this.genepanelName} ${this.genepanelVersion}`;
             this.navbar.replaceItems([
                 {
                     title: label,
-                    url: "/overview"
                 }
             ])
 
