@@ -19,6 +19,8 @@ WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdrive
 CHROMEBOX_IMAGE = ousamg/chromebox:1.2
 CHROMEBOX_CONTAINER = chromebox-$(BRANCH)
 
+GP_VALIDATION_CONTAINER = genepanel-config-validation-container
+
 .PHONY: help
 
 help :
@@ -36,6 +38,8 @@ help :
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
 	@echo "make restart		- restart container $(CONTAINER_NAME)"
 	@echo "make any		- can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
+
+	@echo "make check-gp-config    - Validate the genepanel config file set as F=.. argument"
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test		- build image local/ella-test, then run all tests"
@@ -199,7 +203,6 @@ dev:
 	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	-p $(API_PORT):5000 \
-	-p 35729:35729 \
 	$(ELLA_OPTS) \
 	-v $(shell pwd):/ella \
 	$(NAME_OF_GENERATED_IMAGE) \
@@ -223,6 +226,23 @@ logs:
 
 restart:
 	docker restart $(CONTAINER_NAME)
+
+
+#---------------------------------------------
+# Genepanel config
+#---------------------------------------------
+.PHONY: check-gp-config
+
+check-gp-config: test-build
+	@-docker stop $(GP_VALIDATION_CONTAINER)
+	@-docker rm $(GP_VALIDATION_CONTAINER)
+	@docker run -d  --name $(GP_VALIDATION_CONTAINER) $(NAME_OF_GENERATED_IMAGE) sleep infinity
+	@docker cp $(F) $(GP_VALIDATION_CONTAINER):/tmp/validation-subject
+	@docker exec $(GP_VALIDATION_CONTAINER) /bin/bash -c "PYTHONPATH=/ella/src python ops/dev/check_genepanel_config.py /tmp/validation-subject"
+	@echo "Stopping docker container $(GP_VALIDATION_CONTAINER)"
+	@docker stop $(GP_VALIDATION_CONTAINER)
+	@docker rm $(GP_VALIDATION_CONTAINER)
+
 
 #---------------------------------------------
 # TESTING
