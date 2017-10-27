@@ -21,7 +21,6 @@ let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
-let NavBar = require('../pageobjects/navbar')
 let checkAlleleClassification = require('../helpers/checkAlleleClassification')
 let failFast = require('jasmine-fail-fast');
 
@@ -33,7 +32,6 @@ let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
-let navBar = new NavBar()
 
 jasmine.getEnv().addReporter(failFast.init());
 
@@ -119,7 +117,7 @@ describe('Sample workflow', function () {
 
             // Add attachment
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(0);
-            navBar.addAttachment();
+            analysisPage.addAttachment();
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1);
 
             // Evaluate one reference
@@ -174,9 +172,9 @@ describe('Sample workflow', function () {
             alleleSectionBox.classificationCommentElement.scroll();
 
             console.log("Adding ACMG codes")
-            navBar.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');
-            navBar.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', -2); // Adjust down to PPxPS2
-            navBar.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
+            analysisPage.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');
+            analysisPage.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', -2); // Adjust down to PPxPS2
+            analysisPage.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
 
             console.log("Setting class " + (idx+1));
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx+1}`);
@@ -325,7 +323,7 @@ describe('Sample workflow', function () {
         // analysisPage.saveButton.click();
         alleleSectionBox.setReportComment('REPORT_UPDATED');
         alleleSectionBox.classSelection.selectByVisibleText('Class 5');
-        navBar.addAttachment();
+        analysisPage.addAttachment();
         expect(alleleSectionBox.getNumberOfAttachments()).toEqual(2);
         // :end
 

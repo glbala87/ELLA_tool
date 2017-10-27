@@ -1,10 +1,14 @@
 
 <nav class="secondary" ng-if="vm.getInterpretationType() === 'analysis'">
   <div class="workflow-options">
-    <div class="dropdown white">
-      <select ng-options="c as c.title for c in vm.components"
-              ng-change="vm.onComponentChange()"
-              ng-model="vm.selectedComponent"></select>
+    <div class="bttn-set">
+        <label tabindex=0
+               class="bttn"
+               id="section-{{c.title | lowercase}}"
+               ng-model="vm.selectedComponent"
+               uib-btn-radio="c"
+               ng-repeat="c in vm.components"
+        >{{c.title}}</label>
     </div>
     <div class="review-comment">
       <input type="text"
@@ -30,7 +34,7 @@
           ng-model="vm.interpretationService.selected_interpretation">
       </select>
     </div>
-    <workflow-buttons readOnly="vm.readOnly"></workflow-buttons>
+    <workflow-buttons readOnly="vm.readOnly" start-when-reopen="false"></workflow-buttons>
   </section>
 </nav>
 
@@ -70,7 +74,7 @@
                 ng-click="vm.collapseAll()">Collapse all
         </button>
 
-        <workflow-buttons ng-if="vm.getInterpretationType() === 'allele'" readOnly="vm.readOnly"></workflow-buttons>
+        <workflow-buttons ng-if="vm.getInterpretationType() === 'allele'" start-when-reopen="true" readOnly="vm.readOnly"></workflow-buttons>
 
       </section>
     </section>
