@@ -6,7 +6,7 @@ from jsonschema import validate, ValidationError
 
 @pytest.fixture()
 def schema():
-    filename = '../genap-genepanel-config-schema.json'
+    filename = '../genepanel-config-schema.json'
     abs_filename = os.path.join(os.path.dirname(__file__), filename)
     with open(abs_filename) as schema_file:
         return json.load(schema_file)

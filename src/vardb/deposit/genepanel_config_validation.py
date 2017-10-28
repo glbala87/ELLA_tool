@@ -3,11 +3,18 @@ from jsonschema import validate, FormatChecker
 import json
 
 
-def config_valid(config):
-    name_of_schema_file = '../datamodel/genap-genepanel-config-schema.json'
-    abs_filename = os.path.join(os.path.dirname(__file__), name_of_schema_file)
+SCHEMA_VERSION_1 = "1"
+SCHEMA_VERSION_2 = "2"
 
-    with open(abs_filename) as schema_file:
+SCHEMA_VERSIONS = {
+    SCHEMA_VERSION_1: '../datamodel/genepanel-config-schema.json',
+    SCHEMA_VERSION_2: '../datamodel/genepanel-config-schema_v2.json'
+}
+
+
+def config_valid(config, version=SCHEMA_VERSION_2):
+    name_of_schema_file = os.path.join(os.path.dirname(__file__), SCHEMA_VERSIONS[version])
+    with open(name_of_schema_file) as schema_file:
         my_schema = json.load(schema_file)
         # see doc http://python-jsonschema.readthedocs.io/en/latest/validate/#validating-formats
         validate(config, my_schema, format_checker=FormatChecker())

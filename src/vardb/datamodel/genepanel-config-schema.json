@@ -1,0 +1,85 @@
+{ "title": "A JSON schema for genepanel config",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [ "meta", "data"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": [
+        "version",
+        "updatedAt",
+        "updatedBy"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedBy": {
+          "type": "string"
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[A-Za-z0-9_]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "inheritance": {
+              "type": "string"
+            },
+            "disease_mode": {
+              "type": "string",
+			        "enum": ["ANY", "LOF", "MISS"]
+            },
+            "last_exon_important": {
+              "type": "string"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "freq_cutoffs": {
+              "type": "object",
+              "required": [
+                "external",
+                "internal"
+              ],
+              "external": {
+                "type": "object",
+                "required": [
+                  "hi_freq_cutoff",
+                  "lo_freq_cutoff"
+                ],
+                "hi_freq_cutoff": {
+                  "type": "number"
+                },
+                "lo_freq_cutoff": {
+                  "type": "number"
+                }
+              },
+              "internal": {
+                "type": "object",
+                "required": [
+                  "hi_freq_cutoff",
+                  "lo_freq_cutoff"
+                ],
+                "hi_freq_cutoff": {
+                  "type": "number"
+                },
+                "lo_freq_cutoff": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

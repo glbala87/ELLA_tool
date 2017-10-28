@@ -1,0 +1,136 @@
+{
+  "title": "A JSON schema for genepanel config",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "last_exon_important": {
+      "type": "string"
+    },
+    "disease_mode": {
+      "type": "string",
+      "enum": [
+        "ANY",
+        "LOF",
+        "MISS"
+      ]
+    },
+    "comment": {
+      "type": "string"
+    },
+    "frequency": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "frequencies": {
+      "type": "object",
+      "required": ["hi_freq_cutoff", "lo_freq_cutoff"],
+      "additionalProperties": false,
+      "properties": {
+        "hi_freq_cutoff": {"$ref": "#/definitions/frequency"},
+        "lo_freq_cutoff": {"$ref": "#/definitions/frequency"}
+        }
+    },
+    "frequency-group": {
+      "description": "Both internal and external cutoffs are required; different sources makes it difficult to reason.",
+      "additionalProperties": false,
+      "required": [
+        "internal",
+        "external"
+      ],
+      "properties": {
+        "internal": {
+          "description": "Cutoffs for AMGs internal frequency databases",
+          "type": "object",
+          "$ref": "#/definitions/frequencies"
+        },
+        "external": {
+          "description": "Cutoffs for publicly available databases",
+          "type": "object",
+          "$ref": "#/definitions/frequencies"
+        }
+      }
+    },
+    "version-description": {
+      "type": "object",
+      "description": "The meta fields describes this version of the config",
+      "required": [
+        "version",
+        "updatedAt",
+        "updatedBy"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "A string identifying this specific config"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "Signature/username of the author"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "meta",
+    "data"
+  ],
+  "properties": {
+    "meta": {
+      "$ref": "#/definitions/version-description"
+    },
+    "data": {
+      "description": "An override of global settings. An override applies to either all genes in a panel, or to single gene. Anything specified for a gene overrides any values on the global or genepanel level",
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "object",
+          "description": "Overrides for genes that have inheritance mode that isn't strictly AD",
+          "properties": {
+            "freq_cutoffs": {
+              "type": "object",
+              "$ref": "#/definitions/frequency-group"
+            }
+          }
+        },
+          "AD": {
+            "type": "object",
+            "description": "Overrides for genes that have inheritance mode AD",
+            "properties": {
+              "freq_cutoffs": {
+                "type": "object",
+                "$ref": "#/definitions/frequency-group"
+              }
+            }
+          }
+      },
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[A-Za-z0-9_]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "disease_mode": {
+              "$ref": "#/definitions/disease_mode"
+            },
+            "last_exon_important": {
+              "$ref": "#/definitions/last_exon_important"
+            },
+            "comment": {
+              	"$ref": "#/definitions/comment"
+            },
+            "freq_cutoffs": {
+              "type": "object",
+              "$ref": "#/definitions/frequency-group"
+            }
+          }
+        }
+      }
+    }
+    }
+}
+
