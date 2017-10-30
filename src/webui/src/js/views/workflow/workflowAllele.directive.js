@@ -297,6 +297,10 @@ export class WorkflowAlleleController {
         });
     }
 
+    getCollisionWarningHeight() {
+        return this.collisionWarning.el[0].offsetHeight + 'px';
+    }
+
     loadAlleleId() {
         let q = this._getQueryFromSelector();
         return this.alleleService.getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {

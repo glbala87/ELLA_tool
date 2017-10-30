@@ -272,7 +272,9 @@ export class WorkflowAnalysisController {
         });
     }
 
-
+    getCollisionWarningHeight() {
+        return this.collisionWarning.el[0].offsetHeight + 'px';
+    }
 
     //
     // Trigger actions in interpretation service
