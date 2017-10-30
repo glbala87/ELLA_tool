@@ -2,7 +2,7 @@
     {
         "name": "testgroup01",
         "genepanels": [
-            ["HBOC", "v01"],
+            ["HBOC", "v02"],
             ["HBOCUTV", "v01"]
         ],
         "config": {

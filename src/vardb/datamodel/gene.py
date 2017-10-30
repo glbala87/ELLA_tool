@@ -81,7 +81,7 @@ class Genepanel(Base):
     def __str__(self):
         return '_'.join((self.name, self.version, self.genome_reference))
 
-    def find_inheritance(self, symbol):
+    def find_inheritance_codes(self, symbol):
         if not self.phenotypes:
             return None
 

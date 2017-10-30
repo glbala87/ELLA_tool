@@ -43,11 +43,11 @@ GENEPANELS = [
         'version': 'v01'
     },
     {
-        'config': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.config.json',
-        'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
+        'config': '../testdata/clinicalGenePanels/HBOC_v02/HBOC_v02.config.v4.json',
+        'transcripts': '../testdata/clinicalGenePanels/HBOC_v02/HBOC_v02.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/HBOC_v02/HBOC_v02.phenotypes.csv',
         'name': 'HBOC',
-        'version': 'v01'
+        'version': 'v02'
     },
     {
         'path': '../testdata/clinicalGenePanels/Bindevev_v02.transcripts.csv',

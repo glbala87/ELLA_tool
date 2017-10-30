@@ -29,7 +29,7 @@ def get_genotype(genotypes, first_change, second_change, _ret=[]):
 @pytest.fixture(scope="module", autouse=True)
 def deposit_single(session):
     """Deposit test analysis"""
-    single = os.path.join(VARDB_PATH, "testdata/analyses/all/brca_decomposed.HBOC_v01")
+    single = os.path.join(VARDB_PATH, "testdata/analyses/all/brca_decomposed.HBOC_v02")
     assert os.path.isdir(single)
     files = os.listdir(single)
     assert len(files) == 3
@@ -38,16 +38,16 @@ def deposit_single(session):
     deposit_analysis = DepositAnalysis(session)
     deposit_analysis.import_vcf(
         vcf_file,
-        'brca_decomposed.HBOC_v01',
+        'brca_decomposed.HBOC_v02',
         'HBOC',
-        'v01'
+        'v02'
     )
 
 
 @pytest.fixture(scope="module")
 def all_genotypes_single(session):
     """return all genotypes imported in this analysis"""
-    analysis_name = "brca_decomposed.HBOC_v01"
+    analysis_name = "brca_decomposed.HBOC_v02"
     all_genotypes = session.query(genotype.Genotype).join(
         sample.Analysis
     ).filter(

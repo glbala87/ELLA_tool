@@ -16,7 +16,7 @@ CONFIG = {
     'variant_criteria': {
         "intronic_region": [-10, 5],
         "genepanel_config": {
-            "freq_cutoffs": {
+            "freq_cutoff_groups": {
                 "AD": {
                     "external": {
                         "hi_freq_cutoff": 0.005,

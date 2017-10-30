@@ -7,7 +7,7 @@ import argparse
 import json
 import os
 
-from vardb.deposit.genepanel_config_validation import config_valid, SCHEMA_VERSION_2, SCHEMA_VERSION_1
+from vardb.deposit.genepanel_config_validation import config_valid, SCHEMA_VERSION_4, SCHEMA_VERSION_3, SCHEMA_VERSION_2, SCHEMA_VERSION_1
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     parser.add_argument('config_file', metavar='C', type=str,
                         help='path of config file with/without a "config" key at root')
     parser.add_argument('--schema_version', '-v', metavar='version',
-                        choices=[SCHEMA_VERSION_1, SCHEMA_VERSION_2],
+                        choices=[SCHEMA_VERSION_1, SCHEMA_VERSION_2, SCHEMA_VERSION_3, SCHEMA_VERSION_4],
                         type=str, help='version of schema', required=False)
 
     args = parser.parse_args()
@@ -26,7 +26,8 @@ def main():
 
     with open(args.config_file) as config_file:
         config_json = json.load(config_file)
-        config_valid(config_json['config']) if 'config' in config_json else config_valid(config_json)
+        config_data =  config_json['config'] if 'config' in config_json else config_json
+        config_valid(config_data, args.schema_version)
         print "File " + args.config_file + " appears to be OK"
         exit(0)
 

@@ -64,3 +64,12 @@ class GenepanelSchema(Schema):
           'name',
           'version',
         )
+
+# class GenepanelConfigSchema(Schema):
+#     class Meta:
+#         title = "Genepanel config"
+#         description = "Config that can be overriden by genepanel or gene"
+#         fields = (
+#           'meta'
+#           'version'
+#         )
