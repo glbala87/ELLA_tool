@@ -120,11 +120,21 @@ export class WorkflowButtonsController {
 
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
-        this.workflowService.confirmCompleteFinalize(type, id, this.getSelectedInterpretation(), this.getAlleles(), this.config).then((redirect) => {
-            if (redirect) {
-                this.location.path('/overview');
-            }
-        });
+        this.workflowService.checkFinishAllowed(type, id, this.getSelectedInterpretation(), this.getAnalysis()).then( () => {
+            this.workflowService.confirmCompleteFinalize(type, id, this.getSelectedInterpretation(), this.getAlleles(), this.config).then((redirect) => {
+                if (redirect) {
+                    this.location.path('/overview');
+                }
+            })
+        }).catch( (error) => {
+            this.toastr.error("Finish not allowed: "+error.data)
+        })
+
+        // this.workflowService.confirmCompleteFinalize(type, id, this.getSelectedInterpretation(), this.getAlleles(), this.config).then((redirect) => {
+        //     if (redirect) {
+        //         this.location.path('/overview');
+        //     }
+        // });
     }
 
     showFinishBtn() {
@@ -199,6 +209,10 @@ export class WorkflowButtonsController {
 
     getAllInterpretations() {
         return this.interpretationService.getAll()
+    }
+
+    getAnalysis() {
+        return this.interpretationService.getAnalysis()
     }
 
 

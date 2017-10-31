@@ -148,6 +148,22 @@ class WorkflowResource {
         });
     }
 
+    checkFinishAllowed(type, id, interpretation, sample_ids) {
+        return new Promise((resolve, reject) => {
+            let url = `${this.base}/workflows/${this.types[type]}/${id}/interpretations/${interpretation.id}/finishallowed`
+            if (sample_ids) {
+                let q = JSON.stringify({"sample_ids": sample_ids})
+                url += `?q=${encodeURIComponent(q)}`
+            }
+
+            let r = this.resource(url);
+            r.get(() => {
+                resolve();
+            }, reject);
+        })
+    }
+
+
     /**
      * Returns information about alleles that are currently being interpreted in
      * analyses _other_ than the provided analysis id, and which doesn't

@@ -27,6 +27,7 @@ class LoginResource {
             var result = r.login(credentials, () => {
                 resolve(result)
             }, (error) => {
+                console.log(error)
                 console.log(error.data)
                 reject(error.data)
             })

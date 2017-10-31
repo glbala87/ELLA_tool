@@ -192,6 +192,14 @@ class WorkflowService {
         return false;
     }
 
+    checkFinishAllowed(type, id, interpretation, analysis) {
+        let sample_ids = null;
+        if (type === "analysis") {
+            sample_ids =  analysis.samples.map(s => s.id)
+        }
+        return this.workflowResource.checkFinishAllowed(type, id, interpretation, sample_ids)
+    }
+
     /**
      * Popups a confirmation dialog, asking to complete or finalize the interpretation
      * @param  {Interpretation} interpretation

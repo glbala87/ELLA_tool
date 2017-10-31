@@ -160,7 +160,7 @@ def get_alleles(session, allele_ids, genepanels, alleleinterpretation_id=None, a
     )
 
 
-def update_interpretation(session, user_id, data, alleleinterpretation_id=None, analysisinterpretation_id=None):
+def update_interpretation(session, user, data, alleleinterpretation_id=None, analysisinterpretation_id=None):
     """
     Updates the current interpretation inplace.
 
@@ -185,9 +185,11 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
 
         # Check that user is same as before
         if interpretation.user_id:
-            if interpretation.user_id != user_id:
+            if interpretation.user_id != user.id:
+                # raise ConflictError("Interpretation owned by {} cannot be updated by other user ({})"
+                #                .format(interpretation.user_id, user_id))
                 raise ApiError("Interpretation owned by {} cannot be updated by other user ({})"
-                               .format(interpretation.user_id, patch_data['user_id']))
+                               .format(interpretation.user_id, user.id))
 
     interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
     interpretation_model = _get_interpretation_model(alleleinterpretation_id, analysisinterpretation_id)
@@ -196,7 +198,7 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
         interpretation_model.id == interpretation_id
     ).one()
 
-    check_update_allowed(interpretation, user_id, data)
+    check_update_allowed(interpretation, user, data)
 
     # Add current state to history if new state is different:
     if data['state'] != interpretation.state:
@@ -612,3 +614,12 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             })
 
     return collisions
+
+def can_finish_interpretation(session, genepanels, analysis_id=None, allele_id=None, analysisinterpretation_id=None, alleleinterpretation_id=None):
+    interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+    print latest_interpretation
+    print dir(latest_interpretation)
+
+    return latest_interpretation.id == interpretation_id
+

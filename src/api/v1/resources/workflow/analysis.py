@@ -2,7 +2,8 @@ from flask import request
 from sqlalchemy import tuple_
 from vardb.datamodel import sample, genotype, allele
 
-from api.util.util import request_json, ApiError, authenticate
+from api import ApiError, ConflictError
+from api.util.util import request_json, authenticate, rest_filter
 from api.v1.resource import LogRequestResource
 
 from . import helpers
@@ -127,7 +128,7 @@ class AnalysisInterpretationResource(LogRequestResource):
             type: null
             description: OK
         """
-        helpers.update_interpretation(session, user.id, data, analysisinterpretation_id=interpretation_id)
+        helpers.update_interpretation(session, user, data, analysisinterpretation_id=interpretation_id)
         session.commit()
 
         return None, 200
@@ -626,3 +627,18 @@ class AnalysisCollisionResource(LogRequestResource):
             analysis_allele_ids,
             analysis_id=analysis_id
         )
+
+
+class AnalysisInterpretationFinishAllowedResource(LogRequestResource):
+    @authenticate()
+    @rest_filter
+    def get(self, session, analysis_id, interpretation_id, rest_filter=None, data=None, user=None):
+        sample_ids = session.query(sample.Sample.id).filter(
+            sample.Sample.analysis_id == analysis_id
+        ).all()
+        sample_ids = [s[0] for s in sample_ids]
+
+        if not sample_ids == rest_filter['sample_ids']:
+            raise ConflictError("Can not finish interpretation. Additional samples have been added to the analysis. Please refresh.")
+        else:
+            return None, 200

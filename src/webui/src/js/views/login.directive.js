@@ -119,6 +119,7 @@ export class LoginController {
              )
              console.log("Successful login")
         }).catch((error) => {
+            console.log(error)
             this.toastr.error(`Login was unsuccessful: ${error}`)
             console.log("Unsuccessful login")
             console.log(error)

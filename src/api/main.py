@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request
 from flask_restful import Api
-from api import app, db, AuthenticationError
+from api import app, db, AuthenticationError, ConflictError
 from api.v1 import ApiV1
 
 # For /reset purposes
@@ -89,7 +89,7 @@ def do_testdata_reset(test_set, blocking=True):
 
 class ApiErrorHandling(Api):
     def handle_error(self, e):
-        if isinstance(e, AuthenticationError):
+        if isinstance(e, (AuthenticationError, ConflictError)):
             return self.make_response(e.message, e.status_code)
         else:
             return super(ApiErrorHandling, self).handle_error(e)
