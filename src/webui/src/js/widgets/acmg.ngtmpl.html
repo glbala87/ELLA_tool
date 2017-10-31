@@ -2,7 +2,7 @@
   <div class="upper-wrapper">
     <section class="acmg-upper">
       <div class="left-item">
-        <h4 class="id-adjust-up adjust-button" 
+        <h4 class="id-adjust-down adjust-button" 
             ng-style="(vm.isDowngradable() && vm.editable) && {'visibility':'visible'} || {'visibility':'hidden'}" 
               class="clickable" ng-click="vm.downgradeCode()">-</h4>
         <div class="acmg-title-wrapper">
@@ -14,7 +14,7 @@
             {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
           </h4>
         </div>
-        <h4 class="id-adjust-down adjust-button" 
+        <h4 class="id-adjust-up adjust-button" 
             ng-style="(vm.isUpgradable() && vm.editable === true) && {'visibility':'visible'} || {'visibility':'hidden'}" 
               class="clickable" ng-click="vm.upgradeCode()">+</h4>
       </div>
