@@ -150,6 +150,11 @@ class WorkflowResource {
 
     checkFinishAllowed(type, id, interpretation, sample_ids) {
         return new Promise((resolve, reject) => {
+            // Finish is always allowed on alleles (for now)
+            if (type === "allele") {
+                resolve()
+                return;
+            }
             let url = `${this.base}/workflows/${this.types[type]}/${id}/interpretations/${interpretation.id}/finishallowed`
             if (sample_ids) {
                 let q = JSON.stringify({"sample_ids": sample_ids})

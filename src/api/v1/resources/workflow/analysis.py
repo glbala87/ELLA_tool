@@ -128,7 +128,7 @@ class AnalysisInterpretationResource(LogRequestResource):
             type: null
             description: OK
         """
-        helpers.update_interpretation(session, user, data, analysisinterpretation_id=interpretation_id)
+        helpers.update_interpretation(session, user.id, data, analysisinterpretation_id=interpretation_id)
         session.commit()
 
         return None, 200
