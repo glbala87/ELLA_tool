@@ -1,5 +1,4 @@
 <interpretationbar
-    analysis="vm.analysis"
     allele="vm.allele_sidebar.selected"
     components="vm.components"
     selected-component="vm.selectedComponent"
@@ -26,13 +25,11 @@
             <allele-sectionbox
               read-only="vm.readOnly"
               header="section.title"
-              genepanel="vm.getSelectedInterpretation().analysis.genepanel"
               allele="vm.allele_sidebar.selected"
               references="vm.references"
               attachments="vm.attachments"
               allele-state="vm.getAlleleState(vm.allele_sidebar.selected)"
               allele-user-state="vm.getAlleleUserState(vm.allele_sidebar.selected)"
-              analysis="vm.getSelectedInterpretation().analysis"
               controls="section.controls"
               on-change-class="vm.onChangeClass(allele)"
               on-update="vm.onUpdate(false)"
@@ -51,7 +48,6 @@
           read-only="vm.readOnly"
           class="single-sample-analysis-item"
           ng-switch-when="Report"
-          analysis="vm.getSelectedInterpretation().analysis"
           alleles="vm.getComponent('Report').alleles"
           references="vm.references"
           state="vm.getSelectedInterpretation().state"

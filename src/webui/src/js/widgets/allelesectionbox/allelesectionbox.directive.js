@@ -9,7 +9,6 @@ import {ACMGHelper} from '../../model/acmghelper';
     templateUrl: 'ngtmpl/allelesectionbox.ngtmpl.html',
     scope: {
         header: '=',
-        genepanel: '=',
         allele: '=',
         references: '=',
         attachments: '=',

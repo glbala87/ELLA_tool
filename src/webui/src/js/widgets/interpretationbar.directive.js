@@ -131,7 +131,7 @@ export class Interpretationbar {
         this.addExcludedAllelesModal.show(
             this.getSelectedInterpretation().excluded_allele_ids,
             this.getSelectedInterpretation().state.manuallyAddedAlleles,
-            this.analysis.samples[0].id, // FIXME: Support multiple samples
+            this.getAnalysis().samples[0].id, // FIXME: Support multiple samples
             this.getSelectedInterpretation().genepanel_name,
             this.getSelectedInterpretation().genepanel_version,
             this.readOnly
@@ -186,6 +186,10 @@ export class Interpretationbar {
 
     getGenepanel() {
         return this.interpretationService.getGenepanel()
+    }
+
+    getAnalysis() {
+        return this.interpretationService.getAnalysis()
     }
 
 

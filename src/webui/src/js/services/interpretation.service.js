@@ -19,15 +19,16 @@ import {deepCopy} from '../util'
 @Service({
     serviceName: 'Interpretation'
 })
-@Inject('$rootScope', 'WorkflowResource', 'Workflow', 'Allele', 'GenepanelResource', 'User')
+@Inject('$rootScope', 'WorkflowResource', 'Workflow', 'Allele', 'GenepanelResource', 'AnalysisResource', 'User')
 class InterpretationService {
 
-    constructor($rootScope, WorkflowResource, Workflow, Allele, GenepanelResource, User) {
+    constructor($rootScope, WorkflowResource, Workflow, Allele, GenepanelResource, AnalysisResource, User) {
         this.rootScope = $rootScope;
         this.workflowResource = WorkflowResource;
         this.workflowService = Workflow;
         this.alleleService = Allele;
         this.genepanelResource = GenepanelResource;
+        this.analysisResource = AnalysisResource;
         this.user = User;
 
         this.reset()
@@ -87,6 +88,8 @@ class InterpretationService {
         this.genepanel_name = null;
         this.genepanel_version = null
 
+        this.analysis = null;
+
         // Dummy data for letting the user browse the view before starting interpretation. Never stored!
         // Only used for variants, as variant interpretation is not available by default in the backend
         // Analysis interpretation objects are created on import
@@ -107,7 +110,7 @@ class InterpretationService {
     }
 
     /**
-     * Load interpretations, alleles, and genepanel (in that order)
+     * Load analysis (if applicable), interpretations, alleles, and genepanel (in that order)
      *
      * @param type Type of interpretation (allele or analysis)
      * @param id Id of allele or analysis
@@ -116,6 +119,9 @@ class InterpretationService {
      * @returns {Promise.<TResult>|*}
      */
     load(type, id, genepanel_name, genepanel_version) {
+        if (type === 'analysis') {
+            this.loadAnalysis(id)
+        }
         return this._loadInterpretations(type, id, genepanel_name, genepanel_version).then( () => {
             return this.loadAlleles(true).then( () => {
                 return this.loadGenepanel()
@@ -219,6 +225,12 @@ class InterpretationService {
         });
     }
 
+    loadAnalysis(id) {
+        this.analysisResource.getAnalysis(id).then(a => {
+            this.analysis = a;
+        });
+    }
+
     getSelected() {
         // Fall back to dummy interpretation, if selected interpretation is not defined (for alleles only)
         if (this.selected_interpretation) {
@@ -257,5 +269,9 @@ class InterpretationService {
     getAlleles() {
         // Fall back to this.alleles when no interpretation exists on backend
         return this.selected_interpretation_alleles || this.alleles;
+    }
+
+    getAnalysis() {
+        return this.analysis;
     }
 }

@@ -7,7 +7,6 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     selector: 'report-card',
     templateUrl: 'ngtmpl/reportcard.ngtmpl.html',
     scope: {
-        analysis: '=',
         alleles: '=',
         references: '=',
         state: '=',

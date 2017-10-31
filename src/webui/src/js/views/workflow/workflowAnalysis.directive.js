@@ -29,7 +29,6 @@ import {Directive, Inject} from '../../ng-decorators';
     '$scope',
     'WorkflowResource',
     'GenepanelResource',
-    'AnalysisResource',
     'Workflow',
     'Interpretation',
     'Navbar',
@@ -42,7 +41,6 @@ export class WorkflowAnalysisController {
                 scope,
                 WorkflowResource,
                 GenepanelResource,
-                AnalysisResource,
                 Workflow,
                 Interpretation,
                 Navbar,
@@ -54,10 +52,8 @@ export class WorkflowAnalysisController {
         this.scope = scope;
         this.workflowResource = WorkflowResource;
         this.genepanelResource = GenepanelResource;
-        this.analysisResource = AnalysisResource;
         this.workflowService = Workflow;
         this.interpretationService = Interpretation;
-        this.analysis = null;
         this.navbar = Navbar;
         this.config = Config.getConfig();
         this.user = User;
@@ -194,8 +190,14 @@ export class WorkflowAnalysisController {
         this.setUpListeners();
         this.setupNavbar();
 
-        this._loadAnalysis();
+
         this.reloadInterpretationData();
+        this.checkForCollisions();
+
+        this.scope.$watch(
+            () => this.getAnalysis(),
+            () => this.setupNavbar()
+        )
     }
 
     setUpListeners() {
@@ -225,7 +227,8 @@ export class WorkflowAnalysisController {
     }
 
     setupNavbar() {
-        let label = this.analysis ? this.analysis.name : '';
+        let analysis = this.getAnalysis()
+        let label = analysis ? analysis.name : '';
 
         this.navbar.replaceItems([
             {
@@ -233,8 +236,6 @@ export class WorkflowAnalysisController {
             }
         ]);
     }
-
-
 
     confirmAbortInterpretation(event) {
         if (this.isInterpretationOngoing() && !event.defaultPrevented) {
@@ -245,14 +246,7 @@ export class WorkflowAnalysisController {
         }
     }
 
-
-
-    _loadAnalysis() {
-        this.analysisResource.getAnalysis(this.analysisId).then(a => {
-            this.analysis = a;
-            this.setupNavbar();
-        });
-
+    checkForCollisions() {
         this.workflowResource.getCollisions('analysis', this.analysisId).then(result => {
             if (result.length > 0) {
                 let html = "<h4>There "
@@ -295,7 +289,7 @@ export class WorkflowAnalysisController {
     }
 
     isViewReady() {
-        return this.interpretationService.isViewReady && this.analysis;
+        return this.interpretationService.isViewReady && this.getAnalysis();
     }
 
     getSelectedInterpretation() {
@@ -316,5 +310,9 @@ export class WorkflowAnalysisController {
 
     getInterpretationHistory() {
         return this.interpretationService.getHistory()
+    }
+
+    getAnalysis() {
+        return this.interpretationService.getAnalysis()
     }
 }
