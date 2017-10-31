@@ -212,59 +212,6 @@ class AlleleSectionBox  {
         browser.click('.id-marked-technical');
     }
 
-
-    /**
-     * @param {string} category Either 'pathogenic' or 'benign'
-     * @param {string} code ACMG code to add
-     * @param {string} comment Comment to go with added code
-     * @param {int} adjust_levels Adjust ACMG code up or down level (-2 is down two times etc.)
-     *
-     * Choose an ACMG code high up in the modal to avoid 'element not clickable' errors
-     *
-     */
-    addAcmgCode(category, code, comment, adjust_levels=0) {
-
-        let buttonSelector = 'allele-sectionbox:nth-child(1) button.id-add-acmg'; // Select top sectionbox' button
-        browser.click(buttonSelector);
-        browser.waitForExist('.id-acmg-selection-popover', 100); // make sure the popover appeared
-        browser.pause(500); // Wait for popover animation to settle
-
-        let categories = {
-            pathogenic: 1,
-            benign: 2
-        };
-
-        let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`;
-        browser.click(acmg_selector);
-        browser.element('.popover').scroll(`h4.acmg-title=${code}`);
-        browser.element('.popover').click(`h4.acmg-title=${code}`);
-
-        // Set staged code comment
-        browser.element('.acmg-selection .id-staged-acmg-code textarea').setValue(comment);
-
-        // Adjust staged code up or down
-        let adjust_down = adjust_levels < 0;
-        for (let i = 0; i < Math.abs(adjust_levels); i++) {
-            if (adjust_down) {
-                browser.element('.acmg-selection .id-staged-acmg-code .id-adjust-down').click();
-            } else {
-                browser.element('.acmg-selection .id-staged-acmg-code .id-adjust-up').click();
-            }
-        }
-
-        // Add staged code
-        browser.element('.acmg-selection .id-staged-acmg-code .acmg-upper button').click();
-
-    }
-
-    addAttachment() {
-        let uploadSelector = 'allele-sectionbox:nth-child(1) .input-label #file-input';
-        // let uploadSelector = '#file-input';
-        browser.chooseFile(uploadSelector, __filename)
-        browser.pause(1000)
-        console.log("Added attachment")
-    }
-
     getNumberOfAttachments() {
         let elements = browser.elements('.attachment-wrapper attachment')
         return elements.value.length;

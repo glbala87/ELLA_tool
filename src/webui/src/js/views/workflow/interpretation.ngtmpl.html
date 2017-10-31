@@ -1,3 +1,12 @@
+<interpretationbar
+    allele="vm.allele_sidebar.selected"
+    components="vm.components"
+    selected-component="vm.selectedComponent"
+    on-component-change="vm.onComponentChange()"
+    read-only="vm.readOnly"
+></interpretationbar>
+
+<div class="interpretation-container">
     <div class="no-alleles" ng-if="!vm.getAlleles().length">
       <h2>No variants to show for analysis.</h2>
       <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
@@ -5,7 +14,7 @@
     <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.getAlleles().length">
         <allele-sidebar ng-if="vm.showSidebar"
                         read-only="vm.readOnly"
-                        genepanel="vm.genepanel"
+                        genepanel="vm.getGenepanel()"
                         alleles="vm.allele_sidebar.alleles"
                         selected="vm.allele_sidebar.selected"
                         checked="vm.getSelectedInterpretation().state.report.included">
@@ -16,16 +25,14 @@
             <allele-sectionbox
               read-only="vm.readOnly"
               header="section.title"
-              genepanel="vm.getSelectedInterpretation().analysis.genepanel"
               allele="vm.allele_sidebar.selected"
               references="vm.references"
               attachments="vm.attachments"
               allele-state="vm.getAlleleState(vm.allele_sidebar.selected)"
               allele-user-state="vm.getAlleleUserState(vm.allele_sidebar.selected)"
-              analysis="vm.getSelectedInterpretation().analysis"
               controls="section.controls"
               on-change-class="vm.onChangeClass(allele)"
-              on-update="vm.onUpdate()"
+              on-update="vm.onUpdate(false)"
               ng-if="vm.allele_sidebar.selected"
               section="section"
               alleleassessment-comment="section.alleleassessment_comment"
@@ -41,7 +48,6 @@
           read-only="vm.readOnly"
           class="single-sample-analysis-item"
           ng-switch-when="Report"
-          analysis="vm.getSelectedInterpretation().analysis"
           alleles="vm.getComponent('Report').alleles"
           references="vm.references"
           state="vm.getSelectedInterpretation().state"
@@ -51,3 +57,4 @@
 
       </section>
     </article>
+</div>

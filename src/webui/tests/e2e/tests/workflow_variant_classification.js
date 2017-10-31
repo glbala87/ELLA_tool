@@ -90,9 +90,9 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
 
         alleleSectionBox.classificationCommentElement.scroll();
 
-        alleleSectionBox.addAcmgCode('benign', 'BP2','ACMG_ROUND_1', -1); // Adjust down to BSxBP2
-        alleleSectionBox.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1');
-        alleleSectionBox.addAcmgCode('pathogenic', 'PM1','ACMG_ROUND_1', 2); // Adjust up to PVSxPM1
+        analysisPage.addAcmgCode('benign', 'BP2','ACMG_ROUND_1', -1); // Adjust down to BSxBP2
+        analysisPage.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1');
+        analysisPage.addAcmgCode('pathogenic', 'PM1','ACMG_ROUND_1', 2); // Adjust up to PVSxPM1
         alleleSectionBox.classSelection.selectByVisibleText('Class 1');
 
         interpretation_expected_values = {

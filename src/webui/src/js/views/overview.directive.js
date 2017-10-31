@@ -6,15 +6,17 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'overview',
     templateUrl: 'ngtmpl/overview.ngtmpl.html',
 })
-@Inject('$scope', '$interval', 'Config', 'SearchResource', 'AnnotationjobResource', 'AnnotateVCFFileModal')
+@Inject('$scope', '$interval', 'Config', 'Navbar', 'SearchResource', 'AnnotationjobResource', 'AnnotateVCFFileModal')
 export class MainController {
-    constructor($scope, $interval, Config, SearchResource, AnnotationjobResource, AnnotateVCFFileModal) {
+    constructor($scope, $interval, Config, Navbar, SearchResource, AnnotationjobResource, AnnotateVCFFileModal) {
         this.scope = $scope;
         this.interval = $interval;
         this.config = Config.getConfig();
         this.searchResource = SearchResource;
         this.annotationjobResource = AnnotationjobResource;
         this.annotateVCFFileModal = AnnotateVCFFileModal;
+
+        Navbar.clearItems();
 
         this.search = {
             results: null,

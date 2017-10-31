@@ -240,7 +240,8 @@ button { outline: none; border: 1px solid Transparent;
   min-height: calc(100vh - 11rem);
   height: 100%;
 
-  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; min-height: calc(100vh - 11rem); position: fixed;
+  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; position: fixed;
+    min-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
     .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
       .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
         &.active {
@@ -254,17 +255,18 @@ button { outline: none; border: 1px solid Transparent;
       }
     }
   }
-  .container { margin-left: 2.0rem; margin-top: 4rem; margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
-  .container.no-secondary-nav { margin-top: 12rem; }
+  .container { margin-left: 2.0rem; margin-top: calc(#{$nav-bar-top-height} + 2rem); margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
+  //.container.no-secondary-nav { margin-top: 12rem; }
   .container.with-sidenavbar { margin-left: 9rem; }
   .container.inner { width: 100%; margin-left: 46.2rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
 
 
   // View specific stuff
   .logout-btn { margin-left: auto; }
-  .overviewcontainer { display: flex; }
+  .overviewcontainer { display: flex; padding-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height}); }
   .dashboard {
     display: flex;
+    padding-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
     .full-title { padding-left: 1.2rem; font-size: 1.4rem; font-weight: 300; } 
     .profile {
       flex: 1;
@@ -302,41 +304,104 @@ button { outline: none; border: 1px solid Transparent;
 }
 
 
-.hero { position: absolute; right: 1.3rem; top: 1.15rem; z-index: 1501; color: black; cursor: pointer;
-  h1 { font-size: 4rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
-  h1:hover { transform: rotateY(180deg); transform-style: preserve-3d; color: white; opacity: 0.75; }
+.hero { position: absolute; right: 50%; top: 0.15rem; z-index: 1501; color: black; cursor: pointer;
+  h1 { font-size: 3rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
+  h1:hover { transform: rotateY(180deg); transform-origin: 9rem; transform-style: preserve-3d; color: white; opacity: 0.75; }
   h1:hover #e { transform: rotateY(180deg); }
   h1:hover #les { visibility: visible; opacity: 1; }
   #e, #a, #les { font-size: 3.2rem; transition: all 1s; }
   #les { transform: rotateY(180deg); visibility: hidden; opacity: 0; }
 }
 
-nav.top { display: flex; flex-direction: row; align-items: center; background-color: $blue; color: white; padding: 0.7rem; height: 6.5rem; position: fixed; top: 0; left: 0; right: 0; z-index: 1500;
-  section { display: flex; flex-direction: column; justify-content: space-between;
-    &.left { width: calc(30vw - 1.3rem); display: flex; justify-content: space-around; padding-bottom: 0.35rem }
-    &.right { width: calc(70vw - 1.3rem); margin-left: 0.35rem; margin-top: 5rem; margin-bottom: 3rem; }
-  }
-  .row { display: flex; flex-direction: row; align-items: center;
-    &.up h3 { font-size: 1.3rem; }
-    &.up { padding-bottom: 0.7rem; }
-    &.down h3 { font-size: 1.5rem; }
-    &.up, &.down { justify-content: space-between; padding-left: 0.5rem; }
+.home-svg {fill: $white-50; margin-bottom: -0.4rem;
+  :hover {
+    fill: $white-75;
   }
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-25; height: 4.5rem; margin-top: 6.5rem; padding: 0 1.3rem;
-  section { display: flex;
-    button { margin-left: 1.3rem; }
-    .dropdown { margin-left: 1.3rem; }
-  }
 
-  // Workflow specific
-  .workflow-options { display: flex;
-    .dropdown { margin-right: 2rem; }
-    .review-comment {
-      input { width: 25rem; }
+nav {position: fixed; width:100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;}
+
+nav.top {
+  background-color: $blue;
+  color: white;
+  padding: 0.7rem 1.3rem;
+  height: 4.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-50-on-white; height: $nav-bar-secondary-height; margin-top: $nav-bar-top-height; padding: 0 1.3rem; z-index: 100;
+  section { display: flex;
+    .dropdown { margin-left: 1.4rem; }
+  }
+}
+
+// Workflow specific
+workflow-buttons { margin-left: 1.4rem;}
+.workflow-options { display: flex;
+  .bttn-set { margin-right: 2rem; background-color: $white;}
+  .review-comment {
+    input { width: 25rem; }
+  }
+}
+
+.nav-secondary-spacer {
+  height: calc(#{$nav-bar-secondary-height} + 0.8rem);
+}
+
+.nav-bottom-buttons-spacer {
+  height: calc(#{$nav-bar-bottom-buttons-height} + 0.8rem);
+
+}
+
+.nav-bottom-allelebar-spacer {
+  height: calc(#{$allelebar-row-height} + 0.8rem);
+}
+
+nav.bottom {
+  flex-direction: column;
+  z-index: 100;
+  margin-top: $nav-bar-top-height;
+  background-color: $blue-25-on-white;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 1.3rem;
+  padding-left: 1.3rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  section { margin-top: -0.05rem; display: flex; width: 100%; justify-content: flex-end;  height: $nav-bar-bottom-buttons-height; }
+  article { display: flex; width: 100%; justify-content: space-between; height: $allelebar-row-height;  }
+}
+
+nav.bottom.has-secondary {
+    margin-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height});
+}
+
+allelebar {
+    width: 100%;
+    > table {
+      width: 100%;
+      * tr {
+        height: $allelebar-row-height;
+        > td {
+          text-align: center;
+        }
+        > td:first-child {
+          text-align: left;
+        }
+        > td:last-child {
+          text-align: right;
+        }
+      }
     }
   }
+
+.upload-button {
+  @extend button;
+  margin-left: 1.2rem;
 }
 
 .search-box { margin-left: auto; margin-right: 1rem;
@@ -371,7 +436,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 .sidebar .ng-enter { opacity: 0; transition: all 0.8s ease-in-out; }
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; height: calc(100vh - 15rem); position: fixed; left: 1.3rem; bottom: 1.3rem; top: 14.5rem;
+.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: fixed; left: 1.3rem; bottom: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -505,7 +570,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   }
 }
 
-#toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%;
+#toast-container { position: fixed; z-index: 999999; bottom: 0; right: 0; left: 0; width: 100%; max-height: 20rem; overflow-y: auto; overflow-x: hidden;
   & > :hover { cursor: pointer; }
   .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
   .toast { background-color: #030303; }

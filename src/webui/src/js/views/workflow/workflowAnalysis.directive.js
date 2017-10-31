@@ -21,7 +21,7 @@ import {Directive, Inject} from '../../ng-decorators';
 @Directive({
     selector: 'workflow-analysis',
     scope: {
-        'analysisId': '@'
+        'analysisId': '='
     },
     templateUrl: 'ngtmpl/workflowAnalysis.ngtmpl.html'
 })
@@ -29,14 +29,11 @@ import {Directive, Inject} from '../../ng-decorators';
     '$scope',
     'WorkflowResource',
     'GenepanelResource',
-    'AnalysisResource',
     'Workflow',
     'Interpretation',
     'Navbar',
     'Config',
     'User',
-    'AddExcludedAllelesModal',
-    'clipboard',
     'toastr',
     '$filter')
 export class WorkflowAnalysisController {
@@ -44,29 +41,22 @@ export class WorkflowAnalysisController {
                 scope,
                 WorkflowResource,
                 GenepanelResource,
-                AnalysisResource,
                 Workflow,
                 Interpretation,
                 Navbar,
                 Config,
                 User,
-                AddExcludedAllelesModal,
-                clipboard,
                 toastr,
                 filter) {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
         this.genepanelResource = GenepanelResource;
-        this.analysisResource = AnalysisResource;
         this.workflowService = Workflow;
         this.interpretationService = Interpretation;
-        this.addExcludedAllelesModal = AddExcludedAllelesModal;
-        this.analysis = null;
         this.navbar = Navbar;
         this.config = Config.getConfig();
         this.user = User;
-        this.clipboard = clipboard;
         this.toastr = toastr;
         this.filter = filter;
 
@@ -200,8 +190,14 @@ export class WorkflowAnalysisController {
         this.setUpListeners();
         this.setupNavbar();
 
-        this._loadAnalysis();
+
         this.reloadInterpretationData();
+        this.checkForCollisions();
+
+        this.scope.$watch(
+            () => this.getAnalysis(),
+            () => this.setupNavbar()
+        )
     }
 
     setUpListeners() {
@@ -231,47 +227,14 @@ export class WorkflowAnalysisController {
     }
 
     setupNavbar() {
-        let label = this.analysis ? this.analysis.name : '';
+        let analysis = this.getAnalysis()
+        let label = analysis ? analysis.name : '';
 
         this.navbar.replaceItems([
             {
                 title: label,
-                url: `/overview`
             }
         ]);
-    }
-
-    getExcludedAlleleCount() {
-        if (this.getSelectedInterpretation()) {
-            return Object.values(this.getSelectedInterpretation().excluded_allele_ids)
-                .map(excluded_group => excluded_group.length)
-                .reduce((total_length, length) => total_length + length);
-        }
-    }
-
-    /**
-     * Popups a dialog for adding excluded alleles
-     */
-    modalAddExcludedAlleles() {
-        if (this.getSelectedInterpretation().state.manuallyAddedAlleles === undefined) {
-            this.getSelectedInterpretation().state.manuallyAddedAlleles = [];
-        }
-        this.addExcludedAllelesModal.show(
-            this.getSelectedInterpretation().excluded_allele_ids,
-            this.getSelectedInterpretation().state.manuallyAddedAlleles,
-            this.analysis.samples[0].id, // FIXME: Support multiple samples
-            this.getSelectedInterpretation().genepanel_name,
-            this.getSelectedInterpretation().genepanel_version,
-            this.readOnly()
-        ).then(added => {
-            if (this.isInterpretationOngoing()) { // noop if analysis is finalized
-                // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
-                this.getSelectedInterpretation().state.manuallyAddedAlleles = added;
-                this.loadAlleles();
-            }
-        }).catch(() => {
-            this.loadAlleles();  // Also update on modal dismissal
-        });
     }
 
     confirmAbortInterpretation(event) {
@@ -283,22 +246,7 @@ export class WorkflowAnalysisController {
         }
     }
 
-    formatHistoryOption(interpretation) {
-        ///TODO: Move to filter
-        if (interpretation.current) {
-            return 'Current data';
-        }
-        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
-        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
-        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
-    }
-
-    _loadAnalysis() {
-        this.analysisResource.getAnalysis(this.analysisId).then(a => {
-            this.analysis = a;
-            this.setupNavbar();
-        });
-
+    checkForCollisions() {
         this.workflowResource.getCollisions('analysis', this.analysisId).then(result => {
             if (result.length > 0) {
                 let html = "<h4>There "
@@ -318,15 +266,8 @@ export class WorkflowAnalysisController {
         });
     }
 
-    copyAlamut() {
-        this.clipboard.copyText(
-            this.getAlleles().map(a => a.formatAlamut() + '\n').join('')
-        );
-        this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
-    }
-
-    showHistory() {
-        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
+    getCollisionWarningHeight() {
+        return this.collisionWarning.el[0].offsetHeight + 'px';
     }
 
     //
@@ -348,7 +289,7 @@ export class WorkflowAnalysisController {
     }
 
     isViewReady() {
-        return this.interpretationService.isViewReady
+        return this.interpretationService.isViewReady && this.getAnalysis();
     }
 
     getSelectedInterpretation() {
@@ -369,5 +310,9 @@ export class WorkflowAnalysisController {
 
     getInterpretationHistory() {
         return this.interpretationService.getHistory()
+    }
+
+    getAnalysis() {
+        return this.interpretationService.getAnalysis()
     }
 }

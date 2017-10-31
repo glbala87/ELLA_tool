@@ -21,6 +21,7 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
     selector: 'interpretation',
     templateUrl: 'ngtmpl/interpretation.ngtmpl.html',
     scope: {
+        analysis: '=?',
         interpretation: '=',
         components: '=',
         selectedComponent: '=',
@@ -108,7 +109,9 @@ export class InterpretationController {
 
         $scope.$watch(
             () => this.allele_sidebar.selected,
-            () => this.navbar.setAllele(this.allele_sidebar.selected, this.getGenepanel())
+            () => {
+                this.navbar.setAllele(this.allele_sidebar.selected, this.getGenepanel())
+            }
         );
 
         $scope.$watch(
@@ -123,6 +126,9 @@ export class InterpretationController {
 
     }
 
+    getInterpretationType() {
+        return this.interpretationService.type
+    }
 
     getSelectedInterpretation() {
         return this.interpretationService.getSelected()
@@ -166,8 +172,8 @@ export class InterpretationController {
      * Called by <allele-sectionbox> whenever an allele needs
      * refreshing from backend (data has changed)
      */
-    onUpdate() {
-        this.interpretationService.loadAlleles(false); // false => Do not redraw full interpretation view
+    onUpdate(redraw) {
+        this.interpretationService.loadAlleles(redraw); // false => Do not redraw full interpretation view, true => redraw full interpretation view
     }
 
     getAlleles() {
@@ -185,6 +191,17 @@ export class InterpretationController {
         return this.selectedComponent.title;
     }
 
+    showHistory() {
+        return !this.interpretationService.isOngoing() && this.getInterpretationHistory().length;
+    }
+
+    getInterpretationHistory() {
+        return this.interpretationService.getHistory()
+    }
+
+    getAllInterpretations() {
+        return this.interpretationService.getAll()
+    }
 
     /**
      * Called when interpretations state changes.
@@ -462,8 +479,6 @@ export class InterpretationController {
         }
         return selectedInterpretation.user_state.allele[allele.id];
     }
-
-
 }
 
 

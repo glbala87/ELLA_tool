@@ -49,22 +49,21 @@ export class WorkflowButtonsController {
     }
 
     getTypeAndId() {
-        let type_id;
-        if ('analysisId' in this) {
-            type_id = ['analysis', this.analysisId];
-        }
-        else if ('alleleId' in this) {
-            type_id = ['allele', this.alleleId];
-        }
-        else {
-            throw Error("Neither alleleId nor analysisId is defined.")
-        }
-        return type_id;
+        return [this.interpretationService.type, this.interpretationService.id]
+    }
+
+    getGenepanel() {
+        return this.interpretationService.getGenepanel()
+    }
+
+    getAlleles() {
+        return this.interpretationService.getAlleles()
     }
 
     _callReload() {
         let [type, id] = this.getTypeAndId()
-        this.interpretationService.load(type, id, this.genepanelName, this.genepanelVersion)
+        let genepanel = this.getGenepanel()
+        this.interpretationService.load(type, id, genepanel.name, genepanel.version)
     }
 
     /**
@@ -100,11 +99,12 @@ export class WorkflowButtonsController {
         }
         else {
             let interpretations = this.getAllInterpretations()
+            let genepanel = this.getGenepanel()
             // Call reopen if applicable
             if (interpretations.length && interpretations.every(i => i.status === 'Done')) {
                 this.workflowService.reopen(type, id).then(() => {
                     if (this.startWhenReopen) {
-                        this.workflowService.start(type, id, this.genepanelName, this.genepanelVersion).then(() => this._callReload());
+                        this.workflowService.start(type, id, genepanel.name, genepanel.version).then(() => this._callReload());
                     }
                     else {
                         this._callReload();
@@ -113,15 +113,14 @@ export class WorkflowButtonsController {
             }
             // Else start interpretation
             else {
-                this.workflowService.start(type, id, this.genepanelName, this.genepanelVersion).then(() => this._callReload());
+                this.workflowService.start(type, id, genepanel.name, genepanel.version).then(() => this._callReload());
             }
         }
     }
 
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
-            // TODO: Redirect user
-        this.workflowService.confirmCompleteFinalize(type, id, this.getSelectedInterpretation(), this.alleles, this.config).then((redirect) => {
+        this.workflowService.confirmCompleteFinalize(type, id, this.getSelectedInterpretation(), this.getAlleles(), this.config).then((redirect) => {
             if (redirect) {
                 this.location.path('/overview');
             }
@@ -157,7 +156,6 @@ export class WorkflowButtonsController {
         if (not_started) {
             return interpretations.length > 1 ? 'review' : 'start'
         }
-
         if (interpretations.length &&
             interpretations.every(i => i.status === 'Done')) {
             return 'reopen';

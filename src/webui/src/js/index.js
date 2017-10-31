@@ -102,6 +102,7 @@ import './widgets/genepanelvalue/genepanelvalue.directive.js';
 import './widgets/igv.directive.js';
 import './widgets/wysiwygjsEditor.directive';
 import './widgets/referenceAssessment.directive';
+import './widgets/interpretationbar.directive'
 
 import {Config, Inject, Run} from './ng-decorators';
 
@@ -139,10 +140,10 @@ class AppConfig {
                 }
             })
             .state('app.main.analysisinterpretation', {
-                url: '/analyses/:analysisId',
+                url: '/analyses/{analysisId:int}',
                 views: {
                     'content': {
-                        template: '<workflow-analysis analysis-id="{{analysisId}}"></workflow-analysis>',
+                        template: '<workflow-analysis analysis-id="analysisId"></workflow-analysis>',
                         controller: ['$scope', '$stateParams', '$location', function($scope, $stateParams, $location) {
                             $scope.analysisId = $stateParams.analysisId;
                         }]

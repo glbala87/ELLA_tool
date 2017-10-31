@@ -24,13 +24,7 @@ export class UserDashboardController {
         this.toastr = toastr;
         this.config = Config.getConfig();
 
-        Navbar.clearAllele();
-        Navbar.replaceItems([
-            {
-                url: '/overviews',
-                title: 'Back to overview'
-            }
-        ]);
+        Navbar.clearItems();
 
         this.overviewResource.getActivities().then(d => {
             this.activity_stream = d;

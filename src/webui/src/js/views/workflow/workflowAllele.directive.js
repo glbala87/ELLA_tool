@@ -232,11 +232,10 @@ export class WorkflowAlleleController {
 
     setupNavbar() {
         if (this.getAlleles() && this.getAlleles().length) {
-            let label = `${this.getAlleles()[0].toString()} ${this.genepanelName}_${this.genepanelVersion}`;
+            let label = `${this.genepanelName} ${this.genepanelVersion}`;
             this.navbar.replaceItems([
                 {
                     title: label,
-                    url: "/overview"
                 }
             ])
 
@@ -296,6 +295,10 @@ export class WorkflowAlleleController {
                 this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-collision'})
             }
         });
+    }
+
+    getCollisionWarningHeight() {
+        return this.collisionWarning.el[0].offsetHeight + 'px';
     }
 
     loadAlleleId() {

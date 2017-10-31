@@ -1,5 +1,5 @@
 <label ng-if="vm.mode === 'browse'" for="file-input" class="input-label">
-  <div class="id-upload bttn" ng-disabled="vm.readOnly || !vm.uploadEnabled">{{vm.buttontext}}</div>
+  <div class="id-upload upload-button" ng-disabled="vm.readOnly || !vm.uploadEnabled">{{vm.buttontext}}</div>
   <input  type="file"
           ng-disabled="vm.readOnly ||  !vm.uploadEnabled"
           id="file-input"
