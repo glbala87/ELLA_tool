@@ -5,19 +5,15 @@ import json
 
 SCHEMA_VERSION_1 = "1"
 SCHEMA_VERSION_2 = "2"
-SCHEMA_VERSION_3 = "3"
-SCHEMA_VERSION_4 = "4"
 
 SCHEMA_VERSIONS = {
     SCHEMA_VERSION_1: '../datamodel/genepanel-config-schema.json',
-    SCHEMA_VERSION_2: '../datamodel/genepanel-config-schema_v2.json',
-    SCHEMA_VERSION_3: '../datamodel/genepanel-config-schema_v3.json',
-    SCHEMA_VERSION_4: '../datamodel/genepanel-config-schema_v4.json'
+    SCHEMA_VERSION_2: '../datamodel/genepanel-config-schema_v2.json'
 }
 
 
-def config_valid(config, version=SCHEMA_VERSION_4):
-    version = SCHEMA_VERSION_4 if not version else version
+def config_valid(config, version=SCHEMA_VERSION_2):
+    version = SCHEMA_VERSION_2 if not version else version
     name_of_schema_file = os.path.join(os.path.dirname(__file__), SCHEMA_VERSIONS[version])
     with open(name_of_schema_file) as schema_file:
         my_schema = json.load(schema_file)

@@ -15,6 +15,12 @@ from vardb.datamodel import allele, annotation, gene
 CONFIG = {
     'variant_criteria': {
         "intronic_region": [-10, 5],
+        "freq_num_thresholds": {
+            "ExAC": {
+                "G": 2000,
+                "FIN": 2000,
+            }
+        },
         "genepanel_config": {
             "freq_cutoff_groups": {
                 "AD": {
@@ -37,15 +43,8 @@ CONFIG = {
                         "lo_freq_cutoff": 0.01
                     }
                 }
-            },
-            "freq_num_thresholds": {
-                "ExAC": {
-                    "G": 2000,
-                    "FIN": 2000,
-                }
             }
         },
-        "exclude_genes": ['GENE3'],
         "frequencies": {
             "groups": {
                 "external": {
@@ -195,7 +194,7 @@ def create_annotation(annotations, allele=None):
     )
 
 
-def create_allele_annotation(session, annotations):
+def create_allele_with_annotation(session, annotations):
     al = create_allele()
     an = create_annotation(annotations, allele=al)
     session.add(al)
@@ -203,7 +202,14 @@ def create_allele_annotation(session, annotations):
     return al
 
 
-def create_genepanel(config):
+def create_allele_with_annotation_tuple(session, annotations):
+    al = create_allele()
+    an = create_annotation(annotations, allele=al)
+    session.add(al)
+    session.add(an)
+    return al, an
+
+def create_genepanel(genpanelConfig):
     # Create fake genepanel for testing purposes
 
     g1_ad = gene.Gene(hugo_symbol="GENE1AD")
@@ -291,12 +297,23 @@ def create_genepanel(config):
         name='testpanel',
         version='v01',
         genome_reference='GRCh37',
-        config=GP_CONFIG
+        config=genpanelConfig
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3]
     genepanel.phenotypes = [p1, p2]
     return genepanel
+
+
+def create_error_message(allele_ids, allele_info):
+    msg = ""
+    anno_str = ""
+    for a_id in allele_ids:
+        a, anno = allele_info[a_id]
+        msg += "Allele {} has annotation".format(a_id)
+        anno_str = anno
+        msg += anno_str
+    return msg
 
 
 class TestAlleleFilter(object):
@@ -325,7 +342,7 @@ class TestAlleleFilter(object):
         # Test common
 
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        a1ad = create_allele_annotation(session, {
+        a1ad = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -348,7 +365,7 @@ class TestAlleleFilter(object):
         # Test less_common
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        a1ar = create_allele_annotation(session, {
+        a1ar = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -370,7 +387,7 @@ class TestAlleleFilter(object):
 
         # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
         # external: 0.30/0.1 , internal: 0.05/0.01
-        a1nogene = create_allele_annotation(session, {
+        a1nogene = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -392,7 +409,7 @@ class TestAlleleFilter(object):
 
         # Test null_freq
 
-        a1nofreq = create_allele_annotation(session, {
+        a1nofreq = create_allele_with_annotation(session, {
             'frequencies': {},
             'transcripts': [
                 {
@@ -420,7 +437,7 @@ class TestAlleleFilter(object):
         ##
 
         # Test below threshold, one source
-        anum1 = create_allele_annotation(session, {
+        anum1, anum1anno = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -441,7 +458,7 @@ class TestAlleleFilter(object):
         })
 
         # Test threshold, two sources, one above one below
-        anum2 = create_allele_annotation(session, {
+        anum2, anum2anno = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -469,7 +486,7 @@ class TestAlleleFilter(object):
         })
 
         # Test below threshold, two sources, one without num threshold filtering
-        anum3 = create_allele_annotation(session, {
+        anum3, anum3anno = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -495,7 +512,7 @@ class TestAlleleFilter(object):
         })
 
         # Test gene specific threshold override, above threshold
-        anum4 = create_allele_annotation(session, {
+        anum4,anum4anno = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -519,10 +536,13 @@ class TestAlleleFilter(object):
 
         af = AlleleFilter(session, CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [anum1.id, anum2.id, anum3.id, anum4.id]
-        result = af.get_commonness_groups({gp_key: allele_ids})
+        allele_ids = {anum1.id: (anum1,anum1anno),
+                      anum2.id: (anum2,anum2anno),
+                      anum3.id: (anum3,anum3anno),
+                      anum4.id: (anum4,anum4anno)}
+        result = af.get_commonness_groups({gp_key: allele_ids.keys()})
 
-        assert set(result[gp_key]['num_threshold']) == set([anum1.id])
+        assert set(result[gp_key]['num_threshold']) == set([anum1.id]), create_error_message(result[gp_key]['num_threshold'], allele_ids)
         assert set(result[gp_key]['common']) == set([anum2.id, anum3.id, anum4.id])
 
         ##
@@ -532,7 +552,7 @@ class TestAlleleFilter(object):
         # even if the different frequencies would give
         # hits in different ones
         ##
-        a2common = create_allele_annotation(session, {
+        a2common = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -567,7 +587,7 @@ class TestAlleleFilter(object):
         assert not result[gp_key]['low_freq']
         assert not result[gp_key]['null_freq']
 
-        a2less_common = create_allele_annotation(session, {
+        a2less_common = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -602,7 +622,7 @@ class TestAlleleFilter(object):
         assert not result[gp_key]['low_freq']
         assert not result[gp_key]['null_freq']
 
-        a2low_freq = create_allele_annotation(session, {
+        a2low_freq = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -650,7 +670,7 @@ class TestAlleleFilter(object):
         # Test external
 
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa1ad = create_allele_annotation(session, {
+        pa1ad = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -671,7 +691,7 @@ class TestAlleleFilter(object):
         })
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        pa1ar = create_allele_annotation(session, {
+        pa1ar = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -693,7 +713,7 @@ class TestAlleleFilter(object):
 
         # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
         # external: 0.30/0.1 , internal: 0.05/0.01
-        pa1nogene = create_allele_annotation(session, {
+        pa1nogene = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -715,7 +735,7 @@ class TestAlleleFilter(object):
 
         # Test internal
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-        pa2 = create_allele_annotation(session, {
+        pa2 = create_allele_with_annotation(session, {
             'frequencies': {
                 'inDB': {
                     'freq': {
@@ -734,7 +754,7 @@ class TestAlleleFilter(object):
 
         # Test conflicting external/internal
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa3 = create_allele_annotation(session, {
+        pa3 = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -761,7 +781,7 @@ class TestAlleleFilter(object):
 
         # Test right on threshold
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa4 = create_allele_annotation(session, {
+        pa4 = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -796,7 +816,7 @@ class TestAlleleFilter(object):
 
         # Test external
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        na1ad = create_allele_annotation(session, {
+        na1ad = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -817,7 +837,7 @@ class TestAlleleFilter(object):
         })
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        na1ar = create_allele_annotation(session, {
+        na1ar = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -839,7 +859,7 @@ class TestAlleleFilter(object):
 
         # Test internal
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-        na2 = create_allele_annotation(session, {
+        na2 = create_allele_with_annotation(session, {
             'frequencies': {
                 'inDB': {
                     'freq': {
@@ -858,7 +878,7 @@ class TestAlleleFilter(object):
 
         # Test missing frequency
         # GENE1: external: 0.005/0.001 , internal: 0.05/0.01
-        na3 = create_allele_annotation(session, {
+        na3 = create_allele_with_annotation(session, {
             'frequencies': {},
             'transcripts': [
                 {
@@ -871,7 +891,7 @@ class TestAlleleFilter(object):
 
         # Test 0 frequency
         # GENE1: external: 0.005/0.001 , internal: 0.05/0.01
-        na4 = create_allele_annotation(session, {
+        na4 = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -909,7 +929,7 @@ class TestAlleleFilter(object):
         # Test positive cases
         ##
 
-        pa1 = create_allele_annotation(session, {
+        pa1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -919,7 +939,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        pa2 = create_allele_annotation(session, {
+        pa2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE2',
@@ -929,7 +949,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        pa3 = create_allele_annotation(session, {
+        pa3 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -939,7 +959,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        pa4 = create_allele_annotation(session, {
+        pa4 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -949,7 +969,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        pa5 = create_allele_annotation(session, {
+        pa5 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -978,7 +998,7 @@ class TestAlleleFilter(object):
         # Test negative cases
         ##
 
-        na1 = create_allele_annotation(session, {
+        na1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -988,7 +1008,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na2 = create_allele_annotation(session, {
+        na2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE2',
@@ -998,7 +1018,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na3 = create_allele_annotation(session, {
+        na3 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1008,7 +1028,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na4 = create_allele_annotation(session, {
+        na4 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1019,7 +1039,7 @@ class TestAlleleFilter(object):
         })
 
         # Check that annotation transcripts are filtered properly on genepanel transcripts
-        na5 = create_allele_annotation(session, {
+        na5 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1035,7 +1055,7 @@ class TestAlleleFilter(object):
         })
 
         # Test that annotation transcripts matching config include_regex are included in filter
-        na6 = create_allele_annotation(session, {
+        na6 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1050,7 +1070,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na7 = create_allele_annotation(session, {
+        na7 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1084,7 +1104,7 @@ class TestAlleleFilter(object):
         # Test positive case
         ##
 
-        pa1 = create_allele_annotation(session, {
+        pa1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE3',
@@ -1093,7 +1113,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        pa2 = create_allele_annotation(session, {
+        pa2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1119,7 +1139,7 @@ class TestAlleleFilter(object):
         # Test negative cases
         ##
 
-        na1 = create_allele_annotation(session, {
+        na1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1128,7 +1148,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na2 = create_allele_annotation(session, {
+        na2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1156,7 +1176,7 @@ class TestAlleleFilter(object):
         # Test positive case
         ##
 
-        pa1 = create_allele_annotation(session, {
+        pa1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1166,7 +1186,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        pa2 = create_allele_annotation(session, {
+        pa2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1176,7 +1196,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        pa3 = create_allele_annotation(session, {
+        pa3 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1204,7 +1224,7 @@ class TestAlleleFilter(object):
         # Test negative cases
         ##
 
-        na1 = create_allele_annotation(session, {
+        na1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1213,7 +1233,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na2 = create_allele_annotation(session, {
+        na2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1223,7 +1243,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na3 = create_allele_annotation(session, {
+        na3 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1233,7 +1253,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na4 = create_allele_annotation(session, {
+        na4 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1243,7 +1263,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        na5 = create_allele_annotation(session, {
+        na5 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
@@ -1274,7 +1294,7 @@ class TestAlleleFilter(object):
         # Test filter order: gene -> frequency -> intronic
 
         # Would be filtered on frequency, gene and intronic
-        a1 = create_allele_annotation(session, {
+        a1 = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -1295,7 +1315,7 @@ class TestAlleleFilter(object):
         })
 
         # Would be filtered on frequency and intronic
-        a2 = create_allele_annotation(session, {
+        a2 = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -1316,7 +1336,7 @@ class TestAlleleFilter(object):
         })
 
         # Would be filtered on intronic only
-        a3 = create_allele_annotation(session, {
+        a3 = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {

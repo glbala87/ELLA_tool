@@ -74,6 +74,9 @@ class Genepanel(Base):
 
     config = Column(JSONMutableDict.as_mutable(JSONB), default={})  # format defined by
 
+    # def __init__(self):
+    #     super(Base, self).__init__()
+    #     print 'genepanel init'
 
     def __repr__(self):
         return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genome_reference)

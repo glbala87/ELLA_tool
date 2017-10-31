@@ -162,6 +162,22 @@ So before manually running the upgrade/downgrade scripts, you need to create the
  create table alembic_version (version_num varchar)
 ```
 
+### Configuration relevant for variant filtering and the ACMG rules engine
+Values that affect variant filtering and the rules engine are defined at three levels, in order from general to specific:
+- global (defined in code: api/config.py)
+- genepanel (common for all genes in the panel)
+- genepanel (specific for a single gene. Multiple genes must be configured individually)
+
+Th genepanel configuration are part of the genepanel, and values are loaded from a json file. Schema file(s)
+in src/vardb/datamodel defines the format of file.
+
+Configuration at a specific level "override" the more general ones.
+
+Frequency values in global or genepanel common are defined with one set for AD genes, and another for non-AD genes.
+For frequencies defined at the gene level, the AD/non-AD distinction is intrinsic.
+
+At genepanel common/gene level one can choose to override only internal or external, and either AD and non-AD blocks. 
+
 
 ### API documentation
 

@@ -43,7 +43,7 @@ GENEPANELS = [
         'version': 'v01'
     },
     {
-        'config': '../testdata/clinicalGenePanels/HBOC_v02/HBOC_v02.config.v4.json',
+        'config': '../testdata/clinicalGenePanels/HBOC_v02/HBOC_v02.config.v2.json',
         'transcripts': '../testdata/clinicalGenePanels/HBOC_v02/HBOC_v02.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOC_v02/HBOC_v02.phenotypes.csv',
         'name': 'HBOC',

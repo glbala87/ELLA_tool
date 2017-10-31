@@ -112,7 +112,7 @@ class GenepanelConfigResolver(object):
         #     result["freq_cutoffs"] = self.genepanel_default["freq_cutoffs"]['default']
         #     return copy.deepcopy(result)
 
-        # A specific symbol can define cutoffs, inheritance, disease_mode and last_exon_important
+        # A specific symbol can define cutoffs, disease_mode and last_exon_important
         # Stage 3: find the most "useful" inheritance using the gene symbol:
         chosen_inheritance = _chose_inheritance(self.genepanel.find_inheritance_codes(symbol))
         result['inheritance'] = chosen_inheritance
@@ -120,14 +120,6 @@ class GenepanelConfigResolver(object):
         # Stage 5: look for gene specific overrides:
         if self.genepanel and self.genepanel.config:
             gene_specific_overrides = copy.deepcopy(get_nested(self.genepanel.config, 'data', 'genes', symbol))
-            explicit_inheritance = get_nested(gene_specific_overrides, "inheritance")
-            if explicit_inheritance:
-                result['inheritance'] = _chose_inheritance(explicit_inheritance)
-                print "{} has explicit set inheritance {} which results in {}"\
-                    .format(symbol, explicit_inheritance, result['inheritance'])
-                gene_specific_overrides.pop('inheritance', None)
-                # use explicit inheritance to find cutoffs:
-
             if gene_specific_overrides:
                 result.update(gene_specific_overrides)
                 print 'has genespecific overrides'
@@ -145,24 +137,6 @@ class GenepanelConfigResolver(object):
         else:  # no genepanel config, find cutoffs from global:
             global_cutoffs = _choose_cutoff_group(get_nested(self.global_default, 'freq_cutoff_groups'), result['inheritance'])
             result['freq_cutoffs'] = copy.deepcopy(global_cutoffs)
-
-
-        # Stage 5: look for gene specific overrides:
-        # if self.genepanel and self.genepanel.config:
-        #     gene_specific_overrides = get_nested(self.genepanel.config, 'data', 'genes', symbol)
-        #     result.update(gene_specific_overrides)
-
-            # if gene specifies inheritance, use that instead of the one derived from the phenotypes:
-            # if "inheritance" in gene_specific_overrides:
-            #     result["freq_cutoffs"] = copy.deepcopy(_find_cutoffs(self.global_default['freq_cutoff_groups'], gene_specific_overrides["inheritance"]))
-
-            # copy over any freq_cutoffs overrides from genepanel config
-            # the overrides might be partial, so we need to check each group individually
-            # instead of copying all of 'freq_cutoffs'
-            # if 'freq_cutoffs' in gene_specific_overrides:
-            #     for freq_group in config['variant_criteria']['frequencies']['groups'].keys():  # currently external and internal
-            #         if freq_group in gene_specific_overrides['freq_cutoffs']:
-            #             result['freq_cutoffs'][freq_group] = gene_specific_overrides['freq_cutoffs'][freq_group]
 
         return copy.deepcopy(result)
 
