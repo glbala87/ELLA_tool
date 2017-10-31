@@ -333,7 +333,7 @@ nav.top {
   right: 0;
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-50-on-white; height: 4.5rem; margin-top: 4.5rem; padding: 0 1.3rem; z-index: 100;
+nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-50-on-white; height: $nav-bar-secondary-height; margin-top: $nav-bar-top-height; padding: 0 1.3rem; z-index: 100;
   section { display: flex;
     .dropdown { margin-left: 1.4rem; }
   }
@@ -370,10 +370,14 @@ nav.bottom {
   width: 100%;
   padding-right: 1.3rem;
   padding-left: 1.3rem;
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
-  section { display: flex; width: 100%; justify-content: flex-end;  height: $nav-bar-bottom-buttons-height; }
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  section { margin-top: -0.05rem; display: flex; width: 100%; justify-content: flex-end;  height: $nav-bar-bottom-buttons-height; }
   article { display: flex; width: 100%; justify-content: space-between; height: $allelebar-row-height;  }
+}
+
+nav.bottom.has-secondary {
+    margin-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height});
 }
 
 allelebar {
@@ -394,10 +398,6 @@ allelebar {
       }
     }
   }
-
-nav.bottom.has-secondary {
-    margin-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height});
-}
 
 .upload-button {
   @extend button;
