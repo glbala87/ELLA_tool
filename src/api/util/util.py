@@ -95,7 +95,7 @@ def log_request(statuscode, response_size=0):
 
     duration = int(time.time() * 1000.0 - g.request_start_time)
     usersession_id = g.get('usersession_id', None)
-
+    remote_addr = request.remote_addr if not app.testing else '0.0.0.0'
     payload = None
     payload_size = 0
     if request.method in ['PUT', 'POST', 'PATCH', 'DELETE']:
@@ -113,7 +113,7 @@ def log_request(statuscode, response_size=0):
 
     rl = ResourceLog(
         usersession_id=usersession_id,
-        remote_addr=request.remote_addr,
+        remote_addr=remote_addr,
         method=request.method,
         resource=request.path,
         query=request.query_string,
