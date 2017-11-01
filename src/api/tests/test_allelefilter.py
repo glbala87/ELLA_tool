@@ -2,6 +2,7 @@
 Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
+import copy
 import pytest
 
 from api.util.allelefilter import AlleleFilter
@@ -12,7 +13,7 @@ from vardb.datamodel import allele, annotation, gene
 #logging.getLogger('vardb.deposit.deposit_genepanel').setLevel(logging.CRITICAL)
 
 
-CONFIG = {
+GLOBAL_CONFIG = {
     'variant_criteria': {
         "intronic_region": [-10, 5],
         "freq_num_thresholds": {
@@ -138,7 +139,23 @@ CONFIG = {
     }
 }
 
-GP_CONFIG = {
+THRESHOLD_1000 = {
+        "freq_num_thresholds": {
+            "ExAC": {
+                "G": 1000,
+                "AFR": 1000,
+                "AMR": 1000,
+                "EAS": 1000,
+                "FIN": 1000,
+                "NFE": 1000,
+                "OTH": 1000,
+                "SAS": 1000
+            }
+        }
+}
+
+
+GENEPANEL_CONFIG = {
     'data': {
         'GENE2': {
             "freq_cutoffs": {
@@ -150,22 +167,15 @@ GP_CONFIG = {
                     "hi_freq_cutoff": 0.7,
                     "lo_freq_cutoff": 0.6
                 }
-            },
-            "freq_num_thresholds": {
-                "ExAC": {
-                    "G": 1000,
-                    "AFR": 1000,
-                    "AMR": 1000,
-                    "EAS": 1000,
-                    "FIN": 1000,
-                    "NFE": 1000,
-                    "OTH": 1000,
-                    "SAS": 1000
-                }
             }
         }
     }
 }
+
+
+def global_with_overridden_threshold(initial, override):
+    return copy.deepcopy(initial).update(override)
+
 
 allele_start = 0
 
@@ -209,7 +219,8 @@ def create_allele_with_annotation_tuple(session, annotations):
     session.add(an)
     return al, an
 
-def create_genepanel(genpanelConfig):
+
+def create_genepanel(genpanel_config):
     # Create fake genepanel for testing purposes
 
     g1_ad = gene.Gene(hugo_symbol="GENE1AD")
@@ -297,7 +308,7 @@ def create_genepanel(genpanelConfig):
         name='testpanel',
         version='v01',
         genome_reference='GRCh37',
-        config=genpanelConfig
+        config=genpanel_config
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3]
@@ -307,12 +318,10 @@ def create_genepanel(genpanelConfig):
 
 def create_error_message(allele_ids, allele_info):
     msg = ""
-    anno_str = ""
     for a_id in allele_ids:
         a, anno = allele_info[a_id]
-        msg += "Allele {} has annotation".format(a_id)
-        anno_str = anno
-        msg += anno_str
+        msg += "\nAllele {} has annotation\n".format(a_id)
+        msg += str(anno)
     return msg
 
 
@@ -322,7 +331,7 @@ class TestAlleleFilter(object):
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
 
-        gp = create_genepanel(GP_CONFIG)
+        gp = create_genepanel(GENEPANEL_CONFIG)
         session.add(gp)
         session.commit()
 
@@ -422,7 +431,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id]
         result = af.get_commonness_groups({gp_key: allele_ids})
@@ -511,7 +520,7 @@ class TestAlleleFilter(object):
             ]
         })
 
-        # Test gene specific threshold override, above threshold
+        # Test gene specific cutoff override
         anum4,anum4anno = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
@@ -519,13 +528,13 @@ class TestAlleleFilter(object):
                         'G': 0.6   # Above 0.5
                     },
                     'num': {
-                        'G': 1001  # Above 1000
+                        'G': 2001  # Above 2000
                     }
                 }
             },
             'transcripts': [
                 {
-                    'symbol': 'GENE2',
+                    'symbol': 'GENE2', # cutoff override for this gene defined in the config of the genepanel
                     'transcript': 'NM_2.1',
                     'exon_distance': 0
                 }
@@ -534,7 +543,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = {anum1.id: (anum1,anum1anno),
                       anum2.id: (anum2,anum2anno),
@@ -803,7 +812,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -913,7 +922,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [na1ad.id, na1ar.id, na2.id, na3.id, na4.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -987,7 +996,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id, pa5.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -1088,7 +1097,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id, na6.id, na7.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -1128,7 +1137,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [pa1.id, pa2.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -1163,7 +1172,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [na1.id, na2.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -1213,7 +1222,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [pa1.id, pa2.id, pa3.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -1280,7 +1289,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id]
         result = af.filter_alleles({gp_key: allele_ids})
@@ -1358,7 +1367,7 @@ class TestAlleleFilter(object):
 
         session.commit()
 
-        af = AlleleFilter(session, CONFIG)
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [a1.id, a2.id, a3.id]
         result = af.filter_alleles({gp_key: allele_ids})

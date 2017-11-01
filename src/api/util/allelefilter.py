@@ -296,9 +296,6 @@ class AlleleFilter(object):
 
     @staticmethod
     def _get_freq_num_threshold_filter(allele_filter_tbl, provider_numbers, freq_provider, freq_key):
-
-        print '_get_freq_num_threshold_filter'
-        print provider_numbers
         """
         Check whether we have a 'num' threshold in config for given freq_provider and freq_key (e.g. ExAC->G).
         If it's defined, the num column in allelefilter table must be greater or equal to the threshold.
@@ -316,6 +313,9 @@ class AlleleFilter(object):
         # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
         frequency_groups = self.config['variant_criteria']['frequencies']['groups']
         frequency_provider_numbers = self.config['variant_criteria']['freq_num_thresholds']
+
+        print 'xxxx'
+        print frequency_provider_numbers
 
         filters = list()
         for group, thresholds in group_thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
@@ -338,6 +338,7 @@ class AlleleFilter(object):
         freq_key_filters = list()
         num_filter = AlleleFilter._get_freq_num_threshold_filter(allele_filter_tbl, provider_numbers, freq_provider, freq_key)
         if num_filter is not None:
+            print "added a number filter for {} using population {}".format(freq_provider, freq_key)
             freq_key_filters.append(num_filter)
 
         freq_key_filters.append(
@@ -571,6 +572,9 @@ class AlleleFilter(object):
                 ).distinct()
                 result[gp_key] = [a[0] for a in allele_ids.all()]
 
+            print "result after doing " + commonness_group
+            print commonness_result
+
         # Create final result structure.
         # The database queries can place one allele id as part of many groups,
         # but we'd like to place each in the highest group only.
@@ -586,6 +590,8 @@ class AlleleFilter(object):
                 # since they must have missed freq num threshold
                 final_result[gp_key]['num_threshold'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
 
+            print "final result after looking at " + gp_key[0] + "," + gp_key[1]
+            print final_result
         if table_creator is not None:
             table_creator.drop()
 
@@ -615,7 +621,12 @@ class AlleleFilter(object):
             ).all()
             to_exclude = [t[0] for t in to_exclude]
 
-        return [a for a in allele_ids if a not in to_exclude]
+            print "will exclude "
+            print to_exclude
+            print "from "
+            print allele_ids
+
+        return filter(lambda i: i not in to_exclude, allele_ids)
 
     def filtered_gene(self, gp_allele_ids, allele_filter_tbl=None):
         """
@@ -641,7 +652,6 @@ class AlleleFilter(object):
             all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
             table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.config)
             allele_filter_tbl = table_creator.create()
-
 
         gene_filtered = dict()
         # Remove the ones with existing classification
@@ -855,6 +865,8 @@ class AlleleFilter(object):
             filtered_frequency = self.filtered_frequency(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
             filtered_intronic = self.filtered_intronic(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
 
+        print 'filtered gene'
+        print filtered_gene
         for gp_key in gp_allele_ids:
             gp_filtered_gene = filtered_gene[gp_key]
             gp_filtered_frequency = [i for i in filtered_frequency[gp_key] if i not in gp_filtered_gene]
