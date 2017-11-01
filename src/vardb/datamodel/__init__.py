@@ -74,4 +74,4 @@ make_searchable() # Create triggers to keep search vectors up to date
 Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove:
-from vardb.datamodel import allele, annotation, annotationjob, sample, assessment, genotype, gene, user, workflow
+from vardb.datamodel import allele, annotation, annotationjob, sample, assessment, genotype, gene, user, workflow, log

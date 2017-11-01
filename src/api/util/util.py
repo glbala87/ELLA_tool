@@ -2,10 +2,11 @@ from functools import wraps
 import json
 import datetime
 import pytz
-from hashlib import sha256
-from flask import request, Response
+import time
+from flask import request, g, Response
 from api import app, db, ApiError
 from vardb.datamodel import user
+from vardb.datamodel.log import ResourceLog
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.scoping import scoped_session
 
@@ -90,20 +91,39 @@ def link_filter(func):
 
     return inner
 
-def log_request(show_payload):
-    if app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
-        return
-    if request.method in ['PUT', 'POST', 'DELETE']:
-        if show_payload:
-            log_data = request.get_json()
-        else:
-            log_data = "[PAYLOAD HIDDEN]"
-        log.warning(" {method} - {endpoint} - {json}".format(
-            method=request.method,
-            endpoint=request.url,
-            json=log_data
-        )
+def log_request(statuscode, response_size=0):
+
+    duration = int(time.time() * 1000.0 - g.request_start_time)
+    usersession_id = g.get('usersession_id', None)
+
+    payload = None
+    payload_size = 0
+    if request.method in ['PUT', 'POST', 'PATCH', 'DELETE']:
+        if request.log_show_payload:
+            payload = request.get_data()
+            payload_size = request.headers.get('Content-Length'),
+        if not app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
+            log.warning("{usersession_id} - {method} - {endpoint} - {json} - {response_size}".format(
+                usersession_id=usersession_id,
+                method=request.method,
+                endpoint=request.url,
+                json=(payload if payload else '[PAYLOAD HIDDEN]'),
+                response_size=response_size
+            ))
+
+    rl = ResourceLog(
+        usersession_id=usersession_id,
+        remote_addr=request.remote_addr,
+        method=request.method,
+        resource=request.path,
+        query=request.query_string,
+        payload=payload,
+        payload_size=payload_size,
+        response_size=response_size,
+        statuscode=statuscode,
+        duration=duration
     )
+    db.session.add(rl)
 
 
 def logger(show_payload=False):
@@ -111,7 +131,7 @@ def logger(show_payload=False):
     def _logger(func):
         @wraps(func)
         def inner(*args, **kwargs):
-            log_request(show_payload)
+            request.log_show_payload = show_payload
             return func(*args, **kwargs)
 
         return inner
@@ -248,25 +268,42 @@ def request_json(required, only_required=False, allowed=None):
         return array_wrapper
 
 
+def _get_usersession_by_token(session, token):
+    user_session = session.query(user.UserSession).options(joinedload("user")).filter(
+        user.UserSession.token == token
+    ).one_or_none()
+
+    if user_session is None or \
+       user_session.expires < datetime.datetime.now(pytz.utc) or \
+       user_session.logged_out is not None:
+        return None
+
+    user_session.lastactivity = datetime.datetime.now(pytz.utc)
+    session.commit()
+    return user_session
+
+
+def populate_g_user():
+    g.user = None
+    g.usersession = None
+    token = request.cookies.get("AuthenticationToken")
+    if token is None:
+        return
+    user_session = _get_usersession_by_token(db.session, token)
+    if user_session:
+        g.usersession_id = user_session.id
+        g.user = user_session.user
+
+
 def authenticate(user_role=None, user_group=None, optional=False):
+    """
+    Decorator that works in conjunction with flask's 'g' object
+    in a before_request trigger, in order to auth the user as
+    soon as request is processed.
+
+    See populate_g_user().
+    """
     def _authenticate(func):
-        def _is_valid_token(session, token):
-            userSession = session.query(user.UserSession).options(joinedload("user")).filter(
-                user.UserSession.token == token
-            ).one_or_none()
-
-            if userSession is None:
-                return False, None
-
-            if userSession.expires < datetime.datetime.now(pytz.utc):
-                return False, None
-
-            if userSession.logged_out is None:
-                userSession.lastactivity = datetime.datetime.now(pytz.utc)
-                session.commit()
-                return True, userSession.user
-            else:
-                return False, None
 
         def _userHasAccess(session, token, user_role=None, user_group=None):
             if user_role is None and user_group is None:
@@ -276,34 +313,17 @@ def authenticate(user_role=None, user_group=None, optional=False):
 
         @wraps(func)
         def inner(*args, **kwargs):
-            assert isinstance(args[1], scoped_session), "No session provided. Is the decorator @authenticate used outside a resource method?"
-            session = args[1]
-            if not request or request.cookies.get("AuthenticationToken") is None:
+            if g.user:
+                # Logged in
+                kwargs["user"] = g.user
+                return func(*args, **kwargs)
+            else:
+                # Not logged in
                 if optional:
                     return func(*args, **kwargs)
                 else:
                     return Response("Authentication required", 403, {'WWWAuthenticate': 'Basic realm="Login Required"'})
 
-            token = request.cookies.get("AuthenticationToken")
-            valid, user = _is_valid_token(session, token)
-            if not valid:
-                if optional:
-                    return func(*args, **kwargs)
-                else:
-                    return Response("Token %s is invalid" % token, 403,
-                                    {'WWWAuthenticate': 'Basic realm="Login Required"'})
-            else:
-                # TODO: Setup user roles and groups
-                # user_role = None # user.role
-                # user_group = None # user.group
-                if not _userHasAccess(session, token, None, None):
-                    return Response(
-                        "User associated with token %s does not have access to this function (required user_role: %s, user_group: %s." % (
-                        token, user_role, user_group),
-                        401, {'WWWAuthenticate': 'Basic realm="Login Required"'})
-                else:
-                    kwargs["user"] = user
-                    return func(*args, **kwargs)
 
         return inner
     return _authenticate
