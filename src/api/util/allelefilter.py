@@ -572,9 +572,6 @@ class AlleleFilter(object):
                 ).distinct()
                 result[gp_key] = [a[0] for a in allele_ids.all()]
 
-            print "result after doing " + commonness_group
-            print commonness_result
-
         # Create final result structure.
         # The database queries can place one allele id as part of many groups,
         # but we'd like to place each in the highest group only.
@@ -590,8 +587,6 @@ class AlleleFilter(object):
                 # since they must have missed freq num threshold
                 final_result[gp_key]['num_threshold'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
 
-            print "final result after looking at " + gp_key[0] + "," + gp_key[1]
-            print final_result
         if table_creator is not None:
             table_creator.drop()
 
@@ -599,13 +594,11 @@ class AlleleFilter(object):
 
     def exclude_classification_allele_ids(self, allele_ids):
         """
-        For each allele_id in input list, checks whether there exists
-        a current classification among the ones marked
-        'exclude_filtering_existing_assessment' in  config.
+        Return the input list minus the allele id that have an existing classification.
+        The configuraion of the exclude are defined in global config ['classification']['options
 
-        If true, exclude the allele_id from the returned list.
-        The use case is to avoid including alleles with classifications
-        in the filtering process.
+        Reason: alleles with classification should be displayed to the user.
+
         """
 
         options = self.config['classification']['options']
@@ -630,7 +623,7 @@ class AlleleFilter(object):
 
     def filtered_gene(self, gp_allele_ids, allele_filter_tbl=None):
         """
-        Filters allele ids from input based on gene.
+        Identify variants that have a classification
 
         The filtering will happen according to the genepanel's specified
         configuration, specifying what genes that should be excluded.
@@ -646,20 +639,13 @@ class AlleleFilter(object):
         based on gene, i.e. they are in excluded list.
         """
 
-        # If user didn't pass cached table, create one
-        table_creator = None
-        if allele_filter_tbl is None:
-            all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
-            table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.config)
-            allele_filter_tbl = table_creator.create()
 
         gene_filtered = dict()
         # Remove the ones with existing classification
-        for gp_key, allele_ids in gene_filtered.iteritems():
+        for gp_key, allele_ids in gp_allele_ids.iteritems():
             gene_filtered[gp_key] = self.exclude_classification_allele_ids(allele_ids)
-
-        if table_creator:
-            table_creator.drop()
+            print "after filtering of variants with classification"
+            print gene_filtered
 
         return gene_filtered
 
@@ -867,6 +853,10 @@ class AlleleFilter(object):
 
         print 'filtered gene'
         print filtered_gene
+        print 'filtered_frequency'
+        print filtered_frequency
+        print 'filtered_intronic'
+        print filtered_intronic
         for gp_key in gp_allele_ids:
             gp_filtered_gene = filtered_gene[gp_key]
             gp_filtered_frequency = [i for i in filtered_frequency[gp_key] if i not in gp_filtered_gene]

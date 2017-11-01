@@ -317,8 +317,11 @@ def create_genepanel(genpanel_config):
 
 
 def create_error_message(allele_ids, allele_info):
+    print allele_ids
+    print allele_info
+    uniq_ids = list(set(allele_ids))
     msg = ""
-    for a_id in allele_ids:
+    for a_id in uniq_ids:
         a, anno = allele_info[a_id]
         msg += "\nAllele {} has annotation\n".format(a_id)
         msg += str(anno)
@@ -433,8 +436,8 @@ class TestAlleleFilter(object):
 
         af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id]
-        result = af.get_commonness_groups({gp_key: allele_ids})
+        allele_info = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id]
+        result = af.get_commonness_groups({gp_key: allele_info})
 
         assert set(result[gp_key]['common']) == set([a1ad.id])
         assert set(result[gp_key]['less_common']) == set([a1ar.id])
@@ -545,14 +548,20 @@ class TestAlleleFilter(object):
 
         af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = {anum1.id: (anum1,anum1anno),
-                      anum2.id: (anum2,anum2anno),
-                      anum3.id: (anum3,anum3anno),
-                      anum4.id: (anum4,anum4anno)}
-        result = af.get_commonness_groups({gp_key: allele_ids.keys()})
+        allele_info = {anum1.id: (anum1, anum1anno),
+                      anum2.id: (anum2, anum2anno),
+                      anum3.id: (anum3, anum3anno),
+                      anum4.id: (anum4, anum4anno)}
+        result = af.get_commonness_groups({gp_key: allele_info.keys()})
 
-        assert set(result[gp_key]['num_threshold']) == set([anum1.id]), create_error_message(result[gp_key]['num_threshold'], allele_ids)
-        assert set(result[gp_key]['common']) == set([anum2.id, anum3.id, anum4.id])
+        assert set(result[gp_key]['num_threshold']) == set([anum1.id]),\
+            create_error_message(result[gp_key]['num_threshold'], allele_info)
+
+        assert set(result[gp_key]['common']) == set([anum2.id, anum3.id, anum4.id]), \
+            create_error_message(result[gp_key]['common'], allele_info)
+
+
+        del allele_info
 
         ##
         # Test ordering
@@ -588,8 +597,8 @@ class TestAlleleFilter(object):
 
         session.commit()
         gp_key = ('testpanel', 'v01')
-        allele_ids = [a2common.id]
-        result = af.get_commonness_groups({gp_key: allele_ids})
+        allele_info = [a2common.id]
+        result = af.get_commonness_groups({gp_key: allele_info})
 
         assert result[gp_key]['common'] == [a2common.id]
         assert not result[gp_key]['less_common']
@@ -623,8 +632,8 @@ class TestAlleleFilter(object):
 
         session.commit()
         gp_key = ('testpanel', 'v01')
-        allele_ids = [a2less_common.id]
-        result = af.get_commonness_groups({gp_key: allele_ids})
+        allele_info = [a2less_common.id]
+        result = af.get_commonness_groups({gp_key: allele_info})
 
         assert not result[gp_key]['common']
         assert result[gp_key]['less_common'] == [a2less_common.id]
@@ -654,8 +663,8 @@ class TestAlleleFilter(object):
 
         session.commit()
         gp_key = ('testpanel', 'v01')
-        allele_ids = [a2low_freq.id]
-        result = af.get_commonness_groups({gp_key: allele_ids})
+        allele_info = [a2low_freq.id]
+        result = af.get_commonness_groups({gp_key: allele_info})
 
         assert not (result[gp_key]['common'])
         assert not result[gp_key]['less_common']
@@ -679,7 +688,7 @@ class TestAlleleFilter(object):
         # Test external
 
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa1ad = create_allele_with_annotation(session, {
+        (pa1ad, pa1adanno) = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -700,7 +709,7 @@ class TestAlleleFilter(object):
         })
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        pa1ar = create_allele_with_annotation(session, {
+        (pa1ar,pa1aranno) = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -722,7 +731,7 @@ class TestAlleleFilter(object):
 
         # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
         # external: 0.30/0.1 , internal: 0.05/0.01
-        pa1nogene = create_allele_with_annotation(session, {
+        (pa1nogene, pa1nogeneanno) = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -744,7 +753,7 @@ class TestAlleleFilter(object):
 
         # Test internal
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-        pa2 = create_allele_with_annotation(session, {
+        (pa2, pa2anno) = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'inDB': {
                     'freq': {
@@ -763,7 +772,7 @@ class TestAlleleFilter(object):
 
         # Test conflicting external/internal
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa3 = create_allele_with_annotation(session, {
+        (pa3,pa3anno)  = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -790,7 +799,7 @@ class TestAlleleFilter(object):
 
         # Test right on threshold
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa4 = create_allele_with_annotation(session, {
+        (pa4, pa4anno) = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -814,10 +823,18 @@ class TestAlleleFilter(object):
 
         af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id]
-        result = af.filter_alleles({gp_key: allele_ids})
+        # allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id]
+        allele_info = {pa1ad.id: (pa1ad, pa1adanno),
+                       pa1ar.id: (pa1ar, pa1aranno),
+                       pa1nogene.id: (pa1nogene, pa1nogeneanno),
+                       pa2.id: (pa2, pa2anno),
+                       pa3.id: (pa3, pa3anno),
+                       pa4.id: (pa4, pa4anno)}
 
-        assert set(result[gp_key]['excluded_allele_ids']['frequency']) == set(allele_ids)
+        result = af.filter_alleles({gp_key: allele_info.keys()})
+
+        assert set(result[gp_key]['excluded_allele_ids']['frequency']) == set(allele_info.keys()),\
+            create_error_message(allele_info.keys() + result[gp_key]['excluded_allele_ids']['frequency'], allele_info)
 
         ##
         # Test negative cases
