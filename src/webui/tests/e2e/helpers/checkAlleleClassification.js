@@ -54,6 +54,13 @@ function checkAlleleClassification(allele_data) {
         if ('num_attachments' in data) {
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(data.num_attachments)
         }
+
+        if ('acmg' in data) {
+            for (let [idx, acmg_data] of Object.entries(data.acmg)) {
+                expect(alleleSectionBox.getAcmgCode(idx)).toEqual(acmg_data.code)
+                expect(alleleSectionBox.getAcmgComment(idx)).toEqual(acmg_data.comment)
+            }
+        }
     }
 }
 

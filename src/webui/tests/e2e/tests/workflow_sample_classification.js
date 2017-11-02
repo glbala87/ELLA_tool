@@ -168,13 +168,11 @@ describe('Sample workflow', function () {
             analysisPage.saveButton.click();
 
             alleleSectionBox.setReportComment('REPORT_ROUND1');
-            browser.click('body'); // a trick to unfocus the above report comment
-            alleleSectionBox.classificationCommentElement.scroll();
 
             console.log("Adding ACMG codes")
-            analysisPage.addAcmgCode('benign', 'BP2','ACMG_ROUND_1');
-            analysisPage.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', -2); // Adjust down to PPxPS2
-            analysisPage.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
+            analysisPage.addAcmgCode('benign', 'BP2','BP2_ACMG_ROUND_1');
+            analysisPage.addAcmgCode('pathogenic', 'PS2','PS2_ACMG_ROUND_1', -2); // Adjust down to PPxPS2
+            analysisPage.addAcmgCode('pathogenic', 'PS1','PS1_ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
 
             console.log("Setting class " + (idx+1));
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx+1}`);
@@ -202,23 +200,20 @@ describe('Sample workflow', function () {
                 external: 'EXTERNAL_ROUND1',
                 report: 'REPORT_ROUND1',
                 classification: (idx+1).toString(),
-                acmg: [
-                    {
+                acmg: {
+                    '1': {
                         code: 'BP2',
-                        category: 'benign',
-                        comment: 'ACMG_ROUND_1'
+                        comment: 'BP2_ACMG_ROUND_1'
                     },
-                    {
+                    '2': {
                         code: 'PPxPS2',
-                        category: 'pathogenic',
-                        comment: 'ACMG_ROUND_1'
+                        comment: 'PS2_ACMG_ROUND_1'
                     },
-                    {
+                    '3': {
                         code: 'PVSxPS1',
-                        category: 'pathogenic',
-                        comment: 'ACMG_ROUND_1'
+                        comment: 'PS1_ACMG_ROUND_1'
                     },
-                ],
+                },
                 num_attachments: 1,
             }
         }
