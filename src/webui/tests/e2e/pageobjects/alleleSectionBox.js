@@ -25,13 +25,13 @@ const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
 
 class AlleleSectionBox  {
 
-    get exacElement() { return browser.element(SELECTOR_FREQ_EXAC); }
+    get exacElement() { return util.elementIntoView(SELECTOR_FREQ_EXAC); }
     get gnomADExomesElement() { return browser.element(SELECTOR_FREQ_GNOMAD_EXOMES); }
     get gnomADGenomesElement() { return browser.element(SELECTOR_FREQ_GNOMAD_GENOMES); }
 
-    get reviewCommentElement() { return browser.element('.workflow-options input.id-review-comment'); }
+    get reviewCommentElement() { return util.elementIntoView('.workflow-options input.id-review-comment'); }
 
-    get classificationCommentElement() { return browser.element(SELECTOR_COMMENT_CLASSIFICATION);}
+    get classificationCommentElement() { return util.elementIntoView(SELECTOR_COMMENT_CLASSIFICATION);}
     get classificationComment() { return browser.getText(SELECTOR_COMMENT_CLASSIFICATION_EDITOR); }
     get existingClassificationName() { return browser.getText(SELECTOR_EXISTING_CLASSIFICATION); }
 
@@ -42,7 +42,7 @@ class AlleleSectionBox  {
     }
 
 
-    get frequencyCommentElement() { return browser.element(SELECTOR_COMMENT_FREQUENCY);}
+    get frequencyCommentElement() { return util.elementIntoView(SELECTOR_COMMENT_FREQUENCY);}
     get frequencyComment() { return browser.getText(SELECTOR_COMMENT_FREQUENCY_EDITOR); }
 
     setFrequencyComment(text) {
@@ -51,7 +51,7 @@ class AlleleSectionBox  {
         browser.setValue(SELECTOR_COMMENT_FREQUENCY_EDITOR, text);
     }
 
-    get externalCommentElement() { return browser.element(SELECTOR_COMMENT_EXTERNAL);}
+    get externalCommentElement() { return util.elementIntoView(SELECTOR_COMMENT_EXTERNAL);}
     get externalComment() { return browser.getText(SELECTOR_COMMENT_EXTERNAL_EDITOR); }
 
     setExternalComment(text) {
@@ -60,7 +60,7 @@ class AlleleSectionBox  {
         browser.setValue(SELECTOR_COMMENT_EXTERNAL_EDITOR, text);
     }
 
-    get predictionCommentElement() { return browser.element(SELECTOR_COMMENT_PREDICTION);}
+    get predictionCommentElement() { return util.elementIntoView(SELECTOR_COMMENT_PREDICTION);}
     get predictionComment() { return browser.getText(SELECTOR_COMMENT_PREDICTION_EDITOR); }
 
     setPredictionComment(text) {
@@ -69,7 +69,7 @@ class AlleleSectionBox  {
         browser.setValue(SELECTOR_COMMENT_PREDICTION_EDITOR, text);
     }
 
-    get reportCommentElement() { return browser.element(SELECTOR_COMMENT_REPORT); }
+    get reportCommentElement() { return util.elementIntoView(SELECTOR_COMMENT_REPORT); }
     get reportComment() { return browser.getText(SELECTOR_COMMENT_REPORT_EDITOR); }
     get reportCommentEditable() { return browser.isCommentEditable(SELECTOR_COMMENT_REPORT_EDITOR)}
 
@@ -80,12 +80,12 @@ class AlleleSectionBox  {
     }
 
 
-    get classSelection() { return browser.element('allele-sectionbox select.id-select-classification'); }
-    get setClassBtn() { return browser.element('allele-sectionbox button.id-set-class'); }
-    get addExternalBtn() { return browser.element('allele-sectionbox button.id-add-external'); }
-    get addPredictionBtn() { return browser.element('allele-sectionbox button.id-add-prediction'); }
-    get addReferencesBtn() { return browser.element('allele-sectionbox button.id-add-references' ); }
-    get classificationAcceptedBtn() { return browser.element('allele-sectionbox .id-accept-classification checked'); }
+    get classSelection() { return util.elementIntoView('allele-sectionbox select.id-select-classification'); }
+    get setClassBtn() { return util.elementIntoView('allele-sectionbox button.id-set-class'); }
+    get addExternalBtn() { return util.elementIntoView('allele-sectionbox button.id-add-external'); }
+    get addPredictionBtn() { return util.elementIntoView('allele-sectionbox button.id-add-prediction'); }
+    get addReferencesBtn() { return util.elementIntoView('allele-sectionbox button.id-add-references' ); }
+    get classificationAcceptedBtn() { return util.elementIntoView('allele-sectionbox .id-accept-classification checked'); }
     get classificationAcceptedToggleBtn() {
         return util.elementOrNull(SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION);
     }
@@ -242,7 +242,7 @@ class AlleleSectionBox  {
         return browser.getText('allele-info-external-other div.cell p');
     }
 
-     getPredictionOtherAnnotation() {
+    getPredictionOtherAnnotation() {
         browser.waitForExist('allele-info-prediction-other div.cell h5');
         return browser.getText('allele-info-prediction-other div.cell h5');
     }
@@ -271,6 +271,14 @@ class AlleleSectionBox  {
 
     getReferences() {
         return browser.elements('allele-sectionbox .id-references-box article');
+    }
+
+    getAcmgCode(idx) {
+        return browser.getText(`.id-acmg-included acmg:nth-child(${idx}) .acmg-title-wrapper h4`)
+    }
+
+    getAcmgComment(idx) {
+        return browser.getValue(`.id-acmg-included acmg:nth-child(${idx}) textarea`)
     }
 }
 

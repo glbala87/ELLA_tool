@@ -46,25 +46,20 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
         referenceEvalModal.setRelevance(1);
         referenceEvalModal.setComment('REFERENCE_EVAL_ROUND1');
 
-        referenceEvalModal.saveBtn.scroll();
         referenceEvalModal.saveBtn.click();
 
-        // browser.debug();
         expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1');
 
         // Add external annotation
-        alleleSectionBox.addExternalBtn.scroll();
         alleleSectionBox.addExternalBtn.click();
         customAnnotationModal.annotationSelect.selectByVisibleText('LOVD');
         customAnnotationModal.valueSelect.selectByVisibleText('+/+');
         customAnnotationModal.addBtn.click();
         customAnnotationModal.saveBtn.click();
-        // browser.debug();
         expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD:');
         expect(alleleSectionBox.getExternalOtherValue()).toEqual('+/+');
 
         // Add prediction annotation
-        alleleSectionBox.addPredictionBtn.scroll();
         alleleSectionBox.addPredictionBtn.click();
         customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
         customAnnotationModal.valueSelect.selectByVisibleText('Conserved');
@@ -77,22 +72,19 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
         alleleSectionBox.setClassificationComment('EVALUATION_ROUND1');
         analysisPage.saveButton.click();
         alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1');
-        analysisPage.saveButton.scroll();
         analysisPage.saveButton.click();
         alleleSectionBox.setPredictionComment('PREDICTION_ROUND1');
-        analysisPage.saveButton.scroll();
         analysisPage.saveButton.click();
         alleleSectionBox.setExternalComment('EXTERNAL_ROUND1');
-        analysisPage.saveButton.scroll();
         analysisPage.saveButton.click();
         alleleSectionBox.setReportComment('REPORT_ROUND1');
         browser.click('body'); // a trick to unfocus the above report comment
 
         alleleSectionBox.classificationCommentElement.scroll();
 
-        analysisPage.addAcmgCode('benign', 'BP2','ACMG_ROUND_1', -1); // Adjust down to BSxBP2
-        analysisPage.addAcmgCode('pathogenic', 'PS2','ACMG_ROUND_1');
-        analysisPage.addAcmgCode('pathogenic', 'PM1','ACMG_ROUND_1', 2); // Adjust up to PVSxPM1
+        analysisPage.addAcmgCode('benign', 'BP2','BP2_ACMG_ROUND_1', 1); // Adjust up to BSxBP2
+        analysisPage.addAcmgCode('pathogenic', 'PS2','PS2_ACMG_ROUND_1');
+        analysisPage.addAcmgCode('pathogenic', 'PM1','PM1_ACMG_ROUND_1', 2); // Adjust up to PVSxPM1
         alleleSectionBox.classSelection.selectByVisibleText('Class 1');
 
         interpretation_expected_values = {
@@ -117,23 +109,20 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
                 external: 'EXTERNAL_ROUND1',
                 report: 'REPORT_ROUND1',
                 classification: '1',
-                acmg: [
-                    {
+                acmg: {
+                    '1': {
                         code: 'BSxBP2',
-                        category: 'benign',
-                        comment: 'ACMG_ROUND_1'
+                        comment: 'BP2_ACMG_ROUND_1'
                     },
-                    {
+                    '2': {
                         code: 'PS2',
-                        category: 'pathogenic',
-                        comment: 'ACMG_ROUND_1'
+                        comment: 'PS2_ACMG_ROUND_1'
                     },
-                    {
+                    '3': {
                         code: 'PVSxPM1',
-                        category: 'pathogenic',
-                        comment: 'ACMG_ROUND_1'
+                        comment:'PM1_ACMG_ROUND_1'
                     },
-                ]
+                }
             }
         };
 
