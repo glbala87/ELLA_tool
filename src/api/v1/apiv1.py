@@ -98,11 +98,6 @@ class ApiV1(object):
         self._add_resource(r.genepanel.GenepanelResource,
                            '/api/v1/genepanels/<name>/<version>/')
 
-        self._add_resource(r.genepanel.GenepanelConfigResource,
-                           '/api/v1/genepanels/config/',
-                           '/api/v1/genepanels/<name>/<version>/config/',
-                           '/api/v1/genepanels/<name>/<version>/config/<gene_symbol>/')
-
         self._add_resource(r.genepanel.GenepanelListResource,
                            '/api/v1/genepanels/')
 
