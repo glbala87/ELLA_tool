@@ -12,16 +12,13 @@ def client():
     return FlaskClientProxy()
 
 
-def test_resourcelog(client):
+def test_resourcelog(client, test_database, session):
     """
     Test that requests to the API are logged correctly in the 'requestloq' table.
 
     These tests are by default logged in as testuser1, with usersession_id of 1.
     """
-
-    db = DB()
-    db.connect()
-    session = db.session()
+    test_database.refresh()
 
     usersession_id = 1
     remote_addr = '0.0.0.0'  # Manually set in API code
