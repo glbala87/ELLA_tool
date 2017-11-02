@@ -162,7 +162,7 @@ So before manually running the upgrade/downgrade scripts, you need to create the
  create table alembic_version (version_num varchar)
 ```
 
-### Configuration relevant for variant filtering and the ACMG rules engine
+## Configuration relevant for variant filtering and the ACMG rules engine
 Values that affect variant filtering and the rules engine are defined at three levels, in order from general to specific:
 - global (defined in code: api/config.py)
 - genepanel (common for all genes in the panel)
@@ -174,9 +174,43 @@ in src/vardb/datamodel defines the format of file.
 Configuration at a specific level "override" the more general ones.
 
 Frequency values in global or genepanel common are defined with one set for AD genes, and another for non-AD genes.
-For frequencies defined at the gene level, the AD/non-AD distinction is intrinsic.
+For frequencies defined at the gene level, it's not relevant to distingiush between AD/non-AD, as this is defined by the
+phenotypes of the gene as defined in the genepanel.
 
-At genepanel common/gene level one can choose to override only internal or external, and either AD and non-AD blocks. 
+At genepanel common/gene level one can choose to override internal or external, and either AD and non-AD blocks.
+
+### global config 
+See api/config.py at key 'variant_criteria' > 'genepanel_config':
+- freq_cutoff_groups
+  - AD
+    - internal
+    -  external
+  - default
+    - internal
+    - external
+- disease_mode
+- last_exon_important
+
+### genepanel (common) at key 'data'
+- freq_cutoff_groups
+  - AD
+    - internal
+    - external
+  - default
+    - internal
+    - external
+- disease_mode
+- last_exon_important
+
+### genepanel (gene specific) at key 'data'
+- genes
+  - BRCA1
+    - freq_cutoffs
+      -  internal
+      - external 
+    - disease_mode
+    - last_exon_important
+  - ...   
 
 
 ### API documentation
