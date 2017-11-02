@@ -40,7 +40,7 @@ VARDB_PATH = os.path.split(vardb.__file__)[0]
 @pytest.fixture(scope="module", autouse=True)
 def deposit(session):
     """Deposit test analysis"""
-    trio = os.path.join(VARDB_PATH, "testdata/analyses/trio/trio_analysis_1.HBOC_v02")
+    trio = os.path.join(VARDB_PATH, "testdata/analyses/trio/trio_analysis_1.HBOC_v01")
     assert os.path.isdir(trio)
     files = os.listdir(trio)
     assert len(files) == 1+1+3
@@ -49,15 +49,15 @@ def deposit(session):
     deposit_analysis = DepositAnalysis(session)
     deposit_analysis.import_vcf(
         vcf_file,
-        'trio_analysis_1.HBOC_v02',
+        'trio_analysis_1.HBOC_v01',
         'HBOC',
-        'v02'
+        'v01'
     )
 
 
 @pytest.fixture(scope="module")
 def analysis_name():
-    return "trio_analysis_1.HBOC_v02"
+    return "trio_analysis_1.HBOC_v01"
 
 
 @pytest.fixture(scope="module")

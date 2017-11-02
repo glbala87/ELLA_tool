@@ -43,12 +43,10 @@ def _choose_cutoff_group(cutoff_groups, inheritance_code):
 
 def _chose_inheritance(codes=None):
     if not codes:
-        print 'not codes'
         return INHERITANCE_DEFAULT
     if all(map(lambda c: c.upper() == INHERITANCE_AD, codes)):
         return INHERITANCE_AD
     else:
-        print 'not all AD'
         return INHERITANCE_DEFAULT
 
 
@@ -122,8 +120,6 @@ class GenepanelConfigResolver(object):
             gene_specific_overrides = copy.deepcopy(get_nested(self.genepanel.config, 'data', 'genes', symbol))
             if gene_specific_overrides:
                 result.update(gene_specific_overrides)
-                print 'has genespecific overrides'
-                print gene_specific_overrides
 
             explicit_cutoffs = get_nested(gene_specific_overrides, 'freq_cutoffs')
             if explicit_cutoffs:

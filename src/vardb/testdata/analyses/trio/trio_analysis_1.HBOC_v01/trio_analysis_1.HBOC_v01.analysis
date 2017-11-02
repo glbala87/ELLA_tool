@@ -1,0 +1,11 @@
+{
+    "params": {
+        "genepanel": "HBOC_v01"
+    }, 
+    "name": "trio_analysis_1.HBOC_v01",
+    "samples": [
+        "TrioMK",
+        "TrioPK",
+        "TrioFK"
+    ]
+}
