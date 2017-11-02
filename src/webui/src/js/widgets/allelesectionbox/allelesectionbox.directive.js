@@ -219,9 +219,7 @@ export class AlleleSectionBoxController {
         let placeholder = category === 'external' ? 'CHOOSE DATABASE' : 'CHOOSE PREDICTION TYPE';
         this.customAnnotationModal.show(title, placeholder, [this.allele], category).then(result => {
             if (result) {
-                if (this.onUpdate) {
-                    this.onUpdate();
-                }
+                this.onUpdate();
             }
         });
     }
@@ -231,9 +229,7 @@ export class AlleleSectionBoxController {
         let placeholder = "Not used";
         this.customAnnotationModal.show(title, placeholder, [this.allele], 'references').then(result => {
             if (result) {
-                if (this.onUpdate) {
-                    this.onUpdate();
-                }
+                this.onUpdate();
             }
         });
     }

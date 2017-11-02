@@ -359,14 +359,17 @@ export class CustomAnnotationModal {
         // our modal UI calls the close method on the modal instance (save, cancel and the X in the corner),
         // which triggers the 'then' callback, with or without data.
         return modal.result.then(custom_annotation => {
-            console.log('modal closed ' + (custom_annotation ? ' with data.' : ' without data.'));
             if (!custom_annotation) return;
 
+            let promises = [];
             for (let allele_id of Object.keys(custom_annotation)) {
-                this.customAnnotationResource.createOrUpdateCustomAnnotation(allele_id, custom_annotation[allele_id]);
-                console.log("Posted custom annotation " + custom_annotation[allele_id]);
+                let p = this.customAnnotationResource.createOrUpdateCustomAnnotation(allele_id, custom_annotation[allele_id]);
+                promises.push(p)
             }
-            return custom_annotation;
+            // Make sure all data is posted to backend before returning and refreshing view
+            return Promise.all(promises).then( () => {
+                return custom_annotation;
+            })
         }, () => console.log('modal dismissed'));
 
     }
