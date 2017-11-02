@@ -99,7 +99,7 @@ def log_request(statuscode, response_size=0):
     payload = None
     payload_size = 0
     if request.method in ['PUT', 'POST', 'PATCH', 'DELETE']:
-        if request.log_show_payload:
+        if hasattr(request, 'log_hide_payload') and not request.log_hide_payload:
             payload = request.get_data()
             payload_size = request.headers.get('Content-Length'),
         if not app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
@@ -126,12 +126,12 @@ def log_request(statuscode, response_size=0):
     db.session.add(rl)
 
 
-def logger(show_payload=False):
+def logger(hide_payload=False):
 
     def _logger(func):
         @wraps(func)
         def inner(*args, **kwargs):
-            request.log_show_payload = show_payload
+            request.log_hide_payload = hide_payload
             return func(*args, **kwargs)
 
         return inner
