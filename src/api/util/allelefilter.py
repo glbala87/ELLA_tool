@@ -314,9 +314,6 @@ class AlleleFilter(object):
         frequency_groups = self.config['variant_criteria']['frequencies']['groups']
         frequency_provider_numbers = self.config['variant_criteria']['freq_num_thresholds']
 
-        print 'xxxx'
-        print frequency_provider_numbers
-
         filters = list()
         for group, thresholds in group_thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
             if group not in frequency_groups:
@@ -338,7 +335,6 @@ class AlleleFilter(object):
         freq_key_filters = list()
         num_filter = AlleleFilter._get_freq_num_threshold_filter(allele_filter_tbl, provider_numbers, freq_provider, freq_key)
         if num_filter is not None:
-            print "added a number filter for {} using population {}".format(freq_provider, freq_key)
             freq_key_filters.append(num_filter)
 
         freq_key_filters.append(
@@ -592,10 +588,10 @@ class AlleleFilter(object):
 
         return final_result
 
-    def exclude_classification_allele_ids(self, allele_ids):
+    def remove_alleles_with_classification(self, allele_ids):
         """
-        Return the input list minus the allele id that have an existing classification.
-        The configuraion of the exclude are defined in global config ['classification']['options
+        Return the allele ids that have have an existing classification according with
+        global config ['classification']['options']
 
         Reason: alleles with classification should be displayed to the user.
 
@@ -604,48 +600,29 @@ class AlleleFilter(object):
         options = self.config['classification']['options']
         exclude_for_class = [o['value'] for o in options if o.get('exclude_filtering_existing_assessment')]
 
-        to_exclude = list()
+        with_classification = list()
 
         if allele_ids:
-            to_exclude = self.session.query(assessment.AlleleAssessment.allele_id).filter(
+            with_classification = self.session.query(assessment.AlleleAssessment.allele_id).filter(
                 assessment.AlleleAssessment.classification.in_(exclude_for_class),
                 assessment.AlleleAssessment.allele_id.in_(allele_ids),
                 assessment.AlleleAssessment.date_superceeded.is_(None)
             ).all()
-            to_exclude = [t[0] for t in to_exclude]
+            with_classification = [t[0] for t in with_classification]
 
-            print "will exclude "
-            print to_exclude
-            print "from "
-            print allele_ids
-
-        return filter(lambda i: i not in to_exclude, allele_ids)
+        return filter(lambda i: i not in with_classification, allele_ids)
 
     def filtered_gene(self, gp_allele_ids, allele_filter_tbl=None):
         """
-        Identify variants that have a classification
+        Only return the allele IDs whose gene symbol are configured to be excluded.
 
-        The filtering will happen according to the genepanel's specified
-        configuration, specifying what genes that should be excluded.
-
-        If any alleles have an existing classification according to config
-        'exclude_filtering_existing_assessment', they will be excluded from the
-        result.
-
-        :param gp_allele_ids: Dict of genepanel key with corresponding allele_ids {('HBOC', 'v01'): [1, 2, 3])}
-        :returns: Structure similar to input, but only containing allele ids are excluded based on gene.
-
-        :note: The returned values are allele ids that were _filtered out_
-        based on gene, i.e. they are in excluded list.
+        Currently this is not configured, as exclusion is built into the pipeline
+        producing variants to ella.
         """
 
-
         gene_filtered = dict()
-        # Remove the ones with existing classification
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
-            gene_filtered[gp_key] = self.exclude_classification_allele_ids(allele_ids)
-            print "after filtering of variants with classification"
-            print gene_filtered
+        for gp_key, _ in gp_allele_ids.iteritems():
+            gene_filtered[gp_key] = list()  # no alleles are filtered away based on gene symbol only
 
         return gene_filtered
 
@@ -677,7 +654,6 @@ class AlleleFilter(object):
 
         all_gp_keys = gp_allele_ids.keys()
 
-
         filtered_transcripts = queries.alleles_transcript_filtered_genepanel(
             self.session,
             all_allele_ids,
@@ -687,7 +663,6 @@ class AlleleFilter(object):
 
         intronic_region = self.config['variant_criteria']['intronic_region']
 
-        # TODO: Add support for per gene/genepanel configuration when ready.
         intronic_filtered = dict()
         all_alleles_q = self.session.query(
             allele_filter_tbl.c.allele_id,
@@ -734,7 +709,7 @@ class AlleleFilter(object):
 
         # Remove the ones with existing classification
         for gp_key, allele_ids in intronic_filtered.iteritems():
-            intronic_filtered[gp_key] = self.exclude_classification_allele_ids(allele_ids)
+            intronic_filtered[gp_key] = self.remove_alleles_with_classification(allele_ids)
 
         if table_creator is not None:
             table_creator.drop()
@@ -768,8 +743,9 @@ class AlleleFilter(object):
 
         commonness_result = self.get_commonness_groups(gp_allele_ids, common_only=True, allele_filter_tbl=allele_filter_tbl)
         frequency_filtered = dict()
+
         for gp_key, commonness_group in commonness_result.iteritems():
-            frequency_filtered[gp_key] = self.exclude_classification_allele_ids(commonness_group['common'])
+            frequency_filtered[gp_key] = self.remove_alleles_with_classification(commonness_group['common'])
 
         if table_creator:
             table_creator.drop()
@@ -838,10 +814,9 @@ class AlleleFilter(object):
                     utr_filtered.append(allele_id)
 
         # Remove the ones with existing classification
-        utr_filtered = self.exclude_classification_allele_ids(utr_filtered)
+        utr_filtered = self.remove_alleles_with_classification(utr_filtered)
 
         return utr_filtered
-
 
     def filter_alleles(self, gp_allele_ids):
         result = dict()
@@ -851,12 +826,6 @@ class AlleleFilter(object):
             filtered_frequency = self.filtered_frequency(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
             filtered_intronic = self.filtered_intronic(gp_allele_ids, allele_filter_tbl=allele_filter_tbl)
 
-        print 'filtered gene'
-        print filtered_gene
-        print 'filtered_frequency'
-        print filtered_frequency
-        print 'filtered_intronic'
-        print filtered_intronic
         for gp_key in gp_allele_ids:
             gp_filtered_gene = filtered_gene[gp_key]
             gp_filtered_frequency = [i for i in filtered_frequency[gp_key] if i not in gp_filtered_gene]

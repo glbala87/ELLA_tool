@@ -157,18 +157,20 @@ THRESHOLD_1000 = {
 
 GENEPANEL_CONFIG = {
     'data': {
-        'GENE2': {
-            "freq_cutoffs": {
-                "external": {
-                    "hi_freq_cutoff": 0.5,
-                    "lo_freq_cutoff": 0.1
-                },
-                "internal": {
-                    "hi_freq_cutoff": 0.7,
-                    "lo_freq_cutoff": 0.6
+        'genes': {
+            'GENE2': {
+                "freq_cutoffs": {
+                    "external": {
+                        "hi_freq_cutoff": 0.5,
+                        "lo_freq_cutoff": 0.1
+                    },
+                    "internal": {
+                        "hi_freq_cutoff": 0.7,
+                        "lo_freq_cutoff": 0.6
+                    }
                 }
             }
-        }
+    }
     }
 }
 
@@ -317,8 +319,6 @@ def create_genepanel(genpanel_config):
 
 
 def create_error_message(allele_ids, allele_info):
-    print allele_ids
-    print allele_info
     uniq_ids = list(set(allele_ids))
     msg = ""
     for a_id in uniq_ids:
@@ -1122,81 +1122,6 @@ class TestAlleleFilter(object):
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=4)
-    def test_gene_filtering(self, session):
-
-        # exclude_gene ['GENE3']
-
-        ##
-        # Test positive case
-        ##
-
-        pa1 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE3',
-                    'transcript': 'NM_3.1'
-                }
-            ]
-        })
-
-        pa2 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                },
-                {
-                    'symbol': 'GENE3',
-                    'transcript': 'TRANSCRIPT_NOT_IN_GENEPANEL_SHOULD_STILL_FILTER',
-                }
-            ]
-        })
-
-        session.commit()
-
-        af = AlleleFilter(session, GLOBAL_CONFIG)
-        gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id]
-        result = af.filter_alleles({gp_key: allele_ids})
-
-        assert set(result[gp_key]['excluded_allele_ids']['gene']) == set(allele_ids)
-
-        ##
-        # Test negative cases
-        ##
-
-        na1 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                }
-            ]
-        })
-
-        na2 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                },
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                }
-            ]
-        })
-
-        session.commit()
-
-        af = AlleleFilter(session, GLOBAL_CONFIG)
-        gp_key = ('testpanel', 'v01')
-        allele_ids = [na1.id, na2.id]
-        result = af.filter_alleles({gp_key: allele_ids})
-
-        assert set(result[gp_key]['allele_ids']) == set(allele_ids)
-
-    @pytest.mark.aa(order=5)
     def test_utr_filtering(self, session):
         ##
         # Test positive case
@@ -1389,16 +1314,17 @@ class TestAlleleFilter(object):
         allele_ids = [a1.id, a2.id, a3.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert a1.id in result[gp_key]['excluded_allele_ids']['gene']
-        assert a2.id not in result[gp_key]['excluded_allele_ids']['gene']
-        assert a3.id not in result[gp_key]['excluded_allele_ids']['gene']
+        # filtered based on gene symbol is defined relevant: done in pipeline
+        # assert a1.id in result[gp_key]['excluded_allele_ids']['gene']
+        # assert a2.id not in result[gp_key]['excluded_allele_ids']['gene']
+        # assert a3.id not in result[gp_key]['excluded_allele_ids']['gene']
 
         assert a2.id in result[gp_key]['excluded_allele_ids']['frequency']
         assert a1.id not in result[gp_key]['excluded_allele_ids']['frequency']
         assert a3.id not in result[gp_key]['excluded_allele_ids']['frequency']
 
         assert a3.id in result[gp_key]['excluded_allele_ids']['intronic']
-        assert a1.id not in result[gp_key]['excluded_allele_ids']['intronic']
+        assert a1.id in result[gp_key]['excluded_allele_ids']['intronic']
         assert a2.id not in result[gp_key]['excluded_allele_ids']['intronic']
 
         assert a1.id not in result[gp_key]['allele_ids']
