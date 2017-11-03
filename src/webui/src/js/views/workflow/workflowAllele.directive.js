@@ -286,11 +286,17 @@ export class WorkflowAlleleController {
     checkForCollisions() {
         this.workflowResource.getCollisions('allele', this.allele_id).then(result => {
             if (result.length > 0) {
-                let html = `This variant is currently being worked on by `
-                for (let c of result) {
-                    html += `${c.user ? c.user.full_name : 'no user (IN REVIEW)'} `
+                let html = `<h4>This variant is currently `
+                if (result.length === 1) {
+                    html += `${result[0].user ? 'being worked on by ' + result[0].user.full_name : 'in review'} `
+                    html += "in another workflow.</h4>"
+                } else {
+                    html += "being worked on in other workflows.<h4>"
+                    for (let c of result) {
+                        html += `<h3> ${c.type === 'analysis' ? 'Analysis' : 'Variant'}`
+                        html += ` ${c.user ? "by "+c.user.full_name : 'in review'}</h3>`
+                    }
                 }
-                html += "in another workflow."
 
                 this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-collision'})
             }
