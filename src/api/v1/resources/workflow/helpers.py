@@ -17,9 +17,6 @@ from api.util.interpretationdataloader import InterpretationDataLoader
 from api.util import queries
 from api.config import config
 
-STATUS_ONGOING = 'Ongoing'
-ANY_ONGOING_STATUS = [STATUS_ONGOING]
-
 
 def _check_interpretation_input(allele, analysis):
     if allele is None and analysis is None:
@@ -256,8 +253,8 @@ def override_interpretation(session, user_id, allele_id=None, analysis_id=None):
         user.User.id == user_id
     ).one()
 
-    if interpretation.status != STATUS_ONGOING:
-        raise ApiError("Cannot reassign interpretation that is not '{}'.".format(STATUS_ONGOING))
+    if interpretation.status != 'Ongoing':
+        raise ApiError("Cannot reassign interpretation that is not 'Ongoing'.")
 
     # db will throw exception if user_id is not a valid id
     # since it's a foreign key
@@ -290,7 +287,7 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     # db will throw exception if user_id is not a valid id
     # since it's a foreign key
     interpretation.user = start_user
-    interpretation.status = STATUS_ONGOING
+    interpretation.status = 'Ongoing'
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     if analysis_id is not None:
@@ -313,8 +310,8 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
     interpretation_model = _get_interpretation_model(allele_id, analysis_id)
 
-    if not interpretation.status == STATUS_ONGOING:
-        raise ApiError("Cannot mark for review when latest interpretation is not '{}'".format(STATUS_ONGOING))
+    if not interpretation.status == 'Ongoing':
+        raise ApiError("Cannot mark for review when latest interpretation is not 'Ongoing'")
 
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
@@ -361,7 +358,7 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
         raise ApiError("There are no existing interpretations for this item. Use the start action instead.")
 
     if not interpretation.status == 'Done':
-        raise ApiError("Interpretation is already  either 'Not started' or '{}'. Cannot reopen.".format(STATUS_ONGOING))
+        raise ApiError("Interpretation is already 'Not started' or 'Ongoing'. Cannot reopen.")
 
     # Create next interpretation
     interpretation_next = interpretation_model.create_next(interpretation)
@@ -394,8 +391,8 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
     interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
 
-    if not interpretation.status == STATUS_ONGOING:
-        raise ApiError("Cannot finalize when latest interpretation is not '{}'".format(STATUS_ONGOING))
+    if not interpretation.status == 'Ongoing':
+        raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
 
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
@@ -520,9 +517,8 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     ).filter(
         sample.Analysis.id.in_(workflow_analysis_ids),
         allele.Allele.id.in_(allele_ids),
-        workflow.AnalysisInterpretation.status.in_(ANY_ONGOING_STATUS)
+        workflow.AnalysisInterpretation.status != 'Done'
     ).distinct()
-
 
     # Get all allele ids connected to allele workflows that are ongoing
     wf_allele_gp_allele_ids = session.query(
@@ -535,7 +531,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_marked_review(session)),
             workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_ongoing(session))
         ),
-        workflow.AlleleInterpretation.status.in_(ANY_ONGOING_STATUS),
+        workflow.AlleleInterpretation.status != 'Done',
         workflow.AlleleInterpretation.allele_id.in_(allele_ids)
     ).distinct()
 
