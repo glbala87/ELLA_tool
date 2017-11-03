@@ -206,13 +206,42 @@ export class WysiwygEditorController {
         slider.step = 0.01;
 
         // Position slider
-        sliderContainer.style.zIndex = 1000000;
         sliderContainer.style.position = "absolute";
-        sliderContainer.style.left = img.offsetLeft+"px";
-        sliderContainer.style.top = img.offsetTop+"px";
 
-        // Append slider to document body
-        document.body.appendChild(sliderContainer)
+        var cumulativeOffset = function(element, parent) {
+            var top = 0, left = 0;
+            do {
+                top += element.offsetTop  || 0;
+                left += element.offsetLeft || 0;
+                top += element.clientTop || 0;
+                left += element.clientLeft || 0;
+                if (parent && element.id === parent.id) {
+                    break;
+                }
+                element = element.offsetParent;
+
+            } while(element);
+
+            return {
+                top: top,
+                left: left
+            };
+        };
+
+        // If a modal is open, position the image relative to the modal element. Otherwise, use document body.
+        parent = document.body;
+        let modals = document.getElementsByClassName("modal-dialog")
+        if (modals.length) {
+            parent = modals[0];
+        }
+        let offset = cumulativeOffset(img, parent)
+
+        sliderContainer.style.left = offset.left+"px";
+        sliderContainer.style.top = offset.top+"px";
+
+        // Append slider to parent element
+        parent.appendChild(sliderContainer)
+
         slider.value = currentScale;
 
         // Focus slider without hiding editors toolbar
@@ -234,7 +263,7 @@ export class WysiwygEditorController {
             this.blur();
 
             // Remove slider element
-            document.body.removeChild(sliderContainer)
+            parent.removeChild(sliderContainer)
             slider = null;
             sliderContainer = null;
         }
