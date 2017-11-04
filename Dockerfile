@@ -1,4 +1,5 @@
-FROM debian:latest
+# aka debian:stretch
+FROM debian:9.2
 MAINTAINER OUS AMG <erik@ousamg.io>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -34,17 +35,17 @@ RUN apt-get update && \
     htop \
     imagemagick \
     ghostscript \
-    fontconfig && \
+    fontconfig
 
-    # Additional tools
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
+# Additional tools
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
     curl -sLk https://deb.nodesource.com/setup_6.x | bash - && \
     apt-get install -y -q nodejs yarn && \
     curl -SLk 'https://bootstrap.pypa.io/get-pip.py' | python && \
-    curl -L https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 -o /usr/local/bin/gosu && chmod u+x /usr/local/bin/gosu && \
+    curl -L https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 -o /usr/local/bin/gosu && chmod u+x /usr/local/bin/gosu
 
-    # Cleanup
-    cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
+# Cleanup
+RUN cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
     rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
 
 # Install Google Chrome
@@ -59,7 +60,7 @@ COPY ./requirements.txt /dist/requirements.txt
 COPY ./requirements-test.txt  /dist/requirements-test.txt
 COPY ./requirements-prod.txt  /dist/requirements-prod.txt
 
-#  pip
+# pip
 RUN cd /dist && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-test.txt && \
