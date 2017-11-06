@@ -46,7 +46,8 @@ export class ShowAnalysesForAlleleModal {
             size: 'lg',
             resolve: {
                 allele: () => allele
-            }
+            },
+            backdrop: 'static', // Disallow closing by clicking outside
     });
 
         return modal.result;
