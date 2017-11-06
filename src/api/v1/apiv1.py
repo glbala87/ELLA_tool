@@ -62,6 +62,9 @@ class ApiV1(object):
         self._add_resource(r.allele.AlleleListResource,
                            '/api/v1/alleles/')
 
+        self._add_resource(r.allele.AlleleAnalysisListResource,
+                           '/api/v1/alleles/<int:allele_id>/analyses/')
+
         self._add_resource(r.alleleassessment.AlleleAssessmentResource,
                            '/api/v1/alleleassessments/<int:aa_id>/')
 
