@@ -106,6 +106,7 @@ class ChangePasswordResource(Resource):
 
 
 class CurrentUser(LogRequestResource):
+
     @authenticate()
     def get(self, session, user=None):
         return schemas.UserFullSchema().dump(user).data

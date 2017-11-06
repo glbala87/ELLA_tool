@@ -64,6 +64,15 @@ class FlaskClientProxy(object):
         _set_client_cookie(client, self.user_cookie[username])
 
     @json_out
+    def logout(self, username='testuser1'):
+        with self.app.test_client() as client:
+            if username:
+                self.ensure_logged_in(client, username)
+            return client.post("/api/v1/users/actions/logout/",
+                               data={},
+                               content_type='application/json')
+
+    @json_out
     def get(self, url, username='testuser1'):
         with self.app.test_client() as client:
             if username:

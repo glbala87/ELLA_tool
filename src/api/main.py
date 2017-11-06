@@ -2,13 +2,14 @@ import threading
 import os
 import sys
 import logging
-
+import time
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from flask import send_from_directory, request
+from flask import send_from_directory, request, g
 from flask_restful import Api
 from api import app, db, AuthenticationError, ConflictError
 from api.v1 import ApiV1
+from api.util.util import populate_g_user, log_request
 
 # For /reset purposes
 from vardb.deposit.deposit_testdata import DepositTestdata, DEFAULT_TESTSET, AVAILABLE_TESTSETS
@@ -25,6 +26,27 @@ def setup_logging():
     if not app.debug:
         log.addHandler(logging.StreamHandler())
         log.setLevel(logging.INFO)
+
+@app.before_request
+def populate_request():
+    g.request_start_time = time.time() * 1000.0
+    g.log_hide_payload = False
+    g.log_hide_response = True  # We only store response for certain resources due to size concerns
+    populate_g_user()
+
+@app.after_request
+def after_request(response):
+    log_request(response.status_code, response)
+    db.session.commit()
+    return response
+
+@app.teardown_request
+def teardown_request(exc):
+    if exc:
+        if request.url.startswith('/reset'):  # DEVELOPMENT
+            return None
+        log_request(500)
+        db.session.commit()
 
 
 @app.teardown_appcontext
