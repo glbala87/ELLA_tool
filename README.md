@@ -184,7 +184,7 @@ See api/config.py at key 'variant_criteria' > 'genepanel_config':
 - freq_cutoff_groups
   - AD
     - internal
-    -  external
+    - external
   - default
     - internal
     - external
@@ -206,7 +206,7 @@ See api/config.py at key 'variant_criteria' > 'genepanel_config':
 - genes
   - BRCA1
     - freq_cutoffs
-      -  internal
+      - internal
       - external 
     - disease_mode
     - last_exon_important

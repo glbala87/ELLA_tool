@@ -288,10 +288,13 @@ class TempAlleleFilterTable(object):
 
 class AlleleFilter(object):
 
-    def __init__(self, session, global_config):
-
+    def __init__(self, session, global_config=None):
+        """
+        :param session:
+        :param global_config: only set when testing. Else the global config in api/config.py is used
+        """
         self.session = session
-        self.global_config = global_genepanel_default['variant_criteria']['genepanel_config'] if not global_config else global_config
+        self.global_config = global_genepanel_default if not global_config else global_config
 
 
     @staticmethod
