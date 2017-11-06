@@ -6,12 +6,13 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'search-module',
     templateUrl: 'ngtmpl/searchModule.ngtmpl.html'
 })
-@Inject('$scope','Search', 'GenepanelResource', 'User')
+@Inject('$scope','Search', 'GenepanelResource', 'User', 'ShowAnalysesForAlleleModal')
 export class SearchModuleController {
 
-    constructor($scope, Search, GenepanelResource, User) {
+    constructor($scope, Search, GenepanelResource, User, ShowAnalysesForAlleleModal) {
         this.searchService = Search;
         this.genepanelResource = GenepanelResource;
+        this.showAnalysesForAlleleModal = ShowAnalysesForAlleleModal;
         this.userResource = User;
 
         this.query = {
@@ -67,5 +68,9 @@ export class SearchModuleController {
 
     getAlleleUrl(name, version, allele) {
         return `/variants/${allele.genome_reference}/${allele.chromosome}-${allele.start_position}-${allele.open_end_position}-${allele.change_from}-${allele.change_to}?gp_name=${name}&gp_version=${version}`;
+    }
+
+    showAnalysesForAllele(allele) {
+        this.showAnalysesForAlleleModal.show(allele);
     }
 }

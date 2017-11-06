@@ -1,5 +1,9 @@
 .modal {
-  &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0; }
+  &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0;
+    & sectionbox > section {
+      min-height: 20rem;
+    }
+  }
   &-dialog { margin-left: 25.3rem; margin-top: 6.5rem; margin-bottom: 0; }
   &-lg { width: inherit; }
   &-backdrop { bottom: 0; position: fixed; top: 6.5rem; }

@@ -76,5 +76,14 @@ export class AlleleResource {
             }, reject);
         });
     }
+
+    getAnalyses(allele_id) {
+        return new Promise((resolve, reject) => {
+            let AnalysesRS = this.resource(`${this.base}/alleles/:id/analyses/`, {id: allele_id});
+            let analyses = AnalysesRS.query(() => {
+                resolve(analyses);
+            }, reject);
+        });
+    }
 }
 
