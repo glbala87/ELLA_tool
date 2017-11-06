@@ -337,7 +337,7 @@ test-api:
 	/ella/ella-cli database drop -f
 	/ella/ella-cli database make -f
 ifeq ($(TEST_COMMAND),) # empty?
-	py.test --color=yes "/ella/src/api/" -s
+	py.test --color=yes --exitfirst "/ella/src/api/" -s
 else
 	$(TEST_COMMAND)
 endif
