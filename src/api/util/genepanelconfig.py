@@ -4,6 +4,7 @@ import logging
 from api.config import config
 #
 from api.util.util import get_nested
+from api.v1.resources.config import dict_merge
 
 INHERITANCE_GROUP_AD = 'AD'
 INHERITANCE_GROUP_DEFAULT = 'default'
@@ -80,74 +81,51 @@ class GenepanelConfigResolver(object):
 
         Output will look something like:
 
-        {'freq_num_thresholds': {...},
+        {
          'freq_cutoffs': {'external': {'hi_freq_cutoff': 0.01, 'lo_freq_cutoff': 1.0},
                           'internal': {'hi_freq_cutoff': 0.05, 'lo_freq_cutoff': 1.0}},
          'inheritance': 'AD',
          'disease_mode': 'ANY',
-         'last_exon_important': True}
-
+         'last_exon_important': True
+         }
 
         :param symbol: Might be None
         :return: the values to be used by the rules engine/allele filter for this gene.
-         The calculated values is based on global defaults and any overrides in the genepanel
+
+
+         The calculated values is based on global defaults and any overrides in the genepanel.
+         The global and genepanel config have dict with the same keys, so we can merge
+         the dicts to implement to override logic.
         """
 
-        # Stage 1: init the result using the global defaults for inheritance, disease_mode and last_exon_important
-        # ('freq_cutoff_groups' has an extra level we don't return):
-        result = copy.deepcopy(self.global_default)
-        result.pop('freq_cutoff_groups', None)
+        # Stage 1: init the result using the global defaults
+        config_storage = copy.deepcopy(self.global_default)
 
         # Stage 2: find frequency cutoffs for 'default' from either genepanel or global:
         if not symbol:
             logging.warning("Symbol not defined when resolving genepanel config values")
-            result['freq_cutoffs'] = copy.deepcopy(get_nested(self.global_default, 'freq_cutoff_groups', 'default'))
             if self.genepanel and self.genepanel.config:
-                genepanel_cutoffs = get_nested(self.genepanel.config, 'data', 'freq_cutoff_groups', 'default')
-                if genepanel_cutoffs:
-                    result['freq_cutoffs'].update(genepanel_cutoffs)
+                dict_merge(config_storage, get_nested(self.genepanel.config, 'data', 'freq_cutoff_groups'))
 
-            # only cutoffs are defined in gene-independent genepanel config. Others are taken from global, see above
-            return copy.deepcopy(result)
+            config_storage['freq_cutoffs'] = get_nested(config_storage, 'default')
+        else:
+            if self.genepanel and self.genepanel.config:
+                dict_merge(config_storage, get_nested(self.genepanel.config, 'data', 'freq_cutoff_groups'))
 
-        # if not self.genepanel:  # no panel to find any specific info
-        #     logging.warning("Genepanel not defined when resolving genepanel config values")
-        #     result["freq_cutoffs"] = self.genepanel_default["freq_cutoffs"]['default']
-        #     return copy.deepcopy(result)
+            # A specific symbol can define cutoffs, disease_mode and last_exon_important
+            # Stage 3: find the most "useful" inheritance using the gene symbol:
+            chosen_inheritance = _chose_inheritance(self.genepanel.find_inheritance_codes(symbol))
+            config_storage['inheritance'] = chosen_inheritance
+            config_storage['freq_cutoffs'] = copy.deepcopy(
+                _choose_cutoff_group(config_storage['freq_cutoff_groups'], chosen_inheritance))
 
-        # A specific symbol can define cutoffs, disease_mode and last_exon_important
-        # Stage 3: find the most "useful" inheritance using the gene symbol:
-        chosen_inheritance = _chose_inheritance(self.genepanel.find_inheritance_codes(symbol))
-        result['inheritance'] = chosen_inheritance
-
-        # Stage 5: look for gene specific overrides:
-        if self.genepanel and self.genepanel.config:
+            # Stage 5: look for gene specific overrides:
             gene_specific_overrides = copy.deepcopy(get_nested(self.genepanel.config, 'data', 'genes', symbol))
             if gene_specific_overrides:
-                result.update(gene_specific_overrides)
+                dict_merge(config_storage, gene_specific_overrides)
 
-            explicit_cutoffs = get_nested(gene_specific_overrides, 'freq_cutoffs')
-            if explicit_cutoffs:
-                result['freq_cutoffs'] = explicit_cutoffs
-            else: # use inheritance to find cutoffs from either genepanel or global:
-                result['freq_cutoffs'] = copy.deepcopy(_choose_cutoff_group(self.global_default['freq_cutoff_groups'], result['inheritance']))
-                genepanel_cutoff_groups = get_nested(self.genepanel.config, 'data', 'freq_cutoff_groups')
-                if genepanel_cutoff_groups:
-                    genepanel_cutoffs = _choose_cutoff_group(genepanel_cutoff_groups, result['inheritance'])
-                    result['freq_cutoffs'].update(genepanel_cutoffs)
-        else:  # no genepanel config, find cutoffs from global:
-            global_cutoffs = _choose_cutoff_group(get_nested(self.global_default, 'freq_cutoff_groups'), result['inheritance'])
-            result['freq_cutoffs'] = copy.deepcopy(global_cutoffs)
-
-        return copy.deepcopy(result)
-
-    def config_isolated(self): # the config element of this panel
-        return copy.deepcopy(self.genepanel.config)
-
-    def config_merged(self): # the combined config of this panel and global default
-        m = copy.deepcopy(self.global_default)
-        m.update(self.genepanel.config)
-        return m
+        config_storage.pop('freq_cutoff_groups', None)
+        return config_storage
 
     def get_AD_freq_cutoffs(self):
         return self.global_default["freq_cutoff_groups"]['AD']
