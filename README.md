@@ -168,8 +168,8 @@ Values that affect variant filtering and the rules engine are defined at three l
 - genepanel (common for all genes in the panel)
 - genepanel (specific for a single gene. Multiple genes must be configured individually)
 
-Th genepanel configuration are part of the genepanel, and values are loaded from a json file. Schema file(s)
-in src/vardb/datamodel defines the format of file.
+The genepanel configuration are part of the genepanel, and values are loaded from a json file. Schema file(s)
+in src/vardb/datamodel defines the format of the file.
 
 Configuration at a specific level "override" the more general ones.
 
