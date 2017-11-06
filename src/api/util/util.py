@@ -97,7 +97,7 @@ def log_request(statuscode, response=None):
     remote_addr = request.remote_addr if not app.testing else '0.0.0.0'
     payload = None
     payload_size = 0
-    response_data = 0
+    response_data = None
     response_size = 0
     if response:
         response_size = response.headers.get('Content-Length')

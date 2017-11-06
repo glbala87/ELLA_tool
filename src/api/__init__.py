@@ -1,10 +1,13 @@
 from flask import Flask, Response
+from werkzeug.contrib.fixers import ProxyFix
 
 from vardb.datamodel import DB
 from rest_query import RestQuery
 
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)  # Sets REMOTE_ADDR from proxy headers etc
+
 
 db = DB()
 engine_kwargs = {
