@@ -13,7 +13,7 @@ from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 
 
-VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf')
+VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+-(?P<genepanel_name>.+)-(?P<genepanel_version>.+))\.vcf')
 
 
 def validate_file_exists(path):
