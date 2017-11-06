@@ -195,6 +195,9 @@ class ApiV1(object):
         self._add_resource(r.workflow.analysis.AnalysisInterpretationResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/')
 
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationFinishAllowedResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/finishallowed')
+
         self._add_resource(r.workflow.analysis.AnalysisInterpretationAllelesListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/alleles/')
 

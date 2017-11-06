@@ -7,7 +7,7 @@ from sqlalchemy import tuple_, or_
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
-from api import schemas, ApiError
+from api import schemas, ApiError, ConflictError
 from api.util.allelefilter import AlleleFilter
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
@@ -176,15 +176,17 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
 
     def check_update_allowed(interpretation, user_id, patch_data):
         if interpretation.status == 'Done':
-            raise ApiError("Cannot PATCH interpretation with status 'DONE'")
+            raise ConflictError("Cannot PATCH interpretation with status 'DONE'")
         elif interpretation.status == 'Not started':
-            raise ApiError("Interpretation not started. Call it's analysis' start action to begin interpretation.")
+            raise ConflictError("Interpretation not started. Call it's analysis' start action to begin interpretation.")
 
         # Check that user is same as before
         if interpretation.user_id:
             if interpretation.user_id != user_id:
-                raise ApiError("Interpretation owned by {} cannot be updated by other user ({})"
-                               .format(interpretation.user_id, patch_data['user_id']))
+                current_user = session.query(user.User).filter(user.User.id == user_id).one()
+                interpretation_user = session.query(user.User).filter(user.User.id == interpretation.user_id).one()
+                raise ConflictError(u"Interpretation owned by {} {} cannot be updated by other user ({} {})"
+                               .format(interpretation_user.first_name, interpretation.user.last_name, current_user.first_name, current_user.last_name))
 
     interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
     interpretation_model = _get_interpretation_model(alleleinterpretation_id, analysisinterpretation_id)

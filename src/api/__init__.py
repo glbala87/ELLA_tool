@@ -23,3 +23,8 @@ class AuthenticationError(ApiError):
     def __init__(self, message, status_code=401):
         ApiError.__init__(self, message)
         self.status_code = status_code
+
+class ConflictError(ApiError):
+    def __init__(self, message, status_code=409):
+        ApiError.__init__(self, message)
+        self.status_code = status_code

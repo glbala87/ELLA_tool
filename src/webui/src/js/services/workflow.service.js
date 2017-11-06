@@ -192,13 +192,21 @@ class WorkflowService {
         return false;
     }
 
+    checkFinishAllowed(type, id, interpretation, analysis) {
+        let sample_ids = null;
+        if (type === "analysis") {
+            sample_ids =  analysis.samples.map(s => s.id)
+        }
+        return this.workflowResource.checkFinishAllowed(type, id, interpretation, sample_ids)
+    }
+
     /**
      * Popups a confirmation dialog, asking to complete or finalize the interpretation
      * @param  {Interpretation} interpretation
      * @param  {Array(Allele)} alleles  Alleles to include allele/referenceassessments for.
      * @return {Promise}  Resolves upon completed submission.
      */
-    confirmCompleteFinalize(type, id, interpretation, alleles, config) {
+    confirmCompleteFinalize(type, id, interpretation, alleles, analysis, config) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
             controller: ['canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
@@ -215,8 +223,10 @@ class WorkflowService {
                     interpretation.analysis.id,
                     interpretation.state.analysis.properties
             )*/
+            let p1 = this.save(type, id, interpretation)
+            let p2 = this.checkFinishAllowed(type, id, interpretation, analysis)
 
-            return this.save(type, id, interpretation).then(() => {
+            return Promise.all([p1,p2]).then(() => {
                 if (res === 'markreview') {
                     return this.markreview(type, id, interpretation, alleles).then( () => {
                         return true;

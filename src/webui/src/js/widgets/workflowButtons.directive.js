@@ -79,10 +79,10 @@ export class WorkflowButtonsController {
      */
     clickStartSaveBtn() {
         let [type, id] = this.getTypeAndId();
-        let selected_interpretation = this.getSelectedInterpretation()
+        let selectedInterpretation = this.getSelectedInterpretation()
         // Reassign/save mode
-        if (selected_interpretation && selected_interpretation.status === 'Ongoing') {
-            if (selected_interpretation.user.id !== this.user.getCurrentUserId()) {
+        if (selectedInterpretation && selectedInterpretation.status === 'Ongoing') {
+            if (selectedInterpretation.user.id !== this.user.getCurrentUserId()) {
                 this.interpretationOverrideModal.show().then(result => {
                     if (result) {
                         this.workflowService.override(type, id).then(() => this._callReload());
@@ -90,10 +90,15 @@ export class WorkflowButtonsController {
                 });
             }
             else {
-                this.workflowService.save(type, id, selected_interpretation).then(() => {
+                return this.workflowService.save(type, id, selectedInterpretation).then(() => {
                     this.interpretationUpdateInProgress = false;
-                }).catch(() => {
-                    this.toastr.error("Something went wrong while saving your work. To avoid losing it, please don't close this window and contact support.");
+                }).catch((error) => {
+                    if (error.status === 409) {
+                        this.toastr.error("Save failed: "+error.data);
+                    } else {
+                        this.toastr.error("Something went wrong while saving your work. To avoid losing it, please don't close this window and contact support.");
+                    }
+                    throw error;
                 });
             }
         }
@@ -120,17 +125,25 @@ export class WorkflowButtonsController {
 
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
-        this.workflowService.confirmCompleteFinalize(type, id, this.getSelectedInterpretation(), this.getAlleles(), this.config).then((redirect) => {
-            if (redirect) {
-                this.location.path('/overview');
-            }
-        });
+        let selectedInterpretation = this.getSelectedInterpretation()
+
+        this.workflowService.checkFinishAllowed(type, id, selectedInterpretation, this.getAnalysis()).then(() => {
+            this.workflowService.confirmCompleteFinalize(type, id, selectedInterpretation, this.getAlleles(), this.getAnalysis(), this.config).then((redirect) => {
+                if (redirect) {
+                    this.location.path('/overview');
+                }
+            }).catch((error) => {
+                this.toastr.error("Finish not allowed: " + error.data)
+            })
+        }).catch((error) => {
+            this.toastr.error("Finish not allowed: " + error.data)
+        })
     }
 
     showFinishBtn() {
-        let selected_interpretation = this.getSelectedInterpretation()
-        if (selected_interpretation && selected_interpretation.status === 'Ongoing') {
-                return selected_interpretation.user.id === this.user.getCurrentUserId();
+        let selectedInterpretation = this.getSelectedInterpretation()
+        if (selectedInterpretation && selectedInterpretation.status === 'Ongoing') {
+                return selectedInterpretation.user.id === this.user.getCurrentUserId();
         }
         return false;
     }
@@ -199,6 +212,10 @@ export class WorkflowButtonsController {
 
     getAllInterpretations() {
         return this.interpretationService.getAll()
+    }
+
+    getAnalysis() {
+        return this.interpretationService.getAnalysis()
     }
 
 
