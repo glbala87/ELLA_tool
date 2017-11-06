@@ -31,7 +31,7 @@ def test_resourcelog(client, test_database, session):
     rlogs = session.query(log.ResourceLog).all()
     assert len(rlogs) == 2  # 2 entries since API did a login as first entry
 
-    rl = rlogs[1]
+    rl = rlogs[-1]
     assert rl.remote_addr == remote_addr
     assert rl.usersession_id == usersession_id
     assert rl.method == 'GET'
@@ -57,7 +57,7 @@ def test_resourcelog(client, test_database, session):
     rlogs = session.query(log.ResourceLog).all()
     assert len(rlogs) == 4  # 4 since /currentuser is called to check whether logged in
 
-    rl = rlogs[3]
+    rl = rlogs[-1]
     assert statuscode == 200
     assert rl.remote_addr == remote_addr
     assert rl.usersession_id == usersession_id
@@ -81,7 +81,7 @@ def test_resourcelog(client, test_database, session):
     rlogs = session.query(log.ResourceLog).all()
     assert len(rlogs) == 6  # 4 since /currentuser is called to check whether logged in
 
-    rl = rlogs[5]
+    rl = rlogs[-1]
     assert statuscode == 401 # User doesn't exist
     assert rl.remote_addr == remote_addr
     assert rl.usersession_id == usersession_id
@@ -93,4 +93,29 @@ def test_resourcelog(client, test_database, session):
     assert rl.payload_size == 0
     assert rl.query == ''
     assert rl.duration > 0
+    assert isinstance(rl.time, datetime.datetime)
+
+    # Test logging when not logged in
+    payload_data = {'allele_ids' : [1], 'gp_name': 'HBOCUTV', 'gp_version': 'v01', 'referenceassessments': []}
+    client.logout()
+    r = client.post('/api/v1/acmg/alleles/?dummy=data', payload_data, username=None)
+    payload = json.dumps(payload_data)
+    payload_size = len(payload)
+    statuscode = r.status_code
+    response_size = int(r.headers.get('Content-Length'))
+
+    rlogs = session.query(log.ResourceLog).all()
+    assert len(rlogs) == 9  # logout counts as 1
+
+    rl = rlogs[-1]
+    assert statuscode == 403
+    assert rl.remote_addr == remote_addr
+    assert rl.usersession_id == None
+    assert rl.method == 'POST'
+    assert rl.resource == '/api/v1/acmg/alleles/'
+    assert rl.statuscode == statuscode
+    assert rl.response_size == response_size
+    assert rl.payload == payload
+    assert rl.payload_size == payload_size
+    assert rl.query == 'dummy=data'
     assert isinstance(rl.time, datetime.datetime)

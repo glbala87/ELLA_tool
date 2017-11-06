@@ -30,17 +30,21 @@ def setup_logging():
 @app.before_request
 def populate_request():
     g.request_start_time = time.time() * 1000.0
+    g.log_hide_payload = False
+    g.log_hide_response = True  # We only store response for certain resources due to size concerns
     populate_g_user()
 
 @app.after_request
 def after_request(response):
-    log_request(response.status_code, response.headers.get('Content-Length'))
+    log_request(response.status_code, response)
     db.session.commit()
     return response
 
 @app.teardown_request
 def teardown_request(exc):
     if exc:
+        if request.url.startswith('/reset'):  # DEVELOPMENT
+            return None
         log_request(500)
         db.session.commit()
 

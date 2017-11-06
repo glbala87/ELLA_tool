@@ -91,20 +91,24 @@ def link_filter(func):
 
     return inner
 
-def log_request(statuscode, response_size=0):
+def log_request(statuscode, response=None):
 
     duration = int(time.time() * 1000.0 - g.request_start_time)
-    usersession_id = g.get('usersession_id', None)
     remote_addr = request.remote_addr if not app.testing else '0.0.0.0'
     payload = None
     payload_size = 0
+    response_size = 0
+    if response:
+        response_size = response.headers.get('Content-Length')
+        if not g.log_hide_response:
+            response_data = response.get_data()
     if request.method in ['PUT', 'POST', 'PATCH', 'DELETE']:
-        if hasattr(request, 'log_hide_payload') and not request.log_hide_payload:
+        if not g.log_hide_payload:
             payload = request.get_data()
             payload_size = request.headers.get('Content-Length'),
         if not app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
             log.warning("{usersession_id} - {method} - {endpoint} - {json} - {response_size}".format(
-                usersession_id=usersession_id,
+                usersession_id=g.usersession_id,
                 method=request.method,
                 endpoint=request.url,
                 json=(payload if payload else '[PAYLOAD HIDDEN]'),
@@ -112,26 +116,28 @@ def log_request(statuscode, response_size=0):
             ))
 
     rl = ResourceLog(
-        usersession_id=usersession_id,
+        usersession_id=g.usersession_id,
         remote_addr=remote_addr,
         method=request.method,
         resource=request.path,
         query=request.query_string,
+        response=response_data,
+        response_size=response_size,
         payload=payload,
         payload_size=payload_size,
-        response_size=response_size,
         statuscode=statuscode,
         duration=duration
     )
     db.session.add(rl)
 
 
-def logger(hide_payload=False):
+def logger(hide_payload=False, hide_response=True):
 
     def _logger(func):
         @wraps(func)
         def inner(*args, **kwargs):
-            request.log_hide_payload = hide_payload
+            g.log_hide_payload = hide_payload
+            g.log_hide_response = hide_response
             return func(*args, **kwargs)
 
         return inner
@@ -285,7 +291,7 @@ def _get_usersession_by_token(session, token):
 
 def populate_g_user():
     g.user = None
-    g.usersession = None
+    g.usersession_id = None
     token = request.cookies.get("AuthenticationToken")
     if token is None:
         return
