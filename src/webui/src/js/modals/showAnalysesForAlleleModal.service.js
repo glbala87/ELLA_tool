@@ -2,9 +2,11 @@
 import {Service, Inject} from '../ng-decorators';
 
 export class ShowAnalysesForAlleleController {
-    constructor(allele, modalInstance, AlleleResource) {
+    constructor(allele, modalInstance, AlleleResource, clipboard, toastr) {
         this.allele = allele;
         this.modal = modalInstance;
+        this.clipboard = clipboard;
+        this.toastr = toastr;
         this.alleleResource = AlleleResource;
         this.isAccepted = false;
     }
@@ -14,6 +16,11 @@ export class ShowAnalysesForAlleleController {
         this.alleleResource.getAnalyses(this.allele.id).then(analyses => {
             this.analyses = analyses;
         });
+    }
+
+    copyToClipboard() {
+        this.clipboard.copyText(this.analyses.map(a => a.name).join('\n'));
+        this.toastr.info("Copied text to clipboard.", null, 1000);
     }
 
     getModalColor() {
@@ -41,7 +48,7 @@ export class ShowAnalysesForAlleleModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/showAnalysesForAllele.ngtmpl.html',
-            controller: ['allele', '$uibModalInstance', 'AlleleResource', ShowAnalysesForAlleleController],
+            controller: ['allele', '$uibModalInstance', 'AlleleResource', 'clipboard', 'toastr', ShowAnalysesForAlleleController],
             controllerAs: 'vm',
             size: 'lg',
             resolve: {

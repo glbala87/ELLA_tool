@@ -1,7 +1,8 @@
 <article class="sectionbox-content allele-list">
-<a class="id-variant list-item clickable"
+  <a class="id-variant list-item clickable"
    href="{{vm.getItemUrl(item)}}"
-   ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]">
+   ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]"
+   ng-attr-target="{{vm.newTarget ? '_blank' : undefined}}">
   <div>{{item.oldest_analysis | date:"yyyy-MM-dd"}}</div>
   <div class="allele-priority">{{vm.getPriorityText(item)}}</div>
   <div class="full-title ref-title id-variant-name">
@@ -12,7 +13,6 @@
   </div>
 
   <div class="allele-genepanel">{{item.genepanel.name}}_{{item.genepanel.version}}</div>
-
   <div class="allele-extras">
     <span class="analysis-comment id-allele-comment" ng-if="!vm.isalleleDone(allele) && vm.getReviewComment(item)">{{vm.getReviewComment(item)}}</span>
   </div>

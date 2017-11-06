@@ -132,7 +132,7 @@ class AlleleGenepanelListResource(LogRequestResource):
 class AlleleAnalysisListResource(LogRequestResource):
 
     @authenticate()
-    @logger(hide_response=False)
+    @logger(hide_response=False)  # Important! We want to log response for auditing.
     def get(self, session, allele_id, user=None):
         """
         Returns a list of analyses associated with provided allele_id.
@@ -161,4 +161,4 @@ class AlleleAnalysisListResource(LogRequestResource):
             allele.Allele.id == allele_id
         ).all()
 
-        return schemas.AnalysisSchema(strict=True).dump(analyses, many=True).data
+        return schemas.AnalysisFullSchema(strict=True).dump(analyses, many=True).data

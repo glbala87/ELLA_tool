@@ -6,7 +6,7 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'allele-list',
     scope: {
         alleleItems: '=', // [{genepanel: {}, allele: Allele}, ...]
-        onSelect: '&?' // Selection callback. Used to clear search
+        newTarget: '=' // Open links in new target
     },
     templateUrl: 'ngtmpl/alleleList.ngtmpl.html',
 })

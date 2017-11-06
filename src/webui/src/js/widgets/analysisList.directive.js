@@ -6,7 +6,7 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'analysis-list',
     scope: {
         analyses: '=',
-        onSelect: '&?' // Selection callback. Used to clear search
+        newTarget: '=' // Open links in new target
     },
     templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
 })

@@ -1,7 +1,8 @@
 <article class="sectionbox-content analysis-list">
 <a class="id-analysis list-item clickable"
    href="/analyses/{{analysis.id}}"
-   ng-repeat="analysis in vm.sorted_analyses track by analysis.name">
+   ng-repeat="analysis in vm.sorted_analyses track by analysis.name"
+   ng-attr-target="{{vm.newTarget ? '_blank' : undefined}}">
 
   <div class="analysis-date">{{analysis.deposit_date | date:"yyyy-MM-dd"}}</div>
   <div class="analysis-priority">{{vm.getPriorityText(analysis)}}</div>
@@ -15,6 +16,7 @@
       {{vm.getReviewComment(analysis)}}
     </span>
   </div>
+
   <div class="analysis-users">
     <div ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
       <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • <b>{{interpretation.user.abbrev_name}}</b> • <i>{{interpretation.date_last_update | date:"dd-MM-yyyy HH:mm"}}</i></h3></div>

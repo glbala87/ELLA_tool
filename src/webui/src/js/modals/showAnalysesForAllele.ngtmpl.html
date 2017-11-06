@@ -1,4 +1,4 @@
-<sectionbox class="prompt" color="{{vm.getModalColor()}}" modal="true" on-close="vm.modal.close">
+<sectionbox ng-class="{'prompt': !vm.isAccepted}" color="{{vm.getModalColor()}}" modal="true" on-close="vm.modal.close">
   <maintitle>
     ANALYSES FOR <span ng-repeat="t in vm.allele.annotation.filtered">{{t.symbol}} <b>{{t.HGVSc | HGVSc_short}}</b></span>
   </maintitle>
@@ -8,12 +8,14 @@
       <button type="button" class="normal" ng-click="vm.modal.close()">CLOSE</button>
     </section>
     <section class="line-wrapper pinned-right" ng-if="vm.isAccepted">
+        <button type="button" class="normal" ng-click="vm.copyToClipboard()">COPY TO CLIPBOARD</button>
       <button type="button" class="normal" ng-click="vm.modal.close()">CLOSE</button>
     </section>
   </controls>
   <contentwrapper>
-      <div ng-if="vm.isAccepted">
-        <h3 class="full-title" ng-repeat="a in vm.analyses">{{a.name}}</h3>
+      <span style="padding-top: 1rem;"></span>
+      <div ng-if="vm.isAccepted && vm.analyses" class="analysis-list">
+        <analysis-list analyses="vm.analyses" new-target="true"></analysis-list>
       </div>
       <div ng-if="!vm.isAccepted">
         <h4 class="sb-notification"> Accessing a variant's analyses something something. </h4>
