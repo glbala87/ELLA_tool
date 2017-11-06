@@ -51,6 +51,11 @@ def _chose_inheritance(codes=None):
 
 
 class GenepanelConfigResolver(object):
+    """
+    Find parameters needed in variant filtering and rule engine. The genepanel can have it's own configuration that
+    overrides values defined globally.
+    """
+
     def __init__(self, genepanel=None, genepanel_default=None):
         """
 
