@@ -17,11 +17,7 @@
     {
         "name": "testgroup02",
         "genepanels": [
-            ["Ciliopati", "v05"],
-            ["Bindevev", "v02"],
-            ["Iktyose", "v02"],
-            ["Joubert", "v02"],
-            ["EEogPU", "v02"]
+            ["Ciliopati", "v05"]
         ],
         "config": {
             "overview": {

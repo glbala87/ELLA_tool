@@ -65,11 +65,6 @@ GENEPANELS = [
 
 
 ANALYSES = [
-
-    {
-        'path': '../testdata/analyses/all',
-        'name': 'all',
-    },
     {
         'path': '../testdata/analyses/small',
         'name': 'small',
