@@ -170,17 +170,18 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
     alleles_filtered_genepanel = queries.alleles_transcript_filtered_genepanel(
         session,
         allele_ids,
-        [(gp_name, gp_version)]
+        [(gp_name, gp_version)],
+        None
     ).subquery()
 
     transcripts = session.query(gene.Transcript).options(joinedload(gene.Transcript.gene)).join(
         gene.Genepanel.transcripts
     ).filter(
-        gene.Transcript.refseq_name == alleles_filtered_genepanel.c.genepanel_transcript
+        gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript
     ).all()
 
     phenotypes = session.query(gene.Phenotype).filter(
-        gene.Transcript.refseq_name == alleles_filtered_genepanel.c.genepanel_transcript,
+        gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript,
         gene.Phenotype.gene_id == gene.Transcript.gene_id,
         gene.Phenotype.genepanel_name == gp_name,
         gene.Phenotype.genepanel_version == gp_version

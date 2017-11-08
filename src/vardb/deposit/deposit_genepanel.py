@@ -176,7 +176,11 @@ class DepositGenepanel(object):
         for t in transcript_data:
             transcript_rows.append({
                 'gene_id': int(t['HGNC']),  # foreign key to gene
-                'refseq_name': t['refseq'],
+                'transcript_name': t['refseq'],  # TODO: Support other than RefSeq
+                'type': 'RefSeq',
+                'corresponding_refseq': None,
+                'corresponding_ensembl': t['eTranscriptID'],
+                'corresponding_lrg': None,
                 'ensembl_id': t['eTranscriptID'],
                 'chromosome': t['chromosome'],
                 'tx_start': t['txStart'],
@@ -206,7 +210,7 @@ class DepositGenepanel(object):
                                                               gm.Transcript,
                                                               transcript_rows,
                                                               include_pk='id',
-                                                              compare_keys=['refseq_name', 'ensembl_id'],
+                                                              compare_keys=['transcript_name'],
                                                               replace=replace):
             transcript_inserted_count += len(created)
             transcript_reused_count += len(existing)

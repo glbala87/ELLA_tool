@@ -272,8 +272,7 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
     genepanel_transcripts = session.query(
         gene.Genepanel.name,
         gene.Genepanel.version,
-        gene.Transcript.refseq_name,
-        gene.Transcript.ensembl_id,
+        gene.Transcript.transcript_name,
         gene.Transcript.gene_id,
     ).join(gene.Genepanel.transcripts).filter(
         tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
@@ -311,20 +310,20 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
         literal_column("transcripts::jsonb ->> 'HGVSc'").label('annotation_hgvsc'),
         literal_column("transcripts::jsonb ->> 'HGVSp'").label('annotation_hgvsp'),
         genepanel_transcripts.c.gene_id.label('genepanel_symbol'),
-        genepanel_transcripts.c.refseq_name.label('genepanel_transcript'),
+        genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
     ).filter(
-        text("transcripts::jsonb ->> 'symbol' = gene_id")
+        # Perform annotation <-> genepanel comparison without version number (if applicable)
+        text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(transcript_name, '.', 1)")
     )
 
-    # Only filter on annotation transcripts defined in config inclusion regex and genepanel transcripts
-    transcript_filters = [text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(refseq_name, '.', 1)")]
-
     if inclusion_regex is not None:
-        transcript_filters.append(
-            text("transcripts::jsonb ->> 'transcript' ~ :reg").params(reg=inclusion_regex)
+        # Further filter on transcripts defined in config inclusion regex
+        # At this point, 'transcript_name' should equal annotation's 'transcript',
+        # so we filter on a column instead of inside annotation data for performance
+        result = result.filter(
+            text("transcript_name ~ :reg").params(reg=inclusion_regex)
         )
 
-    result = result.filter(or_(*transcript_filters))
     result = result.distinct()
 
     return result

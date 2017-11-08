@@ -9,8 +9,8 @@ from vardb.datamodel.gene import Transcript, Genepanel
 class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_normal(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
-                                           Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
+        genepanel = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq'),
+                                           Transcript(transcript_name='NM_007294.3', type='RefSeq')],
                               version='v01',
                               name='HBOCUTV')
 
@@ -20,8 +20,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
         assert t == ['NM_000059.3']
 
     def test_get_genepanel_transcripts_versioned(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
-                                           Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
+        genepanel = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq'),
+                                           Transcript(transcript_name='NM_007294.3', type='RefSeq')],
                               version='v01',
                               name='HBOCUTV')
 
@@ -32,8 +32,8 @@ class TestTranscriptAnnotation(unittest.TestCase):
 
     def test_get_genepanel_transcripts_multiple(self):
 
-        gp = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455'),
-                                    Transcript(refseq_name='NM_007294.3', ensembl_id='ENST00000357654')],
+        gp = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq'),
+                                    Transcript(transcript_name='NM_007294.3', type='RefSeq')],
                        version='v01',
                        name='HBOCUTV')
 
@@ -43,7 +43,7 @@ class TestTranscriptAnnotation(unittest.TestCase):
         assert t == ['NM_000059.3', 'NM_007294.3']
 
     def test_get_genepanel_transcripts_none(self):
-        genepanel = Genepanel(transcripts=[Transcript(refseq_name='NM_000059.3', ensembl_id='ENST00000544455')],
+        genepanel = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq')],
                               version='v01',
                               name='HBOCUTV')
 

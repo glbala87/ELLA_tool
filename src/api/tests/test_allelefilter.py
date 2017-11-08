@@ -232,8 +232,8 @@ def create_genepanel(genepanel_config):
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
-        refseq_name='NM_1AD.1',
-        ensembl_id='ENST1AD',
+        transcript_name='NM_1AD.1',
+        type='RefSeq',
         genome_reference='123',
         chromosome='123',
         tx_start=123,
@@ -247,8 +247,8 @@ def create_genepanel(genepanel_config):
 
     t1_ar = gene.Transcript(
         gene=g1_ar,
-        refseq_name='NM_1AR.1',
-        ensembl_id='ENST1AR',
+        transcript_name='NM_1AR.1',
+        type='RefSeq',
         genome_reference='123',
         chromosome='123',
         tx_start=123,
@@ -262,8 +262,8 @@ def create_genepanel(genepanel_config):
 
     t2 = gene.Transcript(
         gene=g2,
-        refseq_name='NM_2.1',
-        ensembl_id='ENST2',
+        transcript_name='NM_2.1',
+        type='RefSeq',
         genome_reference='123',
         chromosome='123',
         tx_start=123,
@@ -277,8 +277,8 @@ def create_genepanel(genepanel_config):
 
     t3 = gene.Transcript(
         gene=g3,
-        refseq_name='NM_3.1',
-        ensembl_id='ENST3',
+        transcript_name='NM_3.1',
+        type='RefSeq',
         genome_reference='123',
         chromosome='123',
         tx_start=123,

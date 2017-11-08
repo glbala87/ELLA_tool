@@ -13,8 +13,10 @@ class GeneSchema(Schema):
 class TranscriptSchema(Schema):
     class Meta:
         title = "Transcript"
-        fields = ('refseq_name',
-                  'ensembl_id',
+        fields = ('transcript_name',
+                  'corresponding_refseq',
+                  'corresponding_ensembl',
+                  'corresponding_lrg',
                   'genome_reference',
                   'chromosome',
                   'tx_start',
