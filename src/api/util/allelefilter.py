@@ -178,12 +178,13 @@ class TempAlleleFilterTable(object):
     def create_transcript(self):
         class jsonb_to_recordset_func(ColumnFunction):
             name = 'jsonb_to_recordset'
-            column_names = [('transcript', String()), ('symbol', String()), ('exon_distance', Integer())]
+            column_names = [('transcript', String()), ('hgnc_id', Integer()), ('symbol', String()), ('exon_distance', Integer())]
 
         transcript_records = jsonb_to_recordset_func(annotation.Annotation.annotations['transcripts']).alias('j')
 
         tmp_allele_filter_transcripts_q = self.session.query(
             annotation.Annotation.allele_id,
+            transcript_records.c.hgnc_id.label('hgnc_id'),
             transcript_records.c.symbol.label('symbol'),
             transcript_records.c.transcript.label('transcript'),
             transcript_records.c.exon_distance.label('exon_distance'),
@@ -196,7 +197,7 @@ class TempAlleleFilterTable(object):
 
         # Create index if resulting table is of sufficient size
         if res.rowcount > 1000:
-            for c in ["allele_id", "symbol", "transcript", "exon_distance"]:
+            for c in ["allele_id", "hgnc_id", "symbol", "transcript", "exon_distance"]:
                 self.session.execute('CREATE INDEX ix_tmp_allele_filter_transcripts_{0} ON tmp_allele_filter_transcript_internal_only ({0})'.format(c))
 
         self.session.execute('ANALYZE tmp_allele_filter_transcript_internal_only')
@@ -204,6 +205,7 @@ class TempAlleleFilterTable(object):
         return table(
             'tmp_allele_filter_transcript_internal_only',
             column('allele_id', Integer),
+            column('hgnc_id', Integer),
             column('symbol', String),
             column('transcript', String),
             column('exon_distance', Integer),

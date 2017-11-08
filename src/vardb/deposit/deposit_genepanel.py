@@ -66,6 +66,7 @@ def load_transcripts(transcripts_path):
                 raise RuntimeError("Found no valid header in {}. Header should start with '#chromosome'. ".format(transcripts_path))
 
             data = dict(zip(header, [l.strip() for l in line.split('\t')]))
+            data['HGNC'] = int(data['HGNC'])
             data['txStart'], data['txEnd'], = int(data['txStart']), int(data['txEnd'])
             data['cdsStart'], data['cdsEnd'] = int(data['cdsStart']), int(data['cdsEnd'])
             data['exonsStarts'] = map(int, data['exonsStarts'].split(','))
@@ -161,12 +162,15 @@ class DepositGenepanel(object):
     def insert_genes(self, transcript_data):
 
         # Avoid duplicate genes
-        distinct_genes = list(set([(int(t['HGNC'])), (t['geneSymbol'], t['eGeneID'], t.get('omim gene entry')) for t in transcript_data]))
-        gene_rows = [{'hgnc_id': d[0], 'hugo_symbol': d[1], 'ensembl_gene_id': d[2], 'omim_entry_id': d[3]} for d in distinct_genes]
+        distinct_genes = list(set([(t['HGNC'], t['geneSymbol'], t['eGeneID'], int(t['Omim gene entry']) if 'omim gene entry' in t else None) for t in transcript_data]))
+        gene_rows = [{'hgnc_id': d[0], 'hgnc_symbol': d[1], 'ensembl_gene_id': d[2], 'omim_entry_id': d[3]} for d in distinct_genes]
 
         gene_inserted_count = 0
         gene_reused_count = 0
-        for existing, created in bulk_insert_nonexisting(self.session, gm.Gene, gene_rows):
+        for existing, created in bulk_insert_nonexisting(self.session,
+                                                         gm.Gene,
+                                                         gene_rows,
+                                                         compare_keys=['hgnc_id', 'hgnc_symbol', 'ensembl_gene_id']):
             gene_inserted_count += len(created)
             gene_reused_count += len(existing)
         return gene_inserted_count, gene_reused_count
@@ -175,7 +179,7 @@ class DepositGenepanel(object):
         transcript_rows = list()
         for t in transcript_data:
             transcript_rows.append({
-                'gene_id': int(t['HGNC']),  # foreign key to gene
+                'gene_id': t['HGNC'],  # foreign key to gene
                 'transcript_name': t['refseq'],  # TODO: Support other than RefSeq
                 'type': 'RefSeq',
                 'corresponding_refseq': None,
@@ -241,15 +245,18 @@ class DepositGenepanel(object):
         phenotype_inserted_count = 0
         phenotype_reused_count = 0
         for ph in phenotype_data:
+            if not ph.get('HGNC'):
+                log.warning('Skipping phenotype {} since HGNC is empty'.format(ph.get('phenotype')))
+                continue
             phenotype_rows.append({
                 'genepanel_name': genepanel_name,
                 'genepanel_version': genepanel_version,
-                'gene_id': ph['HGNC'],
+                'gene_id': int(ph['HGNC']),
                 'description': ph['phenotype'],
                 'inheritance': ph['inheritance'],
                 'inheritance_info': ph.get('inheritance info'),
-                'omim_id': ph.get('omim_number'),
-                'pmid': ph.get('pmid'),
+                'omim_id': int(ph['omim_number']) if ph.get('omim_number') else None,
+                'pmid': int(ph['pmid']) if ph.get('pmid') else None,
                 'comment': ph.get('comment')
             })
 

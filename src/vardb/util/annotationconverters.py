@@ -76,6 +76,16 @@ CSQ_FIELDS = [
 CSQ_INTRON_CHECK_REGEX = re.compile(r'.*:[cn]\.[\-\*]?[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
 
 
+def _map_hgnc_id(transcripts):
+    symbol_hgnc_id = dict()
+    for t in transcripts:
+        if t.get('hgnc_id') and isinstance(t.get('hgnc_id'), int):
+            if t['symbol'] in symbol_hgnc_id and symbol_hgnc_id[t['symbol']] != t['hgnc_id']:
+                print "WARNING!!"
+            symbol_hgnc_id[t['symbol']] = t['hgnc_id']
+    return symbol_hgnc_id
+
+
 def convert_csq(annotation):
     def _get_is_last_exon(transcript_data):
         exon = transcript_data.get('exon')
@@ -116,6 +126,9 @@ def convert_csq(annotation):
 
         transcript_data = {k[1]: data[k[0]] for k in CSQ_FIELDS if k[0] in data}
 
+        if 'hgnc_id' in transcript_data:
+            transcript_data['hgnc_id'] = int(transcript_data['hgnc_id'])
+
         # Only keep dbSNP data (e.g. rs123456789)
         if 'dbsnp' in transcript_data:
             transcript_data['dbsnp'] = [t for t in transcript_data['dbsnp'] if t.startswith('rs')]
@@ -146,6 +159,14 @@ def convert_csq(annotation):
 
         transcript_data['in_last_exon'] = 'yes' if _get_is_last_exon(transcript_data) else 'no'
         transcripts.append(transcript_data)
+
+    # Hack: Since hgnc_id is not provided by VEP for Refseq,
+    # we steal it from matching Ensembl transcript (by gene symbol)
+    # Tested on 100k exome annotated variants, all RefSeq had corresponding match in Ensembl
+    symbol_hgnc_id = _map_hgnc_id(transcripts)
+    for t in transcripts:
+        if not t.get('hgnc_id') and t.get('symbol') and t['symbol'] in symbol_hgnc_id:
+            t['hgnc_id'] = symbol_hgnc_id[t['symbol']]
 
     return transcripts
 

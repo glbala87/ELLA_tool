@@ -109,6 +109,7 @@ def workflow_analyses_for_genepanels(session, genepanels):
         tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
     )
 
+
 def allele_ids_nonfinalized_analyses(session):
     return session.query(
         allele.Allele.id,
@@ -305,6 +306,7 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
         unwrapped_annotation.c.allele_id.label('allele_id'),
         genepanel_transcripts.c.name.label('name'),
         genepanel_transcripts.c.version.label('version'),
+        literal_column("transcripts::jsonb ->> 'hgnc_id'").label('annotation_hgnc_id'),
         literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
         literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
         literal_column("transcripts::jsonb ->> 'HGVSc'").label('annotation_hgvsc'),
