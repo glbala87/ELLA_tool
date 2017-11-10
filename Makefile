@@ -270,7 +270,7 @@ e2e-test-local: test-build
 	docker run --name ella-e2e-local -it -v $(shell pwd):/ella -p 5000:5000 -p 5859:5859 $(NAME_OF_GENERATED_IMAGE) /bin/bash -c "make e2e-run-continous; echo \"Run 'make run-wdio-local' to run e2e tests\"; /bin/bash"
 
 run-test:
-	docker run -it $(NAME_OF_GENERATED_IMAGE) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
+	docker run $(NAME_OF_GENERATED_IMAGE) make test-$(TEST_NAME) TEST_COMMAND=$(TEST_COMMAND)
 
 e2e-start-ella:
 	supervisord -c /ella/ops/test/supervisor-e2e.cfg
