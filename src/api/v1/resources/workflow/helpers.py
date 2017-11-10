@@ -15,7 +15,6 @@ from api.util.snapshotcreator import SnapshotCreator
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
 from api.util import queries
-from api.config import config
 
 
 def _check_interpretation_input(allele, analysis):
@@ -217,7 +216,7 @@ def get_interpretation(session, genepanels, alleleinterpretation_id=None, analys
         tuple_(interpretation_model.genepanel_name, interpretation_model.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
     ).one()
 
-    idl = InterpretationDataLoader(session, config)
+    idl = InterpretationDataLoader(session)
     obj = idl.from_obj(interpretation)
     return obj
 
@@ -238,7 +237,7 @@ def get_interpretations(session, genepanels, allele_id=None, analysis_id=None):
     ).order_by(interpretation_model.id).all()
 
     loaded_interpretations = list()
-    idl = InterpretationDataLoader(session, config)
+    idl = InterpretationDataLoader(session)
 
     for interpretation in interpretations:
         loaded_interpretations.append(idl.from_obj(interpretation))
@@ -317,7 +316,7 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
 
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-    loaded_interpretation = InterpretationDataLoader(session, config).from_obj(interpretation)
+    loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation)
 
     presented_alleleassessment_ids = [a['presented_alleleassessment_id'] for a in data['alleleassessments'] if 'presented_alleleassessment_id' in a]
     presented_alleleassessments = session.query(assessment.AlleleAssessment).filter(
@@ -398,7 +397,7 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-    loaded_interpretation = InterpretationDataLoader(session, config).from_obj(interpretation)
+    loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation)
 
     # Create/reuse assessments
     grouped_alleleassessments = AssessmentCreator(session).create_from_data(
@@ -505,7 +504,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             sample.Analysis.id != analysis_id
         )
 
-    # Get all allele ids connected to analysis workflows that are ongoing
+    # Get all allele ids con        nected to analysis workflows that are ongoing
     wf_analysis_gp_allele_ids = session.query(
         workflow.AnalysisInterpretation.genepanel_name,
         workflow.AnalysisInterpretation.genepanel_version,
@@ -558,7 +557,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         total_gp_allele_ids[gp_key].add(al_id)
         user_ids.add(user_id)
 
-    af = AlleleFilter(session, config)
+    af = AlleleFilter(session)
     nonfiltered_gp_allele_ids = af.filter_alleles(total_gp_allele_ids)
 
     # For performance we have to jump through some hoops...

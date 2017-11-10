@@ -30,7 +30,7 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # Paths are relative to script dir.
-# See vardb/datamodel/genap-genepanel-config-schema.json for format of genepanel config
+# See vardb/datamodel/genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 USERGROUPS = '../testdata/usergroups.json'

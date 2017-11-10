@@ -72,8 +72,9 @@ class Genepanel(Base):
     transcripts = relationship("Transcript", secondary=genepanel_transcript)
     phenotypes = relationship("Phenotype")
 
-    config = Column(JSONMutableDict.as_mutable(JSONB), default={})  # format defined by
-
+    # TODO: Is it possible to validate against schema as part of __init__?
+    # format defined by genepanel-config-schema_v2.json
+    config = Column(JSONMutableDict.as_mutable(JSONB), default={})
 
     def __repr__(self):
         return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genome_reference)
@@ -81,7 +82,7 @@ class Genepanel(Base):
     def __str__(self):
         return '_'.join((self.name, self.version, self.genome_reference))
 
-    def find_inheritance(self, symbol):
+    def find_inheritance_codes(self, symbol):
         if not self.phenotypes:
             return None
 

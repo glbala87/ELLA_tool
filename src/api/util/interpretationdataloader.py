@@ -2,6 +2,7 @@ from vardb.datamodel import allele, sample, genotype, workflow
 
 from api.util.allelefilter import AlleleFilter
 from api.schemas import AnalysisInterpretationSchema, AlleleInterpretationSchema
+from api.config import config as global_config
 
 
 class InterpretationDataLoader(object):
@@ -12,24 +13,27 @@ class InterpretationDataLoader(object):
     - Snapshot table when the anlysis has been finalized
     """
 
-    def __init__(self, session, config):
+    def __init__(self, session):
         self.session = session
-        self.config = config
 
-    def _get_classification_options(self, classification):
-        for option in self.config['classification']['options']:
-            if classification == option['value']:
-                return option
 
-    def _get_interpretation_cls(self, interpretation):
-        if isinstance(interpretation, workflow.AnalysisInterpretation):
-            return workflow.AnalysisInterpretation
-        elif isinstance(interpretation, workflow.AlleleInterpretation):
-            return workflow.AlleleInterpretation
-        else:
-            raise RuntimeError("Unknown interpretation class type.")
+    # @staticmethod
+    # def _get_classification_options(classification):
+    #     for option in global_config['classification']['options']:
+    #         if classification == option['value']:
+    #             return option
+    #
+    # @staticmethod
+    # def _get_interpretation_cls(interpretation):
+    #     if isinstance(interpretation, workflow.AnalysisInterpretation):
+    #         return workflow.AnalysisInterpretation
+    #     elif isinstance(interpretation, workflow.AlleleInterpretation):
+    #         return workflow.AlleleInterpretation
+    #     else:
+    #         raise RuntimeError("Unknown interpretation class type.")
 
-    def _get_interpretation_schema(self, interpretation):
+    @staticmethod
+    def _get_interpretation_schema(interpretation):
         if isinstance(interpretation, workflow.AnalysisInterpretation):
             return AnalysisInterpretationSchema
         elif isinstance(interpretation, workflow.AlleleInterpretation):
@@ -69,7 +73,7 @@ class InterpretationDataLoader(object):
             ).all()
 
             allele_ids = [a[0] for a in allele_ids]
-            af = AlleleFilter(self.session, self.config)
+            af = AlleleFilter(self.session)
 
             gp_key = (genepanel.name, genepanel.version)
             filtered_alleles = af.filter_alleles(
@@ -114,7 +118,7 @@ class InterpretationDataLoader(object):
         else:
             allele_ids, excluded_ids = self.group_alleles_by_config_and_annotation(interpretation)
 
-        result = self._get_interpretation_schema(interpretation)().dump(interpretation).data
+        result = InterpretationDataLoader._get_interpretation_schema(interpretation)().dump(interpretation).data
         result['allele_ids'] = allele_ids
         result['excluded_allele_ids'] = excluded_ids
         return result

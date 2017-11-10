@@ -86,7 +86,7 @@ class ACMGDataLoader(object):
         for ra in reference_assessments:
             ra_per_allele[ra['allele_id']].append(ra)
 
-        af = AlleleFilter(self.session, config)
+        af = AlleleFilter(self.session)
         gp_key = (genepanel.name, genepanel.version)
         commonness_groups = af.get_commonness_groups({gp_key: allele_ids})[gp_key]
 

@@ -4,9 +4,9 @@ import json
 analyses = {
     'small': [
         'brca_sample_1.HBOCUTV_v01',
-        'brca_sample_1.HBOC_v01',
+        'brca_sample_1.HBOC_v02',
         'brca_sample_2.HBOCUTV_v01',
-        'brca_sample_2.HBOC_v01',
+        'brca_sample_2.HBOC_v02',
         'brca_sample_3.HBOCUTV_v01',
         'brca_sample_4.HBOCUTV_v01',
         'brca_sample_5.HBOCUTV_v01',
@@ -17,9 +17,9 @@ analyses = {
     ],
     'all': [
         'brca_sample_1.HBOCUTV_v01',
-        'brca_sample_1.HBOC_v01',
+        'brca_sample_1.HBOC_v02',
         'brca_sample_2.HBOCUTV_v01',
-        'brca_sample_2.HBOC_v01',
+        'brca_sample_2.HBOC_v02',
         'brca_sample_3.HBOCUTV_v01',
         'brca_sample_4.HBOCUTV_v01',
         'brca_sample_5.HBOCUTV_v01',

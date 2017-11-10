@@ -37,7 +37,7 @@ def load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False):
 
     # Filter out alleles
     if filter_alleles:
-        af = AlleleFilter(session, config)
+        af = AlleleFilter(session)
         gp_nonfiltered_alleles = af.filter_alleles(gp_allele_ids)
         final_gp_allele_ids = {k: v['allele_ids'] for k, v in gp_nonfiltered_alleles.iteritems()}
     else:
@@ -387,7 +387,7 @@ def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
         gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
     # Filter out alleles
-    af = AlleleFilter(session, config)
+    af = AlleleFilter(session)
     gp_nonfiltered_allele_ids = af.filter_alleles(gp_allele_ids)
     nonfiltered_allele_ids = set(itertools.chain.from_iterable([v['allele_ids'] for v in gp_nonfiltered_allele_ids.values()]))
 
