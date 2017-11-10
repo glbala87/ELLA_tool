@@ -222,7 +222,7 @@ def create_allele_with_annotation_tuple(session, annotations):
     return al, an
 
 
-def create_genepanel(genpanel_config):
+def create_genepanel(genepanel_config):
     # Create fake genepanel for testing purposes
 
     g1_ad = gene.Gene(hugo_symbol="GENE1AD")
@@ -310,7 +310,7 @@ def create_genepanel(genpanel_config):
         name='testpanel',
         version='v01',
         genome_reference='GRCh37',
-        config=genpanel_config
+        config=genepanel_config
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3]
