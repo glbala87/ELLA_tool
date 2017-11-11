@@ -332,15 +332,13 @@ class SearchResource(LogRequestResource):
 
         where_clause = "transcript_list->>'symbol' = :query"
 
-        if where_clause:
-            allele_query = text(allele_query.format(where_clause=where_clause))
-            # Use session.execute() and bind parameters to avoid injection risk.
-            # If you considered changing this to Python's format() function,
-            # please stop coding and take a course on SQL injections.
-            result = session.execute(allele_query, {'query': gene })
-            allele_ids = [r[0] for r in result]
-            return allele_ids
-        return []
+        allele_query = text(allele_query.format(where_clause=where_clause))
+        # Use session.execute() and bind parameters to avoid injection risk.
+        # If you considered changing this to Python's format() function,
+        # please stop coding and take a course on SQL injections.
+        result = session.execute(allele_query, {'query': gene })
+        allele_ids = [r[0] for r in result]
+        return allele_ids
 
     def _search_allele_freetext(self, session, freetext, genepanels):
         """
