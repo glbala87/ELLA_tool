@@ -454,9 +454,6 @@ class SearchResource(LogRequestResource):
 
         def filter_alleles(gp_allele_ids):
             filtered_alleles = af.filter_alleles(gp_allele_ids)
-            # TODO: This shouldn't be necessary, but the temp table created by allele filter
-            # does can not be recreated without an explicit rollback/commit
-            session.rollback()
             return filtered_alleles
 
         def update_non_filtered(gp_allele_ids, gp_nonfiltered_alleles):
