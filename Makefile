@@ -18,6 +18,7 @@ CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
 WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
 CHROMEBOX_IMAGE = ousamg/chromebox:1.2
 CHROMEBOX_CONTAINER = chromebox-$(BRANCH)
+E2E_APP_CONTAINER = ella-e2e-$(BRANCH)
 
 GP_VALIDATION_CONTAINER = genepanel-config-validation-container
 
@@ -257,11 +258,11 @@ test: test-build run-test
 single-test: test-build run-test
 
 e2e-test: e2e-network-check e2e-start-chromebox test-build
-	-docker stop ella-e2e-$(BRANCH)
-	-docker rm ella-e2e-$(BRANCH)
+	-docker stop $(E2E_APP_CONTAINER)
+	-docker rm $(E2E_APP_CONTAINER)
 	@rm -rf errorShots
 	@mkdir -p errorShots
-	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio BRANCH=$(BRANCH)
+	docker run -v `pwd`/errorShots:/ella/errorShots/ --name $(E2E_APP_CONTAINER) --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio BRANCH=$(BRANCH)
 	make e2e-stop-chromebox
 
 
@@ -299,7 +300,7 @@ run-wdio-against-chromebox:
 #	screenshots on e2e test errors are defined in wdio.conf
 	@echo "Content of ./errorShots:"
 	@if [ -s './errorShots' ] ; then ls './errorShots' ; else echo "Folder ./errorShots don't exist"; fi
-	/dist/node_modules/webdriverio/bin/wdio --baseUrl "ella-e2e:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
+	/dist/node_modules/webdriverio/bin/wdio --baseUrl "${E2E_APP_CONTAINER}:5000" --host "cb" --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 run-wdio-local:
 	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
