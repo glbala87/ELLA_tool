@@ -33,6 +33,8 @@ export default class Genepanel {
      * is "hardcoded"/overridden in the genepanel config, as opposed to being calculated from
      * the panels phenotypes/transcripts. The object form looks like {'_type': 'genepanel_override', value: primitive}
      *
+     * TODO: make sure to create/show a correct merge of cutoffs from global config and genepanel
+     *
      * @param geneSymbol
      * @param default_genepanel_config
      * @returns {object} the keys are the possible properties of a genepanel and the value is the value of the property
