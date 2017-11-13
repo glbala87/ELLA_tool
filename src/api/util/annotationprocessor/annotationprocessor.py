@@ -62,11 +62,6 @@ class TranscriptAnnotation(object):
 
         transcripts = annotation['transcripts']
 
-        if genepanel:
-            transcript_names = [t['transcript'] for t in transcripts]
-            result['filtered_transcripts'] \
-                = TranscriptAnnotation.get_genepanel_transcripts(transcript_names, genepanel)
-
         if self.inclusion_regex is not None:
             result['transcripts'] = [t for t in transcripts if (re.match(self.inclusion_regex, t["transcript"]) or t["transcript"] in result.get("filtered_transcripts", []))]
         else:

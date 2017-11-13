@@ -8,50 +8,6 @@ from vardb.datamodel.gene import Transcript, Genepanel
 
 class TestTranscriptAnnotation(unittest.TestCase):
 
-    def test_get_genepanel_transcripts_normal(self):
-        genepanel = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq'),
-                                           Transcript(transcript_name='NM_007294.3', type='RefSeq')],
-                              version='v01',
-                              name='HBOCUTV')
-
-        transcripts = ['NM_000059.3', 'NM_000058.2']
-
-        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
-        assert t == ['NM_000059.3']
-
-    def test_get_genepanel_transcripts_versioned(self):
-        genepanel = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq'),
-                                           Transcript(transcript_name='NM_007294.3', type='RefSeq')],
-                              version='v01',
-                              name='HBOCUTV')
-
-        transcripts = ['NM_000059.3', 'NM_000058.1']
-
-        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
-        assert t == ['NM_000059.3']
-
-    def test_get_genepanel_transcripts_multiple(self):
-
-        gp = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq'),
-                                    Transcript(transcript_name='NM_007294.3', type='RefSeq')],
-                       version='v01',
-                       name='HBOCUTV')
-
-        transcripts = ['NM_000059.3', 'NM_007294.3']
-
-        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, gp)
-        assert t == ['NM_000059.3', 'NM_007294.3']
-
-    def test_get_genepanel_transcripts_none(self):
-        genepanel = Genepanel(transcripts=[Transcript(transcript_name='NM_000059.3', type='RefSeq')],
-                              version='v01',
-                              name='HBOCUTV')
-
-        transcripts = ['NM_000051.3']
-
-        t = TranscriptAnnotation.get_genepanel_transcripts(transcripts, genepanel)
-        assert t == []
-
     def test_get_worse_consequence(self):
         config = {
             'transcripts': {
