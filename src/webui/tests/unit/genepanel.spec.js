@@ -100,10 +100,11 @@ describe("Model Genepanel", function () {
         expect(genepanelConfig_brca3['last_exon_important']).toBe(true);
     });
 
-    it("can find genepanel config overrides for frequence cutoffs", function () {
+    it("can find genepanel config overrides for frequency cutoffs", function () {
 
         let genepanelConfig_brca1 = new Genepanel(createPanel(true)).calculateGenepanelConfig('BRCA1', genepanel_defaults);
-        expect(genepanelConfig_brca1['_overridden']).toContain('freq_cutoffs');
+        expect(genepanelConfig_brca1['_overridden']).toContain('freq_cutoffs_external');
+        expect(genepanelConfig_brca1['_overridden']).toContain('freq_cutoffs_internal');
 
         expect(genepanelConfig_brca1['freq_cutoffs']['external']['hi_freq_cutoff']).toBe(0.98);
         expect(genepanelConfig_brca1['freq_cutoffs']['external']['lo_freq_cutoff']).toBe(1);
