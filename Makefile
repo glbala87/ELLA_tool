@@ -257,8 +257,8 @@ test: test-build run-test
 single-test: test-build run-test
 
 e2e-test: e2e-network-check e2e-start-chromebox test-build
-	-docker stop ella-e2e
-	-docker rm ella-e2e
+	-docker stop ella-e2e-$(BRANCH)
+	-docker rm ella-e2e-$(BRANCH)
 	@rm -rf errorShots
 	@mkdir -p errorShots
 	docker run -v `pwd`/errorShots:/ella/errorShots/ --name ella-e2e --network=local_only --link $(CHROMEBOX_CONTAINER):cb $(NAME_OF_GENERATED_IMAGE) make e2e-start-ella-and-run-wdio BRANCH=$(BRANCH)
