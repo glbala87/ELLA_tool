@@ -52,7 +52,7 @@ class UserService {
         this.user = user;
         sessionStorage.clear() // Clear session storage when user changes
     }
-    
+
     getAll() {
         return new Promise((resolve, reject) => {
             let r = this.resource(`${this.base}/users/`);

@@ -265,7 +265,7 @@ class TempAlleleFilterTable(object):
 
         # Drop intermediate tables
         self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_frequency_internal_only;')
-        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_intronic_internal_only;')
+        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_transcript_internal_only;')
 
         return table(
             'tmp_allele_filter_internal_only',
@@ -275,7 +275,7 @@ class TempAlleleFilterTable(object):
     def drop(self):
         self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_internal_only;')
         self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_frequency_internal_only;')
-        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_intronic_internal_only;')
+        self.session.execute('DROP TABLE IF EXISTS tmp_allele_filter_transcript_internal_only;')
 
     def __enter__(self):
         return self.create()

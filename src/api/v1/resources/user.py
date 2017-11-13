@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 
 class UserListResource(LogRequestResource):
+
     @authenticate()
     @paginate
     @rest_filter
