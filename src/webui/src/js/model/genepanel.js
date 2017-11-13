@@ -8,23 +8,22 @@ export default class Genepanel {
      */
     constructor(data) {
         Object.assign(this, data);
-
     }
 
     findGeneConfigOverride(geneSymbol) {
         let panelConfig = this.config;
-        if (panelConfig && panelConfig.data && geneSymbol in panelConfig.data) {
-            return panelConfig.data[geneSymbol];
+        if (panelConfig && panelConfig.data &&  panelConfig.data.genes && geneSymbol in panelConfig.data.genes) {
+            return panelConfig.data.genes[geneSymbol];
         } else {
             return {};
         }
     }
 
-    find_cutoff(inheritance, default_values) {
+    static find_inheritance_specific_cutoff_from_global_config(inheritance, config) {
         if (inheritance == 'AD') {
-            return default_values['freq_cutoffs']['AD'];
+            return config['freq_cutoff_groups']['AD'];
         } else {
-            return default_values['freq_cutoffs']['default'];
+            return config['freq_cutoff_groups']['default'];
         }
     }
 
@@ -47,7 +46,12 @@ export default class Genepanel {
         for (let p of props) {
             if (p in config_override) {
                 result[p] = config_override[p];
-                result['_overridden'].push(p);
+                if (p === 'freq_cutoffs') {
+                    result['_overridden'].push('freq_cutoffs_external');
+                    result['_overridden'].push('freq_cutoffs_internal');
+                } else {
+                    result['_overridden'].push(p);
+                }
             }
             else {
                 result[p] = default_genepanel_config[p];
@@ -55,14 +59,11 @@ export default class Genepanel {
         }
 
         result['inheritance'] = this.getInheritanceCodes(geneSymbol);
-        if ('inheritance' in config_override) {
-            result['_overridden'].push('inheritance');
-        }
 
         // If 'freq_cutoffs' is defined in genepanel config, use those. Otherwise, use the default
         // given the inheritance key
         if (!('freq_cutoffs' in config_override)) {
-            result['freq_cutoffs'] = this.find_cutoff(result['inheritance'], default_genepanel_config);
+            result['freq_cutoffs'] = Genepanel.find_inheritance_specific_cutoff_from_global_config(result['inheritance'], default_genepanel_config);
         }
 
         if ('comment' in config_override) {
@@ -74,17 +75,11 @@ export default class Genepanel {
     }
 
     /**
-     * Returns either overridden inheritance from genepanel config,
-     * or searches the gene's phenotypes to get distinct set of inheritance codes.
+     * Searches the gene's phenotypes to get distinct set of inheritance codes.
      * @param  {String} geneSymbol Gene symbol
      * @return {String}            Inheritance code formatted like 'AD/AR/XD'
      */
     getInheritanceCodes(geneSymbol) {
-        let config = this.findGeneConfigOverride(geneSymbol);
-        if (config && 'inheritance' in config) {
-            return config['inheritance'];
-        }
-
         let phenotypes = this.phenotypesBy(geneSymbol);
         if (phenotypes) {
             let codes = phenotypes
