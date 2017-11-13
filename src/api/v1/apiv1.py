@@ -152,11 +152,11 @@ class ApiV1(object):
         self._add_resource(r.importallele.ImportAlleleList,
                            '/api/v1/import/alleles/')
 
-        self._add_resource(r.annotationjob.AnnotationJobList,
-                           '/api/v1/import/jobs/')
-
         self._add_resource(r.annotationjob.AnnotationJob,
-                           '/api/v1/import/jobs/<int:id>/')
+                           '/api/v1/import/service/jobs/<int:id>/')
+
+        self._add_resource(r.annotationjob.AnnotationJobList,
+                           '/api/v1/import/service/jobs/')
 
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
                            '/api/v1/import/service/running/')
