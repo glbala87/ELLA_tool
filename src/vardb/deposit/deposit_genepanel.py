@@ -116,8 +116,7 @@ def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=
     for batch_rows in batch(rows, batch_size):
 
         q_fields, q_filter = get_fields_filter(model, batch_rows, compare_keys)
-        if replace:
-            # If replacing data, we need to get the primary key as well
+        if include_pk:
             q_fields.append(getattr(model, include_pk))
 
         db_existing = session.query(*q_fields).filter(q_filter).all()

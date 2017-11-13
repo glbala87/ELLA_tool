@@ -171,6 +171,7 @@ def cmd_deposit_usergroups(usergroups_json):
 
     import_groups(db.session, groups)
 
+
 @deposit.command('genepanel')
 @click.option('--genepanel_name')
 @click.option('--genepanel_version')
@@ -189,6 +190,8 @@ def cmd_deposit_genepanel(genepanel_name,
     """
     Create or replace genepanel. If replacing genepanel, use --replace flag.
     """
+    logging.basicConfig(level=logging.DEBUG)
+
     if folder:
         prefix = folder.split('/')[-1]
         transcripts_path = folder + "/" + prefix + ".transcripts.csv"
@@ -198,7 +201,6 @@ def cmd_deposit_genepanel(genepanel_name,
         config_path = folder + "/" + prefix + ".config.json"
         config_path = config_path if validate_file_exists(config_path) else None  # not a mandatory file
 
-
     db = DB()
     db.connect()
     dg = DepositGenepanel(db.session)
@@ -207,8 +209,7 @@ def cmd_deposit_genepanel(genepanel_name,
                      genepanel_name,
                      genepanel_version,
                      configPath=config_path,
-                     replace=replace,
-                     log=click.echo)
+                     replace=replace)
 
 
 @deposit.command('append_genepanel_to_usergroup')
