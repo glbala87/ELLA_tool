@@ -958,7 +958,6 @@ class TestAlleleFilter(object):
         pa1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': -11
                 }
@@ -968,7 +967,6 @@ class TestAlleleFilter(object):
         pa2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE2',
                     'transcript': 'NM_2.1',
                     'exon_distance': 6
                 }
@@ -978,7 +976,6 @@ class TestAlleleFilter(object):
         pa3 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': 10000000
                 }
@@ -988,7 +985,6 @@ class TestAlleleFilter(object):
         pa4 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': -1000000
                 }
@@ -998,12 +994,10 @@ class TestAlleleFilter(object):
         pa5 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': -1000000
                 },
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'SOME_OTHER_TRANSCRIPT_NOT_FOR_FILTERING',
                     'exon_distance': 0
                 }
@@ -1027,7 +1021,6 @@ class TestAlleleFilter(object):
         na1 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': -10
                 }
@@ -1037,7 +1030,6 @@ class TestAlleleFilter(object):
         na2 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE2',
                     'transcript': 'NM_2.1',
                     'exon_distance': 5
                 }
@@ -1047,7 +1039,6 @@ class TestAlleleFilter(object):
         na3 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': 0
                 }
@@ -1057,7 +1048,6 @@ class TestAlleleFilter(object):
         na4 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': 0
                 }
@@ -1068,12 +1058,10 @@ class TestAlleleFilter(object):
         na5 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': -1
                 },
                 {
-                    'symbol': 'SOMEOTHERGENE',
                     'transcript': 'NOT_IN_GENEPANEL',
                     'exon_distance': 1000
                 }
@@ -1084,33 +1072,29 @@ class TestAlleleFilter(object):
         na6 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': -1000
                 },
                 {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT_NOT_IN_GENEPANEL', # Should filter on NM_.*
+                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT_NOT_IN_GENEPANEL',  # Should filter on NM_.*
                     'exon_distance': None
                 }
             ]
         })
 
+        # Test one transcript inside and one outside exonic region, should not be filtered out
         na7 = create_allele_with_annotation(session, {
             'transcripts': [
                 {
-                    'symbol': 'GENE1AD',
                     'transcript': 'NM_1AD.1',
                     'exon_distance': -100
                 },
                 {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT',
+                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT',  # Is checked due to inclusion_regex
                     'exon_distance': -1
                 }
             ]
         })
-
 
         session.commit()
 

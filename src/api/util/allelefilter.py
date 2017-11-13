@@ -445,15 +445,10 @@ class AlleleFilter(object):
                     and_(
                         ~af_table.c.symbol.in_(override_genes),
                         af_table.c.symbol.in_(ad_genes),
-<<<<<<< 3ebb68cbb1b4f6c737de605c6c753544156356f2
                         self._get_freq_threshold_filter(af_table,
                                                         ad_group_thresholds,
                                                         threshold_func,
                                                         combine_func)
-=======
-                        ~af_table.c.symbol.in_(override_genes),  # Exclude already overriden genes
-                        self._get_freq_threshold_filter(af_table, genepanel_config, ad_group_thresholds, threshold_func, combine_func)
->>>>>>> [api] Fix "bug" in allelefilter where overridden gene wasn't excluded
                     )
                 )
 
@@ -638,39 +633,41 @@ class AlleleFilter(object):
             table_creator = TempAlleleFilterTable(self.session, all_allele_ids, self.global_config)
             allele_filter_tbl = table_creator.create()
 
-        all_gp_keys = gp_allele_ids.keys()
-
-        filtered_transcripts = queries.alleles_transcript_filtered_genepanel(
+        # Get all transcript names we want from the allele's annotation
+        filtered_transcripts = queries.annotation_transcripts_filtered(
             self.session,
             all_allele_ids,
-            all_gp_keys,
-            self.global_config.get("transcripts", {}).get("inclusion_regex")
+            self.config.get("transcripts", {}).get("inclusion_regex")
         ).subquery()
 
-        intronic_region = self.global_config['variant_criteria']['intronic_region']
-
-        intronic_filtered = dict()
+        # Join AlleleFilter table on these allele_ids and transcript names
+        # (a WHERE claused is used to join, as join() was hard to get
+        # right with SQLAlchemy with all the subqueries involved)
         all_alleles_q = self.session.query(
             allele_filter_tbl.c.allele_id,
             allele_filter_tbl.c.exon_distance,
             allele_filter_tbl.c.transcript,
-        ).join(
-            filtered_transcripts,
-            allele_filter_tbl.c.transcript == filtered_transcripts.c.annotation_transcript
+        ).filter(
+            allele_filter_tbl.c.transcript == filtered_transcripts.c.annotation_transcript,
+            # Both transcript sources are from annotation, so direct join is fine
+            allele_filter_tbl.c.allele_id == filtered_transcripts.c.allele_id
         )
+
+        intronic_filtered = dict()
+        # TODO: Add support for per gene/genepanel configuration when ready.
+        intronic_region = self.config['variant_criteria']['intronic_region']
         for gp_key, allele_ids in gp_allele_ids.iteritems():
             # Determine which allele ids are in an exon (with exon_distance == None, or within intronic_region)
             exonic_alleles_q = all_alleles_q.filter(
-                tuple_(filtered_transcripts.c.name, filtered_transcripts.c.version) == gp_key,
                 or_(
                     allele_filter_tbl.c.exon_distance.is_(None),
                     or_(
                         and_(
                             allele_filter_tbl.c.exon_distance >= intronic_region[0],
-                            allele_filter_tbl.c.exon_distance < intronic_region[1],
+                            allele_filter_tbl.c.exon_distance <= intronic_region[1],
                         ),
                         and_(
-                            allele_filter_tbl.c.exon_distance < intronic_region[1],
+                            allele_filter_tbl.c.exon_distance <= intronic_region[1],
                             allele_filter_tbl.c.exon_distance >= intronic_region[0],
                         )
                     )
@@ -679,19 +676,7 @@ class AlleleFilter(object):
             ).distinct()
 
             exonic_allele_ids = [a[0] for a in exonic_alleles_q.all()]
-            non_exonic_allele_ids = list(set(allele_ids) - set(exonic_allele_ids))
-
-            # Filter the intronic allele ids outside the specified intronic region
-            intronic_filtered_q = all_alleles_q.filter(
-                tuple_(filtered_transcripts.c.name, filtered_transcripts.c.version) == gp_key,
-                or_(
-                    allele_filter_tbl.c.exon_distance < intronic_region[0],
-                    allele_filter_tbl.c.exon_distance > intronic_region[1]
-                ),
-                allele_filter_tbl.c.allele_id.in_(non_exonic_allele_ids)
-            ).distinct()
-
-            intronic_filtered[gp_key] = list(set([a[0] for a in intronic_filtered_q.all()]))
+            intronic_filtered[gp_key] = list(set(allele_ids) - set(exonic_allele_ids))
 
         # Remove the ones with existing classification
         for gp_key, allele_ids in intronic_filtered.iteritems():
@@ -765,9 +750,12 @@ class AlleleFilter(object):
 
         transcript_records = jsonb_to_recordset_func(annotation.Annotation.annotations['transcripts']).alias('j')
 
-        # Get transcripts to be included for this genepanel
-        inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
-        filtered_transcripts = queries.alleles_transcript_filtered_genepanel(self.session, allele_ids, [gp_key], inclusion_regex).subquery()
+        # Get transcripts to be included
+        filtered_transcripts = queries.annotation_transcripts_filtered(
+            self.session,
+            allele_ids,
+            self.global_config.get("transcripts", {}).get("inclusion_regex")
+        ).subquery()
 
         # Fetch the consequences for each allele (several lines per allele id)
         allele_id_consequences = self.session.query(

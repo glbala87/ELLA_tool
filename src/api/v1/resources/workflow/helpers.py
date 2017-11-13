@@ -167,11 +167,10 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         gene.Genepanel.version == gp_version
     ).one()
 
-    alleles_filtered_genepanel = queries.alleles_transcript_filtered_genepanel(
+    alleles_filtered_genepanel = queries.annotation_transcripts_genepanel(
         session,
         allele_ids,
-        [(gp_name, gp_version)],
-        None
+        [(gp_name, gp_version)]
     ).subquery()
 
     transcripts = session.query(gene.Transcript).options(joinedload(gene.Transcript.gene)).join(

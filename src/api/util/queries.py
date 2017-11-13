@@ -248,7 +248,62 @@ def ad_genes_for_genepanel(session, gp_name, gp_version):
     ).distinct()
 
 
-def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, inclusion_regex):
+def _unwrap_annotation(session, allele_ids):
+    # Subquery unwrapping transcripts array from annotation
+    # | allele_id |     transcripts      |
+    # ------------------------------------
+    # | 1         | {... JSONB data ...} |
+    # | 2         | {... JSONB data ...} |
+    unwrapped_annotation = session.query(
+        annotation.Annotation.allele_id,
+        func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
+    ).filter(
+        annotation.Annotation.allele_id.in_(allele_ids),
+        annotation.Annotation.date_superceeded.is_(None)  # Important!
+    )
+    return unwrapped_annotation
+
+
+def annotation_transcripts_filtered(session, allele_ids, inclusion_regex):
+
+    """
+    Filters annotation transcripts for input allele_ids against inclusion_regex.
+    If inclusion_regex is None, no filtering is applied.
+
+    genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
+
+    Returns Query object, representing:
+    -------------------------------------
+    | allele_id | annotation_transcript |
+    -------------------------------------
+    | 1         | NM_000059.3           |
+    | 2         | NM_000059.3           |
+      etc...
+
+    :warning: If there is no match between the inclusion_regex and the annotation,
+    the allele won't be included in the result.
+    Therefore, do _not_ use this as basis for inclusion of alleles in an analysis.
+    Use it only to get annotation data for further filtering,
+    where a non-match wouldn't exclude the allele in the analysis.
+    """
+
+    unwrapped_annotation = _unwrap_annotation(session, allele_ids).subquery()
+
+    result = session.query(
+        unwrapped_annotation.c.allele_id.label('allele_id'),
+        literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
+    )
+
+    if inclusion_regex:
+        result = result.filter(
+            text("transcripts::jsonb ->> 'transcript' ~ :reg").params(reg=inclusion_regex)
+        )
+
+    result = result.distinct()
+    return result
+
+
+def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
 
     """
     Filters annotation transcripts for input allele_ids against genepanel transcripts
@@ -257,9 +312,9 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
     genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
 
     Returns Query object, representing:
-    -----------------------------------------------------
-    | allele_id | name | version | annotation_transcript |
-    -----------------------------------------------------
+    -----------------------------------------------------------------------------------------------------------------------------
+    | | allele_id | name      | version | annotation_transcript | genepanel_transcript |
+    -----------------------------------------------------------------------------------------------------------------------------
     | 1         | HBOC | v01     | NM_000059.3           |
     | 2         | HBOC | v01     | NM_000059.3           |
       etc...
@@ -270,6 +325,7 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
     Use it only to get annotation data for further filtering,
     where a non-match wouldn't exclude the allele in the analysis.
     """
+
     genepanel_transcripts = session.query(
         gene.Genepanel.name,
         gene.Genepanel.version,
@@ -279,20 +335,7 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
         tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
     ).subquery()
 
-    # Subquery unwrapping transcripts array from annotation
-    # | allele_id |     transcripts      |
-    # ------------------------------------
-    # | 1         | {... JSONB data ...} |
-    # | 2         | {... JSONB data ...} |
-    filters = [annotation.Annotation.date_superceeded.is_(None)]  # Important!
-    if allele_ids is not None:
-        filters.append(annotation.Annotation.allele_id.in_(allele_ids))
-    unwrapped_annotation = session.query(
-        annotation.Annotation.allele_id,
-        func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
-    ).filter(
-        *filters
-    ).subquery()
+    unwrapped_annotation = _unwrap_annotation(session, allele_ids).subquery()
 
     # Join the tables together, using transcript as key and splitting out the
     # version number of the transcript (if it has one)
@@ -306,26 +349,10 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
         unwrapped_annotation.c.allele_id.label('allele_id'),
         genepanel_transcripts.c.name.label('name'),
         genepanel_transcripts.c.version.label('version'),
-        literal_column("transcripts::jsonb ->> 'hgnc_id'").label('annotation_hgnc_id'),
-        literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
         literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
-        literal_column("transcripts::jsonb ->> 'HGVSc'").label('annotation_hgvsc'),
-        literal_column("transcripts::jsonb ->> 'HGVSp'").label('annotation_hgvsp'),
-        genepanel_transcripts.c.gene_id.label('genepanel_symbol'),
         genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
     ).filter(
-        # Perform annotation <-> genepanel comparison without version number (if applicable)
         text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(transcript_name, '.', 1)")
-    )
-
-    if inclusion_regex is not None:
-        # Further filter on transcripts defined in config inclusion regex
-        # At this point, 'transcript_name' should equal annotation's 'transcript',
-        # so we filter on a column instead of inside annotation data for performance
-        result = result.filter(
-            text("transcript_name ~ :reg").params(reg=inclusion_regex)
-        )
-
-    result = result.distinct()
+    ).distinct()
 
     return result

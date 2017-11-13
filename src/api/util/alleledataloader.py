@@ -7,7 +7,7 @@ from api.util.util import query_print_table
 from api.util import queries
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
 from api.util.annotationprocessor import AnnotationProcessor
-
+from api.config import config
 
 # Top level keys:
 KEY_REFERENCE_ASSESSMENTS = 'reference_assessments'
@@ -154,12 +154,15 @@ class AlleleDataLoader(object):
 
         # Create final data
 
-        # Get annotation transcripts filtered on genepanel
-        alleles_filtered_genepanel = queries.alleles_transcript_filtered_genepanel(
-            self.session,
-            allele_ids,
-            [(genepanel.name, genepanel.version)]
-        ).all()
+        # If genepanel is provided, get annotation
+        # transcripts filtered on genepanel
+        annotation_transcripts_genepanel = None
+        if genepanel:
+            annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
+                self.session,
+                allele_ids,
+                [(genepanel.name, genepanel.version)]
+            ).all()
 
         final_alleles = list()
         for allele_id, data in accumulated_allele_data.iteritems():
@@ -176,9 +179,10 @@ class AlleleDataLoader(object):
                     custom_annotation=data.get(KEY_CUSTOM_ANNOTATION, {}).get(KEY_ANNOTATIONS),
                     genepanel=genepanel
                 )
-
                 final_allele[KEY_ANNOTATION] = processed_annotation
-                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = [a[5] for a in alleles_filtered_genepanel if a[0] == allele_id]
+
+                if annotation_transcripts_genepanel:
+                    final_allele[KEY_ANNOTATION]['filtered_transcripts'] = [a[2] for a in annotation_transcripts_genepanel if a[0] == allele_id]
                 final_allele[KEY_ANNOTATION]['annotation_id'] = data[KEY_ANNOTATION]['id']
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']
