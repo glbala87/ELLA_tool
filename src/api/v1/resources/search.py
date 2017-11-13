@@ -108,11 +108,7 @@ class SearchResource(LogRequestResource):
 
         # Choose which genepanels to filter on. If genepanel is provided in query, use this. Otherwise use usergroup genepanels.
         if query.get("genepanel"):
-            genepanels = session.query(
-                gene.Genepanel
-            ).filter(
-                tuple_(gene.Genepanel.name, gene.Genepanel.version) == query.get("genepanel")
-            ).all()
+            genepanels = [next(gp for gp in user.group.genepanels if (gp.name, gp.version) == tuple(query.get("genepanel")))]
         else:
             genepanels = user.group.genepanels
 
@@ -322,7 +318,6 @@ class SearchResource(LogRequestResource):
         )
 
         allele_ids_analyses_in_genepanels = allele_ids_analyses_in_genepanels.filter(
-            genotype.Genotype.sample_id == sample.Sample.id,
             tuple_(gene.Genepanel.name, gene.Genepanel.version).in_((gp.name, gp.version) for gp in genepanels)
         ).distinct()
 
@@ -364,9 +359,8 @@ class SearchResource(LogRequestResource):
             sample.Analysis,
             gene.Genepanel
         ).filter(
+            allele.Allele.id.in_(allele_ids),
             tuple_(gene.Genepanel.name, gene.Genepanel.version).in_((gp.name, gp.version) for gp in genepanels),
-            genotype.Genotype.sample_id == sample.Sample.id,
-            allele.Allele.id.in_(allele_ids)
         ).distinct()
 
         genepanel_workflow_allele_ids = all_allele_ids.join(
