@@ -29,7 +29,7 @@ def get_genotype(genotypes, first_change, second_change, _ret=[]):
 @pytest.fixture(scope="module", autouse=True)
 def deposit_single(session):
     """Deposit test analysis"""
-    single = os.path.join(VARDB_PATH, "testdata/analyses/all/brca_decomposed.HBOC_v01")
+    single = os.path.join(VARDB_PATH, "testdata/analyses/integration_testing/brca_decomposed.HBOC_v01")
     assert os.path.isdir(single)
     files = os.listdir(single)
     assert len(files) == 3
