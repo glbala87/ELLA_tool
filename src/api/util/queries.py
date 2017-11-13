@@ -216,6 +216,9 @@ def ad_genes_for_genepanel(session, gp_name, gp_version):
     """
     Fetches all genes with _only_ 'AD' phenotypes.
     """
+
+    # Get phenotypes having only one kind of inheritance
+    # e.g. only 'AD' or only 'AR' etc...
     distinct_inheritance = session.query(
         gene.Phenotype.genepanel_name,
         gene.Phenotype.genepanel_version,
@@ -227,7 +230,7 @@ def ad_genes_for_genepanel(session, gp_name, gp_version):
         gene.Phenotype.genepanel_name,
         gene.Phenotype.genepanel_version,
         gene.Phenotype.gene_id
-    ).having(func.count(gene.Phenotype.inheritance) == 1).subquery()
+    ).having(func.count(gene.Phenotype.inheritance.distinct()) == 1).subquery()
 
     return session.query(
         gene.Gene.hgnc_symbol,
