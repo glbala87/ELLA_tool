@@ -315,11 +315,11 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
     genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
 
     Returns Query object, representing:
-    -----------------------------------------------------------------------------------------------------------------------------
-    | | allele_id | name      | version | annotation_transcript | genepanel_transcript |
-    -----------------------------------------------------------------------------------------------------------------------------
-    | 1         | HBOC | v01     | NM_000059.3           |
-    | 2         | HBOC | v01     | NM_000059.3           |
+    -----------------------------------------------------------------------------
+    | allele_id | name | version | annotation_transcript | genepanel_transcript |
+    -----------------------------------------------------------------------------
+    | 1         | HBOC | v01     | NM_000059.2           | NM_000059.3          |
+    | 1         | HBOC | v01     | ENST00000530893       | ENST00000530893      |
       etc...
 
     :warning: If there is no match between the genepanel and the annotation,
@@ -340,14 +340,8 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
 
     unwrapped_annotation = _unwrap_annotation(session, allele_ids).subquery()
 
-    # Join the tables together, using transcript as key and splitting out the
-    # version number of the transcript (if it has one)
-    # -----------------------------------------------------------------------------
-    # | allele_id | name | version | annotation_transcript | genepanel_transcript |
-    # -----------------------------------------------------------------------------
-    # | 1         | HBOC | v01     | NM_000059.3           | NM_000059.3          |
-    # | 1         | HBOC | v01     | ENST00000380152       | NM_000059.3          |
-    # | 1         | HBOC | v01     | ENST00000530893       | NM_000059.3          |
+    # Join genepanel and annotation tables together, using transcript as key
+    # and splitting out the version number of the transcript (if it has one)
     result = session.query(
         unwrapped_annotation.c.allele_id.label('allele_id'),
         genepanel_transcripts.c.name.label('name'),
