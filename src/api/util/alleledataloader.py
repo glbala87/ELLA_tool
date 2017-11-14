@@ -182,7 +182,7 @@ class AlleleDataLoader(object):
                 final_allele[KEY_ANNOTATION] = processed_annotation
 
                 if annotation_transcripts_genepanel:
-                    final_allele[KEY_ANNOTATION]['filtered_transcripts'] = [a[2] for a in annotation_transcripts_genepanel if a[0] == allele_id]
+                    final_allele[KEY_ANNOTATION]['filtered_transcripts'] = [a[3] for a in annotation_transcripts_genepanel if a[0] == allele_id]
                 final_allele[KEY_ANNOTATION]['annotation_id'] = data[KEY_ANNOTATION]['id']
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']
