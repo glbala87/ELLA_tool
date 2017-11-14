@@ -209,12 +209,12 @@ exports.config = {
                 let callback = function(response) {
                     response.on('data', function (chunk) {});
                     response.on('end', function () {
-                        let ok = response.statusCode === 200;
+                        let ok = [200, 304].includes(response.statusCode);
                         if (ok) {
-                            console.log(appUrl + ' is compiled, moving on...');
+                            console.log(`${appUrl} is compiled, moving on...`);
                         }
                         else {
-                            console.log(appUrl + ' is still compiling, waiting...');
+                            console.log(`${appUrl} is not ready (${response.statusCode}) is still compiling, waiting...`);
                         }
                         resolve(ok);
                     });
