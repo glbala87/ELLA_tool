@@ -66,6 +66,7 @@ RUN cd /dist && \
     pip install --no-cache-dir -r requirements-prod.txt
 
 # npm
+# changes to package.json does a fresh install as Docker won't use it's cache
 COPY ./package.json /dist/package.json
 COPY ./yarn.lock /dist/yarn.lock
 
