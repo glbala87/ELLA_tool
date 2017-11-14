@@ -3,6 +3,9 @@ TEST_NAME ?= all
 TEST_COMMAND ?=''
 CONTAINER_NAME ?= ella-$(BRANCH)-$(USER)
 NAME_OF_GENERATED_IMAGE = local/ella-$(BRANCH)
+# use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
+BUILD_OPTIONS ?=
+
 API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
@@ -192,7 +195,7 @@ any:
 	@true
 
 build:
-	docker build -t $(NAME_OF_GENERATED_IMAGE) .
+	docker build ${BUILD_OPTIONS} -t $(NAME_OF_GENERATED_IMAGE) .
 
 dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
 dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
