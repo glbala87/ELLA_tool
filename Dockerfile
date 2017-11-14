@@ -49,6 +49,7 @@ RUN apt-get update && \
     apt-get -yqq install google-chrome-stable && \
     echo "Cleanup:" && \
     apt-get clean && \
+    apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* && \
     cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
     rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
