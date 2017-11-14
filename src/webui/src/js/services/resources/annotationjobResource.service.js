@@ -15,7 +15,7 @@ export class AnnotationjobResource {
 
     get() {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/import/jobs/`);
+            let r = this.resource(`${this.base}/import/service/jobs/`);
             let annotationjobs = r.query(() => {
                 resolve(annotationjobs);
             }, reject);
@@ -39,7 +39,7 @@ export class AnnotationjobResource {
 
     post(data) {
         return new Promise(resolve => {
-            let r = this.resource(`${this.base}/import/jobs/`, {},
+            let r = this.resource(`${this.base}/import/service/jobs/`, {},
                 {
                     post: {
                         method: 'POST'
@@ -53,7 +53,7 @@ export class AnnotationjobResource {
 
     restart(id) {
         return new Promise((resolve, reject)=> {
-            let r = this.resource(`${this.base}/import/jobs/${id}/`, {},
+            let r = this.resource(`${this.base}/import/service/jobs/${id}/`, {},
                 {
                     patch: {
                         method: 'PATCH'
@@ -68,7 +68,7 @@ export class AnnotationjobResource {
 
     delete(id) {
         return new Promise((resolve, reject)=> {
-            let r = this.resource(`${this.base}/import/jobs/${id}/`, {},
+            let r = this.resource(`${this.base}/import/service/jobs/${id}/`, {},
                 {
                     delete: {
                         method: 'DELETE'

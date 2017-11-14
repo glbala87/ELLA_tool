@@ -109,7 +109,7 @@ class GenepanelConfigResolver(object):
 
             # TODO: Figure out 'inheritance'...
             config_storage['freq_cutoffs'] = copy.deepcopy(
-                _choose_cutoff_group(config_storage['freq_cutoff_groups'], symbol in ad_genes))
+                _choose_cutoff_group(config_storage['freq_cutoff_groups'], symbol in self._ad_genes_cache))
 
             # Stage 5: look for gene specific overrides:
             gene_specific_overrides = copy.deepcopy(get_nested(self.genepanel.config, ['data', 'genes', symbol]))

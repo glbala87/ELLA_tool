@@ -257,13 +257,22 @@ def _unwrap_annotation(session, allele_ids):
     # ------------------------------------
     # | 1         | {... JSONB data ...} |
     # | 2         | {... JSONB data ...} |
+
+    filters = [
+        annotation.Annotation.date_superceeded.is_(None)  # Important!
+    ]
+
+    # FIXME: Letting allele_ids be optional is not a good idea, it will scale horribly.
+    # Keep it until we find an acceptable solution for transcript data
+    if allele_ids:
+        filters.append(
+            annotation.Annotation.allele_id.in_(allele_ids)
+        )
+
     unwrapped_annotation = session.query(
         annotation.Annotation.allele_id,
         func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
-    ).filter(
-        annotation.Annotation.allele_id.in_(allele_ids),
-        annotation.Annotation.date_superceeded.is_(None)  # Important!
-    )
+    ).filter(*filters)
     return unwrapped_annotation
 
 
@@ -347,6 +356,9 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
         genepanel_transcripts.c.name.label('name'),
         genepanel_transcripts.c.version.label('version'),
         literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
+        literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
+        literal_column("transcripts::jsonb ->> 'HGVSc'").label('annotation_hgvsc'),
+        literal_column("transcripts::jsonb ->> 'HGVSp'").label('annotation_hgvsp'),
         genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
     ).filter(
         text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(transcript_name, '.', 1)")

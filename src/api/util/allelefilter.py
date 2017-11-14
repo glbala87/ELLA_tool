@@ -637,7 +637,7 @@ class AlleleFilter(object):
         filtered_transcripts = queries.annotation_transcripts_filtered(
             self.session,
             all_allele_ids,
-            self.config.get("transcripts", {}).get("inclusion_regex")
+            self.global_config.get("transcripts", {}).get("inclusion_regex")
         ).subquery()
 
         # Join AlleleFilter table on these allele_ids and transcript names
@@ -655,7 +655,7 @@ class AlleleFilter(object):
 
         intronic_filtered = dict()
         # TODO: Add support for per gene/genepanel configuration when ready.
-        intronic_region = self.config['variant_criteria']['intronic_region']
+        intronic_region = self.global_config['variant_criteria']['intronic_region']
         for gp_key, allele_ids in gp_allele_ids.iteritems():
             # Determine which allele ids are in an exon (with exon_distance == None, or within intronic_region)
             exonic_alleles_q = all_alleles_q.filter(

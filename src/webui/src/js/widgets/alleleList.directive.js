@@ -78,7 +78,6 @@ class AlleleListWidget {
     }
 
     getItemUrl(item) {
-        let allele = item.allele;
         return item.allele.getWorkflowUrl(item.genepanel);
     }
 }
