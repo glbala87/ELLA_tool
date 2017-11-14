@@ -3,6 +3,8 @@ import os
 import sys
 import logging
 import time
+
+DEFAULT_STATIC_FILE = 'index.html'
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request, g
@@ -18,8 +20,18 @@ from cli.commands.database import drop_db, make_db
 KEYWORD_DEVELOPER_MODE = 'DEVELOP'
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, '../webui/build')
+VALID_STATIC_FILES = [
+    'app.css',
+    'base.css',
+    'app.js',
+    'thirdparty.js',
+    'templates.js',
+    'fonts',
+    'favicon.ico'
+]
 
 log = app.logger
+
 
 @app.before_first_request
 def setup_logging():
@@ -27,18 +39,24 @@ def setup_logging():
         log.addHandler(logging.StreamHandler())
         log.setLevel(logging.INFO)
 
+
 @app.before_request
 def populate_request():
     g.request_start_time = time.time() * 1000.0
     g.log_hide_payload = False
     g.log_hide_response = True  # We only store response for certain resources due to size concerns
-    populate_g_user()
+
+    if request.path and request.path.split('/')[1] not in VALID_STATIC_FILES:
+        populate_g_user()
 
 @app.after_request
 def after_request(response):
-    log_request(response.status_code, response)
-    db.session.commit()
+    if request.path and request.path.split('/')[1] not in VALID_STATIC_FILES:
+        log_request(response.status_code, response)
+        db.session.commit()
+
     return response
+
 
 @app.teardown_request
 def teardown_request(exc):
@@ -56,19 +74,10 @@ def shutdown_session(exception=None):
 
 def serve_static(path=None):
     if not path:
-        path = 'index.html'
+        path = DEFAULT_STATIC_FILE
 
-    valid_files = [
-        'app.css',
-        'base.css',
-        'app.js',
-        'thirdparty.js',
-        'templates.js',
-        'fonts'
-    ]
-
-    if not any(v == path or path.startswith(v) for v in valid_files):
-        path = 'index.html'
+    if not any(v == path or path.startswith(v) for v in VALID_STATIC_FILES):
+        path = DEFAULT_STATIC_FILE
 
     return send_from_directory(STATIC_FILE_DIR, path)
 
