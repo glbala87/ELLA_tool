@@ -86,17 +86,15 @@ class GenepanelConfigResolver(object):
         # Stage 1: init the result using the global defaults
         config_storage = copy.deepcopy(self.global_default)
 
+        if self.genepanel and self.genepanel.config:
+            dict_merge(config_storage, self.genepanel.config['data'])
+            del config_storage['genes']
+
         # Stage 2: find frequency cutoffs for 'default' from either genepanel or global:
         if not symbol:
             logging.warning("Symbol not defined when resolving genepanel config values")
-            if self.genepanel and self.genepanel.config:
-                dict_merge(config_storage, get_nested(self.genepanel.config, ['data', 'freq_cutoff_groups']))
-
-            config_storage['freq_cutoffs'] = get_nested(config_storage, ['default'])
+            config_storage['freq_cutoffs'] = get_nested(config_storage, 'freq_cutoff_groups', 'default')
         else:
-            if self.genepanel and self.genepanel.config:
-                dict_merge(config_storage, get_nested(self.genepanel.config, ['data', 'freq_cutoff_groups']))
-
             # A specific symbol can define cutoffs, disease_mode and last_exon_important
             # Stage 3: find the most "useful" inheritance using the gene symbol:
             if not self._ad_genes_cache:
@@ -107,7 +105,6 @@ class GenepanelConfigResolver(object):
                 ).all()
                 self._ad_genes_cache = list(set([a[0] for a in ad_genes]))
 
-            # TODO: Figure out 'inheritance'...
             config_storage['freq_cutoffs'] = copy.deepcopy(
                 _choose_cutoff_group(config_storage['freq_cutoff_groups'], symbol in self._ad_genes_cache))
 
