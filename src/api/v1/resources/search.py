@@ -125,6 +125,8 @@ class SearchResource(LogRequestResource):
         filters = list()
 
         freetext = query.get("freetext")
+        if freetext:
+            freetext = re.escape(freetext)
         gene = query.get("gene")
         user = query.get("user")
         # The query for genepanel is already applied to genepanels
@@ -235,10 +237,12 @@ class SearchResource(LogRequestResource):
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in freetext:
+            freetext = re.escape(freetext)  # Don't move me
             allele_ids = allele_ids.filter(
                 genepanel_transcripts.c.annotation_hgvsp.op('~*')(".*"+freetext+".*")
             )
         elif 'c.' in freetext:
+            freetext = re.escape(freetext)
             allele_ids = allele_ids.filter(
                 genepanel_transcripts.c.annotation_hgvsc.op('~*')(".*" + freetext + ".*")
             )
