@@ -70,8 +70,9 @@ convention = {
 
 
 Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
-make_searchable() # Create triggers to keep search vectors up to date
+make_searchable()  # Create triggers to keep search vectors up to date
 Base.metadata = MetaData(naming_convention=convention)
 
-# Don't remove:
+# Don't remove!
+# Don't import annotationshadow here! They shouldn't be added to SQLAlchemy mapper at this point.
 from vardb.datamodel import allele, annotation, annotationjob, sample, assessment, genotype, gene, user, workflow, log
