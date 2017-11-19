@@ -79,7 +79,7 @@ test_e2e:
       when: on_failure
 
 
-cleanup_e2e:
+cleanup_docker:
   stage: cleanup
   script:
     - docker rm -f $(docker ps -aq --filter name=${PIPELINE_ID}-*)

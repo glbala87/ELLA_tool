@@ -281,7 +281,7 @@ test-js: test-build # container $(PIPELINE_ID)-js
 	docker run -d --name $(PIPELINE_ID)-js $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
-	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp_build unit
+	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
 	@docker rm -f $(PIPELINE_ID)-js
 
 test-common: test-build # container $(PIPELINE_ID)-common

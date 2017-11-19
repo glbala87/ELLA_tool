@@ -45,7 +45,7 @@ Mount points of interest:
 
 
 Internally, the `supervisord` will spin up:
-  - nginx - actiong as reverse proxy and serving static files
+  - nginx - acting as reverse proxy and serving static files
   - gunicorn - launching several API workers
   - gulp - transpiles the frontend upon startup
   - analyses-watcher - handles watching for and importing new data
@@ -125,7 +125,7 @@ can be upgraded to the new version. We use Alembic to assist creating those scri
 This base serves as the base for which the migration scripts will be built against, and should represent the oldest
 database in production.
 
-#### Ceate a new migration
+#### Create a new migration
 
 1. Make all your changes to the normal datamodel in `src/vardb/datamodel/` and test them until you're satisfied.
    In general we don't want to make more migration scripts than necessary, so make sure things are proper.
@@ -144,7 +144,7 @@ present in the database if necessary.
 
 The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
 
-#### Manully testing the migrations
+#### Manually testing the migrations
 To manually test the migration scripts you can run the upgrade/downgrade parts of the various migrations:
 - $ ./ella-cli database ci-migration-base                                                                                                                                                           [0/1556]
 - $ ./ella-cli database upgrade e371dfeb38c1
@@ -230,9 +230,8 @@ The definitions are generated automatically by `apispec` using it's Marshmallow 
 Our test suites are intended to be run inside Docker. The Makefile has commands to do run setup and the tests themselves.
 
 ## Getting started
-- `make test` will run all (js, api, and common) tests _excluding e2e tests_
-- `make e2e-test` will run e2e tests
-- `make single-test` will run a single _non-e2e_ test
+- `make test` will run most test types apart from e2e.
+- `make test-{type}` will run the different types of test.
 
 
 # End to end testing (e2e)
