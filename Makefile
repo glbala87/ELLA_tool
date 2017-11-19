@@ -24,6 +24,10 @@ CHROMEBOX_IMAGE = ousamg/chromebox:1.2
 CHROMEBOX_CONTAINER = $(PIPELINE_ID)-chromebox
 E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
 
+# report tests
+REPORT_CONTAINER = $(PIPELINE_ID)-report
+E2E_TEST_RESULT_IMAGE = local/$(PIPELINE_ID)-e2e-test-result
+
 # Json validation
 GP_VALIDATION_CONTAINER = $(PIPELINE_ID)-gp-validation
 
@@ -272,7 +276,7 @@ check-gp-config: test-build
 # and then does an 'exec' of the tests inside the container
 
 test-build:
-	docker build -t $(NAME_OF_GENERATED_IMAGE) .
+	docker build ${BUILD_OPTIONS} -t $(NAME_OF_GENERATED_IMAGE) .
 
 test: test-all
 test-all: test-js test-common test-api test-cli
@@ -359,7 +363,7 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 	@rm -rf errorShots
 	@mkdir -p errorShots
 
-	docker run -d --name $(E2E_APP_CONTAINER) \
+	docker run -d --hostname e2e --name $(E2E_APP_CONTAINER) \
 	   -v `pwd`/errorShots:/ella/errorShots/  \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
@@ -367,8 +371,37 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
 	docker exec $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
+
+	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
+
+	@echo "Saving testdata from container $(E2E_APP_CONTAINER) to image $(E2E_TEST_RESULT_IMAGE)"
+	docker commit  --message "Image with Postgres DB populated through e2e tests" \
+	$(E2E_APP_CONTAINER) $(E2E_TEST_RESULT_IMAGE)
+
 	docker stop $(E2E_APP_CONTAINER)
 	docker rm $(E2E_APP_CONTAINER)
+
+
+e2e-remove-report-container:
+	-docker stop $(REPORT_CONTAINER)
+	-docker rm $(REPORT_CONTAINER)
+	-docker rmi $(E2E_TEST_RESULT_IMAGE)
+
+# Export variants from a container whose DB has been populated by running an e2e test.
+report-classifications:
+	docker run -d --name $(REPORT_CONTAINER) \
+	  --hostname report \
+	  -v $(shell pwd):/ella \
+	  -e PYTHONPATH=/ella/src \
+	  -e PGDATA=/data \
+	  -e DB_URL=postgresql:///postgres \
+	  --entrypoint=""  $(E2E_TEST_RESULT_IMAGE) \
+	  supervisord -c /ella/ops/test/supervisor-export.cfg
+
+	docker exec $(REPORT_CONTAINER) ops/test/run_report_classifications_tests.sh
+
+#	@docker stop $(REPORT_CONTAINER)
+#	@docker rm $(REPORT_CONTAINER)
 
 
 e2e-stop-chromebox:

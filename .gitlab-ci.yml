@@ -6,6 +6,7 @@ variables:
 stages:
   - test
   - e2e
+  - reports
   - deploy
   - review
   - notify
@@ -77,6 +78,12 @@ test_e2e:
       - errorShots/*.png
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
+
+
+test-reports:
+  stage: reports
+  script:
+    - make report-classifications
 
 
 cleanup_docker:

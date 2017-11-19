@@ -202,12 +202,15 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
     return [classification_values[key] for key in COLUMN_PROPERTIES]
 
 
-def dump_alleleassessments(session, filename=None):
+def dump_alleleassessments(session, filename):
     """
     Save all current alleleassessments to Excel document
     :param session: An sqlalchemy session
-    :param filename: Filename ending with .xlsx
+    :param filename:
     """
+
+    if not filename:
+        raise RuntimeError("Filename for classification export is mandatory")
 
     alleleassessments = session.query(assessment.AlleleAssessment).options(
         subqueryload(assessment.AlleleAssessment.annotation).
@@ -221,24 +224,29 @@ def dump_alleleassessments(session, filename=None):
 
     adl = alleledataloader.AlleleDataLoader(session)
 
-    if filename:
-        # Write only: Constant memory usage
-        workbook = Workbook(write_only=True)
-        worksheet = workbook.create_sheet()
+    # TODO: make both a xls and CSV outputs
+    # Write only: Constant memory usage
+    workbook = Workbook(write_only=True)
+    worksheet = workbook.create_sheet()
 
-        titles = []
-        for ii, cp in enumerate(COLUMN_PROPERTIES.itervalues()):
-            title = WriteOnlyCell(worksheet, value=cp[0])
-            title.font = Font(bold=True)
-            titles.append(title)
-            # chr(65) is 'A', chr(66) is 'B', etc
-            worksheet.column_dimensions[chr(ii+65)].width = cp[1]
+    csv = []
+    csv_headers = []
+    titles = []
+    for ii, cp in enumerate(COLUMN_PROPERTIES.itervalues()):
+        csv_headers.append(cp[0])
+        title = WriteOnlyCell(worksheet, value=cp[0])
+        title.font = Font(bold=True)
+        titles.append(title)
+        # chr(65) is 'A', chr(66) is 'B', etc
+        worksheet.column_dimensions[chr(ii+65)].width = cp[1]
 
-        worksheet.append(titles)
+    worksheet.append(titles)
+    csv.append(csv_headers)
 
     t_start = time.time()
     t_total = 0
     rows = list()
+    csv_body = []
     for batch_alleleassessments in get_batch(alleleassessments):
         t_query = time.time()
         log.info("Loaded %s allele assessments in %s seconds" %
@@ -251,6 +259,7 @@ def dump_alleleassessments(session, filename=None):
                 assessment.AlleleAssessment.allele_id == alleleassessment.allele_id
             ).order_by(assessment.AlleleAssessment.date_superceeded.desc()).limit(1).one_or_none()
             classification = format_classification(alleleassessment, adl, previous_alleleassessment=previous_alleleassessment)
+            csv_body.append(classification)
             rows.append(classification)
 
         t_get = time.time()
@@ -260,40 +269,19 @@ def dump_alleleassessments(session, filename=None):
         t_start = time.time()
 
     rows.sort(key=lambda x: (x[0], x[1], x[2]))
-    if filename:
-        for r in rows:
-            worksheet.append(r)
+    csv_body.sort(key=lambda x: (x[0], x[1], x[2]))
+
+    for r in rows:
+        worksheet.append(r)
+    for r in csv_body:
+        csv.append(r)
 
     log.info("Dumped database in %s seconds" % t_total)
 
-    if filename:
-        workbook.save(filename)
-        log.info("Wrote database to %s" % filename)
+    with open(filename + '.csv', 'w') as csv_file:
+        for cols in csv:
+            csv_file.write("\t".join(map(str, cols)))
+            csv_file.write("\n")
 
-
-def main(session):
-    LOG_FILENAME = path.join(SCRIPT_DIR, 'log/dump.log')
-
-    parser = argparse.ArgumentParser(
-        description="Dump current classifications to Excel file")
-    parser.add_argument('-l', '--log', action='store_true',
-                        help='Save log to file log/dump.log [Default: False]')
-    parser.add_argument('excel_file', help='Name of file to store database')
-    args = parser.parse_args()
-
-    if args.log:
-        if not path.exists(LOG_FILENAME):
-            mkdir(path.dirname(LOG_FILENAME))
-        logging.basicConfig(filename=LOG_FILENAME, filemode='w',
-                            level=logging.DEBUG)
-
-    if not args.excel_file.endswith('.xlsx'):
-        args.excel_file += '.xlsx'
-
-    filename = path.join(SCRIPT_DIR, args.excel_file)
-    dump_alleleassessments(session, filename=filename)
-
-if __name__ == '__main__':
-    db = DB()
-    db.connect()
-    main(db.session)
+    workbook.save(filename + ".xls")
+    log.info("Wrote database to %s.xls/csv" % filename)
