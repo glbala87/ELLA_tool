@@ -91,7 +91,9 @@ def reset_testdata():
     # use default if none is given:
     test_set = request.args.get('testset', DEFAULT_TESTSET)
     test_set = test_set if test_set else DEFAULT_TESTSET
-    return do_testdata_reset(test_set, blocking=request.args.get('blocking'))
+    msg = do_testdata_reset(test_set, blocking=request.args.get('blocking'))
+    print msg
+    return msg
 
 
 def reset_testdata_from_cli():
@@ -138,6 +140,7 @@ if os.environ.get('SERVE_STATIC'):
 # This is used by development - production will not trigger it
 if __name__ == '__main__':
     if os.getenv('RESET_DB', False):
+        print "Resetting database from main.py __main__"
         reset_testdata_from_cli()
         exit(0)
     opts = {}

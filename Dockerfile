@@ -38,7 +38,7 @@ RUN apt-get update && \
     fontconfig && \
     echo "Additional tools:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    curl -sLk https://deb.nodesource.com/setup_6.x | bash - && \
+    curl -sLk https://deb.nodesource.com/setup_8.x | bash - && \
     apt-get install -y -q nodejs yarn && \
     curl -SLk 'https://bootstrap.pypa.io/get-pip.py' | python && \
     curl -L https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 -o /usr/local/bin/gosu && chmod u+x /usr/local/bin/gosu && \
@@ -79,6 +79,8 @@ RUN mkdir -p /logs /socket /repo/imported/ /repo/incoming/ /repo/genepanels
 # See .dockerignore for files that won't be copied
 COPY . /ella
 WORKDIR /ella
+
+ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
 
 # Set production as default cmd
 CMD supervisord -c /ella/ops/prod/supervisor.cfg

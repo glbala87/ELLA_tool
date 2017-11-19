@@ -1,6 +1,7 @@
 ---
 variables:
   BRANCH: $CI_COMMIT_REF_NAME
+  PIPELINE_ID: $CI_PIPELINE_ID
 
 stages:
   - test
@@ -11,57 +12,63 @@ stages:
   - release
   - cleanup
 
+
 test_api:
   stage: test
   script:
-    - make single-test TEST_NAME=api
+    - make test-api
   except:
     - /^ui-.*$/
     - /^ops-.*$/
 
+
 test_api_migration:
   stage: test
   script:
-    - make single-test TEST_NAME=api-migration
+    - make test-api-migration
   except:
     - /^ui-.*$/
     - /^ops-.*$/
   allow_failure: true
 
+
 test_js:
   stage: test
   script:
-    - make single-test TEST_NAME=js
+    - make test-js
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+
 
 test_python:
   stage: test
   script:
-    - make single-test TEST_NAME=common
+    - make test-common
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+
 
 test_rule_engine:
   stage: test
   script:
-    - make single-test TEST_NAME=rule-engine
+    - make test-rule-engine
   except:
     - /^ui-.*$/
     - /^ops-.*$/
 
+
 test_cli:
   stage: test
   script:
-    - make single-test TEST_NAME=cli
+    - make test-cli
 
 
 test_e2e:
   stage: e2e
   script:
-    - make e2e-test
+    - make test-e2e
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -71,11 +78,13 @@ test_e2e:
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
 
-cleanup_e2e:
+
+cleanup_docker:
   stage: cleanup
   script:
-    - make e2e-stop-chromebox
+    - docker rm -f $(docker ps -aq --filter name=${PIPELINE_ID}-*)
   when: always
+
 
 bot_build:
   stage: deploy
@@ -87,6 +96,7 @@ bot_build:
   only:
     - triggers
 
+
 bot_notify_failure:
   stage: notify
   script:
@@ -96,6 +106,7 @@ bot_notify_failure:
     - triggers
     - branches
 
+
 bot_notify_success:
   stage: notify
   script:
@@ -104,6 +115,7 @@ bot_notify_success:
   only:
     - triggers
     - branches
+
 
 start_review:
   stage: review
@@ -120,6 +132,7 @@ start_review:
     - master
   tags:
     - web
+
 
 # when: manual is also run upon branch deletion
 # Image name for removal (local/${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
