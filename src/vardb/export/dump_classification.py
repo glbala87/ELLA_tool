@@ -66,7 +66,8 @@ COLUMN_PROPERTIES = OrderedDict([
 def html_to_text(html):
     soup = BeautifulSoup(html, 'html.parser')
     attachments = [img.get('title') for img in soup.find_all('img')]
-    return soup.get_text() + " " + ", ".join(attachments)
+    return soup.get_text() + (" " + ", ".join(attachments) if attachments else "")
+
 
 def get_batch(alleleassessments):
     """
