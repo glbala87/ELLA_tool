@@ -11,6 +11,7 @@ from sqlalchemy.orm import subqueryload, joinedload
 from openpyxl.writer.write_only import WriteOnlyCell
 from openpyxl.styles import Font
 from openpyxl import Workbook
+from bs4 import BeautifulSoup
 
 from vardb.datamodel import DB, assessment, allele
 from api.util import alleledataloader
@@ -38,6 +39,7 @@ CHROMOSOME_FORMAT = "{chromosome}:{start_position}-{open_end_position}"
 
 DATE_FORMAT = "%Y-%m-%d"
 
+
 # (field name, [Column header, Column width])
 COLUMN_PROPERTIES = OrderedDict([
     ('gene', ['Gene', 6]),
@@ -60,6 +62,11 @@ COLUMN_PROPERTIES = OrderedDict([
     ('ref_eval', ['Reference evaluations', 20])
 ])
 
+
+def html_to_text(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    attachments = [img.get('title') for img in soup.find_all('img')]
+    return soup.get_text() + " " + ", ".join(attachments)
 
 def get_batch(alleleassessments):
     """
@@ -140,7 +147,7 @@ def format_classification(alleleassessment, adl):
     else:
         date = alleleassessment.date_created.strftime(DATE_FORMAT)
     acmg_evals = ' | '.join(
-        [': '.join([ae['code'], ae['comment']]) if ae['comment'] else ae['code']
+        [': '.join([ae['code'], html_to_text(ae['comment'])]) if ae['comment'] else ae['code']
          for ae in alleleassessment.evaluation.get('acmg', {}).get('included', [])]
     )
 
@@ -176,6 +183,7 @@ def format_classification(alleleassessment, adl):
               )
     )
 
+
     classification_values = {
         'gene': formatted_transcript.get('gene'),
         'class': alleleassessment.classification,
@@ -188,13 +196,13 @@ def format_classification(alleleassessment, adl):
         'consequence': formatted_transcript.get('consequences'),
         'coordinate': coordinate,
         'n_samples': n_samples,
-        'classification_eval': alleleassessment.evaluation.get('classification', {}).get('comment', ''),
+        'classification_eval': html_to_text(alleleassessment.evaluation.get('classification', {}).get('comment', '')),
         'acmg_eval': acmg_evals,
-        'report': allele_dict.get('allele_report', {}).get('evaluation', {}).get('comment', ''),
-        'freq_eval': alleleassessment.evaluation.get('frequency', {}).get('comment', ''),
-        'extdb_eval': alleleassessment.evaluation.get('external', {}).get('comment', ''),
-        'pred_eval': alleleassessment.evaluation.get('prediction', {}).get('comment', ''),
-        'ref_eval': ref_evals
+        'report': html_to_text(allele_dict.get('allele_report', {}).get('evaluation', {}).get('comment', '')),
+        'freq_eval': html_to_text(alleleassessment.evaluation.get('frequency', {}).get('comment', '')),
+        'extdb_eval': html_to_text(alleleassessment.evaluation.get('external', {}).get('comment', '')),
+        'pred_eval': html_to_text(alleleassessment.evaluation.get('prediction', {}).get('comment', '')),
+        'ref_eval': html_to_text(ref_evals)
     }
 
     return [classification_values[key] for key in COLUMN_PROPERTIES]
@@ -273,7 +281,7 @@ def dump_alleleassessments(session, filename):
 
     with open(filename + '.csv', 'w') as csv_file:
         for cols in csv:
-            csv_file.write("\t".join(map(str, cols)))
+            csv_file.write("\t".join(map(lambda c: c.encode('utf-8') if isinstance(c, (str, unicode)) else str(c), cols)))
             csv_file.write("\n")
 
     workbook.save(filename + ".xls")

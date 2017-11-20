@@ -167,9 +167,9 @@ describe('Sample workflow', function () {
             analysisPage.saveButton.scroll();
             analysisPage.saveButton.click();
 
-            alleleSectionBox.setReportComment('REPORT_ROUND1');
+            alleleSectionBox.setReportComment('REPORT_ROUND1 & ~');
 
-            console.log("Adding ACMG codes")
+            console.log("Adding ACMG codes");
             analysisPage.addAcmgCode('benign', 'BP2','BP2_ACMG_ROUND_1');
             analysisPage.addAcmgCode('pathogenic', 'PS2','PS2_ACMG_ROUND_1', -2); // Adjust down to PPxPS2
             analysisPage.addAcmgCode('pathogenic', 'PS1','PS1_ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
@@ -198,7 +198,7 @@ describe('Sample workflow', function () {
                 frequency: 'FREQUENCY_ROUND1',
                 prediction: 'PREDICTION_ROUND1',
                 external: 'EXTERNAL_ROUND1',
-                report: 'REPORT_ROUND1',
+                report: 'REPORT_ROUND1 & ~',
                 classification: (idx+1).toString(),
                 acmg: {
                     '1': {
