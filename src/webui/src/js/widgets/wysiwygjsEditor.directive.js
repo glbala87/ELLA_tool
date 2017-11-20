@@ -390,8 +390,6 @@ export class WysiwygEditorController {
             this.placeholderEvent(false);
             this.editorelement.focus();
             this.buttonselement.hidden = false;
-        } else {
-            this.editorelement.blur()
         }
     }
 
