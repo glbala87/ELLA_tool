@@ -45,15 +45,14 @@ COLUMN_PROPERTIES = OrderedDict([
     ('hgvsc', ['HGVSc', 26]),
     ('class', ['Class', 6]),
     ('date', ['Date', 11]),
-    ('prev_class', ['Prev. class', 6]),
-    ('prev_class_date', ['Prev. class date', 11]),
     ('hgvsp', ['HGVSp', 26]),
-    ('exon', ['Exon/intron', 11]),
+    ('exon', ['#exon or intron/total', 11]),
     ('rsnum', ['RS number', 11]),
     ('consequence', ['Consequence', 20]),
     ('coordinate', ['GRCh37', 20]),
     ('n_samples', ['# samples', 3]),
     ('classification_eval', ['Evaluation', 20]),
+    ('report', ['Report', 20]),
     ('acmg_eval', ['ACMG evaluation', 20]),
     ('freq_eval', ['Frequency comment', 20]),
     ('extdb_eval', ['External DB comment', 20]),
@@ -115,7 +114,7 @@ def format_transcripts(allele_annotation):
     return {key: ' | '.join(value) for key, value in formatted_transcripts.items()}
 
 
-def format_classification(alleleassessment, adl, previous_alleleassessment=None):
+def format_classification(alleleassessment, adl):
     """
     Make a list of the classification fields of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
@@ -133,7 +132,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
                                 include_custom_annotation=False,
                                 include_allele_assessment=False,
                                 include_reference_assessments=False,
-                                include_allele_report=False)[0]
+                                include_allele_report=True)[0]
 
     # Imported assessments without date can have 0000-00-00 as created_time. strftime doesn't like that..
     if alleleassessment.date_created < datetime.datetime(year=1950, month=1, day=1, tzinfo=pytz.utc):
@@ -182,8 +181,6 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         'class': alleleassessment.classification,
         'transcript': formatted_transcript.get('transcript'),
         'hgvsc': formatted_transcript.get('hgvsc'),
-        'prev_class': previous_alleleassessment.classification if previous_alleleassessment else '',
-        'prev_class_date': previous_alleleassessment.date_created.strftime(DATE_FORMAT) if previous_alleleassessment else '',
         'date': date,
         'hgvsp': formatted_transcript.get('hgvsp'),
         'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
@@ -193,6 +190,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         'n_samples': n_samples,
         'classification_eval': alleleassessment.evaluation.get('classification', {}).get('comment', ''),
         'acmg_eval': acmg_evals,
+        'report': allele_dict.get('allele_report', {}).get('evaluation', {}).get('comment', ''),
         'freq_eval': alleleassessment.evaluation.get('frequency', {}).get('comment', ''),
         'extdb_eval': alleleassessment.evaluation.get('external', {}).get('comment', ''),
         'pred_eval': alleleassessment.evaluation.get('prediction', {}).get('comment', ''),
@@ -222,9 +220,9 @@ def dump_alleleassessments(session, filename):
         assessment.AlleleAssessment.date_superceeded.is_(None)
     )
 
+
     adl = alleledataloader.AlleleDataLoader(session)
 
-    # TODO: make both a xls and CSV outputs
     # Write only: Constant memory usage
     workbook = Workbook(write_only=True)
     worksheet = workbook.create_sheet()
@@ -253,12 +251,7 @@ def dump_alleleassessments(session, filename):
                  (len(batch_alleleassessments), str(t_query-t_start)))
 
         for alleleassessment in batch_alleleassessments:
-            previous_alleleassessment = session.query(assessment.AlleleAssessment).filter(
-                ~assessment.AlleleAssessment.date_superceeded.is_(None),  # Is superceeded
-            ).filter(
-                assessment.AlleleAssessment.allele_id == alleleassessment.allele_id
-            ).order_by(assessment.AlleleAssessment.date_superceeded.desc()).limit(1).one_or_none()
-            classification = format_classification(alleleassessment, adl, previous_alleleassessment=previous_alleleassessment)
+            classification = format_classification(alleleassessment, adl)
             csv_body.append(classification)
             rows.append(classification)
 
