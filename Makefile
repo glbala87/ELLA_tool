@@ -46,7 +46,7 @@ help :
 	@echo ""
 	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE). use BUILD_OPTIONS variable to set options for 'docker build'"
 	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db			- populates the db with fixture data"
+	@echo "make db			- populates the db with fixture data. Use RESET_DB_SET variable to choose testset (default: small)"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
@@ -199,7 +199,7 @@ demo:
 dbreset: dbsleep dbreset-inner
 
 dbreset-inner:
-	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
+	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='$(RESET_DB_SET)' python src/api/main.py"
 
 dbsleep:
 	while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
@@ -221,15 +221,16 @@ dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
 dev: export OFFLINE_MODE="false"
 dev:
 	docker run -d \
-	--name $(CONTAINER_NAME) \
-	--hostname $(CONTAINER_NAME) \
-	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
-	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
-	-p $(API_PORT):5000 \
-	$(ELLA_OPTS) \
-	-v $(shell pwd):/ella \
-	$(NAME_OF_GENERATED_IMAGE) \
-	supervisord -c /ella/ops/dev/supervisor.cfg
+	  --name $(CONTAINER_NAME) \
+	  --hostname $(CONTAINER_NAME) \
+	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
+	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+	  -e DB_URL=postgresql:///postgres \
+	  -p $(API_PORT):5000 \
+	  $(ELLA_OPTS) \
+	  -v $(shell pwd):/ella \
+	  $(NAME_OF_GENERATED_IMAGE) \
+	  supervisord -c /ella/ops/dev/supervisor.cfg
 
 db:
 	docker exec $(CONTAINER_NAME) make dbreset RESET_DB_SET=$(RESET_DB_SET)
