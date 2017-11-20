@@ -92,7 +92,7 @@ def reset_testdata():
     test_set = request.args.get('testset', DEFAULT_TESTSET)
     test_set = test_set if test_set else DEFAULT_TESTSET
     msg = do_testdata_reset(test_set, blocking=request.args.get('blocking'))
-    print msg
+    log.info(msg)
     return msg
 
 
@@ -114,7 +114,7 @@ def do_testdata_reset(test_set, blocking=True):
 
     if blocking:
         worker()
-        return "Test database reset successfully."
+        return "Test database reset successfully with '{}' test set.".format(test_set)
     else:
         t = threading.Thread(target=worker)
         t.start()
@@ -140,7 +140,7 @@ if os.environ.get('SERVE_STATIC'):
 # This is used by development - production will not trigger it
 if __name__ == '__main__':
     if os.getenv('RESET_DB', False):
-        print "Resetting database from main.py __main__"
+        log.info("Resetting database from main.py __main__")
         reset_testdata_from_cli()
         exit(0)
     opts = {}
