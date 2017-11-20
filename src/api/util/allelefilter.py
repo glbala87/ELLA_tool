@@ -1,16 +1,8 @@
 from collections import OrderedDict, defaultdict
-import itertools
-from sqlalchemy import or_, and_, tuple_, column, Float, String, table, Integer, func, text
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable
-from sqlalchemy.sql import functions
-from sqlalchemy.sql.selectable import FromClause, Alias
-from sqlalchemy.sql.elements import ColumnClause
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import or_, and_, tuple_, text
 
 from api.config import config as global_genepanel_default
-from vardb.datamodel import assessment, gene, annotation
-from vardb.datamodel.annotationshadow import AnnotationShadowTranscript, AnnotationShadowFrequency
+from vardb.datamodel import assessment, gene, annotation, annotationshadow
 
 from api.util import queries
 from api.util.genepanelconfig import GenepanelConfigResolver
@@ -26,7 +18,6 @@ class AlleleFilter(object):
         self.session = session
         self.global_config = global_genepanel_default if not global_config else global_config
 
-
     @staticmethod
     def _get_freq_num_threshold_filter(provider_numbers, freq_provider, freq_key):
         """
@@ -37,7 +28,7 @@ class AlleleFilter(object):
         if freq_provider in provider_numbers and freq_key in provider_numbers[freq_provider]:
             num_threshold = provider_numbers[freq_provider][freq_key]
             assert isinstance(num_threshold, int), 'Provided frequency num threshold is not an integer'
-            return getattr(AnnotationShadowFrequency, freq_provider + '_num.' + freq_key) >= num_threshold
+            return getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '_num.' + freq_key) >= num_threshold
 
         return None
 
@@ -70,7 +61,7 @@ class AlleleFilter(object):
             freq_key_filters.append(num_filter)
 
         freq_key_filters.append(
-            getattr(AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
+            getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
         )
 
         return and_(*freq_key_filters)
@@ -87,8 +78,8 @@ class AlleleFilter(object):
 
         freq_key_filters.append(
             and_(
-                getattr(AnnotationShadowFrequency, freq_provider + '.' + freq_key) < thresholds['hi_freq_cutoff'],
-                getattr(AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
+                getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) < thresholds['hi_freq_cutoff'],
+                getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
             )
         )
 
@@ -104,7 +95,7 @@ class AlleleFilter(object):
         if num_filter is not None:
             freq_key_filters.append(num_filter)
         freq_key_filters.append(
-            getattr(AnnotationShadowFrequency, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
+            getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
         )
 
         return and_(*freq_key_filters)
@@ -117,19 +108,13 @@ class AlleleFilter(object):
 
         :note: Function signature is same as other threshold filters in order for them to be called dynamically.
         """
-        return getattr(AnnotationShadowFrequency, freq_provider + '.' + freq_key).is_(None)
-
-    def _get_AD_genes(self, gp_key):
-        result = queries.ad_genes_for_genepanel(
-            self.session, gp_key[0], gp_key[1]
-        ).all()
-        return [r[0] for r in result]
+        return getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key).is_(None)
 
     def _create_freq_filter(self, genepanels, gp_allele_ids, threshold_func, combine_func):
 
         gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
 
-        for gp_key, allele_ids in gp_allele_ids.iteritems():  # loop over every genepanel, with related genes
+        for gp_key, gp_allele_ids in gp_allele_ids.iteritems():  # loop over every genepanel, with related genes
 
             genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
             gp_config_resolver = GenepanelConfigResolver(
@@ -158,10 +143,13 @@ class AlleleFilter(object):
             for symbol in override_genes:
                 # Get merged genepanel for this gene/symbol
                 symbol_group_thresholds = gp_config_resolver.resolve(symbol)['freq_cutoffs']
+                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                    annotationshadow.AnnotationShadowTranscript.symbol == symbol,
+                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+                )
                 gp_final_filter.append(
                     and_(
-                        # AnnotationShadowTranscript will be joined in in final query
-                        AnnotationShadowTranscript.symbol == symbol,
+                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
                         self._get_freq_threshold_filter(symbol_group_thresholds,
                                                         threshold_func,
                                                         combine_func)
@@ -169,13 +157,17 @@ class AlleleFilter(object):
                 )
 
             # AD genes
-            ad_genes = self._get_AD_genes(gp_key)
+            ad_genes = queries.ad_genes_for_genepanel(self.session, gp_key[0], gp_key[1])
             if ad_genes:
+                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                    annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
+                    ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
+                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+                )
                 ad_group_thresholds = gp_config_resolver.get_AD_freq_cutoffs()
                 gp_final_filter.append(
                     and_(
-                        ~AnnotationShadowTranscript.symbol.in_(override_genes),
-                        AnnotationShadowTranscript.symbol.in_(ad_genes),
+                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
                         self._get_freq_threshold_filter(ad_group_thresholds,
                                                         threshold_func,
                                                         combine_func)
@@ -183,10 +175,18 @@ class AlleleFilter(object):
                 )
 
             # 'default' genes (all genes not in two above cases)
+            # Keep ad_genes as subquery, or else performance goes down the drain
+            # (as opposed to loading the symbols into backend and merging with override_genes -> up to 30x slower)
             default_group_thresholds = gp_config_resolver.get_default_freq_cutoffs()
+            allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
+                ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+            )
+
             gp_final_filter.append(
                 and_(
-                    ~AnnotationShadowTranscript.symbol.in_(override_genes + ad_genes),
+                    annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
                     self._get_freq_threshold_filter(default_group_thresholds,
                                                     threshold_func,
                                                     combine_func)
@@ -263,14 +263,13 @@ class AlleleFilter(object):
                 combine_func=threshold_funcs[commonness_group][1]
             )
 
+            # TODO: Performance should be better if we loop over symbols -> allele_ids,
+            # rather than many big joins (?)
             for gp_key, al_ids in gp_allele_ids.iteritems():
                 assert all(isinstance(a, int) for a in al_ids)
-                allele_ids = self.session.query(AnnotationShadowFrequency.allele_id).join(
-                    AnnotationShadowTranscript,
-                    AnnotationShadowFrequency.allele_id == AnnotationShadowTranscript.allele_id
-                ).filter(
+                allele_ids = self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id).filter(
                     gp_filters[gp_key],
-                    AnnotationShadowFrequency.allele_id.in_(al_ids)
+                    annotationshadow.AnnotationShadowFrequency.allele_id.in_(al_ids)
                 ).distinct()
                 result[gp_key] = [a[0] for a in allele_ids.all()]
 
@@ -315,7 +314,17 @@ class AlleleFilter(object):
 
         return filter(lambda i: i not in with_classification, allele_ids)
 
-    def filtered_gene(self, gp_allele_ids):
+    def check_shadow_tables(self, allele_ids):
+        # Check that our shadow tables are populated, if not we'll get bad results
+        allele_ids = set(allele_ids)
+        assert self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+            annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
+        ).distinct().count() == len(allele_ids)
+        assert self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id).filter(
+            annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids)
+        ).distinct().count() == len(allele_ids)
+
+    def filtered_gene(self, gp_allele_ids, check_shadow_tables=True):
         """
         Only return the allele IDs whose gene symbol are configured to be excluded.
 
@@ -329,7 +338,7 @@ class AlleleFilter(object):
 
         return gene_filtered
 
-    def filtered_intronic(self, gp_allele_ids):
+    def filtered_intronic(self, gp_allele_ids, check_shadow_tables=True):
         """
         Filters allele ids from input based on their distance to nearest
         exon edge.
@@ -348,6 +357,10 @@ class AlleleFilter(object):
         based on intronic status, i.e. they are intronic.
         """
 
+        if check_shadow_tables:
+            all_allele_ids = sum(gp_allele_ids.values(), [])
+            self.check_shadow_tables(all_allele_ids)
+
         intronic_filtered = dict()
         # TODO: Add support for per gene/genepanel configuration when ready.
         intronic_region = self.global_config['variant_criteria']['intronic_region']
@@ -355,24 +368,24 @@ class AlleleFilter(object):
 
             # Determine which allele ids are in an exon (with exon_distance == None, or within intronic_region)
             exonic_alleles_q = self.session.query(
-                AnnotationShadowTranscript.allele_id,
-                AnnotationShadowTranscript.exon_distance,
-                AnnotationShadowTranscript.transcript
+                annotationshadow.AnnotationShadowTranscript.allele_id,
+                annotationshadow.AnnotationShadowTranscript.exon_distance,
+                annotationshadow.AnnotationShadowTranscript.transcript
             ).filter(
                 or_(
-                    AnnotationShadowTranscript.exon_distance.is_(None),
+                    annotationshadow.AnnotationShadowTranscript.exon_distance.is_(None),
                     or_(
                         and_(
-                            AnnotationShadowTranscript.exon_distance >= intronic_region[0],
-                            AnnotationShadowTranscript.exon_distance <= intronic_region[1],
+                            annotationshadow.AnnotationShadowTranscript.exon_distance >= intronic_region[0],
+                            annotationshadow.AnnotationShadowTranscript.exon_distance <= intronic_region[1],
                         ),
                         and_(
-                            AnnotationShadowTranscript.exon_distance <= intronic_region[1],
-                            AnnotationShadowTranscript.exon_distance >= intronic_region[0],
+                            annotationshadow.AnnotationShadowTranscript.exon_distance <= intronic_region[1],
+                            annotationshadow.AnnotationShadowTranscript.exon_distance >= intronic_region[0],
                         )
                     )
                 ),
-                AnnotationShadowTranscript.allele_id.in_(allele_ids)
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
             )
             inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:
@@ -390,7 +403,7 @@ class AlleleFilter(object):
 
         return intronic_filtered
 
-    def filtered_frequency(self, gp_allele_ids):
+    def filtered_frequency(self, gp_allele_ids, check_shadow_tables=True):
         """
         Filters allele ids from input based on their frequency.
 
@@ -409,6 +422,10 @@ class AlleleFilter(object):
         that should be included.
         """
 
+        if check_shadow_tables:
+            all_allele_ids = sum(gp_allele_ids.values(), [])
+            self.check_shadow_tables(all_allele_ids)
+
         commonness_result = self.get_commonness_groups(gp_allele_ids, common_only=True)
         frequency_filtered = dict()
 
@@ -417,7 +434,7 @@ class AlleleFilter(object):
 
         return frequency_filtered
 
-    def filter_utr(self, gp_key, allele_ids):
+    def filter_utr(self, gp_key, allele_ids, check_shadow_tables=True):
         """
         Filters out variants that have worst consequence equal to 3_prime_UTR_variant or 5_prime_UTR_variant in any
         of the annotation transcripts included.
@@ -425,6 +442,9 @@ class AlleleFilter(object):
         :param allele_ids: allele_ids to run filter on
         :return: allele ids to be filtered out
         """
+
+        if check_shadow_tables:
+            self.check_shadow_tables(allele_ids)
 
         return []
         # FIXME: IMPLEMENT!!!
@@ -488,10 +508,13 @@ class AlleleFilter(object):
 
     def filter_alleles(self, gp_allele_ids):
         result = dict()
-        all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
-        filtered_gene = self.filtered_gene(gp_allele_ids)
-        filtered_frequency = self.filtered_frequency(gp_allele_ids)
-        filtered_intronic = self.filtered_intronic(gp_allele_ids)
+
+        all_allele_ids = sum(gp_allele_ids.values(), [])
+        self.check_shadow_tables(all_allele_ids)
+
+        filtered_gene = self.filtered_gene(gp_allele_ids, check_shadow_tables=False)
+        filtered_frequency = self.filtered_frequency(gp_allele_ids, check_shadow_tables=False)
+        filtered_intronic = self.filtered_intronic(gp_allele_ids, check_shadow_tables=False)
 
         for gp_key in gp_allele_ids:
             gp_filtered_gene = filtered_gene[gp_key]

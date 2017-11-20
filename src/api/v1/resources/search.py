@@ -4,7 +4,7 @@ from collections import defaultdict
 from flask import request
 from sqlalchemy import tuple_, or_, and_
 from vardb.datamodel import sample, assessment, allele, gene, genotype, workflow
-
+from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
 from api import schemas
 
 from api.v1.resource import LogRequestResource
@@ -218,37 +218,35 @@ class SearchResource(LogRequestResource):
     def _search_allele_hgvs(self, session, freetext, genepanels):
         """
         Performs a search in the database using the
-        annotation table to lookup HGVS cDNA or protein
+        annotation table to lookup HGVS cDNA (c.) or protein (p.)
         and get the allele_ids for matching annotations.
 
         :returns: List of allele_ids
         """
 
-        # Search by c.DNA and p. names
-        # Query unwraps 'CSQ' JSON array as intermediate
-        # table then searches that table for a match.
-
         genepanel_transcripts = annotation_transcripts_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels]).subquery()
-
         allele_ids = session.query(
-            genepanel_transcripts.c.allele_id,
+            AnnotationShadowTranscript.allele_id
+        ).filter(
+            # Only include transcripts that exists in a genepanel
+            AnnotationShadowTranscript.transcript == genepanel_transcripts.c.annotation_transcript
         )
 
+        # btree indexes only support LIKE statements with no wildcard
+        # in the beginning. If we need something else, remember to
+        # add/update indexes accordingly
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in freetext:
-            freetext = re.escape(freetext)  # Don't move me
             allele_ids = allele_ids.filter(
-                genepanel_transcripts.c.annotation_hgvsp.op('~*')(".*"+freetext+".*")
+                AnnotationShadowTranscript.hgvsp.like(freetext + "%")
             )
-        elif 'c.' in freetext:
-            freetext = re.escape(freetext)
+        elif freetext.startswith('c.'):
             allele_ids = allele_ids.filter(
-                genepanel_transcripts.c.annotation_hgvsc.op('~*')(".*" + freetext + ".*")
+                AnnotationShadowTranscript.hgvsc.like(freetext + "%")
             )
         else:
             return []
-
         return allele_ids
 
     def _search_allele_position(self, session, query):

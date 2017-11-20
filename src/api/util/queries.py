@@ -253,31 +253,6 @@ def ad_genes_for_genepanel(session, gp_name, gp_version):
     ).distinct()
 
 
-def _unwrap_annotation(session, allele_ids):
-    # Subquery unwrapping transcripts array from annotation
-    # | allele_id |     transcripts      |
-    # ------------------------------------
-    # | 1         | {... JSONB data ...} |
-    # | 2         | {... JSONB data ...} |
-
-    filters = [
-        annotation.Annotation.date_superceeded.is_(None)  # Important!
-    ]
-
-    # FIXME: Letting allele_ids be optional is not a good idea, it will scale horribly.
-    # Keep it until we find an acceptable solution for transcript data
-    if allele_ids:
-        filters.append(
-            annotation.Annotation.allele_id.in_(allele_ids)
-        )
-
-    unwrapped_annotation = session.query(
-        annotation.Annotation.allele_id,
-        func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
-    ).filter(*filters)
-    return unwrapped_annotation
-
-
 def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
 
     """

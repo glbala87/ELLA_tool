@@ -1,18 +1,8 @@
-from vardb.datamodel import DB
-from vardb.datamodel import Base, annotation, gene
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, Table
-from sqlalchemy.schema import CreateTable
+from vardb.datamodel import Base
+from sqlalchemy import Column, Integer, Float, String, ForeignKey
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from api.config import config
-
-db = DB()
-db.connect()
-
-
-#
-# AnnotationShadowTranscript
-#
 
 
 class AnnotationShadowTranscript(Base):
@@ -24,78 +14,11 @@ class AnnotationShadowTranscript(Base):
     symbol = Column(String, index=True)
     transcript = Column(String, index=True)
     hgvsc = Column(String, index=True)
+    protein = Column(String, index=True)
     hgvsp = Column(String, index=True)
     consequences = Column(ARRAY(String))
     exon_distance = Column(Integer, index=True)
 
-
-
-ANNOTATION_SHADOW_TRANSCRIPT_TRIGGER = '''
-CREATE OR REPLACE FUNCTION insert_annotationshadowtranscript(allele_id INTEGER, annotations JSONB) RETURNS void
-LANGUAGE plpgsql
-AS $$
-    BEGIN
-        INSERT INTO annotationshadowtranscript
-            (
-                allele_id,
-                hgnc_id,
-                symbol,
-                transcript,
-                hgvsc,
-                hgvsp,
-                consequences,
-                exon_distance
-            )
-            SELECT allele_id,
-                   (a->>'hgnc_id')::integer,
-                   a->>'symbol',
-                   a->>'transcript',
-                   a->>'HGVSc',
-                   a->>'HGVSp',
-                   ARRAY(SELECT jsonb_array_elements_text(a->'consequences')),
-                   (a->>'exon_distance')::integer
-            FROM jsonb_array_elements(annotations->'transcripts') as a;
-    END;
-$$;
-
-CREATE OR REPLACE FUNCTION annotation_to_annotationshadowtranscript() RETURNS TRIGGER AS $annotation_to_annotationshadowtranscript$
-    BEGIN
-        IF (TG_OP = 'INSERT') THEN
-            PERFORM insert_annotationshadowtranscript(NEW.allele_id, NEW.annotations);
-            RETURN NEW;
-        ELSIF (TG_OP = 'UPDATE') THEN
-            IF (
-                NEW.allele_id != OLD.allele_id OR
-                NEW.annotations != OLD.annotations OR
-                NEW.date_created != OLD.date_created
-            ) THEN
-                RAISE EXCEPTION 'Update on one or more of the included columns for annotation table is disallowed';
-            END IF;
-            RETURN NEW;
-        ELSIF (TG_OP = 'DELETE') THEN
-            DELETE FROM annotationshadowtranscript WHERE allele_id = OLD.allele_id;
-            RETURN OLD;
-        END IF;
-    END;
-$annotation_to_annotationshadowtranscript$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS annotation_to_annotationshadowtranscript ON annotation;
-CREATE TRIGGER annotation_to_annotationshadowtranscript
-BEFORE INSERT OR UPDATE OR DELETE ON annotation
-    FOR EACH ROW EXECUTE PROCEDURE annotation_to_annotationshadowtranscript();
-'''
-
-
-def create_annotationshadowtranscript_table(session):
-    AnnotationShadowTranscript.__table__.drop(db.engine, checkfirst=True)
-    AnnotationShadowTranscript.__table__.create(db.engine)
-    session.execute(ANNOTATION_SHADOW_TRANSCRIPT_TRIGGER)
-    session.execute('SELECT insert_annotationshadowtranscript(allele_id, annotations) from annotation')
-
-
-#
-# AnnotationShadowFrequency
-#
 
 class AnnotationShadowFrequency(Base):
     __tablename__ = "annotationshadowfrequency"
@@ -104,6 +27,7 @@ class AnnotationShadowFrequency(Base):
     allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
 
 
+# Dynamically add rest of columns based on config
 def iter_freq_groups():
     frequency_groups = config['variant_criteria']['frequencies']['groups']
     for freq_group in frequency_groups:
@@ -128,7 +52,37 @@ for freq_provider, freq_key in iter_freq_groups():
     freq_values.append("(annotations->'frequencies'->'{}'->'freq'->>'{}')::float".format(freq_provider, freq_key))
     freq_values.append("(annotations->'frequencies'->'{}'->'num'->>'{}')::integer".format(freq_provider, freq_key))
 
-ANNOTATION_SHADOW_FREQUENCY_TRIGGER = '''
+
+ANNOTATION_SHADOW_TRIGGER = '''
+CREATE OR REPLACE FUNCTION insert_annotationshadowtranscript(allele_id INTEGER, annotations JSONB) RETURNS void
+LANGUAGE plpgsql
+AS $$
+    BEGIN
+        INSERT INTO annotationshadowtranscript
+            (
+                allele_id,
+                hgnc_id,
+                symbol,
+                transcript,
+                hgvsc,
+                protein,
+                hgvsp,
+                consequences,
+                exon_distance
+            )
+            SELECT allele_id,
+                   (a->>'hgnc_id')::integer,
+                   a->>'symbol',
+                   a->>'transcript',
+                   a->>'HGVSc_short',
+                   a->>'protein',
+                   a->>'HGVSp_short',
+                   ARRAY(SELECT jsonb_array_elements_text(a->'consequences')),
+                   (a->>'exon_distance')::integer
+            FROM jsonb_array_elements(annotations->'transcripts') as a;
+    END;
+$$;
+
 CREATE OR REPLACE FUNCTION insert_annotationshadowfrequency(allele_id INTEGER, annotations JSONB) RETURNS void
 LANGUAGE plpgsql
 AS $$
@@ -136,19 +90,30 @@ AS $$
         INSERT INTO annotationshadowfrequency
             (
                 allele_id,
-                {insert_into}
+                {frequency_insert_into}
             )
             VALUES (
                 allele_id,
-                {values}
+                {frequency_values}
             );
 
     END;
 $$;
 
-CREATE OR REPLACE FUNCTION annotation_to_annotationshadowfrequency() RETURNS TRIGGER AS $annotation_to_annotationshadowfrequency$
+CREATE OR REPLACE FUNCTION delete_annotationshadow(al_id INTEGER) RETURNS void
+LANGUAGE plpgsql
+AS $$
+    BEGIN
+        DELETE FROM annotationshadowtranscript WHERE allele_id = al_id;
+        DELETE FROM annotationshadowfrequency WHERE allele_id = al_id;
+    END;
+$$;
+
+CREATE OR REPLACE FUNCTION annotation_to_annotationshadow() RETURNS TRIGGER AS $annotation_to_annotationshadow$
     BEGIN
         IF (TG_OP = 'INSERT') THEN
+            PERFORM delete_annotationshadow(NEW.allele_id);
+            PERFORM insert_annotationshadowtranscript(NEW.allele_id, NEW.annotations);
             PERFORM insert_annotationshadowfrequency(NEW.allele_id, NEW.annotations);
             RETURN NEW;
         ELSIF (TG_OP = 'UPDATE') THEN
@@ -161,23 +126,31 @@ CREATE OR REPLACE FUNCTION annotation_to_annotationshadowfrequency() RETURNS TRI
             END IF;
             RETURN NEW;
         ELSIF (TG_OP = 'DELETE') THEN
-            DELETE FROM annotationshadowfrequency WHERE allele_id = OLD.allele_id;
+            PERFORM delete_annotationshadow(allele_id);
             RETURN OLD;
         END IF;
     END;
-$annotation_to_annotationshadowfrequency$ LANGUAGE plpgsql;
+$annotation_to_annotationshadow$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS annotation_to_annotationshadowfrequency ON annotation;
-CREATE TRIGGER annotation_to_annotationshadowfrequency
+DROP TRIGGER IF EXISTS annotation_to_annotationshadow ON annotation;
+CREATE TRIGGER annotation_to_annotationshadow
 BEFORE INSERT OR UPDATE OR DELETE ON annotation
-    FOR EACH ROW EXECUTE PROCEDURE annotation_to_annotationshadowfrequency();
-'''.format(insert_into=',\n'.join(freq_insert_into), values=',\n'.join(freq_values))
+    FOR EACH ROW EXECUTE PROCEDURE annotation_to_annotationshadow();
+'''.format(frequency_insert_into=',\n'.join(freq_insert_into), frequency_values=',\n'.join(freq_values))
 
 
-def create_annotationshadowfrequency_table(session):
-    AnnotationShadowFrequency.__table__.drop(db.engine, checkfirst=True)
-    AnnotationShadowFrequency.__table__.create(db.engine)
-    session.execute(ANNOTATION_SHADOW_FREQUENCY_TRIGGER)
-    session.execute('SELECT insert_annotationshadowfrequency(allele_id, annotations) from annotation')
+def create_shadow_tables(session, create_transcript=True, create_frequency=True):
 
-#create_annotationshadowfrequency_table(db.session)
+    if create_transcript:
+        AnnotationShadowTranscript.__table__.drop(session.connection(), checkfirst=True)
+        AnnotationShadowTranscript.__table__.create(session.connection())
+    if create_frequency:
+        AnnotationShadowFrequency.__table__.drop(session.connection(), checkfirst=True)
+        AnnotationShadowFrequency.__table__.create(session.connection())
+
+    session.execute(ANNOTATION_SHADOW_TRIGGER)
+
+    if create_transcript:
+        session.execute('SELECT insert_annotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL')
+    if create_frequency:
+        session.execute('SELECT insert_annotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL')

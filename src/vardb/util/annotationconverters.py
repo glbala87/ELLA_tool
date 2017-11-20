@@ -160,7 +160,7 @@ def convert_csq(annotation):
                 transcript_data['exon_distance'] = exon_distance
 
         if 'HGVSp' in transcript_data:  # Remove transcript part
-            transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)[1]
+            transcript_data['protein'], transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)
 
         transcript_data['in_last_exon'] = 'yes' if _get_is_last_exon(transcript_data) else 'no'
         transcripts.append(transcript_data)
