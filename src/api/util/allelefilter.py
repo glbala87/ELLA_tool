@@ -1,5 +1,5 @@
 from collections import OrderedDict, defaultdict
-from sqlalchemy import or_, and_, tuple_, text
+from sqlalchemy import or_, and_, tuple_, text, func, column, literal
 
 from api.config import config as global_genepanel_default
 from vardb.datamodel import assessment, gene, annotation, annotationshadow
@@ -131,19 +131,19 @@ class AlleleFilter(object):
             # 3. The rest. Uses 'default' threshold, targeting all genes not in 1. and 2.
 
             # Since the AnnotationShadowFrequency table doesn't include gene symbol,
-            # we join in AnnotationShadowTranscript using allele_id as key so we can
-            # filter on the gene.
+            # we use AnnotationShadowTranscript to find allele_ids we'll include
+            # for a given set of genes, according to genepanel
 
             gp_final_filter = list()
 
-            # Gene specific filter
-            # Example: af.symbol = "BRCA2" AND (af."ExAC.G" > 0.04 OR af."1000g.G" > 0.01)
+            # Gene specific filters
             override_genes = gp_config_resolver.get_genes_with_overrides()
 
             for symbol in override_genes:
                 # Get merged genepanel for this gene/symbol
                 symbol_group_thresholds = gp_config_resolver.resolve(symbol)['freq_cutoffs']
                 allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                    # TODO: Change to HGNC id when ready
                     annotationshadow.AnnotationShadowTranscript.symbol == symbol,
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
                 )
@@ -263,8 +263,6 @@ class AlleleFilter(object):
                 combine_func=threshold_funcs[commonness_group][1]
             )
 
-            # TODO: Performance should be better if we loop over symbols -> allele_ids,
-            # rather than many big joins (?)
             for gp_key, al_ids in gp_allele_ids.iteritems():
                 assert all(isinstance(a, int) for a in al_ids)
                 allele_ids = self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id).filter(
@@ -314,17 +312,7 @@ class AlleleFilter(object):
 
         return filter(lambda i: i not in with_classification, allele_ids)
 
-    def check_shadow_tables(self, allele_ids):
-        # Check that our shadow tables are populated, if not we'll get bad results
-        allele_ids = set(allele_ids)
-        assert self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-            annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
-        ).distinct().count() == len(allele_ids)
-        assert self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id).filter(
-            annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids)
-        ).distinct().count() == len(allele_ids)
-
-    def filtered_gene(self, gp_allele_ids, check_shadow_tables=True):
+    def filtered_gene(self, gp_allele_ids):
         """
         Only return the allele IDs whose gene symbol are configured to be excluded.
 
@@ -338,7 +326,7 @@ class AlleleFilter(object):
 
         return gene_filtered
 
-    def filtered_intronic(self, gp_allele_ids, check_shadow_tables=True):
+    def filtered_intronic(self, gp_allele_ids):
         """
         Filters allele ids from input based on their distance to nearest
         exon edge.
@@ -356,10 +344,6 @@ class AlleleFilter(object):
         :note: The returned values are allele ids that were _filtered out_
         based on intronic status, i.e. they are intronic.
         """
-
-        if check_shadow_tables:
-            all_allele_ids = sum(gp_allele_ids.values(), [])
-            self.check_shadow_tables(all_allele_ids)
 
         intronic_filtered = dict()
         # TODO: Add support for per gene/genepanel configuration when ready.
@@ -403,7 +387,7 @@ class AlleleFilter(object):
 
         return intronic_filtered
 
-    def filtered_frequency(self, gp_allele_ids, check_shadow_tables=True):
+    def filtered_frequency(self, gp_allele_ids):
         """
         Filters allele ids from input based on their frequency.
 
@@ -422,10 +406,6 @@ class AlleleFilter(object):
         that should be included.
         """
 
-        if check_shadow_tables:
-            all_allele_ids = sum(gp_allele_ids.values(), [])
-            self.check_shadow_tables(all_allele_ids)
-
         commonness_result = self.get_commonness_groups(gp_allele_ids, common_only=True)
         frequency_filtered = dict()
 
@@ -434,109 +414,167 @@ class AlleleFilter(object):
 
         return frequency_filtered
 
-    def filter_utr(self, gp_key, allele_ids, check_shadow_tables=True):
+    def filtered_utr(self, gp_allele_ids):
         """
         Filters out variants that have worst consequence equal to 3_prime_UTR_variant or 5_prime_UTR_variant in any
         of the annotation transcripts included.
-        :param gp_key: (genepanel_name, genepanel_version) used for extracting transcripts
         :param allele_ids: allele_ids to run filter on
         :return: allele ids to be filtered out
         """
-
-        if check_shadow_tables:
-            self.check_shadow_tables(allele_ids)
-
-        return []
-        # FIXME: IMPLEMENT!!!
-        # FIXME: IMPLEMENT!!!
-        # FIXME: IMPLEMENT!!!
-        # FIXME: IMPLEMENT!!!
-        # FIXME: IMPLEMENT!!!
-        # FIXME: IMPLEMENT!!!
         consequences_ordered = self.global_config["transcripts"].get("consequences")
-        # An ordering of consequences has not been specified, return empty list
-        if consequences_ordered is None:
-            return []
+        utr_consequences = [
+            # If you change these to not be hard coded,
+            # change code further down to avoid injection risk
+            '3_prime_UTR_variant',
+            '5_prime_UTR_variant'
+        ]
 
-        # Also return empty list if *_prime_UTR_variant is not specified in consequences_ordered
-        if not ('3_prime_UTR_variant' in consequences_ordered and '5_prime_UTR_variant' in consequences_ordered):
-            return []
+        # TODO: Potential optimization: Since we don't care about genepanel,
+        # we can merge all allele_ids into one query, then unpack afterwards
+        utr_filtered = dict()
+        for gp_key, allele_ids in gp_allele_ids.iteritems():
 
-        utr_consequence_index = min([consequences_ordered.index(c) for c in ['3_prime_UTR_variant', '5_prime_UTR_variant']])
+            # An ordering of consequences has not been specified, return empty list
+            if not consequences_ordered:
+                utr_filtered[gp_key] = []
+                continue
 
-        # Get transcripts to be included
-        filtered_transcripts = queries.annotation_transcripts_filtered(
-            self.session,
-            allele_ids,
-            self.global_config.get("transcripts", {}).get("inclusion_regex")
-        ).subquery()
+            # Also return empty list if *_prime_UTR_variant is not specified in consequences_ordered
+            if not any(u in consequences_ordered for u in utr_consequences):
+                utr_filtered[gp_key] = []
+                continue
 
-        # Fetch the consequences for each allele (several lines per allele id)
-        allele_id_consequences = self.session.query(
-            annotation.Annotation.allele_id,
-            transcript_records.c.transcript.label('transcript'),
-            transcript_records.c.consequences.label('consequences'),
-        ).filter(
-            annotation.Annotation.allele_id == filtered_transcripts.c.allele_id,
-            transcript_records.c.transcript == filtered_transcripts.c.annotation_transcript,
-            annotation.Annotation.date_superceeded.is_(None)  # Important!
-        ).all()
+            # For performance: Only get allele ids that are relevant for filtering
+            candidate_filters = []
+            for c in utr_consequences:
+                candidate_filters.append(
+                    annotationshadow.AnnotationShadowTranscript.consequences.contains(text("ARRAY['{}']::character varying[]".format(c)))
+                )
+            candidate_allele_ids = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                or_(
+                    *candidate_filters
+                ),
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
+            )
 
-        # Concatenate all consequences for each allele id
-        allele_consequences = defaultdict(list)
-        for allele_id, transcript, consequences in allele_id_consequences:
-            if consequences is None:
-                allele_consequences[allele_id] += [None]
-            else:
-                allele_consequences[allele_id] += consequences
+            inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
+            if inclusion_regex:
+                candidate_allele_ids = candidate_allele_ids.filter(
+                    text("transcript ~ :reg").params(reg=inclusion_regex)
+                )
 
-        def get_consequence_index(consequences):
-            return map(lambda c: consequences_ordered.index(c) if c in consequences_ordered else -1, consequences)
+            # Help table: Take the config's consequences array and order it by index in array
+            # --------------------------------------------
+            # | consequence                    |   ord   |
+            # --------------------------------------------
+            # | downstream_gene_variant        | 10      |
+            # | downstream_gene_variant        | 10      |
+            # | non_coding_transcript_variant  | 14      |
+            # ...
+            consequence_order = text('''
+                SELECT consequence, ord
+                FROM   unnest(string_to_array(:consequences, ',')) WITH ORDINALITY t(consequence, ord)
+            ''').bindparams(
+                consequences=','.join(consequences_ordered)
+            ).columns(column('consequence'), column('ord')).alias('consequenceorder')
 
-        # Check if it has consequence 3_prime_UTR_variant/5_prime_UTR_variant, and if so, if this is the worst consequence
-        utr_filtered = []
-        for allele_id, consequences in allele_consequences.iteritems():
-            if '3_prime_UTR_variant' in consequences or '5_prime_UTR_variant' in consequences:
-                worst_consequence_index = min(get_consequence_index(consequences))
-                if worst_consequence_index >= utr_consequence_index:
-                    utr_filtered.append(allele_id)
+            # Unnest the AnnotationShadowTranscript's consequences into rows
+            # -------------------------------------------------
+            # | allele_id | consequence                        |
+            # -------------------------------------------------
+            # | 10348     | downstream_gene_variant            |
+            # | 9986      | downstream_gene_variant            |
+            # | 11400     | non_coding_transcript_variant      |
+            #  ...
+            unpacked_consequences = self.session.query(
+                annotationshadow.AnnotationShadowTranscript.allele_id,
+                func.unnest(annotationshadow.AnnotationShadowTranscript.consequences).label('consequence')
+            ).filter(
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(candidate_allele_ids)
+            ).distinct().subquery('unpackedconsequences')
 
-        # Remove the ones with existing classification
-        utr_filtered = self.remove_alleles_with_classification(utr_filtered)
+            # Join the two tables, and get index of worst consequence
+            # per allele_id, where lower index means worse consequence
+            # ------------------------------------
+            # | allele_id | worst_consequence_ord |
+            # ------------------------------------
+            # | 7813      | 21                    |
+            # | 8216      | 20                    |
+            # ...
+            allele_id_worst_consequence = self.session.query(
+                unpacked_consequences.c.allele_id,
+                func.min(consequence_order.c.ord).over(
+                    partition_by=unpacked_consequences.c.allele_id
+                ).label('worst_consequence_ord')
+            ).join(
+                consequence_order,
+                text('unpackedconsequences.consequence = consequenceorder.consequence')
+            ).distinct().subquery()
 
+            # Get the indices of utr_consequences from our original list,
+            # and filter out all allele_ids which has matching index value in 'worst_consequence_ord'
+            utr_consequences_idx = [consequences_ordered.index(c) for c in utr_consequences]
+            filtered_allele_ids = self.session.query(
+                allele_id_worst_consequence.c.allele_id
+            ).filter(
+                allele_id_worst_consequence.c.worst_consequence_ord.in_(utr_consequences_idx)
+            )
+
+            utr_filtered[gp_key] = [a[0] for a in filtered_allele_ids.all()]
         return utr_filtered
 
     def filter_alleles(self, gp_allele_ids):
-        result = dict()
-
-        all_allele_ids = sum(gp_allele_ids.values(), [])
-        self.check_shadow_tables(all_allele_ids)
-
-        filtered_gene = self.filtered_gene(gp_allele_ids, check_shadow_tables=False)
-        filtered_frequency = self.filtered_frequency(gp_allele_ids, check_shadow_tables=False)
-        filtered_intronic = self.filtered_intronic(gp_allele_ids, check_shadow_tables=False)
-
-        for gp_key in gp_allele_ids:
-            gp_filtered_gene = filtered_gene[gp_key]
-            gp_filtered_frequency = [i for i in filtered_frequency[gp_key] if i not in gp_filtered_gene]
-            excluded = gp_filtered_gene + gp_filtered_frequency
-            gp_filtered_intronic = [i for i in filtered_intronic[gp_key] if i not in excluded]
-            excluded = excluded + gp_filtered_intronic
-
-            # Subtract the ones we excluded to get the ones not filtered out
-            not_filtered = list(set(gp_allele_ids[gp_key]) - set(excluded))
-
-            filtered_utr = self.filter_utr(gp_key, not_filtered)
-            not_filtered = list(set(not_filtered)-set(filtered_utr))
-
-            result[gp_key] = {
-                'allele_ids': not_filtered,
+        """
+        Returns:
+        {
+            ('HBOC', 'v01'): {
+                'allele_ids': [1, 2, 3],
                 'excluded_allele_ids': {
-                    'gene': gp_filtered_gene,
-                    'intronic': gp_filtered_intronic,
-                    'frequency': gp_filtered_frequency,
-                    'utr': filtered_utr,
+                    'gene': [4, 5],
+                    'intronic': [6, 7],
+                    'frequency': [8, 9],
+                    'utr': [10],
                 }
+            },
+            ...
+        }
+        """
+
+        filters = [
+            # Order matters!
+            ('gene', self.filtered_gene),
+            ('frequency', self.filtered_frequency),
+            ('intronic', self.filtered_intronic),
+            ('utr', self.filtered_utr)
+        ]
+
+        result = dict()
+        for gp_key in gp_allele_ids:
+            result[gp_key] = {
+                'excluded_allele_ids': {}
             }
+
+        # Keeps track of already excluded allele_ids for optimization
+        excluded_gp_allele_ids = dict()
+        for key in gp_allele_ids:
+            excluded_gp_allele_ids[key] = set()
+
+        def update_gp_allele_ids(gp_allele_ids, excluded_gp_allele_ids, result):
+            for gp_key in gp_allele_ids:
+                excluded_gp_allele_ids[gp_key].update(result.get(gp_key, []))
+                gp_allele_ids[gp_key] = set(gp_allele_ids[gp_key]) - set(result.get(gp_key, []))
+
+        # Exclude the filtered alleles from one filter from being sent to
+        # next filter, in order to improve performance. Matters a lot
+        # for large samples, since the frequency filter filters most of the variants
+        for filter_name, filter_func in filters:
+            filtered = filter_func(gp_allele_ids)
+            update_gp_allele_ids(gp_allele_ids, excluded_gp_allele_ids, filtered)
+            for gp_key in gp_allele_ids:
+                result[gp_key]['excluded_allele_ids'][filter_name] = sorted(list(filtered[gp_key]))
+
+        # Finally add the remaining allele_ids, these weren't filtered out
+        for gp_key in gp_allele_ids:
+            result[gp_key]['allele_ids'] = sorted(list(gp_allele_ids[gp_key]))
 
         return result
