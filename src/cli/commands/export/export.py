@@ -15,8 +15,8 @@ def export():
 
 
 @export.command('classifications', help="Export all current classifications to excel and csv file.")
-@click.option('--filename', help="The name of the file to created. Suffix .xls and .csv will be added.\n" 
-                                  "Default: 'variant-classifications-YYYY-MM-DD_HHMM.xls/csv'")
+@click.option('--filename', help="The name of the file to create. Suffix .xls and .csv will be automatically added.\n" 
+                                  "Default: 'variant-classifications-YYYY-MM-DD_hhmm.xls/csv'")
 def cmd_export_classifications(filename):
     """
     Exports all current classifications into an excel file.
