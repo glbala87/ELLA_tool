@@ -378,6 +378,8 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 	$(E2E_APP_CONTAINER) $(E2E_TEST_RESULT_IMAGE)
 
 	@echo "Stopping/removing container"
+	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop web
+	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop postgres
 	docker stop $(E2E_APP_CONTAINER)
 	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
 	docker rm $(E2E_APP_CONTAINER)
