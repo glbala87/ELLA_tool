@@ -36,7 +36,6 @@ class AlleleSectionBox  {
     get existingClassificationName() { return browser.getText(SELECTOR_EXISTING_CLASSIFICATION); }
 
     setClassificationComment(text) {
-        this.classificationCommentElement.scroll();
         this.classificationCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_CLASSIFICATION_EDITOR, text);
     }
@@ -46,7 +45,6 @@ class AlleleSectionBox  {
     get frequencyComment() { return browser.getText(SELECTOR_COMMENT_FREQUENCY_EDITOR); }
 
     setFrequencyComment(text) {
-        this.frequencyCommentElement.scroll();
         this.frequencyCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_FREQUENCY_EDITOR, text);
     }
@@ -55,7 +53,6 @@ class AlleleSectionBox  {
     get externalComment() { return browser.getText(SELECTOR_COMMENT_EXTERNAL_EDITOR); }
 
     setExternalComment(text) {
-        this.externalCommentElement.scroll();
         this.externalCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_EXTERNAL_EDITOR, text);
     }
@@ -64,7 +61,6 @@ class AlleleSectionBox  {
     get predictionComment() { return browser.getText(SELECTOR_COMMENT_PREDICTION_EDITOR); }
 
     setPredictionComment(text) {
-        this.predictionCommentElement.scroll();
         this.predictionCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_PREDICTION_EDITOR, text);
     }
@@ -74,7 +70,6 @@ class AlleleSectionBox  {
     get reportCommentEditable() { return browser.isCommentEditable(SELECTOR_COMMENT_REPORT_EDITOR)}
 
     setReportComment(text) {
-        this.reportCommentElement.scroll();
         this.reportCommentElement.click();
         browser.setValue(SELECTOR_COMMENT_REPORT_EDITOR, text);
     }

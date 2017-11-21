@@ -173,7 +173,7 @@ export class WysiwygEditorController {
                 if (item.kind !== "file") continue;
                 this.attachmentResource.post(item.getAsFile()).then((id) => {
                     let uuid = UUID();
-                    let label = `[Attachment ${id}]`;
+                    let label = `Attachment ${id} ${uuid}`;
                     let src = `/api/v1/attachments/${id}`;
                     this.editor.insertHTML(`<img id="${uuid}" src="${src}" alt="${label}" title="${label}">`)
                 })

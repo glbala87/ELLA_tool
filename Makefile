@@ -24,6 +24,10 @@ CHROMEBOX_IMAGE = ousamg/chromebox:1.2
 CHROMEBOX_CONTAINER = $(PIPELINE_ID)-chromebox
 E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
 
+# report tests
+REPORT_CONTAINER = $(PIPELINE_ID)-report
+E2E_TEST_RESULT_IMAGE = local/$(PIPELINE_ID)-e2e-test-result
+
 # Json validation
 GP_VALIDATION_CONTAINER = $(PIPELINE_ID)-gp-validation
 
@@ -42,7 +46,7 @@ help :
 	@echo ""
 	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE). use BUILD_OPTIONS variable to set options for 'docker build'"
 	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db			- populates the db with fixture data"
+	@echo "make db			- populates the db with fixture data. Use RESET_DB_SET variable to choose testset (default: small)"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
@@ -195,7 +199,7 @@ demo:
 dbreset: dbsleep dbreset-inner
 
 dbreset-inner:
-	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='small' python src/api/main.py"
+	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='$(RESET_DB_SET)' python src/api/main.py"
 
 dbsleep:
 	while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
@@ -217,15 +221,16 @@ dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
 dev: export OFFLINE_MODE="false"
 dev:
 	docker run -d \
-	--name $(CONTAINER_NAME) \
-	--hostname $(CONTAINER_NAME) \
-	-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
-	-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
-	-p $(API_PORT):5000 \
-	$(ELLA_OPTS) \
-	-v $(shell pwd):/ella \
-	$(NAME_OF_GENERATED_IMAGE) \
-	supervisord -c /ella/ops/dev/supervisor.cfg
+	  --name $(CONTAINER_NAME) \
+	  --hostname $(CONTAINER_NAME) \
+	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
+	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+	  -e DB_URL=postgresql:///postgres \
+	  -p $(API_PORT):5000 \
+	  $(ELLA_OPTS) \
+	  -v $(shell pwd):/ella \
+	  $(NAME_OF_GENERATED_IMAGE) \
+	  supervisord -c /ella/ops/dev/supervisor.cfg
 
 db:
 	docker exec $(CONTAINER_NAME) make dbreset RESET_DB_SET=$(RESET_DB_SET)
@@ -272,7 +277,7 @@ check-gp-config: test-build
 # and then does an 'exec' of the tests inside the container
 
 test-build:
-	docker build -t $(NAME_OF_GENERATED_IMAGE) .
+	docker build ${BUILD_OPTIONS} -t $(NAME_OF_GENERATED_IMAGE) .
 
 test: test-all
 test-all: test-js test-common test-api test-cli
@@ -359,7 +364,7 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 	@rm -rf errorShots
 	@mkdir -p errorShots
 
-	docker run -d --name $(E2E_APP_CONTAINER) \
+	docker run -d --hostname e2e --name $(E2E_APP_CONTAINER) \
 	   -v `pwd`/errorShots:/ella/errorShots/  \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
@@ -367,9 +372,15 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
 	docker exec $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
-	docker stop $(E2E_APP_CONTAINER)
-	docker rm $(E2E_APP_CONTAINER)
 
+	@echo "Saving testdata from container $(E2E_APP_CONTAINER) to image $(E2E_TEST_RESULT_IMAGE)"
+	docker commit  --message "Image with Postgres DB populated through e2e tests" \
+	$(E2E_APP_CONTAINER) $(E2E_TEST_RESULT_IMAGE)
+
+	@echo "Stopping/removing container"
+	docker stop $(E2E_APP_CONTAINER)
+	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
+	docker rm $(E2E_APP_CONTAINER)
 
 e2e-stop-chromebox:
 	-docker stop $(CHROMEBOX_CONTAINER)
@@ -412,3 +423,29 @@ run-wdio-local:
 	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 
+#---------------------------------------------
+# TESTING of reports (trigged outside container)
+#---------------------------------------------
+.PHONY: test-classifications-report e2e-remove-report-container
+
+e2e-remove-report-container:
+	-docker stop $(REPORT_CONTAINER)
+	-docker rm $(REPORT_CONTAINER)
+	-docker rmi $(E2E_TEST_RESULT_IMAGE)
+
+
+# Export variants from a container whose DB has been populated by running an e2e test.
+test-classifications-report:
+	docker run -d --name $(REPORT_CONTAINER) \
+	  --hostname report \
+	  -v $(shell pwd):/ella \
+	  -e PYTHONPATH=/ella/src \
+	  -e PGDATA=/data \
+	  -e DB_URL=postgresql:///postgres \
+	  --entrypoint=""  $(E2E_TEST_RESULT_IMAGE) \
+	  supervisord -c /ella/ops/test/supervisor-export.cfg
+
+	docker exec $(REPORT_CONTAINER) ops/test/run_report_classifications_tests.sh
+
+	@docker stop $(REPORT_CONTAINER)
+	@docker rm $(REPORT_CONTAINER)

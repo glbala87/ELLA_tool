@@ -11,6 +11,7 @@ from sqlalchemy.orm import subqueryload, joinedload
 from openpyxl.writer.write_only import WriteOnlyCell
 from openpyxl.styles import Font
 from openpyxl import Workbook
+from bs4 import BeautifulSoup
 
 from vardb.datamodel import DB, assessment, allele
 from api.util import alleledataloader
@@ -38,6 +39,7 @@ CHROMOSOME_FORMAT = "{chromosome}:{start_position}-{open_end_position}"
 
 DATE_FORMAT = "%Y-%m-%d"
 
+
 # (field name, [Column header, Column width])
 COLUMN_PROPERTIES = OrderedDict([
     ('gene', ['Gene', 6]),
@@ -45,21 +47,26 @@ COLUMN_PROPERTIES = OrderedDict([
     ('hgvsc', ['HGVSc', 26]),
     ('class', ['Class', 6]),
     ('date', ['Date', 11]),
-    ('prev_class', ['Prev. class', 6]),
-    ('prev_class_date', ['Prev. class date', 11]),
     ('hgvsp', ['HGVSp', 26]),
-    ('exon', ['Exon/intron', 11]),
+    ('exon', ['#exon or intron/total', 11]),
     ('rsnum', ['RS number', 11]),
     ('consequence', ['Consequence', 20]),
     ('coordinate', ['GRCh37', 20]),
     ('n_samples', ['# samples', 3]),
     ('classification_eval', ['Evaluation', 20]),
+    ('report', ['Report', 20]),
     ('acmg_eval', ['ACMG evaluation', 20]),
     ('freq_eval', ['Frequency comment', 20]),
     ('extdb_eval', ['External DB comment', 20]),
     ('pred_eval', ['Prediction comment', 20]),
     ('ref_eval', ['Reference evaluations', 20])
 ])
+
+
+def html_to_text(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    attachments = [img.get('title') for img in soup.find_all('img')]
+    return soup.get_text() + (" " + ", ".join(attachments) if attachments else "")
 
 
 def get_batch(alleleassessments):
@@ -115,7 +122,7 @@ def format_transcripts(allele_annotation):
     return {key: ' | '.join(value) for key, value in formatted_transcripts.items()}
 
 
-def format_classification(alleleassessment, adl, previous_alleleassessment=None):
+def format_classification(alleleassessment, adl):
     """
     Make a list of the classification fields of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
@@ -133,7 +140,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
                                 include_custom_annotation=False,
                                 include_allele_assessment=False,
                                 include_reference_assessments=False,
-                                include_allele_report=False)[0]
+                                include_allele_report=True)[0]
 
     # Imported assessments without date can have 0000-00-00 as created_time. strftime doesn't like that..
     if alleleassessment.date_created < datetime.datetime(year=1950, month=1, day=1, tzinfo=pytz.utc):
@@ -141,7 +148,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
     else:
         date = alleleassessment.date_created.strftime(DATE_FORMAT)
     acmg_evals = ' | '.join(
-        [': '.join([ae['code'], ae['comment']]) if ae['comment'] else ae['code']
+        [': '.join([ae['code'], html_to_text(ae['comment'])]) if ae['comment'] else ae['code']
          for ae in alleleassessment.evaluation.get('acmg', {}).get('included', [])]
     )
 
@@ -177,13 +184,12 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
               )
     )
 
+
     classification_values = {
         'gene': formatted_transcript.get('gene'),
         'class': alleleassessment.classification,
         'transcript': formatted_transcript.get('transcript'),
         'hgvsc': formatted_transcript.get('hgvsc'),
-        'prev_class': previous_alleleassessment.classification if previous_alleleassessment else '',
-        'prev_class_date': previous_alleleassessment.date_created.strftime(DATE_FORMAT) if previous_alleleassessment else '',
         'date': date,
         'hgvsp': formatted_transcript.get('hgvsp'),
         'exon': formatted_transcript.get('exon') or formatted_transcript.get('intron'),
@@ -191,23 +197,27 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         'consequence': formatted_transcript.get('consequences'),
         'coordinate': coordinate,
         'n_samples': n_samples,
-        'classification_eval': alleleassessment.evaluation.get('classification', {}).get('comment', ''),
+        'classification_eval': html_to_text(alleleassessment.evaluation.get('classification', {}).get('comment', '')),
         'acmg_eval': acmg_evals,
-        'freq_eval': alleleassessment.evaluation.get('frequency', {}).get('comment', ''),
-        'extdb_eval': alleleassessment.evaluation.get('external', {}).get('comment', ''),
-        'pred_eval': alleleassessment.evaluation.get('prediction', {}).get('comment', ''),
-        'ref_eval': ref_evals
+        'report': html_to_text(allele_dict.get('allele_report', {}).get('evaluation', {}).get('comment', '')),
+        'freq_eval': html_to_text(alleleassessment.evaluation.get('frequency', {}).get('comment', '')),
+        'extdb_eval': html_to_text(alleleassessment.evaluation.get('external', {}).get('comment', '')),
+        'pred_eval': html_to_text(alleleassessment.evaluation.get('prediction', {}).get('comment', '')),
+        'ref_eval': html_to_text(ref_evals)
     }
 
     return [classification_values[key] for key in COLUMN_PROPERTIES]
 
 
-def dump_alleleassessments(session, filename=None):
+def dump_alleleassessments(session, filename):
     """
     Save all current alleleassessments to Excel document
     :param session: An sqlalchemy session
-    :param filename: Filename ending with .xlsx
+    :param filename:
     """
+
+    if not filename:
+        raise RuntimeError("Filename for classification export is mandatory")
 
     alleleassessments = session.query(assessment.AlleleAssessment).options(
         subqueryload(assessment.AlleleAssessment.annotation).
@@ -219,38 +229,39 @@ def dump_alleleassessments(session, filename=None):
         assessment.AlleleAssessment.date_superceeded.is_(None)
     )
 
+
     adl = alleledataloader.AlleleDataLoader(session)
 
-    if filename:
-        # Write only: Constant memory usage
-        workbook = Workbook(write_only=True)
-        worksheet = workbook.create_sheet()
+    # Write only: Constant memory usage
+    workbook = Workbook(write_only=True)
+    worksheet = workbook.create_sheet()
 
-        titles = []
-        for ii, cp in enumerate(COLUMN_PROPERTIES.itervalues()):
-            title = WriteOnlyCell(worksheet, value=cp[0])
-            title.font = Font(bold=True)
-            titles.append(title)
-            # chr(65) is 'A', chr(66) is 'B', etc
-            worksheet.column_dimensions[chr(ii+65)].width = cp[1]
+    csv = []
+    csv_headers = []
+    titles = []
+    for ii, cp in enumerate(COLUMN_PROPERTIES.itervalues()):
+        csv_headers.append(cp[0])
+        title = WriteOnlyCell(worksheet, value=cp[0])
+        title.font = Font(bold=True)
+        titles.append(title)
+        # chr(65) is 'A', chr(66) is 'B', etc
+        worksheet.column_dimensions[chr(ii+65)].width = cp[1]
 
-        worksheet.append(titles)
+    worksheet.append(titles)
+    csv.append(csv_headers)
 
     t_start = time.time()
     t_total = 0
     rows = list()
+    csv_body = []
     for batch_alleleassessments in get_batch(alleleassessments):
         t_query = time.time()
         log.info("Loaded %s allele assessments in %s seconds" %
                  (len(batch_alleleassessments), str(t_query-t_start)))
 
         for alleleassessment in batch_alleleassessments:
-            previous_alleleassessment = session.query(assessment.AlleleAssessment).filter(
-                ~assessment.AlleleAssessment.date_superceeded.is_(None),  # Is superceeded
-            ).filter(
-                assessment.AlleleAssessment.allele_id == alleleassessment.allele_id
-            ).order_by(assessment.AlleleAssessment.date_superceeded.desc()).limit(1).one_or_none()
-            classification = format_classification(alleleassessment, adl, previous_alleleassessment=previous_alleleassessment)
+            classification = format_classification(alleleassessment, adl)
+            csv_body.append(classification)
             rows.append(classification)
 
         t_get = time.time()
@@ -260,40 +271,19 @@ def dump_alleleassessments(session, filename=None):
         t_start = time.time()
 
     rows.sort(key=lambda x: (x[0], x[1], x[2]))
-    if filename:
-        for r in rows:
-            worksheet.append(r)
+    csv_body.sort(key=lambda x: (x[0], x[1], x[2]))
+
+    for r in rows:
+        worksheet.append(r)
+    for r in csv_body:
+        csv.append(r)
 
     log.info("Dumped database in %s seconds" % t_total)
 
-    if filename:
-        workbook.save(filename)
-        log.info("Wrote database to %s" % filename)
+    with open(filename + '.csv', 'w') as csv_file:
+        for cols in csv:
+            csv_file.write("\t".join(map(lambda c: c.encode('utf-8') if isinstance(c, (str, unicode)) else str(c), cols)))
+            csv_file.write("\n")
 
-
-def main(session):
-    LOG_FILENAME = path.join(SCRIPT_DIR, 'log/dump.log')
-
-    parser = argparse.ArgumentParser(
-        description="Dump current classifications to Excel file")
-    parser.add_argument('-l', '--log', action='store_true',
-                        help='Save log to file log/dump.log [Default: False]')
-    parser.add_argument('excel_file', help='Name of file to store database')
-    args = parser.parse_args()
-
-    if args.log:
-        if not path.exists(LOG_FILENAME):
-            mkdir(path.dirname(LOG_FILENAME))
-        logging.basicConfig(filename=LOG_FILENAME, filemode='w',
-                            level=logging.DEBUG)
-
-    if not args.excel_file.endswith('.xlsx'):
-        args.excel_file += '.xlsx'
-
-    filename = path.join(SCRIPT_DIR, args.excel_file)
-    dump_alleleassessments(session, filename=filename)
-
-if __name__ == '__main__':
-    db = DB()
-    db.connect()
-    main(db.session)
+    workbook.save(filename + ".xls")
+    log.info("Wrote database to %s.xls/csv" % filename)
