@@ -167,7 +167,7 @@ describe('Sample workflow', function () {
             analysisPage.saveButton.scroll();
             analysisPage.saveButton.click();
 
-            alleleSectionBox.setReportComment('REPORT_ROUND1 & ~');
+            alleleSectionBox.setReportComment('REPORT_ROUND1 &~øæå');
 
             console.log("Adding ACMG codes");
             analysisPage.addAcmgCode('benign', 'BP2','BP2_ACMG_ROUND_1');
@@ -198,7 +198,7 @@ describe('Sample workflow', function () {
                 frequency: 'FREQUENCY_ROUND1',
                 prediction: 'PREDICTION_ROUND1',
                 external: 'EXTERNAL_ROUND1',
-                report: 'REPORT_ROUND1 & ~',
+                report: 'REPORT_ROUND1 &~øæå',
                 classification: (idx+1).toString(),
                 acmg: {
                     '1': {
