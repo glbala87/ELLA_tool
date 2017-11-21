@@ -34,6 +34,10 @@ class AnalysisListResource(LogRequestResource):
                 $ref: '#/definitions/Analysis'
             description: List of analyses
         """
+        if rest_filter is None:
+            rest_filter = dict()
+        if not ("genepanel_name", "genepanel_version") in rest_filter:
+            rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
         analyses = self.list_query(session, sample.Analysis, schema=schemas.AnalysisFullSchema(), rest_filter=rest_filter)
         return analyses
 
