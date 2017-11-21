@@ -200,7 +200,6 @@ class DepositGenepanel(object):
                 'corresponding_refseq': None,
                 'corresponding_ensembl': t['eTranscriptID'],
                 'corresponding_lrg': None,
-                'ensembl_id': t['eTranscriptID'],
                 'chromosome': t['chromosome'],
                 'tx_start': t['txStart'],
                 'tx_end': t['txEnd'],
