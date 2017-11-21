@@ -620,10 +620,7 @@ class AlleleImporter(object):
         Returns the alleles for this record as datamodel.Allele objects.
         """
         alleles = list()
-        alts = record['ALT']
-        if not isinstance(alts, list):
-            alts = [alts]
-        for allele_no, allele in enumerate(alts):
+        for allele_no, allele in enumerate(record['ALT']):
             start_offset, allele_length, change_type, change_from, change_to = \
                 vcfhelper.compare_alleles(record['REF'], allele)
             start_pos = vcfhelper.get_start_position(record['POS'], start_offset, change_type)

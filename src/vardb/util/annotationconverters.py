@@ -80,8 +80,8 @@ def _map_hgnc_id(transcripts):
     symbol_hgnc_id = dict()
     for t in transcripts:
         if t.get('hgnc_id') and isinstance(t.get('hgnc_id'), int):
-            if t['symbol'] in symbol_hgnc_id and symbol_hgnc_id[t['symbol']] != t['hgnc_id']:
-                print "WARNING!!"
+            if t['symbol'] in symbol_hgnc_id:
+                assert symbol_hgnc_id[t['symbol']] == t['hgnc_id'], 'Got different HGNC ({} vs {}) id for same gene symbol ({})'.format(t['hgnc_id'], symbol_hgnc_id[t['symbol']], t['symbol'])
             symbol_hgnc_id[t['symbol']] = t['hgnc_id']
     return symbol_hgnc_id
 
@@ -120,8 +120,10 @@ def convert_csq(annotation):
     transcripts = list()
     # Invert CSQ data to map to transcripts
     for data in annotation['CSQ']:
-        # Filter out non-transcripts
-        if data.get('Feature_type') != 'Transcript':
+        # Filter out non-transcripts,
+        # and only include normal RefSeq or Ensembl transcripts
+        if data.get('Feature_type') != 'Transcript' or \
+           not any(data.get('Feature', '').startswith(t) for t in ['NM_', 'ENST']):
             continue
 
         transcript_data = {k[1]: data[k[0]] for k in CSQ_FIELDS if k[0] in data}

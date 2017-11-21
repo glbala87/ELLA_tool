@@ -92,6 +92,7 @@ def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=
                        Slows down performance by a lot, since we must query for the keys.
     :type include_pk: str
     :param compare_keys: Keys to be used for comparing whether an object exists already.
+                         If none is provided, all keys from rows[0] will be used.
     :type compare_keys: List
     :param replace: Whether to replace (update) existing data. Requires include_pk and compare_keys.
     :param batch_size: Size of each batch that should be inserted into database. Affects memory usage.
@@ -129,7 +130,7 @@ def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=
             for row in batch_rows:
                 should_create = True
                 for e in db_existing:
-                    if {k: e[k] for k in compare_keys} == {k: row[k] for k in compare_keys}:
+                    if all(e[k] == row[k] for k in compare_keys):
                         if include_pk:  # Copy over primary key if applicable
                             row[include_pk] = e[include_pk]
                         input_existing.append(row)
@@ -161,8 +162,23 @@ class DepositGenepanel(object):
     def insert_genes(self, transcript_data):
 
         # Avoid duplicate genes
-        distinct_genes = list(set([(t['HGNC'], t['geneSymbol'], t['eGeneID'], int(t['Omim gene entry']) if 'omim gene entry' in t else None) for t in transcript_data]))
-        gene_rows = [{'hgnc_id': d[0], 'hgnc_symbol': d[1], 'ensembl_gene_id': d[2], 'omim_entry_id': d[3]} for d in distinct_genes]
+        distinct_genes = set()
+        for t in transcript_data:
+            distinct_genes.add((
+                t['HGNC'],
+                t['geneSymbol'],
+                t['eGeneID'],
+                int(t['Omim gene entry']) if t.get('Omim gene entry') else None
+            ))
+
+        gene_rows = list()
+        for d in list(distinct_genes):
+            gene_rows.append({
+                'hgnc_id': d[0],
+                'hgnc_symbol': d[1],
+                'ensembl_gene_id': d[2],
+                'omim_entry_id': d[3]
+            })
 
         gene_inserted_count = 0
         gene_reused_count = 0
