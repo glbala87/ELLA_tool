@@ -274,6 +274,11 @@ class DepositGenepanel(object):
                       configPath=None,
                       replace=False):
 
+        if not transcripts_path:
+            raise RuntimeError("Missing mandatory argument: path to transcript file")
+        if not phenotypes_path:
+            raise RuntimeError("Missing mandatory argument: path to phenotypes file")
+
         # Insert genepanel
         config = load_config(configPath) if configPath else None
         existing_panel = self.session.query(gm.Genepanel).filter(
@@ -301,8 +306,12 @@ class DepositGenepanel(object):
                          .format(genepanel_name, genepanel_version))
                 return
 
-        transcript_data = load_transcripts(transcripts_path) if transcripts_path else None
-        phenotype_data = load_phenotypes(phenotypes_path) if phenotypes_path else None
+        transcript_data = load_transcripts(transcripts_path)
+        if not transcript_data:
+            raise RuntimeError("Found no transcripts in file")
+        phenotype_data = load_phenotypes(phenotypes_path)
+        if not phenotypes_path:
+            raise RuntimeError("Found no phenotypes in file")
 
         gene_inserted_count = 0
         gene_reused_count = 0
@@ -311,34 +320,30 @@ class DepositGenepanel(object):
         phenotype_inserted_count = 0
         phenotype_reused_count = 0
 
-        if transcript_data:
+        # Genes
+        gene_inserted_count, gene_reused_count = self.insert_genes(transcript_data)
+        log.info('GENES: Created {}, reused {}'.format(gene_inserted_count, gene_reused_count))
 
-            # Genes
-            gene_inserted_count, gene_reused_count = self.insert_genes(transcript_data)
-            log.info('GENES: Created {}, reused {}'.format(gene_inserted_count, gene_reused_count))
+        # Transcripts
+        transcript_inserted_count, transcript_reused_count = self.insert_transcripts(
+            transcript_data,
+            genepanel_name,
+            genepanel_version,
+            genomeRef,
+            replace=replace
+        )
 
-            # Transcripts
-            transcript_inserted_count, transcript_reused_count = self.insert_transcripts(
-                transcript_data,
-                genepanel_name,
-                genepanel_version,
-                genomeRef,
-                replace=replace
-            )
+        log.info('TRANSCRIPTS: Created {}, reused {}'.format(transcript_inserted_count, transcript_reused_count))
 
-            log.info('TRANSCRIPTS: Created {}, reused {}'.format(transcript_inserted_count, transcript_reused_count))
+        # Phenotypes
+        phenotype_inserted_count, phenotype_reused_count = self.insert_phenotypes(
+            phenotype_data,
+            genepanel_name,
+            genepanel_version,
+            replace=replace
+        )
 
-        if phenotype_data:
-
-            # Phenotypes
-            phenotype_inserted_count, phenotype_reused_count = self.insert_phenotypes(
-                phenotype_data,
-                genepanel_name,
-                genepanel_version,
-                replace=replace
-            )
-
-            log.info('PHENOTYPES: Created {}, reused {}'.format(phenotype_inserted_count, phenotype_reused_count))
+        log.info('PHENOTYPES: Created {}, reused {}'.format(phenotype_inserted_count, phenotype_reused_count))
 
         self.session.commit()
         log.info(
@@ -362,11 +367,9 @@ def main(argv=None):
                        If the panel exists you must add the --replace option.\n
                        When creating a new panel, use -transcripts and --phenotypes without --replace""")
     parser.add_argument("--transcripts", action="store", dest="transcriptsPath",
-                        required=False, default=None,
-                        help="Path to gene panel transcripts file")
+                        required=True, help="Path to gene panel transcripts file")
     parser.add_argument("--phenotypes", action="store", dest="phenotypesPath",
-                        required=False, default=None,
-                        help="Path to gene panel phenotypes file")
+                        required=True, help="Path to gene panel phenotypes file")
     parser.add_argument("--config", action="store", dest="configPath",
                         required=False, default=None,
                         help="Path to gene panel config file")
