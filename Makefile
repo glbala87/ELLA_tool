@@ -373,13 +373,13 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 
 	docker exec $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
 
-	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
-
 	@echo "Saving testdata from container $(E2E_APP_CONTAINER) to image $(E2E_TEST_RESULT_IMAGE)"
 	docker commit  --message "Image with Postgres DB populated through e2e tests" \
 	$(E2E_APP_CONTAINER) $(E2E_TEST_RESULT_IMAGE)
 
+	@echo "Stopping/removing container"
 	docker stop $(E2E_APP_CONTAINER)
+	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
 	docker rm $(E2E_APP_CONTAINER)
 
 e2e-stop-chromebox:
