@@ -382,29 +382,6 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 	docker stop $(E2E_APP_CONTAINER)
 	docker rm $(E2E_APP_CONTAINER)
 
-
-e2e-remove-report-container:
-	-docker stop $(REPORT_CONTAINER)
-	-docker rm $(REPORT_CONTAINER)
-	-docker rmi $(E2E_TEST_RESULT_IMAGE)
-
-# Export variants from a container whose DB has been populated by running an e2e test.
-report-classifications:
-	docker run -d --name $(REPORT_CONTAINER) \
-	  --hostname report \
-	  -v $(shell pwd):/ella \
-	  -e PYTHONPATH=/ella/src \
-	  -e PGDATA=/data \
-	  -e DB_URL=postgresql:///postgres \
-	  --entrypoint=""  $(E2E_TEST_RESULT_IMAGE) \
-	  supervisord -c /ella/ops/test/supervisor-export.cfg
-
-	docker exec $(REPORT_CONTAINER) ops/test/run_report_classifications_tests.sh
-
-#	@docker stop $(REPORT_CONTAINER)
-#	@docker rm $(REPORT_CONTAINER)
-
-
 e2e-stop-chromebox:
 	-docker stop $(CHROMEBOX_CONTAINER)
 	-docker rm $(CHROMEBOX_CONTAINER)
@@ -446,3 +423,29 @@ run-wdio-local:
 	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
 
+#---------------------------------------------
+# TESTING of reports (trigged outside container)
+#---------------------------------------------
+.PHONY: test-classifications-report e2e-remove-report-container
+
+e2e-remove-report-container:
+	-docker stop $(REPORT_CONTAINER)
+	-docker rm $(REPORT_CONTAINER)
+	-docker rmi $(E2E_TEST_RESULT_IMAGE)
+
+
+# Export variants from a container whose DB has been populated by running an e2e test.
+test-classifications-report:
+	docker run -d --name $(REPORT_CONTAINER) \
+	  --hostname report \
+	  -v $(shell pwd):/ella \
+	  -e PYTHONPATH=/ella/src \
+	  -e PGDATA=/data \
+	  -e DB_URL=postgresql:///postgres \
+	  --entrypoint=""  $(E2E_TEST_RESULT_IMAGE) \
+	  supervisord -c /ella/ops/test/supervisor-export.cfg
+
+	docker exec $(REPORT_CONTAINER) ops/test/run_report_classifications_tests.sh
+
+	@docker stop $(REPORT_CONTAINER)
+	@docker rm $(REPORT_CONTAINER)

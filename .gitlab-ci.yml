@@ -83,7 +83,7 @@ test_e2e:
 test-reports:
   stage: reports
   script:
-    - make report-classifications
+    - make test-classifications-report
 
 
 cleanup_docker:
