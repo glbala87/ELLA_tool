@@ -122,21 +122,22 @@ wysiwyg-editor:not([disabled]) > .wysiwygeditor {
   display: inline-table;
 }
 
+.acmg-selection .wysiwygbuttons {  display: none;}
 .wysiwygbuttons[hidden] { display: none; }
 
 .wysiwygbutton {
-  background-color: $black-05;
-  color: $black-50;
-  height: 2.5rem;
-  width: 2.5rem;
-  padding: 0px 0px;
-  margin: 0px 0px;
+  background-color: $black-05 !important;
+  color: $black-50 !important;
+  height: 2.5rem !important;
+  width: 2.5rem !important;
+  padding: 0px 0px !important;
+  margin: 0px 0px !important;
   float: left;
   box-shadow: none;
   &:hover {
-    border: 1px solid $black-25;
-    border-bottom:0;
-    border-radius: 2px;}
+    border: 1px solid $black-25 !important;
+    border-bottom:0 !important;
+    border-radius: 2px !important;}
 }
 
 #wysiwyg-src, #wysiwyg-monospace, #wysiwyg-highlightcolor, #wysiwyg-paragraph, #wysiwyg-link {border-right: 1px solid $black-25}
