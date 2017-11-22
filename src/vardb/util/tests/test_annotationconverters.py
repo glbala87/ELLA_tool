@@ -184,7 +184,8 @@ class TestTranscriptAnnotation():
                 'CSQ': [
                     {
                         'Feature_type': 'Transcript',
-                        'HGVSc': hgvsc
+                        'HGVSc': hgvsc,
+                        'Feature': 'NM_SOMETHING'
                     }
                 ]
             }
@@ -214,6 +215,7 @@ class TestTranscriptAnnotation():
                 'CSQ': [
                     {
                         'Feature_type': 'Transcript',
+                        'Feature': 'NM_SOMETHING'
                     }
                 ]
             }
@@ -235,11 +237,15 @@ class TestTranscriptAnnotation():
                     'Feature_type': 'Transcript'
                 },
                 {
-                    'Feature': 'ENS123456',
+                    'Feature': 'ENST123456',
                     'Feature_type': 'Transcript'
                 },
                 {
                     'Feature': 'NM_000091.2',
+                    'Feature_type': 'Transcript'
+                },
+                {
+                    'Feature': 'NOT_NM_OR_ENST__I_WILL_BE_FILTERED',
                     'Feature_type': 'Transcript'
                 },
                 {
@@ -251,7 +257,8 @@ class TestTranscriptAnnotation():
 
         transcripts = annotationconverters.convert_csq(data)
 
+        # Only NM_ or ENST transcripts are included.
         assert len(transcripts) == 3
         assert transcripts[0]['transcript'] == 'NM_000090.3'
-        assert transcripts[1]['transcript'] == 'ENS123456'
+        assert transcripts[1]['transcript'] == 'ENST123456'
         assert transcripts[2]['transcript'] == 'NM_000091.2'
