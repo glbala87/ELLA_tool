@@ -37,7 +37,8 @@ var BUNDLED_APP = 'app.js'; // see gulp file
 
 exports.config = {
 
-    debug: debug,
+    // debug: true causes a [DEP0062] DeprecationWarning
+    // debug: debug,
 
     //
     // ==================
