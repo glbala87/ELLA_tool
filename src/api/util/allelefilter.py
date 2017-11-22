@@ -513,7 +513,8 @@ class AlleleFilter(object):
 
             # Get the indices of utr_consequences from our original list,
             # and filter out all allele_ids which has matching index value in 'worst_consequence_ord'
-            utr_consequences_idx = [consequences_ordered.index(c) for c in utr_consequences]
+            # SQL table is 1-indexed, so add one.
+            utr_consequences_idx = [consequences_ordered.index(c) + 1 for c in utr_consequences]
             filtered_allele_ids = self.session.query(
                 allele_id_worst_consequence.c.allele_id
             ).filter(
