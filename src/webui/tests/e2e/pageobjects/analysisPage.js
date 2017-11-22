@@ -1,5 +1,7 @@
 var Page = require('./page')
 
+const SELECTOR_COMMENT_ACMG = 'acmg wysiwyg-editor.id-comment-acmg  div.wysiwygeditor';
+
 class AnalysisPage extends Page {
 
     get title() { return browser.element('.id-workflow-instance').getText(); }
@@ -10,6 +12,9 @@ class AnalysisPage extends Page {
     get startButton() { return browser.element('.id-start-analysis'); }
     get saveButton() { return browser.element('.id-start-analysis'); }
     get reopenButton() { return browser.element('.id-start-analysis'); }
+
+    // acmg modal to choose code:
+    get acmgComment() { return browser.element(SELECTOR_COMMENT_ACMG)}
 
     // buttons in modal
     get markReviewButton() { return browser.element('.id-mark-review'); }
@@ -80,7 +85,10 @@ class AnalysisPage extends Page {
         browser.element('.popover').click(`h4.acmg-title=${code}`);
 
         // Set staged code comment
-        browser.element('.acmg-selection .id-staged-acmg-code textarea').setValue(comment);
+        browser.debug();
+        this.acmgComment.setValue(comment);
+        browser.debug();
+        // browser.element('.acmg-selection .id-staged-acmg-code textarea').setValue(comment);
 
         // Adjust staged code up or down
         let adjust_down = adjust_levels < 0;
