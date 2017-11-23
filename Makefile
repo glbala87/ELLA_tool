@@ -401,25 +401,19 @@ e2e-network-check:
 # LOCAL END-2-END TESTING - locally using visible host browser
 #                           with webdriverio REPL for debugging
 #---------------------------------------------
-.PHONY: e2e-test-local run-wdio-local e2e-start-ella e2e-run-continous e2e-gulp-continous
+.PHONY: e2e-test-local run-wdio-local e2e-gulp-continous
 
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
-	docker run --name ella-e2e-local -it -v $(shell pwd):/ella \
-	-p 5000:5000 -p 5859:5859 \
-	$(NAME_OF_GENERATED_IMAGE) /bin/bash -c "make e2e-run-continous; echo \"Run 'make run-wdio-local' to run e2e tests\"; /bin/bash"
-
-e2e-start-ella:
-	supervisord -c /ella/ops/test/supervisor-e2e.cfg
-	make dbsleep
-
-e2e-run-continous: e2e-start-ella e2e-gulp-continous
-
-e2e-gulp-continous:
-	rm -f /ella/node_modules
-	ln -s /dist/node_modules/ /ella/node_modules
-        # we want gulp to run continously, watching for file changes:
-	supervisorctl -c /ella/ops/test/supervisor-e2e.cfg start gulp
+	docker run -d --name ella-e2e-local -it -v $(shell pwd):/ella \
+	   -p 5000:5000 -p 5859:5859 \
+	   $(NAME_OF_GENERATED_IMAGE) \
+	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
+	docker exec ella-e2e-local make dbsleep
+	@docker exec -it ella-e2e-local \
+	   /bin/sh -c "echo \"Run  'make run-wdio-local' to run e2e tests.\n\" \
+	               echo \"Like: make run-wdio-local APP_BASE_URL=..:5000 CHROME_HOST=.. WDIO_OPTIONS='--spec src/webui/tests/e2e/tests/finalize.js\"; \
+	              /bin/bash"
 
 run-wdio-local:
 	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js

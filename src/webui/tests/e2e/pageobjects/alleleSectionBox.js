@@ -273,7 +273,7 @@ class AlleleSectionBox  {
     }
 
     getAcmgComment(idx) {
-        return browser.getValue(`.id-acmg-included acmg:nth-child(${idx}) textarea`)
+        return browser.getText(`.id-acmg-included acmg:nth-child(${idx})  wysiwyg-editor div.wysiwygeditor`)
     }
 }
 

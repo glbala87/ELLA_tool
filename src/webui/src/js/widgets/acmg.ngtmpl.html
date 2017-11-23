@@ -44,11 +44,9 @@
     </aside>
   </div>
   <section class="acmg-lower" ng-if="vm.commentModel != undefined">
-    <autosize-textarea class="right-item commentbox"
-                       placeholder="{{vm.getPlaceholder()}}"
-                       type="text"
-                       ng-model="vm.commentModel"
+      <wysiwyg-editor class="right-item commentbox id-comment-acmg"
                        ng-disabled="!vm.isEditable() || vm.readOnly"
-    ></autosize-textarea>
+                       placeholder="{{vm.getPlaceholder()}}"
+                       ng-model="vm.commentModel"></wysiwyg-editor>
   </section>
 </div>
