@@ -37,7 +37,7 @@ class AnnotationShadowFrequency(Base):
 
 # HACK: Done this way for integration testing purposes, where we want
 # the possibility to redefine the columns globally according to a test config.
-# This function lets you override the columns in this modules
+# This function lets you override the columns in this module's
 # AnnotationShadowFrequency instance.
 # See create_shadow_tables().
 def update_annotation_shadow_columns(config):
@@ -46,7 +46,7 @@ def update_annotation_shadow_columns(config):
         freq_column_name = freq_provider + '.' + freq_key
         freq_num_column_name = freq_provider + '_num.' + freq_key
 
-        # Add frequency itself
+        # Add frequency
         if not hasattr(AnnotationShadowFrequency, freq_column_name):
             setattr(AnnotationShadowFrequency, freq_column_name, Column(Float, index=True))
 
@@ -60,6 +60,9 @@ update_annotation_shadow_columns(global_config)
 
 
 def create_trigger_sql(config):
+    """
+    :warning: Not SQL injection safe, do not provide user input.
+    """
     freq_insert_into = []
     freq_values = []
     for freq_provider, freq_key in iter_freq_groups(config):
