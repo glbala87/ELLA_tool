@@ -45,8 +45,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         let referenceList = customAnnotationModal.referenceList();
         const beforeCount = referenceList ? referenceList.value.length : 0;
         customAnnotationModal.pubMedBtn.click();
-        customAnnotationModal.xmlInput.click();
-        customAnnotationModal.xmlInputEditor.setValue(XML_PUBMED);
+        customAnnotationModal.setText(customAnnotationModal.xmlInputEditor, XML_PUBMED);
         customAnnotationModal.addReferenceBtn.click();
         const afterCount = customAnnotationModal.referenceList().value.length;
         expect(afterCount).toEqual(beforeCount + 1);

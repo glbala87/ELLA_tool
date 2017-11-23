@@ -244,16 +244,46 @@ To explore the e2e test data, start a local Ella instance and import the e2e tes
 
 
 ## Local usage, REPL and debugging
-- Download and install chromedriver and Chrome/Chromium.
-- Run `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local machine.
+This requires careful fiddling and compatible versions of Chrome and Chromedriver.
+
+The following must be installed and/or running:
+- Chrome
+- Chromedriver
+- ELLA
+
+Then we run the tests by calling 'wdio'. This will bring up Chrome and you'll see browser activity like clicking
+and text inputting.
+
+The ELLA app and the test execution (wdio) can be done either locally on your host machine or inside Docker.
+
+
+
+### Common
+- Start chromedriver: `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local host.
+
+### Run tests inside Docker
+This requires careful configuration of ports and url
+
 - Run `make e2e-test-local`. You'll be presented with a shell inside the container.
-- Run `make wdio APP_BASE_URL=.. CHROME_HOST=..` inside the shell to start the tests. It will connect to the locally running chromedriver (given by CHROME_HOST as IP address) and test the app that runs on APP_BASE_URL (ip:port).
-  To run only a specific test, add WDIO_OPTIONS='--spec <path to test>'
+- Run `make wdio APP_BASE_URL=.. CHROME_HOST=..` inside the shell to start the tests. It will connect to
+  the locally running Chromedriver (given by CHROME_HOST as IP address) and test the app that runs on APP_BASE_URL (ip:port).
+  To run only a specific test, add WDIO_OPTIONS='--spec <path to test>' or change the spec variable in wdio.conf.js.
+
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
-To install chromedriver:
+### Run tests on local host
+- Start ELLA (typically `make dev`)
+- Start tests: DEBUG=true node node_modules/.bin/wdio src/webui/tests/e2e/wdio.conf.js --path / --baseUrl localhost:8001
+
+Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
+
+### Installing
+
+Chromedriver:
 - brew info chromedriver
 - or https://sites.google.com/a/chromium.org/chromedriver/downloads
+
+### Misc
 
 Best way to get and test selectors in Chrome is to use the `CSS Selector Helper for Chrome` extension.
 Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools to test your selector.
