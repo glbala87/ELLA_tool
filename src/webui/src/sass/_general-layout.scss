@@ -716,6 +716,10 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   overflow-y: auto;
   z-index: 1000;
   width: 100%;
+
+  .selector-optgroup {
+    display: none !important; // Groups in selector are badly broken
+  }
 }
 .selector-dropdown>li {
   padding: 0.2em 0.7em;

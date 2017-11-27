@@ -29,7 +29,8 @@
               </script>
               <select selector
                       model="vm.query.genepanel"
-                      options="vm.genepanels"
+                      options="vm.options.genepanel"
+                      remote="vm.updateGenepanelOptions(search)"
                       placeholder="choose genepanel"
                       view-item-template="'genepanelTemplate'"
                       dropdown-item-template="'genepanelTemplate'"
@@ -50,10 +51,12 @@
             <div class="dropdown white search-option">
               <select selector
                       model="vm.query.gene"
-                      options="vm.genes"
+                      debounce="250"
+                      label-attr="symbol"
+                      options="vm.options.gene"
+                      remote="vm.updateGeneOptions(search)"
                       placeholder="choose gene"
                       disable-search="false"
-                      remove-button="true"
               >
               </select>
             </div>
@@ -68,17 +71,16 @@
           <div class="right bttn-set">
             <div class="dropdown white search-option">
               <script type="text/ng-template" id="userTemplate">
-                {{option.full_name}}
+                {{option.first_name}} {{option.last_name}}
               </script>
               <select selector
                       model="vm.query.user"
-                      options="vm.users"
+                      options="vm.options.user"
                       placeholder="choose user"
+                      remote="vm.updateUserOptions(search)"
                       view-item-template="'userTemplate'"
                       dropdown-item-template="'userTemplate'"
-                      group-attr="'undefined'"
                       disable-search="false"
-                      remove-button="true"
               >
               </select>
             </div>

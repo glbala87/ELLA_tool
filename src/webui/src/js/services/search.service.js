@@ -22,20 +22,8 @@ export class SearchService {
     }
 
     search(query) {
-        this.model.query = this._formatSearchQuery(query);
+        this.model.query = query;
         this.updateSearch();
-    }
-
-    _formatSearchQuery(query) {
-        let _query = deepCopy(query)
-        if (_query.genepanel) {
-            _query.genepanel = [_query.genepanel.name, _query.genepanel.version];
-        }
-        if (_query.user) {
-            _query.user = _query.user.id;
-        }
-        return _query
-
     }
 
     _isValidSearch() {
