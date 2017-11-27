@@ -292,6 +292,7 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
         genepanel_transcripts.c.version.label('version'),
         AnnotationShadowTranscript.transcript.label('annotation_transcript'),
         AnnotationShadowTranscript.symbol.label('annotation_symbol'),
+        AnnotationShadowTranscript.hgnc_id.label('annotation_hgnc_id'),
         AnnotationShadowTranscript.hgvsc.label('annotation_hgvsc'),
         AnnotationShadowTranscript.hgvsp.label('annotation_hgvsp'),
         genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
