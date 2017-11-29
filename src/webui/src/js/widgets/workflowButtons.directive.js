@@ -133,7 +133,9 @@ export class WorkflowButtonsController {
                     this.location.path('/overview');
                 }
             }).catch((error) => {
-                this.toastr.error("Finish not allowed: " + error.data)
+                if (error.data) {
+                    this.toastr.error("Finish not allowed: " + error.data)
+                }
             })
         }).catch((error) => {
             this.toastr.error("Finish not allowed: " + error.data)

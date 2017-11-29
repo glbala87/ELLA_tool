@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from vardb.datamodel import sample, genotype, allele, gene
 
 from api import schemas, ApiError
-from api.util.util import rest_filter, link_filter, authenticate
+from api.util.util import rest_filter, link_filter, authenticate, logger
 
 from api.util.alleledataloader import AlleleDataLoader
 
@@ -127,3 +127,38 @@ class AlleleGenepanelListResource(LogRequestResource):
         ).all()
 
         return schemas.GenepanelFullSchema(strict=True).dump(genepanels, many=True).data
+
+
+class AlleleAnalysisListResource(LogRequestResource):
+
+    @authenticate()
+    @logger(hide_response=False)  # Important! We want to log response for auditing.
+    def get(self, session, allele_id, user=None):
+        """
+        Returns a list of analyses associated with provided allele_id.
+        ---
+        summary: List analyses for one allele
+        tags:
+          - Allele
+        parameters:
+          - name: allele_id
+            in: path
+            type: string
+            description: Allele id
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Analysis'
+            description: List of analyses
+        """
+        analyses = session.query(sample.Analysis).join(
+            genotype.Genotype.alleles,
+            sample.Sample,
+            sample.Analysis
+        ).filter(
+            allele.Allele.id == allele_id
+        ).all()
+
+        return schemas.AnalysisFullSchema(strict=True).dump(analyses, many=True).data

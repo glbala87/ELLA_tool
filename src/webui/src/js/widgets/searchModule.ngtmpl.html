@@ -108,6 +108,7 @@
               <div class="element-item" ng-click="vm.openAllele(allele)">
                 <h4 ng-repeat="t in allele.annotation.filtered"><i>{{t.symbol}}</i> <b>{{t.HGVSc_short}}</b></h4>
                 <h4 ng-if="allele.allele_assessment">... class {{allele.allele_assessment.classification}} made on {{allele.allele_assessment.date_created | date:'yyyy-MM-dd'}} by {{allele.allele_assessment.user.abbrev_name}} for {{allele.allele_assessment.genepanel_name}}_{{allele.allele_assessment.genepanel_version}}</h4>
+                <button ng-click="vm.showAnalysesForAllele(allele); $event.preventDefault();">Show analyses</button>
               </div>
             </a>
           </div>

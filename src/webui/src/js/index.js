@@ -15,6 +15,7 @@ import "./modals/customAnnotationModal.service";
 import "./modals/annotateVCFFileModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
+import "./modals/showAnalysesForAlleleModal.service";
 import "./modals/igvModal.service";
 import './services/resources/acmgClassificationResource.service';
 import './services/resources/alleleResource.service';

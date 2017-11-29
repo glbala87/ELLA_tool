@@ -2,6 +2,7 @@
 
 import {Service, Inject} from '../../ng-decorators';
 import {Allele} from '../../model/allele';
+import Analysis from '../../model/analysis';
 
 /**
  * Collect the id of same entity types into an array, one array for each type.
@@ -73,6 +74,15 @@ export class AlleleResource {
             let GenepanelRS = this.resource(`${this.base}/alleles/:id/genepanels/`, {id: allele_id});
             let genepanels = GenepanelRS.query(() => {
                 resolve(genepanels);
+            }, reject);
+        });
+    }
+
+    getAnalyses(allele_id) {
+        return new Promise((resolve, reject) => {
+            let AnalysesRS = this.resource(`${this.base}/alleles/:id/analyses/`, {id: allele_id});
+            let analyses = AnalysesRS.query(() => {
+                resolve(analyses.map(a => new Analysis(a)));
             }, reject);
         });
     }

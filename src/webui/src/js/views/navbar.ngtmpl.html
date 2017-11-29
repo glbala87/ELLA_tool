@@ -13,7 +13,7 @@
 
   <section ng-repeat="item in vm.getItems()">
     <div ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" >
-      <a href="{{item.url}}"><h3 class="full-title id-workflow-instance"><b>{{item.title}}</b></h3></a>
+      <h3 class="full-title id-workflow-instance"><b>{{item.title}}</b></h3>
     </div>
   </section>
 
