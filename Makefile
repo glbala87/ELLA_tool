@@ -127,7 +127,7 @@ start-bundle-container:
 		sleep infinity
 
 tar-web-build:
-	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp_build
+	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp
 	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
 	@echo "Bundled static web files in $(WEB_BUNDLE)"
 
