@@ -345,6 +345,32 @@ def get_categorized_analyses(session, user=None):
     return final_analyses
 
 
+def filter_result_of_alleles(session, allele_ids):
+
+    # Get a list of candidate genepanels per allele id
+    allele_ids_genepanels = session.query(
+        workflow.AnalysisInterpretation.genepanel_name,
+        workflow.AnalysisInterpretation.genepanel_version,
+        allele.Allele.id
+    ).join(
+        genotype.Genotype.alleles,
+        sample.Sample,
+        sample.Analysis
+    ).filter(
+        workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
+        allele.Allele.id.in_(allele_ids)
+    ).all()
+
+    # Make a dict of (gp_name, gp_version): [allele_ids] for use with AlleleFilter
+    gp_allele_ids = defaultdict(list)
+    for entry in allele_ids_genepanels:
+        gp_allele_ids[(entry[0], entry[1])].append(entry[2])
+
+    # Filter out alleles
+    af = AlleleFilter(session)
+    return af.filter_alleles(gp_allele_ids) # gp_key => {allele ids distributed by filter status}
+
+
 def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
 
     # Get all (analysis_id, allele_id) combinations for input analyses.
