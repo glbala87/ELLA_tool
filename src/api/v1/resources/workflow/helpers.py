@@ -479,8 +479,6 @@ def get_genepanels(session, allele_ids, user=None):
     Get all genepanels overlapping the transcripts of the provided allele_ids.
 
     Is user is provided, the genepanels are restricted to the user group's panels.
-
-    Returned gene panels are sorted with recently used panels on top.
     """
     if user:
         gp_keys = [(g.name, g.version) for g in user.group.genepanels]
@@ -504,7 +502,6 @@ def get_genepanels(session, allele_ids, user=None):
     # TODO: Sort by previously used interpretations
 
     result = [{'name': g[0], 'version': g[1]} for g in candidate_genepanels]
-    print candidate_genepanels
     return result
 
 
