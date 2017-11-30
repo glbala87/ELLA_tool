@@ -212,6 +212,13 @@ class InterpretationService {
         }
     }
 
+    setGenepanelOptions(genepanel_options) {
+        this.genepanel_options = genepanel_options;
+        if (!genepanel_options.includes(this.genepanel_options_selected)) {
+            this.genepanel_options_selected = genepanel_options[0];
+        }
+    }
+
     loadGenepanel() {
         this.isViewReady = false; // Reloading genepanel should trigger a redraw of the full view
         let interpretation = this.getSelected();

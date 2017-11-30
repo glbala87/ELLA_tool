@@ -102,16 +102,23 @@
 
         <h4 ng-if="vm.getResults().alleles.length" class="section-header">Variants</h4>
         <section ng-if="vm.getResults().alleles.length">
-          <div class="element" ng-repeat="item in vm.getResults().alleles">
-            <h3 class="element-title"><b>{{item.name}} {{item.version}}</b></h3>
-            <a href="{{vm.getAlleleUrl(item.name, item.version, allele)}}" ng-repeat="allele in item.alleles">
-              <div class="element-item" ng-click="vm.openAllele(allele)">
-                <h4 ng-repeat="t in allele.annotation.filtered"><i>{{t.symbol}}</i> <b>{{t.HGVSc_short}}</b></h4>
-                <h4 ng-if="allele.allele_assessment">... class {{allele.allele_assessment.classification}} made on {{allele.allele_assessment.date_created | date:'yyyy-MM-dd'}} by {{allele.allele_assessment.user.abbrev_name}} for {{allele.allele_assessment.genepanel_name}}_{{allele.allele_assessment.genepanel_version}}</h4>
-                <button ng-click="vm.showAnalysesForAllele(allele); $event.preventDefault();">Show analyses</button>
+          <article class="sectionbox-content allele-list">
+            <a class="id-variant list-item clickable"
+             href="{{vm.getAlleleUrl(allele)}}"
+             ng-repeat="allele in vm.getResults().alleles">
+              <div class="full-title">
+                  <span ng-repeat="t in allele.annotation.filtered">
+                    <span style="text-transform: uppercase; color: #aaa;"> </span>
+                    <b>{{t.symbol}} {{t.HGVSc}}</b>
+                  </span>
+                  <span style="padding-left: 3em;" ng-if="allele.allele_assessment">Class {{allele.allele_assessment.classification}} made on {{allele.allele_assessment.date_created | date:'yyyy-MM-dd'}} by {{allele.allele_assessment.user.abbrev_name}} for {{allele.allele_assessment.genepanel_name}}_{{allele.allele_assessment.genepanel_version}}</span>
+                </div>
+                <div class="allele-extras">
+                  <button class="blue" ng-click="vm.showAnalysesForAllele(allele); $event.preventDefault();">Show analyses</button>
+
               </div>
             </a>
-          </div>
+          </article>
         </section>
 
 

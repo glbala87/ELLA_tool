@@ -23,13 +23,7 @@ class SearchResource {
                 }
             });
             var result = r.get(function () {
-                for (let item of result.alleles) {
-                    let alleles = [];
-                    for (let a of item.alleles) {
-                        alleles.push(new Allele(a));
-                    }
-                    item.alleles = alleles;
-                }
+                result.alleles = result.alleles.map(a => new Allele(a));
 
                 let analyses = [];
                 for (let a of result.analyses) {

@@ -168,6 +168,15 @@ class WorkflowResource {
         })
     }
 
+    getGenepanels(type, id) {
+        return new Promise((resolve, reject) => {
+            var CollistionRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/genepanels/`);
+            var data = CollistionRS.query(() => {
+                resolve(data);
+            }, reject);
+        });
+    }
+
 
     /**
      * Returns information about alleles that are currently being interpreted in
