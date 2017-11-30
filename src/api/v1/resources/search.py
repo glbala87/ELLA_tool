@@ -374,12 +374,28 @@ class SearchResource(LogRequestResource):
 
         return genepanel_allele_ids
 
-    def _filter_transcripts_query(self, alleles, query):
+    def _filter_transcripts_query(self, session, alleles, genepanels, query):
+        allele_ids = [a['id'] for a in alleles]
+
+        genepanel_transcripts = alleles_transcript_filtered_genepanel(
+            session,
+            allele_ids,
+            [(gp.name, gp.version) for gp in genepanels],
+            None
+        ).subquery()
+
+        allele_ids_transcripts = session.query(
+            genepanel_transcripts.c.allele_id,
+            genepanel_transcripts.c.annotation_transcript
+        ).all()
 
         freetext = query.get('freetext')
         gene = query.get('gene')
         for al in alleles:
-            filtered_transcripts = al['annotation']['transcripts']
+            filtered_transcripts = list()
+            for transcript in al['annotation']['transcripts']:
+                if next((at for at in allele_ids_transcripts if at[0] == al['id'] and at[1] == transcript['transcript']), None):
+                    filtered_transcripts.append(transcript)
             if freetext:
                 filtered_transcripts = [t for t in filtered_transcripts if freetext in t.get('HGVSc', '') or freetext in t.get('HGVSp', '')]
             if gene:
@@ -400,7 +416,7 @@ class SearchResource(LogRequestResource):
             include_annotation=True,
             include_reference_assessments=False
         )
-        self._filter_transcripts_query(allele_data, query)
+        self._filter_transcripts_query(session, allele_data, genepanels, query)
         return allele_data
 
     def _search_and_filter_alleles(self, session, query, genepanels):
@@ -459,7 +475,7 @@ class SearchResource(LogRequestResource):
             include_reference_assessments=False
         )
 
-        self._filter_transcripts_query(allele_data, query)
+        self._filter_transcripts_query(session, allele_data, genepanels, query)
         return allele_data
 
     def _search_analysis(self, session, query, genepanels):
