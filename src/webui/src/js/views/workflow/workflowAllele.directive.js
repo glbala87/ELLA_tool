@@ -250,14 +250,17 @@ export class WorkflowAlleleController {
 
     setupNavbar() {
         if (this.getAlleles() && this.getAlleles().length) {
-            let label = `${this.genepanelName} ${this.genepanelVersion}`;
-            this.navbar.replaceItems([
-                {
-                    title: label,
-                }
-            ])
+            let genepanel = this.getGenepanel()
+            if (genepanel) {
+                let label = `${genepanel.name} ${genepanel.version}`;
+                this.navbar.replaceItems([
+                    {
+                        title: label,
+                    }
+                ])
 
-            this.navbar.setAllele(this.getAlleles()[0], this.getGenepanel());
+                this.navbar.setAllele(this.getAlleles()[0], this.getGenepanel());
+            }
         }
     }
 
@@ -303,8 +306,15 @@ export class WorkflowAlleleController {
 
     loadGenepanelOptions() {
         return this.workflowResource.getGenepanels('allele', this.allele_id).then(genepanels => {
-            this.genepanelOptions = genepanels;
-            this.interpretationService.setGenepanelOptions(genepanels)
+            // If manally given, don't set options.
+            if (this.genepanelName && this.genepanelVersion) {
+                this.genepanelOptions = [];
+                this.interpretationService.setGenepanelOptions([])
+            }
+            else {
+                this.genepanelOptions = genepanels;
+                this.interpretationService.setGenepanelOptions(genepanels)
+            }
         })
     }
 
