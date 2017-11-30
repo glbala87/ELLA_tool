@@ -159,6 +159,9 @@ class ApiV1(object):
         # Workflow variant
         # ---------------------------------------------------------------------------------------------------------
 
+        self._add_resource(r.workflow.allele.AlleleGenepanelsListResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/genepanels/')
+
         self._add_resource(r.workflow.allele.AlleleInterpretationListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/interpretations/')
 

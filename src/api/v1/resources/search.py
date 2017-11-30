@@ -374,44 +374,18 @@ class SearchResource(LogRequestResource):
 
         return genepanel_allele_ids
 
-    def _alleles_by_genepanel(self, session, alleles, genepanels):
-        """
-        Structures the alleles according the the genepanel(s)
-        they belong to, and filters the transcripts
-        (sets allele.annotation.filtered to genepanel transcripts)
+    def _filter_transcripts_query(self, alleles, query):
 
-        Alleles must already be dumped using AlleleDataLoader.
-        """
-        allele_ids = [a['id'] for a in alleles]
+        freetext = query.get('freetext')
+        gene = query.get('gene')
+        for al in alleles:
+            filtered_transcripts = al['annotation']['transcripts']
+            if freetext:
+                filtered_transcripts = [t for t in filtered_transcripts if freetext in t.get('HGVSc', '') or freetext in t.get('HGVSp', '')]
+            if gene:
+                filtered_transcripts = [t for t in filtered_transcripts if t['symbol'] == gene]
 
-        genepanel_allele_ids = self._get_genepanel_allele_ids(session, allele_ids, genepanels)
-
-
-        # Iterate, filter transcripts and add to final data
-        alleles_by_genepanel = list()
-        for gp_name, gp_version, allele_id in genepanel_allele_ids:
-            al = next(a for a in alleles if a['id'] == allele_id)
-            genepanel = next(gp for gp in genepanels if gp.name == gp_name and gp.version == gp_version)
-
-            transcripts = [t['transcript'] for t in al['annotation']['transcripts']]
-            al['annotation']['filtered_transcripts'] = TranscriptAnnotation.get_genepanel_transcripts(
-                transcripts,
-                genepanel
-            )
-
-            # Add allele to genepanel -> allele list
-            item = next((a for a in alleles_by_genepanel if a['name'] == gp_name and a['version'] == gp_version), None)
-            if item is None:
-                item = {
-                    'name': gp_name,
-                    'version': gp_version,
-                    'alleles': list()
-                }
-                alleles_by_genepanel.append(item)
-
-            item['alleles'].append(al)
-
-        return alleles_by_genepanel
+            al['annotation']['filtered_transcripts'] = [t['transcript'] for t in filtered_transcripts]
 
     def _search_allele(self, session, query, genepanels):
         alleles = session.query(allele.Allele).filter(
@@ -426,10 +400,8 @@ class SearchResource(LogRequestResource):
             include_annotation=True,
             include_reference_assessments=False
         )
-
-        genepanel_alleles = self._alleles_by_genepanel(session, allele_data, genepanels)
-
-        return genepanel_alleles
+        self._filter_transcripts_query(allele_data, query)
+        return allele_data
 
     def _search_and_filter_alleles(self, session, query, genepanels):
         allele_ids = session.query(allele.Allele.id).filter(
@@ -487,9 +459,8 @@ class SearchResource(LogRequestResource):
             include_reference_assessments=False
         )
 
-        alleles_by_genepanel = self._alleles_by_genepanel(session, allele_data, genepanels)
-
-        return alleles_by_genepanel
+        self._filter_transcripts_query(allele_data, query)
+        return allele_data
 
     def _search_analysis(self, session, query, genepanels):
             analyses = session.query(sample.Analysis).filter(
