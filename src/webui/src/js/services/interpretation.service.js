@@ -87,6 +87,10 @@ class InterpretationService {
         this.id = null;
         this.genepanel_name = null;
         this.genepanel_version = null
+        //
+        // this.genepanel_options = null;
+        // this.genepanel_options_selected = null;
+
 
         this.analysis = null;
 
@@ -213,8 +217,12 @@ class InterpretationService {
     }
 
     setGenepanelOptions(genepanel_options) {
+
         this.genepanel_options = genepanel_options;
-        if (!genepanel_options.includes(this.genepanel_options_selected)) {
+        if (!genepanel_options) {
+            this.genepanel_options_selected = null;
+        }
+        if (genepanel_options && !genepanel_options.includes(this.genepanel_options_selected)) {
             this.genepanel_options_selected = genepanel_options[0];
         }
     }
