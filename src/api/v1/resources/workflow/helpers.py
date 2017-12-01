@@ -501,7 +501,7 @@ def get_genepanels(session, allele_ids, user=None):
 
     # TODO: Sort by previously used interpretations
 
-    result = [{'name': g[0], 'version': g[1]} for g in candidate_genepanels]
+    result = schemas.GenepanelSchema().dump(candidate_genepanels, many=True)
     return result
 
 

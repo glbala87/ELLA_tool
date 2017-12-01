@@ -306,15 +306,8 @@ export class WorkflowAlleleController {
 
     loadGenepanelOptions() {
         return this.workflowResource.getGenepanels('allele', this.allele_id).then(genepanels => {
-            // If manally given, don't set options.
-            if (this.genepanelName && this.genepanelVersion) {
-                this.genepanelOptions = [];
-                this.interpretationService.setGenepanelOptions([])
-            }
-            else {
-                this.genepanelOptions = genepanels;
-                this.interpretationService.setGenepanelOptions(genepanels)
-            }
+            this.genepanelOptions = genepanels;
+            this.interpretationService.setGenepanelOptions(genepanels)
         })
     }
 

@@ -519,7 +519,7 @@ class AlleleGenepanelsListResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, allele_id, user=None):
-        return helpers.get_genepanels(session, [allele_id], user=user)
+        return helpers.get_genepanels(session, [allele_id], user=user).data
 
 
 class AlleleCollisionResource(LogRequestResource):

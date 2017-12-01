@@ -169,6 +169,9 @@ class WorkflowResource {
     }
 
     getGenepanels(type, id) {
+        if (type !== "allele") {
+            throw Error(`No way to fetch genepanels for type ${type}.`)
+        }
         return new Promise((resolve, reject) => {
             var CollistionRS = this.resource(`${this.base}/workflows/${this.types[type]}/${id}/genepanels/`);
             var data = CollistionRS.query(() => {
