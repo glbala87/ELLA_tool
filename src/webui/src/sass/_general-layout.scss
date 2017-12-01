@@ -384,7 +384,9 @@ nav.bottom {
   padding-left: 1.3rem;
   padding-top: 0.6rem;
   padding-bottom: 0.6rem;
-  section { margin-top: -0.05rem; display: flex; width: 100%; justify-content: flex-end;  height: $nav-bar-bottom-buttons-height; }
+  section { margin-top: -0.05rem; display: flex; width: 100%; justify-content: flex-end;  height: $nav-bar-bottom-buttons-height;
+    .dropdown { margin-left: 1.4rem; }
+  }
   article { display: flex; width: 100%; justify-content: space-between; height: $allelebar-row-height;  }
 }
 
@@ -432,7 +434,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 
 .search-module .ng-enter { animation: 1s fade-in; }
 .search-module { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
-  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; }
+  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; margin-top: 1rem; margin-bottom: 1rem; font-weight: 700; font-size: 1.25rem; }
   .element { margin: 1.3rem 0; margin-left: 2.3rem;
     &-title { @extend .full-title; margin-bottom: 0.7rem; color: $black-50; }
     &-item { @extend .line-wrapper; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25;

@@ -66,8 +66,8 @@ export class SearchModuleController {
         });
     }
 
-    getAlleleUrl(name, version, allele) {
-        return `/variants/${allele.genome_reference}/${allele.chromosome}-${allele.start_position}-${allele.open_end_position}-${allele.change_from}-${allele.change_to}?gp_name=${name}&gp_version=${version}`;
+    getAlleleUrl(allele) {
+        return `/variants/${allele.genome_reference}/${allele.chromosome}-${allele.start_position}-${allele.open_end_position}-${allele.change_from}-${allele.change_to}`;
     }
 
     showAnalysesForAllele(allele) {

@@ -73,7 +73,13 @@
         <button class="id-collapse-all"
                 ng-click="vm.collapseAll()">Collapse all
         </button>
-
+        <div class="dropdown white" ng-if="vm.getInterpretationType() === 'allele' && vm.interpretationService.genepanel_options && vm.getSelectedInterpretation().status != 'Ongoing'">
+            <select
+                class="id-genepanel-dropdown"
+                ng-options="i as i.name + '_' + i.version for i in vm.interpretationService.genepanel_options"
+                ng-model="vm.interpretationService.genepanel_options_selected">
+            </select>
+          </div>
         <workflow-buttons ng-if="vm.getInterpretationType() === 'allele'" start-when-reopen="true" readOnly="vm.readOnly"></workflow-buttons>
 
       </section>

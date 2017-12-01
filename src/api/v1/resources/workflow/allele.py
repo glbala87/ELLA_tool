@@ -515,7 +515,15 @@ class AlleleActionFinalizeResource(LogRequestResource):
         return result
 
 
+class AlleleGenepanelsListResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, allele_id, user=None):
+        return helpers.get_genepanels(session, [allele_id], user=user).data
+
+
 class AlleleCollisionResource(LogRequestResource):
+
     @authenticate()
     def get(self, session, allele_id, user=None):
         return helpers.get_workflow_allele_collisions(session, [allele_id], allele_id=allele_id)

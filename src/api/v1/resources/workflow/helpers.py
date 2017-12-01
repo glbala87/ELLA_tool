@@ -474,6 +474,37 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
     }
 
 
+def get_genepanels(session, allele_ids, user=None):
+    """
+    Get all genepanels overlapping the transcripts of the provided allele_ids.
+
+    Is user is provided, the genepanels are restricted to the user group's panels.
+    """
+    if user:
+        gp_keys = [(g.name, g.version) for g in user.group.genepanels]
+    else:
+        gp_keys = session.query(gene.Genepanel.name, gene.Genepanel.version).all()
+
+    alleles_genepanels = queries.alleles_transcript_filtered_genepanel(
+        session,
+        allele_ids,
+        gp_keys,
+        None
+    )
+    alleles_genepanels = alleles_genepanels.subquery()
+
+    candidate_genepanels = session.query(
+        alleles_genepanels.c.name,
+        alleles_genepanels.c.version
+    ).distinct().all()
+
+
+    # TODO: Sort by previously used interpretations
+
+    result = schemas.GenepanelSchema().dump(candidate_genepanels, many=True)
+    return result
+
+
 def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele_id=None):
     """
     Check for possible collisions in other allele or analysis workflows,

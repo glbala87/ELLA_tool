@@ -203,6 +203,10 @@ export class InterpretationController {
         return this.interpretationService.getAll()
     }
 
+    getGenepanelOptions() {
+        return this.interpretationService.genepanel_options
+    }
+
     /**
      * Called when interpretations state changes.
      * Updates AlleleSidebar and alleles to be included in report.

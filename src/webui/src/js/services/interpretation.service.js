@@ -203,12 +203,19 @@ class InterpretationService {
             return this.alleleService.getAlleles(this.id, null, this.genepanel_name, this.genepanel_version).then(a => {
                 return this.alleleService.updateACMG(a, this.genepanel_name, this.genepanel_version, []).then(
                     () => {
-                        if (setViewReady) this.isViewReady = true; // Reloading alleles should potentially trigger a redraw of the full view
                         this.alleles = a
+                        if (setViewReady) this.isViewReady = true; // Reloading alleles should potentially trigger a redraw of the full view
                         console.log("(Re)Loaded alleles directly...", this.alleles);
                     }
                 );
             });
+        }
+    }
+
+    setGenepanelOptions(genepanel_options) {
+        this.genepanel_options = genepanel_options;
+        if (!genepanel_options.includes(this.genepanel_options_selected)) {
+            this.genepanel_options_selected = genepanel_options[0];
         }
     }
 

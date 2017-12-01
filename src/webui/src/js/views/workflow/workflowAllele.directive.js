@@ -197,9 +197,27 @@ export class WorkflowAlleleController {
             () => this.setupNavbar()
         )
 
+        this.scope.$watch(
+            () => this.interpretationService.genepanel_options_selected,
+            () => {
+                if (this.interpretationService.genepanel_options_selected) {
+                    if (this.allele_id) {
+                        this.reloadInterpretationData()
+                    }
+                }
+            }
+        )
+
         this.loadAlleleId().then(() => {
             this.checkForCollisions();
-            this.reloadInterpretationData()
+            if (!this.genepanelName || !this.genepanelVersion) {
+                this.loadGenepanelOptions().then(() => {
+                    this.reloadInterpretationData();
+                })
+            }
+            else {
+                this.reloadInterpretationData()
+            }
 
         });
     }
@@ -232,14 +250,17 @@ export class WorkflowAlleleController {
 
     setupNavbar() {
         if (this.getAlleles() && this.getAlleles().length) {
-            let label = `${this.genepanelName} ${this.genepanelVersion}`;
-            this.navbar.replaceItems([
-                {
-                    title: label,
-                }
-            ])
+            let genepanel = this.getGenepanel()
+            if (genepanel) {
+                let label = `${genepanel.name} ${genepanel.version}`;
+                this.navbar.replaceItems([
+                    {
+                        title: label,
+                    }
+                ])
 
-            this.navbar.setAllele(this.getAlleles()[0], this.getGenepanel());
+                this.navbar.setAllele(this.getAlleles()[0], this.getGenepanel());
+            }
         }
     }
 
@@ -283,6 +304,13 @@ export class WorkflowAlleleController {
         return query;
     }
 
+    loadGenepanelOptions() {
+        return this.workflowResource.getGenepanels('allele', this.allele_id).then(genepanels => {
+            this.genepanelOptions = genepanels;
+            this.interpretationService.setGenepanelOptions(genepanels)
+        })
+    }
+
     checkForCollisions() {
         this.workflowResource.getCollisions('allele', this.allele_id).then(result => {
             if (result.length > 0) {
@@ -318,7 +346,22 @@ export class WorkflowAlleleController {
     // Trigger actions in interpretation service
     //
     reloadInterpretationData() {
-        return this.interpretationService.load("allele", this.allele_id, this.genepanelName, this.genepanelVersion)
+        let gp_name, gp_version;
+        if (this.genepanelName && this.genepanelVersion) {
+            gp_name = this.genepanelName
+            gp_version = this.genepanelVersion
+        }
+        else {
+            gp_name = this.interpretationService.genepanel_options_selected.name
+            gp_version = this.interpretationService.genepanel_options_selected.version
+        }
+        return this.interpretationService.load("allele", this.allele_id, gp_name, gp_version).then(() => {
+            // Options will have been reset
+            if ((!this.genepanelName || !this.genepanelVersion) &&
+                this.genepanelOptions) {
+                this.interpretationService.setGenepanelOptions(this.genepanelOptions)
+            }
+        })
     }
 
     //
