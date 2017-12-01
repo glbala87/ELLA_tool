@@ -31,11 +31,17 @@ import os
 import logging
 import json
 import shutil
-
+import argparse
+import time
+from vardb.datamodel import DB
 from vardb.deposit.deposit_analysis import DepositAnalysis
 
 log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+POLL_INTERVAL = 5
 
+watch_path_error = "Couldn't read from watch path {}, aborting..."
+dest_path_error = "Couldn't write to destination path {}, aborting..."
 
 class AnalysisWatcher(object):
 
@@ -43,13 +49,19 @@ class AnalysisWatcher(object):
         self.session = session
         self.watch_path = watch_path
         self.dest_path = dest_path
+        
+        if not self._check_watch_path_readable():
+          raise RuntimeError(watch_path_error.format(self.watch_path))
 
         if not self._check_dest_path_writable():
-            raise RuntimeError("Couldn't write to destination path {}, aborting...".format(self.dest_path))
+            raise RuntimeError(dest_path_error.format(self.dest_path))
+
+    def _check_watch_path_readable(self):
+        return os.access(self.watch_path, os.R_OK)
 
     def _check_dest_path_writable(self):
         return os.access(self.dest_path, os.W_OK)
-
+      
     def load_analysis_config(self, analysis_config_path):
         with open(analysis_config_path) as f:
             analysis_config = json.load(f)
@@ -97,21 +109,31 @@ class AnalysisWatcher(object):
         """
         Poll for new samples to process.
         """
-
+        
+        # The path to the root folder is the analysis folder, i.e. for our testdata
+        # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
+        # the analysis folder
         for analysis_dir in os.listdir(self.watch_path):
             try:
+                
                 if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
+                    print('not os path ..???')
+                    print(analysis_dir)
                     continue
-
+                
                 analysis_path = os.path.join(
                     self.watch_path,
                     analysis_dir
                 )
+                
                 # Check for READY file
                 ready_file_path = os.path.join(
                     analysis_path,
                     'READY'
                 )
+                
+                print(ready_file_path)
+                
                 if not os.path.exists(ready_file_path):
                     logging.info("Analysis {} not ready yet (missing READY file).".format(analysis_path))
                     continue
@@ -121,6 +143,7 @@ class AnalysisWatcher(object):
                     analysis_path,
                     analysis_dir + '.analysis'
                 )
+                
                 if not os.path.exists(analysis_config_path):
                     raise RuntimeError("Expected an analysis file at {}, but found none.".format(analysis_config_path))
 
@@ -160,6 +183,7 @@ class AnalysisWatcher(object):
                     sample_configs
                 )
 
+                self.session.flush()  
                 # Move analysis dir to destination path.
                 shutil.move(analysis_path, self.dest_path)
 
@@ -171,3 +195,36 @@ class AnalysisWatcher(object):
             except Exception:
                 log.exception("An exception occured while import a new analysis. Skipping...")
                 self.session.rollback()
+
+def start_polling(session, analyses_path, destination_path):
+
+    aw = AnalysisWatcher(session, analyses_path, destination_path)
+
+
+    i = 0
+    while i < 1:
+        try:
+          print("polling")
+          aw.check_and_import()
+        except Exception:
+            log.exception("An exception occurred while checking for new genepanels.")
+
+        time.sleep(POLL_INTERVAL)
+        i = i + 1
+
+if __name__ == '__main__':
+  
+    parser = argparse.ArgumentParser(description="Watch a folder for new analyses to import into database.")
+    parser.add_argument("--analyses", dest="analyses_path", required=True,
+                        help="Path to watch for new analyses")
+    parser.add_argument("--dest", dest="dest", required=True,
+                        help="Destination path into which the processed data will be copied.")
+    
+    args = parser.parse_args()
+
+    log.info("Polling for new analyses every: {} seconds".format(POLL_INTERVAL))
+
+    db = DB()
+    db.connect()
+  
+    start_polling(db.session, args.analyses_path, args.dest)
