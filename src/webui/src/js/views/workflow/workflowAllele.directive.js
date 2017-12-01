@@ -210,15 +210,9 @@ export class WorkflowAlleleController {
 
         this.loadAlleleId().then(() => {
             this.checkForCollisions();
-            if (!this.genepanelName || !this.genepanelVersion) {
-                this.loadGenepanelOptions().then(() => {
-                    this.reloadInterpretationData();
-                })
-            }
-            else {
-                this.reloadInterpretationData()
-            }
-
+            this.loadGenepanelOptions().then(() => {
+                this.reloadInterpretationData();
+            })
         });
     }
 
@@ -305,6 +299,10 @@ export class WorkflowAlleleController {
     }
 
     loadGenepanelOptions() {
+        if (this.genepanelName && this.genepanelVersion) {
+            this.interpretationService.setGenepanelOptions(null)
+            return new Promise( (resolve) => {resolve()}) // Self-fulfilling promise
+        }
         return this.workflowResource.getGenepanels('allele', this.allele_id).then(genepanels => {
             this.genepanelOptions = genepanels;
             this.interpretationService.setGenepanelOptions(genepanels)
