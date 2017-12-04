@@ -371,8 +371,7 @@ class SearchResource(LogRequestResource):
         genepanel_transcripts = annotation_transcripts_genepanel(
             session,
             allele_ids,
-            [(gp.name, gp.version) for gp in genepanels],
-            None
+            [(gp.name, gp.version) for gp in genepanels]
         ).subquery()
 
         allele_ids_transcripts = session.query(
