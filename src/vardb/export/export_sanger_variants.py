@@ -100,7 +100,7 @@ def export_variants(session, filename):
     ).all()
 
     all_allele_ids = []
-    allele_analysis_mapping = {}  # allele_id => {'analysis_id': _ , 'analysis_name': }
+    allele_analysis_mapping = {}  # allele_id => {'analysis_id': _ , 'analysis_name':  _}
 
     for tup in allele_ids_analysis_ids:
         al_id, an_id = tup
@@ -109,14 +109,12 @@ def export_variants(session, filename):
 
     allele_ids_grouped_by_genepanel_and_filter_status = filter_result_of_alleles(session, all_allele_ids)
 
-    # Write only: Constant memory usage
-    workbook = Workbook(write_only=True)
+    # Datastructure for collecting file content:
+    workbook = Workbook(write_only=True)  # Write only: Constant memory usage
     worksheet = workbook.create_sheet()
-
     csv = []
-    rows = list()
-    csv_body = []
 
+    # File headings
     csv_heading = []
     excel_heading = []
     for i, column_tuple in enumerate(COLUMN_PROPERTIES):
@@ -132,13 +130,13 @@ def export_variants(session, filename):
     csv.append(csv_heading)
 
     adl = AlleleDataLoader(session)
-
     genepanels = session.query(gene.Genepanel)
     genepanels_by_key = {(g.name, g.version):g for g in genepanels}
 
-    # loop through genepanels and print the variants for each panel:
-    for gp_key, ids in allele_ids_grouped_by_genepanel_and_filter_status.items():
-        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(ids['allele_ids'])).all()
+    # loop through genepanels and load allele data:
+    for gp_key, allele_ids_for_genepanel in allele_ids_grouped_by_genepanel_and_filter_status.items():
+        allele_ids_not_filtered_away = allele_ids_for_genepanel['allele_ids']
+        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids_not_filtered_away)).all()
         loaded_alleles = adl.from_objs(
             alleles,
             genepanel=genepanels_by_key.get(gp_key, None),
@@ -154,13 +152,8 @@ def export_variants(session, filename):
 
             default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
             variant_row = create_variant_row(default_transcript, analysis_info, allele_info)
-            csv_body.append(variant_row)
-            rows.append(variant_row)
-
-    for r in rows:
-        worksheet.append(r)
-    for r in csv_body:
-        csv.append(r)
+            csv.append(variant_row)
+            worksheet.append(variant_row)
 
     with open(filename + '.csv', 'w') as csv_file:
         for cols in csv:
