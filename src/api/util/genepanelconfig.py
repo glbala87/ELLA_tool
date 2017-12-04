@@ -105,12 +105,12 @@ class GenepanelConfigResolver(object):
         if not symbol:
             logging.warning("Symbol not defined when resolving genepanel config values")
             if self.genepanel and self.genepanel.config:
-                dict_merge(config_storage, get_nested(self.genepanel.config, 'data', 'freq_cutoff_groups'))
+                dict_merge(config_storage, get_nested(self.genepanel.config, ['data', 'freq_cutoff_groups']))
 
-            config_storage['freq_cutoffs'] = get_nested(config_storage, 'default')
+            config_storage['freq_cutoffs'] = get_nested(config_storage, ['default'])
         else:
             if self.genepanel and self.genepanel.config:
-                dict_merge(config_storage, get_nested(self.genepanel.config, 'data', 'freq_cutoff_groups'))
+                dict_merge(config_storage, get_nested(self.genepanel.config, ['data', 'freq_cutoff_groups']))
 
             # A specific symbol can define cutoffs, disease_mode and last_exon_important
             # Stage 3: find the most "useful" inheritance using the gene symbol:
@@ -120,7 +120,7 @@ class GenepanelConfigResolver(object):
                 _choose_cutoff_group(config_storage['freq_cutoff_groups'], chosen_inheritance))
 
             # Stage 5: look for gene specific overrides:
-            gene_specific_overrides = copy.deepcopy(get_nested(self.genepanel.config, 'data', 'genes', symbol))
+            gene_specific_overrides = copy.deepcopy(get_nested(self.genepanel.config, ['data', 'genes', symbol]))
             if gene_specific_overrides:
                 dict_merge(config_storage, gene_specific_overrides)
 
@@ -134,7 +134,7 @@ class GenepanelConfigResolver(object):
         return self.global_default["freq_cutoff_groups"]['default']
 
     def get_genes_with_overrides(self):
-        if self.genepanel.config and get_nested(self.genepanel.config, 'data', 'genes'):
-            return get_nested(self.genepanel.config, 'data', 'genes').keys()
+        if self.genepanel.config and get_nested(self.genepanel.config, ['data', 'genes']):
+            return get_nested(self.genepanel.config, ['data', 'genes']).keys()
 
         return list()

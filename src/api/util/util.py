@@ -336,16 +336,16 @@ def authenticate(user_role=None, user_group=None, optional=False):
     return _authenticate
 
 
-def get_nested(dct, *keys):
+def get_nested(dct, keys, default=None):
     if not dct or not isinstance(dct, dict):
-        return None
+        return default
     for i, key in enumerate(keys):
         try:
             dct = dct[key]
         except KeyError:
-            return None
+            return default
         if i == len(keys)-1:  # at end
             return dct
         if not isinstance(dct, dict):
-            return None
-    return None
+            return default
+    return default

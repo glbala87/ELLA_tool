@@ -1,3 +1,2 @@
-# first line: the latest tag (change when creating a new release tag)
-# second line: previous tags. There will be one release notes created for changes between latest and each of previous
-rc9 rc9b rc9c
+# newest tag last. Several release notes, each detailing the changes between latest and previous tags
+rc9 rc9b rc9c rc9d rc9e rc9f

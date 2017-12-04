@@ -3,8 +3,8 @@ from collections import defaultdict
 import pytz
 from sqlalchemy import or_, and_, tuple_, func, cast, text, column, Numeric, String, table
 from sqlalchemy.dialects.postgresql import JSONB
-from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
 
+from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
 from api.util.util import query_print_table
 from api.config import config
 from api.util.genepanelconfig import GenepanelConfigResolver
@@ -12,6 +12,7 @@ from api.util.genepanelconfig import GenepanelConfigResolver
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import ClauseElement, Executable, literal_column
 from sqlalchemy.dialects import postgresql
+
 
 
 def valid_alleleassessments_filter(session):
