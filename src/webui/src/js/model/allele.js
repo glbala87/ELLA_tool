@@ -61,10 +61,6 @@ export class Allele {
         }
     }
 
-    get1000gUrl() {
-        return `http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=${this.chromosome}:${this.start_position+1}-${this.open_end_position}`
-    }
-
     getESP6500Url() {
         return `http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome&chromosome=${this.chromosome}&chromoStart=${this.start_position+1}&chromoEnd=${this.open_end_position}&x=0&y=0`
     }
