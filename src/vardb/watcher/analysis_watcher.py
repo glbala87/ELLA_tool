@@ -42,6 +42,12 @@ POLL_INTERVAL = 5
 
 watch_path_error = "Couldn't read from watch path {}, aborting..."
 dest_path_error = "Couldn't write to destination path {}, aborting..."
+analysis_file_missing = "Expected an analysis file at {}, but found none."
+vcf_file_missing = "Expected a vcf file at {}, but found none."
+
+analysis_postfix = '.analysis'
+vcf_postfix = '.vcf'
+sample_postfix = '.sample'
 
 class AnalysisWatcher(object):
 
@@ -105,104 +111,120 @@ class AnalysisWatcher(object):
             analysis_config=analysis_config
         )
 
+    def is_ready(self, analysis_path):
+      
+      ready_file_path = os.path.join(
+        analysis_path,
+        'READY'
+      )
+      
+      if not os.path.exists(ready_file_path):
+        logging.info("Analysis {} not ready yet (missing READY file).".format(analysis_path))
+        return False
+      else: 
+        return True
+      
+    def path_to_analysis_config(self, analysis_path, analysis_dir):  
+      # Name of .analysis file should match dir name
+      analysis_config_path = os.path.join(
+          analysis_path,
+          analysis_dir + analysis_postfix
+      )
+
+      if not os.path.exists(analysis_config_path):
+          raise RuntimeError(analysis_file_missing.format(analysis_config_path))
+
+      return analysis_config_path
+
+    def extract_sample_configs(self, analysis_config, analysis_dir):  
+      sample_configs = list()
+      # For each connected sample, load the relevant sample config and check them
+      for sample_name in analysis_config['samples']:
+
+          # Name of .sample file should match sample name
+          sample_config_path = os.path.join(
+              self.watch_path,
+              analysis_dir,
+              sample_name + sample_postfix
+          )
+
+          if not os.path.exists(sample_config_path):
+              raise RuntimeError("Expected an sample file at {}, but found none.".format(sample_config_path))
+
+          sample_configs.append(
+              self.load_sample_config(sample_config_path)
+          )
+          
+      return sample_configs
+      
+    def setup_config(self, analysis_path, analysis_dir):  
+      analysis_config   = self.load_analysis_config(self.path_to_analysis_config(analysis_path, analysis_dir))
+      sample_configs    = self.extract_sample_configs(analysis_config, analysis_dir)
+      analysis_vcf_path = self.vcf_path(analysis_path, analysis_dir)
+      return analysis_vcf_path, analysis_config, sample_configs
+      
+    def vcf_path(self, analysis_path, analysis_dir):  
+      # Check for a vcf file matching analysis name
+      analysis_vcf_path = os.path.join(
+          analysis_path,
+          analysis_dir + vcf_postfix
+      )
+
+      # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
+      if not os.path.exists(analysis_vcf_path):
+          raise RuntimeError(vcf_file_missing.format(analysis_vcf_path))
+      
+      return analysis_vcf_path
+      
     def check_and_import(self):
-        """
+      """
         Poll for new samples to process.
         """
         
-        # The path to the root folder is the analysis folder, i.e. for our testdata
-        # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
-        # the analysis folder
-        for analysis_dir in os.listdir(self.watch_path):
-            try:
-                
-                if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
-                    print('not os path ..???')
-                    print(analysis_dir)
-                    continue
-                
-                analysis_path = os.path.join(
-                    self.watch_path,
-                    analysis_dir
-                )
-                
-                # Check for READY file
-                ready_file_path = os.path.join(
-                    analysis_path,
-                    'READY'
-                )
-                
-                print(ready_file_path)
-                
-                if not os.path.exists(ready_file_path):
-                    logging.info("Analysis {} not ready yet (missing READY file).".format(analysis_path))
-                    continue
+      # The path to the root folder is the analysis folder, i.e. for our testdata
+      # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
+      # the analysis folder
+      for analysis_dir in os.listdir(self.watch_path):
+        try:
 
-                # Name of .analysis file should match dir name
-                analysis_config_path = os.path.join(
-                    analysis_path,
-                    analysis_dir + '.analysis'
-                )
-                
-                if not os.path.exists(analysis_config_path):
-                    raise RuntimeError("Expected an analysis file at {}, but found none.".format(analysis_config_path))
+          if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
+            continue
 
-                # Load analysis config
-                analysis_config = self.load_analysis_config(analysis_config_path)
+          analysis_path = os.path.join(
+            self.watch_path,
+            analysis_dir
+          )
 
-                sample_configs = list()
-                # For each connected sample, load the relevant sample config and check them
-                for sample_name in analysis_config['samples']:
+          if not is_ready(analysis_path):
+            continue
 
-                    # Name of .sample file should match sample name
-                    sample_config_path = os.path.join(
-                        self.watch_path,
-                        analysis_dir,
-                        sample_name + '.sample'
-                    )
-                    if not os.path.exists(sample_config_path):
-                        raise RuntimeError("Expected an sample file at {}, but found none.".format(sample_config_path))
+          analysis_vcf_path, analysis_config, sample_configs  = setup_config(analysis_path, analysis_dir)
 
-                    sample_configs.append(
-                        self.load_sample_config(sample_config_path)
-                    )
+          # Import analysis
+          self.import_analysis(
+             analysis_vcf_path,
+             analysis_config,
+             sample_configs
+          )
 
-                # Check for a vcf file matching analysis name
-                analysis_vcf_path = os.path.join(
-                    analysis_path,
-                    analysis_dir + '.vcf'
-                )
+          self.session.flush()  
+          # Move analysis dir to destination path.
+          shutil.move(analysis_path, self.dest_path)
 
-                if not os.path.exists(sample_config_path):
-                    raise RuntimeError("Expected a vcf file at {}, but found none.".format(analysis_vcf_path))
+          # All is apparantly good, let's commit!
+          self.session.commit()
+          log.info("Analysis {} successfully imported!".format(analysis_config['name']))
 
-                # Import analysis
-                self.import_analysis(
-                    analysis_vcf_path,
-                    analysis_config,
-                    sample_configs
-                )
-
-                self.session.flush()  
-                # Move analysis dir to destination path.
-                shutil.move(analysis_path, self.dest_path)
-
-                # All is apparantly good, let's commit!
-                self.session.commit()
-                log.info("Analysis {} successfully imported!".format(analysis_config['name']))
-
-            # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
-            except Exception:
-                log.exception("An exception occured while import a new analysis. Skipping...")
-                self.session.rollback()
+        # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
+        except Exception:
+          log.exception("An exception occured while import a new analysis. Skipping...")
+          self.session.rollback()
 
 def start_polling(session, analyses_path, destination_path):
 
     aw = AnalysisWatcher(session, analyses_path, destination_path)
-
-
-    i = 0
-    while i < 1:
+    
+    while True:
         try:
           print("polling")
           aw.check_and_import()
@@ -210,7 +232,6 @@ def start_polling(session, analyses_path, destination_path):
             log.exception("An exception occurred while checking for new genepanels.")
 
         time.sleep(POLL_INTERVAL)
-        i = i + 1
 
 if __name__ == '__main__':
   
