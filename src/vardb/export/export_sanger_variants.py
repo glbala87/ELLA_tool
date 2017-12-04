@@ -3,6 +3,7 @@
 
 import datetime
 import logging
+import re
 import time
 from itertools import ifilter
 from os import path, mkdir
@@ -33,13 +34,15 @@ log = logging.getLogger(__name__)
 
 HAS_CONTENT = True
 
-
-def extract_project_number(analysis_info):
-    return analysis_info['analysis_name'].split("_")[0]
+ANALYSIS_NAME_RE = re.compile('(?P<project_name>Diag-.+)-(?P<prove>.+)-(?P<genepanel_name>.+)-(?P<genepanel_version>.+)')
 
 
-def extract_prove_number(analysis_info):
-    return analysis_info['analysis_name'].split("_")[1]
+def extract_meta_from_name(analysis_name):
+    matches = re.match(ANALYSIS_NAME_RE, analysis_name)
+    if matches and len(matches.groupdict()) == 4:
+        return matches.group('project_name'), matches.group('prove')
+    else:
+        return analysis_name,'?'
 
 
 #Column header and width
@@ -144,10 +147,12 @@ def export_variants(session, filename):
         )
 
         for allele_info in loaded_alleles:
+            # import pdb; pdb.set_trace()
+            project_name, prove_number = extract_meta_from_name(allele_analysis_mapping[allele_info['id']]['analysis_name'])
             analysis_info = {'genepanel_name': gp_key[0],
                              'genepanel_version': gp_key[1],
-                             'project_name': extract_project_number(allele_analysis_mapping[allele_info['id']]),
-                             'prove_number': extract_prove_number(allele_analysis_mapping[allele_info['id']])
+                             'project_name': project_name,
+                             'prove_number': prove_number
                              }
 
             default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
