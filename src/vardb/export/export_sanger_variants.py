@@ -18,6 +18,7 @@ from openpyxl.styles import Font
 
 from api.util import alleledataloader
 from api.util.alleledataloader import AlleleDataLoader
+from api.util.allelefilter import AlleleFilter
 from api.util.util import get_nested
 from api.v1.resources.overview import filter_result_of_alleles
 from vardb.datamodel import DB, gene, genotype
@@ -44,8 +45,7 @@ def extract_meta_from_name(analysis_name):
     else:
         return analysis_name,'?'
 
-
-#Column header and width
+# Column header and width
 COLUMN_PROPERTIES = [
     (u'Prosjektnummer', 14),
     (u'Prøvenummer', 10),
@@ -91,31 +91,14 @@ def export_variants(session, filename):
     if len(ids_not_started) < 1:
         return False
 
-    analyses = session.query(sample.Analysis).filter(sample.Analysis.id.in_(ids_not_started)).all()
-    analysis_names = {analysis.id: analysis.name for analysis in analyses}
-
-    allele_ids_analysis_ids = session.query(allele.Allele.id, sample.Analysis.id).join(
-        genotype.Genotype.alleles,
-        sample.Sample,
-        sample.Analysis,
-    ).filter(
-        sample.Analysis.id.in_(ids_not_started)
-    ).all()
-
-    all_allele_ids = []
-    allele_analysis_mapping = {}  # allele_id => {'analysis_id': _ , 'analysis_name':  _}
-
-    for tup in allele_ids_analysis_ids:
-        al_id, an_id = tup
-        all_allele_ids.append(al_id)
-        allele_analysis_mapping[al_id] = {'analysis_id': an_id, 'analysis_name': analysis_names[an_id]}
-
-    allele_ids_grouped_by_genepanel_and_filter_status = filter_result_of_alleles(session, all_allele_ids)
 
     # Datastructure for collecting file content:
     workbook = Workbook(write_only=True)  # Write only: Constant memory usage
     worksheet = workbook.create_sheet()
     csv = []
+    # temporary data structure to sort:
+    worksheet_rows = []
+    csv_rows = []
 
     # File headings
     csv_heading = []
@@ -132,33 +115,73 @@ def export_variants(session, filename):
     worksheet.append(excel_heading)
     csv.append(csv_heading)
 
+    # analyses = session.query(sample.Analysis).filter(sample.Analysis.id.in_(ids_not_started)).all()
+
+    analyses_allele_ids = session.query(sample.Analysis, allele.Allele.id).join(
+        genotype.Genotype.alleles,
+        sample.Sample,
+        sample.Analysis,
+    ).filter(
+        sample.Analysis.id.in_(ids_not_started)
+    ).all()
+
+    analyses_with_allele_id_list = {}
+    for an, an_id in analyses_allele_ids:
+        if an.id not in analyses_with_allele_id_list:
+            analyses_with_allele_id_list[an.id] = {'analysis': an, 'alleles': [an_id]}
+        else:
+            analyses_with_allele_id_list[an.id]['alleles'].append(an_id)
+
+    import pdb; pdb.set_trace()
+
+    # for tup in analyses_allele_ids:
+    #     al_id, an_id = tup
+    #     all_allele_ids.append(al_id)
+    #     allele_analysis_mapping[al_id] = {'analysis_id': an_id, 'analysis_name': analysis_names[an_id]}
+    #
+
+    af = AlleleFilter(session)
     adl = AlleleDataLoader(session)
-    genepanels = session.query(gene.Genepanel)
-    genepanels_by_key = {(g.name, g.version):g for g in genepanels}
 
-    # loop through genepanels and load allele data:
-    for gp_key, allele_ids_for_genepanel in allele_ids_grouped_by_genepanel_and_filter_status.items():
-        allele_ids_not_filtered_away = allele_ids_for_genepanel['allele_ids']
-        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids_not_filtered_away)).all()
-        loaded_alleles = adl.from_objs(
-            alleles,
-            genepanel=genepanels_by_key.get(gp_key, None),
-            include_allele_assessment=True
-        )
+    for an_id, values in analyses_with_allele_id_list.items():
+        analysis = values['analysis']
+        gp_key = (analysis.genepanel_name, analysis.genepanel_version)
+        gp_allele_ids = {gp_key: values['alleles']}
+        import pdb; pdb.set_trace()
+        allele_ids_grouped_by_genepanel_and_filter_status = af.filter_alleles(gp_allele_ids)
 
-        for allele_info in loaded_alleles:
-            # import pdb; pdb.set_trace()
-            project_name, prove_number = extract_meta_from_name(allele_analysis_mapping[allele_info['id']]['analysis_name'])
-            analysis_info = {'genepanel_name': gp_key[0],
-                             'genepanel_version': gp_key[1],
-                             'project_name': project_name,
-                             'prove_number': prove_number
-                             }
+        # loop through genepanels (one, since we hand the allele filter a single genepanel) and load allele data:
+        for gp_key, allele_ids_for_genepanel in allele_ids_grouped_by_genepanel_and_filter_status.items():
+            allele_ids_not_filtered_away = allele_ids_for_genepanel['allele_ids']
+            alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids_not_filtered_away)).all()
+            loaded_alleles = adl.from_objs(
+                alleles,
+                genepanel=analysis.genepanel,
+                include_allele_assessment=True
+            )
 
-            default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
-            variant_row = create_variant_row(default_transcript, analysis_info, allele_info)
-            csv.append(variant_row)
-            worksheet.append(variant_row)
+            for allele_info in loaded_alleles:
+                # import pdb; pdb.set_trace()
+                project_name, prove_number = extract_meta_from_name(analysis.name)
+                analysis_info = {'genepanel_name': gp_key[0],
+                                 'genepanel_version': gp_key[1],
+                                 'project_name': project_name,
+                                 'prove_number': prove_number
+                                 }
+
+                default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
+                variant_row = create_variant_row(default_transcript, analysis_info, allele_info)
+                csv_rows.append(variant_row)
+                worksheet_rows.append(variant_row)
+
+    # sort by first three columns:
+    worksheet_rows.sort(key=lambda r: (r[0], r[1], r[2]))
+    csv_rows.sort(key=lambda r: (r[0], r[1], r[2]))
+
+    for r in worksheet_rows:
+        worksheet.append(r)
+
+    csv.extend(csv_rows)
 
     with open(filename + '.csv', 'w') as csv_file:
         for cols in csv:
