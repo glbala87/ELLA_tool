@@ -87,17 +87,6 @@ class AnalysisWatcher(object):
             if field not in analysis_config:
                 raise RuntimeError("Missing field {} in analysis config at {}".format(field, analysis_config_path))
 
-    def load_sample_config(self, sample_config_path):
-        with open(sample_config_path) as f:
-            sample_config = json.load(f)
-        self.check_sample_config(sample_config, sample_config_path)
-        return sample_config
-
-    def check_sample_config(self, sample_config, sample_config_path):
-        for field in ['name']:
-            if field not in sample_config:
-                raise RuntimeError("Missing field {} in sample config at {}".format(field, sample_config_path))
-
     def import_analysis(self, analysis_config_data):
         """
         Imports the analysis (+ connected samples) into the database.
