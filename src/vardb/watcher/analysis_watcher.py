@@ -139,32 +139,10 @@ class AnalysisWatcher(object):
           raise RuntimeError(analysis_file_missing.format(analysis_config_path))
 
       return analysis_config_path
-
-    def extract_sample_configs(self, analysis_config, analysis_dir):  
-      sample_configs = list()
-      # For each connected sample, load the relevant sample config and check them
-      for sample_name in analysis_config['samples']:
-
-          # Name of .sample file should match sample name
-          sample_config_path = os.path.join(
-              self.watch_path,
-              analysis_dir,
-              sample_name + sample_postfix
-          )
-
-          if not os.path.exists(sample_config_path):
-              raise RuntimeError("Expected an sample file at {}, but found none.".format(sample_config_path))
-
-          sample_configs.append(
-              self.load_sample_config(sample_config_path)
-          )
-          
-      return sample_configs
       
     def extract_from_config(self, analysis_path, analysis_dir):  
       analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
       analysis_config   = self.load_analysis_config(analysis_file)
-      sample_configs    = self.extract_sample_configs(analysis_config, analysis_dir)
       analysis_vcf_path = self.vcf_path(analysis_path, analysis_dir)
       
       try:
@@ -197,15 +175,15 @@ class AnalysisWatcher(object):
       
     def check_and_import(self):
       """
-        Poll for new samples to process.
-        """
-        
+      Poll for new samples to process.
+      """
+      
       # The path to the root folder is the analysis folder, i.e. for our testdata
       # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
       # the analysis folder
       for analysis_dir in os.listdir(self.watch_path):
         try:
-
+      
           if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
             continue
 
