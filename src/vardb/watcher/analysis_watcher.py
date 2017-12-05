@@ -48,7 +48,6 @@ analysis_file_misconfigured = "The file {} is corrupt or JSON structure has miss
 
 analysis_postfix = '.analysis'
 vcf_postfix = '.vcf'
-sample_postfix = '.sample'
 
 class AnalysisWatcher(object):
 

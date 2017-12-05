@@ -1,10 +1,5 @@
 
 import os
-import logging
-import json
-import shutil
-import argparse
-import time
 import pytest
 from vardb.watcher.analysis_watcher import *
 from vardb.datamodel import DB
@@ -75,13 +70,6 @@ def test_loading_config():
   analysis_config = aw.load_analysis_config(analysis_config_path)
   assert len(analysis_config['samples']) == 3
   
-def test_extract_sample_configs():
-  aw = init()
-  analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
-  analysis_config = aw.load_analysis_config(analysis_config_path)
-  sample_configs = aw.extract_sample_configs(analysis_config, ready_data_path)
-  assert sample_configs[0]['name'] == 'TestSample-001'
-  assert sample_configs[1]['name'] == 'TestSample-002'
   
 def test_vcf_path(init_dest):
   aw = init()
@@ -96,7 +84,7 @@ def test_vcf_path(init_dest):
 
 def test_extract_from_config():
   aw = init()
-  analysis_vcf_path, analysis_name, gp_name, gp_version = aw.extract_from_config(ready_data_path, analysis_sample)
+  analysis_vcf_path, analysis_name, gp_name, gp_version, analysis_config = aw.extract_from_config(ready_data_path, analysis_sample)
   assert analysis_name == 'TestAnalysis-001'
   assert gp_name == 'EEogPU'
   assert gp_version == 'v02'
@@ -120,6 +108,6 @@ def test_extract_from_config():
 # How to test that this works out?
 def test_import_analysis():
   aw = init()
-  analysis_vcf_path, analysis_name, gp_name, gp_version = aw.extract_from_config(ready_data_path, analysis_sample)
+  analysis_vcf_path, analysis_name, gp_name, gp_version, analysis_config = aw.extract_from_config(ready_data_path, analysis_sample)
   aw.import_analysis(analysis_vcf_path, analysis_name, gp_name, gp_version)
   assert 1 == 1
