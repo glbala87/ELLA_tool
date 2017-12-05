@@ -177,7 +177,7 @@ class AnalysisWatcher(object):
             analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version + ' , analysis_name: ' + analysis_name
           ))
       
-        return analysis_vcf_path, analysis_name, gp_name, gp_version
+        return analysis_vcf_path, analysis_name, gp_name, gp_version, analysis_config
       
       except Exception:
         log.exception(analysis_file_misconfigured.format(analysis_path, ""))
@@ -214,10 +214,10 @@ class AnalysisWatcher(object):
             analysis_dir
           )
 
-          if not is_ready(analysis_path):
+          if not self.is_ready(analysis_path):
             continue
 
-          analysis_vcf_path, analysis_name, gp_name, gp_version  = extract_from_config(analysis_path, analysis_dir)
+          analysis_vcf_path, analysis_name, gp_name, gp_version, analysis_config  = self.extract_from_config(analysis_path, analysis_dir)
 
           # Import analysis
           self.import_analysis(
