@@ -30,7 +30,6 @@ def init_dest():
     yield 'dest_created'
     os.rmdir(dest_path)
     os.rmdir(empty_data_path)
-  
 
 def init(analysisPath=watch_path, destinationPath=dest_path):
     aw = AnalysisWatcher(init_db(), analysisPath, destinationPath)
@@ -85,7 +84,7 @@ def test_vcf_path(init_dest):
 def test_extract_from_config():
     aw = init()
     analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
-    assert analysis_config_data.analysis_name == 'TestAnalysis-001'
+    assert analysis_config_data.analysis_name == analysis_sample
     assert analysis_config_data.gp_name == 'EEogPU'
     assert analysis_config_data.gp_version == 'v02'
     assert analysis_config_data.vcf_path == ready_data_path + '/' + analysis_sample + vcf_postfix

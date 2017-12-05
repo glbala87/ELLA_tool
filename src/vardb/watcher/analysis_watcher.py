@@ -93,12 +93,7 @@ class AnalysisWatcher(object):
 
         Data is not committed to database, this must be done separately.
 
-        :param analysis_vcf_path: Path to vcf file
-        :type analysis_vcf_path: str
-        :param analysis_config: Preloaded analysis config
-        :type analysis_config: dict
-        :param sample_config: Preloaded sample configs
-        :type sample_config: list
+        : AnalysisConfigData
         """
 
         da = DepositAnalysis(self.session)
@@ -166,8 +161,8 @@ class AnalysisWatcher(object):
       
     def check_and_import(self):
         """
-      Poll for new samples to process.
-      """
+        Poll for new samples to process.
+        """
       
         # The path to the root folder is the analysis folder, i.e. for our testdata
         # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
