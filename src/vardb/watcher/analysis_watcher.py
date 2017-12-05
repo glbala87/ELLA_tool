@@ -44,6 +44,7 @@ watch_path_error = "Couldn't read from watch path {}, aborting..."
 dest_path_error = "Couldn't write to destination path {}, aborting..."
 analysis_file_missing = "Expected an analysis file at {}, but found none."
 vcf_file_missing = "Expected a vcf file at {}, but found none."
+analysis_file_misconfigured = "The file {} is corrupt or JSON structure has missing values: {}"
 
 analysis_postfix = '.analysis'
 vcf_postfix = '.vcf'
@@ -90,7 +91,7 @@ class AnalysisWatcher(object):
             if field not in sample_config:
                 raise RuntimeError("Missing field {} in sample config at {}".format(field, sample_config_path))
 
-    def import_analysis(self, analysis_vcf_path, analysis_config, sample_configs):
+    def import_analysis(self, analysis_vcf_path, analysis_name, gp_name, gp_version):
         """
         Imports the analysis (+ connected samples) into the database.
 
@@ -105,10 +106,13 @@ class AnalysisWatcher(object):
         """
 
         da = DepositAnalysis(self.session)
+        
         da.import_vcf(
-            analysis_vcf_path,
-            sample_configs=sample_configs,
-            analysis_config=analysis_config
+          path=analysis_vcf_path,
+          analysis_name=analysis_name,
+          gp_name=gp_name,
+          gp_version=gp_version
+          
         )
 
     def is_ready(self, analysis_path):
@@ -157,11 +161,26 @@ class AnalysisWatcher(object):
           
       return sample_configs
       
-    def setup_config(self, analysis_path, analysis_dir):  
-      analysis_config   = self.load_analysis_config(self.path_to_analysis_config(analysis_path, analysis_dir))
+    def extract_from_config(self, analysis_path, analysis_dir):  
+      analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
+      analysis_config   = self.load_analysis_config(analysis_file)
       sample_configs    = self.extract_sample_configs(analysis_config, analysis_dir)
       analysis_vcf_path = self.vcf_path(analysis_path, analysis_dir)
-      return analysis_vcf_path, analysis_config, sample_configs
+      
+      try:
+        gp = analysis_config['params']['genepanel']
+        gp_name, gp_version = gp.split('_')
+        analysis_name = analysis_config['name']
+      
+        if gp_name == '' or gp_version == '' or analysis_name == '':
+          raise RuntimeError(analysis_file_misconfigured.format(
+            analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version + ' , analysis_name: ' + analysis_name
+          ))
+      
+        return analysis_vcf_path, analysis_name, gp_name, gp_version
+      
+      except Exception:
+        log.exception(analysis_file_misconfigured.format(analysis_path, ""))
       
     def vcf_path(self, analysis_path, analysis_dir):  
       # Check for a vcf file matching analysis name
@@ -198,13 +217,14 @@ class AnalysisWatcher(object):
           if not is_ready(analysis_path):
             continue
 
-          analysis_vcf_path, analysis_config, sample_configs  = setup_config(analysis_path, analysis_dir)
+          analysis_vcf_path, analysis_name, gp_name, gp_version  = extract_from_config(analysis_path, analysis_dir)
 
           # Import analysis
           self.import_analysis(
              analysis_vcf_path,
-             analysis_config,
-             sample_configs
+             analysis_name,
+             gp_name,
+             gp_version
           )
 
           self.session.flush()  
@@ -226,7 +246,6 @@ def start_polling(session, analyses_path, destination_path):
     
     while True:
         try:
-          print("polling")
           aw.check_and_import()
         except Exception:
             log.exception("An exception occurred while checking for new genepanels.")
