@@ -38,7 +38,7 @@ from vardb.deposit.deposit_analysis import DepositAnalysis
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
-POLL_INTERVAL = 5
+POLL_INTERVAL = 30
 
 watch_path_error = "Couldn't read from watch path {}, aborting..."
 dest_path_error = "Couldn't write to destination path {}, aborting..."
@@ -48,6 +48,14 @@ analysis_file_misconfigured = "The file {} is corrupt or JSON structure has miss
 
 analysis_postfix = '.analysis'
 vcf_postfix = '.vcf'
+
+class AnalysisConfigData(object):
+    def __init__(self, vcf_path, analysis_name, gp_name, gp_version, priority):
+        self.vcf_path = vcf_path
+        self.analysis_name = analysis_name 
+        self.gp_name = gp_name
+        self.gp_version = gp_version
+        self.priority = priority
 
 class AnalysisWatcher(object):
 
@@ -90,7 +98,7 @@ class AnalysisWatcher(object):
             if field not in sample_config:
                 raise RuntimeError("Missing field {} in sample config at {}".format(field, sample_config_path))
 
-    def import_analysis(self, analysis_vcf_path, analysis_name, gp_name, gp_version):
+    def import_analysis(self, analysis_config_data):
         """
         Imports the analysis (+ connected samples) into the database.
 
@@ -105,117 +113,109 @@ class AnalysisWatcher(object):
         """
 
         da = DepositAnalysis(self.session)
-        
-        da.import_vcf(
-          path=analysis_vcf_path,
-          analysis_name=analysis_name,
-          gp_name=gp_name,
-          gp_version=gp_version
-          
-        )
+        da.import_vcf(analysis_config_data)
 
     def is_ready(self, analysis_path):
       
-      ready_file_path = os.path.join(
-        analysis_path,
-        'READY'
-      )
-      
-      if not os.path.exists(ready_file_path):
-        logging.info("Analysis {} not ready yet (missing READY file).".format(analysis_path))
-        return False
-      else: 
-        return True
+        ready_file_path = os.path.join(
+          analysis_path,
+          'READY'
+        )
+
+        if not os.path.exists(ready_file_path):
+          logging.info("Analysis {} not ready yet (missing READY file).".format(analysis_path))
+          return False
+        else: 
+          return True
       
     def path_to_analysis_config(self, analysis_path, analysis_dir):  
-      # Name of .analysis file should match dir name
-      analysis_config_path = os.path.join(
-          analysis_path,
-          analysis_dir + analysis_postfix
-      )
+        # Name of .analysis file should match dir name
+        analysis_config_path = os.path.join(
+                                            analysis_path,
+                                            analysis_dir + analysis_postfix
+                                            )
 
-      if not os.path.exists(analysis_config_path):
-          raise RuntimeError(analysis_file_missing.format(analysis_config_path))
+        if not os.path.exists(analysis_config_path):
+            raise RuntimeError(analysis_file_missing.format(analysis_config_path))
 
-      return analysis_config_path
+        return analysis_config_path
       
     def extract_from_config(self, analysis_path, analysis_dir):  
-      analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
-      analysis_config   = self.load_analysis_config(analysis_file)
-      analysis_vcf_path = self.vcf_path(analysis_path, analysis_dir)
+        analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
+        analysis_config   = self.load_analysis_config(analysis_file)
+        analysis_vcf_path = self.vcf_path(analysis_path, analysis_dir)
       
-      try:
-        gp = analysis_config['params']['genepanel']
-        gp_name, gp_version = gp.split('_')
-        analysis_name = analysis_config['name']
+        try:
+            gp = analysis_config['params']['genepanel']
+            gp_name, gp_version = gp.split('_')
+            analysis_name = analysis_config['name']
+            priority = analysis_config['priority']
       
-        if gp_name == '' or gp_version == '' or analysis_name == '':
-          raise RuntimeError(analysis_file_misconfigured.format(
-            analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version + ' , analysis_name: ' + analysis_name
-          ))
+            if gp_name == '' or gp_version == '' or analysis_name == '':
+                raise RuntimeError(analysis_file_misconfigured.format(
+                                   analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version + ' , analysis_name: ' + analysis_name
+                                   ))
       
-        return analysis_vcf_path, analysis_name, gp_name, gp_version, analysis_config
+            return AnalysisConfigData(analysis_vcf_path, analysis_name, gp_name, gp_version, priority)
       
-      except Exception:
-        log.exception(analysis_file_misconfigured.format(analysis_path, ""))
+      
+        except Exception:
+            log.exception(analysis_file_misconfigured.format(analysis_path, ""))
       
     def vcf_path(self, analysis_path, analysis_dir):  
-      # Check for a vcf file matching analysis name
-      analysis_vcf_path = os.path.join(
-          analysis_path,
-          analysis_dir + vcf_postfix
-      )
+        # Check for a vcf file matching analysis name
+        analysis_vcf_path = os.path.join(
+                                         analysis_path,
+                                         analysis_dir + vcf_postfix
+                                         )
 
-      # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
-      if not os.path.exists(analysis_vcf_path):
-          raise RuntimeError(vcf_file_missing.format(analysis_vcf_path))
+        # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
+        if not os.path.exists(analysis_vcf_path):
+            raise RuntimeError(vcf_file_missing.format(analysis_vcf_path))
       
-      return analysis_vcf_path
+        return analysis_vcf_path
       
     def check_and_import(self):
-      """
+        """
       Poll for new samples to process.
       """
       
-      # The path to the root folder is the analysis folder, i.e. for our testdata
-      # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
-      # the analysis folder
-      for analysis_dir in os.listdir(self.watch_path):
-        try:
+        # The path to the root folder is the analysis folder, i.e. for our testdata
+        # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
+        # the analysis folder
+        for analysis_dir in os.listdir(self.watch_path):
+            try:
       
-          if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
-            continue
+                if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
+                    continue
 
-          analysis_path = os.path.join(
-            self.watch_path,
-            analysis_dir
-          )
+                analysis_path = os.path.join(
+                                             self.watch_path,
+                                             analysis_dir
+                                             )
 
-          if not self.is_ready(analysis_path):
-            continue
+                if not self.is_ready(analysis_path):
+                    continue
 
-          analysis_vcf_path, analysis_name, gp_name, gp_version, analysis_config  = self.extract_from_config(analysis_path, analysis_dir)
+                analysis_config_data = self.extract_from_config(analysis_path, analysis_dir)
 
-          # Import analysis
-          self.import_analysis(
-             analysis_vcf_path,
-             analysis_name,
-             gp_name,
-             gp_version
-          )
+                # Import analysis
+                self.import_analysis(
+                                     analysis_config_data
+                                     )
 
-          self.session.flush()  
-          # Move analysis dir to destination path.
-          shutil.move(analysis_path, self.dest_path)
+                self.session.flush()  
+                # Move analysis dir to destination path.
+                shutil.move(analysis_path, self.dest_path)
 
-          # All is apparantly good, let's commit!
-          self.session.commit()
-          log.info("Analysis {} successfully imported!".format(analysis_config['name']))
+                # All is apparantly good, let's commit!
+                self.session.commit()
+                log.info("Analysis {} successfully imported!".format(analysis_config_data.analysis_name))
 
-        # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
-        except Exception:
-          log.exception("An exception occured while import a new analysis. Skipping...")
-          self.session.rollback()
+            # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
+            except Exception:
+                log.exception("An exception occured while import a new analysis. Skipping...")
+                self.session.rollback()
 
 def start_polling(session, analyses_path, destination_path):
 
