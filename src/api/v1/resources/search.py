@@ -44,10 +44,8 @@ class SearchResource(LogRequestResource):
 
         ### Supported queries
         For Alleles and AlleleAssessments supported search queries are:
-        * HGVS cDNA name, e.g. c.1312A>G (case insensitive) or NM_000059:c.920_921insT or
-          just NM_000059.
-        * HGVS protein name, e.g. p.Ser309PhefsTer6 or NP_000050.2:p.Ser309PhefsTer6
-          or just NP_000050.
+        * HGVS cDNA name, e.g. c.1312A>G (case insensitive).
+        * HGVS protein name, e.g. p.Ser309PhefsTer6.
         * Genomic positions in the following formats:
           * 123456 (start position)
           * 14:234234234-123123123 (chr, start, end)
@@ -248,6 +246,7 @@ class SearchResource(LogRequestResource):
             )
         else:
             return []
+
         return allele_ids
 
     def _search_allele_position(self, session, query):

@@ -434,7 +434,8 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 
 .search-module .ng-enter { animation: 1s fade-in; }
 .search-module { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
-  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; margin-top: 1rem; margin-bottom: 1rem; font-weight: 700; font-size: 1.25rem; }
+  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; margin-top: 2rem; margin-bottom: 0; font-weight: 700; font-size: 1.3rem; }
+  h4.results-limit-header { @extend .sb-notification; font-family: $slim; color: $black-50; margin-top: 0; margin-bottom: 1rem; font-weight: 700; font-size: 1.25rem; }
   .element { margin: 1.3rem 0; margin-left: 2.3rem;
     &-title { @extend .full-title; margin-bottom: 0.7rem; color: $black-50; }
     &-item { @extend .line-wrapper; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25;
