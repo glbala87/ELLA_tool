@@ -5,6 +5,7 @@ variables:
 
 stages:
   - test
+  - e2e-setup
   - e2e
   - reports
   - deploy
@@ -66,6 +67,15 @@ test_cli:
     - make test-cli
 
 
+e2e-container-startup:
+  stage: e2e-setup
+  script:
+    - make e2e-app-container-setup
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+
 test_e2e:
   stage: e2e
   script:
@@ -80,10 +90,30 @@ test_e2e:
       when: on_failure
 
 
-test-reports:
+test_report_sanger:
+  stage: reports
+  script:
+    - make test-report-sanger
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+
+test_report_classifications:
   stage: reports
   script:
     - make test-classifications-report
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+
+cleanup_e2e:
+  stage: cleanup
+  script:
+    - make e2e-app-container-shutdown
+    - make e2e-stop-chromebox
+  when: always
 
 
 cleanup_docker:

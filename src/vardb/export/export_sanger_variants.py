@@ -132,7 +132,7 @@ def export_variants(session, filename):
         else:
             analyses_with_allele_id_list[an.id]['alleles'].append(an_id)
 
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     # for tup in analyses_allele_ids:
     #     al_id, an_id = tup
@@ -147,7 +147,7 @@ def export_variants(session, filename):
         analysis = values['analysis']
         gp_key = (analysis.genepanel_name, analysis.genepanel_version)
         gp_allele_ids = {gp_key: values['alleles']}
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         allele_ids_grouped_by_genepanel_and_filter_status = af.filter_alleles(gp_allele_ids)
 
         # loop through genepanels (one, since we hand the allele filter a single genepanel) and load allele data:

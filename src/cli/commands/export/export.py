@@ -39,10 +39,10 @@ def cmd_export_sanger(filename):
     Export alleles from non-started analysis to file
     """
     logging.basicConfig(level=logging.INFO)
-
     today = datetime.datetime.now()
     timestamp = today.strftime(FILENAME_TIMESTAMP_FORMAT)
     output_name = filename if filename else "variant-sanger-{timestamp}".format(timestamp=timestamp)
+    click.echo("Exporting variants to " + output_name + '.xls/csv')
 
     db = DB()
     db.connect()
@@ -55,5 +55,4 @@ def cmd_export_sanger(filename):
         with open(filename + '.xls', 'w') as xls_file:
             xls_file.write("file is intentionally empty")
 
-        click.echo("Exported variants to " + output_name + '.xls/csv')
 
