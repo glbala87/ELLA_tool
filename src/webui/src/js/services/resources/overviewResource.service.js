@@ -22,13 +22,37 @@ export class OverviewResource {
             let overview = r.get((data) => {
 
                 // Convert to our model objects
-                for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing', 'finalized']) {
+                for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing']) {
                     for (let item of data[key]) {
                         item.allele = new Allele(item.allele);
                     }
                 }
 
                 resolve(overview);
+            }, reject);
+        });
+    }
+
+    getAllelesFinalizedOverview(page) {
+        return new Promise((resolve, reject) => {
+            page = page ? page : 1;
+            let uri = `${this.base}/overviews/alleles/finalized/?page=${page}&per_page=20`;
+            let r = this.resource(uri);
+            let overview = r.query((data, headers) => {
+                headers = headers()
+                let pagination = {
+                    page: headers['page'],
+                    totalCount: headers['total-count'],
+                    perPage: headers['per-page'],
+                    totalPages: headers['total-pages'],
+                }
+                resolve({
+                    pagination: pagination,
+                    data: data.map(a => {
+                        a.allele = new Allele(a.allele)
+                        return a
+                    })
+                });
             }, reject);
         });
     }
@@ -45,8 +69,7 @@ export class OverviewResource {
                 let categories = [
                     'not_started',
                     'ongoing',
-                    'marked_review',
-                    'finalized'
+                    'marked_review'
                 ]
 
                 if (by_findings) {
@@ -58,14 +81,31 @@ export class OverviewResource {
                 }
 
                 for (let key of categories) {
-                    let analyses_objs = [];
-                    for (let a of data[key]) {
-                        analyses_objs.push(new Analysis(a));
-                    }
-                    data[key] = analyses_objs;
+                    data[key] = data[key].map(a => new Analysis(a));
                 }
 
                 resolve(overview);
+            }, reject);
+        });
+    }
+
+    getAnalysesFinalizedOverview(page) {
+        return new Promise((resolve, reject) => {
+            page = page ? page : 1;
+            let uri = `${this.base}/overviews/analyses/finalized/?page=${page}&per_page=20`;
+            let r = this.resource(uri);
+            let overview = r.query((data, headers) => {
+                headers = headers()
+                let pagination = {
+                    page: headers['page'],
+                    totalCount: headers['total-count'],
+                    perPage: headers['per-page'],
+                    totalPages: headers['total-pages'],
+                }
+                resolve({
+                    pagination: pagination,
+                    data: data.map(a => new Analysis(a))
+                });
             }, reject);
         });
     }
