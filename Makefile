@@ -348,7 +348,6 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-cli ops/test/run_cli_tests.sh
-	@docker rm -f $(PIPELINE_ID)-cli
 
 
 #---------------------------------------------
@@ -421,10 +420,15 @@ test-report-classifications: #e2e-app-container-setup # CI run conditional targe
 
 test-report-sanger: #e2e-app-container-setup # CI run conditional target in separate stage
 	docker exec $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture.sh
-	# Create report and run verifications:
+
+	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-has-variants.sh
 	docker exec -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-sanger/run_tests.sh
+	   ops/test/report-sanger/run-test-report-has-variants.sh
+
+	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-is-empty.sh
+	docker exec -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
+	   ops/test/report-sanger/run-test-report-is-empty.sh
+
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser
