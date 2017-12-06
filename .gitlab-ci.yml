@@ -106,7 +106,7 @@ test_report_classifications:
     - /^ops-.*$/
 
 
-cleanup_e2e:
+x_cleanup_e2e:
   stage: e2e
   script:
     - make e2e-app-container-shutdown
@@ -117,8 +117,8 @@ cleanup_e2e:
 cleanup_docker:
   stage: cleanup
   script:
-    - docker rm -f $(docker ps -aq --filter name=${PIPELINE_ID}-*)
-    - dokcer rmi $(docker images --quiet --filter reference=local/${PIPELINE_ID}-*)
+    - docker ps -aq --filter "name=${PIPELINE_ID}-*" | xargs -r docker rm -v
+    - docker images --quiet --filter "reference=local/${PIPELINE_ID}-*" | xargs -r docker rmi
   when: always
 
 
