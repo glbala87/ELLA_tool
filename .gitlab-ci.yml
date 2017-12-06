@@ -90,18 +90,10 @@ test_e2e:
       when: on_failure
 
 
-test_report_sanger:
+test_reports:
   stage: reports
   script:
     - make test-report-sanger
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-
-
-test_report_classifications:
-  stage: reports
-  script:
     - make test-report-classifications
   except:
     - /^ui-.*$/
