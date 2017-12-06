@@ -161,7 +161,7 @@ def get_genepanel_alleles_existing_alleleinterpretation(session, allele_filter, 
         workflow.AlleleInterpretation.allele_id
     ).filter(
         workflow.AlleleInterpretation.allele_id.in_(allele_ids)
-    ).order_by(workflow.AlleleInterpretation.date_last_update)
+    ).order_by(workflow.AlleleInterpretation.date_last_update.desc()).distinct()
 
     if page and per_page:
         start = (page - 1) * per_page
@@ -399,7 +399,7 @@ def get_finalized_analyses(session, user=None, page=None, per_page=None):
 
     finalized_analyses = analyses_base_query.filter(
         sample.Analysis.id.in_(queries.workflow_analyses_finalized(session)),
-    )
+    ).order_by(sample.Analysis.deposit_date.desc()).distinct()
     count = finalized_analyses.count()
     if page and per_page:
         start = (page-1) * per_page
