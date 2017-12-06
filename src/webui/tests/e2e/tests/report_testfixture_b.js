@@ -22,24 +22,28 @@ const SAMPLE_NAME = 'brca_e2e_test02.HBOCUTV_v01';
 
 describe('Sample workflow to test Sanger export', function () {
 
-    it('classify all variants in first analysis', function () {
+    it('classify the remall variants in second analysis', function () {
         loginPage.selectSecondUser();
         sampleSelectionPage.selectTopPending();
         expect(analysisPage.title).toBe(SAMPLE_NAME);
 
         analysisPage.startButton.click();
 
-        for (let idx = 1; idx <= 5; idx++) {
+        expect(alleleSidebar.getClassifiedAlleles().length)
+            .toEqual(3, `Wrong number of already classified variants for ${SAMPLE_NAME}`);
+
+        for (let idx = 1; idx <= 2; idx++) {
             alleleSidebar.selectFirstUnclassified();
             selected_allele = alleleSidebar.getSelectedAllele();
+            let comment = `REPORT_COMMENT &~øæå ${idx}`;
+            alleleSectionBox.setReportComment(comment);
+            console.log(`Classifying variant ${selected_allele} as class ${idx} with report '${comment}'`);
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx}`);
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
-            alleleSectionBox.setReportComment('REPORT_ROUND1 &~øæå');
-
         }
 
         expect(alleleSidebar.getClassifiedAlleles().length)
-            .toEqual(5, `Wrong number of variants of sample ${SAMPLE_NAME} before finish`);
+            .toEqual(5, `Wrong number of variants for ${SAMPLE_NAME} before finish`);
 
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();

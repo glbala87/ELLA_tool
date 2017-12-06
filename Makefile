@@ -1,7 +1,9 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)# Configured on the outside when running in gitlab
+# used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
 TEST_NAME ?= all
 TEST_COMMAND ?=''
+# Container used for local development
 CONTAINER_NAME ?= $(PIPELINE_ID)
 NAME_OF_GENERATED_IMAGE = local/$(PIPELINE_ID)
 # use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
@@ -27,9 +29,13 @@ E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
 # Json validation
 GP_VALIDATION_CONTAINER = $(PIPELINE_ID)-gp-validation
 
+# Diagrams
+DIAGRAM_CONTAINER = $(PIPELINE_ID)-diagram
+DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
+
 # distribution
-CONTAINER_NAME_BUNDLE_STATIC=ella-web-assets
-IMAGE_BUNDLE_STATIC=local/ella-web-assets
+CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
+IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
 
 .PHONY: help
@@ -162,17 +168,17 @@ release-notes:
 diagrams: build-diagram-image start-diagram-container create-diagram stop-diagram-container
 
 build-diagram-image:
-	docker build -t local/ella-diagram -f Dockerfile-diagrams .
+	docker build -t $(DIAGRAM_IMAGE) -f Dockerfile-diagrams .
 
 start-diagram-container:
-	-docker rm ella-diagram-container
-	docker run --name ella-diagram-container -d local/ella-diagram  sleep 10s
+	-docker rm $(DIAGRAM_CONTAINER)
+	docker run --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
 
 stop-diagram-container:
-	docker stop ella-diagram-container
+	docker stop $(DIAGRAM_CONTAINER)
 
 create-diagram:
-	docker exec ella-diagram-container /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
+	docker exec $(DIAGRAM_CONTAINER) /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
 
 #---------------------------------------------
 # DEMO
@@ -285,14 +291,14 @@ test-build:
 test: test-all
 test-all: test-js test-common test-api test-cli
 
-test-js: test-build # container $(PIPELINE_ID)-js
+test-js: test-build
 	docker run -d --name $(PIPELINE_ID)-js $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
 	@docker rm -f $(PIPELINE_ID)-js
 
-test-common: test-build # container $(PIPELINE_ID)-common
+test-common: test-build
 	docker run -d \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
@@ -302,7 +308,7 @@ test-common: test-build # container $(PIPELINE_ID)-common
 	docker exec $(PIPELINE_ID)-common ops/test/run_python_tests.sh
 	@docker rm -f $(PIPELINE_ID)-common
 
-test-rule-engine: test-build # container $(PIPELINE_ID)-rules
+test-rule-engine: test-build
 	docker run -d --name $(PIPELINE_ID)-rules $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/common/supervisor.cfg
 
@@ -310,7 +316,7 @@ test-rule-engine: test-build # container $(PIPELINE_ID)-rules
 	@docker rm -f $(PIPELINE_ID)-rules
 
 
-test-api: test-build # container $(PIPELINE_ID)-api
+test-api: test-build
 	docker run -d \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
@@ -322,7 +328,7 @@ test-api: test-build # container $(PIPELINE_ID)-api
 	@docker rm -f $(PIPELINE_ID)-api
 
 
-test-api-migration: test-build # container $(PIPELINE_ID)-api-migration
+test-api-migration: test-build
 	docker run -d \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
@@ -342,7 +348,6 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-cli ops/test/run_cli_tests.sh
-	@docker rm -f $(PIPELINE_ID)-cli
 
 
 #---------------------------------------------
@@ -375,19 +380,21 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
 e2e-app-container-shutdown:
-	@echo "Stopping/removing container $(E2E_APP_CONTAINER"
+	@echo "Stopping container $(E2E_APP_CONTAINER)"
 	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop web
 	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop postgres
 	docker stop $(E2E_APP_CONTAINER)
 	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
-	docker rm $(E2E_APP_CONTAINER)
 
 
 test-e2e: #e2e-app-container-setup # CI run conditional target in separate stage
 	docker exec $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
 
+
 e2e-stop-chromebox:
 	-docker stop $(CHROMEBOX_CONTAINER)
+
+e2e-remove-chromebox:
 	-docker rm $(CHROMEBOX_CONTAINER)
 
 e2e-start-chromebox:
@@ -413,10 +420,15 @@ test-report-classifications: #e2e-app-container-setup # CI run conditional targe
 
 test-report-sanger: #e2e-app-container-setup # CI run conditional target in separate stage
 	docker exec $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture.sh
-	# Create report and run verifications:
+
+	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-has-variants.sh
 	docker exec -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-sanger/run_tests.sh
+	   ops/test/report-sanger/run-test-report-has-variants.sh
+
+	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-is-empty.sh
+	docker exec -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
+	   ops/test/report-sanger/run-test-report-is-empty.sh
+
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser

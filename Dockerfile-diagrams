@@ -1,4 +1,5 @@
-FROM debian:latest
+# aka debian:stretch
+FROM debian:9.2
 MAINTAINER OUS AMG <erik@ousamg.io>
 
 ENV DEBIAN_FRONTEND noninteractive
