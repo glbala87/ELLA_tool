@@ -15,7 +15,7 @@ empty_data_path = '/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-002'
 analysis_sample = 'TestAnalysis-001'
 analysis_sample2 = 'TestAnalysis-002'
 
-misconfigured_data_path = '/ella/src/vardb/watcher/testdata/analysis_with_errors/TestAnalysis-003'
+misconfigured_data_path = '/ella/src/vardb/watcher/testdata/analysis_with_error/TestAnalysis-003'
 misconfigured_analysis_sample = 'TestAnalysis-003'
 
 def init_db():
@@ -68,15 +68,23 @@ def test_loading_config():
     analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
     analysis_config = aw.load_analysis_config(analysis_config_path)
     assert len(analysis_config['samples']) == 3
+    assert analysis_config['priority'] == '1'
+    assert analysis_config['name'] == analysis_sample
   
+def test_loading_config_with_error():  
+    aw = init()
+    analysis_config_path = aw.path_to_analysis_config(misconfigured_data_path, misconfigured_analysis_sample)
+    with pytest.raises(RuntimeError) as excinfo:
+        aw.load_analysis_config(analysis_config_path)
+    assert analysis_field_missing.format('priority', analysis_config_path) in str(excinfo)
   
 def test_vcf_path(init_dest):
     aw = init()
-    analysis_vcf_path = aw.vcf_path(ready_data_path, analysis_sample)
+    analysis_vcf_path = aw.path_to_vcf_file(ready_data_path, analysis_sample)
     assert analysis_vcf_path == ready_data_path + '/' + analysis_sample + vcf_postfix
 
     with pytest.raises(RuntimeError) as excinfo:
-        aw.vcf_path(empty_data_path, analysis_sample)
+        aw.path_to_vcf_file(empty_data_path, analysis_sample)
     
     expected_error = vcf_file_missing.format(empty_data_path + '/' + analysis_sample + vcf_postfix)  
     assert expected_error in str(excinfo)

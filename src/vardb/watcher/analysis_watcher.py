@@ -44,6 +44,7 @@ watch_path_error = "Couldn't read from watch path {}, aborting..."
 dest_path_error = "Couldn't write to destination path {}, aborting..."
 analysis_file_missing = "Expected an analysis file at {}, but found none."
 vcf_file_missing = "Expected a vcf file at {}, but found none."
+analysis_field_missing = "Missing field {} in analysis config at {}"
 analysis_file_misconfigured = "The file {} is corrupt or JSON structure has missing values: {}"
 
 analysis_postfix = '.analysis'
@@ -82,11 +83,12 @@ class AnalysisWatcher(object):
         self.check_analysis_config(analysis_config, analysis_config_path)
         return analysis_config
 
+    # TODO: extend to also check for priority field and the split of gp name and version
     def check_analysis_config(self, analysis_config, analysis_config_path):
-        for field in ['name', 'samples']:
+        for field in ['name', 'samples', 'priority', 'params']:
             if field not in analysis_config:
-                raise RuntimeError("Missing field {} in analysis config at {}".format(field, analysis_config_path))
-
+                raise RuntimeError(analysis_field_missing.format(field, analysis_config_path))
+                    
     def import_analysis(self, analysis_config_data):
         """
         Imports the analysis (+ connected samples) into the database.
@@ -100,7 +102,6 @@ class AnalysisWatcher(object):
         da.import_vcf(analysis_config_data)
 
     def is_ready(self, analysis_path):
-      
         ready_file_path = os.path.join(
           analysis_path,
           'READY'
@@ -123,11 +124,24 @@ class AnalysisWatcher(object):
             raise RuntimeError(analysis_file_missing.format(analysis_config_path))
 
         return analysis_config_path
+    
+    def path_to_vcf_file(self, analysis_path, analysis_dir):  
+        # Check for a vcf file matching analysis name
+        analysis_vcf_path = os.path.join(
+                                         analysis_path,
+                                         analysis_dir + vcf_postfix
+                                         )
+
+        # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
+        if not os.path.exists(analysis_vcf_path):
+            raise RuntimeError(vcf_file_missing.format(analysis_vcf_path))
+      
+        return analysis_vcf_path
       
     def extract_from_config(self, analysis_path, analysis_dir):  
         analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
         analysis_config   = self.load_analysis_config(analysis_file)
-        analysis_vcf_path = self.vcf_path(analysis_path, analysis_dir)
+        analysis_vcf_path = self.path_to_vcf_file(analysis_path, analysis_dir)
       
         try:
             gp = analysis_config['params']['genepanel']
@@ -146,18 +160,6 @@ class AnalysisWatcher(object):
         except Exception:
             log.exception(analysis_file_misconfigured.format(analysis_path, ""))
       
-    def vcf_path(self, analysis_path, analysis_dir):  
-        # Check for a vcf file matching analysis name
-        analysis_vcf_path = os.path.join(
-                                         analysis_path,
-                                         analysis_dir + vcf_postfix
-                                         )
-
-        # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
-        if not os.path.exists(analysis_vcf_path):
-            raise RuntimeError(vcf_file_missing.format(analysis_vcf_path))
-      
-        return analysis_vcf_path
       
     def check_and_import(self):
         """
@@ -202,9 +204,7 @@ class AnalysisWatcher(object):
                 self.session.rollback()
 
 def start_polling(session, analyses_path, destination_path):
-
     aw = AnalysisWatcher(session, analyses_path, destination_path)
-    
     while True:
         try:
           aw.check_and_import()
@@ -214,7 +214,6 @@ def start_polling(session, analyses_path, destination_path):
         time.sleep(POLL_INTERVAL)
 
 if __name__ == '__main__':
-  
     parser = argparse.ArgumentParser(description="Watch a folder for new analyses to import into database.")
     parser.add_argument("--analyses", dest="analyses_path", required=True,
                         help="Path to watch for new analyses")
@@ -227,5 +226,4 @@ if __name__ == '__main__':
 
     db = DB()
     db.connect()
-  
     start_polling(db.session, args.analyses_path, args.dest)
