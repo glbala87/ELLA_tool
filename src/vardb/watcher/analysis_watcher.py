@@ -83,7 +83,6 @@ class AnalysisWatcher(object):
         self.check_analysis_config(analysis_config, analysis_config_path)
         return analysis_config
 
-    # TODO: extend to also check for priority field and the split of gp name and version
     def check_analysis_config(self, analysis_config, analysis_config_path):
         for field in ['name', 'samples', 'priority', 'params']:
             if field not in analysis_config:
@@ -149,17 +148,15 @@ class AnalysisWatcher(object):
             analysis_name = analysis_config['name']
             priority = analysis_config['priority']
       
-            if gp_name == '' or gp_version == '' or analysis_name == '':
+            if gp_name == '' or gp_version == '':
                 raise RuntimeError(analysis_file_misconfigured.format(
-                                   analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version + ' , analysis_name: ' + analysis_name
-                                   ))
+                  analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version
+                ))
       
             return AnalysisConfigData(analysis_vcf_path, analysis_name, gp_name, gp_version, priority)
       
-      
         except Exception:
             log.exception(analysis_file_misconfigured.format(analysis_path, ""))
-      
       
     def check_and_import(self):
         """
@@ -186,9 +183,7 @@ class AnalysisWatcher(object):
                 analysis_config_data = self.extract_from_config(analysis_path, analysis_dir)
 
                 # Import analysis
-                self.import_analysis(
-                                     analysis_config_data
-                                     )
+                self.import_analysis(analysis_config_data)
 
                 self.session.flush()  
                 # Move analysis dir to destination path.
