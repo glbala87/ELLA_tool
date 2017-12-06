@@ -287,14 +287,14 @@ test-build:
 test: test-all
 test-all: test-js test-common test-api test-cli
 
-test-js: test-build # container $(PIPELINE_ID)-js
+test-js: test-build
 	docker run -d --name $(PIPELINE_ID)-js $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
 	@docker rm -f $(PIPELINE_ID)-js
 
-test-common: test-build # container $(PIPELINE_ID)-common
+test-common: test-build
 	docker run -d \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
@@ -304,7 +304,7 @@ test-common: test-build # container $(PIPELINE_ID)-common
 	docker exec $(PIPELINE_ID)-common ops/test/run_python_tests.sh
 	@docker rm -f $(PIPELINE_ID)-common
 
-test-rule-engine: test-build # container $(PIPELINE_ID)-rules
+test-rule-engine: test-build
 	docker run -d --name $(PIPELINE_ID)-rules $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/common/supervisor.cfg
 
@@ -312,7 +312,7 @@ test-rule-engine: test-build # container $(PIPELINE_ID)-rules
 	@docker rm -f $(PIPELINE_ID)-rules
 
 
-test-api: test-build # container $(PIPELINE_ID)-api
+test-api: test-build
 	docker run -d \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
@@ -324,7 +324,7 @@ test-api: test-build # container $(PIPELINE_ID)-api
 	@docker rm -f $(PIPELINE_ID)-api
 
 
-test-api-migration: test-build # container $(PIPELINE_ID)-api-migration
+test-api-migration: test-build
 	docker run -d \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \

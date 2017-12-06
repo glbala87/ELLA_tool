@@ -5,7 +5,9 @@ variables:
 
 stages:
   - test
+  - e2e-setup
   - e2e
+  - reports
   - deploy
   - review
   - notify
@@ -66,7 +68,7 @@ test_cli:
 
 
 e2e-container-startup:
-  stage: e2e
+  stage: e2e-setup
   script:
     - make e2e-app-container-setup
   except:
@@ -89,7 +91,7 @@ test_e2e:
 
 
 test_report_sanger:
-  stage: e2e
+  stage: reports
   script:
     - make test-report-sanger
   except:
@@ -98,7 +100,7 @@ test_report_sanger:
 
 
 test_report_classifications:
-  stage: e2e
+  stage: reports
   script:
     - make test-report-classifications
   except:
@@ -106,8 +108,8 @@ test_report_classifications:
     - /^ops-.*$/
 
 
-x_cleanup_e2e:
-  stage: e2e
+cleanup_e2e:
+  stage: cleanup
   script:
     - make e2e-app-container-shutdown
     - make e2e-stop-chromebox
