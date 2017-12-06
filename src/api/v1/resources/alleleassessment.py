@@ -39,7 +39,7 @@ class AlleleAssessmentListResource(LogRequestResource):
     @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=10000, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=10000, user=None):
         """
         Returns a list of alleleassessments.
 
@@ -69,7 +69,7 @@ class AlleleAssessmentListResource(LogRequestResource):
             schemas.AlleleAssessmentSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            num_per_page=num_per_page
+            per_page=per_page
         )
 
     @authenticate()

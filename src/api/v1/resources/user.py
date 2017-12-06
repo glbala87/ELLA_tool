@@ -16,7 +16,7 @@ class UserListResource(LogRequestResource):
     @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
         Returns a list of users.
 
@@ -49,7 +49,7 @@ class UserListResource(LogRequestResource):
             schemas.UserFullSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            num_per_page=num_per_page
+            per_page=per_page
         )
 
 

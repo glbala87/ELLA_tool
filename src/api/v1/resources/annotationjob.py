@@ -10,7 +10,7 @@ class AnnotationJobList(LogRequestResource):
     @authenticate()
     @rest_filter
     @logger(exclude=True)
-    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
         Lists annotation jobs in the system.
 

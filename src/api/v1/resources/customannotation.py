@@ -12,7 +12,7 @@ class CustomAnnotationList(LogRequestResource):
 
     @authenticate()
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
         Returns a list of customannotations.
 

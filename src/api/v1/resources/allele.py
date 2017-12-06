@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from vardb.datamodel import sample, genotype, allele, gene
 
 from api import schemas, ApiError
-from api.util.util import rest_filter, link_filter, authenticate, logger
+from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
 
 from api.util.alleledataloader import AlleleDataLoader
 
@@ -13,9 +13,10 @@ from api.v1.resource import LogRequestResource
 class AlleleListResource(LogRequestResource):
 
     @authenticate()
+    @paginate
     @link_filter
     @rest_filter
-    def get(self, session, rest_filter=None,  link_filter=None, user=None):
+    def get(self, session, rest_filter=None,  link_filter=None, user=None, page=None, per_page=None):
         """
         Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
         See decorator link_filter  and AlleleDataLoader for details about the possible values of link_filter
@@ -60,7 +61,7 @@ class AlleleListResource(LogRequestResource):
             description: List of alleles
         """
 
-        alleles = self.list_query(session, allele.Allele, rest_filter=rest_filter)
+        alleles, count = self.list_query(session, allele.Allele, rest_filter=rest_filter)
 
         # Optional extras
         sample_id = request.args.get('sample_id')
@@ -91,7 +92,7 @@ class AlleleListResource(LogRequestResource):
         return AlleleDataLoader(session).from_objs(
             alleles,
             **kwargs
-        )
+        ), count
 
 
 class AlleleGenepanelListResource(LogRequestResource):

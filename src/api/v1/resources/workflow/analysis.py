@@ -3,7 +3,7 @@ from sqlalchemy import tuple_
 from vardb.datamodel import sample, genotype, allele
 
 from api import ApiError, ConflictError
-from api.util.util import request_json, authenticate, rest_filter
+from api.util.util import request_json, authenticate, rest_filter, paginate
 from api.v1.resource import LogRequestResource
 
 from . import helpers
@@ -33,7 +33,8 @@ class AnalysisGenepanelResource(LogRequestResource):
 class AnalysisInterpretationAllelesListResource(LogRequestResource):
 
     @authenticate()
-    def get(self, session, analysis_id, interpretation_id, user=None):
+    @paginate
+    def get(self, session, analysis_id, interpretation_id, user=None, page=None, per_page=None):
         if not session.query(AnalysisInterpretation).filter(
             AnalysisInterpretation.id == interpretation_id,
             AnalysisInterpretation.analysis_id == analysis_id
@@ -49,7 +50,7 @@ class AnalysisInterpretationAllelesListResource(LogRequestResource):
             user.group.genepanels,
             analysisinterpretation_id=interpretation_id,
             current_allele_data=current
-        )
+        ), len(allele_ids)
 
 
 class AnalysisInterpretationResource(LogRequestResource):
