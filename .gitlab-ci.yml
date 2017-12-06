@@ -1,7 +1,7 @@
 ---
 variables:
   BRANCH: $CI_COMMIT_REF_NAME
-  PIPELINE_ID: $CI_PIPELINE_ID
+  PIPELINE_ID: ella-$CI_PIPELINE_ID
 
 stages:
   - test
@@ -108,19 +108,13 @@ test_report_classifications:
     - /^ops-.*$/
 
 
-cleanup_e2e:
+cleanup:
   stage: cleanup
   script:
     - make e2e-app-container-shutdown
     - make e2e-stop-chromebox
-  when: always
-
-
-cleanup_docker:
-  stage: cleanup
-  script:
-    - docker ps -aq --filter "name=${PIPELINE_ID}-*" | xargs -r docker rm  -f -v
-    - docker images --quiet --filter "reference=local/${PIPELINE_ID}-*" | xargs -r docker rmi
+    - docker ps -aq --filter "name=ella-${PIPELINE_ID}-*" | xargs -r docker rm  -f -v
+    - docker images --quiet --filter "reference=local/ella-${PIPELINE_ID}-*" | xargs -r docker rmi
   when: always
 
 
