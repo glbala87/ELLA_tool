@@ -1,7 +1,9 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)# Configured on the outside when running in gitlab
+# used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
 TEST_NAME ?= all
 TEST_COMMAND ?=''
+# Container used for local development
 CONTAINER_NAME ?= $(PIPELINE_ID)
 NAME_OF_GENERATED_IMAGE = local/$(PIPELINE_ID)
 # use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
