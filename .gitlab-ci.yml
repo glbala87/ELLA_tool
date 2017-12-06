@@ -103,10 +103,8 @@ test_reports:
 cleanup:
   stage: cleanup
   script:
-    - make e2e-app-container-shutdown
-    - make e2e-stop-chromebox
-    - docker ps -aq --filter "name=ella-${PIPELINE_ID}-*" | xargs -r docker rm  -f -v
-    - docker images --quiet --filter "reference=local/ella-${PIPELINE_ID}-*" | xargs -r docker rmi
+    - docker ps -aq --filter "name=${PIPELINE_ID}-*" | xargs -r docker rm  -f -v
+    - docker images --quiet --filter "reference=local/${PIPELINE_ID}-*" | xargs -r docker rmi
   when: always
 
 
