@@ -102,7 +102,7 @@ test_report_sanger:
 test_report_classifications:
   stage: reports
   script:
-    - make test-classifications-report
+    - make test-report-classifications
   except:
     - /^ui-.*$/
     - /^ops-.*$/

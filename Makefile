@@ -375,7 +375,7 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
 e2e-app-container-shutdown:
-	@echo "Stopping/removing container $(E2E_APP_CONTAINER"
+	@echo "Stopping/removing container $(E2E_APP_CONTAINER)"
 	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop web
 	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop postgres
 	docker stop $(E2E_APP_CONTAINER)
