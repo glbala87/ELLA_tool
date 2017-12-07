@@ -84,6 +84,19 @@ class TestAnnotationShadow(object):
         # since we want to use our test config
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
+        columns = [i[0] for i in session.execute("""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+            AND table_name   = 'annotationshadowfrequency'
+        """)]
+
+        for name in get_freq_column_names():
+            assert name in columns
+
+        for name in get_freq_num_column_names():
+            assert name in columns
+
         session.commit()
 
     @pytest.mark.aa(order=1)
@@ -185,7 +198,6 @@ class TestAnnotationShadow(object):
         assert ast2[0].transcript == an2.annotations['transcripts'][0]['transcript']
         assert ast2[0].hgvsc == an2.annotations['transcripts'][0]['HGVSc_short']
         assert ast2[0].protein == an2.annotations['transcripts'][0]['protein']
-        assert ast2[0].hgvsp == an2.annotations['transcripts'][0]['HGVSp_short']
         assert ast2[0].hgvsp == an2.annotations['transcripts'][0]['HGVSp_short']
         assert ast2[0].consequences == an2.annotations['transcripts'][0]['consequences']
         assert ast2[0].exon_distance == an2.annotations['transcripts'][0]['exon_distance']

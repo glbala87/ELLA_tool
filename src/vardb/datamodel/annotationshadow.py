@@ -61,6 +61,9 @@ update_annotation_shadow_columns(global_config)
 
 def create_trigger_sql(config):
     """
+    Set up triggers to update annotationshadow tables upon
+    changes (INSERT, UPDATE, or DELETE) to the annotation table.
+
     :warning: Not SQL injection safe, do not provide user input.
     """
     freq_insert_into = []
@@ -165,9 +168,6 @@ def create_shadow_tables(session, config, create_transcript=True, create_frequen
 
     Call this function whenever the shadow table definitions or
     frequency group config has changed, as the tables will need to be updated.
-
-    If freq_table_override is provided, that table will be used instead of the module
-    level one. This is for facilitating testing of tables with custom configs.
 
     :warning: TODO: The table recreation might not be within the same transaction
     as the rest of the incoming session (?). All actions might therefore not

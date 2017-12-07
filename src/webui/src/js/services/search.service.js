@@ -1,7 +1,6 @@
 /* jshint esnext: true */
 
 import {Service, Inject} from '../ng-decorators';
-import {deepCopy} from "../util";
 
 @Service({
     serviceName: 'Search'

@@ -44,7 +44,7 @@ class SearchResource(LogRequestResource):
 
         ### Supported queries
         For Alleles and AlleleAssessments supported search queries are:
-        * HGVS cDNA name, e.g. c.1312A>G (case insensitive).
+        * HGVS cDNA name, e.g. c.1312A>G.
         * HGVS protein name, e.g. p.Ser309PhefsTer6.
         * Genomic positions in the following formats:
           * 123456 (start position)
@@ -524,6 +524,9 @@ class SearchOptionsResource(LogRequestResource):
                 user_model.User.first_name,
                 user_model.User.last_name
             ).filter(
+                user_model.User.username.in_(
+                    session.query(user_model.User.username).filter(user_model.User.group_id == user.group_id)
+                ),
                 or_(
                     user_model.User.first_name.ilike(query['user'] + '%'),
                     user_model.User.last_name.ilike(query['user'] + '%')

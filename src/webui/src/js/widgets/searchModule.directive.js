@@ -88,7 +88,7 @@ export class SearchModuleController {
         this.showAnalysesForAlleleModal.show(allele);
     }
 
-    getAlleleUrl(name, version, allele) {
-        return `/variants/${allele.genome_reference}/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}?gp_name=${name}&gp_version=${version}`;
+    getAlleleUrl(allele) {
+        return `/variants/${allele.genome_reference}/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}`;
     }
 }
