@@ -374,6 +374,7 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 
 	docker run -d --hostname e2e --name $(E2E_APP_CONTAINER) \
 	   -v `pwd`/errorShots:/ella/errorShots/  \
+	   -v $(shell pwd):/ella \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \
@@ -388,7 +389,7 @@ e2e-app-container-shutdown:
 
 
 test-e2e: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
 
 
 e2e-stop-chromebox:
@@ -412,21 +413,21 @@ e2e-network-check:
 .PHONY: test-report-classifications test-reportsanger
 
 test-report-classifications: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-	docker exec $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
 	# Create report and run verifications:
-	docker exec -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
+	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
 	   ops/test/report-classifications/run_tests.sh
 
 test-report-sanger: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
 
-	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-has-variants.sh
-	docker exec -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-has-variants.sh
+	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
 	   ops/test/report-sanger/run-test-report-has-variants.sh
 
-	docker exec $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-is-empty.sh
-	docker exec -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-is-empty.sh
+	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
 	   ops/test/report-sanger/run-test-report-is-empty.sh
 
 
