@@ -348,7 +348,7 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-cli ops/test/run_cli_tests.sh
-
+	@docker rm -f $(PIPELINE_ID)-cli
 
 #---------------------------------------------
 # END-2-END TESTING (trigged outside container)
@@ -374,6 +374,7 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 
 	docker run -d --hostname e2e --name $(E2E_APP_CONTAINER) \
 	   -v `pwd`/errorShots:/ella/errorShots/  \
+	   -v $(shell pwd):/ella \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \
