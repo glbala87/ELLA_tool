@@ -60,7 +60,7 @@ describe('Sample workflow', function () {
         loginPage.selectFirstUser();
         sampleSelectionPage.selectTopPending();
 
-        expect(analysisPage.title).toBe(SAMPLE_ONE + 'xxx');
+        expect(analysisPage.title).toBe(SAMPLE_ONE);
 
         analysisPage.startButton.click();
 
