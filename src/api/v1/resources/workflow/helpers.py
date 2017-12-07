@@ -521,11 +521,10 @@ def get_genepanels(session, allele_ids, user=None):
     else:
         gp_keys = session.query(gene.Genepanel.name, gene.Genepanel.version).all()
 
-    alleles_genepanels = queries.alleles_transcript_filtered_genepanel(
+    alleles_genepanels = queries.annotation_transcripts_genepanel(
         session,
         allele_ids,
-        gp_keys,
-        None
+        gp_keys
     )
     alleles_genepanels = alleles_genepanels.subquery()
 
