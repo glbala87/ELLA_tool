@@ -375,6 +375,8 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
+	docker exec $(E2E_APP_CONTAINER) mkdir /ella/errorShots
+
 e2e-app-container-shutdown:
 	@echo "Stopping container $(E2E_APP_CONTAINER)"
 	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop web
