@@ -15,10 +15,6 @@ while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 
 yellow "Starting e2e tests..."
 
-# screenshots on e2e test errors are defined in wdio.conf
-echo "Content of ./errorShots:"
-if [ -s './errorShots' ] ; then ls './errorShots' ; else echo "Folder ./errorShots don't exist"; fi
-
 # run all spec expect the ones used to create test fixtures:
 find  src/webui/tests/e2e/tests -name "*.js" \
   | grep -v "testfixture" | sort \

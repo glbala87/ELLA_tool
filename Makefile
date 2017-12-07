@@ -369,11 +369,7 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	-docker stop $(E2E_APP_CONTAINER)
 	-docker rm $(E2E_APP_CONTAINER)
 
-	@rm -rf errorShots
-	@mkdir -p errorShots
-
 	docker run -d --hostname e2e --name $(E2E_APP_CONTAINER) \
-	   -v `pwd`/errorShots:/ella/errorShots/  \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \

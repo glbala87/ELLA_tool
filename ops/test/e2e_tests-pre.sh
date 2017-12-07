@@ -16,13 +16,5 @@ yellow "Finished building web assets with gulp"
 
 while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 
-# screenshots on e2e test errors are defined in wdio.conf
-yellow "Content of ./errorShots:"
-if [ -s './errorShots' ]
-then
-    ls './errorShots'
-else
-  yellow "Folder ./errorShots don't exist"
-fi
 
 yellow "Now you can start e2e tests"

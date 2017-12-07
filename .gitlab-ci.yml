@@ -80,6 +80,10 @@ test_e2e:
   stage: e2e
   script:
     - make test-e2e
+  before_script:
+    - rm -rf errorShots
+  after_script:
+    - docker exec ${PIPELINE_ID}-e2e tar c -C /ella/errorShots/ -f - . > errorShots.tar && mkdir errorShots && tar x -C errorShots -f errorShots.tar
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -95,9 +99,18 @@ test_reports:
   script:
     - make test-report-sanger
     - make test-report-classifications
+  before_script:
+    - rm -rf errorShots
+  after_script:
+    - docker exec ${PIPELINE_ID}-e2e tar c -C /ella/errorShots/ -f - . > errorShots.tar && mkdir errorShots && tar x -C errorShots -f errorShots.tar
   except:
     - /^ui-.*$/
     - /^ops-.*$/
+  artifacts:
+      paths:
+      - errorShots/*.png
+      name: ella-report-errors-${CI_BUILD_REF_SLUG}
+      when: on_failure
 
 
 cleanup:
