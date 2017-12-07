@@ -1,7 +1,10 @@
 
 import os
 import pytest
+from vardb.deposit.deposit_from_vcf import DepositFromVCF
+from vardb.datamodel.genotype import Genotype
 from vardb.datamodel import DB
+from vardb.datamodel import sample as sm
 from vardb.watcher.analysis_watcher import *
 
 non_existing_path = '123nonexistingpath'
@@ -31,9 +34,14 @@ def init_dest():
     os.rmdir(dest_path)
     os.rmdir(empty_data_path)
 
-def init(analysisPath=watch_path, destinationPath=dest_path):
-    aw = AnalysisWatcher(init_db(), analysisPath, destinationPath)
+def init(analysis_path=watch_path, destination_path=dest_path):
+    aw = AnalysisWatcher(init_db(), analysis_path, destination_path)
     return aw
+
+def init_all(analysis_path=watch_path, destination_path=dest_path):
+    session = init_db()
+    aw = AnalysisWatcher(session, analysis_path, destination_path)
+    return session, aw
 
 def test_analysispath_throws_exception():
     with pytest.raises(RuntimeError) as excinfo:
@@ -113,8 +121,41 @@ def test_extract_from_config():
   #assert analysis_file_misconfigured.format(misconfigured_data_path + '/' + misconfigured_analysis_sample, "gp_name: EEogPU , gp_version: v02 , analysis_name:") in str(excinfo)
   
 # How to test that this works out?
-#def test_import_analysis():
-#  aw = init()
-#  analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
-#  aw.import_analysis(analysis_config_data)
-#  assert 1 == 1
+def test_import_analysis():
+    session, aw = init_all()
+    analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
+    aw.import_analysis(analysis_config_data)
+    session.flush()
+    session.commit()
+
+    with pytest.raises(RuntimeError) as excinfo:
+         aw.import_analysis(analysis_config_data)
+
+    assert 'Analysis TestAnalysis-001 is already imported.' in str(excinfo)
+    
+    db_genepanel = DepositFromVCF(session).get_genepanel(analysis_config_data.gp_name, analysis_config_data.gp_version)
+    
+    analysis_stored = session.query(sm.Analysis).filter(
+        sm.Analysis.name == analysis_config_data.analysis_name,
+        sm.Analysis.genepanel == db_genepanel
+    ).all()
+
+    assert len(analysis_stored) == 1
+
+    analysis = analysis_stored[0]
+
+    print 'this is analysis'
+    print analysis
+    
+    # Cleaning up database after test run
+    session.query(sm.Sample).filter(
+        sm.Sample.analysis_id == analysis.id
+    ).delete()
+
+    session.query(sm.Analysis).filter(
+        sm.Analysis.id == analysis.id
+    ).delete()
+
+    session.commit()
+    session.close()   
+    

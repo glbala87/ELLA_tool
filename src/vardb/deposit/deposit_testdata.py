@@ -22,6 +22,7 @@ from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.watcher.analysis_watcher import AnalysisConfigData
 
 from vardb.util import vcfiterator
 
@@ -149,13 +150,16 @@ class DepositTestdata(object):
                 gp_version = matches.group('genepanel_version')
 
                 da = DepositAnalysis(self.session)
-
-                da.import_vcf(
+                acd = AnalysisConfigData(
                     analysis_vcf_path,
                     analysis_name,
                     gp_name,
-                    gp_version
+                    gp_version,
+                    "1"
                 )
+
+                da.import_vcf(acd)
+
                 log.info("Deposited {} as analysis".format(analysis_name))
                 self.session.commit()
 
