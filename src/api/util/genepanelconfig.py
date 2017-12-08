@@ -93,7 +93,7 @@ class GenepanelConfigResolver(object):
         # Stage 2: find frequency cutoffs for 'default' from either genepanel or global:
         if not symbol:
             logging.warning("Symbol not defined when resolving genepanel config values")
-            config_storage['freq_cutoffs'] = get_nested(config_storage, 'freq_cutoff_groups', 'default')
+            config_storage['freq_cutoffs'] = get_nested(config_storage, ['freq_cutoff_groups', 'default'])
         else:
             # A specific symbol can define cutoffs, disease_mode and last_exon_important
             # Stage 3: find the most "useful" inheritance using the gene symbol:
