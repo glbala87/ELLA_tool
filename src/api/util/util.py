@@ -91,6 +91,13 @@ def link_filter(func):
 
     return inner
 
+
+def populate_g_logging():
+    g.log_exclude = False
+    g.log_hide_payload = False
+    g.log_hide_response = True  # We only store response for certain resources due to size concerns
+
+
 def log_request(statuscode, response=None):
 
     duration = int(time.time() * 1000.0 - g.request_start_time)
@@ -116,27 +123,29 @@ def log_request(statuscode, response=None):
                 response_size=response_size
             ))
 
-    rl = ResourceLog(
-        usersession_id=g.usersession_id,
-        remote_addr=remote_addr,
-        method=request.method,
-        resource=request.path,
-        query=request.query_string,
-        response=response_data,
-        response_size=response_size,
-        payload=payload,
-        payload_size=payload_size,
-        statuscode=statuscode,
-        duration=duration
-    )
-    db.session.add(rl)
+    if not g.log_exclude:
+        rl = ResourceLog(
+            usersession_id=g.usersession_id,
+            remote_addr=remote_addr,
+            method=request.method,
+            resource=request.path,
+            query=request.query_string,
+            response=response_data,
+            response_size=response_size,
+            payload=payload,
+            payload_size=payload_size,
+            statuscode=statuscode,
+            duration=duration
+        )
+        db.session.add(rl)
 
 
-def logger(hide_payload=False, hide_response=True):
+def logger(exclude=False, hide_payload=False, hide_response=True):
 
     def _logger(func):
         @wraps(func)
         def inner(*args, **kwargs):
+            g.log_exclude = exclude
             g.log_hide_payload = hide_payload
             g.log_hide_response = hide_response
             return func(*args, **kwargs)

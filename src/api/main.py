@@ -11,7 +11,7 @@ from flask import send_from_directory, request, g
 from flask_restful import Api
 from api import app, db, AuthenticationError, ConflictError
 from api.v1 import ApiV1
-from api.util.util import populate_g_user, log_request
+from api.util.util import populate_g_user, populate_g_logging, log_request
 
 # For /reset purposes
 from vardb.deposit.deposit_testdata import DepositTestdata, DEFAULT_TESTSET, AVAILABLE_TESTSETS
@@ -43,9 +43,7 @@ def setup_logging():
 @app.before_request
 def populate_request():
     g.request_start_time = time.time() * 1000.0
-    g.log_hide_payload = False
-    g.log_hide_response = True  # We only store response for certain resources due to size concerns
-
+    populate_g_logging()
     if request.path and request.path.split('/')[1] not in VALID_STATIC_FILES:
         populate_g_user()
 
