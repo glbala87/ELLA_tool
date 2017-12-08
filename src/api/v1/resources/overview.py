@@ -441,8 +441,9 @@ def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
         sample.Analysis
     ).filter(
         workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
+        workflow.AnalysisInterpretation.analysis_id.in_(analysis_ids),
         allele.Allele.id.in_(all_allele_ids)
-    ).all()
+    ).distinct().all()
 
     # Make a dict of (gp_name, gp_version): [allele_ids] for use with AlleleFilter
     gp_allele_ids = defaultdict(list)
