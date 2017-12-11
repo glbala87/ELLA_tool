@@ -112,38 +112,36 @@ class ImportAlleleList(Resource):
                         strand: -1
                         is_canonical: false
                         transcript: XM_005266588.1
-                      - HGVSp: NM_000059.3:c.10110G>A(p.=)
+                      - HGVSp: c.10110G>A(p.=)
                         strand: 1
-                        HGVSc: NM_000059.3:c.10110G>A
+                        HGVSc: c.10110G>A
+                        HGVSc_short: c.10110G>A
                         in_last_exon: 'yes'
                         exon: 27/27
                         symbol: BRCA2
                         codons: agG/agA
                         amino_acids: R
-                        HGVSp_short: c.10110G>A(p.=)
                         is_canonical: true
                         transcript: NM_000059.3
                         consequences:
                         - synonymous_variant
-                        HGVSc_short: c.10110G>A
                         dbsnp:
                         - rs28897762
                       - consequences:
                         - synonymous_variant
-                        HGVSc_short: c.10110G>A
                         dbsnp:
                         - rs28897762
                         exon: 27/28
                         codons: agG/agA
                         symbol: BRCA2
-                        HGVSp_short: c.10110G>A(p.=)
                         amino_acids: R
                         transcript: ENST00000544455
                         is_canonical: true
                         in_last_exon: 'no'
-                        HGVSp: ENST00000544455.1:c.10110G>A(p.=)
+                        HGVSp: c.10110G>A(p.=)
                         strand: 1
-                        HGVSc: ENST00000544455.1:c.10110G>A
+                        HGVSc: c.10110G>A
+                        HGVSc_short: c.10110G>A
                         hgnc_id: '1101'
                       - transcript: NM_052818.2
                         is_canonical: true

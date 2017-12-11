@@ -74,8 +74,8 @@ export class ReportCardController {
                 hgvs += ` ${this.config.report.classification_text[classification]}`;
             }
             hgvs += `\n${t.HGVSc_short}`;
-            if (t.HGVSp_short) {
-                hgvs += ` ${t.HGVSp_short}`;
+            if (t.HGVSp) {
+                hgvs += ` ${t.HGVSp}`;
             }
             hgvs += '\n\n';
 

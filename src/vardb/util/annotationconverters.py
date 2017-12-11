@@ -73,7 +73,7 @@ CSQ_FIELDS = [
 
 # Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
 # but not NM_007294.3:c.4535G>T
-CSQ_INTRON_CHECK_REGEX = re.compile(r'.*:[cn]\.[\-\*]?[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
+CSQ_INTRON_CHECK_REGEX = re.compile(r'[cn]\.[\-\*]?[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
 
 
 def _map_hgnc_id(transcripts):
@@ -140,13 +140,16 @@ def convert_csq(annotation):
 
         # Add custom types
         if 'HGVSc' in transcript_data:
+
+            transcript_name, hgvsc = transcript_data['HGVSc'].split(':', 1)
+            transcript_data['HGVSc'] = hgvsc  # Remove transcript part
+
             # Split away transcript part and remove long (>10 nt) insertions/deletions/duplications
-            t = transcript_data['HGVSc'].split(':', 1)[1]
             def repl_len(m):
                 return "("+str(len(m.group()))+")"
 
-            s = re.sub('(?<=ins)([ACGT]{10,})', repl_len, t)
-            insertion = re.search('(?<=ins)([ACGT]{10,})', t)
+            s = re.sub('(?<=ins)([ACGT]{10,})', repl_len, hgvsc)
+            insertion = re.search('(?<=ins)([ACGT]{10,})', hgvsc)
             if insertion is not None:
                 transcript_data["HGVSc_insertion"] = insertion.group()
             s = re.sub('(?<=[del|dup])[ACGT]{10,}', '', s)
@@ -156,8 +159,8 @@ def convert_csq(annotation):
             if exon_distance is not None:
                 transcript_data['exon_distance'] = exon_distance
 
-        if 'HGVSp' in transcript_data:
-            transcript_data['HGVSp_short'] = transcript_data['HGVSp'].split(':', 1)[1]
+        if 'HGVSp' in transcript_data:  # Remove transcript part
+            transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)[1]
 
         transcript_data['in_last_exon'] = 'yes' if _get_is_last_exon(transcript_data) else 'no'
         transcripts.append(transcript_data)

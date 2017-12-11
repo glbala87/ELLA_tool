@@ -92,30 +92,6 @@ class Filters {
     }
 
     @Filter({
-        filterName: 'HGVSc_short'
-    })
-    HGVSc_shortFilter() {
-        return (input) => {
-            if (input) {
-                return input.split(':')[1];
-            }
-            return '';
-        };
-    }
-
-    @Filter({
-        filterName: 'HGVSp_short'
-    })
-    HGVSp_shortFilter() {
-        return (input) => {
-            if (input) {
-                return input.split(':')[1];
-            }
-            return '';
-        };
-    }
-
-    @Filter({
         filterName: 'secondsToTimeString'
     })
     secondsToTimeStringFilter() {
