@@ -1,4 +1,4 @@
-
+from flask import request
 from vardb.datamodel import gene
 
 from api.util.util import paginate, rest_filter, authenticate
@@ -39,7 +39,9 @@ class GenepanelListResource(LogRequestResource):
         genepanels = self.list_query(session, gene.Genepanel, schema=schemas.GenepanelFullSchema(), rest_filter=rest_filter)
         return genepanels
 
+
 class GenepanelResource(LogRequestResource):
+
     @authenticate()
     def get(self, session, name=None, version=None, user=None):
         """
@@ -57,6 +59,10 @@ class GenepanelResource(LogRequestResource):
             in: path
             type: string
             description: Genepanel version
+          - name: include_extras
+            in: query
+            type: boolean
+            description: Include transcripts and phenotype data
         responses:
           200:
             schema:
@@ -67,6 +73,15 @@ class GenepanelResource(LogRequestResource):
             raise ApiError("No genepanel name is provided")
         if version is None:
             raise ApiError("No genepanel version is provided")
-        genepanel = next(gp for gp in user.group.genepanels if gp.name == name and gp.version == version)
-        k = schemas.GenepanelFullSchema(strict=True).dump(genepanel).data
+
+        genepanel = session.query(gene.Genepanel).filter(
+            gene.Genepanel.name == name,
+            gene.Genepanel.version == version
+        ).one()
+        # TODO: Restrict based on user group?
+
+        if request.args.get('include_extras') in ['true', '1']:
+            k = schemas.GenepanelFullSchema(strict=True).dump(genepanel).data
+        else:
+            k = schemas.GenepanelSchema(strict=True).dump(genepanel).data
         return k

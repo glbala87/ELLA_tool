@@ -7,6 +7,7 @@ import annotationjob
 import attachment
 import config
 import customannotation
+import importallele
 import overview
 import reference
 import referenceassessment

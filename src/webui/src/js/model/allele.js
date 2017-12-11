@@ -181,7 +181,7 @@ export class Allele {
 
     getWorkflowUrl(genepanel) {
         return `/variants/${this.genome_reference}/` +
-            `${this.chromosome}-${this.start_position}-${this.open_end_position}-${this.change_from}-${this.change_to}` +
+            `${this.chromosome}-${this.vcf_pos}-${this.vcf_ref}-${this.vcf_alt}` +
             `?gp_name=${genepanel.name}&gp_version=${genepanel.version}&allele_id=${this.id}`;
     }
 }

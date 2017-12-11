@@ -282,17 +282,15 @@ export class WorkflowAlleleController {
 
     _getQueryFromSelector() {
         let parts = this.variantSelector.split('-');
-        if (parts.length !== 5) {
-            throw Error("Variant selector doesn't contain 5 items")
+        if (parts.length !== 4) {
+            throw Error("Variant selector doesn't contain 4 items")
         }
-
-        let [chr, start, end, from, to] = parts;
+        let [chr, pos, ref, alt] = parts;
         let query = {
             chromosome: chr,
-            start_position: start,
-            open_end_position: end,
-            change_from: from,
-            change_to: to
+            vcf_pos: pos,
+            vcf_ref: ref,
+            vcf_alt: alt,
         }
         return query;
     }

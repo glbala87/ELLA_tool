@@ -47,9 +47,11 @@ REFERENCEASSESSMENT_EXTRA_DATA = {
 }
 
 ID_OF = {
-    ANALYSIS_WORKFLOW: 1,  # analysis_id = 1, allele 1-6
-    VARIANT_WORKFLOW: 12   # allele id 12, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
+    ANALYSIS_WORKFLOW: 2,  # analysis_id = 2, allele 1-6
+    VARIANT_WORKFLOW: 18   # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
 }
+
+ANALYSIS_ALLELE_IDS = [1, 3, 4, 7, 12, 13]
 
 
 def assert_all_interpretations_are_done(interpretations):
@@ -265,10 +267,10 @@ class TestInterpretationWorkflow(object):
             assert len(allele_assessments) == 6
             assert len(allele_reports) == 6
             # for convenience the entities is given themselves as context:
-            _update_entity_with_context(allele_assessments[5-1], 'presented_alleleassessment_id', 6)
-            _update_entity_with_context(allele_assessments[6-1], 'presented_alleleassessment_id', 7)
-            _update_entity_with_context(allele_reports[5-1], 'presented_allelereport_id', 6)
-            _update_entity_with_context(allele_reports[6-1], 'presented_allelereport_id', 7)
+            _update_entity_with_context(allele_assessments[-2], 'presented_alleleassessment_id', 6)  # 1 from allele workflow + 4 from this workflow -> next is 6
+            _update_entity_with_context(allele_assessments[-1], 'presented_alleleassessment_id', 7)
+            _update_entity_with_context(allele_reports[-2], 'presented_allelereport_id', 6)
+            _update_entity_with_context(allele_reports[-1], 'presented_allelereport_id', 7)
         else:  # no context set for variant workflow
             pass
 
@@ -318,21 +320,21 @@ class TestInterpretationWorkflow(object):
         allele_assessments_in_db = get_allele_assessments_by_analysis(analysis_id)
         assert len(allele_assessments_in_db) == 10  # 6 + 4 (first and second finalization)
 
-        for aid in filter(lambda allele_id: allele_id < 5, allele_ids):  # for 4 first alleles
+        for aid in filter(lambda allele_id: allele_id in ANALYSIS_ALLELE_IDS[:4], allele_ids):  # for 4 first alleles
             item_connected_to_allele_has_been_superceeded(aid, allele_assessments_in_db, 'Updated comment')  # one has been superceeded
             item_connected_to_allele_is_current(aid, allele_assessments_in_db, 'Reopened comment')  # and one is current
 
-        for aid in filter(lambda allele_id: allele_id in [5, 6], allele_ids):  # for allele 5 and 6
+        for aid in filter(lambda allele_id: allele_id in ANALYSIS_ALLELE_IDS[4:], allele_ids):  # for allele 5 and 6
             item_connected_to_allele_is_current(aid, allele_assessments_in_db, 'Updated comment')  # assessment unchanged since we reused them
 
         # Asserts on all allele reports:
         allele_reports_in_db = get_allele_reports_by_analysis(analysis_id)
         assert len(allele_reports_in_db) == 6 + 4  # 4 because we reused two reports
 
-        for aid in filter(lambda allele_id: allele_id < 5, allele_ids):  # for 4 first alleles
+        for aid in filter(lambda allele_id: allele_id in ANALYSIS_ALLELE_IDS[:4], allele_ids):  # for 4 first alleles
             item_connected_to_allele_has_been_superceeded(aid, allele_reports_in_db, 'Updated comment')  # one has been superceeded
             item_connected_to_allele_is_current(aid, allele_reports_in_db, 'Reopened comment')  # and one is current
-        for aid in filter(lambda allele_id: allele_id in [5, 6], allele_ids):  # for allele 5 and 6
+        for aid in filter(lambda allele_id: allele_id in ANALYSIS_ALLELE_IDS[4:], allele_ids):  # for allele 5 and 6
             item_connected_to_allele_is_current(aid, allele_reports_in_db, 'Updated comment')  # reports unchanged since we reused them
 
         # Asserts on all reference assessments:

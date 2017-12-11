@@ -2,21 +2,19 @@ import re
 import json
 from collections import defaultdict
 from flask import request
-from sqlalchemy import tuple_, or_, and_, func
-from sqlalchemy.sql import text
-from sqlalchemy.sql.expression import literal_column
-from vardb.datamodel import sample, assessment, allele, gene, genotype, workflow, user, annotation
+from sqlalchemy import tuple_, or_, and_
+from vardb.datamodel import sample, assessment, allele, gene, genotype, workflow
 
 from api import schemas
 
 from api.v1.resource import LogRequestResource
 from api.util.alleledataloader import AlleleDataLoader
-from api.util.queries import alleles_transcript_filtered_genepanel
-from api.util.annotationprocessor.annotationprocessor import TranscriptAnnotation
+from api.util.queries import annotation_transcripts_genepanel
 from api.util.util import authenticate
 
 from api.util.allelefilter import AlleleFilter
 from api.config import config
+
 
 class SearchResource(LogRequestResource):
 
@@ -127,6 +125,8 @@ class SearchResource(LogRequestResource):
         filters = list()
 
         freetext = query.get("freetext")
+        if freetext:
+            freetext = re.escape(freetext)
         gene = query.get("gene")
         user = query.get("user")
         # The query for genepanel is already applied to genepanels
@@ -190,7 +190,6 @@ class SearchResource(LogRequestResource):
                 )
             ))
 
-
         return filters
 
     def _get_chr_pos(self, query):
@@ -222,16 +221,6 @@ class SearchResource(LogRequestResource):
         annotation table to lookup HGVS cDNA or protein
         and get the allele_ids for matching annotations.
 
-        For performance reasons there's a hardcoded
-        (but generous) limit of 5000 allele_ids to avoid
-        dumping the whole database for general matches.
-
-        This is needed since we're filtering on indirect objects
-        later (like AlleleAssessments) and we don't want
-        to miss any hits.
-        The final number of results should be limited further
-        downstream.
-
         :returns: List of allele_ids
         """
 
@@ -239,7 +228,7 @@ class SearchResource(LogRequestResource):
         # Query unwraps 'CSQ' JSON array as intermediate
         # table then searches that table for a match.
 
-        genepanel_transcripts = alleles_transcript_filtered_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels], None).subquery()
+        genepanel_transcripts = annotation_transcripts_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels]).subquery()
 
         allele_ids = session.query(
             genepanel_transcripts.c.allele_id,
@@ -248,10 +237,12 @@ class SearchResource(LogRequestResource):
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in freetext:
+            freetext = re.escape(freetext)  # Don't move me
             allele_ids = allele_ids.filter(
                 genepanel_transcripts.c.annotation_hgvsp.op('~*')(".*"+freetext+".*")
             )
         elif 'c.' in freetext:
+            freetext = re.escape(freetext)
             allele_ids = allele_ids.filter(
                 genepanel_transcripts.c.annotation_hgvsc.op('~*')(".*" + freetext + ".*")
             )
@@ -286,12 +277,12 @@ class SearchResource(LogRequestResource):
 
     def _search_allele_gene(self, session, gene, genepanels):
         # Search by transcript symbol
-        genepanel_transcripts = alleles_transcript_filtered_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels], None).subquery()
+        genepanel_transcripts = annotation_transcripts_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels]).subquery()
 
         result = session.query(
             genepanel_transcripts.c.allele_id,
         ).filter(
-            genepanel_transcripts.c.genepanel_symbol == gene,
+            genepanel_transcripts.c.annotation_symbol == gene,
         ).distinct()
 
         return result
@@ -377,11 +368,10 @@ class SearchResource(LogRequestResource):
     def _filter_transcripts_query(self, session, alleles, genepanels, query):
         allele_ids = [a['id'] for a in alleles]
 
-        genepanel_transcripts = alleles_transcript_filtered_genepanel(
+        genepanel_transcripts = annotation_transcripts_genepanel(
             session,
             allele_ids,
-            [(gp.name, gp.version) for gp in genepanels],
-            None
+            [(gp.name, gp.version) for gp in genepanels]
         ).subquery()
 
         allele_ids_transcripts = session.query(
@@ -430,7 +420,7 @@ class SearchResource(LogRequestResource):
         # We want to stop filtering when we reach SearchResource.ALLELE_LIMIT
         gp_allele_ids = defaultdict(list)
         gp_nonfiltered_alleles = defaultdict(list)
-        N = 10*SearchResource.ALLELE_LIMIT # Number of variants to filter each batch
+        N = 10 * SearchResource.ALLELE_LIMIT  # Number of variants to filter each batch
 
         af = AlleleFilter(session, config)
 
@@ -443,11 +433,10 @@ class SearchResource(LogRequestResource):
             for k in gp_nonfiltered_slice:
                 gp_nonfiltered_alleles[k].extend(gp_nonfiltered_slice[k]["allele_ids"])
 
-
         for i, (gp_name, gp_version, allele_id) in enumerate(genepanel_allele_ids):
             gp_allele_ids[(gp_name, gp_version)].append(allele_id)
 
-            if i>0 and i%N == 0:
+            if i > 0 and i % N == 0:
                 # Filter batch
                 update_non_filtered(gp_allele_ids, gp_nonfiltered_alleles)
 

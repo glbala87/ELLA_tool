@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import copy
-import re
 
 from api import config
 
@@ -13,9 +12,6 @@ class TranscriptAnnotation(object):
 
     def __init__(self, config):
         self.config = config
-        self.inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
-        if self.inclusion_regex is not None:
-            self.inclusion_regex = re.compile(self.inclusion_regex)
 
     def _get_worst_consequence(self, transcripts):
         """
@@ -47,33 +43,6 @@ class TranscriptAnnotation(object):
 
             return worst_consequences
 
-    @staticmethod
-    def get_genepanel_transcripts(transcript_names, genepanel):
-        """
-        Searches input transcripts for matching RefSeq transcript names in the genepanel,
-        and returns the list of matches. If no matches are done, returns all RefSeq
-        transcripts.
-
-        *The transcript version is stripped off during matching.*
-
-        :param transcript_names: List of transcript names (without version) to search for
-        :param genepanel:
-        :type genepanel: vardb.datamodel.gene.Genepanel
-        :return: list of matching transcript names
-        """
-
-        gp_transcripts = list()
-        for transcript in genepanel.transcripts:
-            gp_transcripts.append(transcript.refseq_name)
-
-        transcript_names_in_genepanel = [t.split('.', 1)[0] for t in gp_transcripts if t.startswith('NM_')]
-
-        filtered_transcript_names = list()
-        for transcript_name in transcript_names:
-            if transcript_name.split('.', 1)[0] in transcript_names_in_genepanel:
-                filtered_transcript_names.append(transcript_name)
-        return filtered_transcript_names
-
     def process(self, annotation, genepanel=None):
         """
         :param annotation
@@ -87,19 +56,8 @@ class TranscriptAnnotation(object):
         if 'transcripts' not in annotation:
             return result
 
-        transcripts = annotation['transcripts']
-
-        if genepanel:
-            transcript_names = [t['transcript'] for t in transcripts]
-            result['filtered_transcripts'] \
-                = TranscriptAnnotation.get_genepanel_transcripts(transcript_names, genepanel)
-
-        if self.inclusion_regex is not None:
-            result['transcripts'] = [t for t in transcripts if (re.match(self.inclusion_regex, t["transcript"]) or t["transcript"] in result.get("filtered_transcripts", []))]
-        else:
-            result['transcripts'] = transcripts
-
-        result['worst_consequence'] = self._get_worst_consequence(result["transcripts"])
+        result['transcripts'] = annotation['transcripts']
+        result['worst_consequence'] = self._get_worst_consequence(result['transcripts'])
         return result
 
 

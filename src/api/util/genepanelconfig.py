@@ -2,6 +2,8 @@ import copy
 import logging
 
 from api.config import config
+from api.util import queries
+
 #
 from api.util.util import get_nested
 from api.v1.resources.config import dict_merge
@@ -9,9 +11,6 @@ from api.v1.resources.config import dict_merge
 INHERITANCE_GROUP_AD = 'AD'
 INHERITANCE_GROUP_DEFAULT = 'default'
 
-INHERITANCE_AD = 'AD'
-INHERITANCE_AR = 'AR'
-INHERITANCE_DEFAULT = INHERITANCE_AR
 
 """
 Reads the gene panel specific config and overrides the default values if the gene panel config
@@ -19,36 +18,20 @@ defines gene-specific values
 """
 
 
-def _choose_cutoff_group(cutoff_groups, inheritance_code):
+def _choose_cutoff_group(cutoff_groups, is_ad=False):
     """
-    Find the lo/hi cutoffs for internal and external databases using inheritance if present.
+    Find the lo/hi cutoffs for internal and external databases.
 
     There are generally two sets for cutoffs, one for AD and for non-AD.
 
-    :param inheritance_code:
+    :param is_ad: Whether the inheritance is AD or not
     :return: a dict with 'internal' and 'external' which contain lo and hi cutoffs
     """
 
-    cutoff_group = INHERITANCE_GROUP_DEFAULT
-
-    if inheritance_code:
-        if not isinstance(inheritance_code, list):
-            inheritance_code = [inheritance_code]
-
-        codes = set(inheritance_code)
-        if len(codes) == 1 and codes.pop().upper() == INHERITANCE_AD:
-            cutoff_group = INHERITANCE_GROUP_AD
-
-    return cutoff_groups[cutoff_group]
-
-
-def _chose_inheritance(codes=None):
-    if not codes:
-        return INHERITANCE_DEFAULT
-    if all(map(lambda c: c.upper() == INHERITANCE_AD, codes)):
-        return INHERITANCE_AD
+    if is_ad:
+        return cutoff_groups[INHERITANCE_GROUP_AD]
     else:
-        return INHERITANCE_DEFAULT
+        return cutoff_groups[INHERITANCE_GROUP_DEFAULT]
 
 
 class GenepanelConfigResolver(object):
@@ -57,7 +40,7 @@ class GenepanelConfigResolver(object):
     overrides values defined globally.
     """
 
-    def __init__(self, genepanel=None, genepanel_default=None):
+    def __init__(self, session, genepanel=None, genepanel_default=None):
         """
 
         :param genepanel:
@@ -66,8 +49,10 @@ class GenepanelConfigResolver(object):
             Use non-None in when testing logic in unit tests.
         """
         super(GenepanelConfigResolver, self).__init__()
+        self.session = session
         self.genepanel = genepanel
         self.global_default = config['variant_criteria']['genepanel_config'] if not genepanel_default else genepanel_default
+        self._ad_genes_cache = []  # Holds cache for inheritance per symbol
 
     def resolve(self, symbol):
         """
@@ -101,23 +86,27 @@ class GenepanelConfigResolver(object):
         # Stage 1: init the result using the global defaults
         config_storage = copy.deepcopy(self.global_default)
 
+        if self.genepanel and self.genepanel.config:
+            dict_merge(config_storage, self.genepanel.config['data'])
+            del config_storage['genes']
+
         # Stage 2: find frequency cutoffs for 'default' from either genepanel or global:
         if not symbol:
             logging.warning("Symbol not defined when resolving genepanel config values")
-            if self.genepanel and self.genepanel.config:
-                dict_merge(config_storage, get_nested(self.genepanel.config, ['data', 'freq_cutoff_groups']))
-
-            config_storage['freq_cutoffs'] = get_nested(config_storage, ['default'])
+            config_storage['freq_cutoffs'] = get_nested(config_storage, ['freq_cutoff_groups', 'default'])
         else:
-            if self.genepanel and self.genepanel.config:
-                dict_merge(config_storage, get_nested(self.genepanel.config, ['data', 'freq_cutoff_groups']))
-
             # A specific symbol can define cutoffs, disease_mode and last_exon_important
             # Stage 3: find the most "useful" inheritance using the gene symbol:
-            chosen_inheritance = _chose_inheritance(self.genepanel.find_inheritance_codes(symbol))
-            config_storage['inheritance'] = chosen_inheritance
+            if not self._ad_genes_cache:
+                ad_genes = queries.ad_genes_for_genepanel(
+                    self.session,
+                    self.genepanel.name,
+                    self.genepanel.version
+                ).all()
+                self._ad_genes_cache = list(set([a[0] for a in ad_genes]))
+
             config_storage['freq_cutoffs'] = copy.deepcopy(
-                _choose_cutoff_group(config_storage['freq_cutoff_groups'], chosen_inheritance))
+                _choose_cutoff_group(config_storage['freq_cutoff_groups'], symbol in self._ad_genes_cache))
 
             # Stage 5: look for gene specific overrides:
             gene_specific_overrides = copy.deepcopy(get_nested(self.genepanel.config, ['data', 'genes', symbol]))

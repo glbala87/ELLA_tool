@@ -55,8 +55,7 @@ class ApiV1Docs:
     def _attach_swagger_ui(self, swagger_base_url, api_url):
         swagger_ui = get_swaggerui_blueprint(
             swagger_base_url,
-            api_url,
-            {'supportedSubmitMethods': ['get']}
+            api_url
         )
         self.app.register_blueprint(swagger_ui, url_prefix=swagger_base_url)
 

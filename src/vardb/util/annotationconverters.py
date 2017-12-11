@@ -73,7 +73,17 @@ CSQ_FIELDS = [
 
 # Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
 # but not NM_007294.3:c.4535G>T
-CSQ_INTRON_CHECK_REGEX = re.compile(r'.*:[cn]\.[\-\*]?[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
+CSQ_INTRON_CHECK_REGEX = re.compile(r'[cn]\.[\-\*]?[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
+
+
+def _map_hgnc_id(transcripts):
+    symbol_hgnc_id = dict()
+    for t in transcripts:
+        if t.get('hgnc_id') and isinstance(t.get('hgnc_id'), int):
+            if t['symbol'] in symbol_hgnc_id:
+                assert symbol_hgnc_id[t['symbol']] == t['hgnc_id'], 'Got different HGNC ({} vs {}) id for same gene symbol ({})'.format(t['hgnc_id'], symbol_hgnc_id[t['symbol']], t['symbol'])
+            symbol_hgnc_id[t['symbol']] = t['hgnc_id']
+    return symbol_hgnc_id
 
 
 def convert_csq(annotation):
@@ -110,11 +120,16 @@ def convert_csq(annotation):
     transcripts = list()
     # Invert CSQ data to map to transcripts
     for data in annotation['CSQ']:
-        # Filter out non-transcripts
-        if data.get('Feature_type') != 'Transcript':
+        # Filter out non-transcripts,
+        # and only include normal RefSeq or Ensembl transcripts
+        if data.get('Feature_type') != 'Transcript' or \
+           not any(data.get('Feature', '').startswith(t) for t in ['NM_', 'ENST']):
             continue
 
         transcript_data = {k[1]: data[k[0]] for k in CSQ_FIELDS if k[0] in data}
+
+        if 'hgnc_id' in transcript_data:
+            transcript_data['hgnc_id'] = int(transcript_data['hgnc_id'])
 
         # Only keep dbSNP data (e.g. rs123456789)
         if 'dbsnp' in transcript_data:
@@ -125,13 +140,16 @@ def convert_csq(annotation):
 
         # Add custom types
         if 'HGVSc' in transcript_data:
+
+            transcript_name, hgvsc = transcript_data['HGVSc'].split(':', 1)
+            transcript_data['HGVSc'] = hgvsc  # Remove transcript part
+
             # Split away transcript part and remove long (>10 nt) insertions/deletions/duplications
-            t = transcript_data['HGVSc'].split(':', 1)[1]
             def repl_len(m):
                 return "("+str(len(m.group()))+")"
 
-            s = re.sub('(?<=ins)([ACGT]{10,})', repl_len, t)
-            insertion = re.search('(?<=ins)([ACGT]{10,})', t)
+            s = re.sub('(?<=ins)([ACGT]{10,})', repl_len, hgvsc)
+            insertion = re.search('(?<=ins)([ACGT]{10,})', hgvsc)
             if insertion is not None:
                 transcript_data["HGVSc_insertion"] = insertion.group()
             s = re.sub('(?<=[del|dup])[ACGT]{10,}', '', s)
@@ -141,11 +159,19 @@ def convert_csq(annotation):
             if exon_distance is not None:
                 transcript_data['exon_distance'] = exon_distance
 
-        if 'HGVSp' in transcript_data:
-            transcript_data['HGVSp_short'] = transcript_data['HGVSp'].split(':', 1)[1]
+        if 'HGVSp' in transcript_data:  # Remove transcript part
+            transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)[1]
 
         transcript_data['in_last_exon'] = 'yes' if _get_is_last_exon(transcript_data) else 'no'
         transcripts.append(transcript_data)
+
+    # Hack: Since hgnc_id is not provided by VEP for Refseq,
+    # we steal it from matching Ensembl transcript (by gene symbol)
+    # Tested on 100k exome annotated variants, all RefSeq had corresponding match in Ensembl
+    symbol_hgnc_id = _map_hgnc_id(transcripts)
+    for t in transcripts:
+        if not t.get('hgnc_id') and t.get('symbol') and t['symbol'] in symbol_hgnc_id:
+            t['hgnc_id'] = symbol_hgnc_id[t['symbol']]
 
     return transcripts
 

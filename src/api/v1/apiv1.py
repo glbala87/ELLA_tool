@@ -15,6 +15,8 @@ class ApiV1(object):
         Loads our marshmallow schemas into docs.
         """
         self.api_v1_docs.add_schema('Analysis', schemas.AnalysisFullSchema())
+        self.api_v1_docs.add_schema('AnalysisInterpretation', schemas.AnalysisInterpretationSchema())
+        self.api_v1_docs.add_schema('AlleleInterpretation', schemas.AlleleInterpretationSchema())
         self.api_v1_docs.add_schema('Interpretation', schemas.AnalysisInterpretationSchema())
         self.api_v1_docs.add_schema('Allele', schemas.AlleleSchema())
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
@@ -147,17 +149,23 @@ class ApiV1(object):
         # ---------------------------------------------------------------------------------------------------------
         # Annotation
         # ---------------------------------------------------------------------------------------------------------
+        self._add_resource(r.importallele.ImportAlleleList,
+                           '/api/v1/import/alleles/')
 
         self._add_resource(r.annotationjob.AnnotationJob,
-                           '/api/v1/annotationjobs/',
-                           '/api/v1/annotationjobs/<int:id>')
+                           '/api/v1/import/service/jobs/<int:id>/')
+
+        self._add_resource(r.annotationjob.AnnotationJobList,
+                           '/api/v1/import/service/jobs/')
 
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
-                           '/api/v1/annotationservice/running/')
+                           '/api/v1/import/service/running/')
 
         # ---------------------------------------------------------------------------------------------------------
         # Workflow variant
         # ---------------------------------------------------------------------------------------------------------
+        self._add_resource(r.workflow.allele.AlleleGenepanelResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/genepanels/<gp_name>/<gp_version>/')
 
         self._add_resource(r.workflow.allele.AlleleGenepanelsListResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/genepanels/')
@@ -197,6 +205,9 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
+
+        self._add_resource(r.workflow.analysis.AnalysisGenepanelResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/genepanels/<gp_name>/<gp_version>/')
 
         self._add_resource(r.workflow.analysis.AnalysisInterpretationResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/')

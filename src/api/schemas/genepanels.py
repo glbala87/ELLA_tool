@@ -4,7 +4,8 @@ from marshmallow import fields, Schema
 class GeneSchema(Schema):
     class Meta:
         title = 'Gene'
-        fields = ('hugo_symbol',
+        fields = ('hgnc_id',
+                  'hgnc_symbol',
                   'ensembl_gene_id',
                   'omim_entry_id')
 
@@ -12,8 +13,10 @@ class GeneSchema(Schema):
 class TranscriptSchema(Schema):
     class Meta:
         title = "Transcript"
-        fields = ('refseq_name',
-                  'ensembl_id',
+        fields = ('transcript_name',
+                  'corresponding_refseq',
+                  'corresponding_ensembl',
+                  'corresponding_lrg',
                   'genome_reference',
                   'chromosome',
                   'tx_start',
@@ -51,9 +54,19 @@ class GenepanelFullSchema(Schema):
         description = 'Panel of genes connected to a certain analysis'
         fields = ('name',
                   'version',
+                  'config')
+
+
+class GenepanelFullSchema(Schema):
+    class Meta:
+        title = "Genepanel"
+        description = 'Panel of genes connected to a certain analysis'
+        fields = ('name',
+                  'version',
                   'transcripts',
                   'phenotypes',
                   'config')
+
     transcripts = fields.Nested(TranscriptSchema, many=True)
     phenotypes = fields.Nested(PhenotypeSchema, many=True)
 

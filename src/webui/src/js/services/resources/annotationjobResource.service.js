@@ -15,7 +15,7 @@ export class AnnotationjobResource {
 
     get() {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/annotationjobs/`);
+            let r = this.resource(`${this.base}/import/service/jobs/`);
             let annotationjobs = r.query(() => {
                 resolve(annotationjobs);
             }, reject);
@@ -24,7 +24,7 @@ export class AnnotationjobResource {
 
     annotationServiceRunning() {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/annotationservice/running/`, {},
+            let r = this.resource(`${this.base}/import/service/running/`, {},
                 {
                     get: {
                         method: 'GET',
@@ -39,7 +39,7 @@ export class AnnotationjobResource {
 
     post(data) {
         return new Promise(resolve => {
-            let r = this.resource(`${this.base}/annotationjobs/`, {},
+            let r = this.resource(`${this.base}/import/service/jobs/`, {},
                 {
                     post: {
                         method: 'POST'
@@ -53,13 +53,13 @@ export class AnnotationjobResource {
 
     restart(id) {
         return new Promise((resolve, reject)=> {
-            let r = this.resource(`${this.base}/annotationjobs/`, {},
+            let r = this.resource(`${this.base}/import/service/jobs/${id}/`, {},
                 {
                     patch: {
                         method: 'PATCH'
                     }
                 });
-            let data = {id: id, status: "SUBMITTED"};
+            let data = {status: "SUBMITTED"};
             r.patch(data, res => {
                 resolve(res);
             }, reject);
@@ -68,8 +68,7 @@ export class AnnotationjobResource {
 
     delete(id) {
         return new Promise((resolve, reject)=> {
-            console.log(`${this.base}/annotationjobs/${id}`);
-            let r = this.resource(`${this.base}/annotationjobs/${id}`, {},
+            let r = this.resource(`${this.base}/import/service/jobs/${id}/`, {},
                 {
                     delete: {
                         method: 'DELETE'

@@ -1,18 +1,8 @@
 import datetime
-from collections import defaultdict
 import pytz
-from sqlalchemy import or_, and_, tuple_, func, cast, text, column, Numeric, String, table
-from sqlalchemy.dialects.postgresql import JSONB
-
+from sqlalchemy import or_, and_, tuple_, func, text, literal_column
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
-from api.util.util import query_print_table
 from api.config import config
-from api.util.genepanelconfig import GenepanelConfigResolver
-
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable, literal_column
-from sqlalchemy.dialects import postgresql
-
 
 
 def valid_alleleassessments_filter(session):
@@ -119,6 +109,7 @@ def workflow_analyses_for_genepanels(session, genepanels):
         tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
     )
 
+
 def allele_ids_nonfinalized_analyses(session):
     return session.query(
         allele.Allele.id,
@@ -221,7 +212,111 @@ def workflow_alleles_for_genepanels(session, genepanels):
     ).distinct()
 
 
-def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, inclusion_regex):
+def ad_genes_for_genepanel(session, gp_name, gp_version):
+    """
+    Fetches all genes with _only_ 'AD' phenotypes.
+    """
+
+    # Get phenotypes having only one kind of inheritance
+    # e.g. only 'AD' or only 'AR' etc...
+    distinct_inheritance = session.query(
+        gene.Phenotype.genepanel_name,
+        gene.Phenotype.genepanel_version,
+        gene.Phenotype.gene_id,
+    ).filter(
+        gene.Phenotype.genepanel_name == gp_name,
+        gene.Phenotype.genepanel_version == gp_version
+    ).group_by(
+        gene.Phenotype.genepanel_name,
+        gene.Phenotype.genepanel_version,
+        gene.Phenotype.gene_id
+    ).having(func.count(gene.Phenotype.inheritance.distinct()) == 1).subquery()
+
+    return session.query(
+        gene.Gene.hgnc_symbol,
+    ).join(
+        gene.Phenotype,
+        gene.Phenotype.gene_id == gene.Gene.hgnc_id
+    ).join(
+        distinct_inheritance,
+        and_(
+            gene.Phenotype.genepanel_name == distinct_inheritance.c.genepanel_name,
+            gene.Phenotype.genepanel_version == distinct_inheritance.c.genepanel_version,
+            gene.Phenotype.gene_id == distinct_inheritance.c.gene_id
+        )
+    ).filter(
+        gene.Phenotype.genepanel_name == gp_name,
+        gene.Phenotype.genepanel_version == gp_version,
+        gene.Phenotype.inheritance == 'AD'
+    ).distinct()
+
+
+def _unwrap_annotation(session, allele_ids):
+    # Subquery unwrapping transcripts array from annotation
+    # | allele_id |     transcripts      |
+    # ------------------------------------
+    # | 1         | {... JSONB data ...} |
+    # | 2         | {... JSONB data ...} |
+
+    filters = [
+        annotation.Annotation.date_superceeded.is_(None)  # Important!
+    ]
+
+    # FIXME: Letting allele_ids be optional is not a good idea, it will scale horribly.
+    # Keep it until we find an acceptable solution for transcript data
+    if allele_ids:
+        filters.append(
+            annotation.Annotation.allele_id.in_(allele_ids)
+        )
+
+    unwrapped_annotation = session.query(
+        annotation.Annotation.allele_id,
+        func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
+    ).filter(*filters)
+    return unwrapped_annotation
+
+
+def annotation_transcripts_filtered(session, allele_ids, inclusion_regex):
+
+    """
+    Filters annotation transcripts for input allele_ids against inclusion_regex.
+    If inclusion_regex is None, no filtering is applied.
+
+    genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
+
+    Returns Query object, representing:
+    -------------------------------------
+    | allele_id | annotation_transcript |
+    -------------------------------------
+    | 1         | NM_000059.3           |
+    | 2         | NM_000059.3           |
+      etc...
+
+    :warning: If there is no match between the inclusion_regex and the annotation,
+    the allele won't be included in the result.
+    Therefore, do _not_ use this as basis for inclusion of alleles in an analysis.
+    Use it only to get annotation data for further filtering,
+    where a non-match wouldn't exclude the allele in the analysis.
+    """
+
+    unwrapped_annotation = _unwrap_annotation(session, allele_ids).subquery()
+
+    result = session.query(
+        unwrapped_annotation.c.allele_id.label('allele_id'),
+        literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
+    )
+
+    if inclusion_regex:
+        result = result.filter(
+            text("transcripts::jsonb ->> 'transcript' ~ :reg").params(reg=inclusion_regex)
+        )
+
+    result = result.distinct()
+    return result
+
+
+def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
+
     """
     Filters annotation transcripts for input allele_ids against genepanel transcripts
     for given genepanel_keys.
@@ -229,11 +324,11 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
     genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
 
     Returns Query object, representing:
-    -----------------------------------------------------
-    | allele_id | name | version | annotation_transcript |
-    -----------------------------------------------------
-    | 1         | HBOC | v01     | NM_000059.3           |
-    | 2         | HBOC | v01     | NM_000059.3           |
+    -----------------------------------------------------------------------------
+    | allele_id | name | version | annotation_transcript | genepanel_transcript |
+    -----------------------------------------------------------------------------
+    | 1         | HBOC | v01     | NM_000059.2           | NM_000059.3          |
+    | 1         | HBOC | v01     | ENST00000530893       | ENST00000530893      |
       etc...
 
     :warning: If there is no match between the genepanel and the annotation,
@@ -242,62 +337,31 @@ def alleles_transcript_filtered_genepanel(session, allele_ids, genepanel_keys, i
     Use it only to get annotation data for further filtering,
     where a non-match wouldn't exclude the allele in the analysis.
     """
+
     genepanel_transcripts = session.query(
         gene.Genepanel.name,
         gene.Genepanel.version,
-        gene.Transcript.refseq_name,
-        gene.Transcript.ensembl_id,
+        gene.Transcript.transcript_name,
         gene.Transcript.gene_id,
     ).join(gene.Genepanel.transcripts).filter(
         tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
     ).subquery()
 
-    # Subquery unwrapping transcripts array from annotation
-    # | allele_id |     transcripts      |
-    # ------------------------------------
-    # | 1         | {... JSONB data ...} |
-    # | 2         | {... JSONB data ...} |
-    filters = [annotation.Annotation.date_superceeded.is_(None)]  # Important!
-    if allele_ids is not None:
-        filters.append(annotation.Annotation.allele_id.in_(allele_ids))
-    unwrapped_annotation = session.query(
-        annotation.Annotation.allele_id,
-        func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
-    ).filter(
-        *filters
-    ).subquery()
+    unwrapped_annotation = _unwrap_annotation(session, allele_ids).subquery()
 
-    # Join the tables together, using transcript as key and splitting out the
-    # version number of the transcript (if it has one)
-    # -----------------------------------------------------------------------------
-    # | allele_id | name | version | annotation_transcript | genepanel_transcript |
-    # -----------------------------------------------------------------------------
-    # | 1         | HBOC | v01     | NM_000059.3           | NM_000059.3          |
-    # | 1         | HBOC | v01     | ENST00000380152       | NM_000059.3          |
-    # | 1         | HBOC | v01     | ENST00000530893       | NM_000059.3          |
+    # Join genepanel and annotation tables together, using transcript as key
+    # and splitting out the version number of the transcript (if it has one)
     result = session.query(
         unwrapped_annotation.c.allele_id.label('allele_id'),
         genepanel_transcripts.c.name.label('name'),
         genepanel_transcripts.c.version.label('version'),
-        literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
         literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
+        literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
         literal_column("transcripts::jsonb ->> 'HGVSc'").label('annotation_hgvsc'),
         literal_column("transcripts::jsonb ->> 'HGVSp'").label('annotation_hgvsp'),
-        genepanel_transcripts.c.gene_id.label('genepanel_symbol'),
-        genepanel_transcripts.c.refseq_name.label('genepanel_transcript'),
+        genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
     ).filter(
-        text("transcripts::jsonb ->> 'symbol' = gene_id")
-    )
-
-    # Only filter on annotation transcripts defined in config inclusion regex and genepanel transcripts
-    transcript_filters = [text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(refseq_name, '.', 1)")]
-
-    if inclusion_regex is not None:
-        transcript_filters.append(
-            text("transcripts::jsonb ->> 'transcript' ~ :reg").params(reg=inclusion_regex)
-        )
-
-    result = result.filter(or_(*transcript_filters))
-    result = result.distinct()
+        text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(transcript_name, '.', 1)")
+    ).distinct()
 
     return result

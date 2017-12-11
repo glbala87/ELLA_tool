@@ -55,48 +55,6 @@ describe("filter", function () {
         });
     });
 
-    describe("HGVSc_short", function () {
-        var f;
-
-        beforeEach(function () {
-            angular.mock.module('workbench');
-            inject(
-                function (_$filter_) {
-                    f = _$filter_('HGVSc_short');
-                });
-        });
-
-        it("shortens by getting the last part", function() {
-            expect(f('abc:def')).toEqual('def');
-        });
-
-        it("returns undefined when separator is missing", function() {
-            expect(f('abc')).toEqual(undefined);
-        });
-
-    });
-
-    describe("HGVSp_short", function () {
-        var f;
-
-        beforeEach(function () {
-            angular.mock.module('workbench');
-            inject(
-                function (_$filter_) {
-                    f = _$filter_('HGVSp_short');
-                });
-        });
-
-        it("shortens by getting the last part", function() {
-            expect(f('abc:def')).toEqual('def');
-        });
-
-        it("returns undefined when seperator is missing", function() {
-            expect(f('abc')).toEqual(undefined);
-        });
-
-    });
-
     describe("noUnderscores", function () {
         var f;
 

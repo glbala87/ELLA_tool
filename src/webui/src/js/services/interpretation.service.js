@@ -234,7 +234,7 @@ class InterpretationService {
         let gp_name = interpretation.genepanel_name;
         let gp_version = interpretation.genepanel_version;
 
-        return this.genepanelResource.get(gp_name, gp_version).then( (gp) => {
+        this.workflowResource.getGenepanel(this.type, this.id, gp_name, gp_version).then(gp => {
             this.selected_interpretation_genepanel = gp
             this.isViewReady = true;
         });

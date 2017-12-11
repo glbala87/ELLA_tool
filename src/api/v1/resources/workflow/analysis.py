@@ -12,6 +12,24 @@ from vardb.datamodel.sample import Analysis
 from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
 
 
+class AnalysisGenepanelResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, analysis_id, gp_name, gp_version, user=None):
+        """
+        Returns genepanel for analysis, only including relevant transcripts and phenotypes.
+        """
+        analysis_allele_ids = session.query(allele.Allele.id).join(
+            genotype.Genotype.alleles,
+            sample.Sample,
+            sample.Analysis
+        ).filter(
+            sample.Analysis.id == analysis_id
+        ).all()
+
+        return helpers.load_genepanel_for_allele_ids(session, analysis_allele_ids, gp_name, gp_version)
+
+
 class AnalysisInterpretationAllelesListResource(LogRequestResource):
 
     @authenticate()

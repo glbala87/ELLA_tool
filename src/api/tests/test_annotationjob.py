@@ -8,7 +8,7 @@ from api.polling import AnnotationJobsInterface
 from vardb.datamodel import sample, annotationjob, allele, genotype
 from vardb.deposit.importers import AlleleImporter
 
-ANNOTATION_JOBS_PATH = "/api/v1/annotationjobs/"
+ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"
 
 TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
 assert os.path.isdir(TESTDATA_DIR)
@@ -66,11 +66,6 @@ def split_vcf(vcf):
 @pytest.fixture
 def split_annotated_vcf(annotated_vcf):
     return split_vcf(annotated_vcf)
-
-
-@pytest.fixture
-def split_unannotated_vcf(unannotated_vcf):
-    return split_vcf(unannotated_vcf)
 
 
 def test_submit_annotationjob(session, client):

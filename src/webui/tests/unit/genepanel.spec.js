@@ -53,13 +53,13 @@ describe("Model Genepanel", function () {
 
         let genepanel = {
             'phenotypes': [
-                {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': 'AD'},
-                {'gene': {'hugo_symbol': 'BRCA2'}, 'inheritance': 'AR', 'description': "a phenotype"},
-                {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': 'AD'},
-                {'gene': {'hugo_symbol': 'BRCA1'}, 'inheritance': ''}
+                {'gene': {'hgnc_symbol': 'BRCA1'}, 'inheritance': 'AD'},
+                {'gene': {'hgnc_symbol': 'BRCA2'}, 'inheritance': 'AR', 'description': "a phenotype"},
+                {'gene': {'hgnc_symbol': 'BRCA1'}, 'inheritance': 'AD'},
+                {'gene': {'hgnc_symbol': 'BRCA1'}, 'inheritance': ''}
             ],
             'transcripts': [
-                {'gene': {'hugo_symbol': 'BRCA1', 'omim_entry_id': 113705}},
+                {'gene': {'hgnc_symbol': 'BRCA1', 'omim_entry_id': 113705}},
             ]
         };
 
