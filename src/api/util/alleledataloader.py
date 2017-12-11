@@ -1,3 +1,4 @@
+import re
 from vardb.datamodel import allele, sample, genotype
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
@@ -26,6 +27,7 @@ class AlleleDataLoader(object):
 
     def __init__(self, session):
         self.session = session
+        self.inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
 
     def from_objs(self,
                   alleles,
@@ -164,6 +166,14 @@ class AlleleDataLoader(object):
                 [(genepanel.name, genepanel.version)]
             ).all()
 
+        inclusion_regex_filtered = None
+        if self.inclusion_regex:
+            inclusion_regex_filtered = queries.annotation_transcripts_filtered(
+                self.session,
+                allele_ids,
+                self.inclusion_regex
+            ).all()
+
         final_alleles = list()
         for allele_id, data in accumulated_allele_data.iteritems():
             final_allele = data[KEY_ALLELE]
@@ -173,6 +183,19 @@ class AlleleDataLoader(object):
 
             if KEY_ANNOTATION in data:
 
+                # filtered_transcripts = transcripts in our genepanel
+                filtered_transcripts = []
+                if annotation_transcripts_genepanel:
+                    filtered_transcripts = [a[3] for a in annotation_transcripts_genepanel if a[0] == allele_id]
+
+                # Filter main transcript list on inclusion regex
+                # (if in filtered_transcripts, don't exclude it)
+                if inclusion_regex_filtered and 'transcripts' in data[KEY_ANNOTATION][KEY_ANNOTATIONS]:
+                    allele_regex_filtered = [t[1] for t in inclusion_regex_filtered if t[0] == allele_id]
+                    data[KEY_ANNOTATION][KEY_ANNOTATIONS]['transcripts'] = \
+                        [t for t in data[KEY_ANNOTATION][KEY_ANNOTATIONS]['transcripts'] \
+                         if (t['transcript'] in allele_regex_filtered or t['transcript'] in filtered_transcripts)]
+
                 # Convert annotation using annotationprocessor
                 processed_annotation = AnnotationProcessor.process(
                     data[KEY_ANNOTATION][KEY_ANNOTATIONS],
@@ -181,8 +204,7 @@ class AlleleDataLoader(object):
                 )
                 final_allele[KEY_ANNOTATION] = processed_annotation
 
-                if annotation_transcripts_genepanel:
-                    final_allele[KEY_ANNOTATION]['filtered_transcripts'] = [a[3] for a in annotation_transcripts_genepanel if a[0] == allele_id]
+                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = filtered_transcripts
                 final_allele[KEY_ANNOTATION]['annotation_id'] = data[KEY_ANNOTATION]['id']
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']
