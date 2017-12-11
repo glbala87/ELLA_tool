@@ -60,6 +60,13 @@ class RestQuery(Query):
         return self.filter(sql.and_(*clauses))
 
     def explain(self, analyze=False, print_json=False, stdout=True):
+        """
+        Prints EXPLAIN (ANALYZE) data to stdout to aid performance
+        debugging.
+
+        Call on query(), like session.query(...).filter(...).explain(analyze=True)
+        The json option is for use with http://tatiyants.com/pev/
+        """
         explained = self.session.execute(explain(self, analyze=analyze, json=print_json)).fetchall()
         if stdout:
             print '''                                                       QUERY PLAN
