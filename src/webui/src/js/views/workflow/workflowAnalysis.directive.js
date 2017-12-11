@@ -28,7 +28,6 @@ import {Directive, Inject} from '../../ng-decorators';
 @Inject('$rootScope',
     '$scope',
     'WorkflowResource',
-    'GenepanelResource',
     'Workflow',
     'Interpretation',
     'Navbar',
@@ -40,7 +39,6 @@ export class WorkflowAnalysisController {
     constructor(rootScope,
                 scope,
                 WorkflowResource,
-                GenepanelResource,
                 Workflow,
                 Interpretation,
                 Navbar,
@@ -51,7 +49,6 @@ export class WorkflowAnalysisController {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
-        this.genepanelResource = GenepanelResource;
         this.workflowService = Workflow;
         this.interpretationService = Interpretation;
         this.navbar = Navbar;

@@ -19,15 +19,14 @@ import {deepCopy} from '../util'
 @Service({
     serviceName: 'Interpretation'
 })
-@Inject('$rootScope', 'WorkflowResource', 'Workflow', 'Allele', 'GenepanelResource', 'AnalysisResource', 'User')
+@Inject('$rootScope', 'WorkflowResource', 'Workflow', 'Allele', 'AnalysisResource', 'User')
 class InterpretationService {
 
-    constructor($rootScope, WorkflowResource, Workflow, Allele, GenepanelResource, AnalysisResource, User) {
+    constructor($rootScope, WorkflowResource, Workflow, Allele, AnalysisResource, User) {
         this.rootScope = $rootScope;
         this.workflowResource = WorkflowResource;
         this.workflowService = Workflow;
         this.alleleService = Allele;
-        this.genepanelResource = GenepanelResource;
         this.analysisResource = AnalysisResource;
         this.user = User;
 

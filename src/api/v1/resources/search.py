@@ -3,14 +3,13 @@ import json
 from collections import defaultdict
 from flask import request
 from sqlalchemy import tuple_, or_, and_
-from vardb.datamodel import sample, assessment, allele, gene, genotype, workflow
-
+from vardb.datamodel import sample, assessment, allele, gene, genotype, workflow, annotationshadow, user as user_model
 from api import schemas
 
 from api.v1.resource import LogRequestResource
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.queries import annotation_transcripts_genepanel
-from api.util.util import authenticate
+from api.util.util import authenticate, request_json
 
 from api.util.allelefilter import AlleleFilter
 from api.config import config
@@ -45,10 +44,8 @@ class SearchResource(LogRequestResource):
 
         ### Supported queries
         For Alleles and AlleleAssessments supported search queries are:
-        * HGVS cDNA name, e.g. c.1312A>G (case insensitive) or NM_000059:c.920_921insT or
-          just NM_000059.
-        * HGVS protein name, e.g. p.Ser309PhefsTer6 or NP_000050.2:p.Ser309PhefsTer6
-          or just NP_000050.
+        * HGVS cDNA name, e.g. c.1312A>G.
+        * HGVS protein name, e.g. p.Ser309PhefsTer6.
         * Genomic positions in the following formats:
           * 123456 (start position)
           * 14:234234234-123123123 (chr, start, end)
@@ -106,7 +103,8 @@ class SearchResource(LogRequestResource):
 
         # Choose which genepanels to filter on. If genepanel is provided in query, use this. Otherwise use usergroup genepanels.
         if query.get("genepanel"):
-            genepanels = [next(gp for gp in user.group.genepanels if (gp.name, gp.version) == tuple(query.get("genepanel")))]
+            query_gp = (query.get('genepanel')['name'], query.get('genepanel')['version'])
+            genepanels = [next(gp for gp in user.group.genepanels if (gp.name, gp.version) == query_gp)]
         else:
             genepanels = user.group.genepanels
 
@@ -124,37 +122,37 @@ class SearchResource(LogRequestResource):
     def _get_analyses_filters(self, session, query, genepanels):
         filters = list()
 
-        freetext = query.get("freetext")
-        if freetext:
-            freetext = re.escape(freetext)
-        gene = query.get("gene")
-        user = query.get("user")
+        q_freetext = query.get("freetext")
+        if q_freetext:
+            q_freetext = re.escape(q_freetext)
+        q_gene = query.get("gene")
+        q_user = query.get("user")
         # The query for genepanel is already applied to genepanels
 
-        if freetext is not None and freetext != "":
+        if q_freetext is not None and q_freetext != "":
             # Escape special characters before sending to tsquery
             for t in SearchResource.TSQUERY_ESCAPE:
-                freetext = freetext.replace(t, '\\' + t)
-            filters.append(sample.Analysis.name.op('~*')('.*{}.*'.format(freetext)))
+                q_freetext = q_freetext.replace(t, '\\' + t)
+            filters.append(sample.Analysis.name.op('~*')('.*{}.*'.format(q_freetext)))
 
-        if gene is not None:
-            allele_ids_in_gene = self._search_allele_gene(session, gene, genepanels)
+        if q_gene is not None:
+            allele_ids_in_gene = self._search_allele_gene(session, q_gene['hgnc_id'], genepanels)
             filters.extend([
-                sample.Analysis.id == genotype.Genotype.analysis_id,
-                or_(
-                    genotype.Genotype.allele_id.in_(allele_ids_in_gene),
-                    genotype.Genotype.secondallele_id.in_(allele_ids_in_gene)
-                )
-                ]
-            )
+                    sample.Analysis.id == genotype.Genotype.analysis_id,
+                    or_(
+                        genotype.Genotype.allele_id.in_(allele_ids_in_gene),
+                        genotype.Genotype.secondallele_id.in_(allele_ids_in_gene)
+                    )
+                ])
 
         # Filter on genepanel(s)
         filters.append(tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in genepanels))
 
-        if user is not None:
+        if q_user is not None:
+            user_ids = session.query(user_model.User.id).filter(user_model.User.username == q_user['username']).subquery()
             filters.extend([
                 sample.Analysis.id == workflow.AnalysisInterpretation.analysis_id,
-                workflow.AnalysisInterpretation.user_id == user
+                workflow.AnalysisInterpretation.user_id.in_(user_ids)
             ])
 
         return filters
@@ -172,20 +170,21 @@ class SearchResource(LogRequestResource):
             filters.append(allele.Allele.id.in_(allele_ids))
 
         if q_gene is not None:
-            allele_ids_in_gene = self._search_allele_gene(session, q_gene, genepanels)
+            allele_ids_in_gene = self._search_allele_gene(session, q_gene['hgnc_id'], genepanels)
             filters.append(allele.Allele.id.in_(allele_ids_in_gene))
 
         allele_ids_in_genepanels = self._search_allele_genepanels(session, genepanels)
         filters.append(allele.Allele.id.in_(allele_ids_in_genepanels))
 
         if q_user is not None:
+            user_ids = session.query(user_model.User.id).filter(user_model.User.username == q_user['username']).subquery()
             filters.append(or_(
                 and_(
-                    workflow.AlleleInterpretation.user_id == q_user,
+                    workflow.AlleleInterpretation.user_id.in_(user_ids),
                     workflow.AlleleInterpretation.allele_id == allele.Allele.id
                 ),
                 and_(
-                    assessment.AlleleAssessment.user_id == q_user,
+                    assessment.AlleleAssessment.user_id.in_(user_ids),
                     assessment.AlleleAssessment.allele_id == allele.Allele.id
                 )
             ))
@@ -218,33 +217,32 @@ class SearchResource(LogRequestResource):
     def _search_allele_hgvs(self, session, freetext, genepanels):
         """
         Performs a search in the database using the
-        annotation table to lookup HGVS cDNA or protein
+        annotation table to lookup HGVS cDNA (c.) or protein (p.)
         and get the allele_ids for matching annotations.
 
         :returns: List of allele_ids
         """
 
-        # Search by c.DNA and p. names
-        # Query unwraps 'CSQ' JSON array as intermediate
-        # table then searches that table for a match.
-
         genepanel_transcripts = annotation_transcripts_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels]).subquery()
-
         allele_ids = session.query(
-            genepanel_transcripts.c.allele_id,
+            annotationshadow.AnnotationShadowTranscript.allele_id
+        ).filter(
+            # Only include transcripts that exists in a genepanel
+            annotationshadow.AnnotationShadowTranscript.transcript == genepanel_transcripts.c.annotation_transcript
         )
 
+        # btree indexes only support LIKE statements with no wildcard
+        # in the beginning. If we need something else, remember to
+        # add/update indexes accordingly
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in freetext:
-            freetext = re.escape(freetext)  # Don't move me
             allele_ids = allele_ids.filter(
-                genepanel_transcripts.c.annotation_hgvsp.op('~*')(".*"+freetext+".*")
+                annotationshadow.AnnotationShadowTranscript.hgvsp.like(freetext + "%")
             )
-        elif 'c.' in freetext:
-            freetext = re.escape(freetext)
+        elif freetext.startswith('c.'):
             allele_ids = allele_ids.filter(
-                genepanel_transcripts.c.annotation_hgvsc.op('~*')(".*" + freetext + ".*")
+                annotationshadow.AnnotationShadowTranscript.hgvsc.like(freetext + "%")
             )
         else:
             return []
@@ -275,14 +273,14 @@ class SearchResource(LogRequestResource):
 
         return []
 
-    def _search_allele_gene(self, session, gene, genepanels):
+    def _search_allele_gene(self, session, gene_hgnc_id, genepanels):
         # Search by transcript symbol
         genepanel_transcripts = annotation_transcripts_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels]).subquery()
 
         result = session.query(
             genepanel_transcripts.c.allele_id,
         ).filter(
-            genepanel_transcripts.c.annotation_symbol == gene,
+            genepanel_transcripts.c.annotation_hgnc_id == gene_hgnc_id,
         ).distinct()
 
         return result
@@ -389,7 +387,7 @@ class SearchResource(LogRequestResource):
             if freetext:
                 filtered_transcripts = [t for t in filtered_transcripts if freetext in t.get('HGVSc', '') or freetext in t.get('HGVSp', '')]
             if gene:
-                filtered_transcripts = [t for t in filtered_transcripts if t['symbol'] == gene]
+                filtered_transcripts = [t for t in filtered_transcripts if t['hgnc_id'] == gene['hgnc_id']]
 
             al['annotation']['filtered_transcripts'] = [t['transcript'] for t in filtered_transcripts]
 
@@ -475,3 +473,65 @@ class SearchResource(LogRequestResource):
                 return schemas.AnalysisFullSchema().dump(analyses, many=True).data
             else:
                 return []
+
+
+class SearchOptionsResource(LogRequestResource):
+
+    RESULT_LIMIT = 20
+
+    @authenticate()
+    def get(self, session, user=None):
+
+        query = json.loads(request.args['q'])
+        result = dict()
+        if 'gene' in query:
+            genepanel_hgnc_ids = session.query(gene.Gene.hgnc_id).join(
+                gene.Transcript,
+                gene.Genepanel.transcripts
+            ).filter(
+                gene.Transcript.gene_id == gene.Gene.hgnc_id,  # was a bit hard to get the join correct, had to put join condition here
+                tuple_(gene.Genepanel.name, gene.Genepanel.version).in_([(g.name, g.version) for g in user.group.genepanels])
+            ).distinct()
+
+            gene_results = session.query(
+                annotationshadow.AnnotationShadowTranscript.symbol,
+                annotationshadow.AnnotationShadowTranscript.hgnc_id
+            ).filter(
+                annotationshadow.AnnotationShadowTranscript.symbol.ilike(query['gene'] + '%'),
+                annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(genepanel_hgnc_ids),
+            ).distinct().order_by(
+                annotationshadow.AnnotationShadowTranscript.symbol
+            ).limit(SearchOptionsResource.RESULT_LIMIT)
+
+            result['gene'] = [{'symbol': r[0], 'hgnc_id': r[1]} for r in gene_results.all()]
+
+        if 'genepanel' in query:
+            genepanel_results = session.query(
+                gene.Genepanel.name,
+                gene.Genepanel.version
+            ).filter(
+                or_(
+                    gene.Genepanel.name.ilike(query['genepanel'] + '%'),
+                    gene.Genepanel.version.ilike(query['genepanel'] + '%')
+                ),
+                tuple_(gene.Genepanel.name, gene.Genepanel.version).in_([(g.name, g.version) for g in user.group.genepanels])
+            ).limit(SearchOptionsResource.RESULT_LIMIT).all()
+            result['genepanel'] = [{'name': g[0], 'version': g[1]} for g in genepanel_results]
+
+        if 'user' in query:
+            user_results = session.query(
+                user_model.User.username,
+                user_model.User.first_name,
+                user_model.User.last_name
+            ).filter(
+                user_model.User.username.in_(
+                    session.query(user_model.User.username).filter(user_model.User.group_id == user.group_id)
+                ),
+                or_(
+                    user_model.User.first_name.ilike(query['user'] + '%'),
+                    user_model.User.last_name.ilike(query['user'] + '%')
+                )
+            ).order_by(user_model.User.last_name).limit(SearchOptionsResource.RESULT_LIMIT).all()
+            result['user'] = [{'username': u[0], 'first_name': u[1], 'last_name': u[2]} for u in user_results]
+
+        return result

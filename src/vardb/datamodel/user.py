@@ -32,7 +32,7 @@ class User(Base):
     first_name = Column(String(), nullable=False)
     last_name = Column(String(), nullable=False)
     group_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
-    group = relationship("UserGroup", uselist=False)
+    group = relationship("UserGroup", uselist=False, backref="users")
     password = Column(String(), nullable=False)
     password_expiry = Column(DateTime(timezone=True), nullable=False)
     active = Column(Boolean, default=True, nullable=False)

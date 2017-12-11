@@ -54,15 +54,6 @@ class GenepanelFullSchema(Schema):
         description = 'Panel of genes connected to a certain analysis'
         fields = ('name',
                   'version',
-                  'config')
-
-
-class GenepanelFullSchema(Schema):
-    class Meta:
-        title = "Genepanel"
-        description = 'Panel of genes connected to a certain analysis'
-        fields = ('name',
-                  'version',
                   'transcripts',
                   'phenotypes',
                   'config')
@@ -77,12 +68,3 @@ class GenepanelSchema(Schema):
           'name',
           'version',
         )
-
-# class GenepanelConfigSchema(Schema):
-#     class Meta:
-#         title = "Genepanel config"
-#         description = "Config that can be overriden by genepanel or gene"
-#         fields = (
-#           'meta'
-#           'version'
-#         )

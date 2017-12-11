@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import copy
-
 from api import config
 
 
@@ -66,7 +64,7 @@ class AnnotationProcessor(object):
     @staticmethod
     def process(annotation, custom_annotation=None, genepanel=None):
         """
-        Expands/changes/merges input annotation data.
+        Expands/changes/merges input annotation data inplace.
 
         :param annotation:
         :param custom_annotation:
@@ -75,20 +73,19 @@ class AnnotationProcessor(object):
         :return: Modified annotation data
         """
 
-        data = copy.deepcopy(annotation)
-        if 'transcripts' in data:
-            data.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
+        if 'transcripts' in annotation:
+            annotation.update(TranscriptAnnotation(config.config).process(annotation, genepanel=genepanel))
 
         if custom_annotation:
-            # Merge/overwrite data with custom_annotation
+            # Merge/overwrite annotation with custom_annotation
             for key in config.config['custom_annotation'].keys():
                 if key in custom_annotation:
-                    if key not in data:
-                        data[key] = dict()
-                    data[key].update(custom_annotation[key])
+                    if key not in annotation:
+                        annotation[key] = dict()
+                    annotation[key].update(custom_annotation[key])
 
             # References are merged specially
-            if 'references' in data and 'references' in custom_annotation:
+            if 'references' in annotation and 'references' in custom_annotation:
                 for ca_ref in custom_annotation['references']:
                     if "source_info" not in ca_ref:
                         ca_ref["source_info"] = dict()
@@ -96,7 +93,7 @@ class AnnotationProcessor(object):
                     # A reference can come from several sources, if so only merge the source
                     assert ca_ref.get('id') or ca_ref.get('pubmed_id'), ca_ref
                     existing_ref = None
-                    for r in data['references']:
+                    for r in annotation['references']:
                         for id in ['id', 'pubmed_id']:
                             if r.get(id) is not None and r.get(id) == ca_ref.get(id):
                                 existing_ref = r
@@ -106,6 +103,6 @@ class AnnotationProcessor(object):
                         existing_ref['sources'] = existing_ref['sources'] + ca_ref['sources']
                         continue
 
-                    data['references'].append(ca_ref)
+                    annotation['references'].append(ca_ref)
 
-        return data
+        return annotation

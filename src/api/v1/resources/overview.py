@@ -181,7 +181,7 @@ class OverviewAlleleResource(LogRequestResource):
         ).filter(
             workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
             allele.Allele.id.in_(candidate_allele_ids)
-        ).all()
+        ).distinct().all()
 
         # Make a dict of (gp_name, gp_version): [allele_ids], since we must process as many alleles as possible at once with AlleleDataLoader
         gp_allele_ids = defaultdict(list)
@@ -221,7 +221,7 @@ class OverviewAlleleResource(LogRequestResource):
             workflow.AlleleInterpretation.allele_id
         ).filter(
             workflow.AlleleInterpretation.allele_id.in_(allele_ids)
-        ).all()
+        ).distinct().all()
 
         # Make a dict of (gp_name, gp_version): [allele_ids],
         # for use in allele loading function
@@ -369,8 +369,6 @@ def get_categorized_analyses(session, user=None):
         final_analyses[key] = aschema.dump(analyses, many=True).data
 
     return final_analyses
-
-
 
 
 def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):

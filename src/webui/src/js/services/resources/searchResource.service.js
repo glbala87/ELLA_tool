@@ -34,6 +34,23 @@ class SearchResource {
             }, reject);
         });
     }
+
+    getOptions(query) {
+        return new Promise((resolve, reject) => {
+            if (!query) {
+                resolve([])
+            }
+            var r = this.resource(`/api/v1/search/options/?q=${encodeURIComponent(JSON.stringify(query))}`, {}, {
+                get: {
+                    isArray: false
+                }
+            });
+            var result = r.get(function () {
+                resolve(result);
+            }, reject);
+        });
+    }
+
 }
 
 export default SearchResource;

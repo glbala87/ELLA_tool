@@ -6,7 +6,7 @@ import copy
 import pytest
 
 from api.util.allelefilter import AlleleFilter
-from vardb.datamodel import allele, annotation, gene
+from vardb.datamodel import allele, annotation, gene, annotationshadow
 
 # prevent screen getting filled with output (useful when testing manually)
 #import logging
@@ -170,7 +170,7 @@ GENEPANEL_CONFIG = {
                     }
                 }
             }
-    }
+        }
     }
 }
 
@@ -333,6 +333,10 @@ class TestAlleleFilter(object):
     @pytest.mark.aa(order=0)
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
+
+        # We need to recreate the annotation shadow tables,
+        # since we want to use our test config
+        annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
         gp = create_genepanel(GENEPANEL_CONFIG)
         session.add(gp)
@@ -524,7 +528,7 @@ class TestAlleleFilter(object):
         })
 
         # Test gene specific cutoff override
-        anum4,anum4anno = create_allele_with_annotation_tuple(session, {
+        anum4, anum4anno = create_allele_with_annotation_tuple(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -549,9 +553,9 @@ class TestAlleleFilter(object):
         af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_info = {anum1.id: (anum1, anum1anno),
-                      anum2.id: (anum2, anum2anno),
-                      anum3.id: (anum3, anum3anno),
-                      anum4.id: (anum4, anum4anno)}
+                       anum2.id: (anum2, anum2anno),
+                       anum3.id: (anum3, anum3anno),
+                       anum4.id: (anum4, anum4anno)}
         result = af.get_commonness_groups({gp_key: allele_info.keys()})
 
         assert set(result[gp_key]['num_threshold']) == set([anum1.id]),\

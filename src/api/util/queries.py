@@ -2,6 +2,8 @@ import datetime
 import pytz
 from sqlalchemy import or_, and_, tuple_, func, text, literal_column
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
+from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
+
 from api.config import config
 
 
@@ -251,70 +253,6 @@ def ad_genes_for_genepanel(session, gp_name, gp_version):
     ).distinct()
 
 
-def _unwrap_annotation(session, allele_ids):
-    # Subquery unwrapping transcripts array from annotation
-    # | allele_id |     transcripts      |
-    # ------------------------------------
-    # | 1         | {... JSONB data ...} |
-    # | 2         | {... JSONB data ...} |
-
-    filters = [
-        annotation.Annotation.date_superceeded.is_(None)  # Important!
-    ]
-
-    # FIXME: Letting allele_ids be optional is not a good idea, it will scale horribly.
-    # Keep it until we find an acceptable solution for transcript data
-    if allele_ids:
-        filters.append(
-            annotation.Annotation.allele_id.in_(allele_ids)
-        )
-
-    unwrapped_annotation = session.query(
-        annotation.Annotation.allele_id,
-        func.jsonb_array_elements(annotation.Annotation.annotations['transcripts']).label('transcripts')
-    ).filter(*filters)
-    return unwrapped_annotation
-
-
-def annotation_transcripts_filtered(session, allele_ids, inclusion_regex):
-
-    """
-    Filters annotation transcripts for input allele_ids against inclusion_regex.
-    If inclusion_regex is None, no filtering is applied.
-
-    genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
-
-    Returns Query object, representing:
-    -------------------------------------
-    | allele_id | annotation_transcript |
-    -------------------------------------
-    | 1         | NM_000059.3           |
-    | 2         | NM_000059.3           |
-      etc...
-
-    :warning: If there is no match between the inclusion_regex and the annotation,
-    the allele won't be included in the result.
-    Therefore, do _not_ use this as basis for inclusion of alleles in an analysis.
-    Use it only to get annotation data for further filtering,
-    where a non-match wouldn't exclude the allele in the analysis.
-    """
-
-    unwrapped_annotation = _unwrap_annotation(session, allele_ids).subquery()
-
-    result = session.query(
-        unwrapped_annotation.c.allele_id.label('allele_id'),
-        literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
-    )
-
-    if inclusion_regex:
-        result = result.filter(
-            text("transcripts::jsonb ->> 'transcript' ~ :reg").params(reg=inclusion_regex)
-        )
-
-    result = result.distinct()
-    return result
-
-
 def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
 
     """
@@ -337,7 +275,6 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
     Use it only to get annotation data for further filtering,
     where a non-match wouldn't exclude the allele in the analysis.
     """
-
     genepanel_transcripts = session.query(
         gene.Genepanel.name,
         gene.Genepanel.version,
@@ -347,21 +284,20 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
         tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
     ).subquery()
 
-    unwrapped_annotation = _unwrap_annotation(session, allele_ids).subquery()
-
     # Join genepanel and annotation tables together, using transcript as key
     # and splitting out the version number of the transcript (if it has one)
     result = session.query(
-        unwrapped_annotation.c.allele_id.label('allele_id'),
+        AnnotationShadowTranscript.allele_id.label('allele_id'),
         genepanel_transcripts.c.name.label('name'),
         genepanel_transcripts.c.version.label('version'),
-        literal_column("transcripts::jsonb ->> 'transcript'").label('annotation_transcript'),
-        literal_column("transcripts::jsonb ->> 'symbol'").label('annotation_symbol'),
-        literal_column("transcripts::jsonb ->> 'HGVSc'").label('annotation_hgvsc'),
-        literal_column("transcripts::jsonb ->> 'HGVSp'").label('annotation_hgvsp'),
+        AnnotationShadowTranscript.transcript.label('annotation_transcript'),
+        AnnotationShadowTranscript.symbol.label('annotation_symbol'),
+        AnnotationShadowTranscript.hgnc_id.label('annotation_hgnc_id'),
+        AnnotationShadowTranscript.hgvsc.label('annotation_hgvsc'),
+        AnnotationShadowTranscript.hgvsp.label('annotation_hgvsp'),
         genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
     ).filter(
-        text("split_part(transcripts::jsonb ->> 'transcript', '.', 1) = split_part(transcript_name, '.', 1)")
+        text("split_part(transcript, '.', 1) = split_part(transcript_name, '.', 1)")
     ).distinct()
 
     return result

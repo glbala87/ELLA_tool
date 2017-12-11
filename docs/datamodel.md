@@ -75,6 +75,14 @@ The annotation has:
 
 The user-generated annotation (called **custom annotation**) is separate from the pipeline generated.
 
+
+##### AnnotationShadow
+
+In order to aid performance when filtering and searching, parts of the annotation JSON data are shadowed into separate tables. These tables are updated by triggers on the `annotation` table and should never be modified manually. They only contain data for the latest annotation for an allele. They have indexes on more or less all columns.
+
+Currently there are two such tables: `annotationshadowtranscript` and `annotationshadowfrequency`.
+
+
 #### Genotype
 The pair of alleles is described by the **Genotype**. If homozygous only one allele is defined.
 The genotype is connected to/has:

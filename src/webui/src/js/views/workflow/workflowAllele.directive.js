@@ -33,7 +33,6 @@ import {deepCopy} from '../../util'
 @Inject('$rootScope',
     '$scope',
     'WorkflowResource',
-    'GenepanelResource',
     'Allele',
     'Workflow',
     'Interpretation',
@@ -46,7 +45,6 @@ export class WorkflowAlleleController {
     constructor(rootScope,
                 scope,
                 WorkflowResource,
-                GenepanelResource,
                 Allele,
                 Workflow,
                 Interpretation,
@@ -58,7 +56,6 @@ export class WorkflowAlleleController {
         this.rootScope = rootScope;
         this.scope = scope;
         this.workflowResource = WorkflowResource;
-        this.genepanelResource = GenepanelResource;
         this.alleleService = Allele;
         this.workflowService = Workflow;
         this.interpretationService = Interpretation;
