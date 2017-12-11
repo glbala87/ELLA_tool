@@ -22,15 +22,18 @@ misconfigured_data_path = '/ella/src/vardb/watcher/testdata/analysis_with_error/
 misconfigured_analysis_sample = 'TestAnalysis-003'
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def init_dest():
+    print 'cleaning up paths ..'
     os.system('rm -rf {}'.format(empty_data_path))
     os.system('rm -rf {}'.format(dest_path))
     os.mkdir(empty_data_path)
     os.mkdir(dest_path)
+    print 'paths are ready ..'
+    os.system('touch {}/READY'.format(ready_data_path))
     yield 'dest_created'
-    os.rmdir(dest_path)
-    os.rmdir(empty_data_path)
+    os.system('rm -rf {}'.format(empty_data_path))
+    os.system('rm -rf {}'.format(dest_path))
 
 
 def init(session, analysis_path=watch_path, destination_path=dest_path):
@@ -70,7 +73,7 @@ def test_path_to_analysis_config(session, init_dest):
     assert expected_error  in str(excinfo)
 
 
-def test_loading_config(session):
+def test_loading_config(session, init_dest):
     aw = init(session)
     analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
     analysis_config = aw.load_analysis_config(analysis_config_path)
@@ -79,7 +82,7 @@ def test_loading_config(session):
     assert analysis_config['name'] == analysis_sample
 
 
-def test_loading_config_with_error(session):  
+def test_loading_config_with_error(session, init_dest):  
     aw = init(session)
     analysis_config_path = aw.path_to_analysis_config(misconfigured_data_path, misconfigured_analysis_sample)
     with pytest.raises(RuntimeError) as excinfo:
@@ -99,7 +102,7 @@ def test_vcf_path(session, init_dest):
     assert expected_error in str(excinfo)
 
 
-def test_extract_from_config(session):
+def test_extract_from_config(session, init_dest):
     aw = init(session)
     analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
     assert analysis_config_data.analysis_name == analysis_sample
@@ -115,8 +118,7 @@ def test_extract_from_config_with_error(session, init_dest):
   assert "Missing field priority" in str(excinfo)
 
 
-def test_import_analysis(session, test_database):
-    print 'testing database ...'
+def test_import_analysis(session, test_database, init_dest):
     test_database.refresh()
     aw = AnalysisWatcher(session, watch_path, dest_path)
     
@@ -138,3 +140,28 @@ def test_import_analysis(session, test_database):
     ).all()
 
     assert len(analysis_stored) == 1
+
+def test_check_and_import(session, test_database, init_dest):
+    aw = init(session)
+
+    test_database.refresh()
+    aw = AnalysisWatcher(session, watch_path, dest_path)
+
+    analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
+
+    aw.check_and_import()
+
+    db_genepanel = DepositFromVCF(session).get_genepanel(analysis_config_data.gp_name, analysis_config_data.gp_version)
+     
+    analysis_stored = session.query(sm.Analysis).filter(
+        sm.Analysis.name == analysis_config_data.analysis_name,
+        sm.Analysis.genepanel == db_genepanel
+    ).all()
+
+    assert len(analysis_stored) == 1
+
+    files = os.listdir(watch_path)
+    assert len(files) == 1
+    assert files == [analysis_sample2]
+
+    os.system('git checkout src/vardb/watcher/testdata/analyses/')
