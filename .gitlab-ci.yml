@@ -1,10 +1,11 @@
 ---
 variables:
   BRANCH: $CI_COMMIT_REF_NAME
-  PIPELINE_ID: $CI_PIPELINE_ID
+  PIPELINE_ID: ella-$CI_PIPELINE_ID
 
 stages:
   - test
+  - e2e-setup
   - e2e
   - reports
   - deploy
@@ -66,10 +67,23 @@ test_cli:
     - make test-cli
 
 
+e2e-container-startup:
+  stage: e2e-setup
+  script:
+    - make e2e-app-container-setup
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+
+
 test_e2e:
   stage: e2e
   script:
     - make test-e2e
+  before_script:
+    - rm -rf errorShots
+  after_script:
+    - docker exec ${PIPELINE_ID}-e2e tar c -C /ella/errorShots/ -f - . > errorShots.tar && mkdir errorShots && tar x -C errorShots -f errorShots.tar
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -78,18 +92,35 @@ test_e2e:
       - errorShots/*.png
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
+      expire_in: 1 week
 
 
-test-reports:
+
+test_reports:
   stage: reports
   script:
-    - make test-classifications-report
+    - make test-report-sanger
+    - make test-report-classifications
+  before_script:
+    - rm -rf errorShots
+  after_script:
+    - docker exec ${PIPELINE_ID}-e2e tar c -C /ella/errorShots/ -f - . > errorShots.tar && mkdir errorShots && tar x -C errorShots -f errorShots.tar
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+  artifacts:
+      paths:
+      - errorShots/*.png
+      name: ella-report-errors-${CI_BUILD_REF_SLUG}
+      when: on_failure
+      expire_in: 1 week
 
 
-cleanup_docker:
+cleanup:
   stage: cleanup
   script:
-    - docker rm -f $(docker ps -aq --filter name=${PIPELINE_ID}-*)
+    - docker ps -aq --filter "name=${PIPELINE_ID}-*" | xargs -r docker rm  -f -v
+    - docker images --quiet --filter "reference=local/${PIPELINE_ID}-*" | xargs -r docker rmi
   when: always
 
 
@@ -172,6 +203,7 @@ release:
     - ella-releasenotes*.txt
     name: ella-release-$CI_COMMIT_REF_NAME
     when: on_success
+    expire_in: 1 mo
   when: on_success
   only:
     - tags

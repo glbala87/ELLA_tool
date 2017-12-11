@@ -101,6 +101,10 @@ ANALYSES = [
         'path': '../testdata/analyses/custom',
         'name': 'custom',
     },
+    {
+        'path': '../testdata/analyses/sanger',
+        'name': 'sanger',
+    },
 ]
 
 DEFAULT_TESTSET = filter(lambda a:  'default' in a and a['default'], ANALYSES)[0]['name']

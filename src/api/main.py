@@ -96,7 +96,7 @@ def reset_testdata():
 
 def reset_testdata_from_cli():
     test_set = os.getenv('RESET_DB', DEFAULT_TESTSET)
-    do_testdata_reset(test_set)
+    return do_testdata_reset(test_set)
 
 
 def do_testdata_reset(test_set, blocking=True):
@@ -139,12 +139,14 @@ if os.environ.get('SERVE_STATIC'):
 if __name__ == '__main__':
     if os.getenv('RESET_DB', False):
         log.info("Resetting database from main.py __main__")
-        reset_testdata_from_cli()
+        msg = reset_testdata_from_cli()
+        log.info(msg)
         exit(0)
-    opts = {}
-    opts['host'] = '0.0.0.0'
-    opts['threaded'] = True
-    opts['port'] = int(os.getenv('API_PORT', '5000'))
+    opts = {
+        'host': '0.0.0.0',
+        'threaded': True,
+        'port': int(os.getenv('API_PORT', '5000'))
+    }
 
     # Dev mode stuff
     is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, '').lower() == 'true'

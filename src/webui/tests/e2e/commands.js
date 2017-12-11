@@ -12,9 +12,9 @@ function waitForAngular() {
 
 module.exports = function addCommands() {
 
-    browser.addCommand('resetDb', () => {
-        console.log(`Resetting database (this can take a while...)`);
-        browser.url('http://' + browser.options.baseUrl + '/reset?testset=e2e&blocking=true');
+    browser.addCommand('resetDb', (testset='e2e') => {
+        console.log(`Resetting database with '${testset}' (this can take a while...)`);
+        browser.url(`http://${browser.options.baseUrl}/reset?testset=${testset}&blocking=true`);
         console.log("Database reset done!");
     });
 
