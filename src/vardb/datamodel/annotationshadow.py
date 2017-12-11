@@ -95,9 +95,9 @@ def create_trigger_sql(config):
                     (a->>'hgnc_id')::integer,
                     a->>'symbol',
                     a->>'transcript',
-                    a->>'HGVSc_short',
+                    a->>'HGVSc',
                     a->>'protein',
-                    a->>'HGVSp_short',
+                    a->>'HGVSp',
                     ARRAY(SELECT jsonb_array_elements_text(a->'consequences')),
                     (a->>'exon_distance')::integer
                 FROM jsonb_array_elements(annotations->'transcripts') as a;

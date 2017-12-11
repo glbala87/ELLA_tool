@@ -28,14 +28,14 @@ GLOBAL_CONFIG = {
 
 def get_freq_column_names():
     names = list()
-    for provider, key  in annotationshadow.iter_freq_groups(GLOBAL_CONFIG):
+    for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG):
         names.append('{}.{}'.format(provider, key))
     return names
 
 
 def get_freq_num_column_names():
     names = list()
-    for provider, key  in annotationshadow.iter_freq_groups(GLOBAL_CONFIG):
+    for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG):
         names.append('{}_num.{}'.format(provider, key))
     return names
 
@@ -117,9 +117,9 @@ class TestAnnotationShadow(object):
                 {
                     'symbol': 'GENE1AD',
                     'transcript': 'NM_1.1',
-                    'HGVSc_short': 'c.123A>G',
+                    'HGVSc': 'c.123A>G',
                     'protein': 'NP_SOMETHING',
-                    'HGVSp_short': 'p.Arg123Gly',
+                    'HGVSp': 'p.Arg123Gly',
                     'consequences': ['CONSEQUENCE1', 'CONSEQUENCE2'],
                     'exon_distance': 0
                 }
@@ -137,10 +137,9 @@ class TestAnnotationShadow(object):
         assert ast1.allele_id == an1.allele_id
         assert ast1.symbol == an1.annotations['transcripts'][0]['symbol']
         assert ast1.transcript == an1.annotations['transcripts'][0]['transcript']
-        assert ast1.hgvsc == an1.annotations['transcripts'][0]['HGVSc_short']
+        assert ast1.hgvsc == an1.annotations['transcripts'][0]['HGVSc']
         assert ast1.protein == an1.annotations['transcripts'][0]['protein']
-        assert ast1.hgvsp == an1.annotations['transcripts'][0]['HGVSp_short']
-        assert ast1.hgvsp == an1.annotations['transcripts'][0]['HGVSp_short']
+        assert ast1.hgvsp == an1.annotations['transcripts'][0]['HGVSp']
         assert ast1.consequences == an1.annotations['transcripts'][0]['consequences']
         assert ast1.exon_distance == an1.annotations['transcripts'][0]['exon_distance']
 
@@ -170,9 +169,9 @@ class TestAnnotationShadow(object):
                 {
                     'symbol': 'GENE2',
                     'transcript': 'NM_2.1',
-                    'HGVSc_short': 'c.123A>G',
+                    'HGVSc': 'c.123A>G',
                     'protein': 'NP_SOMETHING',
-                    'HGVSp_short': 'p.Arg123Gly',
+                    'HGVSp': 'p.Arg123Gly',
                     'consequences': ['CONSEQUENCE1', 'CONSEQUENCE2'],
                     'exon_distance': 0
                 },
@@ -196,9 +195,9 @@ class TestAnnotationShadow(object):
         assert ast2[0].allele_id == an2.allele_id
         assert ast2[0].symbol == an2.annotations['transcripts'][0]['symbol']
         assert ast2[0].transcript == an2.annotations['transcripts'][0]['transcript']
-        assert ast2[0].hgvsc == an2.annotations['transcripts'][0]['HGVSc_short']
+        assert ast2[0].hgvsc == an2.annotations['transcripts'][0]['HGVSc']
         assert ast2[0].protein == an2.annotations['transcripts'][0]['protein']
-        assert ast2[0].hgvsp == an2.annotations['transcripts'][0]['HGVSp_short']
+        assert ast2[0].hgvsp == an2.annotations['transcripts'][0]['HGVSp']
         assert ast2[0].consequences == an2.annotations['transcripts'][0]['consequences']
         assert ast2[0].exon_distance == an2.annotations['transcripts'][0]['exon_distance']
 
@@ -207,7 +206,6 @@ class TestAnnotationShadow(object):
         assert ast2[1].symbol is None
         assert ast2[1].hgvsc is None
         assert ast2[1].protein is None
-        assert ast2[1].hgvsp is None
         assert ast2[1].hgvsp is None
         assert ast2[1].consequences == list()
         assert ast2[1].exon_distance is None

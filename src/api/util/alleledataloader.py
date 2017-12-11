@@ -1,8 +1,9 @@
+import json
 import re
-from vardb.datamodel import allele, sample, genotype
+from vardb.datamodel import allele, sample, genotype, annotationshadow
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
-from sqlalchemy import or_
+from sqlalchemy import or_, text
 
 from api.util.util import query_print_table
 from api.util import queries
@@ -168,11 +169,13 @@ class AlleleDataLoader(object):
 
         inclusion_regex_filtered = None
         if self.inclusion_regex:
-            inclusion_regex_filtered = queries.annotation_transcripts_filtered(
-                self.session,
-                allele_ids,
-                self.inclusion_regex
-            ).all()
+            inclusion_regex_filtered = self.session.query(
+                annotationshadow.AnnotationShadowTranscript.allele_id,
+                annotationshadow.AnnotationShadowTranscript.transcript
+            ).filter(
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
+                text("transcript ~ :reg").params(reg=self.inclusion_regex)
+            ).distinct().all()
 
         final_alleles = list()
         for allele_id, data in accumulated_allele_data.iteritems():
@@ -183,22 +186,26 @@ class AlleleDataLoader(object):
 
             if KEY_ANNOTATION in data:
 
-                # filtered_transcripts = transcripts in our genepanel
+                # Copy data to avoid mutating db object.
+                # json -> much faster than copy.deepcopy
+                annotation_data = json.loads(json.dumps(data[KEY_ANNOTATION][KEY_ANNOTATIONS]))
+
+                # 'filtered_transcripts' -> transcripts in our genepanel
                 filtered_transcripts = []
                 if annotation_transcripts_genepanel:
                     filtered_transcripts = [a[3] for a in annotation_transcripts_genepanel if a[0] == allele_id]
 
                 # Filter main transcript list on inclusion regex
                 # (if in filtered_transcripts, don't exclude it)
-                if inclusion_regex_filtered and 'transcripts' in data[KEY_ANNOTATION][KEY_ANNOTATIONS]:
+                if inclusion_regex_filtered and 'transcripts' in annotation_data:
                     allele_regex_filtered = [t[1] for t in inclusion_regex_filtered if t[0] == allele_id]
-                    data[KEY_ANNOTATION][KEY_ANNOTATIONS]['transcripts'] = \
-                        [t for t in data[KEY_ANNOTATION][KEY_ANNOTATIONS]['transcripts'] \
+                    annotation_data['transcripts'] = \
+                        [t for t in annotation_data['transcripts'] \
                          if (t['transcript'] in allele_regex_filtered or t['transcript'] in filtered_transcripts)]
 
                 # Convert annotation using annotationprocessor
                 processed_annotation = AnnotationProcessor.process(
-                    data[KEY_ANNOTATION][KEY_ANNOTATIONS],
+                    annotation_data,
                     custom_annotation=data.get(KEY_CUSTOM_ANNOTATION, {}).get(KEY_ANNOTATIONS),
                     genepanel=genepanel
                 )
