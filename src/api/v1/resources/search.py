@@ -387,7 +387,7 @@ class SearchResource(LogRequestResource):
             if freetext:
                 filtered_transcripts = [t for t in filtered_transcripts if freetext in t.get('HGVSc', '') or freetext in t.get('HGVSp', '')]
             if gene:
-                filtered_transcripts = [t for t in filtered_transcripts if t['symbol'] == gene]
+                filtered_transcripts = [t for t in filtered_transcripts if t['hgnc_id'] == gene['hgnc_id']]
 
             al['annotation']['filtered_transcripts'] = [t['transcript'] for t in filtered_transcripts]
 
@@ -531,7 +531,7 @@ class SearchOptionsResource(LogRequestResource):
                     user_model.User.first_name.ilike(query['user'] + '%'),
                     user_model.User.last_name.ilike(query['user'] + '%')
                 )
-            ).limit(SearchOptionsResource.RESULT_LIMIT).all()
+            ).order_by(user_model.User.last_name).limit(SearchOptionsResource.RESULT_LIMIT).all()
             result['user'] = [{'username': u[0], 'first_name': u[1], 'last_name': u[2]} for u in user_results]
 
         return result
