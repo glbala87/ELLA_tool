@@ -252,7 +252,7 @@ class OverviewAlleleResource(LogRequestResource):
             and_(*allele_filters)
         )[0]
 
-    def get_alleles_markedreview(self, session=None, user=None):
+    def get_alleles_markedreview(self, session, user=None):
         allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_marked_review(session))]
         if user is not None:
             allele_filters.append(
@@ -279,9 +279,9 @@ class OverviewAlleleResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
         return {
-            'missing_alleleassessment': self.get_alleles_for_analyses_missing_interpretation(session, user)+self.get_alleles_not_started(session, user),
-            'marked_review': self.get_alleles_markedreview(session, user),
-            'ongoing': self.get_alleles_ongoing(session, user)
+            'missing_alleleassessment': self.get_alleles_for_analyses_missing_interpretation(session, user=user)+self.get_alleles_not_started(session, user=user),
+            'marked_review': self.get_alleles_markedreview(session, user=user),
+            'ongoing': self.get_alleles_ongoing(session, user=user)
         }
 
 
@@ -366,7 +366,7 @@ def _get_analyses_for_user(session, user=None):
     # Restrict analyses to analyses matching this user's group's genepanels
     if user is not None:
         analyses_for_genepanels = queries.workflow_analyses_for_genepanels(session, user.group.genepanels)
-        analyses_for_user.filter(
+        analyses_for_user = analyses_for_user.filter(
             sample.Analysis.id.in_(analyses_for_genepanels)
         )
     return analyses_for_user
@@ -500,14 +500,14 @@ class OverviewAnalysisFinalizedResource(LogRequestResource):
     @authenticate()
     @paginate
     def get(self, session, user=None, page=None, per_page=None):
-        return get_finalized_analyses(session, user, page=page, per_page=per_page)
+        return get_finalized_analyses(session, user=user, page=page, per_page=per_page)
 
 
 class OverviewAnalysisResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, user=None):
-        return get_categorized_analyses(session, user)
+        return get_categorized_analyses(session, user=user)
 
 
 class OverviewAnalysisByFindingsResource(LogRequestResource):
