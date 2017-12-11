@@ -91,7 +91,6 @@ def export_variants(session, filename):
     if len(ids_not_started) < 1:
         return False
 
-
     # Datastructure for collecting file content:
     workbook = Workbook(write_only=True)  # Write only: Constant memory usage
     worksheet = workbook.create_sheet()
@@ -115,8 +114,6 @@ def export_variants(session, filename):
     worksheet.append(excel_heading)
     csv.append(csv_heading)
 
-    # analyses = session.query(sample.Analysis).filter(sample.Analysis.id.in_(ids_not_started)).all()
-
     analyses_allele_ids = session.query(sample.Analysis, allele.Allele.id).join(
         genotype.Genotype.alleles,
         sample.Sample,
@@ -132,14 +129,6 @@ def export_variants(session, filename):
         else:
             analyses_with_allele_id_list[an.id]['alleles'].append(an_id)
 
-    # import pdb; pdb.set_trace()
-
-    # for tup in analyses_allele_ids:
-    #     al_id, an_id = tup
-    #     all_allele_ids.append(al_id)
-    #     allele_analysis_mapping[al_id] = {'analysis_id': an_id, 'analysis_name': analysis_names[an_id]}
-    #
-
     af = AlleleFilter(session)
     adl = AlleleDataLoader(session)
 
@@ -147,7 +136,6 @@ def export_variants(session, filename):
         analysis = values['analysis']
         gp_key = (analysis.genepanel_name, analysis.genepanel_version)
         gp_allele_ids = {gp_key: values['alleles']}
-        # import pdb; pdb.set_trace()
         allele_ids_grouped_by_genepanel_and_filter_status = af.filter_alleles(gp_allele_ids)
 
         # loop through genepanels (one, since we hand the allele filter a single genepanel) and load allele data:
@@ -161,7 +149,6 @@ def export_variants(session, filename):
             )
 
             for allele_info in loaded_alleles:
-                # import pdb; pdb.set_trace()
                 project_name, prove_number = extract_meta_from_name(analysis.name)
                 analysis_info = {'genepanel_name': gp_key[0],
                                  'genepanel_version': gp_key[1],
@@ -175,8 +162,9 @@ def export_variants(session, filename):
                 worksheet_rows.append(variant_row)
 
     # sort by first three columns:
-    worksheet_rows.sort(key=lambda r: (r[0], r[1], r[2]))
-    csv_rows.sort(key=lambda r: (r[0], r[1], r[2]))
+    sort_function = lambda r: (r[0], r[1], r[2])
+    worksheet_rows.sort(key=sort_function)
+    csv_rows.sort(key=sort_function)
 
     for r in worksheet_rows:
         worksheet.append(r)
