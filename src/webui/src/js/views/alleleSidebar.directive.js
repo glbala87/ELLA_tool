@@ -160,7 +160,7 @@ export class AlleleSidebarController {
     }
 
     isLowQual(allele) {
-        return allele.samples.some(s => s.genotype.filter_status !== 'PASS');
+        return allele.samples.some(s => s.genotype.needs_verification);
     }
 
     isNonsense(allele) {
