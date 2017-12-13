@@ -70,6 +70,8 @@ def create_variant_row(default_transcript, analysis_info, allele_info):
         analysis_info['prove_number'],
         "{name} ({version})".format(name=analysis_info['genepanel_name'],
                                     version=analysis_info['genepanel_version']),
+        "ch{chr}.0:g.{start}.0N>N".format(chr=allele_info['chromosome'], start=allele_info['start_position']),
+        "ch{chr}.0:g.{stop}.0N>N".format(chr=allele_info['chromosome'], stop=allele_info['open_end_position']),
         found_transcript['symbol'],
         found_transcript['transcript'],
         found_transcript.get('HGVSc_short', '?'),
