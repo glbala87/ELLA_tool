@@ -33,7 +33,7 @@ Dump variants that need Sanger verification to file
 SCRIPT_DIR = path.abspath(path.dirname(__file__))
 log = logging.getLogger(__name__)
 
-HAS_CONTENT = True
+DATE_FORMAT = "%Y-%m-%d"
 
 ANALYSIS_NAME_RE = re.compile('(?P<project_name>Diag-.+)-(?P<prove>.+)-(?P<genepanel_name>.+)-(?P<genepanel_version>.+)')
 
@@ -47,6 +47,7 @@ def extract_meta_from_name(analysis_name):
 
 # Column header and width
 COLUMN_PROPERTIES = [
+    (u'Importdato', 12),
     (u'Prosjektnummer', 14),
     (u'Prøvenummer', 10),
     (u'Genpanel', 20),  # navn(versjon)
@@ -64,6 +65,7 @@ def create_variant_row(default_transcript, analysis_info, allele_info):
                             None)
     classification = get_nested(allele_info, ['allele_assessment', 'classification'], "Ny")
     return [
+        analysis_info['deposit_date'],
         analysis_info['project_name'],
         analysis_info['prove_number'],
         "{name} ({version})".format(name=analysis_info['genepanel_name'],
@@ -150,10 +152,11 @@ def export_variants(session, filename):
 
             for allele_info in loaded_alleles:
                 project_name, prove_number = extract_meta_from_name(analysis.name)
-                analysis_info = {'genepanel_name': gp_key[0],
+                analysis_info = {'genepanel_name':    gp_key[0],
                                  'genepanel_version': gp_key[1],
-                                 'project_name': project_name,
-                                 'prove_number': prove_number
+                                 'project_name':      project_name,
+                                 'prove_number':      prove_number,
+                                 'deposit_date':       analysis.deposit_date.strftime(DATE_FORMAT)
                                  }
 
                 default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
