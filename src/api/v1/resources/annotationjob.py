@@ -1,6 +1,6 @@
 from api import schemas
 from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
-from api.util.util import request_json, rest_filter, authenticate, logger
+from api.util.util import request_json, rest_filter, authenticate, logger, paginate
 from api.v1.resource import LogRequestResource
 from vardb.datamodel import annotationjob
 
@@ -9,6 +9,7 @@ class AnnotationJobList(LogRequestResource):
 
     @authenticate()
     @rest_filter
+    @paginate
     @logger(exclude=True)
     def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """

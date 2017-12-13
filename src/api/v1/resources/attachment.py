@@ -8,7 +8,7 @@ from flask import request, send_file
 from hashlib import sha256
 from vardb.datamodel import attachment
 from api import schemas
-from api.util.util import request_json, authenticate, rest_filter
+from api.util.util import request_json, authenticate, rest_filter, paginate
 
 
 # https://stackoverflow.com/questions/600268
@@ -24,13 +24,16 @@ def mkdir_p(path):
 
 class AttachmentListResource(LogRequestResource):
     @authenticate()
+    @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, user=None):
+    def get(self, session, rest_filter=None, user=None, per_page=None, page=None):
         vals = self.list_query(
             session,
             attachment.Attachment,
             schemas.AttachmentSchema(strict=True),
             rest_filter=rest_filter,
+            per_page=None,
+            page=None
         )
         return vals
 

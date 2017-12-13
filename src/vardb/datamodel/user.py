@@ -19,7 +19,7 @@ UserGroupGenepanel = Table('usergroupgenepanel', Base.metadata,
     Column('usergroup_id', Integer, ForeignKey('usergroup.id')),
     Column('genepanel_name', String, nullable=False),
     Column('genepanel_version', String, nullable=False),
-    ForeignKeyConstraint(['genepanel_name', 'genepanel_version'], ['genepanel.name', 'genepanel.version'], ondelete="CASCADE")
+    ForeignKeyConstraint(['genepanel_name', 'genepanel_version'], ['genepanel.name', 'genepanel.version'])
 )
 
 

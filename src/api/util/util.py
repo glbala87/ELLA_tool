@@ -190,7 +190,7 @@ def paginate(func):
         if per_page is not None:
             per_page = int(per_page)
         else:
-            per_page = 2000  # FIXME: Figure out the pagination stuff
+            per_page = 10000  # FIXME: Leave at high value until we add pagination in frontend
         kwargs['page'] = page
         kwargs['per_page'] = per_page
         result, total = func(*args, **kwargs)
