@@ -33,9 +33,9 @@ class Resource(flask_resource):
             if any((isinstance(v, list) and not v) for v in kwargs['rest_filter'].values()):
                 return list(), 0
             query = self._filter(query, model, kwargs['rest_filter'])
-        if 'per_page' in kwargs:
+        if kwargs.get('per_page'):
             query = query.limit(kwargs['per_page'])
-        if 'page' in kwargs and 'per_page' in kwargs:
+        if kwargs.get('page') and kwargs.get('per_page'):
             query = query.offset((kwargs['page']-1)*kwargs['per_page'])
         count = query.count()
         s = query.all()
@@ -87,9 +87,9 @@ class Resource(flask_resource):
         query = query.filter(model.search.op('@@')(_search_vector))
         query = query.order_by(sqlalchemy.func.ts_rank(model.search, _search_vector))
 
-        if "per_page" in kwargs:
+        if kwargs.get('per_page'):
             query = query.limit(kwargs["per_page"])
-        if "page" in kwargs and "per_page" in kwargs:
+        if kwargs.get('page') and kwargs.get('per_page'):
             query = query.offset((kwargs['page'] - 1) * kwargs['per_page'])
 
         count = query.count()
