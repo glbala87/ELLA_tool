@@ -235,17 +235,6 @@ export class Interpretationbar {
                     return a_idx - b_idx;
                 }
             });
-            // Pull out any codes with an 'x' in them, and place them next after their parent code
-            // This bugs out for a few codes that don't have parents, but is good enough for now
-            let x_codes = [];
-            x_codes = this.acmgCandidates[t].filter( (e) => { if(e.includes('x')) { return true; } } );
-            x_codes.forEach( (e) => { this.acmgCandidates[t].splice(this.acmgCandidates[t].indexOf(e),1) } );
-            x_codes.forEach( (e) => {
-              this.acmgCandidates[t].splice(
-                (this.acmgCandidates[t].indexOf(e.split('x')[1])+1),
-                0, e
-              )
-            })
         }
     }
 

@@ -8,7 +8,7 @@
             popover-append-to-body=true
             popover-title="{{vm.getCodeForDisplay().code | noUnderscores}}"
             popover-trigger="outsideClick"
-            popover-placement="auto">
+            popover-placement="{{vm.popoverPlacement}}">
             {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
           </h4>
         </div>

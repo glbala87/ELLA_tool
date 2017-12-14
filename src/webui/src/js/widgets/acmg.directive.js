@@ -14,6 +14,7 @@ import {ACMGHelper} from '../model/acmghelper';
         onToggle: '&?',
         toggleText: '@?',
         readOnly: '=?',
+        popoverPlacement: '=?',
         addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
     },
     templateUrl: 'ngtmpl/acmg.ngtmpl.html'
@@ -26,6 +27,7 @@ export class AcmgController {
         this.popover = {
             templateUrl: 'ngtmpl/acmgPopover.ngtmpl.html'
         };
+        this.popoverPlacement = this.popoverPlacement || 'auto';
 
         $scope.$watch(
             () => this.code,
