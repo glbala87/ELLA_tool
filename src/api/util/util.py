@@ -189,6 +189,8 @@ def paginate(func):
             per_page = request.args.get('per_page')
         if per_page is not None:
             per_page = int(per_page)
+            if per_page > 50:
+                per_page = 50
         else:
             per_page = 10000  # FIXME: Leave at high value until we add pagination in frontend
         kwargs['page'] = page

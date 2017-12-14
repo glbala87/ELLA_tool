@@ -3,7 +3,7 @@ from apispec import APISpec
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
-title = 'Ella API v1.0'
+title = 'Ella API'
 version = '1.0'
 desc = """
 #### **Use only with permission.**
@@ -26,7 +26,18 @@ q={"classification":4}
 
 ### Pagination:
 
-TBD: Not implemented properly at the moment...
+Some resources support pagination. In order to paginate a resource, you can add the following query parameters:
+
+- `page=` - Which page number to return.
+- `per_page=` - How many items to return per page. Max value is 50.
+
+Pagination information is returned as part of the HTTP header. The following headers are added:
+
+- `Total-Count` - Total number of items available. If a filter is given, it's after filter is applied.
+- `Total-Pages` - Total number of pages available. This is equals to ceil(Total-Count / Per-Page).
+- `Page` - The page number of the response.
+- `Per-Page` - How many items are returned per page.
+
 """
 
 
