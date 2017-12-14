@@ -20,8 +20,13 @@ export class FrequencyDetailsWidget {
         this.precision = this.config.frequencies.view.precision;
         this.scientific_threshold = this.config.frequencies.view.scientific_threshold;
         this.frequencies = [];
-        this.fields = ['count', 'num', 'hom', 'hemi', 'freq']
-
+        this.fields = ['count', 'num', 'hom', 'hemi', 'freq'].filter(i => {
+            if (i === 'hemi') {
+                return this.allele.chromosome === 'X' ||
+                       this.allele.chromosome === 'Y'
+            }
+            return true
+        })
         $scope.$watch(() => this.allele, () => {this.setFrequencies()});
     }
 
