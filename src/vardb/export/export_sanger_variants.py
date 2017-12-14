@@ -51,11 +51,13 @@ COLUMN_PROPERTIES = [
     (u'Prosjektnummer', 14),
     (u'Prøvenummer', 10),
     (u'Genpanel', 20),  # navn(versjon)
-    (u'Gen', 8),
+    (u'Startposisjon (HGVSg)', 22),
+    (u'Stopposisjon (HGVSg)', 22),
+    (u'Gen', 10),
     (u'Transkript', 14),
-    (u'HGVSc', 12),
-    (u'HGVSg', 12),
-    (u'Klasse', 6)
+    (u'HGVSc', 24),
+    (u'Klasse', 6),
+    (u'sanger_verify', 13)
     ]
 
 
@@ -70,11 +72,13 @@ def create_variant_row(default_transcript, analysis_info, allele_info):
         analysis_info['prove_number'],
         "{name} ({version})".format(name=analysis_info['genepanel_name'],
                                     version=analysis_info['genepanel_version']),
+        "chr{chr}:g.{start}N>N".format(chr=allele_info['chromosome'], start=allele_info['start_position']),
+        "chr{chr}:g.{stop}N>N".format(chr=allele_info['chromosome'], stop=allele_info['open_end_position']),
         found_transcript['symbol'],
         found_transcript['transcript'],
         found_transcript.get('HGVSc_short', '?'),
-        found_transcript.get('HGVSg', '?'),
-        classification
+        classification,
+        ''
     ]
 
 
