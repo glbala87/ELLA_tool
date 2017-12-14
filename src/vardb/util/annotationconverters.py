@@ -229,14 +229,29 @@ def convert_clinvar(annotation):
 def extract_annotation_data(annotation, annotation_key, result_key):
     frequencies = defaultdict(dict)
 
+    # TODO: Remove when annotation isn't so messed up...
+    def extract_int_list(value):
+        if isinstance(value, list):
+            assert len(value) == 1
+            value = value[0]
+        value = int(value)
+        return value
+
     freq = {}
     count = {}
     num = {}
     hom = {}
     het = {}
+    hemi = {}
+    filter_status = {}
     for key, value in annotation[annotation_key].iteritems():
         # Be careful if rearranging!
-        if key == 'AC_Adj':
+        if key == 'AS_FilterStatus':  # gnomAD specific
+            assert len(value) == 1
+            filter_status = {
+                'status': value[0].split('|')
+            }
+        elif key == 'AC_Adj':
             assert len(value) == 1
             count['G'] = value[0]
         elif key == 'AC_Het':
@@ -253,20 +268,13 @@ def extract_annotation_data(annotation, annotation_key, result_key):
             count[pop] = value[0]
         elif key.startswith('AN_'):
             pop = key.split('AN_')[1]
-            num[pop] = value
+            num[pop] = extract_int_list(value)
         elif key.startswith('Hom_'):
             pop = key.split('Hom_')[1]
-            # TODO: Remove me when we got our annotation under control...
-            if isinstance(value, list):
-                hom[pop] = value[0]
-            else:
-                hom[pop] = value
-        elif key.startswith('Het_'):
-            pop = key.split('Het_')[1]
-            if isinstance(value, list):
-                het[pop] = value[0]
-            else:
-                het[pop] = value
+            hom[pop] = extract_int_list(value)
+        elif key.startswith('Hemi_'):
+            pop = key.split('Hemi_')[1]
+            hemi[pop] = extract_int_list(value)
 
     for key in count:
         if key in num and num[key]:
@@ -278,13 +286,17 @@ def extract_annotation_data(annotation, annotation_key, result_key):
         frequencies[result_key].update({'hom': hom})
     if het:
         frequencies[result_key].update({'het': het})
+    if hemi:
+        frequencies[result_key].update({'hemi': hemi})
     if num:
         frequencies[result_key].update({'num': num})
     if count:
         frequencies[result_key].update({'count': count})
+    if filter_status:
+        frequencies[result_key].update({'filter': filter_status})
 
     return dict(frequencies)
-  
+
 
 def exac_frequencies(annotation):
     """
@@ -297,9 +309,9 @@ def exac_frequencies(annotation):
     if EXAC_ANNOTATION_KEY not in annotation:
         return {}
     else:
-      return extract_annotation_data(
-        annotation, EXAC_ANNOTATION_KEY, EXAC_RESULT_KEY
-      )
+        return extract_annotation_data(
+            annotation, EXAC_ANNOTATION_KEY, EXAC_RESULT_KEY
+        )
 
 
 def gnomad_exomes_frequencies(annotation):
@@ -313,9 +325,10 @@ def gnomad_exomes_frequencies(annotation):
     if GNOMAD_EXOMES_ANNOTATION_KEY not in annotation:
         return {}
     else:
-      return extract_annotation_data(
-        annotation, GNOMAD_EXOMES_ANNOTATION_KEY, GNOMAD_EXOMES_RESULT_KEY
-      )
+        return extract_annotation_data(
+            annotation, GNOMAD_EXOMES_ANNOTATION_KEY, GNOMAD_EXOMES_RESULT_KEY
+        )
+
 
 def gnomad_genomes_frequencies(annotation):
     """
@@ -328,9 +341,10 @@ def gnomad_genomes_frequencies(annotation):
     if GNOMAD_GENOMES_ANNOTATION_KEY not in annotation:
         return {}
     else:
-      return extract_annotation_data(
-        annotation, GNOMAD_GENOMES_ANNOTATION_KEY, GNOMAD_GENOMES_RESULT_KEY
-      )
+        return extract_annotation_data(
+            annotation, GNOMAD_GENOMES_ANNOTATION_KEY, GNOMAD_GENOMES_RESULT_KEY
+        )
+
 
 def csq_frequencies(annotation):
     if 'CSQ' not in annotation:
