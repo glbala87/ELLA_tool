@@ -203,7 +203,7 @@ val analysisWatcher = Stream.eval( IO {
      .through(randomDelays(CONFIG_DELAY))
      .through(log("analysis sample added and ready for pickup!"))
 
-echo! "creating new analysis and setting the READY flag at random intervals .."
+println("creating new analysis and setting the READY flag at random intervals ..")
 
 // actually running the program ...
 program.covary[IO].run.unsafeRunAsync(println)
