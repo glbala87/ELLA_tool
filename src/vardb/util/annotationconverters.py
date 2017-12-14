@@ -241,7 +241,6 @@ def extract_annotation_data(annotation, annotation_key, result_key):
     count = {}
     num = {}
     hom = {}
-    het = {}
     hemi = {}
     filter_status = {}
     for key, value in annotation[annotation_key].iteritems():
@@ -251,16 +250,13 @@ def extract_annotation_data(annotation, annotation_key, result_key):
             filter_status = {
                 'status': value[0].split('|')
             }
-        elif key == 'AC_Adj':
+        elif key == 'AC':
             assert len(value) == 1
             count['G'] = value[0]
-        elif key == 'AC_Het':
-            assert len(value) == 1
-            het['G'] = value[0]
         elif key == 'AC_Hom':
             assert len(value) == 1
             hom['G'] = value[0]
-        elif key == 'AN_Adj':
+        elif key == 'AN':
             num['G'] = value
         elif key.startswith('AC_'):
             pop = key.split('AC_')[1]
@@ -280,12 +276,18 @@ def extract_annotation_data(annotation, annotation_key, result_key):
         if key in num and num[key]:
             freq[key] = float(count[key]) / num[key]
 
+    # ExAC override. ExAC naming is very misleading!
+    # ExAC should use Adj, NOT the default AC and AN!
+    if result_key == EXAC_RESULT_KEY:
+        for item in [count, num, freq]:
+            if 'Adj' in item:
+                item['G'] = item['Adj']
+                del item['Adj']
+
     if freq:
         frequencies[result_key].update({'freq': freq})
     if hom:
         frequencies[result_key].update({'hom': hom})
-    if het:
-        frequencies[result_key].update({'het': het})
     if hemi:
         frequencies[result_key].update({'hemi': hemi})
     if num:
