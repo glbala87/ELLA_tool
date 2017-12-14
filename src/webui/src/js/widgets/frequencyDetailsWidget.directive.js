@@ -73,6 +73,26 @@ export class FrequencyDetailsWidget {
         }
     }
 
+    isFilterFail() {
+        if (this.allele.annotation.frequencies &&
+            this.group in this.allele.annotation.frequencies &&
+            'filter' in this.allele.annotation.frequencies[this.group] &&
+            'status' in this.allele.annotation.frequencies[this.group].filter) {
+                let status = this.allele.annotation.frequencies[this.group].filter.status
+                return status.length == 1 && status[0] !== 'PASS'
+            }
+        return false;
+    }
+
+    getFilterStatus() {
+        if (this.allele.annotation.frequencies &&
+            this.group in this.allele.annotation.frequencies &&
+            'filter' in this.allele.annotation.frequencies[this.group] &&
+            'status' in this.allele.annotation.frequencies[this.group].filter) {
+                return this.allele.annotation.frequencies[this.group].filter.status
+            }
+    }
+
     getExACHeaderName(name) { // like 'freq' -> 'Allele freq'
       return this.config.frequencies.view.ExAC_fields[name];
     }

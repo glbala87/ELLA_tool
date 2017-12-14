@@ -1,3 +1,4 @@
+<div class="cb-warning" ng-if="vm.isFilterFail()">FILTER: {{vm.getFilterStatus().join(', ')}}</div>
 <div class="cb-table id-frequency-{{ vm.group }}" ng-if="vm.isExACOrGnomad() && vm.frequencies.length > 0">
   <div class="tabular-row">
   <div class="cell"><h4 class="faded-title">Pop</h4></div>
