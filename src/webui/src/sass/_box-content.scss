@@ -90,6 +90,18 @@ div.existing-classification-comments .tabular-row:last-child .wysiwygeditor {
   .list-item { display: flex; padding-left: 1.2rem; }
 }
 
+allele-selection {
+  controls { display: flex;
+    .pagination { display: flex; justify-content: flex-end; width: 100%; }
+  }
+}
+
+analysis-selection {
+  controls { display: flex;
+    .pagination { display: flex; justify-content: flex-end; width: 100%; }
+  }
+}
+
 .analysis-list { display: flex; flex-direction: column;
 
   .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem;

@@ -20,6 +20,8 @@ class AnalysisSelectionController {
         this.overviewResource = OverviewResource;
         this.user = User;
         this.overview = null;
+        this.finalized_page = 1;
+        this.finalized = null; // {pagination: obj, data: array}
         this.ongoing_user = []; // Holds filtered list of ongoing alleles belonging to user
         this.ongoing_others = [];  // Inverse of above list
         this._setup();
@@ -47,6 +49,15 @@ class AnalysisSelectionController {
                 return item.interpretations[item.interpretations.length-1].user.id !== this.user.getCurrentUserId();
             });
         });
+
+        this.finalizedPageChanged()
+    }
+
+    finalizedPageChanged() {
+        this.overviewResource.getAnalysesFinalizedOverview(this.finalized_page).then(data => {
+            this.finalized = data
+            this.finalized_page = data.pagination.page
+        })
     }
 }
 

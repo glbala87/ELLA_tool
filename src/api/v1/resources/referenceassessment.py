@@ -41,7 +41,7 @@ class ReferenceAssessmentListResource(LogRequestResource):
     @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
         Returns a list of referenceassessment.
 
@@ -70,7 +70,7 @@ class ReferenceAssessmentListResource(LogRequestResource):
             schemas.ReferenceAssessmentSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            num_per_page=100000  # FIXME: Fix proper pagination...
+            per_page=100000  # FIXME: Fix proper pagination...
         )
 
     @authenticate()

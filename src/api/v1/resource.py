@@ -4,6 +4,7 @@ from flask.ext.restful import Resource as flask_resource
 import sqlalchemy
 from sqlalchemy import tuple_
 
+
 class Resource(flask_resource):
 
     method_decorators = [logger(hide_payload=True), provide_session]
@@ -30,18 +31,19 @@ class Resource(flask_resource):
             # set so we should return nothing.
             # TODO: Review behavior
             if any((isinstance(v, list) and not v) for v in kwargs['rest_filter'].values()):
-                return list()
+                return list(), 0
             query = self._filter(query, model, kwargs['rest_filter'])
-        if 'num_per_page' in kwargs:
-            query = query.limit(kwargs['num_per_page'])
-        if 'page' in kwargs and 'num_per_page' in kwargs:
-            query = query.offset((kwargs['page']-1)*kwargs['num_per_page'])
+        if kwargs.get('per_page'):
+            query = query.limit(kwargs['per_page'])
+        if kwargs.get('page') and kwargs.get('per_page'):
+            query = query.offset((kwargs['page']-1)*kwargs['per_page'])
+        count = query.count()
         s = query.all()
         if schema:
             result = schema.dump(s, many=True)
-            return result.data
+            return result.data, count
         else:
-            return s
+            return s, count
 
     def list_search(self, session, model, search_filter, schema=None, **kwargs):
         """Searches only full word matches
@@ -69,33 +71,36 @@ class Resource(flask_resource):
         - 'ovari' matches 'ovarian'
 
         Possible improvements:
-        - Use the similarity-function from the pg_trgm extension, so that e.g. 'stromberg' matches 'Ströhmberg'
-        - Unaccent all input, so that e.g. 'strohmberg' matches 'Ströhmberg'
+        - Use the similarity-function from the pg_trgm extension, so that e.g. 'stromberg' matches 'Strï¿½hmberg'
+        - Unaccent all input, so that e.g. 'strohmberg' matches 'Strï¿½hmberg'
         """
 
         search_string = search_filter["search_string"]
         query = session.query(model)
 
-        words=session.query(sqlalchemy.func.plainto_tsquery(search_string)).one()  # .statement.compile(compile_kwargs={"literal_binds": True})
-        words=str(words[0])
-        words=words.replace(" ", "").replace("'", "").replace('"', '').split("&")
+        words = session.query(sqlalchemy.func.plainto_tsquery(search_string)).one()  # .statement.compile(compile_kwargs={"literal_binds": True})
+        words = str(words[0])
+        words = words.replace(" ", "").replace("'", "").replace('"', '').split("&")
         search_string = " & ".join([s+":*" for s in words])
-        _search_vector=sqlalchemy.func.to_tsquery(sqlalchemy.text("'english'"), search_string)
+        _search_vector = sqlalchemy.func.to_tsquery(sqlalchemy.text("'english'"), search_string)
 
         query = query.filter(model.search.op('@@')(_search_vector))
         query = query.order_by(sqlalchemy.func.ts_rank(model.search, _search_vector))
 
-        if "num_per_page" in kwargs:
-            query = query.limit(kwargs["num_per_page"])
-        if "page" in kwargs and "num_per_page" in kwargs:
-            query=query.offset((kwargs['page'] - 1) * kwargs['num_per_page'])
+        if kwargs.get('per_page'):
+            query = query.limit(kwargs["per_page"])
+        if kwargs.get('page') and kwargs.get('per_page'):
+            query = query.offset((kwargs['page'] - 1) * kwargs['per_page'])
+
+        count = query.count()
         s = query.all()
 
         if schema:
-            result=schema.dump(s, many=True)
-            return result.data
+            result = schema.dump(s, many=True)
+            return result.data, count
         else:
-            return s
+            return s, count
+
 
 class LogRequestResource(Resource):
     method_decorators = [logger(hide_payload=False), provide_session]

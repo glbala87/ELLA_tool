@@ -14,7 +14,7 @@ class ReferenceListResource(LogRequestResource):
     @paginate
     @rest_filter
     @search_filter
-    def get(self, session, rest_filter=None, search_filter=None, page=None, num_per_page=100, user=None):
+    def get(self, session, rest_filter=None, search_filter=None, page=None, per_page=100, user=None):
         """
         Returns a list of references.
 
@@ -44,7 +44,7 @@ class ReferenceListResource(LogRequestResource):
                                     search_filter=search_filter,
                                     schema=schemas.ReferenceSchema(strict=True),
                                     page=page,
-                                    num_per_page=num_per_page)
+                                    per_page=per_page)
         else:
             return self.list_query(
                 session,
@@ -52,7 +52,7 @@ class ReferenceListResource(LogRequestResource):
                 schemas.ReferenceSchema(strict=True),
                 rest_filter=rest_filter,
                 page=page,
-                num_per_page=num_per_page
+                per_page=per_page
             )
 
     @authenticate()

@@ -57,10 +57,20 @@
     FINISHED VARIANTS
   </maintitle>
   <subtitle>
-    {{vm.overview.finalized.length}}
+    {{vm.finalized.pagination.totalCount}}
   </subtitle>
+  <controls>
+        <uib-pagination total-items="vm.finalized.pagination.totalCount"
+        ng-model="vm.finalized_page"
+        class="pagination-sm"
+        ng-change="vm.finalizedPageChanged()"
+        items-per-page="vm.finalized.pagination.perPage"
+        max-size="5"
+        rotate="false">
+      </uib-pagination>
+  </controls>
   <contentwrapper>
-    <allele-list allele-items="vm.overview.finalized"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.finalized.length">No finished variants</h4>
+    <allele-list allele-items="vm.finalized.data"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!vm.finalized.data.length">No finished variants</h4>
   </contentwrapper>
 </sectionbox>

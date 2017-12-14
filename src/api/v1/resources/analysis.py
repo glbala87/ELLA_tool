@@ -11,7 +11,7 @@ class AnalysisListResource(LogRequestResource):
     @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
         Returns a list of analyses.
 
@@ -38,8 +38,7 @@ class AnalysisListResource(LogRequestResource):
             rest_filter = dict()
         if not ("genepanel_name", "genepanel_version") in rest_filter:
             rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
-        analyses = self.list_query(session, sample.Analysis, schema=schemas.AnalysisFullSchema(), rest_filter=rest_filter)
-        return analyses
+        return self.list_query(session, sample.Analysis, schema=schemas.AnalysisFullSchema(), rest_filter=rest_filter)
 
 
 class AnalysisResource(LogRequestResource):

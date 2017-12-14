@@ -8,7 +8,7 @@ from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
 from api.util import queries
-from api.util.util import authenticate
+from api.util.util import authenticate, paginate
 from api.util.allelefilter import AlleleFilter
 from api.util.alleledataloader import AlleleDataLoader
 
@@ -140,7 +140,45 @@ def filter_result_of_alleles(session, allele_ids):
     return af.filter_alleles(gp_allele_ids)  # gp_key => {allele ids distributed by filter status}
 
 
+def get_genepanel_alleles_existing_alleleinterpretation(session, allele_filter, user=None, page=None, per_page=None):
+    """
+    Loads in allele data for given allele filter. Related genepanel
+    for each allele is fetched from connected AlleleInterpretation.
+
+    See load_genepanel_alleles() for more info.
+    """
+
+    # Load allele + genepanel using the connected AlleleInterpretation
+    allele_ids = session.query(allele.Allele.id).filter(
+        allele_filter
+    )
+
+    count = allele_ids.count()
+
+    allele_ids_genepanels = session.query(
+        workflow.AlleleInterpretation.genepanel_name,
+        workflow.AlleleInterpretation.genepanel_version,
+        workflow.AlleleInterpretation.allele_id
+    ).filter(
+        workflow.AlleleInterpretation.allele_id.in_(allele_ids)
+    ).order_by(workflow.AlleleInterpretation.date_last_update.desc()).distinct()
+
+    if page and per_page:
+        start = (page - 1) * per_page
+        end = page * per_page
+        allele_ids_genepanels = allele_ids_genepanels.slice(start, end)
+
+    # Make a dict of (gp_name, gp_version): [allele_ids],
+    # for use in allele loading function
+    gp_allele_ids = defaultdict(list)
+    for entry in allele_ids_genepanels.all():
+        gp_allele_ids[(entry[0], entry[1])].append(entry[2])
+
+    return load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False), count  # Don't filter out for existing interpretations
+
+
 class OverviewAlleleResource(LogRequestResource):
+
     def get_alleles_no_alleleassessment_nonfinalized_analysis(self, session, user=None):
         """
         Returns a list of (allele + genepanel) that are missing alleleassessments.
@@ -202,35 +240,6 @@ class OverviewAlleleResource(LogRequestResource):
         allele_ids_has_interpretations = [a[0] for a in allele_ids_has_interpretations]
         return [a for a in alleles_no_alleleassessment if a['allele']['id'] not in allele_ids_has_interpretations]
 
-    def _get_genepanel_alleles_existing_alleleinterpretation(self, session, allele_filter, user=None):
-        """
-        Loads in allele data for given allele filter. Related genepanel
-        for each allele is fetched from connected AlleleInterpretation.
-
-        See load_genepanel_alleles() for more info.
-        """
-
-        # Load allele + genepanel using the connected AlleleInterpretation
-        allele_ids = session.query(allele.Allele.id).filter(
-            allele_filter
-        ).all()
-
-        allele_ids_genepanels = session.query(
-            workflow.AlleleInterpretation.genepanel_name,
-            workflow.AlleleInterpretation.genepanel_version,
-            workflow.AlleleInterpretation.allele_id
-        ).filter(
-            workflow.AlleleInterpretation.allele_id.in_(allele_ids)
-        ).distinct().all()
-
-        # Make a dict of (gp_name, gp_version): [allele_ids],
-        # for use in allele loading function
-        gp_allele_ids = defaultdict(list)
-        for entry in allele_ids_genepanels:
-            gp_allele_ids[(entry[0], entry[1])].append(entry[2])
-
-        return load_genepanel_alleles(session, gp_allele_ids, filter_alleles=False)  # Don't filter out for existing interpretations
-
     def get_alleles_ongoing(self, session, user=None):
         allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_ongoing(session))]
         if user is not None:
@@ -238,34 +247,22 @@ class OverviewAlleleResource(LogRequestResource):
                 allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
             )
 
-        return self._get_genepanel_alleles_existing_alleleinterpretation(
+        return get_genepanel_alleles_existing_alleleinterpretation(
             session,
             and_(*allele_filters)
-        )
+        )[0]
 
-    def get_alleles_markedreview(self, session=None, user=None):
+    def get_alleles_markedreview(self, session, user=None):
         allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_marked_review(session))]
         if user is not None:
             allele_filters.append(
                 allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
             )
 
-        return self._get_genepanel_alleles_existing_alleleinterpretation(
+        return get_genepanel_alleles_existing_alleleinterpretation(
             session,
             and_(*allele_filters)
-        )
-
-    def get_alleles_finalized(self, session, user=None):
-        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_finalized(session))]
-        if user is not None:
-            allele_filters.append(
-                allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
-            )
-
-        return self._get_genepanel_alleles_existing_alleleinterpretation(
-            session,
-            and_(*allele_filters)
-        )
+        )[0]
 
     def get_alleles_not_started(self, session, user=None):
         allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_not_started(session))]
@@ -274,19 +271,40 @@ class OverviewAlleleResource(LogRequestResource):
                 allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
             )
 
-        return self._get_genepanel_alleles_existing_alleleinterpretation(
+        return get_genepanel_alleles_existing_alleleinterpretation(
             session,
             and_(*allele_filters)
-        )
+        )[0]
 
     @authenticate()
     def get(self, session, user=None):
         return {
-            'missing_alleleassessment': self.get_alleles_for_analyses_missing_interpretation(session, user)+self.get_alleles_not_started(session, user),
-            'marked_review': self.get_alleles_markedreview(session, user),
-            'ongoing': self.get_alleles_ongoing(session, user),
-            'finalized': self.get_alleles_finalized(session, user)
+            'missing_alleleassessment': self.get_alleles_for_analyses_missing_interpretation(session, user=user)+self.get_alleles_not_started(session, user=user),
+            'marked_review': self.get_alleles_markedreview(session, user=user),
+            'ongoing': self.get_alleles_ongoing(session, user=user)
         }
+
+
+class OverviewAlleleFinalizedResource(LogRequestResource):
+
+    def get_alleles_finalized(self, session, user=None, page=None, per_page=None):
+        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_finalized(session))]
+        if user is not None:
+            allele_filters.append(
+                allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
+            )
+
+        return get_genepanel_alleles_existing_alleleinterpretation(
+            session,
+            and_(*allele_filters),
+            page=page,
+            per_page=per_page
+        )
+
+    @authenticate()
+    @paginate
+    def get(self, session, user=None, page=None, per_page=None):
+        return self.get_alleles_finalized(session, user=user, page=page, per_page=per_page)
 
 
 def _categorize_allele_ids_findings(session, allele_ids):
@@ -343,21 +361,25 @@ def _categorize_allele_ids_findings(session, allele_ids):
     return categorized_allele_ids
 
 
-def get_categorized_analyses(session, user=None):
-
-    analyses_base_query = session.query(sample.Analysis)
+def _get_analyses_for_user(session, user=None):
+    analyses_for_user = session.query(sample.Analysis)
     # Restrict analyses to analyses matching this user's group's genepanels
     if user is not None:
         analyses_for_genepanels = queries.workflow_analyses_for_genepanels(session, user.group.genepanels)
-        analyses_base_query = analyses_base_query.filter(
+        analyses_for_user = analyses_for_user.filter(
             sample.Analysis.id.in_(analyses_for_genepanels)
         )
+    return analyses_for_user
+
+
+def get_categorized_analyses(session, user=None):
+
+    analyses_base_query = _get_analyses_for_user(session, user=user)
 
     categories = [
         ('not_started', queries.workflow_analyses_not_started(session)),
         ('marked_review', queries.workflow_analyses_marked_review(session)),
-        ('ongoing', queries.workflow_analyses_ongoing(session)),
-        ('finalized', queries.workflow_analyses_finalized(session))
+        ('ongoing', queries.workflow_analyses_ongoing(session))
     ]
 
     aschema = schemas.AnalysisFullSchema()
@@ -369,6 +391,21 @@ def get_categorized_analyses(session, user=None):
         final_analyses[key] = aschema.dump(analyses, many=True).data
 
     return final_analyses
+
+
+def get_finalized_analyses(session, user=None, page=None, per_page=None):
+
+    analyses_base_query = _get_analyses_for_user(session, user=user)
+
+    finalized_analyses = analyses_base_query.filter(
+        sample.Analysis.id.in_(queries.workflow_analyses_finalized(session)),
+    ).order_by(sample.Analysis.deposit_date.desc()).distinct()
+    count = finalized_analyses.count()
+    if page and per_page:
+        start = (page-1) * per_page
+        end = page * per_page
+        finalized_analyses = finalized_analyses.slice(start, end)
+    return schemas.AnalysisFullSchema().dump(finalized_analyses.all(), many=True).data, count
 
 
 def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
@@ -404,8 +441,9 @@ def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
         sample.Analysis
     ).filter(
         workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
+        workflow.AnalysisInterpretation.analysis_id.in_(analysis_ids),
         allele.Allele.id.in_(all_allele_ids)
-    ).all()
+    ).distinct().all()
 
     # Make a dict of (gp_name, gp_version): [allele_ids] for use with AlleleFilter
     gp_allele_ids = defaultdict(list)
@@ -457,11 +495,19 @@ def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
     return categories
 
 
+class OverviewAnalysisFinalizedResource(LogRequestResource):
+
+    @authenticate()
+    @paginate
+    def get(self, session, user=None, page=None, per_page=None):
+        return get_finalized_analyses(session, user=user, page=page, per_page=per_page)
+
+
 class OverviewAnalysisResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, user=None):
-        return get_categorized_analyses(session, user)
+        return get_categorized_analyses(session, user=user)
 
 
 class OverviewAnalysisByFindingsResource(LogRequestResource):

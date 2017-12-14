@@ -132,8 +132,17 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewAlleleResource,
                            '/api/v1/overviews/alleles/')
 
+        self._add_resource(r.overview.OverviewAlleleFinalizedResource,
+                           '/api/v1/overviews/alleles/finalized/')
+
         self._add_resource(r.overview.OverviewAnalysisResource,
                            '/api/v1/overviews/analyses/')
+
+        self._add_resource(r.overview.OverviewAnalysisFinalizedResource,
+                           '/api/v1/overviews/analyses/finalized/')
+
+        self._add_resource(r.overview.OverviewAnalysisByFindingsResource,
+                           '/api/v1/overviews/analyses/by-findings/')
 
         self._add_resource(r.overview.OverviewActivitiesResource,
                            '/api/v1/overviews/activities/')
@@ -141,8 +150,6 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewUserStatsResource,
                            '/api/v1/overviews/userstats/')
 
-        self._add_resource(r.overview.OverviewAnalysisByFindingsResource,
-                           '/api/v1/overviews/analyses/by-findings/')
 
         # ---------------------------------------------------------------------------------------------------------
         # Annotation

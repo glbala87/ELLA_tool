@@ -86,6 +86,7 @@ def rest_filter(func):
 
     return inner
 
+
 def search_filter(func):
     @wraps(func)
     def inner(*args, **kwargs):
@@ -137,12 +138,13 @@ def log_request(statuscode, response=None):
             payload = request.get_data()
             payload_size = request.headers.get('Content-Length'),
         if not app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
-            log.warning("{usersession_id} - {method} - {endpoint} - {json} - {response_size}".format(
+            log.warning("{usersession_id} - {method} - {endpoint} - {json} - {response_size} - {duration}ms".format(
                 usersession_id=g.usersession_id,
                 method=request.method,
                 endpoint=request.url,
                 json=(payload if payload else '[PAYLOAD HIDDEN]'),
-                response_size=response_size
+                response_size=response_size,
+                duration=duration
             ))
 
     if not g.log_exclude:
@@ -204,16 +206,28 @@ def paginate(func):
             page = 1
         else:
             page = int(page)
-        num_per_page = None
+        per_page = None
         if request:
-            num_per_page = request.args.get('num_per_page')
-        if num_per_page is not None:
-            num_per_page = int(num_per_page)
+            per_page = request.args.get('per_page')
+        if per_page is not None:
+            per_page = int(per_page)
+            if per_page > 50:
+                per_page = 50
         else:
-            num_per_page = 2000  # FIXME: Figure out the pagination stuff
+            per_page = 10000  # FIXME: Leave at high value until we add pagination in frontend
         kwargs['page'] = page
-        kwargs['num_per_page'] = num_per_page
-        return func(*args, **kwargs)
+        kwargs['per_page'] = per_page
+        result, total = func(*args, **kwargs)
+        response_headers = dict()
+        if total is not None:
+            response_headers['Total-Count'] = total
+            total_pages = total / per_page
+            if total_pages == 0:
+                total_pages = 1
+            response_headers['Total-Pages'] = total_pages
+        response_headers['Page'] = page
+        response_headers['Per-Page'] = per_page
+        return result, 200,  response_headers
     return inner
 
 

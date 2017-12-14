@@ -10,7 +10,7 @@ class GenepanelListResource(LogRequestResource):
     @authenticate()
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
         Returns a list of genepanles.
 
@@ -36,8 +36,8 @@ class GenepanelListResource(LogRequestResource):
         if rest_filter is None:
             rest_filter = dict()
         rest_filter[("name", "version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
-        genepanels = self.list_query(session, gene.Genepanel, schema=schemas.GenepanelFullSchema(), rest_filter=rest_filter)
-        return genepanels
+        return self.list_query(session, gene.Genepanel, schema=schemas.GenepanelFullSchema(), rest_filter=rest_filter)
+
 
 
 class GenepanelResource(LogRequestResource):

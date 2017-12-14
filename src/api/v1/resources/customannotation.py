@@ -3,7 +3,7 @@ import pytz
 from vardb.datamodel import annotation
 
 from api import schemas
-from api.util.util import rest_filter, request_json, authenticate
+from api.util.util import rest_filter, request_json, authenticate, paginate
 
 from api.v1.resource import LogRequestResource
 
@@ -11,8 +11,9 @@ from api.v1.resource import LogRequestResource
 class CustomAnnotationList(LogRequestResource):
 
     @authenticate()
+    @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, num_per_page=None, user=None):
+    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
         Returns a list of customannotations.
 

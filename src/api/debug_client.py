@@ -13,7 +13,7 @@ def url_add(url, params):
 # url = "http://localhost:5000/api/v1/samples/BRCA_S2?embed=genotypes.allele.annotation,genotypes.secondallele.annotation"
 url = url_add("http://localhost:5000/api/v1/references/", {
     'page': 1,
-    'num_per_page': 10,
+    'per_page': 10,
     'embed': ':id:authors',
     'q': json.dumps({'id': [74341, 74342, 74343, 74344, 74345, 74346, 74347, 74348, 74349, 74350]})})
 r = requests.get(url)

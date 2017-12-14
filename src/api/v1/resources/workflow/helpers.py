@@ -77,7 +77,12 @@ def _get_latest_interpretation(session, allele_id, analysis_id):
     ).order_by(model.id.desc()).first()
 
 
-def get_alleles(session, allele_ids, genepanels, alleleinterpretation_id=None, analysisinterpretation_id=None, current_allele_data=False):
+def get_alleles(session,
+                allele_ids,
+                genepanels,
+                alleleinterpretation_id=None,
+                analysisinterpretation_id=None,
+                current_allele_data=False):
     """
     Loads all alleles for an interpretation. The interpretation model is dynamically chosen
     based on which argument (alleleinterpretation_id, analysisinterpretation_id) is given.
