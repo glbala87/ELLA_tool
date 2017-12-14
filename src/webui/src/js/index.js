@@ -73,6 +73,7 @@ import './widgets/alleleinfo/alleleInfoHgmd.directive';
 import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
+import './widgets/annotationimport/annotationFileImport.directive'
 
 import './widgets/analysisList.directive';
 import './widgets/alleleAssessment.directive';

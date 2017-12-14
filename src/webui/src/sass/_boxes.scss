@@ -99,7 +99,7 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
 .contentbox { margin: 0.35rem; display: flex; height: calc(100% - 0.7rem);
   .max-width & .cb-body { max-width: 100% !important; }
   .cb-body { padding: 1.3rem; width: 100%; }
-  .cb.titlebar { height: 100%;
+  .cb.titlebar { height: auto;
     div { margin: 1.75rem 0; }
     .title { color: white; font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
       a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
