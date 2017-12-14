@@ -18,6 +18,9 @@ GNOMAD_EXOMES_RESULT_KEY = 'GNOMAD_EXOMES'
 GNOMAD_GENOMES_ANNOTATION_KEY = 'GNOMAD_GENOMES'
 GNOMAD_GENOMES_RESULT_KEY = 'GNOMAD_GENOMES'
 
+INDB_ANNOTATION_KEY = 'inDB'
+INDB_RESULT_KEY = 'inDB'
+
 SPLICE_FIELDS = [
     ('Effect', 'effect'),
     ('Transcript', 'transcript'),
@@ -187,7 +190,7 @@ HGMD_FIELDS = [
 def convert_hgmd(annotation):
     if 'HGMD' not in annotation:
         return dict()
-    
+
     data = {k: annotation['HGMD'][k] for k in HGMD_FIELDS if k in annotation['HGMD']}
     return {'HGMD': data}
 
@@ -243,13 +246,17 @@ def extract_annotation_data(annotation, annotation_key, result_key):
     hom = {}
     hemi = {}
     filter_status = {}
+    indications = {}
     for key, value in annotation[annotation_key].iteritems():
-        # Be careful if rearranging!
         if key == 'AS_FilterStatus':  # gnomAD specific
             assert len(value) == 1
             filter_status = {
-                'status': value[0].split('|')
+                'G': value[0].split('|')
             }
+        elif key.startswith('filter_'):
+            pop = key.split('filter_')[1]
+            filter_status[pop] = re.split(',|\|', value)
+        # Be careful if rearranging!
         elif key == 'AC':
             assert len(value) == 1
             count['G'] = value[0]
@@ -271,6 +278,9 @@ def extract_annotation_data(annotation, annotation_key, result_key):
         elif key.startswith('Hemi_'):
             pop = key.split('Hemi_')[1]
             hemi[pop] = extract_int_list(value)
+        elif key.startswith('indications_'):
+            pop = key.split('indications_')[1]
+            indications[pop] = {f.split(':', 1)[0]: f.split(':', 1)[1] for f in value.split(',')}
 
     for key in count:
         if key in num and num[key]:
@@ -296,6 +306,8 @@ def extract_annotation_data(annotation, annotation_key, result_key):
         frequencies[result_key].update({'count': count})
     if filter_status:
         frequencies[result_key].update({'filter': filter_status})
+    if indications:
+        frequencies[result_key].update({'indications': indications})
 
     return dict(frequencies)
 
@@ -348,6 +360,21 @@ def gnomad_genomes_frequencies(annotation):
         )
 
 
+def indb_frequencies(annotation):
+    """
+    Manually calculate frequencies from raw Gnomad Genomes data.
+
+    :param: annotation: a dict with key 'GNOMAD_GENOMES'
+    :returns: dict with key 'GNOMAD_GENOMES'
+    """
+    if INDB_ANNOTATION_KEY not in annotation:
+        return {}
+    else:
+        return extract_annotation_data(
+            annotation, INDB_ANNOTATION_KEY, INDB_RESULT_KEY
+        )
+
+
 def csq_frequencies(annotation):
     if 'CSQ' not in annotation:
         return {}
@@ -377,41 +404,6 @@ def csq_frequencies(annotation):
                 frequencies['1000g'] = {'freq': processed}
 
     return dict(frequencies)
-
-
-def indb_frequencies(annotation):
-    if 'inDB' not in annotation:
-        return {}
-
-    frequencies = dict(freq=dict(), count=dict(), indications=dict())
-    if "AF_OUSWES" in annotation["inDB"]:
-        if isinstance(annotation["inDB"]["AF_OUSWES"], (float, int)):
-            frequencies["freq"]["AF"] = annotation["inDB"]["AF_OUSWES"]
-        else:
-            frequencies["freq"]["AF"] = annotation["inDB"]["AF_OUSWES"][0]
-    elif 'alleleFreq' in annotation["inDB"]:
-        frequencies["freq"]["AF"] = annotation["inDB"]["alleleFreq"]
-    else:
-        log.warning("inDB key present, bug missing supported frequency key")
-
-    if "AC_OUSWES" in annotation["inDB"]:
-        if isinstance(annotation["inDB"]["AC_OUSWES"], (float, int)):
-            frequencies["count"]["AF"] = annotation["inDB"]["AC_OUSWES"]
-        else:
-            frequencies["count"]["AF"] = annotation["inDB"]["AC_OUSWES"][0]
-    elif 'noMutInd' in annotation['inDB']:
-        frequencies["count"]["AF"] = annotation["inDB"]["noMutInd"]
-    else:
-        log.warning("inDB key present, bug missing supported allele count key")
-
-    if "indications_OUSWES" in annotation["inDB"]:
-        frequencies["indications"] = {f.split(':', 1)[0]: f.split(':', 1)[1] for f in annotation['inDB']['indications_OUSWES'].split(',')}
-    elif 'indications' in annotation['inDB']:
-        frequencies["indications"] = annotation['inDB']['indications']
-    else:
-        log.warning("inDB key present, bug missing supported indications key")
-
-    return {'inDB': frequencies}
 
 
 class ConvertReferences(object):

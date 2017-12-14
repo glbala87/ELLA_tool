@@ -105,4 +105,18 @@ class AnnotationProcessor(object):
 
                     annotation['references'].append(ca_ref)
 
+        # DEPRECATION: Rename inDB AF to OUSWES on the fly.
+        # Can be removed once database is remade in production.
+        if 'frequencies' in annotation and 'inDB' in annotation['frequencies']:
+            for item in ['freq', 'count']:
+                if item in annotation['frequencies']['inDB']:
+                    if 'AF' in annotation['frequencies']['inDB'][item]:
+                        annotation['frequencies']['inDB'][item]['OUSWES'] = annotation['frequencies']['inDB'][item]['AF']
+                        del annotation['frequencies']['inDB'][item]['AF']
+            if 'indications' in annotation['frequencies']['inDB'] and 'OUSWES' not in annotation['frequencies']['inDB']['indications']:
+                annotation['frequencies']['inDB']['indications'] = {
+                    'OUSWES': annotation['frequencies']['inDB']['indications']
+                }
+        # END DEPRECATION
+
         return annotation
