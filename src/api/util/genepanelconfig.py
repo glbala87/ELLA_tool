@@ -5,8 +5,7 @@ from api.config import config
 from api.util import queries
 
 #
-from api.util.util import get_nested
-from api.v1.resources.config import dict_merge
+from api.util.util import get_nested, dict_merge
 
 INHERITANCE_GROUP_AD = 'AD'
 INHERITANCE_GROUP_DEFAULT = 'default'

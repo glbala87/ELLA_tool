@@ -3,6 +3,10 @@
     <div ng-repeat="sample in vm.allele.samples" ng-if="sample.sample_type == 'HTS'">
       <div class="cb-table">
         <div class="tabular-row">
+          <div class="cell"><h5>Verify:</h5></div>
+          <div class="cell"><p>{{sample.genotype.needs_verification ? 'Yes' : 'No'}}</p></div>
+        </div>
+        <div class="tabular-row">
           <div class="cell"><h5>Filter:</h5></div>
           <div class="cell"><p>{{sample.genotype.filter_status}}</p></div>
         </div>
@@ -21,6 +25,10 @@
         <div class="tabular-row">
           <div class="cell"><h5>AD:</h5></div>
           <div class="cell"></div>
+        </div>
+        <div class="tabular-row">
+          <div class="cell"><p>Ratio:</p></div>
+          <div class="cell"><p>{{sample.genotype.allele_ratio | number:2}}</p></div>
         </div>
         <div class="tabular-row" ng-repeat="(k, v) in sample.genotype.allele_depth">
           <div class="cell"><p> - {{vm.formatSequence(k)}}:</p></div>

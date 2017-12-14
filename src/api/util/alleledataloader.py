@@ -1,5 +1,4 @@
 import json
-import re
 from vardb.datamodel import allele, sample, genotype, annotationshadow
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
@@ -10,6 +9,8 @@ from api.util import queries
 from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
 from api.util.annotationprocessor import AnnotationProcessor
 from api.config import config
+from .calculate_qc import genotype_calculate_qc
+
 
 # Top level keys:
 KEY_REFERENCE_ASSESSMENTS = 'reference_assessments'
@@ -113,7 +114,14 @@ class AlleleDataLoader(object):
                                 if KEY_SAMPLES not in accumulated_allele_data[allele_id]:
                                     accumulated_allele_data[allele_id][KEY_SAMPLES] = list()
                                 sample_serialized = sample_schema.dump(sample_obj).data  # We need to recreate here, we cannot reuse sample object
-                                sample_serialized[KEY_GENOTYPE] = genotype_schema.dump(gt).data
+                                genotype_data = genotype_schema.dump(gt).data
+                                genotype_data.update(
+                                    genotype_calculate_qc(
+                                        accumulated_allele_data[allele_id]['allele'],
+                                        genotype_data
+                                    )
+                                )
+                                sample_serialized[KEY_GENOTYPE] = genotype_data
                                 accumulated_allele_data[allele_id][KEY_SAMPLES].append(sample_serialized)
 
         allele_annotations = list()

@@ -4,6 +4,7 @@ from marshmallow import fields, Schema
 class GenotypeSchema(Schema):
     class Meta:
         fields = ('id',
+                  'multiallelic',
                   'genotype_quality',
                   'sequencing_depth',
                   'variant_quality',
@@ -14,6 +15,10 @@ class GenotypeSchema(Schema):
                   )
 
     genotype = fields.Method("get_genotype")
+    multiallelic = fields.Method("is_multiallelic")
+
+    def is_multiallelic(self, obj):
+        return obj.secondallele_id is not None
 
     def get_genotype(self, obj):
 
