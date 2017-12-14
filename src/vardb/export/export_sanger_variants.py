@@ -78,7 +78,7 @@ def create_variant_row(default_transcript, analysis_info, allele_info):
         found_transcript['transcript'],
         found_transcript.get('HGVSc_short', '?'),
         classification,
-            ''
+        ''
     ]
 
 
