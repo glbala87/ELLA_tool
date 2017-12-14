@@ -1,6 +1,10 @@
 #!/usr/bin/env ammonite
 
 /**
+* +++++++++++
+* How to run:
+* +++++++++++
+*
 * In order to run the script you need to have ammonite installed:
 * 
 * sudo curl -L -o /usr/local/bin/amm https://git.io/vdNv2 && sudo chmod +x /usr/local/bin/amm && amm
@@ -12,21 +16,31 @@
 * The script can also be started with :
 * amm TestDataGenerator.sc
 *
+* +++++++++++++
+* What it does:
+* +++++++++++++
+*
+* Simulates production environment to make it possible to test the analysis_watcher.py script. 
+*
+* +++++++++++++ 
 * How it works:
+* +++++++++++++
 *
 * The script is based on Streams created by fs2 scala library. It concatenates the following two Streams:
 * 1.)  preparations - database reset and creation
-* 2.)  Three parallell streams running in 3 threads, consisting of analysisWatcher, configStream, readyStream 
+* 2.)  Three parallell streams running in 3 threads, consisting of analysisWatcher, analysisStream, readyStream 
 *
 * The three parallel streams will start to run only after the preparations stream has finished. 
 * 
 * - analysisWatcher runs the python script `analysis_watcher.py` in `/ella/src/vardb/watcher`.
-* - configStream creates an analysis folder according to `TestAnalysis-001`.
-* - readyStream adds the READY flag inside the folder after the configStream has created the analysis folder.
+* - analysisStream creates an analysis folder according to `TestAnalysis-001`.
+* - readyStream adds the READY flag inside the folder after the analysisStream has created the analysis folder.
 * 
-* IMPORTANT REMARKS: The configStream and readyStream runs with random delays given with the flags CONFIG_DELAY and READY_DELAY
+* IMPORTANT REMARKS: The analysisStream and readyStream runs with random delays given with the flags CONFIG_DELAY and READY_DELAY
 * 
-* Ammonite is an amazing tool created by Li Haoyi
+* Ammonite is an amazing tool created by Li Haoyi! 
+* 
+* It combines the Scala language with shell scripting almost as nice as in Python
 *
 */
 
@@ -45,16 +59,11 @@ import fs2._
 import cats.effect.IO
 import scala.concurrent.duration._
 
-// jdbc - functional db imports
-import $ivy.`org.tpolecat::doobie-postgres:0.5.0-M10`
-import doobie._
-import doobie.implicits._
-
 // ammonite shell imports
 import ammonite.ops._
-// Creating a simple pipe symbol for writing files
-import ammonite.ops.{write => wr}
 import ammonite.ops.ImplicitWd._
+// shortening the write method to wr to avoid naming conflicts with other libraries
+import ammonite.ops.{write => wr}
 
 /**
   * Settings and utility functions and values
@@ -103,7 +112,8 @@ case class Analysis(
   genepanelVersion: String 
 )
 
-val jsonConfigs: Stream[IO, Analysis] = Stream(2,3,4,5,6).map { n =>
+// Pure Stream of analysis config data
+val datamodelStream: Stream[IO, Analysis] = Stream(2,3,4,5,6).map { n =>
   val analysisName = s"$namePostfix$n"
   val genepanelName = s"1GP$n"
   val genepanelVersion = s"v$n"
@@ -124,7 +134,7 @@ val jsonConfigs: Stream[IO, Analysis] = Stream(2,3,4,5,6).map { n =>
 }
 
 /**
-  * IO side effects, creating data folders
+  * IO side effects, creating analysis folders, inserting into database
   */
 
 val analysisFolder = wd/up/'testdata/'analyses
@@ -138,19 +148,25 @@ val setReady: Sink[IO, String] = _.evalMap { folderName =>
 
 val createTestConfig: Sink[IO, Analysis] = _.evalMap { a =>
   IO {
+
     val insert =
     s"""insert into genepanel (name, version, genome_reference, config ) values (
           '${a.genepanelName}', '${a.genepanelVersion}', 'GRCh37' , '{}'
     )"""
-
+    
+    // running the insert statement at the simplest possible way through bash
     val result = %%('docker, 'exec, 'f064a5dfc90d, 'psql, "-U", 'postgres, "-d", 'postgres, "-c", insert)
       
     val path = analysisFolder/a.folderName
     val file = path/a.fileName
+    
+    // the `bang` is Ammonite syntax for the same shell operation as in bash.
+    // The ammonite shell operations are usually more forceful, they don't 
+    // care if files exists, or folders are missing in a path.
     mkdir! path
 
-    // Copying test data from previous vcf sample, sometimes this will fail, but
-    // that is intentional, to see that the analyse_watcher.py script can cope with it
+    // Copying test data from previous vcf sample, sometimes this may fail, but
+    // that is intentional, to see that the analyse_watcher.py script can cope with it ...
     cp(analysisFolder/s"TestAnalysis-00${a.id - 1}"/s"TestAnalysis-00${a.id - 1}.vcf", analysisFolder/a.folderName/s"TestAnalysis-00${a.id}.vcf")
 
     println("data copied, writing testdata: " + file)
@@ -160,13 +176,12 @@ val createTestConfig: Sink[IO, Analysis] = _.evalMap { a =>
   }
 }
 
-/**
-  * Creating and running the streams of IO effects, i.e. test data generation
-  */
+// transforming the pure dataModelStream into one for 
+// generating analysis data and one for setting the READY FLAG
+val analysisStream = datamodelStream.covary[IO].to(createTestConfig)
+val readyStream = datamodelStream.map { c => c.folderName }.through(randomDelays(READY_DELAY)).to(setReady)
 
-val readyStream = jsonConfigs.map { c => c.folderName }.through(randomDelays(READY_DELAY)).to(setReady)
-val configStream = jsonConfigs.covary[IO].to(createTestConfig)
-
+// resetting the database
 val preparations = {
   mkdir! wd/up/'testdata/'destination
   %('docker, 'exec, 'f064a5dfc90d, "/ella/ella-cli", 'database, 'drop, "-f")
@@ -174,15 +189,21 @@ val preparations = {
   %('docker, 'exec, 'f064a5dfc90d, 'make, 'dbreset)
 }
 
+// Stream for starting the analysis_watcher.py script
 val analysisWatcher = Stream.eval( IO {
   %('docker, 'exec, 'f064a5dfc90d, 'python, "src/vardb/watcher/analysis_watcher.py", "--analyses", "src/vardb/watcher/testdata/analyses", "--dest", "src/vardb/watcher/testdata/destination")
 })
 
-// running configStream and readyStream in parallell on 3 threads.
+// running analysisStream and readyStream in parallell on NR_OF_THREADS given. 
 // ready flag will always be set after the initial test data are created, but 
 // ready flag for test data 2 may be set after test data 1.
- val program = Stream(preparations) ++ Stream(analysisWatcher, configStream, readyStream).join(NR_OF_THREADS).through(randomDelays(CONFIG_DELAY)).through(log("data"))
-//val program = Stream(configStream, readyStream).join(3).through(randomDelays(4.seconds)).through(log("data"))
+ val program = Stream(preparations) ++ 
+   Stream(analysisWatcher, analysisStream, readyStream)
+     .join(NR_OF_THREADS)
+     .through(randomDelays(CONFIG_DELAY))
+     .through(log("analysis sample added and ready for pickup!"))
 
-println("creating new analysis ..")
+echo! "creating new analysis and setting the READY flag at random intervals .."
+
+// actually running the program ...
 program.covary[IO].run.unsafeRunAsync(println)
