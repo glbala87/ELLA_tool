@@ -1,5 +1,5 @@
 """vardb datamodel Allele class"""
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, UniqueConstraint
 
@@ -24,7 +24,14 @@ class Allele(Base):
     open_end_position = Column(Integer, nullable=False)
     change_from = Column(String, nullable=False)
     change_to = Column(String, nullable=False)
-    change_type = Column(String, nullable=False)
+    change_type = Column(Enum(
+        "SNP",
+        "del",
+        "ins",
+        "indel",
+        name="change_type"),
+        nullable=False
+    )
     vcf_pos = Column(Integer, nullable=False)
     vcf_ref = Column(String, nullable=False)
     vcf_alt = Column(String, nullable=False)
