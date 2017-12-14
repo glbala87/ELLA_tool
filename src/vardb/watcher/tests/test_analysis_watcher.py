@@ -163,5 +163,6 @@ def test_check_and_import(session, test_database, init_dest):
     files = os.listdir(watch_path)
     assert len(files) == 1
     assert files == [analysis_sample2]
-
+    
+    # We do this only once, at the end of the tests. It is a bit fragile to use network to reset files and folders
     os.system('git checkout src/vardb/watcher/testdata/analyses/')
