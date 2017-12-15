@@ -48,6 +48,7 @@ vcf_file_missing = "Expected a vcf file at {}, but found none."
 analysis_field_missing = "Missing field {} in analysis config at {}"
 analysis_file_misconfigured = "The file {} is corrupt or JSON structure has missing values: {}"
 
+report_file = 'report.md'
 analysis_postfix = '.analysis'
 vcf_postfix = '.vcf'
 
@@ -81,7 +82,19 @@ class AnalysisWatcher(object):
         for field in ['name', 'samples', 'priority', 'params']:
             if field not in analysis_config:
                 raise RuntimeError(analysis_field_missing.format(field, analysis_config_path))
-    
+   
+    def load_file(self, analysis_config_path, file_name):
+        path_to_file = analysis_config_path + '/' + file_name
+        if os.path.isfile(path_to_file):
+            with open(path_to_file) as f:
+                result = f.read() 
+            return result    
+        else :
+            return ''        
+
+    def load_warnings(self, analsysis_config_path):
+        "warnings"
+
     def import_analysis(self, analysis_config_data):
         """
         Imports the analysis (+ connected samples) into the database.

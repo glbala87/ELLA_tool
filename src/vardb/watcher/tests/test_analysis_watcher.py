@@ -58,6 +58,7 @@ def test_ready_filepath(session, init_dest):
     assert aw.is_ready(ready_data_path) == True
     assert aw.is_ready(empty_data_path) == False
 
+
   
 def test_path_to_analysis_config(session, init_dest):
     aw = init(session)
@@ -72,6 +73,10 @@ def test_path_to_analysis_config(session, init_dest):
     expected_error = analysis_file_missing.format(empty_data_path + '/' + analysis_sample + analysis_postfix)
     assert expected_error  in str(excinfo)
 
+def test_loading_report(session, init_dest):
+    aw = init(session)
+    report = aw.load_file(ready_data_path, report_file)
+    assert "Report" in str(report)
 
 def test_loading_config(session, init_dest):
     aw = init(session)
@@ -80,6 +85,7 @@ def test_loading_config(session, init_dest):
     assert len(analysis_config['samples']) == 3
     assert analysis_config['priority'] == '1'
     assert analysis_config['name'] == analysis_sample
+
 
 
 def test_loading_config_with_error(session, init_dest):  
