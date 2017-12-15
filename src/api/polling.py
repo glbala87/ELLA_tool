@@ -91,13 +91,14 @@ class AnnotationJobsInterface:
         gp_name = job.genepanel_name
         gp_version = job.genepanel_version
 
-        def config_data(name) = return AnalysisConfigData(
-            vcf_path = fd,
-            analysis_name = name,
-            gp_name = gp_name,
-            gp_version  = gp_version,
-            priority = 1
-        )
+        def config_data(name):
+            return AnalysisConfigData(
+                vcf_path = fd,
+                analysis_name = name,
+                gp_name = gp_name,
+                gp_version  = gp_version,
+                priority = 1
+            )
 
         if mode == "Analysis":
             type = job.properties["create_or_append"]
