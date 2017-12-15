@@ -81,7 +81,7 @@ class AnalysisWatcher(object):
         for field in ['name', 'samples', 'priority', 'params']:
             if field not in analysis_config:
                 raise RuntimeError(analysis_field_missing.format(field, analysis_config_path))
-                    
+    
     def import_analysis(self, analysis_config_data):
         """
         Imports the analysis (+ connected samples) into the database.

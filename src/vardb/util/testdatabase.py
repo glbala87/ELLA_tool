@@ -16,7 +16,6 @@ class TestDatabase(object):
         db.disconnect()
         db.connect(engine_kwargs={"poolclass": NullPool})
         self.create_dump()
-        self.refresh()
 
     def get_dump_path(self):
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
@@ -58,7 +57,7 @@ class TestDatabase(object):
     def cleanup(self):
         print "Disconnecting..."
         db.disconnect()
-        print "Removing database"
+        print "Removing database in TestDatabase"
         subprocess.call('dropdb {uri}'.format(uri=os.environ["DB_URL"]), shell=True)
         try:
             os.remove(self.dump_path)
