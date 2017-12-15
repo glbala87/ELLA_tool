@@ -20,15 +20,24 @@ export class FrequencyDetailsWidget {
         this.precision = this.config.frequencies.view.precision;
         this.scientific_threshold = this.config.frequencies.view.scientific_threshold;
         this.frequencies = [];
-        this.exac_fields = ['count', 'num', 'hom', 'freq']
-
+        this.fields = ['count', 'num', 'hom', 'hemi', 'freq'].filter(i => {
+             // include hemi only for X and Y chromosomes
+            if (i === 'hemi') {
+                return this.allele.chromosome === 'X' ||
+                       this.allele.chromosome === 'Y'
+            }
+            return true
+        })
         $scope.$watch(() => this.allele, () => {this.setFrequencies()});
     }
 
+    getFreqTypes() {
+        return this.config.frequencies.view.groups[this.group];
+    }
 
     setFrequencies() {
         this.frequencies = [];
-        let freq_types = this.config.frequencies.view.groups[this.group];
+        let freq_types = this.getFreqTypes();
         if (!freq_types) {
             return;
         }
@@ -43,10 +52,9 @@ export class FrequencyDetailsWidget {
                         name: freq_type,
                         freq: annotation_data_for_group.freq[freq_type]
                     }
-                    // Add ExAC specific values
-                    for (let category of ['het', 'hom', 'count', 'num']) {
-                        if (hasDataAtKey(annotation_data_for_group, category, freq_type)) {
-                            data_container[category] = annotation_data_for_group[category][freq_type];
+                    for (let field of this.fields) {
+                        if (hasDataAtKey(annotation_data_for_group, field, freq_type)) {
+                            data_container[field] = annotation_data_for_group[field][freq_type];
                         }
                     }
                     this.frequencies.push(data_container);
@@ -73,11 +81,24 @@ export class FrequencyDetailsWidget {
         }
     }
 
-    getExACHeaderName(name) { // like 'freq' -> 'Allele freq'
-      return this.config.frequencies.view.ExAC_fields[name];
+    getFilter(freq_type) {
+        if (this.allele.annotation.frequencies &&
+            this.group in this.allele.annotation.frequencies &&
+            'filter' in this.allele.annotation.frequencies[this.group] &&
+            freq_type in this.allele.annotation.frequencies[this.group].filter) {
+                return this.allele.annotation.frequencies[this.group].filter[freq_type]
+            }
     }
 
-    formatExACValue(freq_data, name) {
+    isFilterFail(freq_type) {
+        let filter = this.getFilter(freq_type);
+        if (filter) {
+            return filter.length == 1 && filter[0] !== 'PASS';
+        }
+        return false;
+    }
+
+    formatValue(freq_data, name) {
       if(name === "freq") {
         return this.getFreqValue(freq_data)
       } else {
@@ -101,18 +122,12 @@ export class FrequencyDetailsWidget {
         }
     }
 
-    exacNames(freq_data) {
-        return freq_data;
-    }
-
-    isExACOrGnomad() {
-       return ['ExAC', 'GNOMAD_EXOMES', 'GNOMAD_GENOMES'].includes(this.group)
-    }
-
-    inDbIndicationThreshold() {
-        if ('inDB' in this.allele.annotation.frequencies) {
-            return this.allele.annotation.frequencies.inDB.count.AF <
-                   this.config.frequencies.view.inDB.indications_threshold;
+    showIndications(freq_type) {
+        if (this.group in this.allele.annotation.frequencies &&
+            'indications' in this.allele.annotation.frequencies[this.group] &&
+            freq_type in this.allele.annotation.frequencies[this.group].indications) {
+                return this.allele.annotation.frequencies[this.group].count[freq_type] <
+                       this.config.frequencies.view.indications_threshold;
         }
     }
 

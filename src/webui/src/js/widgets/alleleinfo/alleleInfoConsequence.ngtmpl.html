@@ -1,7 +1,7 @@
 <contentbox title="Consequence" title-url="{{vm.allele.getEnsemblUrl()}}">
   <cbbody>
-    <div ng-if="vm.allele.annotation.hasWorseConsequence()">
-      <h5>Worse consequences found in:</h5>
+    <div class="cb-warning" ng-if="vm.allele.annotation.hasWorseConsequence()">
+      WORSE CONSEQUENCE FOUND IN:
       <ul>
         <li ng-repeat="t in vm.allele.annotation.getWorseConsequenceTranscripts()">{{t.consequences.join(',')}} in {{t.transcript}}</li>
       </ul>
