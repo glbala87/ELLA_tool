@@ -667,8 +667,8 @@ class AnalysisImporter(object):
             name=analysis_name,
             genepanel=genepanel,
             priority=priority,
-            report = report,
-            warnings = warnings
+            report=report,
+            warnings=warnings
         )
 
         self.session.add(analysis)

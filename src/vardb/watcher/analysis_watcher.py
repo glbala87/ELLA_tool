@@ -153,8 +153,8 @@ class AnalysisWatcher(object):
             analysis_name = analysis_config['name']
             priority = analysis_config['priority']
 
-            report = self.load_file(analysis_dir, report_file)
-            warnings = self.load_file(analysis_dir, warnings_file)
+            report = self.load_file(analysis_path, report_file)
+            warnings = self.load_file(analysis_path, warnings_file)
 
             if gp_name == '' or gp_version == '':
                 raise RuntimeError(analysis_file_misconfigured.format(
