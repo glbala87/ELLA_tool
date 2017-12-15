@@ -17,9 +17,17 @@
 * How to run:
 * +++++++++++
 * The scripts needs a running docker container instance.
-* The script can also be started with :
-* amm TestDataGenerator.sc
 *
+* If you have installed ammonite, it should be enough to start it like this:
+* 
+* ProductionSimulator --dockerId <provide id of the running ella docker container>
+
+* The script can also be started with amm directly:
+* amm TestDataGenerator.sc --dockerId <provide id of the running ella docker container>
+*
+* You have to restart the docker container after the script has finished, or kill the 
+* `analyis_watcher.py` script manually.
+* 
 * +++++++++++++
 * What it does:
 * +++++++++++++
