@@ -61,7 +61,7 @@ COLUMN_PROPERTIES = [
     ]
 
 
-def create_variant_row(default_transcript, analysis_info, allele_info):
+def create_variant_row(default_transcript, analysis_info, allele_info, sanger_verify):
     found_transcript = next(ifilter(lambda t: t['transcript'] == default_transcript,
                                get_nested(allele_info, ['annotation', 'transcripts'])),
                             None)
@@ -78,7 +78,7 @@ def create_variant_row(default_transcript, analysis_info, allele_info):
         found_transcript['transcript'],
         found_transcript.get('HGVSc_short', '?'),
         classification,
-        ''
+        sanger_verify
     ]
 
 
@@ -150,11 +150,13 @@ def export_variants(session, filename):
             alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids_not_filtered_away)).all()
             loaded_alleles = adl.from_objs(
                 alleles,
+                include_genotype_samples=[s.id for s in analysis.samples],
                 genepanel=analysis.genepanel,
                 include_allele_assessment=True
             )
 
             for allele_info in loaded_alleles:
+                sanger_verify = allele_info['samples'][0]['genotype'].get('needs_verification', True)
                 project_name, prove_number = extract_meta_from_name(analysis.name)
                 analysis_info = {'genepanel_name':    gp_key[0],
                                  'genepanel_version': gp_key[1],
@@ -164,7 +166,7 @@ def export_variants(session, filename):
                                  }
 
                 default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
-                variant_row = create_variant_row(default_transcript, analysis_info, allele_info)
+                variant_row = create_variant_row(default_transcript, analysis_info, allele_info, sanger_verify)
                 csv_rows.append(variant_row)
                 worksheet_rows.append(variant_row)
 
