@@ -1,11 +1,11 @@
 <contentbox title="Quality">
   <cbbody>
+
     <div ng-repeat="sample in vm.allele.samples" ng-if="sample.sample_type == 'HTS'">
+      <div class="cb-warning" ng-if="sample.genotype.needs_verification">
+      NEEDS VERIFICATION
+      </div>
       <div class="cb-table">
-        <div class="tabular-row">
-          <div class="cell"><h5>Verify:</h5></div>
-          <div class="cell"><p>{{sample.genotype.needs_verification ? 'Yes' : 'No'}}</p></div>
-        </div>
         <div class="tabular-row">
           <div class="cell"><h5>Filter:</h5></div>
           <div class="cell"><p>{{sample.genotype.filter_status}}</p></div>
