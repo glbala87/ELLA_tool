@@ -101,8 +101,8 @@ def reset_testdata_from_cli():
 
 def do_testdata_reset(test_set, blocking=True):
     def worker():
-        drop_db.drop_db()
-        make_db.make_db()
+        drop_db.drop_db(db)
+        make_db.make_db(db)
 
         dt = DepositTestdata(db)
         dt.deposit_all(test_set=test_set)
@@ -117,6 +117,7 @@ def do_testdata_reset(test_set, blocking=True):
         t = threading.Thread(target=worker)
         t.start()
         return "Test database is resetting using test set '{}'. It should be ready in a minute.".format(test_set)
+
 
 class ApiErrorHandling(Api):
     def handle_error(self, e):

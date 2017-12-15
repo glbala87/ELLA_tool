@@ -3,23 +3,30 @@
 Script for dropping all tables in a vardb database.
 """
 import os
+from contextlib import contextmanager
 import click
+
+from vardb.datamodel import DB
 from .drop_db import drop_db
-from .make_db import make_db
+from .make_db import make_db, refresh
 from .ci_migration_db import ci_migration_db_remake, ci_migration_upgrade_downgrade, ci_migration_head, make_migration_base_db
 from .migration_db import migration_upgrade, migration_downgrade, migration_current, migration_history
 
 
-def confirm(func, success_msg, force=False):
+DEFAULT_WARNING = "THIS WILL WIPE OUT {} COMPLETELY! \nAre you sure you want to proceed? Type 'CONFIRM' to confirm.\n".format(os.environ.get('DB_URL'))
+
+
+@contextmanager
+def confirm(success_msg, force=False, warning=DEFAULT_WARNING):
     if not force:
-        confirmation = raw_input("THIS WILL WIPE OUT {} COMPLETELY! \nAre you sure you want to proceed? Type 'CONFIRM' to confirm.\n".format(os.environ.get('DB_URL')))
+        confirmation = raw_input(warning)
         if confirmation == 'CONFIRM':
-            func()
+            yield
             click.echo(success_msg)
         else:
             click.echo("Lacking confirmation, aborting...")
     else:
-        func()
+        yield
         click.echo(success_msg)
 
 
@@ -31,13 +38,37 @@ def database():
 @database.command('drop', help='Drops all data in database.')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_drop_db(f=None):
-    confirm(drop_db, "Database dropped!", force=f)
+    with confirm("Database dropped!", force=f):
+        db = DB()
+        db.connect()
+        drop_db(db)
 
 
 @database.command('make', help='Creates all tables in database.')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_make_db(f=None):
-    confirm(make_db, "Tables should now have been created.", force=f)
+    with confirm("Tables should now have been created.", force=f):
+        db = DB()
+        db.connect()
+        make_db(db)
+        db.session.commit()
+
+
+@database.command('refresh', help='Refresh shadow tables in database.')
+@click.option('-f', is_flag=True, help='Do not ask for confirmation.')
+def cmd_refresh(f=None):
+    warning = "This will refresh all shadow tables in the database. Do not run this command while app is running.\nType 'CONFIRM' to confirm.\n"
+    with confirm("Tables should now have been refreshed.", force=f, warning=warning):
+        db = DB()
+        db.connect()
+        click.echo("Refreshing tables...")
+        refresh(db)
+        click.echo("Done!")
+        db.session.commit()
+        ast_count = list(db.session.execute("SELECT COUNT(*) FROM annotationshadowtranscript"))[0][0]
+        asf_count = list(db.session.execute("SELECT COUNT(*) FROM annotationshadowfrequency"))[0][0]
+        click.echo("AnnotationShadowTranscript count: {}".format(ast_count))
+        click.echo("AnnotationShadowFrequency count: {}".format(asf_count))
 
 
 @database.command('make-migration-base',
@@ -45,7 +76,8 @@ def cmd_make_db(f=None):
                   short_help='Create base database')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_make_migration_base(f=None):
-    confirm(make_migration_base_db, "Tables should now have been created.", force=f)
+    with confirm("Tables should now have been created.", force=f):
+        make_migration_base_db()
 
 
 @database.command('ci-migration-test',
@@ -54,7 +86,8 @@ def cmd_make_migration_base(f=None):
                   )
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_ci_migration(f=None):
-    confirm(ci_migration_upgrade_downgrade, 'Migrations completed successfully', force=f)
+    with confirm('Migrations completed successfully', force=f):
+        ci_migration_upgrade_downgrade()
 
 
 @database.command('ci-migration-head',
@@ -62,14 +95,16 @@ def cmd_ci_migration(f=None):
                   short_help='From base to newest revision')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_ci_migration_head(f=None):
-    confirm(ci_migration_head, 'Migrations to newest revision was successful.', force=f)
+    with confirm('Migrations to newest revision was successful.', force=f):
+        ci_migration_head()
 
 
 @database.command('ci-migration-base',
                   help='Creates base database tables')
 @click.option('-f', is_flag=True, help='Do not ask for confirmation.')
 def cmd_ci_migration_base(f=None):
-    confirm(ci_migration_db_remake, 'Base database tables created successfully.', force=f)
+    with confirm('Base database tables created successfully.', force=f):
+        ci_migration_db_remake()
 
 
 @database.command('upgrade',

@@ -8,13 +8,15 @@ from sqlalchemy.orm import configure_mappers
 from api.config import config
 
 
-def make_db():
+def make_db(db):
 
-    db = DB()
-    db.connect()
     configure_mappers()
     Base.metadata.create_all(db.engine)
 
+    refresh(db)
+
+
+def refresh(db):
     # Although the annotationshadow tables were created above in create_all()
     # they have extra logic with triggers on dynamic fields, so we need to (re)create them
     create_shadow_tables(
@@ -23,5 +25,3 @@ def make_db():
         create_transcript=True,
         create_frequency=True
     )
-    db.session.commit()
-
