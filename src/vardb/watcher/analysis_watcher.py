@@ -49,6 +49,7 @@ analysis_field_missing = "Missing field {} in analysis config at {}"
 analysis_file_misconfigured = "The file {} is corrupt or JSON structure has missing values: {}"
 
 report_file = 'report.md'
+warnings_file = 'warnings.md'
 analysis_postfix = '.analysis'
 vcf_postfix = '.vcf'
 
@@ -91,9 +92,6 @@ class AnalysisWatcher(object):
             return result    
         else :
             return ''        
-
-    def load_warnings(self, analsysis_config_path):
-        "warnings"
 
     def import_analysis(self, analysis_config_data):
         """
@@ -154,13 +152,16 @@ class AnalysisWatcher(object):
             gp_name, gp_version = gp.split('_')
             analysis_name = analysis_config['name']
             priority = analysis_config['priority']
-      
+
+            report = self.load_file(analysis_dir, report_file)
+            warnings = self.load_file(analysis_dir, warnings_file)
+
             if gp_name == '' or gp_version == '':
                 raise RuntimeError(analysis_file_misconfigured.format(
                   analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version
                 ))
       
-            return AnalysisConfigData(analysis_vcf_path, analysis_name, gp_name, gp_version, priority)
+            return AnalysisConfigData(analysis_vcf_path, analysis_name, gp_name, gp_version, priority, report, warnings)
       
         except Exception:
             log.exception(analysis_file_misconfigured.format(analysis_path, ""))

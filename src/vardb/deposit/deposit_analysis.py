@@ -52,7 +52,9 @@ class DepositAnalysis(DepositFromVCF):
         db_analysis = self.analysis_importer.process(
             analysis_config_data.analysis_name, 
             analysis_config_data.priority, 
-            db_genepanel
+            db_genepanel,
+            analysis_config_data.report,
+            analysis_config_data.warnings
         )
         db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type)
 

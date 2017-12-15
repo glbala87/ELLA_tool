@@ -78,6 +78,13 @@ def test_loading_report(session, init_dest):
     report = aw.load_file(ready_data_path, report_file)
     assert "Report" in str(report)
 
+
+def test_loading_report(session, init_dest):
+    aw = init(session)
+    report = aw.load_file(ready_data_path, warnings_file)
+    assert "Warning" in str(report)
+
+
 def test_loading_config(session, init_dest):
     aw = init(session)
     analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
@@ -85,7 +92,6 @@ def test_loading_config(session, init_dest):
     assert len(analysis_config['samples']) == 3
     assert analysis_config['priority'] == '1'
     assert analysis_config['name'] == analysis_sample
-
 
 
 def test_loading_config_with_error(session, init_dest):  
@@ -164,11 +170,15 @@ def test_check_and_import(session, test_database, init_dest):
         sm.Analysis.genepanel == db_genepanel
     ).all()
 
+
     assert len(analysis_stored) == 1
 
     files = os.listdir(watch_path)
     assert len(files) == 1
     assert files == [analysis_sample2]
     
+    assert "Report" in str(analysis_stored[0].report)
+    assert "Warning" in str(analysis_stored[0].warnings)
+
     # We do this only once, at the end of the tests. It is a bit fragile to use network to reset files and folders
     os.system('git checkout src/vardb/watcher/testdata/analyses/')
