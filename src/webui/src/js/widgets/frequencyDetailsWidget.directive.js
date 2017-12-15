@@ -81,24 +81,21 @@ export class FrequencyDetailsWidget {
         }
     }
 
-    isFilterFail() {
+    getFilter(freq_type) {
         if (this.allele.annotation.frequencies &&
             this.group in this.allele.annotation.frequencies &&
             'filter' in this.allele.annotation.frequencies[this.group] &&
-            'status' in this.allele.annotation.frequencies[this.group].filter) {
-                let status = this.allele.annotation.frequencies[this.group].filter.status
-                return status.length == 1 && status[0] !== 'PASS'
+            freq_type in this.allele.annotation.frequencies[this.group].filter) {
+                return this.allele.annotation.frequencies[this.group].filter[freq_type]
             }
-        return false;
     }
 
-    getFilterStatus() {
-        if (this.allele.annotation.frequencies &&
-            this.group in this.allele.annotation.frequencies &&
-            'filter' in this.allele.annotation.frequencies[this.group] &&
-            'status' in this.allele.annotation.frequencies[this.group].filter) {
-                return this.allele.annotation.frequencies[this.group].filter.status
-            }
+    isFilterFail(freq_type) {
+        let filter = this.getFilter(freq_type);
+        if (filter) {
+            return filter.length == 1 && filter[0] !== 'PASS';
+        }
+        return false;
     }
 
     formatValue(freq_data, name) {
