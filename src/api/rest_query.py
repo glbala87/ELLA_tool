@@ -37,19 +37,28 @@ OPERATORS = {
     '$lte': lambda f, a: f <= a,
     '$in': lambda f, a: f.in_(a),
     '$nin': lambda f, a: ~f.in_(a),
+    '$like': lambda f, a: f.op('~')(a),
+    '$ilike': lambda f, a: f.op('~*')(a),
 }
 
 
 class RestQuery(Query):
 
     def rest_filter(self, q):
+        raise RuntimeError("Code should be dead?")
         # based on filter_by() from sqlalchemy source
 
         clauses = list()
 
         for k, v in q.iteritems():
-            field = _entity_descriptor(self._joinpoint_zero(), k)
-            if isinstance(v, dict):
+            if isinstance(v, list):
+                if v:  # Asking for empty list doesn't make sense
+                    if isinstance(k, tuple):
+                        args.append(tuple_(*(getattr(model, _k) for _k in k)).in_(v))
+                    else:
+                        args.append(getattr(model, k).in_(v))
+            # field = _entity_descriptor(self._joinpoint_zero(), k)
+            elif isinstance(v, dict):
                 for op_k, op_v in v.iteritems():
                     if op_k in OPERATORS:
                         clauses.append(OPERATORS[op_k](field, op_v))

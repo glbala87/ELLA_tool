@@ -38,7 +38,13 @@ class AnalysisListResource(LogRequestResource):
             rest_filter = dict()
         if not ("genepanel_name", "genepanel_version") in rest_filter:
             rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
-        return self.list_query(session, sample.Analysis, schema=schemas.AnalysisFullSchema(), rest_filter=rest_filter)
+        analyses = self.list_query(session,
+                                   sample.Analysis,
+                                   schema=schemas.AnalysisFullSchema(),
+                                   rest_filter=rest_filter,
+                                   per_page=per_page,
+                                   page=page)
+        return analyses
 
 
 class AnalysisResource(LogRequestResource):

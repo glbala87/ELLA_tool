@@ -115,11 +115,11 @@
   font-weight: 700;
 }
 
-fileimport > contentwrapper {
+annotationfileimport > contentwrapper {
   margin-top: 1.6rem;
 }
 
-@keyframes fade-in {
+@keyframes fade-in-import-edit {
   0% {
     transform: scale(0.0);
     transform-origin: top left;
@@ -136,7 +136,7 @@ fileimport > contentwrapper {
   padding: 1rem;
   margin-top: 1rem;
   &.ng-enter {
-    animation: fade-in 0.15s;
+    animation: fade-in-import-edit 0.15s;
     animation-timing-function: ease-in;
   }
 }
