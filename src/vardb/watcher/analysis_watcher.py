@@ -35,6 +35,7 @@ import argparse
 import time
 from vardb.datamodel import DB
 from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.datamodel.analysis_config import AnalysisConfigData
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -50,13 +51,6 @@ analysis_file_misconfigured = "The file {} is corrupt or JSON structure has miss
 analysis_postfix = '.analysis'
 vcf_postfix = '.vcf'
 
-class AnalysisConfigData(object):
-    def __init__(self, vcf_path, analysis_name, gp_name, gp_version, priority):
-        self.vcf_path = vcf_path
-        self.analysis_name = analysis_name 
-        self.gp_name = gp_name
-        self.gp_version = gp_version
-        self.priority = priority
 
 class AnalysisWatcher(object):
 
