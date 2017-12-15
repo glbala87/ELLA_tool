@@ -229,7 +229,7 @@ def convert_clinvar(annotation):
     return {'CLINVAR': data}
 
 
-def extract_annotation_data(annotation, annotation_key, result_key):
+def extract_annotation_frequencies(annotation, annotation_key, result_key):
     frequencies = defaultdict(dict)
 
     # TODO: Remove when annotation isn't so messed up...
@@ -280,6 +280,7 @@ def extract_annotation_data(annotation, annotation_key, result_key):
             hemi[pop] = extract_int_list(value)
         elif key.startswith('indications_'):
             pop = key.split('indications_')[1]
+            # foo:x,bar:y -> {foo: x, bar:y}
             indications[pop] = {f.split(':', 1)[0]: f.split(':', 1)[1] for f in value.split(',')}
 
     for key in count:
@@ -323,7 +324,7 @@ def exac_frequencies(annotation):
     if EXAC_ANNOTATION_KEY not in annotation:
         return {}
     else:
-        return extract_annotation_data(
+        return extract_annotation_frequencies(
             annotation, EXAC_ANNOTATION_KEY, EXAC_RESULT_KEY
         )
 
@@ -339,7 +340,7 @@ def gnomad_exomes_frequencies(annotation):
     if GNOMAD_EXOMES_ANNOTATION_KEY not in annotation:
         return {}
     else:
-        return extract_annotation_data(
+        return extract_annotation_frequencies(
             annotation, GNOMAD_EXOMES_ANNOTATION_KEY, GNOMAD_EXOMES_RESULT_KEY
         )
 
@@ -355,7 +356,7 @@ def gnomad_genomes_frequencies(annotation):
     if GNOMAD_GENOMES_ANNOTATION_KEY not in annotation:
         return {}
     else:
-        return extract_annotation_data(
+        return extract_annotation_frequencies(
             annotation, GNOMAD_GENOMES_ANNOTATION_KEY, GNOMAD_GENOMES_RESULT_KEY
         )
 
@@ -370,7 +371,7 @@ def indb_frequencies(annotation):
     if INDB_ANNOTATION_KEY not in annotation:
         return {}
     else:
-        return extract_annotation_data(
+        return extract_annotation_frequencies(
             annotation, INDB_ANNOTATION_KEY, INDB_RESULT_KEY
         )
 
