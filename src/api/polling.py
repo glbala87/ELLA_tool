@@ -91,31 +91,31 @@ class AnnotationJobsInterface:
         gp_name = job.genepanel_name
         gp_version = job.genepanel_version
 
+        def config_data(name) = return AnalysisConfigData(
+            vcf_path = fd,
+            analysis_name = name,
+            gp_name = gp_name,
+            gp_version  = gp_version,
+            priority = 1
+        )
+
         if mode == "Analysis":
             type = job.properties["create_or_append"]
             sample_type = job.properties["sample_type"]
             if type == "Create":
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysis(self.session)
-
-                config_data = AnalysisConfigData(
-                    vcf_path = fd,
-                    analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version),
-                    gp_name = gp_name,
-                    gp_version  = gp_version,
-                    priority = 1)
-
-                deposit.import_vcf(analysis_config_data = config_data,
+                deposit.import_vcf(analysis_config_data = config_data(analysis_name),
                                    sample_type = sample_type
                                    )
             else:
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysisAppend(self.session)
-                deposit.import_vcf(analysis_config_data = config_data.set(analysis_name = analysis_name),
+                deposit.import_vcf(analysis_config_data = config_data(analysis_name),
                                    sample_type = sample_type)
         elif mode in ["Variants", "Single variant"]:
             deposit = DepositAlleles(self.session)
-            deposit.import_vcf(analysis_config_data = config_data.set(analysis_name = ""))
+            deposit.import_vcf(analysis_config_data = config_data(""))
         else:
             raise RuntimeError("Unknown mode: %s" %mode)
 
