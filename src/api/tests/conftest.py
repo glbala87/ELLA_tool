@@ -25,6 +25,7 @@ def test_database(request):
     be able to call refresh() when he wants a fresh database.
     """
     test_db = TestDatabase()
+    test_db.refresh()
     yield test_db
 
     # Cleanup database on teardown
