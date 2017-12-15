@@ -14,8 +14,9 @@ class TestDatabase(object):
         # Reconnect with NullPool in order to avoid hanging connections
         # which prevents us from dropping/creating database
         db.disconnect()
-        self.conn = db.connect(engine_kwargs={"poolclass": NullPool})
+        db.connect(engine_kwargs={"poolclass": NullPool})
         self.create_dump()
+        self.refresh()
 
     def get_dump_path(self):
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
