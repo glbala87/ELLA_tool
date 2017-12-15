@@ -1,6 +1,7 @@
 import pytest
 import os
 from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.datamodel.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample
 
 import vardb
@@ -24,6 +25,25 @@ def get_genotype(genotypes, first_change, second_change, _ret=[]):
 
 
 ## FIXTURES
+
+
+@pytest.fixture(scope="module", autouse=True)
+def deposit_single(session):
+    """Deposit test analysis"""
+    single = os.path.join(VARDB_PATH, "testdata/analyses/all/brca_decomposed.HBOC_v01")
+    assert os.path.isdir(single)
+    files = os.listdir(single)
+    assert len(files) == 3
+    vcf_file = os.path.join(single, [f for f in files if f.endswith(".vcf")][0])
+
+    deposit_analysis = DepositAnalysis(session)
+    deposit_analysis.import_vcf(AnalysisConfigData(
+        vcf_file,
+        'brca_decomposed.HBOC_v01',
+        'HBOC',
+        'v01',
+        1))
+
 
 @pytest.fixture(scope="module")
 def all_genotypes_single(session):

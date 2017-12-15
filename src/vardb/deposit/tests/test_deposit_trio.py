@@ -30,6 +30,7 @@ import pytest
 import os
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel import genotype, sample
+from vardb.datamodel.analysis_config import AnalysisConfigData
 
 import vardb
 VARDB_PATH = os.path.split(vardb.__file__)[0]
@@ -47,12 +48,13 @@ def deposit(session):
     vcf_file = os.path.join(trio, [f for f in files if f.endswith(".vcf")][0])
 
     deposit_analysis = DepositAnalysis(session)
-    deposit_analysis.import_vcf(
+    deposit_analysis.import_vcf(AnalysisConfigData(
         vcf_file,
         'trio_analysis_1.HBOC_v01',
         'HBOC',
-        'v01'
-    )
+        'v01',
+        1
+    ))
 
 
 @pytest.fixture(scope="module")
