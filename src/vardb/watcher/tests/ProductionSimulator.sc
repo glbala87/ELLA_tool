@@ -1,9 +1,9 @@
 #!/usr/bin/env ammonite
 
 /**
-* +++++++++++
-* How to run:
-* +++++++++++
+* +++++++++++++++
+* Prerequisities:
+* +++++++++++++++
 *
 * In order to run the script you need to have ammonite installed:
 * 
@@ -13,6 +13,10 @@
 * 
 * Java is probably a prerequisite!
 * 
+* +++++++++++
+* How to run:
+* +++++++++++
+* The scripts needs a running docker container instance.
 * The script can also be started with :
 * amm TestDataGenerator.sc
 *
@@ -44,8 +48,14 @@
 *
 */
 
-// library imports
-import $ivy.`scalavision::fs2helper:0.1-SNAPSHOT`
+// helper library for Threadpool creation for fs2
+import $ivy.`co.fs2::fs2-core:0.10.0-M9`
+import $ivy.`co.fs2::fs2-io:0.10.0-M9`
+
+import $file.FS2ThreadHelper, FS2ThreadHelper._
+import FS2Helper._ //, FS2Helper.scheduler, FS2Helper.ec
+
+// json library
 import $ivy.`org.json4s::json4s-native:3.5.3`
 
 // json imports
@@ -54,7 +64,6 @@ import org.json4s.native.Serialization
 import org.json4s.native.Serialization.{write}
 
 // fs2 - functional streams imports
-import fs2helper.Fs2Helper._
 import fs2._
 import cats.effect.IO
 import scala.concurrent.duration._
@@ -146,7 +155,7 @@ val setReady: Sink[IO, String] = _.evalMap { folderName =>
     }
 }
 
-val createTestConfig: Sink[IO, Analysis] = _.evalMap { a =>
+def createTestConfig(dockerContainerId: String): Sink[IO, Analysis] = _.evalMap { a =>
   IO {
 
     val insert =
@@ -155,7 +164,7 @@ val createTestConfig: Sink[IO, Analysis] = _.evalMap { a =>
     )"""
     
     // running the insert statement at the simplest possible way through bash
-    val result = %%('docker, 'exec, 'f064a5dfc90d, 'psql, "-U", 'postgres, "-d", 'postgres, "-c", insert)
+    val result = %%('docker, 'exec, dockerContainerId, 'psql, "-U", 'postgres, "-d", 'postgres, "-c", insert)
       
     val path = analysisFolder/a.folderName
     val file = path/a.fileName
@@ -176,34 +185,49 @@ val createTestConfig: Sink[IO, Analysis] = _.evalMap { a =>
   }
 }
 
-// transforming the pure dataModelStream into one for 
-// generating analysis data and one for setting the READY FLAG
-val analysisStream = datamodelStream.covary[IO].to(createTestConfig)
-val readyStream = datamodelStream.map { c => c.folderName }.through(randomDelays(READY_DELAY)).to(setReady)
+
+ case class Program(dockerContainerId: String) {
+  // transforming the pure dataModelStream into one for 
+  // generating analysis data and one for setting the READY FLAG
+  val analysisStream = datamodelStream.covary[IO].to(createTestConfig(dockerContainerId))
+  val readyStream = datamodelStream.map { c => c.folderName }.through(randomDelays(READY_DELAY)).to(setReady)
 
 // resetting the database
-val preparations = {
+  val preparations = {
   mkdir! wd/up/'testdata/'destination
-  %('docker, 'exec, 'f064a5dfc90d, "/ella/ella-cli", 'database, 'drop, "-f")
-  %('docker, 'exec, 'f064a5dfc90d, "/ella/ella-cli", 'database, 'make, "-f")
-  %('docker, 'exec, 'f064a5dfc90d, 'make, 'dbreset)
-}
+  %('docker, 'exec, dockerContainerId, "/ella/ella-cli", 'database, 'drop, "-f")
+  %('docker, 'exec, dockerContainerId, "/ella/ella-cli", 'database, 'make, "-f")
+  %('docker, 'exec, dockerContainerId, 'make, 'dbreset)
+  }
 
 // Stream for starting the analysis_watcher.py script
 val analysisWatcher = Stream.eval( IO {
-  %('docker, 'exec, 'f064a5dfc90d, 'python, "src/vardb/watcher/analysis_watcher.py", "--analyses", "src/vardb/watcher/testdata/analyses", "--dest", "src/vardb/watcher/testdata/destination")
+  %('docker, 'exec, dockerContainerId, 'python, "src/vardb/watcher/analysis_watcher.py", "--analyses", "src/vardb/watcher/testdata/analyses", "--dest", "src/vardb/watcher/testdata/destination")
 })
+
+
+}
+
+@doc("""Runs a production simulator for providing analysis data, then starts the analysis_watcher.py script and test that it works""")
+@main
+def main(dockerId: String @doc(
+  "You need to provide the Id for the `running` ella docker container you want to test: `docker ps`"
+)) {
+ val program = Program(dockerId)
+
+println("creating new analysis and setting the READY flag at random intervals ..")
 
 // running analysisStream and readyStream in parallell on NR_OF_THREADS given. 
 // ready flag will always be set after the initial test data are created, but 
 // ready flag for test data 2 may be set after test data 1.
- val program = Stream(preparations) ++ 
-   Stream(analysisWatcher, analysisStream, readyStream)
+ val run = Stream(program.preparations) ++ 
+   Stream(program.analysisWatcher, program.analysisStream, program.readyStream)
      .join(NR_OF_THREADS)
      .through(randomDelays(CONFIG_DELAY))
      .through(log("analysis sample added and ready for pickup!"))
 
-println("creating new analysis and setting the READY flag at random intervals ..")
+run.run.unsafeRunAsync(println)
+println("exiting ..")
+// program.program.covary[IO].run.unsafeRunAsync(println) 
+}
 
-// actually running the program ...
-program.covary[IO].run.unsafeRunAsync(println)
