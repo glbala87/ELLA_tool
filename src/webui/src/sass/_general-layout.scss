@@ -352,7 +352,12 @@ nav.secondary { display: flex; align-items: center; justify-content: space-betwe
 // Workflow specific
 workflow-buttons { margin-left: 1.4rem;}
 .workflow-options { display: flex;
-  .bttn-set { margin-right: 2rem; background-color: $white;}
+  // Invert color of active button since navbar has opposite color scheme.
+  .bttn-set { margin-right: 2rem; background-color: $white;
+    label.bttn { background-color: $blue-75; color: $white;
+      &.active { background-color: $white; color: $black-75; }
+    }
+  }
   .review-comment {
     input { width: 25rem; }
   }
