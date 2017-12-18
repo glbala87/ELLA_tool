@@ -12,7 +12,7 @@ class AnnotationJobSchema(Schema):
                   'status_history',
                   'user_id',
                   'mode',
-                  'vcf',
+                  'data',
                   'date_submitted',
                   'date_last_update',
                   'user',

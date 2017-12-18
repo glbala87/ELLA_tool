@@ -123,28 +123,35 @@ class AnnotationJobsInterface:
 
 class AnnotationServiceInterface:
     def __init__(self, url):
-        self.url = url
+        self.base = join(url, "api/v1")
 
-    def annotate(self, unannotated_vcf):
-        k = urllib2.urlopen(join(self.url, "annotate"), data=json.dumps({"vcf": unannotated_vcf}))
+    def _annotate(self, data, mode):
+        r = urllib2.Request(join(self.base, "annotate"), data=json.dumps({mode: data}), headers={"Content-type": "application/json"})
+        k = urllib2.urlopen(r)
         return json.loads(k.read())
+
+    def annotate_vcf(self, data):
+        return self._annotate(data, "vcf")
+
+    def annotate_hgvsc(self, data):
+        return self._annotate(data, "hgvsc")
 
     def process(self, task_id):
-        k = urllib2.urlopen(join(self.url, "process", task_id))
-        return json.loads(k.read())
+        k = urllib2.urlopen(join(self.base, "process", task_id))
+        return k.read()
 
     def status(self, task_id=None):
         """Get status of task_id or all tasks"""
         if task_id:
-            k = urllib2.urlopen(join(self.url, "status", task_id))
+            k = urllib2.urlopen(join(self.base, "status", task_id))
         else:
-            k = urllib2.urlopen(join(self.url, "status"))
+            k = urllib2.urlopen(join(self.base, "status"))
         resp = json.loads(k.read())
         return resp
 
     def annotation_service_running(self):
         try:
-            k = urllib2.urlopen(join(self.url, "status"))
+            k = urllib2.urlopen(join(self.base, "status"))
             return {"running": True}, 200
         except urllib2.HTTPError:
             return {"running": False}, 200
@@ -157,10 +164,11 @@ def process_running(annotation_service, running_jobs):
         task_id = job.task_id
         try:
             response = annotation_service.status(task_id)
-            if response[task_id] == "FAILED":
-                status = "FAILED (ANNOTATION)"
-            elif response[task_id] == "SUCCESS":
-                status = "ANNOTATED"
+            if not response["active"]:
+                if response["error"]:
+                    status = "FAILED (ANNOTATION)"
+                else:
+                    status = "ANNOTATED"
             message = ""
         except urllib2.HTTPError, e:
             status = "FAILED (ANNOTATION)"
@@ -172,10 +180,14 @@ def process_running(annotation_service, running_jobs):
 def process_submitted(annotation_service, submitted_jobs):
     for job in submitted_jobs:
         id = job.id
-        unannotated_vcf = job.vcf
+        data = job.data
+        data_type = job.data_type
 
         try:
-            resp = annotation_service.annotate(unannotated_vcf)
+            if data_type == "vcf":
+                resp = annotation_service.annotate_vcf(data)
+            else:
+                resp = annotation_service.annotate_hgvsc(data)
             status = "RUNNING"
             message = ""
             task_id = resp["task_id"]
@@ -193,14 +205,12 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         id = job.id
         task_id = job.task_id
         try:
-            resp = annotation_service.process(task_id)
+            annotated_vcf = annotation_service.process(task_id)
         except urllib2.HTTPError, e:
             status = "FAILED (PROCESSING)"
             message = e.message
             yield {"id": id, "status": status, "message": message}
             continue
-
-        annotated_vcf = resp["data"]
 
         try:
             annotation_jobs.deposit(id, annotated_vcf)
