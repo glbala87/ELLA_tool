@@ -20,7 +20,8 @@ def test_polling(session, client, test_database):
     # Submit to database
     data = dict(mode="Analysis",
                 user_id=1,
-                vcf="Dummy vcf data for testing",
+                data="Dummy vcf data for testing",
+                data_type="vcf",
                 genepanel_name="HBOC",
                 genepanel_version="v01",
                 properties=dict(

@@ -9,27 +9,25 @@ app = Flask(__name__)
 
 JOBSTATUS = ["PENDING", "SUCCESS"]
 
-@app.route('/status', defaults={"task_id": None})
-@app.route('/status/<task_id>')
+@app.route('/api/v1/status', defaults={"task_id": None})
+@app.route('/api/v1/status/<task_id>')
 def taskstatus(task_id):
     if task_id == None:
         return "foo"
     else:
         taskstatus.count += 1
         # Will return PENDING first time, and SUCCESS second time
-        return jsonify({task_id: JOBSTATUS[taskstatus.count % 2]})
-taskstatus.count = -1
+        return jsonify({
+            "active": bool(taskstatus.count % 2),
+            "error": False,
+        })
+taskstatus.count = 0
 
-@app.route('/process/<task_id>', methods=["GET", "DELETE"])
+@app.route('/api/v1/process/<task_id>', methods=["GET", "DELETE"])
 def process(task_id):
-    output = {
-        "data": "Dummy data that will fail deposit",
-        "message": "",
-        "status": "SUCCESS"
-    }
-    return jsonify(output)
+    return "Dummy data that will fail deposit"
 
-@app.route('/annotate', methods=['POST'])
+@app.route('/api/v1/annotate', methods=['POST'])
 def annotate():
     data = request.get_data()
     return json.dumps({"task_id": "123456789"})

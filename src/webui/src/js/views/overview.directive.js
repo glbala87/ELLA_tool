@@ -38,8 +38,6 @@ export class MainController {
         this.annotationJobStatus = {running: 0, completed: 0, failed: 0}; // Number of running, completed and failed jobs
         this.pollForAnnotationJobs();
 
-        this.showAnnotateVCFFile()
-
     }
 
     updateSearch() {
