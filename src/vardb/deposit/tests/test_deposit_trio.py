@@ -39,7 +39,7 @@ VARDB_PATH = os.path.split(vardb.__file__)[0]
 ## FIXTURES
 
 @pytest.fixture(scope="module", autouse=True)
-def deposit(session):
+def deposit(session_module):
     """Deposit test analysis"""
     trio = os.path.join(VARDB_PATH, "testdata/analyses/trio/trio_analysis_1.HBOC_v01")
     assert os.path.isdir(trio)
@@ -47,7 +47,7 @@ def deposit(session):
     assert len(files) == 1+1+3
     vcf_file = os.path.join(trio, [f for f in files if f.endswith(".vcf")][0])
 
-    deposit_analysis = DepositAnalysis(session)
+    deposit_analysis = DepositAnalysis(session_module)
     deposit_analysis.import_vcf(AnalysisConfigData(
         vcf_file,
         'trio_analysis_1.HBOC_v01',
@@ -63,9 +63,9 @@ def analysis_name():
 
 
 @pytest.fixture(scope="module")
-def all_genotypes(session, analysis_name):
+def all_genotypes(session_module, analysis_name):
     """return all genotypes imported in this analysis"""
-    all_genotypes = session.query(genotype.Genotype).join(
+    all_genotypes = session_module.query(genotype.Genotype).join(
         sample.Analysis
     ).filter(
         sample.Analysis.name == analysis_name,
@@ -75,17 +75,17 @@ def all_genotypes(session, analysis_name):
 
 ## TESTS
 
-def test_analysis(session, analysis_name):
+def test_analysis(session_module, analysis_name):
     """Test that there is only one analysis with given name"""
-    analyses = session.query(sample.Analysis).filter(
+    analyses = session_module.query(sample.Analysis).filter(
         sample.Analysis.name == analysis_name,
     ).all()
     assert len(analyses) == 1
 
 
-def test_num_samples_in_analysis(session, analysis_name):
+def test_num_samples_in_analysis(session_module, analysis_name):
     """Test number of samples in analysis"""
-    samples = session.query(sample.Sample).join(
+    samples = session_module.query(sample.Sample).join(
         sample.Analysis,
     ).filter(
         sample.Analysis.name == analysis_name,
