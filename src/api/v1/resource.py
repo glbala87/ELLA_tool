@@ -32,7 +32,7 @@ class Resource(flask_resource):
                     if isinstance(k, tuple):
                         args.append(operator(tuple_(*(getattr(model, _k) for _k in k)), v))
                     else:
-                        args.append(operator(getattr(model, k)), v)
+                        args.append(operator(getattr(model, k), v))
             elif isinstance(v, dict):
                 for op_k, op_v in v.iteritems():
                     args.append(FILTER_OPERATORS[op_k](getattr(model, k), op_v))
