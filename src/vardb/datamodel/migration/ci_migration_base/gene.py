@@ -1,5 +1,5 @@
 """varDB datamodel classes for Gene and Transcript"""
-from sqlalchemy import Column, Integer, String, Table, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Enum, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -14,10 +14,10 @@ class Gene(Base):
     """Represents a gene abstraction"""
     __tablename__ = "gene"
 
-    hugo_symbol = Column(String(), primary_key=True)
+    hgnc_id = Column(Integer, primary_key=True)
+    hgnc_symbol = Column(String(), unique=True, nullable=False)
     ensembl_gene_id = Column(String(15), unique=True)
     omim_entry_id = Column(Integer)
-    # dominance = Column(String(20))
 
     def __repr__(self):
         return "<Gene('%s')>" % self.hugo_symbol
@@ -26,40 +26,38 @@ class Gene(Base):
 class Transcript(Base):
     """Represents a gene transcript"""
     __tablename__ = "transcript"
-    __table_args__ = (
-        UniqueConstraint('refseq_name', 'ensembl_id', name='transcript_unique'),
-
-    )
 
     id = Column(Integer, primary_key=True)
-    gene_id = Column(String(20), ForeignKey("gene.hugo_symbol"), nullable=False)
+    gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", lazy="joined")
-    refseq_name = Column(String(15))
-    ensembl_id = Column(String(15))
-    genome_reference = Column(String(15), nullable=False)
-    chromosome = Column(String(10), nullable=False)
+    transcript_name = Column(String(), unique=True, nullable=False)
+    type = Column(Enum('RefSeq', 'Ensembl', 'LRG', name='transcript_type'), nullable=False)
+    corresponding_refseq = Column(String())
+    corresponding_ensembl = Column(String())
+    corresponding_lrg = Column(String())
+    genome_reference = Column(String(), nullable=False)
+    chromosome = Column(String(), nullable=False)
     tx_start = Column(Integer, nullable=False)
     tx_end = Column(Integer, nullable=False)
     strand = Column(String(1), nullable=False)
     cds_start = Column(Integer, nullable=False)
     cds_end = Column(Integer, nullable=False)
-    exon_starts = Column(ARRAY(Integer), nullable=False) # giving dimensions does not work
+    exon_starts = Column(ARRAY(Integer), nullable=False)  # giving dimensions does not work
     exon_ends = Column(ARRAY(Integer), nullable=False)
 
     def __repr__(self):
-        return "<Transcript('%s','%s', '%s', '%s', '%s', '%s')>" % (self.gene, self.refseq_name, self.chromosome, self.tx_start, self.tx_end, self.strand)
+        return "<Transcript('%s','%s', '%s', '%s', '%s', '%s')>" % (self.gene, self.transcript_name, self.chromosome, self.tx_start, self.tx_end, self.strand)
 
     def __str__(self):
-        return "%s, %s, %s, %s, %s, %s" % (self.gene, self.refseq_name, self.chromosome, self.tx_start, self.tx_end, self.strand)
-
+        return "%s, %s, %s, %s, %s, %s" % (self.gene, self.transcript_name, self.chromosome, self.tx_start, self.tx_end, self.strand)
 
 
 # Association table uses ForeignKeyContraint for referencing composite primary key in gene panel.
 genepanel_transcript = Table("genepanel_transcript", Base.metadata,
-                          Column("genepanel_name"),
-                          Column("genepanel_version"),
-                          Column("transcript_id", Integer, ForeignKey("transcript.id")),
-                          ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"], ondelete="CASCADE"))
+                             Column("genepanel_name", nullable=False),
+                             Column("genepanel_version", nullable=False),
+                             Column("transcript_id", Integer, ForeignKey("transcript.id"), nullable=False),
+                             ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"], ondelete="CASCADE"))
 
 
 class Genepanel(Base):
@@ -72,8 +70,9 @@ class Genepanel(Base):
     transcripts = relationship("Transcript", secondary=genepanel_transcript)
     phenotypes = relationship("Phenotype")
 
-    config = Column(JSONMutableDict.as_mutable(JSONB), default={})  # format defined by
-
+    # TODO: Is it possible to validate against schema as part of __init__?
+    # format defined by genepanel-config-schema_v2.json
+    config = Column(JSONMutableDict.as_mutable(JSONB), default={})
 
     def __repr__(self):
         return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genome_reference)
@@ -81,7 +80,7 @@ class Genepanel(Base):
     def __str__(self):
         return '_'.join((self.name, self.version, self.genome_reference))
 
-    def find_inheritance(self, symbol):
+    def find_inheritance_codes(self, symbol):
         if not self.phenotypes:
             return None
 
@@ -114,7 +113,7 @@ class Phenotype(Base):
     genepanel_version = Column(String(10), nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
 
-    gene_id = Column(String(20), ForeignKey("gene.hugo_symbol"), nullable=False)
+    gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", lazy="joined")
 
     description = Column(String(250), nullable=False)

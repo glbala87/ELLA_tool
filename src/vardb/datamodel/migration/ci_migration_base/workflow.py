@@ -58,7 +58,7 @@ class InterpretationSnapshotMixin(object):
 
     id = Column(Integer, primary_key=True)
     date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
-    filtered = Column(Enum("FREQUENCY", "INTRON", "GENE", name="interpretationsnapshot_filtered"),)  # If the allele was filtered, this describes which type of filtering
+    filtered = Column(Enum("FREQUENCY", "INTRON", "GENE", "UTR", name="interpretationsnapshot_filtered"),)  # If the allele was filtered, this describes which type of filtering
 
     @declared_attr
     def annotation_id(cls):
