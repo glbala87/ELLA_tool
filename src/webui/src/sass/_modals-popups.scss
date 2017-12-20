@@ -20,7 +20,9 @@
   &.only-control { height: 100%; }
   .left { flex: 4; text-align: right; }
   .left-basic { text-align: right; }
+  .left-small { flex: 1; text-align: right; }
   .middle { flex: 0.5; text-align: center; }
+  .middle-small { flex: 0.1; text-align: center; }
   .right { flex: 4; }
   .left ~ .right { margin-left: 1.3rem; }
   .left-basic ~ .right-basic { margin-left: 1.3rem; }
