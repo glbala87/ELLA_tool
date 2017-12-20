@@ -131,6 +131,7 @@ start-bundle-container:
 	-docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 	-docker rm $(CONTAINER_NAME_BUNDLE_STATIC)
 	docker run -d \
+	    --label io.ousamg.gitversion=$(BRANCH) \
 		--name $(CONTAINER_NAME_BUNDLE_STATIC) \
 		$(IMAGE_BUNDLE_STATIC) \
 		sleep infinity
@@ -172,7 +173,7 @@ build-diagram-image:
 
 start-diagram-container:
 	-docker rm $(DIAGRAM_CONTAINER)
-	docker run --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
+	docker run --label io.ousamg.gitversion=$(BRANCH) --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
 
 stop-diagram-container:
 	docker stop $(DIAGRAM_CONTAINER)
@@ -194,6 +195,7 @@ demo:
 	-docker stop $(subst $(comma),-,$(DEMO_NAME))
 	-docker rm $(subst $(comma),-,$(DEMO_NAME))
 	docker run -d \
+		--label io.ousamg.gitversion=$(BRANCH) \
 		--name $(subst $(comma),-,$(DEMO_NAME)) \
 		-e VIRTUAL_HOST=$(DEMO_NAME) \
 		--expose 80 \
@@ -232,6 +234,7 @@ dev:
 	docker run -d \
 	  --name $(CONTAINER_NAME) \
 	  --hostname $(CONTAINER_NAME) \
+	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e DB_URL=postgresql:///postgres \
@@ -269,7 +272,7 @@ restart:
 check-gp-config: test-build
 	@-docker stop $(GP_VALIDATION_CONTAINER)
 	@-docker rm $(GP_VALIDATION_CONTAINER)
-	@docker run -d  --name $(GP_VALIDATION_CONTAINER) $(NAME_OF_GENERATED_IMAGE) sleep infinity
+	@docker run -d  --name $(GP_VALIDATION_CONTAINER) --label io.ousamg.gitversion=$(BRANCH) $(NAME_OF_GENERATED_IMAGE) sleep infinity
 	@docker cp $(F) $(GP_VALIDATION_CONTAINER):/tmp/validation-subject
 	@docker exec $(GP_VALIDATION_CONTAINER) /bin/bash -c "python ops/dev/check_genepanel_config.py /tmp/validation-subject"
 	@echo "Stopping docker container $(GP_VALIDATION_CONTAINER)"
@@ -292,7 +295,10 @@ test: test-all
 test-all: test-js test-common test-api test-cli
 
 test-js: test-build
-	docker run -d --name $(PIPELINE_ID)-js $(NAME_OF_GENERATED_IMAGE) \
+	docker run -d \
+	  --label io.ousamg.gitversion=$(BRANCH) \
+	  --name $(PIPELINE_ID)-js \
+	  $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
@@ -300,6 +306,7 @@ test-js: test-build
 
 test-common: test-build
 	docker run -d \
+	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  --name $(PIPELINE_ID)-common $(NAME_OF_GENERATED_IMAGE) \
@@ -309,7 +316,10 @@ test-common: test-build
 	@docker rm -f $(PIPELINE_ID)-common
 
 test-rule-engine: test-build
-	docker run -d --name $(PIPELINE_ID)-rules $(NAME_OF_GENERATED_IMAGE) \
+	docker run -d \
+	   --name $(PIPELINE_ID)-rules \
+	   --label io.ousamg.gitversion=$(BRANCH) \
+	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/common/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-rules py.test --color=yes "/ella/src/rule_engine/tests"
@@ -318,6 +328,7 @@ test-rule-engine: test-build
 
 test-api: test-build
 	docker run -d \
+	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
@@ -330,6 +341,7 @@ test-api: test-build
 
 test-api-migration: test-build
 	docker run -d \
+	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
@@ -342,6 +354,7 @@ test-api-migration: test-build
 
 test-cli: test-build # container $(PIPELINE_ID)-cli
 	docker run -d \
+	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e PANEL_PATH=/ella/src/vardb/testdata/clinicalGenePanels \
 	  --name $(PIPELINE_ID)-cli $(NAME_OF_GENERATED_IMAGE) \
@@ -369,7 +382,10 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	-docker stop $(E2E_APP_CONTAINER)
 	-docker rm $(E2E_APP_CONTAINER)
 
-	docker run -d --hostname e2e --name $(E2E_APP_CONTAINER) \
+	docker run -d \
+	   --hostname e2e \
+	   --name $(E2E_APP_CONTAINER) \
+	   --label io.ousamg.gitversion=$(BRANCH) \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \
@@ -397,7 +413,7 @@ e2e-remove-chromebox:
 
 e2e-start-chromebox:
 	@echo "Starting Chromebox container $(CHROMEBOX_CONTAINER) using $(CHROMEBOX_IMAGE)"
-	docker run -d --name $(CHROMEBOX_CONTAINER) --network=local_only $(CHROMEBOX_IMAGE)
+	docker run -d --name $(CHROMEBOX_CONTAINER) --label io.ousamg.gitversion=$(BRANCH) --network=local_only $(CHROMEBOX_IMAGE)
 	@echo "Chromebox info: (chromedriver, chrome, linux, debian)"
 	docker exec $(CHROMEBOX_CONTAINER) /bin/sh -c "ps aux | grep -E 'chromedriver|Xvfb' | grep -v 'grep' ; chromedriver --version ; google-chrome --version ; cat /proc/version ; cat /etc/debian_version"
 
@@ -436,7 +452,11 @@ test-report-sanger: #e2e-app-container-setup # CI run conditional target in sepa
 
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
-	docker run -d --name ella-e2e-local -it -v $(shell pwd):/ella \
+	docker run -d \
+	   --name ella-e2e-local \
+	   --label io.ousamg.gitversion=$(BRANCH) \
+	   -it \
+	   -v $(shell pwd):/ella \
 	   -p 5000:5000 -p 5859:5859 \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
