@@ -23,12 +23,11 @@
           <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
           <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
       </article>
-      <h3 ng-if="vm.getExcludedReferences(false).length > 0">Unpublished studies</h3>
+      <h3 ng-if="vm.getExcludedReferences(false).length > 0 || vm.getExcludedReferences(true).length > 0">Unpublished and Published studies</h3>
        <article class="acmg-body id-reference-excluded-unpublished" ng-repeat="ref in vm.getExcludedReferences(false)">
           <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
           <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
       </article>
-      <h3 ng-if="vm.getExcludedReferences(true).length > 0">Published studies</h3>
       <article class="acmg-body id-reference-excluded-published" ng-repeat="ref in vm.getExcludedReferences(true)">
           <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
           <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
