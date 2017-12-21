@@ -168,8 +168,24 @@ export class WorkflowAnalysisController {
                             name: 'reference'
                         },
                         content: [
-                            {'tag': 'allele-info-unpublished-references'},
-                            {'tag': 'allele-info-published-references'}
+                            {
+                                tag: 'allele-info-references',
+                                attr: {
+                                    title: 'Pending'
+                                }
+                            },
+                            {
+                                tag: 'allele-info-references',
+                                attr: {
+                                    title: 'Evaluated'
+                                }
+                            },
+                            {
+                                tag: 'allele-info-references',
+                                attr: {
+                                    title: 'Excluded'
+                                }
+                            }
                         ],
                     }
                 ]
