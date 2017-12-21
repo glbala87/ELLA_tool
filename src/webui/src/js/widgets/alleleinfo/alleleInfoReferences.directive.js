@@ -5,194 +5,231 @@ import {AlleleStateHelper} from '../../model/allelestatehelper';
 import {deepCopy} from '../../util';
 
 
-class AlleleInfoReferencesCommon {
-    constructor($scope, ReferenceEvalModal) {
-
-
-        this.allele_references = [];
-        // If we have PMID in annotation,
-        // but not the reference in the database.
-        // Used in order to ask the user to add it manually.
-        this.missing_references = [];
-        $scope.$watchCollection(
+@Directive({
+    selector: 'allele-info-references',
+    templateUrl: 'ngtmpl/alleleInfoReferences.ngtmpl.html',
+    scope: {
+        analysis: '=',
+        allele: '=',
+        references: '=',
+        alleleState: '=',
+        alleleUserState: '=',
+        onSave: '&?',
+        readOnly: '=?',
+        title: '@'
+    }
+})
+@Inject('$scope', 'ReferenceEvalModal')
+export class AlleleInfoReferences {
+  
+  constructor($scope, ReferenceEvalModal) {
+    
+    this.refEvalModal = ReferenceEvalModal;
+    
+    this.refViewType = this.title;
+    this.allele_references = [];
+    // If we have PMID in annotation,
+    // but not the reference in the database.
+    // Used in order to ask the user to add it manually.
+    this.missing_references = [];
+    
+    $scope.$watchCollection(
             () => this.references,
             () => {
-                if (this.allele && this.references) {
-                    this.setAlleleReferences();
-                }
-            }
+      if (this.allele && this.references) {
+        this.setAlleleReferences();
+      }
+    }
 
-        );
-        $scope.$watch(
+    );
+    $scope.$watch(
             () => this.allele,
             () => {
-                if (this.allele && this.references) {
-                    this.setAlleleReferences();
-                }
-            }
-        );
-        this.refEvalModal = ReferenceEvalModal;
+      if (this.allele && this.references) {
+        this.setAlleleReferences();
+      }
     }
+    );
+ 
+  }
 
-    setAlleleReferences() {
-        this.allele_references = [];
-        this.missing_references = [];
+  setAlleleReferences() {
+    this.allele_references = [];
+    this.missing_references = [];
 
-        for (let ids of this.allele.getReferenceIds()) {
-            let pmid = ids.pubmed_id;
-            let id = ids.id;
+    for (let ids of this.allele.getReferenceIds()) {
+      let pmid = ids.pubmed_id;
+      let id = ids.id;
 
-            let reference_found = false;
-            if (this.references) {
-                if (pmid) {
-                    var reference = this.references.find(r => r.pubmed_id === pmid);
-                } else {
-                    var reference = this.references.find(r => r.id === id);
-                }
-
-                if (reference) {
-                    this.allele_references.push(reference);
-                    reference_found = true;
-                }
-            }
-            if (!reference_found) {
-                this.missing_references.push(ids);
-            }
+      let reference_found = false;
+      if (this.references) {
+        if (pmid) {
+          var reference = this.references.find(r => r.pubmed_id === pmid);
+        } else {
+          var reference = this.references.find(r => r.id === id);
         }
-    }
 
-    getReferenceAssessment(reference) {
-        return AlleleStateHelper.getReferenceAssessment(
+        if (reference) {
+          this.allele_references.push(reference);
+          reference_found = true;
+        }
+      }
+      if (!reference_found) {
+        this.missing_references.push(ids);
+      }
+    }
+    
+  }
+
+  getPendingReferences(published) {
+    if(this.refViewType === 'Pending') {
+      return this.allele_references.filter(r => 
+        (r.published === published) && (this.hasReferenceAssessment(r) === false) &&
+          (['Ignore', 'No'].indexOf(this.getReferenceAssessment(r).evaluation.relevance) < 0)
+      );
+    } else return [];
+  }
+  
+  getEvaluatedReferences(published) {
+    if(this.refViewType === 'Evaluated') {
+      return this.allele_references.filter(r => 
+          this.isIgnored(r) === false && r.published === published && this.hasReferenceAssessment(r) === true
+      );
+    } else return [];
+    
+  }
+  
+  getExcludedReferences(published) {
+    if(this.refViewType === 'Excluded') { 
+      return this.allele_references.filter(r =>
+        this.isIgnored(r) === true && r.published === published
+      );
+    } else return [];
+    
+  }
+  
+  isIgnored(reference) {
+    let refAssess = this.getReferenceAssessment(reference);
+    let result =   ['Ignore', 'No'].indexOf(refAssess.evaluation.relevance) >= 0;
+    return result;
+  }
+  
+  hasReferences() {
+    if(this.refViewType === 'Pending') {
+      return this.missing_references.length + this.getPendingReferences(true).length + this.getPendingReferences(false).length;
+    } else if(this.refViewType === 'Evaluated') {
+      return this.getEvaluatedReferences(true).length + this.getEvaluatedReferences(false).length;
+    } else {
+      if(this.alleleUserState.showExcludedReferences) {
+        return this.getExcludedReferences(true).length + this.getExcludedReferences(false).length;
+      } else -1;
+    }
+  }
+  
+  getReferencesIgnored() {
+    return this.allele_references.filter(ref =>
+      ['Ignore', 'No'].indexOf(this.getReferenceAssessment(ref).evaluation.relevance) >= 0
+    );
+  }
+
+  getReferenceAssessment(reference) {
+    return AlleleStateHelper.getReferenceAssessment(
             this.allele,
             reference,
             this.alleleState
-        );
+            );
+  }
+
+  hasReferenceAssessment(reference) {
+    return AlleleStateHelper.hasReferenceAssessment(
+      this.allele,reference,this.alleleState
+    );
+  }
+
+  getReferencesWithoutAssessment() {
+    return this.allele_references.filter(ref =>
+      !this.hasReferenceAssessment(ref)
+    );
+  }
+
+  _refHasRelevantAssessment = (ref) => {
+    return this.hasReferenceAssessment(ref) &&
+            ['Ignore', 'No'].indexOf(this.getReferenceAssessment(ref).evaluation.relevance) < 0;
+  }
+
+  getReferencesWithAssessment() {
+    return this.allele_references.filter(ref =>
+      this._refHasRelevantAssessment(ref)
+    );
+  }
+
+  existsReferenceAssesment() {
+    return this.allele_references.find(ref =>
+      this._refHasRelevantAssessment(ref)
+    );
+  }
+
+  getEvaluateBtnText(reference) {
+    if (this.readOnly) {
+      return 'See details';
     }
 
-    hasReferenceAssessment(reference) {
-        return AlleleStateHelper.hasReferenceAssessment(
-            this.allele,
-            reference,
-            this.alleleState
-        );
-
+    if (this.hasReferenceAssessment(reference)) {
+      return 'Re-evaluate';
     }
+    return 'Evaluate';
+  }
 
-    getEvaluateBtnText(reference) {
-        if (this.readOnly) {
-            return 'See details';
-        }
+  quickIgnore(reference) {
+    let referenceAssessment = deepCopy(this.getReferenceAssessment(reference));
 
-        if (this.hasReferenceAssessment(reference)) {
-            return 'Re-evaluate';
-        }
-        return 'Evaluate';
-    }
-
-    quickIgnore(reference) {
-        let referenceAssessment = deepCopy(this.getReferenceAssessment(reference));
-
-        referenceAssessment.evaluation = {relevance: "Ignore"};
-        AlleleStateHelper.updateReferenceAssessment(
+    referenceAssessment.evaluation = {relevance: "Ignore"};
+    AlleleStateHelper.updateReferenceAssessment(
             this.allele,
             reference,
             this.alleleState,
             referenceAssessment
-        );
-        if (this.onSave) {
-            this.onSave();
-        }
+            );
+    if (this.onSave) {
+      this.onSave();
     }
+  }
 
-    showReferenceEval(reference) {
-        // Check for existing referenceassessment data (either from existing ra from backend
-        // or user data in the allele state)
-        let existing_ra = AlleleStateHelper.getReferenceAssessment(
+  showReferenceEval(reference) {
+    // Check for existing referenceassessment data (either from existing ra from backend
+    // or user data in the allele state)
+    let existing_ra = AlleleStateHelper.getReferenceAssessment(
             this.allele,
             reference,
             this.alleleState
-        );
+            );
 
-        this.refEvalModal.show(
+    this.refEvalModal.show(
             this.analysis,
             this.allele,
             reference,
             existing_ra,
             this.readOnly
-        ).then(dialogResult => {
-            // If dialogResult is an object, then the referenceassessment
-            // was changed and we should replace it in our state.
-            // If modal was canceled or no changes took place, it's 'undefined'.
-            if (this.readOnly) { // don't save anything
-                return;
-            }
-            if (dialogResult) {
-                AlleleStateHelper.updateReferenceAssessment(
-                    this.allele,
-                    reference,
-                    this.alleleState,
-                    dialogResult
+            ).then(dialogResult => {
+      // If dialogResult is an object, then the referenceassessment
+      // was changed and we should replace it in our state.
+      // If modal was canceled or no changes took place, it's 'undefined'.
+      if (this.readOnly) { // don't save anything
+        return;
+      }
+      if (dialogResult) {
+        AlleleStateHelper.updateReferenceAssessment(
+                this.allele,
+                reference,
+                this.alleleState,
+                dialogResult
                 );
-                if (this.onSave) {
-                    this.onSave();
-                }
-            }
-        });
-
-    }
-
-    hasReferences() {
-        for (let ref of this.allele_references) {
-            if (ref.published == this.published) {
-                return true
-            }
+        if (this.onSave) {
+          this.onSave();
         }
-        return this.missing_references.length && this.published;
-    }
-}
+      }
+    });
 
-
-@Directive({
-    selector: 'allele-info-published-references',
-    templateUrl: 'ngtmpl/alleleInfoReferences.ngtmpl.html',
-    scope: {
-        analysis: '=',
-        allele: '=',
-        references: '=',
-        alleleState: '=',
-        alleleUserState: '=',
-        onSave: '&?',
-        readOnly: '=?',
-    }
-})
-@Inject('$scope', 'ReferenceEvalModal')
-export class AlleleInfoReferencesPublished extends AlleleInfoReferencesCommon {
-    constructor($scope, ReferenceEvalModal) {
-        super($scope, ReferenceEvalModal)
-        this.published = true;
-        this.title = "References"
-    }
-}
-
-
-@Directive({
-    selector: 'allele-info-unpublished-references',
-    templateUrl: 'ngtmpl/alleleInfoReferences.ngtmpl.html',
-    scope: {
-        analysis: '=',
-        allele: '=',
-        references: '=',
-        alleleState: '=',
-        alleleUserState: '=',
-        onSave: '&?',
-        readOnly: '=?',
-    }
-})
-@Inject('$scope', 'ReferenceEvalModal')
-export class AlleleInfoReferencesUnpublished extends AlleleInfoReferencesCommon {
-    constructor($scope, ReferenceEvalModal) {
-        super($scope, ReferenceEvalModal)
-        this.published = false;
-        this.title = "Unpublished"
-    }
+  }
+  
 }

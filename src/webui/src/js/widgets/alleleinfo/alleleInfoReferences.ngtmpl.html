@@ -1,60 +1,38 @@
-<contentbox class="max-width id-references-box " title="{{vm.title}}" ng-if="vm.hasReferences()">
+<contentbox class="max-width id-references-box" title="{{vm.title}}" ng-if="vm.hasReferences()">
   <cbbody>
-    <article class="acmg-body" ng-repeat="ref in vm.allele_references track by $index" ng-if="ref.published === vm.published">
-      <div ng-if="!vm.hasReferenceAssessment(ref) || ['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) < 0">
-      <section class="line-wrapper spaced">
-        <div>
-          <h5 class="wrap">
-            <a-clip ng-if="ref.getPubmedUrl()" class="id-reference-title" href="{{ref.getPubmedUrl()}}">{{ref.title}}</a-clip>
-            <span ng-if="!ref.getPubmedUrl()" class="id-reference-title">{{ref.title}}</span>
-          </h5>
-          <p>{{ref.getShortDesc()}}</p>
-
-        </div>
-        <div class="nowrap">
-          <button class="blue id-reference-evaluate"
-                  ng-click="vm.showReferenceEval(ref)"
-          >{{vm.getEvaluateBtnText(ref)}}</button>
-          <button class="blue id-reference-evaluate" ng-disabled="vm.readOnly"
-                  ng-click="vm.quickIgnore(ref)"
-          >Ignore</button>
-        </div>
-      </section>
-
-        <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
-      </div>
-    </article>
-
-    <article ng-repeat="ref in vm.missing_references" ng-if="vm.published">
-      <section class="line-wrapper">
-        <div>
-          <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{ref.getPubmedUrl()}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
-        </div>
-      </section>
-    </article>
-
-    <section ng-if="vm.alleleUserState.showExcludedReferences">
-      <h4 class="faded-title content-top">Excluded studies</h4>
-
-     <article class="acmg-body" ng-repeat="ref in vm.allele_references track by $index" ng-if="['Ignore', 'No'].indexOf(vm.getReferenceAssessment(ref).evaluation.relevance) >= 0 && ref.published == vm.published">
-        <section class="line-wrapper spaced">
+      <article class="acmg-body id-reference-pending-unpublished" ng-repeat="ref in vm.getPendingReferences(false)">
+          <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
+      </article>
+      <article class="id-article-unreferenced" ng-repeat="ref in vm.missing_references" ng-if="vm.refViewType === 'Pending'">
+          <section class="line-wrapper">
           <div>
-            <h5 class="wrap">
-              <a-clip ng-if="ref.getPubmedUrl()" class="id-reference-title" href="{{ref.getPubmedUrl()}}">{{ref.title}}</a-clip>
-              <span ng-if="!ref.getPubmedUrl()" class="id-reference-title">{{ref.title}}</span>
-            </h5>
-            <p>{{ref.getShortDesc()}}</p>
-
+            <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{ref.getPubmedUrl()}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
           </div>
-          <div>
-            <button class="blue id-reference-evaluate"
-                    ng-click="vm.showReferenceEval(ref)"
-            >{{vm.getEvaluateBtnText(ref)}}</button>
-          </div>
-        </section>
-    </article>
       </section>
-
+      </article>
+      <article class="acmg-body id-reference-pending-published" ng-repeat="ref in vm.getPendingReferences(true)">
+          <allele-info-reference-detail reference="ref" vm="vm"></allele-info-reference-detail>
+      </article>
+      <h3 ng-if="vm.getEvaluatedReferences(false).length > 0">Unpublished studies</h3>
+      <article class="acmg-body id-reference-evaluated-unpublished" ng-repeat="ref in vm.getEvaluatedReferences(false)">
+          <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
+          <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
+      </article>
+      <h3 ng-if="vm.getEvaluatedReferences(true).length > 0">Published studies</h3>
+      <article class="acmg-body id-reference-evaluated-published" ng-repeat="ref in vm.getEvaluatedReferences(true)">
+          <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
+          <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
+      </article>
+      <h3 ng-if="vm.getExcludedReferences(false).length > 0">Unpublished studies</h3>
+       <article class="acmg-body id-reference-excluded-unpublished" ng-repeat="ref in vm.getExcludedReferences(false)">
+          <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
+          <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
+      </article>
+      <h3 ng-if="vm.getExcludedReferences(true).length > 0">Published studies</h3>
+      <article class="acmg-body id-reference-excluded-published" ng-repeat="ref in vm.getExcludedReferences(true)">
+          <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
+          <referenceassessment referenceassessment="vm.getReferenceAssessment(ref)"></referenceassessment>
+      </article>
   </cbbody>
 </contentbox>
 
