@@ -220,7 +220,7 @@
           </div>
           <div class="right line-wrapper">
             <div class="multiple-question-element">
-              <div class="bttn-set" ng-if="group.options && group.options.length < 5">
+              <div class="id-annotation-bttn-set bttn-set" ng-if="group.options && group.options.length < 5">
                   <label tabindex=0
                           class="bttn"
                           ng-model="vm.getCurrent()[group.key]"
@@ -230,7 +230,8 @@
               </div>
               <div class="dropdown"
                     ng-if="group.options && group.options.length >= 5">
-                  <select ng-options="v[1] as v[0] for v in group.options"
+                  <select class="id-annotation-select"
+                          ng-options="v[1] as v[0] for v in group.options"
                           ng-model="vm.getCurrent()[group.key]">
                       <option value="" selected></option>
                   </select>

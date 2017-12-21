@@ -2,15 +2,36 @@ var Page = require('./page')
 
 class CustomAnnotationModal extends Page {
 
-    get annotationSelect() { return browser.element('.id-custom-annotation-modal .id-annotation-select'); }
-    get valueSelect() { return browser.element('.id-custom-annotation-modal .id-value-select'); }
-    get addBtn() { return browser.element('.id-custom-annotation-modal .id-add-annotation'); }
+    get externalAnnotationSelect() { return browser.element('.id-custom-annotation-modal .id-annotation-select'); }
+    get predictionBtnSet() { return browser.element('.id-custom-annotation-modal .id-annotation-select'); }
     get saveBtn() { return browser.element('.id-custom-annotation-modal .id-save'); }
     get cancelBtn() { return browser.element('.id-custom-annotation-modal .id-cancel'); }
     get pubMedBtn() {return browser.element('.id-referenceMode-PubMed')}
     get addReferenceBtn() { return browser.element('.id-custom-annotation-modal .id-add-reference-button');}
     get xmlInput() { return browser.element('.id-custom-annotation-modal .id-reference-xml');}
     get xmlInputEditor() { return browser.element('.id-custom-annotation-modal .id-reference-xml textarea');}
+
+    /**
+     * Sets an external annotation database to some value.
+     * (uses <select>)
+     * @param {*} idx  Index in the list of available external databases
+     * @param {*} dropdown_option_text  Text of dropdown option
+     */
+    setExternalAnnotation(idx, dropdown_option_text) {
+        let dropdown = browser.element(`.id-custom-annotation-modal article:nth-child(${idx}) .id-annotation-select`);
+        dropdown.selectByVisibleText(dropdown_option_text);
+    }
+
+    /**
+     * Sets prediction annotation to some value.
+     * (uses <bttn-set>)
+     * @param {*} idx  Index in the list of available prediction options
+     * @param {*} button_idx  Index of button-group button
+     */
+    setPredictionAnnotation(idx, button_idx) {
+        let bttn_set = browser.element(`.id-custom-annotation-modal article:nth-child(${idx}) .id-annotation-bttn-set label:nth-child(${button_idx})`);
+        bttn_set.click()
+    }
 
     setText(element, text) {
            browser.selectorExecute(element.selector,
