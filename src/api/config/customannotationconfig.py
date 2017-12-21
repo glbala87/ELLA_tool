@@ -1055,7 +1055,7 @@ customannotationconfig = {
     ],
     "prediction": [
         {
-            "key": "orth_conservation",
+            "key": "ortholog_conservation",
             "name": "Ortholog conservation",
             "options": [
                 ["Conserved", "conserved"],
@@ -1063,7 +1063,7 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "para_conservation",
+            "key": "paralog_conservation",
             "name": "Paralog conservation",
             "options": [
                 ["Conserved", "conserved"],
@@ -1082,8 +1082,8 @@ customannotationconfig = {
             "key": "domain",
             "name": "Domain",
             "options": [
-                ["Critical functional domain", "crit_domain"],
-                ["Critical functional amino acid", "crit_site"]
+                ["Critical functional domain", "critical_domain"],
+                ["Critical functional amino acid", "critical_site"]
             ]
         },
         {
