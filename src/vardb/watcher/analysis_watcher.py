@@ -41,17 +41,17 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 POLL_INTERVAL = 30
 
-watch_path_error = "Couldn't read from watch path {}, aborting..."
-dest_path_error = "Couldn't write to destination path {}, aborting..."
-analysis_file_missing = "Expected an analysis file at {}, but found none."
-vcf_file_missing = "Expected a vcf file at {}, but found none."
-analysis_field_missing = "Missing field {} in analysis config at {}"
-analysis_file_misconfigured = "The file {} is corrupt or JSON structure has missing values: {}"
+WATCH_PATH_ERROR = "Couldn't read from watch path {}, aborting..."
+DEST_PATH_ERROR = "Couldn't write to destination path {}, aborting..."
+ANALYSIS_FILE_MISSING = "Expected an analysis file at {}, but found none."
+VCF_FILE_MISSING = "Expected a vcf file at {}, but found none."
+ANALYSIS_FIELD_MISSING = "Missing field {} in analysis config at {}"
+ANALYSIS_FILE_MISCONFIGURED = "The file {} is corrupt or JSON structure has missing values: {}"
 
-report_file = 'report.md'
-warnings_file = 'warnings.md'
-analysis_postfix = '.analysis'
-vcf_postfix = '.vcf'
+REPORT_FILE = 'report.md'
+WARNINGS_FILE = 'warnings.md'
+ANALYSIS_POSTFIX = '.analysis'
+VCF_POSTFIX = '.vcf'
 
 
 class AnalysisWatcher(object):
@@ -62,10 +62,10 @@ class AnalysisWatcher(object):
         self.dest_path = dest_path
         
         if not self._check_watch_path_readable():
-          raise RuntimeError(watch_path_error.format(self.watch_path))
+          raise RuntimeError(WATCH_PATH_ERROR.format(self.watch_path))
 
         if not self._check_dest_path_writable():
-            raise RuntimeError(dest_path_error.format(self.dest_path))
+            raise RuntimeError(DEST_PATH_ERROR.format(self.dest_path))
 
     def _check_watch_path_readable(self):
         return os.access(self.watch_path, os.R_OK)
@@ -82,7 +82,7 @@ class AnalysisWatcher(object):
     def check_analysis_config(self, analysis_config, analysis_config_path):
         for field in ['name', 'samples', 'priority', 'params']:
             if field not in analysis_config:
-                raise RuntimeError(analysis_field_missing.format(field, analysis_config_path))
+                raise RuntimeError(ANALYSIS_FIELD_MISSING.format(field, analysis_config_path))
    
     def load_file(self, analysis_config_path, file_name):
         path_to_file = analysis_config_path + '/' + file_name
@@ -120,25 +120,25 @@ class AnalysisWatcher(object):
     def path_to_analysis_config(self, analysis_path, analysis_dir):  
         # Name of .analysis file should match dir name
         analysis_config_path = os.path.join(
-                                            analysis_path,
-                                            analysis_dir + analysis_postfix
-                                            )
+            analysis_path,
+            analysis_dir + ANALYSIS_POSTFIX
+        )
 
         if not os.path.exists(analysis_config_path):
-            raise RuntimeError(analysis_file_missing.format(analysis_config_path))
+            raise RuntimeError(ANALYSIS_FILE_MISSING.format(analysis_config_path))
 
         return analysis_config_path
     
     def path_to_vcf_file(self, analysis_path, analysis_dir):  
         # Check for a vcf file matching analysis name
         analysis_vcf_path = os.path.join(
-                                         analysis_path,
-                                         analysis_dir + vcf_postfix
-                                         )
+            analysis_path,
+            analysis_dir + VCF_POSTFIX
+        )
 
         # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
         if not os.path.exists(analysis_vcf_path):
-            raise RuntimeError(vcf_file_missing.format(analysis_vcf_path))
+            raise RuntimeError(VCF_FILE_MISSING.format(analysis_vcf_path))
       
         return analysis_vcf_path
       
@@ -153,18 +153,18 @@ class AnalysisWatcher(object):
             analysis_name = analysis_config['name']
             priority = analysis_config['priority']
 
-            report = self.load_file(analysis_path, report_file)
-            warnings = self.load_file(analysis_path, warnings_file)
+            report = self.load_file(analysis_path, REPORT_FILE)
+            warnings = self.load_file(analysis_path, WARNINGS_FILE)
 
             if gp_name == '' or gp_version == '':
-                raise RuntimeError(analysis_file_misconfigured.format(
-                  analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version
+                raise RuntimeError(ANALYSIS_FILE_MISCONFIGURED.format(
+                    analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version
                 ))
       
             return AnalysisConfigData(analysis_vcf_path, analysis_name, gp_name, gp_version, priority, report, warnings)
       
         except Exception:
-            log.exception(analysis_file_misconfigured.format(analysis_path, ""))
+            log.exception(ANALYSIS_FILE_MISCONFIGURED.format(analysis_path, ""))
       
     def check_and_import(self):
         """
@@ -181,9 +181,9 @@ class AnalysisWatcher(object):
                     continue
 
                 analysis_path = os.path.join(
-                                             self.watch_path,
-                                             analysis_dir
-                                             )
+                    self.watch_path,
+                    analysis_dir
+                )
 
                 if not self.is_ready(analysis_path):
                     continue
@@ -193,7 +193,9 @@ class AnalysisWatcher(object):
                 # Import analysis
                 self.import_analysis(analysis_config_data)
 
+                # Flushing to check for errors in data, before moving files
                 self.session.flush()  
+
                 # Move analysis dir to destination path.
                 shutil.move(analysis_path, self.dest_path)
 

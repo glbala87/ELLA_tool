@@ -44,13 +44,13 @@ def init(session, analysis_path=watch_path, destination_path=dest_path):
 def test_analysispath_throws_exception(session):
     with pytest.raises(RuntimeError) as excinfo:
         AnalysisWatcher(session, non_existing_path, '')
-    assert watch_path_error.format(non_existing_path) in str(excinfo)
+    assert WATCH_PATH_ERROR.format(non_existing_path) in str(excinfo)
 
  
 def test_destinationpath_throws_exception(session):
     with pytest.raises(RuntimeError) as excinfo:
         AnalysisWatcher(session, watch_path, non_existing_path)
-    assert dest_path_error.format(non_existing_path) in str(excinfo) 
+    assert DEST_PATH_ERROR.format(non_existing_path) in str(excinfo) 
 
   
 def test_ready_filepath(session, init_dest):
@@ -65,23 +65,23 @@ def test_path_to_analysis_config(session, init_dest):
     analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
     # Name of .analysis file should match dir name
     #'/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-001/TestAnalysis-001.analysis'
-    assert analysis_config_path == ready_data_path + '/' + analysis_sample + analysis_postfix
+    assert analysis_config_path == ready_data_path + '/' + analysis_sample + ANALYSIS_POSTFIX
   
     with pytest.raises(RuntimeError) as excinfo:
         aw.path_to_analysis_config(empty_data_path, analysis_sample) 
     
-    expected_error = analysis_file_missing.format(empty_data_path + '/' + analysis_sample + analysis_postfix)
+    expected_error = ANALYSIS_FILE_MISSING.format(empty_data_path + '/' + analysis_sample + ANALYSIS_POSTFIX)
     assert expected_error  in str(excinfo)
 
 def test_loading_report(session, init_dest):
     aw = init(session)
-    report = aw.load_file(ready_data_path, report_file)
+    report = aw.load_file(ready_data_path, REPORT_FILE)
     assert "Report" in str(report)
 
 
 def test_loading_report(session, init_dest):
     aw = init(session)
-    report = aw.load_file(ready_data_path, warnings_file)
+    report = aw.load_file(ready_data_path, WARNINGS_FILE)
     assert "Warning" in str(report)
 
 
@@ -99,18 +99,18 @@ def test_loading_config_with_error(session, init_dest):
     analysis_config_path = aw.path_to_analysis_config(misconfigured_data_path, misconfigured_analysis_sample)
     with pytest.raises(RuntimeError) as excinfo:
         aw.load_analysis_config(analysis_config_path)
-    assert analysis_field_missing.format('priority', analysis_config_path) in str(excinfo)
+    assert ANALYSIS_FIELD_MISSING.format('priority', analysis_config_path) in str(excinfo)
 
 
 def test_vcf_path(session, init_dest):
     aw = init(session)
     analysis_vcf_path = aw.path_to_vcf_file(ready_data_path, analysis_sample)
-    assert analysis_vcf_path == ready_data_path + '/' + analysis_sample + vcf_postfix
+    assert analysis_vcf_path == ready_data_path + '/' + analysis_sample + VCF_POSTFIX
 
     with pytest.raises(RuntimeError) as excinfo:
         aw.path_to_vcf_file(empty_data_path, analysis_sample)
     
-    expected_error = vcf_file_missing.format(empty_data_path + '/' + analysis_sample + vcf_postfix)  
+    expected_error = VCF_FILE_MISSING.format(empty_data_path + '/' + analysis_sample + VCF_POSTFIX)  
     assert expected_error in str(excinfo)
 
 
@@ -120,7 +120,7 @@ def test_extract_from_config(session, init_dest):
     assert analysis_config_data.analysis_name == analysis_sample
     assert analysis_config_data.gp_name == 'EEogPU'
     assert analysis_config_data.gp_version == 'v02'
-    assert analysis_config_data.vcf_path == ready_data_path + '/' + analysis_sample + vcf_postfix
+    assert analysis_config_data.vcf_path == ready_data_path + '/' + analysis_sample + VCF_POSTFIX
     assert "Report" in str(analysis_config_data.report)
     assert "Warning" in str(analysis_config_data.warnings)
 
@@ -166,9 +166,9 @@ def test_check_and_import(session, test_database, init_dest):
     aw.check_and_import()
 
     db_genepanel = DepositFromVCF(session).get_genepanel(
-            analysis_config_data.gp_name,
-            analysis_config_data.gp_version
-        )
+        analysis_config_data.gp_name,
+        analysis_config_data.gp_version
+    )
      
     analysis_stored = session.query(sm.Analysis).filter(
         sm.Analysis.name == analysis_config_data.analysis_name,
