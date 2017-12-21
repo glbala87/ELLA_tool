@@ -464,5 +464,10 @@ e2e-test-local: test-build
 	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPECS=$(SPECS) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
+.PHONY: run-e2e-locally
+run-e2e-locally:
+	@echo "running e2e tests locally ..."
+	ops/test/run_e2e_tests_locally.sh
+    
 
 
