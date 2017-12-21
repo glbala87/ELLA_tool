@@ -36,7 +36,7 @@ class AlleleSectionBox  {
     get existingClassificationName() { return browser.getText(SELECTOR_EXISTING_CLASSIFICATION); }
 
     setClassificationComment(text) {
-        this.classificationCommentElement.click();
+        this.classificationCommentElement.scroll();
         browser.setValue(SELECTOR_COMMENT_CLASSIFICATION_EDITOR, text);
     }
 
@@ -45,7 +45,7 @@ class AlleleSectionBox  {
     get frequencyComment() { return browser.getText(SELECTOR_COMMENT_FREQUENCY_EDITOR); }
 
     setFrequencyComment(text) {
-        this.frequencyCommentElement.click();
+        this.frequencyCommentElement.scroll();
         browser.setValue(SELECTOR_COMMENT_FREQUENCY_EDITOR, text);
     }
 
@@ -53,7 +53,7 @@ class AlleleSectionBox  {
     get externalComment() { return browser.getText(SELECTOR_COMMENT_EXTERNAL_EDITOR); }
 
     setExternalComment(text) {
-        this.externalCommentElement.click();
+        this.externalCommentElement.scroll();
         browser.setValue(SELECTOR_COMMENT_EXTERNAL_EDITOR, text);
     }
 
@@ -61,7 +61,7 @@ class AlleleSectionBox  {
     get predictionComment() { return browser.getText(SELECTOR_COMMENT_PREDICTION_EDITOR); }
 
     setPredictionComment(text) {
-        this.predictionCommentElement.click();
+        this.predictionCommentElement.scroll();
         browser.setValue(SELECTOR_COMMENT_PREDICTION_EDITOR, text);
     }
 
@@ -70,7 +70,7 @@ class AlleleSectionBox  {
     get reportCommentEditable() { return browser.isCommentEditable(SELECTOR_COMMENT_REPORT_EDITOR)}
 
     setReportComment(text) {
-        this.reportCommentElement.click();
+        this.reportCommentElement.scroll();
         browser.setValue(SELECTOR_COMMENT_REPORT_EDITOR, text);
     }
 
@@ -216,15 +216,31 @@ class AlleleSectionBox  {
         return elements.value.length;
     }
 
+    /* 
     evaluateReference(index) {
         let referenceSelector = `allele-info-published-references article:nth-child(${index})`;
         let title = browser.getText(`${referenceSelector} .id-reference-title`);
         browser.click(`${referenceSelector} button.id-reference-evaluate`);
         return title;
+    }*/
+
+    evaluateReference(index) {
+//        let referenceSelector = `allele-info-published-references article:nth-child(${index})`;
+        let referenceSelector = `article:nth-child(${index}) .id-reference-pending-published`;
+        let title = browser.getText(`${referenceSelector} .id-reference-title`);
+        browser.click(`${referenceSelector} button.id-reference-evaluate`);
+        return title;
     }
 
+    reEvaluateReference(index) {
+        let title = browser.getText(`.id-reference-evaluated-published .id-reference-title`);
+        browser.click(`article:nth-child(${index}) .id-reference-evaluated-published button.id-reference-evaluate`);
+        return title;
+     }
+
     getReferenceComment(index) {
-        const selector = `allele-info-published-references article:nth-child(${index}) .id-reference-comment .wysiwygeditor`;
+        //const selector = `allele-info-published-references article:nth-child(${index}) .id-reference-comment .wysiwygeditor`;
+        const selector = `article:nth-child(${index}) .id-reference-evaluated-published .id-reference-comment`;
         return browser.getText(selector);
     }
 
@@ -277,7 +293,8 @@ class AlleleSectionBox  {
     }
 
     getAcmgComment(idx) {
-        return browser.getText(`.id-acmg-included acmg:nth-child(${idx})  wysiwyg-editor div.wysiwygeditor`)
+       // return browser.getText(`.id-acmg-included acmg:nth-child(${idx})  wysiwyg-editor div.wysiwygeditor`)
+       return browser.getValue(`.id-acmg-included acmg:nth-child(${idx}) textarea`)
     }
 }
 
