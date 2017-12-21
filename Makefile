@@ -449,7 +449,7 @@ e2e-test-local: test-build
 run-wdio-local:
 	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
 
-.PHONY: run-e2e-test-local
+.PHONY: run-e2e-locally
 run-e2e-locally:
 	@echo "running e2e tests locally ..."
 	ops/test/run_e2e_tests_locally.sh
