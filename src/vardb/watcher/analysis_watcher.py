@@ -62,7 +62,7 @@ class AnalysisWatcher(object):
         self.dest_path = dest_path
         
         if not self._check_watch_path_readable():
-          raise RuntimeError(WATCH_PATH_ERROR.format(self.watch_path))
+            raise RuntimeError(WATCH_PATH_ERROR.format(self.watch_path))
 
         if not self._check_dest_path_writable():
             raise RuntimeError(DEST_PATH_ERROR.format(self.dest_path))
@@ -80,7 +80,7 @@ class AnalysisWatcher(object):
         return analysis_config
 
     def check_analysis_config(self, analysis_config, analysis_config_path):
-        for field in ['name', 'samples', 'priority', 'params']:
+        for field in ['name', 'priority', 'params']:
             if field not in analysis_config:
                 raise RuntimeError(ANALYSIS_FIELD_MISSING.format(field, analysis_config_path))
    
@@ -90,8 +90,8 @@ class AnalysisWatcher(object):
             with open(path_to_file) as f:
                 result = f.read() 
             return result    
-        else :
-            return ''        
+        else:
+            return ''
 
     def import_analysis(self, analysis_config_data):
         """
@@ -112,10 +112,10 @@ class AnalysisWatcher(object):
         )
 
         if not os.path.exists(ready_file_path):
-          logging.info("Analysis {} not ready yet (missing READY file).".format(analysis_path))
-          return False
-        else: 
-          return True
+            logging.info("Analysis {} not ready yet (missing READY file).".format(analysis_path))
+            return False
+        else:
+            return True
       
     def path_to_analysis_config(self, analysis_path, analysis_dir):  
         # Name of .analysis file should match dir name
@@ -144,7 +144,7 @@ class AnalysisWatcher(object):
       
     def extract_from_config(self, analysis_path, analysis_dir):  
         analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
-        analysis_config   = self.load_analysis_config(analysis_file)
+        analysis_config = self.load_analysis_config(analysis_file)
         analysis_vcf_path = self.path_to_vcf_file(analysis_path, analysis_dir)
       
         try:
@@ -208,15 +208,17 @@ class AnalysisWatcher(object):
                 log.exception("An exception occured while import a new analysis. Skipping...")
                 self.session.rollback()
 
+
 def start_polling(session, analyses_path, destination_path):
     aw = AnalysisWatcher(session, analyses_path, destination_path)
     while True:
         try:
-          aw.check_and_import()
+            aw.check_and_import()
         except Exception:
             log.exception("An exception occurred while checking for new genepanels.")
 
         time.sleep(POLL_INTERVAL)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Watch a folder for new analyses to import into database.")

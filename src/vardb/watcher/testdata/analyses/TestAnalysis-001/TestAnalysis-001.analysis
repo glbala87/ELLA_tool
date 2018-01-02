@@ -4,10 +4,5 @@
     },
     "type": "exome",
     "name": "TestAnalysis-001",
-    "priority" : "1",
-    "samples": [
-        "TestSample-001",
-        "TestSample-002",
-        "TestSample-003"
-    ]
+    "priority" : "1"
 }

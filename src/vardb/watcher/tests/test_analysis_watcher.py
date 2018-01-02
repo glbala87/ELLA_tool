@@ -59,7 +59,6 @@ def test_ready_filepath(session, init_dest):
     assert aw.is_ready(empty_data_path) == False
 
 
-  
 def test_path_to_analysis_config(session, init_dest):
     aw = init(session)
     analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
@@ -72,6 +71,7 @@ def test_path_to_analysis_config(session, init_dest):
     
     expected_error = ANALYSIS_FILE_MISSING.format(empty_data_path + '/' + analysis_sample + ANALYSIS_POSTFIX)
     assert expected_error  in str(excinfo)
+
 
 def test_loading_report(session, init_dest):
     aw = init(session)
@@ -89,7 +89,6 @@ def test_loading_config(session, init_dest):
     aw = init(session)
     analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
     analysis_config = aw.load_analysis_config(analysis_config_path)
-    assert len(analysis_config['samples']) == 3
     assert analysis_config['priority'] == '1'
     assert analysis_config['name'] == analysis_sample
 
@@ -126,10 +125,10 @@ def test_extract_from_config(session, init_dest):
 
 
 def test_extract_from_config_with_error(session, init_dest):
-  aw = init(session)
-  with pytest.raises(Exception) as excinfo:
-      aw.extract_from_config(misconfigured_data_path, misconfigured_analysis_sample)
-  assert "Missing field priority" in str(excinfo)
+    aw = init(session)
+    with pytest.raises(Exception) as excinfo:
+        aw.extract_from_config(misconfigured_data_path, misconfigured_analysis_sample)
+    assert "Missing field priority" in str(excinfo)
 
 
 def test_import_analysis(session, test_database, init_dest):
