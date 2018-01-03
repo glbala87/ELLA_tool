@@ -40,7 +40,6 @@ class AnnotationJob(Base):
     status_history = Column(JSONMutableDict.as_mutable(JSONB), default={})
     mode = Column(Enum("Analysis", "Variants", "Single variant", name="mode"))
     data = Column(String, nullable=False)
-    data_type = Column(String, nullable=False)
     message = Column(String, default="")
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)

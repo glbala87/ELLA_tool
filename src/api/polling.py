@@ -125,16 +125,10 @@ class AnnotationServiceInterface:
     def __init__(self, url):
         self.base = join(url, "api/v1")
 
-    def _annotate(self, data, mode):
-        r = urllib2.Request(join(self.base, "annotate"), data=json.dumps({mode: data}), headers={"Content-type": "application/json"})
+    def annotate(self, data):
+        r = urllib2.Request(join(self.base, "annotate"), data=json.dumps({"input": data}), headers={"Content-type": "application/json"})
         k = urllib2.urlopen(r)
         return json.loads(k.read())
-
-    def annotate_vcf(self, data):
-        return self._annotate(data, "vcf")
-
-    def annotate_hgvsc(self, data):
-        return self._annotate(data, "hgvsc")
 
     def process(self, task_id):
         k = urllib2.urlopen(join(self.base, "process", task_id))
@@ -181,13 +175,9 @@ def process_submitted(annotation_service, submitted_jobs):
     for job in submitted_jobs:
         id = job.id
         data = job.data
-        data_type = job.data_type
 
         try:
-            if data_type == "vcf":
-                resp = annotation_service.annotate_vcf(data)
-            else:
-                resp = annotation_service.annotate_hgvsc(data)
+            resp = annotation_service.annotate(data)
             status = "RUNNING"
             message = ""
             task_id = resp["task_id"]
