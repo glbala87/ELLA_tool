@@ -73,7 +73,7 @@ export class AlleleSectionBoxController {
         this.clipboard = clipboard;
         this.toastr = toastr;
 
-        this.classificationOptions = [{name: 'Unclassified', value: null}].concat(this.config.classification.options);
+        this.classificationOptions = [{name: 'Select class', value: null}].concat(this.config.classification.options);
 
         // Update suggested classification whenever user changes
         // included ACMG codes

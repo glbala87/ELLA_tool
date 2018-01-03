@@ -13,7 +13,7 @@
 
 <sectionbox color="green" ng-attr-id="'variants-pending'" class="id-variants-pending" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
-    PENDING VARIANTS
+    PENDING CLASSIFICATION
   </maintitle>
   <subtitle>
     {{vm.overview.missing_alleleassessment.length}}
@@ -26,7 +26,7 @@
 
 <sectionbox color="purple" ng-attr-id="'variants-review'" class="id-variants-review" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
-    VARIANTS PENDING REVIEW
+    PENDING REVIEW
   </maintitle>
   <subtitle>
     {{vm.overview.marked_review.length}}
@@ -54,7 +54,7 @@
 
 <sectionbox color="blue" ng-attr-id="'variants-finished'" class="id-variants-finished" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
-    FINISHED VARIANTS
+    FINISHED
   </maintitle>
   <subtitle>
     {{vm.finalized.pagination.totalCount}}
