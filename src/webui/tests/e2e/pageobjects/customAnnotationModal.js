@@ -18,6 +18,9 @@ class CustomAnnotationModal extends Page {
      * @param {*} dropdown_option_text  Text of dropdown option
      */
     setExternalAnnotation(idx, dropdown_option_text) {
+        if (idx === 2) {
+            throw Error("idx === 2 is broken for some obscure reason, it selects 1 instead...every other idx should work fine.")
+        }
         let dropdown = browser.element(`.id-custom-annotation-modal article:nth-child(${idx}) .id-annotation-select`);
         dropdown.selectByVisibleText(dropdown_option_text);
     }

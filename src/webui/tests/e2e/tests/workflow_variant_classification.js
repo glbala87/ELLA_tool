@@ -52,21 +52,17 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
 
         // Add external annotation
         alleleSectionBox.addExternalBtn.click();
-        customAnnotationModal.annotationSelect.selectByVisibleText('LOVD');
-        customAnnotationModal.valueSelect.selectByVisibleText('+/+');
-        customAnnotationModal.addBtn.click();
+        customAnnotationModal.setExternalAnnotation(3, 'Pathogenic'); // LOVD IARC HCI
         customAnnotationModal.saveBtn.click();
-        expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD:');
-        expect(alleleSectionBox.getExternalOtherValue()).toEqual('+/+');
+        expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD IARC HCI:');
+        expect(alleleSectionBox.getExternalOtherValue()).toEqual('pathogenic');
 
         // Add prediction annotation
         alleleSectionBox.addPredictionBtn.click();
-        customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
-        customAnnotationModal.valueSelect.selectByVisibleText('Conserved');
-        customAnnotationModal.addBtn.click();
+        customAnnotationModal.setPredictionAnnotation(1, 2); // Ortholog conservation: Non-conserved
         customAnnotationModal.saveBtn.click();
         expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Ortholog conservation:');
-        expect(alleleSectionBox.getPredictionOtherValue()).toEqual('conserved');
+        expect(alleleSectionBox.getPredictionOtherValue()).toEqual('non-conserved');
 
         // Set comments/classification
         alleleSectionBox.setClassificationComment('EVALUATION_ROUND1');
@@ -97,10 +93,10 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
                 },
                 customAnnotation: {
                     external: {
-                        LOVD: '+/+'
+                        'LOVD_genomed_China-BRCA2': 'pathogenic'
                     },
                     prediction: {
-                        Conservation: 'conserved'
+                        'ortholog_conservation': 'non-conserved'
                     }
                 },
                 evaluation: 'EVALUATION_ROUND1',

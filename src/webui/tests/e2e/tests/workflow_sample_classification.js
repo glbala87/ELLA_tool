@@ -184,10 +184,10 @@ describe('Sample workflow', function () {
                 },
                 customAnnotation: {
                     external: {
-                        LOVD: '+/+'
+                        'BIC-BRCA2': 'likely_pathogenic'
                     },
                     prediction: {
-                        Conservation: 'conserved'
+                        domain: 'critical_domain'
                     }
                 },
                 evaluation: 'EVALUATION_ROUND1',
