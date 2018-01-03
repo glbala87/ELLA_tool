@@ -1,0 +1,186 @@
+<contentwrapper>
+  <contentbox title="IMPORT #{{vm.index}}" color="green">
+
+    <cbbody>
+      <div class="contentbox fixed-width-number" >
+        <!--<div>-->
+
+        <article class="import-summary">
+          <section>
+            <div>
+              <div>
+                <span class="title">Filename: </span>
+                <span>{{vm.filename}}</span>
+              </div>
+              <!--<div>-->
+                <!--<span class="title">File type: </span>-->
+                <!--<span>{{vm.fileType}}</span>-->
+              <!--</div>-->
+            </div>
+            <div class="import-selection">
+              <div ng-repeat="(key, value) in vm.getSummary()">
+                <span class="title">{{key}}: </span>
+                <span>{{value}}</span>
+              </div>
+            </div>
+
+
+            <!--<button class="green" ng-click="vm.annotateVCF()"-->
+                    <!--ng-disabled="!vm.isSelectionComplete()">-->
+              <!--<svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none"-->
+                   <!--stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">-->
+                <!--<path d="M16 2 L16 30 M2 16 L30 16"/>-->
+              <!--</svg>-->
+              <!--Import data-->
+            <!--</button>-->
+
+            <button class="blue" ng-click="vm.toggleEditMode()">
+              Edit import
+            </button>
+
+            <section class="import-edit" ng-if="vm.editMode">
+
+              <div class="question tiny line-wrapper">
+                <div class="left-short">
+                  <h5 class="slim title" title="Create new or append to existing analysis, or annotate standalone variants.">
+                    <b>Type</b>
+                  </h5>
+                </div>
+                <div class="right">
+                  <div class="bttn-set">
+                    <label tabindex=0 class="bttn" uib-btn-radio="item" ng-model="vm.jobData.type"
+                           ng-repeat="item in vm.types" ng-disabled="vm.warnings.noGenotype.active && item === 'Analysis'">{{item}}</label>
+                  </div>
+                </div>
+              </div>
+
+              <!--Create or append to analysis-->
+              <div ng-if="vm.jobData.type === vm.types[0]" class="question tiny line-wrapper">
+                <div class="left-short">
+                  <h5 class="slim title" title="Create new or append to analysis.">
+                    <b>Mode</b>
+                  </h5>
+                </div>
+                <div class="right">
+                  <div class="bttn-set">
+                    <label tabindex=0 class="bttn" uib-btn-radio="item" ng-model="vm.jobData.mode"
+                           ng-repeat="item in vm.modes">{{item}}</label>
+                  </div>
+                </div>
+              </div>
+
+              <!--Select analysis name for new analysis-->
+              <div ng-if="vm.jobData.type === vm.types[0] && vm.jobData.mode === vm.modes[0]" class="question tiny line-wrapper">
+                <div class="left-short">
+                  <h5 class="slim title" title="Provide a descriptive name for the analysis">
+                    <b>Analysis name</b>
+                  </h5>
+                </div>
+                <div class="right">
+                  <autosize-textarea placeholder="NAME" ng-model="vm.jobData.analysisName"></autosize-textarea>
+                  <!--<div class="selection-warning">{{vm.findExistingAnalysis()}}</div>-->
+                </div>
+              </div>
+
+              <!--Select genepanel-->
+              <div ng-if="vm.jobData.type === vm.types[1] || (vm.jobData.type === vm.types[0] && vm.jobData.mode === vm.modes[0])" class="question tiny line-wrapper">
+                <div class="left-short">
+                  <h5 class="slim title" title="Select genepanel">
+                    <b>Genepanel</b>
+                  </h5>
+                </div>
+                <div class="right">
+                  <div class="bttn-set">
+                    <div class="dropdown white genepanel">
+                      <script type="text/ng-template" id="genepanelTemplate">
+                        {{option.name}} {{option.version}}
+                      </script>
+                      <select selector
+                              model="vm.jobData.genepanel"
+                              options="vm.genepanels"
+                              placeholder="choose genepanel"
+                              view-item-template="'genepanelTemplate'"
+                              dropdown-item-template="'genepanelTemplate'"
+                              disable-search="false"
+                              remove-button="true"
+                      >
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--Select analysis to append to-->
+              <div ng-if="vm.jobData.type === vm.types[0] && vm.jobData.mode === vm.modes[1]" class="question tiny line-wrapper">
+                <div class="left-short">
+                  <h5 class="slim title" title="Choose analysis to append to">
+                    <b>Analysis</b>
+                  </h5>
+                </div>
+                <div class="right">
+                  <div class="bttn-set">
+                    <div class="dropdown white analysis">
+                      <select selector
+                              model="vm.jobData.analysis"
+                              debounce="250"
+                              options="vm.analyses"
+                              remote="vm.updateAnalysisOptions(search)"
+                              placeholder="choose analysis"
+                              label-attr="name"
+                              disable-search="false"
+                              remove-button="true"
+                      >
+                      </select>
+                    </div>
+                  </div>
+                  <div class="selection-warning" ng-if="vm.getAnalysisWarningMessage()">
+                    {{vm.getAnalysisWarningMessage()}}
+                  </div>
+                </div>
+              </div>
+
+              <!--Select technology-->
+              <div class="question tiny line-wrapper">
+                <div class="left-short">
+                  <h5 class="slim title" title="Is this data coming from HTS or Sanger">
+                    <b>Technology</b>
+                  </h5>
+                </div>
+                <div class="right">
+                  <div class="bttn-set">
+                    <label tabindex=0 class="bttn" uib-btn-radio="item" ng-model="vm.jobData.technology"
+                           ng-repeat="item in vm.technologies">{{item}}</label>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </section>
+        <section>
+          <div class="import-warning" ng-repeat="warning in vm.warnings" ng-if="vm.showWarning(warning)">
+            <p>WARNING: {{warning.text}}</p>
+          </div>
+        </section>
+          <section ng-if="!vm.isSelectionComplete()">
+            <div class="import-warning">
+              <p>WARNING: Selection is incomplete</p>
+            </div>
+          </section>
+
+        </article>
+
+        <section class="import-variants">
+
+          <h5 class="slim title upper">Variants to include</h5>
+          <div>
+            <p ng-repeat="(description,line) in vm.jobData.contentLines">
+              <input title="Include in import" type="checkbox" ng-model="line.include" class="box">
+              {{description}}
+            </p>
+          </div>
+        </section>
+      </div>
+
+    </cbbody>
+
+  </contentbox>
+</contentwrapper>

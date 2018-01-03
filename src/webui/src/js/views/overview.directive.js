@@ -6,15 +6,15 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'overview',
     templateUrl: 'ngtmpl/overview.ngtmpl.html',
 })
-@Inject('$scope', '$interval', 'Config', 'Navbar', 'SearchResource', 'AnnotationjobResource', 'AnnotateVCFFileModal')
+@Inject('$scope', '$interval', 'Config', 'Navbar', 'SearchResource', 'AnnotationjobResource', 'ImportModal')
 export class MainController {
-    constructor($scope, $interval, Config, Navbar, SearchResource, AnnotationjobResource, AnnotateVCFFileModal) {
+    constructor($scope, $interval, Config, Navbar, SearchResource, AnnotationjobResource, ImportModal) {
         this.scope = $scope;
         this.interval = $interval;
         this.config = Config.getConfig();
         this.searchResource = SearchResource;
         this.annotationjobResource = AnnotationjobResource;
-        this.annotateVCFFileModal = AnnotateVCFFileModal;
+        this.importModal = ImportModal;
 
         Navbar.clearItems();
 
@@ -76,8 +76,8 @@ export class MainController {
         return this.getSelectedView() === view;
     }
 
-    showAnnotateVCFFile() {
-        this.annotateVCFFileModal.show();
+    showImportModal() {
+        this.importModal.show();
     }
 
     pollForAnnotationJobs() {
