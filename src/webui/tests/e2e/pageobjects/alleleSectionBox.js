@@ -143,26 +143,26 @@ class AlleleSectionBox  {
 
 
     classifyAsU() {
-       this._setClassification(1);
-    }
-    classifyAsT() {
        this._setClassification(2);
     }
-    classifyAs1() {
+    classifyAsT() {
        this._setClassification(3);
+    }
+    classifyAs1() {
+       this._setClassification(4);
     }
 
     classifyAs2() {
-       this._setClassification(4);
-    }
-    classifyAs3() {
        this._setClassification(5);
     }
-    classifyAs4() {
+    classifyAs3() {
        this._setClassification(6);
     }
-    classifyAs5() {
+    classifyAs4() {
        this._setClassification(7);
+    }
+    classifyAs5() {
+       this._setClassification(8);
     }
 
     unclassify() { // go through all possible buttons that 'unclassifies':

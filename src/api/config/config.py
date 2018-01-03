@@ -231,12 +231,7 @@ config = {
             "MMR": ["MLH1", "MSH2", "MSH6", "PMS2"]  # Mismatch repair group
         },
         "options": [  # Also defines sorting order
-            {
-                "name": "Technical",
-                "value": "T",
-                "outdated_after_days": 0,
-                "exclude_filtering_existing_assessment": True  # If there's an existing alleleassessment, exclude the allele from being filtered.
-            },
+            # Adding a class needs ENUM update in DB, along with migration
             {
                 "name": "Class 1",
                 "value": "1"
@@ -245,7 +240,7 @@ config = {
                 "name": "Class 2",
                 "value": "2",
                 "outdated_after_days": 180,  # Marked as outdated after N number of days
-                "exclude_filtering_existing_assessment": True
+                "exclude_filtering_existing_assessment": True  # If there's an existing alleleassessment, exclude the allele from being filtered.
             },
             {
                 "name": "Class 3",
@@ -270,7 +265,19 @@ config = {
                 "include_report": True,
                 "include_analysis_with_findings": True,
                 "exclude_filtering_existing_assessment": True
-            }
+            },
+            {
+                "name": "Technical",
+                "value": "T",
+                "outdated_after_days": 0,
+                "include_analysis_with_findings": True,
+                "exclude_filtering_existing_assessment": True
+            },
+            {
+                "name": "Unclassified",
+                "value": "U",
+                "outdated_after_days": 180
+            },
         ]
     },
 
