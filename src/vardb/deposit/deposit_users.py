@@ -20,9 +20,17 @@ def import_groups(session, groups, log=log.info):
             tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(g['genepanels'])
         ).all()
 
+
+
         if len(db_genepanels) != len(g['genepanels']):
             not_found = set(tuple(gp) for gp in g['genepanels'])-set((gp.name, gp.version,) for gp in db_genepanels)
             raise NoResultFound("Unable to find all genepanels in database: %s" %str(list(not_found)))
+
+        if g.get("default_import_genepanel"):
+            default_import_genepanel = g.pop("default_import_genepanel")
+            assert default_import_genepanel in g["genepanels"]
+            g["default_import_genepanel_name"] = default_import_genepanel[0]
+            g["default_import_genepanel_version"] = default_import_genepanel[1]
 
         g["genepanels"] = db_genepanels
 

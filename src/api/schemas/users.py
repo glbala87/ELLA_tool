@@ -26,9 +26,11 @@ class UserGroupSchema(Schema):
     class Meta:
         fields = ( 'id',
                    'name',
-                   'genepanels'
+                   'genepanels',
+                   'default_import_genepanel'
         )
     genepanels = fields.Nested(GenepanelSchema, many=True)
+    default_import_genepanel = fields.Nested(GenepanelSchema, many=False)
 
 class UserFullSchema(Schema):
     class Meta:

@@ -5,6 +5,7 @@
             ["HBOC", "v01"],
             ["HBOCUTV", "v01"]
         ],
+        "default_import_genepanel": ["HBOC", "v01"],
         "config": {
             "overview": {
                 "views": [
