@@ -156,7 +156,7 @@ export class ImportSingleController {
         let vals = line.trim().split("\t");
         let transcript = vals[2];
         let cdna = vals[11];
-        let genotype = vals[6].match(/\(het|hom\)/);
+        let genotype = vals[6].match(/\(het\)|\(hom\)/);
         if (!genotype) {
             this.warnings.noGenotype.active = true;
             genotype = "(?)"

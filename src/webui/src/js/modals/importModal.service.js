@@ -51,69 +51,8 @@ export class ImportController {
     }
 
     reset() {
-        this.description = "";
-        this.genepanel = null;
-        this.analysis_name = "";
-        this.selected_analysis = "";
-        this.sample_type = "Sanger";
-
-        this.parsed_vcf = '';
-        this.input_data = '';
-
         this.rawInput = '';
-        this.rawInput = `------------- brca_sample_master.vcf
-##fileformat=VCFv4.1
-##contig=<ID=13>
-##FILTER=<ID=PASS,Description="All filters passed">
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	brca_sample_master
-1	32893243	CM067653	G	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32893243	CM067653	G	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32893435	CM062477	G	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32900290	CS994297	A	G	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32900700	CM960192	G	A	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32905054	CS144707	A	C	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32906535	CI1111183	G	GT	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32906847	CI101425	T	TA	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-13	32907058	CD114478	TC	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
--------------seqpilot_export.csv
-Index	Gene	Transcript	Location	Pos.	Type	Nuc Change	AA Change	State	Hint	web Ref.	c. HGVS	p. HGVS	mut Entry	mut Effect
-6	MSH2	NM_000251.2	E5	5 (797) / 4bp   [chr2:g.47641411_47641412 (hg19)]	I	AAGA (het)	[STOP] AA 284 (E5/58)	S	RF changed		c.796_797insAAGA	p.Ala266Glufs*19	0/1 of 1963
-4	BRCA2	NM_000059.3	E18	188 (8164) / 4bp   [chr13:g.32937502_32937503 (hg19)]	I	GCTC (het)	[STOP] AA 2730 (E18/212)	S	RF changed		c.8163_8164insGCTC	p.Thr2722Alafs*9	0/1 of 6244
-6	BRCA2	NM_000059.3	E27	85 (9733) / 1bp   [chr13:g.32972382_32972383 (hg19)]	I	A (het)	[STOP] AA 3254 (E27/112)	S	RF changed		c.9732_9733insA	p.Ser3245Ilefs*10	0/1 of 6200
-1	VHL	NM_000551.3	E3	39 (502) / 8bp   [chr3:g.10191508_10191509 (hg19)]	I	TTGTCCGT (het)	[STOP] AA 172 (E3/51)	SV	RF 		c.501_502insTTGTCCGT	p.Ser168Leufs*5	0/1 of 74
-1	BRCA1	NM_007294.3	E8	17 (458) / 21bp   [chr17:g.41251881_41251882 (hg19)]	I	ATTACCAGGAAACCAGTCTCA (het)	S -> NYQETSLS (153)	SV			c.457_458insATTACCAGGAAACCAGTCTCA	p.Ser153delinsAsnTyrGlnGluThrSerLeuSer	0/1 of 6177
-5	BRCA2	NM_000059.3	E19	-7 / 1bp   [chr13:g.32944532 (hg19)]	D	t (het)		S			c.8332-7delT		0/1 of 6129
-1	BRCA1	NM_007294.3	E3	-11 / 1bp   [chr17:g.41267807 (hg19)]	D	t (het)		SV			c.81-11delT		0/1 of 6171
-1	VHL	NM_000551.3	E3	39 (502) / 8bp   [chr3:g.10191508_10191509 (hg19)]	I	TTGTCCGT (het)	[STOP] AA 172 (E3/51)	SV	RF changed		c.501_502insTTGTCCGT	p.Ser168Leufs*5	0/1 of 80		alex [02/02/2016 13:18:48]	yngs [02/03/2016 09:47:46]
-5	BRCA2	NM_000059.3	E6	11..13 (486..488) / 3bp   [chr13:g.32900389_32900391 (hg19)]	D	GAG (het)	GS -> G (162..163)	S			c.486_488delGAG	p.Gly162_Ser163delinsGly	0/3 of 6794 (p.Ser163del)			vibw [11/07/2016 12:39:37]`
-
-
-//         this.rawInput = `##fileformat=VCFv4.1
-// ##contig=<ID=13>
-// ##FILTER=<ID=PASS,Description="All filters passed">
-// #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	brca_sample_master
-// 1	32893243	CM067653	G	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32893243	CM067653	G	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32893435	CM062477	G	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32900290	CS994297	A	G	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32900700	CM960192	G	A	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32905054	CS144707	A	C	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32906535	CI1111183	G	GT	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32906847	CI101425	T	TA	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-// 13	32907058	CD114478	TC	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917`
-
         this.parsedInput = null;
-
-        this.parsed_variants = [];
-        this.header = "";
-
-        // Single variant
-        //13	32890607	SNP	G	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917
-        this.chromosome = '';
-        this.position = '';
-        this.ref = '';
-        this.alt = '';
-
     }
 
     pollForAnnotationJobs() {
@@ -204,6 +143,8 @@ Index	Gene	Transcript	Location	Pos.	Type	Nuc Change	AA Change	State	Hint	web Ref
                     appendAnalyses.push(j.analysis.name);
                     appendVariants += Object.values(j.contentLines).filter(l => l.include).length;
                 }
+            } else if (j.type === "Variants") {
+                standaloneVariants += Object.values(j.contentLines).filter(l => l.include).length;
             }
         }
 

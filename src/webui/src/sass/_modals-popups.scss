@@ -63,6 +63,7 @@
 .popover-title-no-uppercase * .popover-title {text-transform: none !important;}
 .popover-content {padding-top: 0.3rem}
 .popover-content * { @extend .slim; color: $black-75; font-size: 1.3rem !important;}
+.popover-content > pre { white-space: pre-wrap;}
 .popover-content .gpv_override { color: $red; }
 .popover-list { list-style-type: none; max-width: 50vw; }
 .popover-list.indented { margin-left: 1.3rem; }

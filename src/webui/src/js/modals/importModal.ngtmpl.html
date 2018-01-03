@@ -56,9 +56,9 @@
               <p>Provide raw data in any of the following formats:</p>
               <p><span class="clickable"
                        popover-title="HGVSc example"
-                       uib-popover-html="'<p>NM_000059.3.c.9732_9733insA</p>
-                                          <p>NM_000059.3.c.9732_9733insA (het)</p>
-                                          <p>NM_000059.3(BRCA2).c.9732_9733insA (hom)</p>
+                       uib-popover-html="'<p>NM_000059.3:c.9732_9733insA</p>
+                                          <p>NM_000059.3:c.9732_9733insA (het)</p>
+                                          <p>NM_000059.3(BRCA2):c.9732_9733insA (hom)</p>
                                         '"
                        popover-placement="auto bottom"
                        popover-append-to-body="true"
@@ -86,10 +86,13 @@
 
               <p><span class="clickable"
                        popover-title="SeqPilot export example"
-                       uib-popover-html='"<p>Index	Gene	Transcript	Location	Pos.	Type	Nuc Change	AA Change	State	Hint	web Ref.	c. HGVS	p. HGVS	mut Entry	mut Effect</p>
-                                          <p>6	MSH2	NM_000251.2	E5	5 (797) / 4bp   [chr2:g.47641411_47641412 (hg19)]	I	AAGA (het)	[STOP] AA 284 (E5/58)	S	RF changed		c.796_797insAAGA	p.Ala266Glufs*19	0/1 of 1963</p>
-                                          <p>4	BRCA2	NM_000059.3	E18	188 (8164) / 4bp   [chr13:g.32937502_32937503 (hg19)]	I	GCTC (het)	[STOP] AA 2730 (E18/212)	S	RF changed		c.8163_8164insGCTC	p.Thr2722Alafs*9	0/1 of 6244</p>
-                                          <p>6	BRCA2	NM_000059.3	E27	85 (9733) / 1bp   [chr13:g.32972382_32972383 (hg19)]	I	A (het)	[STOP] AA 3254 (E27/112)	S	RF changed		c.9732_9733insA	p.Ser3245Ilefs*10	0/1 of 6200</p>"'
+                       uib-popover-html='"<pre>Index&#9;Gene&#9;Transcript&#9;Location&#9;Pos.&#9;Type&#9;Nuc Change&#9;AA Change&#9;State&#9;Hint&#9;web Ref.&#9;c. HGVS&#9;p. HGVS&#9;mut Entry&#9;mut Effect</pre>
+                                          <pre>6&#9;MSH2&#9;NM_000251.2&#9;E5&#9;5 (797) / 4bp   [chr2:g.47641411_47641412 (hg19)]&#9;I&#9;AAGA (het)&#9;[STOP] AA 284 (E5/58)&#9;S&#9;RF changed&#9;&#9;c.796_797insAAGA&#9;p.Ala266Glufs*19&#9;0/1 of 1963</pre>
+                                          <pre>4&#9;BRCA2&#9;NM_000059.3&#9;E18&#9;188 (8164) / 4bp   [chr13:g.32937502_32937503 (hg19)]&#9;I&#9;GCTC (het)&#9;[STOP] AA 2730 (E18/212)&#9;S&#9;RF changed&#9;&#9;c.8163_8164insGCTC&#9;p.Thr2722Alafs*9&#9;0/1 of 6244</pre>
+                                          <pre>6&#9;BRCA2&#9;NM_000059.3&#9;E27&#9;85 (9733) / 1bp   [chr13:g.32972382_32972383 (hg19)]&#9;I&#9;A (hom)&#9;[STOP] AA 3254 (E27/112)&#9;S&#9;RF changed&#9;&#9;c.9732_9733insA&#9;p.Ser3245Ilefs*10&#9;0/1 of 6200</pre>"'
+                       popover-placement="auto bottom"
+                       popover-append-to-body="true"
+                       popover-trigger="outsideClick"
               >SeqPilot export file</span></p>
               <p><br></p>
               <p>Raw data can be separated into several imports (called a 'batch') by inserting separator characters (-). Mixing formats in a single import is not allowed.</p>
