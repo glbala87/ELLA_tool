@@ -20,11 +20,11 @@ class AnalysisResource {
         this.resource = resource;
     }
 
-    get(q, num_per_page, page) {
+    get(q, per_page, page) {
         return new Promise((resolve, reject) => {
             let args = []
             if (q) args.push(`q=${encodeURIComponent(JSON.stringify(q))}`)
-            if (num_per_page) args.push(`num_per_page=${num_per_page}`)
+            if (per_page) args.push(`per_page=${per_page}`)
             if (page) args.push(`page=${page}`)
 
             if (!args.length) {
