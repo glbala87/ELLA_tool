@@ -74,7 +74,6 @@ def test_submit_annotationjob(session, client):
         "mode": "Analysis",
         "user_id": 1,
         "data": "Dummy vcf data",
-        "data_type": "vcf",
         "genepanel_name": GENEPANEL_NAME,
         "genepanel_version": GENEPANEL_VERSION,
         "properties": {
@@ -93,7 +92,6 @@ def test_submit_annotationjob(session, client):
     annotation_job = annotation_jobs[0]
     assert annotation_job.status == "SUBMITTED"
     assert annotation_job.data == data["data"]
-    assert annotation_job.data_type == data["data_type"]
     assert annotation_job.mode == "Analysis"
     assert annotation_job.genepanel_name == GENEPANEL_NAME
     assert annotation_job.genepanel_version == GENEPANEL_VERSION
@@ -111,7 +109,6 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
         "task_id": "123456789",
         "user_id": 1,
         "data": unannotated_vcf,
-        "data_type": "vcf",
         "genepanel_name": GENEPANEL_NAME,
         "genepanel_version": GENEPANEL_VERSION,
         "properties": {
@@ -144,7 +141,6 @@ def test_status_update_annotationjob(session, client):
         "mode": "Analysis",
         "user_id": 1,
         "data": "Dummy vcf data",
-        "data_type": "vcf",
         "genepanel_name": GENEPANEL_NAME,
         "genepanel_version": GENEPANEL_VERSION,
         "properties": {
@@ -211,7 +207,6 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
         "task_id": "123456789",
         "user_id": 1,
         "data": annotated_vcf,
-        "data_type": "vcf",
         "genepanel_name": GENEPANEL_NAME,
         "genepanel_version": GENEPANEL_VERSION,
         "properties": {
@@ -252,7 +247,6 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
         "mode": "Analysis",
         "user_id": 1,
         "data": first_vcf,
-        "data_type": "vcf",
         "genepanel_name": GENEPANEL_NAME,
         "genepanel_version": GENEPANEL_VERSION,
         "properties": {
@@ -289,7 +283,6 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
         "mode": "Analysis",
         "user_id": 1,
         "data": second_vcf,
-        "data_type": "vcf",
         "genepanel_name": GENEPANEL_NAME,
         "genepanel_version": GENEPANEL_VERSION,
         "properties": {
