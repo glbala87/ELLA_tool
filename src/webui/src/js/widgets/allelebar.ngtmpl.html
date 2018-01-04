@@ -64,16 +64,13 @@
 
     <td>
       <h3 class="full-title">
-        <div ng-repeat="t in vm.allele.annotation.filtered track by t.transcript"
-              popover-trigger="outsideClick"
-              uib-popover-template="'ngtmpl/alleleInfoConsequencePopover.ngtmpl.html'"
-              popover-append-to-body="true"
-              popover-title="Consequences"
-              popover-placement="auto top">
-                <transcript-wrapper transcript="t">
-                    <span class="clickable" ng-repeat="c in t.consequences">{{c | noUnderscores}}</span>
-                </transcript-wrapper>
-            </div>
+        <div popover-trigger="outsideClick"
+             uib-popover-template="'ngtmpl/alleleInfoConsequencePopover.ngtmpl.html'"
+             popover-append-to-body="true"
+             popover-title="Consequences"
+             popover-placement="auto top">
+              <span class="clickable" ng-repeat="c in t.consequences">{{c | noUnderscores}}</span>
+        </div>
       </h3>
     </td>
 
