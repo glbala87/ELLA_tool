@@ -75,8 +75,8 @@ help :
 	@echo "make test-report-classifications"
 	@echo "			- Test report 'ella-cli export classifications'"
 	@echo ""
-	@echo "make run-wdio-local	- For running e2e tests locally. Call it inside the shell given by 'make e2e-test-local'."
-	@echo "                          Set these vars: APP_BASE_URL and CHROME_HOST"
+	@echo "make e2e-test-local	- For running e2e tests locally."
+	@echo "                          Set these vars: APP_BASE_URL, CHROME_HOST and DEBUG."
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
@@ -432,7 +432,7 @@ test-report-sanger: #e2e-app-container-setup # CI run conditional target in sepa
 # LOCAL END-2-END TESTING - locally using visible host browser
 #                           with webdriverio REPL for debugging
 #---------------------------------------------
-.PHONY: e2e-test-local run-wdio-local run-e2e-locally
+.PHONY: e2e-test-local
 
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
