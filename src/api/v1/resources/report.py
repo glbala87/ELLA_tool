@@ -1,3 +1,4 @@
+import datetime
 from flask import send_file
 from io import BytesIO
 
@@ -27,9 +28,12 @@ class NonStartedAnalysesVariants(LogRequestResource):
 
         export_sanger_variants.export_variants(session, excel_file_obj=excel_file_obj)
         excel_file_obj.seek(0)
+        filename = 'non-started-analyses-variants-{}.xls'.format(
+            datetime.datetime.now().strftime("%Y-%m-%d-%H_%M")
+        )
         return send_file(
             excel_file_obj,
             as_attachment=True,
-            attachment_filename='non-started-analyses-variants.xls',
+            attachment_filename=filename,
             mimetype='application/vnd.ms-excel'
         )
