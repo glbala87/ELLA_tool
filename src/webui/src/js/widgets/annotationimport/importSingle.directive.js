@@ -186,7 +186,15 @@ export class ImportSingleController {
         this.technology = "Sanger";
         this.jobData.genepanel = this.user.group.default_import_genepanel ? this.user.group.default_import_genepanel : null;
 
-        let fileNameBase = this.filename ? this.filename.split(".").slice(0,-1).join('.') : '';
+        let fileNameBase = "";
+        if (this.filename) {
+            if (this.filename.contains('.')) {
+                fileNameBase = this.filename.substring(0, this.filename.lastIndexOf('.'));
+            } else {
+                fileNameBase = this.filename;
+            }
+        }
+
         // Search for matching analysis
         if (fileNameBase.length > 3) {
             var p = this.analysisResource.get({name: {'$ilike': fileNameBase}}, 2)

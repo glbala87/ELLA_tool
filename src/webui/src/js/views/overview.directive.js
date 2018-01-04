@@ -88,12 +88,12 @@ export class MainController {
 
 
     getAnnotationJobStatus() {
-        this.annotationjobResource.get({status: ["RUNNING", "SUBMITTED"]}).then((res) => {
-            this.annotationJobStatus.running = res.data.length;
+        this.annotationjobResource.get({status: ["RUNNING", "SUBMITTED"]}, 1, 1).then((res) => {
+            this.annotationJobStatus.running = res.pagination.totalCount;
         })
 
-        this.annotationjobResource.get({status: {"$like": "FAILED"}}).then((res) => {
-            this.annotationJobStatus.failed = res.data.length;
+        this.annotationjobResource.get({status: {"$like": "FAILED"}}, 1, 1).then((res) => {
+            this.annotationJobStatus.failed = res.pagination.totalCount;
         })
     }
 
