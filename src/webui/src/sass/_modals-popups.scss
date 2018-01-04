@@ -4,9 +4,9 @@
       min-height: 20rem;
     }
   }
-  &-dialog { margin-left: 25.3rem; margin-top: 8.7rem; margin-bottom: 0; }
+  &-dialog { margin-left: 25.3rem; margin-top: 12.4rem; margin-bottom: 0; }
   &-lg { width: inherit; }
-  &-backdrop { bottom: 0; position: fixed; top: 8.7rem; }
+  &-backdrop { bottom: 0; position: fixed; top: 0; }
 }
 
 // - Primarily used in modals for user prompts and information
