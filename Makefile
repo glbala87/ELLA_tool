@@ -432,27 +432,17 @@ test-report-sanger: #e2e-app-container-setup # CI run conditional target in sepa
 # LOCAL END-2-END TESTING - locally using visible host browser
 #                           with webdriverio REPL for debugging
 #---------------------------------------------
-.PHONY: e2e-test-local run-wdio-local e2e-gulp-continous
+.PHONY: e2e-test-local run-wdio-local run-e2e-locally
 
 e2e-test-local: test-build
 	-docker rm ella-e2e-local
-	docker run -d --name ella-e2e-local -it -v $(shell pwd):/ella \
+	docker run -d --name $(E2E_APP_CONTAINER) -it -v $(shell pwd):/ella \
 	   -p 5000:5000 -p 5859:5859 \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	docker exec ella-e2e-local make dbsleep
-	@docker exec -it ella-e2e-local \
-	   /bin/sh -c "echo \"Run  'make run-wdio-local' to run e2e tests.\n\" \
-	               echo \"Like: make run-wdio-local APP_BASE_URL=..:5000 CHROME_HOST=.. WDIO_OPTIONS='--spec src/webui/tests/e2e/tests/finalize.js\"; \
-	              /bin/bash"
+	docker exec $(E2E_APP_CONTAINER) make dbsleep
+	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e SPECS=$(SPECS) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
+	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
-run-wdio-local:
-	DEBUG=true /dist/node_modules/webdriverio/bin/wdio $(WDIO_OPTIONS) --baseUrl $(APP_BASE_URL) --host $(CHROME_HOST) --port 4444 --path "/" /ella/src/webui/tests/e2e/wdio.conf.js
-
-.PHONY: run-e2e-locally
-run-e2e-locally:
-	@echo "running e2e tests locally ..."
-	ops/test/run_e2e_tests_locally.sh
-    
 
 
