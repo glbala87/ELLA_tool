@@ -6,7 +6,8 @@
   <contentwrapper>
     <contentbox title="SUBMITTED" collapsible="false" class="max-width">
       <cbbody>
-        <article class="acmg-body max-width" ng-repeat="job in vm.annotationjobs | orderBy: 'date_submitted'" ng-switch="job.description">
+
+        <article class="acmg-body max-width" ng-repeat="job in vm.annotationjobs.data" ng-switch="job.description">
           <section class="line-wrapper spaced">
             <section class="line-wrapper spaced">
               <div class="clickable"
@@ -38,13 +39,26 @@
                     <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
                   </svg>
                 </button>
-                <button class="blue id-cancel-annotationjob" ng-click="vm.deleteJob(job.id)">Delete</button>
+                <!--<button class="blue id-cancel-annotationjob" ng-click="vm.deleteJob(job.id)">Delete</button>-->
               </div>
             </article>
           </section>
         </article>
+        <controls>
+          <uib-pagination style="justify-content: flex-end; margin: 0;"
+                          total-items="vm.annotationjobs.pagination.totalCount"
+                          ng-model="vm.annotationjobPage"
+                          class="pagination-sm"
+                          ng-change="vm.annotationjobPageChanged()"
+                          items-per-page="vm.annotationjobs.pagination.perPage"
+                          max-size="5"
+                          rotate="false">
+          </uib-pagination>
+        </controls>
       </cbbody>
+
     </contentbox>
+
     <div ng-if="!vm.parsedInput">
       <section>
         <section>
@@ -130,10 +144,9 @@
 
     <div ng-repeat="(id, parsedInput) in vm.parsedInput" track by $index>
       <importsingle filename="parsedInput.filename"
-                            file-contents="parsedInput.fileContents"
-                            genepanels="vm.user.group.genepanels"
-                            job-data="vm.jobData[id]"
-                            index="$index+1"
+                    file-contents="parsedInput.fileContents"
+                    job-data="vm.jobData[id]"
+                    index="$index+1"
       >
       </importsingle>
     </div>
@@ -144,21 +157,6 @@
         <h3 style="text-align: center;">Summary:</h3>
         <p style="text-align: center;" ng-repeat="d in vm.getImportDescription()">{{d}}</p>
       </div>
-      <!--<div class="question line-wrapper">-->
-        <!--<div class="left">-->
-          <!--<h5 class="slim title">-->
-            <!--<b>Allow different import types</b>-->
-          <!--</h5>-->
-          <!--<p>Choose whether to allow a combination of import types, for example both creating new analyses and appending to analyses</p>-->
-        <!--</div>-->
-        <!--<div class="middle"></div>-->
-        <!--<div class="right">-->
-          <!--<div class="bttn-set">-->
-            <!--<label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="vm.allowDifferentImportTypes"-->
-                   <!--ng-repeat="item in ['Yes', 'No']">{{item}}</label>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
       <div class="question small line-wrapper">
         <div class="left"></div>
         <div class="middle">

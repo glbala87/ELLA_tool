@@ -18,6 +18,8 @@ export class ImportController {
         this.type = this.types[0];
         this.analyses = [];
         this.jobData = null;
+        this.annotationjobs = [];
+        this.annotationjobPage = 1;
 
         this.reset()
 
@@ -63,14 +65,8 @@ export class ImportController {
     getAnnotationjobs() {
         let popups_open = document.getElementsByClassName("annotationjobinfo").length > 0;
         if (!popups_open) {
-            this.annotationjobResource.get().then((res) => {
-                this.annotationjobs = res;
-            })
+            this.annotationjobPageChanged()
         }
-    }
-
-    deleteJob(id) {
-        this.annotationjobResource.delete(id);
     }
 
     restartJob(id) {
@@ -221,6 +217,15 @@ export class ImportController {
         let allReady = Object.values(this.jobData).map(j => j.selectionComplete).every(v => v);
         return !allReady;
     }
+
+    annotationjobPageChanged() {
+        this.annotationjobResource.get(null, 8, this.annotationjobPage).then((res) => {
+            this.annotationjobs = res;
+        })
+
+    }
+
+
 }
 
 @Service({

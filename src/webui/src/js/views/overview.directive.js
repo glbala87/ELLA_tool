@@ -81,33 +81,19 @@ export class MainController {
     }
 
     pollForAnnotationJobs() {
-        let cancel = this.interval(() => this.getAnnotationjobs(), 10000);
+        let cancel = this.interval(() => this.getAnnotationJobStatus(), 10000);
         this.scope.$on('$destroy', () => this.interval.cancel(cancel));
-        this.getAnnotationjobs();
+        this.getAnnotationJobStatus();
     }
 
 
-    getAnnotationjobs() {
-        this.annotationjobResource.get().then((res) => {
-            let annotationJobStatus = {running: 0, completed: 0, failed: 0};
+    getAnnotationJobStatus() {
+        this.annotationjobResource.get({status: ["RUNNING", "SUBMITTED"]}).then((res) => {
+            this.annotationJobStatus.running = res.data.length;
+        })
 
-            // this.annotationJobStatus.running = 0;
-            // this.annotationJobStatus.completed = 0;
-            // this.annotationJobStatus.failed = 0;
-
-            for (let i=0; i<res.length; i++) {
-                let job = res[i];
-                let status = job.status;
-                if (status.contains("FAILED")) {
-                    annotationJobStatus.failed += 1
-                } else if (status.contains("DONE")) {
-                    annotationJobStatus.completed += 1
-                } else {
-                    annotationJobStatus.running += 1
-                }
-            }
-
-            this.annotationJobStatus = annotationJobStatus;
+        this.annotationjobResource.get({status: {"$like": "FAILED"}}).then((res) => {
+            this.annotationJobStatus.failed = res.data.length;
         })
     }
 

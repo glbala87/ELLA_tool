@@ -9,7 +9,6 @@ import {printedFileSize} from '../../util'
     scope: {
         fileContents: "=",
         filename: "=",
-        genepanels: "=",
         jobData: '=',
         index: '=',
     },
@@ -23,6 +22,7 @@ export class ImportSingleController {
         this.analysisResource = AnalysisResource;
         this.filter = $filter;
         this.user = User.getCurrentUser()
+        this.genepanels = this.user.group.genepanels;
 
         this.jobData.fileType = "Unknown";
 

@@ -2,7 +2,7 @@
 from api.util.util import provide_session, logger
 from flask.ext.restful import Resource as flask_resource
 import sqlalchemy
-from sqlalchemy import tuple_
+from sqlalchemy import tuple_, Text
 
 FILTER_OPERATORS = {
     # Operators which accept two arguments.
@@ -14,8 +14,8 @@ FILTER_OPERATORS = {
     '$lte': lambda f, a: f <= a,
     '$in': lambda f, a: f.in_(a),
     '$nin': lambda f, a: ~f.in_(a),
-    '$like': lambda f, a: f.like("%"+a+"%"),
-    '$ilike': lambda f, a: f.ilike("%"+a+"%"),
+    '$like': lambda f, a: f.cast(Text).like("%"+a+"%"),
+    '$ilike': lambda f, a: f.cast(Text).ilike("%"+a+"%"),
 }
 
 
@@ -44,6 +44,7 @@ class Resource(flask_resource):
 
     def list_query(self, session, model, schema=None, **kwargs):
         query = session.query(model)
+
         if kwargs.get('rest_filter'):
             # Check if any of the requested filters are empty list, if so user has requested an empty
             # set so we should return nothing.
@@ -53,6 +54,8 @@ class Resource(flask_resource):
             query = self._filter(query, model, kwargs['rest_filter'])
 
         count = query.count()
+        if kwargs.get('order_by') is not None:
+            query = query.order_by(kwargs["order_by"])
 
         if kwargs.get('per_page'):
             query = query.limit(kwargs['per_page'])
