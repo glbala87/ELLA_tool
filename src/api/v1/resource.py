@@ -44,7 +44,6 @@ class Resource(flask_resource):
 
     def list_query(self, session, model, schema=None, **kwargs):
         query = session.query(model)
-
         if kwargs.get('rest_filter'):
             # Check if any of the requested filters are empty list, if so user has requested an empty
             # set so we should return nothing.

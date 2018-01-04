@@ -19,16 +19,7 @@ log = logging.getLogger(__name__)
 
 class DepositAlleles(DepositFromVCF):
 
-    def is_inside_transcripts(self, record, genepanel):
-        chr = record["CHROM"]
-        pos = record["POS"]
-        for tx in genepanel.transcripts:
-            if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
-                return True
-        return False
-
     def import_vcf(self, path, gp_name, gp_version, annotation_only=False):
-
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))

@@ -205,7 +205,6 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
             annotated_vcf = annotation_service.process(task_id)
             annotation_jobs.commit()
         except urllib2.HTTPError, e:
-            print e
             status = "FAILED (PROCESSING)"
             message = get_error_message(e)
             yield id, {"status": status, "message": message}

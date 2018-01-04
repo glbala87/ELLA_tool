@@ -53,6 +53,18 @@ class DepositAnalysisAppend(DepositFromVCF):
         db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type)
 
         self.analysis_interpretation_importer.process(db_analysis, reopen_if_exists=True)
+
+        is_not_inside_transcripts = []
+        for record in vi.iter():
+            if not self.is_inside_transcripts(record, db_genepanel):
+                is_not_inside_transcripts.append(record)
+
+        if len(is_not_inside_transcripts) > 0:
+            error = "The following variants are not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
+            for record in is_not_inside_transcripts:
+                error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
+            raise RuntimeError(error)
+
         records_cache = OrderedDict()
         N = 0
         for record in vi.iter():
