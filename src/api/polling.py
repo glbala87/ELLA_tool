@@ -24,6 +24,13 @@ log = logging.getLogger(__name__)
 ANNOTATION_SERVICE_URL = config["app"]["annotation_service"]
 
 
+def get_error_message(e):
+    try:
+        msg = json.loads(e.read())["message"]
+    except:
+        msg = "Unable to determine error"
+    return msg
+
 class AnnotationJobsInterface:
     def __init__(self, session):
         self.session = session
@@ -120,6 +127,9 @@ class AnnotationJobsInterface:
     def commit(self):
         self.session.commit()
 
+    def rollback(self):
+        self.session.rollback()
+
 
 class AnnotationServiceInterface:
     def __init__(self, url):
@@ -159,14 +169,11 @@ def process_running(annotation_service, running_jobs):
         try:
             response = annotation_service.status(task_id)
             if not response["active"]:
-                if response["error"]:
-                    status = "FAILED (ANNOTATION)"
-                else:
-                    status = "ANNOTATED"
+                status = "ANNOTATED"
             message = ""
         except urllib2.HTTPError, e:
             status = "FAILED (ANNOTATION)"
-            message = e.message
+            message = get_error_message(e)
 
         yield id, {"task_id": task_id, "status": status, "message": message}
 
@@ -183,7 +190,7 @@ def process_submitted(annotation_service, submitted_jobs):
             task_id = resp["task_id"]
         except urllib2.HTTPError, e:
             status = "FAILED (SUBMISSION)"
-            message = e.message
+            message = get_error_message(e)
             task_id = ""
 
         # Update
@@ -196,10 +203,12 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         task_id = job.task_id
         try:
             annotated_vcf = annotation_service.process(task_id)
+            annotation_jobs.commit()
         except urllib2.HTTPError, e:
+            print e
             status = "FAILED (PROCESSING)"
-            message = e.message
-            yield {"id": id, "status": status, "message": message}
+            message = get_error_message(e)
+            yield id, {"status": status, "message": message}
             continue
 
         try:
@@ -207,8 +216,9 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
             status = "DONE"
             message = ""
         except Exception, e:
+            annotation_jobs.rollback()
             status = "FAILED (DEPOSIT)"
-            message = e.message
+            message = e.__class__.__name__+": "+e.message
 
         yield id, {"status": status, "message": message}
 
@@ -247,7 +257,7 @@ def polling(session):
                 for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
                     annotation_jobs.patch(id, **update)
                     log.info("Processed annotated job {} with data {}".format(id, str(update)))
-                annotation_jobs.commit()
+                    annotation_jobs.commit()
 
                 # Remove session to avoid a hanging session
                 session.remove()
