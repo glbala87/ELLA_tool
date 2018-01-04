@@ -11,6 +11,7 @@ import importallele
 import overview
 import reference
 import referenceassessment
+import report
 import search
 import user
 import genepanel
