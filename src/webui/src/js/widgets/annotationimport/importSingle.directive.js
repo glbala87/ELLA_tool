@@ -149,7 +149,6 @@ export class ImportSingleController {
         }
 
         return `${chrom}:${pos} ${ref}>${alt} (${genotype})`
-
     }
 
     parseSeqPilotLine(line) {
@@ -166,13 +165,12 @@ export class ImportSingleController {
     }
 
     parseGenomicOrHGVScLine(line) {
-        let genotype = line.match(/[\(-]+(het|hom)\)?/)
+        let genotype = line.match(/ \((het|hom)\)?/)
         if (!genotype) {
             this.warnings.noGenotype.active = true;
         }
         return line
     }
-
 
     setDefaultChoices() {
         // If some or all variants miss genotype, we can not import this to an analysis.
@@ -245,7 +243,6 @@ export class ImportSingleController {
         return Boolean((a || b || c) && d);
     }
 
-
     updateAnalysisOptions(text) {
         return this.analysisResource.get({name: {$ilike: text}}, 20).then( (analyses) => {
             this.analyses = analyses;
@@ -255,7 +252,6 @@ export class ImportSingleController {
     }
 
     showWarning(warning) {
-
         if (!warning.active) return false;
         else if (warning.modes === undefined) return true;
         else if (warning.modes.indexOf(this.jobData.mode) > -1) return true;
@@ -344,7 +340,6 @@ export class ImportSingleController {
             var p_number = this.analysisResource.get({name: {$like: subnumber}}, 2)
         }
 
-
         // Try to match against existing analyses, based on either full string or subnumber
         Promise.all([p_name, p_number]).then( (matchingAnalyses) => {
             matchingAnalyses = [].concat.apply([], matchingAnalyses)
@@ -352,8 +347,4 @@ export class ImportSingleController {
             this.warnings.analysisNameMatch.active = matchingAnalysesNames.length > 0;
         })
     }
-
-
-
-
 }

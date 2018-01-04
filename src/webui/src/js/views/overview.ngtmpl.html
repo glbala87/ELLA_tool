@@ -5,22 +5,21 @@
             <a href="/api/v1/reports/non-started-analyses-variants/" target="_self"><button>Variant report</button></a>
             <button ng-click="vm.showImportModal()">Import
               <!--Section: With status icons-->
-              <!--<span ng-if="vm.annotationJobStatus.running+vm.annotationJobStatus.failed">-->
               <span>
               <svg id="i-status-ok" class="button-status-green" viewBox="0 0 32 32" width="32" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
                 <circle cx="50%" cy="50%" r="50%"></circle>
               </svg>
-              {{vm.annotationJobStatus.running}}
+              {{vm.annotationjobStatus.running}}
 
               <svg id="i-status-failed" class="button-status-red" viewBox="0 0 32 32" width="32" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
                 <circle cx="50%" cy="50%" r="50%"></circle>
               </svg>
-              {{vm.annotationJobStatus.failed}}
+              {{vm.annotationjobStatus.failed}}
               </span>
               <!--End section-->
 
               <!--Section: No status icons-->
-              <!--{{vm.annotationJobStatus.running}}/{{vm.annotationJobStatus.failed}}-->
+              <!--{{vm.annotationjobStatus.running}}/{{vm.annotationjobStatus.failed}}-->
               <!--End section-->
             </button>
         </section>

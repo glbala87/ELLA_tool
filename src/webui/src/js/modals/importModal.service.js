@@ -20,16 +20,15 @@ export class ImportController {
         this.rawInput = '';
         this.parsedInput = null;
 
+        this.interval = $interval;
+        this.scope = $scope
+
         // FIXME: ng-change on uib-pagination doesn't correctly enable next-button
         // Watch annotationjobPage, and enable next-button if relevant
-        $scope.$watch(
+        this.scope.$watch(
             () => this.annotationjobPage,
             () => this.getAnnotationjobs()
         )
-
-
-        this.interval = $interval;
-        this.scope = $scope
 
         this.annotationjobResource.annotationServiceRunning().then((isAlive) => {
             if (!isAlive) {
@@ -50,6 +49,19 @@ export class ImportController {
         if (!popups_open) {
             this.annotationjobPageChanged()
         }
+    }
+
+    annotationjobPageChanged() {
+        this.annotationjobResource.get(null, 8, this.annotationjobPage).then((res) => {
+            this.annotationjobs = res;
+            this.annotationjobPage = res.pagination.page;
+
+            // FIXME: uib-pagination doesn't enable next-button as it should
+            if (this.annotationjobPage < res.pagination.totalPages) {
+                let next_element = document.getElementsByClassName('annotationjobpagination')[0].getElementsByClassName('pagination-next')[0];
+                next_element.classList.remove("disabled")
+            }
+        })
     }
 
     restartJob(id) {
@@ -153,8 +165,6 @@ export class ImportController {
         return description;
     }
 
-
-
     rebuildFile(header, contentLines) {
         let data = header;
         for (let ld of Object.values(contentLines)) {
@@ -200,22 +210,6 @@ export class ImportController {
         let allReady = Object.values(this.jobData).map(j => j.selectionComplete).every(v => v);
         return !allReady;
     }
-
-    annotationjobPageChanged() {
-        this.annotationjobResource.get(null, 8, this.annotationjobPage).then((res) => {
-            this.annotationjobs = res;
-            this.annotationjobPage = res.pagination.page;
-
-            // FIXME: uib-pagination doesn't enable next-button as it should
-            if (this.annotationjobPage < res.pagination.totalPages) {
-                let next_element = document.getElementsByClassName('annotationjobpagination')[0].getElementsByClassName('pagination-next')[0];
-                next_element.classList.remove("disabled")
-            }
-        })
-
-    }
-
-
 }
 
 @Service({
@@ -234,7 +228,6 @@ export class ImportModal {
     }
 
     show() {
-
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/importModal.ngtmpl.html',
             controller: [

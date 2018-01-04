@@ -6,9 +6,7 @@
   <contentwrapper>
     <contentbox title="SUBMITTED" collapsible="false" class="max-width">
       <cbbody>
-
         <controls>
-
           <uib-pagination style="justify-content: flex-end; margin: 0;"
                           class="annotationjobpagination"
                           total-items="vm.annotationjobs.pagination.totalCount"
@@ -19,7 +17,6 @@
                           rotate="false">
           </uib-pagination>
         </controls>
-        <h5>{{vm.annotationjobs.pagination}}</h5>
         <article class="acmg-body max-width" ng-repeat="job in vm.annotationjobs.data" ng-switch="job.description">
           <section class="line-wrapper spaced">
             <section class="line-wrapper spaced">
@@ -144,7 +141,6 @@
       </section>
     </div>
 
-
     <div ng-repeat="(id, parsedInput) in vm.parsedInput" track by $index>
       <importsingle filename="parsedInput.filename"
                     file-contents="parsedInput.fileContents"
@@ -154,15 +150,11 @@
       </importsingle>
     </div>
 
-
     <section ng-if="vm.parsedInput">
-      <div>
-        <h3 style="text-align: center;">Summary:</h3>
-        <p style="text-align: center;" ng-repeat="d in vm.getImportDescription()">{{d}}</p>
-      </div>
-      <div class="question small line-wrapper">
-        <div class="left"></div>
-        <div class="middle">
+      <div class="import-all-summary">
+        <h3>Summary:</h3>
+        <p ng-repeat="d in vm.getImportDescription()">{{d}}</p>
+        <div>
           <button class="green" ng-click="vm.import()" ng-disabled="vm.importDisabled()">
             <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none"
                  stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
@@ -171,7 +163,6 @@
             Import
           </button>
         </div>
-        <div class="right"></div>
       </div>
     </section>
   </contentwrapper>

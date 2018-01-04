@@ -35,7 +35,7 @@ export class MainController {
             'analyses-by-findings': 'Analyses'
         }
 
-        this.annotationJobStatus = {running: 0, completed: 0, failed: 0}; // Number of running, completed and failed jobs
+        this.annotationjobStatus = {running: 0, failed: 0}; // Number of running, completed and failed jobs
         this.pollForAnnotationJobs();
 
     }
@@ -89,11 +89,11 @@ export class MainController {
 
     getAnnotationJobStatus() {
         this.annotationjobResource.get({status: ["RUNNING", "SUBMITTED"]}, 1, 1).then((res) => {
-            this.annotationJobStatus.running = res.pagination.totalCount;
+            this.annotationjobStatus.running = res.pagination.totalCount;
         })
 
         this.annotationjobResource.get({status: {"$like": "FAILED"}}, 1, 1).then((res) => {
-            this.annotationJobStatus.failed = res.pagination.totalCount;
+            this.annotationjobStatus.failed = res.pagination.totalCount;
         })
     }
 
