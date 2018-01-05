@@ -135,23 +135,19 @@ describe('Sample workflow', function () {
             console.log('Adding custom annotation');
             alleleSectionBox.addExternalBtn.scroll();
             alleleSectionBox.addExternalBtn.click();
-            customAnnotationModal.annotationSelect.selectByVisibleText('LOVD');
-            customAnnotationModal.valueSelect.selectByVisibleText('+/+');
-            customAnnotationModal.addBtn.click();
+            customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic'); // BIC
             customAnnotationModal.saveBtn.click();
-            expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD:');
-            expect(alleleSectionBox.getExternalOtherValue()).toEqual('+/+');
+            expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('BIC:');
+            expect(alleleSectionBox.getExternalOtherValue()).toEqual('likely_pathogenic');
 
             // Add prediction annotation
             console.log('Adding prediction annotation');
             alleleSectionBox.addPredictionBtn.scroll();
             alleleSectionBox.addPredictionBtn.click();
-            customAnnotationModal.annotationSelect.selectByVisibleText('Ortholog conservation');
-            customAnnotationModal.valueSelect.selectByVisibleText('Conserved');
-            customAnnotationModal.addBtn.click();
+            customAnnotationModal.setPredictionAnnotation(4, 1); // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
             customAnnotationModal.saveBtn.click();
-            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Ortholog conservation:');
-            expect(alleleSectionBox.getPredictionOtherValue()).toEqual('conserved');
+            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:');
+            expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain');
 
             // Set comments/classification
             console.log('Adding comments');
@@ -188,10 +184,10 @@ describe('Sample workflow', function () {
                 },
                 customAnnotation: {
                     external: {
-                        LOVD: '+/+'
+                        'BIC-BRCA2': 'likely_pathogenic'
                     },
                     prediction: {
-                        Conservation: 'conserved'
+                        domain: 'critical_domain'
                     }
                 },
                 evaluation: 'EVALUATION_ROUND1',

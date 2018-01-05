@@ -21,8 +21,8 @@ rules = [
     { "code": "REQ_aa_similar", "rule": {"refassessment.*.ref_aa_overlap_sim": "sim_prop"}},
     { "code": "REQ_abnormal_protein", "rule": {"refassessment.*.ref_prot": "prot_abnormal"}},
     { "code": "REQ_abnormal_RNA", "rule": {"refassessment.*.ref_rna": "rna_abnormal"}},
-    { "code": "REQ_crit_domain_hotspot", "rule": {"refassessment.*.ref_domain_overlap": {"$in": ["crit_domain", "mut_hotspot"]}}},
-    { "code": "REQ_crit_site", "rule": {"refassessment.*.ref_domain_overlap": "crit_site"}},
+    { "code": "REQ_crit_domain_hotspot", "rule": {"refassessment.*.ref_domain_overlap": {"$in": ["critical_domain", "mut_hotspot"]}}},
+    { "code": "REQ_crit_site", "rule": {"refassessment.*.ref_domain_overlap": "critical_site"}},
     { "code": "REQ_domain_no_benign", "rule": {"refassessment.*.ref_domain_benign": "no_benign_variation"}},
     { "code": "REQ_hi_freq", "rule": {"frequencies.commonness": "common"}},
     { "code": "REQ_IHC_HQ", "rule": {"refassessment.*.ref_ihc_quality": "ihc_HQ"}},
@@ -77,10 +77,10 @@ rules = [
     { "code": "PS3", "rule": {"$$aggregate": {"$all": ["REQ_MMR_loss", "REQ_IHC_HQ"]}}},
     { "code": "PS4", "rule": {"$$aggregate": {"$all": ["REQ_>=4affected", "REQ_no_freq"]}}},
     { "code": "PSxPM1", "rule": {"$$aggregate": {"$all": ["REQ_crit_site", "REQ_domain_no_benign"]}}},
-    { "code": "PSxPM1", "rule": {"prediction.domain": "crit_site"}},
+    { "code": "PSxPM1", "rule": {"prediction.domain": "critical_site"}},
     { "code": "PSxPP1", "rule": {"$$aggregate": {"$all": ["REQ_segregation", "REQ_segregation_HQ"]}}},
     ### PM*
-    { "code": "PM1", "rule": {"prediction.domain": "crit_domain"}},
+    { "code": "PM1", "rule": {"prediction.domain": "critical_domain"}},
     { "code": "PM1", "rule": {"$$aggregate": {"$all": ["REQ_crit_domain_hotspot", "REQ_domain_no_benign"]}}},
     # PM2 (no rule)
     { "code": "PM3", "rule": {"$$aggregate": {"$all": ["REQ_in_trans_pathogenic", "REQ_GP_AR"]}}},
@@ -103,8 +103,8 @@ rules = [
     { "code": "PP2","rule": {"$$aggregate": {"$and": [{"$all": ["REQ_missense", "REQ_GP_missense_uncommon"]}, {"$in": ["REQ_GP_LOF_missense","REQ_GP_missense_only"]}]}}},
     { "code": "PP3", "rule": {"transcript.splice_Effect": {"$in": ["predicted_lost", "de_novo"]}}},
     { "code": "PP3", "rule": {"prediction.splice_Effect_manual": {"$in": ["predicted_lost", "de_novo"]}}},
-    { "code": "PP3", "rule": {"prediction.orth_conservation": "conserved"}},
-    { "code": "PP3", "rule": {"prediction.para_conservation": "conserved"}},
+    { "code": "PP3", "rule": {"prediction.ortholog_conservation": "conserved"}},
+    { "code": "PP3", "rule": {"prediction.paralog_conservation": "conserved"}},
     # PP4 (no rule)
     { "code": "PP5", "rule": {"external.[Trusted source]": "Pathogenic"}},
     # Manual edit
@@ -132,8 +132,8 @@ rules = [
     # Manual edit
     { "code": "BP4", "rule": {"transcript.splice_Effect": {"$or": [{"$in": ["predicted_conserved", "consensus_not_affected", "not_transcribed"]}, {"$not": {"$in": ["de_novo"]}}]}}},
     { "code": "BP4", "rule": {"prediction.splice_Effect_manual": "no_effect"}},
-    { "code": "BP4", "rule": {"prediction.orth_conservation": "non-conserved"}},
-    { "code": "BP4", "rule": {"prediction.para_conservation": "non-conserved"}},
+    { "code": "BP4", "rule": {"prediction.ortholog_conservation": "non-conserved"}},
+    { "code": "BP4", "rule": {"prediction.paralog_conservation": "non-conserved"}},
     # BP5 (no rule)
     { "code": "BP6", "rule": {"external.[Trusted source]": "Benign"}},
     # BP7 (no rule)

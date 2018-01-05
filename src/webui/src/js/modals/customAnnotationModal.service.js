@@ -10,28 +10,23 @@ import {Service, Inject} from '../ng-decorators';
  */
 
 export class CustomAnnotationController {
-    constructor($scope, modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, placeholder, alleles, category) {
+    constructor($scope, modalInstance, Config, ReferenceResource, CustomAnnotationResource, title, placeholder, allele, category) {
         this.scope = $scope;
         this.modal = modalInstance;
         this.category = category;
         this.config = Config.getConfig();
         this.title = title;
         this.placeholder = placeholder;
-        this.alleles = alleles;
-        this.selected_allele = alleles[0];
+        this.allele = allele;
         this.referenceResource = ReferenceResource;
         this.customAnnotationResource = CustomAnnotationResource;
-        if (this.category in this.config.custom_annotation) {
-            this.selected_annotation_group = Object.keys(this.config.custom_annotation[this.category])[0];
-        }
+
 
         // custom_annotation structure example:
         // {
-        //      '1': {  // allele_id
-        //          external: {  //category
-        //              somekey: 'somevalue'
-        //          }
-        //      }
+        //      external: {  //category
+        //          somekey: 'somevalue'
+        //    }
         // }
         //
         this.custom_annotation = {};
@@ -80,18 +75,15 @@ export class CustomAnnotationController {
 
     /**
      * Loads in CustomAnnotation objects from API
-     * for all the alleles.
+     * for all the allele.
      */
     setup() {
-        let allele_ids = this.alleles.map(a => a.id);
-        this.customAnnotationResource.getByAlleleIds(allele_ids).then(data => {
+        this.customAnnotationResource.getByAlleleIds([this.allele.id]).then(data => {
             this.existing_custom_annotations = data;
 
             // Perform initial copy of the existing annotation data,
             // into our custom_annotation model.
-            for (let allele of this.alleles) {
-                this.custom_annotation[allele.id] = this.getExistingCustomAnnotation(allele);
-            }
+            this.custom_annotation = this.getExistingCustomAnnotation();
 
             if (this.category === 'references') {
                 this._loadReferences();
@@ -109,8 +101,8 @@ export class CustomAnnotationController {
     getAnnotationGroups() {
         let valid_groups = this.config.custom_annotation[this.category].filter(c => {
             if ('only_for_genes' in c) {
-                let genes = this.selected_allele.annotation.filtered.map(t => t.symbol);
-                return c.only_for_genes.some(g => genes.includes(g));
+                let hgnc_ids = this.allele.annotation.filtered.map(t => t.hgnc_id);
+                return c.only_for_genes.some(g => hgnc_ids.includes(g));
             }
             // If no restriction, always include it.
             return true;
@@ -129,8 +121,8 @@ export class CustomAnnotationController {
     * @param  {Allele} allele Allele for which to look for existing CustonAnnotation
     * @return {Object}        Copy of existing CustomAnnotation, or new empty object
     */
-    getExistingCustomAnnotation(allele) {
-        let existing = this.existing_custom_annotations.find(e => e.allele_id === allele.id);
+    getExistingCustomAnnotation() {
+        let existing = this.existing_custom_annotations.find(e => e.allele_id === this.allele.id);
         if (existing) {
             return deepCopy(existing.annotations);
         }
@@ -151,35 +143,16 @@ export class CustomAnnotationController {
         if (!this.existing_custom_annotations) {
             return;
         }
-        if (!(this.selected_allele.id in this.custom_annotation)) {
-            this.custom_annotation[this.selected_allele.id] = this.getExistingCustomAnnotation(this.selected_allele);
-        }
-        if (!(this.category in this.custom_annotation[this.selected_allele.id])) {
-            if (this.category === 'references') {
-                this.custom_annotation[this.selected_allele.id].references = [];
-            }
-            else {
-                this.custom_annotation[this.selected_allele.id][this.category] = {};
-            }
-        }
-        return this.custom_annotation[this.selected_allele.id][this.category];
-    }
 
-    /**
-     * Returns whether there are any added annotations.
-     * @return {Boolean}
-     */
-    hasAddedAnnotations() {
-        let current = this.getCurrent();
-        if (current) {
+        if (!(this.category in this.custom_annotation)) {
             if (this.category === 'references') {
-                return current.length > 0;
+                this.custom_annotation.references = [];
             }
             else {
-                return Object.keys(current).length > 0;
+                this.custom_annotation[this.category] = {};
             }
         }
-        return false;
+        return this.custom_annotation[this.category];
     }
 
     formatAllele(allele) {
@@ -188,20 +161,6 @@ export class CustomAnnotationController {
             result += `${f.symbol} ${f.HGVSc_short}`;
         }
         return result;
-    }
-
-    addAnnotation() {
-        if (Array.isArray(this.selected_annotation_value)) {
-            this.getCurrent()[this.selected_annotation_group.key] = this.selected_annotation_value[1];
-        }
-        else {
-            this.getCurrent()[this.selected_annotation_group.key] = this.selected_annotation_value;
-        }
-    }
-
-    getSelectedAnnotationValue() {
-        this.selected_annotation_value = this.getCurrent()[this.selected_annotation_group.key]
-        return this.selected_annotation_value
     }
 
     /**
@@ -277,13 +236,14 @@ export class CustomAnnotationController {
             return [];
         }
 
-        let genes = this.selected_allele.annotation.filtered.map(t => t.symbol);
+        let hgnc_ids = this.allele.annotation.filtered.map(t => t.hgnc_id);
 
         let urls = [];
         if ('url_for_genes' in this.selected_annotation_group) {
-            for (let gene of genes) {
-                if (gene in this.selected_annotation_group.url_for_genes) {
-                    urls.push(this.selected_annotation_group.url_for_genes[gene]);
+            for (let hgnc_id of hgnc_ids) {
+                // json data has string keys
+                if (hgnc_id.toString() in this.selected_annotation_group.url_for_genes) {
+                    urls.push(this.selected_annotation_group.url_for_genes[hgnc_id]);
                 }
             }
         }
@@ -294,27 +254,17 @@ export class CustomAnnotationController {
     }
 
     removeReference(ref) {
-        this.custom_annotation[this.selected_allele.id].references = this.getCurrent().filter(r => {
+        this.custom_annotation[this.allele.id].references = this.getCurrent().filter(r => {
             return ref.id !== r.id;
         });
     }
 
-    removeEntry(key) {
-        delete this.getCurrent()[key];
-    }
-
     save() {
-        // Clean up data before storing.
-        // Compare new data against existing custom_annotation,
-        // and remove if the allele's existing custom_annotation is
-        // lacking or same as new one.
 
-        for (let allele of this.alleles) {
-            if (allele.id in this.custom_annotation) {
-                let existing = this.getExistingCustomAnnotation(allele);
-                // If data hasn't changed, remove it from list of changes
-                if (deepEquals(this.custom_annotation[allele.id], existing)) {
-                    delete this.custom_annotation[allele.id];
+        if (this.category === 'external' || this.category === 'prediction') {
+            for (let [key, value] of Object.entries(this.custom_annotation[this.category])) {
+                if (value === null) {
+                    delete this.custom_annotation[this.category][key];
                 }
             }
         }
@@ -338,7 +288,7 @@ export class CustomAnnotationModal {
      * Popups a dialog for adding custom annotation for one allele
      * @return {Promise} Promise that resolves when dialog is closed. Resolves with result data from dialog.
      */
-    show(title, placeholder, alleles, category) {
+    show(title, placeholder, allele, category) {
 
         if (!category) {
             category = 'external';
@@ -346,13 +296,13 @@ export class CustomAnnotationModal {
 
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
-            controller: ['$scope','$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'placeholder', 'alleles', 'category', CustomAnnotationController],
+            controller: ['$scope','$uibModalInstance', 'Config', 'ReferenceResource', 'CustomAnnotationResource', 'title', 'placeholder', 'allele', 'category', CustomAnnotationController],
             controllerAs: 'vm',
             size: 'lg',
             resolve: {
                 title: () => title,
                 placeholder: () => placeholder,
-                alleles: () => alleles,
+                allele: () => allele,
                 category: () => category
             }
         });
@@ -360,16 +310,10 @@ export class CustomAnnotationModal {
         // which triggers the 'then' callback, with or without data.
         return modal.result.then(custom_annotation => {
             if (!custom_annotation) return;
-
-            let promises = [];
-            for (let allele_id of Object.keys(custom_annotation)) {
-                let p = this.customAnnotationResource.createOrUpdateCustomAnnotation(allele_id, custom_annotation[allele_id]);
-                promises.push(p)
-            }
-            // Make sure all data is posted to backend before returning and refreshing view
-            return Promise.all(promises).then( () => {
+            return this.customAnnotationResource.createOrUpdateCustomAnnotation(allele.id, custom_annotation).then( () => {
                 return custom_annotation;
-            })
+
+            });
         }, () => console.log('modal dismissed'));
 
     }
