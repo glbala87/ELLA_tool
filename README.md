@@ -101,7 +101,7 @@ docker run -d \
 		{image_name} \
 		supervisord -c /ella/ops/demo/supervisor.cfg
 
-# when the processes inside the container have started up, populate the database: 
+# when the processes inside the container have started up, populate the database:
 docker exec {container_name} make dbreset
 ```
 
@@ -153,7 +153,7 @@ To manually test the migration scripts you can run the upgrade/downgrade parts o
 
 For migrations involving user generated data, it would be useful to run the migrations (both upgrade and downgrade)
 with the database populated through "real" use.
- 
+
 Typically you call the `/reset` endpoint and then interact with the application through the GUI.
 The `reset` won't create the alembic table and the upgrade/downgrade scripts will fail.  
 
@@ -179,7 +179,7 @@ phenotypes of the gene as defined in the genepanel.
 
 At genepanel common/gene level one can choose to override internal or external, and either AD and non-AD blocks.
 
-### global config 
+### global config
 See api/config.py at key 'variant_criteria' > 'genepanel_config':
 - freq_cutoff_groups
   - AD
@@ -207,7 +207,7 @@ See api/config.py at key 'variant_criteria' > 'genepanel_config':
   - BRCA1
     - freq_cutoffs
       - internal
-      - external 
+      - external
     - disease_mode
     - last_exon_important
   - ...   
@@ -264,16 +264,23 @@ The ELLA app and the test execution (wdio) can be done either locally on your ho
 ### Run tests inside Docker
 This requires careful configuration of ports and url
 
-- Run `make e2e-test-local`. You'll be presented with a shell inside the container.
-- Run `make wdio APP_BASE_URL=.. CHROME_HOST=..` inside the shell to start the tests. It will connect to
-  the locally running Chromedriver (given by CHROME_HOST as IP address) and test the app that runs on APP_BASE_URL (ip:port).
-  To run only a specific test, add WDIO_OPTIONS='--spec <path to test>' or change the spec variable in wdio.conf.js.
+Run `make e2e-test-local CHROME_HOST=..` It will connect to the locally running Chromedriver (given by CHROME_HOST as IP address).
+To run only a specific test:
+  - add SPECS="<path to test>" to the above command.
+  - change the spec variable in wdio.conf.js.
+
+To get an interactive REPL you specify DEBUG=true and put browser.debug() in your spec files.
+The specs to run are taken from wdio.conf.js. When reading specs from stdin, which we do when the DEBUG is missing,
+the repl won't work (see run_e2e_tests_locally.sh).
+
+If you already have an app running you can run the tests against it by adding APP_BASE_URL (ip:port).
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
 ### Run tests on local host
+This runs webdriverio directly on hour host (not in a docker container).
 - Start ELLA (typically `make dev`)
-- Start tests: DEBUG=true node node_modules/.bin/wdio src/webui/tests/e2e/wdio.conf.js --path / --baseUrl localhost:8001
+- Start tests: DEBUG=true node node_modules/.bin/wdio src/webui/tests/e2e/wdio.conf.js --path / --baseUrl <host:port like localhost:8001>
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 

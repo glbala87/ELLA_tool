@@ -82,16 +82,17 @@ def create_variant_row(default_transcript, analysis_info, allele_info, sanger_ve
     ]
 
 
-def export_variants(session, filename):
+def export_variants(session, csv_file_obj=None, excel_file_obj=None):
     """
     Put alleles belonging to unfinished analyses in file
 
     :param session: An sqlalchemy session
-    :param filename:
+    :param csv_file_obj: File obj in which to write csv data (optional)
+    :param excel_file_obj: File obj in which to write excel data (optional)
     """
 
-    if not filename:
-        raise RuntimeError("Filename for export is mandatory")
+    if not csv_file_obj and not excel_file_obj:
+        raise RuntimeError("Either csv_file_obj or excel_file_obj must be specified")
 
     ids_not_started = queries.workflow_analyses_not_started(session).all()
     if len(ids_not_started) < 1:
@@ -174,17 +175,16 @@ def export_variants(session, filename):
     sort_function = lambda r: (r[0], r[1], r[2])
     worksheet_rows.sort(key=sort_function)
     csv_rows.sort(key=sort_function)
-
-    for r in worksheet_rows:
-        worksheet.append(r)
-
     csv.extend(csv_rows)
 
-    with open(filename + '.csv', 'w') as csv_file:
+    if csv_file_obj:
         for cols in csv:
-            csv_file.write("\t".join(map(lambda c: c.encode('utf-8') if isinstance(c, (str, unicode)) else str(c), cols)))
-            csv_file.write("\n")
+            csv_file_obj.write("\t".join(map(lambda c: c.encode('utf-8') if isinstance(c, (str, unicode)) else str(c), cols)))
+            csv_file_obj.write("\n")
 
-    workbook.save(filename + ".xls")
+    if excel_file_obj:
+        for r in worksheet_rows:
+            worksheet.append(r)
+        workbook.save(excel_file_obj)
 
     return True

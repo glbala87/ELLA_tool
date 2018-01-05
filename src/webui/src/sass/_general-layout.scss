@@ -229,7 +229,7 @@ select { border: none; box-shadow: none; background: transparent; height: 100%; 
 p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
 
 // interpretation-button button { height: 100%; } // fixes a browser quirk - edit, seems to have gone away with some other changes
-.button ~ .button, button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
+.button ~ .button, a ~ button,button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
 button { outline: none; border: 1px solid Transparent;
   &:disabled { border: 1px solid $black-50; box-shadow: none; color: $black-75; opacity: 0.25; background-color: inherit; &:hover { cursor: default; } }
   // We use svg in buttons for significantly more control over spacing/color/boldness, and to not rely on UTF8 chars in our markup.
@@ -486,7 +486,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     }
     &.multiple { background-color: $blue-10; }
     &.spacer {height: 0.2rem}
-    .cell { display: table-cell; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; transition: all 0.3s ease-in-out; text-overflow: ellipsis; overflow: hidden;
+    .cell { display: table-cell; white-space: nowrap; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; transition: all 0.3s ease-in-out; text-overflow: ellipsis; overflow: hidden;
       &.sample-type { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
       &.inheritance { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
       &.gene { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
