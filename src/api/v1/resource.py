@@ -29,7 +29,7 @@ class Resource(flask_resource):
             if isinstance(v, list):
                 operator = FILTER_OPERATORS['$in']
                 if v:  # Asking for empty list doesn't make sense
-                    if isinstance(k, tuple):
+                    if isinstance(k, (list, tuple)):
                         args.append(operator(tuple_(*(getattr(model, _k) for _k in k)), v))
                     else:
                         args.append(operator(getattr(model, k), v))

@@ -231,7 +231,7 @@ def polling(session):
             try:
                 session.connection()
 
-                if len(session.bind.table_names()) == 0:
+                if not session.bind.table_names():
                     # Database is not populated
                     session.remove()
                     time.sleep(5)

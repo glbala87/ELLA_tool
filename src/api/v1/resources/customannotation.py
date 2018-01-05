@@ -36,10 +36,12 @@ class CustomAnnotationList(LogRequestResource):
                 $ref: '#/definitions/CustomAnnotation'
             description: List of customannotations
         """
-        return self.list_query(session,
-                               annotation.CustomAnnotation,
-                               schemas.CustomAnnotationSchema(),
-                               rest_filter=rest_filter)
+        return self.list_query(
+            session,
+            annotation.CustomAnnotation,
+            schemas.CustomAnnotationSchema(),
+            rest_filter=rest_filter
+        )
 
     @authenticate()
     @request_json(

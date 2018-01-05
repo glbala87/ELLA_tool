@@ -59,7 +59,7 @@ class DepositAnalysisAppend(DepositFromVCF):
             if not self.is_inside_transcripts(record, db_genepanel):
                 is_not_inside_transcripts.append(record)
 
-        if len(is_not_inside_transcripts) > 0:
+        if is_not_inside_transcripts:
             error = "The following variants are not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
             for record in is_not_inside_transcripts:
                 error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))

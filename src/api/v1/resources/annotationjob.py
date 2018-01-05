@@ -25,13 +25,15 @@ class AnnotationJobList(LogRequestResource):
             rest_filter = dict()
         rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
 
-        return self.list_query(session,
-                              annotationjob.AnnotationJob,
-                              schemas.AnnotationJobSchema(),
-                              rest_filter=rest_filter,
-                              order_by=annotationjob.AnnotationJob.date_submitted.desc(),
-                              page=page,
-                              per_page=per_page)
+        return self.list_query(
+            session,
+            annotationjob.AnnotationJob,
+            schemas.AnnotationJobSchema(),
+            rest_filter=rest_filter,
+            order_by=annotationjob.AnnotationJob.date_submitted.desc(),
+            page=page,
+            per_page=per_page
+        )
 
     @authenticate()
     @request_json([], True)
