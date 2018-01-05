@@ -264,3 +264,10 @@ class ApiV1(object):
 
         self._add_resource(r.attachment.AttachmentListResource,
                            '/api/v1/attachments/')
+
+        # ---------------------------------------------------------------------------------------------------------
+        # Reports
+        # ---------------------------------------------------------------------------------------------------------
+
+        self._add_resource(r.report.NonStartedAnalysesVariants,
+                           '/api/v1/reports/non-started-analyses-variants/')
