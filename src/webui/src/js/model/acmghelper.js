@@ -63,7 +63,7 @@ export class ACMGHelper {
             source: code.source,
             op: code.op || null,
             match: code.match || null
-        }
+        };
     }
 
     /**
@@ -78,7 +78,7 @@ export class ACMGHelper {
         return a1.code === a2.code &&
                a1.source === a2.source &&
                (a1.match === null || a2.match === null ||
-                a1.match.every((e, idx) => a2.match[idx] === e)) // .match is array
+                a1.match.every((e, idx) => a2.match[idx] === e)); // .match is array
     }
 
     static isIncludable(code) {
@@ -128,7 +128,7 @@ export class ACMGHelper {
         let alleleassessment = AlleleStateHelper.getAlleleAssessment(
             allele,
             allele_state
-        )
+        );
         return alleleassessment.evaluation.acmg.included.find(elem =>  {
             return this.compareACMGObjs(elem, code);
         }) !== undefined;
@@ -138,7 +138,7 @@ export class ACMGHelper {
         let alleleassessment = AlleleStateHelper.getAlleleAssessment(
             allele,
             allele_state
-        )
+        );
         return alleleassessment.evaluation.acmg.suggested.find(elem =>  {
             return this.compareACMGObjs(elem, code);
         }) !== undefined;
@@ -204,12 +204,20 @@ export class ACMGHelper {
         code.code = this._upgradeDowngradeCode(code.code, config, true);
         return code;
     }
+    
+    static canUpgradeCodeObj(code, config) {
+        return code.code !== this._upgradeDowngradeCode(code.code, config, true);
+    }
 
     static downgradeCodeObj(code, config) {
         code.code = this._upgradeDowngradeCode(code.code, config, false);
         return code;
     }
-
+    
+    static canDowngradeCodeObj(code, config) {
+        return code.code !== this._upgradeDowngradeCode(code.code, config, false);
+    }
+ 
     static _extractCodeType(code_str) {
         let base = this.getCodeBase(code_str);
         if (base.startsWith("B")) {

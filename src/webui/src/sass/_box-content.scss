@@ -42,7 +42,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   h4.acmg-title ~ .right-item { margin-left: 2.6rem; }
   .left-item { display: flex;
     h4 { padding-right: 0.7rem;}
-    .adjust-button { font-size: 1.6rem; color:#333; cursor: pointer;}
+    .adjust-button { font-size: 1.6rem; color:#333; cursor: pointer; user-select: none;}
   }
   .right-item { padding-right: 0.7rem; color:#333; }
   .commentbox { width: 100%; }
