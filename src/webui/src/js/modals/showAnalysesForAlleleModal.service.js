@@ -19,7 +19,9 @@ export class ShowAnalysesForAlleleController {
     }
 
     copyToClipboard() {
-        this.clipboard.copyText(this.analyses.map(a => a.name).join('\n'));
+        let text = this.allele.toString() + '\n';
+        text += this.analyses.map(a => a.name).join('\n');
+        this.clipboard.copyText(text);
         this.toastr.info("Copied text to clipboard.", null, 1000);
     }
 
