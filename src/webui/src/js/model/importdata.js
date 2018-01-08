@@ -151,7 +151,7 @@ export class ImportData {
         let vals = line.trim().split("\t");
         let transcript = vals[2];
         let cdna = vals[11];
-        let genotype = vals[6].match(/\(het\)|\(hom\)/);
+        let genotype = vals[6].match(/\(het\)|\(homo\)/);
         if (!genotype) {
             this._hasGenotype = false;
             genotype = "(?)"
@@ -161,7 +161,7 @@ export class ImportData {
     }
 
     _parseGenomicOrHGVScLine(line) {
-        let genotype = line.match(/ \((het|hom)\)?/)
+        let genotype = line.match(/ \((het|homo)\)?/)
         if (!genotype) {
             this._hasGenotype = false;
         }
