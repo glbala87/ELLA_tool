@@ -76,7 +76,7 @@ help :
 	@echo "			- Test report 'ella-cli export classifications'"
 	@echo ""
 	@echo "make e2e-test-local	- For running e2e tests locally."
-	@echo "                          Set these vars: APP_BASE_URL, CHROME_HOST and DEBUG."
+	@echo "                          Set these vars: APP_URL, CHROME_HOST and DEBUG."
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
@@ -461,7 +461,7 @@ e2e-test-local: test-build
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
 	docker exec $(E2E_APP_CONTAINER) make dbsleep
-	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e SPECS=$(SPECS) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
+	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPECS=$(SPECS) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
 

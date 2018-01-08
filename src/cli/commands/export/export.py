@@ -17,7 +17,8 @@ def export():
 @export.command('classifications', help="Export all current classifications to excel and csv file.")
 @click.option('--filename', help="The name of the file to create. Suffix .xls and .csv will be automatically added.\n"
                                   "Default: 'variant-classifications-YYYY-MM-DD_hhmm.xls/csv'")
-def cmd_export_classifications(filename):
+@click.option('-with_analysis_names', is_flag=True,  help="Include name(s) of analysis where a variant is found")
+def cmd_export_classifications(filename, with_analysis_names):
     """
     Exports all current classifications into an excel file.
     """
@@ -28,7 +29,7 @@ def cmd_export_classifications(filename):
     output_name = filename if filename else "variant-classifications-{timestamp}".format(timestamp=timestamp)
     db = DB()
     db.connect()
-    dump_classification.dump_alleleassessments(db.session, output_name)
+    dump_classification.dump_alleleassessments(db.session, output_name, with_analysis_names)
     click.echo("Exported variants to " + output_name + '.xls/csv')
 
 @export.command('sanger', help="Export variants that needs to be Sanger verified")

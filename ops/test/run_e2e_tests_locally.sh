@@ -5,10 +5,19 @@
 set -e # exit on first failure
 source ./scripts/bash-util.sh
 
+if [ "${APP_URL}" = "" ]
+    then
+        yellow "Assuming app is running at 127.0.0.1:5000"
+        APP_URL="127.0.0.1:5000"
+    else
+        yellow "Running tests against $APP_URL Ip address to chrome browser"
+fi
+
+
 if [ "${CHROME_HOST}" = "" ]
     then 
         yellow "CHROME_HOST not set, using 172.17.0.1 as default"
-        export CHROME_HOST=172.17.0.1
+        CHROME_HOST=172.17.0.1
     else
         yellow "using CHROME_HOST=$CHROME_HOST as Ip address to chrome browser"
 fi
@@ -37,11 +46,11 @@ if [ "${DEBUG}" = "" ]
        yellow "To get a working REPL start again with DEBUG=true and configure the spec in wdio.conf.js"
        echo "Will run tests $SPECS"
        echo "$SPECS" | /dist/node_modules/webdriverio/bin/wdio \
-           --baseUrl "127.0.0.1:5000" --host "${CHROME_HOST}" --port 4444 --path "/" \
+           --baseUrl "${APP_URL}" --host "${CHROME_HOST}" --port 4444 --path "/" \
            /ella/src/webui/tests/e2e/wdio.conf.js
     else
 	    DEBUG=true /dist/node_modules/webdriverio/bin/wdio \
-           --baseUrl "127.0.0.1:5000" --host "${CHROME_HOST}" --port 4444 --path "/" \
+           --baseUrl "${APP_URL}" --host "${CHROME_HOST}" --port 4444 --path "/" \
            /ella/src/webui/tests/e2e/wdio.conf.js
 fi
 
