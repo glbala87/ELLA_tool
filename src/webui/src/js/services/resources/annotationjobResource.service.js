@@ -16,9 +16,15 @@ export class AnnotationjobResource {
     get(q, per_page, page) {
         return new Promise((resolve, reject) => {
             let args = []
-            if (q) args.push(`q=${encodeURIComponent(JSON.stringify(q))}`)
-            if (per_page) args.push(`per_page=${per_page}`)
-            if (page) args.push(`page=${page}`)
+            if (q) {
+                args.push(`q=${encodeURIComponent(JSON.stringify(q))}`)
+            }
+            if (per_page) {
+                args.push(`per_page=${per_page}`)
+            }
+            if (page) {
+                args.push(`page=${page}`)
+            }
 
             if (!args.length) {
                 var r = this.resource(`${this.base}/import/service/jobs/`);

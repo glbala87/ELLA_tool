@@ -32,7 +32,7 @@ export class ImportController {
 
         this.annotationjobResource.annotationServiceRunning().then((isAlive) => {
             if (!isAlive) {
-                this.toastr.error("Unable to connect to annotation service. Start the annotation service and try again", 10000);
+                this.toastr.error("Unable to connect to annotation service. Contact support to restart the annotation service.");
             }
         });
         this.pollForAnnotationJobs();
