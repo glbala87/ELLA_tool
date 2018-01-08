@@ -1,8 +1,7 @@
-import json
 import copy
 import pytest
 
-from api.tests import *
+from api.tests import interpretation_helper as ih
 
 from api import ApiError
 
@@ -27,8 +26,11 @@ class TestAlleleReports(object):
         test_database.refresh()  # Reset db
 
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = get_interpretation("analysis", ANALYSIS_ID,
-                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
+        interpretation = ih.get_interpretation(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        )
         created_ids = list()
         for idx, allele_id in enumerate(interpretation['allele_ids']):
 
@@ -36,7 +38,7 @@ class TestAlleleReports(object):
             report_data = copy.deepcopy(report_template(allele_id))
 
             # POST data
-            api_response = create_entities('allelereports', [report_data])
+            api_response = ih.create_entities('allelereports', [report_data])
 
             # Check response
             assert api_response.status_code == 200
@@ -50,11 +52,14 @@ class TestAlleleReports(object):
     @pytest.mark.ar(order=1)
     def test_create_new_and_reuse(self, test_database):
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = get_interpretation("analysis", ANALYSIS_ID,
-                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
+        interpretation = ih.get_interpretation(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        )
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_reports = get_entities_by_query('allelereports', q)
+        previous_reports = ih.get_entities_by_query('allelereports', q)
         previous_ids = []
         for report_data in previous_reports:
             prev_id = report_data['id']
@@ -65,7 +70,7 @@ class TestAlleleReports(object):
             report_data['presented_report_id'] = prev_id
 
             # POST data
-            r = create_entities('allelereports', [report_data])
+            r = ih.create_entities('allelereports', [report_data])
 
             # Check response
             assert r.status_code == 200
@@ -74,7 +79,7 @@ class TestAlleleReports(object):
             assert new_report['id'] != prev_id
 
         # Reload the previous reports and make sure they're marked as superceded
-        previous_reports = get_entities_by_query('allelereports', {'id': previous_ids})
+        previous_reports = ih.get_entities_by_query('allelereports', {'id': previous_ids})
 
         assert all([p['date_superceeded'] is not None for p in previous_reports])
 
@@ -86,11 +91,14 @@ class TestAlleleReports(object):
         while the existing should be superceded.
         """
 
-        interpretation = get_interpretation("analysis", ANALYSIS_ID,
-                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
+        interpretation = ih.get_interpretation(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        )
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_reports = get_entities_by_query('allelereports', q)
+        previous_reports = ih.get_entities_by_query('allelereports', q)
 
         previous_ids = []
         for previous_report in previous_reports:
@@ -102,7 +110,7 @@ class TestAlleleReports(object):
             previous_report['evaluation']['comment'] = "Some new comment"
 
             # POST data
-            api_reponse = create_entities('allelereports', [previous_report])
+            api_reponse = ih.create_entities('allelereports', [previous_report])
 
             # Check response
             assert api_reponse.status_code == 200
@@ -114,7 +122,7 @@ class TestAlleleReports(object):
         # Reload the previous allelereports and make sure
         # they're marked as superceded
         q = {'id': previous_ids}
-        previous_reports = get_entities_by_query('allelereports', q)
+        previous_reports = ih.get_entities_by_query('allelereports', q)
 
         assert all([p['date_superceeded'] is not None for p in previous_reports])
 
@@ -131,4 +139,4 @@ class TestAlleleReports(object):
         # We don't run actual HTTP requests, everything is in python
         # so we can catch the exceptions directly
         with pytest.raises(ApiError):
-            create_entities('allelereports', [data])
+            ih.create_entities('allelereports', [data])

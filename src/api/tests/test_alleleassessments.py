@@ -1,9 +1,10 @@
+import json
 import copy
 import pytest
 
 from api import ApiError
 
-from api.tests import *
+from api.tests import interpretation_helper as ih
 
 
 ANALYSIS_ID = 1
@@ -42,8 +43,11 @@ class TestAlleleAssessment(object):
         test_database.refresh()  # Reset db
 
         # Create an assessment for alleles in the interpretation
-        interpretation = get_interpretation("analysis", ANALYSIS_ID,
-                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
+        interpretation = ih.get_interpretation(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        )
         for idx, allele_id in enumerate(interpretation['allele_ids']):
 
             # Prepare
@@ -59,9 +63,14 @@ class TestAlleleAssessment(object):
                                   ]
 
             # POST data
-            api_response = api.post('/alleleassessments/', {"annotations": annotations,
-                                                 "custom_annotations": custom_annotations,
-                                                 "allele_assessments": [assessment_data]})
+            api_response = ih.api.post(
+                '/alleleassessments/',
+                {
+                    "annotations": annotations,
+                    "custom_annotations": custom_annotations,
+                    "allele_assessments": [assessment_data]
+                }
+            )
 
             # Check response
             assert api_response.status_code == 200
@@ -82,11 +91,14 @@ class TestAlleleAssessment(object):
         while the existing should be superceded.
         """
 
-        interpretation = get_interpretation("analysis", ANALYSIS_ID,
-                                            get_interpretation_id_of_first("analysis", ANALYSIS_ID))
+        interpretation = ih.get_interpretation(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        )
 
         q = {'allele_id': interpretation['allele_ids'], 'date_superceeded': None}
-        previous_assessments = api.get('/alleleassessments/?q={}'.format(json.dumps(q))).json
+        previous_assessments = ih.api.get('/alleleassessments/?q={}'.format(json.dumps(q))).json
 
         previous_ids = []
         for assessment_data in previous_assessments:
@@ -107,7 +119,7 @@ class TestAlleleAssessment(object):
 
             # POST (a single) assessment
             annotations = [{"allele_id": assessment_data['allele_id'], "annotation_id": assessment_data['annotation_id']}]
-            r = api.post('/alleleassessments/', {"annotations": annotations,
+            r = ih.api.post('/alleleassessments/', {"annotations": annotations,
                                                  "allele_assessments": [assessment_data]})
 
             # Check response
@@ -123,7 +135,7 @@ class TestAlleleAssessment(object):
         # Reload the previous alleleassessments and make sure
         # they're marked as superceded
         q = {'id': previous_ids}
-        previous_assessments = api.get('/alleleassessments/?q={}'.format(json.dumps(q))).json
+        previous_assessments = ih.api.get('/alleleassessments/?q={}'.format(json.dumps(q))).json
 
         assert all([p['date_superceeded'] is not None for p in previous_assessments])
 
@@ -142,7 +154,7 @@ class TestAlleleAssessment(object):
         # We don't run actual HTTP requests, everything is in python
         # so we can catch the exceptions directly
         with pytest.raises(Exception):  # the error is not caught at the API boundary as enforcing required fields for dict of dict isn't implemented
-            api.post('/alleleassessments/', {"annotations": annotations,
+            ih.api.post('/alleleassessments/', {"annotations": annotations,
                                              "allele_assessments": [assessment_data]})
 
         # Test without analysis_id
@@ -150,5 +162,5 @@ class TestAlleleAssessment(object):
         del assessment_data['analysis_id']
 
         with pytest.raises(ApiError):
-            api.post('/alleleassessments/', {"annotations": annotations,
+            ih.api.post('/alleleassessments/', {"annotations": annotations,
                                              "allele_assessments": [assessment_data]})

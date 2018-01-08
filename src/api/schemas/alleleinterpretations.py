@@ -13,6 +13,9 @@ class AlleleInterpretationSnapshotSchema(Schema):
         description = 'snapshot of a allele interpretation with context'
         # Fields to expose
         fields = ('id',
+                  'date_created',
+                  'allele_id',
+                  'alleleinterpretation_id',
                   'annotation_id',
                   'customannotation_id',
                   'alleleassessment_id',
@@ -30,6 +33,7 @@ class AlleleInterpretationSchema(Schema):
         # Fields to expose
         fields = ('id',
                   'status',
+                  'end_action',
                   'user_state',
                   'state',
                   'genepanel_name',
@@ -50,6 +54,7 @@ class AlleleInterpretationOverviewSchema(Schema):
         # Fields to expose
         fields = ('id',
                   'status',
+                  'end_action',
                   'state',
                   'genepanel_name',
                   'genepanel_version',
