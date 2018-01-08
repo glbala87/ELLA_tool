@@ -28,8 +28,7 @@
                    popover-trigger="outsideClick">
                 <h5 ng-if="job.mode == 'Analysis' && job.properties.create_or_append=='Create'">Create new analysis: <i>{{job.properties.analysis_name}} ({{job.genepanel_name}}_{{job.genepanel_version}})</i></h5>
                 <h5 ng-if="job.mode == 'Analysis' && job.properties.create_or_append=='Append'">Append to analysis: <i>{{job.properties.analysis_name}}</i></h5>
-                <h5 ng-if="job.mode == 'Variants'">Independent variants: {{job.properties.description}} ({{job.genepanel_name}}_{{job.genepanel_version}})</h5>
-                <h5 ng-if="job.mode == 'Single variant'">Single variant: {{job.properties.description}} ({{job.genepanel_name}}_{{job.genepanel_version}})</h5>
+                <h5 ng-if="job.mode == 'Variants'">Independent variants: {{job.genepanel_name}}_{{job.genepanel_version}}</h5>
                 <p>Submitted by {{job.user.abbrev_name}} on {{job.date_submitted | date:"yyyy-MM-dd 'at' HH:mm"}}</p>
               </div>
             </section>
@@ -59,7 +58,7 @@
 
     </contentbox>
 
-    <div ng-if="!vm.parsedInput">
+    <div ng-if="!vm.jobData">
       <section>
         <section>
           <div class="question line-wrapper">
@@ -141,16 +140,14 @@
       </section>
     </div>
 
-    <div ng-repeat="(id, parsedInput) in vm.parsedInput" track by $index>
-      <importsingle filename="parsedInput.filename"
-                    file-contents="parsedInput.fileContents"
-                    job-data="vm.jobData[id]"
+    <div ng-repeat="(id, parsedInput) in vm.jobData" track by $index>
+      <importsingle import-data="vm.jobData[id]"
                     index="$index+1"
       >
       </importsingle>
     </div>
 
-    <section ng-if="vm.parsedInput">
+    <section ng-if="vm.jobData">
       <div class="import-all-summary">
         <h3>Summary:</h3>
         <p ng-repeat="d in vm.getImportDescription()">{{d}}</p>

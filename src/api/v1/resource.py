@@ -14,8 +14,8 @@ FILTER_OPERATORS = {
     '$lte': lambda f, a: f <= a,
     '$in': lambda f, a: f.in_(a),
     '$nin': lambda f, a: ~f.in_(a),
-    '$like': lambda f, a: f.cast(Text).like("%"+a+"%"),
-    '$ilike': lambda f, a: f.cast(Text).ilike("%"+a+"%"),
+    '$like': lambda f, a: f.cast(Text).like(a),
+    '$ilike': lambda f, a: f.cast(Text).ilike(a),
 }
 
 

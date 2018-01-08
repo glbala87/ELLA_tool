@@ -1,6 +1,7 @@
 'use strict';
 import {Service, Inject} from '../ng-decorators';
 import {UUID} from '../util';
+import {ImportData} from '../model/importdata'
 
 export class ImportController {
     constructor(modalInstance, User, AnalysisResource, AnnotationjobResource, toastr, $interval, $filter,$scope) {
@@ -18,7 +19,6 @@ export class ImportController {
         this.annotationjobPage = 1;
 
         this.rawInput = '';
-        this.parsedInput = null;
 
         this.interval = $interval;
         this.scope = $scope
@@ -69,8 +69,7 @@ export class ImportController {
     }
 
     parseInput() {
-        let parsedInput = {}
-        let jobData = {}
+        let splitInput = {}
 
         // Find lines starting with '-'
         let lines = this.rawInput.split("\n");
@@ -88,32 +87,21 @@ export class ImportController {
                     currentFile = '';
                 }
 
-                parsedInput[uuid] = {
+                splitInput[uuid] = {
                     filename: currentFile,
                     fileContents: '',
                 }
 
-                // Job data will be populated in importsingle
-                jobData[uuid] = {
-                    mode: null,
-                    type: null,
-                    genepanel: null,
-                    analysis: null,
-                    analysisName: "",
-                    technology: null,
-                    selectionComplete: false,
-                    user_id: this.user.id,
-                };
-
                 // Don't include line in contents if it is a separator line
                 if (l.startsWith('-')) continue;
-
             }
-
-            parsedInput[uuid].fileContents += l+"\n";
+            splitInput[uuid].fileContents += l+"\n";
         }
 
-        this.parsedInput = parsedInput;
+        let jobData = {}
+        for (let k in splitInput) {
+            jobData[k] = new ImportData(splitInput[k].filename, splitInput[k].fileContents)
+        }
         this.jobData = jobData;
     }
 
@@ -125,17 +113,15 @@ export class ImportController {
         let appendVariants = 0;
 
         for (let j of Object.values(this.jobData)) {
-            if (!j.selectionComplete) {
+            if (!j.isSelectionComplete()) {
                 incomplete += 1;
-            } else if (j.type === "Analysis") {
-                if (j.mode === "Create") {
-                    createAnalyses += 1;
-                } else if (j.mode === "Append") {
-                    appendAnalyses.push(j.analysis.name);
-                    appendVariants += Object.values(j.contentLines).filter(l => l.include).length;
-                }
-            } else if (j.type === "Variants") {
-                standaloneVariants += Object.values(j.contentLines).filter(l => l.include).length;
+            } else if (j.createNewAnalysisType()) {
+                createAnalyses += 1;
+            } else if (j.appendToAnalysisType()) {
+                appendAnalyses.push(j.importSelection.analysis.name);
+                appendVariants += Object.values(j.contents.lines).filter(l => l.include).length;
+            } else if (j.variantMode()) {
+                standaloneVariants += Object.values(j.contents.lines).filter(l => l.include).length;
             }
         }
 
@@ -165,49 +151,17 @@ export class ImportController {
         return description;
     }
 
-    rebuildFile(header, contentLines) {
-        let data = header;
-        for (let ld of Object.values(contentLines)) {
-            if (ld.include) {
-                data += "\n"+ld.contents;
-            }
-        }
-        return data
-    }
-
     import() {
         let processedJobData = {}
         for (let id in this.jobData) {
-            let jobdata = this.jobData[id];
-            let rebuilt = this.rebuildFile(jobdata.header, jobdata.contentLines)
-
-            let properties = {
-                sample_type: jobdata.technology,
-            }
-
-            if (jobdata.type === "Analysis") {
-                properties.create_or_append = jobdata.mode;
-                properties.analysis_name = jobdata.mode === "Append" ? jobdata.analysis.name : jobdata.analysisName;
-            }
-
-            processedJobData[id] = {
-                data: rebuilt,
-                mode: jobdata.type,
-                genepanel_name: jobdata.genepanel.name,
-                genepanel_version: jobdata.genepanel.version,
-                properties: properties,
-                user_id: this.user.id,
-            }
-
+            processedJobData[id] = this.jobData[id].process()
         }
 
-
         this.modal.close(processedJobData)
-
     }
 
     importDisabled() {
-        let allReady = Object.values(this.jobData).map(j => j.selectionComplete).every(v => v);
+        let allReady = Object.values(this.jobData).map(j => j.isSelectionComplete()).every(v => v);
         return !allReady;
     }
 }

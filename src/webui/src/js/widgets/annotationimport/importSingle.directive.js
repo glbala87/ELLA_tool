@@ -7,9 +7,7 @@ import {printedFileSize} from '../../util'
     selector: "importsingle",
     templateUrl: "ngtmpl/importSingle.ngtmpl.html",
     scope: {
-        fileContents: "=",
-        filename: "=",
-        jobData: '=',
+        importData: '=',
         index: '=',
     },
 })
@@ -24,48 +22,25 @@ export class ImportSingleController {
         this.user = User.getCurrentUser()
         this.genepanels = this.user.group.genepanels;
 
-        this.jobData.fileType = "Unknown";
-
-        this.types = ["Analysis", "Variants"];
-        this.jobData.type = this.types[0];
-        this.modes = ["Create", "Append"];
-
-        this.jobData.mode = this.modes[0];
-        this.technologies = ["Sanger", "HTS"];
-        this.jobData.technology = this.technologies[0];
-
-        this.jobData.analysis = null;
-        this.jobData.analysisName = "";
-        this.jobData.genepanel = null;
 
         this.editMode = false;
 
         this.scope.$watch(
-            () => this.jobData.analysisName,
+            () => this.importData.importSelection.analysisName,
             () => {
                 this.findExistingAnalysis()
             }
         )
 
         this.scope.$watch(
-            () => this.jobData.analysis,
+            () => this.importData.importSelection.analysis,
             () => this.checkAnalysisStatus()
-        )
-
-        this.scope.$watch(
-            () => this.isSelectionComplete(),
-            () => {
-                this.jobData.selectionComplete = this.isSelectionComplete();
-                if (!this.jobData.selectionComplete) {
-                    this.editMode = true;
-                }
-            }
         )
 
         this.warnings = {
             noGenotype: {
                 text: "No genotype found for some or all variants. Can only import as independent variants.",
-                active: false,
+                active: !this.importData.genotypeAvailable(),
             },
             multipleAnalyses: {
                 text: "Multiple analyses matching filename",
@@ -74,17 +49,19 @@ export class ImportSingleController {
             analysisNameMatch: {
                 text: "The analysis name matches one or more existing analysis names. Do you really want to create a new analysis? If not, please choose \"Append\" instead.`",
                 active: false,
-                modes: ["Create"]
+                types: ["Create"]
             },
             analysisStarted: {
                 text: null,
                 active: false,
-                modes: ["Append"]
+                types: ["Append"]
             }
         }
 
-        this.parseFile()
         this.setDefaultChoices()
+        if (!this.importData.isSelectionComplete()) {
+            this.editMode = true;
+        }
 
     }
 
@@ -92,159 +69,60 @@ export class ImportSingleController {
         this.editMode = !this.editMode;
     }
 
-    parseFile() {
-        let lines = this.fileContents.trim().split('\n');
-        let header = ""
-        let contentLines = {};
-        for (let l of lines) {
-            if (l.trim() === "") {
-                continue;
-            }
-            if (l.trim().startsWith("#CHROM")) {
-                this.jobData.fileType = "vcf"
-            } else if (l.trim().startsWith("Index")) {
-                this.jobData.fileType = "seqpilot";
-            }
-
-            if (l.trim().startsWith("#") || l.trim().startsWith("Index")) {
-                header += l +"\n"
-                continue;
-            }
-            let key;
-            if (this.jobData.fileType === "vcf") {
-                key = this.parseVcfLine(l)
-            } else if (this.jobData.fileType === "seqpilot") {
-                key = this.parseSeqPilotLine(l)
-            } else {
-                key = this.parseGenomicOrHGVScLine(l);
-            }
-
-            contentLines[key] = {
-                contents: l,
-                include: true,
-            }
-        }
-
-        this.jobData.contentLines = contentLines;
-        this.jobData.header = header.trim();
-    }
-
-    parseVcfLine(line) {
-        let vals = line.trim().split("\t")
-        let chrom = vals[0];
-        let pos = vals[1];
-        let ref = vals[3];
-        let alt = vals[4];
-
-        let format = vals[8];
-        let sample = vals[9];
-
-        let genotype;
-        let gt_index = format.split(':').indexOf("GT");
-        if (gt_index < 0) {
-            genotype = "?/?"
-            this.warnings.noGenotype.active = true;
-        } else {
-            genotype = sample.split(':')[gt_index];
-        }
-
-        return `${chrom}:${pos} ${ref}>${alt} (${genotype})`
-    }
-
-    parseSeqPilotLine(line) {
-        let vals = line.trim().split("\t");
-        let transcript = vals[2];
-        let cdna = vals[11];
-        let genotype = vals[6].match(/\(het\)|\(hom\)/);
-        if (!genotype) {
-            this.warnings.noGenotype.active = true;
-            genotype = "(?)"
-        }
-
-        return `${transcript}.${cdna} ${genotype}`
-    }
-
-    parseGenomicOrHGVScLine(line) {
-        let genotype = line.match(/ \((het|hom)\)?/)
-        if (!genotype) {
-            this.warnings.noGenotype.active = true;
-        }
-        return line
-    }
-
     setDefaultChoices() {
         // If some or all variants miss genotype, we can not import this to an analysis.
-        // Set default type to variants.
+        // Set default mode to variants.
         if (this.warnings.noGenotype.active) {
-            this.jobData.type = "Variants";
+            this.importData.importSelection.mode = "Variants";
         } else {
-            this.jobData.type = "Analysis";
+            this.importData.importSelection.mode = "Analysis";
         }
 
-        this.technology = "Sanger";
-        this.jobData.genepanel = this.user.group.default_import_genepanel ? this.user.group.default_import_genepanel : null;
+        this.importData.importSelection.technology = "Sanger";
+        this.importData.importSelection.genepanel = this.user.group.default_import_genepanel ? this.user.group.default_import_genepanel : null;
 
-        let fileNameBase = "";
-        if (this.filename) {
-            if (this.filename.contains('.')) {
-                fileNameBase = this.filename.substring(0, this.filename.lastIndexOf('.'));
-            } else {
-                fileNameBase = this.filename;
-            }
-        }
+        let fileNameBase = this.importData.getFileNameBase()
 
         // Search for matching analysis
         if (fileNameBase.length > 3) {
-            var p = this.analysisResource.get({name: {'$ilike': fileNameBase}}, 2)
+            var p = this.analysisResource.get({name: {'$ilike': `%${fileNameBase}%`}}, 2)
         } else {
             var p = new Promise((resolve) => {resolve([])})
         }
 
-        this.jobData.analysisName = fileNameBase;
+        this.importData.importSelection.analysisName = fileNameBase;
         p.then((matchingAnalyses) => {
             if (matchingAnalyses.length == 1) {
-                this.jobData.mode = "Append";
-                this.jobData.analysis = matchingAnalyses[0]
+                this.importData.importSelection.type = "Append";
+                this.importData.importSelection.analysis = matchingAnalyses[0]
             } else {
                 this.warnings.multipleAnalyses.active = matchingAnalyses.length > 1;
-                this.jobData.mode = "Create";
+                this.importData.importSelection.type = "Create";
             }
         })
     }
 
     getSummary() {
-        let summary = {
-            type: this.jobData.type,
+        let summary = {};
+        if (this.importData.variantMode()) {
+            summary["mode"] = "Independent variants"
+            summary["genepanel"] = this.importData.importSelection.genepanel ? `${this.importData.importSelection.genepanel.name} ${this.importData.importSelection.genepanel.version}` : "";
+        } else if (this.importData.createNewAnalysisType()) {
+            summary["mode"] = "Create new analysis"
+            summary["analysis name"] = this.importData.importSelection.analysisName;
+            summary["genepanel"] = this.importData.importSelection.genepanel ? `${this.importData.importSelection.genepanel.name} ${this.importData.importSelection.genepanel.version}` : "";
+        } else if (this.importData.appendToAnalysisType()) {
+            summary["mode"] = "Append to analysis"
+            summary["analysis"] = this.importData.importSelection.analysis ? this.importData.importSelection.analysis.name : "";
         }
 
-        if (this.jobData.type === "Variants") {
-            summary["type"] = "Independent variants"
-            summary["genepanel"] = this.jobData.genepanel ? `${this.jobData.genepanel.name} ${this.jobData.genepanel.version}` : "";
-        } else if (this.jobData.mode === "Create") {
-            summary["type"] = "Create new analysis"
-            summary["analysis name"] = this.jobData.analysisName;
-            summary["genepanel"] = this.jobData.genepanel ? `${this.jobData.genepanel.name} ${this.jobData.genepanel.version}` : "";
-        } else if (this.jobData.mode === "Append") {
-            summary["type"] = "Append to analysis"
-            summary["analysis"] = this.jobData.analysis ? this.jobData.analysis.name : "";
-        }
-
-        summary["technology"] = this.technology;
+        summary["technology"] = this.importData.importSelection.technology;
 
         return summary;
     }
 
-    isSelectionComplete() {
-        let a = this.jobData.type === "Variants" && this.jobData.genepanel;
-        let b = this.jobData.type === "Analysis" && this.jobData.mode === "Create" && this.jobData.analysisName && this.jobData.genepanel;
-        let c = this.jobData.type === "Analysis" && this.jobData.mode === "Append" && this.jobData.analysis;
-        let d = Object.values(this.jobData.contentLines).filter(c => c.include).length
-
-        return Boolean((a || b || c) && d);
-    }
-
     updateAnalysisOptions(text) {
-        return this.analysisResource.get({name: {$ilike: text}}, 20).then( (analyses) => {
+        return this.analysisResource.get({name: {$ilike: `%${text}%`}}, 20).then( (analyses) => {
             this.analyses = analyses;
             return this.analyses;
             }
@@ -253,8 +131,8 @@ export class ImportSingleController {
 
     showWarning(warning) {
         if (!warning.active) return false;
-        else if (warning.modes === undefined) return true;
-        else if (warning.modes.indexOf(this.jobData.mode) > -1) return true;
+        else if (warning.types === undefined) return true;
+        else if (warning.types.indexOf(this.importData.importSelection.type) > -1) return true;
         else return false;
     }
 
@@ -274,9 +152,9 @@ export class ImportSingleController {
     }
 
     analysisIsStarted() {
-        if (!this.jobData.analysis) return false;
+        if (!this.importData.importSelection.analysis) return false;
         else {
-            let statuses = this.jobData.analysis.interpretations.map(i => i.status)
+            let statuses = this.importData.importSelection.analysis.interpretations.map(i => i.status)
             return this._analysisDone(statuses) || this._analysisOngoing(statuses) || this._analysisInReview(statuses);
         }
     }
@@ -287,8 +165,8 @@ export class ImportSingleController {
             this.warnings.analysisStarted.text = null;
             return;
         }
-        let last_interpretation = this.jobData.analysis.interpretations[this.jobData.analysis.interpretations.length-1]
-        let statuses = this.jobData.analysis.interpretations.map(i => i.status)
+        let last_interpretation = this.importData.importSelection.analysis.interpretations[this.importData.importSelection.analysis.interpretations.length-1]
+        let statuses = this.importData.importSelection.analysis.interpretations.map(i => i.status)
         let s = "Analysis is ";
         if (this._analysisDone(statuses)) {
             s += "finalized. Appending to this analyses will reopen it."
@@ -315,18 +193,18 @@ export class ImportSingleController {
      */
     findExistingAnalysis() {
         // Don't match if typed in analysis name is less than 5
-        if (this.jobData.analysisName.length < 5) {
+        if (this.importData.importSelection.analysisName.length < 5) {
             this.warnings.analysisNameMatch.active = false;
             return;
         }
-        let p_name = this.analysisResource.get({name: {$ilike: this.jobData.analysisName}}, 2)
+        let p_name = this.analysisResource.get({name: {$ilike: `%${this.importData.importSelection.analysisName}%`}}, 2)
 
         // Extract longest substring of digits
         let subnumber = "";
         let re = /\d+/g;
         let m = null;
         do {
-            m = re.exec(this.jobData.analysisName)
+            m = re.exec(this.importData.importSelection.analysisName)
             if (m && m[0].length > subnumber.length) {
                 subnumber = m[0];
             }
@@ -337,7 +215,7 @@ export class ImportSingleController {
         if (subnumber.length < 5) {
             var p_number = new Promise((resolve) => {resolve([])})
         } else {
-            var p_number = this.analysisResource.get({name: {$like: subnumber}}, 2)
+            var p_number = this.analysisResource.get({name: {$like: `%${subnumber}%`}}, 2)
         }
 
         // Try to match against existing analyses, based on either full string or subnumber
