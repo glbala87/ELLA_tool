@@ -157,7 +157,7 @@ class AnnotationServiceInterface:
         try:
             k = urllib2.urlopen(join(self.base, "status"))
             return {"running": True}, 200
-        except urllib2.HTTPError:
+        except (urllib2.HTTPError, urllib2.URLError):
             return {"running": False}, 200
 
 
@@ -221,6 +221,13 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
 
         yield id, {"status": status, "message": message}
 
+def patch_annotation_job(annotation_jobs, id, updates):
+    try:
+        annotation_jobs.patch(id, **updates)
+        annotation_jobs.commit()
+    except Exception, e:
+        log.error("Failed patch of annotation job {id} ({update}): {error}".format(id, str(updates), e.message))
+        annotation_jobs.rollback()
 
 def polling(session):
     annotation_jobs = AnnotationJobsInterface(session)
@@ -240,23 +247,20 @@ def polling(session):
                 # Process running
                 running_jobs = annotation_jobs.get_with_status("RUNNING")
                 for id, update in process_running(annotation_service, running_jobs):
-                    annotation_jobs.patch(id, **update)
+                    patch_annotation_job(annotation_jobs, id, update)
                     log.info("Processed running job {} with data {}".format(id, str(update)))
-                annotation_jobs.commit()
 
                 # Process submitted
                 submitted_jobs = annotation_jobs.get_with_status("SUBMITTED")
                 for id, update in process_submitted(annotation_service, submitted_jobs):
-                    annotation_jobs.patch(id, **update)
+                    patch_annotation_job(annotation_jobs, id, update)
                     log.info("Processed submitted job {} with data {}".format(id, str(update)))
-                annotation_jobs.commit()
 
                 # Process annotated
                 annotated_jobs = annotation_jobs.get_with_status("ANNOTATED")
                 for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
-                    annotation_jobs.patch(id, **update)
+                    patch_annotation_job(annotation_jobs, id, update)
                     log.info("Processed annotated job {} with data {}".format(id, str(update)))
-                    annotation_jobs.commit()
 
                 # Remove session to avoid a hanging session
                 session.remove()
