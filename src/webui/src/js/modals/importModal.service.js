@@ -115,12 +115,12 @@ export class ImportController {
         for (let j of Object.values(this.jobData)) {
             if (!j.isSelectionComplete()) {
                 incomplete += 1;
-            } else if (j.createNewAnalysisType()) {
+            } else if (j.isCreateNewAnalysisType()) {
                 createAnalyses += 1;
-            } else if (j.appendToAnalysisType()) {
+            } else if (j.isAppendToAnalysisType()) {
                 appendAnalyses.push(j.importSelection.analysis.name);
                 appendVariants += Object.values(j.contents.lines).filter(l => l.include).length;
-            } else if (j.variantMode()) {
+            } else if (j.isVariantMode()) {
                 standaloneVariants += Object.values(j.contents.lines).filter(l => l.include).length;
             }
         }

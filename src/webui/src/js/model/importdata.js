@@ -72,19 +72,19 @@ export class ImportData {
         return this._choices[key];
     }
 
-    analysisMode() {
+    isAnalysisMode() {
         return this.importSelection.mode === "Analysis"
     }
 
-    createNewAnalysisType() {
-        return this.analysisMode() && this.importSelection.type === "Create";
+    isCreateNewAnalysisType() {
+        return this.isAnalysisMode() && this.importSelection.type === "Create";
     }
 
-    appendToAnalysisType() {
-        return this.analysisMode() && this.importSelection.type === "Append";
+    isAppendToAnalysisType() {
+        return this.isAnalysisMode() && this.importSelection.type === "Append";
     }
 
-    variantMode() {
+    isVariantMode() {
         return this.importSelection.mode === "Variants";
     }
 

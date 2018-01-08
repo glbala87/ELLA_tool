@@ -104,14 +104,14 @@ export class ImportSingleController {
 
     getSummary() {
         let summary = {};
-        if (this.importData.variantMode()) {
+        if (this.importData.isVariantMode()) {
             summary["mode"] = "Independent variants"
             summary["genepanel"] = this.importData.importSelection.genepanel ? `${this.importData.importSelection.genepanel.name} ${this.importData.importSelection.genepanel.version}` : "";
-        } else if (this.importData.createNewAnalysisType()) {
+        } else if (this.importData.isCreateNewAnalysisType()) {
             summary["mode"] = "Create new analysis"
             summary["analysis name"] = this.importData.importSelection.analysisName;
             summary["genepanel"] = this.importData.importSelection.genepanel ? `${this.importData.importSelection.genepanel.name} ${this.importData.importSelection.genepanel.version}` : "";
-        } else if (this.importData.appendToAnalysisType()) {
+        } else if (this.importData.isAppendToAnalysisType()) {
             summary["mode"] = "Append to analysis"
             summary["analysis"] = this.importData.importSelection.analysis ? this.importData.importSelection.analysis.name : "";
         }

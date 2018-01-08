@@ -40,7 +40,7 @@
               </div>
 
               <!--Create or append to analysis-->
-              <div ng-if="vm.importData.analysisMode()" class="question tiny line-wrapper">
+              <div ng-if="vm.importData.isAnalysisMode()" class="question tiny line-wrapper">
                 <div class="left-short">
                   <h5 class="slim title" title="Create new or append to analysis.">
                     <b>Mode</b>
@@ -55,7 +55,7 @@
               </div>
 
               <!--Select analysis name for new analysis-->
-              <div ng-if="vm.importData.createNewAnalysisType()" class="question tiny line-wrapper">
+              <div ng-if="vm.importData.isCreateNewAnalysisType()" class="question tiny line-wrapper">
                 <div class="left-short">
                   <h5 class="slim title" title="Provide a descriptive name for the analysis">
                     <b>Analysis name</b>
@@ -67,7 +67,7 @@
               </div>
 
               <!--Select genepanel-->
-              <div ng-if="vm.importData.variantMode() || vm.importData.createNewAnalysisType()" class="question tiny line-wrapper">
+              <div ng-if="vm.importData.isVariantMode() || vm.importData.isCreateNewAnalysisType()" class="question tiny line-wrapper">
                 <div class="left-short">
                   <h5 class="slim title" title="Select genepanel">
                     <b>Genepanel</b>
@@ -95,7 +95,7 @@
               </div>
 
               <!--Select analysis to append to-->
-              <div ng-if="vm.importData.appendToAnalysisType()" class="question tiny line-wrapper">
+              <div ng-if="vm.importData.isAppendToAnalysisType()" class="question tiny line-wrapper">
                 <div class="left-short">
                   <h5 class="slim title" title="Choose analysis to append to">
                     <b>Analysis</b>
