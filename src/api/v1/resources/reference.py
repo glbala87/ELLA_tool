@@ -39,12 +39,14 @@ class ReferenceListResource(LogRequestResource):
         """
         if search_filter is not None:
             assert rest_filter is None
-            return self.list_search(session,
-                                    assessment.Reference,
-                                    search_filter=search_filter,
-                                    schema=schemas.ReferenceSchema(strict=True),
-                                    page=page,
-                                    per_page=per_page)
+            return self.list_search(
+                session,
+                assessment.Reference,
+                search_filter=search_filter,
+                schema=schemas.ReferenceSchema(strict=True),
+                page=page,
+                per_page=per_page
+            )
         else:
             return self.list_query(
                 session,

@@ -36,7 +36,13 @@ class GenepanelListResource(LogRequestResource):
         if rest_filter is None:
             rest_filter = dict()
         rest_filter[("name", "version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
-        return self.list_query(session, gene.Genepanel, schema=schemas.GenepanelFullSchema(), rest_filter=rest_filter)
+
+        return self.list_query(
+            session,
+            gene.Genepanel,
+            schema=schemas.GenepanelFullSchema(),
+            rest_filter=rest_filter
+        )
 
 
 

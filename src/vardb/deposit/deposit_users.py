@@ -12,27 +12,35 @@ log = logging.getLogger(__name__)
 
 def import_groups(session, groups, log=log.info):
     for g in groups:
+        group_data = dict(g)
+
         existing_group = session.query(user.UserGroup).filter(
-            user.UserGroup.name == g['name']
+            user.UserGroup.name == group_data['name']
         ).one_or_none()
 
         db_genepanels = session.query(gene.Genepanel).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(g['genepanels'])
+            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(group_data['genepanels'])
         ).all()
 
-        if len(db_genepanels) != len(g['genepanels']):
-            not_found = set(tuple(gp) for gp in g['genepanels'])-set((gp.name, gp.version,) for gp in db_genepanels)
+        if len(db_genepanels) != len(group_data['genepanels']):
+            not_found = set(tuple(gp) for gp in group_data['genepanels'])-set((gp.name, gp.version,) for gp in db_genepanels)
             raise NoResultFound("Unable to find all genepanels in database: %s" %str(list(not_found)))
 
-        g["genepanels"] = db_genepanels
+        if group_data.get("default_import_genepanel"):
+            default_import_genepanel = group_data.pop("default_import_genepanel")
+            assert default_import_genepanel in group_data["genepanels"]
+            group_data["default_import_genepanel_name"] = default_import_genepanel[0]
+            group_data["default_import_genepanel_version"] = default_import_genepanel[1]
+
+        group_data["genepanels"] = db_genepanels
 
         if not existing_group:
-            new_group = user.UserGroup(**g)
+            new_group = user.UserGroup(**group_data)
             session.add(new_group)
-            log("Added user group {}".format(g['name']))
+            log("Added user group {}".format(group_data['name']))
         else:
-            log("User group {} already exists, updating record...".format(g['name']))
-            for k, v in g.iteritems():
+            log("User group {} already exists, updating record...".format(group_data['name']))
+            for k, v in group_data.iteritems():
                 setattr(existing_group, k, v)
 
     session.commit()

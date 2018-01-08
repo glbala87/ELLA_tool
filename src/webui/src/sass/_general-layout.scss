@@ -623,12 +623,15 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 
 .genepanel {
   @extend .dropdown;
-  width: 200px !important;
+  //width: 200px !important;
+  width: 100% !important;
 }
 
 .analysis {
   @extend .dropdown;
-  width: 300px !important;
+  //width: 300px !important;
+  width: 100%;
+  max-width: 300px !important;
 }
 
 .selector-container { display: block; position: relative; }
@@ -648,7 +651,7 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   font-weight: inherit;
 }
 
-.selector-container .selector-values { list-style: none; }
+.selector-container .selector-values { list-style: none; margin: unset;}
 .selector-container * input {
   outline: none;
   background: none !important;
@@ -716,6 +719,7 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   display: none;
   list-style: none;
   padding-top: 0;
+  margin: unset !important;
   position: absolute;
   background: $white;
   border: 1px solid $black-25;

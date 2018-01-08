@@ -19,16 +19,7 @@ log = logging.getLogger(__name__)
 
 class DepositAlleles(DepositFromVCF):
 
-    def is_inside_transcripts(self, record, genepanel):
-        chr = record["CHROM"]
-        pos = record["POS"]
-        for tx in genepanel.transcripts:
-            if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
-                return True
-        return False
-
     def import_vcf(self, path, gp_name, gp_version, annotation_only=False):
-
         vi = vcfiterator.VcfIterator(path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
@@ -41,7 +32,7 @@ class DepositAlleles(DepositFromVCF):
             if not self.is_inside_transcripts(record, db_genepanel):
                 is_not_inside_transcripts.append(record)
 
-        if len(is_not_inside_transcripts) > 0:
+        if is_not_inside_transcripts:
             error = "The following variants are not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
             for record in is_not_inside_transcripts:
                 error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))

@@ -711,10 +711,18 @@ class AlleleInterpretationImporter(object):
         self.session = session
 
     def process(self, genepanel, allele_id):
-        db_interpretation, _ = wf.AlleleInterpretation.get_or_create(
-            self.session,
-            allele_id=allele_id,
-            genepanel=genepanel,
-            status="Not started"
-            )
+        existing = self.session.query(wf.AlleleInterpretation).filter(
+            wf.AlleleInterpretation.allele_id == allele_id,
+        ).limit(1).one_or_none()
+
+        if not existing:
+            db_interpretation, _ = wf.AlleleInterpretation.get_or_create(
+                self.session,
+                allele_id=allele_id,
+                genepanel=genepanel,
+                status="Not started"
+                )
+        else:
+            # Do not create a new interpretation entry if existing
+            db_interpretation = None
         return db_interpretation

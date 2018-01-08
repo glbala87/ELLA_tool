@@ -24,6 +24,13 @@ log = logging.getLogger(__name__)
 ANNOTATION_SERVICE_URL = config["app"]["annotation_service"]
 
 
+def get_error_message(e):
+    try:
+        msg = json.loads(e.read())["message"]
+    except:
+        msg = "Unable to determine error"
+    return msg
+
 class AnnotationJobsInterface:
     def __init__(self, session):
         self.session = session
@@ -120,33 +127,37 @@ class AnnotationJobsInterface:
     def commit(self):
         self.session.commit()
 
+    def rollback(self):
+        self.session.rollback()
+
 
 class AnnotationServiceInterface:
     def __init__(self, url):
-        self.url = url
+        self.base = join(url, "api/v1")
 
-    def annotate(self, unannotated_vcf):
-        k = urllib2.urlopen(join(self.url, "annotate"), data=json.dumps({"vcf": unannotated_vcf}))
+    def annotate(self, data):
+        r = urllib2.Request(join(self.base, "annotate"), data=json.dumps({"input": data}), headers={"Content-type": "application/json"})
+        k = urllib2.urlopen(r)
         return json.loads(k.read())
 
     def process(self, task_id):
-        k = urllib2.urlopen(join(self.url, "process", task_id))
-        return json.loads(k.read())
+        k = urllib2.urlopen(join(self.base, "process", task_id))
+        return k.read()
 
     def status(self, task_id=None):
         """Get status of task_id or all tasks"""
         if task_id:
-            k = urllib2.urlopen(join(self.url, "status", task_id))
+            k = urllib2.urlopen(join(self.base, "status", task_id))
         else:
-            k = urllib2.urlopen(join(self.url, "status"))
+            k = urllib2.urlopen(join(self.base, "status"))
         resp = json.loads(k.read())
         return resp
 
     def annotation_service_running(self):
         try:
-            k = urllib2.urlopen(join(self.url, "status"))
+            k = urllib2.urlopen(join(self.base, "status"))
             return {"running": True}, 200
-        except urllib2.HTTPError:
+        except (urllib2.HTTPError, urllib2.URLError):
             return {"running": False}, 200
 
 
@@ -157,14 +168,12 @@ def process_running(annotation_service, running_jobs):
         task_id = job.task_id
         try:
             response = annotation_service.status(task_id)
-            if response[task_id] == "FAILED":
-                status = "FAILED (ANNOTATION)"
-            elif response[task_id] == "SUCCESS":
+            if not response["active"]:
                 status = "ANNOTATED"
             message = ""
         except urllib2.HTTPError, e:
             status = "FAILED (ANNOTATION)"
-            message = e.message
+            message = get_error_message(e)
 
         yield id, {"task_id": task_id, "status": status, "message": message}
 
@@ -172,16 +181,16 @@ def process_running(annotation_service, running_jobs):
 def process_submitted(annotation_service, submitted_jobs):
     for job in submitted_jobs:
         id = job.id
-        unannotated_vcf = job.vcf
+        data = job.data
 
         try:
-            resp = annotation_service.annotate(unannotated_vcf)
+            resp = annotation_service.annotate(data)
             status = "RUNNING"
             message = ""
             task_id = resp["task_id"]
         except urllib2.HTTPError, e:
             status = "FAILED (SUBMISSION)"
-            message = e.message
+            message = get_error_message(e)
             task_id = ""
 
         # Update
@@ -193,25 +202,32 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         id = job.id
         task_id = job.task_id
         try:
-            resp = annotation_service.process(task_id)
+            annotated_vcf = annotation_service.process(task_id)
+            annotation_jobs.commit()
         except urllib2.HTTPError, e:
             status = "FAILED (PROCESSING)"
-            message = e.message
-            yield {"id": id, "status": status, "message": message}
+            message = get_error_message(e)
+            yield id, {"status": status, "message": message}
             continue
-
-        annotated_vcf = resp["data"]
 
         try:
             annotation_jobs.deposit(id, annotated_vcf)
             status = "DONE"
             message = ""
         except Exception, e:
+            annotation_jobs.rollback()
             status = "FAILED (DEPOSIT)"
-            message = e.message
+            message = e.__class__.__name__+": "+e.message
 
         yield id, {"status": status, "message": message}
 
+def patch_annotation_job(annotation_jobs, id, updates):
+    try:
+        annotation_jobs.patch(id, **updates)
+        annotation_jobs.commit()
+    except Exception, e:
+        log.error("Failed patch of annotation job {id} ({update}): {error}".format(id, str(updates), e.message))
+        annotation_jobs.rollback()
 
 def polling(session):
     annotation_jobs = AnnotationJobsInterface(session)
@@ -222,7 +238,7 @@ def polling(session):
             try:
                 session.connection()
 
-                if len(session.bind.table_names()) == 0:
+                if not session.bind.table_names():
                     # Database is not populated
                     session.remove()
                     time.sleep(5)
@@ -231,23 +247,20 @@ def polling(session):
                 # Process running
                 running_jobs = annotation_jobs.get_with_status("RUNNING")
                 for id, update in process_running(annotation_service, running_jobs):
-                    annotation_jobs.patch(id, **update)
+                    patch_annotation_job(annotation_jobs, id, update)
                     log.info("Processed running job {} with data {}".format(id, str(update)))
-                annotation_jobs.commit()
 
                 # Process submitted
                 submitted_jobs = annotation_jobs.get_with_status("SUBMITTED")
                 for id, update in process_submitted(annotation_service, submitted_jobs):
-                    annotation_jobs.patch(id, **update)
+                    patch_annotation_job(annotation_jobs, id, update)
                     log.info("Processed submitted job {} with data {}".format(id, str(update)))
-                annotation_jobs.commit()
 
                 # Process annotated
                 annotated_jobs = annotation_jobs.get_with_status("ANNOTATED")
                 for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
-                    annotation_jobs.patch(id, **update)
+                    patch_annotation_job(annotation_jobs, id, update)
                     log.info("Processed annotated job {} with data {}".format(id, str(update)))
-                annotation_jobs.commit()
 
                 # Remove session to avoid a hanging session
                 session.remove()

@@ -20,7 +20,7 @@ def test_polling(session, client, test_database):
     # Submit to database
     data = dict(mode="Analysis",
                 user_id=1,
-                vcf="Dummy vcf data for testing",
+                data="Dummy vcf data for testing",
                 genepanel_name="HBOC",
                 genepanel_version="v01",
                 properties=dict(
@@ -112,4 +112,4 @@ def test_polling(session, client, test_database):
     assert len(updates_annotated) == 1
 
     id, update = updates_annotated[0]
-    assert update["message"] == "Couldn't import samples to database. (db_samples: [], vcf_sample_names: [])"
+    assert update["message"] == "RuntimeError: Couldn't import samples to database. (db_samples: [], vcf_sample_names: [])"

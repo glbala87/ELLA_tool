@@ -56,6 +56,14 @@ class DepositFromVCF(object):
     def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None):
         raise RuntimeError("import_vcf must be overloaded in subclass")
 
+    def is_inside_transcripts(self, record, genepanel):
+        chr = record["CHROM"]
+        pos = record["POS"]
+        for tx in genepanel.transcripts:
+            if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
+                return True
+        return False
+
     def getCounter(self):
         counter = dict(self.counter)
         counter.update(self.sample_importer.counter)

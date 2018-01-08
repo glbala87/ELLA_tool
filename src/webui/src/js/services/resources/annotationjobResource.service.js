@@ -13,11 +13,37 @@ export class AnnotationjobResource {
         this.base = '/api/v1';
     }
 
-    get() {
+    get(q, per_page, page) {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/import/service/jobs/`);
-            let annotationjobs = r.query(() => {
-                resolve(annotationjobs);
+            let args = []
+            if (q) {
+                args.push(`q=${encodeURIComponent(JSON.stringify(q))}`)
+            }
+            if (per_page) {
+                args.push(`per_page=${per_page}`)
+            }
+            if (page) {
+                args.push(`page=${page}`)
+            }
+
+            if (!args.length) {
+                var r = this.resource(`${this.base}/import/service/jobs/`);
+            } else {
+                var r = this.resource(`${this.base}/import/service/jobs/?${args.join("&")}`);
+            }
+
+            let annotationjobs = r.query((data, headers) => {
+                headers = headers()
+                let pagination = {
+                    page: headers['page'],
+                    totalCount: headers['total-count'],
+                    perPage: headers['per-page'],
+                    totalPages: headers['total-pages'],
+                }
+                resolve({
+                    pagination: pagination,
+                    data: data,
+                });
             }, reject);
         });
     }
@@ -66,17 +92,4 @@ export class AnnotationjobResource {
         });
     }
 
-    delete(id) {
-        return new Promise((resolve, reject)=> {
-            let r = this.resource(`${this.base}/import/service/jobs/${id}/`, {},
-                {
-                    delete: {
-                        method: 'DELETE'
-                    }
-                });
-            let del_query = r.delete(() => {
-                resolve(del_query);
-            }, reject);
-        })
-    }
 }

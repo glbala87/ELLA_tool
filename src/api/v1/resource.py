@@ -2,7 +2,21 @@
 from api.util.util import provide_session, logger
 from flask.ext.restful import Resource as flask_resource
 import sqlalchemy
-from sqlalchemy import tuple_
+from sqlalchemy import tuple_, Text
+
+FILTER_OPERATORS = {
+    # Operators which accept two arguments.
+    '$eq': lambda f, a: f == a,
+    '$neq': lambda f, a: f != a,
+    '$gt': lambda f, a: f > a,
+    '$lt': lambda f, a: f < a,
+    '$gte': lambda f, a: f >= a,
+    '$lte': lambda f, a: f <= a,
+    '$in': lambda f, a: f.in_(a),
+    '$nin': lambda f, a: ~f.in_(a),
+    '$like': lambda f, a: f.cast(Text).like(a),
+    '$ilike': lambda f, a: f.cast(Text).ilike(a),
+}
 
 
 class Resource(flask_resource):
@@ -13,13 +27,17 @@ class Resource(flask_resource):
         args = list()
         for k, v in rest_filter.iteritems():
             if isinstance(v, list):
+                operator = FILTER_OPERATORS['$in']
                 if v:  # Asking for empty list doesn't make sense
-                    if isinstance(k, tuple):
-                        args.append(tuple_(*(getattr(model, _k) for _k in k)).in_(v))
+                    if isinstance(k, (list, tuple)):
+                        args.append(operator(tuple_(*(getattr(model, _k) for _k in k)), v))
                     else:
-                        args.append(getattr(model, k).in_(v))
+                        args.append(operator(getattr(model, k), v))
+            elif isinstance(v, dict):
+                for op_k, op_v in v.iteritems():
+                    args.append(FILTER_OPERATORS[op_k](getattr(model, k), op_v))
             else:
-                args.append(getattr(model, k) == v)
+                args.append(FILTER_OPERATORS["$eq"](getattr(model, k), v))
         if args:
             query = query.filter(*args)
         return query
@@ -33,11 +51,16 @@ class Resource(flask_resource):
             if any((isinstance(v, list) and not v) for v in kwargs['rest_filter'].values()):
                 return list(), 0
             query = self._filter(query, model, kwargs['rest_filter'])
+
+        count = query.count()
+        if kwargs.get('order_by') is not None:
+            query = query.order_by(kwargs["order_by"])
+
         if kwargs.get('per_page'):
             query = query.limit(kwargs['per_page'])
         if kwargs.get('page') and kwargs.get('per_page'):
             query = query.offset((kwargs['page']-1)*kwargs['per_page'])
-        count = query.count()
+
         s = query.all()
         if schema:
             result = schema.dump(s, many=True)

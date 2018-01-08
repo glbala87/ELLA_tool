@@ -12,7 +12,7 @@ require('core-js/fn/array/includes');
 import "./modals/addExcludedAllelesModal.service";
 import "./modals/alleleAssessmentHistoryModal.service";
 import "./modals/customAnnotationModal.service";
-import "./modals/annotateVCFFileModal.service";
+import "./modals/importModal.service";
 import "./modals/referenceEvalModal.service";
 import "./modals/interpretationOverrideModal.service";
 import "./modals/showAnalysesForAlleleModal.service";
@@ -73,6 +73,7 @@ import './widgets/alleleinfo/alleleInfoHgmd.directive';
 import './widgets/alleleinfo/alleleInfoClinvar.directive';
 import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
+import './widgets/annotationimport/importSingle.directive'
 
 import './widgets/analysisList.directive';
 import './widgets/alleleAssessment.directive';

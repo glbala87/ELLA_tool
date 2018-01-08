@@ -26,12 +26,13 @@
   .right { flex: 4; }
   .left ~ .right { margin-left: 1.3rem; }
   .left-basic ~ .right-basic { margin-left: 1.3rem; }
+  .left-short {text-align: right; flex: 2;padding-right: 1.6rem;}
 }
 .question { min-height: 8rem;
   .multiple-question-element ~ .multiple-question-element { margin-left: 1.3rem; }
   .dropdown { background-color: $blue-05; border: 1px solid $blue-25; display: inline-block; }
   h2 { font-size: 2rem; text-transform: uppercase; font-weight: 400; letter-spacing: 0.05rem; }
-  h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; }
+  h5 { font-size: 1.4rem; font-weight: 500; text-transform: uppercase; margin: 0; white-space: normal; padding: 0;}
   p { font-size: 1.4rem; font-weight: 400; margin: 0; }
   textarea { width: 100%; font-size: 1.2rem; font-family: $slim; }
 }
@@ -62,6 +63,7 @@
 .popover-title-no-uppercase * .popover-title {text-transform: none !important;}
 .popover-content {padding-top: 0.3rem}
 .popover-content * { @extend .slim; color: $black-75; font-size: 1.3rem !important;}
+.popover-content > pre { white-space: pre-wrap;}
 .popover-content .gpv_override { color: $red; }
 .popover-list { list-style-type: none; max-width: 50vw; }
 .popover-list.indented { margin-left: 1.3rem; }
@@ -113,3 +115,81 @@
   color: $red-95;
   font-weight: 700;
 }
+
+importsingle > contentwrapper {
+  margin-top: 1.6rem;
+}
+
+@keyframes fade-in-import-edit {
+  0% {
+    transform: scale(0.0);
+    transform-origin: top left;
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    transform-origin: top left;
+  }
+}
+
+.import-edit {
+  background-color: $blue-10;
+  padding: 1rem;
+  margin-top: 1rem;
+  &.ng-enter {
+    animation: fade-in-import-edit 0.15s;
+    animation-timing-function: ease-in;
+  }
+}
+
+.import-summary {
+  width: 50%;
+  > section > div > div {
+      display: flex;
+      > span {
+        font-size: 1.4rem;
+        &.title {
+          min-width: 15rem;
+          text-transform: uppercase !important;
+          font-weight: 600;
+        }
+      }
+    }
+  padding-right: 2rem;
+}
+
+.import-selection {
+  border-top: 1px dashed $black-10;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  min-height: 8rem;
+}
+
+.import-warning {
+  background: $red-05;
+  margin: 0.4rem 0;
+  border: 1px solid $red-25;
+  padding: 0.2rem;
+}
+
+.import-variants {
+  * input[type=checkbox] {
+    height: inherit;
+  }
+
+}
+
+.annotationjobinfo > span {
+  overflow-wrap: break-word;
+}
+
+.annotationjobinfo > p {
+  white-space: pre-line;
+}
+
+.import-all-summary * {
+  text-align: center;
+  margin-top: 0.3rem;
+}
+
+
