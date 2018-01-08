@@ -273,7 +273,8 @@ To get an interactive REPL you specify DEBUG=true and put browser.debug() in you
 The specs to run are taken from wdio.conf.js. When reading specs from stdin, which we do when the DEBUG is missing,
 the repl won't work (see run_e2e_tests_locally.sh).
 
-If you already have an app running you can run the tests against it by adding APP_BASE_URL (ip:port).
+If you already have an app running you can run the tests against it by adding APP_URL (ip:port).
+Make sure to use an ip/port that is accessible from within the container where the tests themselves are running.
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 

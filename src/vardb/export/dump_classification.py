@@ -13,9 +13,10 @@ from openpyxl.styles import Font
 from openpyxl import Workbook
 from bs4 import BeautifulSoup
 
-from vardb.datamodel import DB, assessment, allele
+from vardb.datamodel import DB, assessment, allele, sample, genotype
 from api.util import alleledataloader
 
+KEY_ANALYSES = 'analyses'
 
 """
 Dump current classification, i.e. alleleassessments for which
@@ -27,16 +28,8 @@ SCRIPT_DIR = path.abspath(path.dirname(__file__))
 log = logging.getLogger(__name__)
 
 REF_FORMAT = u"{title} (Pubmed {pmid}): {evaluation}"
-
 REF_ORDER = ['relevance', 'ref_auth_classification', 'comment']
-# Ref evaluation fields, order not specified:
-# ['ref_prot', 'ref_population', 'ref_prediction',
-#  'ref_prediction_tool', 'ref_segregation',
-#  'ref_segregation_quality', 'ref_quality',
-#  'ref_prot_quality', 'ref_rna', 'ref_rna_quality', 'sources']
-
 CHROMOSOME_FORMAT = "{chromosome}:{start_position}-{open_end_position}"
-
 DATE_FORMAT = "%Y-%m-%d"
 
 
@@ -59,7 +52,8 @@ COLUMN_PROPERTIES = OrderedDict([
     ('freq_eval', ['Frequency comment', 20]),
     ('extdb_eval', ['External DB comment', 20]),
     ('pred_eval', ['Prediction comment', 20]),
-    ('ref_eval', ['Reference evaluations', 20])
+    ('ref_eval', ['Reference evaluations', 20]),
+    (KEY_ANALYSES, ['Analyses', 20])
 ])
 
 
@@ -127,7 +121,7 @@ def format_classification(alleleassessment, adl):
     Make a list of the classification fields of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
     :param adl: an AlleleDataLoader object
-    :return : list of formatted strings for filtered transcripts
+    :return : a dict of formatted strings for an assessment
     """
 
     link_filter = {
@@ -176,16 +170,8 @@ def format_classification(alleleassessment, adl):
     formatted_transcript = format_transcripts(allele_dict['annotation'])
 
     n_samples = len(alleleassessment.allele.genotypes)
-    log.debug('Allele %s, %s is found in samples %s' %
-              (alleleassessment.allele_id,
-               formatted_transcript.get('hgvsc'),
-               '|'.join([','.join(map(str, [g.sample_id]))
-                         for g in alleleassessment.allele.genotypes])
-              )
-    )
 
-
-    classification_values = {
+    return {
         'gene': formatted_transcript.get('gene'),
         'class': alleleassessment.classification,
         'transcript': formatted_transcript.get('transcript'),
@@ -206,10 +192,8 @@ def format_classification(alleleassessment, adl):
         'ref_eval': html_to_text(ref_evals)
     }
 
-    return [classification_values[key] for key in COLUMN_PROPERTIES]
 
-
-def dump_alleleassessments(session, filename):
+def dump_alleleassessments(session, filename, with_analysis_names):
     """
     Save all current alleleassessments to Excel document
     :param session: An sqlalchemy session
@@ -218,6 +202,9 @@ def dump_alleleassessments(session, filename):
 
     if not filename:
         raise RuntimeError("Filename for classification export is mandatory")
+
+    if not with_analysis_names:
+        del COLUMN_PROPERTIES[KEY_ANALYSES]
 
     alleleassessments = session.query(assessment.AlleleAssessment).options(
         subqueryload(assessment.AlleleAssessment.annotation).
@@ -228,7 +215,6 @@ def dump_alleleassessments(session, filename):
     ).filter(
         assessment.AlleleAssessment.date_superceeded.is_(None)
     )
-
 
     adl = alleledataloader.AlleleDataLoader(session)
 
@@ -260,9 +246,22 @@ def dump_alleleassessments(session, filename):
                  (len(batch_alleleassessments), str(t_query-t_start)))
 
         for alleleassessment in batch_alleleassessments:
-            classification = format_classification(alleleassessment, adl)
-            csv_body.append(classification)
-            rows.append(classification)
+            classification_dict = format_classification(alleleassessment, adl)
+            if with_analysis_names:
+                analyses = session.query(sample.Analysis).join(
+                    genotype.Genotype.alleles,
+                    sample.Sample,
+                    sample.Analysis
+                ).filter(
+                    allele.Allele.id == alleleassessment.allele_id
+                ).all()
+                analysis_names = ','.join(map(str, [a.name for a in analyses]))
+
+                classification_dict[KEY_ANALYSES] = analysis_names
+
+            classification_columns = [classification_dict[key] for key in COLUMN_PROPERTIES]
+            csv_body.append(classification_columns)
+            rows.append(classification_columns)
 
         t_get = time.time()
         log.info("Read the allele assessments in %s seconds" %
