@@ -29,11 +29,11 @@ def without_finding_classification():
 
 class TestAnalysisOverview(object):
 
-    @pytest.mark.aa(order=0)
+    @pytest.mark.overviewanalysis(order=0)
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
 
-    @pytest.mark.aa(order=1)
+    @pytest.mark.overviewanalysis(order=1)
     def test_initial_state(self, client):
 
         # Normal endpoint
@@ -56,7 +56,7 @@ class TestAnalysisOverview(object):
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 0
 
-    @pytest.mark.aa(order=2)
+    @pytest.mark.overviewanalysis(order=2)
     def test_changes(self, client, session, with_finding_classification, without_finding_classification):
 
         FIRST_ANALYSIS_ID = 1
@@ -373,7 +373,7 @@ def check_items(gp_allele_ids, items, should_include=True, check_length=True):
 
 class TestAlleleOverview(object):
 
-    @pytest.mark.aa(order=0)
+    @pytest.mark.overviewallele(order=0)
     def test_not_started_initial(self, test_database, client, session):
         """
         Do some initial checks.
@@ -416,7 +416,7 @@ class TestAlleleOverview(object):
         diff_gp_allele_ids = get_diff_gp_allele_ids(initial_gp_allele_ids, gp_allele_ids)
         check_items(diff_gp_allele_ids, r.json['missing_alleleassessment'], should_include=False)
 
-    @pytest.mark.aa(order=1)
+    @pytest.mark.overviewallele(order=1)
     def test_not_started_start_interpretation(self, test_database, client, session):
         """
         Start one alleleinterpretation -> disappear from missing list and move into ongoing
@@ -506,7 +506,7 @@ class TestAlleleOverview(object):
         check_items(started_gp_allele_ids, r.json['missing_alleleassessment'], should_include=False)
         check_items(started_gp_allele_ids, r.json['ongoing'])
 
-    @pytest.mark.aa(order=2)
+    @pytest.mark.overviewallele(order=2)
     def test_not_started_with_valid_alleleassessment(self, test_database, client, session, with_finding_classification):
         """
         Has valid alleleassessment and part of analysis only -> disappear from missing list
@@ -566,7 +566,7 @@ class TestAlleleOverview(object):
         r = client.get('/api/v1/overviews/alleles/')
         check_items({('HBOCUTV', 'v01'): [allele_id]}, r.json['missing_alleleassessment'], should_include=False)
 
-    @pytest.mark.aa(order=3)
+    @pytest.mark.overviewallele(order=3)
     def test_not_started_with_valid_alleleassessment(self, test_database, client, session, with_finding_classification):
         """
         Has outdated alleleassessment -> appear in missing list
@@ -597,7 +597,7 @@ class TestAlleleOverview(object):
         r = client.get('/api/v1/overviews/alleles/')
         check_items({('HBOCUTV', 'v01'): [allele_id]}, r.json['missing_alleleassessment'], check_length=False)
 
-    @pytest.mark.aa(order=4)
+    @pytest.mark.overviewallele(order=4)
     def test_other_categories(self, test_database, client, session):
         """
         Test the other categories:

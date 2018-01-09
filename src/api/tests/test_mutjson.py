@@ -3,15 +3,11 @@ from vardb.datamodel import annotation
 import pytest
 
 
-def test_mutable_json():
+def test_mutable_json(session):
     """
     Not the place to test this, but need to test it on a live postgres db...
     Test that the custom mutation tracking is working.
     """
-
-    db = DB()
-    db.connect()
-    session = db.session()
 
     # Test mutating a customannotation objects data
     ca = annotation.CustomAnnotation()
