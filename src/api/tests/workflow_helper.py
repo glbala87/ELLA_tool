@@ -36,8 +36,8 @@ class WorkflowHelper(object):
 
     def __init__(self, workflow_type, workflow_id, genepanel=None):
 
-        if workflow_type == 'analysis' and not genepanel:
-            raise RuntimeError("Missing required genepanel tuple when workflow_type == 'analysis'")
+        if workflow_type == 'allele' and not genepanel:
+            raise RuntimeError("Missing required genepanel tuple when workflow_type == 'allele'")
 
         self.type = workflow_type
         self.id = workflow_id

@@ -112,7 +112,7 @@ def workflow_analyses_for_genepanels(session, genepanels):
     )
 
 
-def allele_ids_nonfinalized_analyses(session):
+def allele_ids_not_started_analyses(session):
     return session.query(
         allele.Allele.id,
     ).join(
@@ -121,7 +121,7 @@ def allele_ids_nonfinalized_analyses(session):
         sample.Analysis,
         workflow.AnalysisInterpretation
     ).filter(
-        ~sample.Analysis.id.in_(workflow_analyses_finalized(session))
+        sample.Analysis.id.in_(workflow_analyses_not_started(session))
     )
 
 

@@ -56,7 +56,7 @@ class AlleleAssessment(Base):
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
     def __repr__(self):
-        return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.classification, str(self.user))
+        return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.allele_id, self.classification)
 
     def __str__(self):
         return "%s, %s" % (self.classification, self.date_created)

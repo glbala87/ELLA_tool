@@ -31,8 +31,7 @@ ALLELE_USERNAMES = ['testuser4', 'testuser1', 'testuser2']
 def analysis_wh():
     return WorkflowHelper(
         'analysis',
-        ANALYSIS_ID,
-        genepanel=('HBOC', 'v01')
+        ANALYSIS_ID
     )
 
 
