@@ -72,14 +72,22 @@ def load_genepanel_alleles(session, gp_allele_ids):
 
     # Preload oldest analysis for each allele, to get the oldest datetime
     # for the analysis awaiting this allele's classification
-    allele_ids_deposit_date = session.query(allele.Allele.id, func.min(sample.Analysis.deposit_date)).join(
+    allele_ids_analysis_deposit_date = session.query(allele.Allele.id, func.min(sample.Analysis.deposit_date)).join(
         genotype.Genotype.alleles,
         sample.Sample,
         sample.Analysis
     ).filter(
         allele.Allele.id.in_(all_allele_ids)
     ).group_by(allele.Allele.id).all()
-    allele_ids_deposit_date = {k: v for k, v in allele_ids_deposit_date}
+    allele_ids_deposit_date = {k: v for k, v in allele_ids_analysis_deposit_date}
+
+    # Standalone alleles are not connected to analysis, and have no deposit date.
+    # They do however have AlleleInterpretation objects with date_created.
+    # If we have dates from both analysis and alleleinterpretation, we let alleleinterpretation take priority
+    allele_ids_interpretation_deposit_date = session.query(workflow.AlleleInterpretation.allele_id, func.min(workflow.AlleleInterpretation.date_created)).filter(
+        workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
+    ).group_by(workflow.AlleleInterpretation.allele_id).all()
+    allele_ids_deposit_date.update({k: v for k, v in allele_ids_interpretation_deposit_date})
 
     # Preload highest priority analysis for each allele
     allele_ids_priority = session.query(allele.Allele.id, func.max(sample.Analysis.priority)).join(
@@ -126,7 +134,7 @@ def load_genepanel_alleles(session, gp_allele_ids):
             final_alleles.append({
                 'genepanel': {'name': genepanel.name, 'version': genepanel.version},
                 'allele': a,
-                'oldest_analysis': allele_ids_deposit_date.get(a['id'], datetime.datetime.now(pytz.utc)).isoformat(),
+                'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
                 'highest_analysis_priority': allele_ids_priority.get(a['id'], 1),  # If there's no analysis connected, set to normal priority
                 'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
             })
