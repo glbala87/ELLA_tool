@@ -294,12 +294,18 @@ class OverviewAlleleResource(LogRequestResource):
         allele_ids = [a[0] for a in allele_ids]
 
         analysis_ids = session.query(sample.Analysis.id).filter(
-            ~sample.Analysis.id.in_(queries.workflow_analyses_finalized(session))
+            sample.Analysis.id.in_(queries.workflow_analyses_not_started(session))
         )
 
         return allele_ids, analysis_ids
 
     def get_alleles_ongoing(self, session, user=None):
+        """
+        Returns alleles that are ongoing.
+
+        If user argument is given, the alleles will be limited by user group's
+        genepanels.
+        """
         allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_ongoing(session))]
         if user is not None:
             allele_filters.append(
@@ -319,6 +325,12 @@ class OverviewAlleleResource(LogRequestResource):
         return load_genepanel_alleles(session, gp_allele_ids)
 
     def get_alleles_markedreview(self, session, user=None):
+        """
+        Returns alleles that are marked review.
+
+        If user argument is given, the alleles will be limited by user group's
+        genepanels.
+        """
         allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_marked_review(session))]
         if user is not None:
             allele_filters.append(
@@ -339,13 +351,18 @@ class OverviewAlleleResource(LogRequestResource):
 
     def get_alleles_not_started(self, session, user=None):
         """
-        Returns alleles according to these conditions:
+        Returns alleles that are not started.
 
-        Take all alleles from 'Not started' analyses:
-           - subtract alleles with valid alleleassessment
+        If user argument is given, the alleles will be limited by user group's
+        genepanels.
+
+        For figuring out what counts as 'Not started',
+        the following conditions are used:
+
+        Take all alleles from all 'Not started' analyses:
+           - subtract alleles with valid alleleassessment (i.e. exists and not outdated)
            - subtract alleles with ongoing/review alleleinterpretation
         Add all alleles from 'Not started' alleleinterpretation
-
         """
         analysis_allele_ids, analysis_ids = self._get_alleles_no_alleleassessment_notstarted_analysis(session, user)
 

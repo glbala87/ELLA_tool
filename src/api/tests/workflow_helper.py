@@ -145,9 +145,6 @@ class WorkflowHelper(object):
 
     def perform_finalize_round(self, interpretation):
 
-        # Reference new state in our round data
-        interpretation['state'] = interpretation['state']
-
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation['state']['alleleassessments']
         reference_assessments = interpretation['state']['referenceassessments']
@@ -233,9 +230,8 @@ class WorkflowHelper(object):
         # annotation is required for finalization
         annotations, custom_annotations = _build_dummy_annotations(map(lambda a: a['allele_id'], allele_assessments))
 
-        number_of_alleles = len(interpretation['allele_ids'])
-        assert len(allele_assessments) == number_of_alleles
-        assert len(allele_reports) == number_of_alleles
+        assert set([a['allele_id'] for a in allele_assessments]) == set(interpretation['allele_ids'])
+        assert set([a['allele_id'] for a in allele_reports]) == set(interpretation['allele_ids'])
 
         alleles = ih.get_alleles(
             self.type,
