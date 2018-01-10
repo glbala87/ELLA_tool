@@ -395,6 +395,7 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	   --name $(E2E_APP_CONTAINER) \
 	   --label io.ousamg.gitversion=$(BRANCH) \
 	   -e PRODUCTION=false \
+	   -e DB_URL=postgres:///postgres \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \
@@ -467,6 +468,7 @@ e2e-test-local: test-build
        -it \
        -v $(shell pwd):/ella \
 	   -e PRODUCTION=false \
+	   -e DB_URL=postgres:///postgres \
 	   -p 5000:5000 -p 5859:5859 \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
