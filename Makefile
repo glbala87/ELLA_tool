@@ -300,8 +300,8 @@ test-js: test-build
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  --name $(PIPELINE_ID)-js \
-	  $(NAME_OF_GENERATED_IMAGE) \
 	  -e PRODUCTION=false \
+	  $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
 	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
