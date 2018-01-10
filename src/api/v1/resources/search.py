@@ -238,7 +238,7 @@ class SearchResource(LogRequestResource):
         # e.g. NM_000059.3:c.4068G>A(p.=)
         if 'p.' in freetext:
             allele_ids = allele_ids.filter(
-                annotationshadow.AnnotationShadowTranscript.hgvsp.like(freetext + "%")
+                annotationshadow.AnnotationShadowTranscript.hgvsp.ilike(freetext + "%")
             )
         elif freetext.startswith('c.'):
             allele_ids = allele_ids.filter(
@@ -276,7 +276,6 @@ class SearchResource(LogRequestResource):
     def _search_allele_gene(self, session, gene_hgnc_id, genepanels):
         # Search by transcript symbol
         genepanel_transcripts = annotation_transcripts_genepanel(session, None, [(gp.name, gp.version) for gp in genepanels]).subquery()
-
         result = session.query(
             genepanel_transcripts.c.allele_id,
         ).filter(
@@ -394,7 +393,7 @@ class SearchResource(LogRequestResource):
     def _search_allele(self, session, query, genepanels):
         alleles = session.query(allele.Allele).filter(
             *self._get_alleles_filters(session, query, genepanels)
-        ).limit(SearchResource.ALLELE_LIMIT).all()
+        ).distinct().limit(SearchResource.ALLELE_LIMIT).all()
 
         allele_data = AlleleDataLoader(session).from_objs(
             alleles,
@@ -468,7 +467,7 @@ class SearchResource(LogRequestResource):
     def _search_analysis(self, session, query, genepanels):
             analyses = session.query(sample.Analysis).filter(
                 *self._get_analyses_filters(session, query, genepanels)
-            ).limit(SearchResource.ANALYSIS_LIMIT).all()
+            ).distinct().limit(SearchResource.ANALYSIS_LIMIT).all()
             if analyses:
                 return schemas.AnalysisFullSchema().dump(analyses, many=True).data
             else:
