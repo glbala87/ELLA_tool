@@ -15,7 +15,7 @@ fi
 
 
 if [ "${CHROME_HOST}" = "" ]
-    then 
+    then
         yellow "CHROME_HOST not set, using 172.17.0.1 as default"
         CHROME_HOST=172.17.0.1
     else
@@ -26,7 +26,7 @@ if [ "${SPECS}" = "" ]
     then
        yellow "SPECS not set, will run all (or specs mentioned in wdio.conf.js if DEBUG=true is given)"
        # all specs expect the ones used to create test fixtures:
-       SPECS=`find  src/webui/tests/e2e/tests -name "*.js" | grep -v "testfixture" | sort`
+       SPECS=`find  src/webui/tests/e2e/tests -name "*.js" | grep -v "testfixture" | sort | tr "\n" ","`
 fi
 
 yellow "Building the application to test"
@@ -42,15 +42,14 @@ yellow "Starting e2e tests locally..."
 
 if [ "${DEBUG}" = "" ]
     then
-       yellow "DEBUG not set. Will read specs from STDIN, which will prevent the WDIO repl/prompt from working."
-       yellow "To get a working REPL start again with DEBUG=true and configure the spec in wdio.conf.js"
        echo "Will run tests $SPECS"
-       echo "$SPECS" | /dist/node_modules/webdriverio/bin/wdio \
-           --baseUrl "${APP_URL}" --host "${CHROME_HOST}" --port 4444 --path "/" \
+       /dist/node_modules/webdriverio/bin/wdio \
+           --baseUrl "${APP_URL}" --spec ${SPECS} --host "${CHROME_HOST}" --port 4444 --path "/" \
            /ella/src/webui/tests/e2e/wdio.conf.js
     else
+        echo "Will run tests $SPECS"
 	    DEBUG=true /dist/node_modules/webdriverio/bin/wdio \
-           --baseUrl "${APP_URL}" --host "${CHROME_HOST}" --port 4444 --path "/" \
+           --baseUrl "${APP_URL}" --host "${CHROME_HOST}" --spec ${SPECS} --port 4444 --path "/" \
            /ella/src/webui/tests/e2e/wdio.conf.js
 fi
 

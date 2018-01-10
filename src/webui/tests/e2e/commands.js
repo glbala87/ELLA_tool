@@ -1,3 +1,5 @@
+const { execSync } = require('child_process');
+
 function waitForAngular() {
     browser.timeouts('script', 15000).executeAsync(function(done) {
         // use 'window.'' to work around weird bug when testing for undefined..
@@ -14,7 +16,7 @@ module.exports = function addCommands() {
 
     browser.addCommand('resetDb', (testset='e2e') => {
         console.log(`Resetting database with '${testset}' (this can take a while...)`);
-        browser.url(`http://${browser.options.baseUrl}/reset?testset=${testset}&blocking=true`);
+        execSync(`make -C /ella dbreset TESTSET=${testset}`);
         console.log("Database reset done!");
     });
 
