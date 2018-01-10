@@ -233,21 +233,33 @@ config = {
         "options": [  # Also defines sorting order
             # Adding a class needs ENUM update in DB, along with migration
             {
+                "name": "Unclassified",
+                "value": "U",
+                "outdated_after_days": 180  # Marked as outdated after N number of days
+            },
+            {
+                "name": "Technical",
+                "value": "T",
+                "outdated_after_days": 0,
+                "include_analysis_with_findings": True,  # Include in analyses with findings overviews
+                "exclude_filtering_existing_assessment": True  # If there's an existing alleleassessment, exclude the allele from being filtered.
+            },
+            {
                 "name": "Class 1",
                 "value": "1"
             },
             {
                 "name": "Class 2",
                 "value": "2",
-                "outdated_after_days": 180,  # Marked as outdated after N number of days
-                "exclude_filtering_existing_assessment": True  # If there's an existing alleleassessment, exclude the allele from being filtered.
+                "outdated_after_days": 180,
+                "exclude_filtering_existing_assessment": True
             },
             {
                 "name": "Class 3",
                 "value": "3",
                 "outdated_after_days": 180,
                 "include_report": True,  # Include in report by default
-                "include_analysis_with_findings": True,  # Include in analyses with findings overviews
+                "include_analysis_with_findings": True,
                 "exclude_filtering_existing_assessment": True
             },
             {
@@ -265,19 +277,7 @@ config = {
                 "include_report": True,
                 "include_analysis_with_findings": True,
                 "exclude_filtering_existing_assessment": True
-            },
-            {
-                "name": "Technical",
-                "value": "T",
-                "outdated_after_days": 0,
-                "include_analysis_with_findings": True,
-                "exclude_filtering_existing_assessment": True
-            },
-            {
-                "name": "Unclassified",
-                "value": "U",
-                "outdated_after_days": 180
-            },
+            }
         ]
     },
 

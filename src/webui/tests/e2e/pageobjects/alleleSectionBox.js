@@ -141,32 +141,32 @@ class AlleleSectionBox  {
         return this._getClassificationLabel().toLowerCase() === "Class 5".toLowerCase();
     }
 
-    classifyAs1() {
-       this._setClassification(2);
-    }
-
-    classifyAs2() {
-       this._setClassification(3);
-    }
-
-    classifyAs3() {
-       this._setClassification(4);
-    }
-
-    classifyAs4() {
-       this._setClassification(5);
-    }
-
-    classifyAs5() {
-       this._setClassification(6);
+    classifyAsU() {
+        this._setClassification(2);
     }
 
     classifyAsT() {
-        this._setClassification(7);
+        this._setClassification(3);
     }
 
-    classifyAsU() {
-        this._setClassification(8);
+    classifyAs1() {
+       this._setClassification(4);
+    }
+
+    classifyAs2() {
+       this._setClassification(5);
+    }
+
+    classifyAs3() {
+       this._setClassification(6);
+    }
+
+    classifyAs4() {
+       this._setClassification(7);
+    }
+
+    classifyAs5() {
+       this._setClassification(8);
     }
 
     unclassify() { // go through all possible buttons that 'unclassifies':
