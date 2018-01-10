@@ -21,6 +21,7 @@ from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.deposit.deposit_alleles import DepositAlleles
 
 from vardb.util import vcfiterator
 
@@ -88,6 +89,13 @@ ANALYSES = [
     },
 ]
 
+ALLELES = [
+    {
+        'path': '../testdata/analyses/small/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf',
+        'genepanel': ('HBOC', 'v01')
+    }
+]
+
 DEFAULT_TESTSET = filter(lambda a:  'default' in a and a['default'], ANALYSES)[0]['name']
 AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + map(lambda a: a['name'], ANALYSES)
 
@@ -114,7 +122,7 @@ class DepositTestdata(object):
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
             import_users(self.session, json.load(f))
 
-    def deposit_vcfs(self, test_set=None):
+    def deposit_analyses(self, test_set=None):
         """
         :param test_set: Which set to import.
         """
@@ -148,12 +156,26 @@ class DepositTestdata(object):
                     gp_name,
                     gp_version
                 )
-                log.info("Deposited {}".format(analysis_name))
+                log.info("Deposited {} as analysis".format(analysis_name))
                 self.session.commit()
 
             except UserWarning as e:
                 log.exception(str(e))
                 sys.exit()
+
+    def deposit_alleles(self):
+
+        for allele in ALLELES:
+            vcf_path = os.path.join(SCRIPT_DIR, allele['path'])
+
+            da = DepositAlleles(self.session)
+            da.import_vcf(
+                vcf_path,
+                allele['genepanel'][0],
+                allele['genepanel'][1]
+            )
+            log.info("Deposited {} as single alleles".format(vcf_path))
+            self.session.commit()
 
     def deposit_genepanels(self):
         dg = DepositGenepanel(self.session)
@@ -186,7 +208,8 @@ class DepositTestdata(object):
         if test_set in [SPECIAL_TESTSET_SKIPPING_VCF.upper(), SPECIAL_TESTSET_SKIPPING_VCF.lower()]:
             log.info("Skipping deposit of vcf and custom annotations")
         else:
-            self.deposit_vcfs(test_set=test_set)
+            self.deposit_analyses(test_set=test_set)
+            self.deposit_alleles()
             self.deposit_custom_annotation()
 
         log.info("--------------------")

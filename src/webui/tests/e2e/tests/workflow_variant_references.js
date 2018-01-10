@@ -32,7 +32,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
 
     it('allows interpretation, classification and reference evaluation to be set to review', function () {
         loginPage.selectFirstUser();
-        variantSelectionPage.selectPending(5);
+        variantSelectionPage.selectPending(7);
         analysisPage.startButton.click(); 
 
         alleleSectionBox.markAsTechnical();
