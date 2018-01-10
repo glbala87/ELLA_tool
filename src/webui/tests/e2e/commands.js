@@ -16,7 +16,9 @@ module.exports = function addCommands() {
 
     browser.addCommand('resetDb', (testset='e2e') => {
         console.log(`Resetting database with '${testset}' (this can take a while...)`);
-        execSync(`make -C /ella dbreset TESTSET=${testset}`);
+        execSync(`make -C /ella dbreset TESTSET=${testset}`, {
+            stdio: ['ignore','ignore','pipe']
+         });
         console.log("Database reset done!");
     });
 
