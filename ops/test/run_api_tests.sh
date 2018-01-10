@@ -14,7 +14,7 @@ if [ "$1" = "" ]
 then
 	py.test --color=yes --exitfirst "/ella/src/api/" -s
 else
-  $1
+  $@
 fi
 
 echo "exits $BASH_SOURCE"
