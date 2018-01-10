@@ -52,6 +52,11 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review']) == 0
         assert len(r.json['ongoing']) == 0
 
+        r = client.get('/api/v1/overviews/analyses/')
+        assert len(r.json['not_started']) == 4
+        assert len(r.json['marked_review']) == 0
+        assert len(r.json['ongoing']) == 0
+
         # Finalized
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 0
@@ -80,6 +85,12 @@ class TestAnalysisOverview(object):
         assert r.json['ongoing'][0]['id'] == FIRST_ANALYSIS_ID
         assert len(r.json['ongoing'][0]['interpretations']) == 1
 
+        r = client.get('/api/v1/overviews/analyses/')
+
+        assert len(r.json['not_started']) == 3
+        assert len(r.json['marked_review']) == 0
+        assert len(r.json['ongoing']) == 1
+
         ##
         # Marked review
         ##
@@ -97,6 +108,13 @@ class TestAnalysisOverview(object):
 
         assert r.json['marked_review'][0]['id'] == FIRST_ANALYSIS_ID
         assert len(r.json['marked_review'][0]['interpretations']) == 2
+
+        r = client.get('/api/v1/overviews/analyses/')
+
+        assert len(r.json['not_started']) == 3
+        assert len(r.json['marked_review']) == 1
+        assert len(r.json['ongoing']) == 0
+
 
         ##
         # Finalize
@@ -117,6 +135,12 @@ class TestAnalysisOverview(object):
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
         assert r.json[0]['id'] == FIRST_ANALYSIS_ID
+
+        r = client.get('/api/v1/overviews/analyses/')
+
+        assert len(r.json['not_started']) == 3
+        assert len(r.json['marked_review']) == 0
+        assert len(r.json['ongoing']) == 0
 
         ##
         # Test with_findings, non-outdated
@@ -290,7 +314,7 @@ def get_non_filtered_alleles(session):
     return gp_allele_ids
 
 
-def get_allele_not_started_contributors(session):
+def get_allele_not_started(session):
 
     # Alleles contributed from analyses
     gp_allele_ids = get_non_filtered_alleles(session)  # {('HBOC', 'v01'): [1, 2, 3], ...}
@@ -311,7 +335,7 @@ def get_allele_not_started_contributors(session):
     return gp_allele_ids
 
 
-def get_allele_alleleinterpretation_started_contributors(session):
+def get_allele_alleleinterpretation_started(session):
 
     # Alleles contributed from AlleleInterpretations
     alleleinterpretation_allele_ids = session.query(
@@ -381,12 +405,13 @@ class TestAlleleOverview(object):
         test_database.refresh()
 
         # Get data to compare against
-        initial_gp_allele_ids = get_allele_not_started_contributors(session)
+        initial_gp_allele_ids = get_allele_not_started(session)
 
         r = client.get('/api/v1/overviews/alleles/')
 
         assert len(r.json['ongoing']) == 0
-        assert len(r.json['missing_alleleassessment']) == len(list(itertools.chain.from_iterable(initial_gp_allele_ids.values())))
+        assert set([a['allele']['id'] for a in r.json['missing_alleleassessment']]) == \
+            set(itertools.chain.from_iterable(initial_gp_allele_ids.values()))
         assert len(r.json['marked_review']) == 0
 
         # Check missing_alleleassesment in detail
@@ -404,7 +429,7 @@ class TestAlleleOverview(object):
         wh = WorkflowHelper('analysis', 4)
         wh.start_interpretation('testuser1')
 
-        gp_allele_ids = get_allele_not_started_contributors(session)
+        gp_allele_ids = get_allele_not_started(session)
 
         r = client.get('/api/v1/overviews/alleles/')
         assert len(r.json['ongoing']) == 0
@@ -427,82 +452,82 @@ class TestAlleleOverview(object):
         test_database.refresh()
 
         # Case 1:
-        # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations with AlleleInterpretation 1
+        # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations
+        # with AlleleInterpretation 1 (allele id 1)
         wh = WorkflowHelper('allele', 1, genepanel=('HBOC', 'v01'))
         wh.start_interpretation('testuser1')
 
-        not_started_gp_allele_ids = get_allele_not_started_contributors(session)
-        started_gp_allele_ids = get_allele_alleleinterpretation_started_contributors(session)
-        gp_allele_ids = get_diff_gp_allele_ids(not_started_gp_allele_ids, started_gp_allele_ids)
+        not_started_gp_allele_ids = get_allele_not_started(session)
+        started_gp_allele_ids = get_allele_alleleinterpretation_started(session)
 
         # Ensure started id is not anymore in set
         started_allele_id = session.query(workflow.AlleleInterpretation.allele_id).filter(
-            workflow.AlleleInterpretation.id == 2
-        ).one()
+            workflow.AlleleInterpretation.id == 1
+        ).scalar()
 
-        for allele_ids in gp_allele_ids.values():
-            assert started_allele_id not in allele_ids
+        assert any(started_allele_id in a for a in started_gp_allele_ids.values())
+        assert all(started_allele_id not in a for a in not_started_gp_allele_ids.values())
 
         # Check that all entries are included as they should
         r = client.get('/api/v1/overviews/alleles/')
 
         assert len(r.json['marked_review']) == 0
-        check_items(gp_allele_ids, r.json['missing_alleleassessment'])
+        check_items(not_started_gp_allele_ids, r.json['missing_alleleassessment'])
         check_items(started_gp_allele_ids, r.json['missing_alleleassessment'], should_include=False)
         check_items(started_gp_allele_ids, r.json['ongoing'])
 
         # Case 2:
-        # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations with AlleleInterpretation 2
-        wh = WorkflowHelper('allele', 2, genepanel=('HBOCUTV', 'v01'))
+        # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations
+        # with AlleleInterpretation 2 (allele id 3)
+        wh = WorkflowHelper('allele', 3, genepanel=('HBOCUTV', 'v01'))
         wh.start_interpretation('testuser1')
 
-        not_started_gp_allele_ids = get_allele_not_started_contributors(session)
-        started_gp_allele_ids = get_allele_alleleinterpretation_started_contributors(session)
-        gp_allele_ids = get_diff_gp_allele_ids(not_started_gp_allele_ids, started_gp_allele_ids)
+        not_started_gp_allele_ids = get_allele_not_started(session)
+        started_gp_allele_ids = get_allele_alleleinterpretation_started(session)
 
         # Ensure started id is not anymore in set
         started_allele_id = session.query(workflow.AlleleInterpretation.allele_id).filter(
             workflow.AlleleInterpretation.id == 2
-        ).one()
+        ).scalar()
 
-        for allele_ids in gp_allele_ids.values():
-            assert started_allele_id not in allele_ids
+        assert all(started_allele_id not in a for a in not_started_gp_allele_ids.values())
+        assert any(started_allele_id in a for a in started_gp_allele_ids.values())
 
         # Check that all entries are included as they should
         r = client.get('/api/v1/overviews/alleles/')
 
         assert len(r.json['marked_review']) == 0
-        check_items(gp_allele_ids, r.json['missing_alleleassessment'])
+        check_items(not_started_gp_allele_ids, r.json['missing_alleleassessment'])
         check_items(started_gp_allele_ids, r.json['missing_alleleassessment'], should_include=False)
         check_items(started_gp_allele_ids, r.json['ongoing'])
 
         # Case 3:
-        # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations with AlleleInterpretation 3
+        # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations
+        # with AlleleInterpretation 3 (allele id 4)
         # We first start Analysis 1 to exclude it, since we want to test case when no analysis.
 
         wh = WorkflowHelper('analysis', 1)
         wh.start_interpretation('testuser1')
 
-        wh = WorkflowHelper('allele', 3, genepanel=('HBOC', 'v01'))
+        wh = WorkflowHelper('allele', 4, genepanel=('HBOC', 'v01'))
         wh.start_interpretation('testuser1')
 
-        not_started_gp_allele_ids = get_allele_not_started_contributors(session)
-        started_gp_allele_ids = get_allele_alleleinterpretation_started_contributors(session)
-        gp_allele_ids = get_diff_gp_allele_ids(not_started_gp_allele_ids, started_gp_allele_ids)
+        not_started_gp_allele_ids = get_allele_not_started(session)
+        started_gp_allele_ids = get_allele_alleleinterpretation_started(session)
 
         # Ensure started id is not anymore in set
         started_allele_id = session.query(workflow.AlleleInterpretation.allele_id).filter(
-            workflow.AlleleInterpretation.id == 2
-        ).one()[0]
+            workflow.AlleleInterpretation.id == 3
+        ).scalar()
 
-        for allele_ids in gp_allele_ids.values():
-            assert started_allele_id not in allele_ids
+        assert all(started_allele_id not in a for a in not_started_gp_allele_ids.values())
+        assert any(started_allele_id in a for a in started_gp_allele_ids.values())
 
         # Check that all entries are included as they should
         r = client.get('/api/v1/overviews/alleles/')
 
         assert len(r.json['marked_review']) == 0
-        check_items(gp_allele_ids, r.json['missing_alleleassessment'])
+        check_items(not_started_gp_allele_ids, r.json['missing_alleleassessment'])
         check_items(started_gp_allele_ids, r.json['missing_alleleassessment'], should_include=False)
         check_items(started_gp_allele_ids, r.json['ongoing'])
 
@@ -517,11 +542,11 @@ class TestAlleleOverview(object):
         test_database.refresh()
 
         # Case 1:
-        # AnalysisInterpretation 6 is overlapping only with Analysis 2
+        # AlleleInterpretation 6 is overlapping only with Analysis 2
 
         allele_id = session.query(workflow.AlleleInterpretation.allele_id).filter(
             workflow.AlleleInterpretation.id == 6
-        ).one()[0]
+        ).scalar()
 
         aa = assessment.AlleleAssessment(
             classification=with_finding_classification['value'],  # Actual value doesn't matter as long as not outdated
