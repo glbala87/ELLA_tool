@@ -1,8 +1,9 @@
 <div class="search-module">
-  <sectionbox collapsible="true" collapsed="true" color="blue">
+  <sectionbox collapsible="true" collapsed="true" color="blue" class="id-search">
     <maintitle>
       Search
     </maintitle>
+
 
     <contentwrapper>
       <article class="search-options">
@@ -13,7 +14,7 @@
             </h1>
           </div>
           <div class="right search-option">
-            <input ng-model="vm.query.freetext">
+            <input class="id-search-freetext" ng-model="vm.query.freetext">
           </div>
         </div>
         <div class="question tiny line-wrapper" ng-if="false"> <!-- Disable genepanel search for now -->
@@ -48,7 +49,7 @@
             </h1>
           </div>
           <div class="right bttn-set">
-            <div class="dropdown white search-option">
+            <div class="id-select-gene dropdown white search-option">
               <select selector
                       model="vm.query.gene"
                       debounce="250"
@@ -69,7 +70,7 @@
             </h1>
           </div>
           <div class="right bttn-set">
-            <div class="dropdown white search-option">
+            <div class="id-select-user dropdown white search-option">
               <script type="text/ng-template" id="userTemplate">
                 {{option.first_name}} {{option.last_name}}
               </script>
@@ -93,7 +94,7 @@
             </h1>
           </div>
           <div class="right bttn-set">
-            <div class="search-option">
+            <div class="id-filter-search search-option">
               <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="vm.query.filter"
                      ng-repeat="item in ['Yes', 'No']">{{item}}</label>
             </div>
