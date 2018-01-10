@@ -45,7 +45,7 @@ def allele_assessment_template_for_variant_workflow(allele):
     return {
         'allele_id': allele['id'],
         'evaluation': {'comment': 'Original comment'},
-        'classification': 5
+        'classification': '5'
     }
 
 
@@ -54,7 +54,7 @@ def allele_assessment_template(workflow_type, workflow_id, allele, extra):
             'allele_id': allele['id'],
             'attachments': [],
             'evaluation': {'comment': 'Original comment'},
-            'classification': 5,
+            'classification': '5',
             'analysis_id': None,
             'genepanel_name': None,
             'genepanel_version': None

@@ -13,7 +13,7 @@
 
 <sectionbox color="green" ng-attr-id="'analysis-finding'" class="id-analysis-findings" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
-    ANALYSES WITH CLASS 3-5 VARIANTS
+    WITH FINDINGS: CLASS 3-5 + T
   </maintitle>
   <subtitle>
     {{vm.overview.with_findings.length}}
@@ -26,7 +26,7 @@
 
 <sectionbox color="green" ng-attr-id="'analysis-findings-normal'" class="id-analysis-findings-normal" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
-    ANALYSES WITH NORMAL VARIANTS
+    ONLY NORMAL: CLASS 1-2 + U
   </maintitle>
   <subtitle>
     {{vm.overview.without_findings.length}}
@@ -39,7 +39,7 @@
 
 <sectionbox color="green" ng-attr-id="'analysis-pending'" class="id-analysis-pending" remember-collapse="true" collapsed="true" ng-if="vm.overview && !vm.byFindings">
   <maintitle>
-    PENDING ANALYSES
+    PENDING INTERPRETATION
   </maintitle>
   <subtitle>
     {{vm.overview.not_started.length}}
@@ -52,7 +52,7 @@
 
 <sectionbox color="purple" ng-attr-id="'analysis-review'" class="id-analysis-review" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
-    ANALYSES PENDING REVIEW
+    PENDING REVIEW
   </maintitle>
   <subtitle>
     {{vm.overview.marked_review.length}}
@@ -67,7 +67,7 @@
 
 <sectionbox color="green" ng-attr-id="'analysis-assessments-missing'" class="id-analysis-assessments-missing" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
-    ANALYSES WITH MISSING CLASSIFICATIONS
+    MISSING CLASSIFICATIONS
   </maintitle>
   <subtitle>
     {{vm.overview.missing_alleleassessments.length}}
@@ -80,7 +80,7 @@
 
 <sectionbox color="blue" ng-attr-id="'analysis-others'" class="id-analysis-others" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
-    OTHERS' ANALYSIS
+    OTHERS' ANALYSES
   </maintitle>
   <subtitle>
     {{vm.ongoing_others.length}}
@@ -93,7 +93,7 @@
 
 <sectionbox color="blue" ng-attr-id="'analysis-finished'" class="id-analysis-finished" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
-    FINISHED ANALYSIS
+    FINISHED
   </maintitle>
   <subtitle>
     {{vm.finalized.pagination.totalCount}}
