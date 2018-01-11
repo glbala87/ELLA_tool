@@ -212,7 +212,7 @@ dbreset: dbsleep dbresetinner
 
 dbresetinner:
 	@echo "Resetting database"
-	/ella/ops/test/reset_testdata.py --testset $(TESTSET)
+	DB_URL='postgresql:///postgres' /ella/ops/test/reset_testdata.py --testset $(TESTSET)
 
 dbsleep:
 	while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
