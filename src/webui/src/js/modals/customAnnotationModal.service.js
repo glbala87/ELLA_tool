@@ -169,10 +169,8 @@ export class CustomAnnotationController {
      */
     _loadReferences() {
         let ids = [];
-        for (let [allele_id, data] of Object.entries(this.custom_annotation)) {
-            if ('references' in data) {
-                ids = ids.concat(data.references.map(r => r.id));
-            }
+        if ('references' in this.custom_annotation) {
+            ids = this.custom_annotation.references.map(r => r.id);
         }
         this.referenceResource.getByIds(ids).then(refs => {
             this.references = refs;
