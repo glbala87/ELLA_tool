@@ -1,6 +1,7 @@
 import pytest
 import os
 from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.datamodel.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample
 
 import vardb
@@ -22,14 +23,12 @@ def get_genotype(genotypes, first_change, second_change, _ret=[]):
     return gts
 
 
-
-## FIXTURES
-
 @pytest.fixture(scope="module")
-def all_genotypes_single(session):
+def all_genotypes_single(test_database, session_module):
     """return all genotypes imported in this analysis"""
+    test_database.refresh()
     analysis_name = "brca_decomposed.HBOC_v01"
-    all_genotypes = session.query(genotype.Genotype).join(
+    all_genotypes = session_module.query(genotype.Genotype).join(
         sample.Analysis
     ).filter(
         sample.Analysis.name == analysis_name,

@@ -654,7 +654,7 @@ class AnalysisImporter(object):
     def __init__(self, session):
         self.session = session
 
-    def process(self, analysis_name, genepanel):
+    def process(self, analysis_name, priority, genepanel, report, warnings):
         """Create analysis with a default gene panel for a sample"""
 
         if self.session.query(sm.Analysis).filter(
@@ -666,7 +666,11 @@ class AnalysisImporter(object):
         analysis = sm.Analysis(
             name=analysis_name,
             genepanel=genepanel,
+            priority=priority,
+            report=report,
+            warnings=warnings
         )
+
         self.session.add(analysis)
         return analysis
 

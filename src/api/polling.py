@@ -14,6 +14,7 @@ from vardb.datamodel import annotationjob
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
+from vardb.datamodel.analysis_config import AnalysisConfigData
 
 # Make StringIO objects work fine in with-statements
 StringIO.__exit__ = lambda *args: False
@@ -96,11 +97,17 @@ class AnnotationJobsInterface:
             if type == "Create":
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysis(self.session)
-                deposit.import_vcf(fd,
-                                   "{}.{}_{}".format(analysis_name, gp_name, gp_version),
-                                   gp_name,
-                                   gp_version,
-                                   sample_type=sample_type)
+
+                deposit.import_vcf(analysis_config_data =
+                    AnalysisConfigData(
+                        vcf_path = fd,
+                        analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version),
+                        gp_name = gp_name,
+                        gp_version  = gp_version,
+                        priority = 1
+                    ),
+                    sample_type = sample_type
+                    )
             else:
                 analysis_name = job.properties["analysis_name"]
                 deposit = DepositAnalysisAppend(self.session)
@@ -108,12 +115,12 @@ class AnnotationJobsInterface:
                                    analysis_name,
                                    gp_name,
                                    gp_version,
-                                   sample_type=sample_type)
+                                   sample_type=sample_type
+                                )
+
         elif mode in ["Variants", "Single variant"]:
             deposit = DepositAlleles(self.session)
-            deposit.import_vcf(fd,
-                               gp_name,
-                               gp_version)
+            deposit.import_vcf(fd, gp_name, gp_version)
         else:
             raise RuntimeError("Unknown mode: %s" %mode)
 
