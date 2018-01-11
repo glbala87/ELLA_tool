@@ -244,46 +244,40 @@ To explore the e2e test data, start a local Ella instance and import the e2e tes
 
 
 ## Local usage, REPL and debugging
-This requires careful fiddling and compatible versions of Chrome and Chromedriver.
-
-The following must be installed and/or running:
+The following must be installed:
 - Chrome
 - Chromedriver
-- ELLA
 
-Then we run the tests by calling 'wdio'. This will bring up Chrome and you'll see browser activity like clicking
-and text inputting.
+The ELLA app and the test execution (wdio) can be either run locally on your host machine or inside Docker.
 
-The ELLA app and the test execution (wdio) can be done either locally on your host machine or inside Docker.
+First start chromedriver on your host machine: `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''`
 
+Then start the tests: `make e2e-test-local ..options..`
 
+It will connect to the locally running Chromedriver and run one or several test specs.
+You'll see a local chrome browser where a "ghost" will click and enter text.
 
-### Common
-- Start chromedriver: `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''` on your local host.
+You can put debug statements  (browser.debug())in your test spec to have the test execution stop and enter a REPL to interact with the
+browser. You can also open the dev tools in Chrome to dig around. Exit the REPL to have the test continue.
 
-### Run tests inside Docker
-This requires careful configuration of ports and url
-
-Run `make e2e-test-local CHROME_HOST=..` It will connect to the locally running Chromedriver (given by CHROME_HOST as IP address).
-To run only a specific test:
-  - add SPECS="<path to test>" to the above command.
-  - change the spec variable in wdio.conf.js.
-
-To get an interactive REPL you specify DEBUG=true and put browser.debug() in your spec files.
-The specs to run are taken from wdio.conf.js. When reading specs from stdin, which we do when the DEBUG is missing,
-the repl won't work (see run_e2e_tests_locally.sh).
-
-If you already have an app running you can run the tests against it by adding APP_URL (ip:port).
-Make sure to use an ip/port that is accessible from within the container where the tests themselves are running.
+The relevant options to the make command:
+- DEBUG=true (Will make the browser visible (as opposed to headless), and increase test timeouts)
+- CHROME_HOST=.. the IP address where chromedriver is running. This will start a Chrome browser.
+- Add SPEC="<path to test>" to run only a single/few tests. They must given as src/webui/tests/e2e/tests/.. (comma separated if multiple).
+- APP_URL: url of the app to test, like http://localhost:8001. Make sure to use an ip/port that is accessible from within the container where the tests themselves are running.
+  If not defined the app running inside container of the test execution is used.
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
-### Run tests on local host
-This runs webdriverio directly on hour host (not in a docker container).
+Note! Make sure the versions of Chrome and Chromedriver are compatible 
+
+
+Note! You can also run webdriverio directly on hour host (not in a docker container).
 - Start ELLA (typically `make dev`)
 - Start tests: DEBUG=true node node_modules/.bin/wdio src/webui/tests/e2e/wdio.conf.js --path / --baseUrl <host:port like localhost:8001>
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
+Of course you need to have instellad the webdriverio Node module.
 
 ### Installing
 

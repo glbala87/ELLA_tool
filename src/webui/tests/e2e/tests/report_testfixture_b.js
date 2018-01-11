@@ -22,10 +22,6 @@ const SAMPLE_NAME = 'brca_e2e_test02.HBOCUTV_v01';
 
 describe('Sample workflow to test Sanger export', function () {
 
-    beforeAll(() => {
-        browser.resetDb('sanger');
-    });
-
     it('classify the remall variants in second analysis', function () {
         loginPage.selectSecondUser();
         sampleSelectionPage.selectTopPending();

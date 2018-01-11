@@ -22,7 +22,7 @@ DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
 WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
-CHROMEBOX_IMAGE = ousamg/chromebox:1.2
+CHROMEBOX_IMAGE = ousamg/chromebox:1.3
 CHROMEBOX_CONTAINER = $(PIPELINE_ID)-chromebox
 E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
 
@@ -76,7 +76,7 @@ help :
 	@echo "			- Test report 'ella-cli export classifications'"
 	@echo ""
 	@echo "make e2e-test-local	- For running e2e tests locally."
-	@echo "                          Set these vars: APP_URL, CHROME_HOST and DEBUG."
+	@echo "                          Set these vars: APP_URL, CHROME_HOST, SPEC and DEBUG."
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
@@ -211,6 +211,7 @@ demo:
 dbreset: dbsleep dbresetinner
 
 dbresetinner:
+	@echo "Resetting database"
 	/ella/ops/test/reset_testdata.py --testset $(TESTSET)
 
 dbsleep:
@@ -472,8 +473,8 @@ e2e-test-local: test-build
 	   -p 5000:5000 -p 5859:5859 \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	docker exec $(E2E_APP_CONTAINER) make dbsleep
-	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPECS=$(SPECS) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
+	docker exec $(E2E_APP_CONTAINER) make dbreset
+	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
 

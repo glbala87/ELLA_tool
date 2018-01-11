@@ -22,9 +22,9 @@ if [ "${CHROME_HOST}" = "" ]
         yellow "using CHROME_HOST=$CHROME_HOST as Ip address to chrome browser"
 fi
 
-if [ "${SPECS}" = "" ]
+if [ "${SPEC}" = "" ]
     then
-       yellow "SPECS not set, will run all (or specs mentioned in wdio.conf.js if DEBUG=true is given)"
+       yellow "SPEC not set, will run all"
        # all specs expect the ones used to create test fixtures:
        SPECS=`find  src/webui/tests/e2e/tests -name "*.js" | grep -v "testfixture" | sort | tr "\n" ","`
 fi
@@ -40,17 +40,10 @@ while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 
 yellow "Starting e2e tests locally..."
 
-if [ "${DEBUG}" = "" ]
-    then
-       echo "Will run tests $SPECS"
-       /dist/node_modules/webdriverio/bin/wdio \
-           --baseUrl "${APP_URL}" --spec ${SPECS} --host "${CHROME_HOST}" --port 4444 --path "/" \
-           /ella/src/webui/tests/e2e/wdio.conf.js
-    else
-        echo "Will run tests $SPECS"
-	    DEBUG=true /dist/node_modules/webdriverio/bin/wdio \
-           --baseUrl "${APP_URL}" --host "${CHROME_HOST}" --spec ${SPECS} --port 4444 --path "/" \
-           /ella/src/webui/tests/e2e/wdio.conf.js
-fi
-
-
+yellow "Will run tests $SPEC"
+   DEBUG=${DEBUG}  /dist/node_modules/webdriverio/bin/wdio \
+   --baseUrl "${APP_URL}" \
+   --spec ${SPEC} \
+   --host "${CHROME_HOST}" \
+   --port 4444 --path "/" \
+   /ella/src/webui/tests/e2e/wdio.conf.js
