@@ -117,8 +117,8 @@ def test_extract_from_config(session, init_dest):
     aw = init(session)
     analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
     assert analysis_config_data.analysis_name == analysis_sample
-    assert analysis_config_data.gp_name == 'EEogPU'
-    assert analysis_config_data.gp_version == 'v02'
+    assert analysis_config_data.gp_name == 'HBOC'
+    assert analysis_config_data.gp_version == 'v01'
     assert analysis_config_data.vcf_path == ready_data_path + '/' + analysis_sample + VCF_POSTFIX
     assert "Report" in str(analysis_config_data.report)
     assert "Warning" in str(analysis_config_data.warnings)
