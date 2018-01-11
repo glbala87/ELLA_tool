@@ -262,3 +262,29 @@ class TestTranscriptAnnotation():
         assert transcripts[0]['transcript'] == 'NM_000090.3'
         assert transcripts[1]['transcript'] == 'ENST123456'
         assert transcripts[2]['transcript'] == 'NM_000091.2'
+
+
+    @pytest.mark.parametrize("hgvsc,hgvsc_short,insertion", [
+        ("c.4416-77_4416-48delCTCTTCTCTTCTCTTCTCTTCTCTTCTCTT", "c.4416-77_4416-48del", None),
+        ("c.123_133dupCGACGACGCAG", "c.123_133dup", None),
+        ("c.131_132insACTTGCTGCTT", "c.131_132ins(11)", "ACTTGCTGCTT"),
+        ("c.123_133delCGACGACGCAGinsACTTGCTGCTT", "c.123_133delins(11)", "ACTTGCTGCTT"),
+        ("c.123_124delCGinsACTTGCTGCTT", "c.123_124delCGins(11)", "ACTTGCTGCTT"),
+        ])
+    def test_long_variant_names(self, hgvsc, hgvsc_short, insertion):
+        def generate_data(hgvsc):
+            transcript = "NM_007294.3"
+            return {
+                'CSQ': [
+                    {
+                        'Feature_type': "Transcript",
+                        'Feature': transcript,
+                        'HGVSc': transcript+":"+hgvsc,
+                    }
+                ]
+            }
+
+        converted = annotationconverters.convert_csq(generate_data(hgvsc))[0]
+        assert converted["HGVSc"] == hgvsc
+        assert converted["HGVSc_short"] == hgvsc_short
+        assert converted.get("HGVSc_insertion") == insertion
