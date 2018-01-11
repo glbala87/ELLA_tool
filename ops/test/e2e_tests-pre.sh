@@ -14,7 +14,8 @@ ln -s /dist/node_modules/ /ella/node_modules
 
 yellow "Finished building web assets with gulp"
 
-while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
+#while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 
+make dbreset
 
 yellow "Now you can start e2e tests"

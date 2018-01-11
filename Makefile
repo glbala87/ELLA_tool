@@ -12,7 +12,7 @@ BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
-RESET_DB_SET ?= 'small'
+TESTSET ?= 'small'
 #RELEASE_TAG =
 WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
@@ -22,7 +22,7 @@ DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
 WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
-CHROMEBOX_IMAGE = ousamg/chromebox:1.2
+CHROMEBOX_IMAGE = ousamg/chromebox:1.3
 CHROMEBOX_CONTAINER = $(PIPELINE_ID)-chromebox
 E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
 
@@ -76,7 +76,7 @@ help :
 	@echo "			- Test report 'ella-cli export classifications'"
 	@echo ""
 	@echo "make e2e-test-local	- For running e2e tests locally."
-	@echo "                          Set these vars: APP_URL, CHROME_HOST and DEBUG."
+	@echo "                          Set these vars: APP_URL, CHROME_HOST, SPEC and DEBUG."
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
@@ -197,6 +197,7 @@ demo:
 	docker run -d \
 		--label io.ousamg.gitversion=$(BRANCH) \
 		--name $(subst $(comma),-,$(DEMO_NAME)) \
+		-e PRODUCTION=false \
 		-e VIRTUAL_HOST=$(DEMO_NAME) \
 		--expose 80 \
 		local/$(DEMO_NAME) \
@@ -207,10 +208,11 @@ demo:
 # Misc. database
 #---------------------------------------------
 
-dbreset: dbsleep dbreset-inner
+dbreset: dbsleep dbresetinner
 
-dbreset-inner:
-	bash -c "DB_URL='postgresql:///postgres' PYTHONIOENCODING='utf-8' RESET_DB='$(RESET_DB_SET)' python src/api/main.py"
+dbresetinner:
+	@echo "Resetting database"
+	DB_URL='postgresql:///postgres' /ella/ops/test/reset_testdata.py --testset $(TESTSET)
 
 dbsleep:
 	while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
@@ -238,6 +240,7 @@ dev:
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e DB_URL=postgresql:///postgres \
+	  -e PRODUCTION=false \
 	  -p $(API_PORT):5000 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
@@ -298,6 +301,7 @@ test-js: test-build
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  --name $(PIPELINE_ID)-js \
+	  -e PRODUCTION=false \
 	  $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
@@ -309,6 +313,7 @@ test-common: test-build
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
+	  -e PRODUCTION=false \
 	  --name $(PIPELINE_ID)-common $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
@@ -319,6 +324,7 @@ test-rule-engine: test-build
 	docker run -d \
 	   --name $(PIPELINE_ID)-rules \
 	   --label io.ousamg.gitversion=$(BRANCH) \
+	   -e PRODUCTION=false \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/common/supervisor.cfg
 
@@ -331,6 +337,7 @@ test-api: test-build
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
+	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	  --name $(PIPELINE_ID)-api $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
@@ -344,6 +351,7 @@ test-api-migration: test-build
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
+	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	  --name $(PIPELINE_ID)-api-migration $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
@@ -357,6 +365,7 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e PANEL_PATH=/ella/src/vardb/testdata/clinicalGenePanels \
+	  -e PRODUCTION=false \
 	  --name $(PIPELINE_ID)-cli $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
@@ -386,6 +395,8 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	   --hostname e2e \
 	   --name $(E2E_APP_CONTAINER) \
 	   --label io.ousamg.gitversion=$(BRANCH) \
+	   -e PRODUCTION=false \
+	   -e DB_URL=postgres:///postgres \
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \
@@ -451,17 +462,19 @@ test-report-sanger: #e2e-app-container-setup # CI run conditional target in sepa
 .PHONY: e2e-test-local
 
 e2e-test-local: test-build
-	-docker rm $(E2E_APP_CONTAINER)
+	-docker rm -f $(E2E_APP_CONTAINER)
 	docker run -d \
 	   --name $(E2E_APP_CONTAINER) \
    	   --label io.ousamg.gitversion=$(BRANCH) \
        -it \
        -v $(shell pwd):/ella \
+	   -e PRODUCTION=false \
+	   -e DB_URL=postgres:///postgres \
 	   -p 5000:5000 -p 5859:5859 \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	docker exec $(E2E_APP_CONTAINER) make dbsleep
-	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPECS=$(SPECS) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
+	docker exec $(E2E_APP_CONTAINER) make dbreset
+	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
 .PHONY: run-e2e-locally

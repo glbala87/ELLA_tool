@@ -202,6 +202,10 @@ class DepositTestdata(object):
         import_custom_annotations(self.session, custom_anno_path)
 
     def deposit_all(self, test_set=None):
+
+        if test_set not in AVAILABLE_TESTSETS:
+            raise RuntimeError("Test set {} not part of available test sets: {}".format(test_set, ','.join(AVAILABLE_TESTSETS)))
+
         log.info("--------------------")
         log.info("Starting a DB reset")
         log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
