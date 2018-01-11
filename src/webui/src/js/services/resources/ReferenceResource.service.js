@@ -129,7 +129,7 @@ class ReferenceResource {
             }
             else {
                 let s = JSON.stringify({'search_string': searchString});
-                let r = this.resource(`${this.base}/references/?s=${encodeURIComponent(s)}&num_per_page=${encodeURIComponent("10")}`);
+                let r = this.resource(`${this.base}/references/?s=${encodeURIComponent(s)}&per_page=10`);
                 let references = r.query(() => {
                     let refs = [];
                     for (let o of references) {
