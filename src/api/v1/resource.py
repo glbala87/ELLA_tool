@@ -110,12 +110,13 @@ class Resource(flask_resource):
         query = query.filter(model.search.op('@@')(_search_vector))
         query = query.order_by(sqlalchemy.func.ts_rank(model.search, _search_vector))
 
+        count = query.count()
+
         if kwargs.get('per_page'):
             query = query.limit(kwargs["per_page"])
         if kwargs.get('page') and kwargs.get('per_page'):
             query = query.offset((kwargs['page'] - 1) * kwargs['per_page'])
 
-        count = query.count()
         s = query.all()
 
         if schema:

@@ -295,7 +295,8 @@ describe('Sample workflow', function () {
         // start: make changes to classification on a variant that overlaps with the third sample:
         alleleSidebar.selectClassifiedAllele('c.581G>A');
         alleleSectionBox.classificationAcceptedBtn.click();
-        let referenceTitle = alleleSectionBox.evaluateReference(1);
+//        let referenceTitle = alleleSectionBox.evaluateReference(1);
+        let referenceTitle = alleleSectionBox.reEvaluateReference(1);
         referenceEvalModal.setRelevance(2);
         referenceEvalModal.setComment('REFERENCE_EVAL_UPDATED');
         referenceEvalModal.saveBtn.scroll();

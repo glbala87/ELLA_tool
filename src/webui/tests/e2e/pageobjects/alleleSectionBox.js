@@ -217,14 +217,20 @@ class AlleleSectionBox  {
     }
 
     evaluateReference(index) {
-        let referenceSelector = `allele-info-published-references article:nth-child(${index})`;
+        let referenceSelector = `article:nth-child(${index}) .id-reference-pending-published`;
         let title = browser.getText(`${referenceSelector} .id-reference-title`);
         browser.click(`${referenceSelector} button.id-reference-evaluate`);
         return title;
     }
 
+    reEvaluateReference(index) {
+        let title = browser.getText(`.id-reference-evaluated-published .id-reference-title`);
+        browser.click(`article:nth-child(${index}) .id-reference-evaluated-published button.id-reference-evaluate`);
+        return title;
+     }
+
     getReferenceComment(index) {
-        const selector = `allele-info-published-references article:nth-child(${index}) .id-reference-comment .wysiwygeditor`;
+        const selector = `article:nth-child(${index}) .id-reference-evaluated-published .id-reference-comment`;
         return browser.getText(selector);
     }
 

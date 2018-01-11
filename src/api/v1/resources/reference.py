@@ -14,7 +14,7 @@ class ReferenceListResource(LogRequestResource):
     @paginate
     @rest_filter
     @search_filter
-    def get(self, session, rest_filter=None, search_filter=None, page=None, per_page=100, user=None):
+    def get(self, session, rest_filter=None, search_filter=None, page=None, per_page=None, user=None):
         """
         Returns a list of references.
 
@@ -37,6 +37,7 @@ class ReferenceListResource(LogRequestResource):
                 $ref: '#/definitions/Reference'
             description: List of references
         """
+
         if search_filter is not None:
             assert rest_filter is None
             return self.list_search(
