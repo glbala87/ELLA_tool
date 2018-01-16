@@ -1,4 +1,4 @@
-<sectionbox class="id-custom-annotation-modal" color="green" modal="true" on-close="vm.modal.close">
+<sectionbox class="custom-annotation-modal id-custom-annotation-modal" color="green" modal="true" on-close="vm.modal.close">
   <maintitle>
     {{vm.title}}
   </maintitle>
@@ -240,6 +240,7 @@
                   <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.getCurrent()[group.key]"> </autosize-textarea>
               </div>
             </div>
+            <div class="db-url" ng-repeat="url in vm.getUrls(group)"><a-clip href="{{url}}">Visit database</a-clip></div>
           </div>
         </article>
     </section>
