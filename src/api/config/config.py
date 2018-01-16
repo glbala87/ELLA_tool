@@ -206,7 +206,6 @@ config = {
                         "G",
                         "AFR",
                         "AMR",
-                        "ASJ",
                         "EAS",
                         "FIN",
                         "NFE",
