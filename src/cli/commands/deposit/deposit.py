@@ -11,6 +11,7 @@ from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_genepanel import DepositGenepanel
+from vardb.datamodel.analysis_config import AnalysisConfigData
 
 
 VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+-(?P<genepanel_name>.+)-(?P<genepanel_version>.+))\.vcf')
@@ -38,12 +39,14 @@ def cmd_deposit_analysis(vcf):
     db = DB()
     db.connect()
     da = DepositAnalysis(db.session)
-    da.import_vcf(
+    analysis_config_data = AnalysisConfigData(
         vcf,
         matches.group('analysis_name'),
         matches.group('genepanel_name'),
-        matches.group('genepanel_version')
+        matches.group('genepanel_version'),
+        1
     )
+    da.import_vcf(analysis_config_data)
     db.session.commit()
 
 
