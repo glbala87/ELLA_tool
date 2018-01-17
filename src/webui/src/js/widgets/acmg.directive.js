@@ -14,7 +14,6 @@ import {ACMGHelper} from '../model/acmghelper';
         isDowngradable: '=?',
         onToggle: '&?',
         toggleText: '@?',
-        readOnly: '=?',
         popoverPlacement: '=?',
         addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
     },
@@ -37,9 +36,6 @@ export class AcmgController {
     }
 
     toggle() {
-        if (this.readOnly) {
-            return;
-        }
         if (this.onToggle && this.isEditable()) {
             this.onToggle({code: this.code});
         }
