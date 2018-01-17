@@ -6,7 +6,7 @@
       <article class="id-article-unreferenced" ng-repeat="ref in vm.missing_references" ng-if="vm.refViewType === 'Pending'">
           <section class="line-wrapper">
           <div>
-            <h5 class="wrap">Missing data for Pubmed ID <a-clip href="{{ref.getPubmedUrl()}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
+            <h5 class="wrap">Missing data for Pubmed ID <a-clip href="http://www.ncbi.nlm.nih.gov/pubmed/{{ref.pubmed_id}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
           </div>
       </section>
       </article>
