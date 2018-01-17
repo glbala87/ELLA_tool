@@ -231,9 +231,11 @@ def workflow_alleles_for_genepanels(session, genepanels):
     )
 
 
-def ad_genes_for_genepanel(session, gp_name, gp_version):
+def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_version):
     """
-    Fetches all genes with _only_ 'AD' phenotypes.
+    Fetches all genes with _only_ {inheritance} phenotypes.
+
+    e.g. only 'AD' or only 'AR'
     """
 
     # Get phenotypes having only one kind of inheritance
@@ -266,7 +268,7 @@ def ad_genes_for_genepanel(session, gp_name, gp_version):
     ).filter(
         gene.Phenotype.genepanel_name == gp_name,
         gene.Phenotype.genepanel_version == gp_version,
-        gene.Phenotype.inheritance == 'AD'
+        gene.Phenotype.inheritance == inheritance
     ).distinct()
 
 

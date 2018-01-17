@@ -52,6 +52,7 @@ class GenepanelConfigResolver(object):
         self.genepanel = genepanel
         self.global_default = config['variant_criteria']['genepanel_config'] if not genepanel_default else genepanel_default
         self._ad_genes_cache = []  # Holds cache for inheritance per symbol
+        self._ar_genes_cache = []  # Holds cache for inheritance per symbol
 
     def resolve(self, symbol):
         """
@@ -97,12 +98,29 @@ class GenepanelConfigResolver(object):
             # A specific symbol can define cutoffs, disease_mode and last_exon_important
             # Stage 3: find the most "useful" inheritance using the gene symbol:
             if not self._ad_genes_cache:
-                ad_genes = queries.ad_genes_for_genepanel(
+                ad_genes = queries.distinct_inheritance_genes_for_genepanel(
                     self.session,
+                    'AD',
                     self.genepanel.name,
                     self.genepanel.version
                 ).all()
                 self._ad_genes_cache = list(set([a[0] for a in ad_genes]))
+
+            if not self._ar_genes_cache:
+                ar_genes = queries.distinct_inheritance_genes_for_genepanel(
+                    self.session,
+                    'AR',
+                    self.genepanel.name,
+                    self.genepanel.version
+                ).all()
+                self._ar_genes_cache = list(set([a[0] for a in ar_genes]))
+
+            # Add inheritance, used by rule engine
+            assert not (symbol in self._ad_genes_cache and symbol in self._ar_genes_cache)
+            if symbol in self._ad_genes_cache:
+                config_storage['inheritance'] = 'AD'
+            if symbol in self._ar_genes_cache:
+                config_storage['inheritance'] = 'AR'
 
             config_storage['freq_cutoffs'] = copy.deepcopy(
                 _choose_cutoff_group(config_storage['freq_cutoff_groups'], symbol in self._ad_genes_cache))
