@@ -226,7 +226,6 @@ export class CustomAnnotationController {
      * @return {Array(string)}       URLs
      */
     getUrls(group) {
-        console.log(group)
         let hgnc_ids = this.allele.annotation.filtered.map(t => t.hgnc_id);
 
         let urls = [];
@@ -245,7 +244,7 @@ export class CustomAnnotationController {
     }
 
     removeReference(ref) {
-        this.custom_annotation[this.allele.id].references = this.getCurrent().filter(r => {
+        this.custom_annotation.references = this.getCurrent().filter(r => {
             return ref.id !== r.id;
         });
     }
