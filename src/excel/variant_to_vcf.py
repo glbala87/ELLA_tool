@@ -240,7 +240,7 @@ class ExcelExporter(object):
 
                     vcf_writer.write_data(vcf_data)
                 except:
-                    logging.error("Error while processing {}".format(fields))
+                    logging.exception("Error while processing {}".format(fields))
 
 
 def find_outputdir(given_path, input_file):
