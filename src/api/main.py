@@ -1,3 +1,4 @@
+import json
 import threading
 import os
 import sys
@@ -7,7 +8,7 @@ import time
 DEFAULT_STATIC_FILE = 'index.html'
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from flask import send_from_directory, request, g
+from flask import send_from_directory, request, g, make_response
 from flask_restful import Api
 from api import app, db, AuthenticationError, ConflictError
 from api.v1 import ApiV1
@@ -73,7 +74,7 @@ def serve_static(path=None):
     if not any(v == path or path.startswith(v) for v in VALID_STATIC_FILES):
         path = DEFAULT_STATIC_FILE
 
-    return send_from_directory(STATIC_FILE_DIR, path)
+    return send_from_directory(STATIC_FILE_DIR, path, cache_timeout=-1)
 
 
 class ApiErrorHandling(Api):
@@ -85,6 +86,16 @@ class ApiErrorHandling(Api):
 
 
 api = ApiErrorHandling(app)
+
+# Turn off caching for whole API
+@api.representation('application/json')
+def output_json(data, code, headers=None):
+    """Makes a Flask response with a JSON encoded body"""
+    resp = make_response(json.dumps(data), code)
+    resp.headers.extend(headers or {})
+    if 'Cache-Control' not in resp.headers:
+        resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
+    return resp
 
 # Setup resources for v1
 ApiV1(app, api).setup_api()
