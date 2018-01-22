@@ -129,6 +129,7 @@ def log_request(statuscode, response=None):
     payload_size = 0
     response_data = None
     response_size = 0
+    usersession_id = g.usersession_id if hasattr(g, 'usersession_id') else None
     if response:
         response_size = response.headers.get('Content-Length', 0)
         if not g.log_hide_response:
@@ -139,7 +140,7 @@ def log_request(statuscode, response=None):
             payload_size = request.headers.get('Content-Length'),
         if not app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
             log.warning("{usersession_id} - {method} - {endpoint} - {json} - {response_size} - {duration}ms".format(
-                usersession_id=g.usersession_id,
+                usersession_id=usersession_id,
                 method=request.method,
                 endpoint=request.url,
                 json=(payload if payload else '[PAYLOAD HIDDEN]'),
@@ -149,7 +150,7 @@ def log_request(statuscode, response=None):
 
     if not g.log_exclude:
         rl = ResourceLog(
-            usersession_id=g.usersession_id,
+            usersession_id=usersession_id,
             remote_addr=remote_addr,
             method=request.method,
             resource=request.path,
