@@ -20,20 +20,10 @@ class DB(object):
 
         # Disconnect in case we're already connected
         self.disconnect()
-
-        host = host or os.environ.get('DB_URL')
-
-        if not host:
-            if os.getenv('DB_PORT_5432_TCP_ADDR'):
-                host = 'postgres://postgres@{0}/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR'))
-            else:
-                host = 'postgresql+psycopg2://localhost/vardb'
-
-        self.host = host
+        self.host = host or os.environ.get('DB_URL')
 
         if not engine_kwargs:
             engine_kwargs = dict()
-
 
         self.engine = create_engine(
             self.host,

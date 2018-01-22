@@ -83,4 +83,4 @@ WORKDIR /ella
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
 
 # Set production as default cmd
-CMD supervisord -c /ella/ops/prod/supervisor.cfg
+CMD /ella/ops/prod/entrypoint.sh
