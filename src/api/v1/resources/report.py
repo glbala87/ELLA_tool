@@ -21,19 +21,20 @@ class NonStartedAnalysesVariants(LogRequestResource):
           - Report
         responses:
           200:
-            description: Binary .xls file
+            description: Binary .xlsx file
         """
 
         excel_file_obj = BytesIO()
 
         export_sanger_variants.export_variants(session, excel_file_obj=excel_file_obj)
         excel_file_obj.seek(0)
-        filename = 'non-started-analyses-variants-{}.xls'.format(
+        filename = 'non-started-analyses-variants-{}.xlsx'.format(
             datetime.datetime.now().strftime("%Y-%m-%d-%H_%M")
         )
         return send_file(
             excel_file_obj,
             as_attachment=True,
             attachment_filename=filename,
-            mimetype='application/vnd.ms-excel'
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            cache_timeout=-1
         )
