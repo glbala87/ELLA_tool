@@ -108,10 +108,6 @@ export class CustomAnnotationController {
             return true;
         });
 
-        // Select first option by default if not already selected
-        if (!valid_groups.includes(this.selected_annotation_group)) {
-            this.selected_annotation_group = valid_groups[0];
-        }
         return valid_groups;
     }
 
@@ -226,33 +222,29 @@ export class CustomAnnotationController {
     }
 
     /**
-     * Looks for whether there are any URLs for the selected annotation group.
+     * Looks for whether there are any URLs for provided annotation group.
      * @return {Array(string)}       URLs
      */
-    getUrls() {
-        if (!this.selected_annotation_group) {
-            return [];
-        }
-
+    getUrls(group) {
         let hgnc_ids = this.allele.annotation.filtered.map(t => t.hgnc_id);
 
         let urls = [];
-        if ('url_for_genes' in this.selected_annotation_group) {
+        if ('url_for_genes' in group) {
             for (let hgnc_id of hgnc_ids) {
                 // json data has string keys
-                if (hgnc_id.toString() in this.selected_annotation_group.url_for_genes) {
-                    urls.push(this.selected_annotation_group.url_for_genes[hgnc_id]);
+                if (hgnc_id.toString() in group.url_for_genes) {
+                    urls.push(group.url_for_genes[hgnc_id]);
                 }
             }
         }
-        if ('url' in this.selected_annotation_group) {
-            urls.push(this.selected_annotation_group.url);
+        if ('url' in group) {
+            urls.push(group.url);
         }
         return urls;
     }
 
     removeReference(ref) {
-        this.custom_annotation[this.allele.id].references = this.getCurrent().filter(r => {
+        this.custom_annotation.references = this.getCurrent().filter(r => {
             return ref.id !== r.id;
         });
     }

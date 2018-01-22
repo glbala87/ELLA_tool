@@ -3,7 +3,7 @@ from api.util import queries
 from vardb.datamodel import gene, allele, annotation
 
 
-def test_ad_genes_for_genepanel(session):
+def test_distinct_inheritance_genes_for_genepanel(session):
 
     testpanels = [
         ('HBOCUTV', 'v01'),
@@ -12,7 +12,7 @@ def test_ad_genes_for_genepanel(session):
 
     for panel in testpanels:
 
-        ad_genes = queries.ad_genes_for_genepanel(session, panel[0], panel[1]).all()
+        ad_genes = queries.distinct_inheritance_genes_for_genepanel(session, 'AD', panel[0], panel[1]).all()
         ad_genes = [a[0] for a in ad_genes]
 
         # Test that AD matches only has 'AD' phenotypes

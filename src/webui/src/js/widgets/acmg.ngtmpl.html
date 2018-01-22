@@ -14,14 +14,14 @@
             {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
           </h4>
         </div>
-        <h4 class="id-adjust-up adjust-button" 
-            ng-style="(vm.isUpgradable() && vm.editable === true) && {'visibility':'visible'} || {'visibility':'hidden'}" 
+        <h4 class="id-adjust-up adjust-button"
+            ng-style="(vm.isUpgradable() && vm.editable === true) && {'visibility':'visible'} || {'visibility':'hidden'}"
               class="clickable" ng-click="vm.upgradeCode()">+</h4>
       </div>
       <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
       <button class="right-item"
               ng-click="vm.toggle()"
-              ng-if="vm.toggleText && !vm.readOnly"
+              ng-if="vm.toggleText && vm.isEditable()"
       >{{vm.toggleText}}
       </button>
     </section>
@@ -29,7 +29,7 @@
            ng-if="!vm.isInACMGsection()"
            ng-class="vm.getACMGclass(r)"
            ng-repeat="r in vm.getRequiredFor()"
-           ng-disabled="vm.readOnly"
+           ng-disabled="!vm.isEditable()"
     >
       <section class="acmg-upper">
         <h4 class="acmg-title">{{r}}</h4>
@@ -40,7 +40,7 @@
            ng-class="vm.getACMGclass(r)"
            ng-repeat="r in vm.getRequiredFor()"
            ng-click="vm.clickAddRequiredForCode(r)"
-           ng-disabled="vm.readOnly"
+           ng-disabled="!vm.isEditable()"
     >
       <section class="acmg-upper">
         <h4 class="acmg-title clickable white">+ {{r}}</h4>
@@ -49,7 +49,7 @@
   </div>
   <section class="acmg-lower" ng-if="vm.commentModel != undefined">
       <wysiwyg-editor class="right-item commentbox id-comment-acmg"
-                       ng-disabled="!vm.isEditable() || vm.readOnly"
+                       ng-disabled="!vm.isEditable()"
                        placeholder="{{vm.getPlaceholder()}}"
                        ng-model="vm.commentModel"></wysiwyg-editor>
   </section>

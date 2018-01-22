@@ -45,20 +45,20 @@ export class FrequencyDetailsWidget {
         for (let freq_type of freq_types) {
             if (this.group in this.allele.annotation.frequencies) {
                 let annotation_data_for_group = this.allele.annotation.frequencies[this.group];
+
                 // Filter based on frequencies group names from config, since we
                 // might not want to show everything
-                if (freq_type in annotation_data_for_group.freq) {
-                    let data_container = {
-                        name: freq_type,
-                        freq: annotation_data_for_group.freq[freq_type]
-                    }
-                    for (let field of this.fields) {
-                        if (hasDataAtKey(annotation_data_for_group, field, freq_type)) {
-                            data_container[field] = annotation_data_for_group[field][freq_type];
-                        }
-                    }
-                    this.frequencies.push(data_container);
+                let data_container = {
+                    name: freq_type,
+                    freq: annotation_data_for_group.freq[freq_type] // ? annotation_data_for_group.freq[freq_type] : "0"
                 }
+
+                for (let field of this.fields) {
+                    if (hasDataAtKey(annotation_data_for_group, field, freq_type)) {
+                        data_container[field] = annotation_data_for_group[field][freq_type];
+                    }
+                }
+                this.frequencies.push(data_container);
             }
         }
 
@@ -113,7 +113,9 @@ export class FrequencyDetailsWidget {
      */
     getFreqValue(freq_data) {
         let value = parseFloat(freq_data.freq);
-        if (value === 0) {
+        if (isNaN(value)) {
+            return "N/A"
+        } else if (value === 0) {
             return value;
         } else if (value < Math.pow(10, -this.scientific_threshold)) {
             return value.toExponential(this.precision-this.scientific_threshold+1)

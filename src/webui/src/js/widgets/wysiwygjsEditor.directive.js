@@ -48,12 +48,6 @@ export class WysiwygEditorController {
         this.setupEventListeners()
         this.setupColorPickers()
 
-        // Update state when editor HTML changes
-        $scope.$watch(
-            () => this.editor.getHTML(),
-            () => setTimeout(this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML())),0),
-        )
-
         // Watch readOnly status of editor
         this.scope.$watch('ngDisabled', () => {
             this.editor.readOnly(this.ngDisabled);
@@ -127,6 +121,11 @@ export class WysiwygEditorController {
             }
         }
 
+        // Update model whenever contenteditable input is triggered
+        eventListeners.add(this.editorelement, "input", (e) => {
+            setTimeout(this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML())),0)
+        })
+
         // Add eventlisteners to focus and blur editorelement
         eventListeners.add(this.editorelement, "blur", () => {this.blur()});
         eventListeners.add(this.editorelement, "focus", () => {this.focus()});
@@ -169,6 +168,7 @@ export class WysiwygEditorController {
         eventListeners.add(this.editorelement, "paste", (e) => {
             // IMPORTANT: Use clipboardData.items rather than clipboardData.files, as this does not work for older versions of Chrome
             if (!e.clipboardData.items.length) return;
+            e.preventDefault()
             for (let item of e.clipboardData.items) {
                 if (item.kind !== "file") continue;
                 this.attachmentResource.post(item.getAsFile()).then((id) => {
@@ -382,6 +382,9 @@ export class WysiwygEditorController {
             this.editor.setHTML(html)
             this.closeLinkForm(true);
             this.buttonselement.hidden = true;
+
+            // Update ngModel
+            setTimeout(this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML())),0)
         }
     }
 

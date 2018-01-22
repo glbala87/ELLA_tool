@@ -5,12 +5,13 @@ Script for dropping all tables in a vardb database.
 import os
 from contextlib import contextmanager
 import click
+import psycopg2
 
 from vardb.datamodel import DB
 from .drop_db import drop_db
 from .make_db import make_db, refresh
 from .ci_migration_db import ci_migration_db_remake, ci_migration_upgrade_downgrade, ci_migration_head, make_migration_base_db
-from .migration_db import migration_upgrade, migration_downgrade, migration_current, migration_history
+from .migration_db import migration_upgrade, migration_downgrade, migration_current, migration_history, migration_compare
 
 
 DEFAULT_WARNING = "THIS WILL WIPE OUT {} COMPLETELY! \nAre you sure you want to proceed? Type 'CONFIRM' to confirm.\n".format(os.environ.get('DB_URL'))
@@ -67,6 +68,12 @@ def cmd_refresh(f=None):
         db.session.commit()
         ast_count = list(db.session.execute("SELECT COUNT(*) FROM annotationshadowtranscript"))[0][0]
         asf_count = list(db.session.execute("SELECT COUNT(*) FROM annotationshadowfrequency"))[0][0]
+        db.disconnect()
+
+        conn = psycopg2.connect(os.environ['DB_URL'])
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        conn.cursor().execute('VACUUM(ANALYZE)')
+
         click.echo("AnnotationShadowTranscript count: {}".format(ast_count))
         click.echo("AnnotationShadowFrequency count: {}".format(asf_count))
 
@@ -138,3 +145,10 @@ def cmd_current():
 @click.option('--range', help="Revision range")
 def cmd_history(v, range):
     migration_history(range=range, verbose=v)
+
+
+@database.command('compare',
+                  help='Compares database HEAD revision to migration script HEAD revision. Error on mismatch.',
+                  short_help='Compare current DB and script revisions.')
+def cmd_migration_compare():
+    migration_compare()

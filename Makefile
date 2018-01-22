@@ -188,21 +188,23 @@ create-diagram:
 .PHONY: demo dbreset
 
 comma := ,
-DEMO_NAME ?= ella-demo
+DEMO_NAME ?= demo
 
+# Docker containers/images are prefixed with ella- and local/ella- respectively. The DEMO_NAME is also used for host
+# resolution and is depending in our DNS entries.
 demo:
-	docker build -t local/$(DEMO_NAME) .
-	-docker stop $(subst $(comma),-,$(DEMO_NAME))
-	-docker rm $(subst $(comma),-,$(DEMO_NAME))
+	docker build -t local/ella-$(DEMO_NAME) .
+	-docker stop $(subst $(comma),-,ella-$(DEMO_NAME))
+	-docker rm $(subst $(comma),-,ella-$(DEMO_NAME))
 	docker run -d \
 		--label io.ousamg.gitversion=$(BRANCH) \
-		--name $(subst $(comma),-,$(DEMO_NAME)) \
+		--name $(subst $(comma),-,ella-$(DEMO_NAME)) \
 		-e PRODUCTION=false \
 		-e VIRTUAL_HOST=$(DEMO_NAME) \
 		--expose 80 \
-		local/$(DEMO_NAME) \
+		local/ella-$(DEMO_NAME) \
 		supervisord -c /ella/ops/demo/supervisor.cfg
-	docker exec $(subst $(comma),-,$(DEMO_NAME)) make dbreset
+	docker exec $(subst $(comma),-,ella-$(DEMO_NAME)) make dbreset
 
 #---------------------------------------------
 # Misc. database

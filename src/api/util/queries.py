@@ -208,15 +208,34 @@ def workflow_alleles_ongoing(session):
 
 
 def workflow_alleles_for_genepanels(session, genepanels):
+    """
+    Get all allele_ids connected to given genepanels.
+
+    They are either connected via an analysis or via an alleleinterpretation.
+    """
     analysis_ids = workflow_analyses_for_genepanels(session, genepanels)
-    return session.query(allele.Allele.id).join(genotype.Genotype.alleles).filter(
+
+    allele_ids_for_analyses = session.query(allele.Allele.id).join(genotype.Genotype.alleles).filter(
         genotype.Genotype.analysis_id.in_(analysis_ids)
     ).distinct()
 
+    allele_ids_for_alleleinterpretation = session.query(allele.Allele.id).filter(
+        tuple_(workflow.AlleleInterpretation.genepanel_name, workflow.AlleleInterpretation.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
+    ).distinct()
 
-def ad_genes_for_genepanel(session, gp_name, gp_version):
+    return session.query(allele.Allele.id).filter(
+        or_(
+            allele.Allele.id.in_(allele_ids_for_analyses),
+            allele.Allele.id.in_(allele_ids_for_alleleinterpretation),
+        )
+    )
+
+
+def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_version):
     """
-    Fetches all genes with _only_ 'AD' phenotypes.
+    Fetches all genes with _only_ {inheritance} phenotypes.
+
+    e.g. only 'AD' or only 'AR'
     """
 
     # Get phenotypes having only one kind of inheritance
@@ -249,7 +268,7 @@ def ad_genes_for_genepanel(session, gp_name, gp_version):
     ).filter(
         gene.Phenotype.genepanel_name == gp_name,
         gene.Phenotype.genepanel_version == gp_version,
-        gene.Phenotype.inheritance == 'AD'
+        gene.Phenotype.inheritance == inheritance
     ).distinct()
 
 

@@ -194,6 +194,7 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
     genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
     genepanel_data['transcripts'] = schemas.TranscriptSchema().dump(transcripts, many=True).data
     genepanel_data['phenotypes'] = schemas.PhenotypeSchema().dump(phenotypes, many=True).data
+    genepanel_data['config'] = genepanel.config
     return genepanel_data
 
 

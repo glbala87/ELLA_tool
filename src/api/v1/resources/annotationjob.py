@@ -55,7 +55,7 @@ class AnnotationJobList(LogRequestResource):
 class AnnotationJob(LogRequestResource):
 
     @authenticate()
-    @request_json(['id'], allowed=['status', 'message', 'task_id'])
+    @request_json([], allowed=['status', 'message', 'task_id'])
     def patch(self, session, id, data=None, user=None):
         """
         Updates an annotation job in the system.
@@ -71,7 +71,7 @@ class AnnotationJob(LogRequestResource):
                                             message=data.get("message"),
                                             task_id=data.get("task_id"))
         session.commit()
-        return job, 200
+        return schemas.AnnotationJobSchema().dump(job).data, 200
 
     def delete(self, session, id):
         """

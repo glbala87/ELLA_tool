@@ -157,7 +157,12 @@ class AlleleFilter(object):
                 )
 
             # AD genes
-            ad_genes = queries.ad_genes_for_genepanel(self.session, gp_key[0], gp_key[1])
+            ad_genes = queries.distinct_inheritance_genes_for_genepanel(
+                self.session,
+                'AD',
+                gp_key[0],
+                gp_key[1]
+            )
             if ad_genes:
                 allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
                     annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
