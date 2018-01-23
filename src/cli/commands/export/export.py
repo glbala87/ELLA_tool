@@ -16,7 +16,7 @@ def export():
 
 @export.command('classifications', help="Export all current classifications to excel and csv file.")
 @click.option('--filename', help="The name of the file to create. Suffix .xls and .csv will be automatically added.\n"
-                                  "Default: 'variant-classifications-YYYY-MM-DD_hhmm.xls/csv'")
+                                 "Default: 'variant-classifications-YYYY-MM-DD_hhmm.xls/csv'")
 @click.option('-with_analysis_names', is_flag=True,  help="Include name(s) of analysis where a variant is found")
 def cmd_export_classifications(filename, with_analysis_names):
     """
@@ -32,9 +32,10 @@ def cmd_export_classifications(filename, with_analysis_names):
     dump_classification.dump_alleleassessments(db.session, output_name, with_analysis_names)
     click.echo("Exported variants to " + output_name + '.xls/csv')
 
+
 @export.command('sanger', help="Export variants that needs to be Sanger verified")
 @click.option('--filename', help="The name of the file to create. Suffix .xls and .csv will be automatically added.\n"
-                                  "Default: 'variant-sanger-YYYY-MM-DD_hhmm.xls/csv'")
+                                 "Default: 'variant-sanger-YYYY-MM-DD_hhmm.xls/csv'")
 def cmd_export_sanger(filename):
     """
     Export alleles from non-started analysis to file
@@ -49,8 +50,8 @@ def cmd_export_sanger(filename):
     db.connect()
 
     # Let exceptions propagate to user...
-    excel_file_obj = open(filename + '.xls', 'w')
-    csv_file_obj = open(filename + '.csv', 'w')
+    excel_file_obj = open(output_name + '.xls', 'w')
+    csv_file_obj = open(output_name + '.csv', 'w')
 
     has_content = export_sanger_variants.export_variants(
         db.session,
