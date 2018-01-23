@@ -284,5 +284,5 @@ def dump_alleleassessments(session, filename, with_analysis_names):
             csv_file.write("\t".join(map(lambda c: c.encode('utf-8') if isinstance(c, (str, unicode)) else str(c), cols)))
             csv_file.write("\n")
 
-    workbook.save(filename + ".xls")
-    log.info("Wrote database to %s.xls/csv" % filename)
+    workbook.save(filename + ".xlsx")
+    log.info("Wrote database to %s.xlsx/csv" % filename)
