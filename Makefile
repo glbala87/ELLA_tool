@@ -445,6 +445,14 @@ test-report-classifications: #e2e-app-container-setup # CI run conditional targe
 	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
 	   ops/test/report-classifications/run_tests.sh
 
+test-report-classifications-with-analysis: #e2e-app-container-setup # CI run conditional target in separate stage
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
+	# Create report and run verifications:
+	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
+	   ops/test/report-classifications/run_tests.sh
+
+
 test-report-sanger: #e2e-app-container-setup # CI run conditional target in separate stage
 	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
 
