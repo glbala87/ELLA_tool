@@ -283,29 +283,27 @@ class AlleleFilter(object):
         for gp_key in final_result:
             added_thus_far = set()
             for k, v in commonness_result.iteritems():
-                final_result[gp_key][k] = [aid for aid in v[gp_key] if aid not in added_thus_far]
+                final_result[gp_key][k] = set([aid for aid in v[gp_key] if aid not in added_thus_far])
                 added_thus_far.update(set(v[gp_key]))
 
             if not common_only:
                 # Add all not part of the groups to a 'num_threshold' group,
                 # since they must have missed freq num threshold
-                final_result[gp_key]['num_threshold'] = [aid for aid in gp_allele_ids[gp_key] if aid not in added_thus_far]
+                final_result[gp_key]['num_threshold'] = set(gp_allele_ids[gp_key]) - added_thus_far
 
         return final_result
 
-    def remove_alleles_with_classification(self, allele_ids):
+    def get_allele_ids_with_classification(self, allele_ids):
         """
-        Return the allele ids that have have an existing classification according with
-        global config ['classification']['options']
-
-        Reason: alleles with classification should be displayed to the user.
-
+        Return the allele ids, among the provided allele_ids,
+        that have have an existing classification according with
+        global config ['classification']['options'].
         """
 
         options = self.global_config['classification']['options']
         exclude_for_class = [o['value'] for o in options if o.get('exclude_filtering_existing_assessment')]
 
-        with_classification = list()
+        with_classification = set()
 
         if allele_ids:
             with_classification = self.session.query(assessment.AlleleAssessment.allele_id).filter(
@@ -313,9 +311,9 @@ class AlleleFilter(object):
                 assessment.AlleleAssessment.allele_id.in_(allele_ids),
                 assessment.AlleleAssessment.date_superceeded.is_(None)
             ).all()
-            with_classification = [t[0] for t in with_classification]
+            with_classification = set([t[0] for t in with_classification])
 
-        return filter(lambda i: i not in with_classification, allele_ids)
+        return with_classification
 
     def filtered_gene(self, gp_allele_ids):
         """
@@ -327,7 +325,7 @@ class AlleleFilter(object):
 
         gene_filtered = dict()
         for gp_key, _ in gp_allele_ids.iteritems():
-            gene_filtered[gp_key] = list()  # no alleles are filtered away based on gene symbol only
+            gene_filtered[gp_key] = set()  # no alleles are filtered away based on gene symbol only
 
         return gene_filtered
 
@@ -344,7 +342,7 @@ class AlleleFilter(object):
         result.
 
         :param gp_allele_ids: Dict of genepanel key with corresponding allele_ids {('HBOC', 'v01'): [1, 2, 3])}
-        :returns: Structure similar to input, but only containing allele ids that are intronic.
+        :returns: Structure similar to input, but only containing set() of allele ids that are intronic.
 
         :note: The returned values are allele ids that were _filtered out_
         based on intronic status, i.e. they are intronic.
@@ -384,11 +382,11 @@ class AlleleFilter(object):
             exonic_alleles_q = exonic_alleles_q.distinct()
 
             exonic_allele_ids = [a[0] for a in exonic_alleles_q.all()]
-            intronic_filtered[gp_key] = list(set(allele_ids) - set(exonic_allele_ids))
+            intronic_filtered[gp_key] = set(allele_ids) - set(exonic_allele_ids)
 
         # Remove the ones with existing classification
         for gp_key, allele_ids in intronic_filtered.iteritems():
-            intronic_filtered[gp_key] = self.remove_alleles_with_classification(allele_ids)
+            intronic_filtered[gp_key] = intronic_filtered[gp_key] - self.get_allele_ids_with_classification(allele_ids)
 
         return intronic_filtered
 
@@ -404,7 +402,7 @@ class AlleleFilter(object):
         result.
 
         :param gp_allele_ids: Dict of genepanel key with corresponding allele_ids {('HBOC', 'v01'): [1, 2, 3])}
-        :returns: Structure similar to input, but only containing allele ids that have high frequency.
+        :returns: Structure similar to input, but only containing set() with allele ids that have high frequency.
 
         :note: The returned values are allele ids that were _filtered out_
         based on frequency, i.e. they have a high frequency value, not the ones
@@ -415,7 +413,7 @@ class AlleleFilter(object):
         frequency_filtered = dict()
 
         for gp_key, commonness_group in commonness_result.iteritems():
-            frequency_filtered[gp_key] = self.remove_alleles_with_classification(commonness_group['common'])
+            frequency_filtered[gp_key] = commonness_group['common'] - self.get_allele_ids_with_classification(commonness_group['common'])
 
         return frequency_filtered
 
@@ -424,7 +422,7 @@ class AlleleFilter(object):
         Filters out variants that have worst consequence equal to 3_prime_UTR_variant or 5_prime_UTR_variant in any
         of the annotation transcripts included.
         :param allele_ids: allele_ids to run filter on
-        :return: allele ids to be filtered out
+        :return: {gp_key: set()} with allele ids to be filtered out
         """
         consequences_ordered = self.global_config["transcripts"].get("consequences")
         utr_consequences = [
@@ -441,12 +439,12 @@ class AlleleFilter(object):
 
             # An ordering of consequences has not been specified, return empty list
             if not consequences_ordered:
-                utr_filtered[gp_key] = []
+                utr_filtered[gp_key] = set([])
                 continue
 
             # Also return empty list if *_prime_UTR_variant is not specified in consequences_ordered
             if not any(u in consequences_ordered for u in utr_consequences):
-                utr_filtered[gp_key] = []
+                utr_filtered[gp_key] = set([])
                 continue
 
             # For performance: Only get allele ids that are relevant for filtering
@@ -524,9 +522,9 @@ class AlleleFilter(object):
                 allele_id_worst_consequence.c.allele_id
             ).filter(
                 allele_id_worst_consequence.c.worst_consequence_ord.in_(utr_consequences_idx)
-            )
+            ).distinct()
 
-            utr_filtered[gp_key] = [a[0] for a in filtered_allele_ids.all()]
+            utr_filtered[gp_key] = set([a[0] for a in filtered_allele_ids.all()])
         return utr_filtered
 
     def filter_alleles(self, gp_allele_ids):
@@ -567,8 +565,8 @@ class AlleleFilter(object):
 
         def update_gp_allele_ids(gp_allele_ids, excluded_gp_allele_ids, result):
             for gp_key in gp_allele_ids:
-                excluded_gp_allele_ids[gp_key].update(result.get(gp_key, []))
-                gp_allele_ids[gp_key] = set(gp_allele_ids[gp_key]) - set(result.get(gp_key, []))
+                excluded_gp_allele_ids[gp_key].update(result.get(gp_key, set([])))
+                gp_allele_ids[gp_key] = set(gp_allele_ids[gp_key]) - result.get(gp_key, set([]))
 
         # Exclude the filtered alleles from one filter from being sent to
         # next filter, in order to improve performance. Matters a lot

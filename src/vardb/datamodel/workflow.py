@@ -3,7 +3,7 @@
 import datetime
 import pytz
 from sqlalchemy import Column, Integer, DateTime, Enum, String
-from sqlalchemy import ForeignKey, ForeignKeyConstraint
+from sqlalchemy import ForeignKey, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declared_attr
@@ -114,6 +114,7 @@ class AnalysisInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"), nullable=False,)
     analysisinterpretation = relationship("AnalysisInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
+    __table_args__ = (UniqueConstraint("analysisinterpretation_id", "allele_id"), )
 
 
 class AlleleInterpretation(Base, InterpretationMixin):
@@ -145,3 +146,4 @@ class AlleleInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"), nullable=False)
     alleleinterpretation = relationship("AlleleInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
+    __table_args__ = (UniqueConstraint("alleleinterpretation_id", "allele_id"), )
