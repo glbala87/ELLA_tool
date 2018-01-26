@@ -658,6 +658,6 @@ class AnalysisInterpretationFinishAllowedResource(LogRequestResource):
         sample_ids = [s[0] for s in sample_ids]
 
         if not sample_ids == rest_filter['sample_ids']:
-            raise ConflictError("Can not finish interpretation. Additional samples have been added to the analysis. Please refresh.")
+            raise ConflictError("Can not finish interpretation. Additional data have been added to this analysis. Please refresh.")
         else:
             return None, 200
