@@ -131,7 +131,7 @@ def log_request(statuscode, response=None):
     response_size = 0
     usersession_id = g.usersession_id if hasattr(g, 'usersession_id') else None
     if response:
-        response_size = response.headers.get('Content-Length', 0)
+        response_size = int(response.headers.get('Content-Length', 0))
         if not g.log_hide_response:
             response_data = response.get_data()
     if request.method in ['PUT', 'POST', 'PATCH', 'DELETE']:
