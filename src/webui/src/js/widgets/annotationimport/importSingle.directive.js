@@ -41,20 +41,22 @@ export class ImportSingleController {
             noGenotype: {
                 text: "No genotype found for some or all variants. Can only import as independent variants.",
                 active: !this.importData.genotypeAvailable(),
+                show: () => {return true},
             },
             multipleAnalyses: {
                 text: "Multiple analyses matching filename",
                 active: false,
+                show: () => {return this.importData.isAnalysisMode()}
             },
             analysisNameMatch: {
                 text: "The analysis name matches one or more existing analysis names. Do you really want to create a new analysis? If not, please choose \"Append\" instead.`",
                 active: false,
-                types: ["Create"]
+                show: () => {return this.importData.isCreateNewAnalysisType()}
             },
             analysisStarted: {
                 text: null,
                 active: false,
-                types: ["Append"]
+                show: () => {return this.importData.isAppendToAnalysisType()}
             }
         }
 
@@ -130,10 +132,7 @@ export class ImportSingleController {
     }
 
     showWarning(warning) {
-        if (!warning.active) return false;
-        else if (warning.types === undefined) return true;
-        else if (warning.types.indexOf(this.importData.importSelection.type) > -1) return true;
-        else return false;
+        return warning.active && warning.show()
     }
 
     /*
