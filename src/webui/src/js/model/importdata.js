@@ -219,13 +219,22 @@ export class ImportData {
             properties.analysis_name = this.importSelection.type === "Append" ? this.importSelection.analysis.name : this.importSelection.analysisName;
         }
 
+
+        if (this.isAppendToAnalysisType()) {
+            var genepanel = this.importSelection.analysis.genepanel;
+        } else {
+            var genepanel = this.importSelection.genepanel;
+        }
+
         let data = {
             mode: this.importSelection.mode,
             data: this._rebuildData(),
-            genepanel_name: this.importSelection.genepanel.name,
-            genepanel_version: this.importSelection.genepanel.version,
+            genepanel_name: genepanel.name,
+            genepanel_version: genepanel.version,
             properties: properties,
         }
+
+        console.log(data)
 
         return data;
     }
