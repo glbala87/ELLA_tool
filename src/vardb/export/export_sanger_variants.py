@@ -57,7 +57,7 @@ COLUMN_PROPERTIES = [
     (u'Transkript', 14),
     (u'HGVSc', 24),
     (u'Klasse', 6),
-    (u'sanger_verify', 13)
+    (u'Må verifiseres?', 13)
     ]
 
 
@@ -78,7 +78,7 @@ def create_variant_row(default_transcript, analysis_info, allele_info, sanger_ve
         found_transcript['transcript'],
         found_transcript.get('HGVSc_short', '?'),
         classification,
-        sanger_verify
+        "Ja" if sanger_verify else "Nei"
     ]
 
 
