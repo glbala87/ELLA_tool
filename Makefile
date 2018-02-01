@@ -48,7 +48,7 @@ help :
 	@echo ""
 	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE). use BUILD_OPTIONS variable to set options for 'docker build'"
 	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db			- populates the db with fixture data. Use RESET_DB_SET variable to choose testset (default: small)"
+	@echo "make db			- populates the db with fixture data. Use TESTSET variable to choose testset (default: small)"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
@@ -250,7 +250,7 @@ dev:
 	  supervisord -c /ella/ops/dev/supervisor.cfg
 
 db:
-	docker exec $(CONTAINER_NAME) make dbreset RESET_DB_SET=$(RESET_DB_SET)
+	docker exec $(CONTAINER_NAME) make dbreset TESTSET=$(TESTSET)
 
 url:
 	@./ops/dev/show-url.sh $(CONTAINER_NAME)
