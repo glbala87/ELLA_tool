@@ -50,8 +50,14 @@ def cmd_deposit_analysis(vcf):
     db.session.commit()
 
 
+@deposit.command('exists')
+@click.argument('fs', nargs=-1, type=click.Path(exists=True), )
+def all_exists(fs):
+    click.echo("OK")
+
+
 @deposit.command('alleles')
-@click.argument('vcf')
+@click.argument('vcf', nargs=-1, type=click.Path(exists=True))
 @click.option('--genepanel_name')
 @click.option('--genepanel_version')
 def cmd_deposit_alleles(vcf, genepanel_name, genepanel_version):
@@ -71,12 +77,14 @@ def cmd_deposit_alleles(vcf, genepanel_name, genepanel_version):
     db = DB()
     db.connect()
     da = DepositAlleles(db.session)
-    da.import_vcf(
-        vcf,
-        genepanel_name,
-        genepanel_version
-    )
+    for f in vcf:
+        da.import_vcf(
+            f,
+            genepanel_name,
+            genepanel_version
+        )
     db.session.commit()
+    click.echo("Deposited " + str(len(vcf)) + " files.")
 
 
 @deposit.command('annotation')
