@@ -52,21 +52,29 @@ def cmd_deposit_analysis(vcf):
 
 @deposit.command('alleles')
 @click.argument('vcf')
-def cmd_deposit_alleles(vcf):
+@click.option('--genepanel_name')
+@click.option('--genepanel_version')
+def cmd_deposit_alleles(vcf, genepanel_name, genepanel_version):
     """
     Deposit alleles given input vcf.
-    File should be in format of {something}.{genepanel_name}_{genepanel_version}.vcf
+
+    If genepanel not given by options, get it from the filename assuming
+    format of {something}.{genepanel_name}_{genepanel_version}.vcf
     """
     logging.basicConfig(level=logging.DEBUG)
 
-    matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
+    if not genepanel_name:
+        matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
+        genepanel_name = matches.group('genepanel_name')
+        genepanel_version = matches.group('genepanel_version')
+
     db = DB()
     db.connect()
     da = DepositAlleles(db.session)
     da.import_vcf(
         vcf,
-        matches.group('genepanel_name'),
-        matches.group('genepanel_version')
+        genepanel_name,
+        genepanel_version
     )
     db.session.commit()
 
