@@ -34,12 +34,12 @@ def allele():
 
 def test_allele_ratio_no_data(allele, genotype):
     genotype['allele_depth'] = {}
-    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype)
+    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype, 'HTS')
 
     genotype['allele_depth'] = {
         'REF': 100
     }
-    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype)
+    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype, 'HTS')
 
 
 def test_allele_ratio_wrong_data_types(allele, genotype):
@@ -47,14 +47,14 @@ def test_allele_ratio_wrong_data_types(allele, genotype):
         'A': None,
         'REF': 100
     }
-    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype)
+    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype, 'HTS')
 
     allele['vcf_alt'] = 'G'  # vcf_alt not in allele_depth
     genotype['allele_depth'] = {
         'A': 100,
         'REF': 100
     }
-    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype)
+    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype, 'HTS')
 
 
 def test_allele_ratio_multiallelic_wrong_ad_count(allele, genotype):
@@ -67,7 +67,7 @@ def test_allele_ratio_multiallelic_wrong_ad_count(allele, genotype):
     }
 
     with pytest.raises(AssertionError):
-        genotype_calculate_qc(allele, genotype)
+        genotype_calculate_qc(allele, genotype, 'HTS')
 
     genotype['multiallelic'] = False
     genotype['allele_depth'] = {
@@ -77,7 +77,7 @@ def test_allele_ratio_multiallelic_wrong_ad_count(allele, genotype):
     }
 
     with pytest.raises(AssertionError):
-        genotype_calculate_qc(allele, genotype)
+        genotype_calculate_qc(allele, genotype, 'HTS')
 
 
 def test_allele_ratio_correct_calculations(allele, genotype):
@@ -86,19 +86,19 @@ def test_allele_ratio_correct_calculations(allele, genotype):
         'A': 0,
         'REF': 0
     }
-    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype)
+    assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype, 'HTS')
 
     genotype['allele_depth'] = {
         'A': 100,
         'REF': 100
     }
-    assert genotype_calculate_qc(allele, genotype)['allele_ratio'] == 0.5
+    assert genotype_calculate_qc(allele, genotype, 'HTS')['allele_ratio'] == 0.5
 
     genotype['allele_depth'] = {
         'A': 100,
         'REF': 0
     }
-    assert genotype_calculate_qc(allele, genotype)['allele_ratio'] == 1
+    assert genotype_calculate_qc(allele, genotype, 'HTS')['allele_ratio'] == 1
 
 
 def test_needs_verification_checks_no_data(allele, genotype):
@@ -108,13 +108,14 @@ def test_needs_verification_checks_no_data(allele, genotype):
     genotype['sequencing_depth'] = None
     genotype['filter_status'] = None
 
-    result = genotype_calculate_qc(allele, genotype)
+    result = genotype_calculate_qc(allele, genotype, 'HTS')
     needs_verification_checks = result['needs_verification_checks']
     assert needs_verification_checks['snp'] is False
     assert needs_verification_checks['pass'] is False
     assert needs_verification_checks['qual'] is False
     assert needs_verification_checks['dp'] is False
     assert needs_verification_checks['allele_ratio'] is False
+    assert needs_verification_checks['hts'] is True
 
     assert result['needs_verification'] is True
 
@@ -132,13 +133,14 @@ def test_needs_verification_positive(allele, genotype):
     genotype['sequencing_depth'] = 21
     genotype['filter_status'] = 'PASS'
 
-    result = genotype_calculate_qc(allele, genotype)
+    result = genotype_calculate_qc(allele, genotype, 'HTS')
     needs_verification_checks = result['needs_verification_checks']
     assert needs_verification_checks['snp'] is True
     assert needs_verification_checks['pass'] is True
     assert needs_verification_checks['qual'] is True
     assert needs_verification_checks['dp'] is True
     assert needs_verification_checks['allele_ratio'] is True
+    assert needs_verification_checks['hts'] is True
 
     assert result['needs_verification'] is False
 
@@ -153,16 +155,36 @@ def test_needs_verification_positive(allele, genotype):
     genotype['sequencing_depth'] = 21
     genotype['filter_status'] = 'PASS'
 
-    result = genotype_calculate_qc(allele, genotype)
+    result = genotype_calculate_qc(allele, genotype, 'HTS')
     needs_verification_checks = result['needs_verification_checks']
     assert needs_verification_checks['snp'] is True
     assert needs_verification_checks['pass'] is True
     assert needs_verification_checks['qual'] is True
     assert needs_verification_checks['dp'] is True
     assert needs_verification_checks['allele_ratio'] is True
+    assert needs_verification_checks['hts'] is True
 
     assert result['needs_verification'] is False
 
+
+def test_needs_verification_hts_negative(allele, genotype):
+    # Fail all checks, but sample type is Sanger
+    allele['change_type'] = None
+    genotype['allele_depth'] = None
+    genotype['variant_quality'] = None
+    genotype['sequencing_depth'] = None
+    genotype['filter_status'] = None
+
+    result = genotype_calculate_qc(allele, genotype, 'Sanger')
+    needs_verification_checks = result['needs_verification_checks']
+    assert needs_verification_checks['snp'] is False
+    assert needs_verification_checks['pass'] is False
+    assert needs_verification_checks['qual'] is False
+    assert needs_verification_checks['dp'] is False
+    assert needs_verification_checks['allele_ratio'] is False
+    assert needs_verification_checks['hts'] is False
+
+    assert result['needs_verification'] is False
 
 def test_needs_verification_negative(allele, genotype):
 
@@ -177,13 +199,14 @@ def test_needs_verification_negative(allele, genotype):
     genotype['sequencing_depth'] = 20
     genotype['filter_status'] = 'FAIL'
 
-    result = genotype_calculate_qc(allele, genotype)
+    result = genotype_calculate_qc(allele, genotype, 'HTS')
     needs_verification_checks = result['needs_verification_checks']
     assert needs_verification_checks['snp'] is False
     assert needs_verification_checks['pass'] is False
     assert needs_verification_checks['qual'] is False
     assert needs_verification_checks['dp'] is False
     assert needs_verification_checks['allele_ratio'] is False
+    assert needs_verification_checks['hts'] is True
 
     assert result['needs_verification'] is True
 
@@ -198,13 +221,14 @@ def test_needs_verification_negative(allele, genotype):
     genotype['sequencing_depth'] = 0
     genotype['filter_status'] = 'something'
 
-    result = genotype_calculate_qc(allele, genotype)
+    result = genotype_calculate_qc(allele, genotype, 'HTS')
     needs_verification_checks = result['needs_verification_checks']
     assert needs_verification_checks['snp'] is False
     assert needs_verification_checks['pass'] is False
     assert needs_verification_checks['qual'] is False
     assert needs_verification_checks['dp'] is False
     assert needs_verification_checks['allele_ratio'] is False
+    assert needs_verification_checks['hts'] is True
 
     assert result['needs_verification'] is True
 
@@ -219,13 +243,13 @@ def test_needs_verification_negative(allele, genotype):
     genotype['sequencing_depth'] = 20  # Fail
     genotype['filter_status'] = 'PASS'
 
-    result = genotype_calculate_qc(allele, genotype)
+    result = genotype_calculate_qc(allele, genotype, 'HTS')
     needs_verification_checks = result['needs_verification_checks']
     assert needs_verification_checks['snp'] is True
     assert needs_verification_checks['pass'] is True
     assert needs_verification_checks['qual'] is True
     assert needs_verification_checks['dp'] is False
     assert needs_verification_checks['allele_ratio'] is True
+    assert needs_verification_checks['hts'] is True
 
     assert result['needs_verification'] is True
-
