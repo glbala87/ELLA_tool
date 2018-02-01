@@ -703,7 +703,7 @@ class AnalysisInterpretationImporter(object):
             # If the existing is Done, we reopen the analysis since we have added new
             if reopen_if_exists and existing.status == 'Done':
                 import api.v1.resources.workflow.helpers as helpers  # TODO: Placed here due to circular imports...
-                db_interpretation = helpers.reopen_interpretation(analysis_id=existing.analysis_id)[1]
+                db_interpretation = helpers.reopen_interpretation(self.session, analysis_id=existing.analysis_id)[1]
             else:
                 db_interpretation = None
         return db_interpretation
