@@ -306,7 +306,7 @@ class AssessmentImporter(object):
                     User.username == username_raw
                 ).one()
                 ass_info['user_id'] = user.id
-            except NoResultFound e:
+            except NoResultFound, e:
                 raise NoResultFound("The user '{}' was not found".format(username_raw), e)
 
         allele = db_alleles[0]
