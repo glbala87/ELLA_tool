@@ -36,7 +36,7 @@ export class OverviewResource {
     getAllelesFinalizedOverview(page) {
         return new Promise((resolve, reject) => {
             page = page ? page : 1;
-            let uri = `${this.base}/overviews/alleles/finalized/?page=${page}&per_page=20`;
+            let uri = `${this.base}/overviews/alleles/finalized/?page=${page}&per_page=10`;
             let r = this.resource(uri);
             let overview = r.query((data, headers) => {
                 headers = headers()
@@ -92,7 +92,7 @@ export class OverviewResource {
     getAnalysesFinalizedOverview(page) {
         return new Promise((resolve, reject) => {
             page = page ? page : 1;
-            let uri = `${this.base}/overviews/analyses/finalized/?page=${page}&per_page=20`;
+            let uri = `${this.base}/overviews/analyses/finalized/?page=${page}&per_page=10`;
             let r = this.resource(uri);
             let overview = r.query((data, headers) => {
                 headers = headers()

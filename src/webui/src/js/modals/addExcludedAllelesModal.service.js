@@ -29,7 +29,7 @@ export class AddExcludedAllelesController {
         this.gene_options = []; // Options for gene selection dropdown
         this.selected_gene = null;
         this.page_idx = 1;
-        this.number_per_page = 3;
+        this.number_per_page = 2;
         this.readOnly = read_only;
 
 
