@@ -117,10 +117,6 @@ class AlleleSectionBox  {
         return this._getClassificationLabel().toLowerCase() === "Unclassified".toLowerCase();
     }
 
-    isClassT() {
-        return this._getClassificationLabel().toLowerCase() === "Technical".toLowerCase();
-    }
-
     isClass1() {
         return this._getClassificationLabel().toLowerCase() === "Class 1".toLowerCase();
     }
@@ -145,28 +141,24 @@ class AlleleSectionBox  {
         this._setClassification(2);
     }
 
-    classifyAsT() {
-        this._setClassification(3);
-    }
-
     classifyAs1() {
-       this._setClassification(4);
+       this._setClassification(3);
     }
 
     classifyAs2() {
-       this._setClassification(5);
+       this._setClassification(4);
     }
 
     classifyAs3() {
-       this._setClassification(6);
+       this._setClassification(5);
     }
 
     classifyAs4() {
-       this._setClassification(7);
+       this._setClassification(6);
     }
 
     classifyAs5() {
-       this._setClassification(8);
+       this._setClassification(7);
     }
 
     unclassify() { // go through all possible buttons that 'unclassifies':
@@ -174,7 +166,6 @@ class AlleleSectionBox  {
             '.id-accept-classification',
             '.id-marked-class1',
             '.id-marked-class2',
-            '.id-marked-technical'
         ];
 
         for (let s of selectors) {
@@ -195,10 +186,6 @@ class AlleleSectionBox  {
        browser.click('.id-mark-class2');
     }
 
-    markAsTechnical() {
-        browser.click('.id-mark-technical');
-    }
-
     unmarkClass1() {
         browser.click('.id-marked-class1');
     }
@@ -207,9 +194,6 @@ class AlleleSectionBox  {
         browser.click('.id-marked-class2');
     }
 
-    unmarkTechnical() {
-        browser.click('.id-marked-technical');
-    }
 
     getNumberOfAttachments() {
         let elements = browser.elements('.attachment-wrapper attachment')

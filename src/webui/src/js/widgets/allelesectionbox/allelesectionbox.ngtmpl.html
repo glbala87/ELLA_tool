@@ -28,12 +28,6 @@
               Undo reevaluation
               <checked>Reevaluate</checked>
           </checkable-button>
-          <button class="id-mark-technical"
-                  ng-if="control == 'toggle_technical'"
-                  ng-click="vm.setTechnical()"
-                  ng-disabled="vm.alleleState.class2 || vm.alleleState.class1 || vm.isAlleleAssessmentReused() || vm.readOnly">
-          Mark technical
-        </button>
 
           <button class="id-mark-class1"
                   ng-if="control == 'toggle_class1'"

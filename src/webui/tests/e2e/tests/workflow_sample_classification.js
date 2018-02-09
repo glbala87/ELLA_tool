@@ -90,9 +90,9 @@ describe('Sample workflow', function () {
         // alleleSidebar.selectFirstUnclassified();
         alleleSidebar.selectUnclassifiedAllele('c.1788T>C');
         selected_allele = alleleSidebar.getSelectedAllele();
-        alleleSectionBox.markAsTechnical();
+        alleleSectionBox.classifyAsU();
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
-        expected_analysis_1_round_1[selected_allele] = {classification: 'T'};
+        expected_analysis_1_round_1[selected_allele] = {classification: 'U'};
 
         const exomesElement = alleleSectionBox.gnomADExomesElement;
         expect(exomesElement).toBeDefined("Missing gnomeAD exomes box on the page");

@@ -29,7 +29,7 @@ class AlleleAssessment(Base):
     __tablename__ = "alleleassessment"
 
     id = Column(Integer, primary_key=True)
-    classification = Column(Enum('1', '2', '3', '4', '5', 'T', 'U', name="alleleassessment_classification"), nullable=False)
+    classification = Column(Enum('1', '2', '3', '4', '5', 'U', name="alleleassessment_classification"), nullable=False)
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)

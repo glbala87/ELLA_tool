@@ -12,7 +12,7 @@ from api.util.allelefilter import AlleleFilter
 
 log = logging.getLogger(__name__)
 
-CLASSIFICATIONS = ['1', '2', '3', '4', '5', 'T', 'U']
+CLASSIFICATIONS = ['1', '2', '3', '4', '5', 'U']
 
 # (field name, [Column header, Column width])
 COLUMN_PROPERTIES = [

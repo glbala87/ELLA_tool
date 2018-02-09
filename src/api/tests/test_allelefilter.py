@@ -62,11 +62,6 @@ GLOBAL_CONFIG = {
     "classification": {
         "options": [  # Also defines sorting order
             {
-                "name": "Technical",
-                "value": "T",
-                "exclude_filtering_existing_assessment": True  # If there's an existing alleleassessment, exclude the allele from being filtered.
-            },
-            {
                 "name": "Class 1",
                 "value": "1"
             },
