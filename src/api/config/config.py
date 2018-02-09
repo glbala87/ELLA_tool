@@ -234,13 +234,6 @@ config = {
                 "outdated_after_days": 180  # Marked as outdated after N number of days
             },
             {
-                "name": "Technical",
-                "value": "T",
-                "outdated_after_days": 0,
-                "include_analysis_with_findings": True,  # Include in analyses with findings overviews
-                "exclude_filtering_existing_assessment": True  # If there's an existing alleleassessment, exclude the allele from being filtered.
-            },
-            {
                 "name": "Class 1",
                 "value": "1"
             },
@@ -284,7 +277,6 @@ config = {
             "3": "Variant med usikker betydning",
             "2": "Sannsynlig ikke sykdomsgivende variant",
             "1": "Ikke sykdomsgivende variant",
-            "T": "Teknisk variant"
         },
         # Classifications to include in report by default.
         "include_classifications": ["5", "4", "3"]

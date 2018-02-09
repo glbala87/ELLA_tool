@@ -53,11 +53,11 @@ describe(`ACMG`, function () {
     describe('suggested codes and REQs are', function () {
 
         beforeAll(function () {
-            // classify one variant as 'T'
+            // classify one variant as 'U'
             loginPage.selectFirstUser();
             variantSelectionPage.selectPending(1);
             analysisPage.startButton.click(); 
-            alleleSectionBox.markAsTechnical();
+            alleleSectionBox.classifyAsU();
             analysisPage.finishButton.click();
             analysisPage.finalizeButton.click();
 
@@ -107,19 +107,6 @@ describe(`ACMG`, function () {
             analysisPage.finishButton.click();
             analysisPage.finalizeButton.click();
         });
-
-         it('are shown when an expired interpretation is started', function () {
-            variantSelectionPage.expandFinishedSection();
-            variantSelectionPage.selectFinished(1);  // the second we classified, 'T'
-            analysisPage.startButton.click();
-            expect(alleleSectionBox.isClassT()).toBe(true);
-            expect(alleleSectionBox.existingClassificationName.toLowerCase()).toContain('outdated');
-            expectSuggestedFeatureIsShown();
-            alleleSectionBox.markAsClass2();
-
-            analysisPage.finishButton.click();
-            analysisPage.finalizeButton.click();
-        })
 
 
     });

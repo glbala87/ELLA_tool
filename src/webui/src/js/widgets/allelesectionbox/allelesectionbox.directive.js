@@ -277,19 +277,6 @@ export class AlleleSectionBoxController {
         }
     }
 
-    setTechnical() {
-        if (this.readOnly) {
-            return;
-        }
-
-        this.alleleState.alleleassessment.classification = 'T';
-        this.changeClassification();
-
-        if (this.onSkip) {
-            this.onSkip();
-        }
-    }
-
     toggleReuseAlleleAssessment() {
         if (this.readOnly) {
             return;

@@ -4,7 +4,7 @@ require('core-js/fn/object/entries');
  * Finalize two analyses, checking the interpretation rounds for the finished analyses:
  * 1. Sample 1, all classified as 1, set to review,
  * 2. Sample 1, , all classified as 2, finalization
- * 3. Sample 2: alleles overlap with previous sample 1, all classified as T, finalize
+ * 3. Sample 2: alleles overlap with previous sample 1, all classified as class U, finalize
  * 4. Open sample 1 (with two rounds). Check the rounds are different
  * 5. Open sample 2 (with one round). Check that some variants had an existing classification
  */
@@ -112,25 +112,25 @@ describe('Sample workflow ', function () {
         alleleSectionBox.hasExistingClassification();
         expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class 2');
 
-        // Classify all as T:
+        // Classify all as U:
         for (let i=1; i<=numberOfClassifiedBefore; i++) {
             alleleSidebar.selectFirstClassified(); // who's first changes when unclassify/classify
             let selected_allele = alleleSidebar.getSelectedAllele();
             expect(alleleSectionBox.classificationAcceptedToggleBtn.getText().toLowerCase()).
                 toBe(BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase(), 'Allele should be marked as reusing existing classification');
             alleleSectionBox.classificationAcceptedBtn.click();
-            alleleSectionBox.classifyAsT();
+            alleleSectionBox.classifyAsU();
             let classification = alleleSidebar.getSelectedAlleleClassification();
-            expect(classification).toBe('T', 'Previous classification should now be T');
+            expect(classification).toBe('U', 'Previous classification should now be class U');
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
         }
 
         for (let i=1; i<=numberOfUnclassifiedBefore; i++) {
             alleleSidebar.selectFirstUnclassified(); // who's first changes as this is classified
             let selected_allele = alleleSidebar.getSelectedAllele();
-            alleleSectionBox.classifyAsT();
+            alleleSectionBox.classifyAsU();
             let classification = alleleSidebar.getSelectedAlleleClassification();
-            expect(classification).toBe('T', 'Unclassified should now be T');
+            expect(classification).toBe('U', 'Unclassified should now be class U');
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
         }
 
@@ -164,10 +164,9 @@ describe('Sample workflow ', function () {
         expect(alleleSidebar.countOfUnclassified()).toBe(0);
         expect(numberOfClassified).toBeGreaterThan(1);
 
-        // current data round: Three alleles were classified as T in this sample, and two as 2 in the other sample
-        // technical expire at once, thus T*
+        // current data round: Three alleles were classified as U in this sample, and two as 2 in the other sample
 
-        let current_classifications = ['2', '2', 'T*', 'T*', 'T*'];
+        let current_classifications = ['2', '2', 'U', 'U', 'U'];
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
@@ -213,12 +212,12 @@ describe('Sample workflow ', function () {
         expect(numberOfClassified).toBeGreaterThan(1);
 
         analysisPage.chooseRound(1);
-        // expect all to be T, with existing classificaiton of 2 for some
+        // expect all to be U, with existing classificaiton of 2 for some
         let numberOfAllelesWithExistingClassification = 0;
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
-            expect(classification).toBe('T', 'Technical for all alleles');
+            expect(classification).toBe('U', 'Class U for all alleles');
             if (alleleSectionBox.hasExistingClassification()) {
                 expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class 2', 'For variant with existing classification');
                 numberOfAllelesWithExistingClassification += 1;
