@@ -99,7 +99,7 @@
           {{allele_obj.allele.annotation.filtered[0].symbol}}
         </div>
         <div class="cell hgvsc id-hgvsc">
-          {{allele_obj.allele.annotation.filtered[0].HGVSc_short}}
+          {{allele_obj.allele.annotation.filtered[0].HGVSc_short || allele_obj.allele.getHGVSgShort()}}
         </div>
         <div class="cell consequence id-consequence" ng-class="{'hit': vm.isNonsense(allele_obj.allele)}">
           {{vm.getConsequence(allele_obj.allele)}}
@@ -228,7 +228,7 @@
           {{allele_obj.allele.annotation.filtered[0].symbol}}
         </div>
         <div class="cell hgvsc id-hgvsc">
-          {{allele_obj.allele.annotation.filtered[0].HGVSc_short}}
+          {{allele_obj.allele.annotation.filtered[0].HGVSc_short || allele_obj.allele.getHGVSgShort()}}
         </div>
         <div class="cell consequence id-consequence">
           {{vm.getConsequence(allele_obj.allele)}}

@@ -154,7 +154,7 @@ export class CustomAnnotationController {
     formatAllele(allele) {
         let result = '';
         for (let f of allele.annotation.filtered) {
-            result += `${f.symbol} ${f.HGVSc_short}`;
+            result += `${f.symbol} ${f.HGVSc_short || allele.getHGVSgShort()}`;
         }
         return result;
     }

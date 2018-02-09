@@ -45,8 +45,8 @@ export class AlleleSidebarController {
             case "gene":
                 return allele.annotation.filtered[0].symbol;
             case "hgvsc":
-                let s = allele.annotation.filtered[0].HGVSc_short;
-                let d = parseInt(s.match(/c\.(\d+)/)[1]);
+                let s = allele.annotation.filtered[0].HGVSc_short || allele.getHGVSgShort();
+                let d = parseInt(s.match(/[cg]\.(\d+)/)[1]);
                 return d
             case "consequence":
                 let consequence_priority = this.config.transcripts.consequences;
