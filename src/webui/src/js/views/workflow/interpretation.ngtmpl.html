@@ -7,11 +7,11 @@
 ></interpretationbar>
 
 <div class="interpretation-container">
-  <div class="no-alleles" ng-if="!vm.getAlleles().length">
+  <div class="no-alleles" ng-if="!vm.getAlleles().length && vm.selectedComponent.title != 'Info'">
     <h2>No variants to show for analysis.</h2>
     <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
   </div>
-  <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.getAlleles().length">
+  <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.getAlleles().length || vm.selectedComponent.title == 'Info'">
         <allele-sidebar ng-if="vm.shouldShowSidebar()"
                         read-only="vm.readOnly"
                         genepanel="vm.getGenepanel()"
