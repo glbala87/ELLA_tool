@@ -55,7 +55,7 @@ def cmd_export_sanger(filename):
 
     has_content = export_sanger_variants.export_variants(
         db.session,
-        excel_file_obj=excel_file_obj,
+        excel_file_obj,
         csv_file_obj=csv_file_obj
     )
 
