@@ -215,6 +215,7 @@ export class WorkflowAnalysisController {
                 const analysis = this.getAnalysis();
                 this.setupNavbar();
                 if (analysis &&
+                    analysis.warnings &&
                     analysis.warnings.length) {
                     this.selected_component = this.components[0];
                 }
