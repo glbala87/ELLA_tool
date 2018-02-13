@@ -217,8 +217,9 @@ def cmd_deposit_genepanel(genepanel_name,
         phenotypes_path = folder + "/" + prefix + ".phenotypes.csv"
         genepanel_name, genepanel_version = prefix.split('_',1)
         assert genepanel_version.startswith('v')
-        config_path = folder + "/" + prefix + ".config.json"
-        config_path = config_path if validate_file_exists(config_path) else None  # not a mandatory file
+        if config_path is None:
+            config_path = folder + "/" + prefix + ".config.json"
+            config_path = config_path if validate_file_exists(config_path) else None  # not a mandatory file
 
     db = DB()
     db.connect()
