@@ -27,10 +27,6 @@ class InterpretationMixin(object):
     date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
 
     @declared_attr
-    def state_history(cls):
-        return deferred(Column(JSONMutableDict.as_mutable(JSONB), default={}))
-
-    @declared_attr
     def user_id(cls):
         return Column(Integer, ForeignKey("user.id"))
 
@@ -147,3 +143,19 @@ class AlleleInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     alleleinterpretation = relationship("AlleleInterpretation", backref='snapshots')
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     __table_args__ = (UniqueConstraint("alleleinterpretation_id", "allele_id"), )
+
+
+class InterpretationStateHistory(Base):
+    """
+    Holds the history of the state for the interpretations.
+    Every time the [allele|analysis]interpretation state is updated (i.e. when user saves),
+    it's copied into this table.
+    """
+    __tablename__ = "interpretationstatehistory"
+
+    id = Column(Integer, primary_key=True)
+    alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"))
+    analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"))
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    state = Column(JSONMutableDict.as_mutable(JSONB), default={})
