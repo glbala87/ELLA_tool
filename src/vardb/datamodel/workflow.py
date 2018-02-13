@@ -158,4 +158,4 @@ class InterpretationStateHistory(Base):
     analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"))
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
-    state = Column(JSONMutableDict.as_mutable(JSONB), default={})
+    state = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
