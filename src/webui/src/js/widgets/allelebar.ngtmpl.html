@@ -41,7 +41,7 @@
                            popover-title="HGVS cDNA"
                            popover-class="popover-title-no-uppercase"
                            popover-placement="bottom">
-            <i>{{t.transcript}}:</i><b>{{t.HGVSc_short}}</b> {{vm.getGenotype()}}
+            <i>{{t.transcript}}:</i><b>{{t.HGVSc_short || vm.allele.getHGVSgShort()}}</b> {{vm.getGenotype()}}
           </span>
         </div>
       </h3>

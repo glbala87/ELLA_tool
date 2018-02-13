@@ -8,7 +8,7 @@
   <div class="full-title ref-title id-variant-name">
       <span ng-repeat="t in item.allele.annotation.filtered">
         <span style="text-transform: uppercase; color: #aaa;"> </span>
-        <b>{{t.symbol}} {{t.HGVSc_short}}</b>
+        <b>{{t.symbol}} {{t.HGVSc_short || item.allele.getHGVSgShort()}}</b>
       </span>
   </div>
 

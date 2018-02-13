@@ -288,7 +288,7 @@ export class InterpretationController {
         // Sort unclassified by (gene, hgvsc)
         let unclassified_sort = firstBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
                                 .thenBy(a => a.allele.annotation.filtered[0].symbol)
-                                .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
+                                .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort());
 
         if (grouped_alleles.unclassified.length) {
             grouped_alleles.unclassified.sort(unclassified_sort);
@@ -300,7 +300,7 @@ export class InterpretationController {
             }, -1)
             .thenBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
             .thenBy(a => a.allele.annotation.filtered[0].symbol)
-            .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
+            .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort());
 
         if (grouped_alleles.classified.length) {
             grouped_alleles.classified.sort(classified_sort);
