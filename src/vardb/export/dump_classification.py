@@ -46,6 +46,8 @@ COLUMN_PROPERTIES = OrderedDict([
     ('consequence', ['Consequence', 20]),
     ('coordinate', ['GRCh37', 20]),
     ('n_samples', ['# samples', 3]),
+    ('prev_class', ['Prev. class', 6]),
+    ('prev_class_superceeded', ['Superceeded date', 11]),
     ('classification_eval', ['Evaluation', 20]),
     ('report', ['Report', 20]),
     ('acmg_eval', ['ACMG evaluation', 20]),
@@ -116,7 +118,8 @@ def format_transcripts(allele_annotation):
     return {key: ' | '.join(value) for key, value in formatted_transcripts.items()}
 
 
-def format_classification(alleleassessment, adl):
+def format_classification(alleleassessment, adl, previous_alleleassessment=None):
+
     """
     Make a list of the classification fields of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
@@ -183,6 +186,8 @@ def format_classification(alleleassessment, adl):
         'consequence': formatted_transcript.get('consequences'),
         'coordinate': coordinate,
         'n_samples': n_samples,
+        'prev_class': previous_alleleassessment.classification if previous_alleleassessment else '',
+        'prev_class_superceeded': previous_alleleassessment.date_superceeded.strftime(DATE_FORMAT) if previous_alleleassessment else '',
         'classification_eval': html_to_text(alleleassessment.evaluation.get('classification', {}).get('comment', '')),
         'acmg_eval': acmg_evals,
         'report': html_to_text(allele_dict.get('allele_report', {}).get('evaluation', {}).get('comment', '')),
@@ -246,7 +251,14 @@ def dump_alleleassessments(session, filename, with_analysis_names):
                  (len(batch_alleleassessments), str(t_query-t_start)))
 
         for alleleassessment in batch_alleleassessments:
-            classification_dict = format_classification(alleleassessment, adl)
+            previous_alleleassessment = session.query(assessment.AlleleAssessment).filter(
+                 ~assessment.AlleleAssessment.date_superceeded.is_(None),  # Is superceeded
+                ).filter(
+                      assessment.AlleleAssessment.allele_id == alleleassessment.allele_id
+                ).order_by(assessment.AlleleAssessment.date_superceeded.desc()).limit(1).one_or_none()
+            classification_dict = format_classification(alleleassessment,
+                                                        adl,
+                                                        previous_alleleassessment=previous_alleleassessment)
             if with_analysis_names:
                 analyses = session.query(sample.Analysis).join(
                     genotype.Genotype.alleles,
