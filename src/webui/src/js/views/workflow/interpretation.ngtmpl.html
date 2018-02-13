@@ -7,12 +7,12 @@
 ></interpretationbar>
 
 <div class="interpretation-container">
-    <div class="no-alleles" ng-if="!vm.getAlleles().length">
-      <h2>No variants to show for analysis.</h2>
-      <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
-    </div>
-    <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.getAlleles().length">
-        <allele-sidebar ng-if="vm.showSidebar"
+  <div class="no-alleles" ng-if="!vm.getAlleles().length && vm.selectedComponent.title != 'Info'">
+    <h2>No variants to show for analysis.</h2>
+    <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
+  </div>
+  <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.getAlleles().length || vm.selectedComponent.title == 'Info'">
+        <allele-sidebar ng-if="vm.shouldShowSidebar()"
                         read-only="vm.readOnly"
                         genepanel="vm.getGenepanel()"
                         alleles="vm.allele_sidebar.alleles"
@@ -20,7 +20,11 @@
                         checked="vm.getSelectedInterpretation().state.report.included">
         </allele-sidebar>
 
-      <section class="container" ng-class="{'inner': vm.showSidebar}">
+      <section class="container" ng-class="{'inner': vm.shouldShowSidebar()}">
+        <analysis-info
+          analysis="vm.analysis"
+          ng-switch-when="Info">
+        </analysis-info>
         <div ng-switch-when="Classification">
             <allele-sectionbox
               read-only="vm.readOnly"

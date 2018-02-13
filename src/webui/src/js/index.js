@@ -76,6 +76,7 @@ import './widgets/alleleinfo/alleleInfoExternalOther.directive';
 import './widgets/alleleinfo/alleleInfoVardb.directive';
 import './widgets/annotationimport/importSingle.directive'
 
+import './widgets/markdownIt.directive'
 import './widgets/analysisList.directive';
 import './widgets/alleleAssessment.directive';
 import './widgets/alleleList.directive';
@@ -103,6 +104,7 @@ import './widgets/igv.directive.js';
 import './widgets/wysiwygjsEditor.directive';
 import './widgets/referenceAssessment.directive';
 import './widgets/interpretationbar.directive'
+import './widgets/analysisInfo.directive'
 
 import {Config, Inject, Run} from './ng-decorators';
 

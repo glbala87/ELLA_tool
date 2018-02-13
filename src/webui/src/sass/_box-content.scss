@@ -77,6 +77,29 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   &-entry ~ &-entry { margin-top: 2.6rem; }
 }
 
+.markdown {
+  h1 { font-family: $slim; font-weight: 700; font-size: 3rem; padding-top: 0.5rem; padding-bottom: 0.2rem;}
+  h2 { font-family: $slim; font-weight: 700; font-size: 2rem; padding-top: 0.5rem; padding-bottom: 0.2rem;}
+  h3 { font-family: $slim; font-weight: 700; font-size: 1.5rem; padding-top: 0.5rem; padding-bottom: 0.2rem;}
+  h4 { font-family: $slim; font-weight: 700; font-size: 1.25rem; padding-top: 0.5rem; padding-bottom: 0.2rem;}
+  p, li, table { font-size: 1.4rem; font-weight: 400; }
+  p, table { margin: 0.5rem; }
+  table, ul {padding: 1rem; margin-bottom: 0.6rem; }
+  table { background-color: $black-05; }
+  th { font-weight: 600; }
+  ul { list-style-position: inside }
+  td, th {padding: 0.3rem; text-align: center; }
+
+}
+
+.analysis-info {
+  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; padding-top: 1.5rem; padding-bottom: 0.4rem;}
+  .report { margin: 0.5rem; padding: 1rem; }
+  .warning { background-color: $red; margin: 0.5rem; padding: 1rem; color: $white;
+    p { color: $white; }
+  }
+}
+
 .vardb {
   .button-row {text-align: right;}
   .outdated { color: $red; text-transform: uppercase; }
@@ -107,6 +130,7 @@ analysis-selection {
   .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem;
     .analysis-date { color: $black-50; }
     .full-title { flex-grow: 1; padding-left: 1.2rem;
+      .warning { font-size: 1.2rem; color: $red-75; border: 1px solid $red-75; padding: 0.2rem; margin-right: 0.3rem; }
       .sample-type { font-size: 1.2rem; color: $black-50; border: 1px solid $black-25; padding: 0.2rem; margin-right: 0.3rem; }
     }
     .analysis-priority { color: $red-75; padding-left: 1.3rem; text-transform: uppercase; }

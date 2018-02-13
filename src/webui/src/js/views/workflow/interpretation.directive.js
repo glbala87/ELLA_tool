@@ -126,6 +126,13 @@ export class InterpretationController {
 
     }
 
+    shouldShowSidebar() {
+        if (!this.showSidebar) {
+            return false
+        }
+        return this.showSidebar && this.selectedComponent.title !== 'Info'
+    }
+
     getInterpretationType() {
         return this.interpretationService.type
     }
@@ -333,7 +340,8 @@ export class InterpretationController {
         this.updateAlleleSidebar();
 
         // Report component use toggle system instead of single selection
-        if (this.selectedComponent.title === 'Report') {
+        if (this.selectedComponent.title === 'Report' ||
+            this.selectedComponent.title === 'Info') {
             this.allele_sidebar.selected = null;
             return;
         };
