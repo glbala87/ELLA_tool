@@ -206,15 +206,6 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
 
     """
 
-    def update_history(interpretation):
-        if 'history' not in interpretation.state_history:
-            interpretation.state_history['history'] = list()
-        interpretation.state_history['history'].insert(0, {
-            'time': datetime.datetime.now(pytz.utc).isoformat(),
-            'state': interpretation.state,
-            'user_id': interpretation.user_id
-        })
-
     def check_update_allowed(interpretation, user_id, patch_data):
         if interpretation.status == 'Done':
             raise ConflictError("Cannot PATCH interpretation with status 'DONE'")
@@ -240,8 +231,14 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
 
     # Add current state to history if new state is different:
     if data['state'] != interpretation.state:
-        update_history(interpretation)
-
+        session.add(
+            workflow.InterpretationStateHistory(
+                alleleinterpretation_id=alleleinterpretation_id,
+                analysisinterpretation_id=analysisinterpretation_id,
+                state=interpretation.state,
+                user_id=user_id
+            )
+        )
     # Overwrite state fields with new values
     interpretation.state = data['state']
     interpretation.user_state = data['user_state']
