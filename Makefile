@@ -243,6 +243,7 @@ dev:
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
+	  -e COLUMNS=250 \
 	  -p $(API_PORT):5000 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
