@@ -138,7 +138,7 @@ class TestAnalysisOverview(object):
         assert isinstance(r.json, list) and len(r.json) == 1
         assert r.json[0]['id'] == FIRST_ANALYSIS_ID
         interpretations = r.json[0]['interpretations']
-        assert interpretations[0]['date_last_update'] < interpretations[1]['date_last_update'] < interpretations[2]['date_last_update']
+        assert interpretations[0]['date_last_update'] < interpretations[1]['date_last_update']
         r = client.get('/api/v1/overviews/analyses/')
 
         assert len(r.json['not_started']) == 3
