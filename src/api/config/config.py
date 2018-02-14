@@ -262,7 +262,7 @@ config = {
             {
                 "name": "Class 5",
                 "value": "5",
-                "outdated_after_days": 180,
+                "outdated_after_days": 365,
                 "include_report": True,
                 "include_analysis_with_findings": True,
                 "exclude_filtering_existing_assessment": True
