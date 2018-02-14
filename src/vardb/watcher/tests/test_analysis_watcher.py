@@ -98,7 +98,7 @@ def test_loading_config_with_error(session, init_dest):
     analysis_config_path = aw.path_to_analysis_config(misconfigured_data_path, misconfigured_analysis_sample)
     with pytest.raises(RuntimeError) as excinfo:
         aw.load_analysis_config(analysis_config_path)
-    assert ANALYSIS_FIELD_MISSING.format('priority', analysis_config_path) in str(excinfo)
+    assert ANALYSIS_FIELD_MISSING.format('name', analysis_config_path) in str(excinfo)
 
 
 def test_vcf_path(session, init_dest):
@@ -128,7 +128,7 @@ def test_extract_from_config_with_error(session, init_dest):
     aw = init(session)
     with pytest.raises(Exception) as excinfo:
         aw.extract_from_config(misconfigured_data_path, misconfigured_analysis_sample)
-    assert "Missing field priority" in str(excinfo)
+    assert "Missing field name" in str(excinfo)
 
 
 def test_import_analysis(session, test_database, init_dest):
