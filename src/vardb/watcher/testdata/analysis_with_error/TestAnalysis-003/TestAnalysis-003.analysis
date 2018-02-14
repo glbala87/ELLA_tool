@@ -3,7 +3,6 @@
         "genepanel": "HBOC_v01"
     },
     "type": "exome",
-    "name": "",
     "samples": [
         "TestSample-001",
         "TestSample-002",
