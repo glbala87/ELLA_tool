@@ -108,6 +108,8 @@ class TestAnalysisOverview(object):
 
         assert r.json['marked_review'][0]['id'] == FIRST_ANALYSIS_ID
         assert len(r.json['marked_review'][0]['interpretations']) == 2
+        # Check correct sorting on interpretations
+        assert r.json['marked_review'][0]['interpretations'][0]['date_last_update'] < r.json['marked_review'][0]['interpretations'][1]['date_last_update']
 
         r = client.get('/api/v1/overviews/analyses/')
 
@@ -135,7 +137,8 @@ class TestAnalysisOverview(object):
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
         assert r.json[0]['id'] == FIRST_ANALYSIS_ID
-
+        interpretations = r.json[0]['interpretations']
+        assert interpretations[0]['date_last_update'] < interpretations[1]['date_last_update'] < interpretations[2]['date_last_update']
         r = client.get('/api/v1/overviews/analyses/')
 
         assert len(r.json['not_started']) == 3
