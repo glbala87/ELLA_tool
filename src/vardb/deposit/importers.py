@@ -284,7 +284,7 @@ class AssessmentImporter(object):
         all_info = record['INFO']['ALL']
 
         class_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
-        if not is_non_empty_text(class_raw) or class_raw not in ('1', '2', '3', '4', '5', 'T'):
+        if not is_non_empty_text(class_raw) or class_raw not in ('1', '2', '3', '4', '5', 'U'):
             logging.warning("Unknown class {}".format(class_raw))
             return
 
