@@ -33,6 +33,8 @@ describe('Sample workflow to create test fixture for report testing', function (
 
         analysisPage.startButton.click();
 
+        analysisPage.selectSectionClassification();
+
         for (let idx = 1; idx <= 5; idx++) {
             alleleSidebar.selectFirstUnclassified();
             selected_allele = alleleSidebar.getSelectedAllele();

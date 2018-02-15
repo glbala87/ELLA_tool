@@ -11,10 +11,7 @@ from collections import defaultdict, OrderedDict
 import argparse
 import pytz
 from sqlalchemy.orm import subqueryload, joinedload, noload
-from openpyxl.writer.write_only import WriteOnlyCell
-from openpyxl import Workbook
-from openpyxl.styles import Font
-
+import xlsxwriter
 
 from api.util import alleledataloader
 from api.util.alleledataloader import AlleleDataLoader
@@ -43,13 +40,22 @@ def extract_meta_from_name(analysis_name):
     if matches and len(matches.groupdict()) == 4:
         return matches.group('project_name'), matches.group('prove')
     else:
-        return analysis_name,'?'
+        return analysis_name, '?'
+
+WARNING_COLUMN_PROPERTIES = [
+    (u'Importdato', 12),
+    (u'Prosjektnummer', 14),
+    (u'Prøvenummer', 12),
+    (u'Warning', 50),
+]
+
+
 
 # Column header and width
 COLUMN_PROPERTIES = [
     (u'Importdato', 12),
     (u'Prosjektnummer', 14),
-    (u'Prøvenummer', 10),
+    (u'Prøvenummer', 12),
     (u'Genpanel', 20),  # navn(versjon)
     (u'Startposisjon (HGVSg)', 22),
     (u'Stopposisjon (HGVSg)', 22),
@@ -57,7 +63,7 @@ COLUMN_PROPERTIES = [
     (u'Transkript', 14),
     (u'HGVSc', 24),
     (u'Klasse', 6),
-    (u'sanger_verify', 13)
+    (u'Må verifiseres?', 13)
     ]
 
 
@@ -78,29 +84,30 @@ def create_variant_row(default_transcript, analysis_info, allele_info, sanger_ve
         found_transcript['transcript'],
         found_transcript.get('HGVSc_short', '?'),
         classification,
-        sanger_verify
+        "Ja" if sanger_verify else "Nei"
     ]
 
 
-def export_variants(session, csv_file_obj=None, excel_file_obj=None):
+def export_variants(session, excel_file_obj, csv_file_obj=None):
     """
     Put alleles belonging to unfinished analyses in file
 
     :param session: An sqlalchemy session
+    :param excel_file_obj: File obj in which to write excel data
     :param csv_file_obj: File obj in which to write csv data (optional)
-    :param excel_file_obj: File obj in which to write excel data (optional)
     """
 
-    if not csv_file_obj and not excel_file_obj:
-        raise RuntimeError("Either csv_file_obj or excel_file_obj must be specified")
+    if not excel_file_obj:
+        raise RuntimeError("Argument 'excel_file_obj' must be specified")
 
     ids_not_started = queries.workflow_analyses_not_started(session).all()
     if len(ids_not_started) < 1:
         return False
 
     # Datastructure for collecting file content:
-    workbook = Workbook(write_only=True)  # Write only: Constant memory usage
-    worksheet = workbook.create_sheet()
+    workbook = xlsxwriter.Workbook(excel_file_obj, {'in_memory': True})
+    header_format = workbook.add_format({'bold': True})
+    sanger_worksheet = workbook.add_worksheet('Variants')
     csv = []
     # temporary data structure to sort:
     worksheet_rows = []
@@ -108,17 +115,11 @@ def export_variants(session, csv_file_obj=None, excel_file_obj=None):
 
     # File headings
     csv_heading = []
-    excel_heading = []
-    for i, column_tuple in enumerate(COLUMN_PROPERTIES):
-        label, width = column_tuple
+    for i, (label, width) in enumerate(COLUMN_PROPERTIES):
         csv_heading.append('#' + label if i == 0 else label)
-        title = WriteOnlyCell(worksheet, value=label)
-        title.font = Font(bold=True)
-        excel_heading.append(title)
-        # chr(65) is 'A', chr(66) is 'B', etc
-        worksheet.column_dimensions[chr(i+65)].width = width
+        sanger_worksheet.write(0, i, label, header_format)
+        sanger_worksheet.set_column(i, i, width)
 
-    worksheet.append(excel_heading)
     csv.append(csv_heading)
 
     analyses_allele_ids = session.query(sample.Analysis, allele.Allele.id).join(
@@ -182,9 +183,39 @@ def export_variants(session, csv_file_obj=None, excel_file_obj=None):
             csv_file_obj.write("\t".join(map(lambda c: c.encode('utf-8') if isinstance(c, (str, unicode)) else str(c), cols)))
             csv_file_obj.write("\n")
 
-    if excel_file_obj:
-        for r in worksheet_rows:
-            worksheet.append(r)
-        workbook.save(excel_file_obj)
+    for i, r in enumerate(worksheet_rows):
+        sanger_worksheet.write_row(i+1, 0, r)  # Start on row 2, col 1
 
+    #
+    # Add warnings page
+    #
+    # TODO: Refactor this mess! Need to get this in before release...
+    analyses_with_warnings = session.query(sample.Analysis.deposit_date, sample.Analysis.name, sample.Analysis.warnings).filter(
+        sample.Analysis.id.in_(ids_not_started),
+        ~sample.Analysis.warnings.is_(None),
+        sample.Analysis.warnings != ''
+    ).order_by(sample.Analysis.deposit_date).all()
+
+    warnings_worksheet = workbook.add_worksheet('Warnings')
+
+    for i, (label, width) in enumerate(WARNING_COLUMN_PROPERTIES):
+        warnings_worksheet.write(0, i, label, header_format)
+        warnings_worksheet.set_column(i, i, width)
+
+    worksheet_rows = []
+    for idx, (deposit_date, analysis_name, warning) in enumerate(analyses_with_warnings):
+        project_name, prove_number = extract_meta_from_name(analysis_name)
+        worksheet_rows.append([
+            deposit_date.strftime(DATE_FORMAT),
+            project_name,
+            prove_number,
+            warning.strip()
+        ])
+
+    worksheet_rows.sort(key=sort_function)
+    for idx, r in enumerate(worksheet_rows):
+        warnings_worksheet.set_row(idx+1, 70)
+        warnings_worksheet.write_row(idx+1, 0, r)
+
+    workbook.close()
     return True

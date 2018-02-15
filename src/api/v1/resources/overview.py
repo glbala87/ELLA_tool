@@ -102,6 +102,8 @@ def load_genepanel_alleles(session, gp_allele_ids):
     # Preload interpretations for each allele
     allele_ids_interpretations = session.query(workflow.AlleleInterpretation).filter(
         workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
+    ).order_by(
+        workflow.AlleleInterpretation.date_last_update
     ).all()
 
     # Preload genepanels

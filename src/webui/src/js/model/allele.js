@@ -36,11 +36,42 @@ export class Allele {
                 if (hgvs !== '') {
                     hgvs += '|'
                 }
-                hgvs += `${t.transcript}(${t.symbol}):${t.HGVSc_short}`;
+                hgvs += `${t.transcript}(${t.symbol}):${t.HGVSc_short || this.getHGVSgShort()}`;
             }
         }
         return hgvs;
     }
+
+    getHGVSgShort() {
+        // Database is 0-based, alamut uses 1-based index
+        let start = this.start_position;
+        let end = this.open_end_position;
+        let result = 'g.';
+
+        if (this.change_type === 'SNP') {
+            // snp: Chr11(GRCh37):g.66285951C>Tdel:
+            result += `${start+1}${this.change_from}>${this.change_to}`;
+        }
+        else if (this.change_type === 'del') {
+            // del: Chr13(GRCh37):g.32912008_32912011del
+            result += `${start+1}_${end}del`;
+        }
+        else if (this.change_type === 'ins') {
+            // ins: Chr13(GRCh37):g.32912008_3291209insCGT
+            result += `${start}_${start+1}ins${this.change_to}`;
+        }
+        else if (this.change_type === 'indel') {
+            // delins: Chr13(GRCh37):g.32912008_32912011delinsGGG
+            result += `${start+1}_${end}delins${this.change_to}`;
+        }
+        else {
+            // edge case, shouldn't happen, but this is valid format as well
+            result += `${start+1}`;
+        }
+
+        return result;
+    }
+
 
     getHGMDUrl() {
         if (this.annotation &&

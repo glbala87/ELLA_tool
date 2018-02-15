@@ -53,7 +53,7 @@ export class ReportCardController {
                 return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
             .thenBy(a => a.annotation.filtered[0].symbol)
-            .thenBy(a => a.annotation.filtered[0].HGVSc_short)
+            .thenBy(a => a.annotation.filtered[0].HGVSc_short || a.getHGVSgShort())
         )
         return this.alleles;
     }
@@ -62,18 +62,20 @@ export class ReportCardController {
         let hgvs = '';
         for (let t of allele.annotation.filtered) {
             hgvs += `${t.transcript}(${t.symbol}):`;
-            let part = t.HGVSc_short.split("c.", 2)[1]; // remove 'c.'
+            let hgvs_short = t.HGVSc_short || allele.getHGVSgShort();
+
+            let [type, part] = hgvs_short.split(".");
             if (allele.samples[0].genotype.homozygous) {
-                hgvs += `c.[${part}];[(${part})]`; // c.[76A>C];[(76A>C)]
+                hgvs += `${type}.[${part}];[(${part})]`; // c.[76A>C];[(76A>C)]
             }
             else {
-                hgvs += `c.[${part}];[=]`; // c.[76A>C];[=]
+                hgvs += `${type}.[${part}];[=]`; // c.[76A>C];[=]
             }
             let classification = this.getClassification(allele);
             if (classification) {
                 hgvs += ` ${this.config.report.classification_text[classification]}`;
             }
-            hgvs += `\n${t.HGVSc_short}`;
+            hgvs += `\n${hgvs_short}`;
             if (t.HGVSp) {
                 hgvs += ` ${t.HGVSp}`;
             }

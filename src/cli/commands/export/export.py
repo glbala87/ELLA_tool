@@ -16,7 +16,7 @@ def export():
 
 @export.command('classifications', help="Export all current classifications to excel and csv file.")
 @click.option('--filename', help="The name of the file to create. Suffix .xls and .csv will be automatically added.\n"
-                                  "Default: 'variant-classifications-YYYY-MM-DD_hhmm.xls/csv'")
+                                 "Default: 'variant-classifications-YYYY-MM-DD_hhmm.xlsx/csv'")
 @click.option('-with_analysis_names', is_flag=True,  help="Include name(s) of analysis where a variant is found")
 def cmd_export_classifications(filename, with_analysis_names):
     """
@@ -30,11 +30,12 @@ def cmd_export_classifications(filename, with_analysis_names):
     db = DB()
     db.connect()
     dump_classification.dump_alleleassessments(db.session, output_name, with_analysis_names)
-    click.echo("Exported variants to " + output_name + '.xls/csv')
+    click.echo("Exported variants to " + output_name + '.xlsx/csv')
+
 
 @export.command('sanger', help="Export variants that needs to be Sanger verified")
-@click.option('--filename', help="The name of the file to create. Suffix .xls and .csv will be automatically added.\n"
-                                  "Default: 'variant-sanger-YYYY-MM-DD_hhmm.xls/csv'")
+@click.option('--filename', help="The name of the file to create. Suffix .xlsx and .csv will be automatically added.\n"
+                                 "Default: 'variant-sanger-YYYY-MM-DD_hhmm.xlsx/csv'")
 def cmd_export_sanger(filename):
     """
     Export alleles from non-started analysis to file
@@ -43,23 +44,23 @@ def cmd_export_sanger(filename):
     today = datetime.datetime.now()
     timestamp = today.strftime(FILENAME_TIMESTAMP_FORMAT)
     output_name = filename if filename else "variant-sanger-{timestamp}".format(timestamp=timestamp)
-    click.echo("Exporting variants to " + output_name + '.xls/csv')
+    click.echo("Exporting variants to " + output_name + '.xlsx/csv')
 
     db = DB()
     db.connect()
 
     # Let exceptions propagate to user...
-    excel_file_obj = open(filename + '.xls', 'w')
-    csv_file_obj = open(filename + '.csv', 'w')
+    excel_file_obj = open(output_name + '.xlsx', 'w')
+    csv_file_obj = open(output_name + '.csv', 'w')
 
     has_content = export_sanger_variants.export_variants(
         db.session,
-        excel_file_obj=excel_file_obj,
+        excel_file_obj,
         csv_file_obj=csv_file_obj
     )
 
     if has_content:
-        click.echo("Exported variants to " + output_name + '.xls/csv')
+        click.echo("Exported variants to " + output_name + '.xlsx/csv')
     else:
         csv_file_obj.write("# file is intentionally empty\n")
         excel_file_obj.write("file is intentionally empty")

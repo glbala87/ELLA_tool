@@ -48,7 +48,7 @@ help :
 	@echo ""
 	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE). use BUILD_OPTIONS variable to set options for 'docker build'"
 	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db			- populates the db with fixture data. Use RESET_DB_SET variable to choose testset (default: small)"
+	@echo "make db			- populates the db with fixture data. Use TESTSET variable to choose testset (default: small)"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
@@ -243,6 +243,7 @@ dev:
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
+	  -e COLUMNS=250 \
 	  -p $(API_PORT):5000 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
@@ -250,7 +251,7 @@ dev:
 	  supervisord -c /ella/ops/dev/supervisor.cfg
 
 db:
-	docker exec $(CONTAINER_NAME) make dbreset RESET_DB_SET=$(RESET_DB_SET)
+	docker exec $(CONTAINER_NAME) make dbreset TESTSET=$(TESTSET)
 
 url:
 	@./ops/dev/show-url.sh $(CONTAINER_NAME)
@@ -444,6 +445,14 @@ test-report-classifications: #e2e-app-container-setup # CI run conditional targe
 	# Create report and run verifications:
 	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
 	   ops/test/report-classifications/run_tests.sh
+
+test-report-classifications-with-analysis: #e2e-app-container-setup # CI run conditional target in separate stage
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
+	# Create report and run verifications:
+	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
+	   ops/test/report-classifications/run_tests.sh
+
 
 test-report-sanger: #e2e-app-container-setup # CI run conditional target in separate stage
 	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh

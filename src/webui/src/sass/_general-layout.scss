@@ -279,7 +279,7 @@ button { outline: none; border: 1px solid Transparent;
   .dashboard {
     display: flex;
     padding-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
-    .full-title { padding-left: 1.2rem; font-size: 1.4rem; font-weight: 300; } 
+    .full-title { padding-left: 1.2rem; font-size: 1.4rem; font-weight: 300; }
     .profile {
       flex: 1;
       justify-content: space-between;
@@ -289,13 +289,13 @@ button { outline: none; border: 1px solid Transparent;
       width: 32%;
       border: solid white 3px;
       background-color: $green-05;
-      
+
       .sb-title-container {
           background-color: $green-25;
       }
     }
   }
-  
+
   .dashboard-activity {
       flex: 1;
       width: 100%;

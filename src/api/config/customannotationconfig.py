@@ -326,6 +326,44 @@ customannotationconfig = {
             ]
         },
         {
+            "key": "LOVD-DICER1",
+            "name": "LOVD",
+            "only_for_genes": [17098],
+            "url_for_genes": {
+                "17098": "https://grenada.lumc.nl/LOVD2/mendelian_genes/home.php?select_db=DICER1",
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"]
+            ]
+        },
+		{
+            "key": "LOVD_shared-DICER1",
+            "name": "LOVD shared",
+            "only_for_genes": [17098],
+            "url_for_genes": {
+                "17098": "https://databases.lovd.nl/shared/genes/DICER1",
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"]
+            ]
+        },        
+        {
             "key": "LOVD_medgen-EXT1",
             "name": "LOVD medgen",
             "only_for_genes": [3512],

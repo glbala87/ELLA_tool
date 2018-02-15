@@ -59,6 +59,9 @@ export class WorkflowAnalysisController {
 
         this.components = [ // instantiated/rendered in AlleleSectionboxContentController
             {
+                title: 'Info',
+            },
+            {
                 title: 'Classification',
                 sections: [
                     {
@@ -195,8 +198,8 @@ export class WorkflowAnalysisController {
                 alleles: []
             }
         ];
-        this.selected_component = this.components[0];
 
+        this.selected_component = this.components[1];
         this.collisionWarning = null;
 
         this.setUpListeners();
@@ -208,7 +211,18 @@ export class WorkflowAnalysisController {
 
         this.scope.$watch(
             () => this.getAnalysis(),
-            () => this.setupNavbar()
+            () => {
+                const analysis = this.getAnalysis();
+                this.setupNavbar();
+                if (analysis &&
+                    analysis.warnings &&
+                    analysis.warnings.length) {
+                    this.selected_component = this.components[0];
+                }
+                else {
+                    this.selected_component = this.components[1];
+                }
+            }
         )
     }
 
@@ -269,7 +283,7 @@ export class WorkflowAnalysisController {
                 }
 
                 for (let c of result) {
-                    html += `<h3> ${c.allele.annotation.filtered[0].symbol} ${c.allele.annotation.filtered[0].HGVSc_short}`
+                    html += `<h3> ${c.allele.annotation.filtered[0].symbol} ${c.allele.annotation.filtered[0].HGVSc_short || c.allele.getHGVSgShort()}`
                     html += ` ${c.user ? "by "+c.user.full_name : 'in review'} (${c.type === 'analysis' ? 'ANALYSIS' : 'VARIANT'})</h3>`
                 }
 

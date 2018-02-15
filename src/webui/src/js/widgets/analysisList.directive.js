@@ -29,6 +29,16 @@ class AnalysisListWidget {
         this.sorted_analyses = [];
     }
 
+    getEndAction(interpretation) {
+        let OPTIONS = {
+            'Mark review': 'Marked for review',
+            'Finalize': 'Finalized'
+        }
+        if (interpretation.end_action) {
+            return ' ' + OPTIONS[interpretation.end_action] + ' • '
+        }
+        return ''
+    }
 
     sortItems() {
         if (!this.analyses.length) { return; }

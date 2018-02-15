@@ -38,7 +38,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
         variantSelectionPage.selectPending(5);
         analysisPage.startButton.click();
 
-        alleleSectionBox.markAsTechnical();
+        alleleSectionBox.classifyAsU();
 
         // Evaluate one reference
         let referenceTitle = alleleSectionBox.evaluateReference(1);

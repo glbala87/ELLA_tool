@@ -62,11 +62,6 @@ GLOBAL_CONFIG = {
     "classification": {
         "options": [  # Also defines sorting order
             {
-                "name": "Technical",
-                "value": "T",
-                "exclude_filtering_existing_assessment": True  # If there's an existing alleleassessment, exclude the allele from being filtered.
-            },
-            {
                 "name": "Class 1",
                 "value": "1"
             },
@@ -604,7 +599,7 @@ class TestAlleleFilter(object):
         allele_info = [a2common.id]
         result = af.get_commonness_groups({gp_key: allele_info})
 
-        assert result[gp_key]['common'] == [a2common.id]
+        assert result[gp_key]['common'] == set([a2common.id])
         assert not result[gp_key]['less_common']
         assert not result[gp_key]['low_freq']
         assert not result[gp_key]['null_freq']
@@ -640,7 +635,7 @@ class TestAlleleFilter(object):
         result = af.get_commonness_groups({gp_key: allele_info})
 
         assert not result[gp_key]['common']
-        assert result[gp_key]['less_common'] == [a2less_common.id]
+        assert result[gp_key]['less_common'] == set([a2less_common.id])
         assert not result[gp_key]['low_freq']
         assert not result[gp_key]['null_freq']
 
@@ -672,7 +667,7 @@ class TestAlleleFilter(object):
 
         assert not (result[gp_key]['common'])
         assert not result[gp_key]['less_common']
-        assert result[gp_key]['low_freq'] == [a2low_freq.id]
+        assert result[gp_key]['low_freq'] == set([a2low_freq.id])
         assert not result[gp_key]['null_freq']
 
     @pytest.mark.aa(order=2)

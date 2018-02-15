@@ -46,6 +46,7 @@ class AnnotationJobList(LogRequestResource):
         tags:
             - Import
         """
+        data["user_id"] = user.id
         annotation_job_data = annotationjob.AnnotationJob(**data)
         session.add(annotation_job_data)
         session.commit()

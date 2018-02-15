@@ -44,11 +44,16 @@ def populate_request():
     if request.path and request.path.split('/')[1] not in VALID_STATIC_FILES:
         populate_g_user()
 
+
 @app.after_request
 def after_request(response):
     if request.path and request.path.split('/')[1] not in VALID_STATIC_FILES:
         log_request(response.status_code, response)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            log.exception("Something went wrong when commiting resourcelog entry")
+            db.session.rollback()
 
     return response
 
@@ -56,10 +61,12 @@ def after_request(response):
 @app.teardown_request
 def teardown_request(exc):
     if exc:
-        if request.url.startswith('/reset'):  # DEVELOPMENT
-            return None
         log_request(500)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            log.exception("Something went wrong when commiting resourcelog entry")
+            db.session.rollback()
 
 
 @app.teardown_appcontext

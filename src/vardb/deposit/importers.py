@@ -14,6 +14,8 @@ import logging
 import datetime
 import pytz
 from collections import defaultdict
+from sqlalchemy.orm.exc import NoResultFound
+
 
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm, assessment as asm
@@ -282,7 +284,7 @@ class AssessmentImporter(object):
         all_info = record['INFO']['ALL']
 
         class_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
-        if not is_non_empty_text(class_raw) or class_raw not in ('1', '2', '3', '4', '5', 'T'):
+        if not is_non_empty_text(class_raw) or class_raw not in ('1', '2', '3', '4', '5', 'U'):
             logging.warning("Unknown class {}".format(class_raw))
             return
 
@@ -299,10 +301,13 @@ class AssessmentImporter(object):
         user = None
         username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
         if is_non_empty_text(username_raw):
-            user = self.session.query(User).filter(
-                User.username == username_raw
-            ).one()
-            ass_info['user_id'] = user.id
+            try:
+                user = self.session.query(User).filter(
+                    User.username == username_raw
+                ).one()
+                ass_info['user_id'] = user.id
+            except NoResultFound, e:
+                raise NoResultFound("The user '{}' was not found".format(username_raw), e)
 
         allele = db_alleles[0]
 

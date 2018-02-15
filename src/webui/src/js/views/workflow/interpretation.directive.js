@@ -126,6 +126,13 @@ export class InterpretationController {
 
     }
 
+    shouldShowSidebar() {
+        if (!this.showSidebar) {
+            return false
+        }
+        return this.showSidebar && this.selectedComponent.title !== 'Info'
+    }
+
     getInterpretationType() {
         return this.interpretationService.type
     }
@@ -281,7 +288,7 @@ export class InterpretationController {
         // Sort unclassified by (gene, hgvsc)
         let unclassified_sort = firstBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
                                 .thenBy(a => a.allele.annotation.filtered[0].symbol)
-                                .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
+                                .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort());
 
         if (grouped_alleles.unclassified.length) {
             grouped_alleles.unclassified.sort(unclassified_sort);
@@ -293,7 +300,7 @@ export class InterpretationController {
             }, -1)
             .thenBy(a => this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol))
             .thenBy(a => a.allele.annotation.filtered[0].symbol)
-            .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short);
+            .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort());
 
         if (grouped_alleles.classified.length) {
             grouped_alleles.classified.sort(classified_sort);
@@ -333,7 +340,8 @@ export class InterpretationController {
         this.updateAlleleSidebar();
 
         // Report component use toggle system instead of single selection
-        if (this.selectedComponent.title === 'Report') {
+        if (this.selectedComponent.title === 'Report' ||
+            this.selectedComponent.title === 'Info') {
             this.allele_sidebar.selected = null;
             return;
         };

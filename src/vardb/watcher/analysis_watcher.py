@@ -48,8 +48,8 @@ VCF_FILE_MISSING = "Expected a vcf file at {}, but found none."
 ANALYSIS_FIELD_MISSING = "Missing field {} in analysis config at {}"
 ANALYSIS_FILE_MISCONFIGURED = "The file {} is corrupt or JSON structure has missing values: {}"
 
-REPORT_FILE = 'report.md'
-WARNINGS_FILE = 'warnings.md'
+REPORT_FILES = ['report.md', 'report.txt']
+WARNINGS_FILES = ['warnings.md', 'warnings.txt']
 ANALYSIS_POSTFIX = '.analysis'
 VCF_POSTFIX = '.vcf'
 
@@ -60,7 +60,7 @@ class AnalysisWatcher(object):
         self.session = session
         self.watch_path = watch_path
         self.dest_path = dest_path
-        
+
         if not self._check_watch_path_readable():
             raise RuntimeError(WATCH_PATH_ERROR.format(self.watch_path))
 
@@ -72,7 +72,7 @@ class AnalysisWatcher(object):
 
     def _check_dest_path_writable(self):
         return os.access(self.dest_path, os.W_OK)
-      
+
     def load_analysis_config(self, analysis_config_path):
         with open(analysis_config_path) as f:
             analysis_config = json.load(f)
@@ -80,18 +80,17 @@ class AnalysisWatcher(object):
         return analysis_config
 
     def check_analysis_config(self, analysis_config, analysis_config_path):
-        for field in ['name', 'priority', 'params']:
+        for field in ['name', 'params']:
             if field not in analysis_config:
                 raise RuntimeError(ANALYSIS_FIELD_MISSING.format(field, analysis_config_path))
-   
+
     def load_file(self, analysis_config_path, file_name):
-        path_to_file = analysis_config_path + '/' + file_name
+        path_to_file = os.path.join(analysis_config_path, file_name)
         if os.path.isfile(path_to_file):
             with open(path_to_file) as f:
-                result = f.read() 
-            return result    
+                return f.read()
         else:
-            return ''
+            return None
 
     def import_analysis(self, analysis_config_data):
         """
@@ -116,8 +115,8 @@ class AnalysisWatcher(object):
             return False
         else:
             return True
-      
-    def path_to_analysis_config(self, analysis_path, analysis_dir):  
+
+    def path_to_analysis_config(self, analysis_path, analysis_dir):
         # Name of .analysis file should match dir name
         analysis_config_path = os.path.join(
             analysis_path,
@@ -128,8 +127,8 @@ class AnalysisWatcher(object):
             raise RuntimeError(ANALYSIS_FILE_MISSING.format(analysis_config_path))
 
         return analysis_config_path
-    
-    def path_to_vcf_file(self, analysis_path, analysis_dir):  
+
+    def path_to_vcf_file(self, analysis_path, analysis_dir):
         # Check for a vcf file matching analysis name
         analysis_vcf_path = os.path.join(
             analysis_path,
@@ -139,44 +138,50 @@ class AnalysisWatcher(object):
         # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
         if not os.path.exists(analysis_vcf_path):
             raise RuntimeError(VCF_FILE_MISSING.format(analysis_vcf_path))
-      
+
         return analysis_vcf_path
-      
-    def extract_from_config(self, analysis_path, analysis_dir):  
+
+    def extract_from_config(self, analysis_path, analysis_dir):
         analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
         analysis_config = self.load_analysis_config(analysis_file)
         analysis_vcf_path = self.path_to_vcf_file(analysis_path, analysis_dir)
-      
+
         try:
             gp = analysis_config['params']['genepanel']
             gp_name, gp_version = gp.split('_')
             analysis_name = analysis_config['name']
-            priority = analysis_config['priority']
+            priority = analysis_config.get('priority', 1)
 
-            report = self.load_file(analysis_path, REPORT_FILE)
-            warnings = self.load_file(analysis_path, WARNINGS_FILE)
+            report = None
+            warnings = None
+            for report_file in REPORT_FILES:
+                if report is None:
+                    report = self.load_file(analysis_path, report_file)
+            for warning_file in WARNINGS_FILES:
+                if warnings is None:
+                    warnings = self.load_file(analysis_path, warning_file)
 
             if gp_name == '' or gp_version == '':
                 raise RuntimeError(ANALYSIS_FILE_MISCONFIGURED.format(
                     analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version
                 ))
-      
+
             return AnalysisConfigData(analysis_vcf_path, analysis_name, gp_name, gp_version, priority, report, warnings)
-      
+
         except Exception:
             log.exception(ANALYSIS_FILE_MISCONFIGURED.format(analysis_path, ""))
-      
+
     def check_and_import(self):
         """
         Poll for new samples to process.
         """
-      
+
         # The path to the root folder is the analysis folder, i.e. for our testdata
-        # src/vardb/watcher/testdata/analyses, the target folder for analysis will be 
+        # src/vardb/watcher/testdata/analyses, the target folder for analysis will be
         # the analysis folder
         for analysis_dir in os.listdir(self.watch_path):
             try:
-      
+
                 if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
                     continue
 
@@ -194,7 +199,7 @@ class AnalysisWatcher(object):
                 self.import_analysis(analysis_config_data)
 
                 # Flushing to check for errors in data, before moving files
-                self.session.flush()  
+                self.session.flush()
 
                 # Move analysis dir to destination path.
                 shutil.move(analysis_path, self.dest_path)
@@ -226,7 +231,7 @@ if __name__ == '__main__':
                         help="Path to watch for new analyses")
     parser.add_argument("--dest", dest="dest", required=True,
                         help="Destination path into which the processed data will be copied.")
-    
+
     args = parser.parse_args()
 
     log.info("Polling for new analyses every: {} seconds".format(POLL_INTERVAL))

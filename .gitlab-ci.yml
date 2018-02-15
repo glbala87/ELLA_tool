@@ -100,6 +100,7 @@ test_reports:
   script:
     - make test-report-sanger
     - make test-report-classifications
+    - make test-report-classifications-with-analysis
   before_script:
     - rm -rf errorShots
   after_script:

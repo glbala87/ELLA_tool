@@ -37,6 +37,32 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 USERS = '../testdata/users.json'
 USERGROUPS = '../testdata/usergroups.json'
 
+REPORT_EXAMPLE = '''
+### Gene list for genes having below 100% coverage:
+
+|Gene|Transcript|Phenotype|Inheritance||Coverage<br> (% bp) (2)|
+|---|---|---|---|---|---|
+|MSH2|NM_000251.2|Colorectal cancer, hereditary nonpolyposis, type 1|AD|2869|99.9%|
+|MSH6|NM_000179.2|Colorectal cancer, hereditary nonpolyposis, type 5|AD|4123|99.2%|
+|PMS2|NM_000535.5|Colorectal cancer, hereditary nonpolyposis, type 4|AD|2649|98.6%|
+
+(1) bp = basepair; + 4 bp = -2 og + 2 bp in intron region to cover conserved splice site (based on Refseqs from UCSC refGene table, March 2015, GRCh37/hg19)
+(2) Percentage of region covered at least 40 times
+
+### Regions covered by less than 40 reads
+|Start position (HGVSg)|End position (HGVSg)|Gene|Transcript|Exon|x covered|
+|---|---|---|---|---|---|
+|chr2:g.47630540N>N|chr2:g.47630543N>N|MSH2|NM_000251.2|exon1|36|
+|chr2:g.48010497N>N|chr2:g.48010531N>N|MSH6|NM_000179.2|exon1|13|
+|chr7:g.6013138N>N|chr7:g.6013175N>N|PMS2|NM_000535.5|exon15|11|
+'''
+
+WARNINGS_EXAMPLE = '''
+2 regions have too low coverage
+chr7:g.6013138N>N chr7:g.6013175N>N
+chr2:g.48010497N>N chr2:g.48010531N>N
+'''
+
 GENEPANELS = [
     {
         'transcripts': '../testdata/clinicalGenePanels/OMIM_v01/OMIM_v01.transcripts.csv',
@@ -155,7 +181,9 @@ class DepositTestdata(object):
                     analysis_name,
                     gp_name,
                     gp_version,
-                    "1"
+                    "1",
+                    warnings=WARNINGS_EXAMPLE if gp_name == 'HBOC' else None,
+                    report=REPORT_EXAMPLE
                 )
 
                 da.import_vcf(acd)

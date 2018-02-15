@@ -72,6 +72,7 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/igv/igv-1.0.5.min.js',
         'src/webui/src/thirdparty/angular-selector/angular-selector.min.js',
         'src/webui/src/thirdparty/wysiwygjs/wysiwyg.js',
+        'src/webui/src/thirdparty/markdown-it/markdown-it.js',
         'src/webui/src/thirdparty/vanilla-color-picker/vanilla-color-picker.min.js'
     ];
 

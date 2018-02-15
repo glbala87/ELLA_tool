@@ -35,7 +35,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         variantSelectionPage.selectPending(11);
         analysisPage.startButton.click(); 
 
-        alleleSectionBox.markAsTechnical();
+        alleleSectionBox.classifyAsU();
 
         expect(alleleSectionBox.getReferences().value.length).toEqual(3);
 

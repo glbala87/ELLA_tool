@@ -23,7 +23,9 @@ class AnalysisFullSchema(Schema):
                   'interpretations',
                   'priority',
                   'genepanel',
-                  'samples')
+                  'samples',
+                  'report',
+                  'warnings')
 
     samples = fields.Nested(samples.SampleSchema, many=True)
     genepanel = fields.Nested(genepanels.GenepanelSchema)
