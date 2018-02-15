@@ -51,6 +51,13 @@ class AlleleListWidget {
         return ''
     }
 
+    getClassificationText(allele) {
+        if ('allele_assessment' in allele) {
+            return `CLASS ${allele.allele_assessment.classification}`
+        }
+        return 'NEW'
+    }
+
     sortItems() {
         if (!this.alleleItems) { return; }
         this.sorted_items = this.alleleItems.slice(0);
