@@ -115,7 +115,7 @@
                     <span style="text-transform: uppercase; color: #aaa;"> </span>
                     <b>{{t.symbol}} {{t.HGVSc_short || allele.getHGVSgShort()}}</b>
                   </span>
-                  <span style="padding-left: 3em;" ng-if="allele.allele_assessment">Class {{allele.allele_assessment.classification}} made on {{allele.allele_assessment.date_created | date:'yyyy-MM-dd'}} by {{allele.allele_assessment.user.abbrev_name}} for {{allele.allele_assessment.genepanel_name}}_{{allele.allele_assessment.genepanel_version}}</span>
+                  <span class="assessment id-assessment">{{vm.getClassificationText(allele)}}</span>
                 </div>
                 <div class="allele-extras">
                   <button class="blue" ng-click="vm.showAnalysesForAllele(allele); $event.preventDefault();">Show analyses</button>

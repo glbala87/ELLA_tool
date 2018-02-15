@@ -38,6 +38,13 @@ export class SearchModuleController {
 
     }
 
+    getClassificationText(allele) {
+        if ('allele_assessment' in allele) {
+            return `CLASS ${allele.allele_assessment.classification}`
+        }
+        return 'NEW'
+    }
+
     updateGeneOptions(text) {
         return this.updateOptions({gene: text}).then(options => {
             if (text) {
