@@ -65,7 +65,7 @@ describe('Search functionality', function () {
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // Check that it has classification text
-        browser.getText("*=Class 3 made on")
+        browser.getText("*=CLASS 3")
 
         // Search for variant connected to gene and user
         search.searchFreetext('')
