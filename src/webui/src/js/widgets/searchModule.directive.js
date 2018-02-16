@@ -38,6 +38,20 @@ export class SearchModuleController {
 
     }
 
+    getEndAction(interpretation) {
+        let OPTIONS = {
+            'Mark review': 'Marked for review',
+            'Finalize': 'Finalized'
+        }
+        if (interpretation.end_action) {
+            return ' ' + OPTIONS[interpretation.end_action] + ' • '
+        }
+        if (interpretation.status === 'Ongoing') {
+            return ' Ongoing' + ' • '
+        }
+        return ''
+    }
+
     getClassificationText(allele) {
         if ('allele_assessment' in allele) {
             return `CLASS ${allele.allele_assessment.classification}`

@@ -48,6 +48,9 @@ class AlleleListWidget {
         if (interpretation.end_action) {
             return ' ' + OPTIONS[interpretation.end_action] + ' • '
         }
+        if (interpretation.status === 'Ongoing') {
+            return ' Ongoing' + ' • '
+        }
         return ''
     }
 

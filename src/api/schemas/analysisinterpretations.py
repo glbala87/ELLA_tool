@@ -48,6 +48,7 @@ class AnalysisInterpretationOverviewSchema(Schema):
         description = 'Represents one round of interpretation of an analysis. Overview data fields only.'
         fields = ('id',
                   'status',
+                  'analysis_id',
                   'end_action',
                   'date_last_update',
                   'state',
