@@ -284,7 +284,7 @@ export class WorkflowAnalysisController {
 
                 for (let c of result) {
                     html += `<h3> ${c.allele.annotation.filtered[0].symbol} ${c.allele.annotation.filtered[0].HGVSc_short || c.allele.getHGVSgShort()}`
-                    html += ` ${c.user ? "by "+c.user.full_name : 'in review'} (${c.type === 'analysis' ? 'ANALYSIS' : 'VARIANT'})</h3>`
+                    html += ` ${c.user ? " is worked on by "+c.user.full_name : 'is pending review'} ${c.type === 'analysis' ? 'as part of an analysis' : 'in variant workflow'}</h3>`
                 }
 
                 this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-collision'})
