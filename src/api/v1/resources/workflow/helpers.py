@@ -595,7 +595,6 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     ).distinct()
 
     # Get all allele ids connected to allele workflows that are ongoing
-    # Exclude alleles with valid alleleassessments
     wf_allele_gp_allele_ids = session.query(
         workflow.AlleleInterpretation.genepanel_name,
         workflow.AlleleInterpretation.genepanel_version,
@@ -606,7 +605,6 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_marked_review(session)),
             workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_ongoing(session))
         ),
-        ~workflow.AlleleInterpretation.allele_id.in_(queries.allele_ids_with_valid_alleleassessments(session)),
         workflow.AlleleInterpretation.status != 'Done',
         workflow.AlleleInterpretation.allele_id.in_(allele_ids)
     ).distinct()
