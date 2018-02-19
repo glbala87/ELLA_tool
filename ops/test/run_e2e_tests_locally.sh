@@ -26,7 +26,7 @@ if [ "${SPEC}" = "" ]
     then
        yellow "SPEC not set, will run all"
        # all specs expect the ones used to create test fixtures:
-       SPECS=`find  src/webui/tests/e2e/tests -name "*.js" | grep -v "testfixture" | sort | tr "\n" ","`
+       SPEC=`find  src/webui/tests/e2e/tests -name "*.js" | grep -v "testfixture" | sort | tr "\n" "," | sed 's/,$//g'`
 fi
 
 yellow "Building the application to test"

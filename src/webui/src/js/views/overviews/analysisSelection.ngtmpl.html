@@ -37,7 +37,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-assessments-missing'" class="id-analysis-assessments-missing" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="green" ng-attr-id="'analysis-assessments-missing'" class="id-analysis-missing-classifications" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
     <maintitle>
       MISSING CLASSIFICATIONS
     </maintitle>
@@ -65,7 +65,7 @@
 
 <div class="spacer"></div>
 
-<sectionbox color="purple" ng-attr-id="'analysis-review-with-findings'" class="id-analysis-review" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="purple" ng-attr-id="'analysis-review-with-findings'" class="id-analysis-review-with-findings" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     PENDING REVIEW - WITH FINDINGS: CLASS 3-5
   </maintitle>
@@ -78,7 +78,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'analysis-review-missing-alleleassessments'" class="id-analysis-review" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="purple" ng-attr-id="'analysis-review-without-findings'" class="id-analysis-review-without-findings" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
     <maintitle>
       PENDING REVIEW - ONLY NORMAL: CLASS 1-2 + U
     </maintitle>
@@ -91,7 +91,7 @@
     </contentwrapper>
   </sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'analysis-review-missing-classifications'" class="id-analysis-review" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="purple" ng-attr-id="'analysis-review-missing-classifications'" class="id-analysis-review-missing-classifications" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
   <maintitle>
     PENDING REVIEW - MISSING CLASSIFICATIONS
   </maintitle>

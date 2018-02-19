@@ -31,7 +31,7 @@ describe('Search functionality', function () {
         // Search for analysis by user
         search.open()
         browser.element('.id-select-user .selector-input').click()
-        browser.element('.id-select-user .selector-dropdown:nth-child(3)').click()
+        browser.element('.id-select-user .selector-dropdown li:nth-child(6)').click()
         expect(search.getNumberOfAnalyses()).toBe(1)
     })
 
@@ -71,7 +71,7 @@ describe('Search functionality', function () {
         search.searchFreetext('')
 
         browser.element('.id-select-user .selector-input').click()
-        browser.element('.id-select-user .selector-dropdown:nth-child(3)').click()
+        browser.element('.id-select-user .selector-dropdown li:nth-child(6)').click()
         expect(search.getNumberOfAlleles()).toBe(1)
 
         browser.element('.id-select-gene input').setValue("BRC")
