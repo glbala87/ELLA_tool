@@ -154,7 +154,7 @@ describe('Sample workflow ', function () {
         overview.open();
 
         // when
-        overview.selectFinished(1);
+        overview.selectFinished(2);  // List is sorted desc, newest first
 
         // then
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01');
@@ -200,7 +200,7 @@ describe('Sample workflow ', function () {
         // brca_e2e_test02.HBOCUTV_v01
         loginPage.selectFirstUser();
         overview.open();
-        overview.selectFinished(2);
+        overview.selectFinished(1);
 
         expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01');
 
