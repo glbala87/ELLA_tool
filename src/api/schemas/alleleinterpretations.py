@@ -55,6 +55,7 @@ class AlleleInterpretationOverviewSchema(Schema):
         fields = ('id',
                   'status',
                   'end_action',
+                  'allele_id',
                   'state',
                   'genepanel_name',
                   'genepanel_version',
