@@ -1,6 +1,6 @@
 
 
-def genotype_calculate_qc(allele_data, genotype_data):
+def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     """
     Calculates extra QC properties, for the given allele and genotype data.
     The input data should already be serialized.
@@ -53,6 +53,7 @@ def genotype_calculate_qc(allele_data, genotype_data):
         'qual': genotype_data['variant_quality'] is not None and genotype_data['variant_quality'] > 300,
         'dp': genotype_data['sequencing_depth'] is not None and genotype_data['sequencing_depth'] > 20
     }
+
     if allele_ratio:
         if genotype_data['homozygous']:
             needs_verification_checks['allele_ratio'] = allele_ratio > 0.9
@@ -61,6 +62,8 @@ def genotype_calculate_qc(allele_data, genotype_data):
     else:
         needs_verification_checks['allele_ratio'] = False
 
-    qc['needs_verification'] = not all(needs_verification_checks.values())
+    qc['needs_verification'] = not all(needs_verification_checks.values()) and sample_type == 'HTS'
+    needs_verification_checks['hts'] = sample_type == 'HTS'
     qc['needs_verification_checks'] = needs_verification_checks
+
     return qc
