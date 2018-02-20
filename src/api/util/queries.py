@@ -215,12 +215,18 @@ def workflow_alleles_for_genepanels(session, genepanels):
     """
     analysis_ids = workflow_analyses_for_genepanels(session, genepanels)
 
-    allele_ids_for_analyses = session.query(allele.Allele.id).join(genotype.Genotype.alleles).filter(
-        genotype.Genotype.analysis_id.in_(analysis_ids)
+    allele_ids_for_analyses = session.query(allele.Allele.id).join(
+        genotype.Genotype.alleles,
+        sample.Sample,
+        sample.Analysis
+    ).filter(
+        sample.Analysis.id.in_(analysis_ids)
     ).distinct()
 
-    allele_ids_for_alleleinterpretation = session.query(allele.Allele.id).filter(
-        tuple_(workflow.AlleleInterpretation.genepanel_name, workflow.AlleleInterpretation.genepanel_version).in_((gp.name, gp.version) for gp in genepanels)
+    allele_ids_for_alleleinterpretation = session.query(workflow.AlleleInterpretation.allele_id).filter(
+        tuple_(workflow.AlleleInterpretation.genepanel_name, workflow.AlleleInterpretation.genepanel_version).in_(
+            (gp.name, gp.version) for gp in genepanels
+        )
     ).distinct()
 
     return session.query(allele.Allele.id).filter(
