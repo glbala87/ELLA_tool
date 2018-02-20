@@ -10,9 +10,12 @@
         <span style="text-transform: uppercase; color: #aaa;"> </span>
         <b>{{t.symbol}} {{t.HGVSc_short || item.allele.getHGVSgShort()}}</b>
       </span>
-  </div>
 
-  <div class="allele-genepanel">{{item.genepanel.name}}_{{item.genepanel.version}}</div>
+      <span class="assessment id-assessment">{{vm.getClassificationText(item.allele)}}</span>
+  </div>
+  <div class="allele-genepanel">
+    {{item.genepanel.name}}_{{item.genepanel.version}}
+  </div>
   <div class="allele-extras">
     <span class="analysis-comment id-allele-comment" ng-if="!vm.isalleleDone(allele) && vm.getReviewComment(item)">{{vm.getReviewComment(item)}}</span>
   </div>

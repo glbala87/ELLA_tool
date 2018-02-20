@@ -109,15 +109,44 @@ class SearchResource(LogRequestResource):
             genepanels = user.group.genepanels
 
         # Search analysis
-        matches['analyses'] = self._search_analysis(session, query, genepanels)
+        analyses = self._search_analysis(session, query, genepanels)
+        analysis_ids = [a['id'] for a in analyses]
+        analysis_interpretations = self._get_analysis_interpretations(session, analysis_ids)
+        matches['analyses'] = list()
+        for analysis in analyses:
+            analysis['interpretations'] = [ai for ai in analysis_interpretations if ai['analysis_id'] == analysis['id']]
+            matches['analyses'].append(analysis)
 
         # Search allele
         if filter_alleles:
-            matches["alleles"] = self._search_and_filter_alleles(session, query, genepanels)
+            alleles = self._search_and_filter_alleles(session, query, genepanels)
         else:
-            matches["alleles"] = self._search_allele(session, query, genepanels)
-
+            alleles = self._search_allele(session, query, genepanels)
+        allele_ids = [a['id'] for a in alleles]
+        allele_interpretations = self._get_allele_interpretations(session, allele_ids)
+        matches['alleles'] = list()
+        for al in alleles:
+            matches['alleles'].append({
+                'allele': al,
+                'interpretations': [ai for ai in allele_interpretations if ai['allele_id'] == al['id']]
+            })
         return matches
+
+    def _get_analysis_interpretations(self, session, analysis_ids):
+        interpretations = session.query(workflow.AnalysisInterpretation).filter(
+            workflow.AnalysisInterpretation.analysis_id.in_(analysis_ids)
+        ).order_by(
+            workflow.AnalysisInterpretation.date_last_update
+        ).all()
+        return schemas.AnalysisInterpretationOverviewSchema().dump(interpretations, many=True).data
+
+    def _get_allele_interpretations(self, session, allele_ids):
+        interpretations = session.query(workflow.AlleleInterpretation).filter(
+            workflow.AlleleInterpretation.allele_id.in_(allele_ids)
+        ).order_by(
+            workflow.AlleleInterpretation.date_last_update
+        ).all()
+        return schemas.AlleleInterpretationOverviewSchema().dump(interpretations, many=True).data
 
     def _get_analyses_filters(self, session, query, genepanels):
         filters = list()

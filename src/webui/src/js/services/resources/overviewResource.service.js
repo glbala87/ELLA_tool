@@ -67,16 +67,23 @@ export class OverviewResource {
             let overview = r.get((data) => {
 
                 let categories = [
-                    'not_started',
                     'ongoing',
-                    'marked_review'
                 ]
 
                 if (by_findings) {
                     categories = categories.concat([
-                        'with_findings',
-                        'without_findings',
-                        'missing_alleleassessments'
+                        'not_started_with_findings',
+                        'not_started_without_findings',
+                        'not_started_missing_alleleassessments',
+                        'marked_review_with_findings',
+                        'marked_review_without_findings',
+                        'marked_review_missing_alleleassessments',
+                    ]);
+                }
+                else {
+                    categories = categories.concat([
+                        'not_started',
+                        'marked_review'
                     ]);
                 }
 

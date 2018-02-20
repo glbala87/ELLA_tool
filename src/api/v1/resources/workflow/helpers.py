@@ -548,11 +548,13 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     Check for possible collisions in other allele or analysis workflows,
     which happens to have overlapping alleles with the ids given in 'allele_ids'.
 
-    If you're checking a specifc workflow, include the analysis_id or allele_id argument
+    If you're checking a specific workflow, include the analysis_id or allele_id argument
     to specify which workflow to exclude from the check.
     For instance, if you want to check analysis 3, having e.g. 20 alleles, you don't want
     to include analysis 3 in the collision check as it's not informative
     to see a collision with itself. You would pass in analysis_id=3 to exclude it.
+
+    :note: Alleles with valid alleleassessments are excluded from causing collision.
     """
 
     # Remove if you need to check collisions in general
@@ -573,7 +575,8 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             sample.Analysis.id != analysis_id
         )
 
-    # Get all allele ids con        nected to analysis workflows that are ongoing
+    # Get all allele ids connected to analysis workflows that are ongoing
+    # Exclude alleles with valid alleleassessments
     wf_analysis_gp_allele_ids = session.query(
         workflow.AnalysisInterpretation.genepanel_name,
         workflow.AnalysisInterpretation.genepanel_version,
@@ -587,6 +590,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     ).filter(
         sample.Analysis.id.in_(workflow_analysis_ids),
         allele.Allele.id.in_(allele_ids),
+        ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),
         workflow.AnalysisInterpretation.status != 'Done'
     ).distinct()
 

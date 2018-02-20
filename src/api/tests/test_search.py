@@ -17,7 +17,7 @@ def client():
 def test_search(client, query, expected_analysis_ids, expected_allele_ids):
     response = client.get('/api/v1/search/?q={}'.format(json.dumps(query)))
 
-    allele_ids = [a["id"] for a in response.json["alleles"]]
+    allele_ids = [a["allele"]["id"] for a in response.json["alleles"]]
     analysis_ids = [a["id"] for a in response.json["analyses"]]
 
     assert set(allele_ids) == set(expected_allele_ids)

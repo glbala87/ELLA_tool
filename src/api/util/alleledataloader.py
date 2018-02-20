@@ -118,7 +118,8 @@ class AlleleDataLoader(object):
                                 genotype_data.update(
                                     genotype_calculate_qc(
                                         accumulated_allele_data[allele_id]['allele'],
-                                        genotype_data
+                                        genotype_data,
+                                        sample_serialized["sample_type"]
                                     )
                                 )
                                 sample_serialized[KEY_GENOTYPE] = genotype_data

@@ -3,6 +3,7 @@ import datetime
 import pytz
 from collections import defaultdict
 from sqlalchemy import func, tuple_, or_, and_
+from sqlalchemy.orm import aliased
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, user as model_user
 
 from api import schemas, ApiError
@@ -250,7 +251,7 @@ def get_alleles_existing_alleleinterpretation(session, allele_filter, user=None,
     ).group_by(
         workflow.AlleleInterpretation.allele_id
     ).order_by(
-        func.max(workflow.AlleleInterpretation.date_last_update)
+        func.max(workflow.AlleleInterpretation.date_last_update).desc()
     )
 
     count = alleleinterpretation_allele_ids.count()
@@ -414,13 +415,18 @@ class OverviewAlleleFinalizedResource(LogRequestResource):
             page=page,
             per_page=per_page
         )
+        alleleinterpretation_allele_ids = [a[0] for a in alleleinterpretation_allele_ids]
 
         gp_allele_ids = get_gp_allele_ids(
             session,
             alleleinterpretation_allele_ids=alleleinterpretation_allele_ids
         )
 
-        return load_genepanel_alleles(session, gp_allele_ids), count
+        result = load_genepanel_alleles(session, gp_allele_ids)
+
+        # Re-sort result, since the db queries in load_genepanel_alleles doesn't handle sorting
+        result.sort(key=lambda x: alleleinterpretation_allele_ids.index(x['allele']['id']))
+        return result, count
 
 
 def _categorize_allele_ids_findings(session, allele_ids):
@@ -477,20 +483,20 @@ def _categorize_allele_ids_findings(session, allele_ids):
     return categorized_allele_ids
 
 
-def _get_analyses_for_user(session, user=None):
-    analyses_for_user = session.query(sample.Analysis)
+def _get_analysis_ids_for_user(session, user=None):
+    analysis_ids_for_user = session.query(sample.Analysis.id)
     # Restrict analyses to analyses matching this user's group's genepanels
     if user is not None:
         analyses_for_genepanels = queries.workflow_analyses_for_genepanels(session, user.group.genepanels)
-        analyses_for_user = analyses_for_user.filter(
+        analysis_ids_for_user = analysis_ids_for_user.filter(
             sample.Analysis.id.in_(analyses_for_genepanels)
         )
-    return analyses_for_user
+    return analysis_ids_for_user
 
 
 def get_categorized_analyses(session, user=None):
 
-    analyses_base_query = _get_analyses_for_user(session, user=user)
+    user_analysis_ids = _get_analysis_ids_for_user(session, user=user)
 
     categories = [
         ('not_started', queries.workflow_analyses_not_started(session)),
@@ -501,7 +507,8 @@ def get_categorized_analyses(session, user=None):
     aschema = schemas.AnalysisFullSchema()
     final_analyses = dict()
     for key, subquery in categories:
-        analyses = analyses_base_query.filter(
+        analyses = session.query(sample.Analysis).filter(
+            sample.Analysis.id.in_(user_analysis_ids),
             sample.Analysis.id.in_(subquery),
         ).all()
         final_analyses[key] = aschema.dump(analyses, many=True).data
@@ -511,12 +518,30 @@ def get_categorized_analyses(session, user=None):
 
 def get_finalized_analyses(session, user=None, page=None, per_page=None):
 
-    analyses_base_query = _get_analyses_for_user(session, user=user)
+    user_analysis_ids = _get_analysis_ids_for_user(session, user=user)
 
-    finalized_analyses = analyses_base_query.filter(
+    sorted_analysis_ids = session.query(
+        sample.Analysis.id.label('analysis_id'),
+        func.max(workflow.AnalysisInterpretation.date_last_update).label('max_date_last_update')
+    ).join(
+        workflow.AnalysisInterpretation
+    ).filter(
         sample.Analysis.id.in_(queries.workflow_analyses_finalized(session)),
-    ).order_by(sample.Analysis.deposit_date.desc()).distinct()
+        sample.Analysis.id.in_(user_analysis_ids)
+    ).group_by(
+        sample.Analysis.id
+    ).subquery()
+
+    # We need to give a hint to sqlalchemy to use the query's analysis
+    # instead of the subquery's 'sample.Analysis' in the join
+    new_analysis = aliased(sample.Analysis)
+    finalized_analyses = session.query(new_analysis).join(
+        sorted_analysis_ids, new_analysis.id == sorted_analysis_ids.c.analysis_id
+    ).order_by(
+        sorted_analysis_ids.c.max_date_last_update.desc()
+    )
     count = finalized_analyses.count()
+
     if page and per_page:
         start = (page-1) * per_page
         end = page * per_page
@@ -524,7 +549,7 @@ def get_finalized_analyses(session, user=None, page=None, per_page=None):
     return schemas.AnalysisFullSchema().dump(finalized_analyses.all(), many=True).data, count
 
 
-def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
+def categorize_analyses_by_findings(session, not_started_analyses):
 
     # Get all (analysis_id, allele_id) combinations for input analyses.
     # We want to categorize these analyses into with_findings, without_findings and missing_alleleassessments
@@ -631,8 +656,12 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
         categorized_analyses = get_categorized_analyses(session, user=user)
-        not_started_analyses = categorized_analyses['not_started']
-        categorized_analyses.update(categorize_nonstarted_analyses_by_findings(session, not_started_analyses))
+        not_started_analyses = categorized_analyses.pop('not_started')
+        not_started_categories = categorize_analyses_by_findings(session, not_started_analyses)
+        categorized_analyses.update({'not_started_' + k: v for k, v in not_started_categories.iteritems()})
+        marked_review_analyses = categorized_analyses.pop('marked_review')
+        marked_review_categories = categorize_analyses_by_findings(session, marked_review_analyses)
+        categorized_analyses.update({'marked_review_' + k: v for k, v in marked_review_categories.iteritems()})
         return categorized_analyses
 
 

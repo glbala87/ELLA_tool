@@ -6,7 +6,8 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'analysis-list',
     scope: {
         analyses: '=',
-        newTarget: '=' // Open links in new target
+        newTarget: '=', // Open links in new target
+        sort: '=?' // Whether to sort in client
     },
     templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
 })
@@ -27,6 +28,7 @@ class AnalysisListWidget {
             () => this.sortItems()
         );
         this.sorted_analyses = [];
+        this.sort = 'sort' in this ? this.sort : true;
     }
 
     getEndAction(interpretation) {
@@ -37,16 +39,21 @@ class AnalysisListWidget {
         if (interpretation.end_action) {
             return ' ' + OPTIONS[interpretation.end_action] + ' • '
         }
+        if (interpretation.status === 'Ongoing') {
+            return ' Ongoing' + ' • '
+        }
         return ''
     }
 
     sortItems() {
         if (!this.analyses.length) { return; }
         this.sorted_analyses = this.analyses.slice(0);
-        this.sorted_analyses.sort(
-            firstBy(a => a.priority, -1)
-            .thenBy(a => a.deposit_date)
-        );
+        if (this.sort) {
+            this.sorted_analyses.sort(
+                firstBy(a => a.priority, -1)
+                .thenBy(a => a.deposit_date)
+            );
+        }
     }
 
 
