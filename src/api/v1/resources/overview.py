@@ -549,7 +549,7 @@ def get_finalized_analyses(session, user=None, page=None, per_page=None):
     return schemas.AnalysisFullSchema().dump(finalized_analyses.all(), many=True).data, count
 
 
-def categorize_nonstarted_analyses_by_findings(session, not_started_analyses):
+def categorize_analyses_by_findings(session, not_started_analyses):
 
     # Get all (analysis_id, allele_id) combinations for input analyses.
     # We want to categorize these analyses into with_findings, without_findings and missing_alleleassessments
@@ -656,8 +656,12 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
         categorized_analyses = get_categorized_analyses(session, user=user)
-        not_started_analyses = categorized_analyses['not_started']
-        categorized_analyses.update(categorize_nonstarted_analyses_by_findings(session, not_started_analyses))
+        not_started_analyses = categorized_analyses.pop('not_started')
+        not_started_categories = categorize_analyses_by_findings(session, not_started_analyses)
+        categorized_analyses.update({'not_started_' + k: v for k, v in not_started_categories.iteritems()})
+        marked_review_analyses = categorized_analyses.pop('marked_review')
+        marked_review_categories = categorize_analyses_by_findings(session, marked_review_analyses)
+        categorized_analyses.update({'marked_review_' + k: v for k, v in marked_review_categories.iteritems()})
         return categorized_analyses
 
 

@@ -3,9 +3,12 @@ var Page = require('./page');
 const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-findings'
 const SELECTOR_FINISHED = '.id-analysis-finished';
 const SELECTOR_EMPTY = '.id-analysis-assessments-none';
-const SELECTOR_ASSESSMENTS_MISSING = '.id-analysis-assessments-missing';
+const SELECTOR_ASSESSMENTS_MISSING = '.id-analysis-missing-classifications';
 const SELECTOR_PENDING = SELECTOR_ASSESSMENTS_MISSING;
-const SELECTOR_REVIEW = '.id-analysis-review';
+const SELECTOR_REVIEW_FINDINGS = '.id-analysis-review-with-findings';
+const SELECTOR_REVIEW_NORMAL = '.id-analysis-review-without-findings';
+const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classifications';
+const SELECTOR_REVIEW = SELECTOR_REVIEW_ASSESSMENTS_MISSING;
 const SELECTOR_NORMAL =  '.id-analysis-findings-normal';
 const SELECTOR_FINDINGS = '.id-analysis-findings';
 
