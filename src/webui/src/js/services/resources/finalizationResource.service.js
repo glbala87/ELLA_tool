@@ -1,8 +1,8 @@
 /* jshint esnext: true */
 
-import {Service, Inject} from '../../ng-decorators';
-import Analysis from '../../model/analysis';
-import {Allele} from '../../model/allele';
+import { Service, Inject } from '../../ng-decorators'
+import Analysis from '../../model/analysis'
+import { Allele } from '../../model/allele'
 
 /**
  *  retrieve data used as basis for a finalized analysis
@@ -14,10 +14,9 @@ import {Allele} from '../../model/allele';
 })
 @Inject('$resource')
 class FinalizationResource {
-
     constructor(resource) {
-        this.base = '/api/v1';
-        this.resource = resource;
+        this.base = '/api/v1'
+        this.resource = resource
     }
 
     /**
@@ -27,16 +26,16 @@ class FinalizationResource {
      */
     get(analysis_id) {
         return new Promise((resolve, reject) => {
-            var FinalizationRS = this.resource(`${this.base}/analyses/finalized/${analysis_id}/`);
+            var FinalizationRS = this.resource(`${this.base}/analyses/finalized/${analysis_id}/`)
             var finals = FinalizationRS.query(() => {
-                let fs = [];
+                let fs = []
                 for (let f of finals) {
-                    fs.push(f);
+                    fs.push(f)
                 }
-                resolve(fs);
-            });
-        });
+                resolve(fs)
+            })
+        })
     }
 }
 
-export default FinalizationResource;
+export default FinalizationResource

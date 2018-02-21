@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
+import { Directive, Inject } from '../ng-decorators'
 
 @Directive({
     selector: 'card',
@@ -22,31 +22,29 @@ import {Directive, Inject} from '../ng-decorators';
 })
 @Inject('$transclude')
 export class CardController {
-
     constructor($transclude) {
-        this.hasexpand = $transclude.isSlotFilled('expanded');
+        this.hasexpand = $transclude.isSlotFilled('expanded')
         // Collapse card-controls if no content to show there
-        this.controlscollapse = !$transclude.isSlotFilled('controls') &&
-                                !this.hasexpand;
+        this.controlscollapse = !$transclude.isSlotFilled('controls') && !this.hasexpand
     }
 
     /**
      * Expands the <expanded> section
      */
     expand() {
-        this.options.expanded = !this.options.expanded;
+        this.options.expanded = !this.options.expanded
     }
 
     isCollapsible() {
-      return this.collapsible === undefined || this.collapsible;
+        return this.collapsible === undefined || this.collapsible
     }
 
     isModal() {
-      return (this.modal != undefined || this.modal === true);
+        return this.modal != undefined || this.modal === true
     }
 
     close() {
-      this.onClose()();
+        this.onClose()()
     }
 
     /**
@@ -54,8 +52,7 @@ export class CardController {
      */
     collapse() {
         if (this.isCollapsible()) {
-            this.options.collapsed = !this.options.collapsed;
+            this.options.collapsed = !this.options.collapsed
         }
     }
-
 }

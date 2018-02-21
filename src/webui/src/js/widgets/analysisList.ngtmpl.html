@@ -1,6 +1,6 @@
 <article class="sectionbox-content analysis-list">
 <a class="id-analysis list-item clickable"
-   href="/analyses/{{analysis.id}}"
+   href="{{analysis.links.workflow}}"
    ng-repeat="analysis in vm.sorted_analyses track by analysis.name"
    ng-attr-target="{{vm.newTarget ? '_blank' : undefined}}">
 

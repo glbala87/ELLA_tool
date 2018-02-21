@@ -1,9 +1,9 @@
 <section class="acmg-selection">
-  <acmg class="id-staged-acmg-code" code="vm.staged_code"
-          on-toggle="vm.addStagedACMGCode(vm.staged_code)"
+  <acmg class="id-staged-acmg-code" code="$ctrl.stagedAcmgCode"
+          on-toggle="$ctrl.popover.addStagedAcmgCode(vm.staged_code)"
           toggle-text="ADD"
-          comment-model="vm.staged_code.comment"
-          ng-if="vm.staged_code"
+          comment-model="$ctrl.stagedAcmgCode.comment"
+          ng-if="$ctrl.stagedAcmgCode"
           adjustable="true"
           editable="true"
           popover-placement="'bottom-left'">
@@ -16,23 +16,23 @@
   <div class="left-basic"> <h5 class="slim title"> <b>Show codes: </b> </h5></div>
   <div class="right-basic">
     <div class="bttn-set">
-      <label tabindex=0 class="bttn id-acmg-category" ng-model="vm.pathogenicPopoverToggle.model" uib-btn-radio="item" ng-repeat="item in vm.pathogenicPopoverToggle.buttons">{{item}}</label>
+      <label tabindex=0 class="bttn id-acmg-category" ng-model="$ctrl.popover.selectedCategory" uib-btn-radio="item" ng-repeat="item in $ctrl.popover.categories">{{item}}</label>
     </div>
   </div>
 </article>
 <section class="acmg-selection">
-  <aside ng-if="vm.pathogenicPopoverToggle.model === 'Pathogenic'">
-    <div class="acmg clickable" ng-repeat="r in vm.acmgCandidates.pathogenic" ng-class="vm.getACMGpopoverClass(r)" ng-click="vm.stageACMGCode(r)">
+  <aside ng-if="$ctrl.popover.selectedCategory === 'Pathogenic'">
+    <div class="acmg clickable" ng-repeat="r in $ctrl.acmgCandidates.pathogenic" ng-class="$ctrl.popover.getAcmgClass(r)" ng-click="$ctrl.popover.stageAcmgCode(r)">
       <section class="acmg-upper">
-        <h4 class="acmg-title">{{r}}</h4> <p class="right-item">{{vm.getExplanationForCode(r).short_criteria}}</p>
+        <h4 class="acmg-title">{{r}}</h4> <p class="right-item">{{$ctrl.popover.getExplanationForCode(r).short_criteria}}</p>
       </section>
     </div>
   </aside>
 
-  <aside ng-if="vm.pathogenicPopoverToggle.model === 'Benign'">
-    <div class="acmg clickable" ng-repeat="r in vm.acmgCandidates.benign" ng-class="vm.getACMGpopoverClass(r)" ng-click="vm.stageACMGCode(r)">
+  <aside ng-if="$ctrl.popover.selectedCategory === 'Benign'">
+    <div class="acmg clickable" ng-repeat="r in $ctrl.acmgCandidates.benign" ng-class="$ctrl.popover.getAcmgClass(r)" ng-click="$ctrl.popover.stageAcmgCode(r)">
       <section class="acmg-upper">
-        <h4 class="acmg-title">{{r}}</h4> <p class="right-item">{{vm.getExplanationForCode(r).short_criteria}}</p>
+        <h4 class="acmg-title">{{r}}</h4> <p class="right-item">{{$ctrl.popover.getExplanationForCode(r).short_criteria}}</p>
       </section>
     </div>
   </aside>

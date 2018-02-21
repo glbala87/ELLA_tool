@@ -1,0 +1,10 @@
+<contentbox title="dbSNP" disabled="!$ctrl.hasContent()">
+  <cbbody>
+    <div ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript">
+        <transcript-wrapper transcript="t">
+            <div ng-repeat="dbsnp in t.dbsnp track by $index"> <p><a-clip href="{{$ctrl.getUrl(dbsnp)}}" target="{{dbsnp}}">{{dbsnp}}</a-clip></p> </div>
+        </transcript-wrapper>
+    </div>
+  </cbbody>
+</contentbox>
+

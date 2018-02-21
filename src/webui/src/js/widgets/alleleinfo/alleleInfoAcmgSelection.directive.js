@@ -1,11 +1,49 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../../ng-decorators';
-import {AlleleStateHelper} from '../../model/allelestatehelper';
-import {ACMGHelper} from '../../model/acmghelper';
+import { Directive, Inject } from '../../ng-decorators'
+import { AlleleStateHelper } from '../../model/allelestatehelper'
+import { ACMGHelper } from '../../model/acmghelper'
+
+import app from '../../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+import { state, signal } from 'cerebral/tags'
+
+import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
+import getSuggestedAcmgCodes from '../../store/modules/views/workflows/interpretation/computed/getSuggestedAcmgCodes'
+import getReqCodes from '../../store/modules/views/workflows/interpretation/computed/getReqCodes'
+
+app.component('alleleInfoAcmgSelection', {
+    templateUrl: 'ngtmpl/alleleInfoAcmgSelection-new.ngtmpl.html',
+    controller: connect(
+        {
+            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
+            readOnly: isReadOnly,
+            suggestedAcmgCodes: getSuggestedAcmgCodes(state`views.workflows.selectedAllele`),
+            reqCodes: getReqCodes(state`views.workflows.selectedAllele`),
+            addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`,
+            acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`
+        },
+        'AlleleInfoACMGSelection',
+        [
+            '$scope',
+            $scope => {
+                const $ctrl = $scope.$ctrl
+
+                Object.assign($ctrl, {
+                    acmgCodeChangedWrapper: code => {
+                        $ctrl.acmgCodeChanged({
+                            alleleId: $ctrl.allele.id,
+                            code: code
+                        })
+                    }
+                })
+            }
+        ]
+    )
+})
 
 @Directive({
-    selector: 'allele-info-acmg-selection',
+    selector: 'allele-info-acmg-selection-old',
     scope: {
         allele: '=',
         alleleState: '=',
@@ -13,65 +51,59 @@ import {ACMGHelper} from '../../model/acmghelper';
     },
     templateUrl: 'ngtmpl/alleleInfoAcmgSelection.ngtmpl.html'
 })
-@Inject('Config',
-        'ACMGClassificationResource',
-        '$scope',
-        'toastr')
+@Inject('Config', 'ACMGClassificationResource', '$scope', 'toastr')
 export class ACMGSelectionController {
+    constructor(Config, ACMGClassificationResource, $scope, toastr) {
+        this.config = Config.getConfig()
+        this.toastr = toastr
 
-    constructor(Config,
-                ACMGClassificationResource,
-                $scope,
-                toastr) {
-        this.config = Config.getConfig();
-        this.toastr = toastr;
+        this.show_req = false
+        this.req_groups = [] // Updated by setREQCodes()
 
-        this.show_req = false;
-        this.req_groups = []; // Updated by setREQCodes()
+        $scope.$watch(
+            () => this.allele.acmg,
+            () => {
+                if (this.allele.acmg) {
+                    ACMGHelper.populateSuggestedACMG(this.allele, this.alleleState)
+                    this.setREQCodes()
+                }
+            },
+            true
+        ) // Deep watch the ACMG part
 
-        $scope.$watch(() => this.allele.acmg, () => {
-            if (this.allele.acmg) {
-                ACMGHelper.populateSuggestedACMG(this.allele, this.alleleState);
-                this.setREQCodes();
-            }
-        }, true); // Deep watch the ACMG part
-
-
-        ACMGHelper.populateSuggestedACMG(this.allele, this.alleleState);
+        ACMGHelper.populateSuggestedACMG(this.allele, this.alleleState)
     }
 
     isEditable() {
-        return !AlleleStateHelper.isAlleleAssessmentReused(
-            this.alleleState
-        );
+        return !AlleleStateHelper.isAlleleAssessmentReused(this.alleleState)
     }
 
     has(type) {
-      let codes = type === "suggested" ? this.getAlleleAssessment().evaluation.acmg.suggested : this.getAlleleAssessment().evaluation.acmg.included
-      return codes.some((code) => this.isIncludable(code.code))
+        let codes =
+            type === 'suggested'
+                ? this.getAlleleAssessment().evaluation.acmg.suggested
+                : this.getAlleleAssessment().evaluation.acmg.included
+        return codes.some(code => this.isIncludable(code.code))
     }
 
     getAlleleAssessment() {
         // Call this wrapper as it will dynamically select between
         // the existing alleleassessment (if reused)
         // and the state alleleassessment (if not reused or not existing)
-        return AlleleStateHelper.getAlleleAssessment(
-            this.allele,
-            this.alleleState
-        )
+        return AlleleStateHelper.getAlleleAssessment(this.allele, this.alleleState)
     }
 
     isIncludable(code) {
-        return ACMGHelper.isIncludable(code);
+        return ACMGHelper.isIncludable(code)
     }
 
     addACMGCodeFromString(code) {
-        let code_obj = ACMGHelper.userCodeToObj(code);
-        this.includeACMG(code_obj);
+        let code_obj = ACMGHelper.userCodeToObj(code)
+        this.includeACMG(code_obj)
     }
 
     includeACMG(code) {
-        ACMGHelper.includeACMG(code, this.allele, this.alleleState);
+        ACMGHelper.includeACMG(code, this.allele, this.alleleState)
     }
 
     /**
@@ -82,25 +114,27 @@ export class ACMGSelectionController {
         // Only update data if we're modifying the allele state,
         // we don't want to overwrite anything in any existing allele assessment
         if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
-            return;
+            return
         }
 
-        let req_groups = [];
-        let reqs = this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(c => !this.isIncludable(c.code));
+        let req_groups = []
+        let reqs = this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(
+            c => !this.isIncludable(c.code)
+        )
         for (let req of reqs) {
-            let matching_group = req_groups.find(rg => rg.find(r => r.code === req.code));
+            let matching_group = req_groups.find(rg => rg.find(r => r.code === req.code))
             if (matching_group) {
-                matching_group.push(req);
-            }
-            else {
-                req_groups.push([req]);
+                matching_group.push(req)
+            } else {
+                req_groups.push([req])
             }
         }
-        this.req_groups = req_groups;
+        this.req_groups = req_groups
     }
 
     getREQCodeCount() {
-        return this.getAlleleAssessment().evaluation.acmg.suggested.filter(c => !this.isIncludable(c.code)).length;
+        return this.getAlleleAssessment().evaluation.acmg.suggested.filter(
+            c => !this.isIncludable(c.code)
+        ).length
     }
-
 }

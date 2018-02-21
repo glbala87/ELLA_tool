@@ -1,48 +1,56 @@
 /* jshint esnext: true */
 
-import {Service, Inject} from '../ng-decorators';
-
+import { Service, Inject } from '../ng-decorators'
 
 @Service({
     serviceName: 'Allele'
 })
-@Inject('User',
-        'AlleleResource',
-        'AlleleAssessmentResource',
-        'ACMGClassificationResource',
-        'ReferenceResource')
+@Inject(
+    'User',
+    'AlleleResource',
+    'AlleleAssessmentResource',
+    'ACMGClassificationResource',
+    'ReferenceResource'
+)
 export class AlleleService {
-
-    constructor(User,
-                AlleleResource,
-                AlleleAssessmentResource,
-                ACMGClassificationResource,
-                ReferenceResource) {
-        this.user = User;
-        this.alleleResource = AlleleResource;
-        this.alleleAssessmentResource = AlleleAssessmentResource;
-        this.acmgClassificationResource = ACMGClassificationResource;
-        this.referenceResource = ReferenceResource;
+    constructor(
+        User,
+        AlleleResource,
+        AlleleAssessmentResource,
+        ACMGClassificationResource,
+        ReferenceResource
+    ) {
+        this.user = User
+        this.alleleResource = AlleleResource
+        this.alleleAssessmentResource = AlleleAssessmentResource
+        this.acmgClassificationResource = ACMGClassificationResource
+        this.referenceResource = ReferenceResource
     }
 
-    getAlleles(allele_ids, sample_id=null, gp_name=null, gp_version=null, related_entities=null) {
-        return this.alleleResource.get(
-            allele_ids,
-            sample_id,
-            gp_name,
-            gp_version,
-            related_entities
-        );
+    getAlleles(
+        allele_ids,
+        sample_id = null,
+        gp_name = null,
+        gp_version = null,
+        related_entities = null
+    ) {
+        return this.alleleResource.get(allele_ids, sample_id, gp_name, gp_version, related_entities)
     }
 
-    getAllelesByQuery(query, sample_id=null, gp_name=null, gp_version=null, related_entities=null) {
+    getAllelesByQuery(
+        query,
+        sample_id = null,
+        gp_name = null,
+        gp_version = null,
+        related_entities = null
+    ) {
         return this.alleleResource.getByQuery(
             query,
             sample_id,
             gp_name,
             gp_version,
             related_entities
-        );
+        )
     }
 
     /**
@@ -55,7 +63,7 @@ export class AlleleService {
      * @return {Promise}                    Promise resolved with response from backend.
      */
     submitReferenceAssessment(referenceassessment) {
-        return this.referenceResource.createOrUpdateReferenceAssessment(referenceassessment);
+        return this.referenceResource.createOrUpdateReferenceAssessment(referenceassessment)
     }
 
     /**
@@ -68,7 +76,7 @@ export class AlleleService {
      * @return {Promise}                 Promise resolved with response from backend.
      */
     submitAlleleAssessment(alleleassessment) {
-        return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(alleleassessment);
+        return this.alleleAssessmentResource.createOrUpdateAlleleAssessment(alleleassessment)
     }
 
     /**
@@ -81,7 +89,7 @@ export class AlleleService {
      * @return {Promise}             Promise resolved with response from backend.
      */
     submitAlleleReport(allelereport) {
-        return this.alleleAssessmentResource.createOrUpdateAlleleReport(allelereport);
+        return this.alleleAssessmentResource.createOrUpdateAlleleReport(allelereport)
     }
 
     /**
@@ -89,20 +97,17 @@ export class AlleleService {
      * referenceassessments is optional.
      */
     updateACMG(alleles, gp_name, gp_version, referenceassessments) {
-        let allele_ids = alleles.map(a => a.id);
-        return this.acmgClassificationResource.getByAlleleIds(
-            allele_ids,
-            gp_name,
-            gp_version,
-            referenceassessments
-        ).then(res => {
-            for (let [a_id, a_acmg] of Object.entries(res)) {
-                // Assign result to related allele
-                let allele = alleles.find(a => a.id.toString() === a_id);
-                if (allele) {
-                    allele.acmg = a_acmg;
+        let allele_ids = alleles.map(a => a.id)
+        return this.acmgClassificationResource
+            .getByAlleleIds(allele_ids, gp_name, gp_version, referenceassessments)
+            .then(res => {
+                for (let [a_id, a_acmg] of Object.entries(res)) {
+                    // Assign result to related allele
+                    let allele = alleles.find(a => a.id.toString() === a_id)
+                    if (allele) {
+                        allele.acmg = a_acmg
+                    }
                 }
-            }
-        });
+            })
     }
 }

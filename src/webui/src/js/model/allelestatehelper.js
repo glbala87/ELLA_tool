@@ -1,9 +1,8 @@
 /* jshint esnext: true */
 
-import {deepCopy} from '../util';
+import { deepCopy } from '../util'
 
 export class AlleleStateHelper {
-
     static checkAlleleStateModel(allele_state) {
         // We need to check every key for itself, as we can have older, partial models as input
 
@@ -11,29 +10,29 @@ export class AlleleStateHelper {
             allele_state.alleleassessment = {}
         }
 
-        let alleleassesment = allele_state.alleleassessment;
+        let alleleassesment = allele_state.alleleassessment
         if (!('reuse' in alleleassesment)) {
-            alleleassesment.reuse = false;
+            alleleassesment.reuse = false
         }
 
         if (!('classification' in alleleassesment)) {
-            alleleassesment.classification = null;
+            alleleassesment.classification = null
         }
 
         if (!('evaluation' in alleleassesment)) {
-            alleleassesment.evaluation = {};
+            alleleassesment.evaluation = {}
         }
 
         if (!('attachment_ids' in alleleassesment)) {
-            alleleassesment.attachment_ids = [];
+            alleleassesment.attachment_ids = []
         }
 
-        let evaluation = alleleassesment.evaluation;
+        let evaluation = alleleassesment.evaluation
         for (let key of ['prediction', 'classification', 'external', 'frequency', 'reference']) {
             if (!(key in evaluation)) {
                 evaluation[key] = {
                     comment: ''
-                };
+                }
             }
         }
 
@@ -42,10 +41,18 @@ export class AlleleStateHelper {
                 included: [],
                 suggested: []
             }
+        } else {
+            debugger
+            if (!('included' in evaluation.acmg)) {
+                evaluation.acmg.included = []
+            }
+            if (!('suggested' in evaluation.acmg)) {
+                evaluation.acmg.suggested = []
+            }
         }
 
         if (!('referenceassessments' in allele_state)) {
-            allele_state.referenceassessments = [];
+            allele_state.referenceassessments = []
         }
 
         if (!('allelereport' in allele_state)) {
@@ -53,11 +60,11 @@ export class AlleleStateHelper {
                 evaluation: {
                     comment: ''
                 }
-            };
+            }
         }
 
         if (!('verification' in allele_state)) {
-            allele_state.verification = null;
+            allele_state.verification = null
         }
     }
 
@@ -65,23 +72,22 @@ export class AlleleStateHelper {
      * Helper class for working with alleleState objects
      * (alleleState objects are part of the interpretation's state,
      * describing the state for one allele).
-    */
+     */
 
     static setupAlleleState(allele, allele_state) {
         // If not existing, return the object from the state, or create empty one
 
-        this.checkAlleleStateModel(allele_state);
+        this.checkAlleleStateModel(allele_state)
         if (allele.allele_assessment) {
-            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id
         }
 
         if (allele.allele_report) {
-            allele_state.presented_allelereport_id = allele.allele_report.id;
+            allele_state.presented_allelereport_id = allele.allele_report.id
         }
 
-        this.copyAlleleAssessmentToState(allele, allele_state);
-        this.copyAlleleReportToState(allele, allele_state);
-
+        this.copyAlleleAssessmentToState(allele, allele_state)
+        this.copyAlleleReportToState(allele, allele_state)
     }
 
     /**
@@ -93,12 +99,11 @@ export class AlleleStateHelper {
      * @return  {String} Classification for given allele
      */
     static getClassification(allele, allele_state) {
-        let aa = this.getAlleleAssessment(allele, allele_state);
+        let aa = this.getAlleleAssessment(allele, allele_state)
         if ('classification' in aa) {
-            return aa.classification;
-        }
-        else {
-            return null;
+            return aa.classification
+        } else {
+            return null
         }
     }
 
@@ -112,44 +117,46 @@ export class AlleleStateHelper {
      */
     static getAlleleAssessment(allele, allele_state) {
         // Ensure object is properly initialised
-        this.setupAlleleState(allele, allele_state);
+        this.setupAlleleState(allele, allele_state)
         if (this.isAlleleAssessmentReused(allele_state)) {
             if (!('allele_assessment' in allele)) {
-                throw Error("Alleleassessment set as reused, but there's no allele_assessment in provided allele.");
+                throw Error(
+                    "Alleleassessment set as reused, but there's no allele_assessment in provided allele."
+                )
             }
-            return allele.allele_assessment;
-        }
-        else {
-            return allele_state.alleleassessment;
+            return allele.allele_assessment
+        } else {
+            return allele_state.alleleassessment
         }
     }
 
     static getReusedAlleleAssessment(allele, allele_state) {
         if (this.isAlleleAssessmentReused(allele_state)) {
             if (!('allele_assessment' in allele)) {
-                throw Error("Alleleassessment set as reused, but there's no allele_assessment in provided allele.");
+                throw Error(
+                    "Alleleassessment set as reused, but there's no allele_assessment in provided allele."
+                )
             }
-            return allele.allele_assessment;
+            return allele.allele_assessment
         }
     }
 
     static getStateAlleleAssessment(allele, allele_state) {
-        this.setupAlleleState(allele, allele_state);
-        return allele_state.alleleassessment;
+        this.setupAlleleState(allele, allele_state)
+        return allele_state.alleleassessment
     }
 
     static getStateReferenceAssessment(allele, reference, allele_state) {
         if ('referenceassessments' in allele_state) {
             return allele_state.referenceassessments.find(
-                ra => ra.allele_id === allele.id &&
-                      ra.reference_id === reference.id
-            );
+                ra => ra.allele_id === allele.id && ra.reference_id === reference.id
+            )
         }
     }
 
     static getExistingReferenceAssessment(allele, reference) {
         if (allele.reference_assessments) {
-            return allele.reference_assessments.find(ra => ra.reference_id === reference.id);
+            return allele.reference_assessments.find(ra => ra.reference_id === reference.id)
         }
     }
 
@@ -157,10 +164,15 @@ export class AlleleStateHelper {
         let a = this.getExistingReferenceAssessment(allele, reference)
         let b = this.getStateReferenceAssessment(allele, reference, allele_state)
         return !(
-            (a === undefined || a.evaluation.relevance === undefined)
-            && (b === undefined || b.evaluation === undefined || b.evaluation.relevance === undefined)
+            (a === undefined || a.evaluation.relevance === undefined) &&
+            (b === undefined || b.evaluation === undefined || b.evaluation.relevance === undefined)
         )
+    }
 
+    static getReferenceAssessment(allele, reference, allele_state) {
+        let a = this.getStateReferenceAssessment(allele, reference, allele_state)
+        let b = this.getExistingReferenceAssessment(allele, reference)
+        return a && !a.id ? a : b
     }
 
     /**
@@ -175,36 +187,26 @@ export class AlleleStateHelper {
      * @param  {Object} allele_state   Allele state to modify
      * @return  {Object} referenceassessment data
      */
-    static getReferenceAssessment(allele, reference, allele_state) {
-
-        if (!('referenceassessments' in allele_state)) {
-            allele_state.referenceassessments = [];
-        }
-
-        let state_ra = this.getStateReferenceAssessment(allele, reference, allele_state);
+    static setupReferenceAssessment(allele, reference, allele_state) {
+        let state_ra = this.getStateReferenceAssessment(allele, reference, allele_state)
 
         // No refassessment object in state -> either set to reuse existing
         // if it's present or create template object
         if (!state_ra) {
-
             state_ra = {
                 allele_id: allele.id,
-                reference_id: reference.id,
-            };
+                reference_id: reference.id
+            }
 
-            let existing = this.getExistingReferenceAssessment(allele, reference);
+            let existing = this.getExistingReferenceAssessment(allele, reference)
             if (existing) {
                 // Set as reused
-                state_ra.id = existing.id;
-                // Return copy to avoid mutating source
-                allele_state.referenceassessments.push(state_ra);
-                return this.getExistingReferenceAssessment(allele, reference);
-            }
-            else {
+                state_ra.id = existing.id
+                allele_state.referenceassessments.push(state_ra)
+            } else {
                 // Prepare object
-                state_ra.evaluation = {};
-                allele_state.referenceassessments.push(state_ra);
-                return state_ra;
+                state_ra.evaluation = {}
+                allele_state.referenceassessments.push(state_ra)
             }
         }
         // Exists in state, check if it is set to reused and if so,
@@ -232,21 +234,23 @@ export class AlleleStateHelper {
     static getAlleleReport(allele, allele_state) {
         if (this.isAlleleReportReused(allele_state)) {
             if (!('allele_report' in allele)) {
-                throw Error("AlleleReport set as reused, but there's no allele_report in provided allele.");
+                throw Error(
+                    "AlleleReport set as reused, but there's no allele_report in provided allele."
+                )
             }
             // Should only happen for legacy alleles without allelereport data.
             if (!('allele_report' in allele)) {
-                return {};
+                return {}
             }
-            return allele.allele_report;
-        }
-        else {
-            if (!('allelereport' in allele_state)) { // TODO: remove if checkAlleleStateModel covers this case
+            return allele.allele_report
+        } else {
+            if (!('allelereport' in allele_state)) {
+                // TODO: remove if checkAlleleStateModel covers this case
                 allele_state.allelereport = {
                     evaluation: {}
                 }
             }
-            return allele_state.allelereport;
+            return allele_state.allelereport
         }
     }
 
@@ -256,7 +260,7 @@ export class AlleleStateHelper {
      * @param  {String} classification Classification to set
      */
     static updateClassification(allele_state, classification) {
-        allele_state.alleleassessment.classification = classification;
+        allele_state.alleleassessment.classification = classification
     }
 
     /**
@@ -269,9 +273,8 @@ export class AlleleStateHelper {
     static updateReferenceAssessment(allele, reference, allele_state, referenceassessment) {
         // Find state data
         let state_ra = allele_state.referenceassessments.find(
-            ra => ra.allele_id === allele.id &&
-                  ra.reference_id === reference.id
-        );
+            ra => ra.allele_id === allele.id && ra.reference_id === reference.id
+        )
         // Update the object with new data, and remove the reuse ('id')
         state_ra.evaluation = referenceassessment.evaluation
         delete state_ra.id;
@@ -284,7 +287,7 @@ export class AlleleStateHelper {
      * @param {Object} allele_state   Allele state to modify
      * @param {Boolean} force_copy Copy into allele_state regardless
      */
-    static copyAlleleAssessmentToState(allele, allele_state, force_copy=false) {
+    static copyAlleleAssessmentToState(allele, allele_state, force_copy = false) {
         // Check if remote alleleassessment is newer, if so copy it in again.
         if (allele.allele_assessment &&
              (force_copy ||
@@ -308,7 +311,7 @@ export class AlleleStateHelper {
 
             // The copied alleleassessment can have an older model that is lacking fields.
             // We need to check the model and add any missing fields to make it up to date.
-            this.checkAlleleStateModel(allele_state);
+            this.checkAlleleStateModel(allele_state)
         }
     }
 
@@ -319,17 +322,17 @@ export class AlleleStateHelper {
      * @param {Object} allele_state   Allele state to modify
      * @param {Boolean} force_copy Copy into allele_state regardless
      */
-    static copyAlleleReportToState(allele, allele_state, force_copy=false) {
+    static copyAlleleReportToState(allele, allele_state, force_copy = false) {
         // Check if date of remote allelereport is newer, if so copy it in again.
         // TODO: Present dialog for confirmation.
-        if (allele.allele_report &&
+        if (
+            allele.allele_report &&
             (force_copy ||
-             (!allele_state.alleleReportCopiedFromId ||
-              allele.allele_report.id > allele_state.alleleReportCopiedFromId)
-            )
-           ) {
-            allele_state.allelereport.evaluation = deepCopy(allele.allele_report.evaluation);
-            allele_state.alleleReportCopiedFromId = allele.allele_report.id;
+                (!allele_state.alleleReportCopiedFromId ||
+                    allele.allele_report.id > allele_state.alleleReportCopiedFromId))
+        ) {
+            allele_state.allelereport.evaluation = deepCopy(allele.allele_report.evaluation)
+            allele_state.alleleReportCopiedFromId = allele.allele_report.id
         }
     }
 
@@ -343,23 +346,24 @@ export class AlleleStateHelper {
      */
     static enableReuseAlleleAssessment(allele, allele_state, config) {
         if (!('allele_assessment' in allele)) {
-            throw Error("Cannot reuse alleleassessment from allele without existing alleleassessment");
+            throw Error(
+                'Cannot reuse alleleassessment from allele without existing alleleassessment'
+            )
         }
-        this.setupAlleleState(allele, allele_state);
-
+        this.setupAlleleState(allele, allele_state)
 
         // Check whether existing allele assessment is outdated,
         // if so refuse to toggle on.
         if (this.isAlleleAssessmentOutdated(allele, config)) {
-            return false;
+            return false
         }
 
         if ('allele_assessment' in allele) {
-            allele_state.presented_alleleassessment_id = allele.allele_assessment.id;
-            allele_state.alleleassessment.reuse = true;
+            allele_state.presented_alleleassessment_id = allele.allele_assessment.id
+            allele_state.alleleassessment.reuse = true
         }
 
-        return true;
+        return true
     }
 
     /**
@@ -370,11 +374,11 @@ export class AlleleStateHelper {
      * @return {Boolean}              Whether toggle is true or not
      */
     static disableReuseAlleleAssessment(allele, allele_state) {
-        this.setupAlleleState(allele, allele_state);
+        this.setupAlleleState(allele, allele_state)
 
-        allele_state.alleleassessment.reuse = false;
+        allele_state.alleleassessment.reuse = false
 
-        return false;
+        return false
     }
 
     /**
@@ -387,10 +391,9 @@ export class AlleleStateHelper {
      */
     static toggleReuseAlleleAssessment(allele, allele_state, config) {
         if (this.isAlleleAssessmentReused(allele_state)) {
-            return this.disableReuseAlleleAssessment(allele, allele_state);
-        }
-        else {
-            return this.enableReuseAlleleAssessment(allele, allele_state, config);
+            return this.disableReuseAlleleAssessment(allele, allele_state)
+        } else {
+            return this.enableReuseAlleleAssessment(allele, allele_state, config)
         }
     }
 
@@ -405,35 +408,34 @@ export class AlleleStateHelper {
         if (allele.allele_assessment) {
             // Check whether it's outdated, if so force disabling reuse.
             if (this.isAlleleAssessmentOutdated(allele, config)) {
-                this.disableReuseAlleleAssessment(allele, allele_state);
-                return false;
-            }
-            else if (!('autoReuseAlleleAssessmentCheckedId' in allele_state) ||
-                allele_state.autoReuseAlleleAssessmentCheckedId < allele.allele_assessment.id) {
+                this.disableReuseAlleleAssessment(allele, allele_state)
+                return false
+            } else if (
+                !('autoReuseAlleleAssessmentCheckedId' in allele_state) ||
+                allele_state.autoReuseAlleleAssessmentCheckedId < allele.allele_assessment.id
+            ) {
                 if (!this.isAlleleAssessmentOutdated(allele, config)) {
                     this.enableReuseAlleleAssessment(allele, allele_state, config)
-                    allele_state.autoReuseAlleleAssessmentCheckedId = allele.allele_assessment.id;
+                    allele_state.autoReuseAlleleAssessmentCheckedId = allele.allele_assessment.id
                 }
-                return true;
+                return true
             }
         }
-        return false;
+        return false
     }
 
     static addAlleleToReport(allele_state) {
         if (!('report' in allele_state)) {
-            allele_state.report = {};
+            allele_state.report = {}
         }
-        allele_state.report.included = true;
-
+        allele_state.report.included = true
     }
 
     static removeAlleleFromReport(allele_state) {
         if (!('report' in allele_state)) {
-            allele_state.report = {};
+            allele_state.report = {}
         }
-        allele_state.report.included = false;
-
+        allele_state.report.included = false
     }
 
     /**
@@ -444,27 +446,28 @@ export class AlleleStateHelper {
      * @param {Object} config
      */
     static checkAddRemoveAlleleToReport(allele, allele_state, config) {
-        let classification = this.getClassification(allele, allele_state);
+        let classification = this.getClassification(allele, allele_state)
         let config_option = config.classification.options.find(o => {
-            return o.value === classification;
-        });
-        if (config_option &&
+            return o.value === classification
+        })
+        if (
+            config_option &&
             config_option.include_report &&
             allele_state.verification !== 'technical'
         ) {
-            this.addAlleleToReport(allele_state);
-        }
-        else {
+            this.addAlleleToReport(allele_state)
+        } else {
             // Either include_report option is not set, or classification is null
-            this.removeAlleleFromReport(allele_state);
+            this.removeAlleleFromReport(allele_state)
         }
     }
 
     static isAlleleAssessmentReused(allele_state) {
-        return allele_state && allele_state.alleleassessment && allele_state.alleleassessment.reuse;
+        return allele_state && allele_state.alleleassessment && allele_state.alleleassessment.reuse
     }
+
     static isAlleleReportReused(allele_state) {
-        return allele_state && allele_state.allelereport && allele_state.allelereport.reuse;
+        return allele_state && allele_state.allelereport && allele_state.allelereport.reuse
     }
 
     /**
@@ -476,20 +479,21 @@ export class AlleleStateHelper {
      */
     static isAlleleAssessmentOutdated(allele, config) {
         if (!allele.allele_assessment) {
-            return false;
+            return false
         }
-        let classification = allele.allele_assessment.classification;
+        let classification = allele.allele_assessment.classification
         // Find classification from config
-        let option = config.classification.options.find(o => o.value === classification);
+        let option = config.classification.options.find(o => o.value === classification)
         if (option === undefined) {
-            throw Error(`Classification ${classification} not found in configuration.`);
+            throw Error(`Classification ${classification} not found in configuration.`)
         }
         if ('outdated_after_days' in option) {
-            return (allele.allele_assessment.seconds_since_update / (3600 * 24)) >=
-                    option.outdated_after_days;
-        }
-        else {
-            return false;
+            return (
+                allele.allele_assessment.seconds_since_update / (3600 * 24) >=
+                option.outdated_after_days
+            )
+        } else {
+            return false
         }
     }
 
@@ -499,7 +503,6 @@ export class AlleleStateHelper {
                 return ra.reference_id === reference.id;
             });
         }
-        return false;
+        return false
     }
-
 }

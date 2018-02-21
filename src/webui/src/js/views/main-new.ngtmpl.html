@@ -1,0 +1,17 @@
+<login ng-if="$ctrl.views.current == 'login'"></login>
+
+<div class="app" ng-if="$ctrl.views.current != 'login'">
+  <navbar></navbar>
+  <overview ng-if="$ctrl.views.current == 'overview'"></overview>
+  <div ng-if="$ctrl.views.current == 'workflows'">
+    <workflow></workflow>
+  </div>
+  <user-dashboard ng-if="$ctrl.views.current == 'dashboard'"></user-dashboard>
+  <modal ng-if="$ctrl.modals.finishConfirmation.show" name="finishConfirmation" dismiss-signal="'closeModal'">
+    <finish-confirmation></finish-confirmation>
+  </modal>
+  <!-- <modal>
+
+  </modal> -->
+  <!--<div class="content" ui-view="content"></div>-->
+</div>

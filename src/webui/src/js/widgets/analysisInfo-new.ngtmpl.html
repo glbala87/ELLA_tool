@@ -1,0 +1,17 @@
+<sectionbox color="purple" collapsible="false">
+  <maintitle>
+    Analysis info
+  </maintitle>
+  <contentwrapper class="analysis-info">
+    <h4 ng-if="$ctrl.analysis.warnings.length" class="section-header">Warnings</h4>
+    <div ng-if="$ctrl.analysis.warnings.length" class="warning">
+        <markdown-it markdown="$ctrl.analysis.warnings"></markdown-it>
+    </div>
+    <h4 class="section-header">Analysis info</h4>
+    <div class="report">
+        <markdown-it markdown="$ctrl.analysis.report"></markdown-it>
+    </div>
+
+
+  </contentwrapper>
+</sectionbox>

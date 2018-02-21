@@ -1,18 +1,16 @@
 /* jshint esnext: true */
 
-
-import {Service, Inject} from '../ng-decorators';
+import { Service, Inject } from '../ng-decorators'
 
 @Service({
     serviceName: 'Config'
 })
 @Inject('$resource')
 class ConfigService {
-
     constructor(resource) {
-        this.resource = resource;
-        this.config = null;
-        this.overview = null;
+        this.resource = resource
+        this.config = null
+        this.overview = null
     }
 
     /**
@@ -25,19 +23,23 @@ class ConfigService {
      */
     loadConfig() {
         return new Promise((resolve, reject) => {
-            let r = this.resource('/api/v1/config/');
+            let r = this.resource('/api/v1/config/')
             let config = r.get(() => {
-                this.config = config;
-                this.overview = config.user.user_config.overview.views[0];
-                resolve(config);
-            });
-        });
+                this.config = config
+                this.overview = config.user.user_config.overview.views[0]
+                resolve(config)
+            })
+        })
+    }
+
+    setConfig(config) {
+        this.config = config
     }
 
     getConfig() {
         if (!this.config) {
-            throw Error("Config not loaded, call loadConfig() first.");
+            throw Error('Config not loaded, call loadConfig() first.')
         }
-        return this.config;
+        return this.config
     }
 }

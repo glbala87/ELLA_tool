@@ -2,8 +2,8 @@
   <div class="upper-wrapper">
     <section class="acmg-upper">
       <div class="left-item">
-        <h4 class="id-adjust-down adjust-button" 
-            ng-style="(vm.isDowngradable() && vm.editable) && {'visibility':'visible'} || {'visibility':'hidden'}" 
+        <h4 class="id-adjust-down adjust-button"
+            ng-style="(vm.isDowngradable() && vm.editable) && {'visibility':'visible'} || {'visibility':'hidden'}"
               class="clickable" ng-click="vm.downgradeCode()">-</h4>
         <div class="acmg-title-wrapper">
           <h4 class="acmg-title clickable" uib-popover-template="vm.popover.templateUrl"
@@ -51,6 +51,7 @@
       <wysiwyg-editor class="right-item commentbox id-comment-acmg"
                        ng-disabled="!vm.isEditable()"
                        placeholder="{{vm.getPlaceholder()}}"
-                       ng-model="vm.commentModel"></wysiwyg-editor>
+                       ng-model="vm.commentModel"
+                       ng-change="vm.onUpdate()"></wysiwyg-editor>
   </section>
 </div>

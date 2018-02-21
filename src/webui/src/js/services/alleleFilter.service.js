@@ -1,16 +1,14 @@
 /* jshint esnext: true */
 
-import {Service, Inject} from '../ng-decorators';
+import { Service, Inject } from '../ng-decorators'
 
 @Service({
     serviceName: 'AlleleFilter'
 })
 @Inject('Config')
 class AlleleFilter {
-
     constructor(Config) {
-        this.config = Config.getConfig();
-
+        this.config = Config.getConfig()
     }
 
     /**
@@ -18,15 +16,17 @@ class AlleleFilter {
      * @return {Array} Alleles with frequency data.
      */
     filterFrequency(alleles) {
-        let included = [];
+        let included = []
         for (let allele of alleles) {
-            if (Object.keys(allele.annotation.frequencies).filter(k => {
-                    return Object.keys(this.config.frequencies.view.groups).includes(k);
-                }).length) {
-                included.push(allele);
+            if (
+                Object.keys(allele.annotation.frequencies).filter(k => {
+                    return Object.keys(this.config.frequencies.view.groups).includes(k)
+                }).length
+            ) {
+                included.push(allele)
             }
         }
-        return included;
+        return included
     }
 
     /**
@@ -34,13 +34,13 @@ class AlleleFilter {
      * @param  {Array} alleles Alleles with QC data
      */
     filterQC(alleles) {
-        let included = [];
+        let included = []
         for (let allele of alleles) {
             if (allele.annotation.quality.needs_verification) {
-                included.push(allele);
+                included.push(allele)
             }
         }
-        return included;
+        return included
     }
 
     /**
@@ -48,7 +48,7 @@ class AlleleFilter {
      * @return {Array} Alleles with references as given by it's annotation.
      */
     filterReferences(alleles) {
-        return alleles.filter(a => a.getReferenceIds().length > 0);
+        return alleles.filter(a => a.getReferenceIds().length > 0)
     }
 
     /**
@@ -56,7 +56,7 @@ class AlleleFilter {
      * @return {Array} Alleles with references as given by it's annotation.
      */
     filterAlleleAssessment(alleles) {
-        return alleles.filter(a => a.allele_assessment);
+        return alleles.filter(a => a.allele_assessment)
     }
 
     /**
@@ -65,9 +65,9 @@ class AlleleFilter {
      */
     invert(sub, full) {
         return full.filter(a => {
-            return sub.findIndex(i => i === a) === -1;
-        });
+            return sub.findIndex(i => i === a) === -1
+        })
     }
 }
 
-export default AlleleFilter;
+export default AlleleFilter

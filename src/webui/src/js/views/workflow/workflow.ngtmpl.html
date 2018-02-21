@@ -1,0 +1,15 @@
+<div class="main">
+
+    <workflowbar></workflowbar>
+    <nav class="warning" ng-if="$ctrl.collisions.length > 0">
+        <collision-warning collisions="$ctrl.collisions"></collision-warning>
+    </nav>
+
+    <div class="interpretation">
+        <interpretation
+        ng-if="$ctrl.loaded"
+        ></interpretation>
+    </div>
+
+</div>
+

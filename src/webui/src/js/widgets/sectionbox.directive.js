@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
+import { Directive, Inject } from '../ng-decorators'
 
 /**
  <sectionbox>
@@ -19,63 +19,73 @@ import {Directive, Inject} from '../ng-decorators';
         color: '@',
         id: '='
     },
-    transclude: { title: 'maintitle', subtitle: '?subtitle', contentwrapper: '?contentwrapper', top: '?top' , controls: '?controls' },
+    transclude: {
+        title: 'maintitle',
+        subtitle: '?subtitle',
+        contentwrapper: '?contentwrapper',
+        top: '?top',
+        controls: '?controls'
+    },
     templateUrl: 'ngtmpl/sectionbox.ngtmpl.html',
     link: (scope, elem, attrs) => {
         setTimeout(() => {
-            let p = elem[0].querySelector(".sb-controls");
-            let c = p.querySelector("controls")
+            let p = elem[0].querySelector('.sb-controls')
+            let c = p.querySelector('controls')
 
-            if(c) {
-                if(c.children.length == 0) { p.style.display = "none"; }
+            if (c) {
+                if (c.children.length == 0) {
+                    p.style.display = 'none'
+                }
             }
-        }, 0);
+        }, 0)
     }
 })
 export class SectionboxController {
     constructor() {
         if (this.rememberCollapse && !this.id) {
-            console.warn("ng-attr-id not specified. Remember collapse has no function.")
+            console.warn('ng-attr-id not specified. Remember collapse has no function.')
         }
     }
     getClasses() {
-        let color = this.color ? this.color : "blue";
-        let collapsed = this.getCollapseStatus() ? "collapsed" : "";
+        let color = this.color ? this.color : 'blue'
+        let collapsed = this.getCollapseStatus() ? 'collapsed' : ''
         return `${color} ${collapsed}`
     }
 
     getCollapseStatus() {
         if (this.rememberCollapse && this.id) {
-            if (!sessionStorage.getItem(this.id+'-collapsed')) {
-                sessionStorage.setItem(this.id+'-collapsed', String(Boolean(this.collapsed))) // Store as string for maximum browser compatibility
+            if (!sessionStorage.getItem(this.id + '-collapsed')) {
+                sessionStorage.setItem(this.id + '-collapsed', String(Boolean(this.collapsed))) // Store as string for maximum browser compatibility
             }
-            return sessionStorage.getItem(this.id+"-collapsed") === "true"
+            return sessionStorage.getItem(this.id + '-collapsed') === 'true'
         } else {
-            return this.collapsed;
+            return this.collapsed
         }
     }
 
     collapse() {
-        if (this.isModal() || !this.isCollapsible()) { return; }
-        this.collapsed = !this.getCollapseStatus();
+        if (this.isModal() || !this.isCollapsible()) {
+            return
+        }
+        this.collapsed = !this.getCollapseStatus()
         if (this.rememberCollapse) {
-            sessionStorage.setItem(this.id+"-collapsed", String(Boolean(this.collapsed)))
+            sessionStorage.setItem(this.id + '-collapsed', String(Boolean(this.collapsed)))
         }
     }
 
     isCollapsible() {
-        return (this.collapsible === undefined || this.collapsible) && !this.isModal();
+        return (this.collapsible === undefined || this.collapsible) && !this.isModal()
     }
 
     isModal() {
-        return (this.modal != undefined || this.modal === true);
+        return this.modal != undefined || this.modal === true
     }
 
     onTop() {
-        return (this.topcontrols != undefined || this.topcontrols === true);
+        return this.topcontrols != undefined || this.topcontrols === true
     }
 
     close() {
-        this.onClose()();
+        this.onClose()()
     }
 }

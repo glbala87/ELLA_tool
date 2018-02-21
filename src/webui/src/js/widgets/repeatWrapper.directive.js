@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
+import { Directive, Inject } from '../ng-decorators'
 
 /**
  * Use inside a ng-repeat to inform the template if our list has only one element.
@@ -10,7 +10,9 @@ import {Directive, Inject} from '../ng-decorators';
 @Directive({
     selector: 'repeat-wrapper',
     transclude: true,
-    templateUrl: function(element, attr) { return attr.templateUrl ? attr.templateUrl : 'ngtmpl/repeatWrapper.ngtmpl.html' },
+    templateUrl: function(element, attr) {
+        return attr.templateUrl ? attr.templateUrl : 'ngtmpl/repeatWrapper.ngtmpl.html'
+    },
     scope: {
         item: '=',
         templateUrl: '=?'
@@ -18,13 +20,11 @@ import {Directive, Inject} from '../ng-decorators';
 })
 @Inject('$scope')
 export class TranscriptWrapperController {
-
     constructor($scope) {
         /*
            Really hacky way to detect if directive is used in a ng-repeat and
            there's just one item.
         */
-        this.singleElement = !($scope.$parent.$index === 0 &&
-                             $scope.$parent.$last);
+        this.singleElement = !($scope.$parent.$index === 0 && $scope.$parent.$last)
     }
 }

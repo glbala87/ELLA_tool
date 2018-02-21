@@ -1,13 +1,12 @@
 /* jshint esnext: true */
 
-import {Service, Inject} from '../ng-decorators';
+import { Service, Inject } from '../ng-decorators'
 
 @Service({
     serviceName: 'Navbar'
 })
 @Inject()
 export class NavbarService {
-
     /**
      * Service for managing navbar items
      */
@@ -17,38 +16,37 @@ export class NavbarService {
         //  'title': 'Analysis list',
         //  'url': .. (optional)
         // }
-        this.items = [];
-        this.allele = null;
+        this.items = []
+        this.allele = null
     }
 
     clearAllele() {
-      this.allele = null;
+        this.allele = null
     }
 
-    setAllele(allele, genepanel=null) {
-        this.allele = allele;
-        this.genepanel = genepanel;
+    setAllele(allele, genepanel = null) {
+        this.allele = allele
+        this.genepanel = genepanel
     }
 
     getAllele() {
-        return this.allele;
+        return this.allele
     }
 
     getGenepanel() {
-        return this.genepanel;
+        return this.genepanel
     }
 
     clearItems() {
-        this.clearAllele();
-        this.items = [];
+        this.clearAllele()
+        this.items = []
     }
 
     replaceItems(items) {
-        this.items = items;
+        this.items = items
     }
 
     getItems() {
-        return this.items;
+        return this.items
     }
-
 }

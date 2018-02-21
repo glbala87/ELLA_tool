@@ -1,0 +1,44 @@
+<div class="main">
+    <nav class="secondary">
+        <!--<search class="search-box"></search>-->
+        <section style="margin-left: auto; margin-right: 1rem; ">
+            <a href="/api/v1/reports/non-started-analyses-variants/" target="_self"><button>Variant report</button></a>
+            <button ng-click="vm.showImportModal()">Import
+              <!--Section: With status icons-->
+              <span>
+              <svg id="i-status-ok" class="button-status-green" viewBox="0 0 32 32" width="32" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+                <circle cx="50%" cy="50%" r="50%"></circle>
+              </svg>
+              {{vm.annotationjobStatus.running}}
+
+              <svg id="i-status-failed" class="button-status-red" viewBox="0 0 32 32" width="32" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+                <circle cx="50%" cy="50%" r="50%"></circle>
+              </svg>
+              {{vm.annotationjobStatus.failed}}
+              </span>
+              <!--End section-->
+
+              <!--Section: No status icons-->
+              <!--{{vm.annotng-if="vm.hasMultipleViews()ationjobStatus.running}}/{{vm.annotationjobStatus.failed}}-->
+              <!--End section-->
+            </button>
+        </section>
+    </nav>
+
+
+    <div class="overviewcontainer">
+        <div class="sidenavbar">
+            <div class="item-row">
+                <div ng-attr-id="{{ 'id-overview-sidenav-' + sectionKey  }}" class="item" ng-repeat="sectionKey in $ctrl.sectionKeys" ng-class="{'active': $ctrl.sections[sectionKey].selected}" ng-click="$ctrl.changeSection({section: sectionKey})">{{$ctrl.sections[sectionKey].displayName}}</div>
+            </div>
+        </div>
+
+        <div class="container with-sidenavbar">
+            <search></search>
+                <div>
+                    <analysis-selection ng-if="$ctrl.sections.analyses.selected || $ctrl.sections['analyses-by-findings'].selected"></analysis-selection>
+                    <allele-selection ng-if="$ctrl.sections.variants.selected"></allele-selection>
+                </div>
+         </div>
+     </div>
+</div>

@@ -1,9 +1,23 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../../ng-decorators';
+import { Directive, Inject } from '../../ng-decorators'
+
+import app from '../../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+import { state, signal } from 'cerebral/tags'
+
+app.component('alleleInfoHgmd', {
+    templateUrl: 'ngtmpl/alleleInfoHgmd-new.ngtmpl.html',
+    controller: connect(
+        {
+            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+        },
+        'AlleleInfoHgmd'
+    )
+})
 
 @Directive({
-    selector: 'allele-info-hgmd',
+    selector: 'allele-info-hgmd-old',
     scope: {
         allele: '='
     },
@@ -11,14 +25,13 @@ import {Directive, Inject} from '../../ng-decorators';
 })
 @Inject()
 export class AlleleInfoHgmd {
-
     constructor() {
         if (!this.hasContent()) {
-            this.collapsed = true;
+            this.collapsed = true
         }
     }
 
     hasContent() {
-        return 'HGMD' in this.allele.annotation.external;
+        return 'HGMD' in this.allele.annotation.external
     }
 }

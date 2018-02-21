@@ -1,6 +1,6 @@
 <article class="sectionbox-content allele-list">
   <a class="id-variant list-item clickable"
-   href="{{vm.getItemUrl(item)}}"
+   href="{{item.allele.links.workflow}}"
    ng-repeat="item in vm.sorted_items track by [item.genepanel.name, item.genepanel.version, item.allele.id]"
    ng-attr-target="{{vm.newTarget ? '_blank' : undefined}}">
   <div>{{item.oldest_analysis | date:"yyyy-MM-dd"}}</div>

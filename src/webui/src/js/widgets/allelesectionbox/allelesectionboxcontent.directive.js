@@ -1,7 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../../ng-decorators';
-
+import { Directive, Inject } from '../../ng-decorators'
 
 /**
  * Directive for dynamically creating boxes of content-boxes
@@ -36,29 +35,28 @@ import {Directive, Inject} from '../../ng-decorators';
         alleleUserState: '=',
         onSave: '&?',
         readOnly: '=?',
-        boxes: '='  // Array of objects.
+        boxes: '=' // Array of objects.
     },
     link: (scope, elem, attrs, ctrl) => {
-
         // Dynamically create the html for the content-boxes
-        let html = '';
+        let html = ''
         if (scope.boxes) {
             for (let box of scope.boxes) {
-                let classes = '';
-                let attrs = '';
+                let classes = ''
+                let attrs = ''
                 if ('class' in box) {
-                    classes = box.class.join(' ');
+                    classes = box.class.join(' ')
                 }
 
                 if ('attr' in box) {
                     for (let [k, v] of Object.entries(box.attr)) {
-                        attrs += `${k}="${v}"`;
+                        attrs += `${k}="${v}"`
                     }
                 }
 
-                let on_save = '';
+                let on_save = ''
                 if (scope.vm.onSave) {
-                    on_save = 'on-save="vm.onSave()"';
+                    on_save = 'on-save="vm.onSave()"'
                 }
 
                 html += `
@@ -73,25 +71,17 @@ import {Directive, Inject} from '../../ng-decorators';
                     read-only="vm.readOnly"
                     ${on_save}
                     ${attrs}
-                ></${box.tag}>`;
+                ></${box.tag}>`
             }
-            let compiled = scope.vm.compile(html)(scope);
-            elem.append(compiled);
+            let compiled = scope.vm.compile(html)(scope)
+            elem.append(compiled)
         }
     }
-
 })
-@Inject(
-    'Config',
-    '$compile'
-)
+@Inject('Config', '$compile')
 export class AlleleSectionboxContentController {
-
-
-    constructor(Config,
-                $compile) {
-        this.config = Config.getConfig();
-        this.compile = $compile;
+    constructor(Config, $compile) {
+        this.config = Config.getConfig()
+        this.compile = $compile
     }
-
 }

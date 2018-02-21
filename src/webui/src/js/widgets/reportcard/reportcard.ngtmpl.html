@@ -4,7 +4,7 @@
   </maintitle>
   <contentwrapper class="report">
     <wysiwyg-editor class="control-comment id-report-comment"
-      ng-disabled="vm.readOnly"
+      ng-disabled="!$ctrl.readOnly"
       placeholder="REPORT COMMENT"
       ng-model="vm.state.report.comment"></wysiwyg-editor>
     <h4 class="section-header">Clinical report</h4>

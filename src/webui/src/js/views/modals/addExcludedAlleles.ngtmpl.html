@@ -1,0 +1,108 @@
+<sectionbox class="id-add-excluded-modal" color="green" modal="true" on-close="vm.onClose()">
+  <maintitle>
+    ADD EXCLUDED VARIANTS
+  </maintitle>
+  <controls>
+    <section class="line-wrapper pinned-right">
+      <button class="id-close" type="button" ng-click="vm.close()">Close</button>
+    </section>
+  </controls>
+  <contentwrapper>
+    <article ng-repeat="al in vm.included_alleles track by al.id">
+      <sectionbox class="nobody" color="blue" collapsible="false">
+        <maintitle>
+          included
+        </maintitle>
+        <controls>
+          <div class="line-wrapper spaced only-control">
+            <allelebar class="allele-info" allele="al"></allelebar>
+            <section>
+              <checkable-button class="id-exclude-allele"
+                                list-model="vm.included_allele_ids"
+                                list-value="al.id"
+                                on-change="vm.update()"
+                                ng-if="!vm.readOnly">
+                <checked>EXCLUDE</checked>
+                INCLUDE
+              </checkable-button>
+            </section>
+          </div>
+        </controls>
+      </sectionbox>
+    </article>
+
+    <!-- END INCLUDED -->
+
+    <!-- START MODAL CONTROLS -->
+    <hr ng-if="vm.included_alleles.length">
+    <div class="question small line-wrapper spaced bottom">
+      <h5 class="slim title upper"><b>{{vm.filtered_alleles.length}} variants</b> <small>from current filter settings</small></h5>
+    </div>
+    <div class="question small line-wrapper spaced allele-control-bar">
+      <section class="line-wrapper">
+        <div class="bttn-set multiple-question-element">
+          <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'all'">All</label>
+          <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'frequency'">Frequency</label>
+          <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'intronic'">Intronic</label>
+          <label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'utr'">UTR</label>
+          <!--<label class="bttn" ng-change="vm.update()" ng-model="vm.category" uib-btn-radio="'gene'">Gene</label>-->
+        </div>
+        <div class="dropdown multiple-question-element">
+          <select ng-change="vm.update()" ng-model="vm.selected_gene" ng-options="g for g in vm.gene_options">
+            <option value="">All genes</option>
+          </select>
+        </div>
+      </section>
+      <div>
+        <uib-pagination total-items="vm.filtered_alleles.length"
+          ng-model="vm.page_idx"
+          class="pagination-sm"
+          items-per-page="vm.number_per_page"
+          ng-change="vm.update()"
+          boundary-links="true"
+          max-size="5"
+          rotate="false">
+        </uib-pagination>
+      </div>
+    </div>
+
+    <!-- END MODAL CONTROLS -->
+
+    <!-- START EXCLUDED -->
+
+    <article class="allele" ng-repeat="al in vm.slice track by al.id">
+      <sectionbox color="purple" collapsible="false">
+        <maintitle>
+          excluded
+        </maintitle>
+        <controls>
+          <div class="line-wrapper spaced">
+            <allelebar class="allele-info" allele="al"></allelebar>
+            <section>
+              <checkable-button class="id-include-allele"
+                                list-model="vm.included_allele_ids"
+                                list-value="al.id"
+                                on-change="vm.update()"
+                                ng-disabled="vm.readOnly">
+                <checked>INCLUDED</checked>
+                INCLUDE
+              </checkable-button>
+            </section>
+          </div>
+        </controls>
+        <contentwrapper>
+          <article class="sectionbox-content">
+            <allele-info-frequency-gnomad-exomes allele="al"></allele-info-frequency-gnomad-exomes>
+            <allele-info-frequency-gnomad-genomes allele="al"></allele-info-frequency-gnomad-genomes>
+            <allele-info-frequency-exac allele="al"></allele-info-frequency-exac>
+            <allele-info-frequency-indb allele="al"></allele-info-frequency-indb>
+            <allele-info-consequence allele="al"></allele-info-consequence>
+          </article>
+        </contentwrapper>
+      </sectionbox>
+    </article>
+
+    <!-- END EXCLUDED -->
+
+  </contentwrapper>
+</sectionbox>

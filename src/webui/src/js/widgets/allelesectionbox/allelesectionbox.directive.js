@@ -1,11 +1,118 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../../ng-decorators';
-import {AlleleStateHelper} from '../../model/allelestatehelper';
-import {ACMGHelper} from '../../model/acmghelper';
+import { Directive, Inject } from '../../ng-decorators'
+import { AlleleStateHelper } from '../../model/allelestatehelper'
+import { ACMGHelper } from '../../model/acmghelper'
+
+import app from '../../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+import { state, signal, props } from 'cerebral/tags'
+import { Compute } from 'cerebral'
+
+import isAlleleAssessmentOutdated from '../../store/common/computes/isAlleleAssessmentOutdated'
+import hasExistingAlleleAssessment from '../../store/common/computes/hasExistingAlleleAssessment'
+import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
+import getAlleleAssessment from '../../store/modules/views/workflows/interpretation/computed/getAlleleAssessment'
+import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
+import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
+
+const getSection = Compute(
+    state`views.workflows.selectedComponent`,
+    state`views.workflows.components`,
+    props`sectionKey`,
+    (selectedComponent, components, sectionKey) => {
+        if (selectedComponent in components && components[selectedComponent].sections) {
+            return components[selectedComponent].sections[sectionKey]
+        }
+    }
+)
+
+const isCollapsed = Compute(
+    state`views.workflows.interpretation.selected.user_state`,
+    state`views.workflows.selectedAllele`,
+    props`sectionKey`,
+    (userState, selectedAllele, sectionKey) => {
+        if (
+            selectedAllele in userState &&
+            'sections' in userState[selectedAllele] &&
+            sectionKey in userState[selectedAllele].sections
+        ) {
+            return userState[selectedAllele].sections[sectionKey].collapsed
+        }
+    }
+)
+
+const classificationOptions = Compute(state`app.config`, config => {
+    return [{ name: 'Select class', value: null }].concat(config.classification.options)
+})
+
+app.component('alleleSectionbox', {
+    bindings: {
+        sectionKey: '<'
+    },
+    templateUrl: 'ngtmpl/allelesectionbox-new.ngtmpl.html',
+    controller: connect(
+        {
+            classificationOptions,
+            collapsed: isCollapsed,
+            readOnly: isReadOnly,
+            section: getSection,
+            selectedAllele: state`views.workflows.selectedAllele`,
+            alleleassessment: getAlleleAssessment(state`views.workflows.selectedAllele`),
+            allelereport: getAlleleReport(state`views.workflows.selectedAllele`),
+            isAlleleAssessmentOutdated: isAlleleAssessmentOutdated(
+                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+            ),
+            hasExistingAlleleAssessment: hasExistingAlleleAssessment(
+                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+            ),
+            isAlleleAssessmentReused: isAlleleAssessmentReused(
+                state`views.workflows.selectedAllele`
+            ),
+            addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
+            classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
+            evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
+            reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`,
+            reuseAlleleAssessmentClicked: signal`views.workflows.interpretation.reuseAlleleAssessmentClicked`,
+            removeAcmgClicked: signal`views.workflows.interpretation.removeAcmgClicked`,
+            acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`
+        },
+        'AlleleSectionbox',
+        [
+            '$scope',
+            'cerebral',
+            function($scope, cerebral) {
+                const $ctrl = $scope.$ctrl
+
+                Object.assign($ctrl, {
+                    showControls() {
+                        if (
+                            $ctrl.section.options &&
+                            'hideControlsOnCollapse' in $ctrl.section.options
+                        ) {
+                            return !(
+                                $ctrl.section.options.hideControlsOnCollapse && $ctrl.collapsed
+                            )
+                        }
+                    },
+                    getCardColor() {
+                        return $ctrl.isAlleleAssessmentReused ? 'green' : 'purple'
+                    },
+                    acmgCodeChangedWrapper(code) {
+                        $ctrl.acmgCodeChanged({ alleleId: $ctrl.selectedAllele, code })
+                    },
+                    getExcludedReferencesBtnText() {
+                        return 'SHOW EXCLUDED' // FIXCME
+                    }
+                })
+            }
+        ]
+    )
+})
 
 @Directive({
-    selector: 'allele-sectionbox',
+    selector: 'allele-sectionbox-old',
     templateUrl: 'ngtmpl/allelesectionbox.ngtmpl.html',
     scope: {
         header: '=',
@@ -14,15 +121,15 @@ import {ACMGHelper} from '../../model/acmghelper';
         attachments: '=',
         alleleState: '=',
         alleleUserState: '=',
-        alleleassessmentComment: '=?',  // {name: string, placeholder: string}
-        allelereportComment: '=?',  // {name: string, placeholder: string}
-        section: '=',  // Section to display using <allelesectionboxcontent>
+        alleleassessmentComment: '=?', // {name: string, placeholder: string}
+        allelereportComment: '=?', // {name: string, placeholder: string}
+        section: '=', // Section to display using <allelesectionboxcontent>
         updateText: '@?',
-        onUpdate: '&?',  // On-update callback function (should refresh allele)
-        onChangeClass: '&?',  // Callback function when changing class (dropdown)
+        onUpdate: '&?', // On-update callback function (should refresh allele)
+        onChangeClass: '&?', // Callback function when changing class (dropdown)
         onSkip: '&?', // Callback function when clicking 'Skip' button. Enables skip button.
         controls: '=',
-        readOnly: '=?', // prevent user from changing/updating if readOnly is true
+        readOnly: '=?' // prevent user from changing/updating if readOnly is true
         // possible controls: {
         //   toggle_technical: bool,
         //   toggle_class2: bool,
@@ -34,7 +141,7 @@ import {ACMGHelper} from '../../model/acmghelper';
         //   custom_external: bool
         //}
         //
-    },
+    }
 })
 @Inject(
     '$rootScope',
@@ -50,30 +157,32 @@ import {ACMGHelper} from '../../model/acmghelper';
     '$scope'
 )
 export class AlleleSectionBoxController {
+    constructor(
+        rootScope,
+        Config,
+        Allele,
+        CustomAnnotationModal,
+        ACMGClassificationResource,
+        IgvModal,
+        Analysis,
+        AttachmentResource,
+        clipboard,
+        toastr,
+        $scope
+    ) {
+        this.config = Config.getConfig()
+        this.alleleService = Allele
+        this.customAnnotationModal = CustomAnnotationModal
+        this.acmgClassificationResource = ACMGClassificationResource
+        this.igvModal = IgvModal
+        this.analysisService = Analysis
+        this.attachmentResource = AttachmentResource
+        this.clipboard = clipboard
+        this.toastr = toastr
 
-
-    constructor(rootScope,
-                Config,
-                Allele,
-                CustomAnnotationModal,
-                ACMGClassificationResource,
-                IgvModal,
-                Analysis,
-                AttachmentResource,
-                clipboard,
-                toastr,
-                $scope) {
-        this.config = Config.getConfig();
-        this.alleleService = Allele;
-        this.customAnnotationModal = CustomAnnotationModal;
-        this.acmgClassificationResource = ACMGClassificationResource;
-        this.igvModal = IgvModal;
-        this.analysisService = Analysis;
-        this.attachmentResource = AttachmentResource;
-        this.clipboard = clipboard;
-        this.toastr = toastr;
-
-        this.classificationOptions = [{name: 'Select class', value: null}].concat(this.config.classification.options);
+        this.classificationOptions = [{ name: 'Select class', value: null }].concat(
+            this.config.classification.options
+        )
 
         // Update suggested classification whenever user changes
         // included ACMG codes
@@ -81,40 +190,39 @@ export class AlleleSectionBoxController {
             () => this.alleleState.alleleassessment.evaluation.acmg.included.map(a => a.code),
             () => {
                 if (this.section.options.show_included_acmg_codes) {
-                    this.updateSuggestedClassification();
+                    this.updateSuggestedClassification()
                 }
             }
-        );
-
+        )
     }
-
 
     getSectionUserState() {
         if (!('sections' in this.alleleUserState)) {
-            this.alleleUserState.sections = {};
+            this.alleleUserState.sections = {}
         }
         if (!(this.section.name in this.alleleUserState.sections)) {
             this.alleleUserState.sections[this.section.name] = {
                 collapsed: false
             }
         }
-        return this.alleleUserState.sections[this.section.name];
+        return this.alleleUserState.sections[this.section.name]
     }
 
     collapseAll() {
-        let section_states = Object.values(this.alleleUserState.sections);
-        let current_collapsed = section_states.map(s => s.collapsed);
-        let some_collapsed = current_collapsed.some(c => c);
+        let section_states = Object.values(this.alleleUserState.sections)
+        let current_collapsed = section_states.map(s => s.collapsed)
+        let some_collapsed = current_collapsed.some(c => c)
         for (let section_state of section_states) {
-            section_state.collapsed = !some_collapsed;
+            section_state.collapsed = !some_collapsed
         }
     }
 
     showControls() {
-        if (this.section.options &&
-            'hide_controls_on_collapse' in this.section.options) {
-            return !(this.section.options.hide_controls_on_collapse &&
-                        this.getSectionUserState().collapsed);
+        if (this.section.options && 'hide_controls_on_collapse' in this.section.options) {
+            return !(
+                this.section.options.hide_controls_on_collapse &&
+                this.getSectionUserState().collapsed
+            )
         }
     }
 
@@ -124,7 +232,7 @@ export class AlleleSectionBoxController {
      * @return {Boolean}
      */
     isEditable() {
-        return !this.isAlleleAssessmentReused();
+        return !this.isAlleleAssessmentReused()
     }
 
     /**
@@ -134,11 +242,11 @@ export class AlleleSectionBoxController {
      * @return {Boolean}
      */
     isReportEditable() {
-        return  !this.readOnly
+        return !this.readOnly
     }
 
     getClassification() {
-        return AlleleStateHelper.getClassification(this.allele, this.alleleState);
+        return AlleleStateHelper.getClassification(this.allele, this.alleleState)
     }
 
     getAlleleAssessment() {
@@ -146,18 +254,18 @@ export class AlleleSectionBoxController {
     }
 
     getAlleleReport() {
-        return AlleleStateHelper.getAlleleReport(this.allele, this.alleleState);
+        return AlleleStateHelper.getAlleleReport(this.allele, this.alleleState)
     }
 
     excludeACMG(code) {
-        ACMGHelper.excludeACMG(code, this.allele, this.alleleState);
+        ACMGHelper.excludeACMG(code, this.allele, this.alleleState)
     }
 
     getSuggestedClassification() {
         if (this.getAlleleAssessment().evaluation.acmg.suggested_classification) {
-            return this.getAlleleAssessment().evaluation.acmg.suggested_classification;
+            return this.getAlleleAssessment().evaluation.acmg.suggested_classification
         } else {
-            return "-";
+            return '-'
         }
     }
 
@@ -165,20 +273,28 @@ export class AlleleSectionBoxController {
         // Only update data if we're modifying the allele state,
         // we don't want to overwrite anything in any existing allele assessment
         if (AlleleStateHelper.isAlleleAssessmentReused(this.allele, this.alleleState)) {
-            return;
+            return
         }
 
         // Clear current in case something goes wrong
         // Having no result is better than wrong result
-        this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = null;
-        let codes = this.alleleState.alleleassessment.evaluation.acmg.included.map(i => i.code);
+        this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = null
+        let codes = this.alleleState.alleleassessment.evaluation.acmg.included.map(i => i.code)
 
         if (codes.length) {
-            this.acmgClassificationResource.getClassification(codes).then(result => {
-                this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = result.class;
-            }).catch(() => {
-                this.toastr.error("Something went wrong when updating suggested classification.", null, 5000);
-            });
+            this.acmgClassificationResource
+                .getClassification(codes)
+                .then(result => {
+                    this.alleleState.alleleassessment.evaluation.acmg.suggested_classification =
+                        result.class
+                })
+                .catch(() => {
+                    this.toastr.error(
+                        'Something went wrong when updating suggested classification.',
+                        null,
+                        5000
+                    )
+                })
         }
     }
 
@@ -188,22 +304,22 @@ export class AlleleSectionBoxController {
      * @return {Boolean}
      */
     isAlleleAssessmentOutdated() {
-        return AlleleStateHelper.isAlleleAssessmentOutdated(this.allele, this.config);
+        return AlleleStateHelper.isAlleleAssessmentOutdated(this.allele, this.config)
     }
 
     getCardColor() {
         if (AlleleStateHelper.isAlleleAssessmentReused(this.alleleState)) {
-                return 'green';
+            return 'green'
         }
-        return 'purple';
+        return 'purple'
     }
 
     hasExistingAlleleAssessment() {
-        return this.allele.allele_assessment;
+        return this.allele.allele_assessment
     }
 
     isAlleleAssessmentReused() {
-        return AlleleStateHelper.isAlleleAssessmentReused(this.alleleState);
+        return AlleleStateHelper.isAlleleAssessmentReused(this.alleleState)
     }
 
     ///////////////
@@ -211,88 +327,93 @@ export class AlleleSectionBoxController {
     ///////////////
 
     showIgv() {
-        this.igvModal.show(this.analysis, this.allele);
+        this.igvModal.show(this.analysis, this.allele)
     }
 
     showCustomAnnotationModal(category) {
-        let title = category === 'external' ? 'ADD EXTERNAL DB DATA' : 'ADD PREDICTION DATA';
-        let placeholder = category === 'external' ? 'CHOOSE DATABASE' : 'CHOOSE PREDICTION TYPE';
+        let title = category === 'external' ? 'ADD EXTERNAL DB DATA' : 'ADD PREDICTION DATA'
+        let placeholder = category === 'external' ? 'CHOOSE DATABASE' : 'CHOOSE PREDICTION TYPE'
         this.customAnnotationModal.show(title, placeholder, this.allele, category).then(result => {
             if (result) {
-                this.onUpdate();
+                this.onUpdate()
             }
-        });
+        })
     }
 
     showAddReferenceModal() {
-        let title = 'ADD STUDIES';
-        let placeholder = "Not used";
-        this.customAnnotationModal.show(title, placeholder, this.allele, 'references').then(result => {
-            if (result) {
-                this.onUpdate();
-            }
-        });
+        let title = 'ADD STUDIES'
+        let placeholder = 'Not used'
+        this.customAnnotationModal
+            .show(title, placeholder, this.allele, 'references')
+            .then(result => {
+                if (result) {
+                    this.onUpdate()
+                }
+            })
     }
 
     showHideExcludedReferences() {
-        this.alleleUserState.showExcludedReferences = !this.alleleUserState.showExcludedReferences;
+        this.alleleUserState.showExcludedReferences = !this.alleleUserState.showExcludedReferences
     }
 
     getExcludeReferencesBtnText() {
-        return this.alleleUserState.showExcludedReferences ? "Hide excluded" : "Show excluded"
+        return this.alleleUserState.showExcludedReferences ? 'Hide excluded' : 'Show excluded'
     }
 
     changeClassification() {
         if (this.readOnly) {
-            return;
+            return
         }
 
         if (this.onChangeClass) {
-            this.onChangeClass({allele: this.allele});
+            this.onChangeClass({ allele: this.allele })
         }
     }
 
     setClass1() {
         if (this.readOnly) {
-            return;
+            return
         }
 
-        this.alleleState.alleleassessment.classification = '1';
-        this.changeClassification();
+        this.alleleState.alleleassessment.classification = '1'
+        this.changeClassification()
         if (this.onSkip) {
-            this.onSkip();
+            this.onSkip()
         }
     }
 
     setClass2() {
         if (this.readOnly) {
-            return;
+            return
         }
 
-        this.alleleState.alleleassessment.classification = '2';
-        this.changeClassification();
+        this.alleleState.alleleassessment.classification = '2'
+        this.changeClassification()
 
         if (this.onSkip) {
-            this.onSkip();
+            this.onSkip()
         }
     }
 
     toggleReuseAlleleAssessment() {
         if (this.readOnly) {
-            return;
+            return
         }
-        if (AlleleStateHelper.toggleReuseAlleleAssessment(this.allele, this.alleleState, this.config)) {
+        if (
+            AlleleStateHelper.toggleReuseAlleleAssessment(
+                this.allele,
+                this.alleleState,
+                this.config
+            )
+        ) {
             if (this.onSetClass) {
-                this.onSetClass({allele: this.allele});
+                this.onSetClass({ allele: this.allele })
             }
         }
-        this.changeClassification();
+        this.changeClassification()
     }
 
     getUpdateText() {
-        return this.updateText !== undefined ? this.updateText : 'Set class';
+        return this.updateText !== undefined ? this.updateText : 'Set class'
     }
-
-
-
 }

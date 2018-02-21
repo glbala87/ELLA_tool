@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
-import {AlleleStateHelper} from './allelestatehelper';
-import {deepCopy, UUID} from '../util';
+import { AlleleStateHelper } from './allelestatehelper'
+import { deepCopy, UUID } from '../util'
 
 /**
  * Handles ACMG code logic and how they interact with alleleState.
@@ -15,7 +15,6 @@ import {deepCopy, UUID} from '../util';
  * @class ACMGHelper
  */
 export class ACMGHelper {
-
     /**
      * (Re)creates suggested codes (from allele.acmg) into the 'suggested' section
      * of the alleleassessment.evaluation, if they aren't created already.
@@ -25,22 +24,24 @@ export class ACMGHelper {
         // Only update data if we're modifying the allele state,
         // we don't want to overwrite anything in any existing allele assessment
         if (AlleleStateHelper.isAlleleAssessmentReused(allele, allele_state)) {
-            return;
+            return
         }
 
-        allele_state.alleleassessment.evaluation.acmg.suggested = [];
+        allele_state.alleleassessment.evaluation.acmg.suggested = []
         if (allele.acmg) {
             for (let c of allele.acmg.codes) {
                 // Filter out the ones already included.
                 if (this.isACMGInIncluded(c, allele, allele_state)) {
-                    continue;
+                    continue
                 }
-                allele_state.alleleassessment.evaluation.acmg.suggested.push(this.remoteCodeToObj(c));
+                allele_state.alleleassessment.evaluation.acmg.suggested.push(
+                    this.remoteCodeToObj(c)
+                )
             }
         }
     }
 
-    static userCodeToObj(code, comment='') {
+    static userCodeToObj(code, comment = '') {
         return {
             code: code,
             source: 'user',
@@ -48,7 +49,7 @@ export class ACMGHelper {
             op: null,
             comment: comment,
             uuid: UUID()
-        };
+        }
     }
 
     /**
@@ -63,7 +64,7 @@ export class ACMGHelper {
             source: code.source,
             op: code.op || null,
             match: code.match || null
-        };
+        }
     }
 
     /**
@@ -73,16 +74,19 @@ export class ACMGHelper {
      */
     static compareACMGObjs(a1, a2) {
         if (a1.uuid && a2.uuid) {
-            return a1.uuid === a2.uuid;
+            return a1.uuid === a2.uuid
         }
-        return a1.code === a2.code &&
-               a1.source === a2.source &&
-               (a1.match === null || a2.match === null ||
-                a1.match.every((e, idx) => a2.match[idx] === e)); // .match is array
+        return (
+            a1.code === a2.code &&
+            a1.source === a2.source &&
+            (a1.match === null ||
+                a2.match === null ||
+                a1.match.every((e, idx) => a2.match[idx] === e))
+        ) // .match is array
     }
 
     static isIncludable(code) {
-        return !code.startsWith('REQ');
+        return !code.startsWith('REQ')
     }
 
     /**
@@ -93,31 +97,31 @@ export class ACMGHelper {
         // Only update data if we're modifying the allele state,
         // we don't want to overwrite anything in any existing allele assessment
         if (AlleleStateHelper.isAlleleAssessmentReused(allele, allele_state)) {
-            return;
+            return
         }
-        let copy_code = deepCopy(code);
+        let copy_code = deepCopy(code)
         if (!copy_code.comment) {
-            copy_code.comment = ''; // Add comment field, included codes have comments
+            copy_code.comment = '' // Add comment field, included codes have comments
         }
-        copy_code.uuid = UUID();
-        allele_state.alleleassessment.evaluation.acmg.included.push(copy_code);
+        copy_code.uuid = UUID()
+        allele_state.alleleassessment.evaluation.acmg.included.push(copy_code)
     }
 
     static excludeACMG(code, allele, allele_state) {
         // Only update data if we're modifying the allele state,
         // we don't want to overwrite anything in any existing allele assessment
         if (AlleleStateHelper.isAlleleAssessmentReused(allele, allele_state)) {
-            return;
+            return
         }
 
         // Remove first match from included array (only first match, since duplicates are allowed)
         let idx = allele_state.alleleassessment.evaluation.acmg.included.findIndex(e => {
-            return this.compareACMGObjs(code, e);
-        });
+            return this.compareACMGObjs(code, e)
+        })
         if (idx < 0) {
             throw Error("Couldn't find matching code. This shouldn't happen.")
         }
-        let included = allele_state.alleleassessment.evaluation.acmg.included.splice(idx, 1)[0];
+        let included = allele_state.alleleassessment.evaluation.acmg.included.splice(idx, 1)[0]
     }
 
     /**
@@ -125,27 +129,25 @@ export class ACMGHelper {
      * @return {Boolean} True if it's included
      */
     static isACMGInIncluded(code, allele, allele_state) {
-        let alleleassessment = AlleleStateHelper.getAlleleAssessment(
-            allele,
-            allele_state
-        );
+        let alleleassessment = AlleleStateHelper.getAlleleAssessment(allele, allele_state)
 
         if (!('acmg' in alleleassessment.evaluation)) {
-            return false;
+            return false
         }
-        return alleleassessment.evaluation.acmg.included.find(elem =>  {
-            return this.compareACMGObjs(elem, code);
-        }) !== undefined;
+        return (
+            alleleassessment.evaluation.acmg.included.find(elem => {
+                return this.compareACMGObjs(elem, code)
+            }) !== undefined
+        )
     }
 
     static isACMGInSuggested(code, allele, allele_state) {
-        let alleleassessment = AlleleStateHelper.getAlleleAssessment(
-            allele,
-            allele_state
-        );
-        return alleleassessment.evaluation.acmg.suggested.find(elem =>  {
-            return this.compareACMGObjs(elem, code);
-        }) !== undefined;
+        let alleleassessment = AlleleStateHelper.getAlleleAssessment(allele, allele_state)
+        return (
+            alleleassessment.evaluation.acmg.suggested.find(elem => {
+                return this.compareACMGObjs(elem, code)
+            }) !== undefined
+        )
     }
 
     /**
@@ -155,79 +157,82 @@ export class ACMGHelper {
      */
     static getCodeBase(code_str) {
         if (code_str.includes('x')) {
-            return code_str.split('x', 2)[1];
+            return code_str.split('x', 2)[1]
         }
-        return code_str;
+        return code_str
     }
 
-    static _upgradeDowngradeCode(code_str, config, upgrade=true) {
-        let code_strength, base;
+    static _upgradeDowngradeCode(code_str, config, upgrade = true) {
+        let code_strength, base
         if (code_str.includes('x')) {
-            [code_strength, base] = code_str.split('x', 2);
+            ;[code_strength, base] = code_str.split('x', 2)
         }
 
         // If code is benign, upgrading the code should mean 'more benign' and vice versa
-        if (this._extractCodeType(code_str) === "benign") {
-            upgrade = !upgrade;
+        if (this._extractCodeType(code_str) === 'benign') {
+            upgrade = !upgrade
         }
 
         for (let strengths of Object.values(config.acmg.codes)) {
             // If strength is given (i.e. the code is not already upgraded/downgraded)
             // we need to find the strength of the base.
             if (code_strength === undefined) {
-                base = code_str;
+                base = code_str
                 for (let s of strengths) {
                     if (code_str.startsWith(s)) {
-                        code_strength = s;
+                        code_strength = s
                     }
                 }
             }
 
-            let strength_idx = strengths.indexOf(code_strength);
-            if (strength_idx < 0) {  // If strength not part of set, try next one
-                continue;
+            let strength_idx = strengths.indexOf(code_strength)
+            if (strength_idx < 0) {
+                // If strength not part of set, try next one
+                continue
             }
 
             // Check whether we can upgrade code, or if it would overflow
-            let overflow = upgrade ? strength_idx == 0 : strength_idx >= strengths.length-1;
+            let overflow = upgrade ? strength_idx == 0 : strength_idx >= strengths.length - 1
             if (!overflow) {
-                let new_strength = upgrade ? strengths[strength_idx-1] : strengths[strength_idx+1];
+                let new_strength = upgrade
+                    ? strengths[strength_idx - 1]
+                    : strengths[strength_idx + 1]
                 // If new strength is same as base we just return base
                 if (base.startsWith(new_strength)) {
-                    return base;
+                    return base
                 }
-                return `${new_strength}x${base}`;
+                return `${new_strength}x${base}`
             }
             // If overflowing, return input
-            return code_str;
+            return code_str
         }
-        return code_str;
+        return code_str
     }
 
     static upgradeCodeObj(code, config) {
-        code.code = this._upgradeDowngradeCode(code.code, config, true);
-        return code;
+        code.code = this._upgradeDowngradeCode(code.code, config, true)
+        return code
     }
-    
+
     static canUpgradeCodeObj(code, config) {
-        return code.code !== this._upgradeDowngradeCode(code.code, config, true);
+        return code.code !== this._upgradeDowngradeCode(code.code, config, true)
     }
 
     static downgradeCodeObj(code, config) {
-        code.code = this._upgradeDowngradeCode(code.code, config, false);
-        return code;
+        code.code = this._upgradeDowngradeCode(code.code, config, false)
+        return code
     }
-    
+
     static canDowngradeCodeObj(code, config) {
-        return code.code !== this._upgradeDowngradeCode(code.code, config, false);
+        return code.code !== this._upgradeDowngradeCode(code.code, config, false)
     }
- 
+
     static _extractCodeType(code_str) {
-        let base = this.getCodeBase(code_str);
-        if (base.startsWith("B")) {
-            return "benign"
+        let base = this.getCodeBase(code_str)
+        if (base.startsWith('B')) {
+            return 'benign'
         } else {
-            return "pathogenic"
+            return 'pathogenic'
         }
     }
 }

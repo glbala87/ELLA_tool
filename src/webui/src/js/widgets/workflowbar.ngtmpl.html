@@ -1,0 +1,96 @@
+
+<nav class="secondary" ng-if="$ctrl.workflowType === 'analysis'">
+  <div class="workflow-options">
+    <div class="bttn-set">
+        <label tabindex=0
+               class="bttn"
+               id="section-{{c | lowercase}}"
+               ng-model="$ctrl.modelSelectedComponent"
+               ng-model-watch="$ctrl.selectedComponent"
+               ng-change="$ctrl.componentChanged({selectedComponent: c})"
+               uib-btn-radio="c"
+               ng-repeat="c in $ctrl.componentKeys"
+        >{{c}}</label>
+    </div>
+    <div class="review-comment">
+      <input type="text"
+             class="id-review-comment"
+             placeholder="REVIEW COMMENT"
+             ng-model="$ctrl.modelReviewComment"
+             ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
+             ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
+             ng-disabled="$ctrl.readOnly">
+    </div>
+  </div>
+  <section>
+    <button class="id-add-excluded" ng-click="$ctrl.addExternalAllelesOpened()">
+      <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M16 2 L16 30 M2 16 L30 16" />
+      </svg>
+      <span> {{$ctrl.selectedInterpretation.state.manuallyAddedAlleles.length || 0}}/{{$ctrl.getExcludedAlleleCount()}}</span><span class="add-excluded-button">Excluded</span></button>
+    <button ng-click="$ctrl.copyAllAlamutClicked()">Copy all to alamut</button>
+
+    <div class="dropdown white" ng-if="$ctrl.showHistory()">
+      <select
+          class="id-interpretationrounds-dropdown"
+          ng-options="i as $ctrl.formatHistoryOption(i) for i in $ctrl.historyInterpretations"
+          ng-change="$ctrl.selectedInterpretationChanged({interpretation: $ctrl.modelSelectedInterpretation})"
+          ng-model="$ctrl.modelSelectedInterpretation"
+          ng-model-watch="$ctrl.selectedInterpretation">
+      </select>
+    </div>
+    <workflow-buttons readOnly="$ctrl.readOnly" start-when-reopen="false"></workflow-buttons>
+  </section>
+</nav>
+<nav class="bottom" ng-class="{'has-secondary': $ctrl.workflowType == 'analysis'}" ng-if="$ctrl.selectedAlleleId">
+  <allelebar allele-path="'views.workflows.data.alleles.' + $ctrl.selectedAlleleId" genepanel-path="'views.workflows.data.genepanel'"></allelebar>
+  <section>
+    <div class="workflow-options" ng-if="$ctrl.workflowType == 'allele'">
+      <div class="review-comment">
+        <input type="text"
+             class="id-review-comment"
+             placeholder="REVIEW COMMENT"
+             ng-model="$ctrl.modelReviewComment"
+             ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
+             ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
+             ng-disabled="$ctrl.readOnly">
+      </div>
+    </div>
+    <section class="line-wrapper">
+
+      <section>
+        <button class="id-copy-alamut" ng-click="$ctrl.copySelectedAlamutClicked()">Copy variant to alamut</button>
+        <button class="id-add-acmg" uib-popover-template="$ctrl.popover.templateUrl"
+                popover-class="acmg-popover"
+                popover-append-to-body="true"
+                popover-title="Add ACMG code"
+                popover-trigger="outsideClick"
+                popover-placement="left"
+                ng-if="!$ctrl.readOnly"
+                ng-disabled="$ctrl.readOnly"
+        >Add ACMG
+        </button>
+        <upload ng-if="!vm.readOnly"
+                  mode="'browse'"
+                  buttontext="'Add attachment'"
+                  allele-state="vm.getAlleleState(vm.allele)"
+                  read-only="vm.readOnly">
+        </upload>
+        <button class="id-collapse-all"
+                ng-click="vm.collapseAll()">Collapse all
+        </button>
+        <div class="dropdown white" ng-if="$ctrl.workflowType == 'allele' && vm.interpretationService.genepanel_options && vm.getSelectedInterpretation().status != 'Ongoing'">
+            <select
+                class="id-genepanel-dropdown"
+                ng-options="i as i.name + '_' + i.version for i in vm.interpretationService.genepanel_options"
+                ng-model="vm.interpretationService.genepanel_options_selected">
+            </select>
+          </div>
+        <workflow-buttons ng-if="$ctrl.workflowType == 'allele'" start-when-reopen="true" readOnly="$ctrl.readOnly"></workflow-buttons>
+
+      </section>
+    </section>
+  </section>
+</nav>
+
+<div ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>

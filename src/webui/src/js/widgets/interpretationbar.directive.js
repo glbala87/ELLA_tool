@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
-import {ACMGHelper} from '../model/acmghelper';
+import { Directive, Inject } from '../ng-decorators'
+import { ACMGHelper } from '../model/acmghelper'
 @Directive({
     selector: 'interpretationbar',
     scope: {
@@ -14,44 +14,46 @@ import {ACMGHelper} from '../model/acmghelper';
     },
     templateUrl: 'ngtmpl/interpretationbar.ngtmpl.html'
 })
-@Inject('$scope',
+@Inject(
+    '$scope',
     'Interpretation',
     'AddExcludedAllelesModal',
     'clipboard',
     'toastr',
     'Config',
     '$filter'
-    )
+)
 export class Interpretationbar {
-
-    constructor($scope,
-                Interpretation,
-                AddExcludedAllelesModal,
-                clipboard,
-                toastr,
-                Config,
-                $filter) {
-        this.interpretationService = Interpretation;
-        this.addExcludedAllelesModal = AddExcludedAllelesModal;
-        this.clipboard = clipboard;
-        this.toastr = toastr;
+    constructor(
+        $scope,
+        Interpretation,
+        AddExcludedAllelesModal,
+        clipboard,
+        toastr,
+        Config,
+        $filter
+    ) {
+        this.interpretationService = Interpretation
+        this.addExcludedAllelesModal = AddExcludedAllelesModal
+        this.clipboard = clipboard
+        this.toastr = toastr
         this.config = Config.getConfig()
-        this.filter = $filter;
+        this.filter = $filter
 
         this.pathogenicPopoverToggle = {
-          buttons: [ 'Pathogenic', 'Benign' ],
-          model: 'Pathogenic'
-        };
+            buttons: ['Pathogenic', 'Benign'],
+            model: 'Pathogenic'
+        }
 
         this.popover = {
             templateUrl: 'ngtmpl/acmgSelectionPopover.ngtmpl.html'
-        };
+        }
 
-        this.setACMGCandidates();
+        this.setACMGCandidates()
     }
 
     getInterpretationType() {
-        return this.interpretationService.type;
+        return this.interpretationService.type
     }
 
     getSelectedInterpretation() {
@@ -65,43 +67,41 @@ export class Interpretationbar {
      * @return {Object} allele state for given allele
      */
     getAlleleState(allele) {
-        let selectedInterpretation = this.getSelectedInterpretation();
+        let selectedInterpretation = this.getSelectedInterpretation()
         if (!('allele' in selectedInterpretation.state)) {
-            selectedInterpretation.state.allele = {};
+            selectedInterpretation.state.allele = {}
         }
         if (!(allele.id in selectedInterpretation.state.allele)) {
             let allele_state = {
-                allele_id: allele.id,
-            };
-            selectedInterpretation.state.allele[allele.id] = allele_state;
+                allele_id: allele.id
+            }
+            selectedInterpretation.state.allele[allele.id] = allele_state
         }
-        return selectedInterpretation.state.allele[allele.id];
+        return selectedInterpretation.state.allele[allele.id]
     }
 
     getAlleleUserState(allele) {
-        let selectedInterpretation = this.getSelectedInterpretation();
+        let selectedInterpretation = this.getSelectedInterpretation()
         if (!('allele' in selectedInterpretation.user_state)) {
-            selectedInterpretation.user_state.allele = {};
+            selectedInterpretation.user_state.allele = {}
         }
         if (!(allele.id in selectedInterpretation.user_state.allele)) {
             let allele_state = {
                 allele_id: allele.id,
-                showExcludedReferences: false,
-            };
-            selectedInterpretation.user_state.allele[allele.id] = allele_state;
+                showExcludedReferences: false
+            }
+            selectedInterpretation.user_state.allele[allele.id] = allele_state
         }
-        return selectedInterpretation.user_state.allele[allele.id];
+        return selectedInterpretation.user_state.allele[allele.id]
     }
-
-
 
     // Controls
     collapseAll() {
-        let section_states = Object.values(this.getAlleleUserState(this.allele).sections);
-        let current_collapsed = section_states.map(s => s.collapsed);
-        let some_collapsed = current_collapsed.some(c => c);
+        let section_states = Object.values(this.getAlleleUserState(this.allele).sections)
+        let current_collapsed = section_states.map(s => s.collapsed)
+        let some_collapsed = current_collapsed.some(c => c)
         for (let section_state of section_states) {
-            section_state.collapsed = !some_collapsed;
+            section_state.collapsed = !some_collapsed
         }
     }
 
@@ -109,7 +109,7 @@ export class Interpretationbar {
         if (this.getSelectedInterpretation()) {
             return Object.values(this.getSelectedInterpretation().excluded_allele_ids)
                 .map(excluded_group => excluded_group.length)
-                .reduce((total_length, length) => total_length + length);
+                .reduce((total_length, length) => total_length + length)
         }
     }
 
@@ -126,40 +126,46 @@ export class Interpretationbar {
      */
     modalAddExcludedAlleles() {
         if (this.getSelectedInterpretation().state.manuallyAddedAlleles === undefined) {
-            this.getSelectedInterpretation().state.manuallyAddedAlleles = [];
+            this.getSelectedInterpretation().state.manuallyAddedAlleles = []
         }
-        this.addExcludedAllelesModal.show(
-            this.getSelectedInterpretation().excluded_allele_ids,
-            this.getSelectedInterpretation().state.manuallyAddedAlleles,
-            this.getAnalysis().samples[0].id, // FIXME: Support multiple samples
-            this.getSelectedInterpretation().genepanel_name,
-            this.getSelectedInterpretation().genepanel_version,
-            this.readOnly
-        ).then(added => {
-            if (this.isInterpretationOngoing()) { // noop if analysis is finalized
-                // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
-                this.getSelectedInterpretation().state.manuallyAddedAlleles = added;
-                this.loadAlleles();
-            }
-        }).catch(() => {
-            this.loadAlleles();  // Also update on modal dismissal
-        });
+        this.addExcludedAllelesModal
+            .show(
+                this.getSelectedInterpretation().excluded_allele_ids,
+                this.getSelectedInterpretation().state.manuallyAddedAlleles,
+                this.getAnalysis().samples[0].id, // FIXME: Support multiple samples
+                this.getSelectedInterpretation().genepanel_name,
+                this.getSelectedInterpretation().genepanel_version,
+                this.readOnly
+            )
+            .then(added => {
+                if (this.isInterpretationOngoing()) {
+                    // noop if analysis is finalized
+                    // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
+                    this.getSelectedInterpretation().state.manuallyAddedAlleles = added
+                    this.loadAlleles()
+                }
+            })
+            .catch(() => {
+                this.loadAlleles() // Also update on modal dismissal
+            })
     }
 
     copyAllAlamut() {
         this.clipboard.copyText(
-            this.getAlleles().map(a => a.formatAlamut() + '\n').join('')
-        );
-        this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
+            this.getAlleles()
+                .map(a => a.formatAlamut() + '\n')
+                .join('')
+        )
+        this.toastr.info('Copied text to clipboard', null, { timeOut: 1000 })
     }
 
     copySingleAlamut() {
-        this.clipboard.copyText(this.allele.formatAlamut());
-        this.toastr.info('Copied text to clipboard', null, {timeOut: 1000});
+        this.clipboard.copyText(this.allele.formatAlamut())
+        this.toastr.info('Copied text to clipboard', null, { timeOut: 1000 })
     }
 
     showHistory() {
-        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length;
+        return !this.isInterpretationOngoing() && this.getInterpretationHistory().length
     }
 
     getInterpretationHistory() {
@@ -169,12 +175,17 @@ export class Interpretationbar {
     formatHistoryOption(interpretation) {
         ///TODO: Move to filter
         if (interpretation.current) {
-            return 'Current data';
+            return 'Current data'
         }
 
-        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
-        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
-        return `${interpretation_idx} • ${interpretation.workflow_status}${interpretation.finalized ? ' (Finalized)' : ''} • ${interpretation.user.abbrev_name} • ${interpretation_date}`;
+        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1
+        let interpretation_date = this.filter('date')(
+            interpretation.date_last_update,
+            'dd-MM-yyyy HH:mm'
+        )
+        return `${interpretation_idx} • ${interpretation.workflow_status}${
+            interpretation.finalized ? ' (Finalized)' : ''
+        } • ${interpretation.user.abbrev_name} • ${interpretation_date}`
     }
 
     getAllInterpretations() {
@@ -193,7 +204,6 @@ export class Interpretationbar {
         return this.interpretationService.getAnalysis()
     }
 
-
     ///////////////
     /// ACMG popover
     ///////////////
@@ -204,18 +214,20 @@ export class Interpretationbar {
      * one array for each group.
      */
     setACMGCandidates() {
-        this.acmgCandidates = {};
+        this.acmgCandidates = {}
 
-        let candidates = Object.keys(this.config.acmg.explanation).filter(code => !code.startsWith('REQ'));
+        let candidates = Object.keys(this.config.acmg.explanation).filter(
+            code => !code.startsWith('REQ')
+        )
 
         for (let t of ['benign', 'pathogenic']) {
-            this.acmgCandidates[t] = [];
+            this.acmgCandidates[t] = []
 
             // Map codes to group (benign/pathogenic)
             for (let c of candidates) {
                 if (this.config.acmg.codes[t].some(e => c.startsWith(e))) {
                     if (!this.acmgCandidates[t].includes(c)) {
-                        this.acmgCandidates[t].push(c);
+                        this.acmgCandidates[t].push(c)
                     }
                 }
             }
@@ -223,29 +235,29 @@ export class Interpretationbar {
             // Sort the codes
             this.acmgCandidates[t].sort((a, b) => {
                 // Find the difference in index between the codes
-                let a_idx = this.config.acmg.codes[t].findIndex(elem => a.startsWith(elem));
-                let b_idx = this.config.acmg.codes[t].findIndex(elem => b.startsWith(elem));
+                let a_idx = this.config.acmg.codes[t].findIndex(elem => a.startsWith(elem))
+                let b_idx = this.config.acmg.codes[t].findIndex(elem => b.startsWith(elem))
 
                 // If same prefix, sort on text itself
                 if (a_idx === b_idx) {
-                    return a.localeCompare(b);
+                    return a.localeCompare(b)
                 }
-                if (t === "benign") {
-                    return b_idx - a_idx;
+                if (t === 'benign') {
+                    return b_idx - a_idx
                 } else {
-                    return a_idx - b_idx;
+                    return a_idx - b_idx
                 }
-            });
+            })
         }
     }
 
     getExplanationForCode(code) {
-        return this.config.acmg.explanation[code];
+        return this.config.acmg.explanation[code]
     }
 
     getACMGpopoverClass(code) {
-      let acmgclass = this.getACMGClass(code);
-      return code.includes('x') ? `indented ${acmgclass}` : acmgclass;
+        let acmgclass = this.getACMGClass(code)
+        return code.includes('x') ? `indented ${acmgclass}` : acmgclass
     }
 
     /**
@@ -254,9 +266,9 @@ export class Interpretationbar {
      */
     addStagedACMGCode() {
         if (this.staged_code) {
-            this.includeACMG(this.staged_code);
+            this.includeACMG(this.staged_code)
         }
-        this.staged_code = null;
+        this.staged_code = null
     }
 
     /**
@@ -264,16 +276,15 @@ export class Interpretationbar {
      * @param {String} code Code to add
      */
     stageACMGCode(code) {
-        let existing_comment = this.staged_code ? this.staged_code.comment : '';
-        this.staged_code = ACMGHelper.userCodeToObj(code, existing_comment);
+        let existing_comment = this.staged_code ? this.staged_code.comment : ''
+        this.staged_code = ACMGHelper.userCodeToObj(code, existing_comment)
     }
 
     getACMGClass(code) {
-        return code.substring(0, 2).toLowerCase();
+        return code.substring(0, 2).toLowerCase()
     }
 
     includeACMG(code) {
-        ACMGHelper.includeACMG(code, this.allele, this.getAlleleState(this.allele));
+        ACMGHelper.includeACMG(code, this.allele, this.getAlleleState(this.allele))
     }
-
 }

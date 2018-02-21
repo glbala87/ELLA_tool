@@ -1,0 +1,27 @@
+<article class="sectionbox-content analysis-list">
+<a class="id-analysis list-item clickable"
+   href="{{analysis.links.workflow}}"
+   ng-repeat="analysis in $ctrl.analyses track by analysis.name"
+   ng-attr-target="{{$ctrl.newTarget ? '_blank' : undefined}}">
+
+  <div class="analysis-date">{{analysis.deposit_date | date:"yyyy-MM-dd"}}</div>
+  <div class="analysis-priority">{{$ctrl.getPriorityText(analysis)}}</div>
+  <div class="id-analysis-name full-title">
+    <b class="ref-title">{{analysis.name}}</b>
+    <span title="{{analysis.warnings}}" class="warning id-sample-type" ng-if="analysis.warnings.length">WARNING</span>
+    <span class="sample-type id-sample-type" ng-repeat="sample in analysis.samples">{{sample.sample_type.toUpperCase()}}</span>
+  </div>
+  <div class="analysis-extras">
+    <span class="analysis-comment id-analysis-comment"
+          ng-if="!$ctrl.isAnalysisDone(analysis) && $ctrl.getReviewComment(analysis)">
+      {{$ctrl.getReviewComment(analysis)}}
+    </span>
+  </div>
+
+  <div class="analysis-users">
+    <div ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
+      <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • {{$ctrl.getEndAction(interpretation)}}<b>{{interpretation.user.abbrev_name}}</b> • <i>{{interpretation.date_last_update | date:"yyyy-MM-dd HH:mm"}}</i></h3></div>
+    </div>
+  </div>
+</a>
+</article>

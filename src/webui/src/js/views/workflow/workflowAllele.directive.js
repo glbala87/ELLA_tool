@@ -15,10 +15,9 @@
  *        data to show the view like they user saw it at that point of time.
  */
 
-import {Directive, Inject} from '../../ng-decorators';
-import {STATUS_ONGOING, STATUS_NOT_STARTED} from '../../model/interpretation'
-import {deepCopy} from '../../util'
-
+import { Directive, Inject } from '../../ng-decorators'
+import { STATUS_ONGOING, STATUS_NOT_STARTED } from '../../model/interpretation'
+import { deepCopy } from '../../util'
 
 @Directive({
     selector: 'workflow-allele',
@@ -30,7 +29,8 @@ import {deepCopy} from '../../util'
     },
     templateUrl: 'ngtmpl/workflowAllele.ngtmpl.html'
 })
-@Inject('$rootScope',
+@Inject(
+    '$rootScope',
     '$scope',
     'WorkflowResource',
     'Allele',
@@ -40,32 +40,36 @@ import {deepCopy} from '../../util'
     'Config',
     'User',
     '$filter',
-    'toastr')
+    'toastr'
+)
 export class WorkflowAlleleController {
-    constructor(rootScope,
-                scope,
-                WorkflowResource,
-                Allele,
-                Workflow,
-                Interpretation,
-                Navbar,
-                Config,
-                User,
-                filter,
-                toastr) {
-        this.rootScope = rootScope;
-        this.scope = scope;
-        this.workflowResource = WorkflowResource;
-        this.alleleService = Allele;
-        this.workflowService = Workflow;
-        this.interpretationService = Interpretation;
-        this.navbar = Navbar;
-        this.config = Config.getConfig();
-        this.user = User;
-        this.filter = filter;
-        this.toastr = toastr;
+    constructor(
+        rootScope,
+        scope,
+        WorkflowResource,
+        Allele,
+        Workflow,
+        Interpretation,
+        Navbar,
+        Config,
+        User,
+        filter,
+        toastr
+    ) {
+        this.rootScope = rootScope
+        this.scope = scope
+        this.workflowResource = WorkflowResource
+        this.alleleService = Allele
+        this.workflowService = Workflow
+        this.interpretationService = Interpretation
+        this.navbar = Navbar
+        this.config = Config.getConfig()
+        this.user = User
+        this.filter = filter
+        this.toastr = toastr
 
-        this.components = [ // instantiated/rendered in AlleleSectionboxContentController
+        this.components = [
+            // instantiated/rendered in AlleleSectionboxContentController
             {
                 name: 'classification',
                 title: 'Classification',
@@ -92,11 +96,12 @@ export class WorkflowAlleleController {
                             name: 'report'
                         },
                         content: [
-                            {'tag': 'allele-info-acmg-selection'},
-                            {'tag': 'allele-info-vardb'}
-                        ],
+                            { tag: 'allele-info-acmg-selection' },
+                            { tag: 'allele-info-vardb' }
+                        ]
                     },
-                    {   name: 'frequency',
+                    {
+                        name: 'frequency',
                         title: 'Frequency & QC',
                         options: {
                             hide_controls_on_collapse: true
@@ -113,12 +118,12 @@ export class WorkflowAlleleController {
                             name: 'frequency'
                         },
                         content: [
-                            {'tag': 'allele-info-frequency-gnomad-exomes'},
-                            {'tag': 'allele-info-frequency-gnomad-genomes'},
-                            {'tag': 'allele-info-frequency-exac'},
-                            {'tag': 'allele-info-frequency-indb'},
-                            {'tag': 'allele-info-dbsnp'}
-                        ],
+                            { tag: 'allele-info-frequency-gnomad-exomes' },
+                            { tag: 'allele-info-frequency-gnomad-genomes' },
+                            { tag: 'allele-info-frequency-exac' },
+                            { tag: 'allele-info-frequency-indb' },
+                            { tag: 'allele-info-dbsnp' }
+                        ]
                     },
                     {
                         name: 'external',
@@ -126,19 +131,16 @@ export class WorkflowAlleleController {
                         options: {
                             hide_controls_on_collapse: true
                         },
-                        controls: [
-                            'custom_external',
-                            'add_acmg'
-                        ],
+                        controls: ['custom_external', 'add_acmg'],
                         alleleassessment_comment: {
                             placeholder: 'EXTERNAL DB-COMMENTS',
                             name: 'external'
                         },
                         content: [
-                            {'tag': 'allele-info-hgmd'},
-                            {'tag': 'allele-info-clinvar'},
-                            {'tag': 'allele-info-external-other'}
-                        ],
+                            { tag: 'allele-info-hgmd' },
+                            { tag: 'allele-info-clinvar' },
+                            { tag: 'allele-info-external-other' }
+                        ]
                     },
                     {
                         name: 'prediction',
@@ -146,18 +148,15 @@ export class WorkflowAlleleController {
                         options: {
                             hide_controls_on_collapse: true
                         },
-                        controls: [
-                            'custom_prediction',
-                            'add_acmg'
-                        ],
+                        controls: ['custom_prediction', 'add_acmg'],
                         alleleassessment_comment: {
                             placeholder: 'PREDICTION-COMMENTS',
                             name: 'prediction'
                         },
                         content: [
-                            {'tag': 'allele-info-consequence'},
-                            {'tag': 'allele-info-prediction-other'},
-                        ],
+                            { tag: 'allele-info-consequence' },
+                            { tag: 'allele-info-prediction-other' }
+                        ]
                     },
                     {
                         name: 'references',
@@ -165,10 +164,7 @@ export class WorkflowAlleleController {
                         options: {
                             hide_controls_on_collapse: true
                         },
-                        controls: [
-                            'references',
-                            'add_acmg'
-                        ],
+                        controls: ['references', 'add_acmg'],
                         alleleassessment_comment: {
                             placeholder: 'STUDIES-COMMENTS',
                             name: 'reference'
@@ -192,22 +188,19 @@ export class WorkflowAlleleController {
                                     title: 'Excluded'
                                 }
                             }
-                        ],
+                        ]
                     }
                 ]
             }
-        ];
+        ]
 
-        this.selected_component = this.components[0];
+        this.selected_component = this.components[0]
 
-        this.collisionWarning = null;
+        this.collisionWarning = null
 
-        this.setUpListeners();
+        this.setUpListeners()
 
-        this.scope.$watch(
-            () => this.getGenepanel(),
-            () => this.setupNavbar()
-        )
+        this.scope.$watch(() => this.getGenepanel(), () => this.setupNavbar())
 
         this.scope.$watch(
             () => this.interpretationService.genepanel_options_selected,
@@ -221,60 +214,70 @@ export class WorkflowAlleleController {
         )
 
         this.loadAlleleId().then(() => {
-            this.checkForCollisions();
+            this.checkForCollisions()
             this.loadGenepanelOptions().then(() => {
-                this.reloadInterpretationData();
+                this.reloadInterpretationData()
             })
-        });
+        })
     }
 
     setUpListeners() {
         // Setup listener for asking user if they really want to navigate
         // away from page if unsaved changes
-        let unregister_func = this.rootScope.$on('$stateChangeStart', (event) => {  // TODO: create switch to disable in CI/test
-            if (this.config.app.user_confirmation_on_state_change && this.isInterpretationOngoing() && this.getSelectedInterpretation().dirty) {
-                this.confirmAbortInterpretation(event);
+        let unregister_func = this.rootScope.$on('$stateChangeStart', event => {
+            // TODO: create switch to disable in CI/test
+            if (
+                this.config.app.user_confirmation_on_state_change &&
+                this.isInterpretationOngoing() &&
+                this.getSelectedInterpretation().dirty
+            ) {
+                this.confirmAbortInterpretation(event)
             }
-        });
+        })
 
         // Unregister when scope is destroyed.
         this.scope.$on('$destroy', () => {
             if (this.collisionWarning) {
                 this.toastr.clear(this.collisionWarning)
             }
-            unregister_func();
-            window.onbeforeunload = null;
-        });
+            unregister_func()
+            window.onbeforeunload = null
+        })
 
         // Ask user when reloading/closing if unsaved changes
-        window.onbeforeunload = (event) => {
-            if (this.config.app.user_confirmation_to_discard_changes && this.isInterpretationOngoing() && this.getSelectedInterpretation().dirty) { // TODO: create switch to disable in CI/test
-                event.returnValue = "You have unsaved work. Do you really want to exit application?";
+        window.onbeforeunload = event => {
+            if (
+                this.config.app.user_confirmation_to_discard_changes &&
+                this.isInterpretationOngoing() &&
+                this.getSelectedInterpretation().dirty
+            ) {
+                // TODO: create switch to disable in CI/test
+                event.returnValue = 'You have unsaved work. Do you really want to exit application?'
             }
-        };
+        }
     }
 
     setupNavbar() {
         if (this.getAlleles() && this.getAlleles().length) {
             let genepanel = this.getGenepanel()
             if (genepanel) {
-                let label = `${genepanel.name} ${genepanel.version}`;
+                let label = `${genepanel.name} ${genepanel.version}`
                 this.navbar.replaceItems([
                     {
-                        title: label,
+                        title: label
                     }
                 ])
 
-                this.navbar.setAllele(this.getAlleles()[0], this.getGenepanel());
+                this.navbar.setAllele(this.getAlleles()[0], this.getGenepanel())
             }
         }
     }
 
     confirmAbortInterpretation(event) {
         if (this.isInterpretationOngoing() && !event.defaultPrevented) {
-            let choice = confirm('Abort current analysis? Any unsaved changes will be lost!');
+            let choice = confirm('Abort current analysis? Any unsaved changes will be lost!')
             if (!choice) {
-                event.preventDefault();
+                event.preventDefault()
             }
         }
     }
@@ -286,35 +289,40 @@ export class WorkflowAlleleController {
     formatHistoryOption(interpretation) {
         /// TODO: Move to filter
         if (interpretation.current) {
-            return 'Current data';
+            return 'Current data'
         }
-        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
-        let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
-        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`;
+        let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1
+        let interpretation_date = this.filter('date')(
+            interpretation.date_last_update,
+            'dd-MM-yyyy HH:mm'
+        )
+        return `${interpretation_idx} • ${interpretation.user.full_name} • ${interpretation_date}`
     }
 
     _getQueryFromSelector() {
-        let parts = this.variantSelector.split('-');
+        let parts = this.variantSelector.split('-')
         if (parts.length !== 4) {
             throw Error("Variant selector doesn't contain 4 items")
         }
-        let [chr, pos, ref, alt] = parts;
+        let [chr, pos, ref, alt] = parts
         let query = {
             chromosome: chr,
             vcf_pos: pos,
             vcf_ref: ref,
-            vcf_alt: alt,
+            vcf_alt: alt
         }
-        return query;
+        return query
     }
 
     loadGenepanelOptions() {
         if (this.genepanelName && this.genepanelVersion) {
             this.interpretationService.setGenepanelOptions(null)
-            return new Promise( (resolve) => {resolve()}) // Self-fulfilling promise
+            return new Promise(resolve => {
+                resolve()
+            }) // Self-fulfilling promise
         }
         return this.workflowResource.getGenepanels('allele', this.allele_id).then(genepanels => {
-            this.genepanelOptions = genepanels;
+            this.genepanelOptions = genepanels
             this.interpretationService.setGenepanelOptions(genepanels)
         })
     }
@@ -324,52 +332,64 @@ export class WorkflowAlleleController {
             if (result.length > 0) {
                 let html = `<h4>This variant is currently `
                 if (result.length === 1) {
-                    html += `${result[0].user ? 'being worked on by ' + result[0].user.full_name : 'in review'} `
-                    html += "in another workflow.</h4>"
+                    html += `${
+                        result[0].user
+                            ? 'being worked on by ' + result[0].user.full_name
+                            : 'in review'
+                    } `
+                    html += 'in another workflow.</h4>'
                 } else {
-                    html += "being worked on in other workflows.<h4>"
+                    html += 'being worked on in other workflows.<h4>'
                     for (let c of result) {
                         html += `<h3> ${c.type === 'analysis' ? 'Analysis' : 'Variant'}`
-                        html += ` ${c.user ? "by "+c.user.full_name : 'in review'}</h3>`
+                        html += ` ${c.user ? 'by ' + c.user.full_name : 'in review'}</h3>`
                     }
                 }
 
-                this.collisionWarning = this.toastr.warning(html, {"timeOut": 0, "extendedTimeOut": 0, 'allowHtml': true, 'tapToDismiss': false, 'messageClass': 'toast-message-collision'})
+                this.collisionWarning = this.toastr.warning(html, {
+                    timeOut: 0,
+                    extendedTimeOut: 0,
+                    allowHtml: true,
+                    tapToDismiss: false,
+                    messageClass: 'toast-message-collision'
+                })
             }
-        });
+        })
     }
 
     getCollisionWarningHeight() {
-        return this.collisionWarning.el[0].offsetHeight + 'px';
+        return this.collisionWarning.el[0].offsetHeight + 'px'
     }
 
     loadAlleleId() {
-        let q = this._getQueryFromSelector();
-        return this.alleleService.getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion).then(a => {
-            this.allele_id = a[0].id;
-        });
+        let q = this._getQueryFromSelector()
+        return this.alleleService
+            .getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion)
+            .then(a => {
+                this.allele_id = a[0].id
+            })
     }
 
     //
     // Trigger actions in interpretation service
     //
     reloadInterpretationData() {
-        let gp_name, gp_version;
+        let gp_name, gp_version
         if (this.genepanelName && this.genepanelVersion) {
             gp_name = this.genepanelName
             gp_version = this.genepanelVersion
-        }
-        else {
+        } else {
             gp_name = this.interpretationService.genepanel_options_selected.name
             gp_version = this.interpretationService.genepanel_options_selected.version
         }
-        return this.interpretationService.load("allele", this.allele_id, gp_name, gp_version).then(() => {
-            // Options will have been reset
-            if ((!this.genepanelName || !this.genepanelVersion) &&
-                this.genepanelOptions) {
-                this.interpretationService.setGenepanelOptions(this.genepanelOptions)
-            }
-        })
+        return this.interpretationService
+            .load('allele', this.allele_id, gp_name, gp_version)
+            .then(() => {
+                // Options will have been reset
+                if ((!this.genepanelName || !this.genepanelVersion) && this.genepanelOptions) {
+                    this.interpretationService.setGenepanelOptions(this.genepanelOptions)
+                }
+            })
     }
 
     //
@@ -388,7 +408,7 @@ export class WorkflowAlleleController {
     }
 
     getAllInterpretations() {
-        return this.interpretationService.getAll();
+        return this.interpretationService.getAll()
     }
 
     getAlleles() {
@@ -406,6 +426,4 @@ export class WorkflowAlleleController {
     readOnly() {
         return this.interpretationService.readOnly()
     }
-
-
 }

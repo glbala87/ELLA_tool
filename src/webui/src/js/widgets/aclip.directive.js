@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
+import { Directive, Inject } from '../ng-decorators'
 
 /**
  * Directive for supporting dynamically switching between normal
@@ -19,23 +19,22 @@ import {Directive, Inject} from '../ng-decorators';
 })
 @Inject('clipboard', 'Config', 'toastr')
 export class HrefController {
-
     constructor(clipboard, Config, toastr) {
-        this.clipboard = clipboard;
-        this.config = Config.getConfig();
-        this.toastr = toastr;
+        this.clipboard = clipboard
+        this.config = Config.getConfig()
+        this.toastr = toastr
     }
 
     copyToClipboard() {
-        this.clipboard.copyText(this.href);
-        this.toastr.info("Copied link to clipboard.", null, 1000);
-        console.log(`Copied ${this.href} to clipboard.`);
+        this.clipboard.copyText(this.href)
+        this.toastr.info('Copied link to clipboard.', null, 1000)
+        console.log(`Copied ${this.href} to clipboard.`)
     }
 
     shouldCopy() {
         if (this.toClipboard === undefined) {
-            return this.config.app.links_to_clipboard;
+            return this.config.app.links_to_clipboard
         }
-        return this.toClipboard === 'true';
+        return this.toClipboard === 'true'
     }
 }

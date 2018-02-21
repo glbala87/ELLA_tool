@@ -505,6 +505,6 @@ e2e-test-local: test-build
 run-e2e-locally:
 	@echo "running e2e tests locally ..."
 	ops/test/run_e2e_tests_locally.sh
-    
+
 
 
