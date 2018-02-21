@@ -36,43 +36,25 @@ def load_genepanel_alleles(session, gp_allele_ids):
     ]
     """
 
-    # Alleles with AlleleInterpretation should be exempted from filtering,
-    # since they were manually added as variants to the system
-    genepanel_alleleinterpretation_id = session.query(
-        workflow.AlleleInterpretation.genepanel_name,
-        workflow.AlleleInterpretation.genepanel_version,
-        workflow.AlleleInterpretation.allele_id
-    ).filter(
-        workflow.AlleleInterpretation.allele_id.in_(
-            list(itertools.chain.from_iterable(gp_allele_ids.values()))
-        )
-    )
-
-    for gp_name, gp_version, al_id in genepanel_alleleinterpretation_id:
-        gp_key = (gp_name, gp_version)
-        if gp_key in gp_allele_ids and al_id in gp_allele_ids[gp_key]:
-            gp_allele_ids[gp_key].remove(al_id)
-
-    # Filter remaining allele ids
-    af = AlleleFilter(session)
-    gp_nonfiltered_alleles = af.filter_alleles(gp_allele_ids)
-    final_gp_allele_ids = {k: v['allele_ids'] for k, v in gp_nonfiltered_alleles.iteritems()}
-
-    # Now we need to add back the AlleleInterpretation allele_ids
-    for gp_name, gp_version, al_id in genepanel_alleleinterpretation_id:
-        gp_key = (gp_name, gp_version)
-        if gp_key in gp_allele_ids:
-            final_gp_allele_ids[gp_key].append(al_id)
-
-    all_allele_ids = list(itertools.chain.from_iterable(final_gp_allele_ids.values()))
+    all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
 
     # Preload all alleles
     all_alleles = session.query(allele.Allele).filter(
         allele.Allele.id.in_(all_allele_ids)
     ).all()
 
+    # Get display date
+    allele_ids_deposit_date = dict()
+    # Standalone alleles are not connected to analysis, and have no deposit date.
+    # They do however have AlleleInterpretation objects with date_created.
+    allele_ids_interpretation_deposit_date = session.query(workflow.AlleleInterpretation.allele_id, func.min(workflow.AlleleInterpretation.date_created)).filter(
+        workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
+    ).group_by(workflow.AlleleInterpretation.allele_id).all()
+    allele_ids_deposit_date.update({k: v for k, v in allele_ids_interpretation_deposit_date})
+
     # Preload oldest analysis for each allele, to get the oldest datetime
     # for the analysis awaiting this allele's classification
+    # If we have dates from both analysis and alleleinterpretation, we let oldest analysis take priority
     allele_ids_analysis_deposit_date = session.query(allele.Allele.id, func.min(sample.Analysis.deposit_date)).join(
         genotype.Genotype.alleles,
         sample.Sample,
@@ -80,15 +62,7 @@ def load_genepanel_alleles(session, gp_allele_ids):
     ).filter(
         allele.Allele.id.in_(all_allele_ids)
     ).group_by(allele.Allele.id).all()
-    allele_ids_deposit_date = {k: v for k, v in allele_ids_analysis_deposit_date}
-
-    # Standalone alleles are not connected to analysis, and have no deposit date.
-    # They do however have AlleleInterpretation objects with date_created.
-    # If we have dates from both analysis and alleleinterpretation, we let alleleinterpretation take priority
-    allele_ids_interpretation_deposit_date = session.query(workflow.AlleleInterpretation.allele_id, func.min(workflow.AlleleInterpretation.date_created)).filter(
-        workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
-    ).group_by(workflow.AlleleInterpretation.allele_id).all()
-    allele_ids_deposit_date.update({k: v for k, v in allele_ids_interpretation_deposit_date})
+    allele_ids_deposit_date.update({k: v for k, v in allele_ids_analysis_deposit_date})
 
     # Preload highest priority analysis for each allele
     allele_ids_priority = session.query(allele.Allele.id, func.max(sample.Analysis.priority)).join(
@@ -118,7 +92,7 @@ def load_genepanel_alleles(session, gp_allele_ids):
     alleleinterpretation_schema = schemas.AlleleInterpretationOverviewSchema()
 
     # Create output data
-    for gp_key, allele_ids in final_gp_allele_ids.iteritems():  # ('HBOC', 'v01'), [1, 2, 3, ...]
+    for gp_key, allele_ids in gp_allele_ids.iteritems():  # ('HBOC', 'v01'), [1, 2, 3, ...]
 
         genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
         gp_alleles = [a for a in all_alleles if a.id in allele_ids]
@@ -145,62 +119,71 @@ def load_genepanel_alleles(session, gp_allele_ids):
     return final_alleles
 
 
-def get_gp_allele_ids(session, analysis_allele_ids=None, analysis_ids=None, alleleinterpretation_allele_ids=None):
+def get_analysis_gp_allele_ids(session, analysis_allele_ids, analysis_ids, alleleinterpretation_allele_ids=None):
     """
     Creates a dictionary of genepanels and allele_ids as matched by analyses and/or
     alleleinterpretation.
-
-    The result is merged, so if an allele exists in both inputs and their genepanel matches,
-    it is only included once. If the genepanels are different, it is included once per genepanel.
-
     :param session: database session
     :param analysis_allele_ids: List of allele ids connected to analyses
-    :param analysis_ids: List of analysis ids for connected alleles. Required if analysis_allele_ids is provided.
+    :param analysis_ids: List of analysis ids from which we should get genepanels.
+
+    Returns a dict of format: {
+        ('HBOC', 'v01'): set([1, 3, 4]),
+        ('SomethingElse', 'v01'): set([1])
+    }
+    """
+    if not analysis_ids:
+        raise RuntimeError("Missing required argument analysis_ids when analysis_allele_ids is provided.")
+
+    analysis_gp_allele_ids = defaultdict(set)
+
+    allele_ids_genepanels = session.query(
+        workflow.AnalysisInterpretation.genepanel_name,
+        workflow.AnalysisInterpretation.genepanel_version,
+        allele.Allele.id
+    ).join(
+        genotype.Genotype.alleles,
+        sample.Sample,
+        sample.Analysis
+    ).filter(
+        workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
+        workflow.AnalysisInterpretation.analysis_id.in_(analysis_ids),
+        workflow.AnalysisInterpretation.status == 'Not started',
+        allele.Allele.id.in_(analysis_allele_ids)
+    ).distinct().all()
+
+    for entry in allele_ids_genepanels:
+        analysis_gp_allele_ids[(entry[0], entry[1])].add(entry[2])
+
+    return analysis_gp_allele_ids
+
+
+def get_alleleinterpretation_gp_allele_ids(session, alleleinterpretation_allele_ids):
+    """
+    Creates a dictionary of genepanels and allele_ids as matched provided alleleinterpretationids.
+
+    :param session: database session
     :param alleleinterpretation_allele_ids: List of allele ids connected to AlleleInterpretations
 
     Returns a dict of format: {
         ('HBOC', 'v01'): set([1, 3, 4]),
         ('SomethingElse', 'v01'): set([1])
     }
-
     """
-    gp_allele_ids = defaultdict(set)
 
-    if alleleinterpretation_allele_ids:
-        allele_ids_genepanels = session.query(
-            workflow.AlleleInterpretation.genepanel_name,
-            workflow.AlleleInterpretation.genepanel_version,
-            workflow.AlleleInterpretation.allele_id
-        ).filter(
-            workflow.AlleleInterpretation.allele_id.in_(alleleinterpretation_allele_ids)
-        ).distinct()
+    alleleinterpretation_gp_allele_ids = defaultdict(set)
+    allele_ids_genepanels = session.query(
+        workflow.AlleleInterpretation.genepanel_name,
+        workflow.AlleleInterpretation.genepanel_version,
+        workflow.AlleleInterpretation.allele_id
+    ).filter(
+        workflow.AlleleInterpretation.allele_id.in_(alleleinterpretation_allele_ids)
+    ).distinct()
 
-        for entry in allele_ids_genepanels.all():
-            gp_allele_ids[(entry[0], entry[1])].add(entry[2])
+    for entry in allele_ids_genepanels.all():
+        alleleinterpretation_gp_allele_ids[(entry[0], entry[1])].add(entry[2])
 
-    if analysis_allele_ids:
-        if not analysis_ids:
-            raise RuntimeError("Missing required argument analysis_ids when analysis_allele_ids is provided.")
-
-        allele_ids_genepanels = session.query(
-            workflow.AnalysisInterpretation.genepanel_name,
-            workflow.AnalysisInterpretation.genepanel_version,
-            allele.Allele.id
-        ).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis
-        ).filter(
-            workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
-            workflow.AnalysisInterpretation.analysis_id.in_(analysis_ids),
-            workflow.AnalysisInterpretation.status == 'Not started',
-            allele.Allele.id.in_(analysis_allele_ids)
-        ).distinct().all()
-
-        for entry in allele_ids_genepanels:
-            gp_allele_ids[(entry[0], entry[1])].add(entry[2])
-
-    return gp_allele_ids
+    return alleleinterpretation_gp_allele_ids
 
 
 def filter_result_of_alleles(session, allele_ids):
@@ -319,10 +302,9 @@ class OverviewAlleleResource(LogRequestResource):
             session,
             and_(*allele_filters)
         )
-
-        gp_allele_ids = get_gp_allele_ids(
+        gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
             session,
-            alleleinterpretation_allele_ids=alleleinterpretation_allele_ids
+            alleleinterpretation_allele_ids
         )
 
         return load_genepanel_alleles(session, gp_allele_ids)
@@ -345,9 +327,9 @@ class OverviewAlleleResource(LogRequestResource):
             and_(*allele_filters)
         )
 
-        gp_allele_ids = get_gp_allele_ids(
+        gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
             session,
-            alleleinterpretation_allele_ids=alleleinterpretation_allele_ids
+            alleleinterpretation_allele_ids
         )
 
         return load_genepanel_alleles(session, gp_allele_ids)
@@ -380,12 +362,26 @@ class OverviewAlleleResource(LogRequestResource):
             and_(*allele_filters)
         )[0]
 
-        gp_allele_ids = get_gp_allele_ids(
+        analysis_gp_allele_ids = get_analysis_gp_allele_ids(
             session,
-            analysis_allele_ids=analysis_allele_ids,
-            analysis_ids=analysis_ids,
-            alleleinterpretation_allele_ids=alleleinterpretation_allele_ids
+            analysis_allele_ids,
+            analysis_ids,
         )
+
+        # Filter analysis allele ids
+        af = AlleleFilter(session)
+        gp_nonfiltered_alleles = af.filter_alleles(analysis_gp_allele_ids)
+        gp_allele_ids = {k: set(v['allele_ids']) for k, v in gp_nonfiltered_alleles.iteritems()}
+
+        alleleinterpretation_gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
+            session,
+            alleleinterpretation_allele_ids
+        )
+
+        for gp_key, allele_ids in alleleinterpretation_gp_allele_ids.iteritems():
+            if gp_key not in gp_allele_ids:
+                gp_allele_ids[gp_key] = set()
+            gp_allele_ids[gp_key].update(allele_ids)
 
         return load_genepanel_alleles(session, gp_allele_ids)
 
@@ -417,9 +413,9 @@ class OverviewAlleleFinalizedResource(LogRequestResource):
         )
         alleleinterpretation_allele_ids = [a[0] for a in alleleinterpretation_allele_ids]
 
-        gp_allele_ids = get_gp_allele_ids(
+        gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
             session,
-            alleleinterpretation_allele_ids=alleleinterpretation_allele_ids
+            alleleinterpretation_allele_ids
         )
 
         result = load_genepanel_alleles(session, gp_allele_ids)
