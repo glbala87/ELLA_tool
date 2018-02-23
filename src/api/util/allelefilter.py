@@ -1,5 +1,5 @@
 from collections import OrderedDict, defaultdict
-from sqlalchemy import or_, and_, tuple_, text, func, column, literal
+from sqlalchemy import or_, and_, tuple_, text, func, column, literal, distinct
 
 from api.config import config as global_genepanel_default
 from vardb.datamodel import assessment, gene, annotation, annotationshadow
@@ -168,7 +168,12 @@ class AlleleFilter(object):
                     annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
                     ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-                )
+                ) if override_genes else \
+                    self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                        annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
+                        annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+                    )
+
                 ad_group_thresholds = gp_config_resolver.get_AD_freq_cutoffs()
                 gp_final_filter.append(
                     and_(
@@ -187,7 +192,11 @@ class AlleleFilter(object):
                 ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
                 ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-            )
+            ).distinct() if override_genes else \
+                self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                    ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
+                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+                ).distinct()
 
             gp_final_filter.append(
                 and_(
@@ -372,7 +381,7 @@ class AlleleFilter(object):
                         )
                     )
                 ),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
             )
             inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:
@@ -453,12 +462,13 @@ class AlleleFilter(object):
                 candidate_filters.append(
                     annotationshadow.AnnotationShadowTranscript.consequences.contains(text("ARRAY['{}']::character varying[]".format(c)))
                 )
+
             candidate_allele_ids = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
                 or_(
                     *candidate_filters
                 ),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
-            )
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
+            ).distinct()
 
             inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:

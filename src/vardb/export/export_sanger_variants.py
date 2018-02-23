@@ -149,7 +149,7 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
         # loop through genepanels (one, since we hand the allele filter a single genepanel) and load allele data:
         for gp_key, allele_ids_for_genepanel in allele_ids_grouped_by_genepanel_and_filter_status.items():
             allele_ids_not_filtered_away = allele_ids_for_genepanel['allele_ids']
-            alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids_not_filtered_away)).all()
+            alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids_not_filtered_away) if allele_ids_not_filtered_away else False).all()
             loaded_alleles = adl.from_objs(
                 alleles,
                 include_genotype_samples=[s.id for s in analysis.samples],
