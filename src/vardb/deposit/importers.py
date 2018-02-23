@@ -311,14 +311,14 @@ class AssessmentImporter(object):
 
         allele = db_alleles[0]
 
-        ass_info['date_created'] = datetime.datetime(1970,1,1, tzinfo=pytz.utc)  # Set to epoch if not proper
+        date_created = datetime.datetime(1970,1,1, tzinfo=pytz.utc)  # Set to epoch if not proper
         date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
         if is_non_empty_text(date_raw):
             try:
-                ass_info['date_created'] = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
+                date_created = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
             except ValueError:
                 pass
-
+        ass_info['date_created'] = date_created
         ass_info['genepanel'] = genepanel
 
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
@@ -330,7 +330,9 @@ class AssessmentImporter(object):
 
             report_data = {'allele_id': allele.id,
                            'user_id': user.id if user else None,
-                           'alleleassessment_id': db_assessment.id
+                           'alleleassessment_id': db_assessment.id,
+                           'date_created': date_created
+
                            }
 
             report_raw = all_info.get(REPORT_FIELD)
