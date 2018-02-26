@@ -231,7 +231,6 @@ config = {
             {
                 "name": "Unclassified",
                 "value": "U",
-                "outdated_after_days": 180  # Marked as outdated after N number of days
             },
             {
                 "name": "Class 1",
@@ -240,7 +239,7 @@ config = {
             {
                 "name": "Class 2",
                 "value": "2",
-                "outdated_after_days": 180,
+                "outdated_after_days": 180, # Marked as outdated after N number of days
                 "exclude_filtering_existing_assessment": True
             },
             {
