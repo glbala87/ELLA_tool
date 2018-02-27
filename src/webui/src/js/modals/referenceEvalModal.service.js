@@ -440,7 +440,7 @@ export class ReferenceEvalModalController {
                 },
                 'ihc': {
                     title: 'IHC',
-                    desc: 'Instability demonstrated?',
+                    desc: 'Loss of MMR protein?',
                     help: ['- YES: IHC demonstrates loss of MMR protein in tumor tissue.',
                            '- NO: IHC does not demonstrate loss of MMR protein in tumor tissue, in one or more ' +
                            'tumors. Equal to BS3.',
