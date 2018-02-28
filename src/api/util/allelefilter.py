@@ -173,7 +173,7 @@ class AlleleFilter(object):
                     ad_filters.append(~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes))
 
                 allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                    ad_filters
+                    *ad_filters
                 )
 
                 ad_group_thresholds = gp_config_resolver.get_AD_freq_cutoffs()
@@ -198,7 +198,7 @@ class AlleleFilter(object):
                 default_filters.append(~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes))
 
             allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                default_filters
+                *default_filters
             ).distinct()
 
             gp_final_filter.append(
