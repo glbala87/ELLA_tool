@@ -498,7 +498,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
           color: $red-75;
         }
       }
-      &.classification { max-width: 3rem; padding-left: 1rem; padding-right: 0.5rem; }
+      &.classification { max-width: 3.5rem; padding-left: 1rem; padding-right: 0.5rem; text-align: center;}
       &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }
 
       @mixin indicator {
@@ -539,6 +539,23 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
             @include indicator-hit;
             border-color: lighten($yellow, 5%);
             color: lighten($yellow, 5%);
+          }
+        }
+        .technical {
+          @include indicator;
+          .hit {
+            @include indicator-hit;
+            border-color: lighten($red, 5%);
+            background-color: $red-75;
+            color: $white-95;
+          }
+        }
+        .verified {
+          @include indicator;
+          .hit {
+            @include indicator-hit;
+            border-color: lighten($green, 5%);
+            color: lighten($green, 5%);
           }
         }
         .important-source {

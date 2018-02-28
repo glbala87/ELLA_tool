@@ -225,7 +225,8 @@ export class InterpretationController {
             report_component.alleles = this.getAlleles().filter(a => {
                 let state = this.getAlleleState(a);
                 if ('report' in state &&
-                    'included' in state.report) {
+                    'included' in state.report &&
+                    state.verification !== 'technical') {
                     return state.report.included
                 }
                 return false;
@@ -294,7 +295,8 @@ export class InterpretationController {
             grouped_alleles.unclassified.sort(unclassified_sort);
         }
 
-        let classified_sort = firstBy(a => {
+        let classified_sort = firstBy(a => a.alleleState.verification === 'technical')
+            .thenBy(a => {
                 let classification = AlleleStateHelper.getClassification(a.allele, this.getAlleleState(a.allele));
                return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)

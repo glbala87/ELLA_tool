@@ -110,9 +110,10 @@
               <span>O</span>
             </div>
           </div>
-          <div title="Quality issues" class="low-qual">
-            <div class="hit" ng-if="vm.isLowQual(allele_obj.allele)">
-              <span>Q</span>
+          <!--Quality-->
+          <div title="{{vm.getQualityTextPopover(allele_obj)}}" ng-class="vm.getQualityClass(allele_obj)">
+            <div class="hit" ng-if="vm.hasQualityInformation(allele_obj)">
+              <span>{{vm.getQualityTag(allele_obj)}}</span>
             </div>
           </div>
           <div title="Reference(s) available" class="important-source">
@@ -239,9 +240,10 @@
               <span>O</span>
             </div>
           </div>
-          <div title="Quality issues"  class="low-qual">
-            <div class="hit" ng-if="vm.isLowQual(allele_obj.allele)">
-              <span>Q</span>
+          <!--Quality-->
+          <div title="{{vm.getQualityTextPopover(allele_obj)}}" ng-class="vm.getQualityClass(allele_obj)">
+            <div class="hit" ng-if="vm.hasQualityInformation(allele_obj)">
+              <span>{{vm.getQualityTag(allele_obj)}}</span>
             </div>
           </div>
           <div class="important-source">

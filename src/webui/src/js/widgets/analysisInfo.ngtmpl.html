@@ -5,11 +5,39 @@
   <contentwrapper class="analysis-info">
     <h4 ng-if="vm.analysis.warnings.length" class="section-header">Warnings</h4>
     <div ng-if="vm.analysis.warnings.length" class="warning">
-        <markdown-it markdown="vm.analysis.warnings"></markdown-it>
+      <markdown-it markdown="vm.analysis.warnings"></markdown-it>
     </div>
+
+
+    <h4 ng-if="vm.alleles.unclassified.length || vm.alleles.classified.length" class="section-header">Variant verification</h4>
+    <div ng-repeat="alleleObj in vm.alleles.unclassified.concat(vm.alleles.classified)">
+      <div class="nav-row allele">
+        <div class="cell gene id-gene">
+          {{alleleObj.allele.annotation.filtered[0].symbol}}
+        </div>
+        <div class="cell hgvsc id-hgvsc">
+          {{alleleObj.allele.annotation.filtered[0].HGVSc_short || alleleObj.allele.getHGVSgShort()}}
+        </div>
+        <div class="cell">
+          <div class="bttn-set">
+              <label tabindex=0
+                     ng-disabled="vm.readOnly"
+                     class="bttn"
+                     ng-model="alleleObj.alleleState.verification"
+                     uib-btn-radio="s"
+                     uncheckable="true"
+                     ng-repeat="s in ['verified', 'technical']"
+              >{{s | uppercase }}</label>
+          </div>
+        </div>
+        <!--<div class="cell bttn" ng-click="vm.markVerified(allele)">VERIFIED</div>-->
+        <!--<div class="cell bttn" ng-click="vm.markTechnical(allele)">TECHNICAL</div>-->
+      </div>
+    </div>
+
     <h4 class="section-header">Analysis info</h4>
     <div class="report">
-        <markdown-it markdown="vm.analysis.report"></markdown-it>
+      <markdown-it markdown="vm.analysis.report"></markdown-it>
     </div>
 
 

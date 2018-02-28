@@ -55,6 +55,10 @@ export class AlleleStateHelper {
                 }
             };
         }
+
+        if (!('verification' in allele_state)) {
+            allele_state.verification = null;
+        }
     }
 
     /**

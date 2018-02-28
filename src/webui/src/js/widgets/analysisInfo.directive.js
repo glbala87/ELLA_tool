@@ -7,16 +7,13 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     selector: 'analysis-info',
     templateUrl: 'ngtmpl/analysisInfo.ngtmpl.html',
     scope: {
-        analysis: '='
+        analysis: '=',
+        alleles: '=',
+        readOnly: '=?'
     }
 
 })
 @Inject()
 export class AnalysisInfoController {
-
-
-    constructor() {
-    }
-
-
+    constructor() {}
 }
