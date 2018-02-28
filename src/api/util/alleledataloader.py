@@ -99,8 +99,8 @@ class AlleleDataLoader(object):
                 genotypes = self.session.query(genotype.Genotype).join(sample.Sample).filter(
                     sample.Sample.id == sample_id,
                     or_(
-                        genotype.Genotype.allele_id.in_(allele_ids),
-                        genotype.Genotype.secondallele_id.in_(allele_ids),
+                        genotype.Genotype.allele_id.in_(allele_ids) if allele_ids else False,
+                        genotype.Genotype.secondallele_id.in_(allele_ids) if allele_ids else False,
                     )
                 ).all()
 
@@ -182,7 +182,7 @@ class AlleleDataLoader(object):
                 annotationshadow.AnnotationShadowTranscript.allele_id,
                 annotationshadow.AnnotationShadowTranscript.transcript
             ).filter(
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False,
                 text("transcript ~ :reg").params(reg=self.inclusion_regex)
             ).distinct().all()
 
@@ -276,7 +276,7 @@ class AlleleDataLoader(object):
             else:
                 return None  # we don't want any entities
         else:
-            filters.append(entity_clazz.allele_id.in_(allele_ids))
+            filters.append(entity_clazz.allele_id.in_(allele_ids) if allele_ids else False)
             filters.append(entity_clazz.date_superceeded == None)
 
         return filters

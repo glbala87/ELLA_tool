@@ -122,6 +122,7 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
 
     csv.append(csv_heading)
 
+    # find alleles of unstarted analysis
     analyses_allele_ids = session.query(sample.Analysis, allele.Allele.id).join(
         genotype.Genotype.alleles,
         sample.Sample,
@@ -130,47 +131,61 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
         sample.Analysis.id.in_(ids_not_started)
     ).all()
 
-    analyses_with_allele_id_list = {}
-    for an, an_id in analyses_allele_ids:
-        if an.id not in analyses_with_allele_id_list:
-            analyses_with_allele_id_list[an.id] = {'analysis': an, 'alleles': [an_id]}
+    analyses_with_allele_id_list = {}  # id -> {'analysis': _, 'alleles': [..] }
+    for analysis, allele_id in analyses_allele_ids:
+        if analysis.id not in analyses_with_allele_id_list:
+            analyses_with_allele_id_list[analysis.id] = {'analysis': analysis, 'alleles': [allele_id]}
         else:
-            analyses_with_allele_id_list[an.id]['alleles'].append(an_id)
+            analyses_with_allele_id_list[analysis.id]['alleles'].append(allele_id)
 
+    minimal_alleles_per_genepanel = defaultdict(set)
+    for _, analysis_data in analyses_with_allele_id_list.items():
+        analysis = analysis_data['analysis']
+        gp_key = (analysis.genepanel.name, analysis.genepanel.version)
+        minimal_alleles_per_genepanel[gp_key].update(analysis_data['alleles'])
+
+    # filter the alleles:
     af = AlleleFilter(session)
+    allele_ids_grouped_by_genepanel_and_filter_status = af.filter_alleles(minimal_alleles_per_genepanel)
+
+    # Identify the alleles of an analysis that wasn't filtered out:
+    for gp_key, allele_ids_for_genepanel in allele_ids_grouped_by_genepanel_and_filter_status.items():
+        allele_ids_not_filtered_away = allele_ids_for_genepanel['allele_ids']
+        for analysis_id, d in analyses_with_allele_id_list.items():
+            analysis = d['analysis']
+            if (analysis.genepanel_name, analysis.genepanel_version) == gp_key:
+                d['non_filtered_alleles'] = list(set(d['alleles']).intersection(allele_ids_not_filtered_away))
+
+    # Load and display data about the alleles:
     adl = AlleleDataLoader(session)
+    for _, analysis_data in analyses_with_allele_id_list.items():
+        alleles_to_display = analysis_data['non_filtered_alleles']
+        analysis = analysis_data['analysis']
+        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(alleles_to_display) if alleles_to_display else False).all()
+        loaded_alleles = adl.from_objs(
+            alleles,
+            include_genotype_samples=[s.id for s in analysis.samples],
+            genepanel=analysis.genepanel,
+            include_allele_assessment=True,
+            include_custom_annotation=False,
+            include_reference_assessments=False,
+            include_allele_report=False
+        )
 
-    for an_id, values in analyses_with_allele_id_list.items():
-        analysis = values['analysis']
-        gp_key = (analysis.genepanel_name, analysis.genepanel_version)
-        gp_allele_ids = {gp_key: values['alleles']}
-        allele_ids_grouped_by_genepanel_and_filter_status = af.filter_alleles(gp_allele_ids)
+        for allele_info in loaded_alleles:
+            sanger_verify = allele_info['samples'][0]['genotype'].get('needs_verification', True)
+            project_name, prove_number = extract_meta_from_name(analysis.name)
+            analysis_info = {'genepanel_name':    gp_key[0],
+                             'genepanel_version': gp_key[1],
+                             'project_name':      project_name,
+                             'prove_number':      prove_number,
+                             'deposit_date':       analysis.deposit_date.strftime(DATE_FORMAT)
+                             }
 
-        # loop through genepanels (one, since we hand the allele filter a single genepanel) and load allele data:
-        for gp_key, allele_ids_for_genepanel in allele_ids_grouped_by_genepanel_and_filter_status.items():
-            allele_ids_not_filtered_away = allele_ids_for_genepanel['allele_ids']
-            alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids_not_filtered_away)).all()
-            loaded_alleles = adl.from_objs(
-                alleles,
-                include_genotype_samples=[s.id for s in analysis.samples],
-                genepanel=analysis.genepanel,
-                include_allele_assessment=True
-            )
-
-            for allele_info in loaded_alleles:
-                sanger_verify = allele_info['samples'][0]['genotype'].get('needs_verification', True)
-                project_name, prove_number = extract_meta_from_name(analysis.name)
-                analysis_info = {'genepanel_name':    gp_key[0],
-                                 'genepanel_version': gp_key[1],
-                                 'project_name':      project_name,
-                                 'prove_number':      prove_number,
-                                 'deposit_date':       analysis.deposit_date.strftime(DATE_FORMAT)
-                                 }
-
-                default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
-                variant_row = create_variant_row(default_transcript, analysis_info, allele_info, sanger_verify)
-                csv_rows.append(variant_row)
-                worksheet_rows.append(variant_row)
+            default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
+            variant_row = create_variant_row(default_transcript, analysis_info, allele_info, sanger_verify)
+            csv_rows.append(variant_row)
+            worksheet_rows.append(variant_row)
 
     # sort by first three columns:
     sort_function = lambda r: (r[0], r[1], r[2])
