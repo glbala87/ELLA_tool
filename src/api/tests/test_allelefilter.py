@@ -164,6 +164,18 @@ GENEPANEL_CONFIG = {
                         "lo_freq_cutoff": 0.6
                     }
                 }
+            },
+            'GENE4': {
+                "freq_cutoffs": {
+                    "external": {
+                        "hi_freq_cutoff": 1e-12,
+                        "lo_freq_cutoff": 1e-12
+                    },
+                    "internal": {
+                        "hi_freq_cutoff": 1e-12,
+                        "lo_freq_cutoff": 1e-12
+                    }
+                }
             }
         }
     }
@@ -220,10 +232,11 @@ def create_allele_with_annotation_tuple(session, annotations):
 def create_genepanel(genepanel_config):
     # Create fake genepanel for testing purposes
 
-    g1_ad = gene.Gene(hgnc_id=1, hgnc_symbol="GENE1AD")
-    g1_ar = gene.Gene(hgnc_id=2, hgnc_symbol="GENE1AR")
-    g2 = gene.Gene(hgnc_id=3, hgnc_symbol="GENE2")
-    g3 = gene.Gene(hgnc_id=4, hgnc_symbol="GENE3")
+    g1_ad = gene.Gene(hgnc_id=1e6, hgnc_symbol="GENE1AD")
+    g1_ar = gene.Gene(hgnc_id=2e6, hgnc_symbol="GENE1AR")
+    g2 = gene.Gene(hgnc_id=3e6, hgnc_symbol="GENE2")
+    g3 = gene.Gene(hgnc_id=4e6, hgnc_symbol="GENE3")
+    g4 = gene.Gene(hgnc_id=5e6, hgnc_symbol="GENE4")
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
@@ -285,6 +298,21 @@ def create_genepanel(genepanel_config):
         exon_ends=[123, 321]
     )
 
+    t4 = gene.Transcript(
+        gene=g4,
+        transcript_name='NM_4.1',
+        type='RefSeq',
+        genome_reference='123',
+        chromosome='123',
+        tx_start=123,
+        tx_end=123,
+        strand='+',
+        cds_start=123,
+        cds_end=123,
+        exon_starts=[123, 321],
+        exon_ends=[123, 321]
+    )
+
     p1 = gene.Phenotype(
         gene=g1_ad,
         genepanel_name='testpanel',
@@ -308,7 +336,7 @@ def create_genepanel(genepanel_config):
         config=genepanel_config
     )
 
-    genepanel.transcripts = [t1_ad, t1_ar, t2, t3]
+    genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4]
     genepanel.phenotypes = [p1, p2]
     return genepanel
 
@@ -431,16 +459,93 @@ class TestAlleleFilter(object):
             ]
         })
 
+        # Test gene specific thresholds
+        a1g2 = create_allele_with_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.3  # Less than 0.5, greater than 0.1
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE2',
+                    'transcript': 'NM_2.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # Test gene specific thresholds with multiple genes
+        # Should hit low_freq based on GENE2 thresholds
+        a1adg2 = create_allele_with_annotation(session, {
+            'frequencies': {
+                'ExAC': {
+                    'freq': {
+                        'G': 0.006  # Less than GENE2 0.1, greater than AD default 0.005
+                    },
+                    'num': {
+                        'G': 9000  # Above 2000
+                    }
+                }
+            },
+            'transcripts': [
+                {
+                    'symbol': 'GENE2',
+                    'transcript': 'NM_2.1',
+                    'exon_distance': 0
+                },
+                {
+                    'symbol': 'GENE1AD',
+                    'transcript': 'NM_1AD.1',
+                    'exon_distance': 0
+                }
+            ]
+        })
+
+        # FIXME: This should be fixed by applying the highest thresholds for the genes available. Currently only using the gene override thresholds.
+        # # Should ideally be low_freq
+        # # GENE4 common for frequencies above 1e-12
+        # # AD low freq for frequencies below 0.005
+        # a1adg4 = create_allele_with_annotation(session, {
+        #     'frequencies': {
+        #         'ExAC': {
+        #             'freq': {
+        #                 'G': 0.00001  # Greater than GENE4 1e-12, less than AD default 0.005
+        #             },
+        #             'num': {
+        #                 'G': 9000  # Above 2000
+        #             }
+        #         }
+        #     },
+        #     'transcripts': [
+        #         {
+        #             'symbol': 'GENE4',
+        #             'transcript': 'NM_4.1',
+        #             'exon_distance': 0
+        #         },
+        #         {
+        #             'symbol': 'GENE1AD',
+        #             'transcript': 'NM_1AD.1',
+        #             'exon_distance': 0
+        #         }
+        #     ]
+        # })
+
         session.commit()
 
         af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_info = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id]
+        allele_info = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id, a1g2.id, a1adg2.id]
         result = af.get_commonness_groups({gp_key: allele_info})
 
         assert set(result[gp_key]['common']) == set([a1ad.id])
-        assert set(result[gp_key]['less_common']) == set([a1ar.id])
-        assert set(result[gp_key]['low_freq']) == set([a1nogene.id])
+        assert set(result[gp_key]['less_common']) == set([a1ar.id, a1g2.id])
+        assert set(result[gp_key]['low_freq']) == set([a1nogene.id, a1adg2.id])
         assert set(result[gp_key]['null_freq']) == set([a1nofreq.id])
 
         ##

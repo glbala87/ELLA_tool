@@ -59,7 +59,6 @@ class AlleleFilter(object):
         num_filter = AlleleFilter._get_freq_num_threshold_filter(provider_numbers, freq_provider, freq_key)
         if num_filter is not None:
             freq_key_filters.append(num_filter)
-
         freq_key_filters.append(
             getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
         )
@@ -134,10 +133,13 @@ class AlleleFilter(object):
             # we use AnnotationShadowTranscript to find allele_ids we'll include
             # for a given set of genes, according to genepanel
 
+            # TODO: Fix overlapping genes with one gene with specified thresholds less trict than default (or other gene)
+
             gp_final_filter = list()
 
             # 1. Gene specific filters
             override_genes = gp_config_resolver.get_genes_with_overrides()
+            overridden_allele_ids = set()
 
             for symbol in override_genes:
                 # Get merged genepanel for this gene/symbol
@@ -147,6 +149,10 @@ class AlleleFilter(object):
                     annotationshadow.AnnotationShadowTranscript.symbol == symbol,
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
                 )
+
+                # Update overridden allele ids: This will not be filtered on AD or default
+                overridden_allele_ids.update(set([a[0] for a in allele_ids_for_genes]))
+
                 gp_final_filter.append(
                     and_(
                         annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
@@ -166,11 +172,12 @@ class AlleleFilter(object):
             if ad_genes:
                 ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
+
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
                 ]
 
-                if override_genes:
-                    ad_filters.append(~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes))
+                if overridden_allele_ids:
+                    ad_filters.append(~annotationshadow.AnnotationShadowTranscript.allele_id.in_(overridden_allele_ids))
 
                 allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
                     *ad_filters
@@ -194,8 +201,9 @@ class AlleleFilter(object):
                 ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
             ]
-            if override_genes:
-                default_filters.append(~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes))
+
+            if overridden_allele_ids:
+                default_filters.append(~annotationshadow.AnnotationShadowTranscript.allele_id.in_(overridden_allele_ids),)
 
             allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
                 *default_filters
