@@ -129,6 +129,10 @@ export class ACMGHelper {
             allele,
             allele_state
         );
+
+        if (!('acmg' in alleleassessment.evaluation)) {
+            return false;
+        }
         return alleleassessment.evaluation.acmg.included.find(elem =>  {
             return this.compareACMGObjs(elem, code);
         }) !== undefined;
