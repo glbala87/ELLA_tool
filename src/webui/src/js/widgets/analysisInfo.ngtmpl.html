@@ -10,12 +10,27 @@
 
 
     <h4 ng-if="vm.alleles.unclassified.length || vm.alleles.classified.length" class="section-header">Variant verification</h4>
-    <div ng-repeat="alleleObj in vm.alleles.unclassified.concat(vm.alleles.classified)">
-      <div class="nav-row allele">
-        <div class="cell gene id-gene">
+    <div class="table">
+      <div class="info-table-header cell">
+        GENE
+      </div>
+      <div class="info-table-header cell">
+        TRANSCRIPT
+      </div>
+      <div class="info-table-header cell">
+        HGVSc
+      </div>
+      <div class="info-table-header cell">
+        VERIFICATION STATUS
+      </div>
+      <div ng-repeat="alleleObj in vm.getAlleles()" class="info-row tabular-row">
+        <div class="info-gene cell">
           {{alleleObj.allele.annotation.filtered[0].symbol}}
         </div>
-        <div class="cell hgvsc id-hgvsc">
+        <div class="info-transcript cell">
+          {{alleleObj.allele.annotation.filtered[0].transcript}}
+        </div>
+        <div class="info-hgvsc cell">
           {{alleleObj.allele.annotation.filtered[0].HGVSc_short || alleleObj.allele.getHGVSgShort()}}
         </div>
         <div class="cell">

@@ -609,6 +609,40 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   }
 }
 
+@mixin info-cell {
+  font-weight: 500;
+  font-size: 1.4rem;
+  min-width: 8rem;
+  color: $black-75;
+  padding-bottom: 1.4rem;
+  padding-right: 2.5rem;
+}
+
+.info-table-header {
+  @include info-cell;
+  font-size: 1.4rem;
+  color: $black-50;
+  font-weight: 600;
+  //border-bottom: 1px solid;
+  padding-top: 1rem;
+}
+
+.info-gene {
+  @include info-cell;
+  color: $black-50;
+  font-weight: 400;
+}
+
+.info-hgvsc {
+  @include info-cell;
+}
+
+.info-transcript {
+  @include info-cell;
+  font-weight: 400;
+}
+
+
 #toast-container { position: fixed; z-index: 100; bottom: 0; right: 0; left: 0; width: 100%; max-height: 20rem; overflow-y: auto; overflow-x: hidden;
   & > :hover { cursor: pointer; }
   .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
