@@ -136,7 +136,7 @@ class AlleleFilter(object):
 
             gp_final_filter = list()
 
-            # Gene specific filters
+            # 1. Gene specific filters
             override_genes = gp_config_resolver.get_genes_with_overrides()
 
             for symbol in override_genes:
@@ -156,7 +156,7 @@ class AlleleFilter(object):
                     )
                 )
 
-            # AD genes
+            # 2. AD genes
             ad_genes = queries.distinct_inheritance_genes_for_genepanel(
                 self.session,
                 'AD',
@@ -164,15 +164,17 @@ class AlleleFilter(object):
                 gp_key[1]
             )
             if ad_genes:
-                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
-                    ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-                ) if override_genes else \
-                    self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                        annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
-                        annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-                    )
+                ]
+
+                if override_genes:
+                    ad_filters.append(~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes))
+
+                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                    ad_filters
+                )
 
                 ad_group_thresholds = gp_config_resolver.get_AD_freq_cutoffs()
                 gp_final_filter.append(
@@ -184,19 +186,20 @@ class AlleleFilter(object):
                     )
                 )
 
-            # 'default' genes (all genes not in two above cases)
+            # 3. 'default' genes (all genes not in two above cases)
             # Keep ad_genes as subquery, or else performance goes down the drain
             # (as opposed to loading the symbols into backend and merging with override_genes -> up to 30x slower)
             default_group_thresholds = gp_config_resolver.get_default_freq_cutoffs()
-            allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+            default_filters = [
                 ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
-                ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-            ).distinct() if override_genes else \
-                self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                    ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
-                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-                ).distinct()
+            ]
+            if override_genes:
+                default_filters.append(~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes))
+
+            allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                default_filters
+            ).distinct()
 
             gp_final_filter.append(
                 and_(
