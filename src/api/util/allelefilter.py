@@ -141,6 +141,14 @@ class AlleleFilter(object):
             override_genes = gp_config_resolver.get_genes_with_overrides()
             overridden_allele_ids = set()
 
+            # Optimization: .resolve(symbol) below is _very_ costly -> only resolve the symbols
+            # that overlap with the alleles in question.
+            override_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.symbol).filter(
+                annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids),
+            ).distinct().all()
+            override_genes = [a[0] for a in override_genes]
+
             for symbol in override_genes:
                 # Get merged genepanel for this gene/symbol
                 symbol_group_thresholds = gp_config_resolver.resolve(symbol)['freq_cutoffs']
