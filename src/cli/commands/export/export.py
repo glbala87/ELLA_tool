@@ -63,7 +63,7 @@ def cmd_export_sanger(filename):
     )
     if has_content:
         end = datetime.datetime.now()
-        click.echo("Exported variants to " + output_name + '.xlsx/csv' + "in {}".format(str(end - start)))
+        click.echo("Exported variants to " + output_name + '.xlsx/csv' + " in {}".format(str(end - start)))
     else:
         csv_file_obj.write("# file is intentionally empty\n")
         excel_file_obj.write("file is intentionally empty")
