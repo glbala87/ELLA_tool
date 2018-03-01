@@ -167,9 +167,6 @@ class WorkflowService {
         if (!alleles) {
             return false;
         }
-        if (alleles.length === 0) {
-            return true;
-        }
         let has_required_rounds = false;
         if (config.user.user_config.workflows &&
             type in config.user.user_config.workflows &&
@@ -178,7 +175,7 @@ class WorkflowService {
             has_required_rounds = history_interpretations.length >= required_cnt;
         }
         // Ensure that we have an interpretation with a state
-        let all_classified = false;
+        let all_classified = alleles.length === 0
         if (interpretation &&
             interpretation.status === 'Ongoing' &&
             'allele' in interpretation.state) {
