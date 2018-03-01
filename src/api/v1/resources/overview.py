@@ -126,10 +126,11 @@ def load_genepanel_alleles(session, gp_allele_ids):
         loaded_genepanel_alleles = adl.from_objs(
             gp_alleles,
             genepanel=genepanel,
-            include_allele_assessment=True,  # Needed for correct filtering
+            include_allele_assessment=True,  # Display existing class in overview
             include_custom_annotation=False,  # Rest is extra data not needed for our use cases here
             include_reference_assessments=False,
-            include_allele_report=False
+            include_allele_report=False,
+            allele_assessment_schema=schemas.AlleleAssessmentOverviewSchema
         )
 
         for a in loaded_genepanel_alleles:

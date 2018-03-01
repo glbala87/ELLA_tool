@@ -5,8 +5,7 @@ from alleles import AlleleSchema
 from alleleinterpretations import AlleleInterpretationSchema, AlleleInterpretationOverviewSchema
 from references import ReferenceSchema
 from referenceassessments import ReferenceAssessmentSchema
-from alleleassessments import AlleleAssessmentSchema
-from alleleassessments import AlleleAssessmentInputSchema
+from alleleassessments import AlleleAssessmentSchema, AlleleAssessmentOverviewSchema, AlleleAssessmentInputSchema
 from allelereports import AlleleReportSchema
 from users import UserSchema, UserFullSchema
 from classifications import ClassificationSchema, RuleSchema
