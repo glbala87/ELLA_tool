@@ -487,6 +487,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
       }
     }
     &.multiple { background-color: $blue-10; }
+    &.technical { color: $black-25; }
     &.spacer {height: 0.2rem}
     .cell { display: table-cell; white-space: nowrap; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; transition: all 0.3s ease-in-out; text-overflow: ellipsis; overflow: hidden;
       &.sample-type { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
@@ -555,7 +556,8 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
           .hit {
             @include indicator-hit;
             border-color: lighten($green, 5%);
-            color: lighten($green, 5%);
+            background-color: lighten($green, 10%);
+            color: $white-95;
           }
         }
         .important-source {
