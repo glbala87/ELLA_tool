@@ -430,7 +430,8 @@ class SearchResource(LogRequestResource):
             include_genotype_samples=False,
             include_allele_report=False,
             include_annotation=True,
-            include_reference_assessments=False
+            include_reference_assessments=False,
+            allele_assessment_schema=schemas.AlleleAssessmentOverviewSchema
         )
         self._filter_transcripts_query(session, allele_data, genepanels, query)
         return allele_data
