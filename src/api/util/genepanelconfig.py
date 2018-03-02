@@ -51,8 +51,8 @@ class GenepanelConfigResolver(object):
         self.session = session
         self.genepanel = genepanel
         self.global_default = config['variant_criteria']['genepanel_config'] if not genepanel_default else genepanel_default
-        self._ad_genes_cache = []  # Holds cache for inheritance per symbol
-        self._ar_genes_cache = []  # Holds cache for inheritance per symbol
+        self._ad_genes_cache = None  # Holds cache for inheritance per symbol
+        self._ar_genes_cache = None  # Holds cache for inheritance per symbol
 
     def resolve(self, symbol):
         """
@@ -97,7 +97,7 @@ class GenepanelConfigResolver(object):
         else:
             # A specific symbol can define cutoffs, disease_mode and last_exon_important
             # Stage 3: find the most "useful" inheritance using the gene symbol:
-            if not self._ad_genes_cache:
+            if self._ad_genes_cache is None:
                 ad_genes = queries.distinct_inheritance_genes_for_genepanel(
                     self.session,
                     'AD',
@@ -106,7 +106,7 @@ class GenepanelConfigResolver(object):
                 ).all()
                 self._ad_genes_cache = list(set([a[0] for a in ad_genes]))
 
-            if not self._ar_genes_cache:
+            if self._ar_genes_cache is None:
                 ar_genes = queries.distinct_inheritance_genes_for_genepanel(
                     self.session,
                     'AR',
