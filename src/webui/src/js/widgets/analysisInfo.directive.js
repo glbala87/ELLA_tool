@@ -9,7 +9,8 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
     scope: {
         analysis: '=',
         alleles: '=',
-        readOnly: '=?'
+        readOnly: '=?',
+        verificationStatusChanged: '&?'
     }
 
 })

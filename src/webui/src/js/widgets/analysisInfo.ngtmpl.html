@@ -39,6 +39,7 @@
                      ng-disabled="vm.readOnly"
                      class="bttn"
                      ng-model="alleleObj.alleleState.verification"
+                     ng-change="vm.verificationStatusChanged({'allele': alleleObj.allele})"
                      uib-btn-radio="s"
                      uncheckable="true"
                      ng-repeat="s in ['verified', 'technical']"

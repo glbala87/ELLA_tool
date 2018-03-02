@@ -225,8 +225,7 @@ export class InterpretationController {
             report_component.alleles = this.getAlleles().filter(a => {
                 let state = this.getAlleleState(a);
                 if ('report' in state &&
-                    'included' in state.report &&
-                    state.verification !== 'technical') {
+                    'included' in state.report) {
                     return state.report.included
                 }
                 return false;
