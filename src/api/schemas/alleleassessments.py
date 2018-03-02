@@ -10,6 +10,15 @@ from api.schemas import users, referenceassessments
 ma = Marshmallow(app)
 
 
+class AlleleAssessmentOverviewSchema(Schema):
+    class Meta:
+        title = "AlleleAssessment"
+        description = 'Represents an assessment of one allele for overview'
+        fields = ('id',
+                  'date_created',
+                  'classification')
+
+
 class AlleleAssessmentSchema(Schema):
     class Meta:
         title = "AlleleAssessment"

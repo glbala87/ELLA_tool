@@ -278,9 +278,10 @@ export class WysiwygEditorController {
         // Add font color picker
         let fontcolors = [
             '#000000', // black
-            '#FF1C2B', // red
-            '#23D801', // green
-            '#0918A9', // blue
+            '#FF0000', // red
+            '#00B050', // green
+            '#0000FF', // blue
+            '#E26B0A', // orange
         ]
 
         let fontpicker = vanillaColorPicker(this.buttons["fontcolor"]);

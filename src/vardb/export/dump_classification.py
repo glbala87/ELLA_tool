@@ -59,10 +59,16 @@ COLUMN_PROPERTIES = OrderedDict([
 ])
 
 
+# openpyxl does not handle unicode control characters, except for \x09 (\t), \x10 (\n), \x0d(=13) (\r)
+# Remove these from any string coming from html
+CONTROL_CHARS_MAP = dict.fromkeys(i for i in range(32) if i not in [9,10,13])
+def remove_control_chars(s):
+    return s.translate(CONTROL_CHARS_MAP)
+
 def html_to_text(html):
     soup = BeautifulSoup(html, 'html.parser')
     attachments = [img.get('title') for img in soup.find_all('img')]
-    return soup.get_text() + (" " + ", ".join(attachments) if attachments else "")
+    return remove_control_chars(soup.get_text()) + (" " + ", ".join(attachments) if attachments else "")
 
 
 def get_batch(alleleassessments):

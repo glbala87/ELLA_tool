@@ -1,5 +1,5 @@
 from collections import OrderedDict, defaultdict
-from sqlalchemy import or_, and_, tuple_, text, func, column, literal
+from sqlalchemy import or_, and_, tuple_, text, func, column, literal, distinct
 
 from api.config import config as global_genepanel_default
 from vardb.datamodel import assessment, gene, annotation, annotationshadow
@@ -59,7 +59,6 @@ class AlleleFilter(object):
         num_filter = AlleleFilter._get_freq_num_threshold_filter(provider_numbers, freq_provider, freq_key)
         if num_filter is not None:
             freq_key_filters.append(num_filter)
-
         freq_key_filters.append(
             getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
         )
@@ -134,10 +133,21 @@ class AlleleFilter(object):
             # we use AnnotationShadowTranscript to find allele_ids we'll include
             # for a given set of genes, according to genepanel
 
+            # TODO: Fix overlapping genes with one gene with specified thresholds less trict than default (or other gene)
+
             gp_final_filter = list()
 
-            # Gene specific filters
+            # 1. Gene specific filters
             override_genes = gp_config_resolver.get_genes_with_overrides()
+            overridden_allele_ids = set()
+
+            # Optimization: adding filters for genes not present in our alleles is costly -> only filter the symbols
+            # that overlap with the alleles in question.
+            override_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.symbol).filter(
+                annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids),
+            ).distinct().all()
+            override_genes = [a[0] for a in override_genes]
 
             for symbol in override_genes:
                 # Get merged genepanel for this gene/symbol
@@ -147,6 +157,10 @@ class AlleleFilter(object):
                     annotationshadow.AnnotationShadowTranscript.symbol == symbol,
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
                 )
+
+                # Update overridden allele ids: This will not be filtered on AD or default
+                overridden_allele_ids.update(set([a[0] for a in allele_ids_for_genes]))
+
                 gp_final_filter.append(
                     and_(
                         annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
@@ -156,7 +170,7 @@ class AlleleFilter(object):
                     )
                 )
 
-            # AD genes
+            # 2. AD genes
             ad_genes = queries.distinct_inheritance_genes_for_genepanel(
                 self.session,
                 'AD',
@@ -164,11 +178,19 @@ class AlleleFilter(object):
                 gp_key[1]
             )
             if ad_genes:
-                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
-                    ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
+
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+                ]
+
+                if overridden_allele_ids:
+                    ad_filters.append(~annotationshadow.AnnotationShadowTranscript.allele_id.in_(overridden_allele_ids))
+
+                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                    *ad_filters
                 )
+
                 ad_group_thresholds = gp_config_resolver.get_AD_freq_cutoffs()
                 gp_final_filter.append(
                     and_(
@@ -179,15 +201,21 @@ class AlleleFilter(object):
                     )
                 )
 
-            # 'default' genes (all genes not in two above cases)
+            # 3. 'default' genes (all genes not in two above cases)
             # Keep ad_genes as subquery, or else performance goes down the drain
             # (as opposed to loading the symbols into backend and merging with override_genes -> up to 30x slower)
             default_group_thresholds = gp_config_resolver.get_default_freq_cutoffs()
-            allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+            default_filters = [
                 ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
-                ~annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-            )
+            ]
+
+            if overridden_allele_ids:
+                default_filters.append(~annotationshadow.AnnotationShadowTranscript.allele_id.in_(overridden_allele_ids),)
+
+            allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                *default_filters
+            ).distinct()
 
             gp_final_filter.append(
                 and_(
@@ -372,7 +400,7 @@ class AlleleFilter(object):
                         )
                     )
                 ),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
             )
             inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:
@@ -453,12 +481,13 @@ class AlleleFilter(object):
                 candidate_filters.append(
                     annotationshadow.AnnotationShadowTranscript.consequences.contains(text("ARRAY['{}']::character varying[]".format(c)))
                 )
+
             candidate_allele_ids = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
                 or_(
                     *candidate_filters
                 ),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
-            )
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
+            ).distinct()
 
             inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:

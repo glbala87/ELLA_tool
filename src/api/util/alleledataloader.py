@@ -40,7 +40,8 @@ class AlleleDataLoader(object):
                   include_custom_annotation=True,
                   include_allele_assessment=True,
                   include_reference_assessments=True,
-                  include_allele_report=True):
+                  include_allele_report=True,
+                  allele_assessment_schema=None):
         """
         Loads data for a list of alleles from the database, and returns a dictionary
         with the final data, loaded using the allele schema.
@@ -62,6 +63,7 @@ class AlleleDataLoader(object):
         :param include_allele_assessment: If true, load the ones mentioned in link_filter.alleleassessment_id or, if not provided, the latest data
         :param include_reference_assessments: If true, load the ones mentioned in link_filter.referenceassessment_id or, if not provided, the latest data
         :param include_allele_report: If true, load the ones mentioned in link_filter.allelereport_id or, if not provided, the latest data
+        :param allele_assessment_schema: Use this schema for serialization. If None, use default
         :returns: dict with converted data using schema data.
         """
 
@@ -99,8 +101,8 @@ class AlleleDataLoader(object):
                 genotypes = self.session.query(genotype.Genotype).join(sample.Sample).filter(
                     sample.Sample.id == sample_id,
                     or_(
-                        genotype.Genotype.allele_id.in_(allele_ids),
-                        genotype.Genotype.secondallele_id.in_(allele_ids),
+                        genotype.Genotype.allele_id.in_(allele_ids) if allele_ids else False,
+                        genotype.Genotype.secondallele_id.in_(allele_ids) if allele_ids else False,
                     )
                 ).all()
 
@@ -159,7 +161,7 @@ class AlleleDataLoader(object):
         self.dump(accumulated_allele_data, allele_ids, allele_annotations, AnnotationSchema(), KEY_ANNOTATION)
         self.dump(accumulated_allele_data, allele_ids, allele_custom_annotations, CustomAnnotationSchema(),
                   KEY_CUSTOM_ANNOTATION)
-        self.dump(accumulated_allele_data, allele_ids, allele_assessments, AlleleAssessmentSchema(), KEY_ALLELE_ASSESSMENT)
+        self.dump(accumulated_allele_data, allele_ids, allele_assessments, allele_assessment_schema() if allele_assessment_schema else AlleleAssessmentSchema(), KEY_ALLELE_ASSESSMENT)
         self.dump(accumulated_allele_data, allele_ids, reference_assessments, ReferenceAssessmentSchema(),
                   KEY_REFERENCE_ASSESSMENTS, use_list=True)
         self.dump(accumulated_allele_data, allele_ids, allele_reports, AlleleReportSchema(), KEY_ALLELE_REPORT)
@@ -182,7 +184,7 @@ class AlleleDataLoader(object):
                 annotationshadow.AnnotationShadowTranscript.allele_id,
                 annotationshadow.AnnotationShadowTranscript.transcript
             ).filter(
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False,
                 text("transcript ~ :reg").params(reg=self.inclusion_regex)
             ).distinct().all()
 
@@ -276,7 +278,7 @@ class AlleleDataLoader(object):
             else:
                 return None  # we don't want any entities
         else:
-            filters.append(entity_clazz.allele_id.in_(allele_ids))
+            filters.append(entity_clazz.allele_id.in_(allele_ids) if allele_ids else False)
             filters.append(entity_clazz.date_superceeded == None)
 
         return filters

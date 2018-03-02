@@ -6,6 +6,8 @@ import datetime
 from vardb.datamodel import DB
 from vardb.export import export_sanger_variants, dump_classification
 
+FILENAME_REPORT_DEFAULT = "non-started-analyses-variants-{timestamp}"
+
 FILENAME_TIMESTAMP_FORMAT = "%Y-%m-%d_%H%M"  # 2017-11-10_1337
 
 
@@ -35,7 +37,7 @@ def cmd_export_classifications(filename, with_analysis_names):
 
 @export.command('sanger', help="Export variants that needs to be Sanger verified")
 @click.option('--filename', help="The name of the file to create. Suffix .xlsx and .csv will be automatically added.\n"
-                                 "Default: 'variant-sanger-YYYY-MM-DD_hhmm.xlsx/csv'")
+                                 "Default: '" + FILENAME_REPORT_DEFAULT.format(timestamp="YYYY-MM-DD_hhmm") + ".xlsx/csv'")
 def cmd_export_sanger(filename):
     """
     Export alleles from non-started analysis to file
@@ -43,7 +45,7 @@ def cmd_export_sanger(filename):
     logging.basicConfig(level=logging.INFO)
     today = datetime.datetime.now()
     timestamp = today.strftime(FILENAME_TIMESTAMP_FORMAT)
-    output_name = filename if filename else "variant-sanger-{timestamp}".format(timestamp=timestamp)
+    output_name = filename if filename else (FILENAME_REPORT_DEFAULT).format(timestamp=timestamp)
     click.echo("Exporting variants to " + output_name + '.xlsx/csv')
 
     db = DB()
@@ -53,14 +55,15 @@ def cmd_export_sanger(filename):
     excel_file_obj = open(output_name + '.xlsx', 'w')
     csv_file_obj = open(output_name + '.csv', 'w')
 
+    start = datetime.datetime.now()
     has_content = export_sanger_variants.export_variants(
         db.session,
         excel_file_obj,
         csv_file_obj=csv_file_obj
     )
-
     if has_content:
-        click.echo("Exported variants to " + output_name + '.xlsx/csv')
+        end = datetime.datetime.now()
+        click.echo("Exported variants to " + output_name + '.xlsx/csv' + " in {}".format(str(end - start)))
     else:
         csv_file_obj.write("# file is intentionally empty\n")
         excel_file_obj.write("file is intentionally empty")

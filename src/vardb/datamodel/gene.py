@@ -20,7 +20,7 @@ class Gene(Base):
     omim_entry_id = Column(Integer)
 
     def __repr__(self):
-        return "<Gene('%s')>" % self.hugo_symbol
+        return "<Gene(%d, '%s')>" % (self.hgnc_id, self.hgnc_symbol)
 
 
 class Transcript(Base):

@@ -201,9 +201,18 @@ class GenotypeImporter(object):
                 if len(record_sample['AD']) != 2:
                     log.warning("AD not decomposed")
                     continue
+
                 # {'REF': 12, 'A': 134, 'G': 12}
                 allele_depth.update({"REF": record_sample["AD"][0]})
                 allele_depth.update({k: v for k, v in zip(records[i]['ALT'], record_sample['AD'][1:])})
+
+        # If site is multiallelic, we expect three values for allele depth.
+        # However, due to normalization, ALT could be the same for both sites, and the allele depth will only contain two values.
+        # Disregard allele depth for these sites
+        if a1 is not None and a2 is not None:
+            if len(allele_depth) != 3:
+                allele_depth = dict()
+                log.warning("Unable to extract allele depth. Different REF for the multiallelic site (REF1={}, REF2={})?".format(records[0]['REF'], records[1]['REF']))
 
         # GQ, DP, FILTER, and QUAL should be the same for all decomposed variants
         genotype_quality = records_sample[0].get('GQ')
@@ -311,14 +320,14 @@ class AssessmentImporter(object):
 
         allele = db_alleles[0]
 
-        ass_info['date_created'] = datetime.datetime(1970,1,1, tzinfo=pytz.utc)  # Set to epoch if not proper
+        date_created = datetime.datetime(1970,1,1, tzinfo=pytz.utc)  # Set to epoch if not proper
         date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
         if is_non_empty_text(date_raw):
             try:
-                ass_info['date_created'] = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
+                date_created = datetime.datetime.strptime(date_raw, '%Y-%m-%d')
             except ValueError:
                 pass
-
+        ass_info['date_created'] = date_created
         ass_info['genepanel'] = genepanel
 
         db_assessment = self.create_or_skip_assessment(allele, ass_info)
@@ -330,7 +339,9 @@ class AssessmentImporter(object):
 
             report_data = {'allele_id': allele.id,
                            'user_id': user.id if user else None,
-                           'alleleassessment_id': db_assessment.id
+                           'alleleassessment_id': db_assessment.id,
+                           'date_created': date_created
+
                            }
 
             report_raw = all_info.get(REPORT_FIELD)
@@ -708,7 +719,7 @@ class AnalysisInterpretationImporter(object):
             # If the existing is Done, we reopen the analysis since we have added new
             if reopen_if_exists and existing.status == 'Done':
                 import api.v1.resources.workflow.helpers as helpers  # TODO: Placed here due to circular imports...
-                db_interpretation = helpers.reopen_interpretation(analysis_id=existing.analysis_id)[1]
+                db_interpretation = helpers.reopen_interpretation(self.session, analysis_id=existing.analysis_id)[1]
             else:
                 db_interpretation = None
         return db_interpretation

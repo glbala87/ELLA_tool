@@ -30,6 +30,7 @@ class DepositAssessments(object):
         self.assessment_importer = AssessmentImporter(self.session)
         self.allele_importer = AlleleImporter(self.session)
         self.counter = defaultdict(int)
+        self.counter['assessments'] = list()
 
     def get_genepanel(self, genepanel_name, genepanel_version):
         if genepanel_name is None or genepanel_version is None:
@@ -68,11 +69,13 @@ class DepositAssessments(object):
             self.annotation_importer.process(record, db_alleles, update_annotations)
 
             # Import assessment for these alleles
-            self.assessment_importer.process(
+            db_assessments = self.assessment_importer.process(
                 record,
                 db_alleles,
-                genepanel=db_genepanel
-            )
+                genepanel=db_genepanel)
+
+            if db_assessments:
+                self.counter['assessments'].extend([{'allele': a.allele_id, 'assessment': a.id} for a in db_assessments])
             self.counter['nVariantsInFile'] += 1
 
     def getCounter(self):
@@ -94,7 +97,12 @@ class DepositAssessments(object):
         print
         print "Novel assessments to add: {}".format(stats.get('nNovelAssessments', '???'))
         print "Updated assessments to add: {}".format(stats.get('nAssessmentsUpdated', '???'))
-        print
+
+
+    def printIDs(self):
+        stats = self.getCounter()
+        print "Assessments changed/updated: {}".format(stats.get('assessments', '???'))
+
 
 
 def main(argv=None):
@@ -128,6 +136,7 @@ def main(argv=None):
     if not args.nonInteractive:
         print "You are about to commit the following changes to the database:"
         da.printStats()
+        da.printIDs()
         print "Proceed? (Y/n)"
         if not raw_input() == "Y":
             log.warning("Aborting deposit! Rolling back changes.")
@@ -135,6 +144,7 @@ def main(argv=None):
             return -1
 
     db.session.commit()
+    da.printIDs()        
     print "Deposit complete."
     return 0
 

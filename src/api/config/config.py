@@ -30,6 +30,14 @@ config = {
         "user_config": {  # Default user config
             "overview": {
                 "views": ["variants", "analyses-by-findings"]
+            },
+            "workflows": {
+                "allele": {
+                    "finalize_required_interpretations": 0  # Required no. of (existing) interpretations for allowing finalize
+                },
+                "analysis": {
+                    "finalize_required_interpretations": 0
+                }
             }
         }
     },
@@ -231,7 +239,6 @@ config = {
             {
                 "name": "Unclassified",
                 "value": "U",
-                "outdated_after_days": 180  # Marked as outdated after N number of days
             },
             {
                 "name": "Class 1",
@@ -240,7 +247,7 @@ config = {
             {
                 "name": "Class 2",
                 "value": "2",
-                "outdated_after_days": 180,
+                "outdated_after_days": 180, # Marked as outdated after N number of days
                 "exclude_filtering_existing_assessment": True
             },
             {
