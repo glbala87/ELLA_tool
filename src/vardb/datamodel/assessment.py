@@ -62,6 +62,13 @@ class AlleleAssessment(Base):
         return "%s, %s" % (self.classification, self.date_created)
 
 
+Index('ix_assessment_alleleid_unique',
+    AlleleAssessment.allele_id,
+    postgresql_where=(AlleleAssessment.date_superceeded.is_(None)),
+    unique=True
+)
+
+
 class ReferenceAssessment(Base):
     """Association object between assessments and references.
 
@@ -91,6 +98,13 @@ class ReferenceAssessment(Base):
 
     def __str__(self):
         return "%s, %s, %s" % (str(self.user), self.reference, self.evaluation)
+
+Index('ix_referenceassessment_alleleid_referenceid_unique',
+      ReferenceAssessment.allele_id,
+      ReferenceAssessment.reference_id,
+      postgresql_where=(ReferenceAssessment.date_superceeded.is_(None)),
+      unique=True
+)
 
 
 class Reference(Base, SearchQueryMixin):
@@ -146,3 +160,10 @@ class AlleleReport(Base):
 
     def __repr__(self):
         return "<AlleleReport('%s','%s', '%s')>" % (self.id, self.allele_id, str(self.user))
+
+
+Index('ix_allelereport_alleleid_unique',
+      AlleleReport.allele_id,
+      postgresql_where=(AlleleReport.date_superceeded.is_(None)),
+      unique=True
+)
