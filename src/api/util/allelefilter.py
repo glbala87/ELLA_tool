@@ -141,7 +141,7 @@ class AlleleFilter(object):
             override_genes = gp_config_resolver.get_genes_with_overrides()
             overridden_allele_ids = set()
 
-            # Optimization: .resolve(symbol) below is _very_ costly -> only resolve the symbols
+            # Optimization: adding filters for genes not present in our alleles is costly -> only filter the symbols
             # that overlap with the alleles in question.
             override_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.symbol).filter(
                 annotationshadow.AnnotationShadowTranscript.symbol.in_(override_genes),
