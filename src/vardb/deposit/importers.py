@@ -201,9 +201,18 @@ class GenotypeImporter(object):
                 if len(record_sample['AD']) != 2:
                     log.warning("AD not decomposed")
                     continue
+
                 # {'REF': 12, 'A': 134, 'G': 12}
                 allele_depth.update({"REF": record_sample["AD"][0]})
                 allele_depth.update({k: v for k, v in zip(records[i]['ALT'], record_sample['AD'][1:])})
+
+        # If site is multiallelic, we expect three values for allele depth.
+        # However, due to normalization, ALT could be the same for both sites, and the allele depth will only contain two values.
+        # Disregard allele depth for these sites
+        if a1 is not None and a2 is not None:
+            if len(allele_depth) != 3:
+                allele_depth = dict()
+                log.warning("Unable to extract allele depth. Different REF for the multiallelic site (REF1={}, REF2={})?".format(records[0]['REF'], records[1]['REF']))
 
         # GQ, DP, FILTER, and QUAL should be the same for all decomposed variants
         genotype_quality = records_sample[0].get('GQ')
