@@ -55,6 +55,10 @@ export class AlleleStateHelper {
                 }
             };
         }
+
+        if (!('verification' in allele_state)) {
+            allele_state.verification = null;
+        }
     }
 
     /**
@@ -432,7 +436,9 @@ export class AlleleStateHelper {
             return o.value === classification;
         });
         if (config_option &&
-            config_option.include_report) {
+            config_option.include_report &&
+            allele_state.verification !== 'technical'
+        ) {
             this.addAlleleToReport(allele_state);
         }
         else {

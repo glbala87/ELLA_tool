@@ -23,6 +23,9 @@
       <section class="container" ng-class="{'inner': vm.shouldShowSidebar()}">
         <analysis-info
           analysis="vm.analysis"
+          alleles="vm.allele_sidebar.alleles"
+          read-only="vm.readOnly"
+          verification-status-changed="vm.onChangeClass(allele)"
           ng-switch-when="Info">
         </analysis-info>
         <div ng-switch-when="Classification">

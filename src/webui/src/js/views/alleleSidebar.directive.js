@@ -57,7 +57,15 @@ export class AlleleSidebarController {
             case "homozygous":
                 return !this.isHomozygous(allele);
             case "quality":
-                return !this.isLowQual(allele);
+                if (this.isVerified(allele_obj.alleleState)) {
+                    return 0;
+                } else if (this.isTechnical(allele_obj.alleleState)) {
+                    return 3;
+                } else if (this.isLowQual(allele)) {
+                    return 2;
+                } else {
+                    return 1;
+                }
             case "references":
                 return !this.isImportantSource(allele);
             case "3hetAR":
@@ -120,7 +128,7 @@ export class AlleleSidebarController {
     }
 
     isTogglable(allele_option) {
-        return allele_option.togglable;
+        return allele_option.togglable && !this.isTechnical(allele_option.alleleState);
     }
 
     getSampleType(allele) {
@@ -150,7 +158,10 @@ export class AlleleSidebarController {
     getClassification(allele, allele_state) {
         let classification = AlleleStateHelper.getClassification(allele, allele_state);
         if (AlleleStateHelper.isAlleleAssessmentOutdated(allele, this.config)) {
-            return `${classification}*`;
+            classification = `${classification}*`;
+        }
+        if (this.isTechnical(allele_state)) {
+            classification = `(${classification})`
         }
         return classification;
     }
@@ -161,6 +172,49 @@ export class AlleleSidebarController {
 
     isLowQual(allele) {
         return allele.samples.some(s => s.genotype.needs_verification);
+    }
+
+    isTechnical(allele_state) {
+        return allele_state.verification === 'technical';
+    }
+
+    isVerified(allele_state) {
+        return allele_state.verification === 'verified';
+    }
+
+
+    hasQualityInformation(alleleObj) {
+        return this.isLowQual(alleleObj.allele) || this.isTechnical(alleleObj.alleleState) || this.isVerified(alleleObj.alleleState)
+    }
+
+    getQualityClass(alleleObj) {
+        if (this.isTechnical(alleleObj.alleleState)) {
+            return 'technical'
+        } else if (this.isVerified(alleleObj.alleleState)) {
+            return 'verified'
+        } else {
+            return 'low-qual'
+        }
+    }
+
+    getQualityTag(alleleObj) {
+        if (this.isTechnical(alleleObj.alleleState)) {
+            return 'T'
+        } else if (this.isVerified(alleleObj.alleleState)) {
+            return 'V'
+        } else if (this.isLowQual(alleleObj.allele)) {
+            return 'Q'
+        }
+    }
+
+    getQualityTextPopover(alleleObj) {
+        if (this.isTechnical(alleleObj.alleleState)) {
+            return 'Technical'
+        } else if (this.isVerified(alleleObj.alleleState)) {
+            return 'Verified'
+        } else {
+            return 'Quality issues'
+        }
     }
 
     isNonsense(allele) {

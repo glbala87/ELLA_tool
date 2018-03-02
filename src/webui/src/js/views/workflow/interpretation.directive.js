@@ -294,7 +294,8 @@ export class InterpretationController {
             grouped_alleles.unclassified.sort(unclassified_sort);
         }
 
-        let classified_sort = firstBy(a => {
+        let classified_sort = firstBy(a => a.alleleState.verification === 'technical')
+            .thenBy(a => {
                 let classification = AlleleStateHelper.getClassification(a.allele, this.getAlleleState(a.allele));
                return this.config.classification.options.findIndex(o => o.value === classification);
             }, -1)
