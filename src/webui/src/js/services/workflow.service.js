@@ -155,20 +155,27 @@ class WorkflowService {
 
     /**
      * Checks whether user is allowed to finalize the analysis.
-     * Criteria is that every allele must:
-     *  - have an alleleassessment with a classification.
-     *  - if the classification is reused it must not be outdated
+     * Criterias
+     * - Check number of required rounds.
+     * - Every allele must:
+     *    - have an alleleassessment with a classification.
+     *    - if the classification is reused it must not be outdated
      *
      * @return {bool}
      */
-    canFinalize(interpretation, alleles, config) {
+    canFinalize(type, interpretation, alleles, config, history_interpretations) {
         if (!alleles) {
             return false;
         }
-        if (alleles.length === 0) {
-            return true;
+        let has_required_rounds = false;
+        if (config.user.user_config.workflows &&
+            type in config.user.user_config.workflows &&
+            'finalize_required_interpretations' in config.user.user_config.workflows[type]) {
+            const required_cnt = config.user.user_config.workflows[type].finalize_required_interpretations;
+            has_required_rounds = history_interpretations.length >= required_cnt;
         }
         // Ensure that we have an interpretation with a state
+        let all_classified = alleles.length === 0
         if (interpretation &&
             interpretation.status === 'Ongoing' &&
             'allele' in interpretation.state) {
@@ -176,7 +183,7 @@ class WorkflowService {
                 // Check that all alleles
                 // - have classification
                 // - if reused, that they're not outdated
-                return alleles.every(a => {
+                all_classified = alleles.every(a => {
                     if (a.id in interpretation.state.allele) {
                         let allele_state = interpretation.state.allele[a.id];
                         let has_classification = Boolean(AlleleStateHelper.getClassification(a, allele_state));
@@ -189,7 +196,7 @@ class WorkflowService {
                 });
             }
 
-        return false;
+        return has_required_rounds && all_classified;
     }
 
     checkFinishAllowed(type, id, interpretation, analysis) {
@@ -206,13 +213,13 @@ class WorkflowService {
      * @param  {Array(Allele)} alleles  Alleles to include allele/referenceassessments for.
      * @return {Promise}  Resolves upon completed submission.
      */
-    confirmCompleteFinalize(type, id, interpretation, alleles, analysis, config) {
+    confirmCompleteFinalize(type, id, interpretation, alleles, analysis, config, history_interpretations) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
             controller: ['canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
             size: 'lg',
             resolve: {
-                canFinalize: () => this.canFinalize(interpretation, alleles, config)
+                canFinalize: () => this.canFinalize(type, interpretation, alleles, config, history_interpretations)
             },
             controllerAs: 'vm'
         });

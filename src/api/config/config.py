@@ -30,6 +30,14 @@ config = {
         "user_config": {  # Default user config
             "overview": {
                 "views": ["variants", "analyses-by-findings"]
+            },
+            "workflows": {
+                "allele": {
+                    "finalize_required_interpretations": 0  # Required no. of (existing) interpretations for allowing finalize
+                },
+                "analysis": {
+                    "finalize_required_interpretations": 0
+                }
             }
         }
     },

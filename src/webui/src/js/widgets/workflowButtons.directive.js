@@ -126,9 +126,9 @@ export class WorkflowButtonsController {
     clickFinishBtn() {
         let [type, id] = this.getTypeAndId();
         let selectedInterpretation = this.getSelectedInterpretation()
-
+        let historyInterpretations = this.interpretationService.getHistory();
         this.workflowService.checkFinishAllowed(type, id, selectedInterpretation, this.getAnalysis()).then(() => {
-            this.workflowService.confirmCompleteFinalize(type, id, selectedInterpretation, this.getAlleles(), this.getAnalysis(), this.config).then((redirect) => {
+            this.workflowService.confirmCompleteFinalize(type, id, selectedInterpretation, this.getAlleles(), this.getAnalysis(), this.config, historyInterpretations).then((redirect) => {
                 if (redirect) {
                     this.location.path('/overview');
                 }
