@@ -50,6 +50,8 @@ class Analysis(Base):
     name = Column(String(), nullable=False, unique=True)
     genepanel_name = Column(String)
     genepanel_version = Column(String)
+    warnings = Column(String)
+    report = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     deposit_date = Column("deposit_date", DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
