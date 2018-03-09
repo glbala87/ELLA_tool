@@ -175,8 +175,8 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
         for allele_info in loaded_alleles:
             sanger_verify = allele_info['samples'][0]['genotype'].get('needs_verification', True)
             project_name, prove_number = extract_meta_from_name(analysis.name)
-            analysis_info = {'genepanel_name':    gp_key[0],
-                             'genepanel_version': gp_key[1],
+            analysis_info = {'genepanel_name':    analysis.genepanel.name,
+                             'genepanel_version': analysis.genepanel.version,
                              'project_name':      project_name,
                              'prove_number':      prove_number,
                              'deposit_date':       analysis.deposit_date.strftime(DATE_FORMAT)
