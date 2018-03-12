@@ -15,6 +15,12 @@ export default [
                 state`views.workflows.interpretation.selected.state.allele.${props`alleleId`}.alleleassessment.classification`,
                 props`classification`
             ),
+            // Prepare props for checkAddRemoveAlleleToReport
+            ({ props }) => {
+                return {
+                    alleleIds: [props.alleleId]
+                }
+            },
             checkAddRemoveAlleleToReport,
             allelesChanged
         ],

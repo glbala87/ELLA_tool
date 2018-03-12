@@ -73,7 +73,8 @@
               </div>
             </div>
           </div>
-          <div title="3hetAR" class="top">
+          <!--  FIXME: Will be a bit of work to fix this one, clarify whether used
+            <div title="3hetAR" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: '3hetAR'})">
               <span>3</span>
               <div ng-if="$ctrl.orderBy.unclassified.key === '3hetAR'">
@@ -81,13 +82,13 @@
                 <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="nav-row spacer"></div>
       <div class="nav-row allele" ng-repeat="allele in $ctrl.unclassified track by allele.id" title="Allele ID {{ allele.id }}"
             ng-class="{'active': $ctrl.selectedAllele.id == allele.id || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj), 'multiple': $ctrl.isMultipleInGene[allele.id]}"
-            ng-click="$ctrl.selectedAlleleChanged({alleleId: allele.id})">
+            ng-click="$ctrl.rowClicked(allele.id, 'unclassified')">
         <div title="{{$ctrl.getSampleTypesFull(allele)}}" class="cell sample-type id-sample-type">
             {{$ctrl.getSampleType(allele)}}
         </div>
@@ -119,11 +120,12 @@
                 <span>R</span>
             </div>
             </div>
+            <!--  FIXME: Will be a bit of work to fix this one, clarify whether used
             <div class="three-het-ar">
             <div title="3hetAR"  class="hit" ng-if="$ctrl.is3hetAR">
                 <span>3</span>
             </div>
-            </div>
+            </div> -->
         </div>
         <div class="cell tab"></div>
     </div>
@@ -199,7 +201,7 @@
               </div>
             </div>
           </div>
-          <div title="3hetAR" class="top">
+          <!-- <div title="3hetAR" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: '3hetAR'})">
               <span>3</span>
               <div ng-if="$ctrl.orderBy.classified.key === '3hetAR'">
@@ -207,13 +209,13 @@
                 <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="nav-row spacer"></div>
       <div class="nav-row allele" ng-repeat="allele in $ctrl.classified track by allele.id" title="Allele ID {{ allele.id }}"
-            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj), 'multiple': $ctrl.isMultipleInGene[allele.id]}"
-            ng-click="$ctrl.selectedAlleleChanged({alleleId: allele.id})">
+            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled[allele.id], 'toggled': $ctrl.isToggled[allele.id], 'togglable': $ctrl.isTogglable[allele.id], 'multiple': $ctrl.isMultipleInGene[allele.id]}"
+            ng-click="$ctrl.rowClicked(allele.id, 'classified')">
         <div title="{{$ctrl.getSampleTypesFull(allele)}}" class="cell sample-type id-sample-type">
             {{$ctrl.getSampleType(allele)}}
         </div>
@@ -245,21 +247,20 @@
                 <span>R</span>
             </div>
             </div>
-            <div class="three-het-ar">
+            <!-- <div class="three-het-ar">
             <div title="3hetAR"  class="hit" ng-if="$ctrl.is3hetAR">
                 <span>3</span>
             </div>
-            </div>
+            </div> -->
         </div>
         <div class="cell classification id-classification">
           {{$ctrl.classification[allele.id]}}
         </div>
-
         <div class="cell tab"
-             title="{{vm.isTogglable(allele_obj) && vm.readOnly ? 'Not allowed (read-only)' : ''}}">
-          <div ng-if="vm.isTogglable(allele_obj)" class="added">
-            <h5 ng-if="vm.isToggled(allele_obj)">-</h5>
-            <h5 ng-if="! vm.isToggled(allele_obj)">+</h5>
+             title="{{$ctrl.isTogglable[allele.id] && $ctrl.readOnly ? 'Not allowed (read-only)' : ''}}">
+          <div ng-if="$ctrl.isTogglable[allele.id]" class="added">
+            <h5 ng-if="$ctrl.isToggled[allele.id]">-</h5>
+            <h5 ng-if="!$ctrl.isToggled[allele.id]">+</h5>
           </div>
         </div>
     </div>

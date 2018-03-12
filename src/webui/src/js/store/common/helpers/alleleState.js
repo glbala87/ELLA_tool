@@ -56,6 +56,12 @@ export function checkAlleleStateModel(alleleState) {
         }
     }
 
+    if (!('report' in alleleState)) {
+        alleleState.report = {
+            included: false
+        }
+    }
+
     if (!('verification' in alleleState)) {
         alleleState.verification = null
     }

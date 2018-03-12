@@ -3,7 +3,7 @@ import { state, props, string } from 'cerebral/tags'
 import getAlleleAssessment from './getAlleleAssessment'
 import isAlleleAssessmentOutdated from '../../../../../common/computes/isAlleleAssessmentOutdated'
 
-export default function getClassification(alleleId) {
+export default function getClassification(alleleId, raw = false) {
     return Compute(
         state`views.workflows.data.alleles.${alleleId}`,
         state`app.config`,
@@ -17,7 +17,7 @@ export default function getClassification(alleleId) {
                 ? alleleAssessment.classification
                 : ''
             if (get(isAlleleAssessmentOutdated(allele))) {
-                return `${classification}*`
+                return raw ? classification : `${classification}*`
             } else {
                 return classification
             }

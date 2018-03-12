@@ -5,7 +5,7 @@ import filterClassified from '../../computed/filterClassified'
 import isHomozygous from '../computed/isHomozygous'
 import isLowQual from '../computed/isLowQual'
 import isImportantSource from '../computed/isImportantSource'
-//import getClassification from '../computed/getClassification'
+import getClassification from '../computed/getClassification'
 
 function getSortFunctions(config, isHomozygous, isImportantSource, isLowQual, classification) {
     return {
@@ -40,11 +40,13 @@ function getSortFunctions(config, isHomozygous, isImportantSource, isLowQual, cl
             return !isImportantSource[allele.id]
         },
         '3hetAR': allele => {
-            return 0
+            return 0 // FIXME
             return !this.is3hetAR(allele)
         },
         classification: allele => {
-            return classification[allele.id]
+            return config.classification.options.findIndex(
+                o => o.value === classification[allele.id]
+            )
         }
     }
 }
@@ -62,7 +64,7 @@ export default function sortSections({ state, props, resolve }) {
         resolve.value(isHomozygous),
         resolve.value(isImportantSource),
         resolve.value(isLowQual),
-        {} //resolve.value(getClassification),
+        resolve.value(getClassification)
     )
 
     if (orderBy.unclassified.key) {

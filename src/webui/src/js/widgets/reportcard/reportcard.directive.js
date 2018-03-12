@@ -9,14 +9,88 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
+import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
+import getClassification from '../../store/modules/views/workflows/interpretation/computed/getClassification'
+
+function formatHGVS(allele, classification, config) {
+    let hgvs = ''
+    for (let t of allele.annotation.filtered) {
+        hgvs += `${t.transcript}(${t.symbol}):`
+        let hgvs_short = t.HGVSc_short || allele.getHGVSgShort()
+
+        let [type, part] = hgvs_short.split('.')
+        if (allele.samples[0].genotype.homozygous) {
+            hgvs += `${type}.[${part}];[(${part})]` // c.[76A>C];[(76A>C)]
+        } else {
+            hgvs += `${type}.[${part}];[=]` // c.[76A>C];[=]
+        }
+        if (classification) {
+            hgvs += ` ${config.report.classification_text[classification]}`
+        }
+        hgvs += `\n${hgvs_short}`
+        if (t.HGVSp) {
+            hgvs += ` ${t.HGVSp}`
+        }
+        hgvs += '\n\n'
+    }
+    hgvs += ``
+    return hgvs
+}
+
+const getReportAlleleData = Compute(
+    state`views.workflows.data.alleles`,
+    state`app.config`,
+    (alleles, config, get) => {
+        const result = []
+
+        const includedAlleles = Object.values(alleles).filter(a => {
+            const alleleState = get(getAlleleState(a.id))
+            return alleleState.report.included
+        })
+
+        includedAlleles.sort(
+            firstBy(a => {
+                const classification = get(getClassification(a.id, true))
+                return config.classification.options.findIndex(o => o.value === classification)
+            }, -1)
+                .thenBy(a => a.annotation.filtered[0].symbol)
+                .thenBy(a => a.annotation.filtered[0].HGVSc_short)
+        )
+
+        for (let allele of includedAlleles) {
+            const classification = get(getClassification(allele.id, true))
+            const alleleReport = get(getAlleleReport(allele.id))
+            result.push({
+                hgvsc: formatHGVS(allele, classification, config),
+                comment: alleleReport.evaluation.comment
+            })
+        }
+        return result
+    }
+)
 
 app.component('reportCard', {
     templateUrl: 'ngtmpl/reportcard-new.ngtmpl.html',
     controller: connect(
         {
-            readOnly: isReadOnly
+            readOnly: isReadOnly,
+            reportAlleles: getReportAlleleData
         },
-        'ReportCard'
+        'ReportCard',
+        [
+            '$scope',
+            '$sce',
+            ($scope, $sce) => {
+                const $ctrl = $scope.$ctrl
+
+                Object.assign($ctrl, {
+                    getReportComment(allele) {
+                        return this.sce.trustAsHtml(this.getAlleleReport(allele).evaluation.comment)
+                    }
+                })
+            }
+        ]
     )
 })
 
@@ -67,29 +141,5 @@ export class ReportCardController {
         return this.alleles
     }
 
-    formatHGVS(allele) {
-        let hgvs = ''
-        for (let t of allele.annotation.filtered) {
-            hgvs += `${t.transcript}(${t.symbol}):`
-            let hgvs_short = t.HGVSc_short || allele.getHGVSgShort()
-
-            let [type, part] = hgvs_short.split('.')
-            if (allele.samples[0].genotype.homozygous) {
-                hgvs += `${type}.[${part}];[(${part})]` // c.[76A>C];[(76A>C)]
-            } else {
-                hgvs += `${type}.[${part}];[=]` // c.[76A>C];[=]
-            }
-            let classification = this.getClassification(allele)
-            if (classification) {
-                hgvs += ` ${this.config.report.classification_text[classification]}`
-            }
-            hgvs += `\n${hgvs_short}`
-            if (t.HGVSp) {
-                hgvs += ` ${t.HGVSp}`
-            }
-            hgvs += '\n\n'
-        }
-        hgvs += ``
-        return hgvs
-    }
+    formatHGVS(allele) {}
 }

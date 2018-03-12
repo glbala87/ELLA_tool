@@ -7,7 +7,6 @@ import hasInterpretations from '../actions/hasInterpretations'
 import getAcmgCodes from '../actions/getAcmgCodes'
 import prepareSuggestedAcmg from '../actions/prepareSuggestedAcmg'
 import prepareInterpretationState from '../actions/prepareInterpretationState'
-import checkAddRemoveAlleleToReport from '../interpretation/actions/checkAddRemoveAllelesToReport'
 import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
 
 import toastr from '../../../../common/factories/toastr'

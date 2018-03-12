@@ -4,6 +4,9 @@ import getAlleleState from './getAlleleState'
 
 export default function(alleleId) {
     return Compute(getAlleleState(alleleId), alleleState => {
-        return Boolean(alleleState.alleleassessment.reuse)
+        if (alleleState) {
+            return Boolean(alleleState.alleleassessment.reuse)
+        }
+        return false
     })
 }
