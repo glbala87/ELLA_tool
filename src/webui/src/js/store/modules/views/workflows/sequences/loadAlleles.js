@@ -13,6 +13,7 @@ import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
 import toastr from '../../../../common/factories/toastr'
 import autoReuseExistingAlleleassessments from '../interpretation/actions/autoReuseExistingAlleleassessments'
 import autoReuseExistingReferenceAssessments from '../interpretation/actions/autoReuseExistingReferenceAssessments'
+import processAlleles from '../../../../common/helpers/processAlleles'
 
 export default sequence('loadAlleles', [
     // If there are no interpretations (can happen when type: 'allele'),
@@ -29,7 +30,9 @@ export default sequence('loadAlleles', [
         false: [
             ({ props, state }) => {
                 const allele = deepCopy(state.get('views.workflows.allele'))
-                return { alleleResult: { [allele.id]: allele } }
+                const genepanel = state.get('views.workflows.data.genepanel')
+                processAlleles([allele], genepanel)
+                state.set('views.workflows.data.alleles', { [allele.id]: allele })
             }
         ]
     },
