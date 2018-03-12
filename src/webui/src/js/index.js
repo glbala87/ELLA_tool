@@ -131,8 +131,7 @@ class AppConfig {
             devtools: Devtools({
                 host: 'localhost:8585',
                 bigComponentsWarning: 20, // Our AngularJS components are traditionally very large
-                reconnect: false, // Can be annoying when devtools not open
-                storeMutations: true // time travel
+                reconnect: false // Can be annoying when devtools not open
             })
         }
 
@@ -141,9 +140,9 @@ class AppConfig {
         // Needed after upgrade to Angular >1.5,
         // since we haven't migrated to using $onInit()
         $compileProvider.preAssignBindingsEnabled(true)
-        $compileProvider.debugInfoEnabled(false)
-        $compileProvider.commentDirectivesEnabled(false)
-        $compileProvider.cssClassDirectivesEnabled(false)
+        $compileProvider.debugInfoEnabled(true)
+        $compileProvider.commentDirectivesEnabled(true)
+        $compileProvider.cssClassDirectivesEnabled(true)
 
         // Hack disabling Angular's watch of url.
         // Leads to infinite digest when changing url using cerebral (or any history.pushState API)
