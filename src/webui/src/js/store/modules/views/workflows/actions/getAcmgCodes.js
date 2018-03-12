@@ -30,7 +30,7 @@ function getAcmgCodes({ http, path, state, props, resolve }) {
         }
     }
 
-    if (alleles.length) {
+    if (Object.keys(alleles).length) {
         // This resource is POST even though it's only getting data
         return http
             .post(`acmg/alleles/`, {
