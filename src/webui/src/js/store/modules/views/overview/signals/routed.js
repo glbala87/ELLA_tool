@@ -13,10 +13,12 @@ import getOverviewAlleles from '../actions/getOverviewAlleles'
 import loadFinalized from '../sequences/loadFinalized'
 import redirectToSection from '../actions/redirectToSection'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
+import loadOverviewState from '../actions/loadOverviewState'
 
 export default sequence('routed', [
     setNavbarTitle(null),
     progress('start'),
+    loadOverviewState,
     checkAndSetValidSection,
     {
         valid: [

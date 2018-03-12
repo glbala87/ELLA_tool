@@ -34,12 +34,13 @@ const isCollapsed = Compute(
     props`sectionKey`,
     (userState, selectedAllele, sectionKey) => {
         if (
-            selectedAllele in userState &&
-            'sections' in userState[selectedAllele] &&
-            sectionKey in userState[selectedAllele].sections
+            selectedAllele in userState.allele &&
+            'sections' in userState.allele[selectedAllele] &&
+            sectionKey in userState.allele[selectedAllele].sections
         ) {
-            return userState[selectedAllele].sections[sectionKey].collapsed
+            return userState.allele[selectedAllele].sections[sectionKey].collapsed
         }
+        return false
     }
 )
 
@@ -72,6 +73,7 @@ app.component('alleleSectionbox', {
             ),
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
+            collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
             reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`,
             reuseAlleleAssessmentClicked: signal`views.workflows.interpretation.reuseAlleleAssessmentClicked`,
@@ -95,6 +97,13 @@ app.component('alleleSectionbox', {
                                 $ctrl.section.options.hideControlsOnCollapse && $ctrl.collapsed
                             )
                         }
+                    },
+                    collapseChangedWrapper(collapsed, section) {
+                        $ctrl.collapseAlleleSectionboxChanged({
+                            alleleId: $ctrl.selectedAllele,
+                            collapsed,
+                            section
+                        })
                     },
                     getCardColor() {
                         return $ctrl.isAlleleAssessmentReused ? 'green' : 'purple'

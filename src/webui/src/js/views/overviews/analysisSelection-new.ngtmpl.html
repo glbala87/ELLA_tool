@@ -1,4 +1,4 @@
-<sectionbox color="green" ng-attr-id="'analysis-ours'" class="id-analysis-ours" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses">
+<sectionbox color="green" class="id-analysis-ours" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'yourAnalyses')" collapsed="$ctrl.state.yourAnalyses.collapsed" ng-if="$ctrl.analyses">
   <maintitle>
     YOUR ANALYSES
   </maintitle>
@@ -11,7 +11,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-finding'" class="id-analysis-findings" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+<sectionbox color="green" class="id-analysis-findings" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'withFindings')" collapsed="$ctrl.state.withFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
   <maintitle>
     WITH FINDINGS: CLASS 3-5
   </maintitle>
@@ -24,7 +24,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-findings-normal'" class="id-analysis-findings-normal" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+<sectionbox color="green" class="id-analysis-findings-normal" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'withoutFindings')" collapsed="$ctrl.state.withoutFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
   <maintitle>
     ONLY NORMAL: CLASS 1-2 + U
   </maintitle>
@@ -37,7 +37,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-assessments-missing'" class="id-analysis-missing-classifications" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+<sectionbox color="green" class="id-analysis-missing-classifications" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'missingClassifications')" collapsed="$ctrl.state.missingClassifications.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
     <maintitle>
       MISSING CLASSIFICATIONS
     </maintitle>
@@ -50,7 +50,7 @@
     </contentwrapper>
   </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-pending'" class="id-analysis-pending" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && !$ctrl.selectedSection == 'analyses-by-findings'">
+<sectionbox color="green" class="id-analysis-pending" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingAnalysis')" collapsed="$ctrl.state.pendingAnalysis.collapsed" ng-if="$ctrl.analyses && !$ctrl.selectedSection == 'analyses-by-findings'">
   <maintitle>
     PENDING INTERPRETATION
   </maintitle>
@@ -64,7 +64,7 @@
 </sectionbox>
 
 
-<sectionbox color="purple" ng-attr-id="'analysis-review-with-findings'" class="id-analysis-review-with-findings" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+<sectionbox color="purple" class="id-analysis-review-with-findings" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewWithFindings')" collapsed="$ctrl.state.reviewWithFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
     <maintitle>
       PENDING REVIEW - WITH FINDINGS: CLASS 3-5
     </maintitle>
@@ -77,7 +77,7 @@
     </contentwrapper>
   </sectionbox>
 
-  <sectionbox color="purple" ng-attr-id="'analysis-review-without-findings'" class="id-analysis-review-without-findings" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+  <sectionbox color="purple" class="id-analysis-review-without-findings" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewWithoutFindings')" collapsed="$ctrl.state.reviewWithoutFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
       <maintitle>
         PENDING REVIEW - ONLY NORMAL: CLASS 1-2 + U
       </maintitle>
@@ -90,7 +90,7 @@
       </contentwrapper>
     </sectionbox>
 
-  <sectionbox color="purple" ng-attr-id="'analysis-review-missing-classifications'" class="id-analysis-review-missing-classifications" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+  <sectionbox color="purple" class="id-analysis-review-missing-classifications" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewMissingClassifications')" collapsed="$ctrl.state.reviewMissingClassifications.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
     <maintitle>
       PENDING REVIEW - MISSING CLASSIFICATIONS
     </maintitle>
@@ -103,7 +103,7 @@
     </contentwrapper>
   </sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'analysis-review'" class="id-analysis-review" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses && $ctrl.selectedSection != 'analyses-by-findings'">
+<sectionbox color="purple" class="id-analysis-review" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingReview')" collapsed="$ctrl.state.pendingReview.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection != 'analyses-by-findings'">
   <maintitle>
     PENDING REVIEW
   </maintitle>
@@ -120,7 +120,7 @@
 
 
 
-<sectionbox color="blue" ng-attr-id="'analysis-others'" class="id-analysis-others" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses">
+<sectionbox color="blue" class="id-analysis-others" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'othersAnalyses')" collapsed="$ctrl.state.othersAnalyses.collapsed" ng-if="$ctrl.analyses">
   <maintitle>
     OTHERS' ANALYSES
   </maintitle>
@@ -133,7 +133,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="blue" ng-attr-id="'analysis-finished'" class="id-analysis-finished" remember-collapse="true" collapsed="true" ng-if="$ctrl.analyses">
+<sectionbox color="blue" class="id-analysis-finished" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'finished')" collapsed="$ctrl.state.finished.collapsed" ng-if="$ctrl.analyses">
   <maintitle>
     FINISHED
   </maintitle>

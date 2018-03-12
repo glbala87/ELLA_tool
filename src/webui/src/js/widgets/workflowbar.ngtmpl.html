@@ -77,7 +77,7 @@
                   read-only="vm.readOnly">
         </upload>
         <button class="id-collapse-all"
-                ng-click="vm.collapseAll()">Collapse all
+                ng-click="$ctrl.collapseAllAlleleSectionboxClicked()">Collapse all
         </button>
         <div class="dropdown white" ng-if="$ctrl.workflowType == 'allele' && vm.interpretationService.genepanel_options && vm.getSelectedInterpretation().status != 'Ongoing'">
             <select

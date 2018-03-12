@@ -1,4 +1,4 @@
-<sectionbox color="green" ng-attr-id="'variants-your'" class="id-variants-your" remember-collapse="true" collapsed="true">
+<sectionbox color="green" class="id-variants-your" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'yourVariants')" collapsed="$ctrl.state.yourVariants.collapsed">
   <maintitle>
     YOUR VARIANTS
   </maintitle>
@@ -11,7 +11,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'variants-pending'" class="id-variants-pending" remember-collapse="true" collapsed="true">
+<sectionbox color="green" class="id-variants-pending" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'missingClassification')" collapsed="$ctrl.state.missingClassification.collapsed">
   <maintitle>
     PENDING CLASSIFICATION
   </maintitle>
@@ -24,7 +24,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'variants-review'" class="id-variants-review" remember-collapse="true" collapsed="true">
+<sectionbox color="purple" class="id-variants-review" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'review')" collapsed="$ctrl.state.review.collapsed">
   <maintitle>
     PENDING REVIEW
   </maintitle>
@@ -39,7 +39,7 @@
 
 <div class="spacer"></div>
 
-<sectionbox color="blue" ng-attr-id="'variants-others'" class="id-variants-others"  remember-collapse="true" collapsed="true">
+<sectionbox color="blue" class="id-variants-others"  on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'othersVariants')" collapsed="$ctrl.state.othersVariants.collapsed">
   <maintitle>
     OTHERS' VARIANTS
   </maintitle>
@@ -52,7 +52,7 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="blue" ng-attr-id="'variants-finished'" class="id-variants-finished" remember-collapse="true" collapsed="true">
+<sectionbox color="blue" class="id-variants-finished" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'finished')" collapsed="$ctrl.state.finished.collapsed">
   <maintitle>
     FINISHED
   </maintitle>

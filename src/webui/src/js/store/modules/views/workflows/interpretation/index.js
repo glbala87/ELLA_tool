@@ -2,6 +2,8 @@ import { Module } from 'cerebral'
 import addAcmgClicked from './signals/addAcmgClicked'
 import addCustomAnnotationClicked from './signals/addCustomAnnotationClicked'
 import evaluateReferenceClicked from './signals/evaluateReferenceClicked'
+import collapseAlleleSectionboxChanged from './signals/collapseAlleleSectionboxChanged'
+import collapseAllAlleleSectionboxClicked from './signals/collapseAllAlleleSectionboxChangedClicked'
 import acmgCodeChanged from './signals/acmgCodeChanged'
 import reuseAlleleAssessmentClicked from './signals/reuseAlleleAssessmentClicked'
 import reportCommentChanged from './signals/reportCommentChanged'
@@ -19,6 +21,8 @@ export default Module({
         addAcmgClicked,
         addCustomAnnotationClicked,
         evaluateReferenceClicked,
+        collapseAllAlleleSectionboxClicked,
+        collapseAlleleSectionboxChanged,
         acmgCodeChanged,
         classificationChanged,
         evaluationCommentChanged,

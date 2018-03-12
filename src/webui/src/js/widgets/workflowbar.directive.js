@@ -27,6 +27,7 @@ app.component('workflowbar', {
             readOnly: isReadOnly,
             acmgCandidates,
             componentChanged: signal`views.workflows.componentChanged`,
+            collapseAllAlleleSectionboxClicked: signal`views.workflows.interpretation.collapseAllAlleleSectionboxClicked`,
             selectedInterpretationChanged: signal`views.workflows.selectedInterpretationChanged`,
             reviewCommentChanged: signal`views.workflows.interpretation.reviewCommentChanged`,
             copyAllAlamutClicked: signal`views.workflows.copyAllAlamutClicked`,

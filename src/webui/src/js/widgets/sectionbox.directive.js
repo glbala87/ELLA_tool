@@ -14,10 +14,9 @@ import { Directive, Inject } from '../ng-decorators'
         topcontrols: '=?', // bool: whether controls should live at the top of the section
         collapsible: '=?', // bool: whether box can collapse
         collapsed: '=?',
-        rememberCollapse: '=?',
-        onClose: '&',
-        color: '@',
-        id: '='
+        onCollapse: '&?',
+        onClose: '&?',
+        color: '@'
     },
     transclude: {
         title: 'maintitle',
@@ -41,11 +40,6 @@ import { Directive, Inject } from '../ng-decorators'
     }
 })
 export class SectionboxController {
-    constructor() {
-        if (this.rememberCollapse && !this.id) {
-            console.warn('ng-attr-id not specified. Remember collapse has no function.')
-        }
-    }
     getClasses() {
         let color = this.color ? this.color : 'blue'
         let collapsed = this.getCollapseStatus() ? 'collapsed' : ''
@@ -53,14 +47,7 @@ export class SectionboxController {
     }
 
     getCollapseStatus() {
-        if (this.rememberCollapse && this.id) {
-            if (!sessionStorage.getItem(this.id + '-collapsed')) {
-                sessionStorage.setItem(this.id + '-collapsed', String(Boolean(this.collapsed))) // Store as string for maximum browser compatibility
-            }
-            return sessionStorage.getItem(this.id + '-collapsed') === 'true'
-        } else {
-            return this.collapsed
-        }
+        return this.collapsed
     }
 
     collapse() {
@@ -68,8 +55,8 @@ export class SectionboxController {
             return
         }
         this.collapsed = !this.getCollapseStatus()
-        if (this.rememberCollapse) {
-            sessionStorage.setItem(this.id + '-collapsed', String(Boolean(this.collapsed)))
+        if (this.onCollapse) {
+            this.onCollapse({ collapsed: this.collapsed })
         }
     }
 

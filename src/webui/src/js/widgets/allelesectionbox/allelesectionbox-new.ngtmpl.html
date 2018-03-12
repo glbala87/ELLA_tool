@@ -1,4 +1,4 @@
-<sectionbox class="id-sectionbox-{{$ctrl.sectionKey}}" color="{{$ctrl.getCardColor()}}" collapsed="vm.getSectionUserState().collapsed">
+<sectionbox class="id-sectionbox-{{$ctrl.sectionKey}}" color="{{$ctrl.getCardColor()}}" on-collapse="$ctrl.collapseChangedWrapper(collapsed, $ctrl.sectionKey)" collapsed="$ctrl.collapsed">
   <maintitle>
   {{$ctrl.section.title}}
   </maintitle>
