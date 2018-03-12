@@ -6,7 +6,9 @@
     <wysiwyg-editor class="control-comment id-report-comment"
       ng-disabled="$ctrl.readOnly"
       placeholder="REPORT COMMENT"
-      ng-model="vm.state.report.comment"></wysiwyg-editor>
+      ng-model="$ctrl.reportComment"
+      ng-change="$ctrl.reportCommentChanged({comment: $ctrl.reportComment})"
+      ></wysiwyg-editor>
     <h4 class="section-header">Clinical report</h4>
 
     <h4 ng-if="!$ctrl.reportAlleles.length && $ctrl.readOnly" class="sb-notification dim">No variants added.</h4>

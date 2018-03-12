@@ -75,7 +75,7 @@ app.component('alleleSectionbox', {
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
             collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
-            reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`,
+            alleleReportCommentChanged: signal`views.workflows.interpretation.alleleReportCommentChanged`,
             reuseAlleleAssessmentClicked: signal`views.workflows.interpretation.reuseAlleleAssessmentClicked`,
             removeAcmgClicked: signal`views.workflows.interpretation.removeAcmgClicked`,
             acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`

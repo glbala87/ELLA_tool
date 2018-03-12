@@ -74,8 +74,10 @@ app.component('reportCard', {
     templateUrl: 'ngtmpl/reportcard-new.ngtmpl.html',
     controller: connect(
         {
+            reportComment: state`views.workflows.interpretation.selected.state.report.comment`,
             readOnly: isReadOnly,
-            reportAlleles: getReportAlleleData
+            reportAlleles: getReportAlleleData,
+            reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`
         },
         'ReportCard',
         [

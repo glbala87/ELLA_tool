@@ -103,7 +103,7 @@
     <wysiwyg-editor class="control-comment id-comment-report"
                        ng-disabled="$ctrl.readOnly"
                        placeholder="{{$ctrl.section.reportComment.placeholder}}"
-                       ng-change="$ctrl.reportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.allelereport.evaluation.comment})"
+                       ng-change="$ctrl.alleleReportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.allelereport.evaluation.comment})"
                        ng-model="$ctrl.allelereport.evaluation.comment"
                        ng-if="$ctrl.section.reportComment"></wysiwyg-editor>
 
