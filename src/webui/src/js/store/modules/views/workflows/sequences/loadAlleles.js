@@ -34,12 +34,8 @@ export default sequence('loadAlleles', [
         ]
     },
     prepareInterpretationState,
-    // Prepare props for checkAddRemoveAlleleToReport
-    ({ state }) => {
-        return { alleleIds: Object.keys(state.get('views.workflows.data.alleles')) }
-    },
-    checkAddRemoveAlleleToReport,
     autoReuseExistingAlleleassessments,
     autoReuseExistingReferenceAssessments,
+    checkAddRemoveAlleleToReport,
     allelesChanged // Update alleleSidebar
 ])

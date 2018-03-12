@@ -2,10 +2,10 @@ import getClassification from '../computed/getClassification'
 import getAlleleState from '../computed/getAlleleState'
 
 export default function checkAddRemoveAlleleToReport({ props, state, resolve }) {
-    const { alleleIds } = props
+    const { changedAlleleIds } = props
     const config = state.get('app.config')
 
-    for (let alleleId of alleleIds) {
+    for (let alleleId of changedAlleleIds) {
         const alleleState = resolve.value(getAlleleState(alleleId))
         const classification = resolve.value(getClassification(alleleId))
         const configOption = config.classification.options.find(o => {

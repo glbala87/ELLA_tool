@@ -5,6 +5,7 @@ import isAlleleAssessmentOutdated from '../../../../../common/computes/isAlleleA
 export default function autoReuseExistingAlleleassessments({ state, resolve }) {
     const alleles = state.get('views.workflows.data.alleles')
     const config = state.get('app.config')
+    const changedAlleleIds = []
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
         const alleleState = resolve.value(getAlleleState(alleleId))
@@ -25,6 +26,7 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
                         `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.reuse`,
                         true
                     )
+                    changedAlleleIds.push(alleleId)
                 }
                 state.set(
                     `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.reuseCheckedId`,
@@ -34,4 +36,5 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
             // Copying in the existing alleleassessment into alleleState is handled elsewhere
         }
     }
+    return { changedAlleleIds }
 }

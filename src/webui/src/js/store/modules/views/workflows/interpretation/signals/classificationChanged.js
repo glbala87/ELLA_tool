@@ -18,7 +18,7 @@ export default [
             // Prepare props for checkAddRemoveAlleleToReport
             ({ props }) => {
                 return {
-                    alleleIds: [props.alleleId]
+                    changedAlleleIds: [props.alleleId]
                 }
             },
             checkAddRemoveAlleleToReport,
