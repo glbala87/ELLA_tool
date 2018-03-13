@@ -19,9 +19,7 @@ function getAlleleByIdentifier({ http, path, props, state }) {
 
     return http
         .get(`alleles/`, {
-            q: JSON.stringify(query),
-            gp_name: props.genepanelName,
-            gp_version: props.genepanelVersion
+            q: JSON.stringify(query)
         })
         .then(response => {
             let alleles = response.result

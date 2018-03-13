@@ -6,6 +6,7 @@ import routedAllele from './signals/routedAllele'
 import { initApp, authenticate } from '../../../common/factories'
 import changeView from '../factories/changeView'
 import componentChanged from './signals/componentChanged'
+import selectedGenepanelChanged from './signals/selectedGenepanelChanged'
 import selectedInterpretationChanged from './signals/selectedInterpretationChanged'
 import copyAllAlamutClicked from './signals/copyAllAlamutClicked'
 import copySelectedAlamutClicked from './signals/copySelectedAlamutClicked'
@@ -27,6 +28,7 @@ export default Module({
         routedAllele: initApp(authenticate([changeView('workflows'), routedAllele])),
         routedAnalysis: initApp(authenticate([changeView('workflows'), routedAnalysis])),
         componentChanged,
+        selectedGenepanelChanged,
         selectedInterpretationChanged,
         copySelectedAlamutClicked,
         copyAllAlamutClicked,

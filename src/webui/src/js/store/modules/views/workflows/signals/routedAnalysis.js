@@ -31,9 +31,13 @@ export default [
                     set(state`views.workflows.data.analysis`, props`result`),
                     setNavbarTitle(state`views.workflows.data.analysis.name`),
                     prepareComponents,
-                    // props data for loadGenepanel
-                    set(props`genepanelName`, props`result.genepanel.name`),
-                    set(props`genepanelVersion`, props`result.genepanel.version`),
+                    ({ state, props }) => {
+                        const analysis = state.get('views.workflows.data.analysis')
+                        state.set('views.workflows.selectedGenepanel', {
+                            name: analysis.genepanel.name,
+                            version: analysis.genepanel.version
+                        })
+                    },
                     loadGenepanel,
                     loadInterpretations
                 ]

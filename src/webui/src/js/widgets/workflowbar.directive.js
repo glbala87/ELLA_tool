@@ -24,6 +24,8 @@ app.component('workflowbar', {
             selectedInterpretation: state`views.workflows.interpretation.selected`,
             selectedAlleleId: state`views.workflows.selectedAllele`,
             isOngoing: state`views.workflows.interpretation.isOngoing`,
+            genepanels: state`views.workflows.data.genepanels`,
+            selectedGenepanel: state`views.workflows.selectedGenepanel`,
             readOnly: isReadOnly,
             acmgCandidates,
             componentChanged: signal`views.workflows.componentChanged`,
@@ -33,6 +35,7 @@ app.component('workflowbar', {
             copyAllAlamutClicked: signal`views.workflows.copyAllAlamutClicked`,
             copySelectedAlamutClicked: signal`views.workflows.copySelectedAlamutClicked`,
             addExternalAllelesOpened: signal`views.workflows.addExcludedAllelesOpened`,
+            selectedGenepanelChanged: signal`views.workflows.selectedGenepanelChanged`,
             addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`
         },
         'Workflow',

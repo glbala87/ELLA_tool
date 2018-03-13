@@ -9,7 +9,7 @@ import loadAcmg from '../sequences/loadAcmg'
 
 import toastr from '../../../../common/factories/toastr'
 
-export default sequence('LoadInterpretationData', [
+export default sequence('loadInterpretationData', [
     progress('start'),
     loadAlleles,
     progress('inc'),

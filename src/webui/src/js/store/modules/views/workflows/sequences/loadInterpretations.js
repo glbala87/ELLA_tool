@@ -9,7 +9,7 @@ import loadInterpretationData from '../signals/loadInterpretationData'
 
 import toastr from '../../../../common/factories/toastr'
 
-export default sequence('LoadInterpretations', [
+export default sequence('loadInterpretations', [
     set(state`views.workflows.loaded`, false),
     getInterpretations,
     {
