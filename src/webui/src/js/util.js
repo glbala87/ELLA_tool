@@ -28,11 +28,11 @@ export function hasDataAtKey(container, ...keys) {
         }
 
         for(let i = 0; i < keys.length;  i++ ) {
-            if (container[keys[i]]) {
+            if (container[keys[i]] !== undefined) {
                 if (i === keys.length -1) { // last key
                       return true;
                 } else {
-                    return hasDataAtKey(container[keys[i]], keys.slice(1));
+                    return hasDataAtKey(container[keys[i]], ...keys.slice(1));
                 }
             } else {
                 return false;
