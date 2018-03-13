@@ -17,6 +17,7 @@ import finishConfirmationClicked from './signals/finishConfirmationClicked'
 import loadInterpretationData from './signals/loadInterpretationData'
 import alleleSidebar from './alleleSidebar'
 import interpretation from './interpretation'
+import verificationStatusChanged from './signals/verificationStatusChanged'
 
 export default Module({
     state: {}, // State set in changeView (via parent module: ../workflows)
@@ -36,6 +37,7 @@ export default Module({
         startClicked,
         finishClicked,
         finishConfirmationClicked,
-        loadInterpretationData
+        loadInterpretationData,
+        verificationStatusChanged
     }
 })

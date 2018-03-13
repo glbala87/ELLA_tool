@@ -110,10 +110,10 @@
                 <span>O</span>
             </div>
             </div>
-            <div title="Quality issues"  class="low-qual">
-            <div class="hit" ng-if="$ctrl.isLowQual[allele.id]">
-                <span>Q</span>
-            </div>
+            <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
+              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele.id)">
+                <span>{{$ctrl.getQualityTag(allele.id)}}</span>
+              </div>
             </div>
             <div class="important-source">
             <div title="Reference(s) available"  class="hit" ng-if="$ctrl.isImportantSource[allele.id]">
@@ -237,10 +237,10 @@
                 <span>O</span>
             </div>
             </div>
-            <div title="Quality issues"  class="low-qual">
-            <div class="hit" ng-if="$ctrl.isLowQual[allele.id]">
-                <span>Q</span>
-            </div>
+            <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
+              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele.id)">
+                <span>{{$ctrl.getQualityTag(allele.id)}}</span>
+              </div>
             </div>
             <div class="important-source">
             <div title="Reference(s) available"  class="hit" ng-if="$ctrl.isImportantSource[allele.id]">

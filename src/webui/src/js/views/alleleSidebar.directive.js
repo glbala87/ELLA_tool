@@ -18,19 +18,20 @@ import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar
 import getConsequence from '../store/modules/views/workflows/alleleSidebar/computed/getConsequence'
 import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 
 const unclassifiedAlleles = Compute(
     state`views.workflows.alleleSidebar.unclassified`,
-    (unclassified, get) => {
-        const alleles = get(state`views.workflows.data.alleles`)
+    state`views.workflows.data.alleles`,
+    (unclassified, alleles) => {
         return unclassified.map(aId => alleles[aId])
     }
 )
 
 const classifiedAlleles = Compute(
     state`views.workflows.alleleSidebar.classified`,
-    (classified, get) => {
-        const alleles = get(state`views.workflows.data.alleles`)
+    state`views.workflows.data.alleles`,
+    (classified, alleles) => {
         return classified.map(aId => alleles[aId])
     }
 )
@@ -84,6 +85,7 @@ app.component('alleleSidebar', {
             isNonsense,
             isTogglable,
             isToggled,
+            verificationStatus: getVerificationStatus,
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedAllele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
             unclassified: unclassifiedAlleles,
@@ -118,6 +120,47 @@ app.component('alleleSidebar', {
                             .map(s => s.sample_type)
                             .join(', ')
                             .toUpperCase()
+                    },
+                    isTechnical(allele_id) {
+                        return $ctrl.verificationStatus[allele_id] === 'technical'
+                    },
+                    isVerified(allele_id) {
+                        return $ctrl.verificationStatus[allele_id] === 'verified'
+                    },
+                    hasQualityInformation(allele_id) {
+                        return (
+                            $ctrl.isLowQual[allele_id] ||
+                            $ctrl.isTechnical(allele_id) ||
+                            $ctrl.isVerified(allele_id)
+                        )
+                    },
+                    getQualityClass(allele_id) {
+                        if ($ctrl.isTechnical(allele_id)) {
+                            return 'technical'
+                        } else if ($ctrl.isVerified(allele_id)) {
+                            return 'verified'
+                        } else {
+                            return 'low-qual'
+                        }
+                    },
+                    getQualityTag(allele_id) {
+                        if ($ctrl.isTechnical(allele_id)) {
+                            return 'T'
+                        } else if ($ctrl.isVerified(allele_id)) {
+                            return 'V'
+                        } else if ($ctrl.isLowQual[allele_id]) {
+                            return 'Q'
+                        }
+                    },
+
+                    getQualityTextPopover(allele) {
+                        if ($ctrl.isTechnical(allele)) {
+                            return 'Technical'
+                        } else if ($ctrl.isVerified(allele)) {
+                            return 'Verified'
+                        } else {
+                            return 'Quality issues'
+                        }
                     }
                 })
             }
