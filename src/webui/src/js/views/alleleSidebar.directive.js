@@ -41,13 +41,15 @@ const isTogglable = Compute(
     getClassification,
     state`views.workflows.selectedComponent`,
     (alleles, classifications, selectedComponent, get) => {
+        const verificationStatus = get(getVerificationStatus)
         const result = {}
         for (let [alleleId, allele] of Object.entries(alleles)) {
             if (selectedComponent !== 'Report') {
                 result[alleleId] = false
                 continue
             }
-            result[alleleId] = Boolean(classifications[alleleId]) // FIXME: Check verification status
+            result[alleleId] =
+                Boolean(classifications[alleleId]) && verificationStatus[alleleId] != 'technical'
         }
         return result
     }
@@ -104,7 +106,7 @@ app.component('alleleSidebar', {
                         if ($ctrl.selectedComponent !== 'Report') {
                             $ctrl.selectedAlleleChanged({ alleleId })
                         } else {
-                            if (section == 'classified') {
+                            if (section == 'classified' && !$ctrl.isTechnical(alleleId)) {
                                 $ctrl.includeReportToggled({ alleleId })
                             }
                         }

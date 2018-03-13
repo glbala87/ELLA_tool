@@ -87,7 +87,7 @@
       </div>
       <div class="nav-row spacer"></div>
       <div class="nav-row allele" ng-repeat="allele in $ctrl.unclassified track by allele.id" title="Allele ID {{ allele.id }}"
-            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj), 'multiple': $ctrl.isMultipleInGene[allele.id]}"
+            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj), 'multiple': $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}"
             ng-click="$ctrl.rowClicked(allele.id, 'unclassified')">
         <div title="{{$ctrl.getSampleTypesFull(allele)}}" class="cell sample-type id-sample-type">
             {{$ctrl.getSampleType(allele)}}
@@ -101,7 +101,7 @@
         <div class="cell hgvsc id-hgvsc">
             {{allele.annotation.filtered[0].HGVSc_short}}
         </div>
-        <div class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id]}">
+        <div class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}">
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div class="cell indicators id-indicators">
@@ -214,7 +214,7 @@
       </div>
       <div class="nav-row spacer"></div>
       <div class="nav-row allele" ng-repeat="allele in $ctrl.classified track by allele.id" title="Allele ID {{ allele.id }}"
-            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled[allele.id], 'toggled': $ctrl.isToggled[allele.id], 'togglable': $ctrl.isTogglable[allele.id], 'multiple': $ctrl.isMultipleInGene[allele.id]}"
+            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled[allele.id], 'toggled': $ctrl.isToggled[allele.id], 'togglable': $ctrl.isTogglable[allele.id], 'multiple': $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}"
             ng-click="$ctrl.rowClicked(allele.id, 'classified')">
         <div title="{{$ctrl.getSampleTypesFull(allele)}}" class="cell sample-type id-sample-type">
             {{$ctrl.getSampleType(allele)}}
@@ -228,7 +228,7 @@
         <div class="cell hgvsc id-hgvsc">
             {{allele.annotation.filtered[0].HGVSc_short}}
         </div>
-        <div class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id]}">
+        <div class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}">
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div class="cell indicators id-indicators">
