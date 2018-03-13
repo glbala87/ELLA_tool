@@ -254,7 +254,7 @@
             </div> -->
         </div>
         <div class="cell classification id-classification">
-          {{$ctrl.classification[allele.id]}}
+          {{$ctrl.getClassificationText(allele.id)}}
         </div>
         <div class="cell tab"
              title="{{$ctrl.isTogglable[allele.id] && $ctrl.readOnly ? 'Not allowed (read-only)' : ''}}">

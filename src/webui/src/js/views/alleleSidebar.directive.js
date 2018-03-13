@@ -127,6 +127,13 @@ app.component('alleleSidebar', {
                     isVerified(allele_id) {
                         return $ctrl.verificationStatus[allele_id] === 'verified'
                     },
+                    getClassificationText(allele_id) {
+                        if ($ctrl.isTechnical(allele_id)) {
+                            return `(${$ctrl.classification[allele_id]})`
+                        } else {
+                            return $ctrl.classification[allele_id]
+                        }
+                    },
                     hasQualityInformation(allele_id) {
                         return (
                             $ctrl.isLowQual[allele_id] ||
@@ -152,7 +159,6 @@ app.component('alleleSidebar', {
                             return 'Q'
                         }
                     },
-
                     getQualityTextPopover(allele) {
                         if ($ctrl.isTechnical(allele)) {
                             return 'Technical'

@@ -4,8 +4,16 @@ import isHomozygous from '../alleleSidebar/computed/isHomozygous'
 import isLowQual from '../alleleSidebar/computed/isLowQual'
 import isImportantSource from '../alleleSidebar/computed/isImportantSource'
 import getClassification from '../alleleSidebar/computed/getClassification'
+import getVerificationStatus from '../interpretation/computed/getVerificationStatus'
 
-function getSortFunctions(config, isHomozygous, isImportantSource, isLowQual, classification) {
+function getSortFunctions(
+    config,
+    isHomozygous,
+    isImportantSource,
+    isLowQual,
+    classification,
+    verificationStatus
+) {
     return {
         inheritance: allele => {
             if (allele.formatted.inheritance === 'AD') {
@@ -32,7 +40,15 @@ function getSortFunctions(config, isHomozygous, isImportantSource, isLowQual, cl
             return isHomozygous[allele.id] ? -1 : 1
         },
         quality: allele => {
-            return isLowQual[allele.id] ? -1 : 1
+            if (verificationStatus[allele.id] === 'verified') {
+                return 0
+            } else if (verificationStatus[allele.id] === 'technical') {
+                return 3
+            } else if (isLowQual[allele.id]) {
+                return 2
+            } else {
+                return 1
+            }
         },
         references: allele => {
             return !isImportantSource[allele.id]
@@ -40,6 +56,9 @@ function getSortFunctions(config, isHomozygous, isImportantSource, isLowQual, cl
         '3hetAR': allele => {
             return 0 // FIXME
             return !this.is3hetAR(allele)
+        },
+        technical: allele => {
+            return verificationStatus[allele.id] === 'technical' ? 1 : -1
         },
         classification: allele => {
             return config.classification.options.findIndex(
@@ -62,10 +81,19 @@ export default function sortAlleles(alleles, key, reverse) {
                 get(isHomozygous),
                 get(isImportantSource),
                 get(isLowQual),
-                get(getClassification)
+                get(getClassification),
+                get(getVerificationStatus)
             )
 
-            if (key) {
+            if (key === 'classification') {
+                sortedAlleles.sort(
+                    firstBy(sortFunctions.technical)
+                        .thenBy(sortFunctions.classification, -1)
+                        .thenBy(sortFunctions.inheritance)
+                        .thenBy(sortFunctions.gene)
+                        .thenBy(sortFunctions.hgvsc)
+                )
+            } else if (key) {
                 sortedAlleles.sort(
                     firstBy(sortFunctions[key], reverse ? -1 : 1)
                         .thenBy(sortFunctions.inheritance)
