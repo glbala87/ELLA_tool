@@ -75,7 +75,10 @@ export default function sortAlleles(alleles, key, reverse) {
         reverse,
         state`app.config`,
         (alleles, key, reverse, config, get) => {
-            const sortedAlleles = alleles.slice()
+            if (!alleles) {
+                return
+            }
+            const sortedAlleles = Object.values(alleles).slice()
             const sortFunctions = getSortFunctions(
                 config,
                 get(isHomozygous),
