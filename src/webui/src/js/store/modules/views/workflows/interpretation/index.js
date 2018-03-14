@@ -13,6 +13,7 @@ import classificationChanged from './signals/classificationChanged'
 import ignoreReferenceClicked from './signals/ignoreReferenceClicked'
 import removeAcmgClicked from './signals/removeAcmgClicked'
 import reviewCommentChanged from './signals/reviewCommentChanged'
+import showExcludedReferencesClicked from './signals/showExcludedReferencesClicked'
 import interpretationUserStateChanged from './signals/interpretationUserStateChanged'
 import upgradeDowngradeAcmgClicked from './signals/upgradeDowngradeAcmgClicked'
 
@@ -34,6 +35,7 @@ export default Module({
         reviewCommentChanged,
         reuseAlleleAssessmentClicked,
         interpretationUserStateChanged,
+        showExcludedReferencesClicked,
         upgradeDowngradeAcmgClicked
     }
 })

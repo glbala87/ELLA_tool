@@ -22,7 +22,8 @@ app.component('alleleInfoReferences', {
                 state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
                 state`views.workflows.interpretation.selected`,
                 state`views.workflows.data.references`
-            )
+            ),
+            showExcluded: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`
         },
         'AlleleInfoReferences',
         [

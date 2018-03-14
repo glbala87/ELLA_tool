@@ -16,6 +16,34 @@ import getAlleleAssessment from '../../store/modules/views/workflows/interpretat
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
+import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
+import {
+    getReferencesIdsForAllele,
+    findReferencesFromIds
+} from '../../store/common/helpers/reference'
+
+const getExcludedReferencesCount = Compute(
+    state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
+    state`views.workflows.data.references`,
+    (allele, references, get) => {
+        if (!allele) {
+            return
+        }
+        const alleleReferenceIds = getReferencesIdsForAllele(allele)
+        const alleleReferences = findReferencesFromIds(
+            Object.values(references),
+            alleleReferenceIds
+        ).references
+        return alleleReferences
+            .map(r => get(getReferenceAssessment(allele.id, r.id)) || null)
+            .filter(ra => {
+                if (ra && 'evaluation' in ra) {
+                    return ra.evaluation.relevance === 'Ignore'
+                }
+                return false
+            }).length
+    }
+)
 
 const getSection = Compute(
     state`views.workflows.selectedComponent`,
@@ -71,6 +99,7 @@ app.component('alleleSectionbox', {
             isAlleleAssessmentReused: isAlleleAssessmentReused(
                 state`views.workflows.selectedAllele`
             ),
+            showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
             collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,
@@ -78,7 +107,9 @@ app.component('alleleSectionbox', {
             alleleReportCommentChanged: signal`views.workflows.interpretation.alleleReportCommentChanged`,
             reuseAlleleAssessmentClicked: signal`views.workflows.interpretation.reuseAlleleAssessmentClicked`,
             removeAcmgClicked: signal`views.workflows.interpretation.removeAcmgClicked`,
-            acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`
+            acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`,
+            showExcludedReferencesClicked: signal`views.workflows.interpretation.showExcludedReferencesClicked`,
+            excludedReferenceCount: getExcludedReferencesCount
         },
         'AlleleSectionbox',
         [
@@ -112,7 +143,9 @@ app.component('alleleSectionbox', {
                         $ctrl.acmgCodeChanged({ alleleId: $ctrl.selectedAllele, code })
                     },
                     getExcludedReferencesBtnText() {
-                        return 'SHOW EXCLUDED' // FIXCME
+                        return $ctrl.showExcludedReferences
+                            ? `HIDE EXCLUDED (${$ctrl.excludedReferenceCount})`
+                            : `SHOW EXCLUDED (${$ctrl.excludedReferenceCount})`
                     }
                 })
             }

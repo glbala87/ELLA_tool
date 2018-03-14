@@ -51,7 +51,7 @@
 
           <!-- FIXME -->
           <button class="id-show-ignored-references"
-                  ng-click="vm.showHideExcludedReferences()"
+                  ng-click="$ctrl.showExcludedReferencesClicked({alleleId: $ctrl.selectedAllele})"
                   ng-if="control == 'references'">{{$ctrl.getExcludedReferencesBtnText()}}
           </button>
 
