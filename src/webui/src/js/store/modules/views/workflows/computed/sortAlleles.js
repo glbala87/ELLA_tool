@@ -1,20 +1,85 @@
+import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import { state, props } from 'cerebral/tags'
-import { AlleleStateHelper } from '../../../../../model/allelestatehelper'
-import getClassification from '../interpretation/computed/getClassification'
+import isHomozygous from '../alleleSidebar/computed/isHomozygous'
+import isLowQual from '../alleleSidebar/computed/isLowQual'
+import isImportantSource from '../alleleSidebar/computed/isImportantSource'
+import getClassification from '../alleleSidebar/computed/getClassification'
 
-export default function sortAlleles(alleles) {
-    return Compute(alleles, state`app.config`, (alleles, config, get) => {
-        let sortFunc = firstBy(a => {
-            let classification = get(getClassification(a.id))
-            return config.classification.options.findIndex(o => o.value === classification)
-        }, -1)
-            .thenBy(a => a.formatted.inheritance)
-            .thenBy(a => a.annotation.filtered[0].symbol)
-            .thenBy(a => a.start_position)
+function getSortFunctions(config, isHomozygous, isImportantSource, isLowQual, classification) {
+    return {
+        inheritance: allele => {
+            if (allele.formatted.inheritance === 'AD') {
+                return '1'
+            }
+            return allele.formatted.inheritance
+        },
+        gene: allele => {
+            return allele.annotation.filtered[0].symbol
+        },
+        hgvsc: allele => {
+            let s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
+            let d = parseInt(s.match(/[cg]\.(\d+)/)[1])
+            return d
+        },
+        consequence: allele => {
+            let consequence_priority = config.transcripts.consequences
+            let consequences = allele.annotation.filtered.map(t => t.consequences)
+            consequences = [].concat.apply([], consequences)
+            let consequence_indices = consequences.map(c => consequence_priority.indexOf(c))
+            return Math.min(...consequence_indices)
+        },
+        homozygous: allele => {
+            return isHomozygous[allele.id] ? -1 : 1
+        },
+        quality: allele => {
+            return isLowQual[allele.id] ? -1 : 1
+        },
+        references: allele => {
+            return !isImportantSource[allele.id]
+        },
+        '3hetAR': allele => {
+            return 0 // FIXME
+            return !this.is3hetAR(allele)
+        },
+        classification: allele => {
+            return config.classification.options.findIndex(
+                o => o.value === classification[allele.id]
+            )
+        }
+    }
+}
 
-        const sortedAlleles = Object.values(alleles)
-        sortedAlleles.sort(sortFunc)
-        return sortedAlleles
-    })
+export default function sortAlleles(alleles, key, reverse) {
+    return Compute(
+        alleles,
+        key,
+        reverse,
+        state`app.config`,
+        (alleles, key, reverse, config, get) => {
+            const sortedAlleles = alleles.slice()
+            const sortFunctions = getSortFunctions(
+                config,
+                get(isHomozygous),
+                get(isImportantSource),
+                get(isLowQual),
+                get(getClassification)
+            )
+
+            if (key) {
+                sortedAlleles.sort(
+                    firstBy(sortFunctions[key], reverse ? -1 : 1)
+                        .thenBy(sortFunctions.inheritance)
+                        .thenBy(sortFunctions.gene)
+                        .thenBy(sortFunctions.hgvsc)
+                )
+            } else {
+                sortedAlleles.sort(
+                    firstBy(sortFunctions.inheritance)
+                        .thenBy(sortFunctions.gene)
+                        .thenBy(sortFunctions.hgvsc)
+                )
+            }
+            return sortedAlleles
+        }
+    )
 }
