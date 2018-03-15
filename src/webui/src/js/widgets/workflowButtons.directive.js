@@ -2,6 +2,7 @@
 
 import {Directive, Inject} from '../ng-decorators';
 import {AlleleStateHelper} from '../model/allelestatehelper';
+import {hasDataAtKey} from "../util";
 
 @Directive({
     selector: 'workflow-buttons',
@@ -148,6 +149,14 @@ export class WorkflowButtonsController {
                 return selectedInterpretation.user.id === this.user.getCurrentUserId();
         }
         return false;
+    }
+
+    showStartBtn() {
+        let user_config = this.config.user.user_config
+        let [type, id] = this.getTypeAndId()
+        return hasDataAtKey(user_config, "workflows", type, "can_start") ?
+            Boolean(user_config.workflows.type.can_start) :
+            true; // default
     }
 
     _getSaveStatus() {
