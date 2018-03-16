@@ -35,6 +35,7 @@ function changeView(key) {
     return sequence('changeView', [
         GLOBAL_PRE_SEQUENCE,
         function changeView({ state }) {
+            const previousView = state.get('views.current')
             state.set('views.current', key)
 
             // Reset other views' state when switching views.
@@ -46,7 +47,8 @@ function changeView(key) {
                         state.set(`views.${view}`, {})
                     }, 500) // Give view time to unmount before cleaning up
                 }
-                if (view === key) {
+                if (view === key && previousView !== key) {
+                    // Only init if not changing to same view
                     state.set(`views.${key}`, VIEWS[key]())
                 }
             }
