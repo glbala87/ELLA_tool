@@ -77,6 +77,7 @@ export default Module({
     },
     services: [
         'toastr',
+        'AlleleAssessmentHistoryModal',
         'CustomAnnotationModal',
         'ReferenceEvalModal',
         'ImportModal',

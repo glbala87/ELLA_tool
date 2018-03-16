@@ -14,7 +14,8 @@ app.component('alleleInfoClassification', {
     controller: connect(
         {
             allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-            readOnly: isReadOnly
+            readOnly: isReadOnly,
+            showAlleleAssessmentHistory: signal`views.workflows.interpretation.showAlleleAssessmentHistoryClicked`
         },
         'AlleleInfoClassification'
     )
