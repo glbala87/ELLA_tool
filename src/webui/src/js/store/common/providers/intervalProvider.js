@@ -1,18 +1,26 @@
+import { Provider } from 'cerebral'
+
 const intervals = {}
-function IntervalProvider(context) {
-    context.interval = {
-        start(signalPath, interval, initialRun = false) {
-            let signal = context.controller.getSignal(signalPath)
-            intervals[signalPath] = setInterval(() => signal(), interval)
-            if (initialRun) {
-                signal()
-            }
-        },
-        stop(signalPath) {
-            clearInterval(intervals[signalPath])
-        }
+
+function stop(signalPath) {
+    if (signalPath in intervals) {
+        clearInterval(intervals[signalPath])
+        delete intervals[signalPath]
+        return true
     }
-    return context
+    return false
 }
 
-export default IntervalProvider
+export default Provider({
+    start(signalPath, props, interval, initialRun = false) {
+        stop(signalPath)
+        let signal = this.context.controller.getSignal(signalPath)
+        intervals[signalPath] = setInterval(() => signal(props), interval)
+        if (initialRun) {
+            signal()
+        }
+    },
+    stop(signalPath) {
+        return stop(signalPath)
+    }
+})

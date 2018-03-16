@@ -32,6 +32,7 @@ export default function getOverviewState() {
             allelesFinalized: null,
             analyses: null,
             analysesFinalized: null
-        }
+        },
+        importJobsStatus: {}
     }
 }

@@ -4,6 +4,7 @@ import getOverviewState from '../overview/getOverviewState'
 import getWorkflowsState from '../workflows/getWorkflowsState'
 import getDashboardState from '../dashboard/getDashboardState'
 import { disableOnBeforeUnload } from '../../../common/factories/onBeforeUnload'
+import interval from '../../../common/factories/interval'
 
 const VIEWS = {
     overview: getOverviewState,
@@ -20,7 +21,10 @@ const PRE_SEQUENCES = {
     overview: null
 }
 
-const GLOBAL_PRE_SEQUENCE = [disableOnBeforeUnload()]
+const GLOBAL_PRE_SEQUENCE = [
+    disableOnBeforeUnload(),
+    interval('stop', 'views.overview.updateImportJobCountTriggered')
+]
 
 /**
  * Reset the state for all views except the provided key.
@@ -42,7 +46,7 @@ function changeView(key) {
                         state.set(`views.${view}`, {})
                     }, 500) // Give view time to unmount before cleaning up
                 }
-                if (view === key && !EXEMPT_RESET.includes(view)) {
+                if (view === key) {
                     state.set(`views.${key}`, VIEWS[key]())
                 }
             }

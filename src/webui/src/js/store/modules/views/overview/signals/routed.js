@@ -14,6 +14,7 @@ import loadFinalized from '../sequences/loadFinalized'
 import redirectToSection from '../actions/redirectToSection'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
 import loadOverviewState from '../actions/loadOverviewState'
+import interval from '../../../../common/factories/interval'
 
 export default sequence('routed', [
     setNavbarTitle(null),
@@ -22,6 +23,7 @@ export default sequence('routed', [
     checkAndSetValidSection,
     {
         valid: [
+            interval('start', 'views.overview.updateImportJobCountTriggered', {}, 30000, true),
             progress('start'),
             equals(props`section`),
             {

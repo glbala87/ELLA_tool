@@ -71,7 +71,7 @@ export default Module({
     providers: {
         progress: ProgressProvider,
         onBeforeUnload,
-        //IntervalProvider,
+        interval: IntervalProvider,
         clipboard: ClipboardProvider,
         http
     },
@@ -79,6 +79,7 @@ export default Module({
         'toastr',
         'CustomAnnotationModal',
         'ReferenceEvalModal',
+        'ImportModal',
         'Config',
         'User',
         '$uibModal'
