@@ -110,20 +110,11 @@
       <div class="id-attachments" ng-if="$ctrl.section.options.showIncludedAcmgCodes">
         <h4 class="section-title acmg-body">Attachments</h4>
         <section class="attachment-wrapper">
-          <!-- FIXME -->
           <attachment
                 ng-repeat="attachment_id in $ctrl.alleleassessment.attachment_ids"
-                ng-if="$ctrl.attachments[attachment_id]"
-                attachment="$ctrl.attachments[attachment_id]"
-                read-only="$ctrl.readOnly || $ctrl.isAlleleAssessmentReused"
-                allele="vm.allele"
-                allele-state="vm.alleleState"
-          >
+                attachment-path="'views.workflows.data.attachments.' + attachment_id">
           </attachment>
-          <upload mode="'drop'"
-                  allele-state="vm.alleleState"
-                  read-only="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly">
-          </upload>
+          <upload mode="'drop'"></upload>
         </section>
     </div>
 
