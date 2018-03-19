@@ -14,21 +14,18 @@ function prepareSelectedInterpretation({ state }) {
             lastInterpretation ? deepCopy(lastInterpretation) : null
         )
         state.set('views.workflows.historyInterpretations', doneInterpretations)
-        state.set('views.workflows.interpretation.getCurrentInterpretationData', false)
     } else if (doneInterpretations.length) {
         // Otherwise, make a copy of the last historical one to act as "current" entry in the dropdown.
         // This lets the user see the latest data in the UI
         let currentInterpretation = deepCopy(doneInterpretations[doneInterpretations.length - 1])
         currentInterpretation.current = true // Indication for UI to show 'current'
         state.set('views.workflows.interpretation.selected', currentInterpretation)
-        state.set('views.workflows.interpretation.getCurrentInterpretationData', true)
         state.set(
             'views.workflows.historyInterpretations',
             doneInterpretations.concat(currentInterpretation)
         )
     } else if (lastInterpretation) {
         state.set('views.workflows.interpretation.selected', lastInterpretation)
-        state.set('views.workflows.interpretation.getCurrentInterpretationData', false)
         state.set('views.workflows.historyInterpretations', doneInterpretations)
     } else {
         // If we have no history, set interpretation.selected to empty representation
@@ -54,8 +51,6 @@ function prepareSelectedInterpretation({ state }) {
             allele_ids: [state.get('views.workflows.allele.id')]
         })
         state.set('views.workflows.historyInterpretations', [])
-        // getCurrentInterpretationData isn't relevant, since we don't have an interpretation to load
-        state.set('views.workflows.interpretation.getCurrentInterpretationData', false)
     }
     state.set('views.workflows.interpretation.isOngoing', isOngoing)
 }

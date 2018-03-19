@@ -23,7 +23,8 @@ const PRE_SEQUENCES = {
 
 const GLOBAL_PRE_SEQUENCE = [
     disableOnBeforeUnload(),
-    interval('stop', 'views.overview.updateImportJobCountTriggered')
+    interval('stop', 'views.overview.updateImportJobCountTriggered'),
+    interval('stop', 'views.overview.updateOverviewTriggered')
 ]
 
 /**
@@ -43,9 +44,7 @@ function changeView(key) {
                 // Don't reset if pointing to same
                 // or part of exempted views
                 if (view !== key && !EXEMPT_RESET.includes(view)) {
-                    setTimeout(() => {
-                        state.set(`views.${view}`, {})
-                    }, 500) // Give view time to unmount before cleaning up
+                    state.set(`views.${view}`, {})
                 }
                 if (view === key && previousView !== key) {
                     // Only init if not changing to same view

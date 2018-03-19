@@ -3,7 +3,6 @@ import { set, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getInterpretations from '../actions/getInterpretations'
 import prepareSelectedInterpretation from '../actions/prepareSelectedInterpretation'
-import prepareInterpretationState from '../actions/prepareInterpretationState'
 import prepareStartMode from '../actions/prepareStartMode'
 import loadInterpretationData from '../signals/loadInterpretationData'
 

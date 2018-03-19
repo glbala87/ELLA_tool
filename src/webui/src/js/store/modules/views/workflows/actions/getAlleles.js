@@ -8,19 +8,19 @@ const TYPES = {
 function getAlleles({ http, path, state }) {
     const type = TYPES[state.get('views.workflows.type')]
     const id = state.get('views.workflows.id')
-    const interpretation = state.get('views.workflows.interpretation.selected')
-    const current = state.get('views.workflows.interpretation.getCurrentInterpretationData')
+    const selectedInterpretation = state.get('views.workflows.interpretation.selected')
+    const getCurrentData = selectedInterpretation.current || false
     const genepanel = state.get('views.workflows.data.genepanel')
     let alleleIds = state.get('views.workflows.interpretation.selected.allele_ids')
 
-    if ('manuallyAddedAlleles' in interpretation.state) {
-        alleleIds = alleleIds.concat(interpretation.state.manuallyAddedAlleles)
+    if ('manuallyAddedAlleles' in selectedInterpretation.state) {
+        alleleIds = alleleIds.concat(selectedInterpretation.state.manuallyAddedAlleles)
     }
     if (alleleIds.length) {
         return http
-            .get(`workflows/${type}/${id}/interpretations/${interpretation.id}/alleles/`, {
+            .get(`workflows/${type}/${id}/interpretations/${selectedInterpretation.id}/alleles/`, {
                 allele_ids: alleleIds.join(','),
-                current: current
+                current: getCurrentData // Only relevant when interpretation status is 'Done'
             })
             .then(response => {
                 let alleles = response.result

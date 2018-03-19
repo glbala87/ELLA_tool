@@ -27,6 +27,7 @@ export default function getOverviewState() {
     return {
         sectionKeys: [], // Decided by user's config
         sections: {},
+        state: {},
         data: {
             alleles: null,
             allelesFinalized: null,
