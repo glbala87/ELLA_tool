@@ -36,7 +36,6 @@ describe('Sample workflow ', function() {
         loginPage.selectFirstUser()
         overview.open()
         overview.selectWithMissingAssessments(1)
-        browser.waitForExist('interpretation')
         analysisPage.startButton.click()
 
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01')
@@ -60,7 +59,7 @@ describe('Sample workflow ', function() {
         // brca_e2e_test01.HBOCUTV_v01
         loginPage.selectFirstUser()
         overview.open()
-        overview.selectTopReview(1)
+        overview.selectTopReview()
         analysisPage.startButton.click()
 
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01')
@@ -129,7 +128,6 @@ describe('Sample workflow ', function() {
         loginPage.selectThirdUser()
         overview.open()
         overview.selectWithMissingAssessments(1) // some variants assessed in another analysis
-        browser.waitForExist('interpretation')
         analysisPage.startButton.click()
 
         expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01')
@@ -192,7 +190,6 @@ describe('Sample workflow ', function() {
 
         // when
         overview.selectFinished(2) // List is sorted desc, newest first
-        browser.waitForExist('interpretation')
 
         // then
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01')
@@ -255,7 +252,6 @@ describe('Sample workflow ', function() {
         loginPage.selectFirstUser()
         overview.open()
         overview.selectFinished(1)
-        browser.waitForExist('interpretation')
 
         expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01')
 

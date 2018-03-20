@@ -1,16 +1,17 @@
-var Page = require('./page');
+var Page = require('./page')
 
-const SELECTOR_SEARCH = ".id-search"
+const SELECTOR_SEARCH = '.id-search'
 
-const SECTION_EXPAND_SELECTOR  = " header .sb-title-container";
+const SECTION_EXPAND_SELECTOR = ' header .sb-title-container'
+const ALLELE_RESULT_SELECTOR = '.id-search .allele-list a'
+const ANALYSIS_RESULT_SELECTOR = '.id-search .analysis-list a'
 
 class Search extends Page {
-
     open() {
-        super.open('overview/');
+        super.open('overview/')
         browser.waitForExist(SELECTOR_SEARCH)
-        if (browser.element(SELECTOR_SEARCH+" .collapsed")) {
-            browser.click(SELECTOR_SEARCH+SECTION_EXPAND_SELECTOR)
+        if (browser.element(SELECTOR_SEARCH + ' .collapsed')) {
+            browser.click(SELECTOR_SEARCH + SECTION_EXPAND_SELECTOR)
         }
     }
 
@@ -19,20 +20,18 @@ class Search extends Page {
     }
 
     getNumberOfAlleles() {
-        const groupSelector = `.id-search .allele-list a`;
-        if (!browser.isExisting(groupSelector)) {
-            return 0;
+        if (!browser.isExisting(ALLELE_RESULT_SELECTOR)) {
+            return 0
         } else {
-            return browser.elements(groupSelector).value.length
+            return browser.elements(ALLELE_RESULT_SELECTOR).value.length
         }
     }
 
     getNumberOfAnalyses() {
-        const groupSelector = '.id-search .analysis-list a';
-        if (!browser.isExisting(groupSelector)) {
-            return 0;
+        if (!browser.isExisting(ANALYSIS_RESULT_SELECTOR)) {
+            return 0
         } else {
-            return browser.elements(groupSelector).value.length
+            return browser.elements(ANALYSIS_RESULT_SELECTOR).value.length
         }
     }
 
@@ -59,9 +58,9 @@ class Search extends Page {
         if (typeof a === 'string') {
             return [analyses]
         } else {
-            return analyses;
+            return analyses
         }
     }
 }
 
-module.exports = Search;
+module.exports = Search
