@@ -11,6 +11,7 @@ import selectedInterpretationChanged from './signals/selectedInterpretationChang
 import copyAllAlamutClicked from './signals/copyAllAlamutClicked'
 import copySelectedAlamutClicked from './signals/copySelectedAlamutClicked'
 import addExcludedAllelesOpened from './signals/addExcludedAllelesOpened'
+import reassignWorkflowClicked from './signals/reassignWorkflowClicked'
 import startClicked from './signals/startClicked'
 import finishClicked from './signals/finishClicked'
 import finishConfirmationClicked from './signals/finishConfirmationClicked'
@@ -34,6 +35,7 @@ export default Module({
         copySelectedAlamutClicked,
         copyAllAlamutClicked,
         addExcludedAllelesOpened,
+        reassignWorkflowClicked,
         startClicked,
         finishClicked,
         finishConfirmationClicked,
