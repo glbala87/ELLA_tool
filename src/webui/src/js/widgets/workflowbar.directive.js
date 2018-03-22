@@ -47,16 +47,20 @@ app.component('workflowbar', {
 
                 Object.assign($scope.$ctrl, {
                     formatHistoryOption: interpretation => {
+                        let OPTIONS = {
+                            'Mark review': 'Marked for review',
+                            Finalize: 'Finalized'
+                        }
                         if (interpretation.current) {
                             return 'Current data'
                         }
                         let interpretation_idx = $ctrl.interpretations.indexOf(interpretation) + 1
                         let interpretation_date = $filter('date')(
                             interpretation.date_last_update,
-                            'dd-MM-yyyy HH:mm'
+                            'yyyy-MM-dd'
                         )
-                        return `${interpretation_idx} • ${interpretation.end_action} • ${
-                            interpretation.user.full_name
+                        return `${interpretation_idx} • ${OPTIONS[interpretation.end_action]} • ${
+                            interpretation.user.abbrev_name
                         } • ${interpretation_date}`
                     },
                     getExcludedAlleleCount: () => {
