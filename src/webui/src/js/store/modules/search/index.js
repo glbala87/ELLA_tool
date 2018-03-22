@@ -2,6 +2,7 @@ import { Module } from 'cerebral'
 
 import queryChanged from './signals/queryChanged'
 import optionsSearchChanged from './signals/optionsSearchChanged'
+import showAnalysesClicked from './signals/showAnalysesClicked'
 
 export default Module({
     state: {
@@ -20,6 +21,7 @@ export default Module({
     },
     signals: {
         optionsSearchChanged,
-        queryChanged
+        queryChanged,
+        showAnalysesClicked
     }
 })

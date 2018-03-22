@@ -3,9 +3,10 @@ import HttpProvider from '@cerebral/http'
 import StorageModule from '@cerebral/storage'
 import Router from '@cerebral/router'
 
+import AppModule from './app'
 import SearchModule from './search'
 import ViewsModule from './views'
-import AppModule from './app'
+import ModalsModule from './modals'
 import { IntervalProvider, ProgressProvider, ClipboardProvider } from '../common/providers/'
 import onBeforeUnload from '../common/providers/onBeforeUnload'
 import closeModal from '../common/actions/closeModal'
@@ -27,11 +28,10 @@ const storage = StorageModule({
 })
 
 export default Module({
-    state: {
-        modals: {}
-    },
+    state: {},
     modules: {
         storage,
+        modals: ModalsModule,
         search: SearchModule,
         views: ViewsModule,
         app: AppModule,

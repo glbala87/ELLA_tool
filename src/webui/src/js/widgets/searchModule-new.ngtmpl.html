@@ -99,8 +99,7 @@
                   </div>
                 </div>
                 <div class="allele-extras">
-                  <button class="blue" ng-click="$ctrl.showAnalysesForAllele(item.allele); $event.preventDefault();">Show analyses</button>
-
+                  <button class="blue" ng-click="$ctrl.showAnalysesClicked({allele: item.allele}); $event.preventDefault();">Show analyses</button>
               </div>
             </a>
           </article>

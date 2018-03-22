@@ -14,14 +14,14 @@ app.component('search', {
             options: state`search.options`,
             results: state`search.results`,
             queryChanged: signal`search.queryChanged`,
-            optionsSearchChanged: signal`search.optionsSearchChanged`
+            optionsSearchChanged: signal`search.optionsSearchChanged`,
+            showAnalysesClicked: signal`search.showAnalysesClicked`
         },
         'Search',
         [
             'cerebral',
             '$scope',
-            'ShowAnalysesForAlleleModal',
-            (cerebral, $scope, ShowAnalysesForAlleleModal) => {
+            (cerebral, $scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
@@ -61,9 +61,6 @@ app.component('search', {
                     updateUserOptions: term => {
                         $ctrl.optionsSearchChanged({ options: { user: term } })
                         return Promise.resolve([])
-                    },
-                    showAnalysesForAllele: allele => {
-                        ShowAnalysesForAlleleModal.show(allele)
                     }
                 })
             }

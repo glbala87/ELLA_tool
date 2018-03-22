@@ -43,6 +43,7 @@ import './filters'
 
 //import './views/workflow/workflowAnalysis.directive';
 //import './views/workflow/workflowAllele.directive';
+import './views/modals/showAnalysesForAllele.directive'
 import './views/workflow/workflow.directive'
 import './views/workflow/interpretation.directive'
 import './views/overviews/analysisSelection.directive'

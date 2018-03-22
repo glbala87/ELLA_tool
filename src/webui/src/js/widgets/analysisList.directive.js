@@ -23,7 +23,7 @@ const sortSwitch = (analyses, shouldSort) => {
 app.component('analysisList', {
     templateUrl: 'ngtmpl/analysisList-new.ngtmpl.html',
     bindings: {
-        storePath: '<', // Path to alleles in store
+        storePath: '<', // Path to analyses in store
         newTarget: '<', // Whether links should open in new target
         sort: '=?' // Whether to sort in client
     },

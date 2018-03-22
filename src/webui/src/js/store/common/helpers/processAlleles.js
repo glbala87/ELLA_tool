@@ -134,6 +134,18 @@ function getFormatted(allele, genepanel) {
     }
 
     //
+    // hgvsc
+    //
+
+    if (allele.annotation.filtered.length) {
+        formatted.hgvsc = allele.annotation.filtered
+            .map(a => {
+                return `${a.symbol} ${a.HGVSc}`
+            })
+            .join('; ')
+    }
+
+    //
     // sample type
     //
     if (allele.samples) {
@@ -151,12 +163,6 @@ function getFormatted(allele, genepanel) {
             return formatInheritance(genepanel, a.symbol)
         })
         formatted.inheritance = inheritance.join(' | ')
-
-        formatted.hgvsc = allele.annotation.filtered
-            .map(a => {
-                return `${a.symbol} ${a.HGVSc}`
-            })
-            .join('; ')
     }
 
     return formatted
