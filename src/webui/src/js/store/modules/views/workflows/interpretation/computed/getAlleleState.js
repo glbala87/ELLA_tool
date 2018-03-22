@@ -6,6 +6,9 @@ export default alleleId => {
         alleleId,
         state`views.workflows.interpretation.selected`,
         (alleleId, interpretation, get) => {
+            if (!interpretation) {
+                return
+            }
             return interpretation.state.allele[alleleId]
         }
     )

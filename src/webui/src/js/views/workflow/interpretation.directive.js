@@ -19,10 +19,12 @@ app.component('interpretation', {
             sectionKeys: state`views.workflows.components.${state`views.workflows.selectedComponent`}.sectionKeys`,
             selectedComponent: state`views.workflows.selectedComponent`,
             showSidebar: shouldShowSidebar,
-            hasAlleles: Compute(
-                state`views.workflows.data.alleles`,
-                alleles => Object.keys(alleles).length
-            )
+            hasAlleles: Compute(state`views.workflows.data.alleles`, alleles => {
+                if (!alleles) {
+                    return
+                }
+                return Object.keys(alleles).length
+            })
         },
         'Interpretation'
     )

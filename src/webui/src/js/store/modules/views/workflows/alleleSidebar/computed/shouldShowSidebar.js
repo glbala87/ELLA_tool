@@ -9,6 +9,9 @@ export default Compute(
         if (workflowType === 'allele') {
             return false
         } else {
+            if (!alleles) {
+                return
+            }
             return selectedComponent !== 'Info' && Object.keys(alleles).length
         }
     }

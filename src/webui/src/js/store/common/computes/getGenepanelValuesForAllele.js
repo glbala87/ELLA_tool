@@ -19,8 +19,11 @@ export default (genepanel, allele) => {
         allele,
         state`app.config.variant_criteria.genepanel_config`,
         (genepanel, allele, globalConfig, get) => {
-            const symbols = [...new Set(allele.annotation.filtered.map(t => t.symbol))]
             const result = {}
+            if (!allele) {
+                return result
+            }
+            const symbols = [...new Set(allele.annotation.filtered.map(t => t.symbol))]
             for (const symbol of symbols) {
                 result[symbol] = {
                     _overridden: [] // Holds keys that are overridden by genepanel config.

@@ -185,6 +185,9 @@ function shouldShowIndications(allele, group, freqType, config) {
 
 export default function(allele, group) {
     return Compute(allele, group, state`app.config`, (allele, group, config) => {
+        if (!allele) {
+            return {}
+        }
         const fields = getFields(allele)
         const data = {
             filter: [],

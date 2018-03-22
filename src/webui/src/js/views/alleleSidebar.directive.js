@@ -24,6 +24,9 @@ const unclassifiedAlleles = Compute(
     state`views.workflows.alleleSidebar.unclassified`,
     state`views.workflows.data.alleles`,
     (unclassified, alleles) => {
+        if (!unclassified) {
+            return
+        }
         return unclassified.map(aId => alleles[aId])
     }
 )
@@ -32,6 +35,9 @@ const classifiedAlleles = Compute(
     state`views.workflows.alleleSidebar.classified`,
     state`views.workflows.data.alleles`,
     (classified, alleles) => {
+        if (!classified) {
+            return
+        }
         return classified.map(aId => alleles[aId])
     }
 )
@@ -41,8 +47,11 @@ const isTogglable = Compute(
     getClassification,
     state`views.workflows.selectedComponent`,
     (alleles, classifications, selectedComponent, get) => {
-        const verificationStatus = get(getVerificationStatus)
         const result = {}
+        if (!alleles) {
+            return result
+        }
+        const verificationStatus = get(getVerificationStatus)
         for (let [alleleId, allele] of Object.entries(alleles)) {
             if (selectedComponent !== 'Report') {
                 result[alleleId] = false
@@ -60,6 +69,9 @@ const isToggled = Compute(
     state`views.workflows.selectedComponent`,
     (alleles, selectedComponent, get) => {
         const result = {}
+        if (!alleles) {
+            return result
+        }
         for (let [alleleId, allele] of Object.entries(alleles)) {
             if (selectedComponent !== 'Report') {
                 result[alleleId] = false

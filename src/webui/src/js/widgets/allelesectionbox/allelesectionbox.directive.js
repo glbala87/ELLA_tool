@@ -50,6 +50,9 @@ const getSection = Compute(
     state`views.workflows.components`,
     props`sectionKey`,
     (selectedComponent, components, sectionKey) => {
+        if (!selectedComponent) {
+            return
+        }
         if (selectedComponent in components && components[selectedComponent].sections) {
             return components[selectedComponent].sections[sectionKey]
         }
@@ -61,6 +64,9 @@ const isCollapsed = Compute(
     state`views.workflows.selectedAllele`,
     props`sectionKey`,
     (userState, selectedAllele, sectionKey) => {
+        if (!userState || !userState.allele) {
+            return
+        }
         if (
             selectedAllele in userState.allele &&
             'sections' in userState.allele[selectedAllele] &&
