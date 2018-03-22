@@ -24,6 +24,7 @@ app.component('workflowButtons', {
     templateUrl: 'ngtmpl/workflowButtons-new.ngtmpl.html',
     controller: connect(
         {
+            config: state`app.config`,
             type: state`views.workflows.type`,
             id: state`views.workflows.id`,
             startClicked: signal`views.workflows.startClicked`,
@@ -45,9 +46,9 @@ app.component('workflowButtons', {
                     },
                     showStartBtn() {
                         const userConfig = $ctrl.config.user.user_config
-                        return hasDataAtKey(user_config, 'workflows', $ctrl.type, 'can_start')
+                        return hasDataAtKey(userConfig, 'workflows', $ctrl.type, 'can_start')
                             ? Boolean(userConfig.workflows[$ctrl.type].can_start)
-                            : false // default
+                            : true // default
                     },
                     getStartBtnText: () => {
                         if ($ctrl.startMode === 'reopen' && $ctrl.startWhenReopen) {
