@@ -13,7 +13,6 @@ app.component('workflow', {
         {
             selectedComponent: state`views.workflows.selectedComponent`,
             components: state`views.workflows.components`,
-            collisions: state`views.workflows.data.collisions`,
             analysis: state`views.workflows.data.analysis`,
             allele: state`views.workflows.data.allele`,
             historyInterpretations: state`views.workflows.historyInterpretations`,

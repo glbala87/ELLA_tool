@@ -51,7 +51,7 @@ class AnalysisPage extends Page {
         return browser.element('.id-add-excluded')
     }
     get collisionWarningBar() {
-        return browser.element('.toast-message-collision')
+        return browser.element('.collision-warning')
     }
 
     get roundCount() {

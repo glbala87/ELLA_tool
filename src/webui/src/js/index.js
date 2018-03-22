@@ -77,6 +77,7 @@ import './widgets/alleleinfo/alleleInfoVardb.directive'
 import './widgets/annotationimport/importSingle.directive'
 
 import './widgets/markdownIt.directive'
+import './widgets/collisionWarning.directive'
 import './widgets/analysisList.directive'
 import './widgets/alleleAssessment.directive'
 import './widgets/alleleList.directive'

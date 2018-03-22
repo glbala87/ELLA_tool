@@ -9,6 +9,6 @@ export default sequence('loadCollisions', [
     getCollisions,
     {
         error: [toastr('error', 'Failed to load collisions', 5000)],
-        success: [set(state`views.workflows.collisions`, props`result`)]
+        success: [set(state`views.workflows.data.collisions`, props`result`)]
     }
 ])
