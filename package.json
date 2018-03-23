@@ -53,7 +53,7 @@
     "watchify": "3.9.0",
     "wdio-jasmine-framework": "0.3.2",
     "wdio-spec-reporter": "0.1.2",
-    "webdriverio": "4.9.8"
+    "webdriverio": "^4.12.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

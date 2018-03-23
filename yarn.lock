@@ -5807,10 +5807,6 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "~1.0.0"
     spdx-expression-parse "~1.0.0"
 
-validator@~9.1.1:
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/validator/-/validator-9.1.1.tgz#3bdd1065cbd28f9d96ac806dee01030d32fd97ef"
-
 vendors@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/vendors/-/vendors-1.0.1.tgz#37ad73c8ee417fb3d580e785312307d274847f22"
@@ -5950,9 +5946,9 @@ wdio-sync@0.7.0:
     fibers "~2.0.0"
     object.assign "^4.0.3"
 
-webdriverio@4.9.8:
-  version "4.9.8"
-  resolved "https://registry.yarnpkg.com/webdriverio/-/webdriverio-4.9.8.tgz#907180e715d3b9e16cabe20bad59854bec1e44fa"
+webdriverio@^4.12.0:
+  version "4.12.0"
+  resolved "https://registry.yarnpkg.com/webdriverio/-/webdriverio-4.12.0.tgz#e340def272183c8168a4dd0b382322f9d7bee10d"
   dependencies:
     archiver "~2.1.0"
     babel-runtime "^6.26.0"
@@ -5973,7 +5969,6 @@ webdriverio@4.9.8:
     safe-buffer "~5.1.1"
     supports-color "~5.0.0"
     url "~0.11.0"
-    validator "~9.1.1"
     wdio-dot-reporter "~0.0.8"
     wgxpath "~1.0.0"
 
