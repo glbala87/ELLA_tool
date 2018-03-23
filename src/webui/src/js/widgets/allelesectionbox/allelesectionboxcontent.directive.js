@@ -27,14 +27,7 @@ import { Directive, Inject } from '../../ng-decorators'
     selector: 'allele-sectionbox-content',
     template: '',
     scope: {
-        analysis: '=',
-        allele: '=',
-        references: '=',
-        attachments: '=',
-        alleleState: '=',
-        alleleUserState: '=',
-        onSave: '&?',
-        readOnly: '=?',
+        allelePath: '<',
         boxes: '=' // Array of objects.
     },
     link: (scope, elem, attrs, ctrl) => {
@@ -54,22 +47,10 @@ import { Directive, Inject } from '../../ng-decorators'
                     }
                 }
 
-                let on_save = ''
-                if (scope.vm.onSave) {
-                    on_save = 'on-save="vm.onSave()"'
-                }
-
                 html += `
                 <${box.tag}
                     class="cb-wrapper"
-                    analysis="vm.analysis"
-                    allele="vm.allele"
-                    references="vm.references"
-                    attachments="vm.attachments"
-                    allele-state="vm.alleleState"
-                    allele-user-state="vm.alleleUserState"
-                    read-only="vm.readOnly"
-                    ${on_save}
+                    allele-path="vm.allelePath"
                     ${attrs}
                 ></${box.tag}>`
             }

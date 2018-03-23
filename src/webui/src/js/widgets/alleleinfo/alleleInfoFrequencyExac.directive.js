@@ -4,13 +4,16 @@ import { Directive, Inject } from '../../ng-decorators'
 
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, string, signal } from 'cerebral/tags'
+import { state, props, signal } from 'cerebral/tags'
 
 app.component('alleleInfoFrequencyExac', {
+    bindings: {
+        allelePath: '<'
+    },
     templateUrl: 'ngtmpl/alleleInfoFrequencyExac-new.ngtmpl.html',
     controller: connect(
         {
-            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+            allele: state`${props`allelePath`}`
         },
         'AlleleInfoFrequencyExac'
     )

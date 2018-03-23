@@ -15,6 +15,8 @@ import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnloa
 import showExitWarning from '../showExitWarning'
 import loadCollisions from '../sequences/loadCollisions'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
+import addExcludedAllelesClicked from '../../../modals/addExcludedAlleles/signals/addExcludedAllelesClicked'
+import isReadOnly from '../computed/isReadOnly'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -44,5 +46,18 @@ export default [
             }
         ]),
         loadCollisions
-    ])
+    ]),
+    // TESTING:
+    set(props`genepanelPath`, 'views.workflows.data.genepanel'),
+    set(props`sampleId`, state`views.workflows.data.analysis.samples.0.id`),
+    set(
+        props`excludedAlleleIds`,
+        state`views.workflows.interpretation.selected.excluded_allele_ids`
+    ),
+    set(
+        props`includedAlleleIds`,
+        state`views.workflows.interpretation.selected.state.manuallyAddedAlleles`
+    ),
+    set(props`readOnly`, isReadOnly),
+    addExcludedAllelesClicked
 ]

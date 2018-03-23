@@ -1,5 +1,5 @@
 <contentbox title="gnomAD Genomes" title-url="{{ $ctrl.allele.urls.gnomad }}" disabled="!$ctrl.allele.annotation.frequencies.GNOMAD_GENOMES">
   <cbbody>
-        <frequency-details group="'GNOMAD_GENOMES'" allele-path="'views.workflows.data.alleles.' + $ctrl.allele.id"></frequency-details>
+        <frequency-details group="'GNOMAD_GENOMES'" allele-path="$ctrl.allelePath"></frequency-details>
   </cbbody>
 </contentbox>

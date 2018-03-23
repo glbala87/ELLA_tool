@@ -3,7 +3,7 @@
     <div class="cb-warning" ng-if="$ctrl.worstConsequenceTranscripts.length">
       WORSE CONSEQUENCE FOUND IN:
       <ul>
-        <li ng-repeat="t in $ctrl.worstConsequenceTranscripts.length">{{t.consequences.join(',')}} in {{t.transcript}}</li>
+        <li ng-repeat="t in $ctrl.worstConsequenceTranscripts">{{t.consequences.join(',')}} in {{t.transcript}}</li>
       </ul>
     </div>
     <div ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript"

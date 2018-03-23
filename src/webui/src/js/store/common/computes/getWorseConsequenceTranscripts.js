@@ -10,12 +10,17 @@ export default function(allele) {
         if (!allele) {
             return []
         }
-        return allele.annotation.worst_consequence
-            .filter(t => {
-                return !allele.annotation.filtered_transcripts.includes(t)
-            })
-            .map(name => {
+
+        const hasWorseTranscripts = !allele.annotation.worst_consequence.some(t => {
+            return allele.annotation.filtered_transcripts.includes(t)
+        })
+
+        if (hasWorseTranscripts) {
+            return allele.annotation.worst_consequence.map(name => {
                 return allele.annotation.transcripts.find(t => t.transcript === name)
             })
+        } else {
+            return []
+        }
     })
 }

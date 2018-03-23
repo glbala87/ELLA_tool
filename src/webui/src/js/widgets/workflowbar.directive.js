@@ -14,6 +14,7 @@ app.component('workflowbar', {
     templateUrl: 'ngtmpl/workflowbar.ngtmpl.html',
     controller: connect(
         {
+            analysis: state`views.workflows.data.analysis`,
             config: state`app.config`,
             reviewComment: state`views.workflows.interpretation.selected.state.review_comment`,
             workflowType: state`views.workflows.type`,
@@ -34,7 +35,7 @@ app.component('workflowbar', {
             reviewCommentChanged: signal`views.workflows.interpretation.reviewCommentChanged`,
             copyAllAlamutClicked: signal`views.workflows.copyAllAlamutClicked`,
             copySelectedAlamutClicked: signal`views.workflows.copySelectedAlamutClicked`,
-            addExternalAllelesOpened: signal`views.workflows.addExcludedAllelesOpened`,
+            addExcludedAllelesClicked: signal`modals.addExcludedAlleles.addExcludedAllelesClicked`,
             selectedGenepanelChanged: signal`views.workflows.selectedGenepanelChanged`,
             addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`
         },

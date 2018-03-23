@@ -45,7 +45,7 @@ function changeView(key) {
                 // or part of exempted views
                 if (view !== key && !EXEMPT_RESET.includes(view)) {
                     state.set(`views.${view}`, {})
-                    state.set(`views.__hasInit.${view}`, true)
+                    state.unset(`views.__hasInit.${view}`)
                 }
                 if (
                     view === key &&

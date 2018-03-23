@@ -4,17 +4,18 @@ import { Directive, Inject } from '../../ng-decorators'
 
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, signal } from 'cerebral/tags'
+import { state, props, signal } from 'cerebral/tags'
 import getWorseConsequenceTranscripts from '../../store/common/computes/getWorseConsequenceTranscripts'
 
 app.component('alleleInfoConsequence', {
+    bindings: {
+        allelePath: '<'
+    },
     templateUrl: 'ngtmpl/alleleInfoConsequence-new.ngtmpl.html',
     controller: connect(
         {
-            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-            worstConsequenceTranscripts: getWorseConsequenceTranscripts(
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
-            )
+            allele: state`${props`allelePath`}`,
+            worstConsequenceTranscripts: getWorseConsequenceTranscripts(state`${props`allelePath`}`)
         },
         'AlleleInfoConsequence'
     )
