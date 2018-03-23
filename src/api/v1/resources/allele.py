@@ -1,8 +1,10 @@
+from collections import defaultdict
 from flask import request
-from sqlalchemy import or_
-from vardb.datamodel import sample, genotype, allele, gene
+from sqlalchemy import or_, text
+from vardb.datamodel import sample, genotype, allele, gene, annotationshadow
 
 from api import schemas, ApiError
+from api.config import config
 from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
 
 from api.util.alleledataloader import AlleleDataLoader
@@ -127,7 +129,66 @@ class AlleleGenepanelListResource(LogRequestResource):
             allele.Allele.id == allele_id
         ).all()
 
-        return schemas.GenepanelFullSchema(strict=True).dump(genepanels, many=True).data
+        return schemas.GenepanelSchema(strict=True).dump(genepanels, many=True).data
+
+
+class AlleleByGeneListResource(LogRequestResource):
+
+    @authenticate()
+    @rest_filter
+    def get(self, session, rest_filter=None, user=None):
+        """
+        Returns a list of genes, with associated allele ids
+        ---
+        summary: List genes with allele ids
+        tags:
+          - Allele
+        parameters:
+          - name: allele_ids
+            in: query
+            type: string
+            description: Allele ids (comma separated)
+        responses:
+          200:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Genepanel'
+            description: List of genes with allele ids
+        """
+
+        allele_ids = request.args.get('allele_ids').split(',')
+
+        filters = [
+            annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
+        ]
+        inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
+        if inclusion_regex:
+            filters.append(
+                text("transcript ~ :reg").params(reg=inclusion_regex)
+            )
+
+        allele_id_genes = session.query(
+            annotationshadow.AnnotationShadowTranscript.allele_id,
+            annotationshadow.AnnotationShadowTranscript.symbol,
+            annotationshadow.AnnotationShadowTranscript.hgnc_id
+        ).filter(
+            *filters
+        ).all()
+
+        pre_sorted_result = defaultdict(set)
+        for a in allele_id_genes:
+            pre_sorted_result[(a[1], a[2])].add(a[0])
+
+        result = list()
+        for key in sorted(pre_sorted_result.keys(), key=lambda x: x[0]):
+            allele_ids = pre_sorted_result[key]
+            result.append({
+                'symbol': key[0],
+                'hgnc_id': key[1],
+                'allele_ids': sorted(list(allele_ids))
+            })
+        return result
 
 
 class AlleleAnalysisListResource(LogRequestResource):
@@ -162,4 +223,4 @@ class AlleleAnalysisListResource(LogRequestResource):
             allele.Allele.id == allele_id
         ).all()
 
-        return schemas.AnalysisFullSchema(strict=True).dump(analyses, many=True).data
+        return schemas.AnalysisSchema(strict=True).dump(analyses, many=True).data
