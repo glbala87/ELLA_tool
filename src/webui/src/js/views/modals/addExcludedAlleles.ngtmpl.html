@@ -20,7 +20,7 @@
               <checkable-button class="id-exclude-allele"
                                 check-model="$ctrl.modelNotUsed[alleleId]"
                                 on-change="$ctrl.excludeAlleleClicked({alleleId: alleleId})"
-                                ng-if="!vm.readOnly">
+                                ng-if="!$ctrl.readOnly">
                 EXCLUDE
               </checkable-button>
             </section>

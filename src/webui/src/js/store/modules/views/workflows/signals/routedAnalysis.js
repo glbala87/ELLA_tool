@@ -46,18 +46,5 @@ export default [
             }
         ]),
         loadCollisions
-    ]),
-    // TESTING:
-    set(props`genepanelPath`, 'views.workflows.data.genepanel'),
-    set(props`sampleId`, state`views.workflows.data.analysis.samples.0.id`),
-    set(
-        props`excludedAlleleIds`,
-        state`views.workflows.interpretation.selected.excluded_allele_ids`
-    ),
-    set(
-        props`includedAlleleIds`,
-        state`views.workflows.interpretation.selected.state.manuallyAddedAlleles`
-    ),
-    set(props`readOnly`, isReadOnly),
-    addExcludedAllelesClicked
+    ])
 ]

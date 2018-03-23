@@ -134,7 +134,7 @@ class AppConfig {
         let config = {
             devtools: Devtools({
                 host: 'localhost:8585',
-                bigComponentsWarning: 20, // Our AngularJS components are traditionally very large
+                bigComponentsWarning: 50, // Our AngularJS components are traditionally very large
                 reconnect: false // Can be annoying when devtools not open
             })
         }

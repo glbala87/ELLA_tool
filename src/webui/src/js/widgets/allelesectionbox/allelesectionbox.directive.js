@@ -26,7 +26,7 @@ const getExcludedReferencesCount = Compute(
     state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
     state`views.workflows.data.references`,
     (allele, references, get) => {
-        if (!allele) {
+        if (!allele || !references) {
             return
         }
         const alleleReferenceIds = getReferencesIdsForAllele(allele)
@@ -141,6 +141,9 @@ app.component('alleleSectionbox', {
                             collapsed,
                             section
                         })
+                    },
+                    getAllelePath() {
+                        return `views.workflows.data.alleles.${$ctrl.selectedAllele}`
                     },
                     getCardColor() {
                         return $ctrl.isAlleleAssessmentReused ? 'green' : 'purple'

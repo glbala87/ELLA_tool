@@ -10,7 +10,6 @@ import selectedGenepanelChanged from './signals/selectedGenepanelChanged'
 import selectedInterpretationChanged from './signals/selectedInterpretationChanged'
 import copyAllAlamutClicked from './signals/copyAllAlamutClicked'
 import copySelectedAlamutClicked from './signals/copySelectedAlamutClicked'
-import addExcludedAllelesOpened from './signals/addExcludedAllelesOpened'
 import reassignWorkflowClicked from './signals/reassignWorkflowClicked'
 import startClicked from './signals/startClicked'
 import finishClicked from './signals/finishClicked'
@@ -34,7 +33,6 @@ export default Module({
         selectedInterpretationChanged,
         copySelectedAlamutClicked,
         copyAllAlamutClicked,
-        addExcludedAllelesOpened,
         reassignWorkflowClicked,
         startClicked,
         finishClicked,

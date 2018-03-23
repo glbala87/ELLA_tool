@@ -33,11 +33,14 @@ app.component('alleleInfoReferences', {
 
                 Object.assign($ctrl, {
                     hasContent() {
-                        return (
-                            $ctrl.references[$ctrl.type].unpublished.length +
-                                $ctrl.references[$ctrl.type].published.length >
-                            0
-                        )
+                        if ($ctrl.references) {
+                            return (
+                                $ctrl.references[$ctrl.type].unpublished.length +
+                                    $ctrl.references[$ctrl.type].published.length >
+                                0
+                            )
+                        }
+                        return false
                     }
                 })
             }

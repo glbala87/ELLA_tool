@@ -53,6 +53,7 @@ app.component('addExcludedAlleles', {
             alleleIds: state`modals.addExcludedAlleles.viewAlleleIds`,
             includedAlleleIds: state`modals.addExcludedAlleles.includedAlleleIds`,
             itemsPerPage: state`modals.addExcludedAlleles.itemsPerPage`,
+            readOnly: state`modals.addExcludedAlleles.readOnly`,
             selectedPage: state`modals.addExcludedAlleles.selectedPage`,
             categoryChanged: signal`modals.addExcludedAlleles.categoryChanged`,
             geneChanged: signal`modals.addExcludedAlleles.geneChanged`,

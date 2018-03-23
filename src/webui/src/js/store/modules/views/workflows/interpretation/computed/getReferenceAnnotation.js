@@ -20,8 +20,8 @@ export default function(type, allele, interpretation, references) {
         interpretation,
         references,
         (type, allele, interpretation, references, get) => {
-            if (!allele) {
-                return {}
+            if (!allele || !references) {
+                return null
             }
             if (!['pending', 'evaluated', 'excluded'].includes(type)) {
                 throw Error(`Invalid type ${type}`)
