@@ -10,7 +10,7 @@ class Search extends Page {
     open() {
         super.open('overview/')
         browser.waitForExist(SELECTOR_SEARCH)
-        if (browser.element(SELECTOR_SEARCH + ' .collapsed')) {
+        if (browser.isExisting(SELECTOR_SEARCH + ' .collapsed')) {
             browser.click(SELECTOR_SEARCH + SECTION_EXPAND_SELECTOR)
         }
     }

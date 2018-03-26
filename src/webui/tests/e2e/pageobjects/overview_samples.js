@@ -65,7 +65,7 @@ class SampleSelection extends Page {
         this.open()
         browser.waitForExist(sectionSelector)
         // Expand if collapsed
-        if (browser.element(sectionSelector + ' .collapsed')) {
+        if (browser.isExisting(sectionSelector + ' .collapsed')) {
             browser.click(sectionSelector + SECTION_EXPAND_SELECTOR)
         }
     }
@@ -76,7 +76,7 @@ class SampleSelection extends Page {
         browser.waitForExist(sectionSelector)
 
         // Expand if collapsed
-        if (browser.element(sectionSelector + '.collapsed').type !== 'NoSuchElement') {
+        if (browser.isExisting(sectionSelector + '.collapsed')) {
             browser.click(sectionSelector + SECTION_EXPAND_SELECTOR)
         }
         let selector = `${sectionSelector} .id-analysis:nth-child(${number})`

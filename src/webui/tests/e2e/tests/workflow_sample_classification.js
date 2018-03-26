@@ -82,7 +82,7 @@ describe('Sample workflow', function() {
 
         // Classify first three alleles quickly
         alleleSidebar.selectFirstUnclassified()
-        // alleleSidebar.selectUnclassifiedAllele('c.72A>T');
+        alleleSidebar.selectUnclassifiedAllele('c.1233dupA')
         let selected_allele = alleleSidebar.getSelectedAllele()
         alleleSectionBox.markAsClass1()
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
@@ -110,7 +110,7 @@ describe('Sample workflow', function() {
         const exacElement = alleleSectionBox.exacElement
         expect(exacElement).toBeDefined('Missing ExAC box on the page')
         let exacContent = browser.getText(
-            'allele-sectionbox-content contentbox frequency-details[group="ExAC"]'
+            `allele-sectionbox-content contentbox frequency-details[group="'ExAC'"]`
         ) // array
         expect(exacContent).toContain('AFR', 'Missing the AFR population from ExAC')
         expect(exacContent).toContain('TOT', 'Missing the TOTal population key from ExAC')
@@ -315,18 +315,11 @@ describe('Sample workflow', function() {
         referenceEvalModal.setComment('REFERENCE_EVAL_UPDATED')
         referenceEvalModal.saveBtn.scroll()
         referenceEvalModal.saveBtn.click()
+        browser.pause(200) // TODO: Not sure why modal is slow to close...
         alleleSectionBox.setClassificationComment('EVALUATION_UPDATED')
-        analysisPage.saveButton.scroll()
-        // analysisPage.saveButton.click();
         alleleSectionBox.setFrequencyComment('FREQUENCY_UPDATED')
-        analysisPage.saveButton.scroll()
-        // analysisPage.saveButton.click();
         alleleSectionBox.setPredictionComment('PREDICTION_UPDATED')
-        analysisPage.saveButton.scroll()
-        // analysisPage.saveButton.click();
         alleleSectionBox.setExternalComment('EXTERNAL_UPDATED')
-        analysisPage.saveButton.scroll()
-        // analysisPage.saveButton.click();
         alleleSectionBox.setReportComment('REPORT_UPDATED')
         alleleSectionBox.classSelection.selectByVisibleText('Class 5')
         analysisPage.addAttachment()
