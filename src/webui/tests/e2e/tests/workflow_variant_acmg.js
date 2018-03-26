@@ -1,4 +1,4 @@
-require('core-js/fn/object/entries');
+require('core-js/fn/object/entries')
 
 /**
  * Displaying ACMG codes when interpreting.
@@ -8,34 +8,33 @@ require('core-js/fn/object/entries');
  * influence how the tests/page objects are designed.
  */
 
-let LoginPage = require('../pageobjects/loginPage');
-let VariantSelectionPage = require('../pageobjects/overview_variants');
-let AnalysisPage = require('../pageobjects/analysisPage');
-let AlleleSectionBox = require('../pageobjects/alleleSectionBox');
-let acmg = require('../pageobjects/acmg');
-let failFast = require('jasmine-fail-fast');
+let LoginPage = require('../pageobjects/loginPage')
+let VariantSelectionPage = require('../pageobjects/overview_variants')
+let AnalysisPage = require('../pageobjects/analysisPage')
+let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
+let acmg = require('../pageobjects/acmg')
+let failFast = require('jasmine-fail-fast')
 
-let loginPage = new LoginPage();
-let variantSelectionPage = new VariantSelectionPage();
-let analysisPage = new AnalysisPage();
-let alleleSectionBox = new AlleleSectionBox();
+let loginPage = new LoginPage()
+let variantSelectionPage = new VariantSelectionPage()
+let analysisPage = new AnalysisPage()
+let alleleSectionBox = new AlleleSectionBox()
 
-jasmine.getEnv().addReporter(failFast.init());
+jasmine.getEnv().addReporter(failFast.init())
 
-describe(`ACMG`, function () {
-
+describe(`ACMG`, function() {
     beforeAll(() => {
-        browser.resetDb();
-    });
+        browser.resetDb()
+    })
 
     function expectSuggestedFeatureIsHidden() {
-        expect(acmg.suggestedElement.isVisible()).toBe(false);
-        expect(acmg.showHideBtn.isVisible()).toBe(false);
+        expect(acmg.suggestedElement.isVisible()).toBe(false)
+        expect(acmg.showHideBtn.isVisible()).toBe(false)
     }
 
     function expectSuggestedFeatureIsShown() {
-        expect(acmg.suggestedElement.isVisible()).toBe(true);
-        expect(acmg.showHideBtn.isVisible()).toBe(true);
+        expect(acmg.suggestedElement.isVisible()).toBe(true)
+        expect(acmg.showHideBtn.isVisible()).toBe(true)
     }
 
     it('suggested codes and REQs are displayed when interpreting', function () {
@@ -49,11 +48,10 @@ describe(`ACMG`, function () {
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
         analysisPage.modalFinishButton.click();
-    });
+    })
 
-    describe('suggested codes and REQs are', function () {
-
-        beforeAll(function () {
+    describe('suggested codes and REQs are', function() {
+        beforeAll(function() {
             // classify one variant as 'U'
             loginPage.selectFirstUser();
             variantSelectionPage.selectPending(1);
@@ -64,37 +62,36 @@ describe(`ACMG`, function () {
             analysisPage.modalFinishButton.click();
 
             // select the first we finished, class 1
-            loginPage.selectSecondUser();
-            variantSelectionPage.expandFinishedSection();
-            variantSelectionPage.selectFinished(2);
-            expect(alleleSectionBox.isClass1()).toBe(true);
+            loginPage.selectSecondUser()
+            variantSelectionPage.expandFinishedSection()
+            variantSelectionPage.selectFinished(2)
+            expect(alleleSectionBox.isClass1()).toBe(true)
+        })
 
-        });
-
-        it('hidden when seeing a finished interpretation', function () {
+        it('hidden when seeing a finished interpretation', function() {
             // browser.debug();
             // expect(acmg.collapsed).toBe(true);
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined();
-            expectSuggestedFeatureIsHidden();
-        });
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
+            expectSuggestedFeatureIsHidden()
+        })
 
-        it('are hidden after opening a finished interpretation', function () {
+        it('are shown after opening a finished interpretation', function() {
             // reopen the interpretation
-            analysisPage.startButton.click();
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined();
-            expectSuggestedFeatureIsHidden();
-        });
+            analysisPage.startButton.click()
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
+            expectSuggestedFeatureIsShown()
+        })
 
-        it('are hidden after starting a finished interpretation', function () {
+        it('are shown after starting a finished interpretation', function() {
             // start the interpreation
-            analysisPage.startButton.click();
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined();
-            expect(alleleSectionBox.reusingClassification()).toBe(true);
+            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
+            expect(alleleSectionBox.reusingClassification()).toBe(true)
+            analysisPage.startButton.click()
 
-            expectSuggestedFeatureIsHidden();
-        });
+            expectSuggestedFeatureIsShown()
+        })
 
-        it('are shown when a reclassification is started', function () {
+        it('are shown when a reclassification is started', function() {
             // start (re) classification
             alleleSectionBox.classificationAcceptedToggleBtn.click();
 
@@ -114,5 +111,11 @@ describe(`ACMG`, function () {
 
     });
 
+            expect(alleleSectionBox.reusingClassification()).toBe(false)
+            expectSuggestedFeatureIsShown()
 
-});
+            analysisPage.finishButton.click()
+            analysisPage.finalizeButton.click()
+        })
+    })
+})
