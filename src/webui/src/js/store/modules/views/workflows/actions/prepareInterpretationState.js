@@ -1,9 +1,5 @@
 import { deepCopy } from '../../../../../util'
-import {
-    setupAlleleState,
-    autoReuseExistingAssessment,
-    checkAddRemoveAlleleToReport
-} from '../../../../common/helpers/alleleState'
+import { setupAlleleState } from '../../../../common/helpers/alleleState'
 
 /**
  * Prepares the interpretation state according to current

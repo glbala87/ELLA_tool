@@ -54,7 +54,12 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
                 )
             )
             allelereports.push(
-                _prepareAlleleReportPayload(allele, allele_state, type === 'analysis' ? id : null)
+                _prepareAlleleReportPayload(
+                    allele,
+                    allele_state,
+                    type === 'analysis' ? id : null,
+                    allele.allele_assessment ? allele.allele_assessment.id : null
+                )
             )
 
             attachments.push({
@@ -97,7 +102,9 @@ function _prepareAlleleAssessmentsPayload(
         assessment_data.genepanel_version = genepanel_version
     }
 
-    assessment_data.presented_alleleassessment_id = allelestate.presented_alleleassessment_id
+    if (allele.allele_assessment) {
+        assessment_data.presented_alleleassessment_id = allele.allele_assessment.id
+    }
     if (allelestate.alleleassessment.reuse) {
         assessment_data.reuse = true
     } else {
@@ -167,7 +174,9 @@ function _prepareAlleleReportPayload(
         report_data.alleleassessment_id = alleleassessment_id
     }
 
-    report_data.presented_allelereport_id = allelestate.presented_allelereport_id
+    if (allele.allele_report) {
+        report_data.presented_allelereport_id = allele.allele_report.id
+    }
 
     // possible reuse:
     if (

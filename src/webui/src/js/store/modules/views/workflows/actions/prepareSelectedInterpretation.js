@@ -1,6 +1,6 @@
 import { deepCopy } from '../../../../../util'
 
-function prepareSelectedInterpretation({ state }) {
+export default function prepareSelectedInterpretation({ state }) {
     let interpretations = state.get('views.workflows.data.interpretations')
     let doneInterpretations = interpretations.filter(i => i.status === 'Done')
     let lastInterpretation = interpretations[interpretations.length - 1]
@@ -54,5 +54,3 @@ function prepareSelectedInterpretation({ state }) {
     }
     state.set('views.workflows.interpretation.isOngoing', isOngoing)
 }
-
-export default prepareSelectedInterpretation

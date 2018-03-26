@@ -7,7 +7,8 @@ const TYPES = {
 
 export default function(finishType) {
     return function finishWorkflow({ state, http, path }) {
-        const type = TYPES[state.get('views.workflows.type')]
+        const type = state.get('views.workflows.type')
+        const postType = TYPES[type]
         const id = state.get('views.workflows.id')
         const interpretation = state.get('views.workflows.interpretation.selected')
         const alleles = state.get('views.workflows.data.alleles')
@@ -32,7 +33,7 @@ export default function(finishType) {
         )
 
         return http
-            .post(`workflows/${type}/${id}/actions/${finishType}/`, payload)
+            .post(`workflows/${postType}/${id}/actions/${finishType}/`, payload)
             .then(response => {
                 return path.success(response)
             })

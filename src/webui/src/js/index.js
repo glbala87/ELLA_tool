@@ -187,11 +187,15 @@ Promise = function(resolver) {
 }
 
 Promise.resolve = function(val) {
-    return angular
-        .element(document.body)
-        .injector()
-        .get('$q')
-        .resolve(val)
+    try {
+        return angular
+            .element(document.body)
+            .injector()
+            .get('$q')(resolver)
+            .resolve(val)
+    } catch (e) {
+        return org_promise.resolve(val)
+    }
 }
 
 Promise.all = function() {
