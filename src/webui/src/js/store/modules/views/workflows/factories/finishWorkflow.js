@@ -11,6 +11,7 @@ export default function(finishType) {
         const id = state.get('views.workflows.id')
         const interpretation = state.get('views.workflows.interpretation.selected')
         const alleles = state.get('views.workflows.data.alleles')
+        const references = state.get('views.workflows.data.references')
 
         if (!['markreview', 'finalize'].find(e => e === finishType)) {
             console.error(`'Invalid finishType ${finishType}`)
@@ -22,7 +23,13 @@ export default function(finishType) {
             return path.error()
         }
 
-        const payload = prepareInterpretationPayload(type, id, interpretation, alleles)
+        const payload = prepareInterpretationPayload(
+            type,
+            id,
+            interpretation,
+            alleles,
+            Object.values(references)
+        )
 
         return http
             .post(`workflows/${type}/${id}/actions/${finishType}/`, payload)

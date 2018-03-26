@@ -34,6 +34,7 @@ export default function setReferenceAssessment({ state, resolve, props }) {
         existing = Object.assign({}, existing, newReferenceAssessment)
         if ('reuse' in existing) {
             existing.reuse = false
+            delete existing.id
         }
         state.set(
             `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments.${raIdx}`,
