@@ -23,7 +23,9 @@ const EXIT_WARNING = 'You have unsaved work. Do you really want to exit applicat
 export default [
     enableOnBeforeUnload(showExitWarning, EXIT_WARNING),
     set(state`views.workflows.type`, string`analysis`),
-    set(state`views.workflows.id`, props`analysisId`),
+    ({ state, props }) => {
+        state.set('views.workflows.id', parseInt(props.analysisId))
+    },
     parallel([
         sequence('loadAnalysis', [
             getAnalysis,
