@@ -142,6 +142,9 @@ function prepareComponents({ state }) {
         } else {
             state.set('views.workflows.selectedComponent', 'Classification')
         }
+        components.components.Classification.sections.frequency.content.push({
+            tag: 'allele-info-quality'
+        })
     } else {
         state.set('views.workflows.selectedComponent', components.componentKeys[0])
     }
