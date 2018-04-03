@@ -1,5 +1,4 @@
-import { Compute } from 'cerebral'
-import { set } from 'cerebral/operators'
+import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import prepareSelectedAllele from '../actions/prepareSelectedAllele'
 import sortSections from '../actions/sortSections'
@@ -8,5 +7,12 @@ import updateSuggestedClassification from '../../interpretation/sequences/update
 export default [
     sortSections,
     prepareSelectedAllele,
-    [set(props`alleleId`, state`views.workflows.selectedAllele`), updateSuggestedClassification]
+    when(state`views.workflows.selectedAllele`),
+    {
+        true: [
+            set(props`alleleId`, state`views.workflows.selectedAllele`),
+            updateSuggestedClassification
+        ],
+        false: []
+    }
 ]
