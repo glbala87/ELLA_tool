@@ -22,7 +22,7 @@ function getAcmgCodes({ http, path, state, props, resolve }) {
         const alleleReferences = findReferencesFromIds(references, alleleReferenceIds).references
         for (let reference of alleleReferences) {
             const alleleReferenceAssessment = resolve.value(
-                getReferenceAssessment(alleleId, reference.id)
+                getReferenceAssessment(parseInt(alleleId), reference.id)
             )
             if (alleleReferenceAssessment) {
                 referenceAssessments.push(alleleReferenceAssessment)
