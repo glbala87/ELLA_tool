@@ -54,7 +54,9 @@ class Resource(flask_resource):
 
         count = query.count()
         if kwargs.get('order_by') is not None:
-            query = query.order_by(kwargs["order_by"])
+            order_by = kwargs.get('order_by')
+            order_by = [order_by] if not isinstance(order_by, list) else order_by
+            query = query.order_by(*order_by)
 
         if kwargs.get('per_page'):
             query = query.limit(kwargs['per_page'])

@@ -63,7 +63,8 @@ class AlleleListResource(LogRequestResource):
             description: List of alleles
         """
 
-        alleles, count = self.list_query(session, allele.Allele, rest_filter=rest_filter)
+        order_by = [allele.Allele.chromosome, allele.Allele.start_position]
+        alleles, count = self.list_query(session, allele.Allele, rest_filter=rest_filter, order_by=order_by)
 
         # Optional extras
         sample_id = request.args.get('sample_id')
