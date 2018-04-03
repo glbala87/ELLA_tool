@@ -10,7 +10,7 @@
         <button class="blue id-reference-evaluate"
                 ng-click="$ctrl.evaluateReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.reference.id})"
                 >{{$ctrl.getEvaluateBtnText()}}</button>
-        <button class="blue id-reference-evaluate" ng-disabled="vm.readOnly"
+        <button class="blue id-reference-evaluate" ng-disabled="$ctrl.readOnly || $ctrl.alleleAssessmentReused"
                 ng-click="$ctrl.ignoreReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.referenceId})"
                 >Ignore</button>
     </div>

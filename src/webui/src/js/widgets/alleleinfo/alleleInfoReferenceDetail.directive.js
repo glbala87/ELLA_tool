@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
+import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 
 app.component('alleleInfoReferenceDetail', {
     bindings: {
@@ -14,6 +15,7 @@ app.component('alleleInfoReferenceDetail', {
             selectedAllele: state`views.workflows.selectedAllele`,
             reference: state`views.workflows.data.references.${props`referenceId`}`,
             readOnly: isReadOnly,
+            alleleAssessmentReused: isAlleleAssessmentReused(state`views.workflows.selectedAllele`),
             referenceAssessment: getReferenceAssessment(
                 state`views.workflows.selectedAllele`,
                 props`referenceId`
@@ -29,7 +31,7 @@ app.component('alleleInfoReferenceDetail', {
 
                 Object.assign($ctrl, {
                     getEvaluateBtnText() {
-                        if ($ctrl.readOnly) {
+                        if ($ctrl.readOnly || $ctrl.alleleAssessmentReused) {
                             return 'See details'
                         }
                         if ($ctrl.referenceAssessment) {

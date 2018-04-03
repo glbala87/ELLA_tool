@@ -1,11 +1,7 @@
-import deepCopy from '../../../../../../util'
-import getReferenceAssessment from '../computed/getReferenceAssessment'
 import getAlleleState from '../computed/getAlleleState'
 
 export default function autoReuseExistingReferenceAssessments({ state, resolve, props }) {
     const alleles = state.get('views.workflows.data.alleles')
-    const references = state.get('views.workflows.data.references')
-    const config = state.get('app.config')
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
         if ('reference_assessments' in allele) {
