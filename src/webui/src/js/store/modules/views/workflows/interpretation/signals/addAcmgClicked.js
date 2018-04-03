@@ -4,11 +4,12 @@ import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
 import toastr from '../../../../../common/factories/toastr'
 import addAcmgCode from '../actions/addAcmgCode'
 import setDirty from '../actions/setDirty'
+import updateSuggestedClassification from '../sequences/updateSuggestedClassification'
 
 export default [
     canUpdateAlleleAssessment,
     {
-        true: [addAcmgCode, setDirty],
+        true: [addAcmgCode, updateSuggestedClassification, setDirty],
         false: [toastr('error', 'Could not add ACMG code')]
     }
 ]

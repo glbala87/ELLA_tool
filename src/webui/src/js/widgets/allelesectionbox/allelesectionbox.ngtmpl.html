@@ -121,7 +121,7 @@
     <!-- Included ACMG codes -->
     <!-- Don't use 'track by $index' -->
     <div class="id-acmg-included" ng-if="$ctrl.section.options.showIncludedAcmgCodes">
-        <h4 class="section-title acmg-body">ACMG <span ng-if="!$ctrl.readOnly && !$ctrl.isAlleleAssessmentReused">(SUGGESTED CLASS: <span class="suggested-class">{{vm.getSuggestedClassification()}}</span>)</span></h4>
+        <h4 class="section-title acmg-body">ACMG <span ng-if="!$ctrl.readOnly && !$ctrl.isAlleleAssessmentReused">(SUGGESTED CLASS: <span class="suggested-class">{{$ctrl.alleleassessment.evaluation.acmg.suggested_classification}}</span>)</span></h4>
         <section class="acmg-wrapper included">
                 <!-- FIXME -->
           <acmg directreqs="true"
