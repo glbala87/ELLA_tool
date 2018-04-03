@@ -30,95 +30,6 @@ class Filters {
     }
 
     @Filter({
-        filterName: 'gnomadLink'
-    })
-    gnomadLinkFilter() {
-        return (allele) => {
-            return allele
-                ? `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${
-                      allele.vcf_pos
-                  }-${allele.vcf_ref}-${allele.vcf_alt}`
-                : ''
-        }
-    }
-
-    @Filter({
-        filterName: 'exacLink'
-    })
-    exacLinkFilter() {
-        return (allele) => {
-            return allele
-                ? `http://exac.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${
-                      allele.vcf_ref
-                  }-${allele.vcf_alt}`
-                : ''
-        }
-    }
-
-    @Filter({
-        filterName: 'split'
-    })
-    splitFilter() {
-        return (input, splitChar, splitIndex) => {
-            // do some bounds checking here to ensure it has that index
-            if (input !== undefined) {
-                return input.split(splitChar)[splitIndex]
-            } else {
-                return input
-            }
-        }
-    }
-
-    @Filter({
-        filterName: 'isEmpty'
-    })
-    isEmptyFilter() {
-        return (input) => {
-            return Object.keys(input).length === 0
-        }
-    }
-
-    @Filter({
-        filterName: 'default'
-    })
-    defaultFilter() {
-        return (input, text) => {
-            return input ? input : text
-        }
-    }
-
-    @Filter({
-        filterName: 'HGVS_firsthalf'
-    })
-    HGVS_firsthalfFilter() {
-        return (input) => {
-            if (input) {
-                return input.split(':')[0]
-            }
-            return ''
-        }
-    }
-
-    @Filter({
-        filterName: 'secondsToTimeString'
-    })
-    secondsToTimeStringFilter() {
-        return (seconds) => {
-            if (!seconds) {
-                return ''
-            }
-            var days = Math.floor(seconds / 86400)
-            var hours = Math.floor((seconds % 86400) / 3600)
-            var minutes = Math.floor(((seconds % 86400) % 3600) / 60)
-            var timeString = ''
-            if (days > 0) timeString += days > 1 ? days + ' days ' : days + ' day '
-            if (hours > 0) timeString += hours > 1 ? hours + 'h ' : hours + 'h '
-            if (minutes >= 0) timeString += minutes > 1 ? minutes + ' min ' : minutes + ' min '
-            return timeString
-        }
-    }
-
-    @Filter({
         filterName: 'noUnderscores'
     })
     noUnderscores() {
@@ -145,26 +56,6 @@ class Filters {
     killLeadingDashes() {
         return (text) => {
             return text.replace(/^-\s/g, '')
-        }
-    }
-
-    @Filter({
-        filterName: 'prettyJSON'
-    })
-    prettyJSONFilter() {
-        return (json) => {
-            return JSON
-                ? JSON.stringify(json, null, '  ')
-                : 'your browser doesnt support JSON so cant pretty print'
-        }
-    }
-
-    @Filter({
-        filterName: 'proteinSequence'
-    })
-    dropProteinChange() {
-        return (input) => {
-            return input.split(':')[0]
         }
     }
 

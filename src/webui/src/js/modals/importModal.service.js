@@ -4,19 +4,9 @@ import { UUID } from '../util'
 import { ImportData } from '../model/importdata'
 
 export class ImportController {
-    constructor(
-        modalInstance,
-        User,
-        AnalysisResource,
-        AnnotationjobResource,
-        toastr,
-        $interval,
-        $filter,
-        $scope
-    ) {
+    constructor(modalInstance, User, AnnotationjobResource, toastr, $interval, $filter, $scope) {
         this.modal = modalInstance
         this.user = User.getCurrentUser()
-        this.analysisResource = AnalysisResource
         this.annotationjobResource = AnnotationjobResource
         this.toastr = toastr
         this.filter = $filter
@@ -201,7 +191,6 @@ export class ImportModal {
             controller: [
                 '$uibModalInstance',
                 'User',
-                'AnalysisResource',
                 'AnnotationjobResource',
                 'toastr',
                 '$interval',

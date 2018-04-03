@@ -1,6 +1,5 @@
 /* jshint esnext: true */
 import { Directive, Inject } from '../ng-decorators'
-import { AlleleStateHelper } from '../model/allelestatehelper'
 
 @Directive({
     selector: 'markdown-it',

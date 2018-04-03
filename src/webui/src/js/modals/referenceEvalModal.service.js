@@ -7,16 +7,7 @@ export class ReferenceEvalModalController {
      * Controller for dialog with reference evaluation.
      */
 
-    constructor(
-        modalInstance,
-        Config,
-        Analysis,
-        analysis,
-        allele,
-        reference,
-        referenceAssessment,
-        readOnly
-    ) {
+    constructor(modalInstance, Config, analysis, allele, reference, referenceAssessment, readOnly) {
         this.config = Config.getConfig()
         this.analysis = analysis
         this.modal = modalInstance
@@ -763,7 +754,6 @@ export class ReferenceEvalModal {
             controller: [
                 '$uibModalInstance',
                 'Config',
-                'Analysis',
                 'analysis',
                 'allele',
                 'reference',

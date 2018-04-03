@@ -1,5 +1,3 @@
-import { ACMGHelper } from '../../../../../model/acmghelper'
-
 export default function prepareSuggestedAcmg({ state }) {
     const alleles = state.get(`views.workflows.data.alleles`)
 
