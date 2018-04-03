@@ -8,11 +8,13 @@ import collapseChanged from './signals/collapseChanged'
 import updateImportJobCountTriggered from './signals/updateImportJobCountTriggered'
 import updateOverviewTriggered from './signals/updateOverviewTriggered'
 import showImportModalClicked from './signals/showImportModalClicked'
+import finalizedPageChanged from './signals/finalizedPageChanged'
 
 export default Module({
     state: {}, // State set in changeView
     signals: {
         collapseChanged,
+        finalizedPageChanged,
         sectionChanged,
         updateImportJobCountTriggered,
         updateOverviewTriggered,

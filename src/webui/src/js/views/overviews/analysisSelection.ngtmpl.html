@@ -142,9 +142,10 @@
   </subtitle>
   <controls>
         <uib-pagination total-items="$ctrl.finalized.pagination.totalCount"
-        ng-model="$ctrl.finalized_page"
+        ng-model="$ctrl.modelFinalizedPage"
+        ng-model-watch="$ctrl.finalized.page"
         class="pagination-sm"
-        ng-change="$ctrl.finalizedPageChanged({section: $ctrl.selectedSection, page: $ctrl.finalized_page})"
+        ng-change="$ctrl.finalizedPageChanged({section: $ctrl.selectedSection, page: $ctrl.modelFinalizedPage})"
         items-per-page="$ctrl.finalized.pagination.perPage"
         max-size="5"
         rotate="false">

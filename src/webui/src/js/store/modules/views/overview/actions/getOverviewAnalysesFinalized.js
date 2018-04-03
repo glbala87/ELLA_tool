@@ -2,7 +2,7 @@ import processAnalyses from '../../../../common/helpers/processAnalyses'
 
 export default function getOverviewAnalysesFinalized({ module, http, path, props }) {
     let sections = module.get('sections')
-    let selectedPage = sections[props.section].finalized.selectedPage
+    const { page: selectedPage } = props
 
     return http
         .get(`overviews/analyses/finalized/?per_page=10&page=${selectedPage}`)
@@ -12,11 +12,10 @@ export default function getOverviewAnalysesFinalized({ module, http, path, props
             let result = {
                 entries: response.result,
                 pagination: {
-                    // TODO: Refactor this to provider!
-                    page: response.headers['page'],
-                    totalCount: response.headers['total-count'],
-                    perPage: response.headers['per-page'],
-                    totalPages: response.headers['total-pages']
+                    page: parseInt(response.headers['page']),
+                    totalCount: parseInt(response.headers['total-count']),
+                    perPage: parseInt(response.headers['per-page']),
+                    totalPages: parseInt(response.headers['total-pages'])
                 }
             }
 

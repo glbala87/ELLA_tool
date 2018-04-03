@@ -60,14 +60,15 @@
     {{$ctrl.finalized.pagination.totalCount}}
   </subtitle>
   <controls>
-        <uib-pagination total-items="$ctrl.finalized.pagination.totalCount"
-        ng-model="$ctrl.finalized.finalized_page"
-        class="pagination-sm"
-        ng-change="$ctrl.alleles.finalizedPageChanged()"
-        items-per-page="$ctrl.finalized.finalized.pagination.perPage"
-        max-size="5"
-        rotate="false">
-      </uib-pagination>
+    <uib-pagination total-items="$ctrl.finalized.pagination.totalCount"
+      ng-model="$ctrl.modelFinalizedPage"
+      ng-model-watch="$ctrl.finalized.page"
+      class="pagination-sm"
+      ng-change="$ctrl.finalizedPageChanged({section: $ctrl.selectedSection, page: $ctrl.modelFinalizedPage})"
+      items-per-page="$ctrl.finalized.pagination.perPage"
+      max-size="5"
+      rotate="false">
+    </uib-pagination>
   </controls>
   <contentwrapper>
     <allele-list sort="false" store-path="'views.overview.data.allelesFinalized.entries'"></allele-list>

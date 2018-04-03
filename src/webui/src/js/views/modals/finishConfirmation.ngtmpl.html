@@ -1,0 +1,16 @@
+<sectionbox class="prompt" color="purple" modal="true" on-close="$ctrl.close">
+  <maintitle>
+    FINISHED: ANALYSIS COMPLETE
+  </maintitle>
+  <controls>
+    <section class="line-wrapper pinned-right">
+      <button class="id-mark-review normal" type="button" ng-click="$ctrl.finishClicked({finishAction: 'markreview'})">Mark for review</button>
+      <button ng-disabled="!$ctrl.canFinalize" class="id-finalize" type="button" ng-click="$ctrl.finishClicked({finishAction: 'finalize'})">Finalize</button>
+    </section>
+  </controls>
+  <contentwrapper>
+    <h4 class="sb-notification"> Would you like to mark the analysis for review, or finalize it? </h4>
+    <h4 class="sb-notification" ng-if="!$ctrl.canFinalize"> </h4>
+    <h4 class="sb-notification" ng-if="!$ctrl.canFinalize">For finalize: Make sure all variants are classified and that you have made the required number of reviews.</h4>
+  </contentwrapper>
+</sectionbox>

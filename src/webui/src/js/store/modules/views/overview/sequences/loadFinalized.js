@@ -23,6 +23,7 @@ export default [
             }
         ],
         analyses: analysesFinalized,
-        'analyses-by-findings': analysesFinalized
+        'analyses-by-findings': analysesFinalized,
+        otherwise: [toastr('error', 'Unknown section')]
     }
 ]

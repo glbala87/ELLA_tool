@@ -1,6 +1,7 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import selectedSection from '../../store/modules/views/overview/computed/selectedSection'
 
 app.component('alleleSelection', {
     templateUrl: 'ngtmpl/alleleSelection.ngtmpl.html',
@@ -9,7 +10,8 @@ app.component('alleleSelection', {
             alleles: state`views.overview.data.alleles`,
             finalized: state`views.overview.data.allelesFinalized`,
             state: state`views.overview.state.variants`,
-            // FIXME: Missing on-finalized-changed signal
+            selectedSection: selectedSection,
+            finalizedPageChanged: signal`views.overview.finalizedPageChanged`,
             collapseChanged: signal`views.overview.collapseChanged`
         },
         'AlleleSelection',

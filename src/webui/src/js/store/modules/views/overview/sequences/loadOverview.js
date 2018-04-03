@@ -10,6 +10,7 @@ import toastr from '../../../../common/factories/toastr'
 
 export default sequence('loadOverview', [
     progress('start'),
+
     equals(props`section`),
     {
         // section comes from url
@@ -19,7 +20,7 @@ export default sequence('loadOverview', [
                 success: [set(module`data.alleles`, props`result`)],
                 error: [toastr('error', 'Failed to load variants')]
             },
-            loadFinalized
+            [set(props`page`, 1), loadFinalized]
         ]),
         analyses: parallel('loadOverviewAnalysis', [
             getOverviewAnalyses,
@@ -27,7 +28,7 @@ export default sequence('loadOverview', [
                 success: [set(module`data.analyses`, props`result`)],
                 error: [toastr('error', 'Failed to load analyses')]
             },
-            loadFinalized
+            [set(props`page`, 1), loadFinalized]
         ]),
         'analyses-by-findings': parallel('loadOverviewAnalysisByFindings', [
             getOverviewAnalysesByFindings,
@@ -35,7 +36,7 @@ export default sequence('loadOverview', [
                 success: [set(module`data.analyses`, props`result`)],
                 error: [toastr('error', 'Failed to load analyses')]
             },
-            loadFinalized
+            [set(props`page`, 1), loadFinalized]
         ]),
         otherwise: [toastr('error', 'Invalid section')]
     },

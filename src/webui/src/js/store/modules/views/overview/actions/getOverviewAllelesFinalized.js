@@ -1,8 +1,8 @@
 import processAlleles from '../../../../common/helpers/processAlleles'
 
 function getOverviewAllelesFinalized({ module, http, path, props }) {
-    let sections = module.get('sections')
-    let selectedPage = sections[props.section].finalized.selectedPage
+    const sections = module.get('sections')
+    const { page: selectedPage } = props
 
     return http
         .get(`overviews/alleles/finalized/?per_page=10&page=${selectedPage}`)
@@ -13,10 +13,10 @@ function getOverviewAllelesFinalized({ module, http, path, props }) {
             let result = {
                 entries: response.result,
                 pagination: {
-                    page: response.headers['page'],
-                    totalCount: response.headers['total-count'],
-                    perPage: response.headers['per-page'],
-                    totalPages: response.headers['total-pages']
+                    page: parseInt(response.headers['page']),
+                    totalCount: parseInt(response.headers['total-count']),
+                    perPage: parseInt(response.headers['per-page']),
+                    totalPages: parseInt(response.headers['total-pages'])
                 }
             }
 

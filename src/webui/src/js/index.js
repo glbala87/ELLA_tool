@@ -27,6 +27,7 @@ import './services/user.service'
 import './services/ConfigService'
 import './filters'
 
+import './views/modals/finishConfirmation.directive'
 import './views/modals/showAnalysesForAllele.directive'
 import './views/modals/addExcludedAlleles.directive'
 import './views/modals/reassignWorkflow.directive'
