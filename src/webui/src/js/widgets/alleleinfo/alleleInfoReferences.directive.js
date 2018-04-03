@@ -103,9 +103,9 @@ export class AlleleInfoReferences {
             let reference_found = false
             if (this.references) {
                 if (pmid) {
-                    var reference = this.references.find(r => r.pubmed_id === pmid)
+                    var reference = this.references.find((r) => r.pubmed_id === pmid)
                 } else {
-                    var reference = this.references.find(r => r.id === id)
+                    var reference = this.references.find((r) => r.id === id)
                 }
 
                 if (reference) {
@@ -122,7 +122,7 @@ export class AlleleInfoReferences {
     getPendingReferences(published) {
         if (this.refViewType === 'Pending') {
             return this.allele_references.filter(
-                r =>
+                (r) =>
                     r.published === published &&
                     this.hasReferenceAssessment(r) === false &&
                     ['Ignore', 'No'].indexOf(this.getReferenceAssessment(r).evaluation.relevance) <
@@ -134,7 +134,7 @@ export class AlleleInfoReferences {
     getEvaluatedReferences(published) {
         if (this.refViewType === 'Evaluated') {
             return this.allele_references.filter(
-                r =>
+                (r) =>
                     this.isIgnored(r) === false &&
                     r.published === published &&
                     this.hasReferenceAssessment(r) === true
@@ -145,7 +145,7 @@ export class AlleleInfoReferences {
     getExcludedReferences(published) {
         if (this.refViewType === 'Excluded') {
             return this.allele_references.filter(
-                r => this.isIgnored(r) === true && r.published === published
+                (r) => this.isIgnored(r) === true && r.published === published
             )
         } else return []
     }
@@ -179,7 +179,7 @@ export class AlleleInfoReferences {
 
     getReferencesIgnored() {
         return this.allele_references.filter(
-            ref =>
+            (ref) =>
                 ['Ignore', 'No'].indexOf(this.getReferenceAssessment(ref).evaluation.relevance) >= 0
         )
     }
@@ -193,10 +193,10 @@ export class AlleleInfoReferences {
     }
 
     getReferencesWithoutAssessment() {
-        return this.allele_references.filter(ref => !this.hasReferenceAssessment(ref))
+        return this.allele_references.filter((ref) => !this.hasReferenceAssessment(ref))
     }
 
-    _refHasRelevantAssessment = ref => {
+    _refHasRelevantAssessment = (ref) => {
         return (
             this.hasReferenceAssessment(ref) &&
             ['Ignore', 'No'].indexOf(this.getReferenceAssessment(ref).evaluation.relevance) < 0
@@ -204,11 +204,11 @@ export class AlleleInfoReferences {
     }
 
     getReferencesWithAssessment() {
-        return this.allele_references.filter(ref => this._refHasRelevantAssessment(ref))
+        return this.allele_references.filter((ref) => this._refHasRelevantAssessment(ref))
     }
 
     existsReferenceAssesment() {
-        return this.allele_references.find(ref => this._refHasRelevantAssessment(ref))
+        return this.allele_references.find((ref) => this._refHasRelevantAssessment(ref))
     }
 
     getEvaluateBtnText(reference) {
@@ -248,7 +248,7 @@ export class AlleleInfoReferences {
 
         this.refEvalModal
             .show(this.analysis, this.allele, reference, existing_ra, this.readOnly)
-            .then(dialogResult => {
+            .then((dialogResult) => {
                 // If dialogResult is an object, then the referenceassessment
                 // was changed and we should replace it in our state.
                 // If modal was canceled or no changes took place, it's 'undefined'.

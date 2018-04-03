@@ -157,9 +157,9 @@ class InterpretationService {
             this.dummy_interpretation.genepanel_name = genepanel_name
             this.dummy_interpretation.genepanel_version = genepanel_version
         }
-        return this.workflowResource.getInterpretations(type, id).then(interpretations => {
+        return this.workflowResource.getInterpretations(type, id).then((interpretations) => {
             this.interpretations = interpretations
-            let done_interpretations = this.interpretations.filter(i => i.status === 'Done')
+            let done_interpretations = this.interpretations.filter((i) => i.status === 'Done')
             let last_interpretation = this.interpretations[this.interpretations.length - 1]
             // If an interpretation is Ongoing, we assign it directly
             if (last_interpretation && last_interpretation.status === 'Ongoing') {
@@ -203,7 +203,7 @@ class InterpretationService {
                     this.selected_interpretation,
                     this.selected_interpretation.current // Whether to show current allele data or historical data
                 )
-                .then(alleles => {
+                .then((alleles) => {
                     this.selected_interpretation_alleles = alleles
                     if (setViewReady) this.isViewReady = true // Reloading alleles should potentially trigger a redraw of the full view
                     console.log(
@@ -215,7 +215,7 @@ class InterpretationService {
             // Fetch allele directly if no interpretation is set
             return this.alleleService
                 .getAlleles(this.id, null, this.genepanel_name, this.genepanel_version)
-                .then(a => {
+                .then((a) => {
                     return this.alleleService
                         .updateACMG(a, this.genepanel_name, this.genepanel_version, [])
                         .then(() => {
@@ -244,14 +244,14 @@ class InterpretationService {
         let gp_name = interpretation.genepanel_name
         let gp_version = interpretation.genepanel_version
 
-        this.workflowResource.getGenepanel(this.type, this.id, gp_name, gp_version).then(gp => {
+        this.workflowResource.getGenepanel(this.type, this.id, gp_name, gp_version).then((gp) => {
             this.selected_interpretation_genepanel = gp
             this.isViewReady = true
         })
     }
 
     loadAnalysis(id) {
-        this.analysisResource.getAnalysis(id).then(a => {
+        this.analysisResource.getAnalysis(id).then((a) => {
             this.analysis = a
         })
     }

@@ -28,7 +28,7 @@ export function findReferencesFromIds(references, ids) {
         let id = rid.id
 
         if (references) {
-            let reference = references.find(r => {
+            let reference = references.find((r) => {
                 return (pmid && r.pubmed_id.toString() === pmid.toString()) || (id && r.id === id)
             })
             if (reference) {

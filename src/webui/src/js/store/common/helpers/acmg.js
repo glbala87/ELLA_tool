@@ -67,12 +67,14 @@ export function getAcmgCandidates(config) {
         pathogenic: []
     }
 
-    const candidates = Object.keys(config.acmg.explanation).filter(code => !code.startsWith('REQ'))
+    const candidates = Object.keys(config.acmg.explanation).filter(
+        (code) => !code.startsWith('REQ')
+    )
 
     for (let t of ['benign', 'pathogenic']) {
         // Map codes to group (benign/pathogenic)
         for (let c of candidates) {
-            if (config.acmg.codes[t].some(e => c.startsWith(e))) {
+            if (config.acmg.codes[t].some((e) => c.startsWith(e))) {
                 if (!acmgCandidates[t].includes(c)) {
                     acmgCandidates[t].push(c)
                 }
@@ -82,8 +84,8 @@ export function getAcmgCandidates(config) {
         // Sort the codes
         acmgCandidates[t].sort((a, b) => {
             // Find the difference in index between the codes
-            let aIdx = config.acmg.codes[t].findIndex(elem => a.startsWith(elem))
-            let bIdx = config.acmg.codes[t].findIndex(elem => b.startsWith(elem))
+            let aIdx = config.acmg.codes[t].findIndex((elem) => a.startsWith(elem))
+            let bIdx = config.acmg.codes[t].findIndex((elem) => b.startsWith(elem))
 
             // If same prefix, sort on text itself
             if (aIdx === bIdx) {

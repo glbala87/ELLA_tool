@@ -15,31 +15,31 @@ function getSortFunctions(
     verificationStatus
 ) {
     return {
-        inheritance: allele => {
+        inheritance: (allele) => {
             if (allele.formatted.inheritance === 'AD') {
                 return '1'
             }
             return allele.formatted.inheritance
         },
-        gene: allele => {
+        gene: (allele) => {
             return allele.annotation.filtered[0].symbol
         },
-        hgvsc: allele => {
+        hgvsc: (allele) => {
             let s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
             let d = parseInt(s.match(/[cg]\.(\d+)/)[1])
             return d
         },
-        consequence: allele => {
+        consequence: (allele) => {
             let consequence_priority = config.transcripts.consequences
-            let consequences = allele.annotation.filtered.map(t => t.consequences)
+            let consequences = allele.annotation.filtered.map((t) => t.consequences)
             consequences = [].concat.apply([], consequences)
-            let consequence_indices = consequences.map(c => consequence_priority.indexOf(c))
+            let consequence_indices = consequences.map((c) => consequence_priority.indexOf(c))
             return Math.min(...consequence_indices)
         },
-        homozygous: allele => {
+        homozygous: (allele) => {
             return isHomozygous[allele.id] ? -1 : 1
         },
-        quality: allele => {
+        quality: (allele) => {
             if (verificationStatus[allele.id] === 'verified') {
                 return 0
             } else if (verificationStatus[allele.id] === 'technical') {
@@ -50,19 +50,19 @@ function getSortFunctions(
                 return 1
             }
         },
-        references: allele => {
+        references: (allele) => {
             return !isImportantSource[allele.id]
         },
-        '3hetAR': allele => {
+        '3hetAR': (allele) => {
             return 0 // FIXME
             return !this.is3hetAR(allele)
         },
-        technical: allele => {
+        technical: (allele) => {
             return verificationStatus[allele.id] === 'technical' ? 1 : -1
         },
-        classification: allele => {
+        classification: (allele) => {
             return config.classification.options.findIndex(
-                o => o.value === classification[allele.id]
+                (o) => o.value === classification[allele.id]
             )
         }
     }

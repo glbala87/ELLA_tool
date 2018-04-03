@@ -149,14 +149,14 @@ export class AlleleStateHelper {
     static getStateReferenceAssessment(allele, reference, allele_state) {
         if ('referenceassessments' in allele_state) {
             return allele_state.referenceassessments.find(
-                ra => ra.allele_id === allele.id && ra.reference_id === reference.id
+                (ra) => ra.allele_id === allele.id && ra.reference_id === reference.id
             )
         }
     }
 
     static getExistingReferenceAssessment(allele, reference) {
         if (allele.reference_assessments) {
-            return allele.reference_assessments.find(ra => ra.reference_id === reference.id)
+            return allele.reference_assessments.find((ra) => ra.reference_id === reference.id)
         }
     }
 
@@ -273,7 +273,7 @@ export class AlleleStateHelper {
     static updateReferenceAssessment(allele, reference, allele_state, referenceassessment) {
         // Find state data
         let state_ra = allele_state.referenceassessments.find(
-            ra => ra.allele_id === allele.id && ra.reference_id === reference.id
+            (ra) => ra.allele_id === allele.id && ra.reference_id === reference.id
         )
         // Update the object with new data, and remove the reuse ('id')
         state_ra.evaluation = referenceassessment.evaluation
@@ -447,7 +447,7 @@ export class AlleleStateHelper {
      */
     static checkAddRemoveAlleleToReport(allele, allele_state, config) {
         let classification = this.getClassification(allele, allele_state)
-        let config_option = config.classification.options.find(o => {
+        let config_option = config.classification.options.find((o) => {
             return o.value === classification
         })
         if (
@@ -483,7 +483,7 @@ export class AlleleStateHelper {
         }
         let classification = allele.allele_assessment.classification
         // Find classification from config
-        let option = config.classification.options.find(o => o.value === classification)
+        let option = config.classification.options.find((o) => o.value === classification)
         if (option === undefined) {
             throw Error(`Classification ${classification} not found in configuration.`)
         }

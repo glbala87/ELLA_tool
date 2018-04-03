@@ -16,7 +16,7 @@ export default function setReferenceAssessment({ state, resolve, props }) {
     const referenceId = props.referenceId
     const alleleState = resolve.value(getAlleleState(props.alleleId))
 
-    const raIdx = alleleState.referenceassessments.findIndex(ra => {
+    const raIdx = alleleState.referenceassessments.findIndex((ra) => {
         return ra.reference_id === referenceId && ra.allele_id === alleleId
     })
 

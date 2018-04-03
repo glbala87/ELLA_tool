@@ -20,7 +20,7 @@ export default function getImportJobs({ http, path, props }) {
     }
     return http
         .get(`import/service/jobs/${extras}`)
-        .then(response => {
+        .then((response) => {
             const result = {
                 entries: response.result,
                 pagination: {
@@ -32,7 +32,7 @@ export default function getImportJobs({ http, path, props }) {
             }
             return path.success({ result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

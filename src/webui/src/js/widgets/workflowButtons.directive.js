@@ -187,7 +187,7 @@ export class WorkflowButtonsController {
         // Reassign/save mode
         if (selectedInterpretation && selectedInterpretation.status === 'Ongoing') {
             if (selectedInterpretation.user.id !== this.user.getCurrentUserId()) {
-                this.interpretationOverrideModal.show().then(result => {
+                this.interpretationOverrideModal.show().then((result) => {
                     if (result) {
                         this.workflowService.override(type, id).then(() => this._callReload())
                     }
@@ -198,7 +198,7 @@ export class WorkflowButtonsController {
                     .then(() => {
                         this.interpretationUpdateInProgress = false
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         if (error.status === 409) {
                             this.toastr.error('Save failed: ' + error.data)
                         } else {
@@ -213,7 +213,7 @@ export class WorkflowButtonsController {
             let interpretations = this.getAllInterpretations()
             let genepanel = this.getGenepanel()
             // Call reopen if applicable
-            if (interpretations.length && interpretations.every(i => i.status === 'Done')) {
+            if (interpretations.length && interpretations.every((i) => i.status === 'Done')) {
                 this.workflowService.reopen(type, id).then(() => {
                     if (this.startWhenReopen) {
                         this.workflowService
@@ -249,16 +249,19 @@ export class WorkflowButtonsController {
                         this.config,
                         historyInterpretations
                     )
-                    .then(redirect => {
+                    .then((redirect) => {
                         if (redirect) {
                             this.location.path('/overview')
                         }
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         if (error && error.data) {
                             this.toastr.error('Finish not allowed: ' + error.data)
                         }
                     })
+            })
+            .catch((error) => {
+                this.toastr.error('Finish not allowed: ' + error.data)
             })
     }
 
@@ -285,22 +288,22 @@ export class WorkflowButtonsController {
         }
 
         if (
-            interpretations.find(i => {
+            interpretations.find((i) => {
                 return i.status === 'Ongoing' && i.user.id !== this.user.getCurrentUserId()
             })
         ) {
             return 'override'
         }
 
-        if (interpretations.find(i => i.status === 'Ongoing')) {
+        if (interpretations.find((i) => i.status === 'Ongoing')) {
             return 'save'
         }
 
-        let not_started = interpretations.find(i => i.status === 'Not started')
+        let not_started = interpretations.find((i) => i.status === 'Not started')
         if (not_started) {
             return not_started.workflow_status
         }
-        if (interpretations.length && interpretations.every(i => i.status === 'Done')) {
+        if (interpretations.length && interpretations.every((i) => i.status === 'Done')) {
             return 'reopen'
         }
 

@@ -14,7 +14,7 @@ app.component('finishConfirmation', {
         'FinishConfirmation',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {

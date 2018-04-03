@@ -35,7 +35,7 @@ app.component('alleleList', {
         'AlleleList',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
@@ -45,7 +45,7 @@ app.component('alleleList', {
                         }
                         return 'NEW'
                     },
-                    getEndAction: interpretation => {
+                    getEndAction: (interpretation) => {
                         let OPTIONS = {
                             'Mark review': 'Marked for review',
                             Finalize: 'Finalized'
@@ -58,14 +58,14 @@ app.component('alleleList', {
                         }
                         return ''
                     },
-                    getPriorityText: item => {
+                    getPriorityText: (item) => {
                         if (item.highest_analysis_priority > 1) {
                             return $ctrl.config.analysis.priority.display[
                                 item.highest_analysis_priority
                             ]
                         }
                     },
-                    getReviewComment: item => {
+                    getReviewComment: (item) => {
                         if (item.interpretations.length) {
                             let last_interpretation =
                                 item.interpretations[item.interpretations.length - 1]
@@ -145,15 +145,15 @@ class AlleleListWidget {
         this.sorted_items = this.alleleItems.slice()
         if (this.sort) {
             this.sorted_items.sort(
-                firstBy(a => a.highest_analysis_priority, -1)
-                    .thenBy(a => {
+                firstBy((a) => a.highest_analysis_priority, -1)
+                    .thenBy((a) => {
                         // Ignore seconds/milliseconds when sorting
                         let d = new Date(a.oldest_analysis)
                         d.setSeconds(0, 0)
                         return d.toISOString()
                     })
-                    .thenBy(a => a.allele.annotation.filtered[0].symbol)
-                    .thenBy(a => {
+                    .thenBy((a) => a.allele.annotation.filtered[0].symbol)
+                    .thenBy((a) => {
                         if (a.allele.annotation.filtered[0].strand > 0) {
                             return a.allele.start_position
                         }

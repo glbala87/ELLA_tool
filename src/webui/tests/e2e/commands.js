@@ -70,8 +70,8 @@ module.exports = function addCommands() {
         console.log('Database reset done!')
     })
 
-    browser.addCommand('getClass', selector => browser.getAttribute(selector, 'class').split(' '))
-    browser.addCommand('isCommentEditable', selector => {
+    browser.addCommand('getClass', (selector) => browser.getAttribute(selector, 'class').split(' '))
+    browser.addCommand('isCommentEditable', (selector) => {
         let res = browser.getAttribute(selector, 'contenteditable')
         return res === 'true'
     })

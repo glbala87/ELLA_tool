@@ -22,7 +22,7 @@ class Filters {
         filterName: 'hgmdLink'
     })
     hgmdLinkFilter() {
-        return gene => {
+        return (gene) => {
             return gene
                 ? `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${gene}`
                 : ''
@@ -33,7 +33,7 @@ class Filters {
         filterName: 'gnomadLink'
     })
     gnomadLinkFilter() {
-        return allele => {
+        return (allele) => {
             return allele
                 ? `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${
                       allele.vcf_pos
@@ -46,7 +46,7 @@ class Filters {
         filterName: 'exacLink'
     })
     exacLinkFilter() {
-        return allele => {
+        return (allele) => {
             return allele
                 ? `http://exac.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${
                       allele.vcf_ref
@@ -73,7 +73,7 @@ class Filters {
         filterName: 'isEmpty'
     })
     isEmptyFilter() {
-        return input => {
+        return (input) => {
             return Object.keys(input).length === 0
         }
     }
@@ -91,7 +91,7 @@ class Filters {
         filterName: 'HGVS_firsthalf'
     })
     HGVS_firsthalfFilter() {
-        return input => {
+        return (input) => {
             if (input) {
                 return input.split(':')[0]
             }
@@ -103,7 +103,7 @@ class Filters {
         filterName: 'secondsToTimeString'
     })
     secondsToTimeStringFilter() {
-        return seconds => {
+        return (seconds) => {
             if (!seconds) {
                 return ''
             }
@@ -122,7 +122,7 @@ class Filters {
         filterName: 'noUnderscores'
     })
     noUnderscores() {
-        return text => {
+        return (text) => {
             if (!text) {
                 return ''
             }
@@ -134,7 +134,7 @@ class Filters {
         filterName: 'dropREQ'
     })
     dropREQ() {
-        return text => {
+        return (text) => {
             return text.replace(/REQ_GP/g, 'GP - ').replace(/REQ_/g, 'R - ')
         }
     }
@@ -143,7 +143,7 @@ class Filters {
         filterName: 'killLeadingDashes'
     })
     killLeadingDashes() {
-        return text => {
+        return (text) => {
             return text.replace(/^-\s/g, '')
         }
     }
@@ -152,7 +152,7 @@ class Filters {
         filterName: 'prettyJSON'
     })
     prettyJSONFilter() {
-        return json => {
+        return (json) => {
             return JSON
                 ? JSON.stringify(json, null, '  ')
                 : 'your browser doesnt support JSON so cant pretty print'
@@ -163,7 +163,7 @@ class Filters {
         filterName: 'proteinSequence'
     })
     dropProteinChange() {
-        return input => {
+        return (input) => {
             return input.split(':')[0]
         }
     }
@@ -172,7 +172,7 @@ class Filters {
         filterName: 'formatText'
     })
     formatText() {
-        return input => {
+        return (input) => {
             if (!input) return input
             var output = input
                 //replace possible line breaks.

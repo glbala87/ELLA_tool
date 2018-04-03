@@ -14,10 +14,10 @@ export default function getGenepanel({ http, path, props, state }) {
                 selectedGenepanel.version
             }/`
         )
-        .then(response => {
+        .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

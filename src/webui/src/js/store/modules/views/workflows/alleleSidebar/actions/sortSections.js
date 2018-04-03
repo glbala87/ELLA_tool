@@ -24,6 +24,6 @@ export default function sortSections({ state, props, resolve }) {
         classified = resolve.value(sortAlleles(classified, 'classification', true))
     }
 
-    state.set('views.workflows.alleleSidebar.unclassified', unclassified.map(a => a.id))
-    state.set('views.workflows.alleleSidebar.classified', classified.map(a => a.id))
+    state.set('views.workflows.alleleSidebar.unclassified', unclassified.map((a) => a.id))
+    state.set('views.workflows.alleleSidebar.classified', classified.map((a) => a.id))
 }

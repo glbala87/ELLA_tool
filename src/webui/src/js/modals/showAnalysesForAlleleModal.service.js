@@ -13,14 +13,14 @@ export class ShowAnalysesForAlleleController {
 
     acceptWarning() {
         this.isAccepted = true
-        this.alleleResource.getAnalyses(this.allele.id).then(analyses => {
+        this.alleleResource.getAnalyses(this.allele.id).then((analyses) => {
             this.analyses = analyses
         })
     }
 
     copyToClipboard() {
         let text = this.allele.toString() + '\n'
-        text += this.analyses.map(a => a.name).join('\n')
+        text += this.analyses.map((a) => a.name).join('\n')
         this.clipboard.copyText(text)
         this.toastr.info('Copied text to clipboard.', null, 1000)
     }

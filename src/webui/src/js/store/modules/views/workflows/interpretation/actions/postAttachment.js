@@ -3,10 +3,10 @@ export default function postAttachment({ http, path, props }) {
         .uploadFile('attachments/upload/', props.file, {
             name: 'file'
         })
-        .then(response => {
+        .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

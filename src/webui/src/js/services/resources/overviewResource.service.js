@@ -18,7 +18,7 @@ export class OverviewResource {
         return new Promise((resolve, reject) => {
             let uri = `${this.base}/overviews/alleles/`
             let r = this.resource(uri)
-            let overview = r.get(data => {
+            let overview = r.get((data) => {
                 // Convert to our model objects
                 for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing']) {
                     for (let item of data[key]) {
@@ -46,7 +46,7 @@ export class OverviewResource {
                 }
                 resolve({
                     pagination: pagination,
-                    data: data.map(a => {
+                    data: data.map((a) => {
                         a.allele = new Allele(a.allele)
                         return a
                     })
@@ -62,7 +62,7 @@ export class OverviewResource {
                 uri += 'by-findings/'
             }
             let r = this.resource(uri)
-            let overview = r.get(data => {
+            let overview = r.get((data) => {
                 let categories = ['ongoing']
 
                 if (by_findings) {
@@ -84,7 +84,7 @@ export class OverviewResource {
                 }
 
                 for (let key of categories) {
-                    data[key] = data[key].map(a => new Analysis(a))
+                    data[key] = data[key].map((a) => new Analysis(a))
                 }
 
                 resolve(overview)
@@ -107,7 +107,7 @@ export class OverviewResource {
                 }
                 resolve({
                     pagination: pagination,
-                    data: data.map(a => new Analysis(a))
+                    data: data.map((a) => new Analysis(a))
                 })
             }, reject)
         })
@@ -117,7 +117,7 @@ export class OverviewResource {
         return new Promise((resolve, reject) => {
             let uri = `${this.base}/overviews/activities/`
             let r = this.resource(uri)
-            let overview = r.query(data => {
+            let overview = r.query((data) => {
                 for (let d of data) {
                     if ('allele' in d) {
                         d['allele'] = new Allele(d['allele'])
@@ -136,7 +136,7 @@ export class OverviewResource {
         return new Promise((resolve, reject) => {
             let uri = `${this.base}/overviews/userstats/`
             let r = this.resource(uri)
-            let overview = r.get(data => {
+            let overview = r.get((data) => {
                 resolve(overview)
             }, reject)
         })

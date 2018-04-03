@@ -128,7 +128,7 @@ function _prepareReferenceAssessmentsPayload(
         // Iterate over all referenceassessments for this allele
         for (let referenceState of allelestate.referenceassessments) {
             // If not present among references, skip it
-            if (!references.find(r => r.id === referenceState.reference_id)) {
+            if (!references.find((r) => r.id === referenceState.reference_id)) {
                 continue
             }
 

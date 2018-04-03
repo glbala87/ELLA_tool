@@ -1,9 +1,9 @@
 export default function showImportModal({ ImportModal, path }) {
     return ImportModal.show()
-        .then(result => {
+        .then((result) => {
             return path.result()
         })
-        .catch(result => {
+        .catch((result) => {
             return path.dismissed()
         })
 }

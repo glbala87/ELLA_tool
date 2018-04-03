@@ -5,7 +5,7 @@ import processOverviewActivities from '../../../../common/helpers/processOvervie
 export default function getOverviewActivities({ http, path, state }) {
     return http
         .get('overviews/activities/')
-        .then(response => {
+        .then((response) => {
             let data = response.result
 
             for (let d of data) {
@@ -21,7 +21,7 @@ export default function getOverviewActivities({ http, path, state }) {
             processOverviewActivities(data, state.get('app.user'))
             return path.success(response)
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

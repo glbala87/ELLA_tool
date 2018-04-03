@@ -2,7 +2,7 @@ import { deepCopy } from '../../../../../util'
 
 export default function prepareSelectedInterpretation({ state }) {
     let interpretations = state.get('views.workflows.data.interpretations')
-    let doneInterpretations = interpretations.filter(i => i.status === 'Done')
+    let doneInterpretations = interpretations.filter((i) => i.status === 'Done')
     let lastInterpretation = interpretations[interpretations.length - 1]
 
     // If an interpretation is Ongoing, we assign it directly

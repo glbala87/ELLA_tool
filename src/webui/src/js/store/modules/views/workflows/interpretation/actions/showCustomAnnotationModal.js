@@ -16,7 +16,7 @@ export default function showCustomAnnotationModal({ CustomAnnotationModal, props
     const placeholder = PLACEHOLDER[category]
     const allele = state.get(`views.workflows.data.alleles.${props.alleleId}`)
     console.log(allele)
-    return CustomAnnotationModal.show(title, placeholder, allele, category).then(result => {
+    return CustomAnnotationModal.show(title, placeholder, allele, category).then((result) => {
         if (result) {
             return path.result({ customAnnotationData: result })
         }

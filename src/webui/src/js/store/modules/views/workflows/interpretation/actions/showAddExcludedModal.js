@@ -30,14 +30,14 @@ export default function showAddExcludedModal({ AddExcludedAllelesModal, state, p
         genepanelVersion,
         readOnly
     )
-        .then(result => {
+        .then((result) => {
             console.log(result)
             if (result) {
                 return path.result({ evaluation: result.evaluation })
             }
             return path.dismissed()
         })
-        .catch(result => {
+        .catch((result) => {
             return path.dismissed()
         })
 }

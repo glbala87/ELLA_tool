@@ -34,7 +34,7 @@ export default Compute(
             // Check that all alleles
             // - have classification
             // - if reused, that they're not outdated
-            allClassified = Object.entries(alleles).every(e => {
+            allClassified = Object.entries(alleles).every((e) => {
                 let [alleleId, allele] = e
                 if (alleleId in interpretation.state.allele) {
                     const isReused = get(isAlleleAssessmentReused(alleleId))

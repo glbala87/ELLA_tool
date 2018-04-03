@@ -224,7 +224,7 @@ export class WorkflowAlleleController {
     setUpListeners() {
         // Setup listener for asking user if they really want to navigate
         // away from page if unsaved changes
-        let unregister_func = this.rootScope.$on('$stateChangeStart', event => {
+        let unregister_func = this.rootScope.$on('$stateChangeStart', (event) => {
             // TODO: create switch to disable in CI/test
             if (
                 this.config.app.user_confirmation_on_state_change &&
@@ -245,7 +245,7 @@ export class WorkflowAlleleController {
         })
 
         // Ask user when reloading/closing if unsaved changes
-        window.onbeforeunload = event => {
+        window.onbeforeunload = (event) => {
             if (
                 this.config.app.user_confirmation_to_discard_changes &&
                 this.isInterpretationOngoing() &&
@@ -317,18 +317,18 @@ export class WorkflowAlleleController {
     loadGenepanelOptions() {
         if (this.genepanelName && this.genepanelVersion) {
             this.interpretationService.setGenepanelOptions(null)
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 resolve()
             }) // Self-fulfilling promise
         }
-        return this.workflowResource.getGenepanels('allele', this.allele_id).then(genepanels => {
+        return this.workflowResource.getGenepanels('allele', this.allele_id).then((genepanels) => {
             this.genepanelOptions = genepanels
             this.interpretationService.setGenepanelOptions(genepanels)
         })
     }
 
     checkForCollisions() {
-        this.workflowResource.getCollisions('allele', this.allele_id).then(result => {
+        this.workflowResource.getCollisions('allele', this.allele_id).then((result) => {
             if (result.length > 0) {
                 let html = `<h4>This variant is currently `
                 if (result.length === 1) {
@@ -365,7 +365,7 @@ export class WorkflowAlleleController {
         let q = this._getQueryFromSelector()
         return this.alleleService
             .getAllelesByQuery(q, null, this.genepanelName, this.genepanelVersion)
-            .then(a => {
+            .then((a) => {
                 this.allele_id = a[0].id
             })
     }

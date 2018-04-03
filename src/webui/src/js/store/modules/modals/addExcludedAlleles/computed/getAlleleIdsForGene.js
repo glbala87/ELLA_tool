@@ -14,17 +14,17 @@ export default Compute(
         let alleleIds = categoryAlleleIds.slice()
         let alleleIdsByGeneCandidates = alleleIdsByGene
         if (selectedGene) {
-            alleleIdsByGeneCandidates = alleleIdsByGene.filter(a => a.symbol === selectedGene)
-            alleleIds = alleleIds.filter(alleleId => {
-                return alleleIdsByGeneCandidates.some(a => a.allele_ids.includes(alleleId))
+            alleleIdsByGeneCandidates = alleleIdsByGene.filter((a) => a.symbol === selectedGene)
+            alleleIds = alleleIds.filter((alleleId) => {
+                return alleleIdsByGeneCandidates.some((a) => a.allele_ids.includes(alleleId))
             })
         }
 
         // Remove any already included ids
 
-        return alleleIds.filter(a => !includedAlleleIds.includes(a)).sort(
-            firstBy(alleleId => {
-                return alleleIdsByGeneCandidates.find(a => a.allele_ids.includes(alleleId)).symbol
+        return alleleIds.filter((a) => !includedAlleleIds.includes(a)).sort(
+            firstBy((alleleId) => {
+                return alleleIdsByGeneCandidates.find((a) => a.allele_ids.includes(alleleId)).symbol
             })
         )
     }

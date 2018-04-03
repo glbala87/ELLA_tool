@@ -148,8 +148,8 @@ class WorkflowService {
             // part of the excluded ones. This can happen when a user had included
             // a previously filtered allele, and then given it a classification.
             interpretation.state.manuallyAddedAlleles = interpretation.state.manuallyAddedAlleles.filter(
-                m => {
-                    return Object.values(interpretation.excluded_allele_ids).some(excluded => {
+                (m) => {
+                    return Object.values(interpretation.excluded_allele_ids).some((excluded) => {
                         return excluded.includes(m)
                     })
                 }
@@ -159,15 +159,15 @@ class WorkflowService {
 
         return this.workflowResource
             .getAlleles(type, id, interpretation.id, allele_ids, current_data)
-            .then(alleles => {
+            .then((alleles) => {
                 // Flatten all referenceassessments from state
                 let referenceassessments = []
                 if ('allele' in interpretation.state) {
                     referenceassessments = Object.values(interpretation.state.allele)
-                        .map(al => al.referenceassessments)
+                        .map((al) => al.referenceassessments)
                         .reduce((p, c) => {
                             if (c) {
-                                return p.concat(c.filter(e => e.evaluation))
+                                return p.concat(c.filter((e) => e.evaluation))
                             }
                             return p
                         }, [])
@@ -223,7 +223,7 @@ class WorkflowService {
             // Check that all alleles
             // - have classification
             // - if reused, that they're not outdated
-            all_classified = alleles.every(a => {
+            all_classified = alleles.every((a) => {
                 if (a.id in interpretation.state.allele) {
                     let allele_state = interpretation.state.allele[a.id]
                     let has_classification = Boolean(
@@ -247,7 +247,7 @@ class WorkflowService {
     checkFinishAllowed(type, id, interpretation, analysis) {
         let sample_ids = null
         if (type === 'analysis') {
-            sample_ids = analysis.samples.map(s => s.id)
+            sample_ids = analysis.samples.map((s) => s.id)
         }
         return this.workflowResource.checkFinishAllowed(type, id, interpretation, sample_ids)
     }
@@ -284,7 +284,7 @@ class WorkflowService {
             },
             controllerAs: 'vm'
         })
-        return modal.result.then(res => {
+        return modal.result.then((res) => {
             // Save interpretation before marking as done
             // FIXME:
             /*return this.analysisService.updateProperties(
@@ -335,7 +335,7 @@ class WorkflowService {
 
         // collection annotation ids for the alleles:
         for (let allele_state of Object.values(interpretation.state.allele)) {
-            let match = alleles.find(a => a.id === allele_state.allele_id)
+            let match = alleles.find((a) => a.id === allele_state.allele_id)
 
             if (match) {
                 annotations.push({
@@ -355,7 +355,7 @@ class WorkflowService {
             // Only include assessments/reports for alleles part of the supplied list.
             // This is to avoid submitting assessments for alleles that have been
             // removed from classification during interpretation process.
-            let found_allele = alleles.find(a => a.id === allele_state.allele_id)
+            let found_allele = alleles.find((a) => a.id === allele_state.allele_id)
             if (found_allele) {
                 alleleassessments.push(this.prepareAlleleAssessmentsForApi(
                     found_allele,

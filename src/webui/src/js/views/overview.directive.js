@@ -72,7 +72,7 @@ export class MainController {
 
     updateSearch() {
         if (this.search.search_query && this.search.search_query.length > 2) {
-            SearchResource.get(this.search.search_query).then(r => {
+            SearchResource.get(this.search.search_query).then((r) => {
                 this.search.results = r
             })
         } else {
@@ -86,7 +86,7 @@ export class MainController {
     }
 
     hasMultipleViews() {
-        return this.views.filter(x => this.shouldShowView(x)).length > 1
+        return this.views.filter((x) => this.shouldShowView(x)).length > 1
     }
 
     hasSearchResults() {
@@ -116,11 +116,11 @@ export class MainController {
     }
 
     getAnnotationJobStatus() {
-        this.annotationjobResource.get({ status: ['RUNNING', 'SUBMITTED'] }, 1, 1).then(res => {
+        this.annotationjobResource.get({ status: ['RUNNING', 'SUBMITTED'] }, 1, 1).then((res) => {
             this.annotationjobStatus.running = res.pagination.totalCount
         })
 
-        this.annotationjobResource.get({ status: { $like: 'FAILED%' } }, 1, 1).then(res => {
+        this.annotationjobResource.get({ status: { $like: 'FAILED%' } }, 1, 1).then((res) => {
             this.annotationjobStatus.failed = res.pagination.totalCount
         })
     }

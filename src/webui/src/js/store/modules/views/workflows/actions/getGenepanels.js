@@ -9,10 +9,10 @@ export default function getGenepanels({ http, path, state }) {
 
     return http
         .get(`workflows/${type}/${id}/genepanels/`)
-        .then(response => {
+        .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

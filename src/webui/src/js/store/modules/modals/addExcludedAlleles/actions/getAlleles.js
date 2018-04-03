@@ -15,7 +15,7 @@ export default function({ http, path, state, props }) {
             gp_name: genepanel.name,
             gp_version: genepanel.version
         })
-        .then(response => {
+        .then((response) => {
             processAlleles(response.result, genepanel)
             const result = response.result.reduce((obj, allele) => {
                 obj[allele.id] = allele
@@ -23,7 +23,7 @@ export default function({ http, path, state, props }) {
             }, {})
             return path.success({ result: result })
         })
-        .catch(err => {
+        .catch((err) => {
             console.error(err)
             return path.error({ result: err })
         })

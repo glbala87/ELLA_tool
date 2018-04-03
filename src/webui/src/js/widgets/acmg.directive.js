@@ -124,7 +124,7 @@ export class AcmgController {
 
     getMatches() {
         let codes = this.isMultiple() ? this.code : [this.code]
-        return codes.map(c => {
+        return codes.map((c) => {
             return {
                 source: this._getSource(c),
                 match: this._getMatch(c),

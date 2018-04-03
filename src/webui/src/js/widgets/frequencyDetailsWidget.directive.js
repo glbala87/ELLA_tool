@@ -37,7 +37,7 @@ export class FrequencyDetailsWidget {
         this.precision = this.config.frequencies.view.precision
         this.scientific_threshold = this.config.frequencies.view.scientific_threshold
         this.frequencies = []
-        this.fields = ['count', 'num', 'hom', 'hemi', 'freq'].filter(i => {
+        this.fields = ['count', 'num', 'hom', 'hemi', 'freq'].filter((i) => {
             // include hemi only for X and Y chromosomes
             if (i === 'hemi') {
                 return this.allele.chromosome === 'X' || this.allele.chromosome === 'Y'
@@ -98,7 +98,7 @@ export class FrequencyDetailsWidget {
         }
 
         if (translations) {
-            this.frequencies.forEach(e => {
+            this.frequencies.forEach((e) => {
                 e.name = translations[e.name]
             })
         }

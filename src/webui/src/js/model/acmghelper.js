@@ -115,7 +115,7 @@ export class ACMGHelper {
         }
 
         // Remove first match from included array (only first match, since duplicates are allowed)
-        let idx = allele_state.alleleassessment.evaluation.acmg.included.findIndex(e => {
+        let idx = allele_state.alleleassessment.evaluation.acmg.included.findIndex((e) => {
             return this.compareACMGObjs(code, e)
         })
         if (idx < 0) {
@@ -135,7 +135,7 @@ export class ACMGHelper {
             return false
         }
         return (
-            alleleassessment.evaluation.acmg.included.find(elem => {
+            alleleassessment.evaluation.acmg.included.find((elem) => {
                 return this.compareACMGObjs(elem, code)
             }) !== undefined
         )
@@ -144,7 +144,7 @@ export class ACMGHelper {
     static isACMGInSuggested(code, allele, allele_state) {
         let alleleassessment = AlleleStateHelper.getAlleleAssessment(allele, allele_state)
         return (
-            alleleassessment.evaluation.acmg.suggested.find(elem => {
+            alleleassessment.evaluation.acmg.suggested.find((elem) => {
                 return this.compareACMGObjs(elem, code)
             }) !== undefined
         )

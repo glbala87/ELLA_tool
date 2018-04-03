@@ -32,7 +32,7 @@ class AlleleAssessmentResource {
             })
             let r = this.resource(`${this.base}/alleleassessments/?q=${encodeURIComponent(q)}`)
             let alleleassessments = r.query(() => {
-                resolve(alleleassessments.sort(firstBy(a => a.date_created, -1)))
+                resolve(alleleassessments.sort(firstBy((a) => a.date_created, -1)))
             }, reject)
         })
     }

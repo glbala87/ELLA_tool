@@ -53,14 +53,14 @@ app.component('upload', {
                 })
 
                 function setupBrowseMode() {
-                    $element.bind('change', e => {
+                    $element.bind('change', (e) => {
                         $ctrl.uploadFiles(e.target.files)
                         e.target.value = ''
                     })
                 }
 
                 function setupDropMode() {
-                    $element.bind('drop', e => {
+                    $element.bind('drop', (e) => {
                         $ctrl.dragCount = 0
                         e.preventDefault()
                         $ctrl.uploadFiles(e.dataTransfer.files)
@@ -116,14 +116,14 @@ export class UploadController {
     }
 
     setupBrowseMode() {
-        this.element.bind('change', e => {
+        this.element.bind('change', (e) => {
             this.uploadFiles(e.target.files)
             e.target.value = ''
         })
     }
 
     setupDropMode() {
-        this.element.bind('drop', e => {
+        this.element.bind('drop', (e) => {
             this.dragCount = 0
             e.preventDefault()
             this.uploadFiles(e.dataTransfer.files)
@@ -151,7 +151,7 @@ export class UploadController {
     uploadFiles(files) {
         if (files.length == 0) return
         for (let file of files) {
-            this.attachmentResource.post(file).then(attachment_id => {
+            this.attachmentResource.post(file).then((attachment_id) => {
                 this.alleleState.alleleassessment.attachment_ids.push(attachment_id)
             })
         }

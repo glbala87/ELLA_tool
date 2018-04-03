@@ -19,7 +19,7 @@ app.component('interpretation', {
             sectionKeys: state`views.workflows.components.${state`views.workflows.selectedComponent`}.sectionKeys`,
             selectedComponent: state`views.workflows.selectedComponent`,
             showSidebar: shouldShowSidebar,
-            hasAlleles: Compute(state`views.workflows.data.alleles`, alleles => {
+            hasAlleles: Compute(state`views.workflows.data.alleles`, (alleles) => {
                 if (!alleles) {
                     return
                 }
@@ -252,7 +252,7 @@ export class InterpretationController {
         // Update report alleles
         let report_component = this.getComponent('Report')
         if (report_component) {
-            report_component.alleles = this.getAlleles().filter(a => {
+            report_component.alleles = this.getAlleles().filter((a) => {
                 let state = this.getAlleleState(a)
                 if ('report' in state && 'included' in state.report) {
                     return state.report.included
@@ -268,7 +268,7 @@ export class InterpretationController {
      */
     updateAlleleSidebar() {
         // Mapping function for creating objects used by <allele-sidebar>
-        let create_allele_obj = allele => {
+        let create_allele_obj = (allele) => {
             return {
                 allele: allele,
                 alleleState: this.getAlleleState(allele),
@@ -322,29 +322,31 @@ export class InterpretationController {
 
         // Sort data
         // Sort unclassified by (gene, hgvsc)
-        let unclassified_sort = firstBy(a =>
+        let unclassified_sort = firstBy((a) =>
             this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol)
         )
-            .thenBy(a => a.allele.annotation.filtered[0].symbol)
-            .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort())
+            .thenBy((a) => a.allele.annotation.filtered[0].symbol)
+            .thenBy((a) => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort())
 
         if (grouped_alleles.unclassified.length) {
             grouped_alleles.unclassified.sort(unclassified_sort)
         }
 
-        let classified_sort = firstBy(a => a.alleleState.verification === 'technical')
-            .thenBy(a => {
+        let classified_sort = firstBy((a) => a.alleleState.verification === 'technical')
+            .thenBy((a) => {
                 let classification = AlleleStateHelper.getClassification(
                     a.allele,
                     this.getAlleleState(a.allele)
                 )
-                return this.config.classification.options.findIndex(o => o.value === classification)
+                return this.config.classification.options.findIndex(
+                    (o) => o.value === classification
+                )
             }, -1)
-            .thenBy(a =>
+            .thenBy((a) =>
                 this.getGenepanel().getDisplayInheritance(a.allele.annotation.filtered[0].symbol)
             )
-            .thenBy(a => a.allele.annotation.filtered[0].symbol)
-            .thenBy(a => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort())
+            .thenBy((a) => a.allele.annotation.filtered[0].symbol)
+            .thenBy((a) => a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort())
 
         if (grouped_alleles.classified.length) {
             grouped_alleles.classified.sort(classified_sort)
@@ -353,7 +355,7 @@ export class InterpretationController {
         this.allele_sidebar.alleles = grouped_alleles
         // Reassign selected allele in case the allele data has changed
         if (this.allele_sidebar.selected) {
-            let selected = this.getAlleles().find(a => a.id === this.allele_sidebar.selected.id)
+            let selected = this.getAlleles().find((a) => a.id === this.allele_sidebar.selected.id)
             if (selected) {
                 // could be null if selected was an excluded allele manually included by user
                 this.allele_sidebar.selected = selected
@@ -364,7 +366,7 @@ export class InterpretationController {
     }
 
     getComponent(component_name) {
-        return this.components.find(c => c.title === component_name)
+        return this.components.find((c) => c.title === component_name)
     }
 
     hasResults() {
@@ -412,7 +414,7 @@ export class InterpretationController {
             return alleles
         }
 
-        return alleles.filter(al => {
+        return alleles.filter((al) => {
             let allele_state = this.getAlleleState(al)
             if (allele_state !== undefined) {
                 return !Boolean(AlleleStateHelper.getClassification(al, allele_state))
@@ -452,7 +454,7 @@ export class InterpretationController {
         if (reference_ids.length || pubmed_ids.length) {
             let ref_by_id = this.referenceResource.getByIds(reference_ids)
             let ref_by_pmid = this.referenceResource.getByPubMedIds(pubmed_ids)
-            Promise.all([ref_by_id, ref_by_pmid]).then(args => {
+            Promise.all([ref_by_id, ref_by_pmid]).then((args) => {
                 let [ref_id, ref_pmid] = args
                 this.references = ref_id.concat(ref_pmid)
             })
@@ -492,7 +494,7 @@ export class InterpretationController {
      */
     loadAttachments(attachment_ids) {
         let attachments = {}
-        this.attachmentResource.getByIds(attachment_ids).then(a => {
+        this.attachmentResource.getByIds(attachment_ids).then((a) => {
             for (let atchmt of a) {
                 attachments[atchmt.id] = atchmt
             }

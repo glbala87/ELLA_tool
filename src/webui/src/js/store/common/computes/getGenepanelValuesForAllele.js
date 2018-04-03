@@ -23,7 +23,7 @@ export default (genepanel, allele) => {
             if (!allele) {
                 return result
             }
-            const symbols = [...new Set(allele.annotation.filtered.map(t => t.symbol))]
+            const symbols = [...new Set(allele.annotation.filtered.map((t) => t.symbol))]
             for (const symbol of symbols) {
                 result[symbol] = {
                     _overridden: [] // Holds keys that are overridden by genepanel config.

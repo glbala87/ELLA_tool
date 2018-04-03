@@ -97,13 +97,13 @@ export class AlleleService {
      * referenceassessments is optional.
      */
     updateACMG(alleles, gp_name, gp_version, referenceassessments) {
-        let allele_ids = alleles.map(a => a.id)
+        let allele_ids = alleles.map((a) => a.id)
         return this.acmgClassificationResource
             .getByAlleleIds(allele_ids, gp_name, gp_version, referenceassessments)
-            .then(res => {
+            .then((res) => {
                 for (let [a_id, a_acmg] of Object.entries(res)) {
                     // Assign result to related allele
-                    let allele = alleles.find(a => a.id.toString() === a_id)
+                    let allele = alleles.find((a) => a.id.toString() === a_id)
                     if (allele) {
                         allele.acmg = a_acmg
                     }

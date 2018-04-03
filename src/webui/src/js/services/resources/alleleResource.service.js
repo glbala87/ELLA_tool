@@ -64,7 +64,7 @@ export class AlleleResource {
                 gp_version: gp_version
             })
             let alleles = AlleleRS.query(() => {
-                resolve(alleles.map(a => new Allele(a)))
+                resolve(alleles.map((a) => new Allele(a)))
             }, reject)
         })
     }
@@ -84,7 +84,7 @@ export class AlleleResource {
         return new Promise((resolve, reject) => {
             let AnalysesRS = this.resource(`${this.base}/alleles/:id/analyses/`, { id: allele_id })
             let analyses = AnalysesRS.query(() => {
-                resolve(analyses.map(a => new Analysis(a)))
+                resolve(analyses.map((a) => new Analysis(a)))
             }, reject)
         })
     }

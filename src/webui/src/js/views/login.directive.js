@@ -149,7 +149,7 @@ export class LoginController {
                 )
                 console.log('Successful login')
             })
-            .catch(error => {
+            .catch((error) => {
                 this.toastr.error(`Login was unsuccessful: ${error}`)
                 console.log('Unsuccessful login')
                 console.log(error)
@@ -190,7 +190,7 @@ export class LoginController {
                 window.location.reload()
                 console.log('Successful password reset')
             })
-            .catch(error => {
+            .catch((error) => {
                 this.toastr.error(`Change password was unsuccessful: ${error}`)
                 console.log(error)
             })

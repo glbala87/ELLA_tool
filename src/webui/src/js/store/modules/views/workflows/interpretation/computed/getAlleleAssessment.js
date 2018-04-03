@@ -8,7 +8,7 @@ import getAlleleState from './getAlleleState'
  *   from backend
  * - If not set to reused: the alleleassessment from state
  */
-export default alleleId => {
+export default (alleleId) => {
     return Compute(alleleId, getAlleleState(alleleId), (alleleId, alleleState, get) => {
         if (!alleleState) {
             return

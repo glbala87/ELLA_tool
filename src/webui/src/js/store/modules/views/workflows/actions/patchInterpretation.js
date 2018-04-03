@@ -20,10 +20,10 @@ function patchInterpretation({ state, http, path }) {
 
     return http
         .patch(`workflows/${type}/${id}/interpretations/${interpretation.id}/`, payload)
-        .then(response => {
+        .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

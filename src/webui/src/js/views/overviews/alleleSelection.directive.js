@@ -20,7 +20,7 @@ app.component('alleleSelection', {
         'AlleleSelection',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
                     collapseChangedWrapper(collapsed, name) {
@@ -66,17 +66,17 @@ class AlleleSelectionController {
     }
 
     loadOverview() {
-        this.overviewResource.getAllelesOverview().then(data => {
+        this.overviewResource.getAllelesOverview().then((data) => {
             this.overview = data
 
-            this.ongoing_user = this.overview.ongoing.filter(item => {
+            this.ongoing_user = this.overview.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user_id ===
                     this.user.getCurrentUserId()
                 )
             })
 
-            this.ongoing_others = this.overview.ongoing.filter(item => {
+            this.ongoing_others = this.overview.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user_id !==
                     this.user.getCurrentUserId()
@@ -88,7 +88,7 @@ class AlleleSelectionController {
     }
 
     finalizedPageChanged() {
-        this.overviewResource.getAllelesFinalizedOverview(this.finalized_page).then(data => {
+        this.overviewResource.getAllelesFinalizedOverview(this.finalized_page).then((data) => {
             this.finalized = data
             this.finalized_page = data.pagination.page
         })

@@ -24,7 +24,7 @@ export default function showFinishModal({ state, $uibModal, path }) {
     })
 
     return modal.result
-        .then(res => {
+        .then((res) => {
             if (res === 'markreview') {
                 return path.markreview()
             } else if (res === 'finalize') {

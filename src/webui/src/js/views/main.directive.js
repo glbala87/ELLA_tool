@@ -35,7 +35,7 @@ export class MainController {
 
     updateSearch() {
         if (this.search.search_query && this.search.search_query.length > 2) {
-            SearchResource.get(this.search.search_query).then(r => {
+            SearchResource.get(this.search.search_query).then((r) => {
                 this.search.results = r
             })
         } else {

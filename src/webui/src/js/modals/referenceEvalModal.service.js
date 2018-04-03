@@ -598,8 +598,8 @@ export class ReferenceEvalModalController {
     }
 
     _isAlleleInGeneGroup(group) {
-        let genes = this.allele.annotation.filtered.map(a => a.symbol)
-        return this.config.classification.gene_groups[group].some(g => genes.includes(g))
+        let genes = this.allele.annotation.filtered.map((a) => a.symbol)
+        return this.config.classification.gene_groups[group].some((g) => genes.includes(g))
     }
 
     /**
@@ -660,7 +660,9 @@ export class ReferenceEvalModalController {
             optional = true
         }
         if (optional) {
-            return this.referenceAssessment.evaluation.sources.find(e => e === source) === undefined
+            return (
+                this.referenceAssessment.evaluation.sources.find((e) => e === source) === undefined
+            )
         } else {
             return false
         }
@@ -671,7 +673,7 @@ export class ReferenceEvalModalController {
     getReferenceDBSources() {
         let sources = {}
         let annotation_reference = this.allele.annotation.references.find(
-            a => a.id === this.reference.id
+            (a) => a.id === this.reference.id
         )
         if (!annotation_reference) {
             return sources
@@ -716,7 +718,7 @@ export class ReferenceEvalModalController {
                 }
 
                 // Clean up enabled sources
-                let idx = this.referenceAssessment.evaluation.sources.findIndex(e => e === source)
+                let idx = this.referenceAssessment.evaluation.sources.findIndex((e) => e === source)
                 if (idx >= 0) {
                     this.referenceAssessment.evaluation.sources.splice(idx, 1)
                 }

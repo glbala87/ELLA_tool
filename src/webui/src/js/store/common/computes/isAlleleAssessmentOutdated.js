@@ -9,7 +9,7 @@ export default function(allele) {
 
         const classification = allele.allele_assessment.classification
         // Find classification configuration from config
-        const option = config.classification.options.find(o => o.value === classification)
+        const option = config.classification.options.find((o) => o.value === classification)
         if (option === undefined) {
             throw Error(`Classification ${classification} not found in configuration.`)
         }

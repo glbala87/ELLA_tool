@@ -31,7 +31,7 @@ class WorkflowResource {
                     this.types[type]
                 }/${id}/interpretations/${interpretation_id}/`
             )
-            var current_interpretation = AnalysisRS.get(data => {
+            var current_interpretation = AnalysisRS.get((data) => {
                 resolve(new Interpretation(data))
             })
         })
@@ -43,7 +43,7 @@ class WorkflowResource {
                 `${this.base}/workflows/${this.types[type]}/${id}/interpretations/`
             )
             var interpretations = AnalysisRS.query(() => {
-                resolve(interpretations.map(i => new Interpretation(i)))
+                resolve(interpretations.map((i) => new Interpretation(i)))
             })
         })
     }
@@ -64,7 +64,7 @@ class WorkflowResource {
                 }
             )
             var alleles = AnalysisRS.query(() => {
-                resolve(alleles.map(a => new Allele(a)))
+                resolve(alleles.map((a) => new Allele(a)))
             }, reject)
         })
     }

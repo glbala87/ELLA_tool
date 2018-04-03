@@ -11,7 +11,7 @@ class AttachmentResource {
     }
 
     post(file) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let fd = new FormData()
             fd.append('file', file)
             let r = this.resource(
@@ -27,7 +27,7 @@ class AttachmentResource {
                     }
                 }
             )
-            r.post(fd, o => {
+            r.post(fd, (o) => {
                 resolve(o.id)
             })
         })

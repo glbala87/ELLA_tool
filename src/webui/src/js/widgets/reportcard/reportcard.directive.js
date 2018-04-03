@@ -44,18 +44,18 @@ const getReportAlleleData = Compute(
     (alleles, config, get) => {
         const result = []
 
-        const includedAlleles = Object.values(alleles).filter(a => {
+        const includedAlleles = Object.values(alleles).filter((a) => {
             const alleleState = get(getAlleleState(a.id))
             return alleleState.report.included
         })
 
         includedAlleles.sort(
-            firstBy(a => {
+            firstBy((a) => {
                 const classification = get(getClassification(a.id, true))
-                return config.classification.options.findIndex(o => o.value === classification)
+                return config.classification.options.findIndex((o) => o.value === classification)
             }, -1)
-                .thenBy(a => a.annotation.filtered[0].symbol)
-                .thenBy(a => a.annotation.filtered[0].HGVSc_short)
+                .thenBy((a) => a.annotation.filtered[0].symbol)
+                .thenBy((a) => a.annotation.filtered[0].HGVSc_short)
         )
 
         for (let allele of includedAlleles) {
@@ -133,12 +133,14 @@ export class ReportCardController {
 
     getAlleles() {
         this.alleles.sort(
-            firstBy(a => {
+            firstBy((a) => {
                 let classification = AlleleStateHelper.getClassification(a, this.getAlleleState(a))
-                return this.config.classification.options.findIndex(o => o.value === classification)
+                return this.config.classification.options.findIndex(
+                    (o) => o.value === classification
+                )
             }, -1)
-                .thenBy(a => a.annotation.filtered[0].symbol)
-                .thenBy(a => a.annotation.filtered[0].HGVSc_short || a.getHGVSgShort())
+                .thenBy((a) => a.annotation.filtered[0].symbol)
+                .thenBy((a) => a.annotation.filtered[0].HGVSc_short || a.getHGVSgShort())
         )
         return this.alleles
     }

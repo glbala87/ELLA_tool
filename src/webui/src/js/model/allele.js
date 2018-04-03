@@ -105,7 +105,7 @@ export class Allele {
     getACMGCodes(selector) {
         if (selector) {
             if (this.acmg && this.acmg.codes) {
-                return this.acmg.codes.filter(c => {
+                return this.acmg.codes.filter((c) => {
                     return c.source === selector
                 })
             } else {
@@ -135,7 +135,7 @@ export class Allele {
             if (this.samples.length > 1) {
                 // If multiple, return 'S: A/T, H: A/G'
                 return this.samples
-                    .map(s => {
+                    .map((s) => {
                         return (
                             s.sample_type.substring(0, 1).toUpperCase() +
                             ': ' +

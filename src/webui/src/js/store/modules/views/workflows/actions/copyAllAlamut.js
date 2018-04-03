@@ -4,5 +4,5 @@ export default function copyAllAlamut({ state, clipboard, resolve }) {
     let alleles = resolve.value(
         sortAlleles(Object.values(state.get('views.workflows.data.alleles')))
     )
-    clipboard.copy(alleles.map(a => a.formatted.alamut).join('\n'))
+    clipboard.copy(alleles.map((a) => a.formatted.alamut).join('\n'))
 }

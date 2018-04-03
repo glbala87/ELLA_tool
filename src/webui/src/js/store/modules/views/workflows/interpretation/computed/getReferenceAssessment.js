@@ -18,11 +18,11 @@ export default (alleleId, referenceId) => {
                 return
             }
             const allele = get(state`views.workflows.data.alleles.${alleleId}`)
-            const referenceAssessment = alleleState.referenceassessments.find(ra => {
+            const referenceAssessment = alleleState.referenceassessments.find((ra) => {
                 return ra.reference_id === referenceId && ra.allele_id === alleleId
             })
             if (referenceAssessment && referenceAssessment.reuse) {
-                return allele.reference_assessments.find(ra => {
+                return allele.reference_assessments.find((ra) => {
                     return ra.reference_id === referenceId && ra.allele_id === alleleId
                 })
             }

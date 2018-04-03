@@ -13,21 +13,21 @@ const SECTIONS = [
 export default function getOverviewAnalysesByFindings({ http, props, path, state }) {
     return http
         .get('overviews/analyses/by-findings/')
-        .then(response => {
+        .then((response) => {
             for (let section of SECTIONS) {
                 for (let item of response.result[section]) {
                     processAnalyses([item])
                 }
             }
 
-            response.result.ongoing_user = response.result.ongoing.filter(item => {
+            response.result.ongoing_user = response.result.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user_id ===
                     state.get('app.user.id')
                 )
             })
 
-            response.result.ongoing_others = response.result.ongoing.filter(item => {
+            response.result.ongoing_others = response.result.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user_id !==
                     state.get('app.user.id')
@@ -37,7 +37,7 @@ export default function getOverviewAnalysesByFindings({ http, props, path, state
             delete response.result.ongoing
             return path.success(response)
         })
-        .catch(response => {
+        .catch((response) => {
             console.error(response)
             return path.error(response)
         })

@@ -6,7 +6,7 @@ export default function getOverviewAnalysesFinalized({ module, http, path, props
 
     return http
         .get(`overviews/analyses/finalized/?per_page=10&page=${selectedPage}`)
-        .then(response => {
+        .then((response) => {
             processAnalyses(response.result)
 
             let result = {
@@ -22,7 +22,7 @@ export default function getOverviewAnalysesFinalized({ module, http, path, props
 
             return path.success({ result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

@@ -31,7 +31,7 @@ app.component('search', {
                         }
                         return 'NEW'
                     },
-                    getEndAction: interpretation => {
+                    getEndAction: (interpretation) => {
                         let OPTIONS = {
                             'Mark review': 'Marked for review',
                             Finalize: 'Finalized'
@@ -52,13 +52,13 @@ app.component('search', {
                             query: Object.assign({}, $ctrl.query, { [key]: newValue })
                         })
                     },
-                    updateGeneOptions: term => {
+                    updateGeneOptions: (term) => {
                         // angular-selector needs a returned Promise, although
                         // we set the options="" ourselves
                         $ctrl.optionsSearchChanged({ options: { gene: term } })
                         return Promise.resolve([])
                     },
-                    updateUserOptions: term => {
+                    updateUserOptions: (term) => {
                         $ctrl.optionsSearchChanged({ options: { user: term } })
                         return Promise.resolve([])
                     }
@@ -122,7 +122,7 @@ export class SearchModuleController {
     }
 
     updateGeneOptions(text) {
-        return this.updateOptions({ gene: text }).then(options => {
+        return this.updateOptions({ gene: text }).then((options) => {
             if (text) {
                 return options.gene
             } else {
@@ -133,19 +133,19 @@ export class SearchModuleController {
     }
 
     updateUserOptions(text) {
-        return this.updateOptions({ user: text }).then(options => {
+        return this.updateOptions({ user: text }).then((options) => {
             return options.user
         })
     }
 
     updateGenepanelOptions(text) {
-        return this.updateOptions({ genepanel: text }).then(options => {
+        return this.updateOptions({ genepanel: text }).then((options) => {
             return options.genepanel
         })
     }
 
     updateOptions(query) {
-        return this.searchResource.getOptions(query).then(result => {
+        return this.searchResource.getOptions(query).then((result) => {
             for (let key of Object.keys(result)) {
                 this.options[key] = result[key]
             }

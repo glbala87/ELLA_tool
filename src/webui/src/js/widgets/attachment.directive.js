@@ -27,7 +27,7 @@ app.component('attachment', {
         'Attachment',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($scope.$ctrl, {

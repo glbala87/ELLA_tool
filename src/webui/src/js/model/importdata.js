@@ -214,7 +214,7 @@ export class ImportData {
             this.importSelection.mode === 'Analysis' &&
             this.importSelection.type === 'Append' &&
             this.importSelection.analysis
-        let d = Object.values(this.contents.lines).filter(c => c.include).length
+        let d = Object.values(this.contents.lines).filter((c) => c.include).length
 
         return Boolean((a || b || c) && d)
     }

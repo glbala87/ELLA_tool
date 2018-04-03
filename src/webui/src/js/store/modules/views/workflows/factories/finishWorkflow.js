@@ -14,7 +14,7 @@ export default function(finishType) {
         const alleles = state.get('views.workflows.data.alleles')
         const references = state.get('views.workflows.data.references')
 
-        if (!['markreview', 'finalize'].find(e => e === finishType)) {
+        if (!['markreview', 'finalize'].find((e) => e === finishType)) {
             console.error(`'Invalid finishType ${finishType}`)
             return path.error()
         }
@@ -34,10 +34,10 @@ export default function(finishType) {
 
         return http
             .post(`workflows/${postType}/${id}/actions/${finishType}/`, payload)
-            .then(response => {
+            .then((response) => {
                 return path.success(response)
             })
-            .catch(response => {
+            .catch((response) => {
                 return path.error(response)
             })
     }

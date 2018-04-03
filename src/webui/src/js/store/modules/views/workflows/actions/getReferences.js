@@ -21,11 +21,11 @@ function getReferences({ http, path, state }) {
     let refByPmid = http.get(`references/`, { q: JSON.stringify({ pubmed_id: pubmedIds }) })
     let references = []
     return Promise.all([refById, refByPmid])
-        .then(args => {
+        .then((args) => {
             let [refId, refByPmid] = args
             references = refId.result.concat(refByPmid.result)
         })
-        .then(response => {
+        .then((response) => {
             processReferences(references)
             let result = {}
             for (let r of references) {
@@ -33,7 +33,7 @@ function getReferences({ http, path, state }) {
             }
             return path.success({ result: result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

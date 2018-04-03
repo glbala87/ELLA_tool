@@ -4,7 +4,7 @@ export default function removeAttachment({ state, props }) {
     )
     const { alleleId, attachmentId } = props
     const attachmentIdx = alleleState.alleleassessment.attachment_ids.findIndex(
-        a => a === attachmentId
+        (a) => a === attachmentId
     )
 
     if (attachmentIdx >= 0) {

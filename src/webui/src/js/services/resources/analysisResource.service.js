@@ -38,7 +38,7 @@ class AnalysisResource {
                 var AnalysisRS = this.resource(`${this.base}/analyses/?${args.join('&')}`)
             }
             var analyses = AnalysisRS.query(() => {
-                resolve(analyses.map(a => new Analysis(a)))
+                resolve(analyses.map((a) => new Analysis(a)))
             })
         })
     }

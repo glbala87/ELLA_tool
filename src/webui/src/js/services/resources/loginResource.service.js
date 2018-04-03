@@ -32,7 +32,7 @@ class LoginResource {
                 () => {
                     resolve(result)
                 },
-                error => {
+                (error) => {
                     console.log(error.data)
                     reject(error.data)
                 }
@@ -58,7 +58,7 @@ class LoginResource {
                     resolve(result)
                     sessionStorage.clear() // Clear storage
                 },
-                error => {
+                (error) => {
                     console.log(error.data)
                     reject(error.data)
                 }
@@ -88,7 +88,7 @@ class LoginResource {
                 () => {
                     resolve(result)
                 },
-                error => {
+                (error) => {
                     console.log(error.data)
                     reject(error.data)
                 }

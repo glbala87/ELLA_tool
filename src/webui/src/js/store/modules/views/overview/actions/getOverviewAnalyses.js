@@ -3,7 +3,7 @@ import processAnalyses from '../../../../common/helpers/processAnalyses'
 export default function getOverviewAnalyses({ http, props, path, state }) {
     return http
         .get('overviews/analyses/')
-        .then(response => {
+        .then((response) => {
             for (let key of [
                 'with_findings',
                 'without_findings',
@@ -17,14 +17,14 @@ export default function getOverviewAnalyses({ http, props, path, state }) {
                 }
             }
 
-            response.result.ongoing_user = response.result.ongoing.filter(item => {
+            response.result.ongoing_user = response.result.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user_id ===
                     state.get('app.user.id')
                 )
             })
 
-            response.result.ongoing_others = response.result.ongoing.filter(item => {
+            response.result.ongoing_others = response.result.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user_id !==
                     state.get('app.user.id')
@@ -34,7 +34,7 @@ export default function getOverviewAnalyses({ http, props, path, state }) {
             delete response.result.ongoing
             return path.success(response)
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

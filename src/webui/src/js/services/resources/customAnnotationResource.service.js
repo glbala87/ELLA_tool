@@ -32,13 +32,13 @@ class CustomAnnotationResource {
             annotations: annotation_data,
             user_id: this.user.getCurrentUserId()
         }
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let r = this.resource(
                 `${this.base}/customannotations/`,
                 {},
                 { createOrUpdate: { method: 'POST' } }
             )
-            r.createOrUpdate(data, o => {
+            r.createOrUpdate(data, (o) => {
                 resolve(o)
             })
         })

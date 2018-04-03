@@ -8,7 +8,7 @@ export default class Annotation {
     constructor(data) {
         Object.assign(this, data)
         if (this.filtered_transcripts && this.filtered_transcripts.length) {
-            this.filtered = this.transcripts.filter(anno =>
+            this.filtered = this.transcripts.filter((anno) =>
                 this.filtered_transcripts.includes(anno.transcript)
             )
         } else {
@@ -27,14 +27,14 @@ export default class Annotation {
         if (!this.filtered_transcripts) {
             return false
         }
-        return !this.worst_consequence.some(n => {
+        return !this.worst_consequence.some((n) => {
             return this.filtered_transcripts.includes(n)
         })
     }
 
     getWorseConsequenceTranscripts() {
-        return this.worst_consequence.map(name => {
-            return this.transcripts.find(t => t.transcript === name)
+        return this.worst_consequence.map((name) => {
+            return this.transcripts.find((t) => t.transcript === name)
         })
     }
 }

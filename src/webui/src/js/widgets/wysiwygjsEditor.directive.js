@@ -71,7 +71,7 @@ export class WysiwygEditorController {
     setupEditor() {
         var options = {
             element: this.editorelement,
-            onPlaceholder: visible => {
+            onPlaceholder: (visible) => {
                 this.placeholderEvent(visible)
             },
             onKeyDown: (key, character, shiftKey, altKey, ctrlKey, metaKey) => {
@@ -129,7 +129,7 @@ export class WysiwygEditorController {
         }
 
         // Update model whenever contenteditable input is triggered
-        eventListeners.add(this.editorelement, 'input', e => {
+        eventListeners.add(this.editorelement, 'input', (e) => {
             setTimeout(
                 this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML())),
                 0
@@ -177,7 +177,7 @@ export class WysiwygEditorController {
         eventListeners.add(this.buttons['removeFormat'], 'click', this.editor.removeFormat)
 
         // Add eventhandlers on link-form
-        eventListeners.add(this.buttons['link'], 'click', e => {
+        eventListeners.add(this.buttons['link'], 'click', (e) => {
             this.handleLinkForm(e)
         })
         eventListeners.add(this.linkform, 'blur', () => {
@@ -204,7 +204,7 @@ export class WysiwygEditorController {
                     false
                 )
             }) // Close if active element not in link form
-            eventListeners.add(linkinputs[i], 'keyup', e => {
+            eventListeners.add(linkinputs[i], 'keyup', (e) => {
                 this.handleLinkForm(e)
             }) // Only handles esc and enter
         }
@@ -212,18 +212,18 @@ export class WysiwygEditorController {
         // No need to add custom image scaling on firefox (it's already available)
         var isFirefox = typeof InstallTrigger !== 'undefined'
         if (!isFirefox) {
-            eventListeners.add(this.editorelement, 'click', e => {
+            eventListeners.add(this.editorelement, 'click', (e) => {
                 this.handleImageScaling(e)
             })
         }
 
-        eventListeners.add(this.editorelement, 'paste', e => {
+        eventListeners.add(this.editorelement, 'paste', (e) => {
             // IMPORTANT: Use clipboardData.items rather than clipboardData.files, as this does not work for older versions of Chrome
             if (!e.clipboardData.items.length) return
             let hasAttachment = false
             for (let item of e.clipboardData.items) {
                 if (item.kind !== 'file') continue
-                this.attachmentResource.post(item.getAsFile()).then(id => {
+                this.attachmentResource.post(item.getAsFile()).then((id) => {
                     let uuid = UUID()
                     let label = `Attachment ${id} ${uuid}`
                     let src = `/api/v1/attachments/${id}`
@@ -308,7 +308,7 @@ export class WysiwygEditorController {
         this.blurBlocked = true
         slider.focus()
 
-        slider.oninput = e => {
+        slider.oninput = (e) => {
             // We have to fetch img again (for some reason)
             let imgElement = document.getElementById(imgId)
 
@@ -345,7 +345,7 @@ export class WysiwygEditorController {
             this.editor.closePopup()
             this.blurBlocked = false
         })
-        fontpicker.on('colorChosen', color => {
+        fontpicker.on('colorChosen', (color) => {
             this.editor.closePopup()
             this.editor.forecolor(color)
             this.editor.openPopup()
@@ -366,7 +366,7 @@ export class WysiwygEditorController {
             this.editor.closePopup()
             this.blurBlocked = false
         })
-        highlightpicker.on('colorChosen', color => {
+        highlightpicker.on('colorChosen', (color) => {
             this.editor.closePopup()
             this.editor.highlight(color)
             this.editor.openPopup()

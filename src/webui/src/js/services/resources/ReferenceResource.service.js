@@ -21,7 +21,7 @@ class ReferenceResource {
             let r = this.resource(`${this.base}/references/`, {}, { create: { method: 'POST' } })
             r.create(
                 data,
-                o => {
+                (o) => {
                     resolve(o)
                 },
                 reject
@@ -66,7 +66,7 @@ class ReferenceResource {
             let r = this.resource(`${this.base}/references/`, {}, { create: { method: 'POST' } })
             r.create(
                 data,
-                o => {
+                (o) => {
                     resolve(o)
                 },
                 reject
@@ -115,7 +115,7 @@ class ReferenceResource {
             reference_id: reference_ids,
             status: 1
         })
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let r = this.resource(`${this.base}/referenceassessments/?q=${encodeURIComponent(q)}`)
             let result = r.query(() => {
                 resolve(result)
@@ -124,20 +124,20 @@ class ReferenceResource {
     }
 
     createOrUpdateReferenceAssessment(ra) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let r = this.resource(
                 `${this.base}/referenceassessments/`,
                 {},
                 { createOrUpdate: { method: 'POST' } }
             )
-            r.createOrUpdate(ra, o => {
+            r.createOrUpdate(ra, (o) => {
                 resolve(o)
             })
         })
     }
 
     search(searchString) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (searchString.length < 3) {
                 resolve([])
             } else {

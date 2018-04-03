@@ -11,7 +11,7 @@ export default [
         // Get name of selected section
         return {
             section: Object.entries(state.get('views.overview.sections')).filter(
-                e => e[1].selected
+                (e) => e[1].selected
             )[0][0]
         }
     },

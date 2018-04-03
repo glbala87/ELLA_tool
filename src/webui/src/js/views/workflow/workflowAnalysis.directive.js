@@ -220,7 +220,7 @@ export class WorkflowAnalysisController {
     setUpListeners() {
         // Setup listener for asking user if they really want to navigate
         // away from page if unsaved changes
-        let unregister_func = this.rootScope.$on('$stateChangeStart', event => {
+        let unregister_func = this.rootScope.$on('$stateChangeStart', (event) => {
             // TODO: create switch to disable in CI/test
             if (
                 this.config.app.user_confirmation_on_state_change &&
@@ -241,7 +241,7 @@ export class WorkflowAnalysisController {
         })
 
         // Ask user when reloading/closing if unsaved changes
-        window.onbeforeunload = event => {
+        window.onbeforeunload = (event) => {
             if (
                 this.config.app.user_confirmation_to_discard_changes &&
                 this.isInterpretationOngoing() &&
@@ -274,7 +274,7 @@ export class WorkflowAnalysisController {
     }
 
     checkForCollisions() {
-        this.workflowResource.getCollisions('analysis', this.analysisId).then(result => {
+        this.workflowResource.getCollisions('analysis', this.analysisId).then((result) => {
             if (result.length > 0) {
                 let html = '<h4>There '
                 if (result.length > 1) {

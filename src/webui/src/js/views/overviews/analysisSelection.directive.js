@@ -22,7 +22,7 @@ app.component('analysisSelection', {
         'AnalysisSelection',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
                     collapseChangedWrapper(collapsed, name) {
@@ -71,17 +71,17 @@ class AnalysisSelectionController {
     }
 
     loadOverview() {
-        this.overviewResource.getAnalysesOverview(this.byFindings).then(data => {
+        this.overviewResource.getAnalysesOverview(this.byFindings).then((data) => {
             this.overview = data
 
-            this.ongoing_user = this.overview.ongoing.filter(item => {
+            this.ongoing_user = this.overview.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user.id ===
                     this.user.getCurrentUserId()
                 )
             })
 
-            this.ongoing_others = this.overview.ongoing.filter(item => {
+            this.ongoing_others = this.overview.ongoing.filter((item) => {
                 return (
                     item.interpretations[item.interpretations.length - 1].user.id !==
                     this.user.getCurrentUserId()
@@ -93,7 +93,7 @@ class AnalysisSelectionController {
     }
 
     finalizedPageChanged() {
-        this.overviewResource.getAnalysesFinalizedOverview(this.finalized_page).then(data => {
+        this.overviewResource.getAnalysesFinalizedOverview(this.finalized_page).then((data) => {
             this.finalized = data
             this.finalized_page = data.pagination.page
         })

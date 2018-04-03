@@ -35,22 +35,22 @@ app.component('analysisList', {
         'AnalysisList',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    isAnalysisDone: analysis => {
+                    isAnalysisDone: (analysis) => {
                         return (
                             analysis.interpretations.length &&
-                            analysis.interpretations.every(i => i.status === 'Done')
+                            analysis.interpretations.every((i) => i.status === 'Done')
                         )
                     },
-                    getPriorityText: analysis => {
+                    getPriorityText: (analysis) => {
                         if (analysis.priority > 1) {
                             return $ctrl.config.analysis.priority.display[analysis.priority]
                         }
                     },
-                    getReviewComment: analysis => {
+                    getReviewComment: (analysis) => {
                         if (analysis.interpretations.length) {
                             let last_interpretation =
                                 analysis.interpretations[analysis.interpretations.length - 1]
@@ -59,7 +59,7 @@ app.component('analysisList', {
                             }
                         }
                     },
-                    getEndAction: interpretation => {
+                    getEndAction: (interpretation) => {
                         let OPTIONS = {
                             'Mark review': 'Marked for review',
                             Finalize: 'Finalized'
@@ -115,14 +115,14 @@ class AnalysisListWidget {
         }
         this.sorted_analyses = this.analyses.slice(0)
         if (this.sort) {
-            this.sorted_analyses.sort(firstBy(a => a.priority, -1).thenBy(a => a.deposit_date))
+            this.sorted_analyses.sort(firstBy((a) => a.priority, -1).thenBy((a) => a.deposit_date))
         }
     }
 
     isAnalysisDone(analysis) {
         return (
             analysis.interpretations.length &&
-            analysis.interpretations.every(i => i.status === 'Done')
+            analysis.interpretations.every((i) => i.status === 'Done')
         )
     }
 

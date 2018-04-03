@@ -3,7 +3,7 @@ import { formatInheritance } from './genepanel'
 export default function processAlleles(alleles, genepanel = null) {
     for (let allele of alleles) {
         if (allele.annotation.filtered_transcripts.length) {
-            allele.annotation.filtered = allele.annotation.transcripts.filter(anno =>
+            allele.annotation.filtered = allele.annotation.transcripts.filter((anno) =>
                 allele.annotation.filtered_transcripts.includes(anno.transcript)
             )
         } else {
@@ -71,7 +71,7 @@ function getFormatted(allele, genepanel) {
         if (allele.samples.length > 1) {
             // If multiple, return 'S: A/T, H: A/G'
             formatted.genotype = allele.samples
-                .map(s => {
+                .map((s) => {
                     return s.sample_type.substring(0, 1).toUpperCase() + ': ' + s.genotype.genotype
                 })
                 .join(', ')
@@ -139,7 +139,7 @@ function getFormatted(allele, genepanel) {
 
     if (allele.annotation.filtered.length) {
         formatted.hgvsc = allele.annotation.filtered
-            .map(a => {
+            .map((a) => {
                 return `${a.symbol} ${a.HGVSc}`
             })
             .join('; ')
@@ -150,7 +150,7 @@ function getFormatted(allele, genepanel) {
     //
     if (allele.samples) {
         formatted.sampleType = allele.samples
-            .map(s => s.sample_type.substring(0, 1))
+            .map((s) => s.sample_type.substring(0, 1))
             .join('')
             .toUpperCase()
     }
@@ -159,7 +159,7 @@ function getFormatted(allele, genepanel) {
     // inheritance
     //
     if (genepanel) {
-        let inheritance = allele.annotation.filtered.map(a => {
+        let inheritance = allele.annotation.filtered.map((a) => {
             return formatInheritance(genepanel, a.symbol)
         })
         formatted.inheritance = inheritance.join(' | ')

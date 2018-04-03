@@ -34,8 +34,8 @@ export class UserDashboardController {
         this.user = User
         this.usersInGroup = []
 
-        this.user.getAll().then(d => {
-            this.usersInGroup = d.filter(r => this.user.user.id !== r.id)
+        this.user.getAll().then((d) => {
+            this.usersInGroup = d.filter((r) => this.user.user.id !== r.id)
         })
 
         this.users = []
@@ -46,7 +46,7 @@ export class UserDashboardController {
 
         Navbar.clearItems()
 
-        this.overviewResource.getUserStats().then(d => {
+        this.overviewResource.getUserStats().then((d) => {
             this.user_stats = d
         })
     }
@@ -54,7 +54,7 @@ export class UserDashboardController {
     logout() {
         this.toastr.info('Logging out...', '', { timeOut: 1000 })
         this.timeout(() => {
-            this.loginResource.logout().then(a => {
+            this.loginResource.logout().then((a) => {
                 this.location.path('/login')
             })
         }, 1000)

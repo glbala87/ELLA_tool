@@ -17,7 +17,7 @@ app.component('showAnalysesForAllele', {
         'ShowAnalysesForAllele',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {

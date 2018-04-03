@@ -15,13 +15,13 @@ export default function showReferenceEvalModal({
     const readOnly = resolve.value(isReadOnly)
 
     return ReferenceEvalModal.show(analysis, allele, reference, referenceAssessment, readOnly)
-        .then(result => {
+        .then((result) => {
             if (result) {
                 return path.result({ evaluation: result.evaluation })
             }
             return path.dismissed()
         })
-        .catch(result => {
+        .catch((result) => {
             return path.dismissed()
         })
 }

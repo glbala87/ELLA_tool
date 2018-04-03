@@ -25,7 +25,7 @@ class SearchResource {
                 }
             )
             var result = r.get(function() {
-                result.alleles = result.alleles.map(a => {
+                result.alleles = result.alleles.map((a) => {
                     a.allele = new Allele(a.allele)
                     return a
                 })

@@ -26,11 +26,11 @@ app.component('alleleInfoAcmgSelection', {
         'AlleleInfoACMGSelection',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    acmgCodeChangedWrapper: code => {
+                    acmgCodeChangedWrapper: (code) => {
                         $ctrl.acmgCodeChanged({
                             alleleId: $ctrl.allele.id,
                             code: code
@@ -83,7 +83,7 @@ export class ACMGSelectionController {
             type === 'suggested'
                 ? this.getAlleleAssessment().evaluation.acmg.suggested
                 : this.getAlleleAssessment().evaluation.acmg.included
-        return codes.some(code => this.isIncludable(code.code))
+        return codes.some((code) => this.isIncludable(code.code))
     }
 
     getAlleleAssessment() {
@@ -119,10 +119,10 @@ export class ACMGSelectionController {
 
         let req_groups = []
         let reqs = this.alleleState.alleleassessment.evaluation.acmg.suggested.filter(
-            c => !this.isIncludable(c.code)
+            (c) => !this.isIncludable(c.code)
         )
         for (let req of reqs) {
-            let matching_group = req_groups.find(rg => rg.find(r => r.code === req.code))
+            let matching_group = req_groups.find((rg) => rg.find((r) => r.code === req.code))
             if (matching_group) {
                 matching_group.push(req)
             } else {
@@ -134,7 +134,7 @@ export class ACMGSelectionController {
 
     getREQCodeCount() {
         return this.getAlleleAssessment().evaluation.acmg.suggested.filter(
-            c => !this.isIncludable(c.code)
+            (c) => !this.isIncludable(c.code)
         ).length
     }
 }

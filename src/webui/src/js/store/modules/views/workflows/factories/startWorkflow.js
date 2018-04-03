@@ -12,7 +12,7 @@ export default function(startType) {
         const interpretation = state.get('views.workflows.interpretation.selected')
         const genepanel = state.get('views.workflows.data.genepanel')
 
-        if (!['start', 'reopen', 'override'].find(e => e === startType)) {
+        if (!['start', 'reopen', 'override'].find((e) => e === startType)) {
             console.error(`'Invalid startType ${startType}`)
             return path.error()
         }
@@ -27,10 +27,10 @@ export default function(startType) {
 
         return http
             .post(`workflows/${type}/${id}/actions/${startType}/`, payload)
-            .then(response => {
+            .then((response) => {
                 return path.success(response)
             })
-            .catch(response => {
+            .catch((response) => {
                 return path.error(response)
             })
     }

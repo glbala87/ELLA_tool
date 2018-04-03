@@ -41,11 +41,11 @@ export class SearchService {
         if (this._isValidSearch()) {
             this.searchResource
                 .get(this.model.query)
-                .then(r => {
+                .then((r) => {
                     this.results = r
                     this.error = false
                 })
-                .catch(e => {
+                .catch((e) => {
                     this.error = true
                 })
         } else {

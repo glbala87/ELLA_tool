@@ -22,7 +22,7 @@ function getAttachments({ http, path, state }) {
         .get(`attachments/`, {
             id: attachmentIds
         })
-        .then(response => {
+        .then((response) => {
             const attachments = {}
             for (let a of response.result) {
                 attachments[a.id] = a
@@ -30,7 +30,7 @@ function getAttachments({ http, path, state }) {
             response.result = attachments
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

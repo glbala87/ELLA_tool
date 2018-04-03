@@ -8,10 +8,10 @@ function getInterpretations({ http, path, state }) {
     let id = state.get('views.workflows.id')
     return http
         .get(`workflows/${type}/${id}/interpretations/`)
-        .then(response => {
+        .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

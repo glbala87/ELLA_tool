@@ -50,11 +50,11 @@ export default function(type, allele, interpretation, references) {
             //
             if (type === 'pending') {
                 result.pending.published = referencesForAllele.filter(
-                    r => r.published && !get(getReferenceAssessment(allele.id, r.id))
+                    (r) => r.published && !get(getReferenceAssessment(allele.id, r.id))
                 )
 
                 result.pending.unpublished = referencesForAllele.filter(
-                    r => !r.published && !get(getReferenceAssessment(allele.id, r.id))
+                    (r) => !r.published && !get(getReferenceAssessment(allele.id, r.id))
                 )
             }
 
@@ -63,14 +63,14 @@ export default function(type, allele, interpretation, references) {
             //
             if (type === 'evaluated') {
                 result.evaluated.published = referencesForAllele.filter(
-                    r =>
+                    (r) =>
                         !isIgnored(get(getReferenceAssessment(allele.id, r.id))) &&
                         r.published &&
                         get(getReferenceAssessment(allele.id, r.id))
                 )
 
                 result.evaluated.unpublished = referencesForAllele.filter(
-                    r =>
+                    (r) =>
                         !isIgnored(get(getReferenceAssessment(allele.id, r.id))) &&
                         !r.published &&
                         get(getReferenceAssessment(allele.id, r.id))
@@ -82,11 +82,11 @@ export default function(type, allele, interpretation, references) {
             //
             if (type === 'excluded') {
                 result.excluded.published = referencesForAllele.filter(
-                    r => isIgnored(get(getReferenceAssessment(allele.id, r.id))) && r.published
+                    (r) => isIgnored(get(getReferenceAssessment(allele.id, r.id))) && r.published
                 )
 
                 result.excluded.unpublished = referencesForAllele.filter(
-                    r => isIgnored(get(getReferenceAssessment(allele.id, r.id))) && !r.published
+                    (r) => isIgnored(get(getReferenceAssessment(allele.id, r.id))) && !r.published
                 )
             }
             return result

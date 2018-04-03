@@ -21,11 +21,11 @@ function getAlleleByIdentifier({ http, path, props, state }) {
         .get(`alleles/`, {
             q: JSON.stringify(query)
         })
-        .then(response => {
+        .then((response) => {
             let alleles = response.result
             return path.success({ result: alleles[0] })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

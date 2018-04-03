@@ -5,13 +5,13 @@ export default function showAlleleAssessmentHistoryModal({
 }) {
     const { alleleId } = props
     return AlleleAssessmentHistoryModal.show(alleleId)
-        .then(result => {
+        .then((result) => {
             if (result) {
                 return path.result()
             }
             return path.dismissed()
         })
-        .catch(result => {
+        .catch((result) => {
             return path.dismissed()
         })
 }

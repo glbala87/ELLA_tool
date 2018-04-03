@@ -8,10 +8,10 @@ export default function postCustomAnnotation({ state, http, path, props }) {
 
     return http
         .post(`customannotations/`, payload)
-        .then(response => {
+        .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

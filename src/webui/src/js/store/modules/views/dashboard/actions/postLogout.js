@@ -1,10 +1,10 @@
 function postLogout({ http, path, state }) {
     return http
         .post('users/actions/logout/', {})
-        .then(response => {
+        .then((response) => {
             return path.success(response)
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

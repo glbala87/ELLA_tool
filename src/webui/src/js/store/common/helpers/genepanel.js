@@ -1,6 +1,6 @@
 function _filterCollectionByGene(collection, geneSymbol) {
     if (collection) {
-        return collection.filter(entry => entry.gene.hgnc_symbol == geneSymbol)
+        return collection.filter((entry) => entry.gene.hgnc_symbol == geneSymbol)
     } else {
         return null
     }
@@ -17,7 +17,7 @@ export function transcriptsBy(geneSymbol, genepanel) {
 export function getInheritanceCodes(geneSymbol, genepanel) {
     let phenotypes = phenotypesBy(geneSymbol, genepanel)
     if (phenotypes) {
-        let codes = phenotypes.map(ph => ph.inheritance).filter(i => i && i.length > 0) // remove empty
+        let codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
         let uniqueCodes = new Set(codes)
         return Array.from(uniqueCodes.values())
             .sort()
@@ -59,7 +59,7 @@ export function formatInheritance(genepanel, geneSymbol) {
 
     let phenotypes = phenotypesBy(geneSymbol, genepanel)
     if (phenotypes) {
-        let codes = phenotypes.map(ph => ph.inheritance).filter(i => i && i.length > 0) // remove empty
+        let codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
         let uniqueCodes = new Set(codes)
         return Array.from(uniqueCodes.values())
             .sort()

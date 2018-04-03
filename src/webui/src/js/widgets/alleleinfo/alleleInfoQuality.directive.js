@@ -19,7 +19,7 @@ app.component('alleleInfoQuality', {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    formatSequence: sequence => {
+                    formatSequence: (sequence) => {
                         if (sequence.length > 10) {
                             return `(${sequence.length})`
                         } else {

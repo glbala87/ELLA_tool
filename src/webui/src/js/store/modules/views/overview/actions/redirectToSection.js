@@ -13,7 +13,7 @@ export default function redirectToSection({ props, state, module, router }) {
     }
     // If not, check if we have previously selected section
     if (sections) {
-        let selected = Object.entries(sections).find(s => s[1].selected)
+        let selected = Object.entries(sections).find((s) => s[1].selected)
         if (selected) {
             router.redirect(`/overview/${selected[0]}`)
             return

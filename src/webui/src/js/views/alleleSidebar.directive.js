@@ -27,7 +27,7 @@ const unclassifiedAlleles = Compute(
         if (!unclassified) {
             return
         }
-        return unclassified.map(aId => alleles[aId])
+        return unclassified.map((aId) => alleles[aId])
     }
 )
 
@@ -38,7 +38,7 @@ const classifiedAlleles = Compute(
         if (!classified) {
             return
         }
-        return classified.map(aId => alleles[aId])
+        return classified.map((aId) => alleles[aId])
     }
 )
 
@@ -125,13 +125,13 @@ app.component('alleleSidebar', {
                     },
                     getSampleType(allele) {
                         return allele.samples
-                            .map(s => s.sample_type.substring(0, 1))
+                            .map((s) => s.sample_type.substring(0, 1))
                             .join('')
                             .toUpperCase()
                     },
                     getSampleTypesFull(allele) {
                         return allele.samples
-                            .map(s => s.sample_type)
+                            .map((s) => s.sample_type)
                             .join(', ')
                             .toUpperCase()
                     },
@@ -215,14 +215,14 @@ export class AlleleSidebarController {
             () => {
                 this.classified_alleles = this.orderByFilter(
                     this.alleles.classified,
-                    allele => {
+                    (allele) => {
                         return this.sort(allele, this.orderBy.classified[0])
                     },
                     this.orderBy.classified[1]
                 )
                 this.unclassified_alleles = this.orderByFilter(
                     this.alleles.unclassified,
-                    allele => {
+                    (allele) => {
                         return this.sort(allele, this.orderBy.unclassified[0])
                     },
                     this.orderBy.unclassified[1]
@@ -244,9 +244,9 @@ export class AlleleSidebarController {
                 return d
             case 'consequence':
                 let consequence_priority = this.config.transcripts.consequences
-                let consequences = allele.annotation.filtered.map(t => t.consequences)
+                let consequences = allele.annotation.filtered.map((t) => t.consequences)
                 consequences = [].concat.apply([], consequences)
-                let consequence_indices = consequences.map(c => consequence_priority.indexOf(c))
+                let consequence_indices = consequences.map((c) => consequence_priority.indexOf(c))
                 return Math.min(...consequence_indices)
             case 'homozygous':
                 return !this.isHomozygous(allele)
@@ -284,14 +284,14 @@ export class AlleleSidebarController {
         // Update filter on classified and unclassified alleles
         this.classified_alleles = this.orderByFilter(
             this.alleles.classified,
-            allele => {
+            (allele) => {
                 return this.sort(allele, this.orderBy.classified[0])
             },
             this.orderBy.classified[1]
         )
         this.unclassified_alleles = this.orderByFilter(
             this.alleles.unclassified,
-            allele => {
+            (allele) => {
                 return this.sort(allele, this.orderBy.unclassified[0])
             },
             this.orderBy.unclassified[1]
@@ -338,14 +338,14 @@ export class AlleleSidebarController {
 
     getSampleType(allele) {
         return allele.samples
-            .map(s => s.sample_type.substring(0, 1))
+            .map((s) => s.sample_type.substring(0, 1))
             .join('')
             .toUpperCase()
     }
 
     getSampleTypesFull(allele) {
         return allele.samples
-            .map(s => s.sample_type)
+            .map((s) => s.sample_type)
             .join(', ')
             .toUpperCase()
     }
@@ -356,7 +356,7 @@ export class AlleleSidebarController {
             return consequence_priority.indexOf(a) - consequence_priority.indexOf(b)
         }
         return allele.annotation.filtered
-            .map(t => t.consequences.sort(sort_func)[0].replace('_variant', ''))
+            .map((t) => t.consequences.sort(sort_func)[0].replace('_variant', ''))
             .join(' | ')
     }
 
@@ -382,7 +382,7 @@ export class AlleleSidebarController {
     }
 
     isLowQual(allele) {
-        return allele.samples.some(s => s.genotype.needs_verification)
+        return allele.samples.some((s) => s.genotype.needs_verification)
     }
 
     isTechnical(allele_state) {
@@ -441,8 +441,8 @@ export class AlleleSidebarController {
             'stop_gained',
             'frameshift_variant'
         ]
-        return allele.annotation.filtered.some(t => {
-            return nonsense_consequences.some(c => {
+        return allele.annotation.filtered.some((t) => {
+            return nonsense_consequences.some((c) => {
                 return t.consequences.includes(c)
             })
         })
@@ -455,17 +455,17 @@ export class AlleleSidebarController {
     isMultipleInAlleleGenes(allele) {
         let other_alleles = this.alleles.classified
             .concat(this.alleles.unclassified)
-            .map(a => a.allele)
+            .map((a) => a.allele)
             .filter(
                 // Exclude "ourself"
-                a => a !== allele
+                (a) => a !== allele
             )
         let other_alleles_genes = []
         for (let other_allele of other_alleles) {
-            other_alleles_genes.push(...other_allele.annotation.filtered.map(f => f.symbol))
+            other_alleles_genes.push(...other_allele.annotation.filtered.map((f) => f.symbol))
         }
-        let our_genes = allele.annotation.filtered.map(f => f.symbol)
-        return our_genes.some(s => other_alleles_genes.includes(s))
+        let our_genes = allele.annotation.filtered.map((f) => f.symbol)
+        return our_genes.some((s) => other_alleles_genes.includes(s))
     }
 
     is3hetAR(allele) {

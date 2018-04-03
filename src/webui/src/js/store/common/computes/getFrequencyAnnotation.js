@@ -121,7 +121,7 @@ constructor(Config, $scope) {
 const FIELDS = ['count', 'num', 'hom', 'hemi', 'freq']
 
 function getFields(allele) {
-    return FIELDS.filter(i => {
+    return FIELDS.filter((i) => {
         // include hemi only for X and Y chromosomes
         if (i === 'hemi') {
             return allele.chromosome === 'X' || allele.chromosome === 'Y'
@@ -234,14 +234,14 @@ export default function(allele, group) {
             }
 
             if (translations) {
-                data.frequencies.map(f => {
+                data.frequencies.map((f) => {
                     if (f.name in translations) {
                         f.name = translations[f.name]
                     }
                     return f
                 })
             }
-            data.frequencies = data.frequencies.sort(firstBy(a => a.name))
+            data.frequencies = data.frequencies.sort(firstBy((a) => a.name))
 
             //
             // Filter
@@ -265,10 +265,10 @@ export default function(allele, group) {
                 let indications = Object.entries(
                     allele.annotation.frequencies[group].indications[freqType]
                 )
-                    .map(e => {
+                    .map((e) => {
                         return { name: e[0], value: e[1] }
                     })
-                    .sort(firstBy(x => x.name))
+                    .sort(firstBy((x) => x.name))
                 if (shouldShowIndications(allele, group, freqType, config)) {
                     data.indications.push({
                         name: freqType,

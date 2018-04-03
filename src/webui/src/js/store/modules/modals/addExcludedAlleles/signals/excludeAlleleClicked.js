@@ -7,7 +7,7 @@ import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
 export default [
     ({ state, props }) => {
         const includedAlleleIds = state.get('modals.addExcludedAlleles.includedAlleleIds')
-        const idx = includedAlleleIds.findIndex(alleleId => alleleId === props.alleleId)
+        const idx = includedAlleleIds.findIndex((alleleId) => alleleId === props.alleleId)
         if (idx >= 0) {
             state.splice(`modals.addExcludedAlleles.includedAlleleIds`, idx, 1)
         } else {

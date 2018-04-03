@@ -12,7 +12,7 @@ import { Directive, Inject } from '../ng-decorators'
 @Inject('$scope')
 export class GenomeBrowserWidgetController {
     constructor($scope) {
-        $scope.$watch('allele', allele => {
+        $scope.$watch('allele', (allele) => {
             if (allele) {
                 this.refresh()
             }

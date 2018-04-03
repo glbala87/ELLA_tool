@@ -45,7 +45,7 @@ export class AddExcludedAllelesController {
 
         this.alleleService
             .getAlleles(all_ids, sample_id, gp_name, gp_version)
-            .then(alleles => (this.alleles = alleles))
+            .then((alleles) => (this.alleles = alleles))
             .then(() => this.update())
     }
 
@@ -80,22 +80,22 @@ export class AddExcludedAllelesController {
     }
 
     fromId(id) {
-        return this.alleles.find(a => a.id === id)
+        return this.alleles.find((a) => a.id === id)
     }
 
     _updateFilter() {
         if (this.category === 'all') {
             this.category_excluded_alleles = this.alleles.slice(0)
         } else if (this.category === 'frequency') {
-            this.category_excluded_alleles = this.alleles.filter(a =>
+            this.category_excluded_alleles = this.alleles.filter((a) =>
                 this.excluded_allele_ids.frequency.includes(a.id)
             )
         } else if (this.category === 'gene') {
-            this.category_excluded_alleles = this.alleles.filter(a =>
+            this.category_excluded_alleles = this.alleles.filter((a) =>
                 this.excluded_allele_ids.gene.includes(a.id)
             )
         } else if (this.category === 'intronic') {
-            this.category_excluded_alleles = this.alleles.filter(a =>
+            this.category_excluded_alleles = this.alleles.filter((a) =>
                 this.excluded_allele_ids.intronic.includes(a.id)
             )
         }
@@ -104,15 +104,15 @@ export class AddExcludedAllelesController {
 
         // Filter out included alleles
         if (this.included_allele_ids.length) {
-            this.filtered_alleles = this.filtered_alleles.filter(a => {
-                return this.included_allele_ids.find(ia => ia === a.id) === undefined
+            this.filtered_alleles = this.filtered_alleles.filter((a) => {
+                return this.included_allele_ids.find((ia) => ia === a.id) === undefined
             })
         }
 
         // Filter by gene symbol
         if (this.selected_gene) {
-            this.filtered_alleles = this.filtered_alleles.filter(a => {
-                return a.annotation.filtered.some(t => {
+            this.filtered_alleles = this.filtered_alleles.filter((a) => {
+                return a.annotation.filtered.some((t) => {
                     if ('symbol' in t) {
                         return t.symbol === this.selected_gene
                     }
@@ -122,8 +122,8 @@ export class AddExcludedAllelesController {
 
         // Sort by gene symbol and HGVSc
         this.filtered_alleles.sort(
-            firstBy(v => v.annotation.filtered[0].symbol).thenBy(
-                v => v.annotation.filtered[0].HGVSc
+            firstBy((v) => v.annotation.filtered[0].symbol).thenBy(
+                (v) => v.annotation.filtered[0].HGVSc
             )
         )
     }
@@ -141,7 +141,7 @@ export class AddExcludedAllelesController {
         // to selected category
         for (let a of this.category_excluded_alleles) {
             let symbol = a.annotation.filtered[0].symbol
-            if (this.gene_options.find(g => g === symbol) === undefined) {
+            if (this.gene_options.find((g) => g === symbol) === undefined) {
                 this.gene_options.push(symbol)
             }
         }
@@ -149,7 +149,7 @@ export class AddExcludedAllelesController {
     }
 
     _updateIncludedAlleles() {
-        this.included_alleles = this.alleles.filter(a => this.included_allele_ids.includes(a.id))
+        this.included_alleles = this.alleles.filter((a) => this.included_allele_ids.includes(a.id))
     }
 }
 

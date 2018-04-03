@@ -39,10 +39,10 @@ function getAcmgCodes({ http, path, state, props, resolve }) {
                 gp_version: genepanelVersion,
                 referenceassessments: referenceAssessments
             })
-            .then(response => {
+            .then((response) => {
                 return path.success({ result: response.result })
             })
-            .catch(response => {
+            .catch((response) => {
                 return path.error({ result: response.result })
             })
     } else {

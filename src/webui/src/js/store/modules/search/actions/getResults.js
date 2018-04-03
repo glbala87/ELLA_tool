@@ -5,7 +5,7 @@ function getResults({ http, module, path }) {
     let query = module.get('query')
     return http
         .get(`search/?q=${encodeURIComponent(JSON.stringify(query))}`)
-        .then(response => {
+        .then((response) => {
             for (let item of response.result.alleles) {
                 processAlleles([item.allele])
             }
@@ -13,7 +13,7 @@ function getResults({ http, module, path }) {
 
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             console.log(response)
             return path.error({ result: response.result })
         })

@@ -42,7 +42,7 @@ export class AnalysisInfoController {
     constructor() {}
 
     getAlleles() {
-        let sort = firstBy(a => a.allele.annotation.filtered[0].symbol).thenBy(a => {
+        let sort = firstBy((a) => a.allele.annotation.filtered[0].symbol).thenBy((a) => {
             let s = a.allele.annotation.filtered[0].HGVSc_short || a.allele.getHGVSgShort()
             let d = parseInt(s.match(/[cg]\.(\d+)/)[1])
             return d

@@ -6,7 +6,7 @@ import { Compute } from 'cerebral'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import { getAcmgCandidates } from '../store/common/helpers/acmg'
 
-let acmgCandidates = Compute(state`app.config`, config => {
+let acmgCandidates = Compute(state`app.config`, (config) => {
     return getAcmgCandidates(config)
 })
 
@@ -47,7 +47,7 @@ app.component('workflowbar', {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($scope.$ctrl, {
-                    formatHistoryOption: interpretation => {
+                    formatHistoryOption: (interpretation) => {
                         let OPTIONS = {
                             'Mark review': 'Marked for review',
                             Finalize: 'Finalized'
@@ -67,7 +67,7 @@ app.component('workflowbar', {
                     getExcludedAlleleCount: () => {
                         if ($ctrl.selectedInterpretation) {
                             return Object.values($ctrl.selectedInterpretation.excluded_allele_ids)
-                                .map(excluded_group => excluded_group.length)
+                                .map((excluded_group) => excluded_group.length)
                                 .reduce((total_length, length) => total_length + length)
                         }
                     },

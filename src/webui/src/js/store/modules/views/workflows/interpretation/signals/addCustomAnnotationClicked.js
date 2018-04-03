@@ -22,7 +22,7 @@ export default [
                             setDirty,
                             loadAlleles,
                             loadAcmg,
-                            when(props`category`, c => c === 'references'),
+                            when(props`category`, (c) => c === 'references'),
                             {
                                 true: loadReferences,
                                 false: [] // noop

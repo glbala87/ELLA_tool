@@ -97,13 +97,13 @@ export class ImportSingleController {
         if (fileNameBase.length > 3) {
             var p = this.analysisResource.get({ name: { $ilike: `%${fileNameBase}%` } }, 2)
         } else {
-            var p = new Promise(resolve => {
+            var p = new Promise((resolve) => {
                 resolve([])
             })
         }
 
         this.importData.importSelection.analysisName = fileNameBase
-        p.then(matchingAnalyses => {
+        p.then((matchingAnalyses) => {
             if (matchingAnalyses.length == 1) {
                 this.importData.importSelection.type = 'Append'
                 this.importData.importSelection.analysis = matchingAnalyses[0]
@@ -144,7 +144,7 @@ export class ImportSingleController {
     }
 
     updateAnalysisOptions(text) {
-        return this.analysisResource.get({ name: { $ilike: `%${text}%` } }, 20).then(analyses => {
+        return this.analysisResource.get({ name: { $ilike: `%${text}%` } }, 20).then((analyses) => {
             this.analyses = analyses
             return this.analyses
         })
@@ -177,7 +177,7 @@ export class ImportSingleController {
         if (!this.importData.importSelection.analysis) return false
         else {
             let statuses = this.importData.importSelection.analysis.interpretations.map(
-                i => i.status
+                (i) => i.status
             )
             return (
                 this._analysisDone(statuses) ||
@@ -196,7 +196,7 @@ export class ImportSingleController {
         let last_interpretation = this.importData.importSelection.analysis.interpretations[
             this.importData.importSelection.analysis.interpretations.length - 1
         ]
-        let statuses = this.importData.importSelection.analysis.interpretations.map(i => i.status)
+        let statuses = this.importData.importSelection.analysis.interpretations.map((i) => i.status)
         let s = 'Analysis is '
         if (this._analysisDone(statuses)) {
             s += 'finalized. Appending to this analyses will reopen it.'
@@ -248,7 +248,7 @@ export class ImportSingleController {
         // Don't match on subnumber if length < 5
         subnumber = '' + subnumber
         if (subnumber.length < 5) {
-            var p_number = new Promise(resolve => {
+            var p_number = new Promise((resolve) => {
                 resolve([])
             })
         } else {
@@ -256,9 +256,9 @@ export class ImportSingleController {
         }
 
         // Try to match against existing analyses, based on either full string or subnumber
-        Promise.all([p_name, p_number]).then(matchingAnalyses => {
+        Promise.all([p_name, p_number]).then((matchingAnalyses) => {
             matchingAnalyses = [].concat.apply([], matchingAnalyses)
-            let matchingAnalysesNames = new Array(...new Set(matchingAnalyses.map(a => a.name)))
+            let matchingAnalysesNames = new Array(...new Set(matchingAnalyses.map((a) => a.name)))
             this.warnings.analysisNameMatch.active = matchingAnalysesNames.length > 0
         })
     }

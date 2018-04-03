@@ -19,7 +19,7 @@ class AlleleFilter {
         let included = []
         for (let allele of alleles) {
             if (
-                Object.keys(allele.annotation.frequencies).filter(k => {
+                Object.keys(allele.annotation.frequencies).filter((k) => {
                     return Object.keys(this.config.frequencies.view.groups).includes(k)
                 }).length
             ) {
@@ -48,7 +48,7 @@ class AlleleFilter {
      * @return {Array} Alleles with references as given by it's annotation.
      */
     filterReferences(alleles) {
-        return alleles.filter(a => a.getReferenceIds().length > 0)
+        return alleles.filter((a) => a.getReferenceIds().length > 0)
     }
 
     /**
@@ -56,7 +56,7 @@ class AlleleFilter {
      * @return {Array} Alleles with references as given by it's annotation.
      */
     filterAlleleAssessment(alleles) {
-        return alleles.filter(a => a.allele_assessment)
+        return alleles.filter((a) => a.allele_assessment)
     }
 
     /**
@@ -64,8 +64,8 @@ class AlleleFilter {
      * @return {Array} Alleles found in full, but not in sub.
      */
     invert(sub, full) {
-        return full.filter(a => {
-            return sub.findIndex(i => i === a) === -1
+        return full.filter((a) => {
+            return sub.findIndex((i) => i === a) === -1
         })
     }
 }

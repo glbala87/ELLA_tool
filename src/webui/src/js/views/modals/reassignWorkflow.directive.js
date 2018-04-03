@@ -14,7 +14,7 @@ app.component('reassignWorkflow', {
         'ReassignWorkflow',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {

@@ -22,7 +22,7 @@ export default function({ http, path, module }) {
             gp_version: genepanel.version,
             sample_id: analysis.samples[0].id // TODO: Support multiple samples
         })
-        .then(response => {
+        .then((response) => {
             let alleles = response.result
             processAlleles(alleles, genepanel)
 
@@ -34,7 +34,7 @@ export default function({ http, path, module }) {
 
             return path.success({ result: allelesById })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

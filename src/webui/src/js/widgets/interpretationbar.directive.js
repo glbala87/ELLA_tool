@@ -98,8 +98,8 @@ export class Interpretationbar {
     // Controls
     collapseAll() {
         let section_states = Object.values(this.getAlleleUserState(this.allele).sections)
-        let current_collapsed = section_states.map(s => s.collapsed)
-        let some_collapsed = current_collapsed.some(c => c)
+        let current_collapsed = section_states.map((s) => s.collapsed)
+        let some_collapsed = current_collapsed.some((c) => c)
         for (let section_state of section_states) {
             section_state.collapsed = !some_collapsed
         }
@@ -108,7 +108,7 @@ export class Interpretationbar {
     getExcludedAlleleCount() {
         if (this.getSelectedInterpretation()) {
             return Object.values(this.getSelectedInterpretation().excluded_allele_ids)
-                .map(excluded_group => excluded_group.length)
+                .map((excluded_group) => excluded_group.length)
                 .reduce((total_length, length) => total_length + length)
         }
     }
@@ -137,7 +137,7 @@ export class Interpretationbar {
                 this.getSelectedInterpretation().genepanel_version,
                 this.readOnly
             )
-            .then(added => {
+            .then((added) => {
                 if (this.isInterpretationOngoing()) {
                     // noop if analysis is finalized
                     // Uses the result of modal as it's more excplicit than mutating the inputs to the show method
@@ -153,7 +153,7 @@ export class Interpretationbar {
     copyAllAlamut() {
         this.clipboard.copyText(
             this.getAlleles()
-                .map(a => a.formatAlamut() + '\n')
+                .map((a) => a.formatAlamut() + '\n')
                 .join('')
         )
         this.toastr.info('Copied text to clipboard', null, { timeOut: 1000 })
@@ -217,7 +217,7 @@ export class Interpretationbar {
         this.acmgCandidates = {}
 
         let candidates = Object.keys(this.config.acmg.explanation).filter(
-            code => !code.startsWith('REQ')
+            (code) => !code.startsWith('REQ')
         )
 
         for (let t of ['benign', 'pathogenic']) {
@@ -225,7 +225,7 @@ export class Interpretationbar {
 
             // Map codes to group (benign/pathogenic)
             for (let c of candidates) {
-                if (this.config.acmg.codes[t].some(e => c.startsWith(e))) {
+                if (this.config.acmg.codes[t].some((e) => c.startsWith(e))) {
                     if (!this.acmgCandidates[t].includes(c)) {
                         this.acmgCandidates[t].push(c)
                     }
@@ -235,8 +235,8 @@ export class Interpretationbar {
             // Sort the codes
             this.acmgCandidates[t].sort((a, b) => {
                 // Find the difference in index between the codes
-                let a_idx = this.config.acmg.codes[t].findIndex(elem => a.startsWith(elem))
-                let b_idx = this.config.acmg.codes[t].findIndex(elem => b.startsWith(elem))
+                let a_idx = this.config.acmg.codes[t].findIndex((elem) => a.startsWith(elem))
+                let b_idx = this.config.acmg.codes[t].findIndex((elem) => b.startsWith(elem))
 
                 // If same prefix, sort on text itself
                 if (a_idx === b_idx) {

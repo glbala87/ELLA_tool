@@ -22,7 +22,7 @@ function getAlleles({ http, path, state }) {
                 allele_ids: alleleIds.join(','),
                 current: getCurrentData // Only relevant when interpretation status is 'Done'
             })
-            .then(response => {
+            .then((response) => {
                 let alleles = response.result
                 processAlleles(alleles, genepanel)
 
@@ -34,7 +34,7 @@ function getAlleles({ http, path, state }) {
 
                 return path.success({ result: allelesById })
             })
-            .catch(response => {
+            .catch((response) => {
                 return path.error({ result: response.result })
             })
     } else {

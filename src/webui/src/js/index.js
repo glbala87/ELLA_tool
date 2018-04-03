@@ -204,8 +204,8 @@ Promise.all = function() {
         .injector()
         .get('$q')
         .all.apply(this, arguments)
-    temp.spread = func => {
-        return temp.then(value => {
+    temp.spread = (func) => {
+        return temp.then((value) => {
             return func.apply(this, value)
         })
     }

@@ -21,7 +21,7 @@ app.component('alleleInfoExternalOther', {
 
                 Object.assign($ctrl, {
                     hasContent() {
-                        return this.config.custom_annotation.external.some(group => {
+                        return this.config.custom_annotation.external.some((group) => {
                             return (
                                 'external' in this.allele.annotation &&
                                 group.key in this.allele.annotation.external
@@ -48,7 +48,7 @@ export class AlleleInfoExternalOther {
     }
 
     hasContent() {
-        return this.config.custom_annotation.external.some(group => {
+        return this.config.custom_annotation.external.some((group) => {
             return (
                 'external' in this.allele.annotation && group.key in this.allele.annotation.external
             )

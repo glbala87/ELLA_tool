@@ -74,7 +74,7 @@ export class CheckableButtonController {
 
     isChecked() {
         if (this.isListModel) {
-            return this.listModel.find(v => v === this.listValue)
+            return this.listModel.find((v) => v === this.listValue)
         } else {
             return this.checkModel
         }

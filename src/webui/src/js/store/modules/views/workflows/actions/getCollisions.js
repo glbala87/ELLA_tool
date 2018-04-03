@@ -10,13 +10,13 @@ function getCollisions({ http, path, props, state }) {
     let id = state.get('views.workflows.id')
     return http
         .get(`workflows/${type}/${id}/collisions/`)
-        .then(response => {
+        .then((response) => {
             for (let d of response.result) {
                 processAlleles([d.allele])
             }
             return path.success({ result: response.result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error({ result: response.result })
         })
 }

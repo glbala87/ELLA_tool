@@ -35,8 +35,8 @@ const getExcludedReferencesCount = Compute(
             alleleReferenceIds
         ).references
         return alleleReferences
-            .map(r => get(getReferenceAssessment(allele.id, r.id)) || null)
-            .filter(ra => {
+            .map((r) => get(getReferenceAssessment(allele.id, r.id)) || null)
+            .filter((ra) => {
                 if (ra && 'evaluation' in ra) {
                     return ra.evaluation.relevance === 'Ignore'
                 }
@@ -78,7 +78,7 @@ const isCollapsed = Compute(
     }
 )
 
-const classificationOptions = Compute(state`app.config`, config => {
+const classificationOptions = Compute(state`app.config`, (config) => {
     return [{ name: 'Select class', value: null }].concat(config.classification.options)
 })
 
@@ -238,7 +238,7 @@ export class AlleleSectionBoxController {
         // Update suggested classification whenever user changes
         // included ACMG codes
         $scope.$watchCollection(
-            () => this.alleleState.alleleassessment.evaluation.acmg.included.map(a => a.code),
+            () => this.alleleState.alleleassessment.evaluation.acmg.included.map((a) => a.code),
             () => {
                 if (this.section.options.show_included_acmg_codes) {
                     this.updateSuggestedClassification()
@@ -261,8 +261,8 @@ export class AlleleSectionBoxController {
 
     collapseAll() {
         let section_states = Object.values(this.alleleUserState.sections)
-        let current_collapsed = section_states.map(s => s.collapsed)
-        let some_collapsed = current_collapsed.some(c => c)
+        let current_collapsed = section_states.map((s) => s.collapsed)
+        let some_collapsed = current_collapsed.some((c) => c)
         for (let section_state of section_states) {
             section_state.collapsed = !some_collapsed
         }
@@ -330,12 +330,12 @@ export class AlleleSectionBoxController {
         // Clear current in case something goes wrong
         // Having no result is better than wrong result
         this.alleleState.alleleassessment.evaluation.acmg.suggested_classification = null
-        let codes = this.alleleState.alleleassessment.evaluation.acmg.included.map(i => i.code)
+        let codes = this.alleleState.alleleassessment.evaluation.acmg.included.map((i) => i.code)
 
         if (codes.length) {
             this.acmgClassificationResource
                 .getClassification(codes)
-                .then(result => {
+                .then((result) => {
                     this.alleleState.alleleassessment.evaluation.acmg.suggested_classification =
                         result.class
                 })
@@ -384,11 +384,13 @@ export class AlleleSectionBoxController {
     showCustomAnnotationModal(category) {
         let title = category === 'external' ? 'ADD EXTERNAL DB DATA' : 'ADD PREDICTION DATA'
         let placeholder = category === 'external' ? 'CHOOSE DATABASE' : 'CHOOSE PREDICTION TYPE'
-        this.customAnnotationModal.show(title, placeholder, this.allele, category).then(result => {
-            if (result) {
-                this.onUpdate()
-            }
-        })
+        this.customAnnotationModal
+            .show(title, placeholder, this.allele, category)
+            .then((result) => {
+                if (result) {
+                    this.onUpdate()
+                }
+            })
     }
 
     showAddReferenceModal() {
@@ -396,7 +398,7 @@ export class AlleleSectionBoxController {
         let placeholder = 'Not used'
         this.customAnnotationModal
             .show(title, placeholder, this.allele, 'references')
-            .then(result => {
+            .then((result) => {
                 if (result) {
                     this.onUpdate()
                 }

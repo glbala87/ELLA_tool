@@ -29,8 +29,8 @@ app.component('allelebar', {
             function($scope) {
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
-                    getGenepanelValues: symbol => $ctrl.genepanelValuesForAllele[symbol],
-                    formatCodons: codons => {
+                    getGenepanelValues: (symbol) => $ctrl.genepanelValuesForAllele[symbol],
+                    formatCodons: (codons) => {
                         if (codons === undefined) return
 
                         let shortCodon = (match, c) => {
@@ -40,7 +40,7 @@ app.component('allelebar', {
 
                         return codons
                             .split('/')
-                            .map(c => {
+                            .map((c) => {
                                 return c.replace(/([ACGT]+)/, shortCodon)
                             })
                             .join('/')
@@ -98,7 +98,7 @@ export class Allelebar {
 
         return codons
             .split('/')
-            .map(c => {
+            .map((c) => {
                 return c.replace(/([ACGT]+)/, shortCodon)
             })
             .join('/')

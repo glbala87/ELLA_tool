@@ -8,7 +8,7 @@ export default function checkAddRemoveAlleleToReport({ props, state, resolve }) 
     for (let alleleId of changedAlleleIds) {
         const alleleState = resolve.value(getAlleleState(alleleId))
         const classification = resolve.value(getClassification(alleleId))
-        const configOption = config.classification.options.find(o => {
+        const configOption = config.classification.options.find((o) => {
             return o.value === classification
         })
         if (

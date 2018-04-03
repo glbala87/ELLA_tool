@@ -58,7 +58,7 @@ export class CustomAnnotationController {
             $scope.$watch(
                 () => this.referenceSearchPhrase,
                 () => {
-                    this.referenceResource.search(this.referenceSearchPhrase).then(results => {
+                    this.referenceResource.search(this.referenceSearchPhrase).then((results) => {
                         this.referenceSearchResults = results
                     })
                 }
@@ -87,7 +87,7 @@ export class CustomAnnotationController {
      * for all the allele.
      */
     setup() {
-        this.customAnnotationResource.getByAlleleIds([this.allele.id]).then(data => {
+        this.customAnnotationResource.getByAlleleIds([this.allele.id]).then((data) => {
             this.existing_custom_annotations = data
 
             // Perform initial copy of the existing annotation data,
@@ -107,10 +107,10 @@ export class CustomAnnotationController {
      * @return {Array(object)} List of group objects
      */
     getAnnotationGroups() {
-        let valid_groups = this.config.custom_annotation[this.category].filter(c => {
+        let valid_groups = this.config.custom_annotation[this.category].filter((c) => {
             if ('only_for_genes' in c) {
-                let hgnc_ids = this.allele.annotation.filtered.map(t => t.hgnc_id)
-                return c.only_for_genes.some(g => hgnc_ids.includes(g))
+                let hgnc_ids = this.allele.annotation.filtered.map((t) => t.hgnc_id)
+                return c.only_for_genes.some((g) => hgnc_ids.includes(g))
             }
             // If no restriction, always include it.
             return true
@@ -126,7 +126,7 @@ export class CustomAnnotationController {
      * @return {Object}        Copy of existing CustomAnnotation, or new empty object
      */
     getExistingCustomAnnotation() {
-        let existing = this.existing_custom_annotations.find(e => e.allele_id === this.allele.id)
+        let existing = this.existing_custom_annotations.find((e) => e.allele_id === this.allele.id)
         if (existing) {
             return deepCopy(existing.annotations)
         }
@@ -172,19 +172,19 @@ export class CustomAnnotationController {
     _loadReferences() {
         let ids = []
         if ('references' in this.custom_annotation) {
-            ids = this.custom_annotation.references.map(r => r.id)
+            ids = this.custom_annotation.references.map((r) => r.id)
         }
-        this.referenceResource.getByIds(ids).then(refs => {
+        this.referenceResource.getByIds(ids).then((refs) => {
             this.references = refs
         })
     }
 
     getReference(id) {
-        return this.references.find(r => r.id === id)
+        return this.references.find((r) => r.id === id)
     }
 
     _addReferenceToAnnotation(id, pubmed_id) {
-        let existing = this.getCurrent().find(r => r.id === id && r.pubmed_id === pubmed_id)
+        let existing = this.getCurrent().find((r) => r.id === id && r.pubmed_id === pubmed_id)
         if (!existing) {
             this.getCurrent().push({
                 id: id,
@@ -203,7 +203,7 @@ export class CustomAnnotationController {
             // PubMed XML
             this.referenceResource
                 .createFromXml(this.reference_xml)
-                .then(ref => {
+                .then((ref) => {
                     this.reference_error = false
                     this._addReferenceToAnnotation(ref.id, ref.pubmed_id)
                     this.reference_xml = ''
@@ -216,7 +216,7 @@ export class CustomAnnotationController {
             // Manual
             this.referenceResource
                 .createFromManual(this.manualReference)
-                .then(ref => {
+                .then((ref) => {
                     this.reference_error = false
                     this._addReferenceToAnnotation(ref.id, ref.pubmed_id)
                     this.resetManualReference(this.manualReference.published)
@@ -242,7 +242,7 @@ export class CustomAnnotationController {
      * @return {Array(string)}       URLs
      */
     getUrls(group) {
-        let hgnc_ids = this.allele.annotation.filtered.map(t => t.hgnc_id)
+        let hgnc_ids = this.allele.annotation.filtered.map((t) => t.hgnc_id)
 
         let urls = []
         if ('url_for_genes' in group) {
@@ -260,7 +260,7 @@ export class CustomAnnotationController {
     }
 
     removeReference(ref) {
-        this.custom_annotation.references = this.getCurrent().filter(r => {
+        this.custom_annotation.references = this.getCurrent().filter((r) => {
             return ref.id !== r.id
         })
     }
@@ -322,7 +322,7 @@ export class CustomAnnotationModal {
         // our modal UI calls the close method on the modal instance (save, cancel and the X in the corner),
         // which triggers the 'then' callback, with or without data.
         return modal.result.then(
-            custom_annotation => {
+            (custom_annotation) => {
                 if (!custom_annotation) return
                 return this.customAnnotationResource
                     .createOrUpdateCustomAnnotation(allele.id, custom_annotation)

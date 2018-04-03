@@ -15,7 +15,7 @@ export class alleleInfoSplicePopover {
     constructor() {}
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'splice' in t)
+        return this.allele.annotation.filtered.some((t) => 'splice' in t)
     }
 
     getText(effect) {

@@ -24,7 +24,7 @@ app.component('alleleInfoDbsnp', {
                     },
                     hasContent() {
                         return $ctrl.allele.annotation.filtered.some(
-                            t => 'dbsnp' in t && t.dbsnp.length
+                            (t) => 'dbsnp' in t && t.dbsnp.length
                         )
                     }
                 })
@@ -53,6 +53,6 @@ export class AlleleInfoDbsnp {
     }
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'dbsnp' in t && t.dbsnp.length)
+        return this.allele.annotation.filtered.some((t) => 'dbsnp' in t && t.dbsnp.length)
     }
 }

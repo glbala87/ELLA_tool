@@ -1,10 +1,10 @@
 export default function getUserStats({ http, path, state }) {
     return http
         .get('overviews/userstats/')
-        .then(response => {
+        .then((response) => {
             return path.success(response)
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

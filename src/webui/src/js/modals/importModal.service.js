@@ -36,7 +36,7 @@ export class ImportController {
         // Watch annotationjobPage, and enable next-button if relevant
         this.scope.$watch(() => this.annotationjobPage, () => this.getAnnotationjobs())
 
-        this.annotationjobResource.annotationServiceRunning().then(isAlive => {
+        this.annotationjobResource.annotationServiceRunning().then((isAlive) => {
             if (!isAlive) {
                 this.toastr.error(
                     'Unable to connect to annotation service. Contact support to restart the annotation service.'
@@ -59,7 +59,7 @@ export class ImportController {
     }
 
     annotationjobPageChanged() {
-        this.annotationjobResource.get(null, 8, this.annotationjobPage).then(res => {
+        this.annotationjobResource.get(null, 8, this.annotationjobPage).then((res) => {
             this.annotationjobs = res
             this.annotationjobPage = res.pagination.page
 
@@ -128,9 +128,10 @@ export class ImportController {
                 createAnalyses += 1
             } else if (j.isAppendToAnalysisType()) {
                 appendAnalyses.push(j.importSelection.analysis.name)
-                appendVariants += Object.values(j.contents.lines).filter(l => l.include).length
+                appendVariants += Object.values(j.contents.lines).filter((l) => l.include).length
             } else if (j.isVariantMode()) {
-                standaloneVariants += Object.values(j.contents.lines).filter(l => l.include).length
+                standaloneVariants += Object.values(j.contents.lines).filter((l) => l.include)
+                    .length
             }
         }
 
@@ -175,8 +176,8 @@ export class ImportController {
 
     importDisabled() {
         let allReady = Object.values(this.jobData)
-            .map(j => j.isSelectionComplete())
-            .every(v => v)
+            .map((j) => j.isSelectionComplete())
+            .every((v) => v)
         return !allReady
     }
 }
@@ -213,7 +214,7 @@ export class ImportModal {
             backdrop: 'static'
         })
 
-        return modal.result.then(result => {
+        return modal.result.then((result) => {
             if (result) {
                 let promises = []
                 for (let k in result) {

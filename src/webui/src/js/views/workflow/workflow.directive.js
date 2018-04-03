@@ -40,7 +40,7 @@ app.component('workflow', {
                         return Object.values(
                             $scope.$ctrl.selectedInterpretation.excluded_allele_ids
                         )
-                            .map(excluded_group => excluded_group.length)
+                            .map((excluded_group) => excluded_group.length)
                             .reduce((total_length, length) => total_length + length)
                     }
                 }

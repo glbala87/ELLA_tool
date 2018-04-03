@@ -5,10 +5,10 @@ function postLogin({ http, path, state }) {
     }
     return http
         .post('users/actions/login/', payload)
-        .then(response => {
+        .then((response) => {
             return path.success(response)
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

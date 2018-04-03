@@ -12,7 +12,7 @@ export default function autoReuseExistingReferenceAssessments({ state, resolve, 
             const alleleState = resolve.value(getAlleleState(alleleId))
             for (let referenceAssessment of allele.reference_assessments) {
                 // Check whether it exists in state already
-                const raIdx = alleleState.referenceassessments.findIndex(ra => {
+                const raIdx = alleleState.referenceassessments.findIndex((ra) => {
                     return (
                         ra.reference_id === referenceAssessment.reference_id &&
                         ra.allele_id === referenceAssessment.allele_id

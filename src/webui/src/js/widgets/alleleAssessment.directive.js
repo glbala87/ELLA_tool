@@ -22,7 +22,7 @@ export class AlleleInfoVardb {
     getClassificationConfig() {
         let aclass = this.alleleassessment.classification
         if ('classification' in this.config && 'options' in this.config.classification) {
-            return this.config.classification.options.find(o => o.value === aclass)
+            return this.config.classification.options.find((o) => o.value === aclass)
         } else {
             return {}
         }

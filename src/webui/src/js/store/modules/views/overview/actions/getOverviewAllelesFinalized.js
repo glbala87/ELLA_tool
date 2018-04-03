@@ -6,7 +6,7 @@ function getOverviewAllelesFinalized({ module, http, path, props }) {
 
     return http
         .get(`overviews/alleles/finalized/?per_page=10&page=${selectedPage}`)
-        .then(response => {
+        .then((response) => {
             for (let item of response.result) {
                 processAlleles([item.allele], item.genepanel)
             }
@@ -22,7 +22,7 @@ function getOverviewAllelesFinalized({ module, http, path, props }) {
 
             return path.success({ result })
         })
-        .catch(response => {
+        .catch((response) => {
             return path.error(response)
         })
 }

@@ -14,9 +14,9 @@ export default class Analysis {
 
     getInterpretationState() {
         var STATE_PRIORITY = ['Not started', 'Ongoing', 'Done']
-        let states = this.interpretations.map(x => x.status)
+        let states = this.interpretations.map((x) => x.status)
         if (states.length) {
-            return states.sort(x => STATE_PRIORITY.indexOf(x))[0]
+            return states.sort((x) => STATE_PRIORITY.indexOf(x))[0]
         }
     }
 

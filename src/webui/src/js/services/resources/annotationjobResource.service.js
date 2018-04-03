@@ -66,7 +66,7 @@ export class AnnotationjobResource {
     }
 
     post(data) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let r = this.resource(
                 `${this.base}/import/service/jobs/`,
                 {},
@@ -76,7 +76,7 @@ export class AnnotationjobResource {
                     }
                 }
             )
-            r.post(data, o => {
+            r.post(data, (o) => {
                 resolve(o)
             })
         })
@@ -96,7 +96,7 @@ export class AnnotationjobResource {
             let data = { status: 'SUBMITTED' }
             r.patch(
                 data,
-                res => {
+                (res) => {
                     resolve(res)
                 },
                 reject

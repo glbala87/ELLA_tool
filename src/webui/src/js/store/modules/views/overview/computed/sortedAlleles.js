@@ -2,19 +2,19 @@ import { Compute } from 'cerebral'
 import { state, props, string } from 'cerebral/tags'
 
 export default function sortedAlleles(alleles) {
-    return Compute(alleles, alleles => {
+    return Compute(alleles, (alleles) => {
         if (alleles) {
             alleles = alleles.slice()
             alleles.sort(
-                firstBy(a => a.highest_analysis_priority, -1)
-                    .thenBy(a => {
+                firstBy((a) => a.highest_analysis_priority, -1)
+                    .thenBy((a) => {
                         // Ignore seconds/milliseconds when sorting
                         let d = new Date(a.oldest_analysis)
                         d.setSeconds(0, 0)
                         return d.toISOString()
                     })
-                    .thenBy(a => a.allele.annotation.filtered[0].symbol)
-                    .thenBy(a => {
+                    .thenBy((a) => a.allele.annotation.filtered[0].symbol)
+                    .thenBy((a) => {
                         if (a.allele.annotation.filtered[0].strand > 0) {
                             return a.allele.start_position
                         }

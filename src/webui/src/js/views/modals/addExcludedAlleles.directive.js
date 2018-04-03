@@ -12,12 +12,12 @@ const getGeneOptions = Compute(
         }
         const alleleIds = new Set(categoryAlleleIds)
         return alleleIdsByGene
-            .filter(a => {
-                return a.allele_ids.some(alleleId => {
+            .filter((a) => {
+                return a.allele_ids.some((alleleId) => {
                     return alleleIds.has(alleleId)
                 })
             })
-            .map(a => a.symbol)
+            .map((a) => a.symbol)
             .sort()
     }
 )
@@ -65,7 +65,7 @@ app.component('addExcludedAlleles', {
         'AddExcludedAlleles',
         [
             '$scope',
-            $scope => {
+            ($scope) => {
                 const $ctrl = $scope.$ctrl
 
                 $ctrl.modelCategory = 'all'
