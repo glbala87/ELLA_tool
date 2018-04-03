@@ -1,4 +1,4 @@
-import Genepanel from '../../src/js/model/genepanel'
+import Genepanel from './genepanel'
 
 const genepanel_defaults = {
     disease_mode: 'ANY',

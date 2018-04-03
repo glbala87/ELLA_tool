@@ -1,4 +1,4 @@
-import Annotation from '../../src/js/model/annotation.js'
+import Annotation from './annotation'
 
 describe('Annotation model', function() {
     // Mock data
