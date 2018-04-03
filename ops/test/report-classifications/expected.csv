@@ -1,6 +1,6 @@
 Gene	Transcript	HGVSc	Class	Prev. class	Superceeded date	Report	Analyses
-BRCA2	NM_000059.3	c.1233dupA	1			REPORT_COMMENT &~øæå 1	brca_e2e_test01.HBOC_v01
-BRCA2	NM_000059.3	c.289G>T	2			REPORT_COMMENT &~øæå 2	brca_e2e_test01.HBOC_v01,brca_e2e_test02.HBOCUTV_v01
-BRCA2	NM_000059.3	c.475+3A>G	3			REPORT_COMMENT &~øæå 3	brca_e2e_test01.HBOC_v01,brca_e2e_test02.HBOCUTV_v01
-BRCA2	NM_000059.3	c.581G>A	4			REPORT_COMMENT &~øæå 4	brca_e2e_test01.HBOC_v01,brca_e2e_test02.HBOCUTV_v01
-BRCA2	NM_000059.3	c.925dupT	5			REPORT_COMMENT &~øæå 5	brca_e2e_test01.HBOC_v01
+BRCA2	NM_000059.3	c.1233dupA	5			REPORT_COMMENT &~øæå 5	brca_e2e_test01.HBOC_v01
+BRCA2	NM_000059.3	c.289G>T	1			REPORT_COMMENT &~øæå 1	brca_e2e_test01.HBOC_v01,brca_e2e_test02.HBOCUTV_v01
+BRCA2	NM_000059.3	c.475+3A>G	2			REPORT_COMMENT &~øæå 2	brca_e2e_test01.HBOC_v01,brca_e2e_test02.HBOCUTV_v01
+BRCA2	NM_000059.3	c.581G>A	3			REPORT_COMMENT &~øæå 3	brca_e2e_test01.HBOC_v01,brca_e2e_test02.HBOCUTV_v01
+BRCA2	NM_000059.3	c.925dupT	4			REPORT_COMMENT &~øæå 4	brca_e2e_test01.HBOC_v01
