@@ -1,183 +1,157 @@
-<sectionbox color="red" ng-attr-id="'analysis-notready'" class="id-analysis-notready" remember-collapse="true" collapsed="true" ng-if="vm.overview">
-    <maintitle>NOT READY</maintitle>
-    <subtitle>
-      {{vm.overview.not_ready.length}}
-    </subtitle>
-    <contentwrapper>
-      <analysis-list analyses="vm.overview.not_ready"></analysis-list>
-      <h4 class="sb-notification dim" ng-if="!vm.overview.not_ready.length">No analyses are not ready</h4>
-    </contentwrapper>
-  </sectionbox>
-
-
-<div class="spacer"></div>
-
-<sectionbox color="green" ng-attr-id="'analysis-ours'" class="id-analysis-ours" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="green" class="id-analysis-ours" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'yourAnalyses')" collapsed="$ctrl.state.yourAnalyses.collapsed" ng-if="$ctrl.analyses">
   <maintitle>
     YOUR ANALYSES
   </maintitle>
   <subtitle>
-    {{vm.ongoing_user.length}}
+    {{$ctrl.analyses.ongoing_user.length}}
   </subtitle>
   <contentwrapper>
-    <analysis-list analyses="vm.ongoing_user"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.ongoing_user.length">You have no ongoing analyses</h4>
+    <analysis-list store-path="'views.overview.data.analyses.ongoing_user'"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.ongoing_user.length">You have no ongoing analyses</h4>
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-finding'" class="id-analysis-findings" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="green" class="id-analysis-findings" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'withFindings')" collapsed="$ctrl.state.withFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
   <maintitle>
     WITH FINDINGS: CLASS 3-5
   </maintitle>
   <subtitle>
-    {{vm.overview.not_started_with_findings.length}}
+    {{$ctrl.analyses.not_started_with_findings.length}}
   </subtitle>
   <contentwrapper>
-    <analysis-list analyses="vm.overview.not_started_with_findings"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.not_started_with_findings.length">No analyses with class 3-5 variants</h4>
+    <analysis-list store-path="'views.overview.data.analyses.not_started_with_findings'"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.not_started_with_findings.length">No analyses with class 3-5 variants</h4>
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-findings-normal'" class="id-analysis-findings-normal" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="green" class="id-analysis-findings-normal" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'withoutFindings')" collapsed="$ctrl.state.withoutFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
   <maintitle>
     ONLY NORMAL: CLASS 1-2 + U
   </maintitle>
   <subtitle>
-    {{vm.overview.not_started_without_findings.length}}
+    {{$ctrl.analyses.not_started_without_findings.length}}
   </subtitle>
   <contentwrapper>
-    <analysis-list analyses="vm.overview.not_started_without_findings"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.not_started_without_findings.length">No analyses with normal variants</h4>
+    <analysis-list store-path="'views.overview.data.analyses.not_started_without_findings'"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.not_started_without_findings.length">No analyses with normal variants</h4>
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-assessments-missing'" class="id-analysis-missing-classifications" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
+<sectionbox color="green" class="id-analysis-missing-classifications" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'missingClassifications')" collapsed="$ctrl.state.missingClassifications.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
     <maintitle>
       MISSING CLASSIFICATIONS
     </maintitle>
     <subtitle>
-      {{vm.overview.not_started_missing_alleleassessments.length}}
+      {{$ctrl.analyses.not_started_missing_alleleassessments.length}}
     </subtitle>
     <contentwrapper>
-      <analysis-list analyses="vm.overview.not_started_missing_alleleassessments"></analysis-list>
-      <h4 class="sb-notification dim" ng-if="!vm.overview.not_started_missing_alleleassessments.length">No analyses with missing classifications</h4>
+      <analysis-list store-path="'views.overview.data.analyses.not_started_missing_alleleassessments'"></analysis-list>
+      <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.not_started_missing_alleleassessments.length">No analyses with missing classifications</h4>
     </contentwrapper>
   </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'analysis-pending'" class="id-analysis-pending" remember-collapse="true" collapsed="true" ng-if="vm.overview && !vm.byFindings">
+<sectionbox color="green" class="id-analysis-pending" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingAnalysis')" collapsed="$ctrl.state.pendingAnalysis.collapsed" ng-if="$ctrl.analyses && !$ctrl.selectedSection == 'analyses-by-findings'">
   <maintitle>
     PENDING INTERPRETATION
   </maintitle>
   <subtitle>
-    {{vm.overview.not_started.length}}
+    {{$ctrl.analyses.not_started.length}}
   </subtitle>
   <contentwrapper>
-    <analysis-list analyses="vm.overview.not_started"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.not_started.length">No pending analyses</h4>
+    <analysis-list store-path="'views.overview.data.analyses.not_started'"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.not_started.length">No pending analyses</h4>
+  </contentwrapper>
+</sectionbox>
+
+
+<sectionbox color="purple" class="id-analysis-review-with-findings" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewWithFindings')" collapsed="$ctrl.state.reviewWithFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+    <maintitle>
+      PENDING REVIEW - WITH FINDINGS: CLASS 3-5
+    </maintitle>
+    <subtitle>
+      {{$ctrl.analyses.marked_review_with_findings.length}}
+    </subtitle>
+    <contentwrapper>
+      <analysis-list store-path="'views.overview.data.analyses.marked_review_with_findings'"></analysis-list>
+      <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.marked_review_with_findings.length">No analyses pending review.</h4>
+    </contentwrapper>
+  </sectionbox>
+
+  <sectionbox color="purple" class="id-analysis-review-without-findings" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewWithoutFindings')" collapsed="$ctrl.state.reviewWithoutFindings.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+      <maintitle>
+        PENDING REVIEW - ONLY NORMAL: CLASS 1-2 + U
+      </maintitle>
+      <subtitle>
+        {{$ctrl.analyses.marked_review_without_findings.length}}
+      </subtitle>
+      <contentwrapper>
+        <analysis-list store-path="'views.overview.data.analyses.marked_review_without_findings'"></analysis-list>
+        <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.marked_review_without_findings.length">No analyses pending review.</h4>
+      </contentwrapper>
+    </sectionbox>
+
+  <sectionbox color="purple" class="id-analysis-review-missing-classifications" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewMissingClassifications')" collapsed="$ctrl.state.reviewMissingClassifications.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-findings'">
+    <maintitle>
+      PENDING REVIEW - MISSING CLASSIFICATIONS
+    </maintitle>
+    <subtitle>
+      {{$ctrl.analyses.marked_review_missing_alleleassessments.length}}
+    </subtitle>
+    <contentwrapper>
+      <analysis-list store-path="'views.overview.data.analyses.marked_review_missing_alleleassessments'"></analysis-list>
+      <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.marked_review_missing_alleleassessments.length">No analyses pending review.</h4>
+    </contentwrapper>
+  </sectionbox>
+
+<sectionbox color="purple" class="id-analysis-review" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingReview')" collapsed="$ctrl.state.pendingReview.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection != 'analyses-by-findings'">
+  <maintitle>
+    PENDING REVIEW
+  </maintitle>
+  <subtitle>
+    {{$ctrl.analyses.marked_review.length}}
+  </subtitle>
+  <contentwrapper>
+    <analysis-list store-path="'views.overview.data.analyses.marked_review'"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.marked_review.length">No analyses pending review.</h4>
   </contentwrapper>
 </sectionbox>
 
 <div class="spacer"></div>
 
-<sectionbox color="purple" ng-attr-id="'analysis-review-with-findings'" class="id-analysis-review-with-findings" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
-  <maintitle>
-    PENDING REVIEW - WITH FINDINGS: CLASS 3-5
-  </maintitle>
-  <subtitle>
-    {{vm.overview.marked_review_with_findings.length}}
-  </subtitle>
-  <contentwrapper>
-    <analysis-list analyses="vm.overview.marked_review_with_findings"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review_with_findings.length">No analyses pending review.</h4>
-  </contentwrapper>
-</sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'analysis-review-without-findings'" class="id-analysis-review-without-findings" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
-    <maintitle>
-      PENDING REVIEW - ONLY NORMAL: CLASS 1-2 + U
-    </maintitle>
-    <subtitle>
-      {{vm.overview.marked_review_without_findings.length}}
-    </subtitle>
-    <contentwrapper>
-      <analysis-list analyses="vm.overview.marked_review_without_findings"></analysis-list>
-      <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review_without_findings.length">No analyses pending review.</h4>
-    </contentwrapper>
-  </sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'analysis-review-missing-classifications'" class="id-analysis-review-missing-classifications" remember-collapse="true" collapsed="true" ng-if="vm.overview && vm.byFindings">
-  <maintitle>
-    PENDING REVIEW - MISSING CLASSIFICATIONS
-  </maintitle>
-  <subtitle>
-    {{vm.overview.marked_review_missing_alleleassessments.length}}
-  </subtitle>
-  <contentwrapper>
-    <analysis-list analyses="vm.overview.marked_review_missing_alleleassessments"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review_missing_alleleassessments.length">No analyses pending review.</h4>
-  </contentwrapper>
-</sectionbox>
-
-<sectionbox color="purple" ng-attr-id="'analysis-review'" class="id-analysis-review" remember-collapse="true" collapsed="true" ng-if="vm.overview && !vm.byFindings">
-    <maintitle>
-      PENDING REVIEW
-    </maintitle>
-    <subtitle>
-      {{vm.overview.marked_review.length}}
-    </subtitle>
-    <contentwrapper>
-      <analysis-list analyses="vm.overview.marked_review"></analysis-list>
-      <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review.length">No analyses pending review.</h4>
-    </contentwrapper>
-  </sectionbox>
-
-<sectionbox color="purple" ng-attr-id="'analysis-medicalreview'" class="id-analysis-medicalreview" remember-collapse="true" collapsed="true" ng-if="vm.overview">
-  <maintitle>
-    PENDING MEDICAL REVIEW
-  </maintitle>
-  <subtitle>
-    {{vm.overview.marked_medicalreview.length}}
-  </subtitle>
-  <contentwrapper>
-    <analysis-list analyses="vm.overview.marked_medicalreview"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_medicalreview.length">No analyses pending medical review.</h4>
-  </contentwrapper>
-</sectionbox>
-
-<div class="spacer"></div>
-
-<sectionbox color="blue" ng-attr-id="'analysis-others'" class="id-analysis-others" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="blue" class="id-analysis-others" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'othersAnalyses')" collapsed="$ctrl.state.othersAnalyses.collapsed" ng-if="$ctrl.analyses">
   <maintitle>
     OTHERS' ANALYSES
   </maintitle>
   <subtitle>
-    {{vm.ongoing_others.length}}
+    {{$ctrl.analyses.ongoing_others.length}}
   </subtitle>
   <contentwrapper>
-    <analysis-list analyses="vm.ongoing_others"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.ongoing_others.length">Others have no analyses</h4>
+    <analysis-list store-path="'views.overview.data.analyses.ongoing_others'"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.analyses.ongoing_others.length">Others have no analyses</h4>
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="blue" ng-attr-id="'analysis-finished'" class="id-analysis-finished" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="blue" class="id-analysis-finished" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'finished')" collapsed="$ctrl.state.finished.collapsed" ng-if="$ctrl.analyses">
   <maintitle>
     FINISHED
   </maintitle>
   <subtitle>
-    {{vm.finalized.pagination.totalCount}}
+    {{$ctrl.finalized.pagination.totalCount}}
   </subtitle>
   <controls>
-        <uib-pagination total-items="vm.finalized.pagination.totalCount"
-        ng-model="vm.finalized_page"
+        <uib-pagination total-items="$ctrl.finalized.pagination.totalCount"
+        ng-model="$ctrl.finalized_page"
         class="pagination-sm"
-        ng-change="vm.finalizedPageChanged()"
-        items-per-page="vm.finalized.pagination.perPage"
+        ng-change="$ctrl.finalizedPageChanged({section: $ctrl.selectedSection, page: $ctrl.finalized_page})"
+        items-per-page="$ctrl.finalized.pagination.perPage"
         max-size="5"
         rotate="false">
       </uib-pagination>
   </controls>
   <contentwrapper>
-    <analysis-list sort="false" analyses="vm.finalized.data"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!vm.finalized.data.length">No finished analysis</h4>
+    <analysis-list sort="false" ng-if="$ctrl.finalized" store-path="'views.overview.data.analysesFinalized.entries'"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.finalized.entries.length">No finished analysis</h4>
   </contentwrapper>
 </sectionbox>

@@ -4,19 +4,21 @@
   </maintitle>
   <contentwrapper class="report">
     <wysiwyg-editor class="control-comment id-report-comment"
-      ng-disabled="!$ctrl.readOnly"
+      ng-disabled="$ctrl.readOnly"
       placeholder="REPORT COMMENT"
-      ng-model="vm.state.report.comment"></wysiwyg-editor>
+      ng-model="$ctrl.reportComment"
+      ng-change="$ctrl.reportCommentChanged({comment: $ctrl.reportComment})"
+      ></wysiwyg-editor>
     <h4 class="section-header">Clinical report</h4>
 
-    <h4 ng-if="!vm.alleles.length && vm.readOnly" class="sb-notification dim">No variants added.</h4>
-    <h4 ng-if="!vm.alleles.length && !vm.readOnly" class="sb-notification dim">No variants added. You can add variants from the classified variants on sidebar to the left.</h4>
+    <h4 ng-if="!$ctrl.reportAlleles.length && $ctrl.readOnly" class="sb-notification dim">No variants added.</h4>
+    <h4 ng-if="!$ctrl.reportAlleles.length && !$ctrl.readOnly" class="sb-notification dim">No variants added. You can add variants from the classified variants on sidebar to the left.</h4>
 
-    <div ng-if="vm.alleles.length" class="included-report">
+    <div ng-if="$ctrl.reportAlleles.length" class="included-report">
       <div class="report-entry"
-           ng-repeat="al in vm.getAlleles() track by al.id">
-        <h5>{{vm.formatHGVS(al)}}</h5>
-        <div class="content" ng-bind-html="vm.getAlleleReportComment(al)"></div>
+           ng-repeat="item in $ctrl.reportAlleles">
+        <h5>{{item.hgvsc}}</h5>
+        <div class="content" ng-bind-html="item.comment"></div>
       </div>
     </div>
   </contentwrapper>

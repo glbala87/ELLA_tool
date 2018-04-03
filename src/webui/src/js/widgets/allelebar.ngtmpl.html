@@ -1,12 +1,12 @@
 <table>
-  <tr ng-repeat="t in vm.allele.annotation.filtered | orderBy:'transcript'">
-    <td ng-if="vm.genepanel && vm.getGenepanelValues(t.symbol).inheritance !== ''">
+  <tr ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript">
+    <td ng-if="$ctrl.genepanel && $ctrl.getGenepanelValues(t.symbol).inheritance !== ''">
       <h3 class="full-title">
-        <gpv source="vm.getGenepanelValues(t.symbol)" display="inheritance" mode="_"></gpv>
+        <gpv source="$ctrl.getGenepanelValues(t.symbol)" display="inheritance" mode="_"></gpv>
       </h3>
     </td>
 
-    <td ng-if="vm.genepanel">
+    <td ng-if="$ctrl.genepanel">
       <h3 class="full-title">
         <div class="allele_popup" isolate-click>
           <span  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
@@ -21,15 +21,13 @@
         </div>
       </h3>
     </td>
-    <td  ng-if="!vm.genepanel">
+    <td  ng-if="!$ctrl.genepanel">
       <h3 class="full-title">
         <span  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html">
           {{t.symbol}} ({{t.exon}})
         </span>
       </h3>
     </td>
-
-
 
     <td>
       <h3 class="full-title">
@@ -41,7 +39,7 @@
                            popover-title="HGVS cDNA"
                            popover-class="popover-title-no-uppercase"
                            popover-placement="bottom">
-            <i>{{t.transcript}}:</i><b>{{t.HGVSc_short || vm.allele.getHGVSgShort()}}</b> {{vm.getGenotype()}}
+            <i>{{t.transcript}}:</i><b>{{t.HGVSc_short || $ctrl.allele.formatted.hgvsg}}</b> {{$ctrl.allele.formatted.genotype}}
           </span>
         </div>
       </h3>
@@ -56,7 +54,7 @@
                            uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
                            popover-title="HGVS protein"
                            popover-placement="bottom">
-            <i ng-if="t.HGVSp">{{t.protein}}:</i><b>{{t.HGVSp}}</b> ({{vm.formatCodons(t.codons)}})
+            <i ng-if="t.HGVSp">{{t.protein}}:</i><b>{{t.HGVSp}}</b> ({{$ctrl.formatCodons(t.codons)}})
           </span>
         </div>
       </h3>
@@ -75,7 +73,7 @@
     </td>
 
     <td>
-      <h3 class="full-title">{{vm.allele.formatGenomicPosition()}}</h3>
+      <h3 class="full-title">{{$ctrl.allele.formatted.genomicPosition}}</h3>
     </td>
 
 

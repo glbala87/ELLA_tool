@@ -1,5 +1,3 @@
-import { Directive, Inject } from '../../ng-decorators'
-
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
@@ -10,7 +8,7 @@ app.component('alleleInfoReferenceDetail', {
     bindings: {
         referenceId: '='
     },
-    templateUrl: 'ngtmpl/alleleInfoReferenceDetail-new.ngtmpl.html',
+    templateUrl: 'ngtmpl/alleleInfoReferenceDetail.ngtmpl.html',
     controller: connect(
         {
             selectedAllele: state`views.workflows.selectedAllele`,
@@ -44,15 +42,3 @@ app.component('alleleInfoReferenceDetail', {
         ]
     )
 })
-
-@Directive({
-    selector: 'allele-info-reference-detail-old',
-    templateUrl: 'ngtmpl/alleleInfoReferenceDetail.ngtmpl.html',
-    scope: {
-        reference: '=',
-        vm: '='
-    },
-    replace: true
-})
-@Inject('$scope')
-export class AlleleInfoReferenceDetail {}

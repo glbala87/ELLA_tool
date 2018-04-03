@@ -7,7 +7,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, string, signal } from 'cerebral/tags'
 
 app.component('alleleInfoPredictionOther', {
-    templateUrl: 'ngtmpl/alleleInfoPredictionOther-new.ngtmpl.html',
+    templateUrl: 'ngtmpl/alleleInfoPredictionOther.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

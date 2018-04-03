@@ -1,15 +1,15 @@
 <contentbox class="full-max-width id-acmg-container"
             title="SUGGESTED"
-            disabled="vm.readOnly || vm.isAlleleAssessmentReused()"
+            disabled="$ctrl.readOnly || vm.isAlleleAssessmentReused()"
             >
   <cbbody>
     <section class="line-wrapper spaced">
 
       <div class="id-acmg-show-hide-req">
         <checkable-button buttonclass="blue"
-                          check-model="vm.show_req">
+                          check-model="$ctrl.showReq">
           <checked>Hide REQ</checked>
-          Show REQ ({{vm.getREQCodeCount()}})
+          Show REQ
         </checkable-button>
 
       </div>
@@ -22,24 +22,24 @@
         <h4 class="section-title acmg-body">ACMG Suggested</h4>
         <section class="acmg-wrapper">
           <acmg code="code"
-                ng-repeat="code in vm.getAlleleAssessment().evaluation.acmg.suggested"
-                on-toggle="vm.includeACMG(code)"
+                ng-repeat="code in $ctrl.suggestedAcmgCodes"
+                on-toggle="$ctrl.addAcmgClicked({alleleId: $ctrl.allele.id, code: {code: code.code, match: code.match, op: code.op, source: code.source}})"
                 toggle-text="ADD"
-                ng-if="vm.isIncludable(code.code)"
-                editable="vm.isEditable() && !vm.readOnly">
+                adjustable="false"
+                editable="!$ctrl.readOnly">
           </acmg>
         </section>
     </div>
 
     <!-- REQ codes -->
     <!-- Don't use 'track by $index' -->
-    <div class="id-acmg-suggested-req" ng-if="vm.show_req">
+    <div class="id-acmg-suggested-req" ng-if="$ctrl.showReq">
         <h4 class="section-title acmg-body">ACMG REQ</h4>
         <section class="acmg-wrapper">
           <acmg code="group"
-                ng-repeat="group in vm.req_groups"
+                ng-repeat="group in $ctrl.reqCodes"
                 add-required-for-code="vm.addACMGCodeFromString(code)"
-                editable="vm.isEditable() && !vm.readOnly">
+                editable="vm.isEditable() && !$ctrl.readOnly">
           </acmg>
         </section>
     </div>

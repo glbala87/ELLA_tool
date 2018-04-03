@@ -2,274 +2,267 @@
 
   <!--Spacers-->
   <div class="nav-bottom-allelebar-spacer"></div>
-  <div ng-if="vm.selected" ng-repeat="t in vm.selected.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>
+  <div ng-if="$ctrl.selectedAllele" ng-repeat="t in $ctrl.selectedAllele.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>
 
   <h4 class="section-title">Unclassified variants</h4>
 
+
   <section class="id-unclassified enabled">
     <div class="nav-table">
-      <div class="nav-row top" ng-if="vm.alleles.unclassified.length">
-        <div class="cell" title="Sample type" ng-click="vm.sortBy('unclassified','type')">
+      <div class="nav-row top" ng-if="$ctrl.unclassified.length">
+        <div class="cell" title="Sample type" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'type'})">
           T
-          <span ng-if="vm.orderBy.unclassified[0] === 'type'">
-            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.unclassified.key === 'type'">
+            <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="Inheritance" ng-click="vm.sortBy('unclassified','inheritance')">
+        <div class="cell" title="Inheritance" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'inheritance'})">
           INH
-          <span ng-if="vm.orderBy.unclassified[0] === 'inheritance'">
-            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.unclassified.key === 'inheritance'">
+            <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="Gene" ng-click="vm.sortBy('unclassified','gene')">
+        <div class="cell" title="Gene" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'gene'})">
           GENE
-          <span ng-if="vm.orderBy.unclassified[0] === 'gene'">
-            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.unclassified.key === 'gene'">
+            <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="HGVSc" ng-click="vm.sortBy('unclassified','hgvsc')">
+        <div class="cell" title="HGVSc" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'hgvsc'})">
           HGVSc
-          <span ng-if="vm.orderBy.unclassified[0] === 'hgvsc'">
-            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.unclassified.key === 'hgvsc'">
+            <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="Consequence" ng-click="vm.sortBy('unclassified','consequence')">
+        <div class="cell" title="Consequence" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'consequence'})">
           CSQ
-          <span ng-if="vm.orderBy.unclassified[0] === 'consequence'">
-            <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.unclassified.key === 'consequence'">
+            <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
           </span>
         </div>
         <div class="cell indicators">
           <div title="Homozygous" class="top">
-            <div class="hit" ng-click="vm.sortBy('unclassified', 'homozygous')">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'homozygous'})">
               <span>O</span>
-              <span ng-if="vm.orderBy.unclassified[0] === 'homozygous'">
-                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              <span ng-if="$ctrl.orderBy.unclassified.key === 'homozygous'">
+                <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
               </span>
             </div>
           </div>
           <div title="Quality issues" class="top">
-            <div class="hit" ng-click="vm.sortBy('unclassified', 'quality')">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'quality'})">
               <span>Q</span>
-              <div ng-if="vm.orderBy.unclassified[0] === 'quality'">
-                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              <div ng-if="$ctrl.orderBy.unclassified.key === 'quality'">
+                <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
               </div>
             </div>
           </div>
           <div title="Reference(s) available" class="top">
-            <div class="hit" ng-click="vm.sortBy('unclassified', 'references')">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'references'})">
               <span>R</span>
-              <div ng-if="vm.orderBy.unclassified[0] === 'references'">
-                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              <div ng-if="$ctrl.orderBy.unclassified.key === 'references'">
+                <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
               </div>
             </div>
           </div>
-          <div title="3hetAR" class="top">
-            <div class="hit" ng-click="vm.sortBy('unclassified', '3hetAR')">
+          <!--  FIXME: Will be a bit of work to fix this one, clarify whether used
+            <div title="3hetAR" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: '3hetAR'})">
               <span>3</span>
-              <div ng-if="vm.orderBy.unclassified[0] === '3hetAR'">
-                <span ng-if="vm.orderBy.unclassified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.unclassified[1]">&#8595;</span>
+              <div ng-if="$ctrl.orderBy.unclassified.key === '3hetAR'">
+                <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="nav-row spacer"></div>
-      <div class="nav-row allele" title="Allele ID {{ allele_obj.allele.id }}"
-           ng-class="{'active': vm.isSelected(allele_obj), 'multiple': vm.isMultipleInAlleleGenes(allele_obj.allele), 'technical': vm.isTechnical(allele_obj.alleleState)}"
-           ng-repeat="allele_obj in vm.unclassified_alleles track by allele_obj.allele.id"
-           ng-click="vm.select(allele_obj)">
-
-        <div title="{{vm.getSampleTypesFull(allele_obj.allele)}}" class="cell sample-type id-sample-type">
-          {{vm.getSampleType(allele_obj.allele)}}
+      <div class="nav-row allele" ng-repeat="allele in $ctrl.unclassified track by allele.id" title="Allele ID {{ allele.id }}"
+            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj), 'multiple': $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}"
+            ng-click="$ctrl.rowClicked(allele.id, 'unclassified')">
+        <div title="{{$ctrl.getSampleTypesFull(allele)}}" class="cell sample-type id-sample-type">
+            {{$ctrl.getSampleType(allele)}}
         </div>
         <div title="Inheritance" class="cell inheritance id-inheritance">
-          {{vm.getInheritance(allele_obj.allele)}}
+            {{allele.formatted.inheritance}}
         </div>
         <div class="cell gene id-gene">
-          {{allele_obj.allele.annotation.filtered[0].symbol}}
+            {{allele.annotation.filtered[0].symbol}}
         </div>
         <div class="cell hgvsc id-hgvsc">
-          {{allele_obj.allele.annotation.filtered[0].HGVSc_short || allele_obj.allele.getHGVSgShort()}}
+            {{allele.annotation.filtered[0].HGVSc_short}}
         </div>
-        <div class="cell consequence id-consequence" ng-class="{'hit': vm.isNonsense(allele_obj.allele)}">
-          {{vm.getConsequence(allele_obj.allele)}}
+        <div class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}">
+            {{$ctrl.consequence[allele.id]}}
         </div>
         <div class="cell indicators id-indicators">
-          <div title="Homozygous" class="hom">
-            <div class="hit" ng-if="vm.isHomozygous(allele_obj.allele)">
-              <span>O</span>
+            <div title="Homozygous" class="hom">
+            <div class="hit" ng-if="$ctrl.isHomozygous[allele.id]">
+                <span>O</span>
             </div>
-          </div>
-          <!--Quality-->
-          <div title="{{vm.getQualityTextPopover(allele_obj)}}" ng-class="vm.getQualityClass(allele_obj)">
-            <div class="hit" ng-if="vm.hasQualityInformation(allele_obj)">
-              <span>{{vm.getQualityTag(allele_obj)}}</span>
             </div>
-          </div>
-          <div title="Reference(s) available" class="important-source">
-            <div class="hit" ng-if="vm.isImportantSource(allele_obj.allele)">
-              <span>R</span>
+            <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
+              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele.id)">
+                <span>{{$ctrl.getQualityTag(allele.id)}}</span>
+              </div>
             </div>
-          </div>
-          <div class="three-het-ar">
-            <div title="3hetAR"  class="hit" ng-if="vm.is3hetAR(allele_obj.allele)">
-              <span>3</span>
+            <div class="important-source">
+            <div title="Reference(s) available"  class="hit" ng-if="$ctrl.isImportantSource[allele.id]">
+                <span>R</span>
             </div>
-          </div>
+            </div>
+            <!--  FIXME: Will be a bit of work to fix this one, clarify whether used
+            <div class="three-het-ar">
+            <div title="3hetAR"  class="hit" ng-if="$ctrl.is3hetAR">
+                <span>3</span>
+            </div>
+            </div> -->
         </div>
-        <div class="cell classification id-classification">
-        </div>
-        <div class="cell tab"> </div>
-
-      </div>
+        <div class="cell tab"></div>
     </div>
   </section>
+
+
 
   <h4 class="section-title">Classified variants</h4>
 
   <section class="id-classified enabled">
     <div class="nav-table">
-      <div class="nav-row top" ng-if="vm.alleles.classified.length">
-        <div class="cell" title="Sample type" ng-click="vm.sortBy('classified','type')">
+      <div class="nav-row top" ng-if="$ctrl.classified.length">
+        <div class="cell" title="Sample type" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'type'})">
           T
-          <span ng-if="vm.orderBy.classified[0] === 'type'">
-            <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.classified.key === 'type'">
+            <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="Inheritance" ng-click="vm.sortBy('classified','inheritance')">
+        <div class="cell" title="Inheritance" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'inheritance'})">
           INH
-          <span ng-if="vm.orderBy.classified[0] === 'inheritance'">
-            <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.classified.key === 'inheritance'">
+            <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="Gene" ng-click="vm.sortBy('classified','gene')">
+        <div class="cell" title="Gene" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'gene'})">
           GENE
-          <span ng-if="vm.orderBy.classified[0] === 'gene'">
-            <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.classified.key === 'gene'">
+            <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="HGVSc" ng-click="vm.sortBy('classified','hgvsc')">
+        <div class="cell" title="HGVSc" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'hgvsc'})">
           HGVSc
-          <span ng-if="vm.orderBy.classified[0] === 'hgvsc'">
-            <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.classified.key === 'hgvsc'">
+            <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
           </span>
         </div>
-        <div class="cell" title="Consequence" ng-click="vm.sortBy('classified','consequence')">
+        <div class="cell" title="Consequence" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'consequence'})">
           CSQ
-          <span ng-if="vm.orderBy.classified[0] === 'consequence'">
-            <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-            <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+          <span ng-if="$ctrl.orderBy.classified.key === 'consequence'">
+            <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
           </span>
         </div>
         <div class="cell indicators">
           <div title="Homozygous" class="top">
-            <div class="hit" ng-click="vm.sortBy('classified', 'homozygous')">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'homozygous'})">
               <span>O</span>
-              <span ng-if="vm.orderBy.classified[0] === 'homozygous'">
-                <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+              <span ng-if="$ctrl.orderBy.classified.key === 'homozygous'">
+                <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
               </span>
             </div>
           </div>
           <div title="Quality issues" class="top">
-            <div class="hit" ng-click="vm.sortBy('classified', 'quality')">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'quality'})">
               <span>Q</span>
-              <div ng-if="vm.orderBy.classified[0] === 'quality'">
-                <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+              <div ng-if="$ctrl.orderBy.classified.key === 'quality'">
+                <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
               </div>
             </div>
           </div>
           <div title="Reference(s) available" class="top">
-            <div class="hit" ng-click="vm.sortBy('classified', 'references')">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'references'})">
               <span>R</span>
-              <div ng-if="vm.orderBy.classified[0] === 'references'">
-                <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+              <div ng-if="$ctrl.orderBy.classified.key === 'references'">
+                <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
               </div>
             </div>
           </div>
-          <div title="3hetAR" class="top">
-            <div class="hit" ng-click="vm.sortBy('classified', '3hetAR')">
+          <!-- <div title="3hetAR" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: '3hetAR'})">
               <span>3</span>
-              <div ng-if="vm.orderBy.classified[0] === '3hetAR'">
-                <span ng-if="vm.orderBy.classified[1]">&#8593;</span>
-                <span ng-if="!vm.orderBy.classified[1]">&#8595;</span>
+              <div ng-if="$ctrl.orderBy.classified.key === '3hetAR'">
+                <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="nav-row spacer"></div>
-      <div class="nav-row allele" title="Allele ID {{ allele_obj.allele.id }}"
-           ng-class="{'active': vm.isSelected(allele_obj) || vm.isToggled(allele_obj), 'toggled': vm.isToggled(allele_obj), 'togglable': vm.isTogglable(allele_obj), 'multiple': vm.isMultipleInAlleleGenes(allele_obj.allele), 'technical': vm.isTechnical(allele_obj.alleleState)}"
-           ng-repeat="allele_obj in vm.classified_alleles track by allele_obj.allele.id"
-           ng-click="vm.select(allele_obj)">
-        <div title="{{vm.getSampleTypesFull(allele_obj.allele)}}" class="cell sample-type id-sample-type">
-          {{vm.getSampleType(allele_obj.allele)}}
+      <div class="nav-row allele" ng-repeat="allele in $ctrl.classified track by allele.id" title="Allele ID {{ allele.id }}"
+            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled[allele.id], 'toggled': $ctrl.isToggled[allele.id], 'togglable': $ctrl.isTogglable[allele.id], 'multiple': $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}"
+            ng-click="$ctrl.rowClicked(allele.id, 'classified')">
+        <div title="{{$ctrl.getSampleTypesFull(allele)}}" class="cell sample-type id-sample-type">
+            {{$ctrl.getSampleType(allele)}}
         </div>
         <div title="Inheritance" class="cell inheritance id-inheritance">
-          {{vm.getInheritance(allele_obj.allele)}}
+            {{allele.formatted.inheritance}}
         </div>
         <div class="cell gene id-gene">
-          {{allele_obj.allele.annotation.filtered[0].symbol}}
+            {{allele.annotation.filtered[0].symbol}}
         </div>
         <div class="cell hgvsc id-hgvsc">
-          {{allele_obj.allele.annotation.filtered[0].HGVSc_short || allele_obj.allele.getHGVSgShort()}}
+            {{allele.annotation.filtered[0].HGVSc_short}}
         </div>
-        <div class="cell consequence id-consequence">
-          {{vm.getConsequence(allele_obj.allele)}}
+        <div class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}">
+            {{$ctrl.consequence[allele.id]}}
         </div>
         <div class="cell indicators id-indicators">
-          <div title="Homozygous" class="hom">
-            <div class="hit" ng-if="vm.isHomozygous(allele_obj.allele)">
-              <span>O</span>
+            <div title="Homozygous" class="hom">
+            <div class="hit" ng-if="$ctrl.isHomozygous[allele.id]">
+                <span>O</span>
             </div>
-          </div>
-          <!--Quality-->
-          <div title="{{vm.getQualityTextPopover(allele_obj)}}" ng-class="vm.getQualityClass(allele_obj)">
-            <div class="hit" ng-if="vm.hasQualityInformation(allele_obj)">
-              <span>{{vm.getQualityTag(allele_obj)}}</span>
             </div>
-          </div>
-          <div class="important-source">
-            <div title="Reference(s) available"  class="hit" ng-if="vm.isImportantSource(allele_obj.allele)">
-              <span>R</span>
+            <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
+              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele.id)">
+                <span>{{$ctrl.getQualityTag(allele.id)}}</span>
+              </div>
             </div>
-          </div>
-          <div class="three-het-ar">
-            <div title="3hetAR"  class="hit" ng-if="vm.is3hetAR(allele_obj.allele)">
-              <span>3</span>
+            <div class="important-source">
+            <div title="Reference(s) available"  class="hit" ng-if="$ctrl.isImportantSource[allele.id]">
+                <span>R</span>
             </div>
-          </div>
+            </div>
+            <!-- <div class="three-het-ar">
+            <div title="3hetAR"  class="hit" ng-if="$ctrl.is3hetAR">
+                <span>3</span>
+            </div>
+            </div> -->
         </div>
         <div class="cell classification id-classification">
-          {{vm.getClassification(allele_obj.allele, allele_obj.alleleState)}}
+          {{$ctrl.getClassificationText(allele.id)}}
         </div>
-
         <div class="cell tab"
-             title="{{vm.isTogglable(allele_obj) && vm.readOnly ? 'Not allowed (read-only)' : ''}}">
-          <div ng-if="vm.isTogglable(allele_obj)" class="added">
-            <h5 ng-if="vm.isToggled(allele_obj)">-</h5>
-            <h5 ng-if="! vm.isToggled(allele_obj)">+</h5>
+             title="{{$ctrl.isTogglable[allele.id] && $ctrl.readOnly ? 'Not allowed (read-only)' : ''}}">
+          <div ng-if="$ctrl.isTogglable[allele.id]" class="added">
+            <h5 ng-if="$ctrl.isToggled[allele.id]">-</h5>
+            <h5 ng-if="!$ctrl.isToggled[allele.id]">+</h5>
           </div>
         </div>
-      </div>
     </div>
   </section>
-
 </div>

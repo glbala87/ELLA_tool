@@ -13,6 +13,9 @@ export default function getClassification(alleleId, raw = false) {
             }
 
             const alleleAssessment = get(getAlleleAssessment(allele.id))
+            if (!alleleAssessment) {
+                return
+            }
             const classification = alleleAssessment.classification
                 ? alleleAssessment.classification
                 : ''

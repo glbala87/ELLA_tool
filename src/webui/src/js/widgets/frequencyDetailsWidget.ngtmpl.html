@@ -1,26 +1,26 @@
 <div class="cb-warning" ng-if="vm.isFilterFail(freq_type)" ng-repeat="freq_type in vm.getFreqTypes()">FILTER: {{vm.getFilter(freq_type).join(', ')}}</div>
-<div class="cb-table id-frequency-{{ vm.group }}" ng-if="vm.frequencies.length > 0">
+<div class="cb-table id-frequency-{{ vm.group }}" ng-if="$ctrl.frequencies.frequencies.length > 0">
   <div class="tabular-row">
   <div class="cell"><h4 class="faded-title">Pop</h4></div>
-  <div class="cell" ng-repeat="field in vm.fields"> <!-- table headers -->
+  <div class="cell" ng-repeat="field in $ctrl.frequencies.fields"> <!-- table headers -->
     <h4 class="faded-title">{{field}}</h4>
   </div>
   </div>
-  <div class="tabular-row exac" ng-repeat="freq_data in vm.frequencies | orderBy:'name'">
-    <div class="cell"><h5>{{freq_data.name}}:</h5></div>
-    <div class="cell" ng-repeat="field in vm.fields">
-      <p>{{vm.formatValue(freq_data, field)}}</p>
+  <div class="tabular-row exac" ng-repeat="freqData in $ctrl.frequencies.frequencies">
+    <div class="cell"><h5>{{freqData.name}}:</h5></div>
+    <div class="cell" ng-repeat="field in $ctrl.frequencies.fields">
+      <p>{{freqData[field]}}</p>
     </div>
   </div>
 </div>
-<div class="cb-table" ng-repeat="freq_type in vm.getFreqTypes()" ng-if="vm.showIndications(freq_type)">
+<div class="cb-table" ng-repeat="indications in $ctrl.frequencies.indications" ng-if="$ctrl.frequencies.indications.length">
   <div class="tabular-row">
-    <div class="cell"><h5>{{freq_type}} indications:</h5></div>
+    <div class="cell"><h5>{{indications.name}} indications:</h5></div>
     <div class="cell"></div>
   </div>
-  <div class="tabular-row" ng-repeat="(k, v) in vm.allele.annotation.frequencies[vm.group].indications[freq_type]">
-    <div class="cell"><p>- {{k}}:</p></div>
-    <div class="cell"><p>{{v}}</p></div>
+  <div class="tabular-row" ng-repeat="i in indications.indications">
+    <div class="cell"><p>- {{i.name}}:</p></div>
+    <div class="cell"><p>{{i.value}}</p></div>
   </div>
   </ng-if>
 </div>

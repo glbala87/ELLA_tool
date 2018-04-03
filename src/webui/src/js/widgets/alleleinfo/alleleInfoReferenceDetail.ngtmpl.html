@@ -1,17 +1,17 @@
 <section class="line-wrapper spaced">
     <div>
         <h5 class="wrap">
-            <a-clip ng-if="reference.getPubmedUrl()" class="id-reference-title" href="{{reference.getPubmedUrl()}}">{{reference.title}}</a-clip>
-            <span ng-if="!reference.getPubmedUrl()" class="id-reference-title">{{reference.title}}</span>
+            <a-clip ng-if="$ctrl.reference.urls.pubmed" class="id-reference-title" href="{{$ctrl.reference.urls.pubmed}}">{{$ctrl.reference.title}}</a-clip>
+            <span ng-if="!$ctrl.reference.urls.pubmed" class="id-reference-title">{{$ctrl.reference.title}}</span>
         </h5>
-        <p>{{reference.getShortDesc()}}</p>
+        <p>{{$ctrl.reference.formatted.shortDesc}}</p>
     </div>
     <div class="nowrap">
         <button class="blue id-reference-evaluate"
-                ng-click="vm.showReferenceEval(reference)"
-                >{{vm.getEvaluateBtnText(reference)}}</button>
+                ng-click="$ctrl.evaluateReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.reference.id})"
+                >{{$ctrl.getEvaluateBtnText()}}</button>
         <button class="blue id-reference-evaluate" ng-disabled="vm.readOnly"
-                ng-click="vm.quickIgnore(reference)"
+                ng-click="$ctrl.ignoreReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.referenceId})"
                 >Ignore</button>
     </div>
 </section>
