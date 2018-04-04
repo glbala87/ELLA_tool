@@ -25,8 +25,9 @@
                 ng-repeat="code in $ctrl.suggestedAcmgCodes"
                 on-toggle="$ctrl.addAcmgClicked({alleleId: $ctrl.allele.id, code: {code: code.code, match: code.match, op: code.op, source: code.source}})"
                 toggle-text="ADD"
-                adjustable="false"
-                editable="!$ctrl.readOnly">
+                is-upgradable="$ctrl.isUpgradeOrDowngradable"
+                is-downgradable="$ctrl.isUpgradeOrDowngradable"
+                editable="$ctrl.isEditable()">
           </acmg>
         </section>
     </div>
@@ -38,8 +39,10 @@
         <section class="acmg-wrapper">
           <acmg code="group"
                 ng-repeat="group in $ctrl.reqCodes"
-                add-required-for-code="vm.addACMGCodeFromString(code)"
-                editable="vm.isEditable() && !$ctrl.readOnly">
+                is-upgradable="$ctrl.isUpgradeOrDowngradable"
+                is-downgradable="$ctrl.isUpgradeOrDowngradable"
+                add-required-for-code="$ctrl.addAcmgFromReq(code)"
+                editable="$ctrl.isEditable()">
           </acmg>
         </section>
     </div>

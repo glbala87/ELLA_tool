@@ -48,10 +48,16 @@ export class AcmgController {
     }
 
     isUpgradable() {
+        if (Array.isArray(this.code)) {
+            return false
+        }
         return ACMGHelper.canUpgradeCodeObj(this.code, this.config)
     }
 
     isDowngradable() {
+        if (Array.isArray(this.code)) {
+            return false
+        }
         return ACMGHelper.canDowngradeCodeObj(this.code, this.config)
     }
 
