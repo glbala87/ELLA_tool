@@ -1,6 +1,6 @@
-#Prøvedato	Prosjektnummer	Prøvenummer	Genpanel	Startposisjon (HGVSg)	Stopposisjon (HGVSg)	Gen	Transkript	HGVSc	Klasse	Må verifiseres?
-2017-12-02	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32893343N>N	chr13:g.32893344N>N	BRCA2	NM_000059.3	c.198A>G	Ny	Nei
-2017-12-02	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32893434N>N	chr13:g.32893435N>N	BRCA2	NM_000059.3	c.289G>T	1	Nei
-2017-12-02	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32900289N>N	chr13:g.32900290N>N	BRCA2	NM_000059.3	c.475+3A>G	2	Nei
-2017-12-02	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32900699N>N	chr13:g.32900700N>N	BRCA2	NM_000059.3	c.581G>A	3	Nei
-2017-12-02	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32890606N>N	chr13:g.32890607N>N	BRCA2	NM_000059.3	c.10G>T	Ny	Nei
+#Importdato	Prosjektnummer	Prøvenummer	Genpanel	Startposisjon (HGVSg)	Stopposisjon (HGVSg)	Gen	Transkript	HGVSc	Klasse	Må verifiseres?
+2018-04-04	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32890606N>N	chr13:g.32890607N>N	BRCA2	NM_000059.3	c.10G>T	Ny	Nei
+2018-04-04	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32893343N>N	chr13:g.32893344N>N	BRCA2	NM_000059.3	c.198A>G	Ny	Nei
+2018-04-04	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32893434N>N	chr13:g.32893435N>N	BRCA2	NM_000059.3	c.289G>T	1	Nei
+2018-04-04	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32900289N>N	chr13:g.32900290N>N	BRCA2	NM_000059.3	c.475+3A>G	2	Nei
+2018-04-04	brca_e2e_test02.HBOCUTV_v01	?	HBOCUTV (v01)	chr13:g.32900699N>N	chr13:g.32900700N>N	BRCA2	NM_000059.3	c.581G>A	3	Nei
