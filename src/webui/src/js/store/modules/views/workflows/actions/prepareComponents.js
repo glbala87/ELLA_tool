@@ -130,6 +130,10 @@ const COMPONENTS = {
     }
 }
 
+COMPONENTS.analysis.components.Classification.sections.frequency.content.push({
+    tag: 'allele-info-quality'
+})
+
 function prepareComponents({ state }) {
     let components = COMPONENTS[state.get('views.workflows.type')]
     // TODO: Add IGV button to analysis frequency section
@@ -142,9 +146,6 @@ function prepareComponents({ state }) {
         } else {
             state.set('views.workflows.selectedComponent', 'Classification')
         }
-        components.components.Classification.sections.frequency.content.push({
-            tag: 'allele-info-quality'
-        })
     } else {
         state.set('views.workflows.selectedComponent', components.componentKeys[0])
     }
