@@ -275,8 +275,9 @@ class OverviewAlleleResource(LogRequestResource):
         allele_filters = [
             allele.Allele.id.in_(queries.allele_ids_not_started_analyses(session)),  # Allele ids in not started analyses
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),  # Allele ids without valid allele assessment
-            ~allele.Allele.id.in_(queries.workflow_alleles_ongoing(session)),  # Allele ids part of ongoing alleleinterpretation
-            ~allele.Allele.id.in_(queries.workflow_alleles_marked_review(session))  # Allele ids part of review alleleinterpretation
+            # Exclude alleles that have Ongoing or Done AlleleInterpretation as latest interpretation:
+            ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Done')),
+            ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Ongoing'))
         ]
         if user is not None:
             allele_filters.append(
@@ -290,7 +291,7 @@ class OverviewAlleleResource(LogRequestResource):
         allele_ids = [a[0] for a in allele_ids]
 
         analysis_ids = session.query(sample.Analysis.id).filter(
-            sample.Analysis.id.in_(queries.workflow_analyses_not_started(session))
+            sample.Analysis.id.in_(queries.workflow_analyses_classification_not_started(session))
         )
 
         return allele_ids, analysis_ids
@@ -319,14 +320,21 @@ class OverviewAlleleResource(LogRequestResource):
 
         return load_genepanel_alleles(session, gp_allele_ids)
 
-    def get_alleles_markedreview(self, session, user=None):
+    def get_alleles_for_status(self, session, status, user=None):
         """
         Returns alleles that are marked review.
 
         If user argument is given, the alleles will be limited by user group's
         genepanels.
         """
-        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_marked_review(session))]
+
+        status_queries = {
+            'Ongoing': queries.workflow_alleles_ongoing,
+            'Review': queries.workflow_alleles_review_not_started,
+            'Medical review': queries.workflow_alleles_medicalreview_not_started
+        }
+
+        allele_filters = [allele.Allele.id.in_(status_queries[status](session))]
         if user is not None:
             allele_filters.append(
                 allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
@@ -361,7 +369,7 @@ class OverviewAlleleResource(LogRequestResource):
         """
         analysis_allele_ids, analysis_ids = self._get_alleles_no_alleleassessment_notstarted_analysis(session, user)
 
-        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_not_started(session))]
+        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_classification_not_started(session))]
         if user is not None:
             allele_filters.append(
                 allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
@@ -399,8 +407,9 @@ class OverviewAlleleResource(LogRequestResource):
     def get(self, session, user=None):
         return {
             'missing_alleleassessment': self.get_alleles_not_started(session, user=user),
-            'marked_review': self.get_alleles_markedreview(session, user=user),
-            'ongoing': self.get_alleles_ongoing(session, user=user)
+            'marked_review': self.get_alleles_for_status(session, 'Review', user=user),
+            'marked_medicalreview': self.get_alleles_for_status(session, 'Medical review', user=user),
+            'ongoing': self.get_alleles_for_status(session, 'Ongoing', user=user),
         }
 
 
@@ -505,8 +514,9 @@ def get_categorized_analyses(session, user=None):
     user_analysis_ids = _get_analysis_ids_for_user(session, user=user)
 
     categories = [
-        ('not_started', queries.workflow_analyses_not_started(session)),
-        ('marked_review', queries.workflow_analyses_marked_review(session)),
+        ('not_started', queries.workflow_analyses_classification_not_started(session)),
+        ('marked_review', queries.workflow_analyses_review_not_started(session)),
+        ('marked_medicalreview', queries.workflow_analyses_medicalreview_not_started(session)),
         ('ongoing', queries.workflow_analyses_ongoing(session))
     ]
 
