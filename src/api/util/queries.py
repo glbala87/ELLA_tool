@@ -247,6 +247,7 @@ def allele_ids_no_analysis(session):
         ~allele.Allele.id.in_(get_sub_query()),
     )
 
+
 def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_version):
     """
     Fetches all genes with _only_ {inheritance} phenotypes.
