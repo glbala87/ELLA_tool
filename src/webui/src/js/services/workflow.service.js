@@ -8,9 +8,19 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
  */
 class ConfirmCompleteInterpretationController {
 
-    constructor(canFinalize, modalInstance) {
+    constructor(currentStatus, canFinalize, modalInstance) {
+        this.currentStatus = currentStatus
+        this.selectedStatus = currentStatus
         this.canFinalize = canFinalize;
         this.modal = modalInstance;
+    }
+
+    getClass(status) {
+        return status === this.selectedStatus ? 'blue' : 'normal'
+    }
+
+    selectStatus(status) {
+        this.selectedStatus = status
     }
 }
 
@@ -39,10 +49,41 @@ class WorkflowService {
         this.locationService = LocationService;
     }
 
+    markclassification(type, id, interpretation, alleles) {
+
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.markclassification(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports,
+            prepared_data.attachments
+        );
+    }
+
+
     markreview(type, id, interpretation, alleles) {
 
         let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
         return this.workflowResource.markreview(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports,
+            prepared_data.attachments
+        );
+    }
+
+    markmedicalreview(type, id, interpretation, alleles) {
+
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.markmedicalreview(
             type,
             id,
             prepared_data.annotations,
@@ -216,9 +257,10 @@ class WorkflowService {
     confirmCompleteFinalize(type, id, interpretation, alleles, analysis, config, history_interpretations) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
-            controller: ['canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
+            controller: ['currentStatus', 'canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
             size: 'lg',
             resolve: {
+                currentStatus: () => interpretation.workflow_status,
                 canFinalize: () => this.canFinalize(type, interpretation, alleles, config, history_interpretations)
             },
             controllerAs: 'vm'
@@ -234,12 +276,22 @@ class WorkflowService {
             let p2 = this.checkFinishAllowed(type, id, interpretation, analysis)
 
             return Promise.all([p1,p2]).then(() => {
-                if (res === 'markreview') {
+                if (res === 'Classification') {
+                    return this.markclassification(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
+                }
+                else if (res === 'Review') {
                     return this.markreview(type, id, interpretation, alleles).then( () => {
                         return true;
                     });
                 }
-                else if (res === 'finalize') {
+                else if (res === 'Medical review') {
+                    return this.markmedicalreview(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
+                }
+                else if (res === 'Finalized') {
                     return this.finalize(type, id, interpretation, alleles).then( () => {
                         return true;
                     });

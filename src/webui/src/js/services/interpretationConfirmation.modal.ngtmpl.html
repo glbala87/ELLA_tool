@@ -1,16 +1,28 @@
 <sectionbox class="prompt" color="purple" modal="true" on-close="vm.modal.close">
   <maintitle>
-    FINISHED: ANALYSIS COMPLETE
+    FINISH
   </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
-      <button class="id-mark-review normal" type="button" ng-click="vm.modal.close('markreview')">Mark for review</button>
-      <button ng-disabled="!vm.canFinalize" class="id-finalize" type="button" ng-click="vm.modal.close('finalize')">Finalize</button>
+        <button class="id-mark-initial normal" type="button" ng-click="vm.modal.close(vm.selectedStatus)">FINISH</button>
     </section>
   </controls>
   <contentwrapper>
-    <h4 class="sb-notification"> Would you like to mark the analysis for review, or finalize it? </h4>
+    <h4 class="sb-notification"> Select next: <span style="padding-left: 1rem;">{{vm.currentStatus}}</span> <span class="step-indicator">⟶</span> {{vm.selectedStatus}} </h4>
+    <div class="workflow-status-selection">
+      <!-- <button class="id-mark-initial normal" type="button" ng-click="vm.selectStatus('Not ready')">NOT READY</button>
+      <p class="step-indicator">⟶</p> NOT ACTIVATED YET -->
+      <button class="id-mark-initial" ng-class="vm.getClass('Classification')" type="button" ng-click="vm.selectStatus('Classification')">CLASSIFICATION</button>
+      <p class="step-indicator">⟶</p>
+      <button class="id-mark-review" ng-class="vm.getClass('Review')" type="button" ng-click="vm.selectStatus('Review')">REVIEW</button>
+      <p class="step-indicator">⟶</p>
+      <button class="id-mark-review" ng-class="vm.getClass('Medical review')" type="button" ng-click="vm.selectStatus('Medical review')">MEDICAL REVIEW</button>
+      <p class="step-indicator">⟶</p>
+      <button ng-disabled="!vm.canFinalize" ng-class="vm.getClass('Finalized')" class="id-finalize" type="button" ng-click="vm.selectStatus('Finalized')">FINALIZED</button>
+
+    </div>
+
     <h4 class="sb-notification" ng-if="!vm.canFinalize"> </h4>
-    <h4 class="sb-notification" ng-if="!vm.canFinalize">For finalize: Make sure all variants are classified and that you have made the required number of reviews.</h4>
+    <h4 class="sb-notification" ng-if="!vm.canFinalize">Finalize not possible: Make sure all variants are classified and that you have made the required number of reviews.</h4>
   </contentwrapper>
 </sectionbox>

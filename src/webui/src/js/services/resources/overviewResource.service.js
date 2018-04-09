@@ -22,7 +22,7 @@ export class OverviewResource {
             let overview = r.get((data) => {
 
                 // Convert to our model objects
-                for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing']) {
+                for (let key of ['marked_review', 'marked_medicalreview', 'missing_alleleassessment', 'ongoing']) {
                     for (let item of data[key]) {
                         item.allele = new Allele(item.allele);
                     }
@@ -83,7 +83,8 @@ export class OverviewResource {
                 else {
                     categories = categories.concat([
                         'not_started',
-                        'marked_review'
+                        'marked_review',
+                        'marked_medicalreview',
                     ]);
                 }
 
