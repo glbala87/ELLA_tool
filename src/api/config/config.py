@@ -4,20 +4,22 @@ import os
 from .acmgconfig import acmgconfig
 from .customannotationconfig import customannotationconfig
 
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
 config = {
     "app": {
-        "enable_igv": str2bool(os.environ.get("ENABLE_IGV", "false")),  # Disable by default for now
+        # Disable by default for now
+        "enable_igv": str2bool(os.environ.get("ENABLE_IGV", "false")),
         "links_to_clipboard": str2bool(os.environ.get("OFFLINE_MODE", "true")),
         "non_production_warning": os.environ.get('NON_PRODUCTION_WARNING'),
         "user_confirmation_on_state_change": str2bool(os.environ.get("USER_CONFIRMATION_ON_STATE_CHANGE", "true")),
         "user_confirmation_to_discard_changes": str2bool(os.environ.get('USER_CONFIRMATION_TO_DISCARD_CHANGES', 'true')),
         "annotation_service": os.environ.get("ANNOTATION_SERVICE_URL", "http://localhost:6000"),
         "attachment_storage": os.environ.get("ATTACHMENT_STORAGE", None),
-        "max_upload_size": 50*1024*1024, # 50 MB
+        "max_upload_size": 50*1024*1024,  # 50 MB
     },
     "user": {
         "auth": {
@@ -115,7 +117,8 @@ config = {
                 ]
             },
             "precision": 6,  # Float precision (for strings)
-            "scientific_threshold": 4,  # Convert to scientific notation for frequencies below 10**-x
+            # Convert to scientific notation for frequencies below 10**-x
+            "scientific_threshold": 4,
             "indications_threshold": 10,
             "GNOMAD_GENOMES": {  # translations: the key is used to link/lookup other sources of information:
                 "G": "TOT",
@@ -153,7 +156,8 @@ config = {
     },
     "variant_criteria": {  # Config related to criterias for filtering/displaying variants
         # Region thresholds to use when filtering out intronic variants. Distance from exon start/end.
-        "intronic_region": [-20, 6],  # Filters variants with -20 or +6 as intronic, e.g. c.123-21A>G and c.123+7T>C
+        # Filters variants with -20 or +6 as intronic, e.g. c.123-21A>G and c.123+7T>C
+        "intronic_region": [-20, 6],
         "freq_num_thresholds": {  # Specifies (optional) requirements for >= 'num' count for each freq
             "GNOMAD_GENOMES": {
                 "G": 5000,
@@ -241,7 +245,7 @@ config = {
             {
                 "name": "Class 2",
                 "value": "2",
-                "outdated_after_days": 180, # Marked as outdated after N number of days
+                "outdated_after_days": 180,  # Marked as outdated after N number of days
                 "exclude_filtering_existing_assessment": True
             },
             {
@@ -349,6 +353,10 @@ config = {
                 'methods': ['analysis_not_ready_findings']
             }
         ]
+    },
+    "import": {
+        "automatic_deposit_with_sample_id": False,
+        # "preimport_script": "/path/to/preimport/script"
     }
 }
 

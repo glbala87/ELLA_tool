@@ -2,6 +2,7 @@ import datetime
 import pytz
 from sqlalchemy import Column, Integer, String, DateTime, Enum, Sequence, ForeignKeyConstraint
 from sqlalchemy import ForeignKey
+from sqlalchemy.schema import CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -39,19 +40,27 @@ class AnnotationJob(Base):
     )
     status_history = Column(JSONMutableDict.as_mutable(JSONB), default={})
     mode = Column(Enum("Analysis", "Variants", "Single variant", name="mode"))
-    data = Column(String, nullable=False)
+    sample_id = Column(String)
+    data = Column(String)
     message = Column(String, default="")
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_submitted = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
-    date_last_update = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_submitted = Column(DateTime(
+        timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_last_update = Column(DateTime(
+        timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     genepanel_name = Column(String)
     genepanel_version = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
 
     properties = Column(JSONMutableDict.as_mutable(JSONB))
 
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], [
+                      "genepanel.name", "genepanel.version"]),
+                      CheckConstraint(
+                          'NOT(data IS NULL AND sample_id IS NULL)'),
+                      CheckConstraint('data IS NULL OR sample_id IS NULL')
+                      )
 
     def __repr__(self):
         return "<AnnotationJob('{}', '{}', '{}')".format(str(self.id), self.task_id, self.status)
