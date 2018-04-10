@@ -274,7 +274,11 @@ class OverviewAlleleResource(LogRequestResource):
 
         allele_filters = [
             allele.Allele.id.in_(queries.allele_ids_not_started_analyses(session)),  # Allele ids in not started analyses
+            allele.Allele.id.in_(queries.allele_ids_not_started_analyses(session)),  # Allele ids in not started analyses
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),  # Allele ids without valid allele assessment
+            # Exclude alleles that have AlleleInterpretations and are not in Classification state
+            ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status='Review', status=None)),
+            ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status='Medical review', status=None)),
             # Exclude alleles that have Ongoing or Done AlleleInterpretation as latest interpretation:
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Done')),
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Ongoing'))
@@ -396,6 +400,7 @@ class OverviewAlleleResource(LogRequestResource):
             alleleinterpretation_allele_ids
         )
 
+        # Add alleleinterpretation allele_ids to analysis' allele_ids
         for gp_key, allele_ids in alleleinterpretation_gp_allele_ids.iteritems():
             if gp_key not in gp_allele_ids:
                 gp_allele_ids[gp_key] = set()
