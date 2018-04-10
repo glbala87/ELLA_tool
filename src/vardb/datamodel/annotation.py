@@ -1,7 +1,7 @@
 """varDB datamodel Annotation class"""
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy import Column, Integer, DateTime, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -29,7 +29,11 @@ class Annotation(Base):
         return "<Annotation('%s', '%s', '%s')>" % (self.annotations,
                                                    self.previous_annotation,
                                                    self.date_superceeded)
-
+Index('ix_annotation_unique',
+      Annotation.allele_id,
+      postgresql_where=(Annotation.date_superceeded.is_(None)),
+      unique=True
+)
 
 class CustomAnnotation(Base):
     """Represents a set of annotations for an allele, created by a user"""
@@ -50,3 +54,9 @@ class CustomAnnotation(Base):
 
     def __repr__(self):
         return "<CustomAnnotation('%s')>" % (self.annotations)
+
+Index('ix_customannotation_unique',
+      CustomAnnotation.allele_id,
+      postgresql_where=(CustomAnnotation.date_superceeded.is_(None)),
+      unique=True
+)
