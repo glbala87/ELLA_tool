@@ -50,6 +50,7 @@ describe('Sample workflow to create test fixture for report testing', function (
 
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
 });

@@ -61,6 +61,7 @@ describe('Read-only version of variant workflow ', function () {
         alleleSectionBox.markAsClass2();
         analysisPage.finishButton.click();
         analysisPage.markReviewButton.click();
+        analysisPage.modalFinishButton.click();
 
         // other user see a read-only
         loginPage.selectSecondUser();
@@ -75,6 +76,7 @@ describe('Read-only version of variant workflow ', function () {
         expect(alleleSectionBox.classSelection.isEnabled()).toBe(true);
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
     it('finalized is read-only until reopened and review is started', function () {
@@ -95,6 +97,7 @@ describe('Read-only version of variant workflow ', function () {
 
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
 
     });
 
@@ -114,6 +117,7 @@ describe('Read-only version of variant workflow ', function () {
         alleleSectionBox.setReportComment('report changed');
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
 
         loginPage.selectSecondUser();
         variantSelectionPage.expandFinishedSection();

@@ -227,6 +227,7 @@ describe('Sample workflow', function () {
         console.log('Setting to review');
         analysisPage.finishButton.click();
         analysisPage.markReviewButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
     it('shows the review comment on overview page', function () {
@@ -245,6 +246,7 @@ describe('Sample workflow', function () {
         checkAlleleClassification(expected_analysis_1_round_1);
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
     it('reuses classified variants from a different sample', function() {
@@ -338,6 +340,7 @@ describe('Sample workflow', function () {
 
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
 
     });
 

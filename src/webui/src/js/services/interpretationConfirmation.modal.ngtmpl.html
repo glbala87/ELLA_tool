@@ -4,8 +4,8 @@
   </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
-        <button class="id-mark-initial normal" type="button" ng-click="vm.modal.dismiss()">CLOSE</button>
-        <button class="id-mark-initial purple" type="button" ng-click="vm.modal.close(vm.selectedStatus)">FINISH</button>
+        <button class="id-close normal" type="button" ng-click="vm.modal.dismiss()">CLOSE</button>
+        <button class="id-finish purple" type="button" ng-click="vm.modal.close(vm.selectedStatus)">FINISH</button>
     </section>
   </controls>
   <contentwrapper>
@@ -13,11 +13,11 @@
     <div class="workflow-status-selection">
       <!-- <button class="id-mark-initial normal" type="button" ng-click="vm.selectStatus('Not ready')">NOT READY</button>
       <p class="step-indicator">⟶</p> NOT ACTIVATED YET -->
-      <button class="id-mark-initial" ng-class="vm.getClass('Classification')" type="button" ng-click="vm.selectStatus('Classification')">CLASSIFICATION</button>
+      <button class="id-mark-classification" ng-class="vm.getClass('Classification')" type="button" ng-click="vm.selectStatus('Classification')">CLASSIFICATION</button>
       <p class="step-indicator">⟶</p>
       <button class="id-mark-review" ng-class="vm.getClass('Review')" type="button" ng-click="vm.selectStatus('Review')">REVIEW</button>
       <p class="step-indicator">⟶</p>
-      <button class="id-mark-review" ng-class="vm.getClass('Medical review')" type="button" ng-click="vm.selectStatus('Medical review')">MEDICAL REVIEW</button>
+      <button class="id-mark-medicalreview" ng-class="vm.getClass('Medical review')" type="button" ng-click="vm.selectStatus('Medical review')">MEDICAL REVIEW</button>
       <p class="step-indicator">⟶</p>
       <button ng-disabled="!vm.canFinalize" ng-class="vm.getClass('Finalized')" class="id-finalize" type="button" ng-click="vm.selectStatus('Finalized')">FINALIZED</button>
 

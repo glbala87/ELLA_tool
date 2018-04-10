@@ -18,7 +18,10 @@ class AnalysisPage extends Page {
     get acmgComment() { return $(SELECTOR_COMMENT_ACMG);}
 
     // buttons in modal
+    get modalFinishButton() { return browser.element('.id-finish'); }
+    get markClassificationButton() { return browser.element('.id-mark-classification'); }
     get markReviewButton() { return browser.element('.id-mark-review'); }
+    get markMedicalReviewButton() { return browser.element('.id-mark-medicalreview'); }
     get finalizeButton() { return browser.element('.id-finalize'); }
 
     get addExcludedButton() { return browser.element('.id-add-excluded') }
