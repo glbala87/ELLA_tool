@@ -278,7 +278,6 @@ class OverviewAlleleResource(LogRequestResource):
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),  # Allele ids without valid allele assessment
             # Exclude alleles that have AlleleInterpretations and are not in Classification state
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status='Review', status=None)),
-            ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status='Medical review', status=None)),
             # Exclude alleles that have Ongoing or Done AlleleInterpretation as latest interpretation:
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Done')),
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Ongoing'))
@@ -335,7 +334,6 @@ class OverviewAlleleResource(LogRequestResource):
         status_queries = {
             'Ongoing': queries.workflow_alleles_ongoing,
             'Review': queries.workflow_alleles_review_not_started,
-            'Medical review': queries.workflow_alleles_medicalreview_not_started
         }
 
         allele_filters = [allele.Allele.id.in_(status_queries[status](session))]
@@ -413,7 +411,6 @@ class OverviewAlleleResource(LogRequestResource):
         return {
             'missing_alleleassessment': self.get_alleles_not_started(session, user=user),
             'marked_review': self.get_alleles_for_status(session, 'Review', user=user),
-            'marked_medicalreview': self.get_alleles_for_status(session, 'Medical review', user=user),
             'ongoing': self.get_alleles_for_status(session, 'Ongoing', user=user),
         }
 

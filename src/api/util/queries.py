@@ -182,16 +182,6 @@ def workflow_alleles_review_not_started(session):
     )
 
 
-def workflow_alleles_medicalreview_not_started(session):
-    return workflow_by_status(
-        session,
-        workflow.AlleleInterpretation,
-        'allele_id',
-        workflow_status='Medical review',
-        status='Not started'
-    )
-
-
 def workflow_alleles_ongoing(session):
     return workflow_by_status(
         session,

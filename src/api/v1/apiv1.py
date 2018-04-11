@@ -193,9 +193,6 @@ class ApiV1(object):
         self._add_resource(r.workflow.allele.AlleleActionMarkReviewResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/markreview/')
 
-        self._add_resource(r.workflow.allele.AlleleActionMarkMedicalReviewResource,
-                           '/api/v1/workflows/alleles/<int:allele_id>/actions/markmedicalreview/')
-
         self._add_resource(r.workflow.allele.AlleleActionFinalizeResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/finalize/',
                            '/api/v1/workflows/alleles/<int:allele_id>/snapshots/')

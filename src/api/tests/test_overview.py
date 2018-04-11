@@ -766,7 +766,6 @@ class TestAlleleOverview(object):
         Test the other categories:
         - ongoing
         - marked_review
-        - marked_medicalreview
         - finalized
         """
         test_database.refresh()
@@ -782,12 +781,6 @@ class TestAlleleOverview(object):
         wh.perform_round(interpretation, 'Review comment', new_workflow_status='Review')
         r = client.get('/api/v1/overviews/alleles/')
         check_items({('HBOC', 'v01'): interpretation['allele_ids']}, r.json['marked_review'])
-
-        # Marked medical review
-        interpretation = wh.start_interpretation('testuser1')
-        wh.perform_round(interpretation, 'Medical review comment', new_workflow_status='Medical review')
-        r = client.get('/api/v1/overviews/alleles/')
-        check_items({('HBOC', 'v01'): interpretation['allele_ids']}, r.json['marked_medicalreview'])
 
         # Finalized
         interpretation = wh.start_interpretation('testuser2')

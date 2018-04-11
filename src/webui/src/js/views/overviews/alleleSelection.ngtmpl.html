@@ -37,20 +37,6 @@
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'variants-medical-review'" class="id-variants-medical-review" remember-collapse="true" collapsed="true" ng-if="vm.overview">
-  <maintitle>
-    PENDING MEDICAL REVIEW
-  </maintitle>
-  <subtitle>
-    {{vm.overview.marked_medicalreview.length}}
-  </subtitle>
-  <contentwrapper>
-    <allele-list allele-items="vm.overview.marked_medicalreview"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_medicalreview.length">No variants pending medical review</h4>
-  </contentwrapper>
-</sectionbox>
-
-
 <div class="spacer"></div>
 
 <sectionbox color="blue" ng-attr-id="'variants-others'" class="id-variants-others"  remember-collapse="true" collapsed="true" ng-if="vm.overview">

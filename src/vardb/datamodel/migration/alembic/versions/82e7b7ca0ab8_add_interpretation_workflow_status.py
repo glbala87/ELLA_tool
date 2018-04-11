@@ -75,7 +75,7 @@ def upgrade():
 
     conn = op.get_bind()
 
-    workflow_status = sa.Enum('Not ready', 'Classification', 'Review', 'Medical review', name='interpretation_workflow_status')
+    workflow_status = sa.Enum('Classification', 'Review', name='alleleinterpretation_workflow_status')
     workflow_status.create(conn, checkfirst=True)
 
     # AlleleInterpretation
@@ -88,6 +88,8 @@ def upgrade():
     op.drop_column('alleleinterpretation', 'end_action')
 
     # AnalysisInterpretation
+    workflow_status = sa.Enum('Not ready', 'Classification', 'Review', 'Medical review', name='analysisinterpretation_workflow_status')
+    workflow_status.create(conn, checkfirst=True)
     op.add_column('analysisinterpretation', sa.Column('finalized', sa.Boolean(), nullable=True))
     op.add_column('analysisinterpretation', sa.Column('workflow_status', workflow_status, nullable=True))
 

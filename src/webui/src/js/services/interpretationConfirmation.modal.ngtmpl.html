@@ -9,16 +9,16 @@
     </section>
   </controls>
   <contentwrapper>
-    <h4 class="sb-notification"> Select next: <span style="padding-left: 1rem;">{{vm.currentStatus}}</span> <span class="step-indicator">⟶</span> {{vm.selectedStatus}} </h4>
+    <h4 class="sb-notification"> Select next round: <span style="padding-left: 1rem;">{{vm.currentStatus}}</span> <span class="step-indicator">⟶</span> {{vm.selectedStatus}} </h4>
     <div class="workflow-status-selection">
-      <!-- <button class="id-mark-initial normal" type="button" ng-click="vm.selectStatus('Not ready')">NOT READY</button>
-      <p class="step-indicator">⟶</p> NOT ACTIVATED YET -->
+      <button ng-if="vm.type == 'analysis'" class="id-mark-notready" ng-class="vm.getClass('Not ready')" type="button" ng-click="vm.selectStatus('Not ready')">NOT READY</button>
+      <p ng-if="vm.type == 'analysis'" class="step-indicator">⟶</p>
       <button class="id-mark-classification" ng-class="vm.getClass('Classification')" type="button" ng-click="vm.selectStatus('Classification')">CLASSIFICATION</button>
       <p class="step-indicator">⟶</p>
       <button class="id-mark-review" ng-class="vm.getClass('Review')" type="button" ng-click="vm.selectStatus('Review')">REVIEW</button>
       <p class="step-indicator">⟶</p>
-      <button class="id-mark-medicalreview" ng-class="vm.getClass('Medical review')" type="button" ng-click="vm.selectStatus('Medical review')">MEDICAL REVIEW</button>
-      <p class="step-indicator">⟶</p>
+      <button ng-if="vm.type == 'analysis'" class="id-mark-medicalreview" ng-class="vm.getClass('Medical review')" type="button" ng-click="vm.selectStatus('Medical review')">MEDICAL REVIEW</button>
+      <p ng-if="vm.type == 'analysis'" class="step-indicator">⟶</p>
       <button ng-disabled="!vm.canFinalize" ng-class="vm.getClass('Finalized')" class="id-finalize" type="button" ng-click="vm.selectStatus('Finalized')">FINALIZED</button>
 
     </div>

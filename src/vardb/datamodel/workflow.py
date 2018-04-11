@@ -17,9 +17,6 @@ class InterpretationMixin(object):
     id = Column(Integer, primary_key=True)
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
-
-    workflow_status = Column(Enum("Not ready", "Classification", "Review", "Medical review",
-                             name="interpretation_workflow_status"), default="Classification", nullable=False)
     user_state = Column(JSONMutableDict.as_mutable(JSONB), default={})
     state = Column(JSONMutableDict.as_mutable(JSONB), default={})
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
@@ -99,6 +96,8 @@ class AnalysisInterpretation(Base, InterpretationMixin):
 
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
+    workflow_status = Column(Enum("Not ready", "Classification", "Review", "Medical review",
+                             name="analysisinterpretation_workflow_status"), default="Classification", nullable=False)
 
     def __repr__(self):
         return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)
@@ -138,6 +137,8 @@ class AlleleInterpretation(Base, InterpretationMixin):
 
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
+    workflow_status = Column(Enum("Classification", "Review",
+                             name="alleleinterpretation_workflow_status"), default="Classification", nullable=False)
 
     def __repr__(self):
         return "<AlleleInterpretation('{}', '{}')>".format(str(self.allele_id), self.status)

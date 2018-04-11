@@ -8,11 +8,12 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
  */
 class ConfirmCompleteInterpretationController {
 
-    constructor(currentStatus, canFinalize, modalInstance) {
+    constructor(currentStatus, canFinalize, type, modalInstance) {
         this.currentStatus = currentStatus
         this.selectedStatus = currentStatus
         this.canFinalize = canFinalize;
         this.modal = modalInstance;
+        this.type = type;
     }
 
     getClass(status) {
@@ -257,9 +258,10 @@ class WorkflowService {
     confirmCompleteFinalize(type, id, interpretation, alleles, analysis, config, history_interpretations) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
-            controller: ['currentStatus', 'canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
+            controller: ['currentStatus', 'canFinalize', 'type', '$uibModalInstance', ConfirmCompleteInterpretationController],
             size: 'lg',
             resolve: {
+                type: () => type,
                 currentStatus: () => interpretation.workflow_status,
                 canFinalize: () => this.canFinalize(type, interpretation, alleles, config, history_interpretations)
             },
