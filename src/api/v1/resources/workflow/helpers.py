@@ -583,6 +583,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     workflow_analysis_ids = session.query(sample.Analysis.id).filter(
         or_(
             sample.Analysis.id.in_(queries.workflow_analyses_review_not_started(session)),
+            sample.Analysis.id.in_(queries.workflow_analyses_medicalreview_not_started(session)),
             sample.Analysis.id.in_(queries.workflow_analyses_ongoing(session)),
         )
     )
