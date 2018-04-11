@@ -242,6 +242,15 @@ def get_users():
     return response.json
 
 
+def mark_notready(workflow_type, workflow_id, data, username):
+    response = api.post(
+        '/workflows/{}/{}/actions/marknotready/'.format(uri_part[workflow_type], workflow_id),
+        data,
+        username=username
+    )
+    assert response.status_code == 200
+
+
 def mark_classification(workflow_type, workflow_id, data, username):
     response = api.post(
         '/workflows/{}/{}/actions/markclassification/'.format(uri_part[workflow_type], workflow_id),

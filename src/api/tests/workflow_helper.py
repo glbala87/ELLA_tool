@@ -141,6 +141,7 @@ class WorkflowHelper(object):
         ih.save_interpretation_state(self.type, interpretation, self.id, interpretation['user']['username'])
 
         finish_method = {
+            'Not ready': ih.mark_notready,
             'Classification': ih.mark_classification,
             'Review': ih.mark_review,
             'Medical review': ih.mark_medicalreview
