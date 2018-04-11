@@ -1,3 +1,17 @@
+<sectionbox color="red" ng-attr-id="'analysis-notready'" class="id-analysis-notready" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+    <maintitle>NOT READY</maintitle>
+    <subtitle>
+      {{vm.overview.not_ready.length}}
+    </subtitle>
+    <contentwrapper>
+      <analysis-list analyses="vm.overview.not_ready"></analysis-list>
+      <h4 class="sb-notification dim" ng-if="!vm.overview.not_ready.length">No analyses are not ready</h4>
+    </contentwrapper>
+  </sectionbox>
+
+
+<div class="spacer"></div>
+
 <sectionbox color="green" ng-attr-id="'analysis-ours'" class="id-analysis-ours" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
     YOUR ANALYSES

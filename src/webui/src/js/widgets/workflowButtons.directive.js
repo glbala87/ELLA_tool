@@ -33,6 +33,9 @@ export class WorkflowButtonsController {
             save: {
                 text: 'Save'
             },
+            'Not ready': {
+                text: 'Start not ready'
+            },
             'Classification': {
                 text: 'Start classification'
             },
@@ -202,7 +205,7 @@ export class WorkflowButtonsController {
 
     getSaveBtnClass() {
         let classes = [];
-        if (['Classification', 'Review', 'Medical review'].includes(this._getSaveStatus())) {
+        if (['Not ready', 'Classification', 'Review', 'Medical review'].includes(this._getSaveStatus())) {
             classes.push('green');
         }
         else if (['override'].includes(this._getSaveStatus())) {

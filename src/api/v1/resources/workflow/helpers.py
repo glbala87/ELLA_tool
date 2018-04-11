@@ -394,6 +394,10 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
     return interpretation, interpretation_next
 
 
+def marknotready_interpretation(session, data, analysis_id=None):
+    return mark_interpretation(session, 'Not ready', data, analysis_id=analysis_id)
+
+
 def markclassification_interpretation(session, data, allele_id=None, analysis_id=None):
     return mark_interpretation(session, 'Classification', data, allele_id=allele_id, analysis_id=analysis_id)
 
@@ -402,8 +406,8 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     return mark_interpretation(session, 'Review', data, allele_id=allele_id, analysis_id=analysis_id)
 
 
-def markmedicalreview_interpretation(session, data, allele_id=None, analysis_id=None):
-    return mark_interpretation(session, 'Medical review', data, allele_id=allele_id, analysis_id=analysis_id)
+def markmedicalreview_interpretation(session, data, analysis_id=None):
+    return mark_interpretation(session, 'Medical review', data, analysis_id=analysis_id)
 
 
 def reopen_interpretation(session, allele_id=None, analysis_id=None):

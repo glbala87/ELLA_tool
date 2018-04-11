@@ -244,6 +244,48 @@ class AnalysisActionStartResource(LogRequestResource):
         return None, 200
 
 
+class AnalysisActionMarkNotReadyResource(LogRequestResource):
+
+    @authenticate()
+    @request_json(
+        [
+            'alleleassessments',
+            'annotations',
+            'custom_annotations',
+            'allelereports'
+        ]
+    )
+    def post(self, session, analysis_id, data=None, user=None):
+        """
+        Marks an analysis as Not ready.
+
+        This sets the analysis' current interpretation's status to `Done` and creates
+        a new current interpretation with status `Not started` in `Not ready` state.
+
+        **Only works for analyses with a `Ongoing` current interpretation**
+        ---
+        summary: Mark analysis as Not ready
+        tags:
+          - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+
+        helpers.marknotready_interpretation(session, data, analysis_id=analysis_id)
+        session.commit()
+
+        return None, 200
+
+
 class AnalysisActionMarkClassificationResource(LogRequestResource):
 
     @authenticate()

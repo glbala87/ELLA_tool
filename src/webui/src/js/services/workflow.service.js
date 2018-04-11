@@ -50,6 +50,21 @@ class WorkflowService {
         this.locationService = LocationService;
     }
 
+    marknotready(type, id, interpretation, alleles) {
+
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.marknotready(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports,
+            prepared_data.attachments
+        );
+    }
+
     markclassification(type, id, interpretation, alleles) {
 
         let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
@@ -278,7 +293,12 @@ class WorkflowService {
             let p2 = this.checkFinishAllowed(type, id, interpretation, analysis)
 
             return Promise.all([p1,p2]).then(() => {
-                if (res === 'Classification') {
+                if (res === 'Not ready') {
+                    return this.marknotready(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
+                }
+                else if (res === 'Classification') {
                     return this.markclassification(type, id, interpretation, alleles).then( () => {
                         return true;
                     });

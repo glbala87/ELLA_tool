@@ -229,6 +229,9 @@ class ApiV1(object):
         self._add_resource(r.workflow.analysis.AnalysisActionStartResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/start/')
 
+        self._add_resource(r.workflow.analysis.AnalysisActionMarkNotReadyResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/marknotready/')
+
         self._add_resource(r.workflow.analysis.AnalysisActionMarkClassificationResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/markclassification/')
 

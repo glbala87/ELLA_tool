@@ -61,6 +61,24 @@ class WorkflowResource {
         });
     }
 
+    marknotready(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
+        return new Promise((resolve, reject) => {
+            this._resourceWithAction(type, 'marknotready').doIt(
+                { id },
+                {
+                    annotations: annotations,
+                    custom_annotations: custom_annotations,
+                    alleleassessments: alleleassessments,
+                    referenceassessments: referenceassessments,
+                    allelereports: allelereports,
+                    attachments: attachments
+                },
+                resolve,
+                reject
+            );
+        });
+    }
+
     markclassification(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'markclassification').doIt(

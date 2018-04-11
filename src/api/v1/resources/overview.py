@@ -516,6 +516,7 @@ def get_categorized_analyses(session, user=None):
     user_analysis_ids = _get_analysis_ids_for_user(session, user=user)
 
     categories = [
+        ('not_ready', queries.workflow_analyses_notready_not_started(session)),
         ('not_started', queries.workflow_analyses_classification_not_started(session)),
         ('marked_review', queries.workflow_analyses_review_not_started(session)),
         ('marked_medicalreview', queries.workflow_analyses_medicalreview_not_started(session)),

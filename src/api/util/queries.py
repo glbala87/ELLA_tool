@@ -93,6 +93,16 @@ def workflow_analyses_finalized(session):
     )
 
 
+def workflow_analyses_notready_not_started(session):
+    return workflow_by_status(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        workflow_status='Not ready',
+        status='Not started'
+    )
+
+
 def workflow_analyses_classification_not_started(session):
     return workflow_by_status(
         session,
