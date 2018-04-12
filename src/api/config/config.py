@@ -356,7 +356,7 @@ config = {
     },
     "import": {
         "automatic_deposit_with_sample_id": False,
-        # "preimport_script": "/path/to/preimport/script"
+        "preimport_script": "/ella/scripts/preimport.py"
     }
 }
 

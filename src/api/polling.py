@@ -4,6 +4,9 @@ import logging
 
 import time
 import urllib2
+import os
+import binascii
+import subprocess
 from StringIO import StringIO
 from os.path import join
 import pytz
@@ -17,10 +20,6 @@ from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
-try:
-    from preimport import preimport
-except:
-    preimport = lambda *args, **kwargs: ({}, {})
 
 # Make StringIO objects work fine in with-statements
 StringIO.__exit__ = lambda *args: False
@@ -29,9 +28,36 @@ StringIO.__enter__ = lambda *args: args[0]
 log = logging.getLogger(__name__)
 
 
-import urllib2
-import os
-import binascii
+def run_preimport(job):
+    preimport_script = config["import"].get("preimport_script")
+    if preimport_script is None:
+        return {"files": {}, "variables": {}}
+
+    assert os.path.isfile(preimport_script)
+
+    args = [
+        "GENEPANEL_NAME=%s" % job.genepanel_name,
+        "GENEPANEL_VERSION=%s" % job.genepanel_version,
+        "SAMPLE_ID=%s" % job.sample_id,
+        "USERGROUP=%s" % job.user.group.name
+    ]
+
+    cmd = " ".join(args+[preimport_script])
+    output = subprocess.check_output(cmd, shell=True)
+    unparsed_data = json.loads(output)
+
+    parsed_data = {}
+    parsed_data["variables"] = {}
+    parsed_data["variables"] = unparsed_data["variables"]
+
+    parsed_data["files"] = {}
+    for key, path in unparsed_data["files"].iteritems():
+        filename = os.path.basename(path)
+        with open(path, 'r') as f:
+            contents = f.read()
+        parsed_data["files"][key] = (filename, contents)
+
+    return parsed_data
 
 
 def encode_multipart_formdata(fields, files):
@@ -194,14 +220,13 @@ class AnnotationServiceInterface:
         regions = genepanel_to_bed(
             self.session, job.genepanel_name, job.genepanel_version)
 
-        files, fields = preimport(
-            self.session, job.sample_id, job.genepanel_name, job.genepanel_version)
+        data = run_preimport(job)
 
-        files["regions"] = ('regions.bed', regions)
-        fields["sample_id"] = job.sample_id
+        data["files"]["regions"] = ('regions.bed', regions)
+        data["variables"]["sample_id"] = job.sample_id
 
-        content_type, body = encode_multipart_formdata(fields, files)
-        print body
+        content_type, body = encode_multipart_formdata(
+            data["variables"], data["files"])
 
         r = urllib2.Request(join(self.base, 'samples/annotate'),
                             data=body, headers={"Content-type": content_type})
