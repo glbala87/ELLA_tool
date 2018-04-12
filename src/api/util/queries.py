@@ -138,7 +138,7 @@ def workflow_analyses_ongoing(session):
         session,
         workflow.AnalysisInterpretation,
         'analysis_id',
-        workflow_status='Interpretation',
+        workflow_status=None,
         status='Ongoing'
     )
 
@@ -203,7 +203,7 @@ def workflow_alleles_ongoing(session):
         session,
         workflow.AlleleInterpretation,
         'allele_id',
-        workflow_status='Interpretation',
+        workflow_status=None,
         status='Ongoing'
     )
 
