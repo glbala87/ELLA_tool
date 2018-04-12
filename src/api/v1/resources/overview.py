@@ -196,32 +196,6 @@ def get_alleleinterpretation_gp_allele_ids(session, alleleinterpretation_allele_
     return alleleinterpretation_gp_allele_ids
 
 
-def filter_result_of_alleles(session, allele_ids):
-
-    # Get a list of candidate genepanels per allele id
-    allele_ids_genepanels = session.query(
-        workflow.AnalysisInterpretation.genepanel_name,
-        workflow.AnalysisInterpretation.genepanel_version,
-        allele.Allele.id
-    ).join(
-        genotype.Genotype.alleles,
-        sample.Sample,
-        sample.Analysis
-    ).filter(
-        workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
-        allele.Allele.id.in_(allele_ids)
-    ).all()
-
-    # Make a dict of (gp_name, gp_version): [allele_ids] for use with AlleleFilter
-    gp_allele_ids = defaultdict(list)
-    for entry in allele_ids_genepanels:
-        gp_allele_ids[(entry[0], entry[1])].append(entry[2])
-
-    # Filter out alleles
-    af = AlleleFilter(session)
-    return af.filter_alleles(gp_allele_ids)  # gp_key => {allele ids distributed by filter status}
-
-
 def get_alleles_existing_alleleinterpretation(session, allele_filter, user=None, page=None, per_page=None):
     """
     Returns allele_ids that has connected AlleleInterpretations,
@@ -265,7 +239,7 @@ class OverviewAlleleResource(LogRequestResource):
         Returns a list of (allele_ids, analysis_ids) that are missing alleleassessments.
 
         We only return allele_ids that:
-            - Are connected to analyses that are 'Not started'.
+            - Are connected to analyses that are 'Not started' (having 'Not ready' or 'Interpretation' as workflow status).
             - Are missing valid alleleassessments (i.e not outdated if applicable)
             - Do not have an alleleinterpretation that is not 'Not started' (i.e. is ongoing or awaiting review)
 
@@ -273,7 +247,6 @@ class OverviewAlleleResource(LogRequestResource):
         """
 
         allele_filters = [
-            allele.Allele.id.in_(queries.allele_ids_not_started_analyses(session)),  # Allele ids in not started analyses
             allele.Allele.id.in_(queries.allele_ids_not_started_analyses(session)),  # Allele ids in not started analyses
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),  # Allele ids without valid allele assessment
             # Exclude alleles that have AlleleInterpretations and are not in Interpretation state
@@ -294,38 +267,17 @@ class OverviewAlleleResource(LogRequestResource):
         allele_ids = [a[0] for a in allele_ids]
 
         analysis_ids = session.query(sample.Analysis.id).filter(
-            sample.Analysis.id.in_(queries.workflow_analyses_interpretation_not_started(session))
+            or_(
+                sample.Analysis.id.in_(queries.workflow_analyses_interpretation_not_started(session)),
+                sample.Analysis.id.in_(queries.workflow_analyses_notready_not_started(session))
+            )
         )
 
         return allele_ids, analysis_ids
 
-    def get_alleles_ongoing(self, session, user=None):
-        """
-        Returns alleles that are ongoing.
-
-        If user argument is given, the alleles will be limited by user group's
-        genepanels.
-        """
-        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_ongoing(session))]
-        if user is not None:
-            allele_filters.append(
-                allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
-            )
-
-        alleleinterpretation_allele_ids, count = get_alleles_existing_alleleinterpretation(
-            session,
-            and_(*allele_filters)
-        )
-        gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
-            session,
-            alleleinterpretation_allele_ids
-        )
-
-        return load_genepanel_alleles(session, gp_allele_ids)
-
     def get_alleles_for_status(self, session, status, user=None):
         """
-        Returns alleles that are marked review.
+        Returns alleles for a given status.
 
         If user argument is given, the alleles will be limited by user group's
         genepanels.
@@ -364,7 +316,7 @@ class OverviewAlleleResource(LogRequestResource):
         For figuring out what counts as 'Not started',
         the following conditions are used:
 
-        Take all alleles from all 'Not started' analyses:
+        Take all alleles from all 'Not started' analyses in 'Interpretation' or 'Not ready' workflow status:
            - subtract alleles with valid alleleassessment (i.e. exists and not outdated)
            - subtract alleles with ongoing/review alleleinterpretation
         Add all alleles from 'Not started' alleleinterpretation

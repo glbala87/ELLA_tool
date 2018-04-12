@@ -150,15 +150,21 @@ def workflow_analyses_for_genepanels(session, genepanels):
 
 
 def allele_ids_not_started_analyses(session):
+    """
+    Get all allele_ids for 'Not started' analyses in either
+    'Not ready' or 'Interpretation' workflow status.
+    """
     return session.query(
         allele.Allele.id,
     ).join(
         genotype.Genotype.alleles,
         sample.Sample,
-        sample.Analysis,
-        workflow.AnalysisInterpretation
+        sample.Analysis
     ).filter(
-        sample.Analysis.id.in_(workflow_analyses_interpretation_not_started(session))
+        or_(
+            sample.Analysis.id.in_(workflow_analyses_interpretation_not_started(session)),
+            sample.Analysis.id.in_(workflow_analyses_notready_not_started(session))
+        )
     )
 
 
