@@ -182,7 +182,7 @@ class DepositTestdata(object):
                     gp_name,
                     gp_version,
                     "1",
-                    warnings=WARNINGS_EXAMPLE if gp_name == 'HBOC' else None,
+                    warnings=WARNINGS_EXAMPLE if gp_name == 'HBOCUTV' else None,
                     report=REPORT_EXAMPLE
                 )
 

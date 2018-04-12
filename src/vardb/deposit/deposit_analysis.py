@@ -15,6 +15,7 @@ from collections import OrderedDict
 
 from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
+from vardb.datamodel import sample, allele, workflow
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -40,7 +41,7 @@ class DepositAnalysis(DepositFromVCF):
                 self.genotype_importer.process(v, sample_name, db_analysis, db_sample, db_alleles)
 
     def import_vcf(self, analysis_config_data, cache_size=1000, sample_type="HTS"):
-        
+
         vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
@@ -51,8 +52,8 @@ class DepositAnalysis(DepositFromVCF):
         db_genepanel = self.get_genepanel(analysis_config_data.gp_name, analysis_config_data.gp_version)
 
         db_analysis = self.analysis_importer.process(
-            analysis_config_data.analysis_name, 
-            analysis_config_data.priority, 
+            analysis_config_data.analysis_name,
+            analysis_config_data.priority,
             db_genepanel,
             analysis_config_data.report,
             analysis_config_data.warnings
@@ -64,7 +65,7 @@ class DepositAnalysis(DepositFromVCF):
             self.session.rollback()
             raise RuntimeError("Couldn't import samples to database. (db_samples: %s, vcf_sample_names: %s)" %(str(db_samples), str(vcf_sample_names)))
 
-        self.analysis_interpretation_importer.process(db_analysis)
+        db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis)
         records_cache = OrderedDict()
         N = 0
         for record in vi.iter():
@@ -91,6 +92,18 @@ class DepositAnalysis(DepositFromVCF):
                 N = 1
 
         self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
+
+        # Set analysis as 'Not ready' if it has warnings _or_ there are variants that needs work (verification etc)
+        # TODO: Refactor this along with overview.py's functions to something nicer
+        # We also need to provide configuration options for this and have postdeposit plugins
+        from api.v1.resources.overview import categorize_analyses_by_findings  # Avoid circular imports...
+        from api import schemas
+        aschema = schemas.AnalysisFullSchema()
+        analysis = aschema.dump(db_analysis).data
+        without_findings = bool(categorize_analyses_by_findings(self.session, [analysis])['without_findings'])
+
+        if db_analysis.warnings or not without_findings:
+            db_analysis_interpretation.workflow_status = 'Not ready'
 
 
 def main(argv=None):
