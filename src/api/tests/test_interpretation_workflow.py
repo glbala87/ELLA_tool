@@ -49,9 +49,9 @@ class TestAnalysisInterpretationWorkflow(object):
     Tests the whole workflow of
     interpretations on one analysis.
 
-    - Classification -> Not ready
-    - Not ready -> Classification
-    - Classification -> Review
+    - Interpretation -> Not ready
+    - Not ready -> Interpretation
+    - Interpretation -> Review
     - Review -> Medical review
     - Finalize
     - Reopen -> one round -> finalize
@@ -67,9 +67,9 @@ class TestAnalysisInterpretationWorkflow(object):
         analysis_wh.perform_round(interpretation, 'Not ready comment', new_workflow_status='Not ready')
 
     @pytest.mark.ai(order=1)
-    def test_round_two_classification(self, analysis_wh):
+    def test_round_two_interpretation(self, analysis_wh):
         interpretation = analysis_wh.start_interpretation(ANALYSIS_USERNAMES[0])
-        analysis_wh.perform_round(interpretation, 'Classification comment', new_workflow_status='Classification')
+        analysis_wh.perform_round(interpretation, 'Interpretation comment', new_workflow_status='Interpretation')
 
     @pytest.mark.ai(order=1)
     def test_round_three_review(self, analysis_wh):
@@ -98,7 +98,7 @@ class TestAlleleInterpretationWorkflow(object):
     Tests the whole workflow of
     interpretations on one allele.
 
-    - Classification -> Review
+    - Interpretation -> Review
     - Finalize
     - Reopen -> one round -> finalize
     """

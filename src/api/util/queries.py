@@ -103,12 +103,12 @@ def workflow_analyses_notready_not_started(session):
     )
 
 
-def workflow_analyses_classification_not_started(session):
+def workflow_analyses_interpretation_not_started(session):
     return workflow_by_status(
         session,
         workflow.AnalysisInterpretation,
         'analysis_id',
-        workflow_status='Classification',
+        workflow_status='Interpretation',
         status='Not started'
     )
 
@@ -138,7 +138,7 @@ def workflow_analyses_ongoing(session):
         session,
         workflow.AnalysisInterpretation,
         'analysis_id',
-        workflow_status='Classification',
+        workflow_status='Interpretation',
         status='Ongoing'
     )
 
@@ -158,7 +158,7 @@ def allele_ids_not_started_analyses(session):
         sample.Analysis,
         workflow.AnalysisInterpretation
     ).filter(
-        sample.Analysis.id.in_(workflow_analyses_classification_not_started(session))
+        sample.Analysis.id.in_(workflow_analyses_interpretation_not_started(session))
     )
 
 
@@ -172,12 +172,12 @@ def workflow_alleles_finalized(session):
     )
 
 
-def workflow_alleles_classification_not_started(session):
+def workflow_alleles_interpretation_not_started(session):
     return workflow_by_status(
         session,
         workflow.AlleleInterpretation,
         'allele_id',
-        workflow_status='Classification',
+        workflow_status='Interpretation',
         status='Not started'
     )
 
@@ -197,7 +197,7 @@ def workflow_alleles_ongoing(session):
         session,
         workflow.AlleleInterpretation,
         'allele_id',
-        workflow_status='Classification',
+        workflow_status='Interpretation',
         status='Ongoing'
     )
 

@@ -286,7 +286,7 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
         return None, 200
 
 
-class AnalysisActionMarkClassificationResource(LogRequestResource):
+class AnalysisActionMarkInterpretationResource(LogRequestResource):
 
     @authenticate()
     @request_json(
@@ -299,14 +299,14 @@ class AnalysisActionMarkClassificationResource(LogRequestResource):
     )
     def post(self, session, analysis_id, data=None, user=None):
         """
-        Marks an analysis for classification.
+        Marks an analysis for interpretation.
 
         This sets the analysis' current interpretation's status to `Done` and creates
-        a new current interpretation with status `Not started` in `Classification` state.
+        a new current interpretation with status `Not started` in `Interpretation` state.
 
         **Only works for analyses with a `Ongoing` current interpretation**
         ---
-        summary: Mark analysis for classification
+        summary: Mark analysis for interpretation
         tags:
           - Workflow
         parameters:
@@ -322,7 +322,7 @@ class AnalysisActionMarkClassificationResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markclassification_interpretation(session, data, analysis_id=analysis_id)
+        helpers.markinterpretation_interpretation(session, data, analysis_id=analysis_id)
         session.commit()
 
         return None, 200

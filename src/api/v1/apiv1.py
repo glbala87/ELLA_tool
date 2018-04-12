@@ -187,8 +187,8 @@ class ApiV1(object):
         self._add_resource(r.workflow.allele.AlleleActionStartResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/start/')
 
-        self._add_resource(r.workflow.allele.AlleleActionMarkClassificationResource,
-                           '/api/v1/workflows/alleles/<int:allele_id>/actions/markclassification/')
+        self._add_resource(r.workflow.allele.AlleleActionMarkInterpretationResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/markinterpretation/')
 
         self._add_resource(r.workflow.allele.AlleleActionMarkReviewResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/markreview/')
@@ -232,8 +232,8 @@ class ApiV1(object):
         self._add_resource(r.workflow.analysis.AnalysisActionMarkNotReadyResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/marknotready/')
 
-        self._add_resource(r.workflow.analysis.AnalysisActionMarkClassificationResource,
-                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/markclassification/')
+        self._add_resource(r.workflow.analysis.AnalysisActionMarkInterpretationResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/markinterpretation/')
 
         self._add_resource(r.workflow.analysis.AnalysisActionMarkReviewResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/markreview/')

@@ -65,10 +65,10 @@ class WorkflowService {
         );
     }
 
-    markclassification(type, id, interpretation, alleles) {
+    markinterpretation(type, id, interpretation, alleles) {
 
         let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
-        return this.workflowResource.markclassification(
+        return this.workflowResource.markinterpretation(
             type,
             id,
             prepared_data.annotations,
@@ -298,8 +298,8 @@ class WorkflowService {
                         return true;
                     });
                 }
-                else if (res === 'Classification') {
-                    return this.markclassification(type, id, interpretation, alleles).then( () => {
+                else if (res === 'Interpretation') {
+                    return this.markinterpretation(type, id, interpretation, alleles).then( () => {
                         return true;
                     });
                 }

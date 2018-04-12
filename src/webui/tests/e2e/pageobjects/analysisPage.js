@@ -19,7 +19,7 @@ class AnalysisPage extends Page {
 
     // buttons in modal
     get modalFinishButton() { return browser.element('.id-finish'); }
-    get markClassificationButton() { return browser.element('.id-mark-classification'); }
+    get markInterpretationButton() { return browser.element('.id-mark-interpretation'); }
     get markReviewButton() { return browser.element('.id-mark-review'); }
     get markMedicalReviewButton() { return browser.element('.id-mark-medicalreview'); }
     get finalizeButton() { return browser.element('.id-finalize'); }

@@ -251,9 +251,9 @@ def mark_notready(workflow_type, workflow_id, data, username):
     assert response.status_code == 200
 
 
-def mark_classification(workflow_type, workflow_id, data, username):
+def mark_interpretation(workflow_type, workflow_id, data, username):
     response = api.post(
-        '/workflows/{}/{}/actions/markclassification/'.format(uri_part[workflow_type], workflow_id),
+        '/workflows/{}/{}/actions/markinterpretation/'.format(uri_part[workflow_type], workflow_id),
         data,
         username=username
     )

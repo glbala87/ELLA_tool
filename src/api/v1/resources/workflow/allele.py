@@ -230,7 +230,7 @@ class AlleleActionStartResource(LogRequestResource):
         return None, 200
 
 
-class AlleleActionMarkClassificationResource(LogRequestResource):
+class AlleleActionMarkInterpretationResource(LogRequestResource):
 
     @authenticate()
     @request_json(
@@ -246,7 +246,7 @@ class AlleleActionMarkClassificationResource(LogRequestResource):
         Marks an allele interpretation for classification.
 
         This sets the alleles current interpretation's status to `Done` and creates
-        a new current interpretation with status `Not started` in `Classification` state.
+        a new current interpretation with status `Not started` in `Interpretation` state.
 
         **Only works for alleles with a `Ongoing` current interpretation**
         ---
@@ -266,7 +266,7 @@ class AlleleActionMarkClassificationResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markclassification_interpretation(session, data, allele_id=allele_id)
+        helpers.markinterpretation_interpretation(session, data, allele_id=allele_id)
         session.commit()
 
         return None, 200

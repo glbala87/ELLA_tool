@@ -36,8 +36,8 @@ export class WorkflowButtonsController {
             'Not ready': {
                 text: 'Start not ready'
             },
-            'Classification': {
-                text: 'Start classification'
+            'Interpretation': {
+                text: 'Start interpretation'
             },
             'Review': {
                 text: 'Start review'
@@ -168,7 +168,7 @@ export class WorkflowButtonsController {
     _getSaveStatus() {
         let interpretations = this.getAllInterpretations()
         if (!interpretations || !interpretations.length) {
-            return 'Classification';
+            return 'Interpretation';
         }
 
         if (interpretations.find(i => {
@@ -191,7 +191,7 @@ export class WorkflowButtonsController {
             return 'reopen';
         }
 
-        return 'Classification';
+        return 'Interpretation';
     }
 
     getSaveBtnText() {
@@ -205,7 +205,7 @@ export class WorkflowButtonsController {
 
     getSaveBtnClass() {
         let classes = [];
-        if (['Not ready', 'Classification', 'Review', 'Medical review'].includes(this._getSaveStatus())) {
+        if (['Not ready', 'Interpretation', 'Review', 'Medical review'].includes(this._getSaveStatus())) {
             classes.push('green');
         }
         else if (['override'].includes(this._getSaveStatus())) {

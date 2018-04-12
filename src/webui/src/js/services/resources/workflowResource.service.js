@@ -79,9 +79,9 @@ class WorkflowResource {
         });
     }
 
-    markclassification(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
+    markinterpretation(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
         return new Promise((resolve, reject) => {
-            this._resourceWithAction(type, 'markclassification').doIt(
+            this._resourceWithAction(type, 'markinterpretation').doIt(
                 { id },
                 {
                     annotations: annotations,

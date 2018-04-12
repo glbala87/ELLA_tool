@@ -13,7 +13,7 @@
     <div class="workflow-status-selection">
       <button ng-if="vm.type == 'analysis'" class="id-mark-notready" ng-class="vm.getClass('Not ready')" type="button" ng-click="vm.selectStatus('Not ready')">NOT READY</button>
       <p ng-if="vm.type == 'analysis'" class="step-indicator">⟶</p>
-      <button class="id-mark-classification" ng-class="vm.getClass('Classification')" type="button" ng-click="vm.selectStatus('Classification')">CLASSIFICATION</button>
+      <button class="id-mark-interpretation" ng-class="vm.getClass('Interpretation')" type="button" ng-click="vm.selectStatus('Interpretation')">INTERPRETATION</button>
       <p class="step-indicator">⟶</p>
       <button class="id-mark-review" ng-class="vm.getClass('Review')" type="button" ng-click="vm.selectStatus('Review')">REVIEW</button>
       <p class="step-indicator">⟶</p>

@@ -59,7 +59,7 @@ def migrate_interpretations(conn, model, id_attr):
 
             values = {
                 # In old format, any round (except first) is a review
-                'workflow_status': 'Classification' if idx == 0 else 'Review'
+                'workflow_status': 'Interpretation' if idx == 0 else 'Review'
             }
 
             if i.end_action == 'Finalize':
@@ -75,7 +75,7 @@ def upgrade():
 
     conn = op.get_bind()
 
-    workflow_status = sa.Enum('Classification', 'Review', name='alleleinterpretation_workflow_status')
+    workflow_status = sa.Enum('Interpretation', 'Review', name='alleleinterpretation_workflow_status')
     workflow_status.create(conn, checkfirst=True)
 
     # AlleleInterpretation
@@ -88,7 +88,7 @@ def upgrade():
     op.drop_column('alleleinterpretation', 'end_action')
 
     # AnalysisInterpretation
-    workflow_status = sa.Enum('Not ready', 'Classification', 'Review', 'Medical review', name='analysisinterpretation_workflow_status')
+    workflow_status = sa.Enum('Not ready', 'Interpretation', 'Review', 'Medical review', name='analysisinterpretation_workflow_status')
     workflow_status.create(conn, checkfirst=True)
     op.add_column('analysisinterpretation', sa.Column('finalized', sa.Boolean(), nullable=True))
     op.add_column('analysisinterpretation', sa.Column('workflow_status', workflow_status, nullable=True))

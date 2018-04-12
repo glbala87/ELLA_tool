@@ -92,10 +92,10 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 1
 
         ##
-        # Classification -> Classification
+        # Interpretation -> Interpretation
         ##
 
-        wh.perform_round(interpretation, 'Classification comment', new_workflow_status='Classification')
+        wh.perform_round(interpretation, 'Interpretation comment', new_workflow_status='Interpretation')
 
         r = client.get('/api/v1/overviews/analyses/by-findings/')
 
@@ -121,7 +121,7 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 0
 
         ##
-        # Classification -> Review
+        # Interpretation -> Review
         ##
 
         interpretation = wh.start_interpretation('testuser1')
@@ -152,11 +152,11 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 0
 
         ##
-        # Review -> Classification
+        # Review -> Interpretation
         ##
 
         interpretation = wh.start_interpretation('testuser1')
-        wh.perform_round(interpretation, 'Classification comment', new_workflow_status='Classification')
+        wh.perform_round(interpretation, 'Interpretation comment', new_workflow_status='Interpretation')
 
         r = client.get('/api/v1/overviews/analyses/by-findings/')
 
@@ -182,7 +182,7 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 0
 
         ##
-        # Classification -> Medical review
+        # Interpretation -> Medical review
         ##
 
         interpretation = wh.start_interpretation('testuser1')
@@ -731,10 +731,10 @@ class TestAlleleOverview(object):
         check_items({('HBOCUTV', 'v01'): [allele_id]}, r.json['missing_alleleassessment'], check_length=False)
 
     @pytest.mark.overviewallele(order=4)
-    def test_not_started_analysis_classification(self, test_database, client, session):
+    def test_not_started_analysis_interpretation(self, test_database, client, session):
         """
-        Test workflow with analysis from Classification -> Review -> Classification. It's alleles should appear
-        in not started list as long as it has 'Classification' status.
+        Test workflow with analysis from Interpretation -> Review -> Interpretation. It's alleles should appear
+        in not started list as long as it has 'Interpretation' status.
         """
         test_database.refresh()
 
@@ -754,7 +754,7 @@ class TestAlleleOverview(object):
         check_items({('HBOC', 'v01'): [2]}, r.json['missing_alleleassessment'], should_include=False)
 
         interpretation = wh.start_interpretation('testuser1')
-        wh.perform_round(interpretation, 'Classifcation comment', new_workflow_status='Classification')
+        wh.perform_round(interpretation, 'Classifcation comment', new_workflow_status='Interpretation')
 
         r = client.get('/api/v1/overviews/alleles/')
         # allele id 2 should now be back

@@ -276,7 +276,7 @@ class OverviewAlleleResource(LogRequestResource):
             allele.Allele.id.in_(queries.allele_ids_not_started_analyses(session)),  # Allele ids in not started analyses
             allele.Allele.id.in_(queries.allele_ids_not_started_analyses(session)),  # Allele ids in not started analyses
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),  # Allele ids without valid allele assessment
-            # Exclude alleles that have AlleleInterpretations and are not in Classification state
+            # Exclude alleles that have AlleleInterpretations and are not in Interpretation state
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status='Review', status=None)),
             # Exclude alleles that have Ongoing or Done AlleleInterpretation as latest interpretation:
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Done')),
@@ -294,7 +294,7 @@ class OverviewAlleleResource(LogRequestResource):
         allele_ids = [a[0] for a in allele_ids]
 
         analysis_ids = session.query(sample.Analysis.id).filter(
-            sample.Analysis.id.in_(queries.workflow_analyses_classification_not_started(session))
+            sample.Analysis.id.in_(queries.workflow_analyses_interpretation_not_started(session))
         )
 
         return allele_ids, analysis_ids
@@ -371,7 +371,7 @@ class OverviewAlleleResource(LogRequestResource):
         """
         analysis_allele_ids, analysis_ids = self._get_alleles_no_alleleassessment_notstarted_analysis(session, user)
 
-        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_classification_not_started(session))]
+        allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_interpretation_not_started(session))]
         if user is not None:
             allele_filters.append(
                 allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(session, user.group.genepanels))
@@ -517,7 +517,7 @@ def get_categorized_analyses(session, user=None):
 
     categories = [
         ('not_ready', queries.workflow_analyses_notready_not_started(session)),
-        ('not_started', queries.workflow_analyses_classification_not_started(session)),
+        ('not_started', queries.workflow_analyses_interpretation_not_started(session)),
         ('marked_review', queries.workflow_analyses_review_not_started(session)),
         ('marked_medicalreview', queries.workflow_analyses_medicalreview_not_started(session)),
         ('ongoing', queries.workflow_analyses_ongoing(session))

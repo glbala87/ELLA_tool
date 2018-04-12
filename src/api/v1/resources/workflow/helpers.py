@@ -398,8 +398,8 @@ def marknotready_interpretation(session, data, analysis_id=None):
     return mark_interpretation(session, 'Not ready', data, analysis_id=analysis_id)
 
 
-def markclassification_interpretation(session, data, allele_id=None, analysis_id=None):
-    return mark_interpretation(session, 'Classification', data, allele_id=allele_id, analysis_id=analysis_id)
+def markinterpretation_interpretation(session, data, allele_id=None, analysis_id=None):
+    return mark_interpretation(session, 'Interpretation', data, allele_id=allele_id, analysis_id=analysis_id)
 
 
 def markreview_interpretation(session, data, allele_id=None, analysis_id=None):

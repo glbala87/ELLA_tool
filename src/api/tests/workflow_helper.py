@@ -72,7 +72,7 @@ class WorkflowHelper(object):
             extra=self.interpretation_extras
         )
 
-    def perform_round(self, interpretation, comment, new_workflow_status="Classification"):
+    def perform_round(self, interpretation, comment, new_workflow_status="Interpretation"):
         """
         :param interpretation: interpretation object from start_interpretation()
         """
@@ -142,7 +142,7 @@ class WorkflowHelper(object):
 
         finish_method = {
             'Not ready': ih.mark_notready,
-            'Classification': ih.mark_classification,
+            'Interpretation': ih.mark_interpretation,
             'Review': ih.mark_review,
             'Medical review': ih.mark_medicalreview
         }

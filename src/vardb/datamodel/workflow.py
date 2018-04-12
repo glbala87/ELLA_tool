@@ -96,8 +96,8 @@ class AnalysisInterpretation(Base, InterpretationMixin):
 
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
-    workflow_status = Column(Enum("Not ready", "Classification", "Review", "Medical review",
-                             name="analysisinterpretation_workflow_status"), default="Classification", nullable=False)
+    workflow_status = Column(Enum("Not ready", "Interpretation", "Review", "Medical review",
+                             name="analysisinterpretation_workflow_status"), default="Interpretation", nullable=False)
 
     def __repr__(self):
         return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)
@@ -137,8 +137,8 @@ class AlleleInterpretation(Base, InterpretationMixin):
 
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
-    workflow_status = Column(Enum("Classification", "Review",
-                             name="alleleinterpretation_workflow_status"), default="Classification", nullable=False)
+    workflow_status = Column(Enum("Interpretation", "Review",
+                             name="alleleinterpretation_workflow_status"), default="Interpretation", nullable=False)
 
     def __repr__(self):
         return "<AlleleInterpretation('{}', '{}')>".format(str(self.allele_id), self.status)

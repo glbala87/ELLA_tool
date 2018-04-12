@@ -100,7 +100,7 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
     if not excel_file_obj:
         raise RuntimeError("Argument 'excel_file_obj' must be specified")
 
-    ids_not_started = queries.workflow_analyses_classification_not_started(session).all()
+    ids_not_started = queries.workflow_analyses_interpretation_not_started(session).all()
     if len(ids_not_started) < 1:
         return False
 
