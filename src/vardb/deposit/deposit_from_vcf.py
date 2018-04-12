@@ -16,6 +16,7 @@ from collections import defaultdict
 from sqlalchemy import and_
 import sqlalchemy.orm.exc
 
+from api.config import config
 import vardb.datamodel
 from vardb.datamodel import gene
 from vardb.util import vcfiterator
@@ -40,6 +41,9 @@ class DepositFromVCF(object):
         self.analysis_interpretation_importer = AnalysisInterpretationImporter(self.session)
         self.allele_interpretation_importer = AlleleInterpretationImporter(self.session)
         self.counter = defaultdict(int)
+
+    def get_postprocessors(self, type):
+        return [p for p in config['deposit']['postprocess'] if p['type'] == type]
 
     def get_genepanel(self, gp_name, gp_version):
         try:

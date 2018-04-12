@@ -348,6 +348,15 @@ config = {
             'human_g1k_v37_decoy.fasta',
             'human_g1k_v37_decoy.fasta.fai'
         ]
+    },
+    'deposit': {
+        'postprocess': [
+            {
+                'name': '.*EKG.*',
+                'type': 'analysis',
+                'methods': ['analysis_not_ready_findings']
+            }
+        ]
     }
 }
 

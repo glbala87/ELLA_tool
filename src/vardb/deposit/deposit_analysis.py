@@ -8,6 +8,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
 import sys
+import re
 import argparse
 import json
 import logging
@@ -93,17 +94,14 @@ class DepositAnalysis(DepositFromVCF):
 
         self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
 
-        # Set analysis as 'Not ready' if it has warnings _or_ there are variants that needs work (verification etc)
-        # TODO: Refactor this along with overview.py's functions to something nicer
-        # We also need to provide configuration options for this and have postdeposit plugins
-        from api.v1.resources.overview import categorize_analyses_by_findings  # Avoid circular imports...
-        from api import schemas
-        aschema = schemas.AnalysisFullSchema()
-        analysis = aschema.dump(db_analysis).data
-        without_findings = bool(categorize_analyses_by_findings(self.session, [analysis])['without_findings'])
-
-        if db_analysis.warnings or not without_findings:
-            db_analysis_interpretation.workflow_status = 'Not ready'
+        # Postprocess
+        candidate_processors = self.get_postprocessors('analysis')
+        for c in candidate_processors:
+            if re.search(c['name'], db_analysis.name):
+                for method in c['methods']:
+                    if method == 'analysis_not_ready_findings':
+                        from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
+                        analysis_not_ready_findings(self.session, db_analysis, db_analysis_interpretation)
 
 
 def main(argv=None):
