@@ -154,7 +154,7 @@ class WorkflowHelper(object):
             interpretation['user']['username']
         )
 
-        # Check that new interpretation was created due to marking as review
+        # Check that new interpretation was created
         assert len(ih.get_interpretations(self.type, self.id)) == interpretation_cnt + 1
 
         # Check that data was updated like it should

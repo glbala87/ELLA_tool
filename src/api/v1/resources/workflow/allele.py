@@ -243,14 +243,14 @@ class AlleleActionMarkInterpretationResource(LogRequestResource):
     )
     def post(self, session, allele_id, data=None, user=None):
         """
-        Marks an allele interpretation for classification.
+        Marks an allele interpretation for interpretation.
 
         This sets the alleles current interpretation's status to `Done` and creates
         a new current interpretation with status `Not started` in `Interpretation` state.
 
         **Only works for alleles with a `Ongoing` current interpretation**
         ---
-        summary: Mark allele for classification
+        summary: Mark allele for interpretation
         tags:
           - Workflow
         parameters:

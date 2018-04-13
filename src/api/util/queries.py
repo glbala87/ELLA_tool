@@ -52,6 +52,9 @@ def workflow_by_status(session, model, model_id_attr, workflow_status=None, stat
      SELECT s.id FROM (select DISTINCT ON (analysis_id) id, workflow_status, status
      from analysisinterpretation order by analysis_id, date_last_update desc) AS
      s where s.workflow_status = :status;
+
+    Using DISTINCT ON and ORDER BY will select one row, giving us the latest interpretation workflow status.
+    See https://www.postgresql.org/docs/10.0/static/sql-select.html#SQL-DISTINCT
     """
 
     if workflow_status is None and status is None:
@@ -235,22 +238,6 @@ def workflow_alleles_for_genepanels(session, genepanels):
             allele.Allele.id.in_(allele_ids_for_analyses),
             allele.Allele.id.in_(allele_ids_for_alleleinterpretation),
         )
-    )
-
-
-def allele_ids_no_analysis(session):
-    def get_sub_query():
-        return session.query(
-            allele.Allele.id,
-        ).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis,
-            workflow.AnalysisInterpretation
-        )
-
-    return session.query(allele.Allele.id).filter(
-        ~allele.Allele.id.in_(get_sub_query()),
     )
 
 

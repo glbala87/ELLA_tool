@@ -80,6 +80,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 1
+        assert len(r.json['not_ready']) == 0
+
 
         assert r.json['ongoing'][0]['id'] == FIRST_ANALYSIS_ID
         assert len(r.json['ongoing'][0]['interpretations']) == 1
@@ -90,6 +92,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 1
+        assert len(r.json['not_ready']) == 0
+
 
         ##
         # Interpretation -> Interpretation
@@ -107,6 +111,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         i = next(i for i in r.json['not_started_missing_alleleassessments'] if i['id'] == FIRST_ANALYSIS_ID)
         assert len(i['interpretations']) == 2
@@ -116,12 +122,45 @@ class TestAnalysisOverview(object):
         r = client.get('/api/v1/overviews/analyses/')
 
         assert len(r.json['not_started']) == 4
+        assert len(r.json['not_ready']) == 0
         assert len(r.json['marked_review']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
 
         ##
-        # Interpretation -> Review
+        # Interpretation -> Not ready
+        ##
+
+        interpretation = wh.start_interpretation('testuser1')
+        wh.perform_round(interpretation, 'Not ready comment', new_workflow_status='Not ready')
+
+        r = client.get('/api/v1/overviews/analyses/by-findings/')
+
+        assert len(r.json['not_started_missing_alleleassessments']) == 3
+        assert len(r.json['not_started_with_findings']) == 0
+        assert len(r.json['not_started_without_findings']) == 0
+        assert len(r.json['marked_review_missing_alleleassessments']) == 0
+        assert len(r.json['marked_review_with_findings']) == 0
+        assert len(r.json['marked_review_without_findings']) == 0
+        assert len(r.json['marked_medicalreview']) == 0
+        assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 1
+
+        i = next(i for i in r.json['not_ready'] if i['id'] == FIRST_ANALYSIS_ID)
+        assert len(i['interpretations']) == 3
+        # Check correct sorting on interpretations
+        assert i['interpretations'][0]['date_last_update'] < i['interpretations'][1]['date_last_update']
+
+        r = client.get('/api/v1/overviews/analyses/')
+
+        assert len(r.json['not_started']) == 3
+        assert len(r.json['not_ready']) == 1
+        assert len(r.json['marked_review']) == 0
+        assert len(r.json['marked_medicalreview']) == 0
+        assert len(r.json['ongoing']) == 0
+
+        ##
+        # Not ready -> Review
         ##
 
         interpretation = wh.start_interpretation('testuser1')
@@ -137,16 +176,19 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         i = r.json['marked_review_missing_alleleassessments'][0]
         assert i['id'] == FIRST_ANALYSIS_ID
-        assert len(i['interpretations']) == 3
+        assert len(i['interpretations']) == 4
         # Check correct sorting on interpretations
         assert i['interpretations'][0]['date_last_update'] < i['interpretations'][1]['date_last_update']
 
         r = client.get('/api/v1/overviews/analyses/')
 
         assert len(r.json['not_started']) == 3
+        assert len(r.json['not_ready']) == 0
         assert len(r.json['marked_review']) == 1
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
@@ -168,9 +210,11 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         i = next(i for i in r.json['not_started_missing_alleleassessments'] if i['id'] == FIRST_ANALYSIS_ID)
-        assert len(i['interpretations']) == 4
+        assert len(i['interpretations']) == 5
         # Check correct sorting on interpretations
         assert i['interpretations'][0]['date_last_update'] < i['interpretations'][1]['date_last_update']
 
@@ -180,6 +224,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         ##
         # Interpretation -> Medical review
@@ -198,10 +244,12 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 1
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         i = r.json['marked_medicalreview'][0]
         assert i['id'] == FIRST_ANALYSIS_ID
-        assert len(i['interpretations']) == 5
+        assert len(i['interpretations']) == 6
         # Check correct sorting on interpretations
         assert i['interpretations'][0]['date_last_update'] < i['interpretations'][1]['date_last_update']
 
@@ -211,6 +259,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review']) == 0
         assert len(r.json['marked_medicalreview']) == 1
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         ##
         # Finalize
@@ -229,11 +279,14 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
         assert r.json[0]['id'] == FIRST_ANALYSIS_ID
         interpretations = r.json[0]['interpretations']
+        assert len(i['interpretations']) == 6
         assert interpretations[0]['date_last_update'] < interpretations[1]['date_last_update']
         r = client.get('/api/v1/overviews/analyses/')
 
@@ -241,6 +294,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         ##
         # Test with_findings, non-outdated
@@ -294,6 +349,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
@@ -318,6 +375,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
@@ -344,6 +403,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
@@ -368,6 +429,8 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_review_without_findings']) == 0
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
+        assert len(r.json['not_ready']) == 0
+
 
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
@@ -733,8 +796,8 @@ class TestAlleleOverview(object):
     @pytest.mark.overviewallele(order=4)
     def test_not_started_analysis_interpretation(self, test_database, client, session):
         """
-        Test workflow with analysis from Interpretation -> Review -> Interpretation. It's alleles should appear
-        in not started list as long as it has 'Interpretation' status.
+        Test workflow with analysis from Interpretation ->  Review -> Interpretation -> Not ready. It's alleles should appear
+        in not started list as long as it has 'Interpretation' or 'Not ready' status.
         """
         test_database.refresh()
 
@@ -754,11 +817,19 @@ class TestAlleleOverview(object):
         check_items({('HBOC', 'v01'): [2]}, r.json['missing_alleleassessment'], should_include=False)
 
         interpretation = wh.start_interpretation('testuser1')
-        wh.perform_round(interpretation, 'Classifcation comment', new_workflow_status='Interpretation')
+        wh.perform_round(interpretation, 'Interpretation comment', new_workflow_status='Interpretation')
 
         r = client.get('/api/v1/overviews/alleles/')
         # allele id 2 should now be back
         check_items({('HBOC', 'v01'): [2]}, r.json['missing_alleleassessment'], check_length=False)
+
+        interpretation = wh.start_interpretation('testuser1')
+        wh.perform_round(interpretation, 'Not ready comment', new_workflow_status='Not ready')
+
+        r = client.get('/api/v1/overviews/alleles/')
+        # allele id 2 should still be there
+        check_items({('HBOC', 'v01'): [2]}, r.json['missing_alleleassessment'], check_length=False)
+
 
     @pytest.mark.overviewallele(order=5)
     def test_other_categories(self, test_database, client, session):
