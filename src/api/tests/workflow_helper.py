@@ -44,6 +44,23 @@ class WorkflowHelper(object):
         self.interpretation_extras = {'gp_name': genepanel[0], 'gp_version': genepanel[1]} if genepanel else dict()
         self.assessment_extras = {'genepanel_name': genepanel[0], 'genepanel_version': genepanel[1]} if genepanel else dict()
 
+    def _update_comments(self, state, comment):
+        allele_assessments = state['alleleassessments']
+        reference_assessments = state['referenceassessments']
+        allele_reports = state['allelereports']
+
+        # Simulate updating the assessments in the state
+        for s in allele_assessments + reference_assessments + allele_reports:
+            s['evaluation']['comment'] = comment
+
+    def _check_comments(self, state, comment):
+        allele_assessments = state['alleleassessments']
+        reference_assessments = state['referenceassessments']
+        allele_reports = state['allelereports']
+
+        assert all([item['evaluation']['comment'] == comment
+                    for item in allele_assessments + reference_assessments + allele_reports])
+
     def reopen(self, username):
         ih.reopen_analysis(self.type, self.id, username)
 
@@ -55,7 +72,7 @@ class WorkflowHelper(object):
             extra=self.interpretation_extras
         )
 
-    def perform_review_round(self, interpretation):
+    def perform_round(self, interpretation, comment, new_workflow_status="Interpretation"):
         """
         :param interpretation: interpretation object from start_interpretation()
         """
@@ -110,6 +127,8 @@ class WorkflowHelper(object):
                 )
             )
 
+        self._update_comments(interpretation['state'], comment)
+
         ih.save_interpretation_state(
             self.type,
             interpretation,
@@ -117,17 +136,25 @@ class WorkflowHelper(object):
             interpretation['user']['username']
         )
 
-        # Check that new interpretation was created due to marking as review
         interpretation_cnt = len(ih.get_interpretations(self.type, self.id))
 
         ih.save_interpretation_state(self.type, interpretation, self.id, interpretation['user']['username'])
-        ih.mark_review(
+
+        finish_method = {
+            'Not ready': ih.mark_notready,
+            'Interpretation': ih.mark_interpretation,
+            'Review': ih.mark_review,
+            'Medical review': ih.mark_medicalreview
+        }
+
+        finish_method[new_workflow_status](
             self.type,
             self.id,
-            ih.review_template(),
+            ih.round_template(),  # We don't bother to provide real data for normal rounds, we are just testing workflow
             interpretation['user']['username']
         )
 
+        # Check that new interpretation was created
         assert len(ih.get_interpretations(self.type, self.id)) == interpretation_cnt + 1
 
         # Check that data was updated like it should
@@ -137,13 +164,15 @@ class WorkflowHelper(object):
             interpretation['id']
         )
 
-        assert reloaded_interpretation['end_action'] == 'Mark review'
+        self._check_comments(reloaded_interpretation['state'], comment)
+
+        assert reloaded_interpretation['finalized'] is False
         assert reloaded_interpretation['status'] == 'Done'
         assert reloaded_interpretation['user']['username'] == interpretation['user']['username']
 
         self.check_interpretation(reloaded_interpretation)
 
-    def perform_finalize_round(self, interpretation):
+    def perform_finalize_round(self, interpretation, comment):
 
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation['state']['alleleassessments']
@@ -151,12 +180,7 @@ class WorkflowHelper(object):
         allele_reports = interpretation['state']['allelereports']
         attachments = []
 
-        assert all([item['evaluation']['comment'] == 'Original comment'
-                    for item in allele_assessments + reference_assessments + allele_reports])
-
-        # Simulate updating the assessments in the state
-        for s in allele_assessments + reference_assessments + allele_reports:
-            s['evaluation']['comment'] = 'Updated comment'
+        self._update_comments(interpretation['state'], comment)
 
         ih.save_interpretation_state(
             self.type,
@@ -194,7 +218,7 @@ class WorkflowHelper(object):
                 else:
                     assert entity_in_db['allele_id'] == self.id
 
-                assert entity_in_db['evaluation']['comment'] == 'Updated comment'
+                assert entity_in_db['evaluation']['comment'] == comment
 
         interpretations = ih.get_interpretations(self.type, self.id)
         assert len(interpretations) == interpretation_cnt
@@ -207,13 +231,15 @@ class WorkflowHelper(object):
             interpretation['id']
         )
 
-        assert reloaded_interpretation['end_action'] == 'Finalize'
+        self._check_comments(reloaded_interpretation['state'], comment)
+
+        assert reloaded_interpretation['finalized'] is True
         assert reloaded_interpretation['status'] == 'Done'
         assert reloaded_interpretation['user']['username'] == interpretation['user']['username']
 
         self.check_interpretation(reloaded_interpretation)
 
-    def perform_reopened_round(self, interpretation):
+    def perform_reopened_round(self, interpretation, comment):
 
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation['state']['alleleassessments']
@@ -221,11 +247,7 @@ class WorkflowHelper(object):
         allele_reports = interpretation['state']['allelereports']
         attachments = []
 
-        assert all([item['evaluation']['comment'] == 'Updated comment' for item in allele_assessments + reference_assessments + allele_reports])
-
-        # Simulate updating the assessments again:
-        for item in allele_assessments + reference_assessments + allele_reports:
-            item['evaluation']['comment'] = 'Reopened comment'
+        self._update_comments(interpretation['state'], comment)
 
         # annotation is required for finalization
         annotations, custom_annotations = _build_dummy_annotations(map(lambda a: a['allele_id'], allele_assessments))
@@ -275,7 +297,7 @@ class WorkflowHelper(object):
             interpretation['id']
         )
 
-        assert reloaded_interpretation['end_action'] == 'Finalize'
+        assert reloaded_interpretation['finalized'] is True
         assert reloaded_interpretation['status'] == 'Done'
         assert reloaded_interpretation['user']['username'] == interpretation['user']['username']
 
@@ -301,7 +323,7 @@ class WorkflowHelper(object):
             else:
                 assert snapshot['presented_allelereport_id'] is None
 
-        if interpretation['end_action'] == 'Finalize':
+        if interpretation['finalized']:
 
             for allele_id in interpretation['allele_ids']:
 

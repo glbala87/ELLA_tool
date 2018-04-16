@@ -1,3 +1,17 @@
+<sectionbox color="red" ng-attr-id="'analysis-notready'" class="id-analysis-notready" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+    <maintitle>NOT READY</maintitle>
+    <subtitle>
+      {{vm.overview.not_ready.length}}
+    </subtitle>
+    <contentwrapper>
+      <analysis-list analyses="vm.overview.not_ready"></analysis-list>
+      <h4 class="sb-notification dim" ng-if="!vm.overview.not_ready.length">No analyses are not ready</h4>
+    </contentwrapper>
+  </sectionbox>
+
+
+<div class="spacer"></div>
+
 <sectionbox color="green" ng-attr-id="'analysis-ours'" class="id-analysis-ours" remember-collapse="true" collapsed="true" ng-if="vm.overview">
   <maintitle>
     YOUR ANALYSES
@@ -116,6 +130,19 @@
       <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review.length">No analyses pending review.</h4>
     </contentwrapper>
   </sectionbox>
+
+<sectionbox color="purple" ng-attr-id="'analysis-medicalreview'" class="id-analysis-medicalreview" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+  <maintitle>
+    PENDING MEDICAL REVIEW
+  </maintitle>
+  <subtitle>
+    {{vm.overview.marked_medicalreview.length}}
+  </subtitle>
+  <contentwrapper>
+    <analysis-list analyses="vm.overview.marked_medicalreview"></analysis-list>
+    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_medicalreview.length">No analyses pending medical review.</h4>
+  </contentwrapper>
+</sectionbox>
 
 <div class="spacer"></div>
 

@@ -40,70 +40,110 @@ def allele_ids_with_valid_alleleassessments(session):
     )
 
 
+def workflow_by_status(session, model, model_id_attr, workflow_status=None, status=None):
+    """
+    Fetches all allele_id/analysis_id where the last interpretation matches provided
+    workflow status and/or status.
+
+    :param model: AlleleInterpretation or AnalysisInterpretation
+    :param model_id_attr: 'allele_id' or 'analysis_id'
+
+    Query resembles something like this:
+     SELECT s.id FROM (select DISTINCT ON (analysis_id) id, workflow_status, status
+     from analysisinterpretation order by analysis_id, date_last_update desc) AS
+     s where s.workflow_status = :status;
+
+    Using DISTINCT ON and ORDER BY will select one row, giving us the latest interpretation workflow status.
+    See https://www.postgresql.org/docs/10.0/static/sql-select.html#SQL-DISTINCT
+    """
+
+    if workflow_status is None and status is None:
+        raise RuntimeError("You must provide either 'workflow_status' or 'status' argument")
+
+    latest_interpretation = session.query(
+        getattr(model, model_id_attr),
+        model.workflow_status,
+        model.status,
+    ).order_by(
+        getattr(model, model_id_attr),
+        model.date_last_update.desc(),
+    ).distinct(
+        getattr(model, model_id_attr),  # DISTINCT ON
+    ).subquery()
+
+    filters = []
+    if workflow_status:
+        filters.append(
+            latest_interpretation.c.workflow_status == workflow_status,
+        )
+    if status:
+        filters.append(
+            latest_interpretation.c.status == status
+        )
+    return session.query(getattr(latest_interpretation.c, model_id_attr)).filter(*filters)
+
+
 def workflow_analyses_finalized(session):
-    def get_sub_query(status):
-        return session.query(sample.Analysis.id).join(
-            workflow.AnalysisInterpretation
-        ).filter(
-            workflow.AnalysisInterpretation.status == status
-        )
-
-    return session.query(sample.Analysis.id).join(
-        workflow.AnalysisInterpretation
-    ).filter(
-        ~sample.Analysis.id.in_(get_sub_query('Not started')),
-        ~sample.Analysis.id.in_(get_sub_query('Ongoing')),
-        sample.Analysis.id.in_(get_sub_query('Done'))
-    ).distinct(sample.Analysis.id)
+    """
+    Definition of Finalized: latest interpretation is 'Done'
+    """
+    return workflow_by_status(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        workflow_status=None,
+        status='Done'
+    )
 
 
-def workflow_analyses_not_started(session):
-    def get_sub_query(status):
-        return session.query(sample.Analysis.id).join(
-            workflow.AnalysisInterpretation
-        ).filter(
-            workflow.AnalysisInterpretation.status == status
-        )
-
-    return session.query(sample.Analysis.id).join(
-        workflow.AnalysisInterpretation
-    ).filter(
-        sample.Analysis.id.in_(get_sub_query('Not started')),
-        ~sample.Analysis.id.in_(get_sub_query('Ongoing')),
-        ~sample.Analysis.id.in_(get_sub_query('Done'))
-    ).distinct(sample.Analysis.id)
+def workflow_analyses_notready_not_started(session):
+    return workflow_by_status(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        workflow_status='Not ready',
+        status='Not started'
+    )
 
 
-def workflow_analyses_marked_review(session):
-    def get_sub_query(status):
-        return session.query(sample.Analysis.id).join(
-            workflow.AnalysisInterpretation
-        ).filter(
-            workflow.AnalysisInterpretation.status == status
-        )
+def workflow_analyses_interpretation_not_started(session):
+    return workflow_by_status(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        workflow_status='Interpretation',
+        status='Not started'
+    )
 
-    return session.query(sample.Analysis.id).join(
-        workflow.AnalysisInterpretation
-    ).filter(
-        sample.Analysis.id.in_(get_sub_query('Not started')),
-        sample.Analysis.id.in_(get_sub_query('Done')),
-        ~sample.Analysis.id.in_(get_sub_query('Ongoing'))
-    ).distinct(sample.Analysis.id)
+
+def workflow_analyses_review_not_started(session):
+    return workflow_by_status(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        workflow_status='Review',
+        status='Not started'
+    )
+
+
+def workflow_analyses_medicalreview_not_started(session):
+    return workflow_by_status(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        workflow_status='Medical review',
+        status='Not started'
+    )
 
 
 def workflow_analyses_ongoing(session):
-    def get_sub_query(status):
-        return session.query(sample.Analysis.id).join(
-            workflow.AnalysisInterpretation
-        ).filter(
-            workflow.AnalysisInterpretation.status == status
-        )
-
-    return session.query(sample.Analysis.id).join(
-        workflow.AnalysisInterpretation
-    ).filter(
-        sample.Analysis.id.in_(get_sub_query('Ongoing')),
-    ).distinct(sample.Analysis.id)
+    return workflow_by_status(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        workflow_status=None,
+        status='Ongoing'
+    )
 
 
 def workflow_analyses_for_genepanels(session, genepanels):
@@ -113,98 +153,62 @@ def workflow_analyses_for_genepanels(session, genepanels):
 
 
 def allele_ids_not_started_analyses(session):
+    """
+    Get all allele_ids for 'Not started' analyses in either
+    'Not ready' or 'Interpretation' workflow status.
+    """
     return session.query(
         allele.Allele.id,
     ).join(
         genotype.Genotype.alleles,
         sample.Sample,
-        sample.Analysis,
-        workflow.AnalysisInterpretation
+        sample.Analysis
     ).filter(
-        sample.Analysis.id.in_(workflow_analyses_not_started(session))
+        or_(
+            sample.Analysis.id.in_(workflow_analyses_interpretation_not_started(session)),
+            sample.Analysis.id.in_(workflow_analyses_notready_not_started(session))
+        )
     )
 
 
 def workflow_alleles_finalized(session):
-    def get_sub_query(status):
-        return session.query(allele.Allele.id).join(
-            workflow.AlleleInterpretation
-        ).filter(
-            workflow.AlleleInterpretation.status == status
-        )
-
-    return session.query(allele.Allele.id).join(
-        workflow.AlleleInterpretation
-    ).filter(
-        ~allele.Allele.id.in_(get_sub_query('Not started')),
-        ~allele.Allele.id.in_(get_sub_query('Ongoing')),
-        allele.Allele.id.in_(get_sub_query('Done'))
-    ).distinct(allele.Allele.id)
-
-
-def workflow_alleles_not_started(session):
-    def get_sub_query(status):
-        return session.query(allele.Allele.id).join(
-            workflow.AlleleInterpretation
-        ).filter(
-            workflow.AlleleInterpretation.status == status
-        )
-
-    return session.query(allele.Allele.id).join(
-        workflow.AlleleInterpretation
-    ).filter(
-        allele.Allele.id.in_(get_sub_query('Not started')),
-        ~allele.Allele.id.in_(get_sub_query('Ongoing')),
-        ~allele.Allele.id.in_(get_sub_query('Done'))
-    ).distinct(allele.Allele.id)
-
-
-def allele_ids_no_analysis(session):
-    def get_sub_query():
-        return session.query(
-            allele.Allele.id,
-        ).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis,
-            workflow.AnalysisInterpretation
-        )
-
-    return session.query(allele.Allele.id).filter(
-        ~allele.Allele.id.in_(get_sub_query()),
+    return workflow_by_status(
+        session,
+        workflow.AlleleInterpretation,
+        'allele_id',
+        workflow_status=None,
+        status='Done'
     )
 
 
-def workflow_alleles_marked_review(session):
-    def get_sub_query(status):
-        return session.query(allele.Allele.id).join(
-            workflow.AlleleInterpretation
-        ).filter(
-            workflow.AlleleInterpretation.status == status
-        )
+def workflow_alleles_interpretation_not_started(session):
+    return workflow_by_status(
+        session,
+        workflow.AlleleInterpretation,
+        'allele_id',
+        workflow_status='Interpretation',
+        status='Not started'
+    )
 
-    return session.query(allele.Allele.id).join(
-        workflow.AlleleInterpretation
-    ).filter(
-        allele.Allele.id.in_(get_sub_query('Not started')),
-        allele.Allele.id.in_(get_sub_query('Done')),
-        ~allele.Allele.id.in_(get_sub_query('Ongoing'))
-    ).distinct(allele.Allele.id)
+
+def workflow_alleles_review_not_started(session):
+    return workflow_by_status(
+        session,
+        workflow.AlleleInterpretation,
+        'allele_id',
+        workflow_status='Review',
+        status='Not started'
+    )
 
 
 def workflow_alleles_ongoing(session):
-    def get_sub_query(status):
-        return session.query(allele.Allele.id).join(
-            workflow.AlleleInterpretation
-        ).filter(
-            workflow.AlleleInterpretation.status == status
-        )
-
-    return session.query(allele.Allele.id).join(
-        workflow.AlleleInterpretation
-    ).filter(
-        allele.Allele.id.in_(get_sub_query('Ongoing')),
-    ).distinct(allele.Allele.id)
+    return workflow_by_status(
+        session,
+        workflow.AlleleInterpretation,
+        'allele_id',
+        workflow_status=None,
+        status='Ongoing'
+    )
 
 
 def workflow_alleles_for_genepanels(session, genepanels):

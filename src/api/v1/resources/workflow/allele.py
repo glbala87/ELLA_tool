@@ -230,6 +230,48 @@ class AlleleActionStartResource(LogRequestResource):
         return None, 200
 
 
+class AlleleActionMarkInterpretationResource(LogRequestResource):
+
+    @authenticate()
+    @request_json(
+        [
+            'alleleassessments',
+            'annotations',
+            'custom_annotations',
+            'allelereports'
+        ]
+    )
+    def post(self, session, allele_id, data=None, user=None):
+        """
+        Marks an allele interpretation for interpretation.
+
+        This sets the alleles current interpretation's status to `Done` and creates
+        a new current interpretation with status `Not started` in `Interpretation` state.
+
+        **Only works for alleles with a `Ongoing` current interpretation**
+        ---
+        summary: Mark allele for interpretation
+        tags:
+          - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+
+        helpers.markinterpretation_interpretation(session, data, allele_id=allele_id)
+        session.commit()
+
+        return None, 200
+
+
 class AlleleActionMarkReviewResource(LogRequestResource):
 
     @authenticate()
@@ -246,7 +288,7 @@ class AlleleActionMarkReviewResource(LogRequestResource):
         Marks an allele interpretation for review.
 
         This sets the alleles current interpretation's status to `Done` and creates
-        a new current interpretation with status `Not started`.
+        a new current interpretation with status `Not started` in `Review` state
 
         **Only works for alleles with a `Ongoing` current interpretation**
         ---

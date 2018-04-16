@@ -345,13 +345,17 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     return interpretation
 
 
-def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
+def mark_interpretation(session, workflow_status, data, allele_id=None, analysis_id=None):
+    """
+    Marks (and copies) an interpretation for a new workflow_status,
+    creating Snapshot objects to record history.
+    """
 
     interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
     interpretation_model = _get_interpretation_model(allele_id, analysis_id)
 
     if not interpretation.status == 'Ongoing':
-        raise ApiError("Cannot mark for review when latest interpretation is not 'Ongoing'")
+        raise ApiError("Cannot mark as '{}' when latest interpretation is not 'Ongoing'".format(workflow_status))
 
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
@@ -379,14 +383,31 @@ def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     session.add_all(snapshot_objects)
 
     interpretation.status = 'Done'
-    interpretation.end_action = 'Mark review'
+    interpretation.finalized = False
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     # Create next interpretation
     interpretation_next = interpretation_model.create_next(interpretation)
+    interpretation_next.workflow_status = workflow_status
     session.add(interpretation_next)
 
     return interpretation, interpretation_next
+
+
+def marknotready_interpretation(session, data, analysis_id=None):
+    return mark_interpretation(session, 'Not ready', data, analysis_id=analysis_id)
+
+
+def markinterpretation_interpretation(session, data, allele_id=None, analysis_id=None):
+    return mark_interpretation(session, 'Interpretation', data, allele_id=allele_id, analysis_id=analysis_id)
+
+
+def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
+    return mark_interpretation(session, 'Review', data, allele_id=allele_id, analysis_id=analysis_id)
+
+
+def markmedicalreview_interpretation(session, data, analysis_id=None):
+    return mark_interpretation(session, 'Medical review', data, analysis_id=analysis_id)
 
 
 def reopen_interpretation(session, allele_id=None, analysis_id=None):
@@ -402,6 +423,7 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
 
     # Create next interpretation
     interpretation_next = interpretation_model.create_next(interpretation)
+    interpretation_next.workflow_status = interpretation.workflow_status  # TODO: Where do we want to go?
     session.add(interpretation_next)
 
     return interpretation, interpretation_next
@@ -492,7 +514,7 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
     # Update interpretation and return data
     interpretation.status = 'Done'
-    interpretation.end_action = 'Finalize'
+    interpretation.finalized = True
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     reused_referenceassessments = grouped_alleleassessments['referenceassessments']['reused']
@@ -564,7 +586,8 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     # i.e having not only 'Not started' interpretations or not only 'Done' interpretations.
     workflow_analysis_ids = session.query(sample.Analysis.id).filter(
         or_(
-            sample.Analysis.id.in_(queries.workflow_analyses_marked_review(session)),
+            sample.Analysis.id.in_(queries.workflow_analyses_review_not_started(session)),
+            sample.Analysis.id.in_(queries.workflow_analyses_medicalreview_not_started(session)),
             sample.Analysis.id.in_(queries.workflow_analyses_ongoing(session)),
         )
     )
@@ -602,7 +625,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         workflow.AlleleInterpretation.allele_id,
     ).filter(
         or_(
-            workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_marked_review(session)),
+            workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_review_not_started(session)),
             workflow.AlleleInterpretation.allele_id.in_(queries.workflow_alleles_ongoing(session))
         ),
         workflow.AlleleInterpretation.status != 'Done',

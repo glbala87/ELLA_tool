@@ -33,7 +33,8 @@ class AlleleInterpretationSchema(Schema):
         # Fields to expose
         fields = ('id',
                   'status',
-                  'end_action',
+                  'finalized',
+                  'workflow_status',
                   'user_state',
                   'state',
                   'genepanel_name',
@@ -54,7 +55,8 @@ class AlleleInterpretationOverviewSchema(Schema):
         # Fields to expose
         fields = ('id',
                   'status',
-                  'end_action',
+                  'finalized',
+                  'workflow_status',
                   'allele_id',
                   'state',
                   'genepanel_name',

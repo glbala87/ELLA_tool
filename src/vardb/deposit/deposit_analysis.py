@@ -8,6 +8,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
 import sys
+import re
 import argparse
 import json
 import logging
@@ -15,6 +16,7 @@ from collections import OrderedDict
 
 from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
+from vardb.datamodel import sample, allele, workflow
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -40,7 +42,7 @@ class DepositAnalysis(DepositFromVCF):
                 self.genotype_importer.process(v, sample_name, db_analysis, db_sample, db_alleles)
 
     def import_vcf(self, analysis_config_data, cache_size=1000, sample_type="HTS"):
-        
+
         vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
@@ -51,8 +53,8 @@ class DepositAnalysis(DepositFromVCF):
         db_genepanel = self.get_genepanel(analysis_config_data.gp_name, analysis_config_data.gp_version)
 
         db_analysis = self.analysis_importer.process(
-            analysis_config_data.analysis_name, 
-            analysis_config_data.priority, 
+            analysis_config_data.analysis_name,
+            analysis_config_data.priority,
             db_genepanel,
             analysis_config_data.report,
             analysis_config_data.warnings
@@ -64,7 +66,7 @@ class DepositAnalysis(DepositFromVCF):
             self.session.rollback()
             raise RuntimeError("Couldn't import samples to database. (db_samples: %s, vcf_sample_names: %s)" %(str(db_samples), str(vcf_sample_names)))
 
-        self.analysis_interpretation_importer.process(db_analysis)
+        db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis)
         records_cache = OrderedDict()
         N = 0
         for record in vi.iter():
@@ -91,6 +93,15 @@ class DepositAnalysis(DepositFromVCF):
                 N = 1
 
         self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
+
+        # Postprocess
+        candidate_processors = self.get_postprocessors('analysis')
+        for c in candidate_processors:
+            if re.search(c['name'], db_analysis.name):
+                for method in c['methods']:
+                    if method == 'analysis_not_ready_findings':
+                        from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
+                        analysis_not_ready_findings(self.session, db_analysis, db_analysis_interpretation)
 
 
 def main(argv=None):

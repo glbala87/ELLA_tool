@@ -17,9 +17,7 @@ from api.util import alleledataloader
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.allelefilter import AlleleFilter
 from api.util.util import get_nested
-from api.v1.resources.overview import filter_result_of_alleles
-from vardb.datamodel import DB, gene, genotype
-from vardb.datamodel import sample, allele
+from vardb.datamodel import DB, gene, genotype, sample, allele, workflow
 from api.util import queries
 
 
@@ -50,7 +48,6 @@ WARNING_COLUMN_PROPERTIES = [
 ]
 
 
-
 # Column header and width
 COLUMN_PROPERTIES = [
     (u'Importdato', 12),
@@ -64,7 +61,33 @@ COLUMN_PROPERTIES = [
     (u'HGVSc', 24),
     (u'Klasse', 6),
     (u'Må verifiseres?', 13)
-    ]
+]
+
+
+def filter_result_of_alleles(session, allele_ids):
+
+    # Get a list of candidate genepanels per allele id
+    allele_ids_genepanels = session.query(
+        workflow.AnalysisInterpretation.genepanel_name,
+        workflow.AnalysisInterpretation.genepanel_version,
+        allele.Allele.id
+    ).join(
+        genotype.Genotype.alleles,
+        sample.Sample,
+        sample.Analysis
+    ).filter(
+        workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
+        allele.Allele.id.in_(allele_ids)
+    ).all()
+
+    # Make a dict of (gp_name, gp_version): [allele_ids] for use with AlleleFilter
+    gp_allele_ids = defaultdict(list)
+    for entry in allele_ids_genepanels:
+        gp_allele_ids[(entry[0], entry[1])].append(entry[2])
+
+    # Filter out alleles
+    af = AlleleFilter(session)
+    return af.filter_alleles(gp_allele_ids)  # gp_key => {allele ids distributed by filter status}
 
 
 def create_variant_row(default_transcript, analysis_info, allele_info, sanger_verify):
@@ -100,7 +123,7 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
     if not excel_file_obj:
         raise RuntimeError("Argument 'excel_file_obj' must be specified")
 
-    ids_not_started = queries.workflow_analyses_not_started(session).all()
+    ids_not_started = queries.workflow_analyses_interpretation_not_started(session).all()
     if len(ids_not_started) < 1:
         return False
 

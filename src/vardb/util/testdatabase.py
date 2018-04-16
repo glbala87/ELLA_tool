@@ -46,6 +46,7 @@ class TestDatabase(object):
         print "Refreshing database with data from dump"
 
         if os.environ.get('TEST_DB_DUMP') and os.path.exists(os.environ.get('TEST_DB_DUMP')):
+            print "Reusing dump from {}".format(os.environ['TEST_DB_DUMP'])
             dump_path = os.environ['TEST_DB_DUMP']
         else:
             dump_path = self.dump_path

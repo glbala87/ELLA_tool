@@ -56,6 +56,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1');
         analysisPage.finishButton.click();
         analysisPage.markReviewButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
 
@@ -68,6 +69,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function 
         expect(alleleSectionBox.getReferences().value.length).toEqual(4);
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
 

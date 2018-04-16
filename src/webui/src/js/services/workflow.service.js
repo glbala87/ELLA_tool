@@ -8,9 +8,20 @@ import {AlleleStateHelper} from '../model/allelestatehelper';
  */
 class ConfirmCompleteInterpretationController {
 
-    constructor(canFinalize, modalInstance) {
+    constructor(currentStatus, canFinalize, type, modalInstance) {
+        this.currentStatus = currentStatus
+        this.selectedStatus = currentStatus
         this.canFinalize = canFinalize;
         this.modal = modalInstance;
+        this.type = type;
+    }
+
+    getClass(status) {
+        return status === this.selectedStatus ? 'blue' : 'normal'
+    }
+
+    selectStatus(status) {
+        this.selectedStatus = status
     }
 }
 
@@ -39,10 +50,56 @@ class WorkflowService {
         this.locationService = LocationService;
     }
 
+    marknotready(type, id, interpretation, alleles) {
+
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.marknotready(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports,
+            prepared_data.attachments
+        );
+    }
+
+    markinterpretation(type, id, interpretation, alleles) {
+
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.markinterpretation(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports,
+            prepared_data.attachments
+        );
+    }
+
+
     markreview(type, id, interpretation, alleles) {
 
         let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
         return this.workflowResource.markreview(
+            type,
+            id,
+            prepared_data.annotations,
+            prepared_data.custom_annotations,
+            prepared_data.alleleassessments,
+            prepared_data.referenceassessments,
+            prepared_data.allelereports,
+            prepared_data.attachments
+        );
+    }
+
+    markmedicalreview(type, id, interpretation, alleles) {
+
+        let prepared_data = this.prepareInterpretationForApi(type, id, interpretation, alleles);
+        return this.workflowResource.markmedicalreview(
             type,
             id,
             prepared_data.annotations,
@@ -163,16 +220,16 @@ class WorkflowService {
      *
      * @return {bool}
      */
-    canFinalize(type, interpretation, alleles, config, history_interpretations) {
+    canFinalize(type, interpretation, alleles, config) {
         if (!alleles) {
             return false;
         }
-        let has_required_rounds = false;
+        let has_required_status = true;
         if (config.user.user_config.workflows &&
             type in config.user.user_config.workflows &&
-            'finalize_required_interpretations' in config.user.user_config.workflows[type]) {
-            const required_cnt = config.user.user_config.workflows[type].finalize_required_interpretations;
-            has_required_rounds = history_interpretations.length >= required_cnt;
+            'finalize_required_workflow_status' in config.user.user_config.workflows[type] &&
+            config.user.user_config.workflows[type].finalize_required_workflow_status.length) {
+            has_required_status = config.user.user_config.workflows[type].finalize_required_workflow_status.includes(interpretation.workflow_status)
         }
         // Ensure that we have an interpretation with a state
         let all_classified = alleles.length === 0
@@ -196,7 +253,7 @@ class WorkflowService {
                 });
             }
 
-        return has_required_rounds && all_classified;
+        return has_required_status && all_classified;
     }
 
     checkFinishAllowed(type, id, interpretation, analysis) {
@@ -216,10 +273,12 @@ class WorkflowService {
     confirmCompleteFinalize(type, id, interpretation, alleles, analysis, config, history_interpretations) {
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/interpretationConfirmation.modal.ngtmpl.html',
-            controller: ['canFinalize', '$uibModalInstance', ConfirmCompleteInterpretationController],
+            controller: ['currentStatus', 'canFinalize', 'type', '$uibModalInstance', ConfirmCompleteInterpretationController],
             size: 'lg',
             resolve: {
-                canFinalize: () => this.canFinalize(type, interpretation, alleles, config, history_interpretations)
+                type: () => type,
+                currentStatus: () => interpretation.workflow_status,
+                canFinalize: () => this.canFinalize(type, interpretation, alleles, config)
             },
             controllerAs: 'vm'
         });
@@ -234,12 +293,27 @@ class WorkflowService {
             let p2 = this.checkFinishAllowed(type, id, interpretation, analysis)
 
             return Promise.all([p1,p2]).then(() => {
-                if (res === 'markreview') {
+                if (res === 'Not ready') {
+                    return this.marknotready(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
+                }
+                else if (res === 'Interpretation') {
+                    return this.markinterpretation(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
+                }
+                else if (res === 'Review') {
                     return this.markreview(type, id, interpretation, alleles).then( () => {
                         return true;
                     });
                 }
-                else if (res === 'finalize') {
+                else if (res === 'Medical review') {
+                    return this.markmedicalreview(type, id, interpretation, alleles).then( () => {
+                        return true;
+                    });
+                }
+                else if (res === 'Finalized') {
                     return this.finalize(type, id, interpretation, alleles).then( () => {
                         return true;
                     });
