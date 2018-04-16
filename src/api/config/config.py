@@ -33,10 +33,10 @@ config = {
             },
             "workflows": {
                 "allele": {
-                    "finalize_required_interpretations": 0  # Required no. of (existing) interpretations for allowing finalize
+                    "finalize_required_workflow_status": ['Interpretation', 'Review']  # Required current workflow status for allowing finalized
                 },
                 "analysis": {
-                    "finalize_required_interpretations": 0
+                    "finalize_required_workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review']
                 }
             }
         }

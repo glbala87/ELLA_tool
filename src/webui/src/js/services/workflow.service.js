@@ -220,16 +220,16 @@ class WorkflowService {
      *
      * @return {bool}
      */
-    canFinalize(type, interpretation, alleles, config, history_interpretations) {
+    canFinalize(type, interpretation, alleles, config) {
         if (!alleles) {
             return false;
         }
-        let has_required_rounds = false;
+        let has_required_status = true;
         if (config.user.user_config.workflows &&
             type in config.user.user_config.workflows &&
-            'finalize_required_interpretations' in config.user.user_config.workflows[type]) {
-            const required_cnt = config.user.user_config.workflows[type].finalize_required_interpretations;
-            has_required_rounds = history_interpretations.length >= required_cnt;
+            'finalize_required_workflow_status' in config.user.user_config.workflows[type] &&
+            config.user.user_config.workflows[type].finalize_required_workflow_status.length) {
+            has_required_status = config.user.user_config.workflows[type].finalize_required_workflow_status.includes(interpretation.workflow_status)
         }
         // Ensure that we have an interpretation with a state
         let all_classified = alleles.length === 0
@@ -253,7 +253,7 @@ class WorkflowService {
                 });
             }
 
-        return has_required_rounds && all_classified;
+        return has_required_status && all_classified;
     }
 
     checkFinishAllowed(type, id, interpretation, analysis) {
@@ -278,7 +278,7 @@ class WorkflowService {
             resolve: {
                 type: () => type,
                 currentStatus: () => interpretation.workflow_status,
-                canFinalize: () => this.canFinalize(type, interpretation, alleles, config, history_interpretations)
+                canFinalize: () => this.canFinalize(type, interpretation, alleles, config)
             },
             controllerAs: 'vm'
         });
