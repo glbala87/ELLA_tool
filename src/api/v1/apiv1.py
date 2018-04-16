@@ -144,9 +144,6 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewAnalysisByFindingsResource,
                            '/api/v1/overviews/analyses/by-findings/')
 
-        self._add_resource(r.overview.OverviewActivitiesResource,
-                           '/api/v1/overviews/activities/')
-
         self._add_resource(r.overview.OverviewUserStatsResource,
                            '/api/v1/overviews/userstats/')
 

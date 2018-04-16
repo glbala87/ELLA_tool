@@ -26,10 +26,6 @@ export class UserDashboardController {
 
         Navbar.clearItems();
 
-        this.overviewResource.getActivities().then(d => {
-            this.activity_stream = d;
-        });
-
         this.overviewResource.getUserStats().then(d => {
             this.user_stats = d;
         });
