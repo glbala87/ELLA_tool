@@ -8,23 +8,30 @@ import toastr from '../../../../common/factories/toastr'
 import closeModal from '../../../../common/actions/closeModal'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
 
+const finishWorkflowWithStatus = (status) => {
+    return saveInterpretation([
+        finishWorkflow(status),
+        {
+            success: [redirect('/overview')],
+            error: [toastr('error', `Something went wrong while marking workflow ${status}`)]
+        }
+    ])
+}
+
 export default [
-    equals(props`finishAction`),
+    equals(props`workflowStatus`),
     {
-        markreview: saveInterpretation([
-            finishWorkflow('markreview'),
-            {
-                success: [redirect('/overview')],
-                error: [toastr('error', 'Something went wrong while marking workflow for review')]
-            }
-        ]),
-        finalize: [
+        'Not ready': finishWorkflowWithStatus('Not ready'),
+        Interpretation: finishWorkflowWithStatus('Interpretation'),
+        Review: finishWorkflowWithStatus('Review'),
+        'Medical review': finishWorkflowWithStatus('Medical review'),
+        Finalized: [
             ({ resolve, path }) => {
                 return resolve.value(canFinalize) ? path.true() : path.false()
             },
             {
                 true: saveInterpretation([
-                    finishWorkflow('finalize'),
+                    finishWorkflow('Finalized'),
                     {
                         success: [redirect('/overview')],
                         error: [toastr('error', 'Something went wrong while finalizing workflow')]

@@ -6,8 +6,10 @@ import { hasDataAtKey } from '../util'
 
 const START_BUTTON_OPTIONS = {
     save: 'Save',
-    start: 'Start',
-    review: 'Start review',
+    'Not ready': 'Start not ready',
+    Interpretation: 'Start interpretation',
+    Review: 'Start review',
+    'Medical review': 'Start med. review',
     reopen: 'Reopen',
     override: 'Reassign to me'
 }
@@ -47,13 +49,19 @@ app.component('workflowButtons', {
                     },
                     getStartBtnText: () => {
                         if ($ctrl.startMode === 'reopen' && $ctrl.startWhenReopen) {
-                            return START_BUTTON_OPTIONS['start']
+                            return START_BUTTON_OPTIONS[
+                                $ctrl.selectedInterpretation.workflow_status
+                            ]
                         }
                         return START_BUTTON_OPTIONS[$ctrl.startMode]
                     },
                     getStartBtnClass: () => {
                         let classes = []
-                        if (['start', 'review'].includes($ctrl.startMode)) {
+                        if (
+                            ['Not ready', 'Interpretation', 'Review', 'Medical review'].includes(
+                                $ctrl.startMode
+                            )
+                        ) {
                             classes.push('green')
                         } else if (['override'].includes($ctrl.startMode)) {
                             classes.push('red')

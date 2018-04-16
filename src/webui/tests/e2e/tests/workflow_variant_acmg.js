@@ -37,29 +37,28 @@ describe(`ACMG`, function() {
         expect(acmg.showHideBtn.isVisible()).toBe(true)
     }
 
-    it('suggested codes and REQs are displayed when interpreting', function () {
-        loginPage.selectFirstUser();
-        variantSelectionPage.selectPending(5);
-        analysisPage.startButton.click(); 
+    it('suggested codes and REQs are displayed when interpreting', function() {
+        loginPage.selectFirstUser()
+        variantSelectionPage.selectPending(5)
+        analysisPage.startButton.click()
+        alleleSectionBox.markAsClass1()
+        expectSuggestedFeatureIsShown()
 
-        alleleSectionBox.markAsClass1();
-        expectSuggestedFeatureIsShown();
-
-        analysisPage.finishButton.click();
-        analysisPage.finalizeButton.click();
-        analysisPage.modalFinishButton.click();
+        analysisPage.finishButton.click()
+        analysisPage.finalizeButton.click()
+        analysisPage.modalFinishButton.click()
     })
 
     describe('suggested codes and REQs are', function() {
         beforeAll(function() {
             // classify one variant as 'U'
-            loginPage.selectFirstUser();
-            variantSelectionPage.selectPending(1);
-            analysisPage.startButton.click(); 
-            alleleSectionBox.classifyAsU();
-            analysisPage.finishButton.click();
-            analysisPage.finalizeButton.click();
-            analysisPage.modalFinishButton.click();
+            loginPage.selectFirstUser()
+            variantSelectionPage.selectPending(1)
+            analysisPage.startButton.click()
+            alleleSectionBox.classifyAsU()
+            analysisPage.finishButton.click()
+            analysisPage.finalizeButton.click()
+            analysisPage.modalFinishButton.click()
 
             // select the first we finished, class 1
             loginPage.selectSecondUser()
@@ -93,29 +92,19 @@ describe(`ACMG`, function() {
 
         it('are shown when a reclassification is started', function() {
             // start (re) classification
-            alleleSectionBox.classificationAcceptedToggleBtn.click();
-
-            expect(alleleSectionBox.reusingClassification()).toBe(false);
-            expectSuggestedFeatureIsShown();
-
-            // let's reuse the existing classification
-            alleleSectionBox.classificationAcceptedToggleBtn.click();
-
-            expectSuggestedFeatureIsHidden();
-
-            analysisPage.finishButton.click();
-            analysisPage.finalizeButton.click();
-            analysisPage.modalFinishButton.click();
-        });
-
-
-    });
+            alleleSectionBox.classificationAcceptedToggleBtn.click()
 
             expect(alleleSectionBox.reusingClassification()).toBe(false)
             expectSuggestedFeatureIsShown()
 
+            // let's reuse the existing classification
+            alleleSectionBox.classificationAcceptedToggleBtn.click()
+
+            expectSuggestedFeatureIsShown()
+
             analysisPage.finishButton.click()
             analysisPage.finalizeButton.click()
+            analysisPage.modalFinishButton.click()
         })
     })
 })

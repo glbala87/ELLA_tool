@@ -14,11 +14,11 @@ export default function prepareStartMode({ state }) {
     } else {
         let not_started = interpretations.find((i) => i.status === 'Not started')
         if (not_started) {
-            startMode = interpretations.length > 1 ? 'review' : 'start'
+            startMode = not_started.workflow_status
         } else if (interpretations.length && interpretations.every((i) => i.status === 'Done')) {
             startMode = 'reopen'
         } else {
-            startMode = 'start'
+            startMode = 'Interpretation'
         }
     }
 

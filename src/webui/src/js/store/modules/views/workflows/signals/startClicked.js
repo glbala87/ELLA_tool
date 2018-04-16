@@ -10,6 +10,14 @@ import showModal from '../../../../common/actions/showModal'
 // all the data from backend (via loadInterpretations) to get
 // correct data make sure everything is setup correctly.
 
+const startWorkflowSequence = [
+    startWorkflow('start'),
+    {
+        success: [loadInterpretations],
+        error: [toastr('error', 'Something went wrong when starting workflow.')]
+    }
+]
+
 export default [
     equals(state`views.workflows.startMode`),
     {
@@ -36,20 +44,9 @@ export default [
                 error: [toastr('error', 'Something went wrong when reopening workflow.')]
             }
         ],
-        start: [
-            startWorkflow('start'),
-            {
-                success: [loadInterpretations],
-                error: [toastr('error', 'Something went wrong when starting workflow.')]
-            }
-        ],
-        review: [
-            // same as start on backend
-            startWorkflow('start'),
-            {
-                success: [loadInterpretations],
-                error: [toastr('error', 'Something went wrong when starting workflow for review.')]
-            }
-        ]
+        'Not ready': startWorkflowSequence,
+        Interpretation: startWorkflowSequence,
+        Review: startWorkflowSequence,
+        'Medical review': startWorkflowSequence
     }
 ]

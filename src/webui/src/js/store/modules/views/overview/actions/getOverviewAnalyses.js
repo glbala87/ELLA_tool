@@ -5,11 +5,13 @@ export default function getOverviewAnalyses({ http, props, path, state }) {
         .get('overviews/analyses/')
         .then((response) => {
             for (let key of [
+                'not_ready',
                 'with_findings',
                 'without_findings',
                 'missing_alleleassessments',
                 'ongoing',
                 'marked_review',
+                'marked_medicalreview',
                 'finalized'
             ]) {
                 for (let item of response.result[key]) {

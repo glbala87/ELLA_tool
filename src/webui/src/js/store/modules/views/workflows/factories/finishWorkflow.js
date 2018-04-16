@@ -5,6 +5,14 @@ const TYPES = {
     allele: 'alleles'
 }
 
+const ACTIONS = {
+    'Not ready': 'marknotready',
+    Interpretation: 'markinterpretation',
+    Review: 'markreview',
+    'Medical review': 'markmedicalreview',
+    Finalized: 'finalize'
+}
+
 export default function(finishType) {
     return function finishWorkflow({ state, http, path }) {
         const type = state.get('views.workflows.type')
@@ -14,8 +22,12 @@ export default function(finishType) {
         const alleles = state.get('views.workflows.data.alleles')
         const references = state.get('views.workflows.data.references')
 
-        if (!['markreview', 'finalize'].find((e) => e === finishType)) {
-            console.error(`'Invalid finishType ${finishType}`)
+        if (
+            !['Not ready', 'Interpretation', 'Review', 'Medical review', 'Finalized'].includes(
+                finishType
+            )
+        ) {
+            console.error(`Invalid finishType ${finishType}`)
             return path.error()
         }
 
@@ -33,7 +45,7 @@ export default function(finishType) {
         )
 
         return http
-            .post(`workflows/${postType}/${id}/actions/${finishType}/`, payload)
+            .post(`workflows/${postType}/${id}/actions/${ACTIONS[finishType]}/`, payload)
             .then((response) => {
                 return path.success(response)
             })

@@ -8,21 +8,21 @@ export default Compute(
     state`views.workflows.type`,
     state`views.workflows.data.alleles`,
     state`views.workflows.interpretation.selected`,
-    state`views.workflows.historyInterpretations`,
     state`app.config`,
-    (type, alleles, interpretation, historyInterpretations, config, get) => {
+    (type, alleles, interpretation, config, get) => {
         if (!alleles) {
             return true
         }
-        let hasRequiredRounds = false
+        let inRequiredRound = true // Default is to omit test
         if (
             config.user.user_config.workflows &&
             type in config.user.user_config.workflows &&
-            'finalize_required_interpretations' in config.user.user_config.workflows[type]
+            'finalize_required_workflow_status' in config.user.user_config.workflows[type] &&
+            config.user.user_config.workflows[type].finalize_required_workflow_status.length
         ) {
-            const required_cnt =
-                config.user.user_config.workflows[type].finalize_required_interpretations
-            hasRequiredRounds = historyInterpretations.length >= required_cnt
+            inRequiredRound = config.user.user_config.workflows[
+                type
+            ].finalize_required_workflow_status.includes(interpretation.workflow_status)
         }
         // Ensure that we have an interpretation with a state
         let allClassified = alleles.length === 0
@@ -49,6 +49,6 @@ export default Compute(
             })
         }
 
-        return hasRequiredRounds && allClassified
+        return inRequiredRound && allClassified
     }
 )
