@@ -310,7 +310,7 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
             continue
         if job.sample_id is not None and not config["import"]["automatic_deposit_with_sample_id"]:
             status = "DONE"
-            message = ""
+            message = "Analysis has not been automatically imported"
             yield id, {"status": status, "message": message}
             continue
         try:
