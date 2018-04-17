@@ -125,6 +125,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
         alleleSectionBox.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1');
         analysisPage.finishButton.click();
         analysisPage.markReviewButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
     it('shows the review comment on overview page', function () {
@@ -141,6 +142,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function () {
         checkAlleleClassification(interpretation_expected_values);
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
 

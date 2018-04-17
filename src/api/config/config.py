@@ -33,21 +33,15 @@ config = {
             },
             "workflows": {
                 "allele": {
-                    "finalize_required_interpretations": 0  # Required no. of (existing) interpretations for allowing finalize
+                    "finalize_required_workflow_status": ['Interpretation', 'Review']  # Required current workflow status for allowing finalized
                 },
                 "analysis": {
-                    "finalize_required_interpretations": 0
+                    "finalize_required_workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review']
                 }
             }
         }
     },
     "analysis": {
-        "tags": [
-            "Sanger verify",
-            "RNA testing",
-            "Trio testing",
-            "EMQN sample"
-        ],
         "priority": {
             "display": {
                 "1": "Normal",
@@ -284,9 +278,7 @@ config = {
             "3": "Variant med usikker betydning",
             "2": "Sannsynlig ikke sykdomsgivende variant",
             "1": "Ikke sykdomsgivende variant",
-        },
-        # Classifications to include in report by default.
-        "include_classifications": ["5", "4", "3"]
+        }
     },
     "transcripts": {
         # In order of severity, high to low. Used for searching for worst consequence.
@@ -335,7 +327,7 @@ config = {
     "igv": {
         "reference": {
             "fastaURL": "api/v1/igv/human_g1k_v37_decoy.fasta" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
-            "cytobandURL": "api/v1/igv/cytoBand.txt" if os.environ.get('OFFLINE_MODE') else "igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt"
+            "cytobandURL": "api/v1/igv/cytoBand.txt" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt"
         },
         "tracks": {
             "gencode": "api/v1/igv/gencode.v18.collapsed.bed" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed",
@@ -347,6 +339,15 @@ config = {
             'cytoBand.txt',
             'human_g1k_v37_decoy.fasta',
             'human_g1k_v37_decoy.fasta.fai'
+        ]
+    },
+    'deposit': {
+        'postprocess': [
+            {
+                'name': '.*EKG.*',
+                'type': 'analysis',
+                'methods': ['analysis_not_ready_findings']
+            }
         ]
     }
 }

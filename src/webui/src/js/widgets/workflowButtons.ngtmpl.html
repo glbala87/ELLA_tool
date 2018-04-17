@@ -4,6 +4,7 @@
     Finish
 </button>
 <button class="id-start-analysis"
+        ng-if="vm.showStartBtn()"
         ng-class="vm.getSaveBtnClass()"
         ng-click="vm.clickStartSaveBtn()">
     {{vm.getSaveBtnText()}}

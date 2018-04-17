@@ -32,17 +32,13 @@ class AnalysisListWidget {
     }
 
     getEndAction(interpretation) {
-        let OPTIONS = {
-            'Mark review': 'Marked for review',
-            'Finalize': 'Finalized'
+        let end_action = `${interpretation.workflow_status} ${interpretation.finalized ? ' (Finalized) ' : ' '}`
+        if (interpretation.user) {
+            return end_action + ' • '
         }
-        if (interpretation.end_action) {
-            return ' ' + OPTIONS[interpretation.end_action] + ' • '
+        else {
+            return end_action
         }
-        if (interpretation.status === 'Ongoing') {
-            return ' Ongoing' + ' • '
-        }
-        return ''
     }
 
     sortItems() {

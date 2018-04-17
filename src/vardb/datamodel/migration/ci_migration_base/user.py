@@ -47,6 +47,11 @@ class UserGroup(Base):
     name = Column(String(), nullable=False, unique=True)
     genepanels = relationship('Genepanel', secondary=UserGroupGenepanel)
     config = Column(JSONMutableDict.as_mutable(JSONB), default={})
+    default_import_genepanel_name = Column(String)
+    default_import_genepanel_version = Column(String)
+    default_import_genepanel = relationship("Genepanel", uselist=False)
+
+    __table_args__ = (ForeignKeyConstraint([default_import_genepanel_name, default_import_genepanel_version], ["genepanel.name", "genepanel.version"]),)
 
 
 class UserSession(Base):

@@ -48,6 +48,7 @@ describe(`ACMG`, function () {
 
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
     describe('suggested codes and REQs are', function () {
@@ -60,6 +61,7 @@ describe(`ACMG`, function () {
             alleleSectionBox.classifyAsU();
             analysisPage.finishButton.click();
             analysisPage.finalizeButton.click();
+            analysisPage.modalFinishButton.click();
 
             // select the first we finished, class 1
             loginPage.selectSecondUser();
@@ -106,6 +108,7 @@ describe(`ACMG`, function () {
 
             analysisPage.finishButton.click();
             analysisPage.finalizeButton.click();
+            analysisPage.modalFinishButton.click();
         });
 
 

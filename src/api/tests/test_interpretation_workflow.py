@@ -49,8 +49,11 @@ class TestAnalysisInterpretationWorkflow(object):
     Tests the whole workflow of
     interpretations on one analysis.
 
-    - One round -> mark for review
-    - One round -> finalize
+    - Interpretation -> Not ready
+    - Not ready -> Interpretation
+    - Interpretation -> Review
+    - Review -> Medical review
+    - Finalize
     - Reopen -> one round -> finalize
     """
 
@@ -59,20 +62,35 @@ class TestAnalysisInterpretationWorkflow(object):
         test_database.refresh()
 
     @pytest.mark.ai(order=1)
-    def test_round_one_review(self, analysis_wh):
+    def test_round_one_notready(self, analysis_wh):
         interpretation = analysis_wh.start_interpretation(ANALYSIS_USERNAMES[0])
-        analysis_wh.perform_review_round(interpretation)
+        analysis_wh.perform_round(interpretation, 'Not ready comment', new_workflow_status='Not ready')
+
+    @pytest.mark.ai(order=1)
+    def test_round_two_interpretation(self, analysis_wh):
+        interpretation = analysis_wh.start_interpretation(ANALYSIS_USERNAMES[0])
+        analysis_wh.perform_round(interpretation, 'Interpretation comment', new_workflow_status='Interpretation')
+
+    @pytest.mark.ai(order=1)
+    def test_round_three_review(self, analysis_wh):
+        interpretation = analysis_wh.start_interpretation(ANALYSIS_USERNAMES[0])
+        analysis_wh.perform_round(interpretation, 'Review comment', new_workflow_status='Review')
+
+    @pytest.mark.ai(order=1)
+    def test_round_four_review(self, analysis_wh):
+        interpretation = analysis_wh.start_interpretation(ANALYSIS_USERNAMES[0])
+        analysis_wh.perform_round(interpretation, 'Medical review comment', new_workflow_status='Medical review')
 
     @pytest.mark.ai(order=2)
-    def test_round_two_finalize(self, analysis_wh):
+    def test_round_five_finalize(self, analysis_wh):
         interpretation = analysis_wh.start_interpretation(ANALYSIS_USERNAMES[1])
-        analysis_wh.perform_finalize_round(interpretation)
+        analysis_wh.perform_finalize_round(interpretation, 'Finalize comment')
 
     @pytest.mark.ai(order=3)
     def test_round_three_reopen_and_finalize(self, analysis_wh):
         analysis_wh.reopen(ANALYSIS_USERNAMES[2])
         interpretation = analysis_wh.start_interpretation(ANALYSIS_USERNAMES[2])
-        analysis_wh.perform_reopened_round(interpretation)
+        analysis_wh.perform_reopened_round(interpretation, 'Reopened comment')
 
 
 class TestAlleleInterpretationWorkflow(object):
@@ -80,8 +98,8 @@ class TestAlleleInterpretationWorkflow(object):
     Tests the whole workflow of
     interpretations on one allele.
 
-    - One round -> mark for review
-    - One round -> finalize
+    - Interpretation -> Review
+    - Finalize
     - Reopen -> one round -> finalize
     """
 
@@ -92,15 +110,15 @@ class TestAlleleInterpretationWorkflow(object):
     @pytest.mark.ai(order=1)
     def test_round_one_review(self, allele_wh):
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[0])
-        allele_wh.perform_review_round(interpretation)
+        allele_wh.perform_round(interpretation, 'Review comment', new_workflow_status='Review')
 
     @pytest.mark.ai(order=2)
     def test_round_two_finalize(self, allele_wh):
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[1])
-        allele_wh.perform_finalize_round(interpretation)
+        allele_wh.perform_finalize_round(interpretation, 'Finalize comment')
 
     @pytest.mark.ai(order=3)
     def test_round_three_reopen_and_finalize(self, allele_wh):
         allele_wh.reopen(ALLELE_USERNAMES[2])
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[2])
-        allele_wh.perform_reopened_round(interpretation)
+        allele_wh.perform_reopened_round(interpretation, 'Reopened comment')

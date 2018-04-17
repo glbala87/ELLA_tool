@@ -22,21 +22,24 @@ export let printedFileSize = function(size) {
     return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB'][i];
 }
 
+/**
+ * example: hasDataAtKey({'person': {'name': 'Dave', 'age': 23}}, 'person', 'age') returns true
+ *
+ * @param container
+ * @param keys one or more strings
+ * @returns true if container has a value at the object path given by the keys argument
+ */
 export function hasDataAtKey(container, ...keys) {
         if (keys.length < 1) {
             return false;
         }
 
-        for(let i = 0; i < keys.length;  i++ ) {
-            if (container[keys[i]]) {
-                if (i === keys.length -1) { // last key
-                      return true;
-                } else {
-                    return hasDataAtKey(container[keys[i]], keys.slice(1));
-                }
-            } else {
-                return false;
-            }
+        // recurse into the container using a shrinking list of keys
+        let first_key = keys[0]
+        if (container[first_key] !== undefined) {
+            return (1 === keys.length) ? true : hasDataAtKey(container[first_key], ...keys.slice(1));
+        } else {
+            return false;
         }
     }
 

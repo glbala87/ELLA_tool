@@ -144,9 +144,6 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewAnalysisByFindingsResource,
                            '/api/v1/overviews/analyses/by-findings/')
 
-        self._add_resource(r.overview.OverviewActivitiesResource,
-                           '/api/v1/overviews/activities/')
-
         self._add_resource(r.overview.OverviewUserStatsResource,
                            '/api/v1/overviews/userstats/')
 
@@ -187,6 +184,9 @@ class ApiV1(object):
         self._add_resource(r.workflow.allele.AlleleActionStartResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/start/')
 
+        self._add_resource(r.workflow.allele.AlleleActionMarkInterpretationResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/actions/markinterpretation/')
+
         self._add_resource(r.workflow.allele.AlleleActionMarkReviewResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/actions/markreview/')
 
@@ -226,8 +226,17 @@ class ApiV1(object):
         self._add_resource(r.workflow.analysis.AnalysisActionStartResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/start/')
 
+        self._add_resource(r.workflow.analysis.AnalysisActionMarkNotReadyResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/marknotready/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionMarkInterpretationResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/markinterpretation/')
+
         self._add_resource(r.workflow.analysis.AnalysisActionMarkReviewResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/markreview/')
+
+        self._add_resource(r.workflow.analysis.AnalysisActionMarkMedicalReviewResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/actions/markmedicalreview/')
 
         self._add_resource(r.workflow.analysis.AnalysisActionFinalizeResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/actions/finalize/',

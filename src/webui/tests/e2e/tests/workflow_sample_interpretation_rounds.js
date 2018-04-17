@@ -53,13 +53,14 @@ describe('Sample workflow ', function () {
 
         analysisPage.finishButton.click();
         analysisPage.markReviewButton.click();
+        analysisPage.modalFinishButton.click();
     });
 
-    it('can change classfications from previous round and finalize', function () {
+    it('reclassifies variants and sets to medical review', function () {
         // brca_e2e_test01.HBOCUTV_v01
-        loginPage.selectSecondUser();
+        loginPage.selectFirstUser();
         overview.open();
-        overview.selectTopReview();
+        overview.selectTopReview(1);
         analysisPage.startButton.click();
 
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01');
@@ -84,7 +85,41 @@ describe('Sample workflow ', function () {
         expect(alleleSidebar.countOfClassified()).toBe(numberOfClassifiedBefore);
 
         analysisPage.finishButton.click();
+        analysisPage.markMedicalReviewButton.click();
+        analysisPage.modalFinishButton.click();
+    });
+
+    it('can change classfications from previous round and finalize', function () {
+        // brca_e2e_test01.HBOCUTV_v01
+        loginPage.selectSecondUser();
+        overview.open();
+        overview.selectTopMedicalReview();
+        analysisPage.startButton.click();
+
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01');
+
+        const numberOfClassifiedBefore = alleleSidebar.countOfClassified();
+        expect(numberOfClassifiedBefore).toBeGreaterThan(0);
+        expect(alleleSidebar.countOfUnclassified()).toBe(0);
+
+        analysisPage.selectSectionClassification();
+
+        // All have Class 2 from previous round, now set to Class 3:
+        for (let i=1; i<=numberOfClassifiedBefore; i++) {
+            let allele_element = alleleSidebar.selectClassifiedAlleleByIdx(i);
+            let selected_allele = alleleSidebar.getSelectedAllele();
+            expect(alleleSidebar.getSelectedAlleleClassification()).toBe('2');
+            alleleSectionBox.classifyAs3()
+            expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
+        }
+
+        // expect all to be (still) classified
+        expect(alleleSidebar.countOfUnclassified()).toBe(0);
+        expect(alleleSidebar.countOfClassified()).toBe(numberOfClassifiedBefore);
+
+        analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
 
     });
 
@@ -110,7 +145,7 @@ describe('Sample workflow ', function () {
         // first classified allele have an existing classification:
         alleleSidebar.selectFirstClassified();
         alleleSectionBox.hasExistingClassification();
-        expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class 2');
+        expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class 3');
 
         // Classify all as U:
         for (let i=1; i<=numberOfClassifiedBefore; i++) {
@@ -141,6 +176,7 @@ describe('Sample workflow ', function () {
         // finalize
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
 
     });
 
@@ -158,7 +194,7 @@ describe('Sample workflow ', function () {
 
         // then
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01');
-        expect(analysisPage.roundCount).toBe(3);  // 'Current data' "round" is added at end
+        expect(analysisPage.roundCount).toBe(4);  // 'Current data' "round" is added at end
 
         const numberOfClassified = alleleSidebar.countOfClassified();
         expect(alleleSidebar.countOfUnclassified()).toBe(0);
@@ -166,7 +202,7 @@ describe('Sample workflow ', function () {
 
         // current data round: Three alleles were classified as U in this sample, and two as 2 in the other sample
 
-        let current_classifications = ['2', '2', 'U', 'U', 'U'];
+        let current_classifications = ['3', '3', 'U', 'U', 'U'];
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
@@ -188,8 +224,17 @@ describe('Sample workflow ', function () {
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
-            expect(classification).toBe('2', 'Class 2 for all alleles in second (newest) round');
+            expect(classification).toBe('2', 'Class 2 for all alleles in second round');
             expect(alleleSectionBox.hasExistingClassification()).toBe(false, 'no alleles from round two' +
+                ' had an existing classification');
+        }
+
+        analysisPage.chooseRound(3);
+        for (let i=1; i<=numberOfClassified; i++) {
+            alleleSidebar.selectClassifiedAlleleByIdx(i);
+            let classification = alleleSidebar.getSelectedAlleleClassification();
+            expect(classification).toBe('3', 'Class 3 for all alleles in third (newest) round');
+            expect(alleleSectionBox.hasExistingClassification()).toBe(false, 'no alleles from round three' +
                 ' had an existing classification');
         }
 
@@ -212,14 +257,14 @@ describe('Sample workflow ', function () {
         expect(numberOfClassified).toBeGreaterThan(1);
 
         analysisPage.chooseRound(1);
-        // expect all to be U, with existing classificaiton of 2 for some
+        // expect all to be U, with existing classificaiton of 3 for some
         let numberOfAllelesWithExistingClassification = 0;
         for (let i=1; i<=numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i);
             let classification = alleleSidebar.getSelectedAlleleClassification();
             expect(classification).toBe('U', 'Class U for all alleles');
             if (alleleSectionBox.hasExistingClassification()) {
-                expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class 2', 'For variant with existing classification');
+                expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class 3', 'For variant with existing classification');
                 numberOfAllelesWithExistingClassification += 1;
             }
         }

@@ -82,8 +82,10 @@ export class OverviewResource {
                 }
                 else {
                     categories = categories.concat([
+                        'not_ready',
                         'not_started',
-                        'marked_review'
+                        'marked_review',
+                        'marked_medicalreview',
                     ]);
                 }
 

@@ -2,6 +2,7 @@
 
 import {Directive, Inject} from '../ng-decorators';
 import {AlleleStateHelper} from '../model/allelestatehelper';
+import {hasDataAtKey} from "../util";
 
 @Directive({
     selector: 'workflow-buttons',
@@ -32,11 +33,17 @@ export class WorkflowButtonsController {
             save: {
                 text: 'Save'
             },
-            start: {
-                text: 'Start'
+            'Not ready': {
+                text: 'Start not ready'
             },
-            review: {
+            'Interpretation': {
+                text: 'Start interpretation'
+            },
+            'Review': {
                 text: 'Start review'
+            },
+            'Medical review': {
+                text: 'Start med. review'
             },
             reopen: {
                 text: 'Reopen'
@@ -133,7 +140,7 @@ export class WorkflowButtonsController {
                     this.location.path('/overview');
                 }
             }).catch((error) => {
-                if (error.data) {
+                if (error && error.data) {
                     this.toastr.error("Finish not allowed: " + error.data)
                 }
             })
@@ -150,10 +157,18 @@ export class WorkflowButtonsController {
         return false;
     }
 
+    showStartBtn() {
+        let user_config = this.config.user.user_config
+        let [type, id] = this.getTypeAndId()
+        return hasDataAtKey(user_config, "workflows", type, "can_start") ?
+            Boolean(user_config.workflows[type].can_start) :
+            true; // default
+    }
+
     _getSaveStatus() {
         let interpretations = this.getAllInterpretations()
-        if (!interpretations) {
-            return 'start';
+        if (!interpretations || !interpretations.length) {
+            return 'Interpretation';
         }
 
         if (interpretations.find(i => {
@@ -169,14 +184,14 @@ export class WorkflowButtonsController {
 
         let not_started = interpretations.find(i => i.status === 'Not started');
         if (not_started) {
-            return interpretations.length > 1 ? 'review' : 'start'
+            return not_started.workflow_status
         }
         if (interpretations.length &&
             interpretations.every(i => i.status === 'Done')) {
             return 'reopen';
         }
 
-        return 'start';
+        return 'Interpretation';
     }
 
     getSaveBtnText() {
@@ -190,7 +205,7 @@ export class WorkflowButtonsController {
 
     getSaveBtnClass() {
         let classes = [];
-        if (['start', 'review'].includes(this._getSaveStatus())) {
+        if (['Not ready', 'Interpretation', 'Review', 'Medical review'].includes(this._getSaveStatus())) {
             classes.push('green');
         }
         else if (['override'].includes(this._getSaveStatus())) {

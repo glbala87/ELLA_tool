@@ -54,6 +54,7 @@ describe('Search functionality', function () {
         alleleSectionBox.classifyAs3()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
+        analysisPage.modalFinishButton.click();
 
         // Allele assessment shows in search
         search.open()

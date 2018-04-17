@@ -9,6 +9,7 @@ const SELECTOR_REVIEW_FINDINGS = '.id-analysis-review-with-findings';
 const SELECTOR_REVIEW_NORMAL = '.id-analysis-review-without-findings';
 const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classifications';
 const SELECTOR_REVIEW = SELECTOR_REVIEW_ASSESSMENTS_MISSING;
+const SELECTOR_MEDICALREVIEW = '.id-analysis-medicalreview';
 const SELECTOR_NORMAL =  '.id-analysis-findings-normal';
 const SELECTOR_FINDINGS = '.id-analysis-findings';
 
@@ -103,6 +104,10 @@ class SampleSelection extends Page {
         this.selectItemInSection(number, SELECTOR_REVIEW);
     }
 
+    selectMedicalReview(number) {
+        this.selectItemInSection(number, SELECTOR_MEDICALREVIEW);
+    }
+
     selectFindingsNormal(number) {
         this.selectItemInSection(number, SELECTOR_NORMAL);
     }
@@ -117,6 +122,10 @@ class SampleSelection extends Page {
 
     selectTopReview() {
         this.selectReview(1);
+    }
+
+    selectTopMedicalReview() {
+        this.selectMedicalReview(1);
     }
 
     getReviewTags() { // no ui showing tags!

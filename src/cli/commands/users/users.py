@@ -362,6 +362,10 @@ def cmd_invalidate_user(username):
 #@click.option("--user_group")
 @convert(False, "--first_name", "--last_name")
 def cmd_modify_user(username, **kwargs):
+    """
+    Example: .. users modify --first_name Lars Marius -- lmarius\n
+    The -- marks when a new parameter starts
+    """
     db = DB()
     db.connect()
     session = db.session()
@@ -376,13 +380,14 @@ def cmd_modify_user(username, **kwargs):
     modify_user(session, username, **modified)
 
     u_after = session.query(user.User).filter(
-        user.User.username == username
+            # user.User.username == username
+        user.User.username == modified['username'] if 'username' in modified else username
     ).one()
 
     click.echo("User {username} ({last_name}, {first_name}) has been modified: ".format(
         username=username,
-        first_name=u_after.first_name,
-        last_name=u_after.last_name,
+        first_name=u_before.first_name,
+        last_name=u_before.last_name,
     ))
 
     n_changes = 0

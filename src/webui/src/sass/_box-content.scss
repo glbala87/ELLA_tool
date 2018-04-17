@@ -205,6 +205,23 @@ analysis-selection {
   width: 9rem;
 }
 
+.workflow-status-selection {
+  display: flex;
+  padding: 3rem;
+
+  button {
+    margin-left: 0; // Reset margin
+  }
+  .step-indicator {
+    padding-top: 0.6rem;
+    padding-bottom: 0.8rem;
+    padding-left: 1.8rem;
+    padding-right: 1.8rem;
+    font-size: 2rem;
+    line-height: 1.4rem;
+  }
+}
+
 //upload > label > div {
 //  display: flex;
 //}

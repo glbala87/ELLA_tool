@@ -47,6 +47,7 @@ describe('Sample workflow to test Sanger export', function () {
 
         analysisPage.finishButton.click();
         analysisPage.finalizeButton.click();
+        analysisPage.modalFinishButton.click();
     });
 });
 

@@ -24,7 +24,7 @@ def finalize_template(annotations, custom_annotations, alleleassessments, refere
     }
 
 
-def review_template(annotations=None, custom_annotations=None, alleleassessments=None, allelereports=None):
+def round_template(annotations=None, custom_annotations=None, alleleassessments=None, allelereports=None):
     return {
        'annotations': annotations if annotations else [],
        'custom_annotations': custom_annotations if custom_annotations else [],
@@ -242,9 +242,36 @@ def get_users():
     return response.json
 
 
+def mark_notready(workflow_type, workflow_id, data, username):
+    response = api.post(
+        '/workflows/{}/{}/actions/marknotready/'.format(uri_part[workflow_type], workflow_id),
+        data,
+        username=username
+    )
+    assert response.status_code == 200
+
+
+def mark_interpretation(workflow_type, workflow_id, data, username):
+    response = api.post(
+        '/workflows/{}/{}/actions/markinterpretation/'.format(uri_part[workflow_type], workflow_id),
+        data,
+        username=username
+    )
+    assert response.status_code == 200
+
+
 def mark_review(workflow_type, workflow_id, data, username):
     response = api.post(
         '/workflows/{}/{}/actions/markreview/'.format(uri_part[workflow_type], workflow_id),
+        data,
+        username=username
+    )
+    assert response.status_code == 200
+
+
+def mark_medicalreview(workflow_type, workflow_id, data, username):
+    response = api.post(
+        '/workflows/{}/{}/actions/markmedicalreview/'.format(uri_part[workflow_type], workflow_id),
         data,
         username=username
     )

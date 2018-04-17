@@ -61,9 +61,63 @@ class WorkflowResource {
         });
     }
 
+    marknotready(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
+        return new Promise((resolve, reject) => {
+            this._resourceWithAction(type, 'marknotready').doIt(
+                { id },
+                {
+                    annotations: annotations,
+                    custom_annotations: custom_annotations,
+                    alleleassessments: alleleassessments,
+                    referenceassessments: referenceassessments,
+                    allelereports: allelereports,
+                    attachments: attachments
+                },
+                resolve,
+                reject
+            );
+        });
+    }
+
+    markinterpretation(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
+        return new Promise((resolve, reject) => {
+            this._resourceWithAction(type, 'markinterpretation').doIt(
+                { id },
+                {
+                    annotations: annotations,
+                    custom_annotations: custom_annotations,
+                    alleleassessments: alleleassessments,
+                    referenceassessments: referenceassessments,
+                    allelereports: allelereports,
+                    attachments: attachments
+                },
+                resolve,
+                reject
+            );
+        });
+    }
+
     markreview(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
         return new Promise((resolve, reject) => {
             this._resourceWithAction(type, 'markreview').doIt(
+                { id },
+                {
+                    annotations: annotations,
+                    custom_annotations: custom_annotations,
+                    alleleassessments: alleleassessments,
+                    referenceassessments: referenceassessments,
+                    allelereports: allelereports,
+                    attachments: attachments
+                },
+                resolve,
+                reject
+            );
+        });
+    }
+
+    markmedicalreview(type, id, annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments) {
+        return new Promise((resolve, reject) => {
+            this._resourceWithAction(type, 'markmedicalreview').doIt(
                 { id },
                 {
                     annotations: annotations,

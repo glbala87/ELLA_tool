@@ -31,7 +31,7 @@ def deposit():
 def cmd_deposit_analysis(vcf):
     """
     Deposit an analysis given input vcf.
-    File should be in format of {analysis_name}.{genepanel_name}_{genepanel_version}.vcf
+    File should be in format of {analysis_name}.{genepanel_name}-{genepanel_version}.vcf
     """
     logging.basicConfig(level=logging.DEBUG)
 

@@ -171,14 +171,10 @@ export class Interpretationbar {
         if (interpretation.current) {
             return 'Current data';
         }
-        let OPTIONS = {
-            'Mark review': 'REVIEW',
-            'Finalize': 'FINALIZE'
-        }
 
         let interpretation_idx = this.getAllInterpretations().indexOf(interpretation) + 1;
         let interpretation_date = this.filter('date')(interpretation.date_last_update, 'dd-MM-yyyy HH:mm');
-        return `${interpretation_idx} • ${OPTIONS[interpretation.end_action]}  • ${interpretation.user.abbrev_name} • ${interpretation_date}`;
+        return `${interpretation_idx} • ${interpretation.workflow_status}${interpretation.finalized ? ' (Finalized)' : ''} • ${interpretation.user.abbrev_name} • ${interpretation_date}`;
     }
 
     getAllInterpretations() {

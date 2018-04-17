@@ -311,6 +311,19 @@ test-js: test-build
 	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
 	@docker rm -f $(PIPELINE_ID)-js
 
+test-js-auto: test-build
+	docker run -d \
+	  --label io.ousamg.gitversion=$(BRANCH) \
+	  --name $(PIPELINE_ID)-js \
+	  -v $(shell pwd):/ella \
+	  -e PRODUCTION=false \
+	  $(NAME_OF_GENERATED_IMAGE) \
+	  sleep infinity
+
+	@echo ""
+	@echo "Runs gulp forever. Ctrl-C to exit. The container ${PIPELINE_ID}-js must be manuallry stopped/removed."
+	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit-auto
+
 test-common: test-build
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \

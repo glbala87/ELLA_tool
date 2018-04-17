@@ -2,8 +2,8 @@
 
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, DateTime, Enum, String
-from sqlalchemy import ForeignKey, ForeignKeyConstraint, UniqueConstraint
+from sqlalchemy import Column, Integer, DateTime, Enum, String, Boolean
+from sqlalchemy import ForeignKey, ForeignKeyConstraint, UniqueConstraint, Index
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declared_attr
@@ -17,14 +17,16 @@ class InterpretationMixin(object):
     id = Column(Integer, primary_key=True)
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
-
-    user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
+    user_state = Column(JSONMutableDict.as_mutable(JSONB), default={})
     state = Column(JSONMutableDict.as_mutable(JSONB), default={})
     status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
                     default="Not started", nullable=False)
-    end_action = Column(Enum("Mark review", "Finalize", name="interpretation_endaction"))
+    finalized = Column(Boolean)
     date_last_update = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+
+
+
 
     @declared_attr
     def user_id(cls):
@@ -94,9 +96,18 @@ class AnalysisInterpretation(Base, InterpretationMixin):
 
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
+    workflow_status = Column(Enum("Not ready", "Interpretation", "Review", "Medical review",
+                             name="analysisinterpretation_workflow_status"), default="Interpretation", nullable=False)
 
     def __repr__(self):
         return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)
+
+Index(
+    'ix_analysisinterpretation_analysisid_ongoing_unique',
+    AnalysisInterpretation.analysis_id,
+    postgresql_where=(AnalysisInterpretation.status.in_(['Ongoing', 'Not started'])),
+    unique=True
+)
 
 
 class AnalysisInterpretationSnapshot(Base, InterpretationSnapshotMixin):
@@ -126,9 +137,18 @@ class AlleleInterpretation(Base, InterpretationMixin):
 
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
+    workflow_status = Column(Enum("Interpretation", "Review",
+                             name="alleleinterpretation_workflow_status"), default="Interpretation", nullable=False)
 
     def __repr__(self):
         return "<AlleleInterpretation('{}', '{}')>".format(str(self.allele_id), self.status)
+
+Index(
+    'ix_alleleinterpretation_alleleid_ongoing_unique',
+    AlleleInterpretation.allele_id,
+    postgresql_where=(AlleleInterpretation.status.in_(['Ongoing', 'Not started'])),
+    unique=True
+)
 
 
 class AlleleInterpretationSnapshot(Base, InterpretationSnapshotMixin):

@@ -41,11 +41,30 @@ customannotationconfig = {
             ]
         },
         {
+            "key": "LOVD_InSiGHT-APC",
+            "name": "LOVD InSiGHT",
+            "only_for_genes": [583],
+            "url_for_genes": {
+                "583": "https://insight-database.org/genes/APC",
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"]
+            ]
+        },
+        {
             "key": "UMD-APC",
             "name": "UMD",
             "only_for_genes": [583],
             "url_for_genes": {
-                "583": "http://www.umd.be/APC/IFAM.shtml",
+                "583": "http://www.umd.be/APC/",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -463,7 +482,7 @@ customannotationconfig = {
             "name": "LOVD InSiGHT",
             "only_for_genes": [7127],
             "url_for_genes": {
-                "7127": "http://chromium.lovd.nl/LOVD2/colon_cancer/home.php?select_db=MLH1",
+                "7127": "https://insight-database.org/genes/MLH1",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -482,7 +501,7 @@ customannotationconfig = {
             "name": "UMD",
             "only_for_genes": [7127],
             "url_for_genes": {
-                "7127": "http://www.umd.be/MLH1/IFAM.shtml",
+                "7127": "http://www.umd.be/MLH1/",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -539,7 +558,7 @@ customannotationconfig = {
             "name": "LOVD InSiGHT",
             "only_for_genes": [7325],
             "url_for_genes": {
-                "7325": "http://chromium.lovd.nl/LOVD2/colon_cancer/home.php?select_db=MSH2",
+                "7325": "https://insight-database.org/genes/MSH2",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -558,7 +577,7 @@ customannotationconfig = {
             "name": "UMD",
             "only_for_genes": [7325],
             "url_for_genes": {
-                "7325": "http://www.umd.be/MSH2/IFAM.shtml",
+                "7325": "http://www.umd.be/MSH2/",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -615,7 +634,7 @@ customannotationconfig = {
             "name": "LOVD InSiGHT",
             "only_for_genes": [7329],
             "url_for_genes": {
-                "7329": "http://chromium.lovd.nl/LOVD2/colon_cancer/home.php?select_db=MSH6",
+                "7329": "https://insight-database.org/genes/MSH6",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -634,7 +653,7 @@ customannotationconfig = {
             "name": "UMD",
             "only_for_genes": [7329],
             "url_for_genes": {
-                "7329": "http://www.umd.be/MSH6/IFAM.shtml",
+                "7329": "http://www.umd.be/MSH6/",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -653,7 +672,7 @@ customannotationconfig = {
             "name": "LOVD InSiGHT",
             "only_for_genes": [7527],
             "url_for_genes": {
-                "7527": "http://chromium.lovd.nl/LOVD2/colon_cancer/home.php?select_db=MUTYH",
+                "7527": "https://insight-database.org/genes/MUTYH",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -672,7 +691,7 @@ customannotationconfig = {
             "name": "UMD",
             "only_for_genes": [7527],
             "url_for_genes": {
-                "7527": "http://www.umd.be/MUTYH/IFAM.shtml",
+                "7527": "http://www.umd.be/MUTYH/",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -748,7 +767,7 @@ customannotationconfig = {
             "name": "LOVD InSiGHT",
             "only_for_genes": [9122],
             "url_for_genes": {
-                "9122": "http://chromium.lovd.nl/LOVD2/colon_cancer/home.php?select_db=PMS2",
+                "9122": "https://insight-database.org/genes/PMS2",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -1052,7 +1071,7 @@ customannotationconfig = {
             "name": "UMD",
             "only_for_genes": [12687],
             "url_for_genes": {
-                "12687": "http://www.umd.be/VHL/IFAM.shtml",
+                "12687": "http://www.umd.be/VHL/",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
