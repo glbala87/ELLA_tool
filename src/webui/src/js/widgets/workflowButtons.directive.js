@@ -197,8 +197,9 @@ export class WorkflowButtonsController {
     getSaveBtnText() {
         let status = this._getSaveStatus();
         if (status === 'reopen' && this.startWhenReopen) {
-            // If we're going to start directly when reopening, show 'start' instead
-            return this.saveButtonOptions['start'].text;
+            // If we're going to start directly when reopening, show Start instead
+            const interpretation = this.getSelectedInterpretation()
+            return this.saveButtonOptions[interpretation.workflow_status].text;
         }
         return this.saveButtonOptions[status].text;
     }
