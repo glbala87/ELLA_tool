@@ -10,6 +10,7 @@ from os import path, mkdir
 from collections import defaultdict, OrderedDict
 import argparse
 import pytz
+from sqlalchemy import or_
 from sqlalchemy.orm import subqueryload, joinedload, noload
 import xlsxwriter
 
@@ -123,7 +124,12 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
     if not excel_file_obj:
         raise RuntimeError("Argument 'excel_file_obj' must be specified")
 
-    ids_not_started = queries.workflow_analyses_interpretation_not_started(session).all()
+    ids_not_started = session.query(workflow.AnalysisInterpretation.analysis_id).filter(
+        or_(
+            workflow.AnalysisInterpretation.analysis_id.in_(queries.workflow_analyses_interpretation_not_started(session)),
+            workflow.AnalysisInterpretation.analysis_id.in_(queries.workflow_analyses_notready_not_started(session)),
+        )
+    ).all()
     if len(ids_not_started) < 1:
         return False
 
