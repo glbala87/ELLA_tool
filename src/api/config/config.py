@@ -344,7 +344,7 @@ config = {
     'deposit': {
         'postprocess': [
             {
-                'name': '.*EKG.*',
+                'name': '^Diag-EKG.*',
                 'type': 'analysis',
                 'methods': ['analysis_not_ready_findings']
             }
