@@ -35,7 +35,12 @@ const ngModelWatchDirective = [
                 '$parse',
                 '$attrs',
                 function($scope, $parse, $attrs) {
-                    $scope.$$parsedNgModelWatch = $parse($attrs.ngModelWatch)
+                    // HACK: Scope is shared between all ngModel.
+                    // Store the get() function created with it's attr string
+                    if (!$scope.$$parsedNgModelWatch) {
+                        $scope.$$parsedNgModelWatch = {}
+                    }
+                    $scope.$$parsedNgModelWatch[$attrs.ngModelWatch] = $parse($attrs.ngModelWatch)
                 }
             ],
             link: function(scope, element, attr, ctrls) {
@@ -43,7 +48,8 @@ const ngModelWatchDirective = [
 
                 scope.$watch(
                     () => {
-                        return scope.$$parsedNgModelWatch(scope)
+                        // HACK: Use attr ngModelWatch attr string to get the get() function
+                        return scope.$$parsedNgModelWatch[attr.ngModelWatch](scope)
                     },
                     (n, o) => {
                         ngModel.$$ngModelSet(scope, n)

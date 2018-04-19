@@ -4,16 +4,15 @@ export default function getOverviewAnalyses({ http, props, path, state }) {
     return http
         .get('overviews/analyses/')
         .then((response) => {
-            for (let key of [
-                'not_ready',
-                'with_findings',
-                'without_findings',
-                'missing_alleleassessments',
-                'ongoing',
-                'marked_review',
-                'marked_medicalreview',
-                'finalized'
-            ]) {
+            const keys = ['not_ready', 'ongoing', 'marked_review', 'marked_medicalreview']
+
+            if (props.section === 'analyses') {
+                keys.push('not_started')
+            } else if (props.section === 'analyses-by-findings') {
+                keys.push.apply(['with_findings', 'without_findings', 'missing_alleleassessments'])
+            }
+
+            for (let key of keys) {
                 for (let item of response.result[key]) {
                     processAnalyses([item])
                 }
@@ -36,7 +35,8 @@ export default function getOverviewAnalyses({ http, props, path, state }) {
             delete response.result.ongoing
             return path.success(response)
         })
-        .catch((response) => {
-            return path.error(response)
+        .catch((error) => {
+            console.error(error)
+            return path.error(error)
         })
 }

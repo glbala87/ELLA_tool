@@ -5,12 +5,28 @@ class GeneSchema(Schema):
     class Meta:
         title = 'Gene'
         fields = ('hgnc_id',
+                  'hgnc_symbol')
+
+
+class GeneFullSchema(Schema):
+    class Meta:
+        title = 'Gene'
+        fields = ('hgnc_id',
                   'hgnc_symbol',
                   'ensembl_gene_id',
                   'omim_entry_id')
 
 
 class TranscriptSchema(Schema):
+    class Meta:
+        title = "Transcript"
+        fields = ('transcript_name',
+                  'gene')
+
+    gene = fields.Nested(GeneSchema)
+
+
+class TranscriptFullSchema(Schema):
     class Meta:
         title = "Transcript"
         fields = ('transcript_name',
@@ -28,15 +44,23 @@ class TranscriptSchema(Schema):
                   'exon_ends',
                   'gene')
 
-    gene = fields.Nested(GeneSchema)
+    gene = fields.Nested(GeneFullSchema)
 
 
 class PhenotypeSchema(Schema):
     class Meta:
         title = "Phenotype"
         fields = ('id',
-                  'genepanel_name',
-                  'genepanel_version',
+                  'gene',
+                  'inheritance')
+
+    gene = fields.Nested(GeneSchema)
+
+
+class PhenotypeFullSchema(Schema):
+    class Meta:
+        title = "Phenotype"
+        fields = ('id',
                   'description',
                   'inheritance',
                   'inheritance_info',
@@ -45,7 +69,7 @@ class PhenotypeSchema(Schema):
                   'comment',
                   'gene')
 
-    gene = fields.Nested(GeneSchema)
+    gene = fields.Nested(GeneFullSchema)
 
 
 class GenepanelFullSchema(Schema):
@@ -57,6 +81,19 @@ class GenepanelFullSchema(Schema):
                   'transcripts',
                   'phenotypes',
                   'config')
+
+    transcripts = fields.Nested(TranscriptFullSchema, many=True)
+    phenotypes = fields.Nested(PhenotypeFullSchema, many=True)
+
+
+class GenepanelTranscriptsSchema(Schema):
+    class Meta:
+        title = "Genepanel"
+        description = 'Panel of genes connected to a certain analysis'
+        fields = ('name',
+                  'version',
+                  'transcripts',
+                  'phenotypes')
 
     transcripts = fields.Nested(TranscriptSchema, many=True)
     phenotypes = fields.Nested(PhenotypeSchema, many=True)

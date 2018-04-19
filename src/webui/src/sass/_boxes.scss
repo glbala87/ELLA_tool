@@ -144,3 +144,6 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .sb-body { flex: 2; }
 }
 .full-max-width .cb-body { max-width: 100% !important; }
+
+
+.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; padding-top: 1.5rem; padding-bottom: 0.4rem;}

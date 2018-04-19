@@ -2,11 +2,7 @@ import { deepCopy } from '../../../../../util'
 import { AVAILABLE_SECTIONS } from '../getOverviewState'
 
 export default function checkAndSetValidSection({ props, state, module, path, router }) {
-    // Reverse since UI works in reverse
-    const userSections = state
-        .get('app.config.user.user_config.overview.views')
-        .slice()
-        .reverse()
+    const userSections = state.get('app.config.user.user_config.overview.views').slice()
     module.set('sectionKeys', userSections)
     let sections = {}
     for (let userSection of userSections) {

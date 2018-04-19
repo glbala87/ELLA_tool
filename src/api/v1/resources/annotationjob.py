@@ -104,3 +104,23 @@ class AnnotationServiceRunning(LogRequestResource):
         """
         annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
         return annotationservice_interface.annotation_service_running()
+
+
+class ImportSamples(LogRequestResource):
+
+    def get(self, session):
+        """
+        Returns available samples from import service
+
+        ---
+        summary: Get samples from import service
+        tags:
+            - Import
+        """
+        return [
+            {
+                'name': 'TestSample01',
+                'type': 'single'
+            }
+        ]
+

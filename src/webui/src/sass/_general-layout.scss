@@ -252,8 +252,8 @@ button { outline: none; border: 1px solid Transparent;
 
   .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; position: fixed;
     min-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
-    .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
-      .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
+    .item-row { width: 100%; transform: rotate(90deg);  display: flex;
+      .item { transform: rotate(180deg);  height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
         &.active {
           background-color: $blue-25;
         }

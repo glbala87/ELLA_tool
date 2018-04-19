@@ -80,24 +80,6 @@ class Genepanel(Base):
     def __str__(self):
         return '_'.join((self.name, self.version, self.genome_reference))
 
-    def find_inheritance_codes(self, symbol):
-        if not self.phenotypes:
-            return None
-
-        return map(lambda ph: Phenotype.clean_inheritance_code(ph.inheritance), filter(lambda ph: symbol == ph.gene_id, self.phenotypes))
-
-
-    @staticmethod
-    def create_or_update_genepanel(session, name, version, genome_ref, transcripts):
-        """Add or update an existing gene panel.
-
-        No special rules for this for now.
-        session.merge will create or update db object by primary keys.
-        """
-        g = Genepanel(name, version, genome_ref, transcripts)
-        g = session.merge(g)
-        return g
-
 
 class Phenotype(Base):
     """Represents a phenotype linked to a particular genepanel.
@@ -128,13 +110,6 @@ class Phenotype(Base):
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"],
                                            deferrable=True, initially="DEFERRED")
                       ,)
-
-    @staticmethod
-    def clean_inheritance_code(code):
-        if not code:
-            return code
-        return code.replace(';', '')
-
 
     def __repr__(self):
         return "<Phenotype('%s')>" % self.description[:20]

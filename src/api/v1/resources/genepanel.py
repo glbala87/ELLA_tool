@@ -1,9 +1,12 @@
+from sqlalchemy import tuple_
+from sqlalchemy.orm import joinedload
 from flask import request
 from vardb.datamodel import gene
 
 from api.util.util import paginate, rest_filter, authenticate
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
+
 
 class GenepanelListResource(LogRequestResource):
 
@@ -40,10 +43,9 @@ class GenepanelListResource(LogRequestResource):
         return self.list_query(
             session,
             gene.Genepanel,
-            schema=schemas.GenepanelFullSchema(),
+            schema=schemas.GenepanelSchema(),
             rest_filter=rest_filter
         )
-
 
 
 class GenepanelResource(LogRequestResource):
@@ -65,10 +67,6 @@ class GenepanelResource(LogRequestResource):
             in: path
             type: string
             description: Genepanel version
-          - name: include_extras
-            in: query
-            type: boolean
-            description: Include transcripts and phenotype data
         responses:
           200:
             schema:
@@ -80,14 +78,75 @@ class GenepanelResource(LogRequestResource):
         if version is None:
             raise ApiError("No genepanel version is provided")
 
-        genepanel = session.query(gene.Genepanel).filter(
-            gene.Genepanel.name == name,
-            gene.Genepanel.version == version
-        ).one()
-        # TODO: Restrict based on user group?
+        if not session.query(gene.Genepanel.name, gene.Genepanel.version).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version)
+        ).count():
+            raise ApiError("Invalid genepanel name or version")
 
-        if request.args.get('include_extras') in ['true', '1']:
-            k = schemas.GenepanelFullSchema(strict=True).dump(genepanel).data
-        else:
-            k = schemas.GenepanelSchema(strict=True).dump(genepanel).data
-        return k
+        transcripts = session.query(
+            gene.Gene.hgnc_symbol,
+            gene.Gene.hgnc_id,
+            gene.Transcript.id,
+            gene.Transcript.transcript_name
+        ).join(
+            gene.Genepanel.transcripts,
+            gene.Transcript.gene
+        ).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version)
+        ).order_by(gene.Gene.hgnc_symbol).all()
+
+        phenotypes = session.query(
+            gene.Gene.hgnc_symbol,
+            gene.Gene.hgnc_id,
+            gene.Phenotype.id,
+            gene.Phenotype.inheritance
+        ).join(
+            gene.Phenotype.gene
+        ).filter(
+            gene.Phenotype.genepanel_name == name,
+            gene.Phenotype.genepanel_version == version
+        ).order_by(gene.Gene.hgnc_symbol).all()
+
+        genepanel_config = session.query(
+            gene.Genepanel.config
+        ).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version)
+        ).scalar()
+        genes = {}
+        for t in transcripts:
+            if t.hgnc_id in genes:
+                genes[t.hgnc_id]['transcripts'].append({
+                    'id': t.id,
+                    'transcript_name': t.transcript_name
+                })
+            else:
+                genes[t.hgnc_id] = {
+                    'hgnc_id': t.hgnc_id,
+                    'hgnc_symbol': t.hgnc_symbol,
+                    'transcripts': [{
+                        'id': t.id,
+                        'transcript_name': t.transcript_name
+                    }],
+                    'phenotypes': []
+                }
+
+        for p in phenotypes:
+            if p.hgnc_id in genes:
+                genes[p.hgnc_id]['phenotypes'].append({
+                    'id': p.id,
+                    'inheritance': p.inheritance
+                })
+
+        genes = genes.values()
+        genes.sort(key=lambda x: x['hgnc_symbol'])
+        for g in genes:
+            g['transcripts'].sort(key=lambda x: x['transcript_name'])
+            g['phenotypes'].sort(key=lambda x: x['inheritance'])
+
+        result = {
+            'name': name,
+            'version': version,
+            'config': genepanel_config,
+            'genes': genes
+        }
+        return result
