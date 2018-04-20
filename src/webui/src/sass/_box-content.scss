@@ -171,7 +171,13 @@ analysis-selection {
 
 .import {
   .custom-genepanel {
-    margin-top: 3rem;
+    .name {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      input {
+        width: 8rem;
+      }
+    }
     padding: 2rem;
     .slim {
       font-size: 1.5rem;
