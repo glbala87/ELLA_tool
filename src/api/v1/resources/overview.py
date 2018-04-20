@@ -251,8 +251,7 @@ class OverviewAlleleResource(LogRequestResource):
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),  # Allele ids without valid allele assessment
             # Exclude alleles that have AlleleInterpretations and are not in Interpretation state
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status='Review', status=None)),
-            # Exclude alleles that have Ongoing or Done AlleleInterpretation as latest interpretation:
-            ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Done')),
+            # Exclude alleles that have Ongoing AlleleInterpretation as latest interpretation:
             ~allele.Allele.id.in_(queries.workflow_by_status(session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Ongoing'))
         ]
         if user is not None:
