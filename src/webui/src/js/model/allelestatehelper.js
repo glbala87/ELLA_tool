@@ -294,6 +294,10 @@ export class AlleleStateHelper {
             allele_state.alleleassessment.attachment_ids = deepCopy(allele.allele_assessment.attachment_ids)
             allele_state.alleleassessment.classification = allele.allele_assessment.classification;
             allele_state.alleleAssessmentCopiedFromId = allele.allele_assessment.id;
+
+            // Copy over reference assessment to state
+            allele_state.referenceassessments = allele.allele_assessment.referenceassessments;
+
             // The copied alleleassessment can have an older model that is lacking fields.
             // We need to check the model and add any missing fields to make it up to date.
             this.checkAlleleStateModel(allele_state);
