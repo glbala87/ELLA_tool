@@ -1,6 +1,6 @@
 import getAlleleState from '../computed/getAlleleState'
 
-export default function autoReuseExistingReferenceAssessments({ state, resolve, props }) {
+export default function toggleReuseReferenceAssessments({ state, resolve, props }) {
     const { alleleId } = props
     const allele = state.get(`views.workflows.data.alleles.${alleleId}`)
 
@@ -34,6 +34,15 @@ export default function autoReuseExistingReferenceAssessments({ state, resolve, 
                         referenceAssessment.id
                     )
                 } else {
+                    // If set to not reused _and_ no evaluation in state, copy in existing referenceassessment's evaluation
+                    const stateReferenceAssessment = state.get(`views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments.${raIdx}`)
+
+                    if (!stateReferenceAssessment.evaluation) {
+                        state.set(
+                            `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments.${raIdx}.evaluation`,
+                            referenceAssessment.evaluation
+                        )
+                    }
                     state.unset(
                         `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments.${raIdx}.id`
                     )

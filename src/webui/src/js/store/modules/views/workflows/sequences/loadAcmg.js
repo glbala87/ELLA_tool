@@ -10,7 +10,6 @@ import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
 
 import toastr from '../../../../common/factories/toastr'
 import autoReuseExistingAlleleassessments from '../interpretation/actions/autoReuseExistingAlleleassessments'
-import autoReuseExistingReferenceAssessments from '../interpretation/actions/autoReuseExistingReferenceAssessments'
 
 export default sequence('loadAcmg', [
     getAcmgCodes,

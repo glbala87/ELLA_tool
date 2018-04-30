@@ -9,8 +9,6 @@ export default [
     isAlleleAssessmentOutdated,
     {
         true: [
-            setDirty,
-            set(module`selected.state.allele.${props`alleleId`}.alleleassessment.reuse`, false),
             toastr('error', 'Cannot toggle reuse of outdated classification')
         ],
         false: [
