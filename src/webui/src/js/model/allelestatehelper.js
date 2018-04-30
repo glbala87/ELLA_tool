@@ -209,7 +209,8 @@ export class AlleleStateHelper {
         }
         // Exists in state, check if it is set to reused and if so,
         // return the existing object
-        else if ('id' in state_ra) {
+        // FIXME: This is a quick fix, but should be resolved in cerebral branch? Needs more testing.
+        else if (this.isAlleleAssessmentReused(allele_state) || 'id' in state_ra) {
             return this.getExistingReferenceAssessment(allele, reference);
         }
         // Exists in state, but not reused -> return the state object
@@ -293,6 +294,10 @@ export class AlleleStateHelper {
             allele_state.alleleassessment.attachment_ids = deepCopy(allele.allele_assessment.attachment_ids)
             allele_state.alleleassessment.classification = allele.allele_assessment.classification;
             allele_state.alleleAssessmentCopiedFromId = allele.allele_assessment.id;
+
+            // Copy over reference assessment to state
+            allele_state.referenceassessments = allele.allele_assessment.referenceassessments;
+
             // The copied alleleassessment can have an older model that is lacking fields.
             // We need to check the model and add any missing fields to make it up to date.
             this.checkAlleleStateModel(allele_state);
