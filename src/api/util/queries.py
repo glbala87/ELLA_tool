@@ -251,35 +251,39 @@ def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_v
     # Get phenotypes having only one kind of inheritance
     # e.g. only 'AD' or only 'AR' etc...
     distinct_inheritance = session.query(
-        gene.Phenotype.genepanel_name,
-        gene.Phenotype.genepanel_version,
-        gene.Phenotype.gene_id,
+        gene.genepanel_phenotype.c.genepanel_name,
+        gene.genepanel_phenotype.c.genepanel_version,
+        gene.Phenotype.gene_id
     ).filter(
-        gene.Phenotype.genepanel_name == gp_name,
-        gene.Phenotype.genepanel_version == gp_version
+        gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
+        gene.genepanel_phenotype.c.genepanel_name == gp_name,
+        gene.genepanel_phenotype.c.genepanel_version == gp_version
     ).group_by(
-        gene.Phenotype.genepanel_name,
-        gene.Phenotype.genepanel_version,
+        gene.genepanel_phenotype.c.genepanel_name,
+        gene.genepanel_phenotype.c.genepanel_version,
         gene.Phenotype.gene_id
     ).having(func.count(gene.Phenotype.inheritance.distinct()) == 1).subquery()
 
-    return session.query(
-        gene.Gene.hgnc_symbol,
+    gene_ids = session.query(
+        gene.Phenotype.gene_id,
     ).join(
-        gene.Phenotype,
-        gene.Phenotype.gene_id == gene.Gene.hgnc_id
+        gene.genepanel_phenotype
     ).join(
         distinct_inheritance,
         and_(
-            gene.Phenotype.genepanel_name == distinct_inheritance.c.genepanel_name,
-            gene.Phenotype.genepanel_version == distinct_inheritance.c.genepanel_version,
+            gene.genepanel_phenotype.c.genepanel_name == distinct_inheritance.c.genepanel_name,
+            gene.genepanel_phenotype.c.genepanel_version == distinct_inheritance.c.genepanel_version,
             gene.Phenotype.gene_id == distinct_inheritance.c.gene_id
         )
     ).filter(
-        gene.Phenotype.genepanel_name == gp_name,
-        gene.Phenotype.genepanel_version == gp_version,
+        gene.genepanel_phenotype.c.genepanel_name == gp_name,
+        gene.genepanel_phenotype.c.genepanel_version == gp_version,
         gene.Phenotype.inheritance == inheritance
-    ).distinct()
+    ).distinct().subquery()
+
+    return session.query(gene.Gene.hgnc_symbol).filter(
+        gene.Gene.hgnc_id.in_(gene_ids)
+    )
 
 
 def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):

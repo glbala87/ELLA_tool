@@ -2,8 +2,9 @@ from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload
 from flask import request
 from vardb.datamodel import gene
+from vardb.deposit.genepanel_config_validation import config_valid
 
-from api.util.util import paginate, rest_filter, authenticate
+from api.util.util import paginate, rest_filter, authenticate, request_json
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
 
@@ -15,7 +16,7 @@ class GenepanelListResource(LogRequestResource):
     @rest_filter
     def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
         """
-        Returns a list of genepanles.
+        Returns a list of genepanels.
 
         * Supports `q=` filtering.
         * Supports pagination.
@@ -46,6 +47,86 @@ class GenepanelListResource(LogRequestResource):
             schema=schemas.GenepanelSchema(),
             rest_filter=rest_filter
         )
+
+    @authenticate()
+    @request_json(['name', 'version', 'genes', 'config'])
+    def post(self, session, data=None, user=None):
+        """
+        Creates a new genepanel.
+
+        Only supports referencing already existing transcripts and phenotypes.
+        ---
+        summary: Create genepanel
+        tags:
+          - Genepanel
+        parameters:
+          - name: data
+            in: body
+            required: true
+            schema:
+              title: Genepanel data
+              type: object
+              required:
+                  - allele_id
+                  - evaluation
+              properties:
+                  name:
+                    description: Genepanel name
+                    type: string
+                  version:
+                    description: Genepanel version
+                    type: string
+                  genes:
+                    description: Object with transcripts and phenotypes
+                    type: object
+            description: Submitted data
+        responses:
+          200:
+            schema:
+              type: null
+            description: No response
+        """
+        if not data['name']:
+            raise ApiError('No name given for genepanel')
+
+        if not data['version']:
+            raise ApiError('No version given for genepanel')
+
+        if not config_valid(data['config']):
+            raise ApiError('Invalid config, does not conform to schema.')
+
+        transcript_ids = list()
+        phenotype_ids = list()
+        for g in data['genes']:
+            transcript_ids += [t['id'] for t in g['transcripts']]
+            phenotype_ids += [p['id'] for p in g['phenotypes']]
+
+        transcripts = session.query(gene.Transcript).filter(
+            gene.Transcript.id.in_(transcript_ids)
+        ).all()
+
+        phenotypes = session.query(gene.Phenotype).filter(
+            gene.Phenotype.id.in_(phenotype_ids)
+        ).all()
+
+        assert len(transcripts) == len(transcript_ids)
+        assert len(phenotypes) == len(phenotype_ids)
+
+        genepanel = gene.Genepanel(
+            name=data['name'],
+            genome_reference='GRCh37',
+            version=data['version'],
+            config=data['config']
+        )
+        genepanel.transcripts = transcripts
+        genepanel.phenotypes = phenotypes
+
+        user.group.genepanels.append(genepanel)
+
+        session.add(genepanel)
+
+        session.commit()
+        return None
 
 
 class GenepanelResource(LogRequestResource):
@@ -102,9 +183,11 @@ class GenepanelResource(LogRequestResource):
             gene.Phenotype.inheritance
         ).join(
             gene.Phenotype.gene
+        ).join(
+            gene.genepanel_phenotype
         ).filter(
-            gene.Phenotype.genepanel_name == name,
-            gene.Phenotype.genepanel_version == version
+            gene.genepanel_phenotype.c.genepanel_name == name,
+            gene.genepanel_phenotype.c.genepanel_version == version
         ).order_by(gene.Gene.hgnc_symbol).all()
 
         genepanel_config = session.query(

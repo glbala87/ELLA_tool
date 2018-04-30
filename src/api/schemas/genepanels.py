@@ -63,10 +63,7 @@ class PhenotypeFullSchema(Schema):
         fields = ('id',
                   'description',
                   'inheritance',
-                  'inheritance_info',
                   'omim_id',
-                  'pmid',
-                  'comment',
                   'gene')
 
     gene = fields.Nested(GeneFullSchema)

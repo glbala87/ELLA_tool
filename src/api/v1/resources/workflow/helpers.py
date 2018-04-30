@@ -184,12 +184,16 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript
     ).all()
 
-    phenotypes = session.query(gene.Phenotype).filter(
+    phenotypes = session.query(
+        gene.Phenotype
+    ).options(joinedload(gene.Phenotype.gene)).join(
+        gene.genepanel_phenotype
+    ).filter(
         gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript,
         gene.Phenotype.gene_id == gene.Transcript.gene_id,
-        gene.Phenotype.genepanel_name == gp_name,
-        gene.Phenotype.genepanel_version == gp_version
-    ).all()
+        gene.genepanel_phenotype.c.genepanel_name == gp_name,
+        gene.genepanel_phenotype.c.genepanel_version == gp_version
+    )
 
     genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
     genepanel_data['transcripts'] = schemas.TranscriptFullSchema().dump(transcripts, many=True).data
