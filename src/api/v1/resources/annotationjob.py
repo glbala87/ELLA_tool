@@ -102,7 +102,7 @@ class AnnotationServiceRunning(LogRequestResource):
         tags:
             - Import
         """
-        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
+        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
         return annotationservice_interface.annotation_service_running()
 
 

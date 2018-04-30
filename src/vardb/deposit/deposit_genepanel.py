@@ -330,7 +330,8 @@ class DepositGenepanel(object):
                 name=genepanel_name,
                 version=genepanel_version,
                 genome_reference=genomeRef,
-                config=config
+                config=config,
+                official=True
             )
             self.session.add(genepanel)
 

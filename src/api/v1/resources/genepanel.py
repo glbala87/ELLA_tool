@@ -40,12 +40,14 @@ class GenepanelListResource(LogRequestResource):
         if rest_filter is None:
             rest_filter = dict()
         rest_filter[("name", "version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
+        rest_filter["official"] = True
 
         return self.list_query(
             session,
             gene.Genepanel,
             schema=schemas.GenepanelSchema(),
-            rest_filter=rest_filter
+            rest_filter=rest_filter,
+            order_by=['name', 'version']
         )
 
     @authenticate()

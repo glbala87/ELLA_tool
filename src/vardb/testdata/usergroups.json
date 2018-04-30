@@ -3,9 +3,7 @@
         "name": "testgroup01",
         "genepanels": [
             ["HBOC", "v01"],
-            ["HBOCUTV", "v01"],
-            ["Ciliopati", "v05"],
-            ["OMIM", "v01"]
+            ["HBOCUTV", "v01"]
         ],
         "default_import_genepanel": ["HBOC", "v01"],
         "config": {

@@ -546,9 +546,12 @@ def get_genepanels(session, allele_ids, user=None):
     Is user is provided, the genepanels are restricted to the user group's panels.
     """
     if user:
-        gp_keys = [(g.name, g.version) for g in user.group.genepanels]
+        # TODO: This can turn into an perforamance issue
+        gp_keys = sorted([(g.name, g.version) for g in user.group.genepanels if g.official])
     else:
-        gp_keys = session.query(gene.Genepanel.name, gene.Genepanel.version).all()
+        gp_keys = session.query(gene.Genepanel.name, gene.Genepanel.version).filter(
+            gene.Genepanel.official.is_(True)
+        ).all()
 
     alleles_genepanels = queries.annotation_transcripts_genepanel(
         session,
