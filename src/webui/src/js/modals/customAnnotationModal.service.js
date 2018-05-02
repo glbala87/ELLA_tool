@@ -243,20 +243,20 @@ export class CustomAnnotationController {
      */
     getUrls(group) {
         let hgnc_ids = this.allele.annotation.filtered.map((t) => t.hgnc_id)
-
-        let urls = []
+        let urls = new Set()
         if ('url_for_genes' in group) {
             for (let hgnc_id of hgnc_ids) {
                 // json data has string keys
                 if (hgnc_id.toString() in group.url_for_genes) {
-                    urls.push(group.url_for_genes[hgnc_id])
+                    urls.add(group.url_for_genes[hgnc_id])
                 }
             }
         }
         if ('url' in group) {
-            urls.push(group.url)
+            urls.add(group.url)
         }
-        return urls
+
+        return Array.from(urls)
     }
 
     removeReference(ref) {
