@@ -3,23 +3,14 @@ export default function getImportJobs({ http, path, props }) {
     const page = props.page || null
     const perPage = props.perPage || null
 
-    // TODO: Create more generic pagination provider
-    const args = []
-    if (q) {
-        args.push(`q=${encodeURIComponent(JSON.stringify(q))}`)
+    const query = {
+        q: JSON.stringify(q),
+        page,
+        per_page: perPage
     }
-    if (perPage) {
-        args.push(`per_page=${perPage}`)
-    }
-    if (page) {
-        args.push(`page=${page}`)
-    }
-    let extras = ''
-    if (!args.length) {
-        extras = `?${args.join('&')}`
-    }
+
     return http
-        .get(`import/service/jobs/${extras}`)
+        .get(`import/service/jobs/`, query)
         .then((response) => {
             const result = {
                 entries: response.result,
