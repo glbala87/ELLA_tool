@@ -2,6 +2,7 @@ import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import postGenepanel from '../actions/postGenepanel'
 import toastr from '../../../../../common/factories/toastr'
+import postImportJob from '../actions/postImportJob'
 
 export default [
     when(state`views.overview.import.customGenepanel`),
@@ -10,10 +11,23 @@ export default [
             set(props`genepanel`, state`views.overview.import.added.addedGenepanel`),
             postGenepanel,
             {
-                success: [],
+                success: [
+                    postImportJob,
+                    {
+                        success: [],
+                        error: [toastr('error', 'Failed to import sample')]
+                    }
+                ],
                 error: [toastr('error', 'Failed to create genepanel')]
             }
         ],
-        false: []
+        false: [
+            set(props`genepanel`, state`views.overview.import.selectedGenepanel`),
+            postImportJob,
+            {
+                success: [],
+                error: [toastr('error', 'Failed to import sample')]
+            }
+        ]
     }
 ]

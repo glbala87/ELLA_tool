@@ -63,8 +63,12 @@ app.component('import', {
             addedCount,
             displayGenepanelName,
             customGenepanel: state`views.overview.import.customGenepanel`,
+            selectedSample: state`views.overview.import.selectedSample`,
+            samples: state`views.overview.import.data.samples`,
             selectedGenepanel: state`views.overview.import.selectedGenepanel`,
             genepanels: state`views.overview.import.data.genepanels`,
+            samplesSearchChanged: signal`views.overview.import.samplesSearchChanged`,
+            sampleSelected: signal`views.overview.import.sampleSelected`,
             customGenepanelSelected: signal`views.overview.import.customGenepanelSelected`,
             importClicked: signal`views.overview.import.importClicked`
         },
@@ -73,7 +77,22 @@ app.component('import', {
             '$scope',
             ($scope) => {
                 const $ctrl = $scope.$ctrl
-                Object.assign($ctrl, {})
+                Object.assign($ctrl, {
+                    sampleSelectedWrapper(newValue) {
+                        // A bit hackish due to angular-selector not
+                        // updating model before calling function.
+                        // Copy the query and merge in changes
+                        $ctrl.sampleSelected({
+                            selectedSample: newValue
+                        })
+                    },
+                    searchSamples(search) {
+                        // angular-selector needs a returned Promise, although
+                        // we set the options="" ourselves
+                        $ctrl.samplesSearchChanged({ term: search })
+                        return Promise.resolve([])
+                    }
+                })
             }
         ]
     )
