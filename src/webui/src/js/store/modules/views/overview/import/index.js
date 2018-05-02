@@ -5,6 +5,7 @@ import addTranscriptClicked from './signals/addTranscriptClicked'
 import removeTranscriptClicked from './signals/removeTranscriptClicked'
 import addAllTranscriptsClicked from './signals/addAllTranscriptsClicked'
 import removeAllTranscriptsClicked from './signals/removeAllTranscriptsClicked'
+import importClicked from './signals/importClicked'
 import candidatesFilterChanged from './signals/candidatesFilterChanged'
 import selectedCandidatesPageChanged from './signals/selectedCandidatesPageChanged'
 import selectedAddedPageChanged from './signals/selectedAddedPageChanged'
@@ -21,6 +22,7 @@ export default Module({
         removeTranscriptClicked,
         addAllTranscriptsClicked,
         removeAllTranscriptsClicked,
+        importClicked,
         customGenepanelNameChanged,
         selectedCandidatesPageChanged,
         selectedAddedPageChanged,

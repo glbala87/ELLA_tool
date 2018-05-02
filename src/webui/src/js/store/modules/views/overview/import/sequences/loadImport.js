@@ -7,7 +7,7 @@ import toastr from '../../../../../common/factories/toastr'
 import loadSelectedGenepanel from './loadSelectedGenepanel'
 import loadDefaultGenepanel from './loadDefaultGenepanel'
 import prepareAddedGenepanel from '../actions/prepareAddedGenepanel'
-import setDefaultSelectedGenepanel from '../actions/setDefaultSelectedGenepanel';
+import setDefaultSelectedGenepanel from '../actions/setDefaultSelectedGenepanel'
 
 export default sequence('loadImport', [
     getGenepanels,
