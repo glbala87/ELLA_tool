@@ -36,17 +36,18 @@ Transcript = table('transcript',
                    column('exon_ends', postgresql.ARRAY(sa.Integer()))
                    )
 
+GenepanelPhenotype = table('genepanel_phenotype',
+                            column('genepanel_name', sa.String()),
+                            column('genepanel_version', sa.String()),
+                            column('phenotype_id', sa.Integer())
+                            )
+
 Phenotype = table('phenotype',
                   column('id', sa.Integer()),
-                  column('genepanel_name', sa.String()),
-                  column('genepanel_version', sa.String()),
                   column('gene_id', sa.Integer()),
                   column('description', sa.String()),
                   column('inheritance', sa.String()),
-                  column('inheritance_info', sa.String()),
                   column('omim_id', sa.Integer()),
-                  column('pmid', sa.Integer()),
-                  column('comment', sa.String())
                   )
 
 Gene = table('gene',
@@ -91,8 +92,9 @@ def get_phenotypes(conn, genepanel_name, genepanel_version):
             list(Phenotype.c)+list(Gene.c)
         ).where(
             sa.and_(
-                sa.tuple_(Phenotype.c.genepanel_name, Phenotype.c.genepanel_version) == (
-                    genepanel_name, genepanel_version),
+                sa.tuple_(GenepanelPhenotype.c.genepanel_name,
+                          GenepanelPhenotype.c.genepanel_version) == (genepanel_name, genepanel_version),
+                GenepanelPhenotype.c.phenotype_id == Phenotype.c.id,
                 Gene.c.hgnc_id == Phenotype.c.gene_id
             )
         )
@@ -107,10 +109,9 @@ def _get_phenotype_data(phenotypes):
     phenotypes_columns["phenotype"] = lambda p: p.description
     phenotypes_columns["inheritance"] = lambda p: p.inheritance
     phenotypes_columns["omim_number"] = lambda p: str(p.omim_id)
-    phenotypes_columns["pmid"] = lambda p: str(
-        p.pmid) if p.pmid is not None else ""
-    phenotypes_columns["inheritance info"] = lambda p: p.inheritance_info
-    phenotypes_columns["comment"] = lambda p: p.comment
+    phenotypes_columns["pmid"] = lambda p: ''
+    phenotypes_columns["inheritance info"] = lambda p: ''
+    phenotypes_columns["comment"] = lambda p: ''
 
     phenotypes_data = "#\n"+"\t".join(phenotypes_columns.keys())
 
