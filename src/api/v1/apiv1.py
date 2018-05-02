@@ -179,6 +179,9 @@ class ApiV1(object):
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
                            '/api/v1/import/service/running/')
 
+        self._add_resource(r.annotationjob.ImportSamples,
+                           '/api/v1/import/service/samples/')
+
         # ---------------------------------------------------------------------------------------------------------
         # Workflow variant
         # ---------------------------------------------------------------------------------------------------------

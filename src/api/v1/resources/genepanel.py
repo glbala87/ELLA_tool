@@ -94,7 +94,7 @@ class GenepanelListResource(LogRequestResource):
         if not data['version']:
             raise ApiError('No version given for genepanel')
 
-        if not config_valid(data['config']):
+        if data['config'] and not config_valid(data['config']):
             raise ApiError('Invalid config, does not conform to schema.')
 
         transcript_ids = list()

@@ -22,6 +22,7 @@
             ["Ciliopati", "v05"],
             ["OMIM", "v01"]
         ],
+        "default_import_genepanel": ["Ciliopati", "v05"],
         "config": {
             "overview": {
                 "views": [

@@ -246,6 +246,20 @@ class AnnotationServiceInterface:
         resp = json.loads(k.read())
         return resp
 
+    def search_samples(self, search_term):
+        """Search for samples and return results"""
+        # FIXME: Implement proper search!
+        k = urllib2.urlopen(join(self.base, "samples"))
+        resp = json.loads(k.read())
+        result = []
+        for k, v in resp.iteritems():
+            if search_term.lower() in k.lower():
+                result.append({
+                    'name': k,
+                    'type': v['type']
+                })
+        return sorted(result, key=lambda x: x['name'])
+
     def annotation_service_running(self):
         try:
             k = urllib2.urlopen(join(self.base, "status"))
