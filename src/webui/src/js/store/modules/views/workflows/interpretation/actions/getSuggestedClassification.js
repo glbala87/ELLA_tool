@@ -12,7 +12,9 @@ export default function getSuggestedClassification({ http, resolve, path, props 
     }
 
     // Abort any in-flight queries
-    http.abort('acmg/classifications*')
+    try {
+        http.abort('acmg/classifications*')
+    } catch (error) {} // Throws when aborts
 
     return http
         .get('acmg/classifications/', { codes: codes.join(',') })
@@ -20,7 +22,7 @@ export default function getSuggestedClassification({ http, resolve, path, props 
             return path.success({ result: response.result })
         })
         .catch((error) => {
-            if (error.isAborted) {
+            if (error.type === 'abort') {
                 return path.aborted()
             }
             console.error(error)

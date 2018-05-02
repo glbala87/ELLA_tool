@@ -9,7 +9,15 @@ import updateSuggestedClassification from '../sequences/updateSuggestedClassific
 export default [
     canUpdateAlleleAssessment,
     {
-        true: [acmgCodeChanged, updateSuggestedClassification, setDirty],
+        true: [
+            acmgCodeChanged,
+            setDirty,
+            when(props`codeChanged`),
+            {
+                true: [updateSuggestedClassification],
+                false: []
+            }
+        ],
         false: [toastr('error', 'Could not change ACMG code')]
     }
 ]

@@ -123,12 +123,11 @@
     <div class="id-acmg-included" ng-if="$ctrl.section.options.showIncludedAcmgCodes">
         <h4 class="section-title acmg-body">ACMG <span ng-if="!$ctrl.readOnly && !$ctrl.isAlleleAssessmentReused">(SUGGESTED CLASS: <span class="suggested-class">{{$ctrl.alleleassessment.evaluation.acmg.suggested_classification}}</span>)</span></h4>
         <section class="acmg-wrapper included">
-                <!-- FIXME -->
           <acmg directreqs="true"
                 code="code"
                 isUpgradable="true"
                 isDowngradable="true"
-                ng-repeat="code in $ctrl.alleleassessment.evaluation.acmg.included"
+                ng-repeat="code in $ctrl.includedAcmgCopies track by code.uuid"
                 on-toggle="$ctrl.removeAcmgClicked({alleleId: $ctrl.selectedAllele, code: {uuid: code.uuid}})"
                 toggle-text="REMOVE"
                 comment-model="code.comment"

@@ -15,6 +15,7 @@ import {
     getReferencesIdsForAllele,
     findReferencesFromIds
 } from '../../store/common/helpers/reference'
+import { deepCopy } from '../../util'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -117,6 +118,19 @@ app.component('alleleSectionbox', {
             'cerebral',
             function($scope, cerebral) {
                 const $ctrl = $scope.$ctrl
+
+                // HACK: The <acmg> directive modifies the code object directly (which comes from Cerebral store),
+                // which messes up handling in Cerebral
+                // Until <acmg> is converted, we make local deep copies
+                $scope.$watch(
+                    () => $ctrl.alleleassessment.evaluation.acmg.included,
+                    (items) => {
+                        if (items) {
+                            $ctrl.includedAcmgCopies = items.map((i) => deepCopy(i))
+                        }
+                    },
+                    true
+                )
 
                 Object.assign($ctrl, {
                     showControls() {
