@@ -1,5 +1,3 @@
-/* jshint esnext: true */
-
 export function getReferencesIdsForAllele(allele) {
     const ids = []
     if (allele.annotation) {
@@ -29,7 +27,10 @@ export function findReferencesFromIds(references, ids) {
 
         if (references) {
             let reference = references.find((r) => {
-                return (pmid && r.pubmed_id.toString() === pmid.toString()) || (id && r.id === id)
+                return (
+                    (pmid && r.pubmed_id && r.pubmed_id.toString() === pmid.toString()) ||
+                    (id && r.id === id)
+                )
             })
             if (reference) {
                 result.references.push(reference)

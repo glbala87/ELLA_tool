@@ -1,17 +1,17 @@
 <contentbox class="max-width id-references-box" title="{{$ctrl.title}}" ng-if="$ctrl.hasContent() && !($ctrl.type == 'excluded' && !$ctrl.showExcluded)">
   <cbbody>
       <article class="acmg-body id-reference-pending-unpublished" ng-repeat="ref in $ctrl.references.pending.unpublished" ng-if="$ctrl.type === 'pending'">
-          <allele-info-reference-detail reference="ref" vm="vm" ></allele-info-reference-detail>
-      </article>
-      <article class="id-article-unreferenced" ng-repeat="ref in $ctrl.references.missing" ng-if="$ctrl.type === 'pending'">
-          <section class="line-wrapper">
-          <div>
-            <h5 class="wrap">Missing data for Pubmed ID <a-clip href="http://www.ncbi.nlm.nih.gov/pubmed/{{ref.pubmed_id}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
-          </div>
-      </section>
+          <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
       </article>
       <article class="acmg-body id-reference-pending-published" ng-repeat="ref in $ctrl.references.pending.published" ng-if="$ctrl.type === 'pending'">
           <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
+      </article>
+      <article class="id-article-unreferenced" ng-repeat="ref in $ctrl.references.missing" ng-if="$ctrl.type === 'pending'">
+            <section class="line-wrapper">
+            <div>
+              <h5 class="wrap">Missing data for Pubmed ID <a-clip href="http://www.ncbi.nlm.nih.gov/pubmed/{{ref.pubmed_id}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
+            </div>
+        </section>
       </article>
       <h3 ng-if="$ctrl.references.evaluated.unpublished.length > 0">Unpublished studies</h3>
       <article class="acmg-body id-reference-evaluated-unpublished" ng-repeat="ref in $ctrl.references.evaluated.unpublished" ng-if="$ctrl.type === 'evaluated'">
