@@ -2,14 +2,9 @@ import { deepCopy } from '../../../../../util'
 import { parallel, sequence } from 'cerebral'
 import { set, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
-import getAlleles from '../actions/getAlleles'
-import hasInterpretations from '../actions/hasInterpretations'
 import getAcmgCodes from '../actions/getAcmgCodes'
 import prepareSuggestedAcmg from '../actions/prepareSuggestedAcmg'
-import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
-
 import toastr from '../../../../common/factories/toastr'
-import autoReuseExistingAlleleassessments from '../interpretation/actions/autoReuseExistingAlleleassessments'
 
 export default sequence('loadAcmg', [
     getAcmgCodes,
