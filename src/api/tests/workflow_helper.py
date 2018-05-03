@@ -247,8 +247,6 @@ class WorkflowHelper(object):
         allele_reports = interpretation['state']['allelereports']
         attachments = []
 
-        self._update_comments(interpretation['state'], comment)
-
         # annotation is required for finalization
         annotations, custom_annotations = _build_dummy_annotations(map(lambda a: a['allele_id'], allele_assessments))
 
@@ -272,6 +270,11 @@ class WorkflowHelper(object):
                 allele_report_for_allele = next(a for a in allele_reports if a['allele_id'] == allele['id'])
                 allele_report_for_allele['presented_allelereport_id'] = allele['allele_report']['id']
                 allele_report_for_allele['reuse'] = True
+            if 'reference_assessments' in allele:
+                for ref_assessment in allele['reference_assessments']:
+                    reference_assessment = next(ra for ra in reference_assessments if ra['allele_id'] == ref_assessment['allele_id'] and ra['reference_id'] == ref_assessment['reference_id'])
+                    # 'id' = reuse for referenceassessments
+                    reference_assessment['id'] = ref_assessment['id']
 
         # Finalize
         ih.save_interpretation_state(self.type, interpretation, self.id, interpretation['user']['username'])
@@ -329,20 +332,24 @@ class WorkflowHelper(object):
 
                 # Check alleleassessments in database
                 state_alleleassessment = next(a for a in interpretation['state']['alleleassessments'] if a['allele_id'] == allele_id)
+                allele_assessments_in_db = ih.get_allele_assessments_by_allele(allele_id)
+                assert allele_assessments_in_db
+                latest_allele_assessment = next(a for a in allele_assessments_in_db if not a['date_superceeded'])
                 if not state_alleleassessment.get('reuse'):
-                    allele_assessments_in_db = ih.get_allele_assessments_by_allele(allele_id)
-                    assert allele_assessments_in_db
-                    latest_allele_assessment = next(a for a in allele_assessments_in_db if not a['date_superceeded'])
                     assert latest_allele_assessment['classification'] == state_alleleassessment['classification']
                     assert latest_allele_assessment['evaluation']['comment'] == state_alleleassessment['evaluation']['comment']
+                else:
+                    assert latest_allele_assessment['id'] == state_alleleassessment['presented_alleleassessment_id']
 
                 # Check allelereports in database
                 state_allelereport = next(a for a in interpretation['state']['allelereports'] if a['allele_id'] == allele_id)
+                allele_reports_in_db = ih.get_allele_reports_by_allele(allele_id)
+                assert allele_reports_in_db
+                latest_allele_report = next(a for a in allele_reports_in_db if not a['date_superceeded'])
                 if not state_allelereport.get('reuse'):
-                    allele_reports_in_db = ih.get_allele_reports_by_allele(allele_id)
-                    assert allele_reports_in_db
-                    latest_allele_report = next(a for a in allele_reports_in_db if not a['date_superceeded'])
                     assert latest_allele_report['evaluation']['comment'] == state_allelereport['evaluation']['comment']
+                else:
+                    assert latest_allele_assessment['id'] == state_allelereport['presented_allelereport_id']
 
                 # Check on reference assessments:
                 state_referenceassessments = [a for a in interpretation['state']['referenceassessments'] if a['allele_id'] == allele_id]
@@ -354,4 +361,7 @@ class WorkflowHelper(object):
                             ra['reference_id'] == state_referenceassessment['reference_id'] and
                             ra['date_superceeded'] is None
                         ))
-                        assert matching_reference_assessment['evaluation']['comment'] == state_referenceassessment['evaluation']['comment']
+                        if 'id' not in state_referenceassessment:
+                            assert matching_reference_assessment['evaluation']['comment'] == state_referenceassessment['evaluation']['comment']
+                        else:
+                            assert matching_reference_assessment['id'] == state_referenceassessment['id']

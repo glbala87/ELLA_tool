@@ -296,7 +296,7 @@ export class AlleleStateHelper {
             allele_state.alleleAssessmentCopiedFromId = allele.allele_assessment.id;
 
             // Copy over reference assessment to state
-            allele_state.referenceassessments = allele.allele_assessment.referenceassessments;
+            allele_state.referenceassessments = allele.reference_assessments;
 
             // The copied alleleassessment can have an older model that is lacking fields.
             // We need to check the model and add any missing fields to make it up to date.
