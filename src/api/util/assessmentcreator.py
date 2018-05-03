@@ -62,14 +62,15 @@ class AssessmentCreator(object):
 
         aa_created, aa_reused = self._create_or_reuse_alleleassessments(user_id, annotations, alleleassessments, custom_annotations=custom_annotations)
 
-        included_reference_assessments = self.get_included_referenceassessments(alleleassessments)
+        ra_created, ra_reused = self._create_or_reuse_referenceassessments(user_id, referenceassessments)
 
-        all_reference_assessments = referenceassessments + included_reference_assessments
+        # All created referenceassessments should belong to a created alleleassessment
+        aa_created_allele_ids = [aa.allele_id for aa in aa_created]
 
-        ra_created, ra_reused = self._create_or_reuse_referenceassessments(user_id, all_reference_assessments)
+        if not all(ra.allele_id in aa_created_allele_ids for ra in ra_created):
+            raise ApiError("Trying to create referenceassessment for allele, while not also creating alleleassessment")
 
         self._attach_referenceassessments(ra_created + ra_reused, aa_created)
-
         self._attach_attachments(attachments, aa_created)
 
         return {
@@ -82,18 +83,6 @@ class AssessmentCreator(object):
                 'created': aa_created
             }
         }
-
-    def get_included_referenceassessments(self, alleleassessments):
-        # Get all reference assessments included as part of alleleassessments
-        included = list()
-        for aa in alleleassessments:
-            if 'referenceassessments' in aa:
-                for f in ['allele_id']:
-                    if not all([ra[f] == aa[f] for ra in aa['referenceassessments']]):
-                        raise ApiError(
-                            "All included reference assessments must match allele assements on {}.".format(f))
-                included += aa['referenceassessments']
-        return included
 
     def _attach_referenceassessments(self, referenceassessments, alleleassessments):
         """

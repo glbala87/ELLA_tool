@@ -1,7 +1,12 @@
+import datetime
 import pytest
 
+from vardb.datamodel import assessment
+
+from api import ApiError
 from api.tests import *
 from api.tests.workflow_helper import WorkflowHelper
+from api.tests import interpretation_helper as ih
 
 """
 Test the interpretation workflow of
@@ -122,3 +127,248 @@ class TestAlleleInterpretationWorkflow(object):
         allele_wh.reopen(ALLELE_USERNAMES[2])
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[2])
         allele_wh.perform_reopened_round(interpretation, 'Reopened comment')
+
+
+class TestOther(object):
+    """
+    Tests other scenarios not covered in normal workflow
+    """
+
+    @pytest.mark.ai(order=0)
+    def test_disallow_referenceassessment_no_alleleassessment(self, test_database, session):
+        """
+        Test case where one tries to create referenceassessments for alleles where
+        no alleleassessments will be created at the same time.
+        """
+
+        test_database.refresh()
+
+        # Create dummy alleleassessment
+        aa = assessment.AlleleAssessment(
+            allele_id=1,
+            classification='1',
+            evaluation={},
+            genepanel_name='HBOC',
+            genepanel_version='v01'
+        )
+        session.add(aa)
+        session.commit()
+
+        interpretation = ih.start_interpretation(
+            'allele',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'allele',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': 1,
+                'reuse': True,
+                'presented_alleleassessment_id': 1
+            }
+        ]
+        # Create new referenceassessment
+        referenceassessments = [
+            {
+                'reference_id': 1,
+                'allele_id': 1,
+                'evaluation': {'some': 'data'},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            }
+        ]
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'allele',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Trying to create referenceassessment for allele, while not also creating alleleassessment' in str(excinfo.value)
+
+    @pytest.mark.ai(order=1)
+    def test_reusing_superceded_referenceassessment(self, test_database, session):
+        """
+        Test case where one tries to reuse superceded referenceassessment.
+        """
+
+        test_database.refresh()
+
+        # Create dummy referenceassessment
+        ra = assessment.ReferenceAssessment(
+            allele_id=1,
+            reference_id=1,
+            evaluation={},
+            genepanel_name='HBOC',
+            genepanel_version='v01',
+            date_superceeded=datetime.datetime.now()
+        )
+        session.add(ra)
+        session.commit()
+
+        # Will get id = 2
+        ra = assessment.ReferenceAssessment(
+            allele_id=1,
+            reference_id=1,
+            evaluation={},
+            genepanel_name='HBOC',
+            genepanel_version='v01',
+            previous_assessment_id=1
+        )
+
+        session.add(ra)
+        session.commit()
+
+        interpretation = ih.start_interpretation(
+            'allele',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'allele',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': 1,
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            }
+        ]
+        # Create new referenceassessment
+        referenceassessments = [
+            {
+                'id': 1,  # outdated
+                'reference_id': 1,
+                'allele_id': 1
+            }
+        ]
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'allele',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Found no matching referenceassessment' in str(excinfo.value)
+
+    @pytest.mark.ai(order=2)
+    def test_reusing_superceded_alleleassessment(self, test_database, session):
+        """
+        Test case where one tries to reuse superceded referenceassessment.
+        """
+
+        test_database.refresh()
+
+        # Create dummy alleleassessment
+        aa = assessment.AlleleAssessment(
+            allele_id=1,
+            classification='1',
+            evaluation={},
+            genepanel_name='HBOC',
+            genepanel_version='v01',
+            date_superceeded=datetime.datetime.now()
+        )
+        session.add(aa)
+        session.commit()
+
+        # Will get id = 2
+        aa = assessment.AlleleAssessment(
+            allele_id=1,
+            classification='2',
+            evaluation={},
+            genepanel_name='HBOC',
+            genepanel_version='v01',
+            previous_assessment_id=1
+        )
+        session.add(aa)
+        session.commit()
+
+        interpretation = ih.start_interpretation(
+            'allele',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'allele',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': 1,
+                'reuse': True,
+                'presented_alleleassessment_id': 1  # Outdated
+            }
+        ]
+
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'allele',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Found no matching alleleassessment' in str(excinfo.value)
