@@ -652,7 +652,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
   .toast { background-color: #030303; }
   .toast:before { color: white; font-size: 1.1rem; font-family: $full; letter-spacing: 0.1rem; }
-  .toast-success { background-color: $green; &:before { content: "HOORAY"; } }
+  .toast-success { background-color: $green; &:before { content: "SUCCESS"; } }
   .toast-error { background-color: $red; &:before { content: "ERROR"; } }
   .toast-info { background-color: $purple-50; &:before { content: "INFORMATION"; } }
   .toast-warning { background-color: $red-75; &:before { content: "WARNING"; } }

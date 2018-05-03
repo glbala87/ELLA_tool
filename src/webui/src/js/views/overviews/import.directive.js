@@ -39,8 +39,12 @@ const displayGenepanelName = Compute(
 const canImport = Compute(
     state`views.overview.import.customGenepanel`,
     state`views.overview.import.selectedGenepanel`,
+    state`views.overview.import.selectedSample`,
     state`views.overview.import.added.addedGenepanel`,
-    (customGenepanel, selectedGenepanel, addedGenepanel) => {
+    (customGenepanel, selectedGenepanel, selectedSample, addedGenepanel) => {
+        if (!selectedSample) {
+            return false
+        }
         if (customGenepanel) {
             if (!addedGenepanel) {
                 return false

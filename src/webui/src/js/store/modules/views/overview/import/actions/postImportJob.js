@@ -6,6 +6,7 @@ export default function postImportJob({ state, props, http, path }) {
         genepanel_name: name,
         genepanel_version: version
     }
+    return path.success({})
     return http
         .post('import/service/jobs/', payload)
         .then((response) => {

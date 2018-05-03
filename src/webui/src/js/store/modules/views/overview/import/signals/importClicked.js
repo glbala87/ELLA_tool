@@ -3,6 +3,7 @@ import { state, props } from 'cerebral/tags'
 import postGenepanel from '../actions/postGenepanel'
 import toastr from '../../../../../common/factories/toastr'
 import postImportJob from '../actions/postImportJob'
+import resetImport from '../sequences/resetImport'
 
 export default [
     when(state`views.overview.import.customGenepanel`),
@@ -14,18 +15,18 @@ export default [
                 success: [
                     postImportJob,
                     {
-                        success: [],
+                        success: [resetImport, toastr('success', 'Import job created.', 5000)],
                         error: [toastr('error', 'Failed to import sample')]
                     }
                 ],
-                error: [toastr('error', 'Failed to create genepanel')]
+                error: [toastr('error', 'Failed to create genepanel. Maybe name exists already?')]
             }
         ],
         false: [
             set(props`genepanel`, state`views.overview.import.selectedGenepanel`),
             postImportJob,
             {
-                success: [],
+                success: [resetImport, toastr('success', 'Import job created.', 5000)],
                 error: [toastr('error', 'Failed to import sample')]
             }
         ]
