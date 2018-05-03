@@ -1,10 +1,10 @@
 import { parallel } from 'cerebral'
-import loadOverviewActivities from './loadOverviewActivities'
 import loadUserStats from './loadUserStats'
+import loadUsers from './loadUsers'
 import progress from '../../../../common/factories/progress'
 
 export default [
     progress('start'),
-    parallel([loadOverviewActivities, loadUserStats]),
+    parallel([loadUsers, loadUserStats]),
     progress('done')
 ]

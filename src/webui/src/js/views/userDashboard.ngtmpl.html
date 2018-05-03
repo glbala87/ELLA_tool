@@ -1,6 +1,6 @@
 <div class="main">
     <nav class="secondary">
-        <button class="id-logout-btn logout-btn" ng-click="vm.logout()">LOGOUT</button>
+        <button class="id-logout-btn logout-btn" ng-click="$ctrl.logoutClicked()">LOGOUT</button>
     </nav>
 
     <div class="dashboard">
@@ -11,9 +11,9 @@
                 <subtitle>
                 </subtitle>
                 <contentwrapper>
-                    <p>Username: <span class="full-title"> {{vm.user.getCurrentUser().username}}</span></p>
-                    <p>Full name: <span class="full-title"> {{vm.user.getCurrentUser().full_name}}</span></p>
-                    <p>Password expiry: <span class="full-title">{{vm.user.getCurrentUser().password_expiry | date:'yyyy-MM-dd HH:mm'}}</span></p>
+                    <p>Username: <span class="full-title"> {{$ctrl.user.username}}</span></p>
+                    <p>Full name: <span class="full-title"> {{$ctrl.user.full_name}}</span></p>
+                    <p>Password expiry: <span class="full-title">{{$ctrl.user.password_expiry | date:'yyyy-MM-dd HH:mm'}}</span></p>
                 </contentwrapper>
             </sectionbox>
 
@@ -23,10 +23,10 @@
             </maintitle>
             <subtitle></subtitle>
             <contentwrapper>
-                <p>Group: <span class="full-title">{{vm.user.getCurrentUser().group.name}}</span></p>
+                <p>Group: <span class="full-title">{{$ctrl.user.group.name}}</span></p>
                   <p>Other users in group:</p>
                   <div class="sectionbox-content general-list">
-                      <span ng-repeat="user in vm.usersInGroup" class="list-item">
+                      <span ng-repeat="user in $ctrl.usersInGroup" class="list-item">
                           <span class="full-title">{{user.full_name}}</span>
                       </span>
                   </div>
@@ -41,12 +41,12 @@
             <contentwrapper>
                     <p>Genepanels:</p>
                     <div class="sectionbox-content general-list">
-                        <span class="list-item" ng-repeat="genepanel in vm.user.getCurrentUser().group.genepanels">
+                        <span class="list-item" ng-repeat="genepanel in $ctrl.user.group.genepanels">
                             <span class="full-title">{{genepanel.name}} {{genepanel.version}}</span>
                         </span>
                     </div>
-                    <p>Number of analysis worked on: <span class="full-title">{{vm.user_stats.analyses_cnt}}</span></p>
-                    <p>Number of variants worked on: <span class="full-title">{{vm.user_stats.alleles_cnt}}</span></p>
+                    <p>Number of analysis worked on: <span class="full-title">{{$ctrl.userStats.analyses_cnt}}</span></p>
+                    <p>Number of variants worked on: <span class="full-title">{{$ctrl.userStats.alleles_cnt}}</span></p>
             </contentwrapper>
             </sectionbox>
     </div>
