@@ -271,7 +271,7 @@ export class AlleleStateHelper {
                   ra.reference_id === reference.id
         );
         // Update the object with new data, and remove the reuse ('id')
-        Object.assign(state_ra, referenceassessment);
+        state_ra.evaluation = referenceassessment.evaluation
         delete state_ra.id;
     }
 
@@ -296,7 +296,13 @@ export class AlleleStateHelper {
             allele_state.alleleAssessmentCopiedFromId = allele.allele_assessment.id;
 
             // Copy over reference assessment to state
-            allele_state.referenceassessments = allele.reference_assessments;
+            allele_state.referenceassessments = allele.reference_assessments.map(ra => {
+                return {
+                    allele_id: ra.allele_id,
+                    reference_id: ra.reference_id,
+                    id: ra.id
+                }
+            });
 
             // The copied alleleassessment can have an older model that is lacking fields.
             // We need to check the model and add any missing fields to make it up to date.
