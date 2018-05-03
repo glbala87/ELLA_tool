@@ -210,7 +210,9 @@ export class AlleleStateHelper {
         // Exists in state, check if it is set to reused and if so,
         // return the existing object
         // FIXME: This is a quick fix, but should be resolved in cerebral branch? Needs more testing.
-        else if (this.isAlleleAssessmentReused(allele_state) || 'id' in state_ra) {
+        else if ((this.hasExistingReferenceAssessment(allele, reference, allele_state) &&
+                 this.isAlleleAssessmentReused(allele_state))
+                 || 'id' in state_ra) {
             return this.getExistingReferenceAssessment(allele, reference);
         }
         // Exists in state, but not reused -> return the state object
@@ -492,8 +494,8 @@ export class AlleleStateHelper {
     }
 
     static hasExistingReferenceAssessment(allele, reference, allele_state) {
-        if (this.allele.reference_assessments) {
-            return this.allele.reference_assessments.find(ra => {
+        if (allele.reference_assessments) {
+            return allele.reference_assessments.find(ra => {
                 return ra.reference_id === reference.id;
             });
         }
