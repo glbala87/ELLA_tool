@@ -111,7 +111,14 @@ The demo container runs an internal PostgreSQL server for easier deployment.
 
 ### Getting started:
 - Start a development environment in Docker, run **`make dev`** - you may need to do `make build` first
-- Populate the database by visiting the `/reset` route _or do `/reset?testset=all` to get an expanded data set_.
+- Populate the database by running `make db` or `make db TEST_SET=..`
+ if you want something else than the default data. See vardb/deposit/deposit_testdata.py#AVAILABLE_TESTSETS
+
+To get visibility into what's happening in the browser client, start the Cerebral debugger (https://cerebraljs.com/docs/introduction/debugger.html).
+Enter any name ('Ella' is a good name) and port 8585. This sets up a server listening on that part port.
+Open the app in the browser (refresh if the app was openen before starting Cerebral). The browser will connect
+to the Cerebral. Make sure the server port match the port configured in webui/src/js/index.js
+
 
 ### Ops
 
