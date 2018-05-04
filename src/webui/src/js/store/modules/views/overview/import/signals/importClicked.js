@@ -15,7 +15,11 @@ export default [
                 success: [
                     postImportJob,
                     {
-                        success: [resetImport, toastr('success', 'Import job created.', 5000)],
+                        success: [
+                            resetImport,
+                            set(state`views.overview.import.selectedSample`, null),
+                            toastr('success', 'Import job created.', 5000)
+                        ],
                         error: [toastr('error', 'Failed to import sample')]
                     }
                 ],
@@ -26,7 +30,11 @@ export default [
             set(props`genepanel`, state`views.overview.import.selectedGenepanel`),
             postImportJob,
             {
-                success: [resetImport, toastr('success', 'Import job created.', 5000)],
+                success: [
+                    resetImport,
+                    set(state`views.overview.import.selectedSample`, null),
+                    toastr('success', 'Import job created.', 5000)
+                ],
                 error: [toastr('error', 'Failed to import sample')]
             }
         ]
