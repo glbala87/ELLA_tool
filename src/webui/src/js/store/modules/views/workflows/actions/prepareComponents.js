@@ -77,15 +77,15 @@ const BASE_SECTIONS = {
             {
                 tag: 'allele-info-references',
                 attr: {
-                    title: 'Pending',
-                    type: 'pending'
+                    title: 'Evaluated',
+                    type: 'evaluated'
                 }
             },
             {
                 tag: 'allele-info-references',
                 attr: {
-                    title: 'Evaluated',
-                    type: 'evaluated'
+                    title: 'Pending',
+                    type: 'pending'
                 }
             },
             {
