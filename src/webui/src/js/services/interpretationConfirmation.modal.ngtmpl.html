@@ -1,6 +1,6 @@
 <sectionbox class="prompt" color="purple" modal="true" on-close="vm.modal.close">
   <maintitle>
-    FINISH
+    SELECT NEXT ROUND
   </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
@@ -19,11 +19,11 @@
       <p class="step-indicator">⟶</p>
       <button ng-if="vm.type == 'analysis'" class="id-mark-medicalreview" ng-class="vm.getClass('Medical review')" type="button" ng-click="vm.selectStatus('Medical review')">MEDICAL REVIEW</button>
       <p ng-if="vm.type == 'analysis'" class="step-indicator">⟶</p>
-      <button ng-disabled="!vm.canFinalize" ng-class="vm.getClass('Finalized')" class="id-finalize" type="button" ng-click="vm.selectStatus('Finalized')">FINALIZED</button>
+      <button ng-disabled="!vm.canFinalize" ng-class="vm.getClass('Finalized')" class="id-finalize" type="button" ng-click="vm.selectStatus('Finalized')">FINALISE</button>
 
     </div>
 
     <h4 class="sb-notification" ng-if="!vm.canFinalize"> </h4>
-    <h4 class="sb-notification" ng-if="!vm.canFinalize">Finalize not possible: Make sure all variants are classified and that you are in a review round.</h4>
+    <h4 class="sb-notification" ng-if="!vm.canFinalize">Finalise not possible: Make sure all variants are classified and that you are in a review round.</h4>
   </contentwrapper>
 </sectionbox>

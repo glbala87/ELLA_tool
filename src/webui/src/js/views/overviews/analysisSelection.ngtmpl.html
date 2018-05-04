@@ -164,7 +164,7 @@
 
 <sectionbox color="blue" class="id-analysis-finished" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'finished')" collapsed="$ctrl.state.finished.collapsed" ng-if="$ctrl.analyses">
   <maintitle>
-    FINISHED
+    FINALISED
   </maintitle>
   <subtitle>
     {{$ctrl.finalized.pagination.totalCount}}
@@ -182,6 +182,6 @@
   </controls>
   <contentwrapper>
     <analysis-list sort="false" ng-if="$ctrl.finalized" store-path="'views.overview.data.analysesFinalized.entries'"></analysis-list>
-    <h4 class="sb-notification dim" ng-if="!$ctrl.finalized.entries.length">No finished analysis</h4>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.finalized.entries.length">No finalised analysis</h4>
   </contentwrapper>
 </sectionbox>

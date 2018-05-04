@@ -54,7 +54,7 @@
 
 <sectionbox color="blue" class="id-variants-finished" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'finished')" collapsed="$ctrl.state.finished.collapsed">
   <maintitle>
-    FINISHED
+    FINALISED
   </maintitle>
   <subtitle>
     {{$ctrl.finalized.pagination.totalCount}}
@@ -72,6 +72,6 @@
   </controls>
   <contentwrapper>
     <allele-list sort="false" store-path="'views.overview.data.allelesFinalized.entries'"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!$ctrl.finalized.entries.length">No finished variants</h4>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.finalized.entries.length">No finalised variants</h4>
   </contentwrapper>
 </sectionbox>
