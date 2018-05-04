@@ -10,11 +10,11 @@
         <div class="question tiny line-wrapper">
           <div class="left">
             <h1 class="slim title search-option">
-              <b>FREE TEXT</b>
+              <b>HGVSC OR GENOMIC</b>
             </h1>
           </div>
           <div class="right search-option">
-            <input class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
+            <input placeholder="e.g. c.123A>G or 13:100-300" class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
           </div>
         </div>
         <div class="question tiny line-wrapper">
@@ -32,7 +32,7 @@
                       label-attr="symbol"
                       options="$ctrl.options.gene"
                       remote="$ctrl.updateGeneOptions(search)"
-                      placeholder="choose gene"
+                      placeholder="Search gene"
                       disable-search="false"
                       >
                     </select>
@@ -54,7 +54,7 @@
                       model="$ctrl.query.user"
                       change="$ctrl.optionSelected('user', newValue)"
                       options="$ctrl.options.user"
-                      placeholder="choose user"
+                      placeholder="Search user"
                       remote="$ctrl.updateUserOptions(search)"
                       view-item-template="'userTemplate'"
                       dropdown-item-template="'userTemplate'"
@@ -67,7 +67,7 @@
         <div class="question tiny line-wrapper">
           <div class="left">
             <h1 class="slim title search-option">
-              <b>UNFILTERED VARIANTS ONLY</b>
+              <b>SHOW EXCLUDED VARIANTS</b>
             </h1>
           </div>
           <div class="right bttn-set">
