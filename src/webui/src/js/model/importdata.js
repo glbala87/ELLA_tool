@@ -110,8 +110,8 @@ export class ImportData {
             let key;
             if (fileType === "vcf") {
                 key = this._parseVcfLine(l)
-            } else if (fileType === "seqpilot") {
-                key = this._parseSeqPilotLine(l)
+            } else if (fileType === 'seqpilot') {
+                key = this._parseSeqPilotLine(header, l)
             } else {
                 key = this._parseGenomicOrHGVScLine(l);
             }
@@ -147,11 +147,16 @@ export class ImportData {
         return `${chrom}:${pos} ${ref}>${alt} (${genotype})`
     }
 
-    _parseSeqPilotLine(line) {
-        let vals = line.trim().split("\t");
-        let transcript = vals[2];
-        let cdna = vals[11];
-        let genotype = vals[6].match(/\(het\)|\(homo\)/);
+    _parseSeqPilotLine(header, line) {
+        const splitHeader = header.trim().split('\t')
+        const splitLine = line.trim().split('\t')
+        const values = {}
+        for (let i = 0; i < splitHeader.length; i++) {
+            values[splitHeader[i]] = splitLine[i]
+        }
+        const transcript = values['Transcript']
+        const cdna = values['c. HGVS']
+        let genotype = values['Nuc Change'].match(/\(het\)|\(homo\)/)
         if (!genotype) {
             this._hasGenotype = false;
             genotype = "(?)"

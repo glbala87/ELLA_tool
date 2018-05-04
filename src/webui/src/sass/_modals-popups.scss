@@ -170,10 +170,9 @@ importsingle > contentwrapper {
 }
 
 .import-warning {
-  background: $red-05;
-  margin: 0.4rem 0;
-  border: 1px solid $red-25;
-  padding: 0.2rem;
+  background-color: $red; margin: 0.5rem; padding: 1rem; color: $white;
+  p { color: $white; }
+
 }
 
 .import-variants {
