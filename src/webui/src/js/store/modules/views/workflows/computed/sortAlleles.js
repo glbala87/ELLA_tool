@@ -25,9 +25,9 @@ function getSortFunctions(
             return allele.annotation.filtered[0].symbol
         },
         hgvsc: (allele) => {
-            let s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
-            let d = parseInt(s.match(/[cg]\.(\d+)/)[1])
-            return d
+            const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
+            const pos = s.match(/[cg]\.(\d+)/)
+            return pos ? parseInt(pos[1]) : 0
         },
         consequence: (allele) => {
             let consequence_priority = config.transcripts.consequences
