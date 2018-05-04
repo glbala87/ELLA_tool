@@ -1,15 +1,11 @@
-function getAllUsers({ http, path }) {
+export default function getAllUsers({ http, path }) {
     return http
         .get(`users/`)
         .then((response) => {
-            if (response.status === 200) {
-                return path.success(response)
-            }
-            return path.error({ result: response.result })
+            return path.success({ result: response.result })
         })
-        .catch((r) => {
-            return path.error(r)
+        .catch((err) => {
+            console.error(err)
+            return path.error(err)
         })
 }
-
-export default getAllUsers

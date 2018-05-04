@@ -6,11 +6,15 @@ import postLogout from '../actions/postLogout'
 import toastr from '../../../../common/factories/toastr'
 
 export default [
-    toastr('info', 'Logging out, please wait...', 2000),
+    toastr('info', 'Logging out, please wait...', 1000),
     wait(1000),
     postLogout,
     {
-        success: [set(state`app.user`, null), redirect('/login')],
+        success: [
+            set(state`app.user`, null),
+            set(state`app.config`, null), // Force config reload
+            redirect('/login')
+        ],
         error: [toastr('error', 'Something went wrong when logging out.', 10000)]
     }
 ]
