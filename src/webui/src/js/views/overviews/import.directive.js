@@ -83,17 +83,14 @@ app.component('import', {
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
                     sampleSelectedWrapper(newValue) {
-                        // A bit hackish due to angular-selector not
-                        // updating model before calling function.
-                        // Copy the query and merge in changes
                         $ctrl.sampleSelected({
-                            selectedSample: newValue
+                            selectedSample: newValue ? newValue : null
                         })
                     },
                     searchSamples(search) {
-                        // angular-selector needs a returned Promise, although
-                        // we set the options="" ourselves
                         $ctrl.samplesSearchChanged({ term: search })
+                        // angular-selector needs a returned Promise, although
+                        // we set the options ourselves through cerebral
                         return Promise.resolve([])
                     }
                 })
