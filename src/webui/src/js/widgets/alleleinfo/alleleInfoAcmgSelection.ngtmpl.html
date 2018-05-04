@@ -23,7 +23,7 @@
         <section class="acmg-wrapper">
           <acmg code="code"
                 ng-repeat="code in $ctrl.suggestedAcmgCodes"
-                on-toggle="$ctrl.addAcmgClicked({alleleId: $ctrl.allele.id, code: {code: code.code, match: code.match, op: code.op, source: code.source}})"
+                on-toggle="$ctrl.addAcmgClicked({alleleId: $ctrl.allele.id, code: {code: code.code, match: code.match, op: code.op, source: 'suggested'}})"
                 toggle-text="ADD"
                 is-upgradable="$ctrl.isUpgradeOrDowngradable"
                 is-downgradable="$ctrl.isUpgradeOrDowngradable"

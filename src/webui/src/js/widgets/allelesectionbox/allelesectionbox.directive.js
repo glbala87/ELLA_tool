@@ -121,7 +121,11 @@ app.component('alleleSectionbox', {
                 // which messes up handling in Cerebral
                 // Until <acmg> is converted, we make local deep copies
                 $scope.$watch(
-                    () => $ctrl.alleleassessment.evaluation.acmg.included,
+                    () => {
+                        return $ctrl.alleleassessment.evaluation.acmg
+                            ? $ctrl.alleleassessment.evaluation.acmg.included
+                            : null
+                    },
                     (items) => {
                         if (items) {
                             $ctrl.includedAcmgCopies = items.map((i) => deepCopy(i))
