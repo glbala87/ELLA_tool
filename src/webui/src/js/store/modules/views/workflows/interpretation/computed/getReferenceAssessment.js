@@ -7,7 +7,7 @@ import isAlleleAssessmentReused from './isAlleleAssessmentReused'
  * Returns EITHER:
  * - If assessment is set to reused: the allele's referenceassessment
  *   from backend
- * - If not set to reused: the referenceassessment from state
+ * - If not set to reused: the referenceassessment from state or undefined
  */
 export default (alleleId, referenceId) => {
     return Compute(

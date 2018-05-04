@@ -30,7 +30,7 @@ export default function autoReuseExistingReferenceAssessments({ state, resolve, 
                         reusedReferenceAssessment
                     )
                 } else {
-                    // If if does exist, check whether allele's existing is newer and we should reuse it
+                    // If it does exist, check whether allele's existing is newer and we should reuse it
                     const existing = state.get(
                         `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments.${raIdx}`
                     )

@@ -1,12 +1,6 @@
 import { deepCopy } from '../../../util'
 
-export function checkAlleleStateModel(alleleState) {
-    // We need to check every key for itself, as we can have older, partial models as input
-
-    if (!('alleleassessment' in alleleState)) {
-        alleleState.alleleassessment = {}
-    }
-
+function checkAlleleAssessmentModel(alleleState) {
     let alleleassesment = alleleState.alleleassessment
 
     if (!('attachment_ids' in alleleassesment)) {
@@ -44,28 +38,6 @@ export function checkAlleleStateModel(alleleState) {
         evaluation.acmg.suggested = []
     }
 
-    if (!('referenceassessments' in alleleState)) {
-        alleleState.referenceassessments = []
-    }
-
-    if (!('allelereport' in alleleState)) {
-        alleleState.allelereport = {
-            evaluation: {
-                comment: ''
-            }
-        }
-    }
-
-    if (!('report' in alleleState)) {
-        alleleState.report = {
-            included: false
-        }
-    }
-
-    if (!('verification' in alleleState)) {
-        alleleState.verification = null
-    }
-
     //
     // Migrations
     //
@@ -89,6 +61,37 @@ export function checkAlleleStateModel(alleleState) {
     }
 }
 
+export function checkAlleleStateModel(alleleState) {
+    // We need to check every key for itself, as we can have older, partial models as input
+    if (!('alleleassessment' in alleleState)) {
+        alleleState.alleleassessment = {}
+    }
+
+    if (!('referenceassessments' in alleleState)) {
+        alleleState.referenceassessments = []
+    }
+
+    if (!('allelereport' in alleleState)) {
+        alleleState.allelereport = {
+            evaluation: {
+                comment: ''
+            }
+        }
+    }
+
+    if (!('report' in alleleState)) {
+        alleleState.report = {
+            included: false
+        }
+    }
+
+    if (!('verification' in alleleState)) {
+        alleleState.verification = null
+    }
+
+    checkAlleleAssessmentModel(alleleState)
+}
+
 /**
  * Helper class for working with alleleState objects
  * (alleleState objects are part of the interpretation's state,
@@ -108,6 +111,10 @@ export function setupAlleleState(allele, alleleState) {
     }
 
     copyAlleleAssessmentToState(allele, alleleState)
+    // The copied alleleassessment can have an older model that is lacking fields.
+    // We need to check the model and add any missing fields to make it up to date.
+    checkAlleleAssessmentModel(alleleState)
+
     copyAlleleReportToState(allele, alleleState)
 }
 
@@ -132,9 +139,6 @@ export function copyAlleleAssessmentToState(allele, alleleState, forceCopy = fal
         )
         alleleState.alleleassessment.classification = allele.allele_assessment.classification
         alleleState.alleleassessment.copiedFromId = allele.allele_assessment.id
-        // The copied alleleassessment can have an older model that is lacking fields.
-        // We need to check the model and add any missing fields to make it up to date.
-        checkAlleleStateModel(alleleState)
     }
 }
 
