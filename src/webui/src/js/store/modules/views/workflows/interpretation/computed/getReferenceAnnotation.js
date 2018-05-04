@@ -2,16 +2,10 @@ import { state, props, string } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import {
     getReferencesIdsForAllele,
-    findReferencesFromIds
+    findReferencesFromIds,
+    isIgnored
 } from '../../../../../common/helpers/reference'
 import getReferenceAssessment from './getReferenceAssessment'
-
-function isIgnored(referenceAssessment) {
-    if (referenceAssessment && referenceAssessment.evaluation) {
-        return ['Ignore', 'No'].indexOf(referenceAssessment.evaluation.relevance) >= 0
-    }
-    return false
-}
 
 export default function(type, allele, interpretation, references) {
     return Compute(

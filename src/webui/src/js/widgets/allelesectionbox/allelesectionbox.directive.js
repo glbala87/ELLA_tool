@@ -13,7 +13,8 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
 import {
     getReferencesIdsForAllele,
-    findReferencesFromIds
+    findReferencesFromIds,
+    isIgnored
 } from '../../store/common/helpers/reference'
 import { deepCopy } from '../../util'
 
@@ -32,10 +33,7 @@ const getExcludedReferencesCount = Compute(
         return alleleReferences
             .map((r) => get(getReferenceAssessment(allele.id, r.id)) || null)
             .filter((ra) => {
-                if (ra && 'evaluation' in ra) {
-                    return ra.evaluation.relevance === 'Ignore'
-                }
-                return false
+                return isIgnored(ra)
             }).length
     }
 )
@@ -161,8 +159,8 @@ app.component('alleleSectionbox', {
                     },
                     getExcludedReferencesBtnText() {
                         return $ctrl.showExcludedReferences
-                            ? `HIDE EXCLUDED (${$ctrl.excludedReferenceCount})`
-                            : `SHOW EXCLUDED (${$ctrl.excludedReferenceCount})`
+                            ? `HIDE IGNORED (${$ctrl.excludedReferenceCount})`
+                            : `SHOW IGNORED (${$ctrl.excludedReferenceCount})`
                     }
                 })
             }

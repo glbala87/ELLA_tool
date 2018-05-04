@@ -41,3 +41,10 @@ export function findReferencesFromIds(references, ids) {
     }
     return result
 }
+
+export function isIgnored(referenceAssessment) {
+    if (referenceAssessment && referenceAssessment.evaluation) {
+        return referenceAssessment.evaluation.relevance === 'Ignore'
+    }
+    return false
+}
