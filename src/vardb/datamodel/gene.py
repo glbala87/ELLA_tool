@@ -1,5 +1,7 @@
 """varDB datamodel classes for Gene and Transcript"""
-from sqlalchemy import Column, Integer, String, Enum, Table, Boolean
+import datetime
+import pytz
+from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -42,7 +44,7 @@ class Transcript(Base):
     strand = Column(String(1), nullable=False)
     cds_start = Column(Integer, nullable=False)
     cds_end = Column(Integer, nullable=False)
-    exon_starts = Column(ARRAY(Integer), nullable=False)  # giving dimensions does not work
+    exon_starts = Column(ARRAY(Integer), nullable=False)
     exon_ends = Column(ARRAY(Integer), nullable=False)
 
     def __repr__(self):
@@ -94,6 +96,7 @@ class Genepanel(Base):
     version = Column(String(), primary_key=True)
     genome_reference = Column(String(), nullable=False)
     official = Column(Boolean, default=False, nullable=False)
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     user_id = Column(Integer, ForeignKey("user.id"), nullable=True)
     user = relationship("User", uselist=False)
     transcripts = relationship("Transcript", secondary=genepanel_transcript)
