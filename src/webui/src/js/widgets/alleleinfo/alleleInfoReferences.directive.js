@@ -28,11 +28,13 @@ app.component('alleleInfoReferences', {
                 Object.assign($ctrl, {
                     hasContent() {
                         if ($ctrl.references) {
-                            return (
+                            let refCount =
                                 $ctrl.references[$ctrl.type].unpublished.length +
-                                    $ctrl.references[$ctrl.type].published.length >
-                                0
-                            )
+                                $ctrl.references[$ctrl.type].published.length
+                            if ('missing' in $ctrl.references) {
+                                refCount += $ctrl.references.missing.length
+                            }
+                            return refCount > 0
                         }
                         return false
                     }
