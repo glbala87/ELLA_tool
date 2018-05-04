@@ -1,4 +1,4 @@
-export default function filterGenepanel(source, genepanelDest, flattenedDest, query) {
+export default function filterAndFlattenGenepanel(source, flattenedDest, query) {
     return ({ state, resolve }) => {
         const genepanel = state.get(source)
         if (!genepanel) {
@@ -45,9 +45,6 @@ export default function filterGenepanel(source, genepanelDest, flattenedDest, qu
             }
         }
         flattened.sort(firstBy('hgnc_symbol').thenBy('transcript_name'))
-
-        const filteredGenepanel = Object.assign({}, genepanel, { genes: filtered })
         state.set(flattenedDest, flattened)
-        state.set(genepanelDest, filteredGenepanel)
     }
 }

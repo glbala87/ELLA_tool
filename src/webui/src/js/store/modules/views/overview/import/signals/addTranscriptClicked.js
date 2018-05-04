@@ -1,11 +1,11 @@
 import { push } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import addTranscripts from '../actions/addTranscripts'
-import filterGenepanel from '../actions/filterGenepanel'
+import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 
 export default [
     addTranscripts,
-    filterGenepanel(
+    filterAndFlattenGenepanel(
         'views.overview.import.added.addedGenepanel',
         'views.overview.import.added.filteredGenepanel',
         'views.overview.import.added.filteredFlattened',

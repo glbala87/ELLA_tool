@@ -1,12 +1,11 @@
 import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import filterGenepanel from '../actions/filterGenepanel'
+import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 
 export default [
     set(state`views.overview.import.added.filter`, props`filter`),
-    filterGenepanel(
+    filterAndFlattenGenepanel(
         'views.overview.import.added.addedGenepanel',
-        'views.overview.import.added.filteredGenepanel',
         'views.overview.import.added.filteredFlattened',
         'views.overview.import.added.filter'
     ),

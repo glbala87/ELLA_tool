@@ -3,7 +3,7 @@ import { state, props } from 'cerebral/tags'
 import getGenepanels from '../actions/getGenepanels'
 import getGenepanel from '../actions/getGenepanel'
 import toastr from '../../../../../common/factories/toastr'
-import filterGenepanel from '../actions/filterGenepanel'
+import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 
 export default [
     set(props`genepanelName`, state`views.overview.import.selectedGenepanel.name`),
@@ -36,9 +36,8 @@ export default [
             }
         ]
     },
-    filterGenepanel(
+    filterAndFlattenGenepanel(
         'views.overview.import.data.genepanel',
-        'views.overview.import.candidates.filteredGenepanel',
         'views.overview.import.candidates.filteredFlattened',
         'views.overview.import.candidates.filter'
     ),
