@@ -367,12 +367,15 @@ class WorkflowService {
                     interpretation.genepanel_name,
                     interpretation.genepanel_version
                     ));
-                referenceassessments = referenceassessments.concat(this.prepareReferenceAssessmentsForApi(
-                    allele_state,
-                    type === 'analysis' ? id : null,
-                    interpretation.genepanel_name,
-                    interpretation.genepanel_version
-                ));
+                // Referenceassessments can only be updated if alleleassessment is not reused
+                if (!allele_state.alleleassessment.reuse) {
+                    referenceassessments = referenceassessments.concat(this.prepareReferenceAssessmentsForApi(
+                        allele_state,
+                        type === 'analysis' ? id : null,
+                        interpretation.genepanel_name,
+                        interpretation.genepanel_version
+                    ));
+                }
                 allelereports.push(this.prepareAlleleReportForApi(
                     found_allele,
                     allele_state,
