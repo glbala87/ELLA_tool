@@ -3,9 +3,8 @@ import getAlleleState from '../computed/getAlleleState'
 /**
  * Sets new referenceassessment data into alleleState.
  * Logic is as follows:
- * - If an existing, non-reused referenceassessment exists, update inplace
- * - If existing, _reused_ referenceassessment exists, remove reuse status and update
- * - If neither, add a new one
+ * - If existing, update inplace and set reuse to false
+ * - If not existing, add a new one
  */
 export default function setReferenceAssessment({ state, resolve, props }) {
     if (!('evaluation' in props)) {

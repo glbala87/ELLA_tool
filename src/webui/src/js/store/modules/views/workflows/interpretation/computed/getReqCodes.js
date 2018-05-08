@@ -1,14 +1,14 @@
 import { Compute } from 'cerebral'
 import { state, props, string } from 'cerebral/tags'
-import getAlleleState from './getAlleleState'
+import getAlleleAssessment from './getAlleleAssessment'
 
 export default (alleleId) => {
-    return Compute(alleleId, getAlleleState(alleleId), (alleleId, alleleState, get) => {
+    return Compute(alleleId, getAlleleAssessment(alleleId), (alleleId, alleleAssessment, get) => {
         let reqGroups = [] // array of req groups (arrays)
-        if (!alleleState) {
+        if (!alleleAssessment) {
             return reqGroups
         }
-        let reqs = alleleState.alleleassessment.evaluation.acmg.suggested.filter((c) =>
+        let reqs = alleleAssessment.evaluation.acmg.suggested.filter((c) =>
             c.code.startsWith('REQ')
         )
         for (let req of reqs) {

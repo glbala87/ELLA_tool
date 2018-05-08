@@ -57,8 +57,9 @@ function getAlleles({ http, path, state }) {
 
                 return path.success({ result: allelesById })
             })
-            .catch((response) => {
-                return path.error({ result: response.result })
+            .catch((error) => {
+                console.error(error)
+                return path.error(error)
             })
     } else {
         return path.success({ result: {} })

@@ -10,7 +10,7 @@ export default [
     setVerificationStatus,
     ({ props }) => {
         return {
-            changedAlleleIds: [props.alleleId]
+            checkReportAlleleIds: [props.alleleId]
         }
     },
     checkAddRemoveAlleleToReport,

@@ -1,6 +1,7 @@
 import { Compute } from 'cerebral'
 import { state, props, string } from 'cerebral/tags'
 import getAlleleState from './getAlleleState'
+import { prepareAlleleAssessmentModel } from '../../../../../common/helpers/alleleState'
 
 /**
  * Returns EITHER:
@@ -13,9 +14,16 @@ export default (alleleId) => {
         if (!alleleState) {
             return
         }
-        if ('reuse' in alleleState.alleleassessment && alleleState.alleleassessment.reuse) {
-            return get(state`views.workflows.data.alleles.${alleleId}`).allele_assessment
+        let alleleAssessment
+        if (alleleState.alleleassessment.reuse) {
+            alleleAssessment = get(
+                state`views.workflows.data.alleles.${alleleId}.allele_assessment`
+            )
+        } else {
+            alleleAssessment = alleleState.alleleassessment
         }
-        return alleleState.alleleassessment
+        // Existing alleleassessment's model might need migrations
+        prepareAlleleAssessmentModel(alleleAssessment)
+        return alleleAssessment
     })
 }
