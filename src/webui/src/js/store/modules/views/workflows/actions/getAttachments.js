@@ -5,7 +5,10 @@ function getAttachments({ http, path, state }) {
     // Get all attachment ids from alleles
     let attachmentIds = []
     for (let alleleId in interpretation.state.allele) {
-        if ('alleleassessment' in interpretation.state.allele[alleleId]) {
+        if (
+            'alleleassessment' in interpretation.state.allele[alleleId] &&
+            !interpretation.state.allele[alleleId].alleleassessment.reuse
+        ) {
             attachmentIds = attachmentIds.concat(
                 interpretation.state.allele[alleleId].alleleassessment.attachment_ids
             )
@@ -19,9 +22,7 @@ function getAttachments({ http, path, state }) {
     attachmentIds = [...new Set(attachmentIds)]
 
     return http
-        .get(`attachments/`, {
-            id: attachmentIds
-        })
+        .get(`attachments/?q=${encodeURIComponent(JSON.stringify({ id: attachmentIds }))}`)
         .then((response) => {
             const attachments = {}
             for (let a of response.result) {
