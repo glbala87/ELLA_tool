@@ -1,11 +1,17 @@
 import getAlleleState from '../computed/getAlleleState'
 
-export default function autoReuseExistingReferenceAssessments({ state, resolve, props }) {
+export default function autoReuseExistingReferenceAssessments({ state, resolve }) {
     const alleles = state.get('views.workflows.data.alleles')
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
-        if ('reference_assessments' in allele) {
-            const alleleState = resolve.value(getAlleleState(alleleId))
+        const alleleState = resolve.value(getAlleleState(alleleId))
+        // Don't keep referenceassessments when alleleassessment is reused
+        if (alleleState.alleleassessment.reuse) {
+            state.set(
+                `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments`,
+                []
+            )
+        } else if ('reference_assessments' in allele) {
             for (let referenceAssessment of allele.reference_assessments) {
                 // Check whether it exists in state already
                 const raIdx = alleleState.referenceassessments.findIndex((ra) => {

@@ -6,35 +6,7 @@ import { Module } from 'cerebral'
 import prepareInterpretationState from './sequences/prepareInterpretationState'
 import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAssessmentClicked'
 import finishConfirmationClicked from './signals/finishConfirmationClicked'
-
-/*
-
-Tests:
-
-- No existing alleleassessments
-- Has existing alleleassessment - not outdated (- first time copy, next time user content is kept)
-- Has existing alleleassessment - outdated (- first time copy, next time user content is kept)
-- Has existing alleleassessment - already copied old alleleassessment to state
-
-- No existing allelereport
-- Has existing allelereport - first time copy, next time user content is kept
-- Has existing allelereport - already copied old allelereport to state
-
-- No referenceassessments
-- Has existing referenceassessments
-- Has existing referenceassessments - already reused old referenceassessments
-
-- Migrations
-
-- checkAddRemoveAlleleToReport
-
-prepareInterpretationState,
-(reuseAlleleAssessmentClicked),
-updateReferenceAssessment,
-
-"always" finishWorkflow => check POST data
-
-*/
+import setReferenceAssessment from './interpretation/actions/setReferenceAssessment'
 
 const EMPTY_EVALUATION = {
     prediction: {
@@ -75,7 +47,8 @@ describe('Handling of allele state', () => {
                 signals: {
                     prepareInterpretationState,
                     reuseAlleleAssessmentClicked,
-                    finishConfirmationClicked
+                    finishConfirmationClicked,
+                    setReferenceAssessment: [setReferenceAssessment]
                 }
             })
         )
@@ -92,10 +65,24 @@ describe('Handling of allele state', () => {
             },
             user: { user_config: {} }
         })
-        // Allele 1: no existing - Should be initialized for editing
-        // Allele 2: new existing - Should be reused
-        // Allele 3: new existing, outdated - Should not be reused, data copied in to state
-        // Allele 4: new existing, with already old copied - Should be reused, previous data cleaned out
+        // AlleleAssessments
+        // allele 1: no existing - Should be initialized for editing
+        // allele 2: new existing - Should be reused
+        // allele 3: new existing, outdated - Should not be reused, data copied in to state
+        // allele 4: new existing, with already old copied - Should be reused, previous data cleaned out
+
+        // ReferenceAssessments
+        // allele 1, reference 1: new existing - Should be reused
+        // allele 1, reference 2: new existing, with old content - Should be reused, previous data cleaned out
+        // allele 1, reference 3: new existing, with existing content by user -> Should be reused, previous data cleaned out
+        // allele 2, reference 1: new existing, alleleassessment reused -> empty list in state
+
+        // AlleleReport
+        // allele 1: no existing - Should be initialized for editing
+        // allele 2: new existing - Should be copied
+        // allele 3: same existing - State should be left intact
+        // allele 4: new existing, with already old copied - Should be copied
+
         cerebral.setState('views.workflows', {
             id: 1,
             type: 'allele',
@@ -104,9 +91,29 @@ describe('Handling of allele state', () => {
                     1: {
                         annotation: {
                             annotation_id: 1,
-                            references: [{ id: 1 }]
+                            references: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
                         },
-                        id: 1
+                        id: 1,
+                        reference_assessments: [
+                            {
+                                id: 1,
+                                reference_id: 1,
+                                allele_id: 1,
+                                evaluation: { case: 'NEW' }
+                            },
+                            {
+                                id: 2,
+                                reference_id: 2,
+                                allele_id: 1,
+                                evaluation: { case: 'NEW WITH OLD' }
+                            },
+                            {
+                                id: 3,
+                                reference_id: 3,
+                                allele_id: 1,
+                                evaluation: { case: 'NEW WITH USER CONTENT' }
+                            }
+                        ]
                     },
                     2: {
                         annotation: {
@@ -119,7 +126,19 @@ describe('Handling of allele state', () => {
                             classification: '3',
                             id: 2,
                             seconds_since_update: 1
-                        }
+                        },
+                        allele_report: {
+                            id: 2,
+                            evaluation: { case: 'NEW' }
+                        },
+                        reference_assessments: [
+                            {
+                                id: 4,
+                                reference_id: 1,
+                                allele_id: 2,
+                                evaluation: { case: 'ALLELEASSESSMENT IS REUSED' }
+                            }
+                        ]
                     },
                     3: {
                         annotation: {
@@ -127,6 +146,10 @@ describe('Handling of allele state', () => {
                             references: [{ id: 1 }]
                         },
                         id: 3,
+                        allele_report: {
+                            id: 3,
+                            evaluation: { case: 'SAME' }
+                        },
                         allele_assessment: {
                             evaluation: { case: 'NEW OUTDATED' },
                             classification: '3',
@@ -140,6 +163,10 @@ describe('Handling of allele state', () => {
                             references: [{ id: 1 }]
                         },
                         id: 4,
+                        allele_report: {
+                            id: 4,
+                            evaluation: { case: 'NEW WITH OLD' }
+                        },
                         allele_assessment: {
                             evaluation: { case: 'NEW WITH OLD' },
                             classification: '3',
@@ -148,7 +175,7 @@ describe('Handling of allele state', () => {
                         }
                     }
                 },
-                references: []
+                references: [{ id: 1 }, { id: 2 }, { id: 3 }]
             },
             interpretation: {
                 selected: {
@@ -157,7 +184,36 @@ describe('Handling of allele state', () => {
                     allele_ids: [1, 2, 3, 4],
                     state: {
                         allele: {
+                            1: {
+                                allele_id: 1,
+                                referenceassessments: [
+                                    {
+                                        reference_id: 2,
+                                        allele_id: 1,
+                                        reuse: false,
+                                        evaluation: {
+                                            key: 'SHOULD BE GONE'
+                                        },
+                                        reuseCheckedId: 1
+                                    },
+                                    {
+                                        reference_id: 3,
+                                        allele_id: 1,
+                                        evaluation: {
+                                            key: 'SHOULD BE GONE'
+                                        }
+                                    }
+                                ]
+                            },
+                            3: {
+                                allele_id: 3,
+                                allelereport: {
+                                    evaluation: { key: 'SHOULD BE KEPT' },
+                                    copiedFromId: 3
+                                }
+                            },
                             4: {
+                                allele_id: 4,
                                 alleleassessment: {
                                     reuseCheckedId: 3,
                                     reuse: false,
@@ -165,7 +221,20 @@ describe('Handling of allele state', () => {
                                         key: 'SHOULD BE GONE'
                                     },
                                     classification: 'SHOULD BE GONE'
-                                }
+                                },
+                                allelereport: {
+                                    evaluation: { key: 'SHOULD BE REPLACED' },
+                                    copiedFromId: 1
+                                },
+                                referenceassessments: [
+                                    {
+                                        reference_id: 1,
+                                        allele_id: 4,
+                                        evaluation: {
+                                            key: 'ALLELEASSESSMENT REUSED -> SHOULD BE GONE'
+                                        }
+                                    }
+                                ]
                             }
                         }
                     },
@@ -179,23 +248,65 @@ describe('Handling of allele state', () => {
                 .runSignal('test.prepareInterpretationState', {})
                 .then(({ state }) => {
                     const interpretationState = state.views.workflows.interpretation.selected.state
-                    // Allele 1: Initalized for editing
+                    // Allele 1:
                     const alleleState1 = interpretationState.allele['1']
+
+                    // AlleleAssessment: Initalized for editing
                     expect(alleleState1.alleleassessment.reuse).toBeUndefined()
                     expect(alleleState1.alleleassessment.evaluation).toEqual(
                         jasmine.objectContaining(EMPTY_EVALUATION)
                     )
+                    // ReferenceAssessment
+                    expect(alleleState1.referenceassessments).toEqual(
+                        jasmine.arrayContaining([
+                            {
+                                reference_id: 1,
+                                allele_id: 1,
+                                reuse: true,
+                                id: 1,
+                                reuseCheckedId: 1
+                            },
+                            {
+                                reference_id: 2,
+                                allele_id: 1,
+                                reuse: true,
+                                id: 2,
+                                reuseCheckedId: 2
+                            },
+                            {
+                                reference_id: 3,
+                                allele_id: 1,
+                                reuse: true,
+                                id: 3,
+                                reuseCheckedId: 3
+                            }
+                        ])
+                    )
+                    // AlleleReport
+                    expect(alleleState1.allelereport).toEqual({ evaluation: { comment: '' } })
 
-                    // Allele 2: Should be reused
+                    // Allele 2
                     const alleleState2 = interpretationState.allele['2']
+
+                    // AlleleAssessment: Should be reused
                     expect(alleleState2.alleleassessment).toEqual({
                         allele_id: 2,
                         reuse: true,
                         reuseCheckedId: 2
                     })
+                    // ReferenceAssessment: Should be empty (alleleassessment reused)
+                    expect(alleleState2.referenceassessments).toEqual([])
 
-                    // Allele 3: Should not be reused, existing copied in
+                    // AlleleReport: New, should be copied
+                    expect(alleleState2.allelereport).toEqual({
+                        copiedFromId: 2,
+                        evaluation: { case: 'NEW' }
+                    })
+
+                    // Allele 3
                     const alleleState3 = interpretationState.allele['3']
+
+                    // AlleleAssessment: Should not be reused, existing copied in
                     expect(alleleState3.alleleassessment.reuse).toBe(false)
                     expect(alleleState3.alleleassessment.reuseCheckedId).toBe(3)
                     expect(alleleState3.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
@@ -204,12 +315,32 @@ describe('Handling of allele state', () => {
                     )
                     expect(alleleState3.alleleassessment.classification).toBe('3')
 
-                    // Allele 4: Should be reused, existing content cleaned out
+                    // ReferenceAssessment:
+                    expect(alleleState3.referenceassessments).toEqual([])
+
+                    // AlleleReport: Same id, should be kept
+                    expect(alleleState3.allelereport).toEqual({
+                        evaluation: { key: 'SHOULD BE KEPT' },
+                        copiedFromId: 3
+                    })
+
+                    // Allele 4
                     const alleleState4 = interpretationState.allele['4']
+
+                    // AlleleAssessment: Should be reused, existing content cleaned out
                     expect(alleleState4.alleleassessment).toEqual({
                         allele_id: 4,
                         reuse: true,
                         reuseCheckedId: 4
+                    })
+
+                    // ReferenceAssessment
+                    expect(alleleState4.referenceassessments).toEqual([])
+
+                    // AlleleReport: New, already copied before
+                    expect(alleleState4.allelereport).toEqual({
+                        evaluation: { case: 'NEW WITH OLD' },
+                        copiedFromId: 4
                     })
                 })
                 // Reevaluate then reuse again
@@ -242,11 +373,42 @@ describe('Handling of allele state', () => {
                         })
                 })
                 .then(() => {
+                    const evaluation = { key: 'USER CONTENT' }
+                    return cerebral
+                        .runSignal('test.setReferenceAssessment', {
+                            alleleId: 1,
+                            referenceId: 3,
+                            evaluation
+                        })
+                        .then(({ state }) => {
+                            const alleleState =
+                                state.views.workflows.interpretation.selected.state.allele['1']
+                            expect(alleleState.referenceassessments).toEqual(
+                                jasmine.arrayContaining([
+                                    {
+                                        reference_id: 3,
+                                        allele_id: 1,
+                                        reuse: false,
+                                        reuseCheckedId: 3,
+                                        evaluation
+                                    }
+                                ])
+                            )
+                        })
+                })
+                .then(() => {
                     // We now want to finalize and check the data sent to API.
+
                     // We need to classify all variants first
                     cerebral.setState(
                         'views.workflows.interpretation.selected.state.allele.1.alleleassessment.classification',
                         '1'
+                    )
+
+                    // Modify one AlleleReport to simluate user change
+                    cerebral.setState(
+                        'views.workflows.interpretation.selected.state.allele.2.allelereport.evaluation.case',
+                        'CHANGED'
                     )
 
                     mock.patch('/api/v1/workflows/alleles/1/interpretations/1/', (req, res) => {
@@ -255,7 +417,7 @@ describe('Handling of allele state', () => {
 
                     mock.post('/api/v1/workflows/alleles/1/actions/finalize/', (req, res) => {
                         const body = JSON.parse(req.body())
-                        console.log(body.alleleassessments[1])
+                        expect(body.alleleassessments.length).toBe(4)
                         for (const alleleAssessment of body.alleleassessments) {
                             if (alleleAssessment.allele_id === 1) {
                                 expect(alleleAssessment.classification).toBe('1')
@@ -277,6 +439,57 @@ describe('Handling of allele state', () => {
                                 expect(alleleAssessment.reuse).toBe(true)
                             }
                         }
+
+                        expect(body.referenceassessments).toEqual(
+                            jasmine.arrayContaining([
+                                {
+                                    reference_id: 1,
+                                    allele_id: 1,
+                                    id: 1
+                                },
+                                {
+                                    reference_id: 2,
+                                    allele_id: 1,
+                                    id: 2
+                                },
+                                {
+                                    reference_id: 3,
+                                    allele_id: 1,
+                                    evaluation: { key: 'USER CONTENT' }
+                                }
+                            ])
+                        )
+
+                        expect(body.allelereports.length).toBe(4)
+                        expect(body.allelereports).toEqual(
+                            jasmine.arrayContaining([
+                                {
+                                    allele_id: 1,
+                                    reuse: false,
+                                    evaluation: { comment: '' }
+                                },
+                                {
+                                    allele_id: 2,
+                                    presented_allelereport_id: 2,
+                                    reuse: false,
+                                    alleleassessment_id: 2,
+                                    evaluation: { case: 'CHANGED' }
+                                },
+                                {
+                                    allele_id: 3,
+                                    presented_allelereport_id: 3,
+                                    reuse: false, // State differs from existing
+                                    alleleassessment_id: 3,
+                                    evaluation: { key: 'SHOULD BE KEPT' }
+                                },
+                                {
+                                    allele_id: 4,
+                                    presented_allelereport_id: 4,
+                                    reuse: true,
+                                    alleleassessment_id: 4
+                                }
+                            ])
+                        )
 
                         return res.status(200)
                     })
