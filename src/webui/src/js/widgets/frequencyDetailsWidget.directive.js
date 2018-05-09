@@ -13,6 +13,17 @@ app.component('frequencyDetails', {
         {
             frequencies: getFrequencyAnnotation(state`${props`allelePath`}`, props`group`)
         },
-        'FrequencyDetails'
+        'FrequencyDetails',
+        [
+            '$scope',
+            function($scope) {
+                const $ctrl = $scope.$ctrl
+                Object.assign($ctrl, {
+                    getFilterFail() {
+                        return $ctrl.frequencies.filter.filter((f) => f !== 'PASS')
+                    }
+                })
+            }
+        ]
     )
 })
