@@ -110,6 +110,7 @@ function _prepareAlleleAssessmentsPayload(
         assessment_data.reuse = true
     } else {
         Object.assign(assessment_data, {
+            reuse: false,
             classification: allelestate.alleleassessment.classification,
             evaluation: allelestate.alleleassessment.evaluation
         })

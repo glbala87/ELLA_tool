@@ -90,7 +90,7 @@ import './widgets/analysisInfo.directive'
 import './widgets/workflowbar.directive'
 
 import Devtools from 'cerebral/devtools'
-import rootModule from './store/modules'
+import RootModule from './store/modules'
 import { Config, Inject, Run } from './ng-decorators'
 
 class AppConfig {
@@ -119,7 +119,7 @@ class AppConfig {
             })
         }
 
-        cerebralProvider.configure(rootModule, config)
+        cerebralProvider.configure(RootModule(), config)
 
         // Needed after upgrade to Angular >1.5,
         // since we haven't migrated to using $onInit()

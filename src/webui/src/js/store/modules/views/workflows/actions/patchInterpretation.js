@@ -17,14 +17,14 @@ function patchInterpretation({ state, http, path }) {
         state: interpretation.state,
         user_state: interpretation.user_state
     }
-
     return http
         .patch(`workflows/${type}/${id}/interpretations/${interpretation.id}/`, payload)
         .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch((error) => {
-            return path.error(error)
+        .catch((response) => {
+            console.error(response)
+            return path.error({ result: response.result })
         })
 }
 

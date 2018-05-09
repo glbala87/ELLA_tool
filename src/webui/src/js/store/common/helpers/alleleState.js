@@ -9,10 +9,6 @@ export function prepareAlleleAssessmentModel(alleleAssessment) {
         alleleAssessment.attachment_ids = []
     }
 
-    if (!('reuse' in alleleAssessment)) {
-        alleleAssessment.reuse = false
-    }
-
     if (!('classification' in alleleAssessment)) {
         alleleAssessment.classification = null
     }

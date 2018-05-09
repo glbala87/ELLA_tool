@@ -1,6 +1,6 @@
 import { set, equals } from 'cerebral/operators'
 import { props, string } from 'cerebral/tags'
-import { redirect } from '@cerebral/router/operators'
+import { goTo } from '@cerebral/router/operators'
 import saveInterpretation from '../sequences/saveInterpretation'
 import finishWorkflow from '../factories/finishWorkflow'
 import toastr from '../../../../common/factories/toastr'
@@ -15,7 +15,7 @@ const finishWorkflowWithStatus = (status) => {
                 saveInterpretation([
                     finishWorkflow(status),
                     {
-                        success: [redirect('/overview')],
+                        success: [goTo('/overview')],
                         error: [
                             toastr('error', `Something went wrong while marking workflow ${status}`)
                         ]

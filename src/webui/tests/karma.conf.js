@@ -17,15 +17,11 @@ module.exports = function(config) {
             '../src/thirdparty/angular/1.5.0-rc2/angular-mocks.js',
             '../build/app.js',
             '../src/js/**/*.js',
-            '../tests/unit/**/*.spec.js',
             '../build/templates.js'
         ],
 
         // list of files to exclude
-        exclude: [
-            '../src/thirdparty/angular/1.5.0-rc2/*.min.js',
-            '../src/js/widgets/noAllelesWidget.directive.js' // refers to a non-existing workbench variable
-        ],
+        exclude: ['../src/thirdparty/angular/1.5.0-rc2/*.min.js'],
 
         ngHtml2JsPreprocessor: {
             // Karma's web server loads templates using an absolute url.
@@ -45,7 +41,6 @@ module.exports = function(config) {
         // Note! no comma after last object member:
         preprocessors: {
             '../build/ngtmpl/*.ngtmpl.html': ['ng-html2js'],
-            '../tests//unit/**/*.spec.js': ['browserify'],
             '../src/js/**/*.js': ['browserify']
         },
 

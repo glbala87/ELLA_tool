@@ -200,6 +200,7 @@ describe('finishWorkflow', function() {
                     },
                     {
                         allele_id: 2,
+                        reuse: false,
                         presented_alleleassessment_id: 2,
                         evaluation: { test: 'comment' },
                         classification: '5',
@@ -209,6 +210,7 @@ describe('finishWorkflow', function() {
                     },
                     {
                         allele_id: 3,
+                        reuse: false,
                         evaluation: { test: 'another comment' },
                         classification: '4',
                         genepanel_name: 'Test',
@@ -285,9 +287,14 @@ describe('finishWorkflow', function() {
             success() {},
             error() {}
         }
-        return runAction(finishWorkflow('finalize'), {
+        return runAction(finishWorkflow('Finalized'), {
             providers: { http, path },
             state: testState
-        }).then(() => {})
+        })
+            .then(() => {})
+            .catch((err) => {
+                console.error(err.message, err.stack)
+                expect(1).toBe(0)
+            })
     })
 })
