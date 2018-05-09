@@ -26,7 +26,10 @@ function getUrls(allele) {
         }:${allele.start_position + 1}-${allele.open_end_position}`,
         ensembl: `http://grch37.ensembl.org/Homo_sapiens/Location/View?r=${
             allele.chromosome
-        }%3A${allele.start_position + 1}-${allele.open_end_position}`
+        }%3A${allele.start_position + 1}-${allele.open_end_position}`,
+        gnomad: `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${
+            allele.vcf_ref
+        }-${allele.vcf_alt}`
     }
 
     if ('HGMD' in allele.annotation.external && 'acc_num' in allele.annotation.external.HGMD) {
