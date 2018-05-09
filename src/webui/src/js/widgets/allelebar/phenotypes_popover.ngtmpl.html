@@ -2,7 +2,7 @@
 <h3 class="id_inheritance">Inheritance: <gpv source="$ctrl.getGenepanelValues(t.symbol)" display="inheritance" mode="_"></gpv></h3>
 <h3>Phenotypes</h3>
 <ul class="popover-list indented">
-    <li ng-repeat="ph in vm.phenotypesBy(t.symbol)">{{ph.description}} ({{ph.inheritance}})</li>
+    <li ng-repeat="ph in $ctrl.getGenepanelValues(t.symbol)['phenotypes']">{{ph.description}} ({{ph.inheritance}})</li>
 </ul>
 <h3>Frequency cutoff: </h3>
 <ul class="popover-list indented">

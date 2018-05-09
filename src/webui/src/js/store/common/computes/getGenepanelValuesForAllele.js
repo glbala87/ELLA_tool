@@ -3,7 +3,8 @@ import { state, props, string } from 'cerebral/tags'
 import {
     getInheritanceCodes,
     getOmimEntryId,
-    findGeneConfigOverride
+    findGeneConfigOverride,
+    phenotypesBy
 } from '../../common/helpers/genepanel'
 
 /**
@@ -62,6 +63,7 @@ export default (genepanel, allele) => {
                     result[symbol]['comment'] = config_override['comment']
                 }
                 result[symbol]['omim_entry_id'] = getOmimEntryId(symbol, genepanel)
+                result[symbol]['phenotypes'] = phenotypesBy(symbol, genepanel)
             }
             return result
         }
