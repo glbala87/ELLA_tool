@@ -23,8 +23,8 @@ function patchInterpretation({ state, http, path }) {
         .then((response) => {
             return path.success({ result: response.result })
         })
-        .catch((response) => {
-            return path.error({ result: response.result })
+        .catch((error) => {
+            return path.error(error)
         })
 }
 

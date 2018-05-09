@@ -22,20 +22,6 @@ export default function(finishType) {
         const alleles = state.get('views.workflows.data.alleles')
         const references = state.get('views.workflows.data.references')
 
-        if (
-            !['Not ready', 'Interpretation', 'Review', 'Medical review', 'Finalized'].includes(
-                finishType
-            )
-        ) {
-            console.error(`Invalid finishType ${finishType}`)
-            return path.error()
-        }
-
-        if (interpretation.status !== 'Ongoing') {
-            console.error('Trying to mark review when interpretation status is not Ongoing')
-            return path.error()
-        }
-
         const payload = prepareInterpretationPayload(
             type,
             id,
