@@ -16,7 +16,7 @@ export default function copyExistingAlleleReports({ state }) {
             alleleReport.copiedFromId = allele.allele_report.id
         }
         state.set(
-            'views.workflows.interpretation.selected.state.allele.${aId}.allelereport',
+            `views.workflows.interpretation.selected.state.allele.${aId}.allelereport`,
             alleleReport
         )
     }
