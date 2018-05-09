@@ -20,7 +20,7 @@ export default function prepareAlleleState({ state }) {
         }
 
         prepareAlleleStateModel(alleleState[aId])
-        prepareAlleleAssessmentModel(alleleState[aId])
+        prepareAlleleAssessmentModel(alleleState[aId].alleleassessment)
 
         if (allele.allele_assessment) {
             alleleState[aId].presented_alleleassessment_id = allele.allele_assessment.id
