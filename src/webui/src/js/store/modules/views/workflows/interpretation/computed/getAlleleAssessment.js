@@ -23,7 +23,10 @@ export default (alleleId) => {
             alleleAssessment = alleleState.alleleassessment
         }
         // Existing alleleassessment's model might need migrations
-        prepareAlleleAssessmentModel(alleleAssessment)
+        // alleleAssessment can be undefined while state is being modified
+        if (alleleAssessment) {
+            prepareAlleleAssessmentModel(alleleAssessment)
+        }
         return alleleAssessment
     })
 }

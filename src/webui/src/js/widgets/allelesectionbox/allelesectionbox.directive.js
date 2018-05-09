@@ -122,9 +122,9 @@ app.component('alleleSectionbox', {
                 // Until <acmg> is converted, we make local deep copies
                 $scope.$watch(
                     () => {
-                        return $ctrl.alleleassessment.evaluation.acmg
+                        return $ctrl.alleleassessment && $ctrl.alleleassessment.evaluation.acmg
                             ? $ctrl.alleleassessment.evaluation.acmg.included
-                            : null
+                            : []
                     },
                     (items) => {
                         if (items) {
