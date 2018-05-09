@@ -7,8 +7,7 @@ export default Compute(state`views.workflows.data.alleles`, (alleles) => {
         return
     }
     for (let [alleleId, allele] of Object.entries(alleles)) {
-        result[alleleId] =
-            'HGMD' in allele.annotation.external && allele.annotation.external.HGMD.tag
+        result[alleleId] = allele.annotation.references.length > 0
     }
     return result
 })

@@ -7,7 +7,7 @@ import isSelected from '../store/modules/views/workflows/alleleSidebar/computed/
 import isHomozygous from '../store/modules/views/workflows/alleleSidebar/computed/isHomozygous'
 import isNonsense from '../store/modules/views/workflows/alleleSidebar/computed/isNonsense'
 import isLowQual from '../store/modules/views/workflows/alleleSidebar/computed/isLowQual'
-import isImportantSource from '../store/modules/views/workflows/alleleSidebar/computed/isImportantSource'
+import hasReferences from '../store/modules/views/workflows/alleleSidebar/computed/hasReferences'
 import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleSampleType'
 import getConsequence from '../store/modules/views/workflows/alleleSidebar/computed/getConsequence'
 import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
@@ -87,7 +87,7 @@ app.component('alleleSidebar', {
             classification: getClassification,
             consequence: getConsequence,
             isHomozygous,
-            isImportantSource,
+            hasReferences,
             isMultipleInGene,
             isLowQual,
             isNonsense,
