@@ -57,10 +57,13 @@ input[type=range]{-webkit-appearance: none;
 
 .non-production-warning {
   position: fixed;
-  bottom: 1vh;
-  right: 2vh;
-  font-size: 4rem;
-  color: red;
+  bottom: calc(50vh - 28rem);
+  width: 100%;
+  font-size: 28rem;
+  z-index: 10000;
+  pointer-events: none;
+  text-align: center;
+  color: $red-15;
 }
 
 wysiwyg-editor {
