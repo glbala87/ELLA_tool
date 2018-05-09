@@ -61,11 +61,12 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
                     allele.allele_assessment ? allele.allele_assessment.id : null
                 )
             )
-
-            attachments.push({
-                allele_id: allele_state.allele_id,
-                attachment_ids: allele_state.alleleassessment.attachment_ids
-            })
+            if (!allele_state.alleleassessment.reuse) {
+                attachments.push({
+                    allele_id: allele_state.allele_id,
+                    attachment_ids: allele_state.alleleassessment.attachment_ids
+                })
+            }
         }
     }
 
