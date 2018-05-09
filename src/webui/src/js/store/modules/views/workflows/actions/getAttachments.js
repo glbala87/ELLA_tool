@@ -22,7 +22,9 @@ function getAttachments({ http, path, state }) {
     attachmentIds = [...new Set(attachmentIds)]
 
     return http
-        .get(`attachments/?q=${encodeURIComponent(JSON.stringify({ id: attachmentIds }))}`)
+        .get(`attachments/`, {
+            q: JSON.stringify({ id: attachmentIds })
+        })
         .then((response) => {
             const attachments = {}
             for (let a of response.result) {
