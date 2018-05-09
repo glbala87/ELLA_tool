@@ -1,6 +1,10 @@
 import { deepCopy } from '../../../util'
 
 export function prepareAlleleAssessmentModel(alleleAssessment) {
+    if (alleleAssessment.reuse) {
+        return
+    }
+
     if (!('attachment_ids' in alleleAssessment)) {
         alleleAssessment.attachment_ids = []
     }
