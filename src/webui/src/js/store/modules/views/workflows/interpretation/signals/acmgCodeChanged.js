@@ -7,17 +7,23 @@ import setDirty from '../actions/setDirty'
 import updateSuggestedClassification from '../sequences/updateSuggestedClassification'
 
 export default [
-    canUpdateAlleleAssessment,
+    debounce(200),
     {
-        true: [
-            acmgCodeChanged,
-            setDirty,
-            when(props`codeChanged`),
+        continue: [
+            canUpdateAlleleAssessment,
             {
-                true: [updateSuggestedClassification],
-                false: []
+                true: [
+                    acmgCodeChanged,
+                    setDirty,
+                    when(props`codeChanged`),
+                    {
+                        true: [updateSuggestedClassification],
+                        false: []
+                    }
+                ],
+                false: [toastr('error', 'Could not change ACMG code')]
             }
         ],
-        false: [toastr('error', 'Could not change ACMG code')]
+        discard: []
     }
 ]

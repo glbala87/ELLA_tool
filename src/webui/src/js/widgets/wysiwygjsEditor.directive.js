@@ -32,6 +32,8 @@ export class WysiwygEditorController {
         this.attachmentResource = AttachmentResource
 
         this.ngModelController = $element.controller('ngModel') // Get controller for editors ngmodel
+        // Set debounce to avoid spurious re-rendering when ngModel is being updated, but viewValue is not yet updated
+        this.ngModelController.$options.$$options.debounce = 100
 
         this.buttonselement.hidden = true
         this.blurBlocked = false
@@ -111,6 +113,12 @@ export class WysiwygEditorController {
         this.editor = wysiwyg(options)
     }
 
+    updateViewValue() {
+        setTimeout(() => {
+            this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML()))
+        }, 0)
+    }
+
     setupEventListeners() {
         let eventListeners = new EventListeners()
 
@@ -130,10 +138,7 @@ export class WysiwygEditorController {
 
         // Update model whenever contenteditable input is triggered
         eventListeners.add(this.editorelement, 'input', (e) => {
-            setTimeout(
-                this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML())),
-                0
-            )
+            this.updateViewValue()
         })
 
         // Add eventlisteners to focus and blur editorelement
@@ -442,10 +447,7 @@ export class WysiwygEditorController {
             this.buttonselement.hidden = true
 
             // Update ngModel
-            setTimeout(
-                this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML())),
-                0
-            )
+            this.updateViewValue()
         }
     }
 
