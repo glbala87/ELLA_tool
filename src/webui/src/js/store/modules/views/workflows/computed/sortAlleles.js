@@ -2,14 +2,14 @@ import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isHomozygous from '../alleleSidebar/computed/isHomozygous'
 import isLowQual from '../alleleSidebar/computed/isLowQual'
-import isImportantSource from '../alleleSidebar/computed/isImportantSource'
+import hasReferences from '../alleleSidebar/computed/hasReferences'
 import getClassification from '../alleleSidebar/computed/getClassification'
 import getVerificationStatus from '../interpretation/computed/getVerificationStatus'
 
 function getSortFunctions(
     config,
     isHomozygous,
-    isImportantSource,
+    hasReferences,
     isLowQual,
     classification,
     verificationStatus
@@ -51,7 +51,7 @@ function getSortFunctions(
             }
         },
         references: (allele) => {
-            return !isImportantSource[allele.id]
+            return !hasReferences[allele.id]
         },
         '3hetAR': (allele) => {
             return 0 // FIXME
@@ -82,7 +82,7 @@ export default function sortAlleles(alleles, key, reverse) {
             const sortFunctions = getSortFunctions(
                 config,
                 get(isHomozygous),
-                get(isImportantSource),
+                get(hasReferences),
                 get(isLowQual),
                 get(getClassification),
                 get(getVerificationStatus)
