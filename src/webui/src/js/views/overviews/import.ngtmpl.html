@@ -1,0 +1,80 @@
+<sectionbox color="green">
+  <maintitle>
+    IMPORT ANALYSIS
+  </maintitle>
+  <subtitle>
+
+  </subtitle>
+  <contentwrapper class="import">
+       <div class="question tiny line-wrapper">
+           <div class="left">
+               <h5 class="slim title">
+               <b>Sample</b>
+               </h5>
+           </div>
+           <div class="right">
+               <div class="dropdown white">
+                       <select selector style="width: 20rem;"
+                               change="$ctrl.sampleSelectedWrapper(newValue)"
+                               model="$ctrl.selectedSample"
+                               debounce="500"
+                               label-attr="name"
+                               options="$ctrl.samples"
+                               remote="$ctrl.searchSamples(search)"
+                               placeholder="TYPE TO SEARCH"
+                               disable-search="false"
+                               >
+                               </select>
+                           </div>
+           </div>
+       </div>
+       <div class="question tiny line-wrapper">
+            <div class="left">
+                <h5 class="slim title">
+                <b>CUSTOM GENEPANEL</b>
+                </h5>
+            </div>
+            <div class="right bttn-set">
+                <div class="id-filter-search">
+                <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="$ctrl.modelCustomGenepanel" ng-model-watch="$ctrl.customGenepanel"
+                        ng-repeat="item in ['Yes', 'No']" ng-change="$ctrl.customGenepanelSelected({option: $ctrl.modelCustomGenepanel})">{{item}}</label>
+                </div>
+            </div>
+        </div>
+       <div class="question tiny line-wrapper" ng-if="!$ctrl.customGenepanel">
+
+            <div class="left">
+               <h5 class="slim title">
+               <b>GENEPANEL</b>
+               </h5>
+           </div>
+           <div class="right bttn-set">
+               <div class="dropdown white">
+                    <select
+                    class="genepanel-select"
+                    ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels"
+                    ng-model="$ctrl.modelSelectedGenepanel"
+                    ng-model-watch="$ctrl.selectedGenepanel"
+                    ng-change="$ctrl.selectedGenepanelChanged({genepanel: $ctrl.modelSelectedGenepanel})"
+                    >
+                    </select>
+                   </div>
+               </div>
+        </div>
+        <div class="spacer"></div>
+        <custom-genepanel-editor ng-if="$ctrl.customGenepanel"></custom-genepanel-editor>
+        <div class="import-all-summary">
+        <h3>Summary:</h3>
+            <p>Import {{$ctrl.selectedSample.name}} on {{$ctrl.displayGenepanelName}}<span ng-if="$ctrl.customGenepanel"> <i>(custom)</i> with {{$ctrl.addedCount.transcripts}} transcripts ({{$ctrl.addedCount.genes}} genes)</span>.</p>
+            <div>
+            <button class="blue" ng-click="$ctrl.importClicked()" ng-disabled="!$ctrl.canImport">
+            <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none"
+                    stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+                <path d="M16 2 L16 30 M2 16 L30 16"/>
+            </svg>
+            Import
+            </button>
+        </div>
+
+    </contentwrapper>
+</sectionbox>

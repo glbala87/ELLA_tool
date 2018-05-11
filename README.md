@@ -162,7 +162,7 @@ For migrations involving user generated data, it would be useful to run the migr
 with the database populated through "real" use.
 
 Typically you call the `/reset` endpoint and then interact with the application through the GUI.
-The `reset` won't create the alembic table and the upgrade/downgrade scripts will fail.  
+The `reset` won't create the alembic table and the upgrade/downgrade scripts will fail.
 
 So before manually running the upgrade/downgrade scripts, you need to create the alembic table:
 ```
@@ -217,7 +217,7 @@ See api/config.py at key 'variant_criteria' > 'genepanel_config':
       - external
     - disease_mode
     - last_exon_important
-  - ...   
+  - ...
 
 
 ### API documentation
@@ -240,6 +240,9 @@ Our test suites are intended to be run inside Docker. The Makefile has commands 
 - `make test` will run most test types apart from e2e.
 - `make test-{type}` will run the different types of test.
 
+## Specific test
+
+If you want to run a specific API test while developing, you can enter the docker container and run `source /ella/ops/dev/setup-local-integration-test.source`. This script will tell the test framework to use your local database dump after the initial run, saving you a lot of time when running the test again.
 
 # End to end testing (e2e)
 We use webdriver.io for testing. See http://webdriver.io.
@@ -276,7 +279,7 @@ The relevant options to the make command:
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
-Note! Make sure the versions of Chrome and Chromedriver are compatible 
+Note! Make sure the versions of Chrome and Chromedriver are compatible
 
 
 Note! You can also run webdriverio directly on hour host (not in a docker container).

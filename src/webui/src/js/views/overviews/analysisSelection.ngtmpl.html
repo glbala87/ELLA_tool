@@ -66,7 +66,7 @@
     </contentwrapper>
   </sectionbox>
 
-<sectionbox color="green" class="id-analysis-pending" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingAnalysis')" collapsed="$ctrl.state.pendingAnalysis.collapsed" ng-if="$ctrl.analyses && !$ctrl.selectedSection == 'analyses-by-findings'">
+<sectionbox color="green" class="id-analysis-pending" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingAnalysis')" collapsed="$ctrl.state.pendingAnalysis.collapsed" ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses'">
   <maintitle>
     PENDING INTERPRETATION
   </maintitle>

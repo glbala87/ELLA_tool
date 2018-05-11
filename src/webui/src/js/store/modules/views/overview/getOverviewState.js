@@ -1,3 +1,5 @@
+import getImportState from './import/getImportState'
+
 export let AVAILABLE_SECTIONS = {
     // All possible sections
     variants: {
@@ -20,6 +22,10 @@ export let AVAILABLE_SECTIONS = {
         finalized: {
             selectedPage: 1
         }
+    },
+    import: {
+        displayName: 'Import',
+        selected: false
     }
 }
 
@@ -34,6 +40,7 @@ export default function getOverviewState() {
             analyses: null,
             analysesFinalized: null
         },
+        import: getImportState(),
         importJobsStatus: {}
     }
 }

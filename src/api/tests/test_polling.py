@@ -33,7 +33,7 @@ def test_polling(session, client, test_database):
     assert response.status_code == 200
 
     annotationjob_interface = AnnotationJobsInterface(session)
-    annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
+    annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
 
     # Process submitted
     submitted = annotationjob_interface.get_with_status("SUBMITTED")

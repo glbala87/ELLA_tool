@@ -1,3 +1,4 @@
+from flask import request
 from api import schemas
 from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
 from api.util.util import request_json, rest_filter, authenticate, logger, paginate
@@ -102,5 +103,22 @@ class AnnotationServiceRunning(LogRequestResource):
         tags:
             - Import
         """
-        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL)
+        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
         return annotationservice_interface.annotation_service_running()
+
+
+class ImportSamples(LogRequestResource):
+
+    def get(self, session):
+        """
+        Returns available samples from import service
+
+        ---
+        summary: Get samples from import service
+        tags:
+            - Import
+        """
+        search_term = request.args.get('term')
+        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
+        return annotationservice_interface.search_samples(search_term)
+

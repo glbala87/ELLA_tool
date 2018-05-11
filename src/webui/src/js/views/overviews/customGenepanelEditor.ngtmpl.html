@@ -1,0 +1,89 @@
+<div class="custom-genepanel">
+    <div class="name">
+        <div class="question tiny line-wrapper">
+        <div class="left">
+            <h5 class="slim title">
+            <b>CUSTOM GENEPANEL NAME</b>
+            </h5>
+        </div>
+        <div class="right">
+            <input type="text" maxlength="12" placeholder="NAME" ng-model="$ctrl.modelCustomGenepanelName" ng-model-watch="$ctrl.addedGenepanel.name" ng-change="$ctrl.customGenepanelNameChanged({name: $ctrl.modelCustomGenepanelName})">_{{$ctrl.addedGenepanel.version}}
+        </div>
+        </div>
+    </div>
+
+    <h4 class="section-header">Add transcripts:</h4>
+    <div class="selection">
+        <div class="dropdown white">
+            <select
+                    class="genepanel-select"
+                    ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels"
+                    ng-model="$ctrl.modelSelectedGenepanel"
+                    ng-model-watch="$ctrl.selectedGenepanel"
+                    ng-change="$ctrl.selectedGenepanelChanged({genepanel: $ctrl.modelSelectedGenepanel})"
+                    >
+            </select>
+        </div>
+        <input class="gene-search-input" type="text" placeholder="FILTER" ng-model="$ctrl.modelCandidatesFilter" ng-model-watch="$ctrl.candidatesFilter" ng-change="$ctrl.candidatesFilterChanged({filter: $ctrl.modelCandidatesFilter})">
+        <span class="slim title upper"><b>{{$ctrl.getCandidatesFilterText()}}</b> <small>{{$ctrl.getCandidatesFilterSubText()}}</small></span>
+        <div class="grow"></div>
+        <button class="gene-button blue" ng-click="$ctrl.addAllTranscriptsClicked()">Add all</button>
+        <uib-pagination total-items="$ctrl.candidatesFilteredTotalItems"
+            ng-model="$ctrl.modelCandidatesSelectedPage"
+            ng-model-watch="$ctrl.candidatesSelectedPage"
+            class="pagination-sm gene-pagination"
+            items-per-page="$ctrl.candidatesPerPage"
+            ng-change="$ctrl.selectedCandidatesPageChanged({selectedPage: $ctrl.modelCandidatesSelectedPage})"
+            boundary-links="true"
+            max-size="5"
+            rotate="false">
+        </uib-pagination>
+    </div>
+
+
+    <article class="gene-list">
+        <div class="list-item" ng-class="{'added': transcript.added}" ng-repeat="transcript in $ctrl.candidateTranscripts">
+            <div class="gene">
+                {{transcript.hgnc_symbol}} ({{transcript.inheritance}})
+            </div>
+            <div class="transcript">
+                {{transcript.transcript_name}}
+            </div>
+            <div class="action">
+                <button class="blue" ng-disabled="transcript.added" ng-click="$ctrl.addTranscriptClicked({added: transcript})">{{$ctrl.getAddBtnText(transcript)}}</button>
+            </div>
+        </div>
+    </article>
+
+    <h4 class="section-header">Added:</h4>
+    <div class="selection">
+        <input class="gene-search-input" type="text" placeholder="FILTER" ng-model="$ctrl.modelAddedFilter" ng-model-watch="$ctrl.addedFilter" ng-change="$ctrl.addedFilterChanged({filter: $ctrl.modelAddedFilter})">
+        <span class="slim title upper"><b>{{$ctrl.getAddedFilterText()}}</b> <small>{{$ctrl.getAddedFilterSubText()}}</small></span>
+        <div class="grow"></div>
+        <button class="red" ng-click="$ctrl.removeAllTranscriptsClicked()">Remove all</button>
+        <uib-pagination total-items="$ctrl.addedFilteredTotalItems"
+            ng-model="$ctrl.modelAddedSelectedPage"
+            ng-model-watch="$ctrl.addedSelectedPage"
+            class="pagination-sm gene-pagination"
+            items-per-page="$ctrl.addedPerPage"
+            ng-change="$ctrl.selectedAddedPageChanged({selectedPage: $ctrl.modelAddedSelectedPage})"
+            boundary-links="true"
+            max-size="5"
+            rotate="false">
+        </uib-pagination>
+    </div>
+
+    <article class="gene-list">
+        <div class="list-item" ng-repeat="transcript in $ctrl.addedTranscripts">
+            <div class="gene">
+                {{transcript.hgnc_symbol}} ({{transcript.inheritance}})
+            </div>
+            <div class="transcript">
+                {{transcript.transcript_name}}
+            </div>
+            <div class="action">
+                <button class="blue" ng-click="$ctrl.removeTranscriptClicked({removed: transcript})">Remove</button>
+            </div>
+        </div>
+    </article>
+</div>

@@ -7,6 +7,7 @@ import getOverviewAlleles from '../actions/getOverviewAlleles'
 import loadFinalized from '../sequences/loadFinalized'
 import progress from '../../../../common/factories/progress'
 import toastr from '../../../../common/factories/toastr'
+import loadImport from '../import/sequences/loadImport'
 
 export default sequence('loadOverview', [
     progress('start'),
@@ -30,6 +31,7 @@ export default sequence('loadOverview', [
             },
             [set(props`page`, 1), loadFinalized]
         ]),
+        import: [loadImport],
         'analyses-by-findings': parallel('loadOverviewAnalysisByFindings', [
             getOverviewAnalysesByFindings,
             {

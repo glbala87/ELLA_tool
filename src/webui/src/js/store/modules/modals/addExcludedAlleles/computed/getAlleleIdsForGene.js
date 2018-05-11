@@ -24,7 +24,8 @@ export default Compute(
 
         return alleleIds.filter((a) => !includedAlleleIds.includes(a)).sort(
             firstBy((alleleId) => {
-                return alleleIdsByGeneCandidates.find((a) => a.allele_ids.includes(alleleId)).symbol
+                const entry = alleleIdsByGeneCandidates.find((a) => a.allele_ids.includes(alleleId))
+                return entry ? entry.symbol : ''
             })
         )
     }

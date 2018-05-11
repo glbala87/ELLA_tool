@@ -247,36 +247,59 @@ class DepositGenepanel(object):
 
     def insert_phenotypes(self, phenotype_data, genepanel_name, genepanel_version, replace=False):
 
-        if replace:
-            # Phenotypes can be replaced in their entirety, since they're not shared.
-            count = self.session.query(gm.Phenotype).filter(
-                gm.Phenotype.genepanel_name == genepanel_name,
-                gm.Phenotype.genepanel_version == genepanel_version
-            ).delete()
-            log.debug("Removed {} phenotypes from {} {}".format(count, genepanel_name, genepanel_version))
-
         phenotype_rows = list()
-        phenotype_inserted_count = 0
-        phenotype_reused_count = 0
         for ph in phenotype_data:
+
             if not ph.get('HGNC'):
                 log.warning('Skipping phenotype {} since HGNC is empty'.format(ph.get('phenotype')))
                 continue
-            phenotype_rows.append({
-                'genepanel_name': genepanel_name,
-                'genepanel_version': genepanel_version,
+
+            # Database has unique constraint on (gene_id, description, inheritance)
+            row_data = {
                 'gene_id': int(ph['HGNC']),
                 'description': ph['phenotype'],
                 'inheritance': ph['inheritance'],
-                'inheritance_info': ph.get('inheritance info'),
-                'omim_id': int(ph['omim_number']) if ph.get('omim_number') else None,
-                'pmid': int(ph['pmid']) if ph.get('pmid') else None,
-                'comment': ph.get('comment')
-            })
+                'omim_id': int(ph['omim_number']) if ph.get('omim_number') else None
+            }
 
-        for existing, created in bulk_insert_nonexisting(self.session, gm.Phenotype, phenotype_rows):
+            is_duplicate = next((p for p in phenotype_rows if p['gene_id'] == row_data['gene_id'] and p['description'] == row_data['description'] and p['inheritance'] == row_data['inheritance']), None)
+            if is_duplicate:
+                log.warning('Skipping duplicate phenotype {}'.format(ph.get('phenotype')))
+                continue
+
+            phenotype_rows.append(row_data)
+
+        phenotype_inserted_count = 0
+        phenotype_reused_count = 0
+
+        # If replacing, delete old connections in junction table
+        if replace:
+            log.debug("Replacing transcripts connected to genepanel.")
+            self.session.execute(gm.genepanel_phenotype.delete().where(
+                and_(
+                    gm.genepanel_phenotype.columns.genepanel_name == genepanel_name,
+                    gm.genepanel_phenotype.columns.genepanel_version == genepanel_version
+                )
+            ))
+
+        for existing, created, pks in bulk_insert_nonexisting(self.session,
+                                                              gm.Phenotype,
+                                                              phenotype_rows,
+                                                              include_pk='id',
+                                                              compare_keys=['gene_id', 'description', 'inheritance'],
+                                                              replace=replace):
             phenotype_inserted_count += len(created)
             phenotype_reused_count += len(existing)
+
+            # Connect to genepanel by inserting into the junction table
+            junction_values = list()
+            for pk in pks:
+                junction_values.append({
+                    'genepanel_name': genepanel_name,
+                    'genepanel_version': genepanel_version,
+                    'phenotype_id': pk
+                })
+            self.session.execute(gm.genepanel_phenotype.insert(), junction_values)
 
         return phenotype_inserted_count, phenotype_reused_count
 
@@ -307,7 +330,8 @@ class DepositGenepanel(object):
                 name=genepanel_name,
                 version=genepanel_version,
                 genome_reference=genomeRef,
-                config=config
+                config=config,
+                official=True
             )
             self.session.add(genepanel)
 

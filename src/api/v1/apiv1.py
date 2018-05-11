@@ -91,8 +91,8 @@ class ApiV1(object):
         self._add_resource(r.allelereport.AlleleReportResource,
                            '/api/v1/allelereports/<int:ar_id>/')
 
-        self._add_resource(r.allele.AlleleGenepanelListResource,
-                           '/api/v1/alleles/<int:allele_id>/genepanels/')
+        #self._add_resource(r.allele.AlleleGenepanelListResource,
+        #                   '/api/v1/alleles/<int:allele_id>/genepanels/')
 
         self._add_resource(r.analysis.AnalysisListResource,
                            '/api/v1/analyses/')
@@ -111,6 +111,12 @@ class ApiV1(object):
 
         self._add_resource(r.config.ConfigResource,
                            '/api/v1/config/')
+
+        self._add_resource(r.genepanel.GenepanelListResource,
+                           '/api/v1/genepanels/')
+
+        self._add_resource(r.genepanel.GenepanelResource,
+                           '/api/v1/genepanels/<name>/<version>/')
 
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
@@ -172,6 +178,9 @@ class ApiV1(object):
 
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
                            '/api/v1/import/service/running/')
+
+        self._add_resource(r.annotationjob.ImportSamples,
+                           '/api/v1/import/service/samples/')
 
         # ---------------------------------------------------------------------------------------------------------
         # Workflow variant

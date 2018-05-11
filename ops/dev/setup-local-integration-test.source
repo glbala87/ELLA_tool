@@ -1,0 +1,12 @@
+#!/bin/bash -ue
+
+# Sets up vardb-test for local integration testing
+export DB_URL=postgresql:///vardb-test
+/ella/ella-cli database drop -f
+/ella/ella-cli database make -f
+
+echo "Setting TEST_DB_DUMP=${TEST_DB_DUMP}"
+export TEST_DB_DUMP="/ella/local-integration-testdump.sql"
+rm ${TEST_DB_DUMP} 2> /dev/null
+
+echo "Run py.test -s {path-to-test} to run tests"

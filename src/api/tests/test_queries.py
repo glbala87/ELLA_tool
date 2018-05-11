@@ -11,18 +11,28 @@ def test_distinct_inheritance_genes_for_genepanel(session):
     ]
 
     for panel in testpanels:
-
         ad_genes = queries.distinct_inheritance_genes_for_genepanel(session, 'AD', panel[0], panel[1]).all()
         ad_genes = [a[0] for a in ad_genes]
+
+        # Make sure all genes are actually part of input genepanel
+        assert session.query(gene.Transcript.gene_id).join(
+            gene.Genepanel.transcripts
+        ).join(
+            gene.Gene
+        ).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
+            gene.Gene.hgnc_symbol.in_(ad_genes)
+        ).distinct().count() == len(ad_genes)
 
         # Test that AD matches only has 'AD' phenotypes
         inheritances = session.query(
             gene.Phenotype.inheritance
         ).join(
-            gene.Gene,
-            gene.Genepanel
+            gene.Gene
+        ).join(
+            gene.genepanel_phenotype,
         ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
+            tuple_(gene.genepanel_phenotype.c.genepanel_name, gene.genepanel_phenotype.c.genepanel_version) == panel,
             gene.Gene.hgnc_symbol.in_(ad_genes)
         ).all()
         assert all(i[0] == 'AD' for i in inheritances)
@@ -32,10 +42,11 @@ def test_distinct_inheritance_genes_for_genepanel(session):
             gene.Phenotype.gene_id,
             gene.Phenotype.inheritance
         ).join(
-            gene.Gene,
-            gene.Genepanel
+            gene.Gene
+        ).join(
+            gene.genepanel_phenotype,
         ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
+            tuple_(gene.genepanel_phenotype.c.genepanel_name, gene.genepanel_phenotype.c.genepanel_version) == panel,
             ~gene.Gene.hgnc_symbol.in_(ad_genes)
         ).all()
 
