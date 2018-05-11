@@ -24,7 +24,7 @@ function patchInterpretation({ state, http, path }) {
         })
         .catch((response) => {
             console.error(response)
-            return path.error({ result: response.result })
+            return path.error({ response: response.response })
         })
 }
 
