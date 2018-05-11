@@ -1,10 +1,8 @@
-import getClassification from '../computed/getClassification'
 import getAlleleState from '../computed/getAlleleState'
 import isAlleleAssessmentOutdated from '../../../../../common/computes/isAlleleAssessmentOutdated'
 
 export default function autoReuseExistingAlleleassessments({ state, resolve }) {
     const alleles = state.get('views.workflows.data.alleles')
-    const config = state.get('app.config')
     const checkReportAlleleIds = []
     const copyExistingAlleleAssessmentAlleleIds = []
 
@@ -14,10 +12,13 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
         }
         const alleleState = resolve.value(getAlleleState(alleleId))
         const isOutdated = resolve.value(isAlleleAssessmentOutdated(allele))
-        if (
+
+        const isReusedNotCheckedOrOld =
             !('reuseCheckedId' in alleleState.alleleassessment) ||
             alleleState.alleleassessment.reuseCheckedId < allele.allele_assessment.id
-        ) {
+        const isReusedButOutdated = isOutdated && alleleState.alleleassessment.reuse
+
+        if (isReusedNotCheckedOrOld || isReusedButOutdated) {
             const reusedAlleleAssessment = {
                 allele_id: allele.id,
                 reuse: !isOutdated,
@@ -30,11 +31,6 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
             state.set(
                 `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment`,
                 reusedAlleleAssessment
-            )
-        } else if (isOutdated) {
-            state.set(
-                `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.reuse`,
-                false
             )
         }
     }

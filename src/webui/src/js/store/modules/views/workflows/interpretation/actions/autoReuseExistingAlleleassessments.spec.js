@@ -25,7 +25,9 @@ describe('autoReuseExistingAlleleassessments', function() {
                     data: {
                         alleles: {
                             1: {
+                                id: 1,
                                 allele_assessment: {
+                                    id: 1,
                                     seconds_since_update: 4 * 24 * 3600,
                                     classification: '5'
                                 }
@@ -37,11 +39,16 @@ describe('autoReuseExistingAlleleassessments', function() {
         }
 
         return runAction(autoReuseExistingAlleleassessments, { state: testState }).then(
-            ({ state }) => {
+            ({ state, output }) => {
                 expect(
                     state.views.workflows.interpretation.selected.state.allele['1'].alleleassessment
-                        .reuse
-                ).toEqual(false)
+                ).toEqual({
+                    allele_id: 1,
+                    reuseCheckedId: 1,
+                    reuse: false
+                })
+                expect(output.checkReportAlleleIds).toEqual([1])
+                expect(output.copyExistingAlleleAssessmentAlleleIds).toEqual([1])
             }
         )
     })
@@ -68,6 +75,7 @@ describe('autoReuseExistingAlleleassessments', function() {
                     data: {
                         alleles: {
                             1: {
+                                id: 1,
                                 allele_assessment: {
                                     id: 2,
                                     seconds_since_update: 1 * 24 * 3600,
@@ -81,15 +89,16 @@ describe('autoReuseExistingAlleleassessments', function() {
         }
 
         return runAction(autoReuseExistingAlleleassessments, { state: testState }).then(
-            ({ state }) => {
+            ({ state, output }) => {
                 expect(
                     state.views.workflows.interpretation.selected.state.allele['1'].alleleassessment
-                        .reuse
-                ).toEqual(true)
-                expect(
-                    state.views.workflows.interpretation.selected.state.allele['1'].alleleassessment
-                        .reuseCheckedId
-                ).toEqual(2)
+                ).toEqual({
+                    allele_id: 1,
+                    reuseCheckedId: 2,
+                    reuse: true
+                })
+                expect(output.checkReportAlleleIds).toEqual([1])
+                expect(output.copyExistingAlleleAssessmentAlleleIds).toEqual([])
             }
         )
     })
@@ -112,7 +121,17 @@ describe('autoReuseExistingAlleleassessments', function() {
                 workflows: {
                     interpretation: {
                         selected: {
-                            state: { allele: { 1: { alleleassessment: { reuseCheckedId: 2 } } } }
+                            state: {
+                                allele: {
+                                    1: {
+                                        alleleassessment: {
+                                            reuseCheckedId: 2,
+                                            reuse: false,
+                                            allele_id: 1
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     data: {
@@ -131,11 +150,75 @@ describe('autoReuseExistingAlleleassessments', function() {
         }
 
         return runAction(autoReuseExistingAlleleassessments, { state: testState }).then(
-            ({ state }) => {
+            ({ state, output }) => {
                 expect(
                     state.views.workflows.interpretation.selected.state.allele['1'].alleleassessment
-                        .reuse
-                ).toEqual(undefined)
+                ).toEqual({
+                    allele_id: 1,
+                    reuseCheckedId: 2,
+                    reuse: false
+                })
+                expect(output.checkReportAlleleIds).toEqual([])
+                expect(output.copyExistingAlleleAssessmentAlleleIds).toEqual([])
+            }
+        )
+    })
+
+    it('is set to reuse false if outdated while previously reused', function() {
+        const testState = {
+            app: {
+                config: {
+                    classification: {
+                        options: [
+                            {
+                                value: '5',
+                                outdated_after_days: 3
+                            }
+                        ]
+                    }
+                }
+            },
+            views: {
+                workflows: {
+                    interpretation: {
+                        selected: {
+                            state: {
+                                allele: {
+                                    1: { alleleassessment: { reuseCheckedId: 2, reuse: true } }
+                                }
+                            } // Was previously valid and reused
+                        }
+                    },
+                    data: {
+                        alleles: {
+                            1: {
+                                id: 1,
+                                allele_assessment: {
+                                    id: 2,
+                                    seconds_since_update: 4 * 24 * 3600, // Outdated
+                                    classification: '5',
+                                    evaluation: {
+                                        key: 'WAS VALID REUSED, NOW OUTDATED'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return runAction(autoReuseExistingAlleleassessments, { state: testState }).then(
+            ({ state, output }) => {
+                expect(
+                    state.views.workflows.interpretation.selected.state.allele['1'].alleleassessment
+                ).toEqual({
+                    allele_id: 1,
+                    reuse: false,
+                    reuseCheckedId: 2
+                })
+                expect(output.checkReportAlleleIds).toEqual([1])
+                expect(output.copyExistingAlleleAssessmentAlleleIds).toEqual([1])
             }
         )
     })
