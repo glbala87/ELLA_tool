@@ -75,7 +75,7 @@ describe('Handling of allele state', () => {
         // allele 1, reference 1: new existing - Should be reused
         // allele 1, reference 2: new existing, with old content - Should be reused, previous data cleaned out
         // allele 1, reference 3: new existing, with existing content by user -> Should be reused, previous data cleaned out
-        // allele 2, reference 1: new existing, alleleassessment reused -> empty list in state
+        // allele 2, reference 1: new existing, alleleassessment reused -> Should be reused
 
         // AlleleReport
         // allele 1: no existing - Should be initialized for editing
@@ -294,8 +294,16 @@ describe('Handling of allele state', () => {
                         reuse: true,
                         reuseCheckedId: 2
                     })
-                    // ReferenceAssessment: Should be empty (alleleassessment reused)
-                    expect(alleleState2.referenceassessments).toEqual([])
+                    // ReferenceAssessment: Should be reused
+                    expect(alleleState2.referenceassessments).toEqual([
+                        {
+                            reference_id: 1,
+                            allele_id: 2,
+                            reuse: true,
+                            id: 4,
+                            reuseCheckedId: 4
+                        }
+                    ])
 
                     // AlleleReport: New, should be copied
                     expect(alleleState2.allelereport).toEqual({

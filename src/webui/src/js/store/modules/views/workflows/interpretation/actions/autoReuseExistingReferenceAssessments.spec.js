@@ -167,7 +167,7 @@ describe('autoReuseExistingReferenceAssessments', function() {
         )
     })
 
-    it('is empty when alleleassessment is reused', function() {
+    it('is cleaned out when alleleassessment is reused', function() {
         const testState = {
             views: {
                 workflows: {
@@ -183,7 +183,20 @@ describe('autoReuseExistingReferenceAssessments', function() {
                                                 reference_id: 1,
                                                 allele_id: 1,
                                                 reuseCheckedId: 10,
-                                                reuse: false
+                                                reuse: false,
+                                                evaluation: {
+                                                    key: 'SHOULD BE GONE'
+                                                }
+                                            },
+                                            {
+                                                id: 50,
+                                                reference_id: 2,
+                                                allele_id: 1,
+                                                reuseCheckedId: 50,
+                                                reuse: false,
+                                                evaluation: {
+                                                    key: 'SHOULD BE GONE'
+                                                }
                                             }
                                         ]
                                     }
@@ -213,7 +226,15 @@ describe('autoReuseExistingReferenceAssessments', function() {
                 expect(
                     state.views.workflows.interpretation.selected.state.allele[1]
                         .referenceassessments
-                ).toEqual([])
+                ).toEqual([
+                    {
+                        reference_id: 1,
+                        allele_id: 1,
+                        id: 10,
+                        reuse: true,
+                        reuseCheckedId: 10
+                    }
+                ])
             }
         )
     })

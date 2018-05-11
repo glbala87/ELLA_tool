@@ -5,13 +5,17 @@ export default function autoReuseExistingReferenceAssessments({ state, resolve }
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
         const alleleState = resolve.value(getAlleleState(alleleId))
-        // Don't keep referenceassessments when alleleassessment is reused
+
+        // Don't keep any user content when alleleassessment is reused
         if (alleleState.alleleassessment.reuse) {
             state.set(
                 `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments`,
                 []
             )
-        } else if ('reference_assessments' in allele) {
+        }
+
+        // (Re)populate
+        if ('reference_assessments' in allele) {
             for (let referenceAssessment of allele.reference_assessments) {
                 // Check whether it exists in state already
                 const raIdx = alleleState.referenceassessments.findIndex((ra) => {
