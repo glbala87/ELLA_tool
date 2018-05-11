@@ -37,6 +37,9 @@ const getReportAlleleData = Compute(
     state`views.workflows.data.alleles`,
     state`app.config`,
     (alleles, config, get) => {
+        if (!alleles) {
+            return
+        }
         const result = []
 
         const includedAlleles = Object.values(alleles).filter((a) => {
