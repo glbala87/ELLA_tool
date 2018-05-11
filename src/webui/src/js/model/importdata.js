@@ -1,20 +1,19 @@
 /* jshint esnext: true */
 
 export class ImportData {
-
     constructor(filename, input) {
-        this.filename = filename;
-        this.input = input;
+        this.filename = filename
+        this.input = input
 
         this.contents = {
             lines: {}, // {displayValue: {value: line, include: true/false}, ...}
-            header: "",
-        };
+            header: ''
+        }
 
         this._choices = {
-            mode: ["Analysis", "Variants"],
-            type: ["Create", "Append"],
-            technology: ["Sanger", "HTS"]
+            mode: ['Analysis', 'Variants'],
+            type: ['Create', 'Append'],
+            technology: ['Sanger', 'HTS']
         }
 
         // Current import selection, with validation of choices
@@ -23,125 +22,125 @@ export class ImportData {
             // Mode
             _mode: this._choices.mode[0],
             get mode() {
-                return this._mode;
+                return this._mode
             },
             set mode(val) {
-                if (this._choices["mode"].indexOf(val) < 0) {
-                    console.error(`Invalid choice for mode: ${val}`);
-                    return;
+                if (this._choices['mode'].indexOf(val) < 0) {
+                    console.error(`Invalid choice for mode: ${val}`)
+                    return
                 }
-                this._mode = val;
+                this._mode = val
             },
             // Type
             _type: this._choices.type[0],
             get type() {
-                return this._type;
+                return this._type
             },
             set type(val) {
-                if (this._choices["type"].indexOf(val) < 0) {
-                    console.error(`Invalid choice for type: ${val}`);
-                    return;
+                if (this._choices['type'].indexOf(val) < 0) {
+                    console.error(`Invalid choice for type: ${val}`)
+                    return
                 }
-                this._type = val;
+                this._type = val
             },
             // Technology
             _technology: this._choices.technology[0],
             get technology() {
-                return this._technology;
+                return this._technology
             },
             set technology(val) {
-                if (this._choices["technology"].indexOf(val) < 0) {
-                    console.error(`Invalid choice for technology: ${val}`);
-                    return;
+                if (this._choices['technology'].indexOf(val) < 0) {
+                    console.error(`Invalid choice for technology: ${val}`)
+                    return
                 }
-                this._technology = val;
+                this._technology = val
             },
             // Non-validated choices
             analysis: null,
-            analysisName: "",
-            genepanel: null,
+            analysisName: '',
+            genepanel: null
         }
 
         //
-        this._hasGenotype = true;
+        this._hasGenotype = true
 
         this.parse()
     }
 
     getChoices(key) {
-        return this._choices[key];
+        return this._choices[key]
     }
 
     isAnalysisMode() {
-        return this.importSelection.mode === "Analysis"
+        return this.importSelection.mode === 'Analysis'
     }
 
     isCreateNewAnalysisType() {
-        return this.isAnalysisMode() && this.importSelection.type === "Create";
+        return this.isAnalysisMode() && this.importSelection.type === 'Create'
     }
 
     isAppendToAnalysisType() {
-        return this.isAnalysisMode() && this.importSelection.type === "Append";
+        return this.isAnalysisMode() && this.importSelection.type === 'Append'
     }
 
     isVariantMode() {
-        return this.importSelection.mode === "Variants";
+        return this.importSelection.mode === 'Variants'
     }
 
     // Contents
     parse() {
-        let lines = this.input.trim().split('\n');
-        let header = ""
-        let fileType;
+        let lines = this.input.trim().split('\n')
+        let header = ''
+        let fileType
         for (let l of lines) {
-            if (l.trim() === "") {
-                continue;
+            if (l.trim() === '') {
+                continue
             }
-            if (l.trim().startsWith("#CHROM")) {
-                fileType = "vcf"
-            } else if (l.trim().startsWith("Index")) {
-                fileType = "seqpilot";
+            if (l.trim().startsWith('#CHROM')) {
+                fileType = 'vcf'
+            } else if (l.trim().startsWith('Index')) {
+                fileType = 'seqpilot'
             }
 
-            if (l.trim().startsWith("#") || l.trim().startsWith("Index")) {
-                header += l +"\n"
-                continue;
+            if (l.trim().startsWith('#') || l.trim().startsWith('Index')) {
+                header += l + '\n'
+                continue
             }
-            let key;
-            if (fileType === "vcf") {
+            let key
+            if (fileType === 'vcf') {
                 key = this._parseVcfLine(l)
             } else if (fileType === 'seqpilot') {
                 key = this._parseSeqPilotLine(header, l)
             } else {
-                key = this._parseGenomicOrHGVScLine(l);
+                key = this._parseGenomicOrHGVScLine(l)
             }
 
             this.contents.lines[key] = {
                 value: l,
-                include: true,
+                include: true
             }
         }
 
-        this.contents.header = header.trim();
+        this.contents.header = header.trim()
     }
 
     _parseVcfLine(line) {
-        let vals = line.trim().split("\t")
-        let chrom = vals[0];
-        let pos = vals[1];
-        let ref = vals[3];
-        let alt = vals[4];
+        let vals = line.trim().split('\t')
+        let chrom = vals[0]
+        let pos = vals[1]
+        let ref = vals[3]
+        let alt = vals[4]
 
-        let format = vals[8];
-        let sample = vals[9];
+        let format = vals[8]
+        let sample = vals[9]
 
-        let genotype;
-        let gt_index = format.split(':').indexOf("GT");
+        let genotype
+        let gt_index = format.split(':').indexOf('GT')
         if (gt_index < 0) {
-            genotype = "?/?"
-            this._hasGenotype = false;
+            genotype = '?/?'
+            this._hasGenotype = false
         } else {
-            genotype = sample.split(':')[gt_index];
+            genotype = sample.split(':')[gt_index]
         }
 
         return `${chrom}:${pos} ${ref}>${alt} (${genotype})`
@@ -158,8 +157,8 @@ export class ImportData {
         const cdna = values['c. HGVS']
         let genotype = values['Nuc Change'].match(/\(het\)|\(homo\)/)
         if (!genotype) {
-            this._hasGenotype = false;
-            genotype = "(?)"
+            this._hasGenotype = false
+            genotype = '(?)'
         }
 
         return `${transcript}.${cdna} ${genotype}`
@@ -168,7 +167,7 @@ export class ImportData {
     _parseGenomicOrHGVScLine(line) {
         let genotype = line.match(/ \((het|homo)\)?/)
         if (!genotype) {
-            this._hasGenotype = false;
+            this._hasGenotype = false
         }
         return line
     }
@@ -178,26 +177,26 @@ export class ImportData {
     }
 
     getFileNameBase() {
-        let fileNameBase = "";
+        let fileNameBase = ''
         if (this.filename) {
             if (this.filename.contains('.')) {
-                fileNameBase = this.filename.substring(0, this.filename.lastIndexOf('.'));
+                fileNameBase = this.filename.substring(0, this.filename.lastIndexOf('.'))
             } else {
-                fileNameBase = this.filename;
+                fileNameBase = this.filename
             }
         }
-        return fileNameBase;
+        return fileNameBase
     }
 
     getFilename() {
-        return this.filename;
+        return this.filename
     }
 
     _rebuildData() {
-        let data = this.contents.header;
+        let data = this.contents.header
         for (let ld of Object.values(this.contents.lines)) {
             if (ld.include) {
-                data += "\n"+ld.value;
+                data += '\n' + ld.value
             }
         }
         return data
@@ -205,30 +204,38 @@ export class ImportData {
 
     // Import selection
     isSelectionComplete() {
-        let a = this.importSelection.mode === "Variants" && this.importSelection.genepanel;
-        let b = this.importSelection.mode === "Analysis" && this.importSelection.type === "Create" && this.importSelection.analysisName && this.importSelection.genepanel;
-        let c = this.importSelection.mode === "Analysis" && this.importSelection.type === "Append" && this.importSelection.analysis;
-        let d = Object.values(this.contents.lines).filter(c => c.include).length
+        let a = this.importSelection.mode === 'Variants' && this.importSelection.genepanel
+        let b =
+            this.importSelection.mode === 'Analysis' &&
+            this.importSelection.type === 'Create' &&
+            this.importSelection.analysisName &&
+            this.importSelection.genepanel
+        let c =
+            this.importSelection.mode === 'Analysis' &&
+            this.importSelection.type === 'Append' &&
+            this.importSelection.analysis
+        let d = Object.values(this.contents.lines).filter((c) => c.include).length
 
-        return Boolean((a || b || c) && d);
+        return Boolean((a || b || c) && d)
     }
 
     process() {
-
         let properties = {
-            sample_type: this.importSelection.technology,
+            sample_type: this.importSelection.technology
         }
 
-        if (this.importSelection.mode === "Analysis") {
-            properties.create_or_append = this.importSelection.type;
-            properties.analysis_name = this.importSelection.type === "Append" ? this.importSelection.analysis.name : this.importSelection.analysisName;
+        if (this.importSelection.mode === 'Analysis') {
+            properties.create_or_append = this.importSelection.type
+            properties.analysis_name =
+                this.importSelection.type === 'Append'
+                    ? this.importSelection.analysis.name
+                    : this.importSelection.analysisName
         }
-
 
         if (this.isAppendToAnalysisType()) {
-            var genepanel = this.importSelection.analysis.genepanel;
+            var genepanel = this.importSelection.analysis.genepanel
         } else {
-            var genepanel = this.importSelection.genepanel;
+            var genepanel = this.importSelection.genepanel
         }
 
         let data = {
@@ -236,16 +243,11 @@ export class ImportData {
             data: this._rebuildData(),
             genepanel_name: genepanel.name,
             genepanel_version: genepanel.version,
-            properties: properties,
+            properties: properties
         }
 
         console.log(data)
 
-        return data;
+        return data
     }
-
-
-
 }
-
-

@@ -1,55 +1,50 @@
 var Page = require('./page')
 
-
 class AlleleSidebar extends Page {
-
     _ensureLoaded() {
-        browser.waitForExist('allele-sidebar .nav-row');
+        browser.waitForExist('allele-sidebar .nav-row')
     }
 
     getUnclassifiedAlleles() {
-        this._ensureLoaded();
-        return browser.getText('allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc');
+        this._ensureLoaded()
+        return browser.getText('allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc')
     }
 
     getClassifiedAlleles() {
-        this._ensureLoaded();
-        return browser.getText('allele-sidebar .id-classified.enabled .nav-row .id-hgvsc');
+        this._ensureLoaded()
+        return browser.getText('allele-sidebar .id-classified.enabled .nav-row .id-hgvsc')
     }
 
     getSelectedAllele() {
-        this._ensureLoaded();
-        return browser.getText('allele-sidebar .enabled .nav-row.active .id-hgvsc');
+        this._ensureLoaded()
+        return browser.getText('allele-sidebar .enabled .nav-row.active .id-hgvsc')
     }
 
-    getSelectedAlleleClassification() { // TODO: use method chaining to get classification from parent element
-        let e =  browser.element('allele-sidebar .enabled .nav-row.active');
-        return e.getText('.id-classification');
+    getSelectedAlleleClassification() {
+        // TODO: use method chaining to get classification from parent element
+        let e = browser.element('allele-sidebar .enabled .nav-row.active')
+        return e.getText('.id-classification')
     }
-
-
 
     _countOf(identifier) {
-        this._ensureLoaded();
-        const groupSelector = `allele-sidebar ${identifier} .nav-row.allele`;
+        this._ensureLoaded()
+        const groupSelector = `allele-sidebar ${identifier} .nav-row.allele`
         if (!browser.isExisting(groupSelector)) {
-            return 0;
+            return 0
         }
-        let all = browser.getText(groupSelector);
+        let all = browser.getText(groupSelector)
         if (Array.isArray(all)) {
-            return all.length;
+            return all.length
         } else {
-            return 1; // if zero an exception would be called above
+            return 1 // if zero an exception would be called above
         }
-
-
     }
     countOfUnclassified() {
-        return this._countOf('.id-unclassified');
+        return this._countOf('.id-unclassified')
     }
 
     countOfClassified() {
-        return this._countOf('.id-classified');
+        return this._countOf('.id-classified')
     }
 
     // selectFirstUnclassifedForce() {
@@ -75,63 +70,65 @@ class AlleleSidebar extends Page {
 
     selectFirstUnclassified() {
         // this._selectFirstIn('.id-unclassified.enabled');
-        this._selectFirstIn('.id-unclassified');
+        this._selectFirstIn('.id-unclassified')
     }
 
     selectFirstClassified() {
         // this._selectFirstIn('.id-classified.enabled');
-        this._selectFirstIn('.id-classified');
+        this._selectFirstIn('.id-classified')
     }
 
     _selectFirstIn(identifier) {
-        this._ensureLoaded();
-        const groupSelector = `allele-sidebar ${identifier} .nav-row`;
-        let all = browser.getText(groupSelector);
+        this._ensureLoaded()
+        const groupSelector = `allele-sidebar ${identifier} .nav-row`
+        let all = browser.getText(groupSelector)
         if (Array.isArray(all)) {
-            let selector_of_first = `${groupSelector}:nth-child(3)`;
+            let selector_of_first = `${groupSelector}:nth-child(3)`
             // console.log(`selecting first in array using ${selector_of_first}`);
-            browser.click(selector_of_first);
+            browser.click(selector_of_first)
         } else {
             // console.log(`selecting first in singleton using ${groupSelector}`);
-            browser.click(groupSelector);
+            browser.click(groupSelector)
         }
     }
 
     _selectAllele(allele, identifier) {
-        this._ensureLoaded();
+        this._ensureLoaded()
 
         // example 'allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc'
-        let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`);
-        let allele_idx = -1; // assume no match
+        let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`)
+        let allele_idx = -1 // assume no match
         if (Array.isArray(all)) {
-            allele_idx = all.findIndex(s => s === allele);
-
-        } else { // not an array, there is only one
-            if ( all === allele) { // match
+            allele_idx = all.findIndex((s) => s === allele)
+        } else {
+            // not an array, there is only one
+            if (all === allele) {
+                // match
                 allele_idx = 2
             }
         }
 
         if (allele_idx === -1) {
-            throw Error(`Allele ${allele} not found among options ${all.join(',')}`);
+            throw Error(`Allele ${allele} not found among options ${all.join(',')}`)
         }
-        this._selectAlleleByIdx(allele_idx + 1, identifier);
+        this._selectAlleleByIdx(allele_idx + 1, identifier)
     }
 
     _selectAlleleByIdx(idx, identifier) {
-        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx+2})`;
-        browser.click(allele_selector);
+        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx + 2})`
+        browser.click(allele_selector)
 
         // Check that we changed active allele
-        expect(browser.getClass(allele_selector).find(a => a === 'active')).toBeDefined();
-        return browser.element(allele_selector);
+        expect(browser.getClass(allele_selector).find((a) => a === 'active')).toBeDefined()
+        return browser.element(allele_selector)
     }
 
     selectUnclassifiedAllele(allele) {
         this._selectAllele(allele, '.id-unclassified.enabled')
     }
 
-    selectUnclassifiedAlleleByIdx(idx) { // 1-based
+    selectUnclassifiedAlleleByIdx(idx) {
+        // 1-based
         // return this._selectAlleleByIdx(idx, '.id-unclassified.enabled')
         return this._selectAlleleByIdx(idx, '.id-unclassified')
     }
@@ -140,32 +137,31 @@ class AlleleSidebar extends Page {
         this._selectAllele(allele, '.id-classified.enabled')
     }
 
-    selectClassifiedAlleleByIdx(idx) { // 1-based
+    selectClassifiedAlleleByIdx(idx) {
+        // 1-based
         // return this._selectAlleleByIdx(idx, '.id-classified.enabled')
         return this._selectAlleleByIdx(idx, '.id-classified')
     }
 
     isAlleleInUnclassified(allele) {
-        let a = this.getUnclassifiedAlleles();
+        let a = this.getUnclassifiedAlleles()
         if (Array.isArray(a)) {
-            return a.find(al => al === allele) !== undefined;
+            return a.find((al) => al === allele) !== undefined
         }
-        return a === allele;
+        return a === allele
     }
 
     isAlleleInClassified(allele) {
-        let a = this.getClassifiedAlleles();
+        let a = this.getClassifiedAlleles()
         if (Array.isArray(a)) {
-            return a.find(al => al === allele) !== undefined;
+            return a.find((al) => al === allele) !== undefined
         }
-        return a === allele;
+        return a === allele
     }
-
 
     open(page) {
-        super.open('login');
+        super.open('login')
     }
-
 }
 
 module.exports = AlleleSidebar

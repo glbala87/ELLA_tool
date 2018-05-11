@@ -10,36 +10,11 @@
         <div class="question tiny line-wrapper">
           <div class="left">
             <h1 class="slim title search-option">
-              <b>FREE TEXT</b>
+              <b>HGVSC OR GENOMIC</b>
             </h1>
           </div>
           <div class="right search-option">
-            <input class="id-search-freetext" ng-model="vm.query.freetext">
-          </div>
-        </div>
-        <div class="question tiny line-wrapper" ng-if="false"> <!-- Disable genepanel search for now -->
-          <div class="left">
-            <h1 class="slim title search-option">
-              <b>GENEPANEL</b>
-            </h1>
-          </div>
-          <div class="right bttn-set">
-            <div class="dropdown white search-option">
-              <script type="text/ng-template" id="genepanelTemplate">
-                {{option.name}} {{option.version}}
-              </script>
-              <select selector
-                      model="vm.query.genepanel"
-                      options="vm.options.genepanel"
-                      remote="vm.updateGenepanelOptions(search)"
-                      placeholder="choose genepanel"
-                      view-item-template="'genepanelTemplate'"
-                      dropdown-item-template="'genepanelTemplate'"
-                      disable-search="false"
-                      remove-button="true"
-              >
-              </select>
-            </div>
+            <input placeholder="e.g. c.123A>G or 13:100-300" class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
           </div>
         </div>
         <div class="question tiny line-wrapper">
@@ -51,34 +26,36 @@
           <div class="right bttn-set">
             <div class="id-select-gene dropdown white search-option">
               <select selector
-                      model="vm.query.gene"
+                      change="$ctrl.optionSelected('gene', newValue)"
+                      model="$ctrl.query.gene"
                       debounce="250"
                       label-attr="symbol"
-                      options="vm.options.gene"
-                      remote="vm.updateGeneOptions(search)"
-                      placeholder="choose gene"
+                      options="$ctrl.options.gene"
+                      remote="$ctrl.updateGeneOptions(search)"
+                      placeholder="Search gene"
                       disable-search="false"
-              >
-              </select>
+                      >
+                    </select>
+                </div>
             </div>
-          </div>
         </div>
         <div class="question tiny line-wrapper">
-          <div class="left">
-            <h1 class="slim title search-option">
-              <b>USER</b>
-            </h1>
-          </div>
-          <div class="right bttn-set">
-            <div class="id-select-user dropdown white search-option">
-              <script type="text/ng-template" id="userTemplate">
-                {{option.first_name}} {{option.last_name}}
-              </script>
-              <select selector
-                      model="vm.query.user"
-                      options="vm.options.user"
-                      placeholder="choose user"
-                      remote="vm.updateUserOptions(search)"
+            <div class="left">
+                <h1 class="slim title search-option">
+                    <b>USER</b>
+                </h1>
+            </div>
+            <div class="right bttn-set">
+                <div class="id-select-user dropdown white search-option">
+                    <script type="text/ng-template" id="userTemplate">
+                        {{option.first_name}} {{option.last_name}}
+                    </script>
+                    <select selector
+                      model="$ctrl.query.user"
+                      change="$ctrl.optionSelected('user', newValue)"
+                      options="$ctrl.options.user"
+                      placeholder="Search user"
+                      remote="$ctrl.updateUserOptions(search)"
                       view-item-template="'userTemplate'"
                       dropdown-item-template="'userTemplate'"
                       disable-search="false"
@@ -90,55 +67,53 @@
         <div class="question tiny line-wrapper">
           <div class="left">
             <h1 class="slim title search-option">
-              <b>UNFILTERED VARIANTS ONLY</b>
+              <b>SHOW EXCLUDED VARIANTS</b>
             </h1>
           </div>
           <div class="right bttn-set">
             <div class="id-filter-search search-option">
-              <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="vm.query.filter"
-                     ng-repeat="item in ['Yes', 'No']">{{item}}</label>
+              <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="$ctrl.query.filter"
+                     ng-repeat="item in ['Yes', 'No']" ng-change="$ctrl.optionSelected('filter', $ctrl.query.filter)">{{item}}</label>
             </div>
           </div>
         </div>
       </article>
       <div>
-
-        <h4 ng-if="vm.getResults().alleles.length" class="section-header">Variants</h4>
-        <h4 ng-if="vm.getResults().alleles.length" class="results-limit-header">(showing 10 first results)</h4>
-        <section ng-if="vm.getResults().alleles.length">
+        <h4 ng-if="$ctrl.results.alleles.length" class="section-header">Variants</h4>
+        <h4 ng-if="$ctrl.results.alleles.length" class="results-limit-header">(showing 10 first results)</h4>
+        <section ng-if="$ctrl.results.alleles.length">
           <article class="sectionbox-content allele-list">
             <a class="id-variant list-item clickable"
-             href="{{vm.getAlleleUrl(item.allele)}}"
-             ng-repeat="item in vm.getResults().alleles">
+             href="{{item.allele.links.workflow}}"
+             ng-repeat="item in $ctrl.results.alleles">
               <div class="full-title">
                   <span ng-repeat="t in item.allele.annotation.filtered">
                     <span style="text-transform: uppercase; color: #aaa;"> </span>
-                    <b>{{t.symbol}} {{t.HGVSc_short || item.allele.getHGVSgShort()}}</b>
+                    <b>{{t.symbol}} {{t.HGVSc_short || item.allele.formatted.hgvsg}}</b>
                   </span>
-                  <span class="assessment id-assessment">{{vm.getClassificationText(item.allele)}}</span>
+                  <span class="assessment id-assessment">{{$ctrl.getClassificationText(item.allele)}}</span>
                 </div>
                 <div class="allele-users">
-                    <div ng-repeat="interpretation in item.interpretations track by interpretation.id">
-                      <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • {{vm.getEndAction(interpretation)}}<b>{{interpretation.user.abbrev_name}}</b> • <i>{{interpretation.date_last_update | date:"yyyy-MM-dd HH:mm"}}</i></h3></div>
-                    </div>
+                  <div ng-repeat="interpretation in item.interpretations track by interpretation.id">
+                    <div ng-if="interpretation.user"><h3 class="full-title">{{$index+1}} • {{$ctrl.getEndAction(interpretation)}}<b>{{interpretation.user.abbrev_name}}</b> • <i>{{interpretation.date_last_update | date:"yyyy-MM-dd HH:mm"}}</i></h3></div>
                   </div>
+                </div>
                 <div class="allele-extras">
-                  <button class="blue" ng-click="vm.showAnalysesForAllele(item.allele); $event.preventDefault();">Show analyses</button>
-
+                  <button class="blue" ng-click="$ctrl.showAnalysesClicked({allele: item.allele}); $event.preventDefault();">Show analyses</button>
               </div>
             </a>
           </article>
         </section>
 
 
-        <h4 ng-if="vm.getResults().analyses.length" class="section-header">Analyses</h4>
-        <h4 ng-if="vm.getResults().analyses.length" class="results-limit-header">(showing 10 first results)</h4>
+        <h4 ng-if="$ctrl.results.analyses.length" class="section-header">Analyses</h4>
+        <h4 ng-if="$ctrl.results.analyses.length" class="results-limit-header">(showing 10 first results)</h4>
 
-        <section ng-if="vm.getResults().analyses.length">
-          <analysis-list analyses="vm.getResults().analyses" on-select="vm.clear()"></analysis-list>
+        <section ng-if="$ctrl.results.analyses.length">
+          <analysis-list store-path="'search.results.analyses'"></analysis-list>
         </section>
 
-        <div class="no-results" ng-if="vm.getResults().analyses.length == 0 && vm.getResults().alleles.length == 0">
+        <div class="no-results" ng-if="$ctrl.results.analyses.length == 0 && $ctrl.results.alleles.length == 0">
           <h4 class="sb-notification">No results</h4>
           <h4 class="sb-notification">Try to be less specific in your search criteria.</h4>
           <h4 class="sb-notification">Freetext examples: c.198A>G, 5:16451845, 13:32893296-32893415</h4>

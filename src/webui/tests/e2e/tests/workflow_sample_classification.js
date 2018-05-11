@@ -1,4 +1,4 @@
-require('core-js/fn/object/entries');
+require('core-js/fn/object/entries')
 
 /**
  * Performs interpretations for three samples and evaluate some references.
@@ -22,7 +22,7 @@ let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
 let checkAlleleClassification = require('../helpers/checkAlleleClassification')
-let failFast = require('jasmine-fail-fast');
+let failFast = require('jasmine-fail-fast')
 
 let loginPage = new LoginPage()
 let addExcludedAllelesModal = new AddExcludedAllelesModal()
@@ -33,147 +33,155 @@ let alleleSectionBox = new AlleleSectionBox()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
 
-jasmine.getEnv().addReporter(failFast.init());
+jasmine.getEnv().addReporter(failFast.init())
 
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE';
-const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01';
-const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v01';
-
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE'
+const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01'
+const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v01'
 
 // let timeOutForThisSpec = 3 * 60 * 1000;
 // let originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 // jasmine.DEFAULT_TIMEOUT_INTERVAL = timeOutForThisSpec;
 
-describe('Sample workflow', function () {
-    console.log("Starting test suite " + "'Sample workflow' with a timeout of " + jasmine.DEFAULT_TIMEOUT_INTERVAL);
+describe('Sample workflow', function() {
+    console.log(
+        'Starting test suite ' +
+            "'Sample workflow' with a timeout of " +
+            jasmine.DEFAULT_TIMEOUT_INTERVAL
+    )
 
     beforeAll(() => {
-        browser.resetDb();
-    });
+        browser.resetDb()
+    })
 
     // Store entered data for interpretation round 1 {c.1234A>C: ...}
     // Will be checked against in round two
-    let expected_analysis_1_round_1 = {};
-    let expected_analysis_2_round_1 = {};
+    let expected_analysis_1_round_1 = {}
+    let expected_analysis_2_round_1 = {}
 
-    it('allows interpretation, classification and reference evaluation to be set to review', function () {
-        loginPage.selectFirstUser();
-        sampleSelectionPage.selectTopPending();
+    it('allows interpretation, classification and reference evaluation to be set to review', function() {
+        loginPage.selectFirstUser()
+        browser.localStorage('DELETE') // Needs a proper URL, hence after login
+        sampleSelectionPage.selectTopPending()
 
-        expect(analysisPage.title).toBe(SAMPLE_ONE);
-
-        analysisPage.startButton.click();
+        expect(analysisPage.title).toBe(SAMPLE_ONE)
+        analysisPage.startButton.click()
 
         // Add excluded allele
-        let number_of_variants_before_filter_change = alleleSidebar.getUnclassifiedAlleles().length;
-        expect(number_of_variants_before_filter_change).toBe(5, `Wrong number of variants of sample ${SAMPLE_ONE}. Please check the filtering rules or the annotation data in the vcf`);
-        analysisPage.addExcludedButton.click();
-        addExcludedAllelesModal.includeAlleleBtn.click();
-        addExcludedAllelesModal.closeBtn.click();
-        expect(alleleSidebar.getUnclassifiedAlleles().length).toEqual(number_of_variants_before_filter_change + 1);
+        let number_of_variants_before_filter_change = alleleSidebar.getUnclassifiedAlleles().length
+        expect(number_of_variants_before_filter_change).toBe(
+            5,
+            `Wrong number of variants of sample ${SAMPLE_ONE}. Please check the filtering rules or the annotation data in the vcf`
+        )
+        analysisPage.addExcludedButton.click()
+        addExcludedAllelesModal.includeAlleleBtn.click()
+        addExcludedAllelesModal.closeBtn.click()
+        expect(alleleSidebar.getUnclassifiedAlleles().length).toEqual(
+            number_of_variants_before_filter_change + 1
+        )
 
         // Classify first three alleles quickly
-        alleleSidebar.selectFirstUnclassified();
-        // alleleSidebar.selectUnclassifiedAllele('c.72A>T');
-        let selected_allele = alleleSidebar.getSelectedAllele();
-        alleleSectionBox.markAsClass1();
-        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
-        expected_analysis_1_round_1[selected_allele] = {classification: '1'};
+        alleleSidebar.selectFirstUnclassified()
+        alleleSidebar.selectUnclassifiedAllele('c.1233dupA')
+        let selected_allele = alleleSidebar.getSelectedAllele()
+        alleleSectionBox.markAsClass1()
+        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
+        expected_analysis_1_round_1[selected_allele] = { classification: '1' }
 
         // alleleSidebar.selectFirstUnclassified();
-        alleleSidebar.selectUnclassifiedAllele('c.925dupT');
-        selected_allele = alleleSidebar.getSelectedAllele();
-        alleleSectionBox.markAsClass2();
-        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
-        expected_analysis_1_round_1[selected_allele] = {classification: '2'};
+        alleleSidebar.selectUnclassifiedAllele('c.925dupT')
+        selected_allele = alleleSidebar.getSelectedAllele()
+        alleleSectionBox.markAsClass2()
+        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
+        expected_analysis_1_round_1[selected_allele] = { classification: '2' }
 
         // alleleSidebar.selectFirstUnclassified();
-        alleleSidebar.selectUnclassifiedAllele('c.1788T>C');
-        selected_allele = alleleSidebar.getSelectedAllele();
-        alleleSectionBox.classifyAsU();
-        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
-        expected_analysis_1_round_1[selected_allele] = {classification: 'U'};
+        alleleSidebar.selectUnclassifiedAllele('c.1788T>C')
+        selected_allele = alleleSidebar.getSelectedAllele()
+        alleleSectionBox.classifyAsU()
+        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
+        expected_analysis_1_round_1[selected_allele] = { classification: 'U' }
 
-        const exomesElement = alleleSectionBox.gnomADExomesElement;
-        expect(exomesElement).toBeDefined("Missing gnomeAD exomes box on the page");
-        const genomesElement = alleleSectionBox.gnomADGenomesElement;
-        expect(genomesElement).toBeDefined("Missing gnomeAD genomes box on the page");
+        const exomesElement = alleleSectionBox.gnomADExomesElement
+        expect(exomesElement).toBeDefined('Missing gnomeAD exomes box on the page')
+        const genomesElement = alleleSectionBox.gnomADGenomesElement
+        expect(genomesElement).toBeDefined('Missing gnomeAD genomes box on the page')
 
-        const exacElement = alleleSectionBox.exacElement;
-        expect(exacElement).toBeDefined("Missing ExAC box on the page");
-        let exacContent = browser.getText('allele-sectionbox-content contentbox frequency-details[group="ExAC"]'); // array
-        expect(exacContent).toContain('AFR', 'Missing the AFR population from ExAC');
-        expect(exacContent).toContain('TOT', 'Missing the TOTal population key from ExAC');
-
+        const exacElement = alleleSectionBox.exacElement
+        expect(exacElement).toBeDefined('Missing ExAC box on the page')
+        let exacContent = browser.getText(
+            `allele-sectionbox-content contentbox frequency-details[group="'ExAC'"]`
+        ) // array
+        expect(exacContent).toContain('AFR', 'Missing the AFR population from ExAC')
+        expect(exacContent).toContain('TOT', 'Missing the TOTal population key from ExAC')
 
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
         for (let idx = 2; idx < 5; idx++) {
-
             // Move to next unclassified
-            alleleSidebar.selectFirstUnclassified();
-            selected_allele = alleleSidebar.getSelectedAllele();
-            console.log(`Classifying variant ${selected_allele} in loop with idx=${idx}`);
+            alleleSidebar.selectFirstUnclassified()
+            selected_allele = alleleSidebar.getSelectedAllele()
+            console.log(`Classifying variant ${selected_allele} in loop with idx=${idx}`)
 
             // Add attachment
-            expect(alleleSectionBox.getNumberOfAttachments()).toEqual(0);
-            analysisPage.addAttachment();
-            expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1);
+            expect(alleleSectionBox.getNumberOfAttachments()).toEqual(0)
+            analysisPage.addAttachment()
+            expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1)
 
             // Evaluate one reference
-            let referenceTitle = alleleSectionBox.evaluateReference(1);
-            console.log(`Evaluating reference ${referenceTitle}`);
-            referenceEvalModal.setRelevance(1);
-            referenceEvalModal.setComment('REFERENCE_EVAL_ROUND1');
+            let referenceTitle = alleleSectionBox.evaluateReference(1)
+            console.log(`Evaluating reference ${referenceTitle}`)
+            referenceEvalModal.setRelevance(1)
+            referenceEvalModal.setComment('REFERENCE_EVAL_ROUND1')
 
-            referenceEvalModal.saveBtn.scroll();
-            referenceEvalModal.saveBtn.click();
+            referenceEvalModal.saveBtn.scroll()
+            referenceEvalModal.saveBtn.click()
 
-            expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1');
+            expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1')
 
             // Add external annotation
-            console.log('Adding custom annotation');
-            alleleSectionBox.addExternalBtn.scroll();
-            alleleSectionBox.addExternalBtn.click();
-            customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic'); // BIC
-            customAnnotationModal.saveBtn.click();
-            expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('BIC:');
-            expect(alleleSectionBox.getExternalOtherValue()).toEqual('likely_pathogenic');
+            console.log('Adding custom annotation')
+            alleleSectionBox.addExternalBtn.scroll()
+            alleleSectionBox.addExternalBtn.click()
+            customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic') // BIC
+            customAnnotationModal.saveBtn.click()
+            expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('BIC:')
+            expect(alleleSectionBox.getExternalOtherValue()).toEqual('likely_pathogenic')
 
             // Add prediction annotation
-            console.log('Adding prediction annotation');
-            alleleSectionBox.addPredictionBtn.scroll();
-            alleleSectionBox.addPredictionBtn.click();
-            customAnnotationModal.setPredictionAnnotation(4, 1); // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
-            customAnnotationModal.saveBtn.click();
-            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:');
-            expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain');
+            console.log('Adding prediction annotation')
+            alleleSectionBox.addPredictionBtn.scroll()
+            alleleSectionBox.addPredictionBtn.click()
+            customAnnotationModal.setPredictionAnnotation(4, 1) // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
+            customAnnotationModal.saveBtn.click()
+            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:')
+            expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain')
 
             // Set comments/classification
-            console.log('Adding comments');
-            alleleSectionBox.setClassificationComment('EVALUATION_ROUND1');
-            analysisPage.saveButton.click();
-            alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1');
-            analysisPage.saveButton.scroll();
-            analysisPage.saveButton.click();
-            alleleSectionBox.setPredictionComment('PREDICTION_ROUND1');
-            analysisPage.saveButton.scroll();
-            analysisPage.saveButton.click();
-            alleleSectionBox.setExternalComment('EXTERNAL_ROUND1');
-            analysisPage.saveButton.scroll();
-            analysisPage.saveButton.click();
+            console.log('Adding comments')
+            alleleSectionBox.setClassificationComment('EVALUATION_ROUND1')
+            analysisPage.saveButton.click()
+            alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1')
+            analysisPage.saveButton.scroll()
+            analysisPage.saveButton.click()
+            alleleSectionBox.setPredictionComment('PREDICTION_ROUND1')
+            analysisPage.saveButton.scroll()
+            analysisPage.saveButton.click()
+            alleleSectionBox.setExternalComment('EXTERNAL_ROUND1')
+            analysisPage.saveButton.scroll()
+            analysisPage.saveButton.click()
 
-            alleleSectionBox.setReportComment('REPORT_ROUND1 &~øæå');
+            alleleSectionBox.setReportComment('REPORT_ROUND1 &~øæå')
 
-            console.log("Adding ACMG codes");
-            analysisPage.addAcmgCode('benign', 'BP2','BP2_ACMG_ROUND_1');
-            analysisPage.addAcmgCode('pathogenic', 'PS2','PS2_ACMG_ROUND_1', -2); // Adjust down to PPxPS2
-            analysisPage.addAcmgCode('pathogenic', 'PS1','PS1_ACMG_ROUND_1', 1); // Adjust up to PVSxPS1
+            console.log('Adding ACMG codes')
+            analysisPage.addAcmgCode('benign', 'BP2', 'BP2_ACMG_ROUND_1')
+            analysisPage.addAcmgCode('pathogenic', 'PS2', 'PS2_ACMG_ROUND_1', -2) // Adjust down to PPxPS2
+            analysisPage.addAcmgCode('pathogenic', 'PS1', 'PS1_ACMG_ROUND_1', 1) // Adjust up to PVSxPS1
 
-            console.log("Setting class " + (idx+1));
-            alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx+1}`);
+            console.log('Setting class ' + (idx + 1))
+            alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx + 1}`)
 
-            expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true);
+            expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
 
             expected_analysis_1_round_1[selected_allele] = {
                 references: {
@@ -195,7 +203,7 @@ describe('Sample workflow', function () {
                 prediction: 'PREDICTION_ROUND1',
                 external: 'EXTERNAL_ROUND1',
                 report: 'REPORT_ROUND1 &~øæå',
-                classification: (idx+1).toString(),
+                classification: (idx + 1).toString(),
                 acmg: {
                     '1': {
                         code: 'BP2',
@@ -208,76 +216,80 @@ describe('Sample workflow', function () {
                     '3': {
                         code: 'PVSxPS1',
                         comment: 'PS1_ACMG_ROUND_1'
-                    },
+                    }
                 },
-                num_attachments: 1,
+                num_attachments: 1
             }
         }
 
-        console.log('Changing to the report page');
-        analysisPage.selectSectionReport();
+        console.log('Changing to the report page')
+        analysisPage.selectSectionReport()
 
-        console.log('Setting a review comment');
-        alleleSectionBox.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1');
-        browser.click('body'); // a trick to unfocus the above report comment
+        console.log('Setting a review comment')
+        alleleSectionBox.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1')
+        browser.click('body') // a trick to unfocus the above report comment
 
-        expect(alleleSidebar.getClassifiedAlleles().length)
-            .toEqual(6, `Wrong number of variants of sample ${SAMPLE_ONE} before finish`);
+        expect(alleleSidebar.getClassifiedAlleles().length).toEqual(
+            6,
+            `Wrong number of variants of sample ${SAMPLE_ONE} before finish`
+        )
 
-        console.log('Setting to review');
-        analysisPage.finishButton.click();
-        analysisPage.markReviewButton.click();
-        analysisPage.modalFinishButton.click();
-    });
+        console.log('Setting to review')
+        analysisPage.finishButton.click()
+        analysisPage.markReviewButton.click()
+        analysisPage.modalFinishButton.click()
+    })
 
-    it('shows the review comment on overview page', function () {
-        loginPage.selectSecondUser();
-        sampleSelectionPage.expandReviewSection();
-        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1');
-    });
+    it('shows the review comment on overview page', function() {
+        loginPage.selectSecondUser()
+        sampleSelectionPage.expandReviewSection()
+        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
+    })
 
-    it('keeps the classification from the previous round', function () {
-
-        loginPage.selectSecondUser();
-        sampleSelectionPage.expandReviewSection();
-        sampleSelectionPage.selectTopReview();
-        expect(analysisPage.title).toBe(SAMPLE_ONE);
-        analysisPage.startButton.click();
-        checkAlleleClassification(expected_analysis_1_round_1);
-        analysisPage.finishButton.click();
-        analysisPage.finalizeButton.click();
-        analysisPage.modalFinishButton.click();
-    });
+    it('keeps the classification from the previous round', function() {
+        loginPage.selectSecondUser()
+        sampleSelectionPage.expandReviewSection()
+        sampleSelectionPage.selectTopReview()
+        expect(analysisPage.title).toBe(SAMPLE_ONE)
+        analysisPage.startButton.click()
+        checkAlleleClassification(expected_analysis_1_round_1)
+        analysisPage.finishButton.click()
+        analysisPage.finalizeButton.click()
+        analysisPage.modalFinishButton.click()
+    })
 
     it('reuses classified variants from a different sample', function() {
+        loginPage.selectFirstUser()
+        sampleSelectionPage.selectTopPending()
 
-        loginPage.selectFirstUser();
-        sampleSelectionPage.selectTopPending();
+        expect(analysisPage.title).toBe(SAMPLE_TWO)
 
-        expect(analysisPage.title).toBe(SAMPLE_TWO);
-
-        analysisPage.startButton.click();
+        analysisPage.startButton.click()
 
         // First check alleles overlapping with prev sample
         // that classifications were kept
-        let overlapping_alleles = ['c.581G>A', 'c.475+3A>G', 'c.289G>T'];
-        let overlapping_classes = ['5', '4', '3'];
-        analysisPage.selectSectionClassification();
+        let overlapping_alleles = ['c.581G>A', 'c.475+3A>G', 'c.289G>T']
+        let overlapping_classes = ['5', '4', '3']
+        analysisPage.selectSectionClassification()
 
-        let prev_classified = alleleSidebar.getClassifiedAlleles();
-        expect(prev_classified).toEqual(overlapping_alleles);
+        let prev_classified = alleleSidebar.getClassifiedAlleles()
+        expect(prev_classified).toEqual(overlapping_alleles)
 
         // Quickly classify two unclassified ones
-        alleleSidebar.selectFirstUnclassified();
-        alleleSectionBox.classSelection.selectByVisibleText('Class 1');
-        alleleSidebar.selectFirstUnclassified();
-        alleleSectionBox.classSelection.selectByVisibleText(`Class 1`);
+        alleleSidebar.selectFirstUnclassified()
+        alleleSectionBox.classSelection.selectByVisibleText('Class 1')
+        alleleSidebar.selectFirstUnclassified()
+        alleleSectionBox.classSelection.selectByVisibleText(`Class 1`)
 
         // Check that the others are accepted by default
         for (let idx = 0; idx < overlapping_alleles.length; idx++) {
-            alleleSidebar.selectClassifiedAllele(overlapping_alleles[idx]);
-            expect(alleleSidebar.getSelectedAlleleClassification()).toEqual(overlapping_classes[idx]);
-            expect(alleleSectionBox.classificationAcceptedBtn.getText()).toEqual(BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION);
+            alleleSidebar.selectClassifiedAllele(overlapping_alleles[idx])
+            expect(alleleSidebar.getSelectedAlleleClassification()).toEqual(
+                overlapping_classes[idx]
+            )
+            expect(alleleSectionBox.classificationAcceptedBtn.getText()).toEqual(
+                BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION
+            )
         }
 
         // Finally check the data of all our selections.
@@ -291,37 +303,30 @@ describe('Sample workflow', function () {
             'c.198A>G': {
                 classification: '1'
             }
-        };
-        checkAlleleClassification(allele_data);
+        }
+        checkAlleleClassification(allele_data)
 
         // start: make changes to classification on a variant that overlaps with the third sample:
-        alleleSidebar.selectClassifiedAllele('c.581G>A');
-        alleleSectionBox.classificationAcceptedBtn.click();
-//        let referenceTitle = alleleSectionBox.evaluateReference(1);
-        let referenceTitle = alleleSectionBox.reEvaluateReference(1);
-        referenceEvalModal.setRelevance(2);
-        referenceEvalModal.setComment('REFERENCE_EVAL_UPDATED');
-        referenceEvalModal.saveBtn.scroll();
-        referenceEvalModal.saveBtn.click();
-        alleleSectionBox.setClassificationComment('EVALUATION_UPDATED');
-        analysisPage.saveButton.scroll();
-        // analysisPage.saveButton.click();
-        alleleSectionBox.setFrequencyComment('FREQUENCY_UPDATED');
-        analysisPage.saveButton.scroll();
-        // analysisPage.saveButton.click();
-        alleleSectionBox.setPredictionComment('PREDICTION_UPDATED');
-        analysisPage.saveButton.scroll();
-        // analysisPage.saveButton.click();
-        alleleSectionBox.setExternalComment('EXTERNAL_UPDATED');
-        analysisPage.saveButton.scroll();
-        // analysisPage.saveButton.click();
-        alleleSectionBox.setReportComment('REPORT_UPDATED');
-        alleleSectionBox.classSelection.selectByVisibleText('Class 5');
-        analysisPage.addAttachment();
-        expect(alleleSectionBox.getNumberOfAttachments()).toEqual(2);
+        alleleSidebar.selectClassifiedAllele('c.581G>A')
+        alleleSectionBox.classificationAcceptedBtn.click()
+        //        let referenceTitle = alleleSectionBox.evaluateReference(1);
+        let referenceTitle = alleleSectionBox.reEvaluateReference(1)
+        referenceEvalModal.setRelevance(2)
+        referenceEvalModal.setComment('REFERENCE_EVAL_UPDATED')
+        referenceEvalModal.saveBtn.scroll()
+        referenceEvalModal.saveBtn.click()
+        browser.pause(200) // TODO: Not sure why modal is slow to close...
+        alleleSectionBox.setClassificationComment('EVALUATION_UPDATED')
+        alleleSectionBox.setFrequencyComment('FREQUENCY_UPDATED')
+        alleleSectionBox.setPredictionComment('PREDICTION_UPDATED')
+        alleleSectionBox.setExternalComment('EXTERNAL_UPDATED')
+        alleleSectionBox.setReportComment('REPORT_UPDATED')
+        alleleSectionBox.classSelection.selectByVisibleText('Class 5')
+        analysisPage.addAttachment()
+        expect(alleleSectionBox.getNumberOfAttachments()).toEqual(2)
         // :end
 
-        expected_analysis_2_round_1['c.581G>A'] = expected_analysis_1_round_1['c.581G>A'];
+        expected_analysis_2_round_1['c.581G>A'] = expected_analysis_1_round_1['c.581G>A']
         Object.assign(expected_analysis_2_round_1['c.581G>A'], {
             evaluation: 'EVALUATION_UPDATED',
             frequency: 'FREQUENCY_UPDATED',
@@ -335,21 +340,17 @@ describe('Sample workflow', function () {
                     relevance: 'Indirectly'
                 }
             },
-            num_attachments: 2,
-        });
+            num_attachments: 2
+        })
 
-        analysisPage.finishButton.click();
-        analysisPage.finalizeButton.click();
-        analysisPage.modalFinishButton.click();
-
-    });
+        analysisPage.finishButton.click()
+        analysisPage.finalizeButton.click()
+        analysisPage.modalFinishButton.click()
+    })
 
     it('reuses the latest variant classification done in another sample', function() {
-
-        loginPage.selectFirstUser();
-        sampleSelectionPage.selectFindings(1);
-        checkAlleleClassification(expected_analysis_2_round_1);
-    });
-
-});
-
+        loginPage.selectFirstUser()
+        sampleSelectionPage.selectFindings(1)
+        checkAlleleClassification(expected_analysis_2_round_1)
+    })
+})

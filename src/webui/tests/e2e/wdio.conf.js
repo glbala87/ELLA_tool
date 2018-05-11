@@ -1,45 +1,48 @@
-var http = require('http');
-var addCommands = require('./commands');
+var http = require('http')
+var addCommands = require('./commands')
 
 // when debugging it's useful to alter some config values
-var debug = process.env.DEBUG;
+var debug = process.env.DEBUG
 
-var defaultCapabilities =  [{
-        "chromeOptions" : {
-             "args": ["headless", "disable-gpu", "--window-size=1440,1080"]
+var defaultCapabilities = [
+    {
+        chromeOptions: {
+            args: ['headless', 'disable-gpu', '--window-size=1440,1080']
         },
         maxInstances: 1,
-        browserName: 'chrome',
+        browserName: 'chrome'
         //loggingPrefs: {
         //         'browser':     'ALL',
         //         'driver':      'ALL',
         //         'performance': 'ALL'
         //     },
-    }];
-var debugCapabilities =  [{
-        "chromeOptions" : {
-             "args": ["--window-size=1440,1080", ]
+    }
+]
+var debugCapabilities = [
+    {
+        chromeOptions: {
+            args: ['--window-size=1440,1080']
         },
         maxInstances: 1,
-        browserName: 'chrome',
+        browserName: 'chrome'
         //loggingPrefs: {
         //         'browser':     'ALL',
         //         'driver':      'ALL',
         //         'performance': 'ALL'
         //     },
-    }];
-var defaultTimeoutInterval = 120000; // ms
-var defaultMaxInstances = 1;
-let specHome = "src/webui/tests/e2e/tests/**";
-var defaultSpecs = [`${specHome}/*.js`];
+    }
+]
+var defaultTimeoutInterval = 120000 // ms
+var defaultMaxInstances = 1
+let specHome = 'src/webui/tests/e2e/tests/**'
+var defaultSpecs = [`${specHome}/*.js`]
 // var defaultSpecs = [`${specHome}/workflow_variant_acmg.js`];
-var BUNDLED_APP = 'app.js'; // see gulp file
+var BUNDLED_APP = 'app.js' // see gulp file
 
 exports.config = {
-
     // debug: true causes a [DEP0062] DeprecationWarning
     // debug: debug,
-
+    execArgv: ['--inspect=0.0.0.0:9999'],
     //
     // ==================
     // Specify Test Files
@@ -49,7 +52,7 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
-    specs:  process.env.SPEC ? [process.env.SPEC] : defaultSpecs,
+    specs: process.env.SPEC ? [process.env.SPEC] : defaultSpecs,
     // Patterns to exclude.
     // exclude: [
     //     'src/webui/tests/e2e/tests/workflow_variant_classification.js'
@@ -81,7 +84,6 @@ exports.config = {
     // grid with only 5 firefox instance available you can make sure that not more than
     // 5 instance gets started at a time.
 
-
     // Defined at cli...
     //host: "172.17.0.1",
     //port: 4444,
@@ -104,7 +106,7 @@ exports.config = {
     coloredLogs: true,
     // If you only want to run your tests until a specific amount of tests have failed use
     // bail (default is 0 - don't bail, run all tests).
-    bail: 1, // alert developer as soon as possible
+    bail: 0, // alert developer as soon as possible
     //
     // Saves a screenshot to a given path if a command fails.
     screenshotPath: './errorShots/',
@@ -160,7 +162,7 @@ exports.config = {
         //
         // Jasmine default timeout
         // We set this high, since some tests takes some time...
-        defaultTimeoutInterval: debug ? (24 * 60 * 60 * 1000) : defaultTimeoutInterval,
+        defaultTimeoutInterval: debug ? 24 * 60 * 60 * 1000 : defaultTimeoutInterval,
         //
         // The Jasmine framework allows interception of each assertion in order to log the state of the application
         // or website depending on the result. For example, it is pretty handy to take a screenshot every time
@@ -185,44 +187,58 @@ exports.config = {
     //
     // Gets executed before test execution begins. At this point you can access all global
     // variables, such as `browser`. It is the perfect place to define custom commands.
-    before: function (capabilities, specs) {
-        addCommands();
+    before: function(capabilities, specs) {
+        addCommands()
         // Despite these settings, not-clickable errors happen locally. (height is limited running on Mac)
         // browser.setViewportSize({ width: 1280, height: 1000});
-        console.log('browser window size: ' + browser.windowHandleSize().value.height + 'x' + browser.windowHandleSize().value.width + ' (h x w)');
+        console.log(
+            'browser window size: ' +
+                browser.windowHandleSize().value.height +
+                'x' +
+                browser.windowHandleSize().value.width +
+                ' (h x w)'
+        )
     },
     //
     // Hook that gets executed before the suite starts
-    beforeSuite: function (suite) {
-        var timeout = 30000;
-        let baseUrl = browser.options.baseUrl;
-        var host = baseUrl.substring(0, baseUrl.lastIndexOf(":"));
-        var port = baseUrl.substring(baseUrl.lastIndexOf(":") + 1, baseUrl.length);
+    beforeSuite: function(suite) {
+        var timeout = 30000
+        let baseUrl = browser.options.baseUrl
+        var host = baseUrl.substring(0, baseUrl.lastIndexOf(':'))
+        var port = baseUrl.substring(baseUrl.lastIndexOf(':') + 1, baseUrl.length)
         let options = {
             host: host,
             port: port,
             path: '/' + BUNDLED_APP
-        };
-        var appUrl = "http://" + host + ":" + port + "/" + BUNDLED_APP;
-        console.log(`Test suite '${suite.fullName}' is waiting for ${appUrl}`);
-        browser.waitUntil(function () {
-            return new Promise(function(resolve, reject) {
-                let callback = function(response) {
-                    response.on('data', function (chunk) {});
-                    response.on('end', function () {
-                        let ok = [200, 304].includes(response.statusCode);
-                        if (ok) {
-                            console.log(`${appUrl} is compiled, moving on...`);
-                        }
-                        else {
-                            console.log(`${appUrl} is not ready (${response.statusCode}) is still compiling, waiting...`);
-                        }
-                        resolve(ok);
-                    });
-                };
-                http.request(options, callback).end();
-            });
-        }, timeout, appUrl + " wasn't available within " + timeout + " ms. What's up gulp?", 1000);
+        }
+        var appUrl = 'http://' + host + ':' + port + '/' + BUNDLED_APP
+        console.log(`Test suite '${suite.fullName}' is waiting for ${appUrl}`)
+        browser.waitUntil(
+            function() {
+                return new Promise(function(resolve, reject) {
+                    let callback = function(response) {
+                        response.on('data', function(chunk) {})
+                        response.on('end', function() {
+                            let ok = [200, 304].includes(response.statusCode)
+                            if (ok) {
+                                console.log(`${appUrl} is compiled, moving on...`)
+                            } else {
+                                console.log(
+                                    `${appUrl} is not ready (${
+                                        response.statusCode
+                                    }) is still compiling, waiting...`
+                                )
+                            }
+                            resolve(ok)
+                        })
+                    }
+                    http.request(options, callback).end()
+                })
+            },
+            timeout,
+            appUrl + " wasn't available within " + timeout + " ms. What's up gulp?",
+            1000
+        )
     },
     //
     // Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
@@ -236,25 +252,25 @@ exports.config = {
     // },
     //
     // Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-    beforeTest: function (test) {
+    beforeTest: function(test) {
         // construct a name describing our hierarchy:
-        var pathlikeName = test.fullName.replace(test.title, ' / ' + test.title);
+        var pathlikeName = test.fullName.replace(test.title, ' / ' + test.title)
         if (test.parent) {
-            pathlikeName = pathlikeName.replace(test.parent, ' / ' + test.parent);
+            pathlikeName = pathlikeName.replace(test.parent, ' / ' + test.parent)
         }
-        pathlikeName = pathlikeName.replace(/\s+\/\s+\/?\s?/g, ' / '); // remove repeated space and slash
+        pathlikeName = pathlikeName.replace(/\s+\/\s+\/?\s?/g, ' / ') // remove repeated space and slash
 
-        console.log(`Running ${test.type} from ${test.file} for step \n ${pathlikeName}`);
-        },
+        console.log(`Running ${test.type} from ${test.file} for step \n ${pathlikeName}`)
+    },
     //
     // Runs before a WebdriverIO command gets executed.
     //beforeCommand: function (commandName, args) {
     // },
     //
     // Runs after a WebdriverIO command gets executed
-    afterCommand: function (commandName, args, result, error) {
-        // Wait for angular digest to finish.
-        browser.waitForAngular();
+    afterCommand: function(commandName, args, result, error) {
+        // Wait for cerebral signals to finish.
+        browser.waitForCerebral()
     },
     //
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
@@ -264,23 +280,35 @@ exports.config = {
      * Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
      * @param {Object} test test details
      */
-    afterTest: function (test) {
+    afterTest: function(test) {
         // if test passed, ignore, else take and save screenshot.
-        if (test.passed) {return;}
+        if (test.passed) {
+            return
+        }
 
         // construct a filename describing our hierarchy:
-        var pathlikeName = test.fullName;
-        pathlikeName = pathlikeName.replace(test.title, '/' + test.title.trim());
+        var pathlikeName = test.fullName
+        pathlikeName = pathlikeName.replace(test.title, '/' + test.title.trim())
         if (test.parent) {
-            pathlikeName = pathlikeName.replace(test.parent, '/' + test.parent.trim());
+            pathlikeName = pathlikeName.replace(test.parent, '/' + test.parent.trim())
         }
-        var testID = encodeURIComponent(pathlikeName.replace(/\s?\/\s?/g, '__').replace(/\s+/g, '-'));
+        var testID = encodeURIComponent(
+            pathlikeName.replace(/\s?\/\s?/g, '__').replace(/\s+/g, '-')
+        )
 
         // build file path
-        var filePath = this.screenshotPath + test.file.split('/').pop().split('.')[0] + '___' +  testID + '.png';
+        var filePath =
+            this.screenshotPath +
+            test.file
+                .split('/')
+                .pop()
+                .split('.')[0] +
+            '___' +
+            testID +
+            '.png'
         // save screenshot
-        browser.saveScreenshot(filePath);
-        console.log('\n\tScreenshot location:', filePath, '\n');
+        browser.saveScreenshot(filePath)
+        console.log('\n\tScreenshot location:', filePath, '\n')
     }
     //
     // Hook that gets executed after the suite has ended
@@ -296,7 +324,7 @@ exports.config = {
     // possible to defer the end of the process using a promise.
     // onComplete: function(exitCode) {
     // }
-};
+}
 
 // require("babel-register")({
 //     presets: ['env', 'stage-0'],

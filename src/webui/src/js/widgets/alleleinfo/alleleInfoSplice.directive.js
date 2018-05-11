@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../../ng-decorators';
+import { Directive, Inject } from '../../ng-decorators'
 
 @Directive({
     selector: 'allele-info-splice',
@@ -11,14 +11,13 @@ import {Directive, Inject} from '../../ng-decorators';
 })
 @Inject()
 export class AlleleInfoSplice {
-
     constructor() {
         if (!this.hasContent()) {
-            this.collapsed = true;
+            this.collapsed = true
         }
     }
 
     hasContent() {
-        return this.allele.annotation.filtered.some(t => 'splice' in t);
+        return this.allele.annotation.filtered.some((t) => 'splice' in t)
     }
 }

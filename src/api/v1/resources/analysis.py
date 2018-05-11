@@ -37,15 +37,16 @@ class AnalysisListResource(LogRequestResource):
         if rest_filter is None:
             rest_filter = dict()
         if not ("genepanel_name", "genepanel_version") in rest_filter:
-            rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
+            rest_filter[("genepanel_name", "genepanel_version")] = [
+                (gp.name, gp.version) for gp in user.group.genepanels]
         return self.list_query(
             session,
             sample.Analysis,
-            schema=schemas.AnalysisFullSchema(),
+            schema=schemas.AnalysisSchema(),
             rest_filter=rest_filter,
             per_page=per_page,
             page=page
-       )
+        )
 
 
 class AnalysisResource(LogRequestResource):
@@ -71,9 +72,10 @@ class AnalysisResource(LogRequestResource):
         """
         a = session.query(sample.Analysis).filter(
             sample.Analysis.id == analysis_id,
-            tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in user.group.genepanels)
+            tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
+                (gp.name, gp.version) for gp in user.group.genepanels)
         ).one()
-        analysis = schemas.AnalysisFullSchema().dump(a).data
+        analysis = schemas.AnalysisSchema().dump(a).data
         return analysis
 
     @authenticate()
@@ -101,7 +103,8 @@ class AnalysisResource(LogRequestResource):
         if session.query(assessment.AlleleAssessment.id).filter(
             assessment.AlleleAssessment.analysis_id == analysis_id
         ).count():
-            raise ApiError("One or more alleleassessments are pointing to this analysis. It's removal is not allowed.'")
+            raise ApiError(
+                "One or more alleleassessments are pointing to this analysis. It's removal is not allowed.'")
 
         analysis = session.query(sample.Analysis).join(
             genotype.Genotype,
@@ -139,5 +142,3 @@ class AnalysisResource(LogRequestResource):
         session.commit()
 
         return None, 200
-
-

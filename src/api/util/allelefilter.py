@@ -381,7 +381,7 @@ class AlleleFilter(object):
         intronic_region = self.global_config['variant_criteria']['intronic_region']
         for gp_key, allele_ids in gp_allele_ids.iteritems():
 
-            # Determine which allele ids are in an exon (with exon_distance == None, or within intronic_region)
+            # Determine which allele ids are in an exon (with exon_distance == None, or within intronic_region interval)
             exonic_alleles_q = self.session.query(
                 annotationshadow.AnnotationShadowTranscript.allele_id,
                 annotationshadow.AnnotationShadowTranscript.exon_distance,
@@ -409,8 +409,15 @@ class AlleleFilter(object):
                 )
             exonic_alleles_q = exonic_alleles_q.distinct()
 
+            annotation_shadow_allele_ids_q = self.session.query(
+                annotationshadow.AnnotationShadowTranscript.allele_id
+            ).filter(
+                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
+            )
+
             exonic_allele_ids = [a[0] for a in exonic_alleles_q.all()]
-            intronic_filtered[gp_key] = set(allele_ids) - set(exonic_allele_ids)
+            annotation_shadow_allele_ids = [a[0] for a in annotation_shadow_allele_ids_q.all()]
+            intronic_filtered[gp_key] = set(annotation_shadow_allele_ids) - set(exonic_allele_ids)
 
         # Remove the ones with existing classification
         for gp_key, allele_ids in intronic_filtered.iteritems():

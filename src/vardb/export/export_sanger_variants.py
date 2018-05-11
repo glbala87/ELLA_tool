@@ -216,8 +216,8 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
             csv_rows.append(variant_row)
             worksheet_rows.append(variant_row)
 
-    # sort by first three columns:
-    sort_function = lambda r: (r[0], r[1], r[2])
+    # sort by date, project name, sample_number, genomic pos
+    sort_function = lambda r: (r[0], r[1], r[2], r[4])
     worksheet_rows.sort(key=sort_function)
     csv_rows.sort(key=sort_function)
     csv.extend(csv_rows)

@@ -1,64 +1,25 @@
-<interpretationbar
-    allele="vm.allele_sidebar.selected"
-    components="vm.components"
-    selected-component="vm.selectedComponent"
-    on-component-change="vm.onComponentChange()"
-    read-only="vm.readOnly"
-></interpretationbar>
-
 <div class="interpretation-container">
-  <div class="no-alleles" ng-if="!vm.getAlleles().length && vm.selectedComponent.title != 'Info'">
-    <h2>No variants to show for analysis.</h2>
-    <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
-  </div>
-  <article class="single-sample-analysis-container" ng-switch="vm.getSidebarSelected()" ng-if="vm.getAlleles().length || vm.selectedComponent.title == 'Info'">
-        <allele-sidebar ng-if="vm.shouldShowSidebar()"
-                        read-only="vm.readOnly"
-                        genepanel="vm.getGenepanel()"
-                        alleles="vm.allele_sidebar.alleles"
-                        selected="vm.allele_sidebar.selected"
-                        checked="vm.getSelectedInterpretation().state.report.included">
-        </allele-sidebar>
+    <div class="no-alleles" ng-if="!$ctrl.hasAlleles && $ctrl.selectedComponent !== 'Info'">
+      <h2>No variants to show for analysis.</h2>
+      <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
+    </div>
+    <article class="single-sample-analysis-container" ng-switch="$ctrl.selectedComponent">
+        <allele-sidebar ng-if="$ctrl.showSidebar"></allele-sidebar>
 
-      <section class="container" ng-class="{'inner': vm.shouldShowSidebar()}">
-        <analysis-info
-          analysis="vm.analysis"
-          alleles="vm.allele_sidebar.alleles"
-          read-only="vm.readOnly"
-          verification-status-changed="vm.onChangeClass(allele)"
-          ng-switch-when="Info">
-        </analysis-info>
-        <div ng-switch-when="Classification">
-            <allele-sectionbox
-              read-only="vm.readOnly"
-              header="section.title"
-              allele="vm.allele_sidebar.selected"
-              references="vm.references"
-              attachments="vm.attachments"
-              allele-state="vm.getAlleleState(vm.allele_sidebar.selected)"
-              allele-user-state="vm.getAlleleUserState(vm.allele_sidebar.selected)"
-              controls="section.controls"
-              on-change-class="vm.onChangeClass(allele)"
-              on-update="vm.onUpdate(false)"
-              ng-if="vm.allele_sidebar.selected"
-              section="section"
-              alleleassessment-comment="section.alleleassessment_comment"
-              allelereport-comment="section.report_comment"
-              ng-repeat="section in vm.getComponent('Classification').sections">
-            </allele-sectionbox>
-          <div ng-if="!vm.hasResults()" class="no-alleles">
-            <h2>No variants to classify.</h2>
+      <section class="container" ng-class="{'inner': $ctrl.showSidebar}">
+          <div ng-switch-when="Info">
+            <analysis-info></analysis-info>
           </div>
-        </div>
+          <div ng-switch-when="Classification" ng-if="$ctrl.hasAlleles">
+            <allele-sectionbox
+              section-key="sectionKey"
+              ng-repeat="sectionKey in $ctrl.sectionKeys">
+            </allele-sectionbox>
+          </div>
 
         <report-card
-          read-only="vm.readOnly"
-          class="single-sample-analysis-item"
-          ng-switch-when="Report"
-          alleles="vm.getComponent('Report').alleles"
-          references="vm.references"
-          state="vm.getSelectedInterpretation().state"
-          user-state="vm.getSelectedInterpretation().user_state">
+          ng-if="$ctrl.hasAlleles"
+          ng-switch-when="Report">
         </report-card>
 
 

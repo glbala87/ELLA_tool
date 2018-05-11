@@ -1,4 +1,4 @@
-from analyses import AnalysisSchema, AnalysisFullSchema
+from analyses import AnalysisSchema
 from samples import SampleSchema
 from analysisinterpretations import AnalysisInterpretationSchema, AnalysisInterpretationOverviewSchema
 from alleles import AlleleSchema

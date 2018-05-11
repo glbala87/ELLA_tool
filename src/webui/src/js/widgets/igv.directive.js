@@ -1,7 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
-
+import { Directive, Inject } from '../ng-decorators'
 
 /**
  * Directive for displaying igv.js
@@ -10,8 +9,8 @@ import {Directive, Inject} from '../ng-decorators';
     selector: 'igv',
     scope: {
         options: '=', // igv options
-        chrom: '@?',  // Default start chromosome (e.g. '12')
-        pos: '@?',  // Default start position (e.g. '123-234')
+        chrom: '@?', // Default start chromosome (e.g. '12')
+        pos: '@?' // Default start position (e.g. '123-234')
     },
     template: '<div class="igv-container"></div>',
     link: (scope, elem, attrs) => {
@@ -20,18 +19,15 @@ import {Directive, Inject} from '../ng-decorators';
             showRuler: true,
             showCenterGuide: true,
             showCursorTrackingGuide: true,
-            doubleClickDelay: 300,
-        };
+            doubleClickDelay: 300
+        }
         Object.assign(defaults, scope.options, {
-            locus: `${scope.chrom}:${scope.pos}`,
-        });
-        igv.createBrowser(elem.children()[0], defaults);
+            locus: `${scope.chrom}:${scope.pos}`
+        })
+        igv.createBrowser(elem.children()[0], defaults)
     }
 })
 @Inject('Config')
 export class IgvController {
-
-    constructor() {
-    }
-
+    constructor() {}
 }

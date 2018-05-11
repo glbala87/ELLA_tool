@@ -1,21 +1,16 @@
-/* jshint esnext: true */
+import app from '../../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+import { state, props, signal } from 'cerebral/tags'
 
-import {Directive, Inject} from '../../ng-decorators';
-
-@Directive({
-    selector: 'allele-info-frequency-gnomad-genomes',
-    scope: {
-        allele: '='
+app.component('alleleInfoFrequencyGnomadGenomes', {
+    bindings: {
+        allelePath: '<'
     },
-    templateUrl: 'ngtmpl/alleleInfoFrequencyGnomadGenomes.ngtmpl.html'
+    templateUrl: 'ngtmpl/alleleInfoFrequencyGnomadGenomes.ngtmpl.html',
+    controller: connect(
+        {
+            allele: state`${props`allelePath`}`
+        },
+        'AlleleInfoFrequencyGnomadGenomes'
+    )
 })
-@Inject()
-export class AlleleInfoFrequencyGnomadGenomes {
-
-    constructor() {
-    }
-
-    hasContent() {
-        return 'GNOMAD_GENOMES' in this.allele.annotation.frequencies;
-    }
-}

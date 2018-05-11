@@ -1,5 +1,5 @@
-<contentbox title="gnomAD Exomes" title-url="{{vm.allele | gnomadLink }}" disabled="!vm.hasContent()">
+<contentbox title="gnomAD Exomes" title-url="{{$ctrl.allele.urls.gnomad}}" disabled="!$ctrl.allele.annotation.frequencies.GNOMAD_EXOMES">
   <cbbody>
-      <frequency-details group="GNOMAD_EXOMES" allele="vm.allele"></frequency-details>
+        <frequency-details group="'GNOMAD_EXOMES'" allele-path="$ctrl.allelePath"></frequency-details>
   </cbbody>
 </contentbox>
