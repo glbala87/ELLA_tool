@@ -13,7 +13,7 @@ class UserSchema(Schema):
                   'last_name')
 
 
-class AnalysisFullSchema(Schema):
+class AnalysisSchema(Schema):
     class Meta:
         title = "Analysis"
         description = 'Represents one analysis'
@@ -29,14 +29,5 @@ class AnalysisFullSchema(Schema):
 
     samples = fields.Nested(samples.SampleSchema, many=True)
     genepanel = fields.Nested(genepanels.GenepanelSchema)
-    interpretations = fields.Nested(analysisinterpretations.AnalysisInterpretationOverviewSchema, many=True)
-
-
-class AnalysisSchema(Schema):
-    class Meta:
-        title = "Analysis"
-        description = 'Represents one analysis'
-        fields = ('id',
-                  'name',
-                  'deposit_date',
-                  'priority')
+    interpretations = fields.Nested(
+        analysisinterpretations.AnalysisInterpretationOverviewSchema, many=True)
