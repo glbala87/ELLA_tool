@@ -25,14 +25,14 @@ export default sequence('routed', [
                 {},
                 UPDATE_IMPORT_STATUS_INTERVAL * 1000,
                 true
-            ), // FIXME: Debug only
-            /* interval(
+            ),
+            interval(
                 'start',
                 'views.overview.updateOverviewTriggered',
                 {},
                 UPDATE_OVERVIEW_INTERVAL * 1000,
                 false
-            ), */
+            ),
             loadOverview
         ],
         invalid: [redirectToSection]
