@@ -32,8 +32,6 @@ export class WysiwygEditorController {
         this.attachmentResource = AttachmentResource
 
         this.ngModelController = $element.controller('ngModel') // Get controller for editors ngmodel
-        // Set debounce to avoid spurious re-rendering when ngModel is being updated, but viewValue is not yet updated
-        this.ngModelController.$options.$$options.debounce = 100
 
         this.buttonselement.hidden = true
         this.blurBlocked = false
@@ -57,6 +55,18 @@ export class WysiwygEditorController {
 
         // Attach existing $viewValue to editor
         this.ngModelController.$render = () => {
+            // Update view value from input should not re-render (it occasionaly does)
+            // From the angular source code:
+            // * The value referenced by `ng-model` is changed programmatically and both the `$modelValue` and
+            // *   the `$viewValue` are different from last time.
+            // This scenario can happen if cerebral is updating the $modelValue, and sets a $modelValue older than what is currently in the editor.
+            // However, we do not want to let changes from cerebral trigger a re-render, as the "true" value should be editor.getHTML(), which does not
+            // require a re-render.
+            // This is prevented by only allowing re-rendering if the activeElement is not the editorElement.
+            if (document.activeElement === this.editorelement) {
+                return
+            }
+
             if (
                 typeof this.ngModelController.$viewValue === 'string' &&
                 this.getTextFromHTML(this.ngModelController.$viewValue) !== ''
@@ -114,9 +124,7 @@ export class WysiwygEditorController {
     }
 
     updateViewValue() {
-        setTimeout(() => {
-            this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML()))
-        }, 0)
+        this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML()))
     }
 
     setupEventListeners() {
