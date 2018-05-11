@@ -75,11 +75,9 @@ export function prepareAlleleStateModel(alleleState) {
         delete alleleState.autoReuseAlleleAssessmentCheckedId
     }
 
-    // Move and rename alleleState.alleleAssessmentCopiedFromId
-    if ('alleleAssessmentCopiedFromId' in alleleState) {
-        alleleState.alleleassessment.copiedFromId = alleleState.alleleAssessmentCopiedFromId
-        delete alleleState.alleleAssessmentCopiedFromId
-    }
+    delete alleleState.alleleAssessmentCopiedFromId
+    delete alleleState.presented_alleleassessment_id
+    delete alleleState.presented_allelereport_id
 
     // Move and rename alleleState.alleleReportCopiedFromId
     if ('alleleReportCopiedFromId' in alleleState) {

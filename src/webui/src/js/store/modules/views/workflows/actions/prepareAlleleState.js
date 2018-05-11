@@ -21,14 +21,6 @@ export default function prepareAlleleState({ state }) {
 
         prepareAlleleStateModel(alleleState[aId])
         prepareAlleleAssessmentModel(alleleState[aId].alleleassessment)
-
-        if (allele.allele_assessment) {
-            alleleState[aId].presented_alleleassessment_id = allele.allele_assessment.id
-        }
-
-        if (allele.allele_report) {
-            alleleState[aId].presented_allelereport_id = allele.allele_report.id
-        }
     }
     state.set('views.workflows.interpretation.selected.state.allele', alleleState)
 }
