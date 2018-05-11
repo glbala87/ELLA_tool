@@ -29,17 +29,13 @@ const EMPTY_EVALUATION = {
 let cerebral = null
 
 describe('Handling of allele state', () => {
-    beforeAll(() =>
-        (cerebral = CerebralTest(RootModule(false), {
+    beforeEach(() => {
+        mock.setup()
+        cerebral = CerebralTest(RootModule(false), {
             devtools: Devtools({
-                host: '193.157.231.138:9595'
+                host: '193.157.216.94:9595'
             })
-        })))
-
-    beforeEach(() => mock.setup())
-    afterEach(() => mock.teardown())
-
-    it('handles assessments/reports: no existing, new, new outdated and new with old', () => {
+        })
         cerebral.controller.addModule(
             'test',
             new Module({
@@ -52,7 +48,11 @@ describe('Handling of allele state', () => {
                 }
             })
         )
+    })
 
+    afterEach(() => mock.teardown())
+
+    it('handles assessments/reports: no existing, new, new outdated and new with old', () => {
         cerebral.setState('app.config', {
             classification: {
                 options: [
@@ -512,5 +512,487 @@ describe('Handling of allele state', () => {
                     expect(1).toBe(0)
                 })
         )
+    })
+
+    it('migrates old state correctly', () => {
+        cerebral.setState('app.config', {
+            classification: {
+                options: [
+                    {
+                        name: 'Class 5',
+                        value: '5',
+                        outdated_after_days: 180,
+                        include_report: true
+                    },
+                    {
+                        name: 'Class 4',
+                        value: '4',
+                        outdated_after_days: 180,
+                        include_report: true
+                    }
+                ]
+            },
+            user: { user_config: {} }
+        })
+
+        // Real state from pre-1.1
+        const MIGRATION_BASE = {
+            allele: {
+                '584': {
+                    report: {
+                        included: true
+                    },
+                    allele_id: 584,
+                    allelereport: {
+                        evaluation: {
+                            comment: 'TEST'
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: true,
+                        evaluation: {
+                            acmg: {
+                                included: [],
+                                suggested: [
+                                    {
+                                        op: '$in',
+                                        code: 'REQ_GP_last_exon_not_important',
+                                        match: ['LENI'],
+                                        source: 'genepanel.last_exon_important'
+                                    }
+                                ],
+                                suggested_classification: null
+                            },
+                            external: {
+                                comment: ''
+                            },
+                            frequency: {
+                                comment: 'TEST'
+                            },
+                            reference: {
+                                comment: ''
+                            },
+                            prediction: {
+                                comment: ''
+                            },
+                            classification: {
+                                comment: 'TEST'
+                            }
+                        },
+                        attachment_ids: [],
+                        classification: '5'
+                    },
+                    referenceassessments: [
+                        {
+                            id: 1,
+                            allele_id: 584,
+                            reference_id: 521
+                        }
+                    ],
+                    alleleReportCopiedFromId: 1,
+                    presented_allelereport_id: 1,
+                    alleleAssessmentCopiedFromId: 1,
+                    presented_alleleassessment_id: 1,
+                    autoReuseAlleleAssessmentCheckedId: 1
+                },
+                '585': {
+                    allele_id: 585,
+                    allelereport: {
+                        evaluation: {
+                            comment: ''
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: false,
+                        evaluation: {
+                            acmg: {
+                                included: [],
+                                suggested: [
+                                    {
+                                        op: '$in',
+                                        code: 'REQ_GP_last_exon_not_important',
+                                        match: ['LENI'],
+                                        source: 'genepanel.last_exon_important'
+                                    },
+                                    {
+                                        op: null,
+                                        code: 'PVS1',
+                                        match: null,
+                                        source: null
+                                    },
+                                    {
+                                        op: null,
+                                        code: 'PPxPM2',
+                                        match: null,
+                                        source: null
+                                    }
+                                ],
+                                suggested_classification: null
+                            },
+                            external: {
+                                comment: ''
+                            },
+                            frequency: {
+                                comment: ''
+                            },
+                            reference: {
+                                comment: ''
+                            },
+                            prediction: {
+                                comment: ''
+                            },
+                            classification: {
+                                comment: ''
+                            }
+                        },
+                        attachment_ids: [],
+                        classification: null
+                    },
+                    referenceassessments: [
+                        {
+                            allele_id: 585,
+                            evaluation: {},
+                            reference_id: 363
+                        },
+                        {
+                            allele_id: 585,
+                            evaluation: {},
+                            reference_id: 229
+                        }
+                    ]
+                },
+                '586': {
+                    allele_id: 586,
+                    allelereport: {
+                        evaluation: {
+                            comment: ''
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: false,
+                        evaluation: {
+                            acmg: {
+                                included: [],
+                                suggested: []
+                            },
+                            external: {
+                                comment: ''
+                            },
+                            frequency: {
+                                comment: ''
+                            },
+                            reference: {
+                                comment: ''
+                            },
+                            prediction: {
+                                comment: ''
+                            },
+                            classification: {
+                                comment: ''
+                            }
+                        },
+                        attachment_ids: [],
+                        classification: null
+                    },
+                    referenceassessments: []
+                },
+                '589': {
+                    report: {
+                        included: true
+                    },
+                    allele_id: 589,
+                    allelereport: {
+                        evaluation: {
+                            comment: 'TEST2'
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: false,
+                        evaluation: {
+                            acmg: {
+                                included: [],
+                                suggested: [
+                                    {
+                                        op: '$in',
+                                        code: 'REQ_GP_last_exon_not_important',
+                                        match: ['LENI'],
+                                        source: 'genepanel.last_exon_important'
+                                    }
+                                ],
+                                suggested_classification: null
+                            },
+                            external: {
+                                comment: ''
+                            },
+                            frequency: {
+                                comment: ''
+                            },
+                            reference: {
+                                comment: ''
+                            },
+                            prediction: {
+                                comment: ''
+                            },
+                            classification: {
+                                comment: 'TEST2'
+                            }
+                        },
+                        attachment_ids: [],
+                        classification: '4'
+                    },
+                    referenceassessments: [],
+                    alleleReportCopiedFromId: 2,
+                    presented_allelereport_id: 2,
+                    alleleAssessmentCopiedFromId: 2,
+                    presented_alleleassessment_id: 2,
+                    autoReuseAlleleAssessmentCheckedId: 2
+                }
+            }
+        }
+
+        cerebral.setState('views.workflows', {
+            id: 1,
+            type: 'analysis',
+            data: {
+                alleles: {
+                    584: {
+                        allele_assessment: {
+                            id: 1,
+                            seconds_since_update: 1,
+                            classification: '5'
+                        },
+                        reference_assessments: [
+                            {
+                                id: 1,
+                                allele_id: 584,
+                                reference_id: 521,
+                                evaluation: { key: 'SOMETHING' }
+                            }
+                        ],
+                        id: 584
+                    },
+                    585: {
+                        id: 585
+                    },
+                    586: {
+                        id: 586
+                    },
+                    589: {
+                        allele_assessment: {
+                            id: 2,
+                            seconds_since_update: 1,
+                            classification: '5'
+                        },
+                        id: 589
+                    }
+                },
+                references: [{ id: 1 }]
+            },
+            interpretation: {
+                selected: {
+                    id: 1,
+                    status: 'Ongoing',
+                    allele_ids: [584, 585, 586, 589],
+                    state: MIGRATION_BASE,
+                    user_state: {}
+                }
+            }
+        })
+
+        return cerebral
+            .runSignal('test.prepareInterpretationState', {})
+            .then(({ state }) => {
+                const interpretationState = state.views.workflows.interpretation.selected.state
+
+                // Allele 584: Was reused before migration -> should have cleaned out alleleassessment
+                expect(interpretationState.allele['584']).toEqual({
+                    report: {
+                        included: true
+                    },
+                    allele_id: 584,
+                    allelereport: {
+                        copiedFromId: 1,
+                        evaluation: {
+                            comment: 'TEST'
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: true,
+                        reuseCheckedId: 1,
+                        allele_id: 584
+                    },
+                    referenceassessments: [
+                        {
+                            id: 1,
+                            reuse: true,
+                            allele_id: 584,
+                            reuseCheckedId: 1,
+                            reference_id: 521
+                        }
+                    ]
+                })
+
+                // Allele 585: Had user content, empty referenceassessments should be removed
+                expect(interpretationState.allele['585']).toEqual({
+                    allele_id: 585,
+                    report: {
+                        included: false
+                    },
+                    allelereport: {
+                        evaluation: {
+                            comment: ''
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: false,
+                        evaluation: {
+                            acmg: {
+                                included: [],
+                                suggested: [
+                                    {
+                                        op: '$in',
+                                        code: 'REQ_GP_last_exon_not_important',
+                                        match: ['LENI'],
+                                        source: 'genepanel.last_exon_important'
+                                    },
+                                    {
+                                        op: null,
+                                        code: 'PVS1',
+                                        match: null,
+                                        source: null
+                                    },
+                                    {
+                                        op: null,
+                                        code: 'PPxPM2',
+                                        match: null,
+                                        source: null
+                                    }
+                                ],
+                                suggested_classification: null
+                            },
+                            external: {
+                                comment: ''
+                            },
+                            frequency: {
+                                comment: ''
+                            },
+                            reference: {
+                                comment: ''
+                            },
+                            prediction: {
+                                comment: ''
+                            },
+                            classification: {
+                                comment: ''
+                            }
+                        },
+                        attachment_ids: [],
+                        classification: null
+                    },
+                    referenceassessments: []
+                })
+
+                // Allele 586: Was empty. Should be almost same
+                expect(interpretationState.allele['586']).toEqual({
+                    allele_id: 586,
+                    report: {
+                        included: false
+                    },
+                    allelereport: {
+                        evaluation: {
+                            comment: ''
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: false,
+                        evaluation: {
+                            acmg: {
+                                included: [],
+                                suggested: []
+                            },
+                            external: {
+                                comment: ''
+                            },
+                            frequency: {
+                                comment: ''
+                            },
+                            reference: {
+                                comment: ''
+                            },
+                            prediction: {
+                                comment: ''
+                            },
+                            classification: {
+                                comment: ''
+                            }
+                        },
+                        attachment_ids: [],
+                        classification: null
+                    },
+                    referenceassessments: []
+                })
+
+                // Allele 589: Has alleleassessment, but is not reused. Alleleassessment content should be kept.
+                expect(interpretationState.allele['589']).toEqual({
+                    report: {
+                        included: true
+                    },
+                    allele_id: 589,
+                    allelereport: {
+                        copiedFromId: 2,
+                        evaluation: {
+                            comment: 'TEST2'
+                        }
+                    },
+                    verification: null,
+                    alleleassessment: {
+                        reuse: false,
+                        reuseCheckedId: 2,
+                        evaluation: {
+                            acmg: {
+                                included: [],
+                                suggested: [
+                                    {
+                                        op: '$in',
+                                        code: 'REQ_GP_last_exon_not_important',
+                                        match: ['LENI'],
+                                        source: 'genepanel.last_exon_important'
+                                    }
+                                ],
+                                suggested_classification: null
+                            },
+                            external: {
+                                comment: ''
+                            },
+                            frequency: {
+                                comment: ''
+                            },
+                            reference: {
+                                comment: ''
+                            },
+                            prediction: {
+                                comment: ''
+                            },
+                            classification: {
+                                comment: 'TEST2'
+                            }
+                        },
+                        attachment_ids: [],
+                        classification: '4'
+                    },
+                    referenceassessments: []
+                })
+            })
+            .catch((err) => {
+                console.error(err.message, err.stack)
+                expect(1).toBe(0)
+            })
     })
 })

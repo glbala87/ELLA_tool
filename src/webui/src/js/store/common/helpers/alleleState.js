@@ -71,7 +71,14 @@ export function prepareAlleleStateModel(alleleState) {
 
     // Move and rename alleleState.autoReuseAlleleAssessmentCheckedId
     if ('autoReuseAlleleAssessmentCheckedId' in alleleState) {
-        alleleState.alleleassessment.reuseCheckedId = alleleState.autoReuseAlleleAssessmentCheckedId
+        if (alleleState.alleleassessment.reuse) {
+            // We let autoReuseExistingAlleleAssessment recreate correct state
+            alleleState.alleleassessment = {}
+        } else {
+            // Migrate reuseCheckedId
+            alleleState.alleleassessment.reuseCheckedId =
+                alleleState.autoReuseAlleleAssessmentCheckedId
+        }
         delete alleleState.autoReuseAlleleAssessmentCheckedId
     }
 
@@ -84,4 +91,9 @@ export function prepareAlleleStateModel(alleleState) {
         alleleState.allelereport.copiedFromId = alleleState.alleleReportCopiedFromId
         delete alleleState.alleleReportCopiedFromId
     }
+
+    // Remove referenceassessments with empty evaluation
+    alleleState.referenceassessments = alleleState.referenceassessments.filter((ra) => {
+        return 'evaluation' in ra && Object.keys(ra.evaluation).length
+    })
 }
