@@ -26,8 +26,6 @@ def delete_analysis(session, analysis_id):
         session.delete(s)
 
     # Clean up corresponding interpretationsnapshot entries
-    # Will rarely happen (but can in principle), since we forbid to remove
-    # analyses that have alleleassessments pointing to it.
     snapshots = session.query(workflow.AnalysisInterpretationSnapshot).filter(
         workflow.AnalysisInterpretation.analysis_id == analysis_id,
         workflow.AnalysisInterpretationSnapshot.analysisinterpretation_id == workflow.AnalysisInterpretation.id
