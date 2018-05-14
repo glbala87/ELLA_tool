@@ -7,9 +7,11 @@ export default Compute(state`views.workflows.data.alleles`, (alleles, get) => {
     if (!alleles) {
         return result
     }
+
     for (let [alleleId, allele] of Object.entries(alleles)) {
         const alleleState = get(getAlleleState(alleleId))
-        result[alleleId] = alleleState.verification || null
+
+        result[alleleId] = alleleState ? alleleState.verification : null
     }
     return result
 })
