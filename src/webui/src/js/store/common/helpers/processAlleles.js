@@ -3,11 +3,13 @@ import { formatInheritance } from './genepanel'
 export default function processAlleles(alleles, genepanel = null) {
     for (let allele of alleles) {
         if (allele.annotation.filtered_transcripts.length) {
-            allele.annotation.filtered = allele.annotation.transcripts.filter((anno) =>
-                allele.annotation.filtered_transcripts.includes(anno.transcript)
+            allele.annotation.filtered = allele.annotation.filtered_transcripts.map((t) =>
+                allele.annotation.transcripts.find(
+                    (anno_transcript) => anno_transcript.transcript === t
+                )
             )
         } else {
-            allele.annotation.filtered = allele.annotation.transcripts
+            allele.annotation.filtered = allele.annotation.transcripts.sort(firstBy('transcript'))
         }
 
         allele.urls = getUrls(allele)
@@ -141,9 +143,12 @@ function getFormatted(allele, genepanel) {
     //
 
     if (allele.annotation.filtered.length) {
-        formatted.hgvsc = allele.annotation.filtered
+        const includeTranscript = allele.annotation.filtered.length > 1
+        formatted.display = allele.annotation.filtered
             .map((a) => {
-                return `${a.symbol} ${a.HGVSc}`
+                return `${a.symbol} ${includeTranscript ? a.transcript + ' ' : ''}${
+                    a.HGVSc ? a.HGVSc : formatted.hgvsg
+                }`
             })
             .join('; ')
     }

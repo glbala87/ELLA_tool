@@ -1,6 +1,6 @@
 <sectionbox ng-class="{'prompt': !$ctrl.isAccepted()}" color="{{$ctrl.getColor()}}" modal="true" on-close="$ctrl.close">
   <maintitle>
-    ANALYSES FOR <span ng-repeat="t in $ctrl.allele.annotation.filtered">{{t.symbol}} <b>{{t.HGVSc_short || $ctrl.allele.formatted.hgvsg}}</b></span>
+    ANALYSES FOR {{$ctrl.allele.formatted.display}}
   </maintitle>
   <controls>
     <section class="line-wrapper pinned-right" ng-if="!$ctrl.isAccepted()">

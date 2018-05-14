@@ -223,7 +223,7 @@ class AlleleDataLoader(object):
                 )
                 final_allele[KEY_ANNOTATION] = processed_annotation
 
-                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = filtered_transcripts
+                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = sorted(filtered_transcripts)
                 final_allele[KEY_ANNOTATION]['annotation_id'] = data[KEY_ANNOTATION]['id']
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']
