@@ -448,8 +448,8 @@ class SearchResource(LogRequestResource):
                 filtered_transcripts = [
                     t for t in filtered_transcripts if t['hgnc_id'] == gene['hgnc_id']]
 
-            al['annotation']['filtered_transcripts'] = [t['transcript']
-                                                        for t in filtered_transcripts]
+            al['annotation']['filtered_transcripts'] = sorted([t['transcript']
+                                                               for t in filtered_transcripts])
 
     def _search_allele(self, session, query, genepanels):
         alleles = session.query(allele.Allele).filter(

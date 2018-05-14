@@ -55,8 +55,7 @@ app.component('collisionWarning', {
                                 collision.user ? 'by ' + collision.user.full_name : 'in review'
                             }`
                         } else if ($ctrl.type === 'analysis') {
-                            text += `${collision.allele.formatted.hgvsc ||
-                                collision.allele.formatted.hgsvg}`
+                            text += `${collision.allele.formatted.display}`
                             text += ` ${
                                 collision.user
                                     ? ' is worked on by ' + collision.user.full_name

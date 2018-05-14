@@ -61,7 +61,7 @@ export default [
                     loadInterpretations,
                     // We need the formatted allele, so postpone setting title until here.
                     setNavbarTitle(
-                        string`${state`views.workflows.data.alleles.${state`views.workflows.id`}.formatted.hgvsc`} (${state`views.workflows.selectedGenepanel.name`}_${state`views.workflows.selectedGenepanel.version`})`
+                        string`${state`views.workflows.data.alleles.${state`views.workflows.id`}.formatted.display`} (${state`views.workflows.selectedGenepanel.name`}_${state`views.workflows.selectedGenepanel.version`})`
                     )
                 ],
                 loadCollisions
