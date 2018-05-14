@@ -1,9 +1,9 @@
 function checkPasswordStrength({ props, path, state }) {
     let pw = props.newPassword
     let group_matches = 0
-    let groups = state.get('app.config')['users']['password_match_groups']
-    let num_match_groups = state.get('app.config')['users']['password_num_match_groups']
-    let min_length = state.get('app.config')['users']['password_minimum_length']
+    let groups = state.get('app.config')['user']['auth']['password_match_groups']
+    let num_match_groups = state.get('app.config')['user']['auth']['password_num_match_groups']
+    let min_length = state.get('app.config')['user']['auth']['password_minimum_length']
 
     let criterias = state.get('views.login.passwordChecks')
 
