@@ -20,6 +20,9 @@ app.component('frequencyDetails', {
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
                     getFilterFail() {
+                        if (!('filter' in $ctrl.frequencies)) {
+                            return []
+                        }
                         return $ctrl.frequencies.filter.filter((f) => f !== 'PASS')
                     }
                 })
