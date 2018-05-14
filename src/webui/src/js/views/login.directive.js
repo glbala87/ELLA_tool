@@ -10,6 +10,7 @@ app.component('login', {
             passwordChanged: signal`views.login.passwordChanged`,
             newPasswordChanged: signal`views.login.newPasswordChanged`,
             confirmNewPasswordChanged: signal`views.login.confirmNewPasswordChanged`,
+            changePasswordClicked: signal`views.login.changePasswordClicked`,
             modeChanged: signal`views.login.modeChanged`,
             loginClicked: signal`views.login.loginClicked`,
             username: state`views.login.username`,

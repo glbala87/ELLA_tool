@@ -7,6 +7,7 @@ import loginClicked from './signals/loginClicked'
 import modeChanged from './signals/modeChanged'
 import usernameChanged from './signals/usernameChanged'
 import passwordChanged from './signals/passwordChanged'
+import changePasswordClicked from './signals/changePasswordClicked'
 import newPasswordChanged from './signals/newPasswordChanged'
 import confirmNewPasswordChanged from './signals/confirmNewPasswordChanged'
 import reset from './actions/reset'
@@ -20,6 +21,7 @@ export default Module({
         passwordChanged,
         newPasswordChanged,
         confirmNewPasswordChanged,
+        changePasswordClicked,
         loginClicked,
         reset: [reset]
     }
