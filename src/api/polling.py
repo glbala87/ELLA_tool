@@ -4,6 +4,7 @@ import logging
 
 import time
 import urllib2
+from urllib import urlencode
 import os
 import binascii
 import subprocess
@@ -248,16 +249,13 @@ class AnnotationServiceInterface:
 
     def search_samples(self, search_term):
         """Search for samples and return results"""
-        # FIXME: Implement proper search!
-        k = urllib2.urlopen(join(self.base, "samples"))
+        d = {"q": {"name": str(search_term), "keys": ["type"]}}
+        q = urlencode(d)
+
+        k = urllib2.urlopen(join(self.base, "samples", "?"+q))
         resp = json.loads(k.read())
-        result = []
-        for k, v in resp.iteritems():
-            if search_term.lower() in k.lower():
-                result.append({
-                    'name': k,
-                    'type': v['type']
-                })
+        result = [{"name": k, "type": v["type"]}
+                  for k, v in resp.iteritems()]
         return sorted(result, key=lambda x: x['name'])
 
     def annotation_service_running(self):
