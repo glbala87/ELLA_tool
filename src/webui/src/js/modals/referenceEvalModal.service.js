@@ -477,7 +477,7 @@ export class ReferenceEvalModalController {
                     },
                     {
                         type: 'text',
-                        placeholder: 'Enter tool...',
+                        placeholder: 'Enter tools...',
                         store: 'ref_prediction_tool'
                     }
                 ],
