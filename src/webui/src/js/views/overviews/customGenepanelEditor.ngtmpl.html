@@ -17,7 +17,7 @@
         <div class="dropdown white">
             <select
                     class="genepanel-select"
-                    ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels"
+                    ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels track by gp.name + gp.version"
                     ng-model="$ctrl.modelSelectedGenepanel"
                     ng-model-watch="$ctrl.selectedGenepanel"
                     ng-change="$ctrl.selectedGenepanelChanged({genepanel: $ctrl.modelSelectedGenepanel})"

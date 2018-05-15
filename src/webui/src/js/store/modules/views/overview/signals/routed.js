@@ -1,9 +1,6 @@
 import { sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, module, props } from 'cerebral/tags'
-import { redirect } from '@cerebral/router/operators'
-import checkAndSetValidSection from '../actions/checkAndSetValidSection'
 
+import checkAndSetValidSection from '../actions/checkAndSetValidSection'
 import redirectToSection from '../actions/redirectToSection'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
 import loadOverviewState from '../actions/loadOverviewState'
