@@ -16,9 +16,9 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
         const isReusedNotCheckedOrOld =
             !('reuseCheckedId' in alleleState.alleleassessment) ||
             alleleState.alleleassessment.reuseCheckedId < allele.allele_assessment.id
-        const isReusedButOutdated = isOutdated && alleleState.alleleassessment.reuse
+        const isReused = alleleState.alleleassessment.reuse
 
-        if (isReusedNotCheckedOrOld || isReusedButOutdated) {
+        if (isReusedNotCheckedOrOld || isReused) {
             const reusedAlleleAssessment = {
                 allele_id: allele.id,
                 reuse: !isOutdated,
