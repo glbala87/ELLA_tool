@@ -247,9 +247,12 @@ class AnnotationServiceInterface:
         resp = json.loads(k.read())
         return resp
 
-    def search_samples(self, search_term):
+    def search_samples(self, search_term, limit):
         """Search for samples and return results"""
-        d = {"q": {"name": str(search_term), "keys": ["type"]}}
+        d = {"q": {"name": str(search_term), "keys": [
+            "type"]}}
+        if limit:
+            d["limit"] = str(limit)
         q = urlencode(d)
 
         k = urllib2.urlopen(join(self.base, "samples", "?"+q))

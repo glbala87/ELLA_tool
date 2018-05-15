@@ -1,7 +1,7 @@
 export default function getSamples({ http, path, props }) {
-    const { term } = props
+    const { term, limit } = props
     return http
-        .get(`import/service/samples/`, { term })
+        .get(`import/service/samples/`, { term, limit })
         .then((response) => {
             return path.success({ result: response.result })
         })

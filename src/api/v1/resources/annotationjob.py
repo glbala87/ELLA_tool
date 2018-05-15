@@ -24,7 +24,8 @@ class AnnotationJobList(LogRequestResource):
 
         if rest_filter is None:
             rest_filter = dict()
-        rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
+        rest_filter[("genepanel_name", "genepanel_version")] = [
+            (gp.name, gp.version) for gp in user.group.genepanels]
 
         return self.list_query(
             session,
@@ -103,7 +104,8 @@ class AnnotationServiceRunning(LogRequestResource):
         tags:
             - Import
         """
-        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
+        annotationservice_interface = AnnotationServiceInterface(
+            ANNOTATION_SERVICE_URL, session)
         return annotationservice_interface.annotation_service_running()
 
 
@@ -119,6 +121,7 @@ class ImportSamples(LogRequestResource):
             - Import
         """
         search_term = request.args.get('term')
-        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
-        return annotationservice_interface.search_samples(search_term)
-
+        limit = request.args.get('limit')
+        annotationservice_interface = AnnotationServiceInterface(
+            ANNOTATION_SERVICE_URL, session)
+        return annotationservice_interface.search_samples(search_term, limit)
