@@ -72,6 +72,7 @@ app.component('import', {
             selectedGenepanel: state`views.overview.import.selectedGenepanel`,
             genepanels: state`views.overview.import.data.genepanels`,
             samplesSearchChanged: signal`views.overview.import.samplesSearchChanged`,
+            selectedGenepanelChanged: signal`views.overview.import.selectedGenepanelChanged`,
             sampleSelected: signal`views.overview.import.sampleSelected`,
             customGenepanelSelected: signal`views.overview.import.customGenepanelSelected`,
             importClicked: signal`views.overview.import.importClicked`

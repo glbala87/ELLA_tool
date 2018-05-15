@@ -1,4 +1,5 @@
 import { deepCopy } from '../../../util'
+import isAlleleAssessmentOutdated from '../computes/isAlleleAssessmentOutdated'
 
 export function prepareAlleleAssessmentModel(alleleAssessment) {
     if (alleleAssessment.reuse) {
@@ -68,6 +69,12 @@ export function prepareAlleleStateModel(alleleState) {
     //
     // Migrations
     //
+
+    // Some old states have no autoReusedAlleleAssessmentCheckedId, but state has been copied (e.g. if outdated)
+    // In the new logic we can equate alleleAssessmentCopiedFromId to be reuseCheckedId
+    if (alleleState.alleleAssessmentCopiedFromId) {
+        alleleState.alleleassessment.reuseCheckedId = alleleState.alleleAssessmentCopiedFromId
+    }
 
     // Move and rename alleleState.autoReuseAlleleAssessmentCheckedId
     if ('autoReuseAlleleAssessmentCheckedId' in alleleState) {

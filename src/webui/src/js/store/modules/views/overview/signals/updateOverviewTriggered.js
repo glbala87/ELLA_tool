@@ -1,7 +1,8 @@
-import { parallel } from 'cerebral'
-import { set } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
+import { when } from 'cerebral/operators'
+import { props } from 'cerebral/tags'
 import loadOverview from '../sequences/loadOverview'
+
+const UPDATE_SECTIONS = ['analysis', 'variants', 'analyses-by-findings']
 
 /**
  * Called by interval provider
@@ -9,11 +10,17 @@ import loadOverview from '../sequences/loadOverview'
 export default [
     ({ state }) => {
         // Get name of selected section
-        return {
-            section: Object.entries(state.get('views.overview.sections')).filter(
-                (e) => e[1].selected
-            )[0][0]
+        const section = Object.entries(state.get('views.overview.sections')).filter(
+            (e) => e[1].selected
+        )[0][0]
+        if (UPDATE_SECTIONS.includes(section)) {
+            return { section }
         }
+        return {}
     },
-    loadOverview
+    when(props`section`),
+    {
+        true: loadOverview,
+        false: []
+    }
 ]

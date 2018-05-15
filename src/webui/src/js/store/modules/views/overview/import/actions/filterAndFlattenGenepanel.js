@@ -1,5 +1,5 @@
 export default function filterAndFlattenGenepanel(source, flattenedDest, query) {
-    return ({ state, resolve }) => {
+    return function filterAndFlattenGenepanel({ state }) {
         const genepanel = state.get(source)
         if (!genepanel) {
             return []

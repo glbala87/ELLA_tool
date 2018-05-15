@@ -3,7 +3,7 @@ import { state, props } from 'cerebral/tags'
 import postGenepanel from '../actions/postGenepanel'
 import toastr from '../../../../../common/factories/toastr'
 import postImportJob from '../actions/postImportJob'
-import resetImport from '../sequences/resetImport'
+import resetCustomImport from '../sequences/resetCustomImport'
 
 export default [
     when(state`views.overview.import.customGenepanel`),
@@ -16,7 +16,7 @@ export default [
                     postImportJob,
                     {
                         success: [
-                            resetImport,
+                            resetCustomImport,
                             set(state`views.overview.import.selectedSample`, null),
                             toastr('success', 'Import job created.', 5000)
                         ],
@@ -31,7 +31,6 @@ export default [
             postImportJob,
             {
                 success: [
-                    resetImport,
                     set(state`views.overview.import.selectedSample`, null),
                     toastr('success', 'Import job created.', 5000)
                 ],

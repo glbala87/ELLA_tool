@@ -1,11 +1,9 @@
 import { sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
 import prepareAddedGenepanel from '../actions/prepareAddedGenepanel'
 import resetCustom from '../actions/resetCustom'
 import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 
-export default sequence('resetImport', [
+export default sequence('resetCustomImport', [
     resetCustom,
     prepareAddedGenepanel,
     // Reset added view
