@@ -88,7 +88,7 @@ app.component('import', {
                         })
                     },
                     searchSamples(search) {
-                        $ctrl.samplesSearchChanged({ term: search })
+                        $ctrl.samplesSearchChanged({ term: search, limit: 20 })
                         // angular-selector needs a returned Promise, although
                         // we set the options ourselves through cerebral
                         return Promise.resolve([])
