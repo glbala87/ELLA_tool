@@ -10,6 +10,9 @@ import updateImportJobCountTriggered from './signals/updateImportJobCountTrigger
 import updateOverviewTriggered from './signals/updateOverviewTriggered'
 import showImportModalClicked from './signals/showImportModalClicked'
 import finalizedPageChanged from './signals/finalizedPageChanged'
+import redirectToSection from './actions/redirectToSection'
+
+const routedSequence = initApp(authenticate([changeView('overview'), routed]))
 
 export default Module({
     modules: {
@@ -22,7 +25,8 @@ export default Module({
         sectionChanged,
         updateImportJobCountTriggered,
         updateOverviewTriggered,
-        routed: initApp(authenticate([changeView('overview'), routed])),
+        routedWithSection: routedSequence,
+        routed: [redirectToSection],
         showImportModalClicked
     }
 })

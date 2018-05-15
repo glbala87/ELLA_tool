@@ -1,13 +1,10 @@
-import { deepCopy } from '../../../../../util'
-import { AVAILABLE_SECTIONS } from '../getOverviewState'
-
-export default function redirectToSection({ props, state, module, router }) {
+export default function redirectToSection({ props, state, router }) {
     const section = props.section
-    const sections = module.get('sections', sections)
-    const sectionKeys = module.get('sectionKeys', sections)
+    const sections = state.get('views.overview.sections', sections)
+    const sectionKeys = state.get('views.overview.sectionKeys', sections)
 
     // If section is valid, redirect directly
-    if (section in sectionKeys) {
+    if (sectionKeys && section in sectionKeys) {
         router.redirect(`/overview/${section}`)
         return
     }
@@ -19,5 +16,11 @@ export default function redirectToSection({ props, state, module, router }) {
             return
         }
     }
-    router.redirect(`/overview/${sectionKeys[0]}`)
+
+    // Fallbacks
+    if (sectionKeys) {
+        router.redirect(`/overview/${sectionKeys[0]}`)
+    }
+
+    router.redirect(`/overview/variants`)
 }

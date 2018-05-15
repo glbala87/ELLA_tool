@@ -4,6 +4,10 @@ export default Router({
     routes: [
         {
             path: '/overview/:section',
+            signal: 'views.overview.routedWithSection'
+        },
+        {
+            path: '/overview/',
             signal: 'views.overview.routed'
         },
         {
