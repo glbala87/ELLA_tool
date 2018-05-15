@@ -1,6 +1,7 @@
 from marshmallow import fields, Schema
 from api.schemas.users import UserSchema
 
+
 class AnnotationJobSchema(Schema):
     class Meta:
         title = "Annotation job"
@@ -13,6 +14,7 @@ class AnnotationJobSchema(Schema):
                   'user_id',
                   'mode',
                   'data',
+                  'sample_id',
                   'date_submitted',
                   'date_last_update',
                   'user',

@@ -164,6 +164,22 @@ export class ImportController {
         this.modal.close(processedJobData)
     }
 
+    getJobDisplay(job) {
+        if (job.sample_id) {
+            return `Create new analysis from sample: <i>${job.sample_id} (${job.genepanel_name}_${
+                job.genepanel_version
+            })</i>`
+        } else if (job.mode === 'Analysis' && job.properties.create_or_append === 'Create') {
+            return `Create new analysis: <i>${job.properties.analysis_name} (${
+                job.genepanel_name
+            }_${job.genepanel_version})</i>`
+        } else if (job.mode === 'Analysis' && job.properties.create_or_append === 'Append') {
+            return `Append to analysis: <i>${job.properties.analysis_name}</i>`
+        } else if (job.mode === 'Variants') {
+            return `Independent variants: <i>${job.genepanel_name}_${job.genepanel_version}</i>`
+        }
+    }
+
     importDisabled() {
         let allReady = Object.values(this.jobData)
             .map((j) => j.isSelectionComplete())
