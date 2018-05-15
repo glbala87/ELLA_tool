@@ -15,7 +15,7 @@ export default [
                 success: [reset, redirect('overview/variants')],
                 error: [
                     set(state`views.login.password`, ''),
-                    toastr('error', 'Login unsuccessful. Please check username and password.')
+                    toastr('error', string`${props`errorMessage`}`)
                 ]
             }
         ],

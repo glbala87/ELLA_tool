@@ -9,7 +9,7 @@ function postLogin({ http, path, state }) {
             return path.success(response)
         })
         .catch((response) => {
-            return path.error(response)
+            return path.error({ errorMessage: `Login unsuccessful: ${response.response.result}` })
         })
 }
 
