@@ -3,6 +3,7 @@ import logging
 
 from vardb.datamodel import DB, sample
 from api.v1 import resources
+from api.util.delete_analysis import delete_analysis
 
 
 @click.group(help='Analyses actions')
@@ -25,10 +26,12 @@ def cmd_analysis_list():
         db.disconnect()
         return
 
-    header = {'id': 'id', 'name': 'name', 'deposit_date': 'deposit_date', 'i_count': 'interp.', 'status': 'status'}
+    header = {'id': 'id', 'name': 'name', 'deposit_date': 'deposit_date',
+              'i_count': 'interp.', 'status': 'status'}
     row_format = "{id:^10}| {name:<50} | {deposit_date:^33} | {i_count:^7} | {status:^12} |"
     click.echo(row_format.format(**header))
-    click.echo(row_format.format(**{'id': '-' * 10, 'name': '-' * 50, 'deposit_date': '-' * 33, 'i_count': '-' * 7, 'status': '-' * 12}))
+    click.echo(row_format.format(**{'id': '-' * 10, 'name': '-' * 50,
+                                    'deposit_date': '-' * 33, 'i_count': '-' * 7, 'status': '-' * 12}))
     for a in analyses:
         # Add status to dict
         a['status'] = a['interpretations'][0]['status']
@@ -59,7 +62,8 @@ def cmd_analysis_priority(analysis_id, priority):
 
     db.session.commit()
 
-    logging.info("Analysis {} ({}) priority changed to {} (was {})".format(res.id, res.name, priority, old_priority))
+    logging.info("Analysis {} ({}) priority changed to {} (was {})".format(
+        res.id, res.name, priority, old_priority))
 
 
 @analyses.command('delete')
@@ -77,16 +81,19 @@ def cmd_analysis_delete(analysis_id):
     db = DB()
     db.connect()
 
-    aname = db.session.query(sample.Analysis.name).filter(sample.Analysis.id == analysis_id).one()[0]
+    aname = db.session.query(sample.Analysis.name).filter(
+        sample.Analysis.id == analysis_id).one()[0]
 
-    answer = raw_input("Are you sure you want to delete analysis {}?\nType 'y' to confirm.\n".format(aname))
+    answer = raw_input(
+        "Are you sure you want to delete analysis {}?\nType 'y' to confirm.\n".format(aname))
     if answer == 'y':
-        res = resources.analysis.AnalysisResource()
         try:
-            res.delete(db.session, analysis_id, override=True)
-            click.echo("Analysis {} deleted successfully".format(analysis_id))
-        except Exception:
-            logging.exception("Something went wrong while deleting analysis {}".format(analysis_id))
+            delete_analysis(db.session, analysis_id)
+            db.session.commit()
+            click.echo("Analysis {} ({}) deleted successfully".format(
+                analysis_id, aname))
+        except Exception, e:
+            logging.exception(
+                "Something went wrong while deleting analysis {}".format(analysis_id))
     else:
         click.echo("Lacking confirmation, aborting...")
-
