@@ -1,16 +1,15 @@
 /* jshint esnext: true */
 
-import {Service, Inject} from '../../ng-decorators';
+import { Service, Inject } from '../../ng-decorators'
 
 @Service({
     serviceName: 'AnnotationjobResource'
 })
 @Inject('$resource')
 export class AnnotationjobResource {
-
     constructor(resource) {
-        this.resource = resource;
-        this.base = '/api/v1';
+        this.resource = resource
+        this.base = '/api/v1'
     }
 
     get(q, per_page, page) {
@@ -27,9 +26,9 @@ export class AnnotationjobResource {
             }
 
             if (!args.length) {
-                var r = this.resource(`${this.base}/import/service/jobs/`);
+                var r = this.resource(`${this.base}/import/service/jobs/`)
             } else {
-                var r = this.resource(`${this.base}/import/service/jobs/?${args.join("&")}`);
+                var r = this.resource(`${this.base}/import/service/jobs/?${args.join('&')}`)
             }
 
             let annotationjobs = r.query((data, headers) => {
@@ -38,58 +37,70 @@ export class AnnotationjobResource {
                     page: headers['page'],
                     totalCount: headers['total-count'],
                     perPage: headers['per-page'],
-                    totalPages: headers['total-pages'],
+                    totalPages: headers['total-pages']
                 }
                 resolve({
                     pagination: pagination,
-                    data: data,
-                });
-            }, reject);
-        });
+                    data: data
+                })
+            }, reject)
+        })
     }
 
     annotationServiceRunning() {
         return new Promise((resolve, reject) => {
-            let r = this.resource(`${this.base}/import/service/running/`, {},
+            let r = this.resource(
+                `${this.base}/import/service/running/`,
+                {},
                 {
                     get: {
-                        method: 'GET',
+                        method: 'GET'
                         // isArray: false,
                     }
-            });
+                }
+            )
             let isAlive = r.get(() => {
-                resolve(isAlive.running);
-            });
-        });
+                resolve(isAlive.running)
+            })
+        })
     }
 
     post(data) {
-        return new Promise(resolve => {
-            let r = this.resource(`${this.base}/import/service/jobs/`, {},
+        return new Promise((resolve) => {
+            let r = this.resource(
+                `${this.base}/import/service/jobs/`,
+                {},
                 {
                     post: {
                         method: 'POST'
                     }
-                });
-            r.post(data, o => {
+                }
+            )
+            r.post(data, (o) => {
                 resolve(o)
-            });
+            })
         })
     }
 
     restart(id) {
-        return new Promise((resolve, reject)=> {
-            let r = this.resource(`${this.base}/import/service/jobs/${id}/`, {},
+        return new Promise((resolve, reject) => {
+            let r = this.resource(
+                `${this.base}/import/service/jobs/${id}/`,
+                {},
                 {
                     patch: {
                         method: 'PATCH'
                     }
-                });
-            let data = {status: "SUBMITTED"};
-            r.patch(data, res => {
-                resolve(res);
-            }, reject);
-        });
+                }
+            )
+            let data = { status: 'SUBMITTED' }
+            r.patch(
+                data,
+                (res) => {
+                    resolve(res)
+                },
+                reject
+            )
+        })
     }
-
 }

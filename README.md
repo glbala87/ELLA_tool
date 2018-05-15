@@ -111,7 +111,14 @@ The demo container runs an internal PostgreSQL server for easier deployment.
 
 ### Getting started:
 - Start a development environment in Docker, run **`make dev`** - you may need to do `make build` first
-- Populate the database by visiting the `/reset` route _or do `/reset?testset=all` to get an expanded data set_.
+- Populate the database by running `make db` or `make db TEST_SET=..`
+ if you want something else than the default data. See vardb/deposit/deposit_testdata.py#AVAILABLE_TESTSETS
+
+To get visibility into what's happening in the browser client, start the Cerebral debugger (https://cerebraljs.com/docs/introduction/debugger.html).
+Enter any name ('Ella' is a good name) and port 8585. This sets up a server listening on that part port.
+Open the app in the browser (refresh if the app was openen before starting Cerebral). The browser will connect
+to the Cerebral. Make sure the server port match the port configured in webui/src/js/index.js
+
 
 ### Ops
 
@@ -155,7 +162,7 @@ For migrations involving user generated data, it would be useful to run the migr
 with the database populated through "real" use.
 
 Typically you call the `/reset` endpoint and then interact with the application through the GUI.
-The `reset` won't create the alembic table and the upgrade/downgrade scripts will fail.  
+The `reset` won't create the alembic table and the upgrade/downgrade scripts will fail.
 
 So before manually running the upgrade/downgrade scripts, you need to create the alembic table:
 ```
@@ -210,7 +217,7 @@ See api/config.py at key 'variant_criteria' > 'genepanel_config':
       - external
     - disease_mode
     - last_exon_important
-  - ...   
+  - ...
 
 
 ### API documentation
@@ -233,6 +240,9 @@ Our test suites are intended to be run inside Docker. The Makefile has commands 
 - `make test` will run most test types apart from e2e.
 - `make test-{type}` will run the different types of test.
 
+## Specific test
+
+If you want to run a specific API test while developing, you can enter the docker container and run `source /ella/ops/dev/setup-local-integration-test.source`. This script will tell the test framework to use your local database dump after the initial run, saving you a lot of time when running the test again.
 
 # End to end testing (e2e)
 We use webdriver.io for testing. See http://webdriver.io.
@@ -269,7 +279,7 @@ The relevant options to the make command:
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
-Note! Make sure the versions of Chrome and Chromedriver are compatible 
+Note! Make sure the versions of Chrome and Chromedriver are compatible
 
 
 Note! You can also run webdriverio directly on hour host (not in a docker container).

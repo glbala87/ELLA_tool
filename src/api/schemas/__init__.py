@@ -1,4 +1,4 @@
-from analyses import AnalysisSchema, AnalysisFullSchema
+from analyses import AnalysisSchema
 from samples import SampleSchema
 from analysisinterpretations import AnalysisInterpretationSchema, AnalysisInterpretationOverviewSchema
 from alleles import AlleleSchema
@@ -9,7 +9,7 @@ from alleleassessments import AlleleAssessmentSchema, AlleleAssessmentOverviewSc
 from allelereports import AlleleReportSchema
 from users import UserSchema, UserFullSchema
 from classifications import ClassificationSchema, RuleSchema
-from genepanels import GenepanelSchema, GenepanelFullSchema, TranscriptSchema, PhenotypeSchema
+from genepanels import GenepanelSchema, GenepanelTranscriptsSchema, GenepanelFullSchema, TranscriptSchema, TranscriptFullSchema, PhenotypeSchema, PhenotypeFullSchema
 from annotations import AnnotationSchema
 from customannotations import CustomAnnotationSchema
 from genotypes import GenotypeSchema

@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
+import { Directive, Inject } from '../ng-decorators'
 
 @Directive({
     selector: 'search',
@@ -8,22 +8,19 @@ import {Directive, Inject} from '../ng-decorators';
 })
 @Inject('Search', '$timeout')
 export class SearchController {
-
     constructor(Search, $timeout) {
-        this.searchService = Search;
-        this.timeout = $timeout;
-        this.model = this.searchService.getModel();
+        this.searchService = Search
+        this.timeout = $timeout
+        this.model = this.searchService.getModel()
     }
 
     clear() {
-        this.searchService.clear();
+        this.searchService.clear()
     }
 
     updateSearch() {
-        this.searchService.updateSearch();
+        this.searchService.updateSearch()
         if (!this.model.query.length) {
-
         }
     }
-
 }

@@ -11,6 +11,7 @@ from api.config import config
 
 # Helper functions
 
+
 def get_user(session, user_or_username):
     if isinstance(user_or_username, (str, unicode)):
         u = session.query(user.User).filter(
@@ -23,6 +24,8 @@ def get_user(session, user_or_username):
         return user_or_username
 
 # Password check functions
+
+
 def password_expired(user_object):
     return user_object.password_expiry < datetime.datetime.now(pytz.utc)
 
@@ -32,7 +35,8 @@ def check_password_strength(password):
         return False
 
     N = config["user"]["auth"]["password_num_match_groups"]
-    n = sum([re.match(p, password) is not None for p in config["user"]["auth"]["password_match_groups"]])
+    n = sum([re.match(p, password) is not None for p in config["user"]
+             ["auth"]["password_match_groups"]])
     return n >= N
 
 
@@ -44,24 +48,28 @@ def authenticate_user(session, user_or_username, password):
     user_object = get_user(session, user_or_username)
 
     if not user_object.active:
-        raise AuthenticationError("User {} is inactive. Contact support to re-activate.".format(user_object.username))
+        raise AuthenticationError(
+            "User {} is inactive. Contact support to re-activate.".format(user_object.username))
 
     if user_object.incorrect_logins >= 6:
-        raise AuthenticationError("Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
+        raise AuthenticationError(
+            "Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
 
     if not check_password(password, user_object.password):
         user_object.incorrect_logins += 1
         session.commit()
         if user_object.incorrect_logins >= 6:
-            raise AuthenticationError("Invalid credentials. Too many failed logins. User {} has been locked. Contact support to unlock.".format(user_object.username))
+            raise AuthenticationError(
+                "Invalid credentials. Too many failed logins. User {} has been locked. Contact support to unlock.".format(user_object.username))
 
         raise AuthenticationError("Invalid credentials")
     elif password_expired(user_object):
-        raise AuthenticationError("Password expired")
+        raise AuthenticationError("Password expired. Please change password.")
 
     user_object.incorrect_logins = 0
     session.commit()
     return user_object
+
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -111,16 +119,19 @@ def change_password(session, user_or_username, old_password, new_password, overr
     """
     user_object = get_user(session, user_or_username)
     if user_object.incorrect_logins >= 6 and not override:
-        raise AuthenticationError("Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
+        raise AuthenticationError(
+            "Too many failed logins. User {} is locked. Contact support to unlock.".format(user_object.username))
 
     if not override and not check_password(old_password, user_object.password):
         raise AuthenticationError("Invalid credentials.")
 
     if not user_object.active and not override:
-        raise AuthenticationError("User is deactivated. Unable to change password. Contact support.")
+        raise AuthenticationError(
+            "User is deactivated. Unable to change password. Contact support.")
 
     if not check_password_strength(new_password):
-        raise AuthenticationError("Password doesn't follow password strength guidelines.")
+        raise AuthenticationError(
+            "Password doesn't follow password strength guidelines.")
 
     old_passwords = session.query(user.UserOldPassword).filter(
         user.UserOldPassword.user_id == user_object.id
@@ -131,10 +142,12 @@ def change_password(session, user_or_username, old_password, new_password, overr
     ).all()
 
     if check_password(new_password, user_object.password):
-        raise AuthenticationError("Password is equal to an old password. Choose a different password.")
+        raise AuthenticationError(
+            "Password is equal to an old password. Choose a different password.")
     for old_pw in old_passwords:
         if check_password(new_password, old_pw.password):
-            raise AuthenticationError("Password is equal to an old password. Choose a different password.")
+            raise AuthenticationError(
+                "Password is equal to an old password. Choose a different password.")
 
     session.add(user.UserOldPassword(
         user_id=user_object.id,
@@ -143,9 +156,11 @@ def change_password(session, user_or_username, old_password, new_password, overr
     logout_all(session, user_object.id)
     user_object.password = hash_password(new_password)
     if override:
-        user_object.password_expiry = datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
+        user_object.password_expiry = datetime.datetime(
+            1970, 1, 1, tzinfo=pytz.utc)
     else:
-        user_object.password_expiry = datetime.datetime.now(pytz.utc)+datetime.timedelta(days=config["user"]["auth"]["password_expiry_days"])
+        user_object.password_expiry = datetime.datetime.now(
+            pytz.utc)+datetime.timedelta(days=config["user"]["auth"]["password_expiry_days"])
 
     user_object.incorrect_logins = 0
 

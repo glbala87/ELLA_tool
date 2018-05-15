@@ -184,16 +184,20 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript
     ).all()
 
-    phenotypes = session.query(gene.Phenotype).filter(
+    phenotypes = session.query(
+        gene.Phenotype
+    ).options(joinedload(gene.Phenotype.gene)).join(
+        gene.genepanel_phenotype
+    ).filter(
         gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript,
         gene.Phenotype.gene_id == gene.Transcript.gene_id,
-        gene.Phenotype.genepanel_name == gp_name,
-        gene.Phenotype.genepanel_version == gp_version
-    ).all()
+        gene.genepanel_phenotype.c.genepanel_name == gp_name,
+        gene.genepanel_phenotype.c.genepanel_version == gp_version
+    )
 
     genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
-    genepanel_data['transcripts'] = schemas.TranscriptSchema().dump(transcripts, many=True).data
-    genepanel_data['phenotypes'] = schemas.PhenotypeSchema().dump(phenotypes, many=True).data
+    genepanel_data['transcripts'] = schemas.TranscriptFullSchema().dump(transcripts, many=True).data
+    genepanel_data['phenotypes'] = schemas.PhenotypeFullSchema().dump(phenotypes, many=True).data
     genepanel_data['config'] = genepanel.config
     return genepanel_data
 
@@ -542,9 +546,12 @@ def get_genepanels(session, allele_ids, user=None):
     Is user is provided, the genepanels are restricted to the user group's panels.
     """
     if user:
-        gp_keys = [(g.name, g.version) for g in user.group.genepanels]
+        # TODO: This can turn into an perforamance issue
+        gp_keys = sorted([(g.name, g.version) for g in user.group.genepanels if g.official])
     else:
-        gp_keys = session.query(gene.Genepanel.name, gene.Genepanel.version).all()
+        gp_keys = session.query(gene.Genepanel.name, gene.Genepanel.version).filter(
+            gene.Genepanel.official.is_(True)
+        ).all()
 
     alleles_genepanels = queries.annotation_transcripts_genepanel(
         session,

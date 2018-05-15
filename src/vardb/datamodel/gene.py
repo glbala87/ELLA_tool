@@ -1,10 +1,12 @@
 """varDB datamodel classes for Gene and Transcript"""
-from sqlalchemy import Column, Integer, String, Enum, Table
+import datetime
+import pytz
+from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.schema import ForeignKeyConstraint
+from sqlalchemy.schema import ForeignKeyConstraint, UniqueConstraint
 
 from vardb.datamodel import Base
 from vardb.util.mutjson import JSONMutableDict
@@ -42,7 +44,7 @@ class Transcript(Base):
     strand = Column(String(1), nullable=False)
     cds_start = Column(Integer, nullable=False)
     cds_end = Column(Integer, nullable=False)
-    exon_starts = Column(ARRAY(Integer), nullable=False)  # giving dimensions does not work
+    exon_starts = Column(ARRAY(Integer), nullable=False)
     exon_ends = Column(ARRAY(Integer), nullable=False)
 
     def __repr__(self):
@@ -60,15 +62,45 @@ genepanel_transcript = Table("genepanel_transcript", Base.metadata,
                              ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"], ondelete="CASCADE"))
 
 
+class Phenotype(Base):
+    """Represents a gene phenotype"""
+    __tablename__ = "phenotype"
+
+    id = Column(Integer, primary_key=True)
+
+    gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
+    gene = relationship("Gene", lazy="joined")
+
+    description = Column(String(), nullable=False)
+    inheritance = Column(String(), nullable=False)
+    omim_id = Column(Integer, nullable=True)
+
+    __table_args__ = (UniqueConstraint("gene_id", "description", "inheritance"), )
+
+    def __repr__(self):
+        return "<Phenotype('%s')>" % self.description[:20]
+
+
+genepanel_phenotype = Table("genepanel_phenotype", Base.metadata,
+                            Column("genepanel_name", nullable=False),
+                            Column("genepanel_version", nullable=False),
+                            Column("phenotype_id", Integer, ForeignKey("phenotype.id"), nullable=False),
+                            ForeignKeyConstraint(["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"], ondelete="CASCADE"))
+
+
 class Genepanel(Base):
     """Represents a gene panel"""
     __tablename__ = "genepanel"
 
     name = Column(String(), primary_key=True)
     version = Column(String(), primary_key=True)
-    genome_reference = Column(String(15), nullable=False)
+    genome_reference = Column(String(), nullable=False)
+    official = Column(Boolean, default=False, nullable=False)
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=True)
+    user = relationship("User", uselist=False)
     transcripts = relationship("Transcript", secondary=genepanel_transcript)
-    phenotypes = relationship("Phenotype")
+    phenotypes = relationship("Phenotype", secondary=genepanel_phenotype)
 
     # TODO: Is it possible to validate against schema as part of __init__?
     # format defined by genepanel-config-schema_v2.json
@@ -79,62 +111,3 @@ class Genepanel(Base):
 
     def __str__(self):
         return '_'.join((self.name, self.version, self.genome_reference))
-
-    def find_inheritance_codes(self, symbol):
-        if not self.phenotypes:
-            return None
-
-        return map(lambda ph: Phenotype.clean_inheritance_code(ph.inheritance), filter(lambda ph: symbol == ph.gene_id, self.phenotypes))
-
-
-    @staticmethod
-    def create_or_update_genepanel(session, name, version, genome_ref, transcripts):
-        """Add or update an existing gene panel.
-
-        No special rules for this for now.
-        session.merge will create or update db object by primary keys.
-        """
-        g = Genepanel(name, version, genome_ref, transcripts)
-        g = session.merge(g)
-        return g
-
-
-class Phenotype(Base):
-    """Represents a phenotype linked to a particular genepanel.
-    A phenotype can have some panel specific information (like related clinical tests)
-    so we link it to specific panel. So a phenotype will typically appear mulitple times
-    in the table, each belonging to different panels.
-    """
-    __tablename__ = "phenotype"
-
-    id = Column(Integer, primary_key=True)
-
-    genepanel_name = Column(String(40), nullable=False)
-    genepanel_version = Column(String(10), nullable=False)
-    genepanel = relationship("Genepanel", uselist=False)
-
-    gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
-    gene = relationship("Gene", lazy="joined")
-
-    description = Column(String(250), nullable=False)
-    inheritance = Column(String(20), nullable=False)
-    inheritance_info = Column(String(200), nullable=True)
-    omim_id = Column(Integer, nullable=True)
-    pmid = Column(Integer, nullable=True)
-    comment = Column(String(200), nullable=True)
-
-    # composite foreign key
-    # http://docs.sqlalchemy.org/en/latest/core/constraints.html#sqlalchemy.schema.ForeignKeyConstraint:
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"],
-                                           deferrable=True, initially="DEFERRED")
-                      ,)
-
-    @staticmethod
-    def clean_inheritance_code(code):
-        if not code:
-            return code
-        return code.replace(';', '')
-
-
-    def __repr__(self):
-        return "<Phenotype('%s')>" % self.description[:20]

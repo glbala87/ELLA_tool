@@ -1,13 +1,13 @@
-<div class="cb-table topfix" ng-if="referenceassessment && referenceassessment.evaluation.relevance">
+<div class="cb-table topfix" ng-if="$ctrl.referenceAssessment && $ctrl.referenceAssessment.evaluation.relevance">
     <h4 class="faded-title content-top" >Evaluation</h4>
 
-    <div class="tabular-row" ng-if="referenceassessment.evaluation.comment">
+    <div class="tabular-row" ng-if="$ctrl.referenceAssessment.evaluation.comment">
       <div class="cell top-align"><h5>Comment:</h5></div>
       <div class="cell max-width">
           <wysiwyg-editor class="card-comment id-reference-comment"
                   ng-disabled="true"
                   placeholder=""
-                  ng-model="referenceassessment.evaluation.comment">
+                  ng-model="$ctrl.referenceAssessment.evaluation.comment">
           </wysiwyg-editor>
       </div>
     </div>

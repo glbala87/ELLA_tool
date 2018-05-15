@@ -14,22 +14,31 @@ class ApiV1(object):
         """
         Loads our marshmallow schemas into docs.
         """
-        self.api_v1_docs.add_schema('Analysis', schemas.AnalysisFullSchema())
-        self.api_v1_docs.add_schema('AnalysisInterpretation', schemas.AnalysisInterpretationSchema())
-        self.api_v1_docs.add_schema('AlleleInterpretation', schemas.AlleleInterpretationSchema())
-        self.api_v1_docs.add_schema('Interpretation', schemas.AnalysisInterpretationSchema())
+        self.api_v1_docs.add_schema('Analysis', schemas.AnalysisSchema())
+        self.api_v1_docs.add_schema(
+            'AnalysisInterpretation', schemas.AnalysisInterpretationSchema())
+        self.api_v1_docs.add_schema(
+            'AlleleInterpretation', schemas.AlleleInterpretationSchema())
+        self.api_v1_docs.add_schema(
+            'Interpretation', schemas.AnalysisInterpretationSchema())
         self.api_v1_docs.add_schema('Allele', schemas.AlleleSchema())
         self.api_v1_docs.add_schema('Reference', schemas.ReferenceSchema())
-        self.api_v1_docs.add_schema('ReferenceAssessment', schemas.ReferenceAssessmentSchema())
-        self.api_v1_docs.add_schema('AlleleAssessment', schemas.AlleleAssessmentSchema())
-        self.api_v1_docs.add_schema('AlleleAssessmentInput', schemas.AlleleAssessmentInputSchema())
-        self.api_v1_docs.add_schema('AlleleReport', schemas.AlleleReportSchema())
+        self.api_v1_docs.add_schema(
+            'ReferenceAssessment', schemas.ReferenceAssessmentSchema())
+        self.api_v1_docs.add_schema(
+            'AlleleAssessment', schemas.AlleleAssessmentSchema())
+        self.api_v1_docs.add_schema(
+            'AlleleAssessmentInput', schemas.AlleleAssessmentInputSchema())
+        self.api_v1_docs.add_schema(
+            'AlleleReport', schemas.AlleleReportSchema())
         self.api_v1_docs.add_schema('User', schemas.UserSchema())
-        self.api_v1_docs.add_schema('Classification', schemas.ClassificationSchema())
+        self.api_v1_docs.add_schema(
+            'Classification', schemas.ClassificationSchema())
         self.api_v1_docs.add_schema('Rule', schemas.RuleSchema())
         self.api_v1_docs.add_schema('Genepanel', schemas.GenepanelFullSchema())
         self.api_v1_docs.add_schema('Annotation', schemas.AnnotationSchema())
-        self.api_v1_docs.add_schema('CustomAnnotation', schemas.CustomAnnotationSchema())
+        self.api_v1_docs.add_schema(
+            'CustomAnnotation', schemas.CustomAnnotationSchema())
         self.api_v1_docs.add_schema('Genotype', schemas.GenotypeSchema())
 
     def _add_resource(self, resource, *paths):
@@ -64,6 +73,9 @@ class ApiV1(object):
         self._add_resource(r.allele.AlleleListResource,
                            '/api/v1/alleles/')
 
+        self._add_resource(r.allele.AlleleByGeneListResource,
+                           '/api/v1/alleles/by-gene/')
+
         self._add_resource(r.allele.AlleleAnalysisListResource,
                            '/api/v1/alleles/<int:allele_id>/analyses/')
 
@@ -79,8 +91,8 @@ class ApiV1(object):
         self._add_resource(r.allelereport.AlleleReportResource,
                            '/api/v1/allelereports/<int:ar_id>/')
 
-        self._add_resource(r.allele.AlleleGenepanelListResource,
-                           '/api/v1/alleles/<int:allele_id>/genepanels/')
+        #self._add_resource(r.allele.AlleleGenepanelListResource,
+        #                   '/api/v1/alleles/<int:allele_id>/genepanels/')
 
         self._add_resource(r.analysis.AnalysisListResource,
                            '/api/v1/analyses/')
@@ -100,6 +112,11 @@ class ApiV1(object):
         self._add_resource(r.config.ConfigResource,
                            '/api/v1/config/')
 
+        self._add_resource(r.genepanel.GenepanelListResource,
+                           '/api/v1/genepanels/')
+
+        self._add_resource(r.genepanel.GenepanelResource,
+                           '/api/v1/genepanels/<name>/<version>/')
 
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
@@ -147,7 +164,6 @@ class ApiV1(object):
         self._add_resource(r.overview.OverviewUserStatsResource,
                            '/api/v1/overviews/userstats/')
 
-
         # ---------------------------------------------------------------------------------------------------------
         # Annotation
         # ---------------------------------------------------------------------------------------------------------
@@ -162,6 +178,9 @@ class ApiV1(object):
 
         self._add_resource(r.annotationjob.AnnotationServiceRunning,
                            '/api/v1/import/service/running/')
+
+        self._add_resource(r.annotationjob.ImportSamples,
+                           '/api/v1/import/service/samples/')
 
         # ---------------------------------------------------------------------------------------------------------
         # Workflow variant
@@ -206,7 +225,6 @@ class ApiV1(object):
         # ---------------------------------------------------------------------------------------------------------
         # Workflow analysis
         # ---------------------------------------------------------------------------------------------------------
-
 
         self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')

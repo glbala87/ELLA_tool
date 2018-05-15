@@ -1,5 +1,5 @@
 /* jshint esnext: true */
-import {Service, Inject} from '../ng-decorators';
+import { Service, Inject } from '../ng-decorators'
 
 export class IgvModalController {
     /**
@@ -7,9 +7,9 @@ export class IgvModalController {
      */
 
     constructor(modalInstance, Config, allele) {
-        let config = Config.getConfig();
+        let config = Config.getConfig()
 
-        let padding = 50;
+        let padding = 50
 
         let tracks = []
 
@@ -17,7 +17,7 @@ export class IgvModalController {
             name: 'Gencode',
             url: config.igv.tracks.gencode,
             displayMode: 'EXPANDED'
-        });
+        })
         for (let sample of allele.samples) {
             tracks.unshift({
                 type: 'alignment',
@@ -25,32 +25,30 @@ export class IgvModalController {
                 url: `api/v1/samples/${sample.id}/bams/`,
                 indexURL: `api/v1/samples/${sample.id}/bams/?index=true`,
                 name: sample.identifier
-            });
+            })
         }
         let reference = {
-            id: "GRCh37",
+            id: 'GRCh37',
             fastaURL: config.igv.reference.fastaURL,
             cytobandURL: config.igv.reference.cytobandURL
-        };
+        }
         this.options = {
             tracks,
             reference
-        };
-        this.chrom = `${allele.chromosome}`;
-        this.pos = `${allele.start_position}`;
-        this.modal = modalInstance;
+        }
+        this.chrom = `${allele.chromosome}`
+        this.pos = `${allele.start_position}`
+        this.modal = modalInstance
     }
 }
-
 
 @Service({
     serviceName: 'IgvModal'
 })
 @Inject('$uibModal')
 export class IgvModal {
-
     constructor($uibModal) {
-        this.modalService = $uibModal;
+        this.modalService = $uibModal
     }
 
     /**
@@ -60,24 +58,16 @@ export class IgvModal {
      * @return {Promise} Promise that resolves when dialog is closed.
      */
     show(analysis, allele) {
-
         let modal = this.modalService.open({
             templateUrl: 'ngtmpl/igvModal.ngtmpl.html',
-            controller: [
-                '$uibModalInstance',
-                'Config',
-                'allele',
-                IgvModalController
-            ],
+            controller: ['$uibModalInstance', 'Config', 'allele', IgvModalController],
             controllerAs: 'vm',
             resolve: {
-                'allele': () => allele
+                allele: () => allele
             },
             size: 'lg'
-        });
+        })
 
-        return modal.result;
-
+        return modal.result
     }
-
 }

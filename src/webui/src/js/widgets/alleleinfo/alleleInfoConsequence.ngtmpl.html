@@ -1,12 +1,12 @@
-<contentbox title="Consequence" title-url="{{vm.allele.getEnsemblUrl()}}">
+<contentbox title="Consequence" title-url="{{$ctrl.allele.urls.ensembl}}">
   <cbbody>
-    <div class="cb-warning" ng-if="vm.allele.annotation.hasWorseConsequence()">
+    <div class="cb-warning" ng-if="$ctrl.worstConsequenceTranscripts.length">
       WORSE CONSEQUENCE FOUND IN:
       <ul>
-        <li ng-repeat="t in vm.allele.annotation.getWorseConsequenceTranscripts()">{{t.consequences.join(',')}} in {{t.transcript}}</li>
+        <li ng-repeat="t in $ctrl.worstConsequenceTranscripts">{{t.consequences.join(',')}} in {{t.transcript}}</li>
       </ul>
     </div>
-    <div ng-repeat="t in vm.allele.annotation.filtered track by t.transcript"
+    <div ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript"
       class="clickable"
       popover-trigger="outsideClick"
       uib-popover-template="'ngtmpl/alleleInfoConsequencePopover.ngtmpl.html'"

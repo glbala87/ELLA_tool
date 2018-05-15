@@ -91,10 +91,12 @@ def filter_result_of_alleles(session, allele_ids):
     return af.filter_alleles(gp_allele_ids)  # gp_key => {allele ids distributed by filter status}
 
 
-def create_variant_row(default_transcript, analysis_info, allele_info, sanger_verify):
-    found_transcript = next(ifilter(lambda t: t['transcript'] == default_transcript,
-                               get_nested(allele_info, ['annotation', 'transcripts'])),
-                            None)
+def create_variant_row(default_transcripts, analysis_info, allele_info, sanger_verify):
+    found_transcripts = []
+    transcripts = get_nested(allele_info, ['annotation', 'transcripts'])
+    for default_transcript in default_transcripts:  # default_transcripts are sorted
+        found_transcripts.append(next((t for t in transcripts if t['transcript'] == default_transcript), {}))
+
     classification = get_nested(allele_info, ['allele_assessment', 'classification'], "Ny")
     return [
         analysis_info['deposit_date'],
@@ -104,9 +106,9 @@ def create_variant_row(default_transcript, analysis_info, allele_info, sanger_ve
                                     version=analysis_info['genepanel_version']),
         "chr{chr}:g.{start}N>N".format(chr=allele_info['chromosome'], start=allele_info['start_position']),
         "chr{chr}:g.{stop}N>N".format(chr=allele_info['chromosome'], stop=allele_info['open_end_position']),
-        found_transcript['symbol'],
-        found_transcript['transcript'],
-        found_transcript.get('HGVSc_short', '?'),
+        ' | '.join([t.get('symbol', '-') for t in found_transcripts]),
+        ' | '.join([t.get('transcript', '-') for t in found_transcripts]),
+        ' | '.join([t.get('HGVSc_short', '-') for t in found_transcripts]),
         classification,
         "Ja" if sanger_verify else "Nei"
     ]
@@ -211,13 +213,13 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
                              'deposit_date':       analysis.deposit_date.strftime(DATE_FORMAT)
                              }
 
-            default_transcript = get_nested(allele_info, ['annotation', 'filtered_transcripts'])[0]
-            variant_row = create_variant_row(default_transcript, analysis_info, allele_info, sanger_verify)
+            default_transcripts = get_nested(allele_info, ['annotation', 'filtered_transcripts'])
+            variant_row = create_variant_row(default_transcripts, analysis_info, allele_info, sanger_verify)
             csv_rows.append(variant_row)
             worksheet_rows.append(variant_row)
 
-    # sort by first three columns:
-    sort_function = lambda r: (r[0], r[1], r[2])
+    # sort by date, project name, sample_number, genomic pos
+    sort_function = lambda r: (r[0], r[1], r[2], r[4])
     worksheet_rows.sort(key=sort_function)
     csv_rows.sort(key=sort_function)
     csv.extend(csv_rows)
@@ -256,7 +258,9 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
             warning.strip()
         ])
 
+    sort_function = lambda r: (r[0], r[1], r[2])
     worksheet_rows.sort(key=sort_function)
+
     for idx, r in enumerate(worksheet_rows):
         warnings_worksheet.set_row(idx+1, 70)
         warnings_worksheet.write_row(idx+1, 0, r)

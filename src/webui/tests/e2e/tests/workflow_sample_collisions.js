@@ -1,4 +1,4 @@
-require('core-js/fn/object/entries');
+require('core-js/fn/object/entries')
 
 /**
  * Checks that collision warning is displayed when starting interpretation with variants that overlap another
@@ -13,27 +13,23 @@ let loginPage = new LoginPage()
 let analysesSelectionPage = new SampleSelectionPage()
 let analysisPage = new AnalysisPage()
 
-var failFast = require('jasmine-fail-fast');
-jasmine.getEnv().addReporter(failFast.init());
+var failFast = require('jasmine-fail-fast')
+jasmine.getEnv().addReporter(failFast.init())
 
-
-describe('Sample workflow', function () {
-
+describe('Sample workflow', function() {
     beforeAll(() => {
-        browser.resetDb();
-    });
+        browser.resetDb()
+    })
 
-    it('gives warning when starting a sample with variants that overlap with other ongoing sample', function () {
+    it('gives warning when starting a sample with variants that overlap with other ongoing sample', function() {
         // sample 1
-        loginPage.selectFirstUser();
-        analysesSelectionPage.selectTopPending();
-        analysisPage.startButton.click();
+        loginPage.selectFirstUser()
+        analysesSelectionPage.selectTopPending()
+        analysisPage.startButton.click()
 
         // sample 2
-        loginPage.selectSecondUser();
-        analysesSelectionPage.selectTopPending();
-        analysisPage.collisionWarningBar.waitForExist();
-    });
-
-
-});
+        loginPage.selectSecondUser()
+        analysesSelectionPage.selectTopPending()
+        analysisPage.collisionWarningBar.waitForExist()
+    })
+})

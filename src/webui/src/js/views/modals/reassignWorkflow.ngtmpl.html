@@ -1,0 +1,15 @@
+<sectionbox class="prompt" color="red" modal="true" on-close="$ctrl.close()">
+  <maintitle>
+    WARNING: REASSIGN ANALYSIS
+  </maintitle>
+  <controls>
+    <section class="line-wrapper pinned-right">
+      <button type="button" class="red" ng-click="$ctrl.reassign()">Assign me as user</button>
+      <button type="button" class="normal" ng-click="$ctrl.close()">Leave as is</button>
+    </section>
+  </controls>
+  <contentwrapper>
+    <h4 class="sb-notification"> This analysis is currently assigned to another user. </h4>
+    <h4 class="sb-notification"> Do you want to unassign this user and assign yourself instead? </h4>
+  </contentwrapper>
+</sectionbox>

@@ -68,7 +68,6 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 .acmg-selection .acmg { margin-right: 0; }
 
 .report {
-  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; padding-top: 1.5rem; padding-bottom: 0.4rem;}
   pre { white-space: pre-wrap; background-color: rgba(0, 0, 0, 0.04); padding-left: 1rem; }
   .included-report { font-family: "Source Code Pro", monospace; background-color: $purple-05; padding: 2rem;
      h5 { font-size: 1.2rem; }
@@ -157,13 +156,65 @@ analysis-selection {
   }
 }
 
+.gene-list { display: flex; flex-direction: column;
+  .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem; border-bottom: 1px dashed $black-25;
+    .gene { font-weight: 500; padding-left: 1.2rem; min-width: 10rem; }
+    .transcript { font-weight: 500; flex-grow: 1; padding-left: 1.2rem; }
+    .action { padding-right: 1.2rem; }
+    &.added {
+      opacity: 0.5;
+    }
+  }
+}
+
+
+
+.import {
+  .custom-genepanel {
+    .name {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      input {
+        width: 8rem;
+      }
+    }
+    padding: 2rem;
+    .slim {
+      font-size: 1.5rem;
+      padding-left: 2rem;
+      line-height: 2.5rem;
+    }
+    .selection {
+      padding-top: 1rem;
+      display: flex;
+
+      .dropdown {
+        margin-right: 2rem;
+      }
+
+      .gene-search-input {
+        width: 13rem;
+      }
+      .grow {
+        flex-grow: 1;
+      }
+      .gene-pagination {
+        margin-left: 2rem;
+        margin-right: 1rem;
+      }
+    }
+  }
+  .gene-list {
+    margin-top: 2rem;
+  }
+}
+
 
 .attachment {
   margin-right: 1rem;
-  padding: 0.3rem;
+  padding: 0.5rem;
   padding-bottom: 0;
-  border: outset;
-  border-color: $black-05;
+  border: solid 1px $black-05;
 }
 
 .attachmentcontrollers {

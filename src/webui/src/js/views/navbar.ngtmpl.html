@@ -1,33 +1,33 @@
-<header class="hero" ng-if="!vm.getItems().length"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
+<header class="hero" ng-if="!$ctrl.title"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
 <nav class="top">
   <section>
-    <div ng-if="vm.isLogin()">
-      <h3 class="full-title"><i>Welcome!</i></h3>
+    <div ng-if="$ctrl.currentView == 'login'">
+        <h3 class="full-title"><i>Welcome!</i></h3>
     </div>
-    <div ng-if="!vm.isLogin()">
+    <div ng-if="$ctrl.currentView != 'login'">
       <a id="home-bttn" href="/overview">
         <h3 class="full-title upper clickable white"><i>Overview</i></h3>
       </a>
     </div>
   </section>
 
-  <section ng-repeat="item in vm.getItems()">
-    <div ng-class="{'active': vm.isLastItem(item), 'clickable white': vm.hasUrl(item)}" >
-      <h3 class="full-title id-workflow-instance"><b>{{item.title}}</b></h3>
+  <section ng-if="$ctrl.title">
+    <div class="active">
+      <h3 class="full-title id-workflow-instance"><b>{{$ctrl.title}}</b></h3>
     </div>
   </section>
 
   <section>
-    <div ng-if="!vm.isLogin()">
-      <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ vm.user.getCurrentUser().abbrev_name }}</i></h3></a>
+    <div ng-if="$ctrl.currentView != 'login'">
+        <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ $ctrl.user.abbrev_name }}</i></h3></a>
     </div>
-    <div ng-if="vm.isLogin()">
+    <div ng-if="$ctrl.currentView == 'login'">
       <h3 class="full-title"><i>Please login</i></h3>
     </div>
   </section>
 </nav>
 
 <!--Test/demo/staging warning-->
-<div class="non-production-warning" ng-if="vm.config.app.non_production_warning">
-  {{vm.config.app.non_production_warning}}
+<div class="non-production-warning" ng-if="$ctrl.config.app.non_production_warning">
+  {{$ctrl.config.app.non_production_warning}}
 </div>

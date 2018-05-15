@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../../ng-decorators';
+import { Directive, Inject } from '../../ng-decorators'
 
 @Directive({
     selector: 'allele-info-frequency-esp6500',
@@ -11,15 +11,13 @@ import {Directive, Inject} from '../../ng-decorators';
 })
 @Inject()
 export class AlleleInfoFrequencyEsp6500 {
-
     constructor() {
         if (!this.hasContent()) {
-            this.collapsed = true;
+            this.collapsed = true
         }
     }
 
     hasContent() {
-        return 'esp6500' in this.allele.annotation.frequencies;
+        return 'esp6500' in this.allele.annotation.frequencies
     }
-
 }

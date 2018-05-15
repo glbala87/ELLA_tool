@@ -37,15 +37,16 @@ class AnalysisListResource(LogRequestResource):
         if rest_filter is None:
             rest_filter = dict()
         if not ("genepanel_name", "genepanel_version") in rest_filter:
-            rest_filter[("genepanel_name", "genepanel_version")] = [(gp.name, gp.version) for gp in user.group.genepanels]
+            rest_filter[("genepanel_name", "genepanel_version")] = [
+                (gp.name, gp.version) for gp in user.group.genepanels]
         return self.list_query(
             session,
             sample.Analysis,
-            schema=schemas.AnalysisFullSchema(),
+            schema=schemas.AnalysisSchema(),
             rest_filter=rest_filter,
             per_page=per_page,
             page=page
-       )
+        )
 
 
 class AnalysisResource(LogRequestResource):
@@ -71,73 +72,8 @@ class AnalysisResource(LogRequestResource):
         """
         a = session.query(sample.Analysis).filter(
             sample.Analysis.id == analysis_id,
-            tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_((gp.name, gp.version) for gp in user.group.genepanels)
+            tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
+                (gp.name, gp.version) for gp in user.group.genepanels)
         ).one()
-        analysis = schemas.AnalysisFullSchema().dump(a).data
+        analysis = schemas.AnalysisSchema().dump(a).data
         return analysis
-
-    @authenticate()
-    def delete(self, session, analysis_id, override=False, user=None):
-        """
-        Deletes an analysis from the system, including corresponding samples, genotypes
-        and interpretations. Alleles that were imported as part of the analysis are
-        left intact, as we cannot know whether they were also "imported" (i.e in use)
-        by other sources as well.
-
-        Not callable by API as of yet.
-
-        TODO: Make proper API description when included in API.
-        """
-        # NOTE: Not callable by API since override param will be false.
-        # We cannot enable this in API until we have user authorization
-        # It is however used by cli tool
-
-        if not override:
-            return None, 403  # Report as forbidden
-
-        # If any alleleassessments points to this analysis, it cannot be removed
-        # We'll get an error in any case, so this check is mostly to
-        # present an error to the user
-        if session.query(assessment.AlleleAssessment.id).filter(
-            assessment.AlleleAssessment.analysis_id == analysis_id
-        ).count():
-            raise ApiError("One or more alleleassessments are pointing to this analysis. It's removal is not allowed.'")
-
-        analysis = session.query(sample.Analysis).join(
-            genotype.Genotype,
-            sample.Sample,
-        ).filter(
-            sample.Analysis.id == analysis_id
-        ).one()
-
-        # Remove samples and genotypes
-        samples = analysis.samples
-        for s in samples:
-            for g in s.genotypes:
-                session.delete(g)
-            session.delete(s)
-
-        # Clean up corresponding interpretationsnapshot entries
-        # Will rarely happen (but can in principle), since we forbid to remove
-        # analyses that have alleleassessments pointing to it.
-        snapshots = session.query(workflow.AnalysisInterpretationSnapshot).filter(
-            workflow.AnalysisInterpretation.analysis_id == analysis_id,
-            workflow.AnalysisInterpretationSnapshot.analysisinterpretation_id == workflow.AnalysisInterpretation.id
-        ).all()
-        for snapshot in snapshots:
-            session.delete(snapshot)
-
-        interpretations = session.query(workflow.AnalysisInterpretation).filter(
-            workflow.AnalysisInterpretation.analysis_id == analysis_id,
-        ).all()
-        for i in interpretations:
-            session.delete(i)
-
-        # Finally, delete analysis
-        session.delete(analysis)
-
-        session.commit()
-
-        return None, 200
-
-

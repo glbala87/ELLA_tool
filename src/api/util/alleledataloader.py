@@ -89,7 +89,7 @@ class AlleleDataLoader(object):
         for idx, al in enumerate(alleles):
             accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
 
-        allele_ids = accumulated_allele_data.keys()
+        allele_ids = [a.id for a in alleles]  # Keep input order
 
         if include_genotype_samples:
             samples = self.session.query(sample.Sample).filter(
@@ -189,7 +189,8 @@ class AlleleDataLoader(object):
             ).distinct().all()
 
         final_alleles = list()
-        for allele_id, data in accumulated_allele_data.iteritems():
+        for allele_id in allele_ids:
+            data = accumulated_allele_data[allele_id]
             final_allele = data[KEY_ALLELE]
             for key in [KEY_SAMPLES, KEY_ALLELE_ASSESSMENT, KEY_REFERENCE_ASSESSMENTS, KEY_ALLELE_REPORT]:
                 if key in data:
@@ -222,7 +223,7 @@ class AlleleDataLoader(object):
                 )
                 final_allele[KEY_ANNOTATION] = processed_annotation
 
-                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = filtered_transcripts
+                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = sorted(filtered_transcripts)
                 final_allele[KEY_ANNOTATION]['annotation_id'] = data[KEY_ANNOTATION]['id']
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']

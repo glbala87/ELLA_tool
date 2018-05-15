@@ -1,4 +1,4 @@
-require('core-js/fn/object/entries');
+require('core-js/fn/object/entries')
 
 let LoginPage = require('../pageobjects/loginPage')
 let AnalysisPage = require('../pageobjects/analysisPage')
@@ -7,17 +7,16 @@ let Search = require('../pageobjects/overview_search')
 
 let loginPage = new LoginPage()
 let analysisPage = new AnalysisPage()
-let alleleSectionBox = new AlleleSectionBox();
+let alleleSectionBox = new AlleleSectionBox()
 let search = new Search()
 
-var failFast = require('jasmine-fail-fast');
-jasmine.getEnv().addReporter(failFast.init());
+var failFast = require('jasmine-fail-fast')
+jasmine.getEnv().addReporter(failFast.init())
 
-describe('Search functionality', function () {
-
+describe('Search functionality', function() {
     beforeAll(() => {
-        browser.resetDb();
-    });
+        browser.resetDb()
+    })
     it('search for analyses', function() {
         loginPage.selectFirstUser()
         search.open()
@@ -35,11 +34,10 @@ describe('Search functionality', function () {
         expect(search.getNumberOfAnalyses()).toBe(1)
     })
 
-
-    it('search for variants', function () {
+    it('search for variants', function() {
         // Search for variant using freetext
         search.open()
-        search.searchFreetext("c.1788")
+        search.searchFreetext('c.1788')
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // This variant should be filtered out
@@ -58,7 +56,7 @@ describe('Search functionality', function () {
 
         // Allele assessment shows in search
         search.open()
-        search.searchFreetext("c.1788")
+        search.searchFreetext('c.1788')
         expect(search.getNumberOfAlleles()).toBe(1)
         search.filterResults()
 
@@ -66,7 +64,7 @@ describe('Search functionality', function () {
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // Check that it has classification text
-        browser.getText("*=CLASS 3")
+        browser.getText('*=CLASS 3')
 
         // Search for variant connected to gene and user
         search.searchFreetext('')
@@ -75,9 +73,9 @@ describe('Search functionality', function () {
         browser.element('.id-select-user .selector-dropdown li:nth-child(6)').click()
         expect(search.getNumberOfAlleles()).toBe(1)
 
-        browser.element('.id-select-gene input').setValue("BRC")
+        browser.element('.id-select-gene input').setValue('BRC')
         // Top element should now be BRCA2: select by pressing enter
-        browser.keys("Enter")
+        browser.keys('Enter')
         expect(search.getNumberOfAlleles()).toBe(1)
 
         browser.element('.id-select-user').click()
@@ -86,8 +84,8 @@ describe('Search functionality', function () {
 
     it('shows connected analyses', function() {
         search.open()
-        search.searchFreetext("c.289")
+        search.searchFreetext('c.289')
         let analyses = search.getAnalysesForFirstAllele()
         expect(analyses.length).toBe(2)
     })
-});
+})

@@ -1,7 +1,6 @@
 <contentbox title="Quality">
   <cbbody>
-
-    <div ng-repeat="sample in vm.allele.samples" ng-if="sample.sample_type == 'HTS'">
+    <div ng-repeat="sample in $ctrl.allele.samples" ng-if="sample.sample_type == 'HTS'">
       <div class="cb-warning" ng-if="sample.genotype.needs_verification">
       NEEDS VERIFICATION
       </div>
@@ -31,7 +30,7 @@
           <div class="cell"><p>{{sample.genotype.allele_ratio | number:2}}</p></div>
         </div>
         <div class="tabular-row" ng-repeat="(k, v) in sample.genotype.allele_depth">
-          <div class="cell"><p> - {{vm.formatSequence(k)}}:</p></div>
+          <div class="cell"><p> - {{$ctrl.formatSequence(k)}}:</p></div>
           <div class="cell"><p>{{v}}</p></div>
         </div>
       </div>

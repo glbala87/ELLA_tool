@@ -1,18 +1,19 @@
 /* jshint esnext: true */
 
-import {Directive, Inject} from '../ng-decorators';
-import {ACMGHelper} from '../model/acmghelper';
+import { Directive, Inject } from '../ng-decorators'
+import { ACMGHelper } from '../model/acmghelper'
 
 @Directive({
     selector: 'acmg',
     scope: {
-        code: '=',  // Single code or Array of (same) codes
+        code: '=', // Single code or Array of (same) codes
         commentModel: '=?',
-        editable: '=?',  // Defaults to false
-        directreqs: '=?',  // Defaults to false
+        editable: '=?', // Defaults to false
+        directreqs: '=?', // Defaults to false
         isUpgradable: '=?',
         isDowngradable: '=?',
         onToggle: '&?',
+        onUpdate: '&?', // when comment changes or upgrade/downgrade
         toggleText: '@?',
         popoverPlacement: '=?',
         addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
@@ -21,156 +22,174 @@ import {ACMGHelper} from '../model/acmghelper';
 })
 @Inject('Config', '$scope')
 export class AcmgController {
-
     constructor(Config, $scope) {
-        this.config = Config.getConfig();
+        this.config = Config.getConfig()
         this.popover = {
             templateUrl: 'ngtmpl/acmgPopover.ngtmpl.html'
-        };
-        this.popoverPlacement = this.popoverPlacement || 'auto';
+        }
+        this.popoverPlacement = this.popoverPlacement || 'auto'
 
         $scope.$watch(
             () => this.code,
-            () => { this.matches = this.getMatches(); }
-        );
+            () => {
+                this.matches = this.getMatches()
+            }
+        )
     }
 
     toggle() {
         if (this.onToggle && this.isEditable()) {
-            this.onToggle({code: this.code});
+            this.onToggle({ code: this.code })
         }
     }
 
     isEditable() {
-        return this.editable !== undefined ? this.editable : false;
+        return this.editable !== undefined ? this.editable : false
     }
-    
+
     isUpgradable() {
-        return ACMGHelper.canUpgradeCodeObj(this.code, this.config);
+        if (Array.isArray(this.code)) {
+            return false
+        }
+        return ACMGHelper.canUpgradeCodeObj(this.code, this.config)
     }
-    
-    isDowngradable(){
-        return ACMGHelper.canDowngradeCodeObj(this.code, this.config);
+
+    isDowngradable() {
+        if (Array.isArray(this.code)) {
+            return false
+        }
+        return ACMGHelper.canDowngradeCodeObj(this.code, this.config)
     }
 
     isInACMGsection() {
-        return this.editable !== undefined ? this.editable : false;
+        return this.editable !== undefined ? this.editable : false
     }
 
     isMultiple() {
-        return Array.isArray(this.code);
+        return Array.isArray(this.code)
     }
 
     isMoreThanOne() {
-        return this.isMultiple() ? this.code.length > 1 : false;
+        return this.isMultiple() ? this.code.length > 1 : false
     }
 
     getCodeForDisplay() {
         if (this.isMultiple()) {
-            return this.code[0];  // If multiple codes, they should all be the same
+            return this.code[0] // If multiple codes, they should all be the same
         }
-        return this.code;
+        return this.code
     }
 
     getCodeBase() {
-        return ACMGHelper.getCodeBase(this.getCodeForDisplay().code);
+        return ACMGHelper.getCodeBase(this.getCodeForDisplay().code)
     }
 
     getPlaceholder() {
         if (this.isEditable()) {
-            return `${this.getCodeForDisplay().code}-COMMENT`;
+            return `${this.getCodeForDisplay().code}-COMMENT`
         }
     }
 
     _getMatch(code) {
         if (code.source === 'user') {
-            return 'Added by user';
+            return 'Added by user'
         }
         if (Array.isArray(code.match)) {
-            return code.match.join(', ');
+            return code.match.join(', ')
         }
-        return code.match;
+        return code.match
     }
 
-
     _getOperator(code) {
-        return this.config.acmg.formatting.operators[code.op];
+        return this.config.acmg.formatting.operators[code.op]
     }
 
     _getSource(code) {
         if (code.source) {
-            return code.source.split('.').slice(1).join('->');
+            return code.source
+                .split('.')
+                .slice(1)
+                .join('->')
         }
-        return 'N/A';
+        return 'N/A'
     }
 
     upgradeCode() {
-        ACMGHelper.upgradeCodeObj(this.code, this.config);
+        ACMGHelper.upgradeCodeObj(this.code, this.config)
+        if (this.onUpdate) {
+            this.onUpdate()
+        }
     }
 
     downgradeCode() {
-        ACMGHelper.downgradeCodeObj(this.code, this.config);
+        ACMGHelper.downgradeCodeObj(this.code, this.config)
+        if (this.onUpdate) {
+            this.onUpdate()
+        }
     }
 
     getMatches() {
-        let codes = this.isMultiple() ? this.code : [this.code];
-        return codes.map(c => {
+        let codes = this.isMultiple() ? this.code : [this.code]
+        return codes.map((c) => {
             return {
                 source: this._getSource(c),
                 match: this._getMatch(c),
                 op: this._getOperator(c)
-            };
-        });
+            }
+        })
     }
 
     getACMGclass(code) {
         if (code === undefined) {
-            code = this.getCodeForDisplay().code;
+            code = this.getCodeForDisplay().code
         }
         if (code) {
-            return code.substring(0, 2).toLowerCase();
+            return code.substring(0, 2).toLowerCase()
         }
     }
 
     getCriteria() {
         if (this.getCodeBase() in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.getCodeBase()].criteria;
+            return this.config.acmg.explanation[this.getCodeBase()].criteria
         }
     }
 
     getShortCriteria() {
         if (this.getCodeBase() in this.config.acmg.explanation) {
-            return this.config.acmg.explanation[this.getCodeBase()].short_criteria;
+            return this.config.acmg.explanation[this.getCodeBase()].short_criteria
         }
     }
 
     getRequiredFor() {
         if (this.getCodeForDisplay().code in this.config.acmg.explanation) {
             if (this.getCodeForDisplay().code.startsWith('REQ_GP')) {
-                return [];
+                return []
             }
-            return this.config.acmg.explanation[this.getCodeForDisplay().code].sources;
+            return this.config.acmg.explanation[this.getCodeForDisplay().code].sources
         }
     }
 
     getNotes() {
-        if (this.getCodeBase() in this.config.acmg.explanation &&
-            'notes' in this.config.acmg.explanation[this.getCodeBase()]) {
-            return this.config.acmg.explanation[this.getCodeBase()].notes.split(/\n/);
+        if (
+            this.getCodeBase() in this.config.acmg.explanation &&
+            'notes' in this.config.acmg.explanation[this.getCodeBase()]
+        ) {
+            return this.config.acmg.explanation[this.getCodeBase()].notes.split(/\n/)
         }
     }
 
     getInternalNotes() {
-        if (this.getCodeBase() in this.config.acmg.explanation &&
-            'internal_notes' in this.config.acmg.explanation[this.getCodeBase()]) {
-            return this.config.acmg.explanation[this.getCodeBase()].internal_notes.split(/\n/);
+        if (
+            this.getCodeBase() in this.config.acmg.explanation &&
+            'internal_notes' in this.config.acmg.explanation[this.getCodeBase()]
+        ) {
+            return this.config.acmg.explanation[this.getCodeBase()].internal_notes.split(/\n/)
         }
     }
 
     clickAddRequiredForCode(code) {
         if (this.addRequiredForCode) {
-            this.addRequiredForCode({code: code});
+            this.addRequiredForCode({ code: code })
         }
     }
-
 }

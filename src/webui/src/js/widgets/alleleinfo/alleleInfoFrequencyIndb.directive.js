@@ -1,25 +1,16 @@
-/* jshint esnext: true */
+import app from '../../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+import { state, props, signal } from 'cerebral/tags'
 
-import {Directive, Inject} from '../../ng-decorators';
-
-@Directive({
-    selector: 'allele-info-frequency-indb',
-    scope: {
-        allele: '='
+app.component('alleleInfoFrequencyIndb', {
+    bindings: {
+        allelePath: '<'
     },
-    templateUrl: 'ngtmpl/alleleInfoFrequencyIndb.ngtmpl.html'
+    templateUrl: 'ngtmpl/alleleInfoFrequencyIndb.ngtmpl.html',
+    controller: connect(
+        {
+            allele: state`${props`allelePath`}`
+        },
+        'AlleleInfoFrequencyIndb'
+    )
 })
-@Inject()
-export class AlleleInfoFrequencyIndb {
-
-    constructor() {
-        if (!this.hasContent()) {
-            this.collapsed = true;
-        }
-    }
-
-    hasContent() {
-        return 'inDB' in this.allele.annotation.frequencies;
-    }
-
-}

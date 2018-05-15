@@ -1,11 +1,11 @@
 <button class="id-finish-analysis"
-        ng-if="vm.showFinishBtn()"
-        ng-click="vm.clickFinishBtn()">
+        ng-if="$ctrl.showFinishBtn()"
+        ng-click="$ctrl.finishClicked()">
     Finish
 </button>
 <button class="id-start-analysis"
-        ng-if="vm.showStartBtn()"
-        ng-class="vm.getSaveBtnClass()"
-        ng-click="vm.clickStartSaveBtn()">
-    {{vm.getSaveBtnText()}}
+        ng-if="$ctrl.showStartBtn()"
+        ng-class="$ctrl.getStartBtnClass()"
+        ng-click="$ctrl.startClickedWrapper()">
+    {{$ctrl.getStartBtnText()}}
 </button>

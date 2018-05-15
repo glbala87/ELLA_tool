@@ -1,49 +1,16 @@
-/* jshint esnext: true */
+import app from '../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+import { state, signal } from 'cerebral/tags'
 
-import {Directive, Inject} from '../ng-decorators';
-
-@Directive({
-    selector: 'navbar',
-    templateUrl: 'ngtmpl/navbar.ngtmpl.html'
+app.component('navbar', {
+    templateUrl: 'ngtmpl/navbar.ngtmpl.html',
+    controller: connect(
+        {
+            config: state`app.config`,
+            user: state`app.user`,
+            currentView: state`views.current`,
+            title: state`app.navbar.title`
+        },
+        'Navbar'
+    )
 })
-@Inject('Navbar', 'User', 'Config', '$location')
-export class NavbarController {
-
-    constructor(Navbar, User, Config, $location) {
-        this.navbarService = Navbar;
-        this.user = User;
-        this.config = Config.getConfig();
-        this.location = $location;
-
-    }
-
-    hasAllele() {
-      return Boolean(this.navbarService.getAllele());
-    }
-
-    getAllele() {
-      return this.navbarService.getAllele();
-    }
-
-    getGenepanel() {
-      return this.navbarService.getGenepanel();
-    }
-
-    getItems() {
-      return this.navbarService.getItems();
-    }
-
-    isLastItem(item) {
-        let idx = this.navbarService.getItems().indexOf(item);
-        return  idx === this.navbarService.getItems().length - 1;
-    }
-
-    hasUrl(item) {
-      if (item.url) { return true; } else { return false; }
-    }
-
-    isLogin() {
-      return this.location.path() == '/login';
-    }
-
-}

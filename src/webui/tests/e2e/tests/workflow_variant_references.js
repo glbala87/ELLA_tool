@@ -1,90 +1,83 @@
-require('core-js/fn/object/entries');
+require('core-js/fn/object/entries')
 
 /**
  * Add a reference by pasting XML, (variant workflow)
  */
 
-let LoginPage = require('../pageobjects/loginPage');
-let VariantSelectionPage = require('../pageobjects/overview_variants');
-let AnalysisPage = require('../pageobjects/analysisPage');
-let AlleleSectionBox = require('../pageobjects/alleleSectionBox');
-let CustomAnnotationModal = require('../pageobjects/customAnnotationModal');
-let failFast = require('jasmine-fail-fast');
+let LoginPage = require('../pageobjects/loginPage')
+let VariantSelectionPage = require('../pageobjects/overview_variants')
+let AnalysisPage = require('../pageobjects/analysisPage')
+let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
+let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
+let failFast = require('jasmine-fail-fast')
 
-let loginPage = new LoginPage();
-let variantSelectionPage = new VariantSelectionPage();
-let analysisPage = new AnalysisPage();
-let alleleSectionBox = new AlleleSectionBox();
-let customAnnotationModal = new CustomAnnotationModal();
+let loginPage = new LoginPage()
+let variantSelectionPage = new VariantSelectionPage()
+let analysisPage = new AnalysisPage()
+let alleleSectionBox = new AlleleSectionBox()
+let customAnnotationModal = new CustomAnnotationModal()
 
-jasmine.getEnv().addReporter(failFast.init());
+jasmine.getEnv().addReporter(failFast.init())
 
-const OUR_VARIANT =  'c.581G>A';
+const OUR_VARIANT = 'c.581G>A'
 
-describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function () {
-
+describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function() {
     beforeAll(() => {
-        browser.resetDb();
-    });
+        browser.resetDb()
+    })
 
     // Update expectations as we do interpretations in the UI
-    let interpretation_expected_values = {};
+    let interpretation_expected_values = {}
 
-    it('allows interpretation, classification and reference evaluation to be set to review', function () {
-        loginPage.selectFirstUser();
-        variantSelectionPage.selectPending(11);
-        analysisPage.startButton.click(); 
+    it('allows interpretation, classification and reference evaluation to be set to review', function() {
+        loginPage.selectFirstUser()
+        variantSelectionPage.selectPending(11)
+        analysisPage.startButton.click()
+        alleleSectionBox.classifyAsU()
 
-        alleleSectionBox.classifyAsU();
-
-        expect(alleleSectionBox.getReferences().value.length).toEqual(3);
+        expect(alleleSectionBox.getReferences().value.length).toEqual(3)
 
         // add a reference
-        console.log(`adding references`);
-        alleleSectionBox.addReferencesBtn.click();
-        let referenceList = customAnnotationModal.referenceList();
-        const beforeCount = referenceList ? referenceList.value.length : 0;
-        customAnnotationModal.pubMedBtn.click();
-        customAnnotationModal.setText(customAnnotationModal.xmlInputEditor, XML_PUBMED);
-        customAnnotationModal.addReferenceBtn.click();
-        const afterCount = customAnnotationModal.referenceList().value.length;
-        expect(afterCount).toEqual(beforeCount + 1);
-        customAnnotationModal.saveBtn.click();
+        console.log(`adding references`)
+        alleleSectionBox.addReferencesBtn.click()
+        let referenceList = customAnnotationModal.referenceList()
+        const beforeCount = referenceList ? referenceList.value.length : 0
+        customAnnotationModal.pubMedBtn.click()
+        customAnnotationModal.setText(customAnnotationModal.xmlInputEditor, XML_PUBMED)
+        customAnnotationModal.addReferenceBtn.click()
+        const afterCount = customAnnotationModal.referenceList().value.length
+        expect(afterCount).toEqual(beforeCount + 1)
+        customAnnotationModal.saveBtn.click()
 
-        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4)
 
-        alleleSectionBox.classSelection.selectByVisibleText('Class 1');
-        analysisPage.finishButton.click();
-        analysisPage.markReviewButton.click();
-        analysisPage.modalFinishButton.click();
-    });
+        alleleSectionBox.classSelection.selectByVisibleText('Class 1')
+        analysisPage.finishButton.click()
+        analysisPage.markReviewButton.click()
+        analysisPage.modalFinishButton.click()
+    })
 
+    it('shows references added in review', function() {
+        loginPage.selectSecondUser()
+        variantSelectionPage.expandReviewSection()
+        variantSelectionPage.selectTopReview()
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4)
+        analysisPage.startButton.click()
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4)
+        analysisPage.finishButton.click()
+        analysisPage.finalizeButton.click()
+        analysisPage.modalFinishButton.click()
+    })
 
-    it('shows references added in review', function () {
-        loginPage.selectSecondUser();
-        variantSelectionPage.expandReviewSection();
-        variantSelectionPage.selectTopReview();
-        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
-        analysisPage.startButton.click();
-        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
-        analysisPage.finishButton.click();
-        analysisPage.finalizeButton.click();
-        analysisPage.modalFinishButton.click();
-    });
+    it('shows references for completed interpretation ', function() {
+        loginPage.selectSecondUser()
+        variantSelectionPage.expandFinishedSection()
+        variantSelectionPage.selectFinished(1)
+        expect(alleleSectionBox.getReferences().value.length).toEqual(4)
+    })
+})
 
-
-    it('shows references for completed interpretation ', function () {
-        loginPage.selectSecondUser();
-        variantSelectionPage.expandFinishedSection();
-        variantSelectionPage.selectFinished(1);
-        expect(alleleSectionBox.getReferences().value.length).toEqual(4);
-    });
-
-
-});
-
-const XML_PUBMED =
-    `
+const XML_PUBMED = `
 <PubmedArticle>
     <MedlineCitation Status="In-Data-Review" Owner="NLM">
         <PMID Version="1">28148507</PMID>
@@ -168,4 +161,4 @@ const XML_PUBMED =
         </ArticleIdList>
     </PubmedData>
 </PubmedArticle>
-`;
+`

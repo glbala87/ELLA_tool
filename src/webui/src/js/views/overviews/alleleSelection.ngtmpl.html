@@ -1,76 +1,77 @@
-<sectionbox color="green" ng-attr-id="'variants-your'" class="id-variants-your" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="green" class="id-variants-your" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'yourVariants')" collapsed="$ctrl.state.yourVariants.collapsed">
   <maintitle>
     YOUR VARIANTS
   </maintitle>
   <subtitle>
-    {{vm.ongoing_user.length}}
+    {{$ctrl.alleles.ongoing_user.length}}
   </subtitle>
   <contentwrapper>
-    <allele-list allele-items="vm.ongoing_user"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.ongoing_user.length">You have no variants</h4>
+    <allele-list store-path="'views.overview.data.alleles.ongoing_user'"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.alleles.ongoing_user.length">You have no variants</h4>
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green" ng-attr-id="'variants-pending'" class="id-variants-pending" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="green" class="id-variants-pending" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'missingClassification')" collapsed="$ctrl.state.missingClassification.collapsed">
   <maintitle>
     PENDING CLASSIFICATION
   </maintitle>
   <subtitle>
-    {{vm.overview.missing_alleleassessment.length}}
+    {{$ctrl.alleles.missing_alleleassessment.length}}
   </subtitle>
   <contentwrapper>
-    <allele-list allele-items="vm.overview.missing_alleleassessment"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.missing_alleleassessment.length">No pending variants</h4>
+    <allele-list store-path="'views.overview.data.alleles.missing_alleleassessment'"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.alleles.missing_alleleassessment.length">No pending variants</h4>
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="purple" ng-attr-id="'variants-review'" class="id-variants-review" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="purple" class="id-variants-review" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'review')" collapsed="$ctrl.state.review.collapsed">
   <maintitle>
     PENDING REVIEW
   </maintitle>
   <subtitle>
-    {{vm.overview.marked_review.length}}
+    {{$ctrl.alleles.marked_review.length}}
   </subtitle>
   <contentwrapper>
-    <allele-list allele-items="vm.overview.marked_review"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.overview.marked_review.length">No variants pending review</h4>
+    <allele-list store-path="'views.overview.data.alleles.marked_review'"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.alleles.marked_review.length">No variants pending review</h4>
   </contentwrapper>
 </sectionbox>
 
 <div class="spacer"></div>
 
-<sectionbox color="blue" ng-attr-id="'variants-others'" class="id-variants-others"  remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="blue" class="id-variants-others"  on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'othersVariants')" collapsed="$ctrl.state.othersVariants.collapsed">
   <maintitle>
     OTHERS' VARIANTS
   </maintitle>
   <subtitle>
-    {{vm.ongoing_others.length}}
+    {{$ctrl.alleles.ongoing_others.length}}
   </subtitle>
   <contentwrapper>
-    <allele-list allele-items="vm.ongoing_others"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.ongoing_others.length">Others have no variants</h4>
+    <allele-list store-path="'views.overview.data.alleles.ongoing_others'"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.alleles.ongoing_others.length">Others have no variants</h4>
   </contentwrapper>
 </sectionbox>
 
-<sectionbox color="blue" ng-attr-id="'variants-finished'" class="id-variants-finished" remember-collapse="true" collapsed="true" ng-if="vm.overview">
+<sectionbox color="blue" class="id-variants-finished" on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'finished')" collapsed="$ctrl.state.finished.collapsed">
   <maintitle>
-    FINISHED
+    FINALISED
   </maintitle>
   <subtitle>
-    {{vm.finalized.pagination.totalCount}}
+    {{$ctrl.finalized.pagination.totalCount}}
   </subtitle>
   <controls>
-        <uib-pagination total-items="vm.finalized.pagination.totalCount"
-        ng-model="vm.finalized_page"
-        class="pagination-sm"
-        ng-change="vm.finalizedPageChanged()"
-        items-per-page="vm.finalized.pagination.perPage"
-        max-size="5"
-        rotate="false">
-      </uib-pagination>
+    <uib-pagination total-items="$ctrl.finalized.pagination.totalCount"
+      ng-model="$ctrl.modelFinalizedPage"
+      ng-model-watch="$ctrl.finalized.page"
+      class="pagination-sm"
+      ng-change="$ctrl.finalizedPageChanged({section: $ctrl.selectedSection, page: $ctrl.modelFinalizedPage})"
+      items-per-page="$ctrl.finalized.pagination.perPage"
+      max-size="5"
+      rotate="false">
+    </uib-pagination>
   </controls>
   <contentwrapper>
-    <allele-list allele-items="vm.finalized.data" sort="false"></allele-list>
-    <h4 class="sb-notification dim" ng-if="!vm.finalized.data.length">No finished variants</h4>
+    <allele-list sort="false" store-path="'views.overview.data.allelesFinalized.entries'"></allele-list>
+    <h4 class="sb-notification dim" ng-if="!$ctrl.finalized.entries.length">No finalised variants</h4>
   </contentwrapper>
 </sectionbox>

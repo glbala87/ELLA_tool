@@ -57,21 +57,19 @@ input[type=range]{-webkit-appearance: none;
 
 .non-production-warning {
   position: fixed;
-  bottom: 1vh;
-  right: 2vh;
-  font-size: 4rem;
-  color: red;
+  bottom: calc(50vh - 28rem);
+  width: 100%;
+  font-size: 28rem;
+  z-index: 10000;
+  pointer-events: none;
+  text-align: center;
+  color: $red-15;
 }
 
 wysiwyg-editor {
   display: flex;
   flex-direction: column;
   white-space: normal;
-}
-
-wysiwyg-editor:not([disabled]) > .wysiwygeditor {
-  max-height: 50vh;
-  overflow-y: scroll;
 }
 
 .wysiwygplaceholder {
@@ -254,8 +252,8 @@ button { outline: none; border: 1px solid Transparent;
 
   .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; position: fixed;
     min-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
-    .item-row { width: 100%; transform: rotate(-90deg);  transform-origin: 0 0; display: flex; margin-top: 29.5rem;
-      .item {   height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
+    .item-row { width: 100%; transform: rotate(90deg);  display: flex;
+      .item { transform: rotate(180deg);  height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
         &.active {
           background-color: $blue-25;
         }
@@ -267,18 +265,16 @@ button { outline: none; border: 1px solid Transparent;
       }
     }
   }
-  .container { margin-left: 2.0rem; margin-top: calc(#{$nav-bar-top-height} + 2rem); margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
-  //.container.no-secondary-nav { margin-top: 12rem; }
+  .container { margin-left: 2.0rem; margin-top: calc(#{$nav-bar-top-height}); margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
   .container.with-sidenavbar { margin-left: 9rem; }
-  .container.inner { width: 100%; margin-left: 46.2rem; padding-left: 3.9rem; margin-right: 0; border-left: 1px dotted $blue-25; }
+  .container.inner { max-width: 160rem; width: 100%; padding-left: 3.9rem; margin-left: 0; margin-right: 0; border-left: 1px dotted $blue-25; }
 
 
   // View specific stuff
   .logout-btn { margin-left: auto; }
-  .overviewcontainer { display: flex; padding-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height}); }
+  .overviewcontainer { display: flex; }
   .dashboard {
     display: flex;
-    padding-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
     .full-title { padding-left: 1.2rem; font-size: 1.4rem; font-weight: 300; }
     .profile {
       flex: 1;
@@ -332,20 +328,20 @@ button { outline: none; border: 1px solid Transparent;
 }
 
 
-nav {position: fixed; width:100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;}
+nav {position: sticky; width:100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;}
 
 nav.top {
   background-color: $blue;
   color: white;
   padding: 0.7rem 1.3rem;
   height: 4.5rem;
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
 }
 
-nav.secondary { display: flex; align-items: center; justify-content: space-between; background-color: $blue-50-on-white; height: $nav-bar-secondary-height; margin-top: $nav-bar-top-height; padding: 0 1.3rem; z-index: 100;
+nav.secondary { position: sticky; top: $nav-bar-top-height; display: flex; align-items: center; justify-content: space-between; background-color: $blue-50-on-white; height: $nav-bar-secondary-height; padding: 0 1.3rem; z-index: 100;
   section { display: flex;
     .dropdown { margin-left: 1.4rem; }
   }
@@ -365,6 +361,11 @@ workflow-buttons { margin-left: 1.4rem;}
   }
 }
 
+.collision-warning { margin: 1.5rem; margin-bottom: 0; padding: 1.5rem; padding-left: 2rem; padding-right: 2rem; background-color: $red;  max-height: 10rem; overflow-y: auto; overflow-x: hidden;
+  word-wrap: break-word; font-size: 1.6rem; font-family: $slim; font-weight: 600; color: white;
+}
+
+
 .add-excluded-button { margin-left: 12px }
 
 .nav-secondary-spacer {
@@ -381,9 +382,10 @@ workflow-buttons { margin-left: 1.4rem;}
 }
 
 nav.bottom {
+  position: sticky;
   flex-direction: column;
   z-index: 100;
-  margin-top: $nav-bar-top-height;
+  top: $nav-bar-top-height;
   background-color: $blue-25-on-white;
   justify-content: space-between;
   width: 100%;
@@ -398,7 +400,7 @@ nav.bottom {
 }
 
 nav.bottom.has-secondary {
-    margin-top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height});
+    top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height});
 }
 
 allelebar {
@@ -458,7 +460,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 .sidebar .ng-enter { opacity: 0; transition: all 0.8s ease-in-out; }
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: fixed; left: 1.3rem; bottom: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
+.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -650,7 +652,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
   .toast { background-color: #030303; }
   .toast:before { color: white; font-size: 1.1rem; font-family: $full; letter-spacing: 0.1rem; }
-  .toast-success { background-color: $green; &:before { content: "HOORAY"; } }
+  .toast-success { background-color: $green; &:before { content: "SUCCESS"; } }
   .toast-error { background-color: $red; &:before { content: "ERROR"; } }
   .toast-info { background-color: $purple-50; &:before { content: "INFORMATION"; } }
   .toast-warning { background-color: $red-75; &:before { content: "WARNING"; } }
@@ -806,4 +808,18 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 
 .search-option {
   width: 20rem;
+}
+
+.new-fade {
+  opacity: 0;
+}
+
+.new-fade:not(:empty) {
+  animation: fadein 0.5s;
+  opacity: 1;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

@@ -1,32 +1,29 @@
-/* jshint esnext: true */
+import app from '../../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+import { state, signal } from 'cerebral/tags'
 
-import {Directive, Inject} from '../../ng-decorators';
+app.component('alleleInfoQuality', {
+    templateUrl: 'ngtmpl/alleleInfoQuality.ngtmpl.html',
+    controller: connect(
+        {
+            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+        },
+        'AlleleInfoQuality',
+        [
+            '$scope',
+            function($scope) {
+                const $ctrl = $scope.$ctrl
 
-@Directive({
-    selector: 'allele-info-quality',
-    scope: {
-        allele: '='
-    },
-    templateUrl: 'ngtmpl/alleleInfoQuality.ngtmpl.html'
+                Object.assign($ctrl, {
+                    formatSequence: (sequence) => {
+                        if (sequence.length > 10) {
+                            return `(${sequence.length})`
+                        } else {
+                            return sequence
+                        }
+                    }
+                })
+            }
+        ]
+    )
 })
-@Inject()
-export class AlleleInfoQuality {
-
-    constructor() {}
-
-    getVerificationText() {
-        return this.allele.annotation.quality.needs_verification ? 'Yes' : 'No';
-    }
-
-    getGenotypeForSample() {
-        // TODO: Fix me when introducing multiple samples...
-        return this.allele.samples[0].genotype;
-    }
-
-    formatSequence(sequence) {
-        if (sequence.length > 10) return `(${sequence.length})`
-        else return sequence
-    }
-
-
-}

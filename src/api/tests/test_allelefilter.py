@@ -315,18 +315,14 @@ def create_genepanel(genepanel_config):
 
     p1 = gene.Phenotype(
         gene=g1_ad,
-        genepanel_name='testpanel',
-        genepanel_version='v01',
         inheritance='AD',
-        description=''
+        description='P1'
     )
 
     p2 = gene.Phenotype(
         gene=g1_ar,
-        genepanel_name='testpanel',
-        genepanel_version='v01',
         inheritance='AD,AR',
-        description=''
+        description='P2'
     )
 
     genepanel = gene.Genepanel(

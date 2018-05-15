@@ -4,7 +4,7 @@
   <h3>Message:</h3>
   <!--<p style="white-space: pre;">{{job.message}}</p>-->
   <span ng-bind-html="job.message|formatText"></span>
-  <h3>Input:</h3>
-  <p>{{job.data}}</p>
+  <h3 ng-if="job.data">Input:</h3>
+  <p ng-if="job.data">{{job.data}}</p>
 </div>
 
