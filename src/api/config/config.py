@@ -35,7 +35,8 @@ config = {
             },
             "workflows": {
                 "allele": {
-                    "finalize_required_workflow_status": ['Interpretation', 'Review']  # Required current workflow status for allowing finalized
+                    # Required current workflow status for allowing finalized
+                    "finalize_required_workflow_status": ['Interpretation', 'Review']
                 },
                 "analysis": {
                     "finalize_required_workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review']
@@ -356,7 +357,7 @@ config = {
     },
     "import": {
         "automatic_deposit_with_sample_id": False,
-        "preimport_script": "/ella/scripts/preimport.py"
+        "preimport_script": os.path.join(os.path.split(os.path.abspath(__file__))[0], "../../../scripts/preimport.py")
     }
 }
 
