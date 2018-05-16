@@ -1,5 +1,5 @@
 import { set, when } from 'cerebral/operators'
-import { state } from 'cerebral/tags'
+import { state, props, string } from 'cerebral/tags'
 import { redirect } from '@cerebral/router/operators'
 import toastr from '../../../../common/factories/toastr'
 import checkUsername from '../actions/checkUsername'
@@ -23,7 +23,7 @@ export default [
                             set(state`views.login.newPassword`, ''),
                             set(state`views.login.confirmNewPassword`, '')
                         ],
-                        error: [toastr('error', `Failed to change password.`)]
+                        error: [toastr('error', string`${props`errorMessage`}`)]
                     }
                 ],
                 false: [toastr('error', `Password is invalid or confirm doesn't match.`)]
