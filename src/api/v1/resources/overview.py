@@ -2,7 +2,7 @@ import itertools
 import datetime
 import pytz
 from collections import defaultdict
-from sqlalchemy import func, tuple_, or_, and_
+from sqlalchemy import func, tuple_, or_, and_, select
 from sqlalchemy.orm import aliased
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, user as model_user
 
@@ -253,23 +253,30 @@ class OverviewAlleleResource(LogRequestResource):
         We only return allele_ids that:
             - Are connected to analyses that are 'Not started' (having 'Not ready' or 'Interpretation' as workflow status).
             - Are missing valid alleleassessments (i.e not outdated if applicable)
-            - Do not have an alleleinterpretation that is not 'Not started' (i.e. is ongoing or awaiting review)
+            - Is not Ongoing or is waiting for Review
 
         Returns (list of allele ids, list of analysis ids)
         """
 
+        # Using subqueries makes PostgreSQL perform terribly due to bad planning.
+        # Instead, use CTE which acts like optimization fences, preventing PostgreSQL from optimizing the query.
+        # In our case this makes the query go from several seconds to a few milliseconds.
+        allele_ids_not_started = queries.allele_ids_not_started_analyses(session).cte('not_started')
+        allele_ids_valid_alleleassessments = queries.allele_ids_with_valid_alleleassessments(session).cte('valid_alleleassessments')
+        allele_ids_review = queries.workflow_alleles_review_not_started(session).cte('review')
+        allele_ids_ongoing = queries.workflow_alleles_ongoing(session).cte('ongoing')
+
         allele_filters = [
-            allele.Allele.id.in_(queries.allele_ids_not_started_analyses(
-                session)),  # Allele ids in not started analyses
-            ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(
-                session)),  # Allele ids without valid allele assessment
-            # Exclude alleles that have AlleleInterpretations and are not in Interpretation state
-            ~allele.Allele.id.in_(queries.workflow_by_status(
-                session, workflow.AlleleInterpretation, 'allele_id', workflow_status='Review', status=None)),
-            # Exclude alleles that have Ongoing AlleleInterpretation as latest interpretation:
-            ~allele.Allele.id.in_(queries.workflow_by_status(
-                session, workflow.AlleleInterpretation, 'allele_id', workflow_status=None, status='Ongoing'))
+            # Allele ids in not started analyses
+            allele.Allele.id.in_(select([allele_ids_not_started.c.id])),
+            # Exclude allele ids with valid alleleassessment
+            ~allele.Allele.id.in_(select([allele_ids_valid_alleleassessments.c.id])),
+            # Exclude alleles that would show under Review section
+            ~allele.Allele.id.in_(select([allele_ids_review.c.allele_id])),
+            # Exclude alleles that are Ongoing
+            ~allele.Allele.id.in_(select([allele_ids_ongoing.c.allele_id]))
         ]
+
         if user is not None:
             allele_filters.append(
                 allele.Allele.id.in_(queries.workflow_alleles_for_genepanels(

@@ -159,8 +159,10 @@ def change_password(session, user_or_username, old_password, new_password, overr
         user_object.password_expiry = datetime.datetime(
             1970, 1, 1, tzinfo=pytz.utc)
     else:
-        user_object.password_expiry = datetime.datetime.now(
-            pytz.utc)+datetime.timedelta(days=config["user"]["auth"]["password_expiry_days"])
+        now = datetime.datetime.now(pytz.utc)
+        # Set password expiry at 2AM UTC, to avoid password (and user sessions) expiring during the daytime
+        user_object.password_expiry = now.replace(hour=2, minute=0, second=0, microsecond=0)+datetime.timedelta(
+            days=1)+datetime.timedelta(days=config["user"]["auth"]["password_expiry_days"])
 
     user_object.incorrect_logins = 0
 
