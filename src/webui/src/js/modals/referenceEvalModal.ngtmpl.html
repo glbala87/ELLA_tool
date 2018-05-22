@@ -13,11 +13,11 @@
   <controls>
     <section class="line-wrapper spaced">
       <div class="ref-title">
-        <h3 class="slim" ng-if="vm.reference.getPubmedUrl() === undefined"><b>{{vm.reference.title}}</b></h3>
-        <h3 class="slim" ng-if="vm.reference.getPubmedUrl() !== undefined">
-            <a-clip class="id-reference-title" href="{{vm.reference.url}}">{{vm.reference.title}}</a-clip>
+        <h3 class="slim" ng-if="!vm.reference.urls.pubmed"><b>{{vm.reference.title}}</b></h3>
+        <h3 class="slim" ng-if="vm.reference.urls.pubmed">
+            <a-clip class="id-reference-title" href="{{vm.reference.urls.pubmed}}">{{vm.reference.title}}</a-clip>
         </h3>
-        <p class="slim">{{vm.reference.getShortDesc()}}</p>
+        <p class="slim">{{vm.reference.formatted.shortDesc}}</p>
       </div>
       <div class="line-wrapper">
         <button class="id-reference-modal-cancel" type="button" ng-click="vm.modal.close()">Cancel</button>
@@ -38,8 +38,8 @@
       >Abstract</a></p>
     <div ng-repeat="(source, sourceStr) in vm.getReferenceDBSources()">
         <div ng-switch=source>
-            <p ng-switch-when="HGMD"><a-clip href="{{vm.allele.getHGMDUrl()}}">Source: {{ sourceStr }}</a-clip></p>
-            <p ng-switch-when="CLINVAR"><a-clip href="{{vm.allele.getClinvarUrl()}}">Source: {{ sourceStr }}</a-clip></p>
+            <p ng-switch-when="HGMD"><a-clip href="{{vm.allele.urls.hgmd}}">Source: {{ sourceStr }}</a-clip></p>
+            <p ng-switch-when="CLINVAR"><a-clip href="{{vm.allele.urls.clinvar}}">Source: {{ sourceStr }}</a-clip></p>
             <p ng-switch-default>Source: {{ sourceStr }}</p>
         </div>
     </div>
