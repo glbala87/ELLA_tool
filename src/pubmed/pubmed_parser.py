@@ -1,4 +1,5 @@
 import logging
+import re
 import xml.etree.ElementTree as ET
 
 """
@@ -10,10 +11,13 @@ log = logging.getLogger(__name__)
 
 NOT_IN_PUBMED = "NOT IN PUBMED"
 
-
 class PubMedParser(object):
 
     def from_xml_string(self, pubmed_xml):
+        # Strip out basic formatting tags from xml
+        p = re.compile('</?[ibu]>')
+        pubmed_xml = re.sub(p, '', pubmed_xml)
+
         return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
 
     def parse_pubmed_article(self, pubmed_article):
