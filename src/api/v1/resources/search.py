@@ -241,6 +241,8 @@ class SearchResource(LogRequestResource):
         Parses a query string for data that describes a genomic
         position.
         """
+        if query.startswith('g.'):
+            query = query.replace('g.', '')  # g.1235 -> 1235
         matches = re.search(SearchResource.RE_CHR_POS, query)
         if matches:
             data = matches.groupdict()
