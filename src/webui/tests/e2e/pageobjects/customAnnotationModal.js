@@ -77,6 +77,10 @@ class CustomAnnotationModal extends Page {
             return elements
         }
     }
+
+    waitForClose() {
+        browser.waitForExist('.id-custom-annotation-modal', 10000, true)
+    }
 }
 
 module.exports = CustomAnnotationModal
