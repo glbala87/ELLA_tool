@@ -136,6 +136,7 @@ describe('Sample workflow', function() {
 
             referenceEvalModal.saveBtn.scroll()
             referenceEvalModal.saveBtn.click()
+            referenceEvalModal.waitForClose()
 
             expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1')
 
@@ -145,6 +146,7 @@ describe('Sample workflow', function() {
             alleleSectionBox.addExternalBtn.click()
             customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic') // BIC
             customAnnotationModal.saveBtn.click()
+            customAnnotationModal.waitForClose()
             expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('BIC:')
             expect(alleleSectionBox.getExternalOtherValue()).toEqual('likely_pathogenic')
 
@@ -154,6 +156,7 @@ describe('Sample workflow', function() {
             alleleSectionBox.addPredictionBtn.click()
             customAnnotationModal.setPredictionAnnotation(4, 1) // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
             customAnnotationModal.saveBtn.click()
+            customAnnotationModal.waitForClose()
             expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:')
             expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain')
 
@@ -315,7 +318,8 @@ describe('Sample workflow', function() {
         referenceEvalModal.setComment('REFERENCE_EVAL_UPDATED')
         referenceEvalModal.saveBtn.scroll()
         referenceEvalModal.saveBtn.click()
-        browser.pause(200) // TODO: Not sure why modal is slow to close...
+        referenceEvalModal.waitForClose()
+
         alleleSectionBox.setClassificationComment('EVALUATION_UPDATED')
         alleleSectionBox.setFrequencyComment('FREQUENCY_UPDATED')
         alleleSectionBox.setPredictionComment('PREDICTION_UPDATED')
