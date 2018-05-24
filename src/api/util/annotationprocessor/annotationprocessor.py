@@ -20,26 +20,24 @@ class TranscriptAnnotation(object):
         if not self.config.get('transcripts', {}).get('consequences'):
             return list()
 
-        # Get minimum index for each item (since each have several consequences), then sort by that index
-        consequences = self.config['transcripts']['consequences']
+        config_consequences = self.config['transcripts']['consequences']
 
-        def sort_func(x):
-            if 'consequences' in x and x['consequences']:
-                return min(consequences.index(c) for c in x['consequences'])
-            else:
-                return 9999999
-        sorted_transcripts = sorted(transcripts, key=sort_func)
+        all_consequences = set()
+        for transcript in transcripts:
+            all_consequences.update(transcript['consequences'])
 
-        worst_consequences = list()
-        if sorted_transcripts:
-            worst_consequence = sorted_transcripts[0]['consequences']
-            for t in sorted_transcripts:
-                if any(c in t.get('consequences', []) for c in worst_consequence):
-                    worst_consequences.append(t['transcript'])
-                else:
-                    break
+        worst_consequence = None
+        for config_consequence in config_consequences:
+            if config_consequence in all_consequences:
+                worst_consequence = config_consequence
+                break
 
-            return worst_consequences
+        worst_consequence_transcripts = list()
+        for t in transcripts:
+            if worst_consequence in t.get('consequences', []):
+                worst_consequence_transcripts.append(t['transcript'])
+
+        return worst_consequence_transcripts
 
     def process(self, annotation, genepanel=None):
         """
