@@ -144,10 +144,10 @@ describe('Sample workflow', function() {
             console.log('Adding custom annotation')
             alleleSectionBox.addExternalBtn.scroll()
             alleleSectionBox.addExternalBtn.click()
-            customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic') // BIC
+            customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic') // BRCA Exchange
             customAnnotationModal.saveBtn.click()
             customAnnotationModal.waitForClose()
-            expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('BIC:')
+            expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('BRCA Exchange:')
             expect(alleleSectionBox.getExternalOtherValue()).toEqual('likely_pathogenic')
 
             // Add prediction annotation
@@ -195,7 +195,7 @@ describe('Sample workflow', function() {
                 },
                 customAnnotation: {
                     external: {
-                        'BIC-BRCA2': 'likely_pathogenic'
+                        'BRCA_Exchange-BRCA2': 'likely_pathogenic'
                     },
                     prediction: {
                         domain: 'critical_domain'

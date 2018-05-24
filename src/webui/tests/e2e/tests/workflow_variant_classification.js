@@ -52,7 +52,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
 
         // Add external annotation
         alleleSectionBox.addExternalBtn.click()
-        customAnnotationModal.setExternalAnnotation(3, 'Pathogenic') // LOVD IARC HCI
+        customAnnotationModal.setExternalAnnotation(4, 'Pathogenic') // LOVD IARC HCI
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
         expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD IARC HCI:')
