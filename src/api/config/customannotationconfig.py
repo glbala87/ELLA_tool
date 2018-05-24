@@ -98,6 +98,25 @@ customannotationconfig = {
             ]
         },
         {
+            "key": "BRCA_Exchange-BRCA1",
+            "name": "BRCA Exchange",
+            "only_for_genes": [1100],
+            "url_for_genes": {
+                "1100": "http://www.brcaexchange.org/",
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"]
+            ]
+        },
+        {
             "key": "BIC-BRCA1",
             "name": "BIC",
             "only_for_genes": [1100],
@@ -179,6 +198,25 @@ customannotationconfig = {
             "only_for_genes": [1100],
             "url_for_genes": {
                 "1100": "http://www.umd.be/BRCA1/",
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"]
+            ]
+        },
+        {
+            "key": "BRCA_Exchange-BRCA2",
+            "name": "BRCA Exchange",
+            "only_for_genes": [1101],
+            "url_for_genes": {
+                "1101": "http://www.brcaexchange.org/",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -381,7 +419,7 @@ customannotationconfig = {
                 ["Nothing found", "none_found"],
                 ["Other", "other"]
             ]
-        },        
+        },
         {
             "key": "LOVD_medgen-EXT1",
             "name": "LOVD medgen",
