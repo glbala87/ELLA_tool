@@ -48,6 +48,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         const afterCount = customAnnotationModal.referenceList().value.length
         expect(afterCount).toEqual(beforeCount + 1)
         customAnnotationModal.saveBtn.click()
+        customAnnotationModal.waitForClose()
 
         expect(alleleSectionBox.getReferences().value.length).toEqual(4)
 

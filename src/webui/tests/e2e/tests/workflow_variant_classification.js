@@ -46,14 +46,15 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         referenceEvalModal.setComment('REFERENCE_EVAL_ROUND1')
 
         referenceEvalModal.saveBtn.click()
-        referenceEvalModal.saveBtn.waitForExist(1000, true) // Wait for modal to close
+        referenceEvalModal.waitForClose()
 
         expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1')
 
         // Add external annotation
         alleleSectionBox.addExternalBtn.click()
-        customAnnotationModal.setExternalAnnotation(3, 'Pathogenic') // LOVD IARC HCI
+        customAnnotationModal.setExternalAnnotation(4, 'Pathogenic') // LOVD IARC HCI
         customAnnotationModal.saveBtn.click()
+        customAnnotationModal.waitForClose()
         expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD IARC HCI:')
         expect(alleleSectionBox.getExternalOtherValue()).toEqual('pathogenic')
 
@@ -61,6 +62,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         alleleSectionBox.addPredictionBtn.click()
         customAnnotationModal.setPredictionAnnotation(1, 2) // Ortholog conservation: Non-conserved
         customAnnotationModal.saveBtn.click()
+        customAnnotationModal.waitForClose()
         expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Ortholog conservation:')
         expect(alleleSectionBox.getPredictionOtherValue()).toEqual('non-conserved')
 

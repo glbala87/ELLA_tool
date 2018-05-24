@@ -352,6 +352,11 @@ config = {
                 'name': '^Diag-EKG.*',
                 'type': 'analysis',
                 'methods': ['analysis_not_ready_findings']
+            },
+            {
+                'name': '^Diag-Target.*',
+                'type': 'analysis',
+                'methods': ['analysis_not_ready_findings']
             }
         ]
     },

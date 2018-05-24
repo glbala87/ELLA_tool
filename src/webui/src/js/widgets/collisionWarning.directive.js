@@ -20,17 +20,11 @@ app.component('collisionWarning', {
                         let title = ''
                         if ($ctrl.collisions) {
                             if ($ctrl.type === 'allele') {
-                                title += `This variant is currently `
+                                title += `This variant is currently being worked on `
                                 if ($ctrl.collisions.length === 1) {
-                                    title += `${
-                                        $ctrl.collisions[0].user
-                                            ? 'being worked on by ' +
-                                              $ctrl.collisions[0].user.full_name
-                                            : 'in review'
-                                    } `
                                     title += 'in another workflow.'
                                 } else {
-                                    title += 'being worked on in other workflows.'
+                                    title += 'in other workflows.'
                                 }
                             } else if ($ctrl.type === 'analysis') {
                                 title = 'There '
