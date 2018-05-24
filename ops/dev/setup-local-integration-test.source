@@ -1,6 +1,7 @@
 #!/bin/bash -ue
 
 # Sets up vardb-test for local integration testing
+createdb vardb-test || true
 export DB_URL=postgresql:///vardb-test
 /ella/ella-cli database drop -f
 /ella/ella-cli database make -f
