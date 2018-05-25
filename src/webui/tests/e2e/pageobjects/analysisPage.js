@@ -1,28 +1,29 @@
 var Page = require('./page')
+var util = require('./util')
 
 const SELECTOR_COMMENT_ACMG = 'acmg.id-staged-acmg-code wysiwyg-editor.id-comment-acmg'
 const SELECTOR_COMMENT_ACMG_EDITOR = `${SELECTOR_COMMENT_ACMG} .wysiwygeditor`
 
 class AnalysisPage extends Page {
     get title() {
-        return browser.element('.id-workflow-instance').getText()
+        return util.element('.id-workflow-instance').getText()
     }
     get analysis() {
-        return browser.element('analysis')
+        return util.element('analysis')
     }
 
     // button has many uses, where button text varies:
     get finishButton() {
-        return browser.element('.id-finish-analysis')
+        return util.element('.id-finish-analysis')
     }
     get startButton() {
-        return browser.element('.id-start-analysis')
+        return util.element('.id-start-analysis')
     }
     get saveButton() {
-        return browser.element('.id-start-analysis')
+        return util.element('.id-start-analysis')
     }
     get reopenButton() {
-        return browser.element('.id-start-analysis')
+        return util.element('.id-start-analysis')
     }
 
     // acmg modal to choose code:
@@ -32,26 +33,26 @@ class AnalysisPage extends Page {
 
     // buttons in modal
     get modalFinishButton() {
-        return browser.element('.id-finish')
+        return util.element('.id-finish')
     }
     get markInterpretationButton() {
-        return browser.element('.id-mark-interpretation')
+        return util.element('.id-mark-interpretation')
     }
     get markReviewButton() {
-        return browser.element('.id-mark-review')
+        return util.element('.id-mark-review')
     }
     get markMedicalReviewButton() {
-        return browser.element('.id-mark-medicalreview')
+        return util.element('.id-mark-medicalreview')
     }
     get finalizeButton() {
-        return browser.element('.id-finalize')
+        return util.element('.id-finalize')
     }
 
     get addExcludedButton() {
-        return browser.element('.id-add-excluded')
+        return util.element('.id-add-excluded')
     }
     get collisionWarningBar() {
-        return browser.element('.collision-warning')
+        return util.element('.collision-warning')
     }
 
     get roundCount() {
@@ -112,8 +113,8 @@ class AnalysisPage extends Page {
             categories[category]
         })`
         browser.click(acmg_selector)
-        browser.element('.popover').scroll(`h4.acmg-title=${code}`)
-        browser.element('.popover').click(`h4.acmg-title=${code}`)
+        util.element('.popover').scroll(`h4.acmg-title=${code}`)
+        util.element('.popover').click(`h4.acmg-title=${code}`)
 
         // Set staged code comment
         this.acmgComment.click()
@@ -123,14 +124,14 @@ class AnalysisPage extends Page {
         let adjust_down = adjust_levels < 0
         for (let i = 0; i < Math.abs(adjust_levels); i++) {
             if (adjust_down) {
-                browser.element('.acmg-selection .id-staged-acmg-code .id-adjust-down').click()
+                util.element('.acmg-selection .id-staged-acmg-code .id-adjust-down').click()
             } else {
-                browser.element('.acmg-selection .id-staged-acmg-code .id-adjust-up').click()
+                util.element('.acmg-selection .id-staged-acmg-code .id-adjust-up').click()
             }
         }
 
         // Add staged code
-        browser.element('.acmg-selection .id-staged-acmg-code .acmg-upper button').click()
+        util.element('.acmg-selection .id-staged-acmg-code .acmg-upper button').click()
     }
 }
 

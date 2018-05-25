@@ -51,9 +51,15 @@ class Util {
         } else return null
     }
 
+    element(selector) {
+        browser.waitForVisible(selector)
+        var el = browser.element(selector)
+        return el
+    }
+
     elementIntoView(selector) {
         // Get element, scroll into view (middle of screen), and return element
-        var el = browser.element(selector)
+        var el = this.element(selector)
         browser.scroll(el.selector, 0, -browser.windowHandleSize().value.height / 2)
         return el
     }
