@@ -65,12 +65,16 @@ def load_transcripts(transcripts_path):
             if not header:
                 raise RuntimeError("Found no valid header in {}. Header should start with '#chromosome'. ".format(transcripts_path))
 
+            # Transcripts files are 1-based. We use zero-based in the database.
+            def zero_based_int(x):
+                return int(x)-1
+
             data = dict(zip(header, [l.strip() for l in line.split('\t')]))
             data['HGNC'] = int(data['HGNC'])
-            data['txStart'], data['txEnd'], = int(data['txStart']), int(data['txEnd'])
-            data['cdsStart'], data['cdsEnd'] = int(data['cdsStart']), int(data['cdsEnd'])
-            data['exonsStarts'] = map(int, data['exonsStarts'].split(','))
-            data['exonEnds'] = map(int, data['exonEnds'].split(','))
+            data['txStart'], data['txEnd'], = zero_based_int(data['txStart']), zero_based_int(data['txEnd'])
+            data['cdsStart'], data['cdsEnd'] = zero_based_int(data['cdsStart']), zero_based_int(data['cdsEnd'])
+            data['exonsStarts'] = map(zero_based_int, data['exonsStarts'].split(','))
+            data['exonEnds'] = map(zero_based_int, data['exonEnds'].split(','))
             transcripts.append(data)
         return transcripts
 

@@ -62,7 +62,7 @@ class DepositFromVCF(object):
 
     def is_inside_transcripts(self, record, genepanel):
         chr = record["CHROM"]
-        pos = record["POS"]
+        pos = record["POS"]-1 # We use zero-based transcripts
         for tx in genepanel.transcripts:
             if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
                 return True
