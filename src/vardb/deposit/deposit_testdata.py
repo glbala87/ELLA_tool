@@ -168,6 +168,10 @@ class DepositTestdata(object):
                 continue
             try:
                 analysis_vcf_path = glob.glob(os.path.join(analysis_path, '*.vcf'))[0]
+                analysis_ped_path = None
+                ped_glob = glob.glob(os.path.join(analysis_path, '*.ped'))
+                if ped_glob:
+                    analysis_ped_path = ped_glob[0]
                 filename = os.path.basename(analysis_vcf_path)
                 matches = re.match(DepositTestdata.ANALYSIS_FILE_RE, filename)
 
@@ -186,7 +190,7 @@ class DepositTestdata(object):
                     report=REPORT_EXAMPLE
                 )
 
-                da.import_vcf(acd)
+                da.import_vcf(acd, ped_file=analysis_ped_path)
 
                 log.info("Deposited {} as analysis".format(analysis_name))
                 self.session.commit()

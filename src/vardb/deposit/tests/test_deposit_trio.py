@@ -1,65 +1,56 @@
-"""
-The test-sample is of this form:
 
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	TrioMK	TrioPK	TrioFK
-13	32914458	.	C	G	5000	PASS	.	GT	0|1	0|0	0|0
-13	32914484	.	C	T	5000	PASS	.	GT	1|1	0|0	0|0
-13	32914522	.	C	A	5000	PASS	.	GT	1|0	1|0	0|0
-13	32914550	.	GAACA	G	5000	PASS	.	GT	1|0	1|0	1|0
-13	32914569	.	C	CA	5000	PASS	.	GT	0|1	1|0	0|0
-13	32914616	.	C	T	5000	PASS	.	GT	0|1	1|0	0|1
-13	32914617	.	A	C,G	5000	PASS	.	GT	1|2	1|0	0|2
-13	32914688	.	GTT	ATT,GT,G	5000	PASS	.	GT	1|3	1|0	2|3
-13	32914766	.	CTTCACTA	GTTCACTA,C	5000	PASS	.	GT	0|0	1|0	0|2
-
-This should import as:
-- 1 analysis
-- 3 samples
-- 20 genotypes
-    - 8 for TrioMK
-    - 7 for TrioPK
-    - 5 for TrioFK
-- 13 alleles
-- Other tests
-    - One homozygous genotype (13,32914484,C->T)
-    - Three multiallelic heterozygous genotypes
-    - One genotype in all three samples (13, 32914550, GAACA->G)
-"""
 
 import pytest
 import os
+from vardb.util import vcfiterator
 from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.datamodel import genotype, sample
+from vardb.deposit.importers import SampleImporter
+from vardb.datamodel import genotype, sample, allele
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
 import vardb
+
 VARDB_PATH = os.path.split(vardb.__file__)[0]
+TRIO_PATH = os.path.join(VARDB_PATH, "testdata/analyses/integration_testing/trio_variants_1.HBOC_v01")
 
 
 ## FIXTURES
 
 @pytest.fixture(scope="module", autouse=True)
-def deposit(session_module):
+def deposit(test_database, session_module):
     """Deposit test analysis"""
-    trio = os.path.join(VARDB_PATH, "testdata/analyses/trio/trio_analysis_1.HBOC_v01")
-    assert os.path.isdir(trio)
-    files = os.listdir(trio)
-    assert len(files) == 1+1+3
-    vcf_file = os.path.join(trio, [f for f in files if f.endswith(".vcf")][0])
+    test_database.refresh()
 
+    assert os.path.isdir(TRIO_PATH)
+    files = os.listdir(TRIO_PATH)
+
+    vcf_file = os.path.join(TRIO_PATH, [f for f in files if f.endswith(".vcf")][0])
+    ped_file = os.path.join(TRIO_PATH, [f for f in files if f.endswith(".ped")][0])
     deposit_analysis = DepositAnalysis(session_module)
-    deposit_analysis.import_vcf(AnalysisConfigData(
-        vcf_file,
-        'trio_analysis_1.HBOC_v01',
-        'HBOC',
-        'v01',
-        1
-    ))
+    deposit_analysis.import_vcf(
+        AnalysisConfigData(
+            vcf_file,
+            'trio_variants_1.HBOC_v01',
+            'HBOC',
+            'v01',
+            1
+        ),
+        ped_file=ped_file
+    )
+    session_module.commit()
+
+
+@pytest.fixture(scope="module")
+def ped_data():
+    files = os.listdir(TRIO_PATH)
+    return SampleImporter.parse_ped(
+        os.path.join(TRIO_PATH, [f for f in files if f.endswith(".ped")][0])
+    )
 
 
 @pytest.fixture(scope="module")
 def analysis_name():
-    return "trio_analysis_1.HBOC_v01"
+    return "trio_variants_1.HBOC_v01"
 
 
 @pytest.fixture(scope="module")
@@ -75,76 +66,129 @@ def all_genotypes(session_module, analysis_name):
 
 ## TESTS
 
-def test_analysis(session_module, analysis_name):
+def test_pedigree(session_module, analysis_name, ped_data):
     """Test that there is only one analysis with given name"""
+    samples = session_module.query(sample.Sample).join(
+        sample.Analysis
+    ).filter(
+        sample.Analysis.name == analysis_name,
+    ).all()
+
+    proband = next(s for s in samples if s.identifier == 'TrioP')
+    proband_ped = next(p for p in ped_data if p['sample_id'] == 'TrioP')
+    father = next(s for s in samples if s.identifier == 'TrioF')
+    father_ped = next(p for p in ped_data if p['sample_id'] == 'TrioF')
+    mother = next(s for s in samples if s.identifier == 'TrioM')
+    mother_ped = next(p for p in ped_data if p['sample_id'] == 'TrioM')
+
+    assert proband.family_id == proband_ped['family_id']
+    assert proband.sex == proband_ped['sex']
+    assert proband.affected is proband_ped['affected']
+    assert proband.father_id == father.id
+    assert proband.mother_id == mother.id
+
+    assert father.family_id == father_ped['family_id']
+    assert father.sex == father_ped['sex']
+    assert father.affected is father_ped['affected']
+    assert father.father_id is None
+    assert father.mother_id is None
+
+    assert mother.family_id == mother_ped['family_id']
+    assert mother.sex == mother_ped['sex']
+    assert mother.affected is mother_ped['affected']
+    assert mother.mother_id is None
+    assert mother.mother_id is None
+
+
+def test_data_import(session_module, analysis_name):
+    files = os.listdir(TRIO_PATH)
+    vcf_file = os.path.join(TRIO_PATH, [f for f in files if f.endswith(".vcf")][0])
+
+    vi = vcfiterator.VcfIterator(vcf_file)
+
+    analysis_id = session_module.query(sample.Analysis.id).filter(
+        sample.Analysis.name == analysis_name
+    ).scalar()
+
+    sample_id_names = session_module.query(
+        sample.Sample.id,
+        sample.Sample.identifier
+    ).filter(
+        sample.Sample.analysis_id == analysis_id
+    ).all()
+
+    sample_id_names = {s[0]: s[1] for s in sample_id_names}
+
+    def check_allele_variant(allele, variant):
+        assert allele.chromosome == variant['CHROM']
+        assert allele.vcf_pos == variant['POS']
+        assert allele.vcf_ref == variant['REF']
+        assert len(variant['ALT']) == 1
+        assert allele.vcf_alt == variant['ALT'][0]
+
+    for variant in vi.iter():
+
+        genotypes = session_module.query(genotype.Genotype).join(
+            allele.Allele.genotypes
+        ).filter(
+            allele.Allele.chromosome == variant['CHROM'],
+            allele.Allele.vcf_pos == variant['POS'],
+            allele.Allele.vcf_ref == variant['REF'],
+            allele.Allele.vcf_alt == variant['ALT'][0],
+            genotype.Genotype.analysis_id == analysis_id
+        ).all()
+
+        assert genotypes
+
+        for gt in genotypes:
+            vcf_genotype = variant['SAMPLES'][sample_id_names[gt.sample_id]]['GT']
+            gts = vcf_genotype.split('/', 1)
+            if gts == ['1', '1']:
+                check_allele_variant(gt.allele, variant)
+                assert gt.homozygous is True
+            elif gts in [['0', '1'], ['1', '0']]:
+                check_allele_variant(gt.allele, variant)
+                assert gt.homozygous is False
+            elif gts == ['1', '.']:
+                check_allele_variant(gt.allele, variant)
+                assert gt.homozygous is False
+            elif gts == ['.', '1']:
+                assert gt.homozygous is False
+                check_allele_variant(gt.secondallele, variant)
+            else:
+                raise RuntimeError("Case {} not covered".format(gts))
+
+
+def test_analysis(session_module, analysis_name):
     analyses = session_module.query(sample.Analysis).filter(
         sample.Analysis.name == analysis_name,
     ).all()
     assert len(analyses) == 1
 
 
-def test_num_samples_in_analysis(session_module, analysis_name):
-    """Test number of samples in analysis"""
+def test_samples_in_analysis(session_module, analysis_name):
     samples = session_module.query(sample.Sample).join(
         sample.Analysis,
     ).filter(
         sample.Analysis.name == analysis_name,
     ).all()
     assert len(samples) == 3
-    assert set(s.identifier for s in samples) == set(["TrioMK", "TrioPK", "TrioFK"])
+    assert set(s.identifier for s in samples) == set(["TrioM", "TrioP", "TrioF"])
+    proband = next(s for s in samples if s.identifier == 'TrioP')
+    father = next(s for s in samples if s.identifier == 'TrioF')
+    mother = next(s for s in samples if s.identifier == 'TrioM')
 
+    assert proband.proband is True
+    assert proband.affected is True
+    assert proband.father_id == father.id
+    assert proband.mother_id == mother.id
 
-def test_num_genotypes(all_genotypes):
-    """Test number of genotypes in analysis"""
-    assert len(all_genotypes) == 20
+    assert father.proband is False
+    assert father.affected is False
+    assert father.father_id is None
+    assert father.mother_id is None
 
-
-def test_number_of_alleles(all_genotypes):
-    """Test number of alleles"""
-    allele_ids = set(sum(([gt.allele_id, gt.secondallele_id] for gt in all_genotypes), []))
-    allele_ids.discard(None)
-    assert len(allele_ids) == 13
-
-
-@pytest.mark.parametrize(("sample_name", "expected"), [
-    ("TrioMK", 8),
-    ("TrioFK", 5),
-    ("TrioPK", 7)
-])
-def test_number_of_genotypes_in_sample(all_genotypes, sample_name, expected):
-    """Test number of genotypes for each sample"""
-    genotypes_in_sample = [gt for gt in all_genotypes if gt.sample.identifier == sample_name]
-    assert len(genotypes_in_sample) == expected
-
-
-def test_homozygous(all_genotypes):
-    """One homozygous genotype (13,32914484,C->T)"""
-    homozygous = [gt for gt in all_genotypes if gt.homozygous]
-    assert len(homozygous) == 1
-    homozygous = homozygous[0]
-    assert homozygous.secondallele is None
-    allele = homozygous.allele
-    assert allele.chromosome == '13'
-    assert allele.vcf_pos == 32914484
-    assert allele.vcf_ref == 'C'
-    assert allele.vcf_alt == 'T'
-
-
-def test_multiallelic_heterozygous(all_genotypes):
-    """Three multiallelic heterozygous genotypes"""
-    heterozygous_nonref = [gt for gt in all_genotypes if gt.secondallele]
-    assert len(heterozygous_nonref) == 3
-
-
-def test_common_genotype(all_genotypes):
-    """One genotype in all three samples (13, 32914550, GAACA->G)"""
-    genotypes = [gt for gt in all_genotypes
-                 if (gt.allele.chromosome == '13' and
-                     gt.allele.vcf_pos == 32914550 and
-                     gt.allele.vcf_ref == "GAACA" and
-                     gt.allele.vcf_alt == 'G' and
-                     gt.secondallele is None)
-                 ]
-    assert len(genotypes) == 3
-    gt_samples = [gt.sample.identifier for gt in genotypes]
-    assert set(gt_samples) == set(["TrioMK", "TrioPK", "TrioFK"])
+    assert mother.proband is False
+    assert mother.affected is False
+    assert mother.father_id is None
+    assert mother.mother_id is None

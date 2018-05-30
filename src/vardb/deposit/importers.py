@@ -13,6 +13,7 @@ import re
 import logging
 import datetime
 import pytz
+import itertools
 from collections import defaultdict
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -92,16 +93,112 @@ class SampleImporter(object):
         self.session = session
         self.counter = defaultdict(int)
 
-    def process(self, sample_names, analysis, sample_type='HTS'):
-        db_samples = list()
+    @staticmethod
+    def parse_ped(ped_file):
+        """
+        First affected person is assigned as proband.
+        """
+
+        def ped_to_sex(value):
+            value = value.strip()
+            if value == '1':
+                return 'Male'
+            if value == '2':
+                return 'Female'
+            return None
+
+        parsed_ped = []
+        with open(ped_file) as ped:
+            lines = ped.readlines()
+            for line in lines:
+                if line.startswith('#'):
+                    continue
+                family_id, sample_id, father_id, mother_id, sex, affected, proband = line.split('\t')
+                assert family_id, 'Family ID is empty'
+                assert sample_id, 'Sample ID is empty'
+                parsed_ped.append({
+                    'family_id': family_id.strip(),
+                    'sample_id': sample_id.strip(),
+                    'father_id': father_id.strip(),
+                    'mother_id': mother_id.strip(),
+                    'sex': ped_to_sex(sex),
+                    'affected': affected.strip() == '2',
+                    'proband': proband.strip() == '1'
+                })
+        return parsed_ped
+
+    def process(self, sample_names, analysis, sample_type='HTS', ped_file=None):
+
+        db_samples = defaultdict(list)  # family_id or None: list of samples
+
+        ped_data = None
+        if ped_file:
+            ped_data = self.parse_ped(ped_file)
+            assert ped_data, 'Provided .ped file yielded no data'
+        elif len(sample_names) > 1:
+            raise RuntimeError('.ped file required when importing multiple samples')
+
+        # Connect samples to mother and father  {(family_id, sample_id): {'father_id': ..., 'mother_id': ...}}
+        to_connect = defaultdict(dict)
         for sample_idx, sample_name in enumerate(sample_names):
+
+            sample_ped_data = {}
+            if len(sample_names) == 1:
+                sample_ped_data.update({
+                    'affected': True,
+                    'proband': True
+                })
+
+            if ped_data:
+                sample_ped_data = next((p for p in ped_data if p['sample_id'] == sample_name), None)
+                assert sample_ped_data, "Couldn't find sample name {} in provided .ped file".format(sample_name)
+
             db_sample = sm.Sample(
                 identifier=sample_name,
                 sample_type=sample_type,
-                analysis=analysis
+                analysis=analysis,
+                family_id=sample_ped_data.get('family_id'),
+                sex=sample_ped_data.get('sex'),
+                proband=sample_ped_data.get('proband'),
+                affected=sample_ped_data.get('affected'),
             )
-            db_samples.append(db_sample)
+            db_samples[sample_ped_data.get('family_id')].append(db_sample)
+
+            if sample_ped_data.get('mother_id') and sample_ped_data.get('mother_id') != '0':
+                to_connect[(sample_ped_data.get('family_id'), sample_name)]['mother_id'] = sample_ped_data['mother_id']
+
+            if sample_ped_data.get('father_id') and sample_ped_data.get('father_id') != '0':
+                to_connect[(sample_ped_data.get('family_id'), sample_name)]['father_id'] = sample_ped_data['father_id']
+
+            self.session.add(db_sample)
             self.counter['nSamplesAdded'] += 1
+
+        # We need to flush to create ids before we connect them
+        self.session.flush()
+        for fam_sample_id, values in to_connect.iteritems():
+            family_id, sample_id = fam_sample_id
+            db_sample = next(s for s in db_samples[family_id] if s.identifier == sample_id)
+            if values.get('father_id'):
+                db_father = next(s for s in db_samples[family_id] if s.identifier == values['father_id'])
+                db_sample.father_id = db_father.id
+            if values.get('mother_id'):
+                db_mother = next(s for s in db_samples[family_id] if s.identifier == values['mother_id'])
+                db_sample.mother_id = db_mother.id
+
+        if ped_file is None:
+            assert db_samples.keys() == [None] and len(db_samples[None]) == 1, 'Cannot import multiple samples without pedigree file'
+
+        all_db_samples = list(itertools.chain.from_iterable(db_samples.values()))
+        if len(all_db_samples) != len(sample_names):
+            self.session.rollback()
+            raise RuntimeError("Couldn't import samples to database. (db_samples: %s, vcf_sample_names: %s)" %(str(db_samples), str(vcf_sample_names)))
+
+        proband_count = len([True for s in all_db_samples if s.proband])
+        assert proband_count == 1, 'Exactly one sample as proband is required. Got {}.'.format(proband_count)
+        father_count = len(set([s.father_id for s in all_db_samples if s.father_id is not None]))
+        assert father_count < 2, "An analysis' family can only have one father."
+        mother_count = len(set([s.mother_id for s in all_db_samples if s.mother_id is not None]))
+        assert mother_count < 2, "An analysis' family can only have one mother."
         return db_samples
 
     def get(self, sample_names, analysis):
@@ -118,93 +215,50 @@ class SampleImporter(object):
 
 class GenotypeImporter(object):
 
-    ALLELE_DELIMITER = re.compile(r'''[|/]''')  # to split a genotype into alleles
-
     def __init__(self, session):
         self.session = session
-        self.counter = defaultdict(int)
-        self.counter['nGenotypeHetroRef'] = 0
-        self.counter['nGenotypeHomoNonRef'] = 0
-        self.counter['nGenotypeHetroNonRef'] = 0
 
-    def is_sample_het(self, records_sample):
-        for record in records_sample:
-            gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record['GT'])
-            if gt1 == gt2 == "1":
-                return False
-
-        return True
-
-    def should_add_genotype(self, sample):
-        """Decide if genotype should be added for this sample
-
-        Only add non-reference called genotypes.
-        In other words, don't add if GT = '0/0' or './.'
-        """
-        gt = [al for al in GenotypeImporter.ALLELE_DELIMITER.split(sample['GT'])]
-        return not (gt[0] == gt[1] and gt[0] in ['0', '.'])
-
-    def get_alleles_for_genotypes(self, records_sample, db_alleles):
-        """From genotype numbers, return correct objects from alleles list
-
-        Assumes alleles only contain alternative alleles.
-        Assume genotype un-phased and returns alleles in reverse-integersorted genotype order (e.g. 0/1 -> 1,0).
-        For heterozygous non-ref genootypes, genotype phase is kept.
-
-        If the genotype in the record sample is of the form
-        records_sample = [{'GT': '.|1'}, {"GT": '1|.'}], this is interpreted as as GT='2|1',
-        and returns db_alleles[1], db_alleles[0]
-        """
-        # Iterate over records to extract genotype.
-        a1 = None
-        a2 = None
-        for i, record_sample in enumerate(records_sample):
-            gt1, gt2 = GenotypeImporter.ALLELE_DELIMITER.split(record_sample['GT'])
-            is_unphased = "/" in record_sample["GT"]
-
-            assert gt1 in ['0', '.', '1']
-            assert gt2 in ['0', '.', '1']
-
-            if gt1 == "1":
-                if is_unphased and a1 is not None:
-                    a1,a2 = a2,a1
-                assert a1 is None
-                a1 = db_alleles[i]
-
-            if gt2 == "1":
-                if is_unphased and a2 is not None:
-                    a1,a2 = a2,a1
-                assert a2 is None
-                a2 = db_alleles[i]
-
-        # Flip genotype if given as 0|1
-        if a1 is None:
-            a1,a2 = a2,a1
-
-        # Second allele should be none if homozygous
-        if a1 == a2:
-            a2 = None
-
-        return a1, a2
+    def is_sample_hom(self, record):
+        gt1, gt2 = record['GT'].split('/', 1)
+        return gt1 == gt2 == "1"
 
     def process(self, records, sample_name, db_analysis, db_sample, db_alleles):
-        records_sample = [record['SAMPLES'][sample_name] for record in records]
-        a1, a2 = self.get_alleles_for_genotypes(records_sample, db_alleles)
-        if a1 is None:
-            assert a2 is None
-            return None
-        sample_het = self.is_sample_het(records_sample)
+        """
+        Import genotypes for provided allele(s) for a sample.
+
+        If biallelic site (2 non-reference variants), both records and db_alleles
+        will have 2 entries. db_alleles will be connected to allele_id and secondallele_id.
+
+        Phasing is not supported.
+        """
+
+        assert len(records) == 1 or len(records) == 2
+        assert len(db_alleles) == 1 or len(db_alleles) == 2
+
+        a1 = db_alleles[0]
+        a2 = None
 
         allele_depth = dict()
-        for i, record_sample in enumerate(records_sample):
-            if record_sample.get('AD'):
-                if len(record_sample['AD']) != 2:
-                    log.warning("AD not decomposed")
-                    continue
+        for idx, record in enumerate(records):
+            record_sample = record['SAMPLES'][sample_name]
 
-                # {'REF': 12, 'A': 134, 'G': 12}
-                allele_depth.update({"REF": record_sample["AD"][0]})
-                allele_depth.update({k: v for k, v in zip(records[i]['ALT'], record_sample['AD'][1:])})
+            if len(records) == 2:
+                assert record_sample['GT'] in ['1/.', './1']
+
+            # Biallelic -> set correct first and second allele
+            if record_sample['GT'] == '1/.':
+                a1 = db_alleles[idx]
+            elif record_sample['GT'] == './1':
+                a2 = db_alleles[idx]
+
+            # Update allele depth
+            if record_sample.get('AD'):
+                if len(record_sample['AD']) == 2:
+                    # {'REF': 12, 'A': 134, 'G': 12}
+                    allele_depth.update({"REF": record_sample["AD"][0]})
+                    allele_depth.update({k: v for k, v in zip(records[idx]['ALT'], record_sample['AD'][1:])})
+                else:
+                    log.warning("AD not decomposed, allele depth value will be empty")
 
         # If site is multiallelic, we expect three values for allele depth.
         # However, due to normalization, ALT could be the same for both sites, and the allele depth will only contain two values.
@@ -214,12 +268,18 @@ class GenotypeImporter(object):
                 allele_depth = dict()
                 log.warning("Unable to extract allele depth. Different REF for the multiallelic site (REF1={}, REF2={})?".format(records[0]['REF'], records[1]['REF']))
 
+        assert a1 != a2
+
+        sample_hom = False
+        # If we have multiple records, it's per definition not homozygous
+        if len(records) == 1:
+            sample_hom = self.is_sample_hom(records[0]['SAMPLES'][sample_name])
+
         # GQ, DP, FILTER, and QUAL should be the same for all decomposed variants
-        genotype_quality = records_sample[0].get('GQ')
-        sequencing_depth = records_sample[0].get('DP')
+        genotype_quality = records[0]['SAMPLES'][sample_name].get('GQ')
+        sequencing_depth = records[0]['SAMPLES'][sample_name].get('DP')
 
         filter = records[0]["FILTER"]
-        assert filter == records[0]["FILTER"]
 
         try:
             qual = int(records[0]['QUAL'])
@@ -230,7 +290,7 @@ class GenotypeImporter(object):
             self.session,
             allele=a1,
             secondallele=a2,
-            homozygous=not sample_het,
+            homozygous=sample_hom,
             sample=db_sample,
             analysis=db_analysis,
             genotype_quality=genotype_quality,
@@ -239,9 +299,7 @@ class GenotypeImporter(object):
             allele_depth=allele_depth,
             filter_status=filter,
         )
-        if sample_het and a2 is None: self.counter["nGenotypeHetroRef"] += 1
-        elif not sample_het and a2 is None: self.counter["nGenotypeHomoNonRef"] += 1
-        elif sample_het and a2 is not None: self.counter["nGenotypeHetroNonRef"] += 1
+
         return db_genotype
 
 
