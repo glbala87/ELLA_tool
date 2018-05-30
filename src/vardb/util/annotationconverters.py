@@ -77,15 +77,14 @@ CSQ_FIELDS = [
 # Should match all possible valid HGVSc annotations (without transcript)
 # We use the resulting regex groups below in _calculate_distances, to compute distance
 # from coding start (for exonic UTR variants), and exon distance (for intronic variants)
-#        hgvsc        | exon_distance | coding_region_distance
-# --------------------+---------------+------------------------
-#  c.279G>A           |             0 |
-#  n.1901_1904delAAGT |             0 |
-#  c.248-1_248insA    |             0 |
-#  c.11712-20dupT     |           -20 |
-#  c.1624+24T>A       |            24 |
-#  c.*14G>A           |             0 |                     14
-#  c.-315_-314delAC   |             0 |                   -314
+# Examples of valid HGVSc:
+# c.279G>A
+# n.1901_1904delAAGT
+# c.248-1_248insA
+# c.11712-20dupT
+# c.1624+24T>A
+# c.*14G>A
+# c.-315_-314delAC
 
 HGVSC_DISTANCE_CHECK = [
     r'(?P<c>[cn])\.', # Coding or non-coding
@@ -123,6 +122,29 @@ def convert_csq(annotation):
         return False
 
     def _calculate_distances(hgvsc):
+        """Calculate distances from valid HGVSc.
+        References:
+        Numbering: http://varnomen.hgvs.org/bg-material/numbering/
+        Naming: http://varnomen.hgvs.org/bg-material/standards/
+
+        exon_distance denotes distance from exon for intron variants. For exonic variants, this is 0.
+
+        coding_region_distance denotes distance from coding region of the *spliced* gene.
+        This only applies to exonic variants. Used for determining distance into UTR-region of a variant.
+
+        Returns (exon_distance, utr_distance)
+
+        Examples:
+               hgvsc        | exon_distance | coding_region_distance
+        --------------------+---------------+------------------------
+         c.279G>A           |             0 |                      0
+         n.1901_1904delAAGT |             0 |                      0
+         c.248-1_248insA    |             0 |                      0
+         c.11712-20dupT     |           -20 |
+         c.1624+24T>A       |            24 |
+         c.*14G>A           |             0 |                     14
+         c.-315_-314delAC   |             0 |                   -314
+        """
         match = HGVSC_DISTANCE_CHECK_REGEX.match(hgvsc)
         if not match:
             if hgvsc:
@@ -166,9 +188,15 @@ def convert_csq(annotation):
         exon_distance = get_distance(pm, match_data['ed1'], match_data['ed2'])
 
         utr = match_data['utr1'] if match_data['utr1'] else match_data['utr2']
-        if utr and exon_distance == 0 and match_data['c'] == 'c':
-            coding_region_distance = get_distance(utr, match_data['p1'], match_data['p2'])
+        if exon_distance==0:
+            if utr:
+                coding_region_distance = get_distance(utr, match_data['p1'], match_data['p2'])
+            else:
+                # If not UTR, this is a coding variant
+                coding_region_distance = 0
+
         return exon_distance, coding_region_distance
+
 
     if 'CSQ' not in annotation:
         return list()
