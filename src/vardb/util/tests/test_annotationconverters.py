@@ -201,7 +201,6 @@ class TestTranscriptAnnotation():
             ('ENST123123:n.4535+1insAAA', 1, None),
             ('ENST123123:n.4535-1dupTTT', -1, None),
             ('ENST123123:c.4535G>T', 0, 0),
-            ('ENST123123:c.4535G>T', 0, 0),
             ('NM_007294.3:c.4535G>T', 0, 0),
             ('ENST123123:n.4535G>T', 0, 0),
             ('NM_007294.3:n.4535G>T', 0, 0),

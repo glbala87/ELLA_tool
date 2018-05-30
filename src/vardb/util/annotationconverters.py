@@ -131,6 +131,7 @@ def convert_csq(annotation):
 
         coding_region_distance denotes distance from coding region of the *spliced* gene.
         This only applies to exonic variants. Used for determining distance into UTR-region of a variant.
+        For exonic variants not in UTR, this is 0.
 
         Returns (exon_distance, utr_distance)
 
@@ -184,6 +185,8 @@ def convert_csq(annotation):
             else:
                 raise RuntimeError("Unable to compute distance from plus_minus={}, d1={}, d2={}".format(plus_minus, d1, d2))
 
+        # Choose pm1 if exists, otherwise choose pm2.
+        # pm2 can exist without pm1, for example with c.248_248+1insA
         pm = match_data['pm1'] if match_data['pm1'] else match_data['pm2']
         exon_distance = get_distance(pm, match_data['ed1'], match_data['ed2'])
 
