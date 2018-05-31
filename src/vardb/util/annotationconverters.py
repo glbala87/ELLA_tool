@@ -131,20 +131,19 @@ def convert_csq(annotation):
 
         coding_region_distance denotes distance from coding region of the *spliced* gene.
         This only applies to exonic variants. Used for determining distance into UTR-region of a variant.
-        For exonic variants not in UTR, this is 0.
 
         Returns (exon_distance, utr_distance)
 
         Examples:
-               hgvsc        | exon_distance | coding_region_distance
+                hgvsc        | exon_distance | coding_region_distance
         --------------------+---------------+------------------------
-         c.279G>A           |             0 |                      0
-         n.1901_1904delAAGT |             0 |                      0
-         c.248-1_248insA    |             0 |                      0
-         c.11712-20dupT     |           -20 |
-         c.1624+24T>A       |            24 |
-         c.*14G>A           |             0 |                     14
-         c.-315_-314delAC   |             0 |                   -314
+          c.279G>A           |             0 |                      0
+          n.1901_1904delAAGT |             0 |                      0
+          c.248-1_248insA    |             0 |                      0
+          c.11712-20dupT     |           -20 |
+          c.1624+24T>A       |            24 |
+          c.*14G>A           |             0 |                     14
+          c.-315_-314delAC   |             0 |                   -314
         """
         match = HGVSC_DISTANCE_CHECK_REGEX.match(hgvsc)
         if not match:
@@ -170,36 +169,35 @@ def convert_csq(annotation):
         if match_data["region"]:
             match_data["ed1"], match_data["ed2"] = fix_region_distance(match_data["ed1"], match_data["ed2"])
 
-        def get_distance(plus_minus, d1, d2):
-            if not plus_minus or (not d1 and not d2):
-                # If neither plus or minus, there should be no distance (and vice versa)
-                assert not plus_minus and not d1 and not d2
+        def get_distance(pm1, d1, pm2, d2):
+            if not (pm1 or pm2):
+                # If neither pm1 or pm2 is provided, we are at an exonic variant
                 return 0
             elif d1 and not d2:
                 # Happens for simple snips, e.g c.123-46A>G or c.*123A>G
-                return -int(d1) if plus_minus == '-' else int(d1)
+                assert not pm2
+                return -int(d1) if pm1 == '-' else int(d1)
             elif d1 and d2:
                 # Take the minimum of the two, as this is closest position to the exon/coding start
                 d = min(int(d1), int(d2))
-                return -d if plus_minus == '-' else d
+                if int(d1) == d:
+                    return -d if pm1 == '-' else d
+                else:
+                    return -d if pm2 == '-' else d
             else:
-                raise RuntimeError("Unable to compute distance from plus_minus={}, d1={}, d2={}".format(plus_minus, d1, d2))
+                raise RuntimeError("Unable to compute distance from ({}, {}), ({}, {})".format(pm1, d1, pm2, d2))
 
-        # Choose pm1 if exists, otherwise choose pm2.
-        # pm2 can exist without pm1, for example with c.248_248+1insA
-        pm = match_data['pm1'] if match_data['pm1'] else match_data['pm2']
-        exon_distance = get_distance(pm, match_data['ed1'], match_data['ed2'])
+        exon_distance = get_distance(match_data["pm1"], match_data['ed1'], match_data["pm2"], match_data['ed2'])
 
-        utr = match_data['utr1'] if match_data['utr1'] else match_data['utr2']
         if exon_distance==0:
-            if utr:
-                coding_region_distance = get_distance(utr, match_data['p1'], match_data['p2'])
-            else:
-                # If not UTR, this is a coding variant
+            if (match_data['p1'] and not match_data['utr1']) or (match_data['p2'] and not match_data['utr2']):
+                # Since utr1/utr2 is always shown as either * or - for UTR regions, we know that we are in a coding region
+                # if either of those are empty
                 coding_region_distance = 0
+            else:
+                coding_region_distance = get_distance(match_data['utr1'], match_data['p1'], match_data['utr2'], match_data['p2'])
 
         return exon_distance, coding_region_distance
-
 
     if 'CSQ' not in annotation:
         return list()

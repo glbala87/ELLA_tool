@@ -97,31 +97,33 @@ def _calculate_distances(hgvsc):
     if match_data["region"]:
         match_data["ed1"], match_data["ed2"] = fix_region_distance(match_data["ed1"], match_data["ed2"])
 
-    def get_distance(plus_minus, d1, d2):
-        if not plus_minus or (not d1 and not d2):
-            # If neither plus or minus, there should be no distance (and vice versa)
-            assert not plus_minus and not d1 and not d2
+    def get_distance(pm1, d1, pm2, d2):
+        if not (pm1 or pm2):
+            # If neither pm1 or pm2 is provided, we are at an exonic variant
             return 0
         elif d1 and not d2:
             # Happens for simple snips, e.g c.123-46A>G or c.*123A>G
-            return -int(d1) if plus_minus == '-' else int(d1)
+            assert not pm2
+            return -int(d1) if pm1 == '-' else int(d1)
         elif d1 and d2:
             # Take the minimum of the two, as this is closest position to the exon/coding start
             d = min(int(d1), int(d2))
-            return -d if plus_minus == '-' else d
+            if int(d1) == d:
+                return -d if pm1 == '-' else d
+            else:
+                return -d if pm2 == '-' else d
         else:
-            raise RuntimeError("Unable to compute distance from plus_minus={}, d1={}, d2={}".format(plus_minus, d1, d2))
+            raise RuntimeError("Unable to compute distance from ({}, {}), ({}, {})".format(pm1, d1, pm2, d2))
 
-    pm = match_data['pm1'] if match_data['pm1'] else match_data['pm2']
-    exon_distance = get_distance(pm, match_data['ed1'], match_data['ed2'])
+    exon_distance = get_distance(match_data["pm1"], match_data['ed1'], match_data["pm2"], match_data['ed2'])
 
-    utr = match_data['utr1'] if match_data['utr1'] else match_data['utr2']
     if exon_distance==0:
-        if utr:
-            coding_region_distance = get_distance(utr, match_data['p1'], match_data['p2'])
-        else:
-            # If not UTR, this is a coding variant
+        if (match_data['p1'] and not match_data['utr1']) or (match_data['p2'] and not match_data['utr2']):
+            # Since utr1/utr2 is always shown as either * or - for UTR regions, we know that we are in a coding region
+            # if either of those are empty
             coding_region_distance = 0
+        else:
+            coding_region_distance = get_distance(match_data['utr1'], match_data['p1'], match_data['utr2'], match_data['p2'])
 
     return exon_distance, coding_region_distance
 
@@ -201,3 +203,77 @@ def upgrade():
 
 def downgrade():
     raise NotImplementedError("Downgrade not possible")
+
+
+if __name__ == '__main__':
+    def generate_data(hgvsc):
+        return {
+            'CSQ': [
+                {
+                    'Feature_type': 'Transcript',
+                    'HGVSc': hgvsc,
+                    'Feature': 'NM_SOMETHING'
+                }
+            ]
+        }
+
+    cases = [
+        ('c.4535-213G>T', -213, None),
+        ('c.4535+213G>T', 213, None),
+        ('c.*35-21G>T', -21, None),
+        ('c.-35+21G>T', 21, None),
+        ('c.4535+1insAAA', 1, None),
+        ('c.4535-1dupTTT', -1, None),
+        ('c.4535+0dupTTT', 0, 0),
+        ('n.4535+1insAAA', 1, None),
+        ('n.4535-1dupTTT', -1, None),
+        ('c.4535G>T', 0, 0),
+        ('c.4535G>T', 0, 0),
+        ('n.4535G>T', 0, 0),
+        ('n.4535G>T', 0, 0),
+        ('c.*4535G>T', 0, 4535),
+        ('c.-4535G>T', 0, -4535),
+        ('c.820-131_820-130delAA', -130, None),
+        ('n.1901_1904delAAGT', 0,0),
+        ('c.248-1_248insA', 0, 0),
+        ('c.248+1_248insA', 0, 0),
+        ('c.248_248-1insA', 0, 0),
+        ('c.248_248+1insA', 0, 0),
+        ('c.248+3_249-8del', 3, None),
+        ('c.248-3_249+8del', -3, None),
+        ('c.248+8_249-3del', -3, None),
+        ('c.248-8_249+3del', 3, None),
+        ('c.-315_-314delAC', 0, -314),
+        ('c.-264+88_-264+89delTT', 88, None),
+        ('c.-264-89_-264-88delTT', -88, None),
+        ('c.*264+88_*264+89delTT', 88, None),
+        ('c.*264-89_*264-88delTT', -88, None),
+        ('c.1597-10_1597-3dupTTATTTAT', -3, None),
+        ('c.13+6_14-8dupTTATTTAT', 6, None),
+        ('c.13-6_14+8dupTTATTTAT', -6, None),
+        ('c.13-8_14+6dupTTATTTAT', 6, None),
+        ('c.13+8_14-6dupTTATTTAT', -6, None),
+        ('c.*13+6_*14-8dupTTATTTAT', 6, None),
+        ('c.*13-6_*14+8dupTTATTTAT', -6, None),
+        ('c.*13-8_*14+6dupTTATTTAT', 6, None),
+        ('c.*13+8_*14-6dupTTATTTAT', -6, None),
+        ('c.-13+6_-14-8dupTTATTTAT', 6, None),
+        ('c.-13-6_-14+8dupTTATTTAT', -6, None),
+        ('c.-13-8_-14+6dupTTATTTAT', 6, None),
+        ('c.-13+8_-14-6dupTTATTTAT', -6, None),
+        ('c.*1+6_8dupTTATTTAT', 0, 0),
+        ('c.*1-6_8dupTTATTTAT', 0, 0),
+        ('c.-1-8_6dupTTATTTAT', 0, 0),
+        ('c.-1+8_6dupTTATTTAT', 0, 0),
+        ('c.6_-1+8dupTTATTTAT', 0, 0),
+        ('c.6_-1-8dupTTATTTAT', 0, 0),
+        ('c.8_*1-6dupTTATTTAT', 0, 0),
+        ('c.8_*1+6dupTTATTTAT', 0, 0),
+        ('c.*-15A>C', None, None) # Illegal
+    ]
+
+    for hgvsc, exon_distance, coding_region_distance in cases:
+        print hgvsc
+        ed, cdr = _calculate_distances(hgvsc)
+        assert ed == exon_distance, "{} failed {}!={}".format(hgvsc, ed, exon_distance)
+        assert cdr == coding_region_distance, "{} failed {}!={}".format(hgvsc, cdr, coding_region_distance)
