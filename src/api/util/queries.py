@@ -303,12 +303,13 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
         AnnotationShadowTranscript.allele_id.label('allele_id'),
         genepanel_transcripts.c.name.label('name'),
         genepanel_transcripts.c.version.label('version'),
+        genepanel_transcripts.c.gene_id.label('genepanel_hgnc_id'),
+        genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
         AnnotationShadowTranscript.transcript.label('annotation_transcript'),
         AnnotationShadowTranscript.symbol.label('annotation_symbol'),
         AnnotationShadowTranscript.hgnc_id.label('annotation_hgnc_id'),
         AnnotationShadowTranscript.hgvsc.label('annotation_hgvsc'),
         AnnotationShadowTranscript.hgvsp.label('annotation_hgvsp'),
-        genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
     ).filter(
         text("split_part(transcript, '.', 1) = split_part(transcript_name, '.', 1)")
     ).distinct()

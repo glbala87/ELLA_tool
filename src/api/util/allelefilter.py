@@ -1,5 +1,7 @@
 from collections import OrderedDict, defaultdict
 from sqlalchemy import or_, and_, tuple_, text, func, column, literal, distinct, case
+from sqlalchemy.types import Text
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from api.config import config as global_genepanel_default
 from vardb.datamodel import assessment, gene, annotation, annotationshadow, allele
@@ -321,6 +323,51 @@ class AlleleFilter(object):
 
         return final_result
 
+    def create_gene_padding_table(self, gene_ids):
+        """
+        Create a temporary table for the gene specific padding of the form
+        ------------------------------------------------------------------------------------------------
+        | hgnc_id | exon_upstream | exon_downstream | coding_region_upstream | coding_region_downstream |
+        ------------------------------------------------------------------------------------------------
+        | 26113   | -35           | 15              | -20                    | 20                       |
+        | 28163   | -20           | 6               | -20                    | 20                       |
+        | 2567    | -20           | 6               | -50                    | 50                       |
+
+        Returns an ORM-representation of this table
+        """
+        from sqlalchemy import Table, Column, MetaData
+        from sqlalchemy import Integer
+
+        # DEBUG CODE
+        #TODO: Replace with actual padding values when available
+        intronic_region = self.global_config['variant_criteria']['intronic_region']
+        utr_region = self.global_config['variant_criteria']['utr_region']
+        values = []
+        for gene_id in gene_ids:
+            values.append(str((gene_id, intronic_region[0], intronic_region[1], utr_region[0], utr_region[1])))
+        # END DEBUG CODE
+
+        self.session.execute(
+            "DROP TABLE IF EXISTS tmp_gene_padding;"
+        )
+        self.session.execute(
+            "CREATE TEMP TABLE tmp_gene_padding (hgnc_id Integer, exon_upstream Integer, exon_downstream Integer, coding_region_upstream Integer, coding_region_downstream Integer) ON COMMIT DROP;"
+        )
+
+        if values:
+            self.session.execute("INSERT INTO tmp_gene_padding VALUES {};".format(",".join(values)))
+
+        t = Table(
+            'tmp_gene_padding',
+            MetaData(),
+            Column('hgnc_id', Integer()),
+            Column('exon_upstream', Integer()),
+            Column('exon_downstream', Integer()),
+            Column('coding_region_upstream', Integer()),
+            Column('coding_region_downstream', Integer()),
+        )
+        return t
+
     def get_allele_ids_with_classification(self, allele_ids):
         """
         Return the allele ids, among the provided allele_ids,
@@ -429,10 +476,13 @@ class AlleleFilter(object):
         return intronic_filtered
 
     def filtered_region(self, gp_allele_ids):
-        from api.util.util import query_print_table
-        query_print_table = lambda *args: None
         region_filtered = {}
         for gp_key, allele_ids in gp_allele_ids.iteritems():
+            if not allele_ids:
+                region_filtered[gp_key] = set()
+                continue
+
+            # Fetch all gene ids associated with the genepanel
             genepanel_genes = self.session.query(
                 gene.Transcript.gene_id,
             ).join(
@@ -442,44 +492,11 @@ class AlleleFilter(object):
                     tuple_(gene.genepanel_transcript.c.genepanel_name, gene.genepanel_transcript.c.genepanel_version) == gp_key
                  )
             )
+            genepanel_hgnc_ids = [t[0] for t in genepanel_genes]
 
-            # DEBUG CODE
-            #TODO: Replace with actual padding values when available
-            from random import randint, seed
-            seed(1)
-            hgnc_ids = [t[0] for t in genepanel_genes]
-            exon_padding = {k: [-20,6] for k in hgnc_ids}
-            coding_region_padding = {k: [-20, 20] for k in hgnc_ids}
-            assert set(exon_padding.keys()) == set(coding_region_padding.keys())
-            # END DEBUG CODE
+            # Create temporary gene padding table for the genes in the genepanel
+            tmp_gene_padding = self.create_gene_padding_table(genepanel_hgnc_ids)
 
-
-
-            def create_gene_padding_table(exon_padding, coding_region_padding):
-                values = [str((k, exon_padding[k][0], exon_padding[k][1], coding_region_padding[k][0], coding_region_padding[k][1])) for k in exon_padding]
-                self.session.execute(
-                    "DROP TABLE IF EXISTS tmp_gene_padding;"
-                )
-                self.session.execute(
-                    "CREATE TEMP TABLE tmp_gene_padding (hgnc_id Integer, exon_upstream Integer, exon_downstream Integer, coding_region_upstream Integer, coding_region_downstream Integer) ON COMMIT DROP;"
-                )
-
-                if values:
-                    self.session.execute("INSERT INTO tmp_gene_padding VALUES {};".format(",".join(values)))
-                from sqlalchemy import Table, Column, MetaData
-                from sqlalchemy import Integer
-                t = Table(
-                    'tmp_gene_padding',
-                    MetaData(),
-                    Column('hgnc_id', Integer()),
-                    Column('exon_upstream', Integer()),
-                    Column('exon_downstream', Integer()),
-                    Column('coding_region_upstream', Integer()),
-                    Column('coding_region_downstream', Integer()),
-                )
-                return t
-
-            tmp_gene_padding = create_gene_padding_table(exon_padding, coding_region_padding)
             max_padding = self.session.query(
                 func.abs(func.max(tmp_gene_padding.c.exon_upstream)),
                 func.abs(func.max(tmp_gene_padding.c.exon_downstream)),
@@ -488,6 +505,10 @@ class AlleleFilter(object):
             )
             max_padding = max(*max_padding.all())
 
+            # Extract transcripts associated with the genepanel
+            # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
+            # overlapping in the region [tx_start-max_padding, tx_end+max_padding]. The filter clause in the query
+            # should have no effect on the result, but is included only for performance
             genepanel_transcripts = self.session.query(
                 gene.Transcript.id,
                 gene.Transcript.gene_id,
@@ -511,7 +532,7 @@ class AlleleFilter(object):
                 allele.Allele.chromosome == gene.Transcript.chromosome,
                 or_(
                     and_(
-                        allele.Allele.start_position >gene.Transcript.tx_start-max_padding,
+                        allele.Allele.start_position > gene.Transcript.tx_start-max_padding,
                         allele.Allele.start_position < gene.Transcript.tx_end+max_padding,
                     ),
                     and_(
@@ -519,29 +540,19 @@ class AlleleFilter(object):
                         allele.Allele.open_end_position < gene.Transcript.tx_end+max_padding,
                     )
                 )
-            )
-            query_print_table(genepanel_transcripts)
-            genepanel_transcripts = genepanel_transcripts.subquery()
+            ).subquery()
 
-
+            # Unwrap the exons for the genepanel transcript
             genepanel_transcript_exons = self.session.query(
                 genepanel_transcripts.c.id,
                 genepanel_transcripts.c.gene_id,
-                genepanel_transcripts.c.transcript_name,
                 genepanel_transcripts.c.chromosome,
                 genepanel_transcripts.c.strand,
-                #genepanel_transcripts.c.tx_start,
-                #genepanel_transcripts.c.tx_end,
                 genepanel_transcripts.c.cds_start,
                 genepanel_transcripts.c.cds_end,
                 func.unnest(genepanel_transcripts.c.exon_starts).label('exon_start'),
                 func.unnest(genepanel_transcripts.c.exon_ends).label('exon_end'),
-            )
-
-            query_print_table(genepanel_transcript_exons)
-            genepanel_transcript_exons = genepanel_transcript_exons.subquery()
-
-
+            ).subquery()
 
             # Create queries for
             # - Coding regions
@@ -551,6 +562,8 @@ class AlleleFilter(object):
             # - Downstream UTR region
 
             # Coding regions
+            # The coding regions may start within an exon, and we truncate the exons where this is the case
+            # For example, if an exon is defined by positions [10,20], but cds_start is 15, we include the region [15,20]
             coding_start = case(
                     [(genepanel_transcript_exons.c.cds_start > genepanel_transcript_exons.c.exon_start, genepanel_transcript_exons.c.cds_start)],
                     else_=genepanel_transcript_exons.c.exon_start
@@ -562,21 +575,31 @@ class AlleleFilter(object):
                 )
 
             transcript_coding_regions = self.session.query(
-                # genepanel_transcript_exons.c.gene_id.label('gene_id'),
-                # genepanel_transcript_exons.c.transcript_name.label('transcript'),
                 genepanel_transcript_exons.c.chromosome.label('chromosome'),
                 coding_start.label('region_start'),
                 coding_end.label('region_end'),
-                # genepanel_transcript_exons.c.strand.label('strand'),
             ).filter(
+                # Exclude exons outside the coding region
                 genepanel_transcript_exons.c.exon_start < genepanel_transcript_exons.c.cds_end,
                 genepanel_transcript_exons.c.exon_end > genepanel_transcript_exons.c.cds_start
             )
 
+            # Regions with applied padding
+            def _create_region(transcripts, region_start, region_end):
+                return self.session.query(
+                    transcripts.c.chromosome.label('chromosome'),
+                    region_start.label('region_start'),
+                    region_end.label('region_end')
+                ).join(
+                    tmp_gene_padding,
+                    tmp_gene_padding.c.hgnc_id == transcripts.c.gene_id
+                ).distinct()
+
             # Intronic upstream
+            # Include region upstream of the exon (not including exon starts or ends)
             intronic_upstream_end = case(
                 [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_end-tmp_gene_padding.c.exon_upstream)],
-                else_=genepanel_transcript_exons.c.exon_start,
+                else_=genepanel_transcript_exons.c.exon_start-1,
             )
 
             intronic_upstream_start = case(
@@ -584,114 +607,67 @@ class AlleleFilter(object):
                 else_=genepanel_transcript_exons.c.exon_start+tmp_gene_padding.c.exon_upstream,
             )
 
-            intronic_region_upstream = self.session.query(
-                # genepanel_transcript_exons.c.gene_id.label('gene_id'),
-                # genepanel_transcript_exons.c.transcript_name.label('transcript'),
-                genepanel_transcript_exons.c.chromosome.label('chromosome'),
-                intronic_upstream_start.label('region_start'),
-                intronic_upstream_end.label('region_end'),
-                # genepanel_transcript_exons.c.strand.label('strand'),
-            ).join(
-                tmp_gene_padding,
-                tmp_gene_padding.c.hgnc_id == genepanel_transcript_exons.c.gene_id
-            )
+            intronic_region_upstream = _create_region(genepanel_transcript_exons, intronic_upstream_start, intronic_upstream_end)
 
             # Intronic downstream
+            # Include region downstream of the exon (not including exon starts or ends)
             intronic_downstream_end = case(
-                [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_start)],
+                [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_start-1)],
                 else_=genepanel_transcript_exons.c.exon_end+tmp_gene_padding.c.exon_downstream,
             )
 
             intronic_downstream_start = case(
                 [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_start-tmp_gene_padding.c.exon_downstream)],
-                else_=genepanel_transcript_exons.c.exon_end,
+                else_=genepanel_transcript_exons.c.exon_end+1,
             )
 
-            intronic_region_downstream = self.session.query(
-                # genepanel_transcript_exons.c.gene_id.label('gene_id'),
-                # genepanel_transcript_exons.c.transcript_name.label('transcript'),
-                genepanel_transcript_exons.c.chromosome.label('chromosome'),
-                intronic_downstream_start.label('region_start'),
-                intronic_downstream_end.label('region_end'),
-                # genepanel_transcript_exons.c.strand.label('strand'),
-            ).join(
-                tmp_gene_padding,
-                tmp_gene_padding.c.hgnc_id == genepanel_transcript_exons.c.gene_id
-            )
+            intronic_region_downstream = _create_region(genepanel_transcript_exons, intronic_downstream_start, intronic_downstream_end)
 
             # UTR upstream
+            # Do not include cds_start or cds_end, as these are not in the UTR
             utr_upstream_end = case(
                 [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_end-tmp_gene_padding.c.coding_region_upstream)],
-                else_=genepanel_transcripts.c.cds_start
+                else_=genepanel_transcripts.c.cds_start-1
             )
 
             utr_upstream_start = case(
-                [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_end)],
+                [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_end+1)],
                 else_=genepanel_transcripts.c.cds_start+tmp_gene_padding.c.coding_region_upstream
             )
 
-            utr_region_upstream = self.session.query(
-                # genepanel_transcripts.c.gene_id.label('gene_id'),
-                # genepanel_transcripts.c.transcript_name.label('transcript'),
-                genepanel_transcripts.c.chromosome.label('chromosome'),
-                utr_upstream_start.label('region_start'),
-                utr_upstream_end.label('region_end'),
-                # genepanel_transcripts.c.strand.label('strand')
-            ).join(
-                tmp_gene_padding,
-                tmp_gene_padding.c.hgnc_id == genepanel_transcripts.c.gene_id
-            )
-
+            utr_region_upstream = _create_region(genepanel_transcripts, utr_upstream_start, utr_upstream_end)
 
             # UTR downstream
+            # Do not include cds_start or cds_end, as these are not in the UTR
             utr_downstream_start = case(
                 [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_start-tmp_gene_padding.c.coding_region_downstream)],
-                else_=genepanel_transcripts.c.cds_end
+                else_=genepanel_transcripts.c.cds_end+1
             )
 
             utr_downstream_end = case(
-                [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_start)],
+                [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_start-1)],
                 else_=genepanel_transcripts.c.cds_end+tmp_gene_padding.c.coding_region_downstream
             )
+            utr_region_downstream = _create_region(genepanel_transcripts, utr_downstream_start, utr_downstream_end)
 
-            utr_region_downstream = self.session.query(
-                # genepanel_transcripts.c.gene_id.label('gene_id'),
-                # genepanel_transcripts.c.transcript_name.label('transcript'),
-                genepanel_transcripts.c.chromosome.label('chromosome'),
-                utr_downstream_start.label('region_start'),
-                utr_downstream_end.label('region_end'),
-                # genepanel_transcripts.c.strand.label('strand')
-            ).join(
-                tmp_gene_padding,
-                tmp_gene_padding.c.hgnc_id == genepanel_transcripts.c.gene_id
-            )
-
-            # Union them all together
+            # Union all regions together
             all_regions = transcript_coding_regions.union(
                intronic_region_upstream,
                intronic_region_downstream,
                utr_region_upstream,
                utr_region_downstream,
-            ).order_by(
-                genepanel_transcripts.c.chromosome,
             ).subquery().alias('all_regions')
 
             # Find allele ids within genomic region
             allele_ids_in_genomic_region = self.session.query(
                 allele.Allele.id,
-                # all_regions.c.chromosome,
-                # all_regions.c.region_start,
-                # all_regions.c.region_end,
-                # all_regions.c.strand,
-                # allele.Allele.start_position,
-                # allele.Allele.open_end_position,
             ).filter(
                 allele.Allele.id.in_(allele_ids),
                 allele.Allele.chromosome == all_regions.c.chromosome,
                 or_(
                     and_(
-                        allele.Allele.start_position > all_regions.c.region_start,
-                        allele.Allele.start_position < all_regions.c.region_end,
+                        allele.Allele.start_position >= all_regions.c.region_start,
+                        allele.Allele.start_position <= all_regions.c.region_end,
                     ),
                     and_(
                         allele.Allele.open_end_position > all_regions.c.region_start,
@@ -700,9 +676,23 @@ class AlleleFilter(object):
                 )
             )
 
+            allele_ids_in_genomic_region = [a[0] for a in allele_ids_in_genomic_region]
             allele_ids_outside_region = set(allele_ids)-set(allele_ids_in_genomic_region)
 
+            # Discard the next filters if there are no variants left to filter on
+            if not allele_ids_outside_region:
+                region_filtered[gp_key] = set()
+                continue
+
+            #
             # Save alleles based on computed HGVSc distance
+            #
+            # We look at computed exon_distance/coding_region_distance from annotation on transcripts present in the genepanel (disregaring version number)
+            # For alleles with computed distance within intronic_region or utr_region, they will not be filtered out
+            # This can happen when there is a mismatch between genomic position and annotated HGVSc.
+            # Observed for alleles in repeated regions: In the imported VCF, the alleles are left aligned. The VEP annotation
+            # left aligns w.r.t. *transcript direction*, and therefore, there could be a mismatch in position
+            # See for example https://variantvalidator.org/variantvalidation/?variant=NM_020366.3%3Ac.907-16_907-14delAAT&primary_assembly=GRCh37&alignment=splign
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(self.session, allele_ids, [gp_key]).subquery()
 
             allele_ids_in_hgvsc_region = self.session.query(
@@ -716,22 +706,25 @@ class AlleleFilter(object):
                 tmp_gene_padding.c.coding_region_upstream,
                 tmp_gene_padding.c.coding_region_downstream,
             ).join(
+                # Join in transcripts used in annotation
+                # Note: The annotation_transcripts_genepanel only contains transcripts matching transcripts in the genepanel.
+                # Therefore, we are sure that we only filter here on genepanel transcripts (disregarding version number)
                 annotation_transcripts_genepanel,
                 and_(
                     annotation_transcripts_genepanel.c.annotation_transcript == annotationshadow.AnnotationShadowTranscript.transcript,
                     annotation_transcripts_genepanel.c.allele_id == annotationshadow.AnnotationShadowTranscript.allele_id
                 )
             ).join(
-                genepanel_transcripts,
-                genepanel_transcripts.c.transcript_name == annotation_transcripts_genepanel.c.genepanel_transcript
-            ).join(
+                # Join in gene padding table, to use gene specific padding
                 tmp_gene_padding,
-                tmp_gene_padding.c.hgnc_id == genepanel_transcripts.c.gene_id
+                tmp_gene_padding.c.hgnc_id == annotation_transcripts_genepanel.c.genepanel_hgnc_id
             ).filter(
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids_outside_region),
                 annotationshadow.AnnotationShadowTranscript.exon_distance >= tmp_gene_padding.c.exon_upstream,
                 annotationshadow.AnnotationShadowTranscript.exon_distance <= tmp_gene_padding.c.exon_downstream,
                 or_(
+                    # We do not save exonic UTR alleles if they are outside [coding_region_upstream, coding_region_downstream]
+                    # For coding exonic variant, the coding_region_distance is None
                     annotationshadow.AnnotationShadowTranscript.coding_region_distance.is_(None),
                     and_(
                         annotationshadow.AnnotationShadowTranscript.coding_region_distance >= tmp_gene_padding.c.coding_region_upstream,
@@ -740,96 +733,49 @@ class AlleleFilter(object):
                 )
             )
 
-
-            query_print_table(allele_ids_in_hgvsc_region)
             allele_ids_in_hgvsc_region = set([a[0] for a in allele_ids_in_hgvsc_region])
             allele_ids_outside_region -= allele_ids_in_hgvsc_region
 
+            # Discard the next filter if there are no variants left to filter on
+            if not allele_ids_outside_region:
+                region_filtered[gp_key] = set()
+                continue
+
+            #
             # Save alleles with a severe consequence in other transcript
-            severe_consequences = ["transcript_ablation",
-                "splice_donor_variant",
-                "splice_acceptor_variant",
-                "stop_gained",
-                "frameshift_variant",
-                "start_lost",
-                "initiator_codon_variant",
-                "stop_lost",
-                "inframe_insertion",
-                "inframe_deletion",
-                "missense_variant",
-                "protein_altering_variant",
-                "transcript_amplification",
-                "splice_region_variant",
-                "incomplete_terminal_codon_variant",
-                "synonymous_variant",
-                "stop_retained_variant",
-                "coding_sequence_variant",
-                "mature_miRNA_variant",
-            ]
-
-
-            from sqlalchemy.types import Text
-            from sqlalchemy.dialects.postgresql import ARRAY
+            #
+            # Whether a consequence is severe or not is determined by the config
+            all_consequences = self.global_config.get('transcripts', {}).get('consequences')
+            severe_consequence_threshold = self.global_config.get('transcripts', {}).get('severe_consequence_threshold')
+            if all_consequences:
+                severe_consequences = all_consequences[:all_consequences.index(severe_consequence_threshold)+1]
+            else:
+                severe_consequences = []
 
             allele_ids_severe_consequences = self.session.query(
                 annotationshadow.AnnotationShadowTranscript.allele_id,
                 annotationshadow.AnnotationShadowTranscript.consequences,
             ).filter(
+                # && checks if two arrays overlap
                 annotationshadow.AnnotationShadowTranscript.consequences.cast(ARRAY(Text)).op('&&')(severe_consequences),
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids_outside_region),
             )
 
-
+            # As opposed to the HGVSc and genomic region filter, we here consider all transcript, given that they
+            # match the transcript inclusion regex (if exists)
             inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:
                 allele_ids_severe_consequences = allele_ids_severe_consequences.filter(
                     text("transcript ~ :reg").params(reg=inclusion_regex)
                 )
 
-            query_print_table(allele_ids_severe_consequences)
             allele_ids_severe_consequences = set([a[0] for a in allele_ids_severe_consequences])
             allele_ids_outside_region -= allele_ids_severe_consequences
-            allele_ids_in_region = set(allele_ids)-allele_ids_outside_region
-
-            # is_in_filter = lambda v: case([(allele.Allele.id.in_(v), 1)], else_=0)
-
-            # debug = self.session.query(
-            #     allele.Allele.id,
-            #     allele.Allele.start_position,
-            #     allele.Allele.open_end_position,
-            #     annotationshadow.AnnotationShadowTranscript.transcript,
-            #     annotationshadow.AnnotationShadowTranscript.hgvsc,
-            #     annotationshadow.AnnotationShadowTranscript.consequences.cast(ARRAY(Text)).op('&&')(severe_consequences).label('severe_consequence'),
-            #     annotationshadow.AnnotationShadowTranscript.exon_distance,
-            #     annotationshadow.AnnotationShadowTranscript.coding_region_distance,
-            #     is_in_filter(allele_ids_in_genomic_region).label('genomic_filtered'),
-            #     is_in_filter(allele_ids_in_hgvsc_region).label('hgvsc_filtered'),
-            #     is_in_filter(allele_ids_severe_consequences).label('csq_filtered'),
-            # ).outerjoin(
-            #     annotationshadow.AnnotationShadowTranscript,
-            #     and_(
-            #         annotationshadow.AnnotationShadowTranscript.allele_id == allele.Allele.id,
-            #         text("transcript ~ :reg").params(reg=inclusion_regex)
-            #     ),
-            # ).filter(
-            #     allele.Allele.id.in_(allele_ids_in_region)
-            # ).order_by(allele.Allele.id)
-
-            # query_print_table(debug)
-            #exit()
 
             region_filtered[gp_key] = allele_ids_outside_region
 
 
         return region_filtered
-
-
-
-
-
-
-
-
 
 
     def filtered_frequency(self, gp_allele_ids):
@@ -990,11 +936,8 @@ class AlleleFilter(object):
         filters = [
             # Order matters!
             ('gene', self.filtered_gene),
-            ('frequency', self.filtered_frequency),
+            #('frequency', self.filtered_frequency),
             ('region', self.filtered_region),
-            #('intronic', self.filtered_intronic),
-            #('utr', self.filtered_utr),
-
         ]
 
         result = dict()
@@ -1018,11 +961,10 @@ class AlleleFilter(object):
         # for large samples, since the frequency filter filters most of the variants
         import time
         for filter_name, filter_func in filters:
-
             t1 = time.time()
             filtered = filter_func(gp_allele_ids)
             t2 = time.time()
-            print "filter %s: %.3f" %(filter_name, t2-t1)
+            print filter_name, t2-t1
             update_gp_allele_ids(gp_allele_ids, excluded_gp_allele_ids, filtered)
             for gp_key in gp_allele_ids:
                 result[gp_key]['excluded_allele_ids'][filter_name] = sorted(list(filtered[gp_key]))
@@ -1040,19 +982,16 @@ if __name__ == '__main__':
     db.connect()
     session = db.session
     af = AlleleFilter(session)
-    #print af.filter_alleles({("OMIM", "v01"): [311, 423, 428, 444, 509, 557]})
-    #print af.filter_alleles({("OMIM", "v01"): [288, 161, 325, 269, 366, 432, 375]})
-    #gp = "Ciliopati"
-    #args = {('Ciliopati'): range(1,576)}
     gp_key = ('OMIM', 'v01')
     allele_ids = range(1,576)
 
 
     res = af.filter_alleles({gp_key: allele_ids})
+    print res
 
     # Reference result for frequency filter turned OFF
-    ref = {('Ciliopati', 'v05'): {'excluded_allele_ids': {'region': [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 26, 27, 29, 30, 31, 34, 38, 39, 40, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 62, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 83, 84, 85, 86, 87, 89, 90, 91, 92, 93, 97, 98, 100, 101, 102, 103, 105, 106, 112, 113, 114, 115, 120, 123, 124, 125, 126, 128, 129, 130, 131, 132, 133, 134, 135, 136, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 149, 150, 151, 152, 158, 159, 163, 164, 165, 166, 167, 170, 171, 172, 173, 180, 181, 182, 184, 185, 186, 187, 188, 189, 193, 194, 195, 196, 197, 198, 199, 201, 203, 210, 211, 212, 213, 217, 221, 223, 226, 227, 228, 232, 237, 238, 239, 240, 245, 246, 249, 250, 252, 256, 258, 259, 260, 268, 270, 271, 272, 278, 282, 283, 285, 292, 293, 294, 295, 296, 297, 298, 299, 300, 302, 303, 304, 306, 309, 311, 312, 313, 314, 315, 318, 319, 320, 323, 328, 329, 331, 333, 334, 335, 337, 338, 342, 343, 348, 352, 353, 354, 356, 357, 358, 359, 360, 361, 362, 368, 369, 370, 374, 377, 379, 385, 386, 388, 389, 390, 391, 393, 394, 395, 397, 398, 399, 401, 402, 404, 408, 410, 411, 412, 413, 414, 416, 420, 421, 422, 424, 425, 427, 429, 433, 434, 435, 436, 437, 438, 439, 441, 442, 443, 445, 446, 447, 448, 451, 454, 456, 457, 459, 461, 463, 464, 466, 467, 470, 472, 473, 474, 476, 478, 479, 480, 483, 484, 485, 490, 497, 498, 499, 501, 502, 504, 505, 508, 510, 511, 512, 513, 515, 518, 519, 520, 521, 523, 524, 525, 528, 529, 530, 531, 538, 540, 541, 545, 546, 548, 550, 551, 560, 562, 564, 565, 566, 567, 569, 570, 572, 573, 574, 575], 'gene': []}, 'allele_ids': [2, 11, 14, 22, 23, 24, 25, 28, 32, 33, 35, 36, 37, 41, 49, 50, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 77, 78, 79, 80, 81, 82, 88, 94, 95, 96, 99, 104, 107, 108, 109, 110, 111, 116, 117, 118, 119, 121, 122, 127, 137, 148, 153, 154, 155, 156, 157, 160, 161, 162, 168, 169, 174, 175, 176, 177, 178, 179, 183, 190, 191, 192, 200, 202, 204, 205, 206, 207, 208, 209, 214, 215, 216, 218, 219, 220, 222, 224, 225, 229, 230, 231, 233, 234, 235, 236, 241, 242, 243, 244, 247, 248, 251, 253, 254, 255, 257, 261, 262, 263, 264, 265, 266, 267, 269, 273, 274, 275, 276, 277, 279, 280, 281, 284, 286, 287, 288, 289, 290, 291, 301, 305, 307, 308, 310, 316, 317, 321, 322, 324, 325, 326, 327, 330, 332, 336, 339, 340, 341, 344, 345, 346, 347, 349, 350, 351, 355, 363, 364, 365, 366, 367, 371, 372, 373, 375, 376, 378, 380, 381, 382, 383, 384, 387, 392, 396, 400, 403, 405, 406, 407, 409, 415, 417, 418, 419, 423, 426, 428, 430, 431, 432, 440, 444, 449, 450, 452, 453, 455, 458, 460, 462, 465, 468, 469, 471, 475, 477, 481, 482, 486, 487, 488, 489, 491, 492, 493, 494, 495, 496, 500, 503, 506, 507, 509, 514, 516, 517, 522, 526, 527, 532, 533, 534, 535, 536, 537, 539, 542, 543, 544, 547, 549, 552, 553, 554, 555, 556, 557, 558, 559, 561, 563, 568, 571]},
-           ('OMIM', 'v01'): {'excluded_allele_ids': {'region': [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 16, 17, 18, 19, 20, 21, 26, 27, 29, 30, 31, 34, 38, 39, 40, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 62, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 83, 84, 85, 86, 87, 89, 90, 91, 92, 93, 97, 98, 100, 101, 102, 103, 105, 106, 112, 113, 114, 115, 120, 123, 124, 125, 126, 128, 129, 130, 131, 132, 133, 134, 135, 136, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 149, 150, 151, 152, 158, 159, 163, 164, 165, 166, 167, 170, 171, 172, 173, 180, 181, 182, 184, 185, 186, 187, 188, 189, 193, 194, 195, 196, 197, 198, 199, 201, 203, 210, 211, 212, 213, 217, 221, 223, 226, 227, 228, 232, 237, 238, 239, 240, 245, 246, 249, 250, 252, 256, 258, 259, 260, 268, 270, 271, 272, 278, 282, 283, 285, 292, 293, 294, 295, 296, 297, 298, 299, 300, 302, 303, 304, 306, 309, 311, 312, 313, 314, 315, 318, 319, 320, 323, 328, 329, 331, 333, 334, 335, 337, 338, 342, 343, 348, 352, 353, 354, 356, 357, 358, 359, 360, 361, 362, 368, 369, 370, 374, 377, 379, 385, 386, 388, 389, 390, 391, 393, 394, 395, 397, 398, 399, 401, 402, 404, 408, 410, 411, 412, 413, 414, 416, 420, 421, 422, 424, 425, 427, 429, 433, 434, 435, 436, 438, 439, 441, 442, 443, 445, 446, 447, 448, 451, 454, 456, 457, 459, 461, 463, 464, 466, 467, 470, 472, 473, 474, 476, 478, 479, 480, 483, 484, 485, 490, 493, 497, 498, 499, 501, 502, 504, 505, 508, 510, 511, 512, 513, 515, 518, 519, 520, 521, 523, 524, 525, 528, 529, 530, 531, 538, 540, 541, 545, 546, 548, 550, 551, 560, 562, 564, 565, 566, 567, 569, 570, 572, 573, 574, 575], 'gene': []}, 'allele_ids': [2, 11, 14, 15, 22, 23, 24, 25, 28, 32, 33, 35, 36, 37, 41, 49, 50, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 77, 78, 79, 80, 81, 82, 88, 94, 95, 96, 99, 104, 107, 108, 109, 110, 111, 116, 117, 118, 119, 121, 122, 127, 137, 148, 153, 154, 155, 156, 157, 160, 161, 162, 168, 169, 174, 175, 176, 177, 178, 179, 183, 190, 191, 192, 200, 202, 204, 205, 206, 207, 208, 209, 214, 215, 216, 218, 219, 220, 222, 224, 225, 229, 230, 231, 233, 234, 235, 236, 241, 242, 243, 244, 247, 248, 251, 253, 254, 255, 257, 261, 262, 263, 264, 265, 266, 267, 269, 273, 274, 275, 276, 277, 279, 280, 281, 284, 286, 287, 288, 289, 290, 291, 301, 305, 307, 308, 310, 316, 317, 321, 322, 324, 325, 326, 327, 330, 332, 336, 339, 340, 341, 344, 345, 346, 347, 349, 350, 351, 355, 363, 364, 365, 366, 367, 371, 372, 373, 375, 376, 378, 380, 381, 382, 383, 384, 387, 392, 396, 400, 403, 405, 406, 407, 409, 415, 417, 418, 419, 423, 426, 428, 430, 431, 432, 437, 440, 444, 449, 450, 452, 453, 455, 458, 460, 462, 465, 468, 469, 471, 475, 477, 481, 482, 486, 487, 488, 489, 491, 492, 494, 495, 496, 500, 503, 506, 507, 509, 514, 516, 517, 522, 526, 527, 532, 533, 534, 535, 536, 537, 539, 542, 543, 544, 547, 549, 552, 553, 554, 555, 556, 557, 558, 559, 561, 563, 568, 571]}}
+    ref = {('Ciliopati', 'v05'): {'excluded_allele_ids': {'region': [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 26, 27, 29, 30, 31, 34, 38, 39, 40, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 62, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 83, 84, 85, 86, 87, 89, 90, 91, 92, 93, 97, 98, 100, 101, 102, 103, 105, 106, 112, 113, 114, 115, 120, 123, 124, 125, 126, 128, 129, 130, 131, 132, 133, 134, 135, 136, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 149, 150, 151, 152, 158, 159, 163, 164, 165, 166, 167, 170, 171, 172, 173, 180, 181, 182, 184, 185, 186, 187, 188, 189, 193, 194, 195, 196, 197, 198, 199, 201, 203, 210, 211, 212, 213, 217, 221, 223, 226, 227, 228, 232, 237, 238, 239, 240, 245, 246, 249, 250, 252, 256, 258, 259, 260, 268, 270, 271, 272, 278, 282, 283, 285, 292, 293, 294, 295, 296, 297, 298, 299, 300, 302, 303, 304, 306, 309, 312, 313, 314, 315, 318, 319, 320, 323, 328, 329, 331, 333, 334, 335, 337, 338, 342, 343, 348, 352, 353, 354, 356, 357, 358, 359, 360, 361, 362, 368, 369, 370, 374, 377, 379, 385, 386, 388, 389, 390, 391, 393, 394, 395, 397, 398, 399, 401, 402, 404, 408, 410, 411, 412, 413, 414, 416, 420, 421, 422, 424, 425, 427, 429, 433, 434, 435, 436, 437, 438, 439, 441, 442, 443, 445, 446, 447, 448, 451, 454, 456, 457, 459, 461, 463, 464, 466, 467, 470, 472, 473, 474, 476, 478, 479, 480, 483, 484, 485, 490, 497, 498, 499, 501, 502, 504, 505, 508, 510, 511, 512, 513, 515, 518, 519, 520, 521, 523, 524, 525, 528, 529, 530, 531, 538, 540, 541, 545, 546, 548, 550, 551, 560, 562, 564, 565, 566, 567, 569, 570, 572, 573, 574, 575], 'gene': []}, 'allele_ids': [2, 11, 14, 22, 23, 24, 25, 28, 32, 33, 35, 36, 37, 41, 49, 50, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 77, 78, 79, 80, 81, 82, 88, 94, 95, 96, 99, 104, 107, 108, 109, 110, 111, 116, 117, 118, 119, 121, 122, 127, 137, 148, 153, 154, 155, 156, 157, 160, 161, 162, 168, 169, 174, 175, 176, 177, 178, 179, 183, 190, 191, 192, 200, 202, 204, 205, 206, 207, 208, 209, 214, 215, 216, 218, 219, 220, 222, 224, 225, 229, 230, 231, 233, 234, 235, 236, 241, 242, 243, 244, 247, 248, 251, 253, 254, 255, 257, 261, 262, 263, 264, 265, 266, 267, 269, 273, 274, 275, 276, 277, 279, 280, 281, 284, 286, 287, 288, 289, 290, 291, 301, 305, 307, 308, 310, 311, 316, 317, 321, 322, 324, 325, 326, 327, 330, 332, 336, 339, 340, 341, 344, 345, 346, 347, 349, 350, 351, 355, 363, 364, 365, 366, 367, 371, 372, 373, 375, 376, 378, 380, 381, 382, 383, 384, 387, 392, 396, 400, 403, 405, 406, 407, 409, 415, 417, 418, 419, 423, 426, 428, 430, 431, 432, 440, 444, 449, 450, 452, 453, 455, 458, 460, 462, 465, 468, 469, 471, 475, 477, 481, 482, 486, 487, 488, 489, 491, 492, 493, 494, 495, 496, 500, 503, 506, 507, 509, 514, 516, 517, 522, 526, 527, 532, 533, 534, 535, 536, 537, 539, 542, 543, 544, 547, 549, 552, 553, 554, 555, 556, 557, 558, 559, 561, 563, 568, 571]},
+           ('OMIM', 'v01'): {'excluded_allele_ids': {'region': [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 16, 17, 18, 19, 20, 21, 26, 27, 29, 30, 31, 34, 38, 39, 40, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 62, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 83, 84, 85, 86, 87, 89, 90, 91, 92, 93, 97, 98, 100, 101, 102, 103, 105, 106, 112, 113, 114, 115, 120, 123, 124, 125, 126, 128, 129, 130, 131, 132, 133, 134, 135, 136, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 149, 150, 151, 152, 158, 159, 163, 164, 165, 166, 167, 170, 171, 172, 173, 180, 181, 182, 184, 185, 186, 187, 188, 189, 193, 194, 195, 196, 197, 198, 199, 201, 203, 210, 211, 212, 213, 217, 221, 223, 226, 227, 228, 232, 237, 238, 239, 240, 245, 246, 249, 250, 252, 256, 258, 259, 260, 268, 270, 271, 272, 278, 282, 283, 285, 292, 293, 294, 295, 296, 297, 298, 299, 300, 302, 303, 304, 306, 309, 312, 313, 314, 315, 318, 319, 320, 323, 328, 329, 331, 333, 334, 335, 337, 338, 342, 343, 348, 352, 353, 354, 356, 357, 358, 359, 360, 361, 362, 368, 369, 370, 374, 377, 379, 385, 386, 388, 389, 390, 391, 393, 394, 395, 397, 398, 399, 401, 402, 404, 408, 410, 411, 412, 413, 414, 416, 420, 421, 422, 424, 425, 427, 429, 433, 434, 435, 436, 438, 439, 441, 442, 443, 445, 446, 447, 448, 451, 454, 456, 457, 459, 461, 463, 464, 466, 467, 470, 472, 473, 474, 476, 478, 479, 480, 483, 484, 485, 490, 493, 497, 498, 499, 501, 502, 504, 505, 508, 510, 511, 512, 513, 515, 518, 519, 520, 521, 523, 524, 525, 528, 529, 530, 531, 538, 540, 541, 545, 546, 548, 550, 551, 560, 562, 564, 565, 566, 567, 569, 570, 572, 573, 574, 575], 'gene': []}, 'allele_ids': [2, 11, 14, 15, 22, 23, 24, 25, 28, 32, 33, 35, 36, 37, 41, 49, 50, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 77, 78, 79, 80, 81, 82, 88, 94, 95, 96, 99, 104, 107, 108, 109, 110, 111, 116, 117, 118, 119, 121, 122, 127, 137, 148, 153, 154, 155, 156, 157, 160, 161, 162, 168, 169, 174, 175, 176, 177, 178, 179, 183, 190, 191, 192, 200, 202, 204, 205, 206, 207, 208, 209, 214, 215, 216, 218, 219, 220, 222, 224, 225, 229, 230, 231, 233, 234, 235, 236, 241, 242, 243, 244, 247, 248, 251, 253, 254, 255, 257, 261, 262, 263, 264, 265, 266, 267, 269, 273, 274, 275, 276, 277, 279, 280, 281, 284, 286, 287, 288, 289, 290, 291, 301, 305, 307, 308, 310, 311, 316, 317, 321, 322, 324, 325, 326, 327, 330, 332, 336, 339, 340, 341, 344, 345, 346, 347, 349, 350, 351, 355, 363, 364, 365, 366, 367, 371, 372, 373, 375, 376, 378, 380, 381, 382, 383, 384, 387, 392, 396, 400, 403, 405, 406, 407, 409, 415, 417, 418, 419, 423, 426, 428, 430, 431, 432, 437, 440, 444, 449, 450, 452, 453, 455, 458, 460, 462, 465, 468, 469, 471, 475, 477, 481, 482, 486, 487, 488, 489, 491, 492, 494, 495, 496, 500, 503, 506, 507, 509, 514, 516, 517, 522, 526, 527, 532, 533, 534, 535, 536, 537, 539, 542, 543, 544, 547, 549, 552, 553, 554, 555, 556, 557, 558, 559, 561, 563, 568, 571]}}
 
     if gp_key in ref and range(1,576) == allele_ids:
         assert res[gp_key]['excluded_allele_ids']['region'] == ref[gp_key]['excluded_allele_ids']['region']
