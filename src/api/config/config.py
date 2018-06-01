@@ -159,6 +159,7 @@ config = {
         # Region thresholds to use when filtering out intronic variants. Distance from exon start/end.
         # Filters variants with -20 or +6 as intronic, e.g. c.123-21A>G and c.123+7T>C
         "intronic_region": [-20, 6],
+        "utr_region": [-20, 20],
         "freq_num_thresholds": {  # Specifies (optional) requirements for >= 'num' count for each freq
             "GNOMAD_GENOMES": {
                 "G": 5000,
@@ -325,6 +326,7 @@ config = {
             "feature_truncation",
             "intergenic_variant"
         ],
+        "severe_consequence_threshold": "mature_miRNA_variant",
         # None includes all transcripts available in annotation
         # Will also include transcripts defined in genepanel
         "inclusion_regex": "NM_.*",
