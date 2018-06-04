@@ -175,10 +175,10 @@ def upgrade():
     # Furthermore, the annotationshadowtranscript table will be incorrect after migration.
     op.drop_table('annotationshadowtranscript')
     op.drop_table('annotationshadowfrequency')
-    conn.execute(sa.sql.text("DROP TRIGGER annotation_to_annotationshadow on annotation;"))
-    conn.execute(sa.sql.text("DROP FUNCTION delete_annotationshadow(integer);"))
-    conn.execute(sa.sql.text("DROP FUNCTION insert_annotationshadowfrequency(integer, jsonb);"))
-    conn.execute(sa.sql.text("DROP FUNCTION insert_annotationshadowtranscript(integer, jsonb);"))
+    conn.execute(sa.sql.text("DROP TRIGGER IF EXISTS annotation_to_annotationshadow on annotation;"))
+    conn.execute(sa.sql.text("DROP FUNCTION IF EXISTS delete_annotationshadow(integer);"))
+    conn.execute(sa.sql.text("DROP FUNCTION IF EXISTS insert_annotationshadowfrequency(integer, jsonb);"))
+    conn.execute(sa.sql.text("DROP FUNCTION IF EXISTS insert_annotationshadowtranscript(integer, jsonb);"))
 
     annotations = conn.execute(
         sa.select(Annotation.c)
