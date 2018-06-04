@@ -177,7 +177,7 @@ class TestFrequencyAnnotation():
 
 class TestTranscriptAnnotation():
 
-    def test_exon_distance(self):
+    def test_distance_computation(self):
 
         def generate_data(hgvsc):
             return {
@@ -190,24 +190,74 @@ class TestTranscriptAnnotation():
                 ]
             }
 
-        assert annotationconverters.convert_csq(generate_data('NM_007294.3:c.4535-213G>T'))[0]['exon_distance'] == -213
-        assert annotationconverters.convert_csq(generate_data('NM_007294.3:c.4535+213G>T'))[0]['exon_distance'] == 213
-        assert annotationconverters.convert_csq(generate_data('NM_007294.3:c.*35-21G>T'))[0]['exon_distance'] == -21
-        assert annotationconverters.convert_csq(generate_data('NM_007294.3:c.-35+21G>T'))[0]['exon_distance'] == 21
-        assert annotationconverters.convert_csq(generate_data('ENST123123:c.4535+1insAAA'))[0]['exon_distance'] == 1
-        assert annotationconverters.convert_csq(generate_data('ENST123123:c.4535-1dupTTT'))[0]['exon_distance'] == -1
-        assert annotationconverters.convert_csq(generate_data('ENST123123:c.4535+0dupTTT'))[0]['exon_distance'] == 0
-        assert annotationconverters.convert_csq(generate_data('ENST123123:n.4535+1insAAA'))[0]['exon_distance'] == 1
-        assert annotationconverters.convert_csq(generate_data('ENST123123:n.4535-1dupTTT'))[0]['exon_distance'] == -1
-        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('ENST123123:c.4535G>T'))[0]
-        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('NM_007294.3:c.4535G>T'))[0]
-        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('ENST123123:n.4535G>T'))[0]
-        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('NM_007294.3:n.4535G>T'))[0]
-        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('NM_007294.3:c.*4535G>T'))[0]
-        assert 'exon_distance' not in annotationconverters.convert_csq(generate_data('NM_007294.3:c.-4535G>T'))[0]
+        cases = [
+            ('NM_007294.3:c.4535-213G>T', -213, None),
+            ('NM_007294.3:c.4535+213G>T', 213, None),
+            ('NM_007294.3:c.*35-21G>T', -21, None),
+            ('NM_007294.3:c.-35+21G>T', 21, None),
+            ('ENST123123:c.4535+1insAAA', 1, None),
+            ('ENST123123:c.4535-1dupTTT', -1, None),
+            ('ENST123123:c.4535+0dupTTT', 0, 0),
+            ('ENST123123:n.4535+1insAAA', 1, None),
+            ('ENST123123:n.4535-1dupTTT', -1, None),
+            ('ENST123123:c.4535G>T', 0, 0),
+            ('NM_007294.3:c.4535G>T', 0, 0),
+            ('ENST123123:n.4535G>T', 0, 0),
+            ('NM_007294.3:n.4535G>T', 0, 0),
+            ('NM_007294.3:c.*4535G>T', 0, 4535),
+            ('NM_007294.3:c.-4535G>T', 0, -4535),
+            ('NM_007294.3:c.820-131_820-130delAA', -130, None),
+            ('NM_007294.3:n.1901_1904delAAGT', 0,0),
+            ('NM_007294.3:c.248-1_248insA', 0, 0),
+            ('NM_007294.3:c.248+1_248insA', 0, 0),
+            ('NM_007294.3:c.248_248-1insA', 0, 0),
+            ('NM_007294.3:c.248_248+1insA', 0, 0),
+            ('NM_007294.3:c.-315_-314delAC', 0, -314),
+            ('NM_007294.3:c.-264+88_-264+89delTT', 88, None),
+            ('NM_007294.3:c.-264-89_-264-88delTT', -88, None),
+            ('NM_007294.3:c.*264+88_*264+89delTT', 88, None),
+            ('NM_007294.3:c.*264-89_*264-88delTT', -88, None),
+            ('NM_007294.3:c.1597-10_1597-3dupTTATTTAT', -3, None),
+            ('NM_007294.3:c.13+6_14-8dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.13-6_14+8dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.13-8_14+6dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.13+8_14-6dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.*13+6_*14-8dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.*13-6_*14+8dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.*13-8_*14+6dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.*13+8_*14-6dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.-13+6_-14-8dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.-13-6_-14+8dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.-13-8_-14+6dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.-13+8_-14-6dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.*13+6_*14-8dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.*13-6_*14+8dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.*13-8_*14+6dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.*13+8_*14-6dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.-13+6_-14-8dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.-13-6_-14+8dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.-13-8_-14+6dupTTATTTAT', 6, None),
+            ('NM_007294.3:c.-13+8_-14-6dupTTATTTAT', -6, None),
+            ('NM_007294.3:c.*1+6_8dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.*1-6_8dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.-1-8_6dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.-1+8_6dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.6_-1+8dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.6_-1-8dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.8_*1-6dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.8_*1+6dupTTATTTAT', 0, 0),
+            ('NM_007294.3:c.248+3_249-8del', 3, None),
+            ('NM_007294.3:c.248-3_249+8del', -3, None),
+            ('NM_007294.3:c.248+8_249-3del', -3, None),
+            ('NM_007294.3:c.248-8_249+3del', 3, None),
+            ('NM_007294.3:c.*-15A>C', None, None) # Illegal
+        ]
 
-        with pytest.raises(AssertionError):
-            annotationconverters.convert_csq(generate_data('NM_007294.3:c.4535-0G>T'))
+        for hgvsc, exon_distance, coding_region_distance in cases:
+            csq = annotationconverters.convert_csq(generate_data(hgvsc))[0]
+            assert csq['exon_distance'] == exon_distance, "{} failed {}!={}".format(hgvsc, csq['exon_distance'], exon_distance)
+            assert csq['coding_region_distance'] == coding_region_distance, "{} failed {}!={}".format(hgvsc, csq['coding_region_distance'], coding_region_distance)
+
 
     def test_get_is_last_exon(self):
         def generate_data(additions):

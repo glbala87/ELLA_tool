@@ -74,9 +74,33 @@ CSQ_FIELDS = [
 
 ]
 
-# Matches NM_007294.3:c.4535-213G>T  (gives ['-', '213'])
-# but not NM_007294.3:c.4535G>T
-CSQ_INTRON_CHECK_REGEX = re.compile(r'[cn]\.[\-\*]?[0-9]+?(?P<plus_minus>[\-\+])(?P<distance>[0-9]+)')
+# Should match all possible valid HGVSc annotations (without transcript)
+# We use the resulting regex groups below in _calculate_distances, to compute distance
+# from coding start (for exonic UTR variants), and exon distance (for intronic variants)
+# Examples of valid HGVSc:
+# c.279G>A
+# n.1901_1904delAAGT
+# c.248-1_248insA
+# c.11712-20dupT
+# c.1624+24T>A
+# c.*14G>A
+# c.-315_-314delAC
+
+HGVSC_DISTANCE_CHECK = [
+    r'(?P<c>[cn])\.', # Coding or non-coding
+    r'(?P<utr1>[\*\-]?)', # UTR direction (asterisk is 5' UTR, minus is 3' UTR),
+    r'(?P<p1>[0-9]+)', # Position (distance into UTR if UTR region)
+    r'(?P<pm1>[\-\+]?)', # Intron direction if variant is intronic
+    r'(?P<ed1>([0-9]+)?)', # Distance from intron if variant is intronic
+    r'((?P<region>_)', # If del/dup/ins, we could have a region, denoted by a '_'. What follows below is only applicable to those cases
+    r'(?P<utr2>[\*\-]?)',
+    r'(?P<p2>[0-9]+)',
+    r'(?P<pm2>[\-\+]?)',
+    r'(?P<ed2>([0-9]+)?)',
+    r')?', # End of region
+    r'([ACGT]|[BDHKMNRSVWY]|del|dup|ins)' # All possible options following the position
+]
+HGVSC_DISTANCE_CHECK_REGEX = re.compile(''.join(HGVSC_DISTANCE_CHECK))
 
 
 def _map_hgnc_id(transcripts):
@@ -97,25 +121,83 @@ def convert_csq(annotation):
             return parts[0] == parts[1]
         return False
 
-    def _get_exon_distance(transcript_data):
-        """
-        Gets distance from exon according to HGVSc position (for intron variants).
-        """
-        hgvsc = transcript_data.get('HGVSc')
-        match = re.match(CSQ_INTRON_CHECK_REGEX, hgvsc)
-        if match:
-            match_data = match.groupdict()
+    def _calculate_distances(hgvsc):
+        """Calculate distances from valid HGVSc.
+        References:
+        Numbering: http://varnomen.hgvs.org/bg-material/numbering/
+        Naming: http://varnomen.hgvs.org/bg-material/standards/
 
-            # Regex should guarantee int conversion is possible
-            plus_minus, distance = match_data['plus_minus'], int(match_data['distance'])
-            if plus_minus == '+':
-                assert distance >= 0
-                return distance
-            elif plus_minus == '-':
-                assert distance > 0
-                return -distance
+        exon_distance denotes distance from exon for intron variants. For exonic variants, this is 0.
 
-        return None
+        coding_region_distance denotes distance from coding region of the *spliced* gene.
+        This only applies to exonic variants. Used for determining distance into UTR-region of a variant.
+
+        Returns (exon_distance, utr_distance)
+
+        Examples:
+                hgvsc        | exon_distance | coding_region_distance
+        --------------------+---------------+------------------------
+          c.279G>A           |             0 |                      0
+          n.1901_1904delAAGT |             0 |                      0
+          c.248-1_248insA    |             0 |                      0
+          c.11712-20dupT     |           -20 |
+          c.1624+24T>A       |            24 |
+          c.*14G>A           |             0 |                     14
+          c.-315_-314delAC   |             0 |                   -314
+        """
+        match = HGVSC_DISTANCE_CHECK_REGEX.match(hgvsc)
+        if not match:
+            if hgvsc:
+                log.warning("Unable to parse distances from hgvsc: {}".format(hgvsc))
+            return None, None
+
+        exon_distance = None
+        coding_region_distance = None
+        match_data = match.groupdict()
+
+        # Region variants could extend from intron into an exon, e.g. c.*431-1_*431insA
+        # The regex would then match on ed1, but not on ed2 (and return distance of -1)
+        # However, if it matches on one of them, but not the other, we force the other to be "0"
+        def fix_region_distance(d1, d2):
+            if d1 or d2:
+                d1 = d1 if d1 else "0"
+                d2 = d2 if d2 else "0"
+                return d1, d2
+            else:
+                return d1, d2
+
+        if match_data["region"]:
+            match_data["ed1"], match_data["ed2"] = fix_region_distance(match_data["ed1"], match_data["ed2"])
+
+        def get_distance(pm1, d1, pm2, d2):
+            if not (pm1 or pm2):
+                # If neither pm1 or pm2 is provided, we are at an exonic variant
+                return 0
+            elif d1 and not d2:
+                # Happens for simple snips, e.g c.123-46A>G or c.*123A>G
+                assert not pm2
+                return -int(d1) if pm1 == '-' else int(d1)
+            elif d1 and d2:
+                # Take the minimum of the two, as this is closest position to the exon/coding start
+                d = min(int(d1), int(d2))
+                if int(d1) == d:
+                    return -d if pm1 == '-' else d
+                else:
+                    return -d if pm2 == '-' else d
+            else:
+                raise RuntimeError("Unable to compute distance from ({}, {}), ({}, {})".format(pm1, d1, pm2, d2))
+
+        exon_distance = get_distance(match_data["pm1"], match_data['ed1'], match_data["pm2"], match_data['ed2'])
+
+        if exon_distance==0:
+            if (match_data['p1'] and not match_data['utr1']) or (match_data['p2'] and not match_data['utr2']):
+                # Since utr1/utr2 is always shown as either * or - for UTR regions, we know that we are in a coding region
+                # if either of those are empty
+                coding_region_distance = 0
+            else:
+                coding_region_distance = get_distance(match_data['utr1'], match_data['p1'], match_data['utr2'], match_data['p2'])
+
+        return exon_distance, coding_region_distance
 
     if 'CSQ' not in annotation:
         return list()
@@ -158,9 +240,9 @@ def convert_csq(annotation):
             s = re.sub('(?<=[del|dup])[ACGT]{10,}', '', s)
             transcript_data['HGVSc_short'] = s
 
-            exon_distance = _get_exon_distance(transcript_data)
-            if exon_distance is not None:
-                transcript_data['exon_distance'] = exon_distance
+            exon_distance, coding_region_distance = _calculate_distances(hgvsc)
+            transcript_data['exon_distance'] = exon_distance
+            transcript_data['coding_region_distance'] = coding_region_distance
 
         if 'HGVSp' in transcript_data:  # Remove transcript part
             transcript_data['protein'], transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)
