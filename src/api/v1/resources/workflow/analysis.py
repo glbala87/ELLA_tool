@@ -94,7 +94,7 @@ class AnalysisInterpretationResource(LogRequestResource):
                           type: array
                           items:
                             type: integer
-                        intronic:
+                        region:
                           type: array
                           items:
                             type: integer
