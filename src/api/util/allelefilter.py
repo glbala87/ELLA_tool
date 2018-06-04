@@ -404,76 +404,6 @@ class AlleleFilter(object):
 
         return gene_filtered
 
-    def filtered_intronic(self, gp_allele_ids):
-        """
-        Filters allele ids from input based on their distance to nearest
-        exon edge.
-
-        The filtering will happen according to the genepanel's specified
-        configuration, specifying what exon_distance defines intronic status.
-
-        If any alleles have an existing classification according to config
-        'exclude_filtering_existing_assessment', they will be excluded from the
-        result.
-
-        :param gp_allele_ids: Dict of genepanel key with corresponding allele_ids {('HBOC', 'v01'): [1, 2, 3])}
-        :returns: Structure similar to input, but only containing set() of allele ids that are intronic.
-
-        :note: The returned values are allele ids that were _filtered out_
-        based on intronic status, i.e. they are intronic.
-        """
-
-        intronic_filtered = dict()
-        # TODO: Add support for per gene/genepanel configuration when ready.
-        intronic_region = self.global_config['variant_criteria']['intronic_region']
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
-
-            # Determine which allele ids are in an exon (with exon_distance == None, or within intronic_region interval)
-            exonic_alleles_q = self.session.query(
-                annotationshadow.AnnotationShadowTranscript.allele_id,
-                annotationshadow.AnnotationShadowTranscript.exon_distance,
-                annotationshadow.AnnotationShadowTranscript.transcript
-            ).filter(
-                or_(
-                    and_(
-                        annotationshadow.AnnotationShadowTranscript.exon_distance.is_(None),
-                        # ~annotationshadow.AnnotationShadowTranscript.hgvsc.is_(None),
-                    ),
-                    or_(
-                        and_(
-                            annotationshadow.AnnotationShadowTranscript.exon_distance >= intronic_region[0],
-                            annotationshadow.AnnotationShadowTranscript.exon_distance <= intronic_region[1],
-                        ),
-                        and_(
-                            annotationshadow.AnnotationShadowTranscript.exon_distance <= intronic_region[1],
-                            annotationshadow.AnnotationShadowTranscript.exon_distance >= intronic_region[0],
-                        )
-                    )
-                ),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
-            )
-            inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
-            if inclusion_regex:
-                exonic_alleles_q = exonic_alleles_q.filter(
-                    text("transcript ~ :reg").params(reg=inclusion_regex)
-                )
-            exonic_alleles_q = exonic_alleles_q.distinct()
-
-            annotation_shadow_allele_ids_q = self.session.query(
-                annotationshadow.AnnotationShadowTranscript.allele_id
-            ).filter(
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
-            )
-
-            exonic_allele_ids = [a[0] for a in exonic_alleles_q.all()]
-            annotation_shadow_allele_ids = [a[0] for a in annotation_shadow_allele_ids_q.all()]
-            intronic_filtered[gp_key] = set(annotation_shadow_allele_ids) - set(exonic_allele_ids)
-
-        # Remove the ones with existing classification
-        for gp_key, allele_ids in intronic_filtered.iteritems():
-            intronic_filtered[gp_key] = intronic_filtered[gp_key] - self.get_allele_ids_with_classification(allele_ids)
-
-        return intronic_filtered
 
     def filtered_region(self, gp_allele_ids):
         region_filtered = {}
@@ -805,117 +735,6 @@ class AlleleFilter(object):
 
         return frequency_filtered
 
-    def filtered_utr(self, gp_allele_ids):
-        """
-        Filters out variants that have worst consequence equal to 3_prime_UTR_variant or 5_prime_UTR_variant in any
-        of the annotation transcripts included.
-        :param allele_ids: allele_ids to run filter on
-        :return: {gp_key: set()} with allele ids to be filtered out
-        """
-        consequences_ordered = self.global_config["transcripts"].get("consequences")
-        utr_consequences = [
-            # If you change these to not be hard coded,
-            # change code further down to avoid injection risk
-            '3_prime_UTR_variant',
-            '5_prime_UTR_variant'
-        ]
-
-        # TODO: Potential optimization: Since we don't care about genepanel,
-        # we can merge all allele_ids into one query, then unpack afterwards
-        utr_filtered = dict()
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
-
-            # An ordering of consequences has not been specified, return empty list
-            if not consequences_ordered:
-                utr_filtered[gp_key] = set([])
-                continue
-
-            # Also return empty list if *_prime_UTR_variant is not specified in consequences_ordered
-            if not any(u in consequences_ordered for u in utr_consequences):
-                utr_filtered[gp_key] = set([])
-                continue
-
-            # For performance: Only get allele ids that are relevant for filtering
-            candidate_filters = []
-            for c in utr_consequences:
-                candidate_filters.append(
-                    annotationshadow.AnnotationShadowTranscript.consequences.contains(text("ARRAY['{}']::character varying[]".format(c)))
-                )
-
-            candidate_allele_ids = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                or_(
-                    *candidate_filters
-                ),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
-            ).distinct()
-
-            inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
-            if inclusion_regex:
-                candidate_allele_ids = candidate_allele_ids.filter(
-                    text("transcript ~ :reg").params(reg=inclusion_regex)
-                )
-
-            # Help table: Take the config's consequences array and order it by index in array
-            # --------------------------------------------
-            # | consequence                    |   ord   |
-            # --------------------------------------------
-            # | downstream_gene_variant        | 10      |
-            # | downstream_gene_variant        | 10      |
-            # | non_coding_transcript_variant  | 14      |
-            # ...
-            consequence_order = text('''
-                SELECT consequence, ord
-                FROM   unnest(string_to_array(:consequences, ',')) WITH ORDINALITY t(consequence, ord)
-            ''').bindparams(
-                consequences=','.join(consequences_ordered)
-            ).columns(column('consequence'), column('ord')).alias('consequenceorder')
-
-            # Unnest the AnnotationShadowTranscript's consequences into rows
-            # -------------------------------------------------
-            # | allele_id | consequence                        |
-            # -------------------------------------------------
-            # | 10348     | downstream_gene_variant            |
-            # | 9986      | downstream_gene_variant            |
-            # | 11400     | non_coding_transcript_variant      |
-            #  ...
-            unpacked_consequences = self.session.query(
-                annotationshadow.AnnotationShadowTranscript.allele_id,
-                func.unnest(annotationshadow.AnnotationShadowTranscript.consequences).label('consequence')
-            ).filter(
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(candidate_allele_ids)
-            ).distinct().subquery('unpackedconsequences')
-
-            # Join the two tables, and get index of worst consequence
-            # per allele_id, where lower index means worse consequence
-            # ------------------------------------
-            # | allele_id | worst_consequence_ord |
-            # ------------------------------------
-            # | 7813      | 21                    |
-            # | 8216      | 20                    |
-            # ...
-            allele_id_worst_consequence = self.session.query(
-                unpacked_consequences.c.allele_id,
-                func.min(consequence_order.c.ord).over(
-                    partition_by=unpacked_consequences.c.allele_id
-                ).label('worst_consequence_ord')
-            ).join(
-                consequence_order,
-                text('unpackedconsequences.consequence = consequenceorder.consequence')
-            ).distinct().subquery()
-
-            # Get the indices of utr_consequences from our original list,
-            # and filter out all allele_ids which has matching index value in 'worst_consequence_ord'
-            # SQL table is 1-indexed, so add one.
-            utr_consequences_idx = [consequences_ordered.index(c) + 1 for c in utr_consequences]
-            filtered_allele_ids = self.session.query(
-                allele_id_worst_consequence.c.allele_id
-            ).filter(
-                allele_id_worst_consequence.c.worst_consequence_ord.in_(utr_consequences_idx)
-            ).distinct()
-
-            utr_filtered[gp_key] = set([a[0] for a in filtered_allele_ids.all()])
-        return utr_filtered
-
     def filter_alleles(self, gp_allele_ids):
         """
         Returns:
@@ -924,9 +743,8 @@ class AlleleFilter(object):
                 'allele_ids': [1, 2, 3],
                 'excluded_allele_ids': {
                     'gene': [4, 5],
-                    'intronic': [6, 7],
+                    'region': [6, 7],
                     'frequency': [8, 9],
-                    'utr': [10],
                 }
             },
             ...
@@ -936,7 +754,7 @@ class AlleleFilter(object):
         filters = [
             # Order matters!
             ('gene', self.filtered_gene),
-            #('frequency', self.filtered_frequency),
+            ('frequency', self.filtered_frequency),
             ('region', self.filtered_region),
         ]
 
