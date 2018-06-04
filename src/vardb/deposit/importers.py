@@ -277,7 +277,12 @@ class GenotypeImporter(object):
 
         # GQ, DP, FILTER, and QUAL should be the same for all decomposed variants
         genotype_quality = records[0]['SAMPLES'][sample_name].get('GQ')
+        if not isinstance(genotype_quality, int):
+            genotype_quality = None
+
         sequencing_depth = records[0]['SAMPLES'][sample_name].get('DP')
+        if not isinstance(sequencing_depth, int):
+            sequencing_depth = None
 
         filter = records[0]["FILTER"]
 
