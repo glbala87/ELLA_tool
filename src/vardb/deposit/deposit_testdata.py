@@ -222,7 +222,7 @@ class DepositTestdata(object):
                 gpdata['name'],
                 gpdata['version'],
                 configPath=os.path.join(SCRIPT_DIR,  gpdata['config']) if 'config' in gpdata else None,
-                replace=True
+                replace=False
             )
 
     def deposit_references(self):

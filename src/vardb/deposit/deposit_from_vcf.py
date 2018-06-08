@@ -68,6 +68,15 @@ class DepositFromVCF(object):
                 return True
         return False
 
+    def get_allele_from_record(self, record, alleles):
+        for allele in alleles:
+            if allele['chromosome'] == record['CHROM'] and \
+                allele['vcf_pos'] == record['POS'] and \
+                allele['vcf_ref'] == record['REF'] and \
+                allele['vcf_alt'] == record['ALT'][0]:
+                return allele
+        return None
+
     def getCounter(self):
         counter = dict(self.counter)
         counter.update(self.sample_importer.counter)

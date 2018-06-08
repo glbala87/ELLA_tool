@@ -16,8 +16,13 @@ import itertools
 from collections import OrderedDict
 
 from vardb.util import DB, vcfiterator
-from vardb.deposit.importers import SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
-from vardb.datamodel import sample, allele, workflow
+from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
+                                    GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
+                                    SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    SplitToDictInfoProcessor, AlleleInterpretationImporter, \
+                                    batch_generator
+
+from vardb.datamodel import sample, workflow
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -35,7 +40,7 @@ class DepositAnalysis(DepositFromVCF):
                         from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
                         analysis_not_ready_findings(self.session, db_analysis, db_analysis_interpretation)
 
-    def import_vcf(self, analysis_config_data, cache_size=1, sample_type="HTS", ped_file=None):
+    def import_vcf(self, analysis_config_data, batch_size=1000, sample_type="HTS", ped_file=None, append=False):
 
         vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
@@ -45,15 +50,25 @@ class DepositAnalysis(DepositFromVCF):
         vcf_sample_names = vi.samples
 
         db_genepanel = self.get_genepanel(analysis_config_data.gp_name, analysis_config_data.gp_version)
-        db_analysis = self.analysis_importer.process(
-            analysis_config_data.analysis_name,
-            analysis_config_data.priority,
-            db_genepanel,
-            analysis_config_data.report,
-            analysis_config_data.warnings
-        )
+
+        if not append:
+            db_analysis = self.analysis_importer.process(
+                analysis_config_data.analysis_name,
+                analysis_config_data.priority,
+                db_genepanel,
+                analysis_config_data.report,
+                analysis_config_data.warnings
+            )
+        else:
+            db_analysis = self.session.query(sample.Analysis).filter(
+                sample.Analysis.name == analysis_config_data.analysis_name
+            ).one()
+
+            if any(s for s in db_analysis.samples if s.father_id is not None or s.mother_id is not None):
+                raise RuntimeError("Appending to a family analysis is not supported.")
+
+        db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis, reopen_if_exists=append)
         db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type=sample_type, ped_file=ped_file)
-        db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis)
 
         # Due to the nature of decomposed + normalized variants, we need to be careful how we
         # process the data. Variants belonging to the same sample's genotype can be on different positions
@@ -71,39 +86,94 @@ class DepositAnalysis(DepositFromVCF):
         # - '0/1' or '1/1' we can import Genotype directly using a single Allele.
         # - '1/.' we need to wait for next './1' entry in order to connect the second Allele.
 
-        sample_needs_secondallele = {s: False for s in vcf_sample_names}
-        sample_records = {s: [] for s in vcf_sample_names}
-        sample_alleles = {s: [] for s in vcf_sample_names}
-        for record in vi.iter():
+        proband_sample_name = next(s.identifier for s in db_samples if s.proband is True)
 
-            assert len(record["ALT"]) == 1, "Only decomposed variants are supported. That is, only one ALT per line/record."
+        needs_secondallele = {s: False for s in vcf_sample_names}
+        sample_has_coverage = {s: False for s in vcf_sample_names}
+        proband_records = []  # One or two records belonging to proband
+        proband_alleles = []  # One or two alleles belonging to proband, for creating one genotype
+        for batch_records in batch_generator(vi.iter, batch_size):
 
-            db_alleles = self.allele_importer.process(record)
-            self.annotation_importer.process(record, db_alleles)
+            # Multiallelic blocks:
+            # Due to the nature of decomposed + normalized variants, we need to be careful how we
+            # process the data. Variants belonging to the same sample's genotype can be on different positions
+            # after decomposition. Example:
+            # Normal:
+            # 10    ATT A,AG,ATC    0/1 1/2 2/3
+            # After decompose/normalize:
+            # 10    ATT A   0/1 1/. ./.
+            # 11    TT   G   ./. ./1 1/.
+            # 12    T   C   ./. ./. ./1
+            #
+            # For a genotype, we want to keep connection to both alleles (using genotype.secondallele_id).
+            # For the proband sample, if the variant genotype is:
+            # - '0/0', '0/.' or './.': we don't have any variant, ignore it.
+            # - '0/1' or '1/1' we can import Genotype directly using a single allele.
+            # - '1/.' we need to wait for next './1' entry in order to connect the second allele.
+            #
+            # Since we receive records one by one, we need to make sure we have all the necessary records
+            # belonging to one multiallelic "block" from the vcf file. This is tracked by the needs_secondallele
+            # attribute, tracking whether a sample is waiting for another multiallelic match.
 
-            assert len(db_alleles) == 1
-            db_allele = db_alleles[0]
+            # First import whole batch as alleles
+            for record in batch_records:
 
-            for sample_name, sample_data in record['SAMPLES'].iteritems():
-                assert '|' not in sample_data['GT'], 'Support for phased data is not implemented'
-                assert sample_data['GT'] in ['./.', '0/0', '0/1', './1', '1/.', '1/1', '0/.'], 'Unrecognized genotype {}'.format(sample_data['GT'])
+                if not self.is_inside_transcripts(record, db_genepanel):
+                    error = "The following variant is not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
+                    error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
+                    raise RuntimeError(error)
 
-                if sample_data['GT'] in ['./.', '0/0', '0/.']:
+                # If no data for proband, just skip the record
+                if record['SAMPLES'][proband_sample_name]['GT'] in ['0/0', './.', '0/.', './0']:
                     continue
 
-                sample_records[sample_name].append(record)
-                sample_alleles[sample_name].append(db_allele)
+                self.allele_importer.add(record)
 
-                if sample_data['GT'] in ['./1', '1/.']:
-                    sample_needs_secondallele[sample_name] = not sample_needs_secondallele[sample_name]
+            alleles = self.allele_importer.process()
 
-                # When we have all the alleles needed for the genotype (for this sample), create it
-                if not sample_needs_secondallele[sample_name]:
-                    db_sample = next(s for s in itertools.chain.from_iterable(db_samples.values()) if s.identifier == sample_name)
-                    self.genotype_importer.process(sample_records[sample_name], sample_name, db_analysis, db_sample, sample_alleles[sample_name])
-                    sample_records[sample_name] = []
-                    sample_alleles[sample_name] = []
-        self.postprocess(db_analysis, db_analysis_interpretation)
+            for idx, record in enumerate(batch_records):
+                for sample_name in vcf_sample_names:
+                    # Track samples that have no coverage within a multiallelic block
+                    # './.' often occurs for single records when the sample has genotype in other records,
+                    # but if it is './.' in _all_ records within a block, it has no coverage at this site
+                    if record['SAMPLES'][sample_name]['GT'] != './.':
+                        sample_has_coverage[sample_name] = True
+
+                    if record['SAMPLES'][sample_name]['GT'] in ['1/.', './1']:
+                        needs_secondallele[sample_name] = not needs_secondallele[sample_name]
+
+                # If no data for proband, don't add the record
+                if record['SAMPLES'][proband_sample_name]['GT'] not in ['0/0', './.', '0/.', './0']:
+                    allele = self.get_allele_from_record(record, alleles)
+
+                    # Annotation
+                    self.annotation_importer.add(record, allele['id'])
+                    proband_alleles.append(allele)
+                    proband_records.append(record)
+
+                # Genotype
+                # Run this always, since a "block" can be finished on records with no proband data
+                if not any(needs_secondallele.values()) and proband_records:
+                    assert len(proband_alleles) == len(proband_records)
+                    samples_missing_coverage = [k for k, v in sample_has_coverage.iteritems() if not v]
+                    self.genotype_importer.add(proband_records, proband_alleles, proband_sample_name, db_samples, samples_missing_coverage)
+                    sample_has_coverage = {s: False for s in vcf_sample_names}
+                    proband_records = []
+                    proband_alleles = []
+
+            annotations = self.annotation_importer.process()
+            assert len(alleles) == len(annotations)
+
+            genotypes, genotypesamplesdata = self.genotype_importer.process()
+
+        assert len(proband_alleles) == 0
+        assert len(proband_records) == 0
+
+        if not append:
+            self.postprocess(db_analysis, db_analysis_interpretation)
+
+        self.session.commit()
+
 
 
 def main(argv=None):
