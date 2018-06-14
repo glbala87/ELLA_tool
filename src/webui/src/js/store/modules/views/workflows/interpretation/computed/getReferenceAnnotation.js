@@ -1,4 +1,3 @@
-import { state, props, string } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import {
     getReferencesIdsForAllele,
@@ -17,11 +16,11 @@ export default function(type, allele, interpretation, references) {
             if (!allele || !references) {
                 return null
             }
+
             if (!['pending', 'evaluated', 'excluded'].includes(type)) {
                 throw Error(`Invalid type ${type}`)
             }
             references = Object.values(references)
-            const alleleState = interpretation.state.allele[allele.id]
             const ids = getReferencesIdsForAllele(allele)
             const {
                 missing: missingReferences,
