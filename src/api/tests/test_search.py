@@ -9,7 +9,6 @@ def client():
 @pytest.mark.parametrize(("query,expected_analysis_ids,expected_allele_ids"), [
     ({"freetext": "brca_sample"}, [2,3,4], []),
     ({"freetext": "c.12"}, [], [18, 24]),
-    ({"freetext": "c.12", "filter": True}, [], [24]), # allele id 18 should be filtered out
     ({"freetext": "p.glu"}, [], [12,14,15,17]),
     ({"freetext": "13:32890607"}, [], [1]),
     ({"freetext": "13:32890607-32890650"}, [], [1,2,3]),

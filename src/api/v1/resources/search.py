@@ -208,13 +208,15 @@ class SearchResource(LogRequestResource):
                 filters.append(
                     allele.Allele.id.in_(select([hgvs_cte.c.allele_id])),
                 )
-            else:
+            elif self._get_chr_pos(q_freetext):
                 position_cte = self._search_allele_position(session, q_freetext)
                 if position_cte:
                     position_cte = position_cte.cte('position')
                     filters.append(
                         allele.Allele.id.in_(select([position_cte.c.id]))
                     )
+            else:
+                return []
 
         if q_gene is not None:
             gene_cte = self._search_allele_gene(
