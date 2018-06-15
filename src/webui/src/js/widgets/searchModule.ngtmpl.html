@@ -64,19 +64,6 @@
             </div>
           </div>
         </div>
-        <div class="question tiny line-wrapper">
-          <div class="left">
-            <h1 class="slim title search-option">
-              <b>SHOW EXCLUDED VARIANTS</b>
-            </h1>
-          </div>
-          <div class="right bttn-set">
-            <div class="id-filter-search search-option">
-              <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="$ctrl.query.filter"
-                     ng-repeat="item in ['Yes', 'No']" ng-change="$ctrl.optionSelected('filter', $ctrl.query.filter)">{{item}}</label>
-            </div>
-          </div>
-        </div>
       </article>
       <div>
         <h4 ng-if="$ctrl.results.alleles.length" class="section-header">Variants</h4>
