@@ -1,5 +1,5 @@
 from collections import OrderedDict, defaultdict
-from sqlalchemy import or_, and_, tuple_, text, func, column, literal, distinct, case
+from sqlalchemy import or_, and_, tuple_, text, func, column, literal, distinct, case, Table, Column, MetaData, Integer
 from sqlalchemy.types import Text
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -335,17 +335,14 @@ class AlleleFilter(object):
 
         Returns an ORM-representation of this table
         """
-        from sqlalchemy import Table, Column, MetaData
-        from sqlalchemy import Integer
 
-        # DEBUG CODE
-        #TODO: Replace with actual padding values when available
-        intronic_region = self.global_config['variant_criteria']['intronic_region']
+
+        #TODO: Replace with genepanel/gene specific padding values when available
+        splice_region = self.global_config['variant_criteria']['splice_region']
         utr_region = self.global_config['variant_criteria']['utr_region']
         values = []
         for gene_id in gene_ids:
-            values.append(str((gene_id, intronic_region[0], intronic_region[1], utr_region[0], utr_region[1])))
-        # END DEBUG CODE
+            values.append(str((gene_id, splice_region[0], splice_region[1], utr_region[0], utr_region[1])))
 
         self.session.execute(
             "DROP TABLE IF EXISTS tmp_gene_padding;"
@@ -406,6 +403,25 @@ class AlleleFilter(object):
 
 
     def filtered_region(self, gp_allele_ids):
+        # Filter alleles outside regions of interest. Regions of interest are based on these criteria:
+        #  - Coding region
+        #  - Splice region
+        #  - UTR region (upstream/downstream of coding start/coding end)
+        #
+        # These are all based on the transcript definition of the genepanel transcripts with genomic coordinates for
+        # - Transcript (tx) start and end
+        # - Coding region (cds) start and end
+        # - Exon start and end
+        #
+        # UTR regions are upstream/downstream of cds start/end, with padding specified in config
+        # Splice regions are upstream/downstream of exon start/end, with padding specified in config
+        #
+        #   |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+        #   |----------+              |            +-----------+                        +-------------+           |       +--------|
+        #   |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+        #  tx        exon           coding        exon        exon                     exon          exon       coding   exon     tx
+        #  start     start          start         end         start                    end           start       end     end      end
+
         region_filtered = {}
         for gp_key, allele_ids in gp_allele_ids.iteritems():
             if not allele_ids:
@@ -439,6 +455,7 @@ class AlleleFilter(object):
             # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
             # overlapping in the region [tx_start-max_padding, tx_end+max_padding]. The filter clause in the query
             # should have no effect on the result, but is included only for performance
+
             genepanel_transcripts = self.session.query(
                 gene.Transcript.id,
                 gene.Transcript.gene_id,
@@ -462,8 +479,8 @@ class AlleleFilter(object):
                 allele.Allele.chromosome == gene.Transcript.chromosome,
                 or_(
                     and_(
-                        allele.Allele.start_position > gene.Transcript.tx_start-max_padding,
-                        allele.Allele.start_position < gene.Transcript.tx_end+max_padding,
+                        allele.Allele.start_position >= gene.Transcript.tx_start-max_padding,
+                        allele.Allele.start_position <= gene.Transcript.tx_end+max_padding,
                     ),
                     and_(
                         allele.Allele.open_end_position > gene.Transcript.tx_start-max_padding,
@@ -494,6 +511,9 @@ class AlleleFilter(object):
             # Coding regions
             # The coding regions may start within an exon, and we truncate the exons where this is the case
             # For example, if an exon is defined by positions [10,20], but cds_start is 15, we include the region [15,20]
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |----------+              cccccccccccccc-----------cccccccccccccccccccccccccc-------------ccccccccccccc       +--------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
             coding_start = case(
                     [(genepanel_transcript_exons.c.cds_start > genepanel_transcript_exons.c.exon_start, genepanel_transcript_exons.c.cds_start)],
                     else_=genepanel_transcript_exons.c.exon_start
@@ -525,50 +545,96 @@ class AlleleFilter(object):
                     tmp_gene_padding.c.hgnc_id == transcripts.c.gene_id
                 ).distinct()
 
-            # Intronic upstream
+            # Splicing upstream
             # Include region upstream of the exon (not including exon starts or ends)
-            intronic_upstream_end = case(
+
+            # Transcript on positive strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |-------iii+              |            +--------iii+                        +----------iii+           |       +--------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # Transcript on reverse strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |----------+              |            +iii--------+                        +iii----------+           |       +iii-----|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+
+            # Upstream region for positive strand transcript is [exon_start+exon_upstream, exon_start)
+            # Downstream region for reverse strand transcript is (exon_end, exon_end-exon_upstream]
+            # Note: exon_upstream is a *negative* number
+            splicing_upstream_start = case(
+                [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_end+1)],
+                else_=genepanel_transcript_exons.c.exon_start+tmp_gene_padding.c.exon_upstream,
+            )
+
+            splicing_upstream_end = case(
                 [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_end-tmp_gene_padding.c.exon_upstream)],
                 else_=genepanel_transcript_exons.c.exon_start-1,
             )
 
-            intronic_upstream_start = case(
-                [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_end)],
-                else_=genepanel_transcript_exons.c.exon_start+tmp_gene_padding.c.exon_upstream,
-            )
+            splicing_region_upstream = _create_region(genepanel_transcript_exons, splicing_upstream_start, splicing_upstream_end)
 
-            intronic_region_upstream = _create_region(genepanel_transcript_exons, intronic_upstream_start, intronic_upstream_end)
-
-            # Intronic downstream
+            # Splicing downstream
             # Include region downstream of the exon (not including exon starts or ends)
-            intronic_downstream_end = case(
-                [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_start-1)],
-                else_=genepanel_transcript_exons.c.exon_end+tmp_gene_padding.c.exon_downstream,
-            )
+            # Transcript on positive strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |----------+              |            +ii---------+                        +ii-----------+           |       +ii------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # Transcript on reverse strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |--------ii+              |            +---------ii+                        +-----------ii+           |       +--------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
 
-            intronic_downstream_start = case(
+            # Downstream region for positive strand transcript is (exon_end, exon_end+exon_downstream]
+            # Downstream region for reverse strand transcript is [exon_start-exon_downstream, exon_start)
+            splicing_downstream_start = case(
                 [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_start-tmp_gene_padding.c.exon_downstream)],
                 else_=genepanel_transcript_exons.c.exon_end+1,
             )
 
-            intronic_region_downstream = _create_region(genepanel_transcript_exons, intronic_downstream_start, intronic_downstream_end)
+            splicing_downstream_end = case(
+                [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_start-1)],
+                else_=genepanel_transcript_exons.c.exon_end+tmp_gene_padding.c.exon_downstream,
+            )
+
+            splicing_region_downstream = _create_region(genepanel_transcript_exons, splicing_downstream_start, splicing_downstream_end)
 
             # UTR upstream
             # Do not include cds_start or cds_end, as these are not in the UTR
-            utr_upstream_end = case(
-                [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_end-tmp_gene_padding.c.coding_region_upstream)],
-                else_=genepanel_transcripts.c.cds_start-1
-            )
+            # Transcript on positive strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |----------+          uuuu|            +-----------+                        +-------------+           |       +--------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # Transcript on reverse strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |----------+              |            +-----------+                        +-------------+           |uuuu   +--------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
 
+            # UTR upstream region for positive strand transcript is (cds_start, cds_start+coding_region_upstream]
+            # UTR upstream region for reverse strand transcript is [cds_end-coding_region_upstream, cds_end)
             utr_upstream_start = case(
                 [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_end+1)],
                 else_=genepanel_transcripts.c.cds_start+tmp_gene_padding.c.coding_region_upstream
+            )
+
+            utr_upstream_end = case(
+                [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_end-tmp_gene_padding.c.coding_region_upstream)],
+                else_=genepanel_transcripts.c.cds_start-1
             )
 
             utr_region_upstream = _create_region(genepanel_transcripts, utr_upstream_start, utr_upstream_end)
 
             # UTR downstream
             # Do not include cds_start or cds_end, as these are not in the UTR
+            # Transcript on positive strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |----------+              |            +-----------+                        +-------------+           |uuuu   +--------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # Transcript on reverse strand:
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |----------+          uuuu|            +-----------+                        +-------------+           |       +--------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+
+            # UTR downstream region for positive strand transcript is (cds_end, cds_end-coding_region_downstream]
+            # UTR downstream region for reverse strand transcript is [cds_start+coding_region_downstream, cds_start)
             utr_downstream_start = case(
                 [(genepanel_transcripts.c.strand == '-', genepanel_transcripts.c.cds_start-tmp_gene_padding.c.coding_region_downstream)],
                 else_=genepanel_transcripts.c.cds_end+1
@@ -581,9 +647,12 @@ class AlleleFilter(object):
             utr_region_downstream = _create_region(genepanel_transcripts, utr_downstream_start, utr_downstream_end)
 
             # Union all regions together
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |-------iii+          uuuuccccccccccccccii---------ccccccccccccccccccccccccccii--------iiicccccccccccccuuuu   +ii------|
+            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
             all_regions = transcript_coding_regions.union(
-               intronic_region_upstream,
-               intronic_region_downstream,
+               splicing_region_upstream,
+               splicing_region_downstream,
                utr_region_upstream,
                utr_region_downstream,
             ).subquery().alias('all_regions')
@@ -618,7 +687,7 @@ class AlleleFilter(object):
             # Save alleles based on computed HGVSc distance
             #
             # We look at computed exon_distance/coding_region_distance from annotation on transcripts present in the genepanel (disregaring version number)
-            # For alleles with computed distance within intronic_region or utr_region, they will not be filtered out
+            # For alleles with computed distance within splice_region or utr_region, they will not be filtered out
             # This can happen when there is a mismatch between genomic position and annotated HGVSc.
             # Observed for alleles in repeated regions: In the imported VCF, the alleles are left aligned. The VEP annotation
             # left aligns w.r.t. *transcript direction*, and therefore, there could be a mismatch in position
@@ -677,7 +746,7 @@ class AlleleFilter(object):
             # Whether a consequence is severe or not is determined by the config
             all_consequences = self.global_config.get('transcripts', {}).get('consequences')
             severe_consequence_threshold = self.global_config.get('transcripts', {}).get('severe_consequence_threshold')
-            if all_consequences:
+            if all_consequences and severe_consequence_threshold:
                 severe_consequences = all_consequences[:all_consequences.index(severe_consequence_threshold)+1]
             else:
                 severe_consequences = []
@@ -691,7 +760,7 @@ class AlleleFilter(object):
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids_outside_region),
             )
 
-            # As opposed to the HGVSc and genomic region filter, we here consider all transcript, given that they
+            # As opposed to the HGVSc and genomic region filter, we here consider all transcripts, given that they
             # match the transcript inclusion regex (if exists)
             inclusion_regex = self.global_config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:

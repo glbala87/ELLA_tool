@@ -15,7 +15,7 @@ from vardb.datamodel import allele, annotation, gene, annotationshadow
 
 GLOBAL_CONFIG = {
     'variant_criteria': {
-        "intronic_region": [-10, 5],
+        "splice_region": [-10, 5],
         "utr_region": [-12, 20],
         "freq_num_thresholds": {
             "ExAC": {
@@ -1121,7 +1121,7 @@ class TestAlleleFilter(object):
 
     @pytest.mark.aa(order=3)
     def test_genomic_region_filtering(self, session):
-        # intronic_region [-10, 5]
+        # splice_region [-10, 5]
         # coding_region [-20, 20]
         # t1:
         # tx_start=1000,
@@ -1390,7 +1390,7 @@ class TestAlleleFilter(object):
     def test_hgvsc_region_filtering(self, session):
         """
         All variants are outside any transcripts (in genomic position), but are annotated with a genepanel transcript
-        with exon_distance or coding_region_distance within intronic_region/utr_region
+        with exon_distance or coding_region_distance within splice_region/utr_region
         """
         # Should be saved as annotated with exon_distance -10
         a1, _ = create_allele_with_annotation(session,
@@ -1484,7 +1484,7 @@ class TestAlleleFilter(object):
 
         # Run first with no padding, to make sure that all are filtered out
         config_no_padding = copy.deepcopy(GLOBAL_CONFIG)
-        config_no_padding['variant_criteria']['intronic_region'] = [0,0]
+        config_no_padding['variant_criteria']['splice_region'] = [0,0]
         config_no_padding['variant_criteria']['utr_region'] = [0,0]
 
         af = AlleleFilter(session, config_no_padding)
