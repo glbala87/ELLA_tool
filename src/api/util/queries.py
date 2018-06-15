@@ -266,10 +266,40 @@ def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_v
     )
 
 
-def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
+def allele_genepanels(session, genepanel_keys, allele_ids=None):
+
+    result = session.query(
+        allele.Allele.id.label('allele_id'),
+        gene.Genepanel.name.label('name'),
+        gene.Genepanel.version.label('version'),
+    ).join(gene.Genepanel.transcripts).filter(
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
+    ).filter(
+        allele.Allele.chromosome == gene.Transcript.chromosome,
+        or_(
+            and_(
+                allele.Allele.start_position >= gene.Transcript.tx_start,
+                allele.Allele.start_position <= gene.Transcript.tx_end,
+            ),
+            and_(
+                allele.Allele.open_end_position > gene.Transcript.tx_start,
+                allele.Allele.open_end_position < gene.Transcript.tx_end,
+            )
+        )
+    )
+
+    if allele_ids:
+        result = result.filter(
+            allele.Allele.id.in_(allele_ids)
+        )
+
+    return result
+
+
+def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
 
     """
-    Filters annotation transcripts for input allele_ids against genepanel transcripts
+    Returns a joined representation of annotation transcripts against genepanel transcripts
     for given genepanel_keys.
 
     genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
@@ -288,6 +318,7 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
     Use it only to get annotation data for further filtering,
     where a non-match wouldn't exclude the allele in the analysis.
     """
+
     genepanel_transcripts = session.query(
         gene.Genepanel.name,
         gene.Genepanel.version,
@@ -312,6 +343,13 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
         AnnotationShadowTranscript.hgvsp.label('annotation_hgvsp'),
     ).filter(
         text("split_part(transcript, '.', 1) = split_part(transcript_name, '.', 1)")
-    ).distinct()
+    )
+
+    if allele_ids:
+        result = result.filter(
+            AnnotationShadowTranscript.allele_id.in_(allele_ids)
+        )
+
+    result = result.distinct()
 
     return result

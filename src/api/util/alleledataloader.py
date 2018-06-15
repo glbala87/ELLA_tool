@@ -170,12 +170,17 @@ class AlleleDataLoader(object):
 
         # If genepanel is provided, get annotation
         # transcripts filtered on genepanel
-        annotation_transcripts_genepanel = None
+        annotation_transcripts = None
         if genepanel:
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
                 self.session,
-                allele_ids,
                 [(genepanel.name, genepanel.version)]
+            ).subquery()
+            annotation_transcripts = self.session.query(
+                annotation_transcripts_genepanel.c.allele_id,
+                annotation_transcripts_genepanel.c.annotation_transcript,
+            ).filter(
+                annotation_transcripts_genepanel.c.allele_id.in_(allele_ids)
             ).all()
 
         inclusion_regex_filtered = None
