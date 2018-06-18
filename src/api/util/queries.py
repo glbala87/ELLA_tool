@@ -288,9 +288,9 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
         )
     )
 
-    if allele_ids:
+    if allele_ids is not None:
         result = result.filter(
-            allele.Allele.id.in_(allele_ids)
+            allele.Allele.id.in_(allele_ids) if allele_ids else False
         )
 
     return result
@@ -325,7 +325,8 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
         gene.Transcript.transcript_name,
         gene.Transcript.gene_id,
     ).join(gene.Genepanel.transcripts).filter(
-        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys),
+        gene.Genepanel.official.is_(True)
     ).subquery()
 
     # Join genepanel and annotation tables together, using transcript as key
@@ -345,9 +346,9 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
         text("split_part(transcript, '.', 1) = split_part(transcript_name, '.', 1)")
     )
 
-    if allele_ids:
+    if allele_ids is not None:
         result = result.filter(
-            AnnotationShadowTranscript.allele_id.in_(allele_ids)
+            AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
         )
 
     result = result.distinct()
