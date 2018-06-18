@@ -2,7 +2,7 @@ import re
 import json
 from collections import defaultdict
 from flask import request
-from sqlalchemy import tuple_, or_, and_, select
+from sqlalchemy import tuple_, or_, and_, select, text
 from vardb.datamodel import sample, assessment, allele, gene, genotype, workflow, annotationshadow, user as user_model
 from api import schemas
 
@@ -98,40 +98,39 @@ class SearchResource(LogRequestResource):
         """
         query = request.args.get('q')
         query = json.loads(query)
+        query_type = query['type']
+        assert query_type in ['VARIANTS', 'ANALYSES']
 
         matches = dict()
 
-        # Choose which genepanels to filter on. If genepanel is provided in query, use this. Otherwise use usergroup genepanels.
-        if query.get("genepanel"):
-            query_gp = (query.get('genepanel')[
-                        'name'], query.get('genepanel')['version'])
-            genepanels = [next(gp for gp in user.group.genepanels if (
-                gp.name, gp.version) == query_gp)]
-        else:
-            genepanels = user.group.genepanels
+        # Use usergroup genepanels.
+        genepanels = user.group.genepanels
 
-        # Search analysis
-        analyses = self._search_analysis(session, query, genepanels)
-        analysis_ids = [a['id'] for a in analyses]
-        analysis_interpretations = self._get_analysis_interpretations(
-            session, analysis_ids)
-        matches['analyses'] = list()
-        for analysis in analyses:
-            analysis['interpretations'] = [
-                ai for ai in analysis_interpretations if ai['analysis_id'] == analysis['id']]
-            matches['analyses'].append(analysis)
-
-        # Search allele
-        alleles = self._search_allele(session, query, genepanels)
-        allele_ids = [a['id'] for a in alleles]
-        allele_interpretations = self._get_allele_interpretations(
-            session, allele_ids)
-        matches['alleles'] = list()
-        for al in alleles:
-            matches['alleles'].append({
-                'allele': al,
-                'interpretations': [ai for ai in allele_interpretations if ai['allele_id'] == al['id']]
-            })
+        if query_type == 'ANALYSES':
+            # Search analysis
+            matches['alleles'] = []
+            analyses = self._search_analysis(session, query, genepanels)
+            analysis_ids = [a['id'] for a in analyses]
+            analysis_interpretations = self._get_analysis_interpretations(
+                session, analysis_ids)
+            matches['analyses'] = list()
+            for analysis in analyses:
+                analysis['interpretations'] = [
+                    ai for ai in analysis_interpretations if ai['analysis_id'] == analysis['id']]
+                matches['analyses'].append(analysis)
+        elif query_type == 'VARIANTS':
+            # Search allele
+            matches['analyses'] = []
+            alleles = self._search_allele(session, query, genepanels)
+            allele_ids = [a['id'] for a in alleles]
+            allele_interpretations = self._get_allele_interpretations(
+                session, allele_ids)
+            matches['alleles'] = list()
+            for al in alleles:
+                matches['alleles'].append({
+                    'allele': al,
+                    'interpretations': [ai for ai in allele_interpretations if ai['allele_id'] == al['id']]
+                })
         return matches
 
     def _get_analysis_interpretations(self, session, analysis_ids):
@@ -257,7 +256,7 @@ class SearchResource(LogRequestResource):
         alleles_in_genepanels = allele_genepanels(
             session,
             [(gp.name, gp.version) for gp in genepanels],
-            allele_ids=allele_ids
+            allele_ids=allele_ids.all()
         ).subquery()
 
         return session.query(alleles_in_genepanels.c.allele_id).distinct()
@@ -301,28 +300,41 @@ class SearchResource(LogRequestResource):
             session, [(gp.name, gp.version) for gp in genepanels]).subquery()
         allele_ids = session.query(
             annotationshadow.AnnotationShadowTranscript.allele_id
-        ).filter(
-            # Only include transcripts that exists in a genepanel
-            annotationshadow.AnnotationShadowTranscript.transcript == genepanel_transcripts.c.annotation_transcript
+        # ).filter(
+        #     # Only include transcripts that exists in a genepanel
+        #     annotationshadow.AnnotationShadowTranscript.transcript == genepanel_transcripts.c.annotation_transcript
         )
+
+        if ":" in freetext:
+            transcript, hgvsc = freetext.split(':')
+            transcript_version_stripped = transcript.split('.')[0]
+        else:
+            transcript, hgvsc = None, freetext
 
         # btree indexes only support LIKE statements with no wildcard
         # in the beginning. If we need something else, remember to
         # add/update indexes accordingly
         # Put p. first since some proteins include the c.DNA position
         # e.g. NM_000059.3:c.4068G>A(p.=)
-        if 'p.' in freetext:
+        filters = []
+        if 'p.' in hgvsc:
             allele_ids = allele_ids.filter(
                 annotationshadow.AnnotationShadowTranscript.hgvsp.ilike(
-                    freetext + "%")
+                    hgvsc + "%")
             )
-        elif freetext.startswith('c.'):
+        elif hgvsc.startswith('c.'):
             allele_ids = allele_ids.filter(
                 annotationshadow.AnnotationShadowTranscript.hgvsc.like(
-                    freetext + "%")
+                    hgvsc + "%")
             )
         else:
-            return []
+            allele_ids = allele_ids.filter(False)
+
+        if transcript:
+            allele_ids = allele_ids.filter(
+                # Split out version number, as this might not match VEP annotation
+                text("split_part(transcript, '.', 1) = :transcript").bindparams(transcript=transcript_version_stripped)
+            )
 
         return allele_ids
 
@@ -365,10 +377,13 @@ class SearchResource(LogRequestResource):
         return result
 
     def _filter_transcripts_query(self, session, alleles, genepanels, query):
-
+        allele_ids = [a['id'] for a in alleles]
+        # if not allele_ids:
+        #     return
         genepanel_transcripts = annotation_transcripts_genepanel(
             session,
-            [(gp.name, gp.version) for gp in genepanels]
+            [(gp.name, gp.version) for gp in genepanels],
+            allele_ids=allele_ids
         ).subquery()
 
         allele_ids_transcripts = session.query(
@@ -394,7 +409,6 @@ class SearchResource(LogRequestResource):
                                                                for t in filtered_transcripts])
 
     def _search_allele(self, session, query, genepanels):
-
         alleles = session.query(allele.Allele).filter(
             allele.Allele.id.in_(self._get_allele_results_ids(session, query, genepanels))
         ).order_by(
@@ -437,27 +451,47 @@ class SearchOptionsResource(LogRequestResource):
         query = json.loads(request.args['q'])
         result = dict()
         if query.get('gene'):
-            genepanel_hgnc_ids = session.query(gene.Gene.hgnc_id).join(
+
+
+            # genepanel_hgnc_ids = session.query(gene.Gene.hgnc_id).join(
+            #     gene.Transcript,
+            #     gene.Genepanel.transcripts
+            # ).filter(
+            #     # was a bit hard to get the join correct, had to put join condition here
+            #     gene.Transcript.gene_id == gene.Gene.hgnc_id,
+            #     tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(
+            #         [(g.name, g.version) for g in user.group.genepanels])
+            # ).distinct()
+
+            gene_results = session.query(
+                gene.Gene.hgnc_symbol,
+                gene.Gene.hgnc_id
+            ).join(
                 gene.Transcript,
                 gene.Genepanel.transcripts
             ).filter(
                 # was a bit hard to get the join correct, had to put join condition here
                 gene.Transcript.gene_id == gene.Gene.hgnc_id,
                 tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(
-                    [(g.name, g.version) for g in user.group.genepanels])
-            ).distinct()
-
-            gene_results = session.query(
-                annotationshadow.AnnotationShadowTranscript.symbol,
-                annotationshadow.AnnotationShadowTranscript.hgnc_id
-            ).filter(
-                annotationshadow.AnnotationShadowTranscript.symbol.ilike(
-                    query['gene'] + '%'),
-                annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
-                    genepanel_hgnc_ids),
+                    [(g.name, g.version) for g in user.group.genepanels]),
+                gene.Gene.hgnc_symbol.like(query['gene']+'%')
             ).distinct().order_by(
-                annotationshadow.AnnotationShadowTranscript.symbol
+                gene.Gene.hgnc_symbol
             ).limit(SearchOptionsResource.RESULT_LIMIT)
+
+
+            # gene_results = session.query(
+            #     annotationshadow.AnnotationShadowTranscript.symbol,
+            #     annotationshadow.AnnotationShadowTranscript.hgnc_id
+            # ).filter(
+            #     annotationshadow.AnnotationShadowTranscript.symbol.like(
+            #         query['gene'] + '%'),
+            #     annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
+            #         genepanel_hgnc_ids),
+            # ).distinct().order_by(
+            #     annotationshadow.AnnotationShadowTranscript.symbol
+            # ).limit(SearchOptionsResource.RESULT_LIMIT)
+
 
             result['gene'] = [{'symbol': r[0], 'hgnc_id': r[1]}
                               for r in gene_results.all()]

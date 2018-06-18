@@ -10,6 +10,25 @@
         <div class="question tiny line-wrapper">
           <div class="left">
             <h1 class="slim title search-option">
+              <b>TYPE</b>
+            </h1>
+          </div>
+          <div class="right search-option">
+            <div class="bttn-set">
+              <label class="bttn"
+                     ng-repeat="item in ['VARIANTS', 'ANALYSES']"
+                     ng-class="{active: item===$ctrl.query.type}"
+                     ng-init="$ctrl.query.type='VARIANTS'"
+                     ng-model="$ctrl.query.type"
+                     ng-change="$ctrl.queryChanged({query: $ctrl.query})"
+                     uib-btn-radio="item"
+              >{{item}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="question tiny line-wrapper">
+          <div class="left">
+            <h1 class="slim title search-option">
               <b>HGVSC/GENOMIC/ANALYSES</b>
             </h1>
           </div>

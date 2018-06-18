@@ -10,6 +10,7 @@ class AnnotationShadowTranscript(Base):
 
     id = Column(Integer, primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
+    # use varchar_pattern_ops on hgnc_id and symbol index
     hgnc_id = Column(Integer, index=True)
     symbol = Column(String, index=True)
     transcript = Column(String, index=True)
