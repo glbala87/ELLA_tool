@@ -1,12 +1,12 @@
 import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 
 export default (alleleId) => {
     return Compute(
         alleleId,
         state`views.workflows.interpretation.selected`,
-        (alleleId, interpretation, get) => {
-            if (!interpretation) {
+        (alleleId, interpretation) => {
+            if (!interpretation || !interpretation.state || !interpretation.state.allele) {
                 return
             }
             return interpretation.state.allele[alleleId]
