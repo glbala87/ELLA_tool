@@ -15,6 +15,14 @@ class Search extends Page {
         }
     }
 
+    selectType(type) {
+        if (type === 'variants') {
+            browser.element('.id-search-type:nth-child(1)').click()
+        } else if (type === 'analyses') {
+            browser.element('.id-search-type:nth-child(2)').click()
+        }
+    }
+
     searchFreetext(searchText) {
         browser.element('.id-search-freetext').setValue(searchText)
     }

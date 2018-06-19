@@ -20,6 +20,7 @@ describe('Search functionality', function() {
     it('search for analyses', function() {
         loginPage.selectFirstUser()
         search.open()
+        search.selectType('analyses')
         search.searchFreetext('brca')
         expect(search.getNumberOfAnalyses()).toBe(3)
 
@@ -29,21 +30,21 @@ describe('Search functionality', function() {
 
         // Search for analysis by user
         search.open()
-        browser.element('.id-select-user .selector-input').click()
-        browser.element('.id-select-user .selector-dropdown li:nth-child(6)').click()
+        search.selectType('analyses')
+        browser.element('.id-select-user input').setValue('Hen')
+        browser.waitForExist('.selector-optgroup')
+        browser.keys('Enter')
         expect(search.getNumberOfAnalyses()).toBe(1)
     })
 
     it('search for variants', function() {
         // Search for variant using freetext
         search.open()
+        search.selectType('variants')
         search.searchFreetext('c.1788')
-        expect(search.getNumberOfAlleles()).toBe(1)
-
-        // This variant should be filtered out
-        search.filterResults()
-        expect(search.getNumberOfAlleles()).toBe(0)
-        search.noFilterResults()
+        browser.element('.id-select-gene input').setValue('BRCA2')
+        browser.waitForExist('.selector-optgroup')
+        browser.keys('Enter')
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // Classify variant as class 3
@@ -52,15 +53,16 @@ describe('Search functionality', function() {
         alleleSectionBox.classifyAs3()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
-        analysisPage.modalFinishButton.click();
+        analysisPage.modalFinishButton.click()
 
         // Allele assessment shows in search
         search.open()
         search.searchFreetext('c.1788')
-        expect(search.getNumberOfAlleles()).toBe(1)
-        search.filterResults()
-
-        // Allele should now not be filtered (as it's a class 3 variant)
+        search.selectType('variants')
+        search.searchFreetext('c.1788')
+        browser.element('.id-select-gene input').setValue('BRCA2')
+        browser.waitForExist('.selector-optgroup')
+        browser.keys('Enter')
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // Check that it has classification text
@@ -69,22 +71,20 @@ describe('Search functionality', function() {
         // Search for variant connected to gene and user
         search.searchFreetext('')
 
-        browser.element('.id-select-user .selector-input').click()
-        browser.element('.id-select-user .selector-dropdown li:nth-child(6)').click()
-        expect(search.getNumberOfAlleles()).toBe(1)
-
-        browser.element('.id-select-gene input').setValue('BRC')
-        // Top element should now be BRCA2: select by pressing enter
+        browser.element('.id-select-user input').setValue('Hen')
+        browser.waitForExist('.selector-optgroup')
         browser.keys('Enter')
         expect(search.getNumberOfAlleles()).toBe(1)
 
         browser.element('.id-select-user').click()
-        expect(search.getNumberOfAlleles()).toBeGreaterThan(1)
     })
 
     it('shows connected analyses', function() {
         search.open()
         search.searchFreetext('c.289')
+        browser.element('.id-select-gene input').setValue('BRCA2')
+        browser.waitForExist('.selector-optgroup')
+        browser.keys('Enter')
         let analyses = search.getAnalysesForFirstAllele()
         expect(analyses.length).toBe(2)
     })

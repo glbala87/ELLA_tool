@@ -89,7 +89,7 @@ class VariantSearchQuery:
         and raises exception when a message is required to user.
         '''
 
-        if not any([self.hgvsc, self.hgvsp, self.chr, self.pos1]):
+        if not any([self.hgvsc, self.hgvsp, self.chr, self.pos1, self.username]):
             return False
 
         if self.hgvsc or self.hgvsp:
@@ -355,12 +355,12 @@ class SearchResource(LogRequestResource):
                 text("transcript ~ :reg").params(reg=inclusion_regex)
             )
 
-        # Our btree indexes are set as "lower(column) text_pattern_ops" and only support rightside wildcard.
         if variant_query.hgvsp:
             allele_ids = allele_ids.filter(
                 func.lower(annotationshadow.AnnotationShadowTranscript.hgvsp).like(
                     variant_query.hgvsp.lower() + "%")
             )
+        # Our btree indexes are set as "lower(column) text_pattern_ops" and only support rightside wildcard.
         elif variant_query.hgvsc:
             allele_ids = allele_ids.filter(
                 func.lower(annotationshadow.AnnotationShadowTranscript.hgvsc).like(

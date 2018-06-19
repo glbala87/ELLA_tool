@@ -17,7 +17,7 @@
             <div class="bttn-set">
               <label class="bttn"
                      ng-repeat="item in ['VARIANTS', 'ANALYSES']"
-                     ng-class="{active: item===$ctrl.query.type}"
+                     ng-class="{active: item===$ctrl.query.type, 'id-search-type': true}"
                      ng-init="$ctrl.query.type='VARIANTS'"
                      ng-model="$ctrl.query.type"
                      ng-change="$ctrl.queryChanged({query: $ctrl.query})"
