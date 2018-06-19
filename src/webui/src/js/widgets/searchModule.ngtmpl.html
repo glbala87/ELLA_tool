@@ -29,14 +29,15 @@
         <div class="question tiny line-wrapper">
           <div class="left">
             <h1 class="slim title search-option">
-              <b>HGVSC/GENOMIC/ANALYSES</b>
+              <b ng-if="$ctrl.query.type == 'VARIANTS'">HGVSc/GENOMIC</b>
+              <b ng-if="$ctrl.query.type == 'ANALYSES'">ANALYSIS NAME</b>
             </h1>
           </div>
           <div class="right search-option">
-            <input placeholder="e.g. c.123A>G or 13:100-300" class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
+            <input placeholder="{{$ctrl.query.type == 'VARIANTS' ? 'e.g. c.123A>G or 13:100-300' : ''}}" class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
           </div>
         </div>
-        <div class="question tiny line-wrapper">
+        <div class="question tiny line-wrapper" ng-if="$ctrl.query.type == 'VARIANTS'">
           <div class="left">
             <h1 class="slim title search-option">
               <b>GENE</b>
@@ -54,8 +55,9 @@
                       placeholder="Search gene"
                       disable-search="false"
                       >
-                    </select>
-                </div>
+                </select>
+              </div>
+              <div class="gene-warning" ng-if="($ctrl.query.freetext.includes('c.') || $ctrl.query.freetext.includes('p.')) && !$ctrl.query.gene">Gene is required when searching using HGVS.</div>
             </div>
         </div>
         <div class="question tiny line-wrapper">
