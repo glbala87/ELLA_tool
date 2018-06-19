@@ -531,7 +531,7 @@ class ConvertReferences(object):
 
         clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
 
-        pubmeds = clinvarjson["pubmeds"]
+        pubmeds = clinvarjson.get("pubmeds", [])
         pubmeds = dict(zip(pubmeds, [""]*len(pubmeds)))  # Return as dict (empty values)
 
         return pubmeds
