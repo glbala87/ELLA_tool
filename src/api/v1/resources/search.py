@@ -461,8 +461,7 @@ class SearchResource(LogRequestResource):
             if variant_query.is_hgvs():
                 genepanel_has_hgvs = annotation_transcripts_hgvs(filtered_transcripts, variant_query)
                 if not genepanel_has_hgvs:
-                    filtered_transcripts = filtered_transcripts.extend(annotation_transcripts_hgvs(al['annotation']['transcripts'], variant_query))
-
+                    filtered_transcripts.extend(annotation_transcripts_hgvs(al['annotation']['transcripts'], variant_query))
             al['annotation']['filtered_transcripts'] = sorted(list(set([t['transcript']
                                                               for t in filtered_transcripts])))
 
