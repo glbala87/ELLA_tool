@@ -1,5 +1,5 @@
 from vardb.datamodel import Base
-from sqlalchemy import Column, Integer, Float, String, ForeignKey
+from sqlalchemy import Column, Integer, Float, String, ForeignKey, Index, text, func
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from api.config import config as global_config
@@ -10,17 +10,19 @@ class AnnotationShadowTranscript(Base):
 
     id = Column(Integer, primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
-    # use varchar_pattern_ops on hgnc_id and symbol index
     hgnc_id = Column(Integer, index=True)
     symbol = Column(String, index=True)
     transcript = Column(String, index=True)
-    hgvsc = Column(String, index=True)
+    hgvsc = Column(String)
     protein = Column(String, index=True)
     hgvsp = Column(String, index=True)
     consequences = Column(ARRAY(String))
     exon_distance = Column(Integer, index=True)
     coding_region_distance = Column(Integer, index=True)
 
+    __table_args__ = (Index('ix_annotationshadowtranscript_hgvsc', func.lower(hgvsc), postgresql_ops={
+        'data': 'text_pattern_ops'
+    }),)
 
 def iter_freq_groups(config):
     frequency_groups = config['variant_criteria']['frequencies']['groups']
