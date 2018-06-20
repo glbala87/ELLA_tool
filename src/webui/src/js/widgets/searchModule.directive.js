@@ -2,6 +2,17 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 
+const TYPES = [
+    {
+        name: 'VARIANTS',
+        type: 'alleles'
+    },
+    {
+        name: 'ANALYSES',
+        type: 'analyses'
+    }
+]
+
 app.component('search', {
     templateUrl: 'ngtmpl/searchModule.ngtmpl.html',
     controller: connect(
@@ -26,6 +37,9 @@ app.component('search', {
                             return `CLASS ${allele.allele_assessment.classification}`
                         }
                         return 'NEW'
+                    },
+                    getSearchTypes: () => {
+                        return TYPES
                     },
                     getEndAction: (interpretation) => {
                         let end_action = `${interpretation.workflow_status} ${

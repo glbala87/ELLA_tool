@@ -20,6 +20,7 @@ def upgrade():
     print "Creating indexes, this can take a while..."
     op.drop_constraint(u'uq_gene_hgnc_symbol', 'gene', type_='unique')
     op.execute('CREATE UNIQUE INDEX ix_gene_hgnc_symbol ON gene USING btree(lower(hgnc_symbol) text_pattern_ops)')
+    op.execute('DROP INDEX IF EXISTS ix_annotationshadowtranscript_hgvsc')
     op.execute('CREATE INDEX ix_annotationshadowtranscript_hgvsc ON annotationshadowtranscript USING btree(lower(hgvsc) text_pattern_ops)')
 
 

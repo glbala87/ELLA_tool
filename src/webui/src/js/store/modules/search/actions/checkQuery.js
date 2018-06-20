@@ -4,7 +4,7 @@ export default function checkQuery({ module, path }) {
     const b = query.freetext
     const c = query.gene
     const d = query.user
-    if (a === 'VARIANTS')
+    if (a === 'alleles')
         if (b && (c || d)) {
             if (b.length > 2) {
                 return path.true()
@@ -17,7 +17,7 @@ export default function checkQuery({ module, path }) {
         } else {
             return path.false()
         }
-    else if (a && a.length > 2) {
+    else if ((b && b.length > 2) || d) {
         return path.true()
     } else {
         return path.false()

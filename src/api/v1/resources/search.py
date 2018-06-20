@@ -13,14 +13,14 @@ from api.util.util import authenticate
 from api.config import config
 
 
-class VariantSearchQuery:
+class SearchQuery:
 
-    MAX_REGION_BP = 5000
     RE_POSITION_WITH_CHR = re.compile(r'^(chr)?((?P<chr>[1-9]{1,2}|[XY]{1}|MT):)(?P<pos1>[0-9]+)(-(?P<pos2>[0-9]+))?$')
     RE_POSITION_WITHOUT_CHR = re.compile(r'^(?P<pos1>[0-9]+)(-(?P<pos2>[0-9]+))?$')
     RE_G_POSITION = re.compile(r'g\.(?P<pos1>[0-9]+)')
 
-    def __init__(self):
+    def __init__(self, query):
+        self.query_type = None
         self.chr = None
         self.pos1 = None
         self.pos2 = None
@@ -31,20 +31,27 @@ class VariantSearchQuery:
         self.hgvsc = None
         self.freetext = None
 
+        self._set_query(query)
+
     def _match_position(self, freetext):
         matches = dict()
-        for expression in [VariantSearchQuery.RE_POSITION_WITH_CHR,
-                           VariantSearchQuery.RE_POSITION_WITHOUT_CHR,
-                           VariantSearchQuery.RE_G_POSITION]:
+        for expression in [SearchQuery.RE_POSITION_WITH_CHR,
+                           SearchQuery.RE_POSITION_WITHOUT_CHR,
+                           SearchQuery.RE_G_POSITION]:
             match = re.search(expression, freetext)
             if match:
                 matches.update(match.groupdict())
         return matches
 
-    def set_query(self, query):
+    def _set_query(self, query):
+
+        if query.get('type'):
+            self.query_type = query['type']
+
         if query.get('user'):
             self.username = query['user']['username']
             assert self.username
+
         if query.get('gene'):
             self.hgnc_id = query['gene']['hgnc_id']
             assert self.hgnc_id
@@ -77,6 +84,12 @@ class VariantSearchQuery:
     def is_valid_freetext(self):
         return len(self.freetext) > 2 and self.check()
 
+    def is_alleles_search(self):
+        return self.query_type == 'alleles'
+
+    def is_analyses_search(self):
+        return self.query_type == 'analyses'
+
     def is_hgvs(self):
         return bool(self.hgvsc or self.hgvsp)
 
@@ -88,6 +101,7 @@ class VariantSearchQuery:
         Returns False when search should return no results (user might not be done typing)
         and raises exception when a message is required to user.
         '''
+        assert self.query_type in ['alleles', 'analyses']
 
         if not any([self.hgvsc, self.hgvsp, self.chr, self.pos1, self.username]):
             return False
@@ -185,8 +199,7 @@ class SearchResource(LogRequestResource):
         """
         query = request.args.get('q')
         query = json.loads(query)
-        query_type = query['type']
-        assert query_type in ['VARIANTS', 'ANALYSES']
+        search_query = SearchQuery(query)
 
         matches = {
             'alleles': [],
@@ -196,9 +209,9 @@ class SearchResource(LogRequestResource):
         # Use usergroup genepanels.
         genepanels = user.group.genepanels
 
-        if query_type == 'ANALYSES':
+        if search_query.is_analyses_search():
             # Search analysis
-            analyses = self._search_analysis(session, query, genepanels)
+            analyses = self._search_analysis(session, search_query, genepanels)
             analysis_ids = [a['id'] for a in analyses]
             analysis_interpretations = self._get_analysis_interpretations(
                 session, analysis_ids)
@@ -207,12 +220,10 @@ class SearchResource(LogRequestResource):
                 analysis['interpretations'] = [
                     ai for ai in analysis_interpretations if ai['analysis_id'] == analysis['id']]
                 matches['analyses'].append(analysis)
-        elif query_type == 'VARIANTS':
-            variant_query = VariantSearchQuery()
-            variant_query.set_query(query)
-            if variant_query.check():
+        elif search_query.is_alleles_search():
+            if search_query.check():
                 # Search allele
-                alleles = self._search_allele(session, variant_query, genepanels)
+                alleles = self._search_allele(session, search_query, genepanels)
                 allele_ids = [a['id'] for a in alleles]
                 allele_interpretations = self._get_allele_interpretations(
                     session, allele_ids)
@@ -240,42 +251,28 @@ class SearchResource(LogRequestResource):
         ).all()
         return schemas.AlleleInterpretationOverviewSchema().dump(interpretations, many=True).data
 
-    def _get_analyses_filters(self, session, query, genepanels):
+    def _get_analyses_filters(self, session, search_query, genepanels):
         filters = list()
 
-        q_freetext = query.get("freetext")
-        if q_freetext:
-            q_freetext = re.escape(q_freetext)
-        q_gene = query.get("gene")
-        q_user = query.get("user")
-        # The query for genepanel is already applied to genepanels
+        if not search_query.freetext and not search_query.username:
+            return [False]
 
-        if q_freetext is not None and q_freetext != "":
+        if search_query.freetext:
+            re_freetext = re.escape(search_query.freetext)
             # Escape special characters before sending to tsquery
             for t in SearchResource.TSQUERY_ESCAPE:
-                q_freetext = q_freetext.replace(t, '\\' + t)
+                re_freetext = re_freetext.replace(t, '\\' + t)
             filters.append(sample.Analysis.name.op(
-                '~*')('.*{}.*'.format(q_freetext)))
-
-        if q_gene is not None:
-            allele_ids_in_gene = self._search_allele_gene(
-                session, q_gene['hgnc_id'], genepanels)
-            filters.extend([
-                sample.Analysis.id == genotype.Genotype.analysis_id,
-                or_(
-                    genotype.Genotype.allele_id.in_(allele_ids_in_gene),
-                    genotype.Genotype.secondallele_id.in_(
-                        allele_ids_in_gene)
-                )
-            ])
+                '~*')('.*{}.*'.format(re_freetext))
+            )
 
         # Filter on genepanel(s)
         filters.append(tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
             (gp.name, gp.version) for gp in genepanels))
 
-        if q_user is not None:
+        if search_query.username is not None:
             user_ids = session.query(user_model.User.id).filter(
-                user_model.User.username == q_user['username']).subquery()
+                user_model.User.username == search_query.username).subquery()
             filters.extend([
                 sample.Analysis.id == workflow.AnalysisInterpretation.analysis_id,
                 workflow.AnalysisInterpretation.user_id.in_(user_ids)
@@ -283,20 +280,20 @@ class SearchResource(LogRequestResource):
 
         return filters
 
-    def _get_allele_results_ids(self, session, variant_query):
+    def _get_allele_results_ids(self, session, search_query):
         # Use CTEs or else PostgreSQL creates horrible plans
 
         filters = list()
 
-        if variant_query.freetext:
-            if variant_query.is_valid_freetext():
-                if variant_query.is_hgvs():
-                    hgvs_cte = self._search_allele_hgvs(session, variant_query).cte('hgvsc')
+        if search_query.freetext:
+            if search_query.is_valid_freetext():
+                if search_query.is_hgvs():
+                    hgvs_cte = self._search_allele_hgvs(session, search_query).cte('hgvsc')
                     filters.append(
                         allele.Allele.id.in_(select([hgvs_cte.c.allele_id])),
                     )
-                elif variant_query.is_position():
-                    position_cte = self._search_allele_position(session, variant_query)
+                elif search_query.is_position():
+                    position_cte = self._search_allele_position(session, search_query)
                     if position_cte:
                         position_cte = position_cte.cte('position')
                         filters.append(
@@ -307,9 +304,9 @@ class SearchResource(LogRequestResource):
                     False
                 )
 
-        if variant_query.username:
+        if search_query.username:
             user_id = session.query(user_model.User.id).filter(
-                user_model.User.username == variant_query.username
+                user_model.User.username == search_query.username
             ).scalar()
 
             user_cte = session.query(allele.Allele.id).filter(
@@ -339,7 +336,7 @@ class SearchResource(LogRequestResource):
             allele_ids = allele_ids.filter(False)
         return allele_ids
 
-    def _search_allele_hgvs(self, session, variant_query):
+    def _search_allele_hgvs(self, session, search_query):
         """
         Performs a search in the database using the
         annotation table to lookup HGVS cDNA (c.) or protein (p.)
@@ -355,57 +352,57 @@ class SearchResource(LogRequestResource):
                 text("transcript ~ :reg").params(reg=inclusion_regex)
             )
 
-        if variant_query.hgvsp:
+        if search_query.hgvsp:
             allele_ids = allele_ids.filter(
                 func.lower(annotationshadow.AnnotationShadowTranscript.hgvsp).like(
-                    variant_query.hgvsp.lower() + "%")
+                    search_query.hgvsp.lower() + "%")
             )
         # Our btree indexes are set as "lower(column) text_pattern_ops" and only support rightside wildcard.
-        elif variant_query.hgvsc:
+        elif search_query.hgvsc:
             allele_ids = allele_ids.filter(
                 func.lower(annotationshadow.AnnotationShadowTranscript.hgvsc).like(
-                    variant_query.hgvsc.lower() + "%")
+                    search_query.hgvsc.lower() + "%")
             )
         else:
             allele_ids = allele_ids.filter(False)
 
-        if variant_query.transcript:
+        if search_query.transcript:
             allele_ids = allele_ids.filter(
                 # Split out version number, as this might not match VEP annotation
-                text("split_part(transcript, '.', 1) = split_part(:transcript, '.', 1)").bindparams(transcript=variant_query.transcript)
+                text("split_part(transcript, '.', 1) = split_part(:transcript, '.', 1)").bindparams(transcript=search_query.transcript)
             )
 
-        if variant_query.hgnc_id:
+        if search_query.hgnc_id:
             allele_ids = allele_ids.filter(
-                annotationshadow.AnnotationShadowTranscript.hgnc_id == variant_query.hgnc_id
+                annotationshadow.AnnotationShadowTranscript.hgnc_id == search_query.hgnc_id
             )
 
         return allele_ids
 
-    def _search_allele_position(self, session, variant_query):
+    def _search_allele_position(self, session, search_query):
         # Searches for Alleles within the range provided in query (if any).
         allele_ids = session.query(allele.Allele.id)
 
         # Searching without chromosome on a region is too heavy
-        if variant_query.chr is None and variant_query.pos2:
+        if search_query.chr is None and search_query.pos2:
             return []
 
-        if variant_query.chr is not None:
+        if search_query.chr is not None:
             allele_ids = allele_ids.filter(
-                allele.Allele.chromosome == variant_query.chr
+                allele.Allele.chromosome == search_query.chr
             )
 
         # Specfic location (only pos1)
-        if variant_query.pos1 is not None and variant_query.pos2 is None:
+        if search_query.pos1 is not None and search_query.pos2 is None:
             allele_ids = allele_ids.filter(
-                allele.Allele.start_position == variant_query.pos1 - 1  # DB is 0-indexed
+                allele.Allele.start_position == search_query.pos1 - 1  # DB is 0-indexed
             )
 
         # Range (both pos1 and pos2)
-        elif variant_query.pos1 is not None and variant_query.pos2 is not None:
+        elif search_query.pos1 is not None and search_query.pos2 is not None:
             allele_ids = allele_ids.filter(
-                allele.Allele.start_position >= variant_query.pos1 - 1,
-                allele.Allele.open_end_position <= variant_query.pos2,
+                allele.Allele.start_position >= search_query.pos1 - 1,
+                allele.Allele.open_end_position <= search_query.pos2,
             )
 
         return allele_ids
@@ -422,9 +419,9 @@ class SearchResource(LogRequestResource):
 
         return result
 
-    def _filter_transcripts_query(self, session, alleles, genepanels, variant_query):
+    def _filter_transcripts_query(self, session, alleles, genepanels, search_query):
         """
-        Filters the filtered_transcripts in annotation data based on options in variant_query.
+        Filters the filtered_transcripts in annotation data based on options in search_query.
         """
         allele_ids = [a['id'] for a in alleles]
 
@@ -442,12 +439,12 @@ class SearchResource(LogRequestResource):
             genepanel_transcripts.c.annotation_transcript
         ).distinct().all()
 
-        def annotation_transcripts_hgvs(transcripts, variant_query):
+        def annotation_transcripts_hgvs(transcripts, search_query):
             results = list()
             for t in transcripts:
-                if variant_query.hgvsc and variant_query.hgvsc in t.get('HGVSc', ''):
+                if search_query.hgvsc and search_query.hgvsc in t.get('HGVSc', ''):
                     results.append(t)
-                if variant_query.hgvsp and variant_query.hgvsp in t.get('HGVSp', ''):
+                if search_query.hgvsp and search_query.hgvsp in t.get('HGVSp', ''):
                     results.append(t)
             return results
 
@@ -458,19 +455,19 @@ class SearchResource(LogRequestResource):
             for transcript in al['annotation']['transcripts']:
                 if next((at for at in allele_ids_transcripts if at[0] == al['id'] and at[1] == transcript['transcript']), None):
                     filtered_transcripts.append(transcript)
-            if variant_query.is_hgvs():
-                genepanel_has_hgvs = annotation_transcripts_hgvs(filtered_transcripts, variant_query)
+            if search_query.is_hgvs():
+                genepanel_has_hgvs = annotation_transcripts_hgvs(filtered_transcripts, search_query)
                 if not genepanel_has_hgvs:
-                    filtered_transcripts.extend(annotation_transcripts_hgvs(al['annotation']['transcripts'], variant_query))
+                    filtered_transcripts.extend(annotation_transcripts_hgvs(al['annotation']['transcripts'], search_query))
             al['annotation']['filtered_transcripts'] = sorted(list(set([t['transcript']
                                                               for t in filtered_transcripts])))
 
-    def _search_allele(self, session, variant_query, genepanels):
+    def _search_allele(self, session, search_query, genepanels):
 
         # CTE for performance
         allele_results_ids = self._get_allele_results_ids(
             session,
-            variant_query
+            search_query
         ).limit(SearchResource.ALLELE_LIMIT).cte()
 
         alleles = session.query(allele.Allele).filter(
@@ -491,7 +488,7 @@ class SearchResource(LogRequestResource):
             allele_assessment_schema=schemas.AlleleAssessmentOverviewSchema
         )
 
-        self._filter_transcripts_query(session, allele_data, genepanels, variant_query)
+        self._filter_transcripts_query(session, allele_data, genepanels, search_query)
         return allele_data
 
     def _search_analysis(self, session, query, genepanels):
@@ -525,7 +522,7 @@ class SearchOptionsResource(LogRequestResource):
                 gene.Transcript.gene_id == gene.Gene.hgnc_id,
                 tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(
                     [(g.name, g.version) for g in user.group.genepanels]),
-                gene.Gene.hgnc_symbol.like(query['gene']+'%')
+                func.lower(gene.Gene.hgnc_symbol).like(query['gene'].lower() + '%')
             ).distinct().order_by(
                 gene.Gene.hgnc_symbol
             ).limit(SearchOptionsResource.RESULT_LIMIT)
