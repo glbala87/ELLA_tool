@@ -192,6 +192,8 @@ def _get_slop(transcripts, slop):
                 continue
             elif es < cds_start:
                 es = cds_start
+            elif es > cds_end:
+                break
 
             if ee > cds_end:
                 ee = cds_end
@@ -246,7 +248,7 @@ def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcrip
 
     files["REPORT_CONFIG"] = report_config_file
     variables = dict()
-    if usergroup == "EGG":
+    if usergroup == "EGG" or usergroup == 'testgroup02':
         variables['targets'] = 'excel'
     else:
         variables['targets'] = 'ella'
