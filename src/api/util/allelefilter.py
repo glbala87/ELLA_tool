@@ -503,17 +503,17 @@ class AlleleFilter(object):
 
             # Create queries for
             # - Coding regions
-            # - Upstream intron region
-            # - Downstream intron region
+            # - Upstream splice region
+            # - Downstream splice region
             # - Upstream UTR region
             # - Downstream UTR region
 
             # Coding regions
             # The coding regions may start within an exon, and we truncate the exons where this is the case
             # For example, if an exon is defined by positions [10,20], but cds_start is 15, we include the region [15,20]
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |----------+              cccccccccccccc-----------cccccccccccccccccccccccccc-------------ccccccccccccc       +--------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
+            # |----------+              cccccccccccccc-----------ccccccccccccccc-------------ccccccccccccc       +--------|
+            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
             coding_start = case(
                     [(genepanel_transcript_exons.c.cds_start > genepanel_transcript_exons.c.exon_start, genepanel_transcript_exons.c.cds_start)],
                     else_=genepanel_transcript_exons.c.exon_start
@@ -549,13 +549,13 @@ class AlleleFilter(object):
             # Include region upstream of the exon (not including exon starts or ends)
 
             # Transcript on positive strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |-------iii+              |            +--------iii+                        +----------iii+           |       +--------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
+            # |-------iii+              |            +--------iii+                 +----------iii+           |       +--------|
+            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
             # Transcript on reverse strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |----------+              |            +iii--------+                        +iii----------+           |       +iii-----|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
+            # |----------+              |            +iii--------+                 +iii----------+           |       +iii-----|
+            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
 
             # Upstream region for positive strand transcript is [exon_start+exon_upstream, exon_start)
             # Downstream region for reverse strand transcript is (exon_end, exon_end-exon_upstream]
@@ -575,13 +575,13 @@ class AlleleFilter(object):
             # Splicing downstream
             # Include region downstream of the exon (not including exon starts or ends)
             # Transcript on positive strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |----------+              |            +ii---------+                        +ii-----------+           |       +ii------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
+            # |----------+              |            +ii---------+                +ii-----------+           |       +ii------|
+            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
             # Transcript on reverse strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |--------ii+              |            +---------ii+                        +-----------ii+           |       +--------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
+            # |--------ii+              |            +---------ii+                +-----------ii+           |       +--------|
+            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
 
             # Downstream region for positive strand transcript is (exon_end, exon_end+exon_downstream]
             # Downstream region for reverse strand transcript is [exon_start-exon_downstream, exon_start)
@@ -600,13 +600,13 @@ class AlleleFilter(object):
             # UTR upstream
             # Do not include cds_start or cds_end, as these are not in the UTR
             # Transcript on positive strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |----------+          uuuu|            +-----------+                        +-------------+           |       +--------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
+            # |----------+          uuuu|            +-----------+               +-------------+           |       +--------|
+            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
             # Transcript on reverse strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |----------+              |            +-----------+                        +-------------+           |uuuu   +--------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
+            # |----------+              |            +-----------+               +-------------+           |uuuu   +--------|
+            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
 
             # UTR upstream region for positive strand transcript is (cds_start, cds_start+coding_region_upstream]
             # UTR upstream region for reverse strand transcript is [cds_end-coding_region_upstream, cds_end)
@@ -625,13 +625,13 @@ class AlleleFilter(object):
             # UTR downstream
             # Do not include cds_start or cds_end, as these are not in the UTR
             # Transcript on positive strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |----------+              |            +-----------+                        +-------------+           |uuuu   +--------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
+            # |----------+              |            +-----------+              +-------------+           |uuuu   +--------|
+            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
             # Transcript on reverse strand:
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |----------+          uuuu|            +-----------+                        +-------------+           |       +--------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
+            # |----------+          uuuu|            +-----------+              +-------------+           |       +--------|
+            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
 
             # UTR downstream region for positive strand transcript is (cds_end, cds_end-coding_region_downstream]
             # UTR downstream region for reverse strand transcript is [cds_start+coding_region_downstream, cds_start)
@@ -647,9 +647,9 @@ class AlleleFilter(object):
             utr_region_downstream = _create_region(genepanel_transcripts, utr_downstream_start, utr_downstream_end)
 
             # Union all regions together
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-            # |-------iii+          uuuuccccccccccccccii---------ccccccccccccccccccccccccccii--------iiicccccccccccccuuuu   +ii------|
-            # |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
+            # |-------iii+          uuuuccccccccccccccii---------cccccccccccccccii--------iiicccccccccccccuuuu   +ii------|
+            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
             all_regions = transcript_coding_regions.union(
                splicing_region_upstream,
                splicing_region_downstream,
@@ -671,6 +671,10 @@ class AlleleFilter(object):
                     and_(
                         allele.Allele.open_end_position > all_regions.c.region_start,
                         allele.Allele.open_end_position < all_regions.c.region_end,
+                    ),
+                    and_(
+                        allele.Allele.start_position <= all_regions.c.region_start,
+                        allele.Allele.open_end_position > all_regions.c.region_end,
                     )
                 )
             )
@@ -686,12 +690,15 @@ class AlleleFilter(object):
             #
             # Save alleles based on computed HGVSc distance
             #
-            # We look at computed exon_distance/coding_region_distance from annotation on transcripts present in the genepanel (disregaring version number)
-            # For alleles with computed distance within splice_region or utr_region, they will not be filtered out
+            # We look at computed exon_distance/coding_region_distance from annotation
+            # on transcripts present in the genepanel (disregaring version number)
+            # For alleles with computed distance within splice_region or utr_region,
+            # they will not be filtered out
             # This can happen when there is a mismatch between genomic position and annotated HGVSc.
-            # Observed for alleles in repeated regions: In the imported VCF, the alleles are left aligned. The VEP annotation
-            # left aligns w.r.t. *transcript direction*, and therefore, there could be a mismatch in position
-            # See for example https://variantvalidator.org/variantvalidation/?variant=NM_020366.3%3Ac.907-16_907-14delAAT&primary_assembly=GRCh37&alignment=splign
+            # Observed for alleles in repeated regions: In the imported VCF, the alleles are left aligned.
+            # VEP left aligns w.r.t. *transcript direction*, and therefore, there could be a mismatch in position
+            # See for example
+            # https://variantvalidator.org/variantvalidation/?variant=NM_020366.3%3Ac.907-16_907-14delAAT&primary_assembly=GRCh37&alignment=splign
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(self.session, allele_ids, [gp_key]).subquery()
 
             allele_ids_in_hgvsc_region = self.session.query(
@@ -772,7 +779,6 @@ class AlleleFilter(object):
             allele_ids_outside_region -= allele_ids_severe_consequences
 
             region_filtered[gp_key] = allele_ids_outside_region
-
 
         return region_filtered
 
