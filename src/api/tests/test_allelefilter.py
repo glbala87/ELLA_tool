@@ -6,7 +6,7 @@ import copy
 import pytest
 
 from api.util.allelefilter import AlleleFilter
-from vardb.datamodel import allele, annotation, gene, annotationshadow
+from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -233,6 +233,15 @@ def create_annotation(annotations, allele=None):
         allele=allele
     )
 
+def create_assessment(session, classification, allele=None):
+    assmt = assessment.AlleleAssessment(
+        classification=classification,
+        allele=allele,
+        genepanel_name="testpanel",
+        genepanel_version="v01"
+    )
+    session.add(assmt)
+    return assmt
 
 def create_allele_with_annotation(session, annotations=None, allele_data=None):
     al = create_allele(data=allele_data)
@@ -242,6 +251,7 @@ def create_allele_with_annotation(session, annotations=None, allele_data=None):
         session.add(an)
     else:
         an = None
+
     return al, an
 
 
@@ -1596,3 +1606,63 @@ class TestAlleleFilter(object):
         assert a2.id not in result[gp_key]['allele_ids']
         assert a3.id not in result[gp_key]['allele_ids']
 
+    @pytest.mark.aa(order=7)
+    def test_classification_filter(self, session):
+        a1, a1anno = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0051   # Above 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
+                    }
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
+
+        a2, _ = create_allele_with_annotation(session,
+            None,
+            {
+                "chromosome": "OUTSIDE_TRANSCRIPT",
+                "start_position": 1,
+                "open_end_position": 2,
+            }
+        )
+
+        a3, _ = create_allele_with_annotation(session,
+            None,
+            {
+                "chromosome": "ALSO_OUTSIDE_TRANSCRIPT",
+                "start_position": 1,
+                "open_end_position": 2,
+            }
+        )
+
+        session.flush()
+
+        af = AlleleFilter(session, GLOBAL_CONFIG)
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [a1.id, a2.id, a3.id]
+        result = af.filter_alleles({gp_key: allele_ids})
+        assert set(result[gp_key]['excluded_allele_ids']['frequency']) == set([a1.id])
+        assert set(result[gp_key]['excluded_allele_ids']['region']) == set([a2.id, a3.id])
+        assert set(result[gp_key]['allele_ids']) == set()
+
+        a1assmt = create_assessment(session, '3', a1)
+        a2assmt = create_assessment(session, '2', a2)
+        a3assmt = create_assessment(session, '1', a3) # Class 1 are not excluded from filtering
+        session.flush()
+        result = af.filter_alleles({gp_key: allele_ids})
+        assert set(result[gp_key]['excluded_allele_ids']['frequency']) == set()
+        assert set(result[gp_key]['excluded_allele_ids']['region']) == set([a3.id])
+        assert set(result[gp_key]['allele_ids']) == set([a1.id, a2.id])

@@ -806,7 +806,7 @@ class AlleleFilter(object):
         frequency_filtered = dict()
 
         for gp_key, commonness_group in commonness_result.iteritems():
-            frequency_filtered[gp_key] = commonness_group['common'] - self.get_allele_ids_with_classification(commonness_group['common'])
+            frequency_filtered[gp_key] = commonness_group['common']
 
         return frequency_filtered
 
@@ -844,18 +844,21 @@ class AlleleFilter(object):
         for key in gp_allele_ids:
             excluded_gp_allele_ids[key] = set()
 
-        def update_gp_allele_ids(gp_allele_ids, excluded_gp_allele_ids, result):
-            for gp_key in gp_allele_ids:
-                excluded_gp_allele_ids[gp_key].update(result.get(gp_key, set([])))
-                gp_allele_ids[gp_key] = set(gp_allele_ids[gp_key]) - result.get(gp_key, set([]))
+        def update_gp_allele_ids(gp_key, excluded_gp_allele_ids, result):
+            excluded_gp_allele_ids[gp_key].update(result[gp_key])
+            gp_allele_ids[gp_key] = set(gp_allele_ids[gp_key]) - result[gp_key]
 
         # Exclude the filtered alleles from one filter from being sent to
         # next filter, in order to improve performance. Matters a lot
         # for large samples, since the frequency filter filters most of the variants
         for filter_name, filter_func in filters:
             filtered = filter_func(gp_allele_ids)
-            update_gp_allele_ids(gp_allele_ids, excluded_gp_allele_ids, filtered)
             for gp_key in gp_allele_ids:
+                # Exclude alleles with classifications from filtering
+                alleles_with_classifications = self.get_allele_ids_with_classification(filtered[gp_key])
+                filtered[gp_key] -= alleles_with_classifications
+
+                update_gp_allele_ids(gp_key, excluded_gp_allele_ids, filtered)
                 result[gp_key]['excluded_allele_ids'][filter_name] = sorted(list(filtered[gp_key]))
 
         # Finally add the remaining allele_ids, these weren't filtered out
