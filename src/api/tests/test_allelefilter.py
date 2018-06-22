@@ -8,6 +8,10 @@ import pytest
 from api.util.allelefilter import AlleleFilter
 from vardb.datamodel import allele, annotation, gene, annotationshadow
 
+import hypothesis as ht
+import hypothesis.strategies as st
+
+
 # prevent screen getting filled with output (useful when testing manually)
 #import logging
 #logging.getLogger('vardb.deposit.deposit_genepanel').setLevel(logging.CRITICAL)
@@ -182,6 +186,13 @@ GENEPANEL_CONFIG = {
         }
     }
 }
+
+
+@st.composite
+def allele_positions(draw, chromosome, start, end):
+    start_position = draw(st.integers(min_value=start, max_value=end))
+    end_position = draw(st.integers(min_value=start_position+1, max_value=start_position+50))
+    return (chromosome, start_position, end_position)
 
 
 def global_with_overridden_threshold(initial, override):
@@ -1120,270 +1131,104 @@ class TestAlleleFilter(object):
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=3)
-    def test_genomic_region_filtering(self, session):
-        # splice_region [-10, 5]
-        # coding_region [-20, 20]
-        # t1:
-        # tx_start=1000,
-        # tx_end=1500,
-        # strand='+',
-        # cds_start=1230,
-        # cds_end=1430,
-        # exon_starts=[1100, 1200, 1300, 1400],
-        # exon_ends=[1160, 1260, 1360, 1460]
+    @ht.example(('1', 1600, 1601), True)  # Outside all genepanel transcripts
+    @ht.example(('1', 1100, 1101), True)  # Within transcript, but outside coding region
+    @ht.example(('1', 1451, 1452), True)  # Within transcript, but outside coding regio
+    @ht.example(('1', 1289, 1290), True)  # Intronic variant (-11)
+    @ht.example(('1', 1466, 1467), True)  # Intronic variant (+6) (in UTR)
+    @ht.example(('1', 1266, 1267), True)  # Intronic variant (+6)
+    @ht.example(('5', 5209, 5210), True)  # UTR variant [+21] on reverse transcript
+    @ht.example(('5', 5443, 5444), True)  # UTR variant (-13) on reverse transcript
+    @ht.example(('5', 5294, 5295), True)  # Intronic variant (+6) on reverse transcript
+    @ht.example(('1', 1300, 1301), False)  # Within coding exon
+    @ht.example(('1', 1290, 1291), False)  # Within splice region [-10]
+    @ht.example(('1', 1090, 1091), False)  # Within splice region of UTR exon [-10]
+    @ht.example(('1', 1165, 1166), False)  # Within splice region of UTR exon [+5]
+    @ht.example(('1', 1450, 1451), False)  # Within utr region [20]
+    @ht.example(('1', 1218, 1219), False)  # Within utr region [-12]
+    @ht.example(('5', 5442, 5443), False)  # Within utr region [-12] on reverse transcript
+    @ht.example(('5', 5210, 5211), False)  # Within utr region [20] on reverse transcript
+    @ht.example(('5', 5470, 5471), False)  # Within exonic region [-10] on reverse transcript
+    @ht.example(('5', 5095, 5096), False)  # Within exonic region [+5] on reverse transcript
+    @ht.given(
+        st.one_of(
+            allele_positions('1', 800, 1700),  # t1, positive strand
+            allele_positions('5', 4800, 5700)),  # t5, negative strand
+        st.just(None)
+    )
+    @ht.settings(deadline=500)
+    def test_genomic_region_filtering(self, session, positions, manually_curated_result):
+        """
+        Tests both using manually curated test and parallell implementation in Python.
+        """
 
-        # Outside all genepanel transcripts
-        pa1, _ = create_allele_with_annotation(session,
+        chromosome, start_position, open_end_position = positions
+        al, _ = create_allele_with_annotation(session,
             None,
             {
-                "chromosome": "1",
-                "start_position": 1600,
-                "open_end_position": 1601,
+                "chromosome": chromosome,
+                "start_position": start_position,
+                "open_end_position": open_end_position,
             }
         )
 
-        # Within transcript, but outside coding region
-        pa2, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1100,
-                "open_end_position": 1101,
-            }
-        )
+        session.flush()
 
-        # Within transcript, but outside coding region
-        pa3, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1451,
-                "open_end_position": 1452,
-            }
-        )
-
-        # Intronic variant (-11)
-        pa4, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1289,
-                "open_end_position": 1290,
-            }
-        )
-
-        # Intronic variant (+6) (in UTR)
-        pa5, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1466,
-                "open_end_position": 1467,
-            }
-        )
-
-        # Intronic variant (+6)
-        pa6, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1266,
-                "open_end_position": 1267,
-            }
-        )
-
-        # t5:
-        # chromosome='5',
-        # tx_start=5000,
-        # tx_end=5500,
-        # strand='-',
-        # cds_start=5230,
-        # cds_end=5430,
-        # exon_starts=[5100, 5200, 5300, 5400],
-        # exon_ends=[5160, 5260, 5360, 5460]
-
-        # UTR variant [+21] on reverse transcript
-        pa7, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5209,
-                "open_end_position": 5210,
-            }
-        )
-
-        # UTR variant (-13) on reverse transcript
-        pa8, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5443,
-                "open_end_position": 5444,
-            }
-        )
-
-        # Intronic variant (+6) on reverse transcript
-        pa9, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5294,
-                "open_end_position": 5295,
-            }
-        )
-
-        # Intronic variant (-11) on reverse transcript
-        pa10, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5271,
-                "open_end_position": 5272,
-            }
-        )
-
-
-        session.commit()
-
-        af = AlleleFilter(session, GLOBAL_CONFIG)
+        allele_ids = [al.id]
         gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id, pa5.id, pa6.id, pa7.id, pa8.id, pa9.id, pa10.id]
-
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert set(result[gp_key]['excluded_allele_ids']['region']) == set(allele_ids)
+        # Manually curated test cases
+        if manually_curated_result is not None:
+            if manually_curated_result:
+                assert set(result[gp_key]['excluded_allele_ids']['region']) == set(allele_ids)
+            else:
+                assert set(result[gp_key]['excluded_allele_ids']['region']) == set([])
+            return
 
+        genepanel = session.query(gene.Genepanel).filter(
+            gene.Genepanel.name == 'testpanel',
+            gene.Genepanel.version == 'v01'
+        ).one()
 
-        # Test negative cases
-        # t1:
-        # tx_start=1000,
-        # tx_end=1500,
-        # strand='+',
-        # cds_start=1230,
-        # cds_end=1430,
-        # exon_starts=[1100, 1200, 1300, 1400],
-        # exon_ends=[1160, 1260, 1360, 1460]
+        splice_region = GLOBAL_CONFIG['variant_criteria']['splice_region']
+        utr_region = GLOBAL_CONFIG['variant_criteria']['utr_region']
 
-        # Within coding exon
-        na1, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1300,
-                "open_end_position": 1301,
-            }
-        )
+        splice_include_regions = []
+        coding_include_regions = []
+        utr_include_regions = []
+        for transcript in genepanel.transcripts:
+            for es, ee in zip(transcript.exon_starts, transcript.exon_ends):
+                splice_upstream = splice_region[0] if transcript.strand == '+' else -splice_region[1]
+                splice_downstream = splice_region[1] if transcript.strand == '+' else -splice_region[0]
+                splice_include_regions.append(
+                    (es + splice_upstream, es-1)  # Region before exon start
+                )
+                splice_include_regions.append(
+                    (ee + 1, ee + splice_downstream)
+                )
 
-        # Within splice region [-10]
-        na2, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1290,
-                "open_end_position": 1291,
-            }
-        )
+                if es <= transcript.cds_end and ee >= transcript.cds_start:
+                    coding_start = es if es > transcript.cds_start else transcript.cds_start
+                    coding_end = ee if ee < transcript.cds_end else transcript.cds_end
+                    coding_include_regions.append((coding_start, coding_end))
 
+            utr_upstream = utr_region[0] if transcript.strand == '+' else -utr_region[1]
+            utr_downstream = utr_region[1] if transcript.strand == '+' else -utr_region[0]
 
-        # Within splice region of UTR exon [-10]
-        na3, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1090,
-                "open_end_position": 1091,
-            }
-        )
+            utr_include_regions.extend([
+                (transcript.cds_start + utr_upstream, transcript.cds_start - 1),
+                (transcript.cds_end + 1, transcript.cds_end + utr_downstream)
+            ])
 
-        # Within splice region of UTR exon [+5]
-        na4, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1165,
-                "open_end_position": 1166,
-            }
-        )
-
-        # Within utr region [20]
-        na5, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1450,
-                "open_end_position": 1451,
-            }
-        )
-
-        # Within utr region [-12]
-        na6, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "1",
-                "start_position": 1218,
-                "open_end_position": 1219,
-            }
-        )
-
-        # t5:
-        # chromosome='5',
-        # tx_start=5000,
-        # tx_end=5500,
-        # strand='-',
-        # cds_start=5230,
-        # cds_end=5430,
-        # exon_starts=[5100, 5200, 5300, 5400],
-        # exon_ends=[5160, 5260, 5360, 5460]
-
-        # Within utr region [-12] on reverse transcript
-        na7, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5442,
-                "open_end_position": 5443,
-            }
-        )
-
-        # Within utr region [20] on reverse transcript
-        na8, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5210,
-                "open_end_position": 5211,
-            }
-        )
-
-        # Within exonic region [-10] on reverse transcript
-        na9, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5470,
-                "open_end_position": 5471,
-            }
-        )
-
-        # Within exonic region [+5] on reverse transcript
-        na10, _ = create_allele_with_annotation(session,
-            None,
-            {
-                "chromosome": "5",
-                "start_position": 5095,
-                "open_end_position": 5096,
-            }
-        )
-
-
-        session.commit()
-
-        af = AlleleFilter(session, GLOBAL_CONFIG)
-        gp_key = ('testpanel', 'v01')
-        allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id, na6.id, na7.id, na8.id, na9.id, na10.id]
-        result = af.filter_alleles({gp_key: allele_ids})
-
-        assert set(result[gp_key]['allele_ids']) == set(allele_ids)
+        final_include_regions = splice_include_regions + utr_include_regions + coding_include_regions
+        if any((start_position >= p[0] and start_position <= p[1]) or
+               (open_end_position > p[0] and open_end_position < p[1]) or
+               (start_position <= p[0] and open_end_position > p[1]) for p in final_include_regions):
+            assert set(result[gp_key]['excluded_allele_ids']['region']) == set([])
+        else:
+            assert set(result[gp_key]['excluded_allele_ids']['region']) == set(allele_ids)
 
 
     @pytest.mark.aa(order=4)
