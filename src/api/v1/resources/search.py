@@ -82,7 +82,7 @@ class SearchQuery:
                     self.hgvsc = hgvs.lower()
 
     def is_valid_freetext(self):
-        return len(self.freetext) > 2 and self.check()
+        return self.freetext and len(self.freetext) > 2 and self.check()
 
     def is_alleles_search(self):
         return self.query_type == 'alleles'
