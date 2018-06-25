@@ -101,18 +101,21 @@ class SearchQuery:
         Returns False when search should return no results (user might not be done typing)
         and raises exception when a message is required to user.
         '''
-        assert self.query_type in ['alleles', 'analyses']
+        assert self.is_alleles_search() or self.is_analyses_search()
 
-        if not any([self.hgvsc, self.hgvsp, self.chr, self.pos1, self.username]):
-            return False
-
-        if self.hgvsc or self.hgvsp:
-            return bool(self.transcript or self.hgnc_id)
-
-        if self.pos2:
-            # Require chromosome when range and no negative range
-            if not self.chr or self.pos2 < self.pos1:
+        if self.is_alleles_search():
+            if not any([self.hgvsc, self.hgvsp, self.chr, self.pos1, self.username]):
                 return False
+
+            if self.hgvsc or self.hgvsp:
+                return bool(self.transcript or self.hgnc_id)
+
+            if self.pos2:
+                # Require chromosome when range and no negative range
+                if not self.chr or self.pos2 < self.pos1:
+                    return False
+        elif self.is_analyses_search() and not (self.freetext or self.username):
+            return False
 
         return True
 
@@ -140,13 +143,13 @@ class SearchResource(LogRequestResource):
 
         ### Features
         Right now it supports taking in a free text search, which will
-        yield matches in two categories (potentially at the same time):
+        yield matches in one of two categories:
         * Alleles
         * Analysis
 
         ### Supported queries
         For Alleles and AlleleAssessments supported search queries are:
-        * HGVS cDNA name, e.g. c.1312A>G.
+        * HGVS cDNA name, e.g. c.1312A>G + gene, or NM_00001.2:c.1312A>G
         * HGVS protein name, e.g. p.Ser309PhefsTer6.
         * Genomic positions in the following formats:
           * 123456 (start position)
@@ -206,33 +209,35 @@ class SearchResource(LogRequestResource):
             'analyses': []
         }
 
-        # Use usergroup genepanels.
-        genepanels = user.group.genepanels
-
-        if search_query.is_analyses_search():
+        if not search_query.check():
+            return matches
+        elif search_query.is_analyses_search():
+            # Use all usergroup genepanels
+            genepanels = user.group.genepanels
             # Search analysis
             analyses = self._search_analysis(session, search_query, genepanels)
             analysis_ids = [a['id'] for a in analyses]
             analysis_interpretations = self._get_analysis_interpretations(
                 session, analysis_ids)
-            matches['analyses'] = list()
             for analysis in analyses:
                 analysis['interpretations'] = [
                     ai for ai in analysis_interpretations if ai['analysis_id'] == analysis['id']]
                 matches['analyses'].append(analysis)
         elif search_query.is_alleles_search():
+            # Use offical usergroup genepanels (unofficial genepanels are subsets of the official genepanels)
+            genepanels = filter(lambda gp: gp.official, user.group.genepanels)
             if search_query.check():
                 # Search allele
                 alleles = self._search_allele(session, search_query, genepanels)
                 allele_ids = [a['id'] for a in alleles]
                 allele_interpretations = self._get_allele_interpretations(
                     session, allele_ids)
-                matches['alleles'] = list()
                 for al in alleles:
                     matches['alleles'].append({
                         'allele': al,
                         'interpretations': [ai for ai in allele_interpretations if ai['allele_id'] == al['id']]
                     })
+
         return matches
 
     def _get_analysis_interpretations(self, session, analysis_ids):
@@ -257,6 +262,10 @@ class SearchResource(LogRequestResource):
         if not search_query.freetext and not search_query.username:
             return [False]
 
+        # Filter on genepanel(s)
+        filters.append(tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
+            (gp.name, gp.version) for gp in genepanels))
+
         if search_query.freetext:
             re_freetext = re.escape(search_query.freetext)
             # Escape special characters before sending to tsquery
@@ -265,10 +274,6 @@ class SearchResource(LogRequestResource):
             filters.append(sample.Analysis.name.op(
                 '~*')('.*{}.*'.format(re_freetext))
             )
-
-        # Filter on genepanel(s)
-        filters.append(tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
-            (gp.name, gp.version) for gp in genepanels))
 
         if search_query.username is not None:
             user_ids = session.query(user_model.User.id).filter(
@@ -285,24 +290,19 @@ class SearchResource(LogRequestResource):
 
         filters = list()
 
-        if search_query.freetext:
-            if search_query.is_valid_freetext():
-                if search_query.is_hgvs():
-                    hgvs_cte = self._search_allele_hgvs(session, search_query).cte('hgvsc')
-                    filters.append(
-                        allele.Allele.id.in_(select([hgvs_cte.c.allele_id])),
-                    )
-                elif search_query.is_position():
-                    position_cte = self._search_allele_position(session, search_query)
-                    if position_cte:
-                        position_cte = position_cte.cte('position')
-                        filters.append(
-                            allele.Allele.id.in_(select([position_cte.c.id]))
-                        )
-            else:
+        if search_query.is_valid_freetext():
+            if search_query.is_hgvs():
+                hgvs_cte = self._search_allele_hgvs(session, search_query).cte('hgvsc')
                 filters.append(
-                    False
+                    allele.Allele.id.in_(select([hgvs_cte.c.allele_id])),
                 )
+            elif search_query.is_position():
+                position_cte = self._search_allele_position(session, search_query)
+                if position_cte:
+                    position_cte = position_cte.cte('position')
+                    filters.append(
+                        allele.Allele.id.in_(select([position_cte.c.id]))
+                    )
 
         if search_query.username:
             user_id = session.query(user_model.User.id).filter(
@@ -385,7 +385,7 @@ class SearchResource(LogRequestResource):
 
         # Searching without chromosome on a region is too heavy
         if search_query.chr is None and search_query.pos2:
-            return []
+            return allele_ids.filter(False)
 
         if search_query.chr is not None:
             allele_ids = allele_ids.filter(
@@ -406,18 +406,6 @@ class SearchResource(LogRequestResource):
             )
 
         return allele_ids
-
-    def _search_allele_gene(self, session, gene_hgnc_id, genepanels):
-        # Search by transcript symbol
-        genepanel_transcripts = annotation_transcripts_genepanel(
-            session, [(gp.name, gp.version) for gp in genepanels]).subquery()
-        result = session.query(
-            genepanel_transcripts.c.allele_id,
-        ).filter(
-            genepanel_transcripts.c.annotation_hgnc_id == gene_hgnc_id,
-        ).distinct()
-
-        return result
 
     def _filter_transcripts_query(self, session, alleles, genepanels, search_query):
         """
@@ -522,6 +510,7 @@ class SearchOptionsResource(LogRequestResource):
                 gene.Transcript.gene_id == gene.Gene.hgnc_id,
                 tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(
                     [(g.name, g.version) for g in user.group.genepanels]),
+                # Our btree indexes are set as "lower(column) text_pattern_ops" and only support rightside wildcard.
                 func.lower(gene.Gene.hgnc_symbol).like(query['gene'].lower() + '%')
             ).distinct().order_by(
                 gene.Gene.hgnc_symbol

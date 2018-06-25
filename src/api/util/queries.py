@@ -325,8 +325,7 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
         gene.Transcript.transcript_name,
         gene.Transcript.gene_id,
     ).join(gene.Genepanel.transcripts).filter(
-        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys),
-        gene.Genepanel.official.is_(True)
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
     ).subquery()
 
     # Join genepanel and annotation tables together, using transcript as key

@@ -57,7 +57,7 @@
                       >
                 </select>
               </div>
-              <div class="gene-warning" ng-if="($ctrl.query.freetext.includes('c.') || $ctrl.query.freetext.includes('p.')) && !$ctrl.query.gene">Gene is required when searching using HGVS.</div>
+              <div class="gene-warning" ng-if="($ctrl.query.freetext.includes('c.') || $ctrl.query.freetext.includes('p.')) && !($ctrl.query.gene || $ctrl.query.freetext.includes(':'))">Gene is required when searching using HGVS.</div>
             </div>
         </div>
         <div class="question tiny line-wrapper">

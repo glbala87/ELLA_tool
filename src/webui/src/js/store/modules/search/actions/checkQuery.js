@@ -4,20 +4,15 @@ export default function checkQuery({ module, path }) {
     const b = query.freetext
     const c = query.gene
     const d = query.user
-    if (a === 'alleles')
-        if (b && (c || d)) {
-            if (b.length > 2) {
-                return path.true()
-            }
-            return path.false()
-        } else if (b && b.match(/.*:.*/g)) {
-            return path.true()
-        } else if (c || d) {
-            return path.true()
-        } else {
-            return path.false()
-        }
-    else if ((b && b.length > 2) || d) {
+
+    if (d) {
+        // Always allow search on user
+        return path.true()
+    } else if (b && b.length > 2 && (c || a === 'analyses')) {
+        // Allow search if freetext length > 2 if gene is specified (alleles) or if type is analyses
+        return path.true()
+    } else if (b && b.match(/.*:.*/g)) {
+        // Allow search if searching for full HGVSc
         return path.true()
     } else {
         return path.false()
