@@ -257,13 +257,12 @@ class DepositGenepanel(object):
             if not ph.get('HGNC'):
                 log.warning('Skipping phenotype {} since HGNC is empty'.format(ph.get('phenotype')))
                 continue
-
             # Database has unique constraint on (gene_id, description, inheritance)
             row_data = {
                 'gene_id': int(ph['HGNC']),
                 'description': ph['phenotype'],
                 'inheritance': ph['inheritance'],
-                'omim_id': int(ph['omim_number']) if ph.get('omim_number') else None
+                'omim_id': int(ph['omim_number']) if ph.get('omim_number') and ph['omim_number'].isalnum() else None
             }
 
             is_duplicate = next((p for p in phenotype_rows if p['gene_id'] == row_data['gene_id'] and p['description'] == row_data['description'] and p['inheritance'] == row_data['inheritance']), None)

@@ -248,7 +248,7 @@ def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcrip
 
     files["REPORT_CONFIG"] = report_config_file
     variables = dict()
-    if usergroup == "EGG" or usergroup == 'testgroup02':
+    if usergroup == "EGG" or usergroup == "testgroup02":
         variables['targets'] = 'excel'
     else:
         variables['targets'] = 'ella'
