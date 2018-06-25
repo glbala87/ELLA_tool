@@ -699,7 +699,7 @@ class AlleleFilter(object):
             # VEP left aligns w.r.t. *transcript direction*, and therefore, there could be a mismatch in position
             # See for example
             # https://variantvalidator.org/variantvalidation/?variant=NM_020366.3%3Ac.907-16_907-14delAAT&primary_assembly=GRCh37&alignment=splign
-            annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(self.session, allele_ids, [gp_key]).subquery()
+            annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(self.session, [gp_key], allele_ids).subquery()
 
             allele_ids_in_hgvsc_region = self.session.query(
                 annotationshadow.AnnotationShadowTranscript.allele_id,
