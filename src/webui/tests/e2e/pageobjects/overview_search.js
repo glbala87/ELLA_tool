@@ -15,6 +15,19 @@ class Search extends Page {
         }
     }
 
+    user(username) {
+        browser.element('.id-select-user input').setValue(username)
+        browser.waitForExist('.selector-optgroup')
+    }
+    gene(genesymbol) {
+        browser.element('.id-select-gene input').setValue('BRCA2')
+        browser.waitForExist('.selector-optgroup')
+    }
+
+    runSearch() {
+        browser.keys('Enter')
+    }
+
     selectType(type) {
         if (type === 'variants') {
             browser.element('.id-search-type:nth-child(1)').click()

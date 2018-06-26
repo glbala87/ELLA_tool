@@ -31,9 +31,8 @@ describe('Search functionality', function() {
         // Search for analysis by user
         search.open()
         search.selectType('analyses')
-        browser.element('.id-select-user input').setValue('Hen')
-        browser.waitForExist('.selector-optgroup')
-        browser.keys('Enter')
+        search.user('Hen')
+        search.runSearch()
         expect(search.getNumberOfAnalyses()).toBe(1)
     })
 
@@ -42,9 +41,8 @@ describe('Search functionality', function() {
         search.open()
         search.selectType('variants')
         search.searchFreetext('c.1788')
-        browser.element('.id-select-gene input').setValue('BRCA2')
-        browser.waitForExist('.selector-optgroup')
-        browser.keys('Enter')
+        search.gene('BRCA2')
+        search.runSearch()
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // Classify variant as class 3
@@ -60,9 +58,8 @@ describe('Search functionality', function() {
         search.searchFreetext('c.1788')
         search.selectType('variants')
         search.searchFreetext('c.1788')
-        browser.element('.id-select-gene input').setValue('BRCA2')
-        browser.waitForExist('.selector-optgroup')
-        browser.keys('Enter')
+        search.gene('BRCA2')
+        search.runSearch()
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // Check that it has classification text
@@ -71,9 +68,8 @@ describe('Search functionality', function() {
         // Search for variant connected to gene and user
         search.searchFreetext('')
 
-        browser.element('.id-select-user input').setValue('Hen')
-        browser.waitForExist('.selector-optgroup')
-        browser.keys('Enter')
+        search.user('Hen')
+        search.runSearch()
         expect(search.getNumberOfAlleles()).toBe(1)
 
         browser.element('.id-select-user').click()
@@ -82,9 +78,8 @@ describe('Search functionality', function() {
     it('shows connected analyses', function() {
         search.open()
         search.searchFreetext('c.289')
-        browser.element('.id-select-gene input').setValue('BRCA2')
-        browser.waitForExist('.selector-optgroup')
-        browser.keys('Enter')
+        search.gene('BRCA2')
+        search.runSearch()
         let analyses = search.getAnalysesForFirstAllele()
         expect(analyses.length).toBe(2)
     })
