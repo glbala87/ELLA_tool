@@ -168,8 +168,7 @@ class AlleleDataLoader(object):
 
         # Create final data
 
-        # If genepanel is provided, get annotation
-        # transcripts filtered on genepanel
+        # If genepanel is provided, get annotation transcripts filtered on genepanel
         annotation_transcripts = None
         if genepanel:
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
