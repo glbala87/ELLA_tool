@@ -86,10 +86,11 @@ class AlleleDataLoader(object):
         genotype_schema = GenotypeSchema()
         sample_schema = SampleSchema()
         accumulated_allele_data = dict()
-        for idx, al in enumerate(alleles):
-            accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
+        allele_ids = list() # To keep input order
 
-        allele_ids = [a.id for a in alleles]  # Keep input order
+        for al in alleles:
+            accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
+            allele_ids.append(al.id)
 
         if include_genotype_samples:
             samples = self.session.query(sample.Sample).filter(
