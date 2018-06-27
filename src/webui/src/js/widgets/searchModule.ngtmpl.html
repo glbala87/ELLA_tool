@@ -10,14 +10,34 @@
         <div class="question tiny line-wrapper">
           <div class="left">
             <h1 class="slim title search-option">
-              <b>HGVSC/GENOMIC/ANALYSES</b>
+              <b>TYPE</b>
             </h1>
           </div>
           <div class="right search-option">
-            <input placeholder="e.g. c.123A>G or 13:100-300" class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
+            <div class="bttn-set">
+              <label class="bttn"
+                     ng-repeat="item in $ctrl.getSearchTypes()"
+                     ng-class="{active: item.type == $ctrl.query.type, 'id-search-type': true}"
+                     ng-init="$ctrl.query.type='alleles'"
+                     ng-model="$ctrl.query.type"
+                     ng-change="$ctrl.queryChanged({query: $ctrl.query})"
+                     uib-btn-radio="item.type"
+              >{{item.name}}</label>
+            </div>
           </div>
         </div>
         <div class="question tiny line-wrapper">
+          <div class="left">
+            <h1 class="slim title search-option">
+              <b ng-if="$ctrl.query.type == 'alleles'">HGVSc/GENOMIC</b>
+              <b ng-if="$ctrl.query.type == 'analyses'">ANALYSIS NAME</b>
+            </h1>
+          </div>
+          <div class="right search-option">
+            <input placeholder="{{$ctrl.query.type == 'alleles' ? 'e.g. c.123A>G or 13:100-300' : ''}}" class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
+          </div>
+        </div>
+        <div class="question tiny line-wrapper" ng-if="$ctrl.query.type == 'alleles'">
           <div class="left">
             <h1 class="slim title search-option">
               <b>GENE</b>
@@ -35,8 +55,9 @@
                       placeholder="Search gene"
                       disable-search="false"
                       >
-                    </select>
-                </div>
+                </select>
+              </div>
+              <div class="gene-warning" ng-if="($ctrl.query.freetext.includes('c.') || $ctrl.query.freetext.includes('p.')) && !($ctrl.query.gene || $ctrl.query.freetext.includes(':'))">Gene is required when searching using HGVS.</div>
             </div>
         </div>
         <div class="question tiny line-wrapper">
@@ -64,23 +85,11 @@
             </div>
           </div>
         </div>
-        <div class="question tiny line-wrapper">
-          <div class="left">
-            <h1 class="slim title search-option">
-              <b>SHOW EXCLUDED VARIANTS</b>
-            </h1>
-          </div>
-          <div class="right bttn-set">
-            <div class="id-filter-search search-option">
-              <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="$ctrl.query.filter"
-                     ng-repeat="item in ['Yes', 'No']" ng-change="$ctrl.optionSelected('filter', $ctrl.query.filter)">{{item}}</label>
-            </div>
-          </div>
-        </div>
       </article>
       <div>
         <h4 ng-if="$ctrl.results.alleles.length" class="section-header">Variants</h4>
         <h4 ng-if="$ctrl.results.alleles.length" class="results-limit-header">(showing 10 first results)</h4>
+
         <section ng-if="$ctrl.results.alleles.length">
           <article class="sectionbox-content allele-list">
             <a class="id-variant list-item clickable"
@@ -112,8 +121,6 @@
 
         <div class="no-results" ng-if="$ctrl.results.analyses.length == 0 && $ctrl.results.alleles.length == 0">
           <h4 class="sb-notification">No results</h4>
-          <h4 class="sb-notification">Try to be less specific in your search criteria.</h4>
-          <h4 class="sb-notification">Freetext examples: c.198A>G, 5:16451845, 13:32893296-32893415</h4>
         </div>
       </div>
     </contentwrapper>

@@ -4,7 +4,7 @@ import loadResults from '../sequences/loadResults'
 
 export default [
     set(module`query`, props`query`),
-    debounce(200),
+    debounce(500),
     {
         continue: loadResults,
         discard: []

@@ -86,10 +86,11 @@ class AlleleDataLoader(object):
         genotype_schema = GenotypeSchema()
         sample_schema = SampleSchema()
         accumulated_allele_data = dict()
-        for idx, al in enumerate(alleles):
-            accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
+        allele_ids = list() # To keep input order
 
-        allele_ids = [a.id for a in alleles]  # Keep input order
+        for al in alleles:
+            accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
+            allele_ids.append(al.id)
 
         if include_genotype_samples:
             samples = self.session.query(sample.Sample).filter(
@@ -168,14 +169,18 @@ class AlleleDataLoader(object):
 
         # Create final data
 
-        # If genepanel is provided, get annotation
-        # transcripts filtered on genepanel
-        annotation_transcripts_genepanel = None
+        # If genepanel is provided, get annotation transcripts filtered on genepanel
+        annotation_transcripts = None
         if genepanel:
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
                 self.session,
-                allele_ids,
                 [(genepanel.name, genepanel.version)]
+            ).subquery()
+            annotation_transcripts = self.session.query(
+                annotation_transcripts_genepanel.c.allele_id,
+                annotation_transcripts_genepanel.c.annotation_transcript,
+            ).filter(
+                annotation_transcripts_genepanel.c.allele_id.in_(allele_ids)
             ).all()
 
         inclusion_regex_filtered = None
@@ -204,8 +209,8 @@ class AlleleDataLoader(object):
 
                 # 'filtered_transcripts' -> transcripts in our genepanel
                 filtered_transcripts = []
-                if annotation_transcripts_genepanel:
-                    filtered_transcripts = [a.annotation_transcript for a in annotation_transcripts_genepanel if a.allele_id == allele_id]
+                if annotation_transcripts:
+                    filtered_transcripts = [a.annotation_transcript for a in annotation_transcripts if a.allele_id == allele_id]
 
                 # Filter main transcript list on inclusion regex
                 # (if in filtered_transcripts, don't exclude it)

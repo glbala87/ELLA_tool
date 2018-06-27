@@ -172,16 +172,16 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         gene.Genepanel.version == gp_version
     ).one()
 
-    alleles_filtered_genepanel = queries.annotation_transcripts_genepanel(
+    annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
         session,
-        allele_ids,
         [(gp_name, gp_version)]
     ).subquery()
 
     transcripts = session.query(gene.Transcript).options(joinedload(gene.Transcript.gene)).join(
         gene.Genepanel.transcripts
     ).filter(
-        gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript
+        gene.Transcript.transcript_name == annotation_transcripts_genepanel.c.genepanel_transcript,
+        annotation_transcripts_genepanel.c.allele_id.in_(allele_ids)
     ).all()
 
     phenotypes = session.query(
@@ -189,7 +189,8 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
     ).options(joinedload(gene.Phenotype.gene)).join(
         gene.genepanel_phenotype
     ).filter(
-        gene.Transcript.transcript_name == alleles_filtered_genepanel.c.genepanel_transcript,
+        gene.Transcript.transcript_name == annotation_transcripts_genepanel.c.genepanel_transcript,
+        annotation_transcripts_genepanel.c.allele_id.in_(allele_ids),
         gene.Phenotype.gene_id == gene.Transcript.gene_id,
         gene.genepanel_phenotype.c.genepanel_name == gp_name,
         gene.genepanel_phenotype.c.genepanel_version == gp_version
@@ -541,7 +542,7 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
 def get_genepanels(session, allele_ids, user=None):
     """
-    Get all genepanels overlapping the transcripts of the provided allele_ids.
+    Get all genepanels overlapping the regions of the provided allele_ids.
 
     Is user is provided, the genepanels are restricted to the user group's panels.
     """
@@ -553,18 +554,17 @@ def get_genepanels(session, allele_ids, user=None):
             gene.Genepanel.official.is_(True)
         ).all()
 
-    alleles_genepanels = queries.annotation_transcripts_genepanel(
+    allele_genepanels = queries.allele_genepanels(
         session,
-        allele_ids,
-        gp_keys
+        gp_keys,
+        allele_ids=allele_ids
     )
-    alleles_genepanels = alleles_genepanels.subquery()
+    allele_genepanels = allele_genepanels.subquery()
 
     candidate_genepanels = session.query(
-        alleles_genepanels.c.name,
-        alleles_genepanels.c.version
+        allele_genepanels.c.name,
+        allele_genepanels.c.version
     ).distinct().all()
-
 
     # TODO: Sort by previously used interpretations
 
