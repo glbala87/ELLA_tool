@@ -3,13 +3,15 @@ import json
 import datetime
 import pytz
 import time
+import collections
+import hashlib
 from flask import request, g, Response
 from api import app, db, ApiError
 from vardb.datamodel import user
 from vardb.datamodel.log import ResourceLog
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.scoping import scoped_session
-import collections
+
 
 log = app.logger
 
@@ -322,8 +324,9 @@ def request_json(required, only_required=False, allowed=None):
 
 
 def _get_usersession_by_token(session, token):
+    hashed_token = hashlib.sha256(token).hexdigest()
     user_session = session.query(user.UserSession).options(joinedload("user")).filter(
-        user.UserSession.token == token
+        user.UserSession.token == hashed_token
     ).one_or_none()
 
     if user_session is None or \
@@ -357,12 +360,6 @@ def authenticate(user_role=None, user_group=None, optional=False):
     See populate_g_user().
     """
     def _authenticate(func):
-
-        def _userHasAccess(session, token, user_role=None, user_group=None):
-            if user_role is None and user_group is None:
-                return True
-            else:
-                return False  # TODO: Implement user roles and user groups
 
         @wraps(func)
         def inner(*args, **kwargs):
