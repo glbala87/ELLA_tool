@@ -18,12 +18,13 @@ def import_groups(session, groups, log=log.info):
             user.UserGroup.name == group_data['name']
         ).one_or_none()
 
-        db_genepanels = session.query(gene.Genepanel).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(group_data['genepanels'])
+        db_official_genepanels = session.query(gene.Genepanel).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(group_data['genepanels']),
+            gene.Genepanel.official == True,
         ).all()
 
-        if len(db_genepanels) != len(group_data['genepanels']):
-            not_found = set(tuple(gp) for gp in group_data['genepanels'])-set((gp.name, gp.version,) for gp in db_genepanels)
+        if len(db_official_genepanels) != len(group_data['genepanels']):
+            not_found = set(tuple(gp) for gp in group_data['genepanels'])-set((gp.name, gp.version,) for gp in db_official_genepanels)
             raise NoResultFound("Unable to find all genepanels in database: %s" %str(list(not_found)))
 
         if group_data.get("default_import_genepanel"):
@@ -32,13 +33,15 @@ def import_groups(session, groups, log=log.info):
             group_data["default_import_genepanel_name"] = default_import_genepanel[0]
             group_data["default_import_genepanel_version"] = default_import_genepanel[1]
 
-        group_data["genepanels"] = db_genepanels
-
         if not existing_group:
+            group_data["genepanels"] = db_official_genepanels
             new_group = user.UserGroup(**group_data)
             session.add(new_group)
             log("Added user group {}".format(group_data['name']))
         else:
+            # Keep unofficial genepanels for group
+            db_unofficial_genepanels = filter(lambda gp: gp.official == False, existing_group.genepanels)
+            group_data["genepanels"] = list(db_official_genepanels)+list(db_unofficial_genepanels)
             log("User group {} already exists, updating record...".format(group_data['name']))
             for k, v in group_data.iteritems():
                 setattr(existing_group, k, v)

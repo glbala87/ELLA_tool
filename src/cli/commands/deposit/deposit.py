@@ -140,57 +140,6 @@ def cmd_deposit_custom_annotations(custom_annotation_json):
     import_custom_annotations(db.session, custom_annotation_json)
 
 
-# TODO: duplicate command, see users.py
-@deposit.command('users')
-@click.argument('users_json')
-def cmd_deposit_users(users_json):
-    """
-    Deposit/update a set of users into database given by DB_URL.
-
-    Input is a json file, with an array of user objects.
-
-    Any user matching 'username' key will have it's record updated,
-    otherwise a new record is inserted.
-    """
-    logging.basicConfig(level=logging.INFO)
-
-    with open(users_json) as fd:
-        users = json.load(fd)
-
-    if not users:
-        raise RuntimeError("No users found in file {}".format(users_json))
-
-    db = DB()
-    db.connect()
-
-    import_users(db.session, users)
-
-# TODO: duplicate command, see users.py
-@deposit.command('usergroups')
-@click.argument('usergroups_json')
-def cmd_deposit_usergroups(usergroups_json):
-    """
-    Deposit/update a set of user groups into database given by DB_URL.
-
-    Input is a json file, with an array of user group objects.
-
-    Any group matching 'name' key will have it's record updated,
-    otherwise a new record is inserted.
-    """
-    logging.basicConfig(level=logging.INFO)
-
-    with open(usergroups_json) as fd:
-        groups = json.load(fd)
-
-    if not groups:
-        raise RuntimeError("No user groups found in file {}".format(usergroups_json))
-
-    db = DB()
-    db.connect()
-
-    import_groups(db.session, groups)
-
-
 @deposit.command('genepanel')
 @click.option('--genepanel_name')
 @click.option('--genepanel_version')
