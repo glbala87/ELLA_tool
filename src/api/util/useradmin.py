@@ -2,6 +2,7 @@ from sqlalchemy import desc
 import bcrypt
 import datetime
 import binascii
+import hashlib
 import os
 import re
 import pytz
@@ -78,20 +79,22 @@ def hash_password(password):
 # Utility functions
 
 def create_session(session, user_id):
-    token = binascii.hexlify(os.urandom(32))
     u = session.query(user.User).filter(
         user.User.id == user_id,
     ).one()
 
+    # Store hashed token in database
+    token = binascii.hexlify(os.urandom(32))
+    hashed_token = hashlib.sha256(token).hexdigest()
     userSession = user.UserSession(
-        token=token,
+        token=hashed_token,
         user_id=user_id,
         issued=datetime.datetime.now(pytz.utc),
         expires=u.password_expiry,
     )
     session.add(userSession)
     session.commit()
-    return userSession
+    return token
 
 
 def logout(userSession):
