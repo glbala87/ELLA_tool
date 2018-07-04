@@ -13,10 +13,12 @@ echo "created 'vardb-test'"
 if [ "$1" = "" ]
 then
 	# Run migration scripts test
-	/ella/ella-cli database ci-migration-test -f
+	### Downgrade not supported ###
+	# /ella/ella-cli database ci-migration-test -f
 
 	# Run API test on migrated database
 	/ella/ella-cli database ci-migration-head -f
+	/ella/ella-cli database refresh -f
 	py.test --color=yes "/ella/src/api/" -s
 else
   $1
