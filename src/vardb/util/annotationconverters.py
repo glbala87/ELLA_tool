@@ -340,17 +340,16 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
             filter_status[pop] = re.split(',|\|', value)
         # Be careful if rearranging!
         elif key == 'AC':
-            assert len(value) == 1
-            count['G'] = value[0]
+            count['G'] = extract_int_list(value)
         elif key == 'AC_Hom':
-            assert len(value) == 1
-            hom['G'] = value[0]
+            hom['G'] = extract_int_list(value)
+        elif key == 'AC_Hemi':
+            hemi['G'] = extract_int_list(value)
         elif key == 'AN':
             num['G'] = value
         elif key.startswith('AC_'):
             pop = key.split('AC_')[1]
-            assert len(value) == 1
-            count[pop] = value[0]
+            count[pop] = extract_int_list(value)
         elif key.startswith('AN_'):
             pop = key.split('AN_')[1]
             num[pop] = extract_int_list(value)
