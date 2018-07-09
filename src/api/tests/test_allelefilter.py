@@ -258,12 +258,12 @@ def create_allele_with_annotation(session, annotations=None, allele_data=None):
 def create_genepanel(genepanel_config):
     # Create fake genepanel for testing purposes
 
-    g1_ad = gene.Gene(hgnc_id=1e6, hgnc_symbol="GENE1AD")
-    g1_ar = gene.Gene(hgnc_id=2e6, hgnc_symbol="GENE1AR")
-    g2 = gene.Gene(hgnc_id=3e6, hgnc_symbol="GENE2")
-    g3 = gene.Gene(hgnc_id=4e6, hgnc_symbol="GENE3")
-    g4 = gene.Gene(hgnc_id=5e6, hgnc_symbol="GENE4")
-    g5 = gene.Gene(hgnc_id=6e6, hgnc_symbol="GENE5")
+    g1_ad = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1AD")
+    g1_ar = gene.Gene(hgnc_id=int(2e6), hgnc_symbol="GENE1AR")
+    g2 = gene.Gene(hgnc_id=int(3e6), hgnc_symbol="GENE2")
+    g3 = gene.Gene(hgnc_id=int(4e6), hgnc_symbol="GENE3")
+    g4 = gene.Gene(hgnc_id=int(5e6), hgnc_symbol="GENE4")
+    g5 = gene.Gene(hgnc_id=int(6e6), hgnc_symbol="GENE5")
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
@@ -1253,6 +1253,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'exon_distance': -10,
                         'coding_region_distance': None,
@@ -1270,6 +1271,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 5,
                         'coding_region_distance': None,
@@ -1287,6 +1289,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0,
                         'coding_region_distance': -12,
@@ -1304,6 +1307,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0,
                         'coding_region_distance': 20,
@@ -1320,6 +1324,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'TRANSCRIPT_NOT_FOR_FILTERING',
                         'exon_distance': 0,
                         'coding_region_distance': 0,
@@ -1379,6 +1384,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'consequences': ['intron_variant']
                     }
@@ -1395,11 +1401,13 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'consequences': ['intron_variant']
                     },
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'consequences': ['downstream_gene_variant']
                     }
@@ -1442,6 +1450,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'consequences': ['intron_variant','splice_region_variant']
                     }
@@ -1479,6 +1488,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0,
                         'coding_region_distance': 20,
@@ -1520,6 +1530,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE3',
+                        'hgnc_id': int(4e6),
                         'transcript': 'NM_3.1',
                         'exon_distance': 1000
                     }
@@ -1546,6 +1557,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AR.1',
                         'exon_distance': 1000
                     }
@@ -1572,6 +1584,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE2',
+                        'hgnc_id': int(3e6),
                         'transcript': 'NM_2.1',
                         'exon_distance': 1000
                     }
@@ -1623,6 +1636,7 @@ class TestAlleleFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
+                        'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }

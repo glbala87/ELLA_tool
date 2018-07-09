@@ -210,7 +210,7 @@ class AlleleDataLoader(object):
                 # 'filtered_transcripts' -> transcripts in our genepanel
                 filtered_transcripts = []
                 if annotation_transcripts:
-                    filtered_transcripts = [a.annotation_transcript for a in annotation_transcripts if a.allele_id == allele_id]
+                    filtered_transcripts = list(set([a.annotation_transcript for a in annotation_transcripts if a.allele_id == allele_id]))
 
                 # Filter main transcript list on inclusion regex
                 # (if in filtered_transcripts, don't exclude it)
