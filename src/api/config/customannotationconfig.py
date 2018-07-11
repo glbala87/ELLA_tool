@@ -1143,6 +1143,25 @@ customannotationconfig = {
             ]
         },
         {
+            "key": "TP53-web-site",
+            "name": "The TP53 Web Site",
+            "only_for_genes": [11998],
+            "url_for_genes": {
+                "11998": "http://p53.fr/download-the-database"
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"]
+            ]
+        },
+        {
             "key": "other_extdb",
             "name": "Other",
             "text": True
