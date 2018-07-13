@@ -67,6 +67,9 @@
         <h3>Summary:</h3>
             <p>Import {{$ctrl.selectedSample.name}} on {{$ctrl.displayGenepanelName}}<span ng-if="$ctrl.customGenepanel"> <i>(custom)</i> with {{$ctrl.addedCount.transcripts}} transcripts ({{$ctrl.addedCount.genes}} genes)</span>.</p>
             <div>
+                <pre class="json-pretty">{{$ctrl.selectedSample | json}}</pre>
+            </div>
+            <div>
             <button class="blue" ng-click="$ctrl.importClicked()" ng-disabled="!$ctrl.canImport">
             <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none"
                     stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
