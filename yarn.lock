@@ -2,17 +2,17 @@
 # yarn lockfile v1
 
 
-"@cerebral/angularjs@^4.0.0-1520517968119":
+"@cerebral/angularjs@4.0.0-1520517968119":
   version "4.0.0-1520517968119"
   resolved "https://registry.yarnpkg.com/@cerebral/angularjs/-/angularjs-4.0.0-1520517968119.tgz#b42edbca7d330259fbbec561f797685d3b302f54"
   dependencies:
     cerebral "^5.0.0-1520517968119"
 
-"@cerebral/http@^5.0.0-1520517968119":
+"@cerebral/http@5.0.0-1520517968119":
   version "5.0.0-1520517968119"
   resolved "https://registry.yarnpkg.com/@cerebral/http/-/http-5.0.0-1520517968119.tgz#ff1579406ebc2047f87576ccd8450b3f519abfa8"
 
-"@cerebral/router@^4.0.0-1520517968119":
+"@cerebral/router@4.0.0-1520517968119":
   version "4.0.0-1520517968119"
   resolved "https://registry.yarnpkg.com/@cerebral/router/-/router-4.0.0-1520517968119.tgz#3d2a05bd2bee9360164282c5c9ebf9d9db27162d"
   dependencies:
@@ -20,7 +20,7 @@
     cerebral "^5.0.0-1520517968119"
     url-mapper "^1.1.1"
 
-"@cerebral/storage@^5.0.0-1520517968119":
+"@cerebral/storage@5.0.0-1520517968119":
   version "5.0.0-1520517968119"
   resolved "https://registry.yarnpkg.com/@cerebral/storage/-/storage-5.0.0-1520517968119.tgz#2fb9ac3258e47e49b34a071ee16c7a8a7eae97ef"
 
@@ -1377,7 +1377,7 @@ center-align@^0.1.1:
     align-text "^0.1.3"
     lazy-cache "^1.0.3"
 
-cerebral@^5.0.0-1520517968119:
+cerebral@5.0.0-1520517968119, cerebral@^5.0.0-1520517968119:
   version "5.0.0-1520517968119"
   resolved "https://registry.yarnpkg.com/cerebral/-/cerebral-5.0.0-1520517968119.tgz#c1fe1f686a89ef0bfd817d9f50e655912059d184"
   dependencies:

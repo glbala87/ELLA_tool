@@ -11,9 +11,8 @@ class Allele(Base):
     __tablename__ = "allele"
 
     FREQUENCY = 'FREQUENCY'
-    INTRON = 'INTRON'
+    REGION = 'REGION'
     GENE = 'GENE'
-    UTR = 'UTR'
 
     id = Column(Integer, primary_key=True)
     genome_reference = Column(String, nullable=False)

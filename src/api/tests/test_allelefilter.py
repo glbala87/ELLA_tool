@@ -6,7 +6,11 @@ import copy
 import pytest
 
 from api.util.allelefilter import AlleleFilter
-from vardb.datamodel import allele, annotation, gene, annotationshadow
+from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment
+
+import hypothesis as ht
+import hypothesis.strategies as st
+
 
 # prevent screen getting filled with output (useful when testing manually)
 #import logging
@@ -15,7 +19,8 @@ from vardb.datamodel import allele, annotation, gene, annotationshadow
 
 GLOBAL_CONFIG = {
     'variant_criteria': {
-        "intronic_region": [-10, 5],
+        "splice_region": [-10, 5],
+        "utr_region": [-12, 20],
         "freq_num_thresholds": {
             "ExAC": {
                 "G": 2000,
@@ -130,6 +135,7 @@ GLOBAL_CONFIG = {
             "feature_truncation",
             "intergenic_variant"
         ],
+        "severe_consequence_threshold": 'mature_miRNA_variant',
         'inclusion_regex': "NM_.*"
     }
 }
@@ -182,27 +188,42 @@ GENEPANEL_CONFIG = {
 }
 
 
+@st.composite
+def allele_positions(draw, chromosome, start, end):
+    start_position = draw(st.integers(min_value=start, max_value=end))
+    end_position = draw(st.integers(min_value=start_position+1, max_value=start_position+50))
+    return (chromosome, start_position, end_position)
+
+
 def global_with_overridden_threshold(initial, override):
     return copy.deepcopy(initial).update(override)
 
 
-allele_start = 0
+allele_start = 1300
 
 
-def create_allele():
+def create_allele(data=None):
     global allele_start
     allele_start += 1
+    default_allele_data = {
+            "chromosome": "1",
+            "start_position": allele_start,
+            "open_end_position": allele_start+1,
+            "change_from": "A",
+            "change_to": "T",
+            "change_type": "SNP",
+            "vcf_pos": allele_start+1,
+            "vcf_ref": "A",
+            "vcf_alt": "T"
+        }
+    if data:
+        for k in data:
+             default_allele_data[k] = data[k]
+    data = default_allele_data
+
     return allele.Allele(
         genome_reference="GRCh37",
-        chromosome="1",
-        start_position=allele_start,
-        open_end_position=allele_start+1,
-        change_from="A",
-        change_to="T",
-        change_type="SNP",
-        vcf_pos=allele_start+1,
-        vcf_ref="A",
-        vcf_alt="T"
+        **data
     )
 
 
@@ -212,105 +233,126 @@ def create_annotation(annotations, allele=None):
         allele=allele
     )
 
+def create_assessment(session, classification, allele=None):
+    assmt = assessment.AlleleAssessment(
+        classification=classification,
+        allele=allele,
+        genepanel_name="testpanel",
+        genepanel_version="v01"
+    )
+    session.add(assmt)
+    return assmt
 
-def create_allele_with_annotation(session, annotations):
-    al = create_allele()
-    an = create_annotation(annotations, allele=al)
+def create_allele_with_annotation(session, annotations=None, allele_data=None):
+    al = create_allele(data=allele_data)
     session.add(al)
-    session.add(an)
-    return al
+    if annotations is not None:
+        an = create_annotation(annotations, allele=al)
+        session.add(an)
+    else:
+        an = None
 
-
-def create_allele_with_annotation_tuple(session, annotations):
-    al = create_allele()
-    an = create_annotation(annotations, allele=al)
-    session.add(al)
-    session.add(an)
     return al, an
 
 
 def create_genepanel(genepanel_config):
     # Create fake genepanel for testing purposes
 
-    g1_ad = gene.Gene(hgnc_id=1e6, hgnc_symbol="GENE1AD")
-    g1_ar = gene.Gene(hgnc_id=2e6, hgnc_symbol="GENE1AR")
-    g2 = gene.Gene(hgnc_id=3e6, hgnc_symbol="GENE2")
-    g3 = gene.Gene(hgnc_id=4e6, hgnc_symbol="GENE3")
-    g4 = gene.Gene(hgnc_id=5e6, hgnc_symbol="GENE4")
+    g1_ad = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1AD")
+    g1_ar = gene.Gene(hgnc_id=int(2e6), hgnc_symbol="GENE1AR")
+    g2 = gene.Gene(hgnc_id=int(3e6), hgnc_symbol="GENE2")
+    g3 = gene.Gene(hgnc_id=int(4e6), hgnc_symbol="GENE3")
+    g4 = gene.Gene(hgnc_id=int(5e6), hgnc_symbol="GENE4")
+    g5 = gene.Gene(hgnc_id=int(6e6), hgnc_symbol="GENE5")
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
         transcript_name='NM_1AD.1',
         type='RefSeq',
-        genome_reference='123',
-        chromosome='123',
-        tx_start=123,
-        tx_end=123,
+        genome_reference='',
+        chromosome='1',
+        tx_start=1000,
+        tx_end=1500,
         strand='+',
-        cds_start=123,
-        cds_end=123,
-        exon_starts=[123, 321],
-        exon_ends=[123, 321]
+        cds_start=1230,
+        cds_end=1430,
+        exon_starts=[1100, 1200, 1300, 1400],
+        exon_ends=[1160, 1260, 1360, 1460]
     )
 
     t1_ar = gene.Transcript(
         gene=g1_ar,
         transcript_name='NM_1AR.1',
         type='RefSeq',
-        genome_reference='123',
-        chromosome='123',
-        tx_start=123,
-        tx_end=123,
+        genome_reference='',
+        chromosome='1',
+        tx_start=1000,
+        tx_end=1500,
         strand='+',
-        cds_start=123,
-        cds_end=123,
-        exon_starts=[123, 321],
-        exon_ends=[123, 321]
+        cds_start=1230,
+        cds_end=1430,
+        exon_starts=[1100, 1200, 1300, 1400],
+        exon_ends=[1160, 1260, 1360, 1460]
     )
 
     t2 = gene.Transcript(
         gene=g2,
         transcript_name='NM_2.1',
         type='RefSeq',
-        genome_reference='123',
-        chromosome='123',
-        tx_start=123,
-        tx_end=123,
+        genome_reference='',
+        chromosome='2',
+        tx_start=2000,
+        tx_end=2500,
         strand='+',
-        cds_start=123,
-        cds_end=123,
-        exon_starts=[123, 321],
-        exon_ends=[123, 321]
+        cds_start=2230,
+        cds_end=2430,
+        exon_starts=[2100, 2200, 2300, 2400],
+        exon_ends=[2160, 2260, 2360, 2460]
     )
 
     t3 = gene.Transcript(
         gene=g3,
         transcript_name='NM_3.1',
         type='RefSeq',
-        genome_reference='123',
-        chromosome='123',
-        tx_start=123,
-        tx_end=123,
+        genome_reference='',
+        chromosome='3',
+        tx_start=3000,
+        tx_end=3500,
         strand='+',
-        cds_start=123,
-        cds_end=123,
-        exon_starts=[123, 321],
-        exon_ends=[123, 321]
+        cds_start=3230,
+        cds_end=3430,
+        exon_starts=[3100, 3200, 3300, 3400],
+        exon_ends=[3160, 3260, 3360, 3460]
     )
 
     t4 = gene.Transcript(
         gene=g4,
         transcript_name='NM_4.1',
         type='RefSeq',
-        genome_reference='123',
-        chromosome='123',
-        tx_start=123,
-        tx_end=123,
+        genome_reference='',
+        chromosome='4',
+        tx_start=4000,
+        tx_end=4500,
         strand='+',
-        cds_start=123,
-        cds_end=123,
-        exon_starts=[123, 321],
-        exon_ends=[123, 321]
+        cds_start=4230,
+        cds_end=4430,
+        exon_starts=[4100, 4200, 4300, 4400],
+        exon_ends=[4160, 4260, 4360, 4460]
+    )
+
+    t5_reverse = gene.Transcript(
+        gene=g5,
+        transcript_name='NM_5.1',
+        type='RefSeq',
+        genome_reference='',
+        chromosome='5',
+        tx_start=5000,
+        tx_end=5500,
+        strand='-',
+        cds_start=5230,
+        cds_end=5430,
+        exon_starts=[5100, 5200, 5300, 5400],
+        exon_ends=[5160, 5260, 5360, 5460]
     )
 
     p1 = gene.Phenotype(
@@ -332,7 +374,7 @@ def create_genepanel(genepanel_config):
         config=genepanel_config
     )
 
-    genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4]
+    genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]
     genepanel.phenotypes = [p1, p2]
     return genepanel
 
@@ -377,131 +419,143 @@ class TestAlleleFilter(object):
         # Test common
 
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        a1ad = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.0051   # Above 0.005
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        a1ad, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0051   # Above 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # Test less_common
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        a1ar = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.25   # Between 0.3 and 0.1
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        a1ar, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.25   # Between 0.3 and 0.1
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AR',
-                    'transcript': 'NM_1AR.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AR',
+                        'transcript': 'NM_1AR.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
         # external: 0.30/0.1 , internal: 0.05/0.01
-        a1nogene = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.001  # Less than 0.1
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        a1nogene, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.001  # Less than 0.1
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'DOESNT_EXIST',
-                    'transcript': 'DOESNT_EXIST',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'DOESNT_EXIST',
+                        'transcript': 'DOESNT_EXIST',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # Test null_freq
 
-        a1nofreq = create_allele_with_annotation(session, {
-            'frequencies': {},
-            'transcripts': [
-                {
-                    'symbol': 'DOESNT_EXIST',
-                    'transcript': 'DOESNT_EXIST',
-                    'exon_distance': 0
-                }
-            ]
-        })
+        a1nofreq, _  = create_allele_with_annotation(session,
+            {
+                'frequencies': {},
+                'transcripts': [
+                    {
+                        'symbol': 'DOESNT_EXIST',
+                        'transcript': 'DOESNT_EXIST',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # Test gene specific thresholds
-        a1g2 = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.3  # Less than 0.5, greater than 0.1
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        a1g2, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.3  # Less than 0.5, greater than 0.1
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE2',
+                        'transcript': 'NM_2.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # Test gene specific thresholds with multiple genes
         # Should hit low_freq based on GENE2 thresholds
-        a1adg2 = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.006  # Less than GENE2 0.1, greater than AD default 0.005
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        a1adg2, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.006  # Less than GENE2 0.1, greater than AD default 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                    'exon_distance': 0
                 },
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                'transcripts': [
+                    {
+                        'symbol': 'GENE2',
+                        'transcript': 'NM_2.1',
+                        'exon_distance': 0
+                    },
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # FIXME: This should be fixed by applying the highest thresholds for the genes available. Currently only using the gene override thresholds.
         # # Should ideally be low_freq
@@ -549,7 +603,7 @@ class TestAlleleFilter(object):
         ##
 
         # Test below threshold, one source
-        anum1, anum1anno = create_allele_with_annotation_tuple(session, {
+        anum1, anum1anno = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -570,7 +624,7 @@ class TestAlleleFilter(object):
         })
 
         # Test threshold, two sources, one above one below
-        anum2, anum2anno = create_allele_with_annotation_tuple(session, {
+        anum2, anum2anno = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -598,7 +652,7 @@ class TestAlleleFilter(object):
         })
 
         # Test below threshold, two sources, one without num threshold filtering
-        anum3, anum3anno = create_allele_with_annotation_tuple(session, {
+        anum3, anum3anno = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -622,9 +676,8 @@ class TestAlleleFilter(object):
                 }
             ]
         })
-
         # Test gene specific cutoff override
-        anum4, anum4anno = create_allele_with_annotation_tuple(session, {
+        anum4, anum4anno = create_allele_with_annotation(session, {
             'frequencies': {
                 'ExAC': {
                     'freq': {
@@ -670,30 +723,32 @@ class TestAlleleFilter(object):
         # even if the different frequencies would give
         # hits in different ones
         ##
-        a2common = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.0051   # Above 0.005 -> common
+        a2common, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0051   # Above 0.005 -> common
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     },
-                    'num': {
-                        'G': 9000  # Above 2000
+                    '1000g': {
+                        'freq': {
+                            'G': 0.0001   # Below 0.001 -> low_freq
+                        }
                     }
                 },
-                '1000g': {
-                    'freq': {
-                        'G': 0.0001   # Below 0.001 -> low_freq
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                ]
+            }
+        )
 
         session.commit()
         gp_key = ('testpanel', 'v01')
@@ -705,30 +760,32 @@ class TestAlleleFilter(object):
         assert not result[gp_key]['low_freq']
         assert not result[gp_key]['null_freq']
 
-        a2less_common = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.002   # Between 0.005 and 0.001 -> less_common
+        a2less_common, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.002   # Between 0.005 and 0.001 -> less_common
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     },
-                    'num': {
-                        'G': 9000  # Above 2000
+                    '1000g': {
+                        'freq': {
+                            'G': 0.0001   # Below 0.001 -> low_freq
+                        }
                     }
                 },
-                '1000g': {
-                    'freq': {
-                        'G': 0.0001   # Below 0.001 -> low_freq
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                ]
+            }
+        )
 
         session.commit()
         gp_key = ('testpanel', 'v01')
@@ -740,26 +797,28 @@ class TestAlleleFilter(object):
         assert not result[gp_key]['low_freq']
         assert not result[gp_key]['null_freq']
 
-        a2low_freq = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.0001   # Below 0.001 -> low_freq
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        a2low_freq, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0001   # Below 0.001 -> low_freq
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-                # All other missing freqs will give hits in low_freq
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                    # All other missing freqs will give hits in low_freq
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         session.commit()
         gp_key = ('testpanel', 'v01')
@@ -786,138 +845,152 @@ class TestAlleleFilter(object):
         ##
 
         # Test external
-
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        (pa1ad, pa1adanno) = create_allele_with_annotation_tuple(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.0051   # Above 0.005
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        pa1ad, pa1adanno = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0051   # Above 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        (pa1ar,pa1aranno) = create_allele_with_annotation_tuple(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.31   # Above 0.30
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        pa1ar, pa1aranno = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.31   # Above 0.30
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
+                },
             'transcripts': [
-                {
-                    'symbol': 'GENE1AR',
-                    'transcript': 'NM_1AR.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                    {
+                        'symbol': 'GENE1AR',
+                        'transcript': 'NM_1AR.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
+
 
         # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
         # external: 0.30/0.1 , internal: 0.05/0.01
-        (pa1nogene, pa1nogeneanno) = create_allele_with_annotation_tuple(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.31   # Above 0.30
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        pa1nogene, pa1nogeneanno = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.31   # Above 0.30
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'DOESNT_EXIST',
-                    'transcript': 'DOESNT_EXIST',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'DOESNT_EXIST',
+                        'transcript': 'DOESNT_EXIST',
+                        'exon_distance': 0
+                    }
+                ],
+
+            }
+        )
+
 
         # Test internal
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-        (pa2, pa2anno) = create_allele_with_annotation_tuple(session, {
-            'frequencies': {
-                'inDB': {
-                    'freq': {
-                        'AF': 0.71  # Above 0.7
+        pa2, pa2anno = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'inDB': {
+                        'freq': {
+                            'AF': 0.71  # Above 0.7
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE2',
+                        'transcript': 'NM_2.1',
+                        'exon_distance': 0
+                    }
+                ],
+            }
+        )
 
         # Test conflicting external/internal
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        (pa3,pa3anno)  = create_allele_with_annotation_tuple(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.0051  # Above 0.005
+        pa3, pa3anno  = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0051  # Above 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     },
-                    'num': {
-                        'G': 9000  # Above 2000
+                    'inDB': {
+                        'freq': {
+                            'AF': 0.000001  # Below 0.05
+                        }
                     }
                 },
-                'inDB': {
-                    'freq': {
-                        'AF': 0.000001  # Below 0.05
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                ]
+            }
+        )
 
         # Test right on threshold
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        (pa4, pa4anno) = create_allele_with_annotation_tuple(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.005  # == 0.005
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        pa4, pa4anno = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.005  # == 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         session.commit()
 
@@ -942,100 +1015,121 @@ class TestAlleleFilter(object):
 
         # Test external
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        na1ad = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.0049   # Below 0.005
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        na1ad, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0049   # Below 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        na1ar = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.2999   # Below 0.3
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        na1ar, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.2999   # Below 0.3
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AR',
-                    'transcript': 'NM_1AR.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AR',
+                        'transcript': 'NM_1AR.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # Test internal
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-        na2 = create_allele_with_annotation(session, {
-            'frequencies': {
-                'inDB': {
-                    'freq': {
-                        'AF': 0.69  # Below 0.7
+        na2, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'inDB': {
+                        'freq': {
+                            'AF': 0.69  # Below 0.7
+                        }
                     }
-                }
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE2',
+                        'transcript': 'NM_2.1',
+                        'exon_distance': 0
+                    }
+                ],
             },
-            'transcripts': [
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+            allele_data={
+                    "chromosome": "2",
+                    "start_position": 2300,
+                    "open_end_position": 2301,
+                    "change_from": "A",
+                    "change_to": "T",
+                    "change_type": "SNP",
+                    "vcf_pos": 2301,
+                    "vcf_ref": "A",
+                    "vcf_alt": "T"
+            }
+        )
 
         # Test missing frequency
         # GENE1: external: 0.005/0.001 , internal: 0.05/0.01
-        na3 = create_allele_with_annotation(session, {
-            'frequencies': {},
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+        na3, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {},
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         # Test 0 frequency
         # GENE1: external: 0.005/0.001 , internal: 0.05/0.01
-        na4 = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        na4, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
 
         session.commit()
 
@@ -1047,204 +1141,283 @@ class TestAlleleFilter(object):
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=3)
-    def test_intronic_filtering(self, session):
+    @ht.example(('1', 1600, 1601), True)  # Outside all genepanel transcripts
+    @ht.example(('1', 1100, 1101), True)  # Within transcript, but outside coding region
+    @ht.example(('1', 1451, 1452), True)  # Within transcript, but outside coding regio
+    @ht.example(('1', 1289, 1290), True)  # Intronic variant (-11)
+    @ht.example(('1', 1466, 1467), True)  # Intronic variant (+6) (in UTR)
+    @ht.example(('1', 1266, 1267), True)  # Intronic variant (+6)
+    @ht.example(('5', 5209, 5210), True)  # UTR variant [+21] on reverse transcript
+    @ht.example(('5', 5443, 5444), True)  # UTR variant (-13) on reverse transcript
+    @ht.example(('5', 5294, 5295), True)  # Intronic variant (+6) on reverse transcript
+    @ht.example(('1', 1300, 1301), False)  # Within coding exon
+    @ht.example(('1', 1290, 1291), False)  # Within splice region [-10]
+    @ht.example(('1', 1090, 1091), False)  # Within splice region of UTR exon [-10]
+    @ht.example(('1', 1165, 1166), False)  # Within splice region of UTR exon [+5]
+    @ht.example(('1', 1450, 1451), False)  # Within utr region [20]
+    @ht.example(('1', 1218, 1219), False)  # Within utr region [-12]
+    @ht.example(('5', 5442, 5443), False)  # Within utr region [-12] on reverse transcript
+    @ht.example(('5', 5210, 5211), False)  # Within utr region [20] on reverse transcript
+    @ht.example(('5', 5470, 5471), False)  # Within exonic region [-10] on reverse transcript
+    @ht.example(('5', 5095, 5096), False)  # Within exonic region [+5] on reverse transcript
+    @ht.given(
+        st.one_of(
+            allele_positions('1', 800, 1700),  # t1, positive strand
+            allele_positions('5', 4800, 5700)),  # t5, negative strand
+        st.just(None)
+    )
+    @ht.settings(deadline=500)
+    def test_genomic_region_filtering(self, session, positions, manually_curated_result):
+        """
+        Tests both using manually curated test and parallell implementation in Python.
+        """
 
-        # intronic_region [-10, 5]
+        chromosome, start_position, open_end_position = positions
+        al, _ = create_allele_with_annotation(session,
+            None,
+            {
+                "chromosome": chromosome,
+                "start_position": start_position,
+                "open_end_position": open_end_position,
+            }
+        )
 
-        ##
-        # Test positive cases
-        ##
+        session.flush()
 
-        pa1 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': -11
-                }
-            ]
-        })
-
-        pa2 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_2.1',
-                    'exon_distance': 6
-                }
-            ]
-        })
-
-        pa3 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 10000000
-                }
-            ]
-        })
-
-        pa4 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': -1000000
-                }
-            ]
-        })
-
-        pa5 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': -1000000
-                },
-                {
-                    'transcript': 'SOME_OTHER_TRANSCRIPT_NOT_FOR_FILTERING',
-                    'exon_distance': 0
-                }
-            ]
-        })
-
-
-        session.commit()
-
-        af = AlleleFilter(session, GLOBAL_CONFIG)
+        allele_ids = [al.id]
         gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id, pa5.id]
+        af = AlleleFilter(session, GLOBAL_CONFIG)
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert set(result[gp_key]['excluded_allele_ids']['intronic']) == set(allele_ids)
+        # Manually curated test cases
+        if manually_curated_result is not None:
+            if manually_curated_result:
+                assert set(result[gp_key]['excluded_allele_ids']['region']) == set(allele_ids)
+            else:
+                assert set(result[gp_key]['excluded_allele_ids']['region']) == set([])
+            return
 
-        ##
-        # Test negative cases
-        ##
+        genepanel = session.query(gene.Genepanel).filter(
+            gene.Genepanel.name == 'testpanel',
+            gene.Genepanel.version == 'v01'
+        ).one()
 
-        na1 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': -10
-                }
-            ]
-        })
+        splice_region = GLOBAL_CONFIG['variant_criteria']['splice_region']
+        utr_region = GLOBAL_CONFIG['variant_criteria']['utr_region']
 
-        na2 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_2.1',
-                    'exon_distance': 5
-                }
-            ]
-        })
+        splice_include_regions = []
+        coding_include_regions = []
+        utr_include_regions = []
+        for transcript in genepanel.transcripts:
+            for es, ee in zip(transcript.exon_starts, transcript.exon_ends):
+                splice_upstream = splice_region[0] if transcript.strand == '+' else -splice_region[1]
+                splice_downstream = splice_region[1] if transcript.strand == '+' else -splice_region[0]
+                splice_include_regions.append(
+                    (es + splice_upstream, es-1)  # Region before exon start
+                )
+                splice_include_regions.append(
+                    (ee + 1, ee + splice_downstream)
+                )
 
-        na3 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+                if es <= transcript.cds_end and ee >= transcript.cds_start:
+                    coding_start = es if es > transcript.cds_start else transcript.cds_start
+                    coding_end = ee if ee < transcript.cds_end else transcript.cds_end
+                    coding_include_regions.append((coding_start, coding_end))
 
-        na4 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': 0
-                }
-            ]
-        })
+            utr_upstream = utr_region[0] if transcript.strand == '+' else -utr_region[1]
+            utr_downstream = utr_region[1] if transcript.strand == '+' else -utr_region[0]
 
-        # Check that annotation transcripts are filtered properly on genepanel transcripts
-        na5 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': -1
-                },
-                {
-                    'transcript': 'NOT_IN_GENEPANEL',
-                    'exon_distance': 1000
-                }
-            ]
-        })
+            utr_include_regions.extend([
+                (transcript.cds_start + utr_upstream, transcript.cds_start - 1),
+                (transcript.cds_end + 1, transcript.cds_end + utr_downstream)
+            ])
 
-        # Test that annotation transcripts matching config include_regex are included in filter
-        na6 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': -1000
-                },
-                {
-                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT_NOT_IN_GENEPANEL',  # Should filter on NM_.*
-                    'exon_distance': None
-                }
-            ]
-        })
+        final_include_regions = splice_include_regions + utr_include_regions + coding_include_regions
+        if any((start_position >= p[0] and start_position <= p[1]) or
+               (open_end_position > p[0] and open_end_position < p[1]) or
+               (start_position <= p[0] and open_end_position > p[1]) for p in final_include_regions):
+            assert set(result[gp_key]['excluded_allele_ids']['region']) == set([])
+        else:
+            assert set(result[gp_key]['excluded_allele_ids']['region']) == set(allele_ids)
 
-        # Test one transcript inside and one outside exonic region, should not be filtered out
-        na7 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'transcript': 'NM_1AD.1',
-                    'exon_distance': -100
-                },
-                {
-                    'transcript': 'NM_SOME_OTHER_TRANSCRIPT',  # Is checked due to inclusion_regex
-                    'exon_distance': -1
-                }
-            ]
-        })
-
-        session.commit()
-
-        af = AlleleFilter(session, GLOBAL_CONFIG)
-        gp_key = ('testpanel', 'v01')
-        allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id, na6.id, na7.id]
-        result = af.filter_alleles({gp_key: allele_ids})
-
-        assert set(result[gp_key]['allele_ids']) == set(allele_ids)
 
     @pytest.mark.aa(order=4)
-    def test_utr_filtering(self, session):
-        ##
-        # Test positive case
-        ##
+    def test_hgvsc_region_filtering(self, session):
+        """
+        All variants are outside any transcripts (in genomic position), but are annotated with a genepanel transcript
+        with exon_distance or coding_region_distance within splice_region/utr_region
+        """
+        # Should be saved as annotated with exon_distance -10
+        a1, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': -10,
+                        'coding_region_distance': None,
+                    }
+                ],
+            },
+            {
+                "chromosome": "HGSVC",
+            }
+        )
 
-        pa1 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'consequences': ['3_prime_UTR_variant']
-                }
-            ]
-        })
+        # Should be saved as annotated with exon_distance +5
+        a2, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 5,
+                        'coding_region_distance': None,
+                    }
+                ],
+            },
+            {
+                "chromosome": "HGSVC",
+            }
+        )
 
-        pa2 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'consequences': ['3_prime_UTR_variant', 'non_coding_transcript_exon_variant']
-                }
-            ]
-        })
+        # Should be saved as annotated with coding_region_distance -12
+        a3, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0,
+                        'coding_region_distance': -12,
+                    }
+                ],
+            },
+            {
+                "chromosome": "HGSVC",
+            }
+        )
 
-        pa3 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'consequences': ['non_coding_transcript_exon_variant']
-                },
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                    'consequences': ['5_prime_UTR_variant', 'intron_variant']
-                }
-            ]
-        })
+        # Should be saved as annotated with coding_region_distance +20
+        a4, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0,
+                        'coding_region_distance': 20,
+                    }
+                ],
+            },
+            {
+                "chromosome": "HGSVC",
+            }
+        )
+
+        na1, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'TRANSCRIPT_NOT_FOR_FILTERING',
+                        'exon_distance': 0,
+                        'coding_region_distance': 0,
+                    }
+                ],
+            },
+            {
+                "chromosome": "HGSVC",
+            }
+        )
+
+        session.commit()
+
+
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [a1.id, a2.id, a3.id, a4.id, na1.id]
+
+        # Run first with no padding, to make sure that all are filtered out
+        config_no_padding = copy.deepcopy(GLOBAL_CONFIG)
+        config_no_padding['variant_criteria']['splice_region'] = [0,0]
+        config_no_padding['variant_criteria']['utr_region'] = [0,0]
+
+        af = AlleleFilter(session, config_no_padding)
+
+        result = af.filter_alleles({gp_key: allele_ids})
+        assert set(result[gp_key]['excluded_allele_ids']['region']) == set(allele_ids)
+
+        # Apply the global config, to ensure that these are captured by the computed distance
+        af = AlleleFilter(session, GLOBAL_CONFIG)
+
+        result = af.filter_alleles({gp_key: allele_ids})
+
+        assert set(result[gp_key]['allele_ids']) == set(allele_ids)-set([na1.id])
+        assert set(result[gp_key]['excluded_allele_ids']['region']) == set([na1.id])
+
+
+    @pytest.mark.aa(order=5)
+    def test_consequence_filtering(self, session):
+        pa1, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'DOES_NOT_EXIST',
+                        'transcript': 'NM_DOES_NOT_EXIST',
+                        'consequences': ['intron_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
+
+
+        pa2, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['intron_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
+
+
+        pa3, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['intron_variant']
+                    },
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['downstream_gene_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
+
 
         session.commit()
 
@@ -1253,71 +1426,85 @@ class TestAlleleFilter(object):
         allele_ids = [pa1.id, pa2.id, pa3.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
-        assert set(result[gp_key]['excluded_allele_ids']['utr']) == set(allele_ids)
+        assert set(result[gp_key]['excluded_allele_ids']['region']) == set(allele_ids)
 
-        ##
-        # Test negative cases
-        ##
+        # Should be saved as annotated with exon_distance -10
+        na1, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'DOES_NOT_EXIST',
+                        'transcript': 'NM_DOES_NOT_EXIST',
+                        'consequences': ['splice_region_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
 
-        na1 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                }
-            ]
-        })
+        # Should be saved as annotated with exon_distance +5
+        na2, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['intron_variant','splice_region_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
 
-        na2 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'consequences': ['splice_region_variant']
-                },
-            ]
-        })
+        # Should be saved as annotated with coding_region_distance -12
+        na3, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'DOES_NOT_EXIST1',
+                        'transcript': 'NM_DOES_NOT_EXIST.1',
+                        'consequences': ['intron_variant']
+                    },
+                    {
+                        'symbol': 'DOES_NOT_EXIST2',
+                        'transcript': 'NM_DOES_NOT_EXIST2.1',
+                        'consequences': ['missense_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
 
-        na3 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'consequences': ['SOME_DUMMY_CONSEQUENCE_NOT_DEFINED']
-                },
-            ]
-        })
-
-        na4 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'consequences': ['5_prime_UTR_variant', 'splice_region_variant']
-                },
-            ]
-        })
-
-        na5 = create_allele_with_annotation(session, {
-            'transcripts': [
-                {
-                    'symbol': 'GENE1AD',
-                    'transcript': 'NM_1AD.1',
-                    'consequences': ['5_prime_UTR_variant']
-                },
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                    'consequences': ['splice_region_variant']
-                }
-            ]
-        })
+        # Should be saved as annotated with coding_region_distance +20
+        na4, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0,
+                        'coding_region_distance': 20,
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
 
         session.commit()
 
         af = AlleleFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id]
+        allele_ids = [na1.id, na2.id, na3.id, na4.id]
         result = af.filter_alleles({gp_key: allele_ids})
 
         assert set(result[gp_key]['allele_ids']) == set(allele_ids)
@@ -1325,71 +1512,88 @@ class TestAlleleFilter(object):
 
     @pytest.mark.aa(order=6)
     def test_filter_order(self, session):
+        # Test filter order: gene -> frequency -> region
 
-        # Test filter order: gene -> frequency -> intronic
-
-        # Would be filtered on frequency, gene and intronic
-        a1 = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.0051   # Above 0.005
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        # Would be filtered on frequency, gene and region
+        a1, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0051   # Above 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
-            },
-            'transcripts': [
-                {
-                    'symbol': 'GENE3',
-                    'transcript': 'NM_3.1',
-                    'exon_distance': 1000
-                }
-            ]
-        })
-
-        # Would be filtered on frequency and intronic
-        a2 = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0.31   # Above 0.3
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE3',
+                        'hgnc_id': int(4e6),
+                        'transcript': 'NM_3.1',
+                        'exon_distance': 1000
                     }
-                }
+                ]
             },
-            'transcripts': [
-                {
-                    'symbol': 'GENE1',
-                    'transcript': 'NM_1AR.1',
-                    'exon_distance': 1000
-                }
-            ]
-        })
+            {
+                "chromosome": "ORDER"
+            }
+        )
 
-        # Would be filtered on intronic only
-        a3 = create_allele_with_annotation(session, {
-            'frequencies': {
-                'ExAC': {
-                    'freq': {
-                        'G': 0   # BELOW 0.3
-                    },
-                    'num': {
-                        'G': 9000  # Above 2000
+        # Would be filtered on frequency and region
+        a2, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.31   # Above 0.3
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
                     }
-                }
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AR.1',
+                        'exon_distance': 1000
+                    }
+                ]
             },
-            'transcripts': [
-                {
-                    'symbol': 'GENE2',
-                    'transcript': 'NM_2.1',
-                    'exon_distance': 1000
-                }
-            ]
-        })
+            {
+                "chromosome": "ORDER"
+            }
+        )
+
+        # Would be filtered on region only
+        a3, _ = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0   # BELOW 0.3
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
+                    }
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE2',
+                        'hgnc_id': int(3e6),
+                        'transcript': 'NM_2.1',
+                        'exon_distance': 1000
+                    }
+                ]
+            },
+            {
+                "chromosome": "ORDER"
+            }
+        )
 
         session.commit()
 
@@ -1407,11 +1611,72 @@ class TestAlleleFilter(object):
         assert a1.id not in result[gp_key]['excluded_allele_ids']['frequency']
         assert a3.id not in result[gp_key]['excluded_allele_ids']['frequency']
 
-        assert a3.id in result[gp_key]['excluded_allele_ids']['intronic']
-        assert a1.id in result[gp_key]['excluded_allele_ids']['intronic']
-        assert a2.id not in result[gp_key]['excluded_allele_ids']['intronic']
+        assert a3.id in result[gp_key]['excluded_allele_ids']['region']
+        assert a1.id in result[gp_key]['excluded_allele_ids']['region']
+        assert a2.id not in result[gp_key]['excluded_allele_ids']['region']
 
         assert a1.id not in result[gp_key]['allele_ids']
         assert a2.id not in result[gp_key]['allele_ids']
         assert a3.id not in result[gp_key]['allele_ids']
 
+    @pytest.mark.aa(order=7)
+    def test_classification_filter(self, session):
+        a1, a1anno = create_allele_with_annotation(session,
+            {
+                'frequencies': {
+                    'ExAC': {
+                        'freq': {
+                            'G': 0.0051   # Above 0.005
+                        },
+                        'num': {
+                            'G': 9000  # Above 2000
+                        }
+                    }
+                },
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'exon_distance': 0
+                    }
+                ]
+            }
+        )
+
+        a2, _ = create_allele_with_annotation(session,
+            None,
+            {
+                "chromosome": "OUTSIDE_TRANSCRIPT",
+                "start_position": 1,
+                "open_end_position": 2,
+            }
+        )
+
+        a3, _ = create_allele_with_annotation(session,
+            None,
+            {
+                "chromosome": "ALSO_OUTSIDE_TRANSCRIPT",
+                "start_position": 1,
+                "open_end_position": 2,
+            }
+        )
+
+        session.flush()
+
+        af = AlleleFilter(session, GLOBAL_CONFIG)
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [a1.id, a2.id, a3.id]
+        result = af.filter_alleles({gp_key: allele_ids})
+        assert set(result[gp_key]['excluded_allele_ids']['frequency']) == set([a1.id])
+        assert set(result[gp_key]['excluded_allele_ids']['region']) == set([a2.id, a3.id])
+        assert set(result[gp_key]['allele_ids']) == set()
+
+        a1assmt = create_assessment(session, '3', a1)
+        a2assmt = create_assessment(session, '2', a2)
+        a3assmt = create_assessment(session, '1', a3) # Class 1 are not excluded from filtering
+        session.flush()
+        result = af.filter_alleles({gp_key: allele_ids})
+        assert set(result[gp_key]['excluded_allele_ids']['frequency']) == set()
+        assert set(result[gp_key]['excluded_allele_ids']['region']) == set([a3.id])
+        assert set(result[gp_key]['allele_ids']) == set([a1.id, a2.id])

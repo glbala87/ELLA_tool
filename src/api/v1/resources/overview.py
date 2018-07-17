@@ -182,23 +182,36 @@ def get_alleleinterpretation_gp_allele_ids(session, alleleinterpretation_allele_
     """
     Creates a dictionary of genepanels and allele_ids as matched provided alleleinterpretationids.
 
+    Only select the latest interpretation for each allele_id to avoid fetching multiple genepanels
+    as they can differ between the interpretations.
+
     :param session: database session
     :param alleleinterpretation_allele_ids: List of allele ids connected to AlleleInterpretations
 
     Returns a dict of format: {
         ('HBOC', 'v01'): set([1, 3, 4]),
-        ('SomethingElse', 'v01'): set([1])
+        ('SomethingElse', 'v01'): set([2])
     }
     """
 
     alleleinterpretation_gp_allele_ids = defaultdict(set)
+
+    latest_interpretation = session.query(
+        workflow.AlleleInterpretation.id
+    ).order_by(
+        workflow.AlleleInterpretation.allele_id,
+        workflow.AlleleInterpretation.date_last_update.desc(),
+    ).distinct(
+        workflow.AlleleInterpretation.allele_id  # DISTINCT ON
+    ).subquery()
+
     allele_ids_genepanels = session.query(
         workflow.AlleleInterpretation.genepanel_name,
         workflow.AlleleInterpretation.genepanel_version,
         workflow.AlleleInterpretation.allele_id
     ).filter(
-        workflow.AlleleInterpretation.allele_id.in_(
-            alleleinterpretation_allele_ids)
+        workflow.AlleleInterpretation.allele_id.in_(alleleinterpretation_allele_ids),
+        workflow.AlleleInterpretation.id == latest_interpretation.c.id
     ).distinct()
 
     for entry in allele_ids_genepanels.all():

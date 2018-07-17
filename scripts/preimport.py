@@ -30,7 +30,7 @@ Transcript = table('transcript',
                    column('tx_start', sa.Integer()),
                    column('tx_end', sa.Integer()),
                    column('strand', sa.String()),
-                   column('cds_start', sa.String()),
+                   column('cds_start', sa.Integer()),
                    column('cds_end', sa.Integer()),
                    column('exon_starts', postgresql.ARRAY(sa.Integer())),
                    column('exon_ends', postgresql.ARRAY(sa.Integer()))
@@ -69,6 +69,9 @@ def get_connection(host):
     return conn
 
 
+
+
+
 def get_transcripts(conn, genepanel_name, genepanel_version):
     res = conn.execute(
         sa.select(
@@ -83,7 +86,19 @@ def get_transcripts(conn, genepanel_name, genepanel_version):
         ),
     )
 
-    return list(res)
+    # Database transcripts are zero-based, while anno-scripts use 1-based transcripts
+    transcripts_one_based = []
+    for t in list(res):
+        t = dict(t)
+        t["tx_start"] = t["tx_start"] + 1
+        t["tx_end"] = t["tx_end"] + 1
+        t["cds_start"] = t["cds_start"] + 1
+        t["cds_end"] = t["cds_end"] + 1
+        t["exon_starts"] = [es+1 for es in t["exon_starts"]]
+        t["exon_ends"] = [ee+1 for ee in t["exon_ends"]]
+        transcripts_one_based.append(t)
+
+    return transcripts_one_based
 
 
 def get_phenotypes(conn, genepanel_name, genepanel_version):
@@ -123,23 +138,23 @@ def _get_phenotype_data(phenotypes):
 
 def _get_transcript_data(transcripts):
     transcript_columns = OrderedDict()
-    transcript_columns["#chromosome"] = lambda t: t.chromosome
-    transcript_columns["txStart"] = lambda t: str(t.tx_start)
-    transcript_columns["txEnd"] = lambda t: str(t.tx_end)
-    transcript_columns["refseq"] = lambda t: t.transcript_name
+    transcript_columns["#chromosome"] = lambda t: t["chromosome"]
+    transcript_columns["txStart"] = lambda t: str(t["tx_start"])
+    transcript_columns["txEnd"] = lambda t: str(t["tx_end"])
+    transcript_columns["refseq"] = lambda t: t["transcript_name"]
     transcript_columns["score"] = lambda t: "0"
-    transcript_columns["strand"] = lambda t: t.strand
-    transcript_columns["geneSymbol"] = lambda t: t.hgnc_symbol
-    transcript_columns["HGNC"] = lambda t: str(t.hgnc_id)
+    transcript_columns["strand"] = lambda t: t["strand"]
+    transcript_columns["geneSymbol"] = lambda t: t["hgnc_symbol"]
+    transcript_columns["HGNC"] = lambda t: str(t["hgnc_id"])
     transcript_columns["geneAlias"] = lambda t: ""
-    transcript_columns["eGeneID"] = lambda t: t.ensembl_gene_id
-    transcript_columns["eTranscriptID"] = lambda t: t.corresponding_ensembl
-    transcript_columns["cdsStart"] = lambda t: str(t.cds_start)
-    transcript_columns["cdsEnd"] = lambda t: str(t.cds_end)
+    transcript_columns["eGeneID"] = lambda t: t["ensembl_gene_id"]
+    transcript_columns["eTranscriptID"] = lambda t: t["corresponding_ensembl"]
+    transcript_columns["cdsStart"] = lambda t: str(t["cds_start"])
+    transcript_columns["cdsEnd"] = lambda t: str(t["cds_end"])
     transcript_columns["exonsStarts"] = lambda t: ",".join(
-        str(es) for es in t.exon_starts)
+        str(es) for es in t["exon_starts"])
     transcript_columns["exonEnds"] = lambda t: ",".join(
-        str(ee) for ee in t.exon_ends)
+        str(ee) for ee in t["exon_ends"])
 
     transcript_data = "#\n"+"\t".join(transcript_columns.keys())
 
@@ -151,13 +166,13 @@ def _get_transcript_data(transcripts):
 
 def _get_slop(transcripts, slop):
     slop_columns = OrderedDict()
-    slop_columns["#chromosome"] = lambda t, *args: t.chromosome
+    slop_columns["#chromosome"] = lambda t, *args: t["chromosome"]
     slop_columns["start"] = lambda t, start, end, slop, *args: str(start-slop)
     slop_columns["end"] = lambda t, start, end, slop, *args: str(end+slop)
     slop_columns["exon"] = lambda t, start, end, slop, exon_no: "%s__%s__exon%d" % (
-        t.hgnc_symbol, t.transcript_name, exon_no)
+        t["hgnc_symbol"], t["transcript_name"], exon_no)
     slop_columns["someValue"] = lambda t, *args: "0"
-    slop_columns["strand"] = lambda t, *args: t.strand
+    slop_columns["strand"] = lambda t, *args: t["strand"]
 
     slop_data = "\t".join(slop_columns.keys())
     starts = []
@@ -167,17 +182,21 @@ def _get_slop(transcripts, slop):
     for t in transcripts:
         # SLOP is created from cds start and cds end, for exons containing these
         ranges = []
-        strand = t.strand
-        num_exons = len(t.exon_starts)
-        for exon_no, (es, ee) in enumerate(zip(t.exon_starts, t.exon_ends)):
+        strand = t["strand"]
+        cds_start = t["cds_start"]
+        cds_end = t["cds_end"]
+        num_exons = len(t["exon_starts"])
+        for exon_no, (es, ee) in enumerate(zip(t["exon_starts"], t["exon_ends"])):
             end = False
-            if ee < t.cds_start:
+            if ee < cds_start:
                 continue
-            elif es < t.cds_start:
-                es = t.cds_start
+            elif es < cds_start:
+                es = cds_start
+            elif es > cds_end:
+                break
 
-            if ee > t.cds_end:
-                ee = t.cds_end
+            if ee > cds_end:
+                ee = cds_end
                 end = True
 
             if strand == "-":
@@ -229,7 +248,7 @@ def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcrip
 
     files["REPORT_CONFIG"] = report_config_file
     variables = dict()
-    if usergroup == "EGG":
+    if usergroup == "EGG" or usergroup == "testgroup02":
         variables['targets'] = 'excel'
     else:
         variables['targets'] = 'ella'

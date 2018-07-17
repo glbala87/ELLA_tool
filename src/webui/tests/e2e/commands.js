@@ -64,10 +64,21 @@ function waitForAngular() {
 module.exports = function addCommands() {
     browser.addCommand('resetDb', (testset = 'e2e') => {
         console.log(`Resetting database with '${testset}' (this can take a while...)`)
-        execSync(`make -C /ella dbreset TESTSET=${testset}`, {
-            stdio: ['ignore', 'ignore', 'pipe']
-        })
-        console.log('Database reset done!')
+        try {
+            execSync(`/ella/ella-cli database drop -f`, {
+                stdio: ['ignore', 'ignore', 'pipe']
+            })
+            execSync(`psql -U postgres -d postgres < /dbdump_${testset}.sql`, {
+                stdio: ['ignore', 'ignore', 'pipe']
+            })
+            console.log('Database reset from dump done!')
+        } catch (err) {
+            execSync(`make -C /ella dbreset TESTSET=${testset}`, {
+                stdio: ['ignore', 'ignore', 'pipe']
+            })
+            execSync(`pg_dump -U postgres -d postgres > /dbdump_${testset}.sql`)
+            console.log('Database reset done!')
+        }
     })
 
     browser.addCommand('getClass', (selector) => browser.getAttribute(selector, 'class').split(' '))

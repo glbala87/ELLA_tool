@@ -61,6 +61,11 @@ def after_request(response):
 @app.teardown_request
 def teardown_request(exc):
     if exc:
+        # Gunicorn injects a [Errno 11] Resource temporarily unavailable error
+        # into every request. We therefore ignore logging this error.
+        # https://github.com/benoitc/gunicorn/issues/514
+        if hasattr(exc, 'errno') and exc.errno == 11:
+            return
         log_request(500)
         try:
             db.session.commit()

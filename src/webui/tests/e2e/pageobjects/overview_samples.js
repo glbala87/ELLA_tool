@@ -1,4 +1,5 @@
 var Page = require('./page')
+var util = require('./util')
 
 const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-findings'
 const SELECTOR_FINISHED = '.id-analysis-finished'
@@ -28,29 +29,29 @@ class SampleSelection extends Page {
     }
 
     get analysisList() {
-        return browser.element('analysis-list')
+        return util.element('analysis-list')
     }
     get noFindingsSection() {
-        return browser.element('.id-analysis-findings-none')
+        return util.element('.id-analysis-findings-none')
     }
     get findingsSection() {
-        return browser.element(SELECTOR_FINDINGS)
+        return util.element(SELECTOR_FINDINGS)
     }
     get emptySection() {
-        return browser.element(SELECTOR_EMPTY)
+        return util.element(SELECTOR_EMPTY)
     }
     get pendingSection() {
-        return browser.element(SELECTOR_PENDING)
+        return util.element(SELECTOR_PENDING)
     }
     get reviewSection() {
-        return browser.element(SELECTOR_REVIEW)
+        return util.element(SELECTOR_REVIEW)
     }
     get finishedSection() {
-        return browser.element(SELECTOR_FINISHED)
+        return util.element(SELECTOR_FINISHED)
     }
 
     get normalSection() {
-        return browser.element(SELECTOR_NORMAL)
+        return util.element(SELECTOR_NORMAL)
     }
 
     expandPendingSection() {

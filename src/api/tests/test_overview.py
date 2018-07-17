@@ -858,3 +858,98 @@ class TestAlleleOverview(object):
         wh.perform_finalize_round(interpretation, 'Finalize comment')
         r = client.get('/api/v1/overviews/alleles/finalized/')
         check_items({('HBOC', 'v01'): interpretation['allele_ids']}, r.json)
+
+    @pytest.mark.overviewallele(order=6)
+    def test_presented_genepanel(self, test_database, client, session):
+        """
+        Test that the presented genepanel is what we expect
+
+        The genepanels that should be shown for 'missing_alleleassessment' alleles are
+        the distinct genepanels for all 'Not started' analyses (in 'Not ready' or 'Interpretation')
+        containing the allele in question, plus any 'Not started'
+        allele interpretations in 'Interpretation'.
+        """
+        test_database.refresh()
+
+        def get_allele_genepanels(category):
+            def get_category(x):
+                if category == 'finalized':
+                    return x
+                return x[category]
+
+            url = '/api/v1/overviews/alleles/finalized/' if category == 'finalized' else '/api/v1/overviews/alleles/'
+            r = client.get(url)
+            allele_genepanels = [item['genepanel'] for item in get_category(r.json) if item['allele']['id'] == 1]
+            return allele_genepanels
+
+        # Allele id 1 has two analyses (id 1, HBOC) and (id 2, HBOCUTV) and one AlleleInterpretation with HBOC
+
+        ## 'missing_alleleassessment'
+        # Check initial state
+        allele_genepanels = get_allele_genepanels('missing_alleleassessment')
+        assert allele_genepanels == [{'name': 'HBOC', 'version': 'v01'}, {'name': 'HBOCUTV', 'version': 'v01'}]
+
+        # Start both analyses to remove them from the equation
+        whan1 = WorkflowHelper('analysis', 1)
+        whan2 = WorkflowHelper('analysis', 2)
+        an1_interpretation = whan1.start_interpretation('testuser1')
+        whan2.start_interpretation('testuser1')
+
+        # Check that genepanel is still used from AlleleInterpretation
+        allele_genepanels = get_allele_genepanels('missing_alleleassessment')
+        assert allele_genepanels == [{'name': 'HBOC', 'version': 'v01'}]
+
+        # Start AlleleInterpretation with different genepanel
+        wh = WorkflowHelper('allele', 1, genepanel=('HBOCUTV', 'v01'))
+        interpretation = wh.start_interpretation('testuser1')
+
+        # Check that the list is now empty
+        allele_genepanels = get_allele_genepanels('missing_alleleassessment')
+        assert allele_genepanels == []
+
+        # Perform a round, send back to Interpretation -> new AlleleInterpretation with different genepanel should be created
+        wh.perform_round(interpretation, 'Comment', new_workflow_status='Interpretation')
+
+        # Check that the list only has the new genepanel
+        allele_genepanels = get_allele_genepanels('missing_alleleassessment')
+        assert allele_genepanels == [{'name': 'HBOCUTV', 'version': 'v01'}]
+
+        # Send the HBOC analysis back to Not started
+        whan1.perform_round(an1_interpretation, 'Comment', new_workflow_status='Not ready')
+
+        # Check that the list now has both genepanels
+        allele_genepanels = get_allele_genepanels('missing_alleleassessment')
+        assert allele_genepanels == [{'name': 'HBOC', 'version': 'v01'}, {'name': 'HBOCUTV', 'version': 'v01'}]
+
+        ## 'marked_review'
+        wh = WorkflowHelper('allele', 1, genepanel=('HBOC', 'v01'))
+        interpretation = wh.start_interpretation('testuser1')
+        wh.perform_round(interpretation, 'Comment', new_workflow_status='Review')
+
+        allele_genepanels = get_allele_genepanels('marked_review')
+        assert allele_genepanels == [{'name': 'HBOC', 'version': 'v01'}]
+
+        wh = WorkflowHelper('allele', 1, genepanel=('HBOCUTV', 'v01'))
+        interpretation = wh.start_interpretation('testuser1')
+        wh.perform_round(interpretation, 'Comment', new_workflow_status='Review')
+
+        allele_genepanels = get_allele_genepanels('marked_review')
+        assert allele_genepanels == [{'name': 'HBOCUTV', 'version': 'v01'}]
+
+        # 'finalized'
+
+        wh = WorkflowHelper('allele', 1, genepanel=('HBOC', 'v01'))
+        interpretation = wh.start_interpretation('testuser1')
+        wh.perform_finalize_round(interpretation, 'Comment')
+
+        allele_genepanels = get_allele_genepanels('finalized')
+        assert allele_genepanels == [{'name': 'HBOC', 'version': 'v01'}]
+
+        wh = WorkflowHelper('allele', 1, genepanel=('HBOCUTV', 'v01'))
+        wh.reopen('testuser1')
+        interpretation = wh.start_interpretation('testuser1')
+        wh.perform_finalize_round(interpretation, 'Comment')
+
+        allele_genepanels = get_allele_genepanels('finalized')
+        assert allele_genepanels == [{'name': 'HBOCUTV', 'version': 'v01'}]
+

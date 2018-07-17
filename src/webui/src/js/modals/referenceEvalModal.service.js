@@ -664,7 +664,7 @@ export class ReferenceEvalModalController {
     getReferenceDBSources() {
         let sources = {}
         let annotation_reference = this.allele.annotation.references.find(
-            (a) => a.id === this.reference.id
+            (a) => a.pubmed_id === this.reference.pubmed_id
         )
         if (!annotation_reference) {
             return sources

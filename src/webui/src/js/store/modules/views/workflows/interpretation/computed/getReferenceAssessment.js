@@ -16,7 +16,7 @@ export default (alleleId, referenceId) => {
         isAlleleAssessmentReused(alleleId),
         getAlleleState(alleleId),
         (alleleId, referenceId, alleleAssessmentReused, alleleState, get) => {
-            if (!alleleId || !referenceId) {
+            if (!alleleId || !referenceId || !alleleState) {
                 return
             }
             const allele = get(state`views.workflows.data.alleles.${alleleId}`)

@@ -1,5 +1,19 @@
 # Release notes
 
+## 1.1.1
+
+
+### Additions and fixes
+
+- Add BRCA Exchange to external databases for BRCA1 and BRCA2
+- Add ability to search using genomic position on format g.123456
+- Keep existing reference evaluation data when clicking 'Ignore'
+- Fix link and reference description in reference evaluation window.
+- Fix issue where some variants would appear with two genepanels in variants overview
+- Fix issue where worst consequence would not display correctly for a rare case with variant having intron_variant as consequence in one transcript and splice_region_variant, intron_variant as consequences in another transcript.
+- Fix issue importing Pubmed XML data for some references.
+
+
 ## 1.1
 
 ### Highlights

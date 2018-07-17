@@ -1,7 +1,7 @@
 """varDB datamodel classes for Gene and Transcript"""
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime, Index, text, func
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -17,9 +17,13 @@ class Gene(Base):
     __tablename__ = "gene"
 
     hgnc_id = Column(Integer, primary_key=True)
-    hgnc_symbol = Column(String(), unique=True, nullable=False)
-    ensembl_gene_id = Column(String(15), unique=True)
+    hgnc_symbol = Column(String, nullable=False)
+    ensembl_gene_id = Column(String, unique=True)
     omim_entry_id = Column(Integer)
+
+    __table_args__ = (Index('ix_gene_hgnc_symbol', func.lower(hgnc_symbol), unique=True, postgresql_ops={
+        'data': 'text_pattern_ops'
+    }),)
 
     def __repr__(self):
         return "<Gene(%d, '%s')>" % (self.hgnc_id, self.hgnc_symbol)

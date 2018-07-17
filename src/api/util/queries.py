@@ -266,10 +266,40 @@ def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_v
     )
 
 
-def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
+def allele_genepanels(session, genepanel_keys, allele_ids=None):
+
+    result = session.query(
+        allele.Allele.id.label('allele_id'),
+        gene.Genepanel.name.label('name'),
+        gene.Genepanel.version.label('version'),
+    ).join(gene.Genepanel.transcripts).filter(
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys)
+    ).filter(
+        allele.Allele.chromosome == gene.Transcript.chromosome,
+        or_(
+            and_(
+                allele.Allele.start_position >= gene.Transcript.tx_start,
+                allele.Allele.start_position <= gene.Transcript.tx_end,
+            ),
+            and_(
+                allele.Allele.open_end_position > gene.Transcript.tx_start,
+                allele.Allele.open_end_position < gene.Transcript.tx_end,
+            )
+        )
+    )
+
+    if allele_ids is not None:
+        result = result.filter(
+            allele.Allele.id.in_(allele_ids) if allele_ids else False
+        )
+
+    return result
+
+
+def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
 
     """
-    Filters annotation transcripts for input allele_ids against genepanel transcripts
+    Returns a joined representation of annotation transcripts against genepanel transcripts
     for given genepanel_keys.
 
     genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
@@ -288,6 +318,7 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
     Use it only to get annotation data for further filtering,
     where a non-match wouldn't exclude the allele in the analysis.
     """
+
     genepanel_transcripts = session.query(
         gene.Genepanel.name,
         gene.Genepanel.version,
@@ -303,14 +334,24 @@ def annotation_transcripts_genepanel(session, allele_ids, genepanel_keys):
         AnnotationShadowTranscript.allele_id.label('allele_id'),
         genepanel_transcripts.c.name.label('name'),
         genepanel_transcripts.c.version.label('version'),
+        genepanel_transcripts.c.gene_id.label('genepanel_hgnc_id'),
+        genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
         AnnotationShadowTranscript.transcript.label('annotation_transcript'),
         AnnotationShadowTranscript.symbol.label('annotation_symbol'),
         AnnotationShadowTranscript.hgnc_id.label('annotation_hgnc_id'),
         AnnotationShadowTranscript.hgvsc.label('annotation_hgvsc'),
         AnnotationShadowTranscript.hgvsp.label('annotation_hgvsp'),
-        genepanel_transcripts.c.transcript_name.label('genepanel_transcript'),
     ).filter(
-        text("split_part(transcript, '.', 1) = split_part(transcript_name, '.', 1)")
-    ).distinct()
+        # Matches NM_12345dabla.1 with NM_12345.2
+        text("transcript_name like split_part(transcript, '.', 1) || '%'"),
+        genepanel_transcripts.c.gene_id == AnnotationShadowTranscript.hgnc_id
+    )
+
+    if allele_ids is not None:
+        result = result.filter(
+            AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
+        )
+
+    result = result.distinct()
 
     return result

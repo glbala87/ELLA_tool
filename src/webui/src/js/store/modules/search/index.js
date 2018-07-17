@@ -9,8 +9,7 @@ export default Module({
         query: {
             freetext: null,
             gene: null,
-            user: null,
-            filter: false
+            user: null
         },
         options: {
             genepanel: null,

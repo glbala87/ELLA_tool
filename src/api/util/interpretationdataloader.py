@@ -43,19 +43,18 @@ class InterpretationDataLoader(object):
 
     def group_alleles_by_config_and_annotation(self, interpretation):
         """
-        Group the allele ids by checking the cutoff thresholds and intronic flag in annotation data
+        Group the allele ids by checking the cutoff thresholds and region flag in annotation data
         and what gene it belongs to
 
         :param interpretation:
-        :return: (normal, {'intron': {}, 'frequency': [], 'gene': []})
+        :return: (normal, {'region': {}, 'frequency': [], 'gene': []})
         """
 
         if isinstance(interpretation, workflow.AlleleInterpretation):
             excluded_allele_ids = {
                 'frequency': [],
-                'intronic': [],
+                'region': [],
                 'gene': [],
-                'utr': []
             }
             return [interpretation.allele.id], excluded_allele_ids
 
@@ -89,22 +88,18 @@ class InterpretationDataLoader(object):
         allele_ids = []
         excluded_allele_ids = {
             'frequency': [],
-            'intronic': [],
+            'region': [],
             'gene': [],
-            'utr': []
-
         }
 
         for snapshot in interpretation.snapshots:
             if hasattr(snapshot, 'filtered'):
                 if snapshot.filtered == allele.Allele.FREQUENCY:
                     excluded_allele_ids['frequency'].append(snapshot.allele_id)
-                elif snapshot.filtered == allele.Allele.INTRON:
-                    excluded_allele_ids['intronic'].append(snapshot.allele_id)
+                elif snapshot.filtered == allele.Allele.REGION:
+                    excluded_allele_ids['region'].append(snapshot.allele_id)
                 elif snapshot.filtered == allele.Allele.GENE:
                     excluded_allele_ids['gene'].append(snapshot.allele_id)
-                elif snapshot.filtered == allele.Allele.UTR:
-                    excluded_allele_ids['utr'].append(snapshot.allele_id)
                 else:
                     allele_ids.append(snapshot.allele_id)
             else:

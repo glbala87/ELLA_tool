@@ -372,7 +372,7 @@ test-api-migration: test-build
 	  --name $(PIPELINE_ID)-api-migration $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
-	docker exec $(PIPELINE_ID)-api-migration ops/test/run_api_tests.sh
+	docker exec $(PIPELINE_ID)-api-migration ops/test/run_api_migration_tests.sh
 	@docker rm -f $(PIPELINE_ID)-api-migration
 
 

@@ -1,14 +1,29 @@
-import { when, set, debounce } from 'cerebral/operators'
-import { state, module, props } from 'cerebral/tags'
 import toastr from '../../../../../common/factories/toastr'
 import canUpdateReferenceAssessment from '../operators/canUpdateReferenceAssessment'
+import getReferenceAssessment from '../computed/getReferenceAssessment'
 import setReferenceAssessment from '../actions/setReferenceAssessment'
+
 import setDirty from '../actions/setDirty'
 
 export default [
     canUpdateReferenceAssessment,
     {
-        true: [setDirty, set(props`evaluation`, { relevance: 'Ignore' }), setReferenceAssessment],
+        true: [
+            ({ props, resolve }) => {
+                const { alleleId, referenceId } = props
+                const existingReferenceAssessment = resolve.value(
+                    getReferenceAssessment(alleleId, referenceId)
+                )
+                const existingEvaluation = existingReferenceAssessment
+                    ? existingReferenceAssessment.evaluation
+                    : {}
+                return {
+                    evaluation: Object.assign({}, existingEvaluation, { relevance: 'Ignore' })
+                }
+            },
+            setReferenceAssessment,
+            setDirty
+        ],
         false: [
             toastr('error', 'Cannot update reference evaluation when interpretation is not Ongoing')
         ]

@@ -20,6 +20,10 @@ class ReferenceEvalModal extends Page {
         let selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`
         browser.setValue(selector, text)
     }
+
+    waitForClose() {
+        browser.waitForExist(TOP_CLASS, 10000, true)
+    }
 }
 
 module.exports = ReferenceEvalModal

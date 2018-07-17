@@ -211,7 +211,6 @@ def test_annotation_transcripts_genepanel(session):
 
     annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
         session,
-        [a1.id, a2.id],
         [('testpanel1', 'v01'), ('testpanel2', 'v01')]
     ).subquery()
 

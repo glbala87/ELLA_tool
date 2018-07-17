@@ -2,6 +2,17 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 
+const TYPES = [
+    {
+        name: 'VARIANTS',
+        type: 'alleles'
+    },
+    {
+        name: 'ANALYSES',
+        type: 'analyses'
+    }
+]
+
 app.component('search', {
     templateUrl: 'ngtmpl/searchModule.ngtmpl.html',
     controller: connect(
@@ -27,18 +38,18 @@ app.component('search', {
                         }
                         return 'NEW'
                     },
+                    getSearchTypes: () => {
+                        return TYPES
+                    },
                     getEndAction: (interpretation) => {
-                        let OPTIONS = {
-                            'Mark review': 'Marked for review',
-                            Finalize: 'Finalized'
+                        let end_action = `${interpretation.workflow_status} ${
+                            interpretation.finalized ? ' (Finalized) ' : ' '
+                        }`
+                        if (interpretation.user) {
+                            return end_action + ' • '
+                        } else {
+                            return end_action
                         }
-                        if (interpretation.end_action) {
-                            return ' ' + OPTIONS[interpretation.end_action] + ' • '
-                        }
-                        if (interpretation.status === 'Ongoing') {
-                            return ' Ongoing' + ' • '
-                        }
-                        return ''
                     },
                     optionSelected: (key, newValue) => {
                         // A bit hackish due to angular-selector not
