@@ -527,7 +527,7 @@ class AnnotationImporter(object):
         # If RefSeq (NM_xxxx.1), ignore the versions.
         # Otherwise, do normal comparison
         if t1.startswith('NM_') and t2.startswith('NM_'):
-            return t1.split('.', 1)[0] == t2.split('.', 1)[0]
+            return t1.startswith(t2.split('.')[0]) or t2.startswith(t1.split('.')[0])
         return t1 == t2
 
     def _extract_annotation_from_record(self, record, allele):
