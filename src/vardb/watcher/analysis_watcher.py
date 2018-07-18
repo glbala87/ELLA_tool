@@ -179,7 +179,7 @@ class AnalysisWatcher(object):
         # The path to the root folder is the analysis folder, i.e. for our testdata
         # src/vardb/watcher/testdata/analyses, the target folder for analysis will be
         # the analysis folder
-        for analysis_dir in os.listdir(self.watch_path):
+        for analysis_dir in sorted(os.listdir(self.watch_path)):
             try:
 
                 if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):

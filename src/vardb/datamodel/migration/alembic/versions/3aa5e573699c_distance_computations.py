@@ -15,6 +15,8 @@ depends_on = None
 from alembic import op
 import sqlalchemy as sa
 import re
+import logging
+log = logging.getLogger(__name__)
 
 from sqlalchemy.sql import column, table
 from sqlalchemy.dialects import postgresql
