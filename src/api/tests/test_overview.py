@@ -13,7 +13,7 @@ from vardb.datamodel import assessment, workflow, allele, sample, genotype
 from api.tests.workflow_helper import WorkflowHelper
 from api.tests import interpretation_helper as ih
 
-from api.util.allelefilter import AlleleFilter
+from api.allelefilter import AlleleFilter
 from api.config import config
 
 

@@ -8,8 +8,6 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     Currently adds two extra QC fields:
     - needs_verification
     - allele_ratio
-
-    :warning: Might need adjustments for trios, due to variants that can be REF only.
     """
     qc = dict()
 
@@ -30,9 +28,7 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
         if genotype_data['multiallelic']:
             assert len(ad_data) == 3
         else:
-            # TODO: Trios?
             assert len(ad_data) == 2
-
         allele_ratio = float(ad_data[vcf_alt]) / sum(ad_data.values())
         qc['allele_ratio'] = allele_ratio
 
@@ -55,7 +51,7 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     }
 
     if allele_ratio:
-        if genotype_data['homozygous']:
+        if genotype_data['type'] == 'Homozygous':
             needs_verification_checks['allele_ratio'] = allele_ratio > 0.9
         else:
             needs_verification_checks['allele_ratio'] = allele_ratio > 0.3 and allele_ratio < 0.6

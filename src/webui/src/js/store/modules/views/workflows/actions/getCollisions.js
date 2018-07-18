@@ -8,8 +8,14 @@ const TYPES = {
 function getCollisions({ http, path, props, state }) {
     let type = TYPES[state.get('views.workflows.type')]
     let id = state.get('views.workflows.id')
+    let alleles = state.get('views.workflows.data.alleles')
+    if (!alleles) {
+        return path.success({ result: [] })
+    }
+    let allele_ids = Object.keys(alleles)
+
     return http
-        .get(`workflows/${type}/${id}/collisions/`)
+        .get(`workflows/${type}/${id}/collisions/`, { allele_ids: allele_ids.join(',') })
         .then((response) => {
             for (let d of response.result) {
                 processAlleles([d.allele])

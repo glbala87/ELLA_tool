@@ -7,7 +7,7 @@ from openpyxl.styles import Font
 from openpyxl import Workbook
 
 from vardb.datamodel import DB, assessment, allele, sample
-from api.util.allelefilter import AlleleFilter
+from api.allelefilter import AlleleFilter
 
 
 log = logging.getLogger(__name__)

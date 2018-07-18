@@ -6,7 +6,7 @@ from sqlalchemy import or_, text
 
 from api.util.util import query_print_table
 from api.util import queries
-from api.schemas import AlleleSchema, GenotypeSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
+from api.schemas import AlleleSchema, GenotypeSchema, GenotypeSampleDataSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
 from api.util.annotationprocessor import AnnotationProcessor
 from api.config import config
 from .calculate_qc import genotype_calculate_qc
@@ -99,16 +99,22 @@ class AlleleDataLoader(object):
             for sample_id in include_genotype_samples:
                 sample_obj = next(s for s in samples if s.id == int(sample_id))
 
-                genotypes = self.session.query(genotype.Genotype).join(sample.Sample).filter(
-                    sample.Sample.id == sample_id,
+                genotypes = self.session.query(genotype.Genotype).filter(
+                    genotype.Genotype.sample_id == sample_id,
                     or_(
                         genotype.Genotype.allele_id.in_(allele_ids) if allele_ids else False,
                         genotype.Genotype.secondallele_id.in_(allele_ids) if allele_ids else False,
                     )
                 ).all()
 
+
                 # Add genotype into ['samples'][n]['genotype']
                 if genotypes:
+                    genotypesampledata = self.session.query(genotype.GenotypeSampleData).filter(
+                        genotype.GenotypeSampleData.sample_id == sample_id,
+                        genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
+                    ).all()
+
                     for gt in genotypes:
                         for attr in ['allele_id', 'secondallele_id']:
                             allele_id = getattr(gt, attr)
@@ -118,6 +124,10 @@ class AlleleDataLoader(object):
                                     accumulated_allele_data[allele_id][KEY_SAMPLES] = list()
                                 sample_serialized = sample_schema.dump(sample_obj).data  # We need to recreate here, we cannot reuse sample object
                                 genotype_data = genotype_schema.dump(gt).data
+                                sample_genotypesampledata = next(gsd for gsd in genotypesampledata if gsd.genotype_id == gt.id and gsd.secondallele == bool(attr == 'secondallele_id'))
+                                genotype_data.update(
+                                    GenotypeSampleDataSchema().dump(sample_genotypesampledata).data
+                                )
                                 genotype_data.update(
                                     genotype_calculate_qc(
                                         accumulated_allele_data[allele_id]['allele'],

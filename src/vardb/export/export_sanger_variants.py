@@ -16,7 +16,7 @@ import xlsxwriter
 
 from api.util import alleledataloader
 from api.util.alleledataloader import AlleleDataLoader
-from api.util.allelefilter import AlleleFilter
+from api.allelefilter import AlleleFilter
 from api.util.util import get_nested
 from vardb.datamodel import DB, gene, genotype, sample, allele, workflow
 from api.util import queries

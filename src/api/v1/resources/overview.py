@@ -8,9 +8,9 @@ from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
+from api.allelefilter import AlleleFilter
 from api.util import queries
 from api.util.util import authenticate, paginate
-from api.util.allelefilter import AlleleFilter
 from api.util.alleledataloader import AlleleDataLoader
 
 from api.config import config

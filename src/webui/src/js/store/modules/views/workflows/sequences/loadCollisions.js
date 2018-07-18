@@ -1,6 +1,6 @@
 import { sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
+import { set } from 'cerebral/operators'
+import { state, props } from 'cerebral/tags'
 import getCollisions from '../actions/getCollisions'
 
 import toast from '../../../../common/factories/toast'

@@ -5,6 +5,7 @@ import getAlleles from '../actions/getAlleles'
 import toast from '../../../../common/factories/toast'
 import prepareInterpretationState from './prepareInterpretationState'
 import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
+import loadCollisions from './loadCollisions'
 
 export default sequence('loadAlleles', [
     getAlleles,
@@ -12,7 +13,8 @@ export default sequence('loadAlleles', [
         success: [
             set(state`views.workflows.data.alleles`, props`result`),
             prepareInterpretationState,
-            allelesChanged // Update alleleSidebar
+            allelesChanged, // Update alleleSidebar
+            loadCollisions
         ],
         error: [toast('error', 'Failed to load variant(s)', 30000)]
     }
