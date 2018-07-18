@@ -1,5 +1,17 @@
 # Release notes
 
+## 1.1.2
+
+### Additions and fixes
+
+- Add red 'HOM' tag to top variant bar in order to improve homozygous visibility.
+- Merge `utr` and `intron` filters into a new, improved `region` filter.
+- Improve search performance (entering a gene is now required for searches using HGVS nomenclature).
+- Show more information about the available samples in import view
+- Add new external database for gene TP53
+- Fix missing Hemi total count for gnomAD
+
+
 ## 1.1.1
 
 
