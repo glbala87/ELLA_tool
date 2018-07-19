@@ -533,7 +533,11 @@ class FamilyFilter(object):
         results and should therefore not be used.
         """
 
-        # one() raises exception on 0 or >1 hits
+        proband_sample = None
+        father_sample = None
+        mother_sample = None
+
+        # TODO: Handle multiple probands
         proband_sample = self.session.query(sample.Sample).filter(
             sample.Sample.proband.is_(True),
             sample.Sample.affected.is_(True),
@@ -542,15 +546,16 @@ class FamilyFilter(object):
             sample.Sample.analysis_id == analysis_id
         ).one_or_none()
 
-        father_sample = self.session.query(sample.Sample).filter(
-            sample.Sample.id == proband_sample.father_id,
-            sample.Sample.affected.is_(False)
-        ).one_or_none()
+        if proband_sample is not None:
+            father_sample = self.session.query(sample.Sample).filter(
+                sample.Sample.id == proband_sample.father_id,
+                sample.Sample.affected.is_(False)
+            ).one_or_none()
 
-        mother_sample = self.session.query(sample.Sample).filter(
-            sample.Sample.id == proband_sample.mother_id,
-            sample.Sample.affected.is_(False)
-        ).one_or_none()
+            mother_sample = self.session.query(sample.Sample).filter(
+                sample.Sample.id == proband_sample.mother_id,
+                sample.Sample.affected.is_(False)
+            ).one_or_none()
 
         return all([proband_sample, father_sample, mother_sample])
 
@@ -627,6 +632,38 @@ class FamilyFilter(object):
         assert genotype_query.count() == len(allele_ids)
         return genotype_query
 
+    def get_proband_sample_identifier(self, analysis_id):
+        proband_sample = self.session.query(sample.Sample).filter(
+            sample.Sample.proband.is_(True),
+            sample.Sample.analysis_id == analysis_id
+        ).one()
+
+        return proband_sample.identifier
+
+    def get_father_sample_identifier(self, analysis_id):
+        proband_sample = self.session.query(sample.Sample).filter(
+            sample.Sample.proband.is_(True),
+            sample.Sample.analysis_id == analysis_id
+        ).one()
+
+        father_sample = self.session.query(sample.Sample).filter(
+            sample.Sample.id == proband_sample.father_id
+        ).one()
+
+        return father_sample.identifier
+
+    def get_mother_sample_identifier(self, analysis_id):
+        proband_sample = self.session.query(sample.Sample).filter(
+            sample.Sample.proband.is_(True),
+            sample.Sample.analysis_id == analysis_id
+        ).one()
+
+        mother_sample = self.session.query(sample.Sample).filter(
+            sample.Sample.id == proband_sample.mother_id
+        ).one()
+
+        return mother_sample.identifier
+
     def filter_alleles(self, analysis_allele_ids):
         """
         """
@@ -636,49 +673,43 @@ class FamilyFilter(object):
 
         result = dict()
         for analysis_id, allele_ids in analysis_allele_ids.iteritems():
-            #if not self.check_filter_conditions(analysis_id):
-            #    return set()  # FIXME!
+
+            if not self.check_filter_conditions(analysis_id):
+                result[analysis_id] = set()
+                continue
+
             genotype_query = self.get_genotype_query(allele_ids, analysis_id)
 
-            proband_sample = self.session.query(sample.Sample).filter(
-                sample.Sample.proband.is_(True),
-                sample.Sample.analysis_id == analysis_id
-            ).one()
-
-            father_sample = self.session.query(sample.Sample).filter(
-                sample.Sample.id == proband_sample.father_id
-            ).one()
-
-            mother_sample = self.session.query(sample.Sample).filter(
-                sample.Sample.id == proband_sample.mother_id
-            ).one()
+            proband_identifier = self.get_proband_sample_identifier(analysis_id)
+            father_identifier = self.get_father_sample_identifier(analysis_id)
+            mother_identifier = self.get_mother_sample_identifier(analysis_id)
 
             denovo_results = self.denovo(
                 genotype_query,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier
+                proband_identifier,
+                father_identifier,
+                mother_identifier
             )
 
             recessive_compound_results = self.recessive_compound_heterozygous(
                 genotype_query,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier
+                proband_identifier,
+                father_identifier,
+                mother_identifier
             )
 
             autosomal_recessive_results = self.autosomal_recessive_homozygous(
                 genotype_query,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier
+                proband_identifier,
+                father_identifier,
+                mother_identifier
             )
 
             xlinked_recessive_results = self.xlinked_recessive_homozygous(
                 genotype_query,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier
+                proband_identifier,
+                father_identifier,
+                mother_identifier
             )
 
             recessive_compound_results = set()

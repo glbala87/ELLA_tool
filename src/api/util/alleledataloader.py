@@ -1,9 +1,11 @@
+from collections import defaultdict
 import json
 from vardb.datamodel import allele, sample, genotype, annotationshadow
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
 from sqlalchemy import or_, text
 
+from api.allelefilter.familyfilter import FamilyFilter
 from api.util.util import query_print_table
 from api.util import queries
 from api.schemas import AlleleSchema, GenotypeSchema, GenotypeSampleDataSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
@@ -30,12 +32,155 @@ class AlleleDataLoader(object):
     def __init__(self, session):
         self.session = session
         self.inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
+        self.family_filter = FamilyFilter(session, config)
+
+    def _get_family_tags(self, allele_ids, analysis_id):
+        allele_ids_tags = defaultdict(set)
+
+        if not self.family_filter.check_filter_conditions(analysis_id):
+            return allele_ids_tags
+
+        # Family filter tags
+        genotype_query = self.family_filter.get_genotype_query(allele_ids, analysis_id)
+
+        proband_identifier = self.family_filter.get_proband_sample_identifier(analysis_id)
+        father_identifier = self.family_filter.get_father_sample_identifier(analysis_id)
+        mother_identifier = self.family_filter.get_mother_sample_identifier(analysis_id)
+
+        if proband_identifier and father_identifier and mother_identifier:
+            recessive_compound_heterozygous = self.family_filter.recessive_compound_heterozygous(
+                genotype_query,
+                proband_identifier,
+                father_identifier,
+                mother_identifier
+            )
+
+            for allele_id in list(recessive_compound_heterozygous):
+                allele_ids_tags[allele_id].add('recessive_compound_heterozygous')
+
+            autosomal_recessive_homozygous = self.family_filter.autosomal_recessive_homozygous(
+                genotype_query,
+                proband_identifier,
+                father_identifier,
+                mother_identifier
+            )
+
+            for allele_id in list(autosomal_recessive_homozygous):
+                allele_ids_tags[allele_id].add('autosomal_recessive_homozygous')
+
+            denovo = self.family_filter.denovo(
+                genotype_query,
+                proband_identifier,
+                father_identifier,
+                mother_identifier
+            )
+
+            for allele_id in list(denovo):
+                allele_ids_tags[allele_id].add('denovo')
+
+            xlinked_recessive_homozygous = self.family_filter.xlinked_recessive_homozygous(
+                genotype_query,
+                proband_identifier,
+                father_identifier,
+                mother_identifier
+            )
+
+            for allele_id in list(xlinked_recessive_homozygous):
+                allele_ids_tags[allele_id].add('xlinked_recessive_homozygous')
+
+        return allele_ids_tags
+
+    def get_tags(self, allele_data, analysis_id=None):
+
+        allele_ids_tags = defaultdict(set)
+
+        allele_ids = [a['id'] for a in allele_data]
+
+        for al in allele_data:
+            # Has references
+            if al['annotation']['references']:
+                allele_ids_tags[al['id']].add('has_references')
+
+        if analysis_id:
+
+            for al in allele_data:
+                # Homozygous
+                proband_samples = [s for s in al['samples'] if s['proband']]
+                if any(s['genotype']['type'] == 'Homozygous' for s in proband_samples):
+                    allele_ids_tags[al['id']].add('homozygous')
+
+                # Low quality
+                if any(s['genotype']['needs_verification'] for s in al['samples']):
+                    allele_ids_tags[al['id']].add('low_quality')
+
+            family_tags = self._get_family_tags(allele_ids, analysis_id)
+            for allele_id, tags in family_tags.iteritems():
+                allele_ids_tags[allele_id].update(tags)
+
+        return allele_ids_tags
+
+    def _load_sample_data(self, alleles, analysis_id):
+
+        allele_ids = [al['id'] for al in alleles]
+        genotype_schema = GenotypeSchema()
+        sample_schema = SampleSchema()
+
+        allele_ids_sample_data = defaultdict(list)
+
+        # Preload data
+        proband_sample_ids = self.session.query(sample.Sample.id).filter(
+                sample.Sample.proband.is_(True),
+                sample.Sample.analysis_id == analysis_id
+            )
+
+        genotypes = self.session.query(genotype.Genotype).filter(
+            genotype.Genotype.sample_id.in_(proband_sample_ids),
+            or_(
+                genotype.Genotype.allele_id.in_(allele_ids),
+                genotype.Genotype.secondallele_id.in_(allele_ids),
+            )
+        ).all()
+
+        samples = self.session.query(sample.Sample).filter(
+            sample.Sample.analysis_id == analysis_id
+        ).all()
+
+        genotypesampledata = self.session.query(genotype.GenotypeSampleData).filter(
+            genotype.GenotypeSampleData.sample_id.in_([s.id for s in samples]),
+            genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
+        ).all()
+
+        # Create sample data with genotype for each allele
+        for allele_data in alleles:
+
+            allele_id_sample_data = list()
+            gt = next(g for g in genotypes if g.allele_id == allele_data['id'] or g.secondallele_id == allele_data['id'])
+            is_secondallele = bool(gt.secondallele_id == allele_data['id'])
+            for sample_obj in samples:
+                sample_data = sample_schema.dump(sample_obj).data
+                genotype_data = genotype_schema.dump(gt).data
+                gsd = next(g for g in genotypesampledata if g.sample_id == sample_obj.id and g.secondallele == is_secondallele)
+                genotype_data.update(
+                    GenotypeSampleDataSchema().dump(gsd).data
+                )
+                genotype_data.update(
+                    genotype_calculate_qc(
+                        allele_data,
+                        genotype_data,
+                        sample_data["sample_type"]
+                    )
+                )
+                sample_data[KEY_GENOTYPE] = genotype_data
+                allele_id_sample_data.append(sample_data)
+            allele_ids_sample_data[allele_data['id']] = allele_id_sample_data
+
+        return allele_ids_sample_data
 
     def from_objs(self,
                   alleles,
                   link_filter=None,
                   genepanel=None,  # Make genepanel mandatory?
-                  include_genotype_samples=None,
+                  analysis_id=None,
                   include_annotation=True,
                   include_custom_annotation=True,
                   include_allele_assessment=True,
@@ -53,9 +198,12 @@ class AlleleDataLoader(object):
         Annotation is automatically processed using annotationprocessor. If possible, provide
         a genepanel for automatic transcript selection.
 
+        If an analysis_id is provided, samples with genotypes will be included.
+        Some tags also depend on having an analysis.
+
         :param alleles: List of allele objects.
         :param link_filter: a struct defining the ids of related entities to fetch. See other parameters for more info.
-        :param include_genotype_samples: List of samples ids to include genotypes for.
+        :param analysis_id: Analysis id for including samples and genotype data.
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
         :param annotation: If true, load the ones mentioned in link_filter.annotation_id
@@ -83,60 +231,21 @@ class AlleleDataLoader(object):
         # }
 
         allele_schema = AlleleSchema()
-        genotype_schema = GenotypeSchema()
-        sample_schema = SampleSchema()
+
         accumulated_allele_data = dict()
-        allele_ids = list() # To keep input order
+        allele_ids = list()  # To keep input order
 
         for al in alleles:
             accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
             allele_ids.append(al.id)
 
-        if include_genotype_samples:
-            samples = self.session.query(sample.Sample).filter(
-                sample.Sample.id.in_(include_genotype_samples)
-            ).all()
-            for sample_id in include_genotype_samples:
-                sample_obj = next(s for s in samples if s.id == int(sample_id))
-
-                genotypes = self.session.query(genotype.Genotype).filter(
-                    genotype.Genotype.sample_id == sample_id,
-                    or_(
-                        genotype.Genotype.allele_id.in_(allele_ids) if allele_ids else False,
-                        genotype.Genotype.secondallele_id.in_(allele_ids) if allele_ids else False,
-                    )
-                ).all()
-
-
-                # Add genotype into ['samples'][n]['genotype']
-                if genotypes:
-                    genotypesampledata = self.session.query(genotype.GenotypeSampleData).filter(
-                        genotype.GenotypeSampleData.sample_id == sample_id,
-                        genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
-                    ).all()
-
-                    for gt in genotypes:
-                        for attr in ['allele_id', 'secondallele_id']:
-                            allele_id = getattr(gt, attr)
-                            # If both gt.allele_id and gt.secondallele_id has data, one might not be in required list
-                            if allele_id is not None and allele_id in accumulated_allele_data:
-                                if KEY_SAMPLES not in accumulated_allele_data[allele_id]:
-                                    accumulated_allele_data[allele_id][KEY_SAMPLES] = list()
-                                sample_serialized = sample_schema.dump(sample_obj).data  # We need to recreate here, we cannot reuse sample object
-                                genotype_data = genotype_schema.dump(gt).data
-                                sample_genotypesampledata = next(gsd for gsd in genotypesampledata if gsd.genotype_id == gt.id and gsd.secondallele == bool(attr == 'secondallele_id'))
-                                genotype_data.update(
-                                    GenotypeSampleDataSchema().dump(sample_genotypesampledata).data
-                                )
-                                genotype_data.update(
-                                    genotype_calculate_qc(
-                                        accumulated_allele_data[allele_id]['allele'],
-                                        genotype_data,
-                                        sample_serialized["sample_type"]
-                                    )
-                                )
-                                sample_serialized[KEY_GENOTYPE] = genotype_data
-                                accumulated_allele_data[allele_id][KEY_SAMPLES].append(sample_serialized)
+        if analysis_id and allele_ids:
+            allele_id_sample_data = self._load_sample_data(
+                [a['allele'] for a in accumulated_allele_data.values()],
+                analysis_id
+            )
+            for allele_id, sample_data in allele_id_sample_data.iteritems():
+                accumulated_allele_data[allele_id][KEY_SAMPLES] = sample_data
 
         allele_annotations = list()
         if include_annotation:
@@ -244,6 +353,10 @@ class AlleleDataLoader(object):
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']
 
             final_alleles.append(final_allele)
+
+        allele_ids_tags = self.get_tags(final_alleles, analysis_id=analysis_id)
+        for allele_id, tags in allele_ids_tags.iteritems():
+            accumulated_allele_data[allele_id][KEY_ALLELE]['tags'] = sorted(list(tags))
 
         return final_alleles
 

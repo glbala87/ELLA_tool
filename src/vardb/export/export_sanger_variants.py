@@ -195,7 +195,7 @@ def export_variants(session, excel_file_obj, csv_file_obj=None):
         alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(alleles_to_display) if alleles_to_display else False).all()
         loaded_alleles = adl.from_objs(
             alleles,
-            include_genotype_samples=[s.id for s in analysis.samples],
+            analysis_id=analysis.id,
             genepanel=analysis.genepanel,
             include_allele_assessment=True,
             include_custom_annotation=False,

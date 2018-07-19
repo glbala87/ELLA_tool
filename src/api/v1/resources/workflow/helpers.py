@@ -136,26 +136,18 @@ def get_alleles(session,
         link_filter['referenceassessment_id'] = [i[0] for i in ra_ids]
 
     # Only relevant for analysisinterpretation: Include the genotype for connected samples
-    sample_ids = list()
+    analysis_id = None
     if analysisinterpretation_id is not None:
-
-        sample_ids = session.query(sample.Sample.id).filter(
-            sample.Sample.analysis_id == sample.Analysis.id,
-            sample.Analysis.id == interpretation.analysis_id  # We know interpretation is analysisinterpretation
-        ).all()
-
-        sample_ids = [s[0] for s in sample_ids]
+        analysis_id = interpretation.analysis_id
 
     kwargs = {
         'include_annotation': True,
         'include_custom_annotation': True,
-        'genepanel': interpretation.genepanel
+        'genepanel': interpretation.genepanel,
+        'analysis_id': analysis_id,
+        'link_filter': link_filter
     }
 
-    if link_filter:
-        kwargs['link_filter'] = link_filter
-    if sample_ids:
-        kwargs['include_genotype_samples'] = sample_ids
     return AlleleDataLoader(session).from_objs(
         alleles,
         **kwargs
