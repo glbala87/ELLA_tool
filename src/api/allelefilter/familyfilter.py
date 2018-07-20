@@ -1,8 +1,11 @@
+from math import log10
 from sqlalchemy import or_, and_, text, func, literal
 from sqlalchemy.orm import aliased
 
 from vardb.datamodel import sample, genotype, allele, annotationshadow
 
+MUTATION_PRIOR = 1e-8
+DEFAULT_FREQ = 0.1
 
 PAR1_START = 60001
 PAR1_END = 2699520
@@ -53,6 +56,115 @@ def debug_print_allele_ids(session, allele_ids):
 
     for item in allele_info.all():
         print '{}\t{}\t{}\t{}'.format(*item)
+
+
+
+def denovo_probability(PLm, PLf, PLc, is_x_minus_par, proband_male, denovo_mode):
+    """
+    Compute a posteriori denovo probability given phred scaled genotype likelihoods for genotypes [0/0, 1/0, 1/1]
+    Denovo mode is a three-tuple of the called genotypes for father, mother and proband respectively,
+    as indexes of the above genotypes. Examples:
+     - denovo_mode=[0,0,1] -> Compute probability of proband being heterozygous given both parents called homozygous reference
+     - denovo_mode=[0,1,2] -> Compute probability of proband being homozygous given over parent called as heterozygous, and one as homozygous reference
+
+    Based on denovo probability computation from FILTUS (see supporting material):
+    https://academic.oup.com/bioinformatics/article/32/10/1592/1743466
+    """
+
+    # A priori probability of mutation
+    def priors(is_x_minus_par):
+        logfr = [log10(1-DEFAULT_FREQ), log10(DEFAULT_FREQ)]
+        log_hardy_weinberg = [2*logfr[0], log10(2)+logfr[0]+logfr[1], 2*logfr[1]]
+        if is_x_minus_par:
+            return log_hardy_weinberg, logfr
+        else:
+            return log_hardy_weinberg, log_hardy_weinberg
+
+    # Probability of child getting alleles from mother/father given genotypes
+    def _single_transmit(parent, child):
+        if child in parent and parent[0] == parent[1]:
+            # Probability of getting an allele from homozygous parent
+            return 1-MUTATION_PRIOR
+        elif child in parent:
+            # Probability of getting an allele from heterozygous parent
+            return 0.5
+        else:
+            # Probability of a denovo mutation
+            return MUTATION_PRIOR
+
+    class TrioTransmit(object):
+        def __init__(self, is_x_minus_par, proband_male):
+            self.is_x_minus_par = is_x_minus_par
+            self.proband_male = proband_male
+
+            if self.is_x_minus_par and self.proband_male:
+                # No transmission from father to boy on X (minus PAR) chromosome
+                self.transmit_father = None
+            elif self.is_x_minus_par and not self.proband_male:
+                # Since father only has one copy to inherit from, chance of inheriting is either very high (father has allele)
+                # or very low (father does not have allele)
+                self.transmit_father = lambda f,c: 1-MUTATION_PRIOR if f == c else MUTATION_PRIOR
+            else:
+                self.transmit_father = _single_transmit
+
+            self.transmit_mother = _single_transmit
+
+        def __call__(self, father, mother, child):
+            if self.is_x_minus_par and self.proband_male:
+                # No transmission from father to boy on X (minus PAR) chromosome
+                return self.transmit_mother(mother, child[0])
+            elif (child[0] == child[1]):
+                # Child is homozygous, probability of inheriting from both mother and father
+                return self.transmit_father(father, child[0])*self.transmit_mother(mother, child[0])
+            else:
+                # Child is heterozygous, probability of inheriting from mother + probability of inheriting from father
+                return self.transmit_father(father, child[0])*self.transmit_mother(mother, child[1]) + self.transmit_father(father, child[0])*self.transmit_mother(mother, child[1])
+
+
+    class LogTransmissionMatrix(object):
+        def __init__(self, is_x_minus_par, proband_male):
+            gt = [(0,0), (0,1), (1,1)]
+            gtx = [(0,),(1,)]
+
+            if is_x_minus_par and proband_male:
+                self.child_gt = gtx
+                self.father_gt = gtx
+            elif is_x_minus_par and not proband_male:
+                self.father_gt = gtx
+                self.child_gt = gt
+            else:
+                self.father_gt = gt
+                self.child_gt = gt
+            self.mother_gt = gt
+            self.trio_transmit = TrioTransmit(is_x_minus_par, proband_male)
+
+        def __call__(self, f, m, c):
+            return log10(self.trio_transmit(self.father_gt[f], self.mother_gt[m], self.child_gt[c]))
+
+    # Remove PL for genotype 0/1 if X chromosome for father and proband if proband is male
+    if is_x_minus_par:
+        PLf = [PLf[0], PLf[2]]
+        if proband_male:
+            PLc = [PLc[0], PLc[2]]
+
+    mo_prior, fa_prior = priors(is_x_minus_par)
+    log_transmission_matrix = LogTransmissionMatrix(is_x_minus_par, proband_male)
+
+    # Compute relative likelihoods of all genotype combinations, using the phred scaled genotype likelihoods
+    sum_liks = 0
+    for fi, _PLf in enumerate(PLf):
+        for mi, _PLm in enumerate(PLm):
+            for ci, _PLc in enumerate(PLc):
+                l = fa_prior[fi] + mo_prior[mi] + log_transmission_matrix(fi, mi, ci) - (_PLf + _PLm + _PLc)/10
+                sum_liks += pow(10, l)
+
+    # Compute likelihood of the given denovo mode
+    f,m,c = denovo_mode
+    l = pow(10, fa_prior[f] + mo_prior[m] + log_transmission_matrix(f, m, c) - (PLf[f] + PLm[m] + PLc[c])/10)
+
+    # Normalize likelihood to probability
+    return l/sum_liks
+
 
 
 class FamilyFilter(object):
@@ -219,6 +331,7 @@ class FamilyFilter(object):
         )
 
         return set([a[0] for a in denovo_allele_ids.all()])
+
 
     def autosomal_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample):
         """
@@ -474,8 +587,10 @@ class FamilyFilter(object):
             for s in samples:
                 aliased_genotypesampledata[s.id] = aliased(genotype.GenotypeSampleData)
                 sample_fields.extend([
+                    aliased_genotypesampledata[s.id].id.label(s.identifier + '_id'),
                     aliased_genotypesampledata[s.id].type.label(s.identifier + '_type'),
-                    literal(s.sex).label(s.identifier + '_sex')
+                    literal(s.sex).label(s.identifier + '_sex'),
+                    aliased_genotypesampledata[s.id].genotype_likelihood.label(s.identifier + '_gl'),
                 ])
 
             if secondallele:
@@ -571,3 +686,69 @@ class FamilyFilter(object):
             result[analysis_id] = allele_ids - (denovo_results | autosomal_recessive_results | xlinked_recessive_results | recessive_compound_results)
 
         return result
+
+    def denovo_p_value(self, genotype_table, proband_sample, father_sample, mother_sample):
+        denovo_allele_ids = self.denovo(genotype_table, proband_sample, father_sample, mother_sample)
+        genotype_table = genotype_table.subquery('genotype_table')
+        genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
+        genotype_with_allele_table = genotype_with_allele_table.subquery()
+        x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
+
+        denovo_mode_map = {
+            "Xmale": {
+                'Reference': 0,
+                'Homozygous': 1
+                },
+            "default": {
+                'Reference': 0,
+                'Heterozygous': 1,
+                'Homozygous': 2
+            }
+        }
+
+        def _compute_denovo_probabilities(genotype_with_allele_table, x_minus_par=False):
+            dp = dict()
+            for row in genotype_with_allele_table:
+                if not all([row.Father_gl, row.Mother_gl, row.Father_gl]):
+                    dp[row.allele_id] = '-'
+                    continue
+
+                if x_minus_par and row.Proband_sex == 'Male':
+                    denovo_mode = [
+                        denovo_mode_map['Xmale'][row.Father_type],
+                        denovo_mode_map['Xmale'][row.Mother_type],
+                        denovo_mode_map['Xmale'][row.Proband_type],
+                    ]
+                else:
+                    denovo_mode = [
+                        denovo_mode_map['default'][row.Father_type],
+                        denovo_mode_map['default'][row.Mother_type],
+                        denovo_mode_map['default'][row.Proband_type],
+                    ]
+
+                # It should not come up as a denovo candidate if either mother or father has the same called genotype
+                assert denovo_mode.count(denovo_mode[2]) == 1
+
+                p = denovo_probability(
+                    row.Mother_gl,
+                    row.Father_gl,
+                    row.Proband_gl,
+                    x_minus_par,
+                    row.Proband_sex == 'Male',
+                    denovo_mode
+                )
+                dp[row.allele_id] = p
+            return dp
+
+        genotype_with_denovo_allele_table = session.query(
+            *genotype_with_allele_table.c
+        ).filter(
+            genotype_with_allele_table.c.allele_id.in_(denovo_allele_ids)
+        )
+
+        # Compute denovo probabilities for autosomal and x-linked regions separately
+        denovo_probabilities = dict()
+        denovo_probabilities.update(_compute_denovo_probabilities(genotype_with_denovo_allele_table.filter(~x_minus_par_filter), False))
+        denovo_probabilities.update(_compute_denovo_probabilities(genotype_with_denovo_allele_table.filter(x_minus_par_filter), True))
+
+        return denovo_probabilities
