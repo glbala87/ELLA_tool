@@ -330,6 +330,8 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
     filter_status = {}
     indications = {}
     for key, value in annotation[annotation_key].iteritems():
+        if value == ['.'] or value == '.':
+            continue
         if key == 'AS_FilterStatus':  # gnomAD specific
             assert len(value) == 1
             filter_status = {
