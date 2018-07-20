@@ -98,7 +98,7 @@ def batch_generator(generator, n):
         yield batch
 
 
-def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=None, replace=False, batch_size=1000):
+def bulk_insert_nonexisting(session, model, rows, all_new=False, include_pk=None, compare_keys=None, replace=False, batch_size=1000):
     """
     Inserts data in bulk according to batch_size.
 
@@ -139,9 +139,10 @@ def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=
         q_fields, q_filter = get_fields_filter(model, batch_rows, compare_keys)
         if include_pk:
             q_fields.append(getattr(model, include_pk))
-
-        db_existing = session.query(*q_fields).filter(q_filter).all()
-        db_existing = [r._asdict() for r in db_existing]
+        db_existing = []
+        if not all_new:
+            db_existing = session.query(*q_fields).filter(q_filter).all()
+            db_existing = [r._asdict() for r in db_existing]
         created = list()
         input_existing = list()
 
@@ -457,6 +458,7 @@ class GenotypeImporter(object):
                                     self.session,
                                     gm.Genotype,
                                     genotypes,
+                                    all_new=True,
                                     include_pk='id',
                                     replace=False,
                                     batch_size=len(genotypes)):
@@ -476,6 +478,7 @@ class GenotypeImporter(object):
                                     self.session,
                                     gm.GenotypeSampleData,
                                     genotypesampledata,
+                                    all_new=True,
                                     replace=False,
                                     batch_size=len(genotypesampledata)):
             assert len(existing) == 0
