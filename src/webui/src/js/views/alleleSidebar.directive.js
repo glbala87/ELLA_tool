@@ -109,7 +109,7 @@ app.component('alleleSidebar', {
                 const DENOVO_TAGS = ['denovo']
 
                 const FAMILY_TITLES = {
-                    denovo: 'Denovo',
+                    denovo: 'De novo',
                     recessive_compound_heterozygous: 'Compound recessive heterozygous',
                     autosomal_recessive_homozygous: 'Autosomal recessive homozygous',
                     xlinked_recessive_homozygous: 'X-linked recessive homozygous'

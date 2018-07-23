@@ -110,7 +110,8 @@ class AlleleDataLoader(object):
                     allele_ids_tags[al['id']].add('homozygous')
 
                 # Low quality
-                if any(s['genotype']['needs_verification'] for s in al['samples']):
+                keys = ['qual', 'pass', 'dp', 'allele_ratio']
+                if any(not v for s in al['samples'] for k, v in s['genotype']['needs_verification_checks'].iteritems() if k in keys):
                     allele_ids_tags[al['id']].add('low_quality')
 
             family_tags = self._get_family_tags(allele_ids, analysis_id)
@@ -264,6 +265,35 @@ class AlleleDataLoader(object):
 
         return genotype_id_formatted
 
+    def get_p_denovo(self, alleles, analysis_id):
+
+        if not self.family_filter.check_filter_conditions(analysis_id):
+            return dict()
+
+        allele_ids = [al['id'] for al in alleles]
+        genotype_query = self.family_filter.get_genotype_query(allele_ids, analysis_id)
+
+        proband_identifier = self.family_filter.get_proband_sample_identifier(analysis_id)
+        father_identifier = self.family_filter.get_father_sample_identifier(analysis_id)
+        mother_identifier = self.family_filter.get_mother_sample_identifier(analysis_id)
+
+        # Run filter again to just get denovo allele ids
+        # Could be combined with tags above for performance
+        denovo = self.family_filter.denovo(
+            genotype_query,
+            proband_identifier,
+            father_identifier,
+            mother_identifier
+        )
+
+        return self.family_filter.denovo_p_value(
+            denovo,
+            genotype_query,
+            proband_identifier,
+            mother_identifier,
+            father_identifier
+        )
+
     def _load_sample_data(self, alleles, analysis_id):
 
         allele_ids = [al['id'] for al in alleles]
@@ -309,12 +339,7 @@ class AlleleDataLoader(object):
             sample.Sample.analysis_id == analysis_id
         ).all()
 
-        genotypesampledata = self.session.query(genotype.GenotypeSampleData).filter(
-            genotype.GenotypeSampleData.sample_id.in_([s.id for s in samples]),
-            genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
-        ).all()
-
-        def load_sample_data(sample, genotype, genotypesampledata, genotype_id_formatted):
+        def load_sample_data(sample, genotype, genotypesampledata, genotype_id_formatted, p_denovo):
             sample_data = sample_schema.dump(sample).data
             genotype_data = genotype_schema.dump(genotype).data
             gsd = next(
@@ -334,6 +359,8 @@ class AlleleDataLoader(object):
                 )
             )
             genotype_data['formatted'] = genotype_id_formatted[genotype.id]
+            if p_denovo:
+                genotype_data['p_denovo'] = p_denovo
 
             sample_data[KEY_GENOTYPE] = genotype_data
             return sample_data
@@ -342,6 +369,13 @@ class AlleleDataLoader(object):
         for s in samples:
             # Calculate the actual genotype for display (e.g. A/C or G/GTT)
             sample_id_formatted_genotypes[s.id] = self.get_formatted_genotypes(allele_ids, s.id)
+
+        genotypesampledata = self.session.query(genotype.GenotypeSampleData).filter(
+            genotype.GenotypeSampleData.sample_id.in_([s.id for s in samples]),
+            genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
+        ).all()
+
+        allele_ids_p_denovo = self.get_p_denovo(alleles, analysis_id)
 
         # Create sample data with genotype for each allele
         for allele_data in alleles:
@@ -354,7 +388,8 @@ class AlleleDataLoader(object):
                     proband_sample,
                     gt,
                     genotypesampledata,
-                    sample_id_formatted_genotypes[proband_sample.id]
+                    sample_id_formatted_genotypes[proband_sample.id],
+                    allele_ids_p_denovo.get(allele_data['id'])
                 )
                 proband_family_samples = proband_sample_id_family[proband_sample.id]
                 if proband_family_samples.get('father'):
@@ -362,14 +397,16 @@ class AlleleDataLoader(object):
                         proband_family_samples['father'],
                         gt,
                         genotypesampledata,
-                        sample_id_formatted_genotypes[proband_family_samples['father'].id]
+                        sample_id_formatted_genotypes[proband_family_samples['father'].id],
+                        allele_ids_p_denovo.get(allele_data['id'])
                     )
                 if proband_family_samples.get('mother'):
                     proband_sample_data['mother'] = load_sample_data(
                         proband_family_samples['mother'],
                         gt,
                         genotypesampledata,
-                        sample_id_formatted_genotypes[proband_family_samples['mother'].id]
+                        sample_id_formatted_genotypes[proband_family_samples['mother'].id],
+                        allele_ids_p_denovo.get(allele_data['id'])
                     )
                 if proband_family_samples.get('siblings'):
                     sibling_sample_data = list()
@@ -378,12 +415,14 @@ class AlleleDataLoader(object):
                             sibling_sample,
                             gt,
                             genotypesampledata,
-                            sample_id_formatted_genotypes[sibling_sample.id]
+                            sample_id_formatted_genotypes[sibling_sample.id],
+                            allele_ids_p_denovo.get(allele_data['id'])
                         ))
                     proband_sample_data['siblings'] = sibling_sample_data
                 allele_id_sample_data.append(proband_sample_data)
 
             allele_ids_sample_data[allele_data['id']] = allele_id_sample_data
+
 
         return allele_ids_sample_data
 

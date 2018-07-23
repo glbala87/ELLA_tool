@@ -7,6 +7,10 @@
               NEEDS VERIFICATION
             </div>
             <div class="cb-table">
+              <div class="tabular-row" ng-if="sample.p_denovo">
+                <div class="cell"><h5 title="De novo posterior probility">P(de novo):</h5></div>
+                <div class="cell"><p>{{sample.p_denovo | number:2}}</p></div>
+              </div>
               <div class="tabular-row">
                 <div class="cell"><h5>Filter:</h5></div>
                 <div class="cell"><p>{{sample.filter_status}}</p></div>

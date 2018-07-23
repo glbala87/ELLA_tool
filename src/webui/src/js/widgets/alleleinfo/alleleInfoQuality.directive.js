@@ -15,6 +15,7 @@ const GENOTYPE_KEYS = [
     'allele_ratio',
     'type',
     'formatted',
+    'p_denovo',
     'needs_verification'
 ]
 
@@ -24,7 +25,9 @@ function extractGenotypeDataSample(display, sample) {
         return data
     }
     for (let key of GENOTYPE_KEYS) {
-        data[key] = sample.genotype[key]
+        if (key in sample.genotype) {
+            data[key] = sample.genotype[key]
+        }
     }
     data.display = display
     data.title = sample.identifier
