@@ -712,8 +712,6 @@ class FamilyFilter(object):
                 mother_identifier
             )
 
-            recessive_compound_results = set()
-
             result[analysis_id] = allele_ids - (denovo_results | autosomal_recessive_results | xlinked_recessive_results | recessive_compound_results)
 
         return result
