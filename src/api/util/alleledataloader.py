@@ -3,7 +3,7 @@ import json
 from vardb.datamodel import allele, sample, genotype, annotationshadow
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
-from sqlalchemy import or_, text
+from sqlalchemy import or_, and_, text
 
 from api.allelefilter.familyfilter import FamilyFilter
 from api.util.util import query_print_table
@@ -119,6 +119,151 @@ class AlleleDataLoader(object):
 
         return allele_ids_tags
 
+    def get_formatted_genotypes(self, allele_ids, sample_id, is_proband=False):
+        """
+        Returns a dict of genotype id and formatted genotypes.
+
+        Examples: 'A/G', 'A/ATT' (ins), 'AAT/-' (del), 'A/?' (missing allele info)
+
+        This is redicoulously more complicated that one would first imagine...
+
+        :note: Since we do not store alleles for non-proband samples on multiallelic
+               sites (unless they match the proband's), they're given as '?'
+        """
+
+        allele_query = self.session.query(
+            genotype.Genotype.id,
+            genotype.GenotypeSampleData.type,
+            genotype.GenotypeSampleData.multiallelic,
+            allele.Allele.change_from,
+            allele.Allele.change_to
+        ).join(
+            genotype.GenotypeSampleData,
+            and_(
+                genotype.Genotype.id == genotype.GenotypeSampleData.genotype_id,
+                genotype.GenotypeSampleData.secondallele.is_(False),
+                genotype.GenotypeSampleData.sample_id == sample_id
+            )
+        ).join(
+            allele.Allele,
+            allele.Allele.id == genotype.Genotype.allele_id
+        ).filter(
+            or_(
+                genotype.Genotype.allele_id.in_(allele_ids),
+                genotype.Genotype.secondallele_id.in_(allele_ids)
+            )
+        )
+        allele_query = allele_query.subquery()
+
+        secondallele_query = self.session.query(
+            genotype.Genotype.id,
+            genotype.GenotypeSampleData.type.label('second_type'),
+            genotype.GenotypeSampleData.multiallelic.label('second_multiallelic'),
+            allele.Allele.change_from.label('second_change_from'),
+            allele.Allele.change_to.label('second_change_to')
+        ).join(
+            genotype.GenotypeSampleData,
+            and_(
+                genotype.Genotype.id == genotype.GenotypeSampleData.genotype_id,
+                genotype.GenotypeSampleData.secondallele.is_(True),
+                genotype.GenotypeSampleData.sample_id == sample_id
+            )
+        ).join(
+            allele.Allele,
+            allele.Allele.id == genotype.Genotype.secondallele_id
+        ).filter(
+            genotype.Genotype.secondallele_id.in_(allele_ids)
+        )
+        secondallele_query = secondallele_query.subquery()
+
+        genotype_query = self.session.query(
+            allele_query.c.id,
+            allele_query.c.type,
+            allele_query.c.multiallelic,
+            allele_query.c.change_from,
+            allele_query.c.change_to,
+            secondallele_query.c.second_type,
+            secondallele_query.c.second_multiallelic,
+            secondallele_query.c.second_change_from,
+            secondallele_query.c.second_change_to
+        ).outerjoin(
+            secondallele_query,
+            allele_query.c.id == secondallele_query.c.id
+        )
+
+        genotype_candidates = genotype_query.all()
+
+        genotype_id_formatted = dict()
+        for g in genotype_candidates:
+            gt1 = gt2 = '-'
+
+            if g.type == 'No coverage':
+                gt1 = gt2 = '.'
+                genotype_id_formatted[g.id] = '/'.join([gt1, gt2])
+                continue
+
+            if g.type == 'Homozygous':
+                gt1 = gt2 = g.change_to or '-'
+                genotype_id_formatted[g.id] = '/'.join([gt1, gt2])
+                continue
+
+            if g.second_type == 'Homozygous':
+                gt1 = gt2 = g.second_change_to or '-'
+                genotype_id_formatted[g.id] = '/'.join([gt1, gt2])
+                continue
+
+            if not g.second_type:
+                if g.type == 'Heterozygous':
+                    if g.multiallelic:
+                        # If we're multiallelic, but have no secondallele, there's no data for one allele
+                        # This will happen for multiallelic variants in non-proband
+                        # samples, where the non-proband sample has a variant not present in proband.
+                        gt1 = g.change_to or '-'
+                        gt2 = '?'
+                    else:
+                        gt1 = g.change_from or '-'
+                        gt2 = g.change_to or '-'
+                elif g.type == 'Reference':
+                    if g.multiallelic:
+                        # We cannot know whether we have one or no reference, so both are unknown.
+                        # This should very rarely happen
+                        gt1 = gt2 = '?'
+                    else:
+                        gt1 = gt2 = g.change_from or '-'
+
+            else:
+                if g.second_type == 'Heterozygous':
+                    if g.second_multiallelic:
+                        # Check whether we have the other allele stored in db
+                        if g.type == 'Heterozygous':
+                            gt1 = g.change_to or '-'
+                            gt2 = g.second_change_to or '-'
+                        else:
+                            gt1 = g.second_change_to or '-'
+                            gt2 = '?'
+                    else:
+                        gt1 = g.change_to or '-'
+                        gt2 = g.second_change_to or '-'
+                elif g.second_type == 'Reference':
+                    if g.second_multiallelic:
+                        if g.type == 'Heterozygous':
+                            gt1 = g.change_to or '-'
+                            gt2 = '?'
+                        else:
+                            gt1 = g.change_from or '-'
+                            gt2 = g.second_change_from or '-'
+                    else:
+                        if g.type == 'Heterozygous':
+                            gt1 = g.second_change_from or '-'
+                            gt2 = g.change_to or '-'
+                        else:
+                            gt1 = g.change_from or '-'
+                            gt2 = g.second_change_from or '-'
+
+            genotype_id_formatted[g.id] = '/'.join([gt1, gt2])
+
+        return genotype_id_formatted
+
     def _load_sample_data(self, alleles, analysis_id):
 
         allele_ids = [al['id'] for al in alleles]
@@ -127,14 +272,33 @@ class AlleleDataLoader(object):
 
         allele_ids_sample_data = defaultdict(list)
 
-        # Preload data
-        proband_sample_ids = self.session.query(sample.Sample.id).filter(
-                sample.Sample.proband.is_(True),
-                sample.Sample.analysis_id == analysis_id
-            )
+        # Load probands and groups families if available
+        proband_samples = self.session.query(sample.Sample).filter(
+            sample.Sample.proband.is_(True),
+            sample.Sample.analysis_id == analysis_id
+        )
+
+        proband_sample_id_family = defaultdict(dict)
+        # Load parents and siblings
+        for proband_sample in proband_samples:
+            if proband_sample.father_id:
+                proband_sample_id_family[proband_sample.id]['father'] = self.session.query(sample.Sample).filter(
+                    sample.Sample.id == proband_sample.father_id
+                ).one()
+            if proband_sample.mother_id:
+                proband_sample_id_family[proband_sample.id]['mother'] = self.session.query(sample.Sample).filter(
+                    sample.Sample.id == proband_sample.mother_id
+                ).one()
+
+            if proband_sample.father_id and proband_sample.mother_id:
+                proband_sample_id_family[proband_sample.id]['siblings'] = self.session.query(sample.Sample).filter(
+                    sample.Sample.father_id == proband_sample.father_id,
+                    sample.Sample.mother_id == proband_sample.mother_id,
+                    sample.Sample.proband.is_(False)
+                ).all()
 
         genotypes = self.session.query(genotype.Genotype).filter(
-            genotype.Genotype.sample_id.in_(proband_sample_ids),
+            genotype.Genotype.sample_id.in_([p.id for p in proband_samples]),
             or_(
                 genotype.Genotype.allele_id.in_(allele_ids),
                 genotype.Genotype.secondallele_id.in_(allele_ids),
@@ -150,28 +314,75 @@ class AlleleDataLoader(object):
             genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
         ).all()
 
+        def load_sample_data(sample, genotype, genotypesampledata, genotype_id_formatted):
+            sample_data = sample_schema.dump(sample).data
+            genotype_data = genotype_schema.dump(genotype).data
+            gsd = next(
+                g for g in genotypesampledata
+                if g.sample_id == sample.id and
+                g.secondallele == is_secondallele and
+                g.genotype_id == gt.id
+            )
+            genotype_data.update(
+                GenotypeSampleDataSchema().dump(gsd).data
+            )
+            genotype_data.update(
+                genotype_calculate_qc(
+                    allele_data,
+                    genotype_data,
+                    sample_data["sample_type"]
+                )
+            )
+            genotype_data['formatted'] = genotype_id_formatted[genotype.id]
+
+            sample_data[KEY_GENOTYPE] = genotype_data
+            return sample_data
+
+        sample_id_formatted_genotypes = dict()
+        for s in samples:
+            # Calculate the actual genotype for display (e.g. A/C or G/GTT)
+            sample_id_formatted_genotypes[s.id] = self.get_formatted_genotypes(allele_ids, s.id)
+
         # Create sample data with genotype for each allele
         for allele_data in alleles:
 
             allele_id_sample_data = list()
             gt = next(g for g in genotypes if g.allele_id == allele_data['id'] or g.secondallele_id == allele_data['id'])
             is_secondallele = bool(gt.secondallele_id == allele_data['id'])
-            for sample_obj in samples:
-                sample_data = sample_schema.dump(sample_obj).data
-                genotype_data = genotype_schema.dump(gt).data
-                gsd = next(g for g in genotypesampledata if g.sample_id == sample_obj.id and g.secondallele == is_secondallele)
-                genotype_data.update(
-                    GenotypeSampleDataSchema().dump(gsd).data
+            for proband_sample in proband_samples:
+                proband_sample_data = load_sample_data(
+                    proband_sample,
+                    gt,
+                    genotypesampledata,
+                    sample_id_formatted_genotypes[proband_sample.id]
                 )
-                genotype_data.update(
-                    genotype_calculate_qc(
-                        allele_data,
-                        genotype_data,
-                        sample_data["sample_type"]
+                proband_family_samples = proband_sample_id_family[proband_sample.id]
+                if proband_family_samples.get('father'):
+                    proband_sample_data['father'] = load_sample_data(
+                        proband_family_samples['father'],
+                        gt,
+                        genotypesampledata,
+                        sample_id_formatted_genotypes[proband_family_samples['father'].id]
                     )
-                )
-                sample_data[KEY_GENOTYPE] = genotype_data
-                allele_id_sample_data.append(sample_data)
+                if proband_family_samples.get('mother'):
+                    proband_sample_data['mother'] = load_sample_data(
+                        proband_family_samples['mother'],
+                        gt,
+                        genotypesampledata,
+                        sample_id_formatted_genotypes[proband_family_samples['mother'].id]
+                    )
+                if proband_family_samples.get('siblings'):
+                    sibling_sample_data = list()
+                    for sibling_sample in proband_family_samples['siblings']:
+                        sibling_sample_data.append(load_sample_data(
+                            sibling_sample,
+                            gt,
+                            genotypesampledata,
+                            sample_id_formatted_genotypes[sibling_sample.id]
+                        ))
+                    proband_sample_data['siblings'] = sibling_sample_data
+                allele_id_sample_data.append(proband_sample_data)
+
             allele_ids_sample_data[allele_data['id']] = allele_id_sample_data
 
         return allele_ids_sample_data
@@ -355,8 +566,8 @@ class AlleleDataLoader(object):
             final_alleles.append(final_allele)
 
         allele_ids_tags = self.get_tags(final_alleles, analysis_id=analysis_id)
-        for allele_id, tags in allele_ids_tags.iteritems():
-            accumulated_allele_data[allele_id][KEY_ALLELE]['tags'] = sorted(list(tags))
+        for allele_id in allele_ids:
+            accumulated_allele_data[allele_id][KEY_ALLELE]['tags'] = sorted(list(allele_ids_tags.get(allele_id, [])))
 
         return final_alleles
 

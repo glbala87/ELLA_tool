@@ -53,10 +53,18 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     if allele_ratio:
         if genotype_data['type'] == 'Homozygous':
             needs_verification_checks['allele_ratio'] = allele_ratio > 0.9
-        else:
+        elif genotype_data['type'] == 'Heterozygous':
             needs_verification_checks['allele_ratio'] = allele_ratio > 0.3 and allele_ratio < 0.6
+        # If reference allele, failing quality on ratio makes no sense
+        elif genotype_data['type'] == 'Reference':
+            needs_verification_checks['allele_ratio'] = True
+        else:
+            needs_verification_checks['allele_ratio'] = False
     else:
-        needs_verification_checks['allele_ratio'] = False
+        if genotype_data['type'] == 'Reference':
+            needs_verification_checks['allele_ratio'] = True
+        else:
+            needs_verification_checks['allele_ratio'] = False
 
     qc['needs_verification'] = not all(needs_verification_checks.values()) and sample_type == 'HTS'
     needs_verification_checks['hts'] = sample_type == 'HTS'
