@@ -2,7 +2,7 @@ import processAlleles from '../../../../common/helpers/processAlleles'
 
 export default function({ http, path, state, props }) {
     const { alleleIds } = props
-    const sampleId = state.get('modals.addExcludedAlleles.sampleId')
+    const analysisId = state.get('modals.addExcludedAlleles.analysisId')
     const genepanelPath = state.get('modals.addExcludedAlleles.genepanelPath')
     const genepanel = state.get(genepanelPath)
     if (!alleleIds.length) {
@@ -11,7 +11,7 @@ export default function({ http, path, state, props }) {
     return http
         .get(`alleles/`, {
             q: JSON.stringify({ id: alleleIds }),
-            sample_id: sampleId,
+            analysis_id: analysisId,
             gp_name: genepanel.name,
             gp_version: genepanel.version
         })

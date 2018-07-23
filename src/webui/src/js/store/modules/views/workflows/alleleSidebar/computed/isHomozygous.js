@@ -8,7 +8,7 @@ export default Compute(state`views.workflows.data.alleles`, (alleles) => {
     }
     for (let [alleleId, allele] of Object.entries(alleles)) {
         if ('samples' in allele) {
-            result[alleleId] = allele.samples[0].genotype.type == 'Homozygous' // TODO: Make sure multiple samples pick correct sample
+            result[alleleId] = allele.tags.includes('homozygous')
         } else {
             result[alleleId] = false
         }

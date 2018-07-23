@@ -411,6 +411,13 @@ nav.bottom.has-secondary {
 
 allelebar {
     width: 100%;
+    .genotype-display {
+      &:not(:last-child) {
+        border-right: 1px $black-25 dashed;
+        padding-right: 0.6rem;
+      }
+      padding-left: 0.6rem;
+    }
     > table {
       width: 100%;
       * tr {
@@ -426,6 +433,7 @@ allelebar {
         }
       }
     }
+
   }
 
 .upload-button {
@@ -541,6 +549,15 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
         align-items: center;
         justify-content: center;
 
+        .family {
+          @include indicator;
+          .hit {
+            @include indicator-hit;
+            border-color: lighten($purple-75, 15%);
+            color: lighten($purple-75, 15%);
+          }
+        }
+
         .hom {
           @include indicator;
           .hit {
@@ -582,14 +599,6 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
             @include indicator-hit;
             border-color: lighten($green-50, 5%);
             color: lighten($green-50, 5%);
-          }
-        }
-        .three-het-ar {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($purple-50, 5%);
-            color: lighten($purple-50, 5%);
           }
         }
 

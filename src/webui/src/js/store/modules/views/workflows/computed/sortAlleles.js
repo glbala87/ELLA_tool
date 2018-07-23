@@ -1,20 +1,10 @@
 import thenBy from 'thenby'
 import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import isHomozygous from '../alleleSidebar/computed/isHomozygous'
-import isLowQual from '../alleleSidebar/computed/isLowQual'
-import hasReferences from '../alleleSidebar/computed/hasReferences'
 import getClassification from '../alleleSidebar/computed/getClassification'
 import getVerificationStatus from '../interpretation/computed/getVerificationStatus'
 
-function getSortFunctions(
-    config,
-    isHomozygous,
-    hasReferences,
-    isLowQual,
-    classification,
-    verificationStatus
-) {
+function getSortFunctions(config, classification, verificationStatus) {
     return {
         inheritance: (allele) => {
             if (allele.formatted.inheritance === 'AD') {
@@ -37,26 +27,35 @@ function getSortFunctions(
             let consequence_indices = consequences.map((c) => consequence_priority.indexOf(c))
             return Math.min(...consequence_indices)
         },
+        family: (allele) => {
+            if (allele.tags.includes('denovo')) {
+                return 0
+            } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
+                return 1
+            } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
+                return 2
+            } else if (allele.tags.includes('recessive_compound_heterozygous')) {
+                return 3
+            } else {
+                return 4
+            }
+        },
         homozygous: (allele) => {
-            return isHomozygous[allele.id] ? -1 : 1
+            return allele.tags.includes('homozygous') ? -1 : 1
         },
         quality: (allele) => {
             if (verificationStatus[allele.id] === 'verified') {
                 return 0
             } else if (verificationStatus[allele.id] === 'technical') {
                 return 3
-            } else if (isLowQual[allele.id]) {
+            } else if (allele.tags.includes('low_quality')) {
                 return 2
             } else {
                 return 1
             }
         },
         references: (allele) => {
-            return !hasReferences[allele.id]
-        },
-        '3hetAR': (allele) => {
-            return 0 // FIXME
-            return !this.is3hetAR(allele)
+            return allele.tags.includes('has_references') ? -1 : 1
         },
         technical: (allele) => {
             return verificationStatus[allele.id] === 'technical' ? 1 : -1
@@ -82,9 +81,6 @@ export default function sortAlleles(alleles, key, reverse) {
             const sortedAlleles = Object.values(alleles).slice()
             const sortFunctions = getSortFunctions(
                 config,
-                get(isHomozygous),
-                get(hasReferences),
-                get(isLowQual),
                 get(getClassification),
                 get(getVerificationStatus)
             )
@@ -106,7 +102,8 @@ export default function sortAlleles(alleles, key, reverse) {
                 )
             } else {
                 sortedAlleles.sort(
-                    thenBy(sortFunctions.inheritance)
+                    thenBy(sortFunctions.family)
+                        .thenBy(sortFunctions.inheritance)
                         .thenBy(sortFunctions.gene)
                         .thenBy(sortFunctions.hgvsc)
                 )

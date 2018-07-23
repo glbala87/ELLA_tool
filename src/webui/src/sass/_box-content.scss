@@ -271,3 +271,21 @@ analysis-selection {
 //upload > label > div {
 //  display: flex;
 //}
+
+
+.allele-info-quality {
+  display: flex;
+  padding: 0.5rem;
+  .sample-display {
+    &:not(:first-child) {
+      padding-left: 1.5rem;
+    }
+    &:not(:last-child) {
+      padding-right: 1rem;
+      border-right: $black-10 1px dashed;
+    }
+    .sample-title {
+      font-size: 1.5rem;
+    }
+  }
+}

@@ -24,7 +24,7 @@
   </div>
   <section>
     <button class="id-add-excluded" ng-click="$ctrl.addExcludedAllelesClicked({
-      sampleId: $ctrl.analysis.samples[0].id,
+      analysisId: $ctrl.analysis.id,
       readOnly: $ctrl.readOnly,
       genepanelPath: 'views.workflows.data.genepanel',
       includedAlleleIds: $ctrl.selectedInterpretation.state.manuallyAddedAlleles,

@@ -7,10 +7,8 @@ import getAlleleIdsCategory from '../computed/getAlleleIdsCategory'
 import loadAlleles from '../sequences/loadAlleles'
 import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
 
-// TODO: The coupling to views.workflows here is horrible, figure out how we should structure modals
-
 export default [
-    set(state`modals.addExcludedAlleles.sampleId`, props`sampleId`),
+    set(state`modals.addExcludedAlleles.analysisId`, props`analysisId`),
     set(state`modals.addExcludedAlleles.genepanelPath`, props`genepanelPath`),
     set(state`modals.addExcludedAlleles.excludedAlleleIds`, props`excludedAlleleIds`),
     ({ props }) => {

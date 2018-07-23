@@ -2,7 +2,6 @@
 
   <!--Spacers-->
   <div class="nav-bottom-allelebar-spacer"></div>
-  <div ng-if="$ctrl.selectedAllele" ng-repeat="t in $ctrl.selectedAllele.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>
 
   <h4 class="section-title">Unclassified variants</h4>
 
@@ -46,6 +45,15 @@
           </span>
         </div>
         <div class="cell indicators">
+        <div title="Family filter" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'family'})">
+              <span>F</span>
+              <span ng-if="$ctrl.orderBy.unclassified.key === 'family'">
+                <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
+              </span>
+            </div>
+          </div>
           <div title="Homozygous" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'homozygous'})">
               <span>O</span>
@@ -73,16 +81,6 @@
               </div>
             </div>
           </div>
-          <!--  FIXME: Will be a bit of work to fix this one, clarify whether used
-            <div title="3hetAR" class="top">
-            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: '3hetAR'})">
-              <span>3</span>
-              <div ng-if="$ctrl.orderBy.unclassified.key === '3hetAR'">
-                <span ng-if="$ctrl.orderBy.unclassified.reverse">&#8593;</span>
-                <span ng-if="!$ctrl.orderBy.unclassified.reverse">&#8595;</span>
-              </div>
-            </div>
-          </div> -->
         </div>
       </div>
       <div class="nav-row spacer"></div>
@@ -105,27 +103,26 @@
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div class="cell indicators id-indicators">
-            <div title="Homozygous" class="hom">
-            <div class="hit" ng-if="$ctrl.isHomozygous[allele.id]">
-                <span>O</span>
+            <div title="{{$ctrl.getFamilyLabel(allele)}}" class="family">
+              <div class="hit" ng-if="$ctrl.getFamilyTag(allele)">
+                  <span>{{$ctrl.getFamilyTag(allele)}}</span>
+              </div>
             </div>
+            <div title="Homozygous" class="hom">
+              <div class="hit" ng-if="$ctrl.isHomozygous(allele)">
+                  <span>O</span>
+              </div>
             </div>
             <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
-              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele.id)">
-                <span>{{$ctrl.getQualityTag(allele.id)}}</span>
+              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele)">
+                <span>{{$ctrl.getQualityTag(allele)}}</span>
               </div>
             </div>
             <div class="important-source">
-            <div title="Reference(s) available"  class="hit" ng-if="$ctrl.hasReferences[allele.id]">
-                <span>R</span>
+              <div title="Reference(s) available"  class="hit" ng-if="$ctrl.hasReferences(allele)">
+                  <span>R</span>
+              </div>
             </div>
-            </div>
-            <!--  FIXME: Will be a bit of work to fix this one, clarify whether used
-            <div class="three-het-ar">
-            <div title="3hetAR"  class="hit" ng-if="$ctrl.is3hetAR">
-                <span>3</span>
-            </div>
-            </div> -->
         </div>
         <div class="cell tab"></div>
     </div>

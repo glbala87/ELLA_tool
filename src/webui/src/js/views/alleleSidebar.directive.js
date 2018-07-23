@@ -4,9 +4,7 @@ import { state, signal, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isMultipleInGene from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleInGene'
 import isSelected from '../store/modules/views/workflows/alleleSidebar/computed/isSelected'
-import isHomozygous from '../store/modules/views/workflows/alleleSidebar/computed/isHomozygous'
 import isNonsense from '../store/modules/views/workflows/alleleSidebar/computed/isNonsense'
-import isLowQual from '../store/modules/views/workflows/alleleSidebar/computed/isLowQual'
 import hasReferences from '../store/modules/views/workflows/alleleSidebar/computed/hasReferences'
 import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleSampleType'
 import getConsequence from '../store/modules/views/workflows/alleleSidebar/computed/getConsequence'
@@ -87,10 +85,7 @@ app.component('alleleSidebar', {
             classified: classifiedAlleles,
             classification: getClassification,
             consequence: getConsequence,
-            isHomozygous,
-            hasReferences,
             isMultipleInGene,
-            isLowQual,
             isNonsense,
             isTogglable,
             isToggled,
@@ -106,6 +101,20 @@ app.component('alleleSidebar', {
         [
             '$scope',
             function($scope) {
+                const RECESSIVE_TAGS = [
+                    'recessive_compound_heterozygous',
+                    'autosomal_recessive_homozygous',
+                    'xlinked_recessive_homozygous'
+                ]
+                const DENOVO_TAGS = ['denovo']
+
+                const FAMILY_TITLES = {
+                    denovo: 'Denovo',
+                    recessive_compound_heterozygous: 'Compound recessive heterozygous',
+                    autosomal_recessive_homozygous: 'Autosomal recessive homozygous',
+                    xlinked_recessive_homozygous: 'X-linked recessive homozygous'
+                }
+
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
                     rowClicked(alleleId, section) {
@@ -143,11 +152,11 @@ app.component('alleleSidebar', {
                             return $ctrl.classification[allele_id]
                         }
                     },
-                    hasQualityInformation(allele_id) {
+                    hasQualityInformation(allele) {
                         return (
-                            $ctrl.isLowQual[allele_id] ||
-                            $ctrl.isTechnical(allele_id) ||
-                            $ctrl.isVerified(allele_id)
+                            $ctrl.isLowQual(allele) ||
+                            $ctrl.isTechnical(allele.id) ||
+                            $ctrl.isVerified(allele.id)
                         )
                     },
                     getQualityClass(allele_id) {
@@ -159,12 +168,12 @@ app.component('alleleSidebar', {
                             return 'low-qual'
                         }
                     },
-                    getQualityTag(allele_id) {
-                        if ($ctrl.isTechnical(allele_id)) {
+                    getQualityTag(allele) {
+                        if ($ctrl.isTechnical(allele.id)) {
                             return 'T'
-                        } else if ($ctrl.isVerified(allele_id)) {
+                        } else if ($ctrl.isVerified(allele.id)) {
                             return 'V'
-                        } else if ($ctrl.isLowQual[allele_id]) {
+                        } else if ($ctrl.isLowQual(allele)) {
                             return 'Q'
                         }
                     },
@@ -176,6 +185,35 @@ app.component('alleleSidebar', {
                         } else {
                             return 'Quality issues'
                         }
+                    },
+                    isLowQual(allele) {
+                        return allele.tags.includes('low_quality')
+                    },
+                    isHomozygous(allele) {
+                        return allele.tags.includes('homozygous')
+                    },
+                    hasReferences(allele) {
+                        return allele.tags.includes('has_references')
+                    },
+                    getFamilyTag(allele) {
+                        // Denovo takes precedence if tags include both types
+                        if (allele.tags.includes('denovo')) {
+                            return 'D'
+                        } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
+                            return 'A'
+                        } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
+                            return 'X'
+                        } else if (allele.tags.includes('recessive_compound_heterozygous')) {
+                            return 'C'
+                        }
+                    },
+                    getFamilyLabel(allele) {
+                        return allele.tags
+                            .filter((t) => {
+                                return RECESSIVE_TAGS.concat(DENOVO_TAGS).includes(t)
+                            })
+                            .map((t) => FAMILY_TITLES[t])
+                            .join(', ')
                     }
                 })
             }

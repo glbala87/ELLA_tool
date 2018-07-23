@@ -33,10 +33,7 @@
 
     <!-- START MODAL CONTROLS -->
     <hr ng-if="vm.included_alleles.length">
-    <div class="question small line-wrapper spaced bottom">
-      <h5 class="slim title upper"><b>{{$ctrl.metrics.current}} variants</b> <small>from current filter settings</small></h5>
-    </div>
-    <div class="question small line-wrapper spaced allele-control-bar">
+    <div class="question small line-wrapper spaced">
       <section class="line-wrapper">
         <div class="bttn-set multiple-question-element">
           <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'all'">All ({{$ctrl.metrics.all}})</label>
@@ -50,6 +47,10 @@
           </select>
         </div>
       </section>
+
+    </div>
+    <div class="question small line-wrapper spaced allele-control-bar">
+      <h5 class="slim title upper"><b>{{$ctrl.metrics.current}} variants</b> <small>from current filter settings</small></h5>
       <div>
         <uib-pagination total-items="$ctrl.geneAlleleIds.length"
           ng-model="$ctrl.modelSelectedPage"
