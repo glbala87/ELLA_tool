@@ -9,10 +9,12 @@ import toast from '../../../../common/factories/toast'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
 import showExitWarning from '../showExitWarning'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
+import progress from '../../../../common/factories/progress'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
 export default [
+    progress('start'),
     enableOnBeforeUnload(showExitWarning, EXIT_WARNING),
     set(state`views.workflows.type`, string`analysis`),
     ({ state, props }) => {
@@ -26,7 +28,7 @@ export default [
                 set(state`views.workflows.data.analysis`, props`result`),
                 setNavbarTitle(state`views.workflows.data.analysis.name`),
                 prepareComponents,
-                ({ state, props }) => {
+                ({ state }) => {
                     const analysis = state.get('views.workflows.data.analysis')
                     state.set('views.workflows.selectedGenepanel', {
                         name: analysis.genepanel.name,
@@ -37,5 +39,6 @@ export default [
                 loadInterpretations
             ]
         }
-    ])
+    ]),
+    progress('done')
 ]
