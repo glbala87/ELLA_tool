@@ -11,6 +11,9 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
 
     // collection annotation ids for the alleles:
     for (let allele_state of Object.values(interpretation.state.allele)) {
+        if (!allele_state.allele_id) {
+            throw Error('Missing mandatory property allele_id in allele state', allele_state)
+        }
         if (allele_state.allele_id in alleles) {
             let allele = alleles[allele_state.allele_id]
             annotations.push({

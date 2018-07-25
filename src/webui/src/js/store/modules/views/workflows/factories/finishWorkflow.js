@@ -22,21 +22,24 @@ export default function(finishType) {
         const alleles = state.get('views.workflows.data.alleles')
         const references = state.get('views.workflows.data.references')
 
-        const payload = prepareInterpretationPayload(
-            type,
-            id,
-            interpretation,
-            alleles,
-            Object.values(references)
-        )
-
-        return http
-            .post(`workflows/${postType}/${id}/actions/${ACTIONS[finishType]}/`, payload)
-            .then((response) => {
-                return path.success(response)
-            })
-            .catch((response) => {
-                return path.error(response)
-            })
+        try {
+            const payload = prepareInterpretationPayload(
+                type,
+                id,
+                interpretation,
+                alleles,
+                Object.values(references)
+            )
+            return http
+                .post(`workflows/${postType}/${id}/actions/${ACTIONS[finishType]}/`, payload)
+                .then((response) => {
+                    return path.success(response)
+                })
+                .catch((response) => {
+                    return path.error(response)
+                })
+        } catch (error) {
+            return path.error({ error })
+        }
     }
 }
