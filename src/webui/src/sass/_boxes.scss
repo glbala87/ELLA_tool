@@ -28,8 +28,14 @@ $bar-colors: (
     0%   {opacity: 0; transform: scale(1); }
     99%  {opacity: 1; transform: scale(1);}
 }
+
 $sb-titlebar-height: 3.8rem;
 .sectionbox { margin-bottom: 1.3rem; display: flex; flex-direction: column;
+
+  h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
+  h5, p { font-size: 1.4rem; color: #333; }
+  h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; font-family: $slim; }
+  p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
 
   .titlebar { display: flex; height: $sb-titlebar-height; min-height: $sb-titlebar-height;
 
@@ -106,16 +112,12 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
       a:hover { border-left: 1px solid $white-50; border-bottom: none; }
     }
   }
-  h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
-  h5, p { font-size: 1.4rem; color: #333; }
   .exac p { padding-right: 2.6rem; }
-  h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; font-family: $slim; }
   h4.faded-title { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; opacity: 0.5; font-family: $slim; }
   h4.faded-title.content-top { margin-top: 1.3rem; }
   h4.faded-title.section-top { margin-top: 1.3rem; margin-bottom: 0.7rem; }
   h5.wrap { white-space: normal; }
   h5.normaltext { padding-right: 0; }
-  p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
   ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }

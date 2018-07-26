@@ -369,14 +369,20 @@ workflow-buttons { margin-left: 1.4rem;}
 
 .collision-warning { margin: 1.5rem; margin-bottom: 0; padding: 1.5rem; padding-left: 2rem; padding-right: 2rem; background-color: $red;  max-height: 10rem; overflow-y: auto; overflow-x: hidden;
   word-wrap: break-word; font-size: 1.6rem; font-family: $slim; font-weight: 600; color: white;
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $white-50;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: $white-75;
+  }
 }
 
 
 .add-excluded-button { margin-left: 12px }
 
-.nav-secondary-spacer {
-  height: calc(#{$nav-bar-secondary-height} + 0.8rem);
-}
 
 .nav-bottom-buttons-spacer {
   height: calc(#{$nav-bar-bottom-buttons-height} + 0.8rem);
@@ -433,7 +439,6 @@ allelebar {
         }
       }
     }
-
   }
 
 .upload-button {
@@ -482,7 +487,8 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 .sidebar .ng-enter { opacity: 0; transition: all 0.8s ease-in-out; }
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 2rem);
+.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem);
+  max-height: calc(100vh - (#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem)); overflow-y: auto;
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -503,7 +509,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
 
   .nav-table { display: table; width: 45rem; border-collapse: collapse; }
-  .nav-row { display: table-row; align-items: center; color: $black-50; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
+  .nav-row { display: table-row; align-items: center; color: $black-60; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
     &.top {border-bottom: 1px solid $black-10;
       &:hover {font-weight: 600; color: $black-50; }
       .cell {font-weight: 600; margin: 0.2rem;
@@ -627,7 +633,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     &:hover { cursor: pointer; color: $black-75; }
     &:hover .tab { background-color: $blue-50; }
     &.active:not(.toggled):hover { cursor: default; }
-    &.active , &.active:hover { color: $blue; }
+    &.active , &.active:hover { color: $blue; background-color: $blue-25; }
     &.active .tab, &.active:hover .tab { background-color: $blue; }
     .added h5 { margin: 0; font-size: 1.3rem; font-weight: 600; color: white; }
     &.active.toggled {

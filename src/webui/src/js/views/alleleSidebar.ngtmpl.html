@@ -1,12 +1,11 @@
 <div class="sidebar">
 
   <!--Spacers-->
-  <div class="nav-bottom-allelebar-spacer"></div>
 
-  <h4 class="section-title">Unclassified variants</h4>
+  <h4 class="section-title">Unclassified variants ({{$ctrl.unclassified.length}})</h4>
 
 
-  <section class="id-unclassified enabled">
+  <section class="id-unclassified unclassified enabled">
     <div class="nav-table">
       <div class="nav-row top" ng-if="$ctrl.unclassified.length">
         <div class="cell" title="Sample type" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'type'})">
@@ -45,7 +44,7 @@
           </span>
         </div>
         <div class="cell indicators">
-        <div title="Family filter" class="top">
+          <div title="Family filter" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: 'unclassified', key: 'family'})">
               <span>F</span>
               <span ng-if="$ctrl.orderBy.unclassified.key === 'family'">
@@ -82,6 +81,7 @@
             </div>
           </div>
         </div>
+        <div class="cell"></div>
       </div>
       <div class="nav-row spacer"></div>
       <div class="nav-row allele" ng-repeat="allele in $ctrl.unclassified track by allele.id" title="Allele ID {{ allele.id }}"
@@ -130,9 +130,9 @@
 
 
 
-  <h4 class="section-title">Classified variants</h4>
+  <h4 class="section-title">Classified variants ({{$ctrl.classified.length}})</h4>
 
-  <section class="id-classified enabled">
+  <section class="id-classified classified enabled">
     <div class="nav-table">
       <div class="nav-row top" ng-if="$ctrl.classified.length">
         <div class="cell" title="Sample type" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'type'})">
@@ -171,6 +171,15 @@
           </span>
         </div>
         <div class="cell indicators">
+          <div title="Family filter" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'family'})">
+              <span>F</span>
+              <span ng-if="$ctrl.orderBy.classified.key === 'family'">
+                <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
+              </span>
+            </div>
+          </div>
           <div title="Homozygous" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: 'homozygous'})">
               <span>O</span>
@@ -198,15 +207,8 @@
               </div>
             </div>
           </div>
-          <!-- <div title="3hetAR" class="top">
-            <div class="hit" ng-click="$ctrl.orderByChanged({section: 'classified', key: '3hetAR'})">
-              <span>3</span>
-              <div ng-if="$ctrl.orderBy.classified.key === '3hetAR'">
-                <span ng-if="$ctrl.orderBy.classified.reverse">&#8593;</span>
-                <span ng-if="!$ctrl.orderBy.classified.reverse">&#8595;</span>
-              </div>
-            </div>
-          </div> -->
+        </div>
+        <div class="cell">
         </div>
       </div>
       <div class="nav-row spacer"></div>
@@ -229,26 +231,26 @@
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div class="cell indicators id-indicators">
-            <div title="Homozygous" class="hom">
-            <div class="hit" ng-if="$ctrl.isHomozygous[allele.id]">
-                <span>O</span>
+            <div title="{{$ctrl.getFamilyLabel(allele)}}" class="family">
+              <div class="hit" ng-if="$ctrl.getFamilyTag(allele)">
+                  <span>{{$ctrl.getFamilyTag(allele)}}</span>
+              </div>
             </div>
+            <div title="Homozygous" class="hom">
+              <div class="hit" ng-if="$ctrl.isHomozygous(allele)">
+                  <span>O</span>
+              </div>
             </div>
             <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
-              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele.id)">
-                <span>{{$ctrl.getQualityTag(allele.id)}}</span>
+              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele)">
+                <span>{{$ctrl.getQualityTag(allele)}}</span>
               </div>
             </div>
             <div class="important-source">
-            <div title="Reference(s) available"  class="hit" ng-if="$ctrl.isImportantSource[allele.id]">
-                <span>R</span>
+              <div title="Reference(s) available"  class="hit" ng-if="$ctrl.hasReferences(allele)">
+                  <span>R</span>
+              </div>
             </div>
-            </div>
-            <!-- <div class="three-het-ar">
-            <div title="3hetAR"  class="hit" ng-if="$ctrl.is3hetAR">
-                <span>3</span>
-            </div>
-            </div> -->
         </div>
         <div class="cell classification id-classification">
           {{$ctrl.getClassificationText(allele.id)}}

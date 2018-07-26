@@ -39,11 +39,15 @@ const displaySamples = Compute(
     (allele) => {
         const displaySamples = []
         if (!allele) {
-            return samples
+            return displaySamples
         }
         if (allele.samples) {
             for (const sample of allele.samples) {
-                displaySamples.push(extractGenotypeDataSample('Proband', sample))
+                let display_sex = ''
+                if (sample.sex) {
+                    display_sex = ` (${sample.sex})`
+                }
+                displaySamples.push(extractGenotypeDataSample(`Proband${display_sex}`, sample))
                 if (sample.father) {
                     displaySamples.push(extractGenotypeDataSample('Father', sample.father))
                 }
@@ -52,7 +56,9 @@ const displaySamples = Compute(
                 }
                 if (sample.siblings) {
                     for (const sibling of sample.siblings) {
-                        displaySamples.push(extractGenotypeDataSample('Sibling', sibling))
+                        displaySamples.push(
+                            extractGenotypeDataSample(`Sibling (${siblings.sex})`, sibling)
+                        )
                     }
                 }
             }
