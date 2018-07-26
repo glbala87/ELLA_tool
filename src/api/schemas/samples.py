@@ -9,5 +9,6 @@ class SampleSchema(Schema):
                   'identifier',
                   'sample_type',
                   'proband',
-                  'sex'
+                  'sex',
+                  'family_id'
                   )
