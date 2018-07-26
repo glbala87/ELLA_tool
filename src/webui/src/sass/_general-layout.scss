@@ -489,6 +489,8 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
 .sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem);
   max-height: calc(100vh - (#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem)); overflow-y: auto;
+  overflow-y: scroll;
+  margin-top: 4.5rem;
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -510,6 +512,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   section.unclassified {  }
   .nav-table { display: table; width: 45rem; border-collapse: collapse; }
   .nav-row { display: table-row; align-items: center; color: $black-60; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
+    transition: all 0.3s ease-in;
     &.top {border-bottom: 1px solid $black-10;
       &:hover {font-weight: 600; color: $black-50; }
       .cell {font-weight: 600; margin: 0.2rem;
@@ -519,7 +522,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     &.multiple { background-color: $blue-10; }
     &.technical { color: $black-25; }
     &.spacer {height: 0.2rem}
-    .cell { display: table-cell; white-space: nowrap; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; transition: all 0.3s ease-in-out; text-overflow: ellipsis; overflow: hidden;
+    .cell { display: table-cell; white-space: nowrap; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; text-overflow: ellipsis; overflow: hidden;
       &.sample-type { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
       &.inheritance { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
       &.gene { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }

@@ -30,7 +30,7 @@ function getFreqValue(freqData, freqType, config) {
     }
 }
 
-function formatValue(freqData, name, freqType, config) {
+export function formatValue(freqData, name, freqType, config) {
     if (name === 'freq') {
         return getFreqValue(freqData, freqType, config)
     } else {

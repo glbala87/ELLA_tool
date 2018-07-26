@@ -5,6 +5,7 @@ import updateSuggestedClassification from '../interpretation/sequences/updateSug
 
 export default [
     set(state`views.workflows.selectedComponent`, props`selectedComponent`),
+    set(state`views.workflows.alleleSidebar.expanded`, false),
     prepareSelectedAllele,
     when(state`views.workflows.selectedAllele`),
     {

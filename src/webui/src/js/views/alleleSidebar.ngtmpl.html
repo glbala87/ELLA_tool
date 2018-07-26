@@ -1,5 +1,6 @@
 <div class="sidebar">
-  <allele-sidebar-list section="'unclassified'" title="Unclassified variants"></allele-sidebar-list>
-  <allele-sidebar-list section="'classified'" title="Classified variants"></allele-sidebar-list>
-  <allele-sidebar-list section="'technical'" title="Technical variants"></allele-sidebar-list>
+  <button ng-click="$ctrl.toggleExpanded()" class="blue" style="max-width: 18rem;">{{$ctrl.expanded ? 'Full classification' : 'Quick classification'}}</button>
+  <allele-sidebar-list section="'unclassified'" title="Unclassified variants" expanded="$ctrl.expanded"></allele-sidebar-list>
+  <allele-sidebar-list section="'classified'" title="Classified variants" expanded="$ctrl.expanded"></allele-sidebar-list>
+  <allele-sidebar-list section="'technical'" title="Technical variants" expanded="$ctrl.expanded"></allele-sidebar-list>
 </div>

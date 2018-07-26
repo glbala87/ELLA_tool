@@ -6,6 +6,10 @@ import isMultipleInGene from '../store/modules/views/workflows/alleleSidebar/com
 import isNonsense from '../store/modules/views/workflows/alleleSidebar/computed/isNonsense'
 import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleSampleType'
 import getConsequence from '../store/modules/views/workflows/alleleSidebar/computed/getConsequence'
+import getHiFrequency from '../store/modules/views/workflows/alleleSidebar/computed/getHiFrequency'
+import getDepth from '../store/modules/views/workflows/alleleSidebar/computed/getDepth'
+import getAlleleRatio from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleRatio'
+import getExternalSummary from '../store/modules/views/workflows/alleleSidebar/computed/getExternalSummary'
 import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
@@ -82,7 +86,8 @@ const isToggled = Compute(
 app.component('alleleSidebarList', {
     bindings: {
         title: '@',
-        section: '='
+        section: '=',
+        expanded: '='
     },
     templateUrl: 'alleleSidebarList.ngtmpl.html',
     controller: connect(
@@ -92,6 +97,11 @@ app.component('alleleSidebarList', {
             classification: getClassification,
             consequence: getConsequence,
             isMultipleInGene,
+            depth: getDepth,
+            alleleRatio: getAlleleRatio,
+            hiFreq: getHiFrequency('freq'),
+            hiCount: getHiFrequency('count'),
+            externalSummary: getExternalSummary,
             isNonsense,
             isTogglable,
             isToggled,
@@ -101,7 +111,8 @@ app.component('alleleSidebarList', {
             selectedAllele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
             selectedAlleleChanged: signal`views.workflows.alleleSidebar.selectedAlleleChanged`,
             includeReportToggled: signal`views.workflows.alleleSidebar.includeReportToggled`,
-            orderByChanged: signal`views.workflows.alleleSidebar.orderByChanged`
+            orderByChanged: signal`views.workflows.alleleSidebar.orderByChanged`,
+            quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`
         },
         'AlleleSidebarList',
         [
