@@ -499,15 +499,15 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     background-color: $blue-50;
   }
   section.enabled, section.disabled { flex-basis: auto;  }
-  section > div:first-child { margin-top: 2rem; }
-  section > div:last-child { margin-bottom: 1rem; }
+  section > div:first-child { margin-top: 0.5rem; }
+  section > div:last-child { margin-bottom: 2rem; }
   h4 { font-family: $slim; font-weight: 600; margin: 0; font-size: 1.4rem; display: flex; justify-content: space-between; }
   h4.section-title { @extend h4.section-title; margin: 0.3rem 0; }
   .variant { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .variant span { width: 13.0rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
   i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; flex-basis: 10rem; }
   b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
-
+  section.unclassified {  }
   .nav-table { display: table; width: 45rem; border-collapse: collapse; }
   .nav-row { display: table-row; align-items: center; color: $black-60; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
     &.top {border-bottom: 1px solid $black-10;

@@ -41,6 +41,7 @@ import './views/modal.directive'
 import './views/overview.directive'
 import './views/login.directive'
 import './views/alleleSidebar.directive'
+import './views/alleleSidebarList.directive'
 import './views/navbar.directive'
 
 import './widgets/alleleinfo/alleleInfoAcmgSelection.directive'

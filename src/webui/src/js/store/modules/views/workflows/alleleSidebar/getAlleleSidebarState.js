@@ -10,6 +10,10 @@ export default function getAlleleSidebarState() {
             classified: {
                 key: null,
                 reverse: false
+            },
+            technical: {
+                key: null,
+                reverse: false
             }
         }
     }

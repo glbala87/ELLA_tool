@@ -1,0 +1,134 @@
+<h4 class="section-title">{{$ctrl.title}}</h4>
+
+  <section>
+    <div class="nav-table">
+      <div class="nav-row top" ng-if="$ctrl.alleles.length">
+        <div class="cell" title="Sample type" ng-if="$ctrl.isMultipleSampleType" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'type'})">
+          T
+          <span ng-if="$ctrl.orderBy.key === 'type'">
+            <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="Inheritance" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'inheritance'})">
+          INH
+          <span ng-if="$ctrl.orderBy.key === 'inheritance'">
+            <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="Gene" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'gene'})">
+          GENE
+          <span ng-if="$ctrl.orderBy.key === 'gene'">
+            <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="HGVSc" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'hgvsc'})">
+          HGVSc
+          <span ng-if="$ctrl.orderBy.key === 'hgvsc'">
+            <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell" title="Consequence" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'consequence'})">
+          CSQ
+          <span ng-if="$ctrl.orderBy.key === 'consequence'">
+            <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+            <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+          </span>
+        </div>
+        <div class="cell indicators">
+          <div title="Family filter" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'family'})">
+              <span>F</span>
+              <span ng-if="$ctrl.orderBy.key === 'family'">
+                <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+              </span>
+            </div>
+          </div>
+          <div title="Homozygous" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'homozygous'})">
+              <span>O</span>
+              <span ng-if="$ctrl.orderBy.key === 'homozygous'">
+                <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+              </span>
+            </div>
+          </div>
+          <div title="Quality issues" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'quality'})">
+              <span>Q</span>
+              <div ng-if="$ctrl.orderBy.key === 'quality'">
+                <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+              </div>
+            </div>
+          </div>
+          <div title="Reference(s) available" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'references'})">
+              <span>R</span>
+              <div ng-if="$ctrl.orderBy.key === 'references'">
+                <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="nav-row spacer"></div>
+      <div class="nav-row allele" ng-repeat="allele in $ctrl.alleles track by allele.id" title="Allele ID {{ allele.id }}"
+            ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled[allele.id], 'toggled': $ctrl.isToggled[allele.id], 'togglable': $ctrl.isTogglable[allele.id], 'multiple': $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}"
+            ng-click="$ctrl.rowClicked(allele.id)">
+        <div title="{{$ctrl.getSampleTypesFull(allele)}}" ng-if="$ctrl.isMultipleSampleType" class="cell sample-type id-sample-type">
+            {{$ctrl.getSampleType(allele)}}
+        </div>
+        <div title="Inheritance" class="cell inheritance id-inheritance">
+            {{allele.formatted.inheritance}}
+        </div>
+        <div class="cell gene id-gene">
+            {{allele.annotation.filtered[0].symbol}}
+        </div>
+        <div class="cell hgvsc id-hgvsc">
+            {{allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg}}
+        </div>
+        <div class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}">
+            {{$ctrl.consequence[allele.id]}}
+        </div>
+        <div class="cell indicators id-indicators">
+            <div title="{{$ctrl.getFamilyLabel(allele)}}" class="family">
+              <div class="hit" ng-if="$ctrl.getFamilyTag(allele)">
+                  <span>{{$ctrl.getFamilyTag(allele)}}</span>
+              </div>
+            </div>
+            <div title="Homozygous" class="hom">
+              <div class="hit" ng-if="$ctrl.isHomozygous(allele)">
+                  <span>O</span>
+              </div>
+            </div>
+            <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
+              <div class="hit" ng-if="$ctrl.hasQualityInformation(allele)">
+                <span>{{$ctrl.getQualityTag(allele)}}</span>
+              </div>
+            </div>
+            <div class="important-source">
+              <div title="Reference(s) available"  class="hit" ng-if="$ctrl.hasReferences(allele)">
+                  <span>R</span>
+              </div>
+            </div>
+        </div>
+        <div class="cell classification id-classification">
+          {{$ctrl.getClassificationText(allele.id)}}
+        </div>
+        <div class="cell tab"
+              title="{{$ctrl.isTogglable[allele.id] && $ctrl.readOnly ? 'Not allowed (read-only)' : ''}}">
+          <div ng-if="$ctrl.isTogglable[allele.id]" class="added">
+            <h5 ng-if="$ctrl.isToggled[allele.id]">-</h5>
+            <h5 ng-if="!$ctrl.isToggled[allele.id]">+</h5>
+          </div>
+        </div>
+    </div>
+  </section>
