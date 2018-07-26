@@ -27,26 +27,43 @@ def deposit():
 
 
 @deposit.command('analysis')
-@click.argument('vcf')
-def cmd_deposit_analysis(vcf):
+@click.argument('vcf', type=click.Path(exists=True), )
+@click.option('--ped', type=click.Path(exists=True), )
+@click.option('--report', type=click.Path(exists=True), )
+@click.option('--warnings', type=click.Path(exists=True), )
+@click.option('--priority', type=click.INT, default=1)
+def cmd_deposit_analysis(vcf, ped=None, report=None, warnings=None, priority=None):
     """
     Deposit an analysis given input vcf.
     File should be in format of {analysis_name}.{genepanel_name}-{genepanel_version}.vcf
     """
+
     logging.basicConfig(level=logging.DEBUG)
 
     matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
     db = DB()
     db.connect()
     da = DepositAnalysis(db.session)
+
+    report_data = warnings_data = None
+    if report:
+        with open(report) as f:
+            report_data = f.read()
+
+    if warnings:
+        with open(warnings) as f:
+            warnings_data = f.read()
+
     analysis_config_data = AnalysisConfigData(
         vcf,
         matches.group('analysis_name'),
         matches.group('genepanel_name'),
         matches.group('genepanel_version'),
-        1
+        priority,
+        report=report_data,
+        warnings=warnings_data
     )
-    da.import_vcf(analysis_config_data)
+    da.import_vcf(analysis_config_data, ped_file=ped)
     db.session.commit()
 
 

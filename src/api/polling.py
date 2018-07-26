@@ -18,7 +18,6 @@ from api.util.genepanel_to_bed import genepanel_to_bed
 from vardb.datamodel import annotationjob
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.deposit.deposit_analysis_append import DepositAnalysisAppend
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
 
