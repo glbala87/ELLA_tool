@@ -11,6 +11,7 @@ import getDepth from '../store/modules/views/workflows/alleleSidebar/computed/ge
 import getAlleleRatio from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleRatio'
 import getExternalSummary from '../store/modules/views/workflows/alleleSidebar/computed/getExternalSummary'
 import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
+import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessments'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import template from './alleleSidebarList.ngtmpl.html'
@@ -87,7 +88,8 @@ app.component('alleleSidebarList', {
     bindings: {
         title: '@',
         section: '=',
-        expanded: '='
+        expanded: '=',
+        allowQuickClassification: '=?'
     },
     templateUrl: 'alleleSidebarList.ngtmpl.html',
     controller: connect(
@@ -98,6 +100,7 @@ app.component('alleleSidebarList', {
             consequence: getConsequence,
             isMultipleInGene,
             depth: getDepth,
+            alleleassessments: getAlleleAssessments,
             alleleRatio: getAlleleRatio,
             hiFreq: getHiFrequency('freq'),
             hiCount: getHiFrequency('count'),
@@ -112,7 +115,8 @@ app.component('alleleSidebarList', {
             selectedAlleleChanged: signal`views.workflows.alleleSidebar.selectedAlleleChanged`,
             includeReportToggled: signal`views.workflows.alleleSidebar.includeReportToggled`,
             orderByChanged: signal`views.workflows.alleleSidebar.orderByChanged`,
-            quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`
+            quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`,
+            evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`
         },
         'AlleleSidebarList',
         [

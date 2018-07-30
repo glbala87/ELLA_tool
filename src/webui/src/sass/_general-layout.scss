@@ -489,8 +489,14 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
 .sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem);
   max-height: calc(100vh - (#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem)); overflow-y: auto;
-  overflow-y: scroll;
+  overflow-y: auto;
   margin-top: 4.5rem;
+  overflow-x: auto;
+  max-width: 100vw;
+  .quick-classification-button {
+    max-width: 18rem;
+    margin-bottom: 1rem;
+  }
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -509,8 +515,9 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   .variant span { width: 13.0rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
   i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; flex-basis: 10rem; }
   b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
-  section.unclassified {  }
-  .nav-table { display: table; width: 45rem; border-collapse: collapse; }
+  .nav-table { display: table; width: 45rem; border-collapse: collapse;
+
+  }
   .nav-row { display: table-row; align-items: center; color: $black-60; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
     transition: all 0.3s ease-in;
     &.top {border-bottom: 1px solid $black-10;
@@ -523,17 +530,24 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     &.technical { color: $black-25; }
     &.spacer {height: 0.2rem}
     .cell { display: table-cell; white-space: nowrap; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; text-overflow: ellipsis; overflow: hidden;
-      &.sample-type { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
-      &.inheritance { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
-      &.gene { max-width: 10rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
-      &.hgvsc { max-width: 12rem; text-overflow: ellipsis; overflow: hidden; }
-      &.consequence { max-width: 10rem;
+      &.sample-type { min-width: 3rem; width: 3rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
+      &.inheritance { min-width: 6rem; width: 6rem; max-width: 4rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
+      &.gene { min-width: 6rem; width: 6rem; max-width: 6rem; text-overflow: ellipsis; overflow: hidden; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
+      &.hgvsc { min-width: 10rem; width: 10rem; max-width: 10rem; text-overflow: ellipsis; overflow: hidden; }
+      &.consequence { min-width: 10rem; width: 10rem; max-width: 10rem;
         &.hit {
           color: $red-75;
         }
       }
-      &.classification { max-width: 3.5rem; padding-left: 1rem; padding-right: 0.5rem; text-align: center;}
+      &.classification { min-width: 5rem; width: 5rem; text-align: center;}
       &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }
+      &.dp { min-width: 5rem; text-align: center;}
+      &.ratio { min-width: 7rem; text-align: center;}
+      &.hi-freq { min-width: 8rem; text-align: center;}
+      &.hi-count { min-width: 8rem; text-align: center;}
+      &.external { min-width: 10.5rem; text-align: center;}
+      &.evaluation { min-width: 15rem; max-width: 15rem; }
+      &.quick-classification {  width: 48rem; max-width: 48rem; padding-left: 1rem;}
 
       @mixin indicator {
         width: 2rem;
@@ -625,7 +639,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     }
 
     &.togglable .cell {
-      &.tab { align-items: center; text-align: center; justify-content: center; max-width: 2.6rem; width: 2.6rem; background-color: $black-50; cursor: pointer; }
+      &.tab { align-items: center; text-align: center; justify-content: center; max-width: 2.6rem; width: 2.6rem; min-width: 2.6rem; background-color: $black-50; cursor: pointer; }
       &.consequence { max-width: 6.8rem; }  // Steal some width, give it to toggle button
     }
     &.toggled { color: $blue;

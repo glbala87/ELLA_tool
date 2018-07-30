@@ -11,7 +11,6 @@ export default Compute(state`views.workflows.data.alleles`, (alleles) => {
         if (allele.annotation.external.HGMD) {
             sourcesWithData.push('HGMD')
         }
-        console.log(allele.annotation.external)
         if (allele.annotation.external.CLINVAR) {
             sourcesWithData.push('Clinvar')
         }

@@ -1,6 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, signal } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './alleleInfoQuality.ngtmpl.html'
 
@@ -34,45 +34,45 @@ function extractGenotypeDataSample(display, sample) {
     return data
 }
 
-const displaySamples = Compute(
-    state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-    (allele) => {
-        const displaySamples = []
-        if (!allele) {
-            return displaySamples
-        }
-        if (allele.samples) {
-            for (const sample of allele.samples) {
-                let display_sex = ''
-                if (sample.sex) {
-                    display_sex = ` (${sample.sex})`
-                }
-                displaySamples.push(extractGenotypeDataSample(`Proband${display_sex}`, sample))
-                if (sample.father) {
-                    displaySamples.push(extractGenotypeDataSample('Father', sample.father))
-                }
-                if (sample.mother) {
-                    displaySamples.push(extractGenotypeDataSample('Mother', sample.mother))
-                }
-                if (sample.siblings) {
-                    for (const sibling of sample.siblings) {
-                        displaySamples.push(
-                            extractGenotypeDataSample(`Sibling (${siblings.sex})`, sibling)
-                        )
-                    }
+const displaySamples = Compute(state`${props`allelePath`}`, (allele) => {
+    const displaySamples = []
+    if (!allele) {
+        return displaySamples
+    }
+    if (allele.samples) {
+        for (const sample of allele.samples) {
+            let display_sex = ''
+            if (sample.sex) {
+                display_sex = ` (${sample.sex})`
+            }
+            displaySamples.push(extractGenotypeDataSample(`Proband${display_sex}`, sample))
+            if (sample.father) {
+                displaySamples.push(extractGenotypeDataSample('Father', sample.father))
+            }
+            if (sample.mother) {
+                displaySamples.push(extractGenotypeDataSample('Mother', sample.mother))
+            }
+            if (sample.siblings) {
+                for (const sibling of sample.siblings) {
+                    displaySamples.push(
+                        extractGenotypeDataSample(`Sibling (${siblings.sex})`, sibling)
+                    )
                 }
             }
         }
-        return displaySamples
     }
-)
+    return displaySamples
+})
 
 app.component('alleleInfoQuality', {
+    bindings: {
+        allelePath: '<'
+    },
     templateUrl: 'alleleInfoQuality.ngtmpl.html',
     controller: connect(
         {
             displaySamples,
-            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+            allele: state`${props`allelePath`}`
         },
         'AlleleInfoQuality',
         [

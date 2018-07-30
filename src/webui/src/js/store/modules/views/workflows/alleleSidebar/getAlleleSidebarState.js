@@ -1,6 +1,6 @@
 export default function getAlleleSidebarState() {
     return {
-        expanded: true,
+        expanded: false,
         unclassified: null,
         classified: null,
         technical: null,

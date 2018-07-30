@@ -55,14 +55,17 @@
 // Used only in Add references (customAnnotationModal)
 .big textarea { max-height: 25vh; margin: 1.3rem 0 2.6rem; }
 
-.popover { font-family: "Source Sans Pro", sans-serif; max-width: 50vw; padding: 0; border: none; box-shadow: 0 0.3rem 0.3rem $black-25; z-index: 1600; }
+.popover { font-family: "Source Sans Pro", sans-serif; max-width: 70vw; overflow-x: auto; padding: 0; border: none; box-shadow: 0 0.3rem 0.3rem $black-25; z-index: 1600; }
 .popover, .popover * { border-radius: 0; }
 .popover .popover-title { @extend .slim; @extend .title; @extend .upper; background-color: $white; color: $black-75;
                           font-weight: 600; font-size: 1.4rem !important; border: none; border-bottom: 1px solid $black-05;
                           padding-bottom: 0.2rem; padding-top: 0.3rem}
 .popover-title-no-uppercase * .popover-title {text-transform: none !important;}
-.popover-content {padding-top: 0.3rem}
-.popover-content * { @extend .slim; color: $black-75; font-size: 1.3rem !important;}
+.popover-content {padding-top: 0.3rem;
+  h3 {
+    @extend .slim;
+  }
+}
 .popover-content > pre { white-space: pre-wrap;}
 .popover-content .gpv_override { color: $red; }
 .popover-list { list-style-type: none; max-width: 50vw; }

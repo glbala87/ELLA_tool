@@ -29,12 +29,13 @@ $bar-colors: (
     99%  {opacity: 1; transform: scale(1);}
 }
 
+h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
+h5 { font-weight: 400;  font-family: $slim; }
+
 $sb-titlebar-height: 3.8rem;
 .sectionbox { margin-bottom: 1.3rem; display: flex; flex-direction: column;
-
-  h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
+  h5 { padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; }
   h5, p { font-size: 1.4rem; color: #333; }
-  h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; font-family: $slim; }
   p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
 
   .titlebar { display: flex; height: $sb-titlebar-height; min-height: $sb-titlebar-height;
@@ -70,7 +71,7 @@ $sb-titlebar-height: 3.8rem;
        flex-grow: 1;
        &:empty { padding: 0 }
     }
-    .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; flex-wrap: wrap;
+    .sb-body { margin-left: 1.3rem; padding: 0.1rem 1rem 1rem 1rem; flex-grow: 1; flex-wrap: wrap;
       &:empty { padding: 0 }
       transform: scale(1); animation: show 1.0s;
     }
@@ -107,9 +108,9 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .cb-body { padding: 1.3rem; width: 100%; }
   .cb.titlebar { height: auto;
     div { margin: 1.75rem 0; }
+    a { color: white; border-left: 1px dashed $white-50; border-bottom: none; }
+    a:hover { border-left: 1px solid $white-50; border-bottom: none; }
     .title { color: white; font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
-      a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
-      a:hover { border-left: 1px solid $white-50; border-bottom: none; }
     }
   }
   .exac p { padding-right: 2.6rem; }

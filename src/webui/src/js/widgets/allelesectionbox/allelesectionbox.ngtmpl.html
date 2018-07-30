@@ -107,7 +107,7 @@
                        ng-model="$ctrl.allelereport.evaluation.comment"
                        ng-if="$ctrl.section.reportComment"></wysiwyg-editor>
 
-      <div class="id-attachments" ng-if="$ctrl.section.options.showIncludedAcmgCodes">
+      <div class="id-attachments" ng-if="$ctrl.section.options.showIncludedAcmgCodes && $ctrl.alleleassessment.attachment_ids.length">
         <h4 class="section-title acmg-body">Attachments</h4>
         <section class="attachment-wrapper">
           <attachment

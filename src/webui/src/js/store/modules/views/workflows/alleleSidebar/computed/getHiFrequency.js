@@ -9,6 +9,7 @@ export default (key) =>
             return result
         }
         const frequencyGroups = config.variant_criteria.frequencies.groups
+        const frequencyNumThresholds = config.variant_criteria.freq_num_thresholds || {}
         for (let [alleleId, allele] of Object.entries(alleles)) {
             let maxVal = null
             let maxFormatted = null
@@ -20,7 +21,26 @@ export default (key) =>
                             provider in annotationFrequencies &&
                             population in annotationFrequencies[provider][key]
                         ) {
-                            if (annotationFrequencies[provider][key][population] > maxVal) {
+                            // For frequency, check that 'num' is higher than required in config
+                            // If provider is not in config, assume it's good
+                            // (since it would be in filtering)
+                            let meetsNumThreshold = !(
+                                key === 'freq' && provider in frequencyNumThresholds
+                            )
+                            if (
+                                key === 'freq' &&
+                                provider in frequencyNumThresholds &&
+                                population in frequencyNumThresholds[provider]
+                            ) {
+                                meetsNumThreshold =
+                                    annotationFrequencies[provider]['num'][population] >
+                                    frequencyNumThresholds[provider][population]
+                            }
+
+                            const isHigher =
+                                annotationFrequencies[provider][key][population] > maxVal
+
+                            if (meetsNumThreshold && isHigher) {
                                 maxVal = annotationFrequencies[provider][key][population]
                                 maxFormatted = formatValue(
                                     annotationFrequencies[provider],

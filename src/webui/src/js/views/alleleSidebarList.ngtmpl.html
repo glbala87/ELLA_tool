@@ -1,6 +1,6 @@
 <h4 class="section-title">{{$ctrl.title}}</h4>
-  <section>
-    <div class="nav-table">
+  <section class="allele-sidebar-list">
+    <div class="nav-table" ng-class="{'expanded': $ctrl.expanded}">
       <div class="nav-row top" ng-if="$ctrl.alleles.length">
         <div ng-if="$ctrl.expanded" class="cell"></div> <!-- Header for selected colorbox when expanded -->
         <div class="cell" title="Sample type" ng-if="$ctrl.isMultipleSampleType" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'type'})">
@@ -11,28 +11,28 @@
           </span>
         </div>
         <div class="cell" title="Inheritance" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'inheritance'})">
-          INH
+          <span class="clickable">INH</span>
           <span ng-if="$ctrl.orderBy.key === 'inheritance'">
             <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
             <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
           </span>
         </div>
         <div class="cell" title="Gene" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'gene'})">
-          GENE
+            <span class="clickable">GENE</span>
           <span ng-if="$ctrl.orderBy.key === 'gene'">
             <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
             <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
           </span>
         </div>
         <div class="cell" title="HGVSc" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'hgvsc'})">
-          HGVSc
+            <span class="clickable">HGVSc</span>
           <span ng-if="$ctrl.orderBy.key === 'hgvsc'">
             <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
             <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
           </span>
         </div>
         <div class="cell" title="Consequence" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'consequence'})">
-          CSQ
+            <span class="clickable">CSQ</span>
           <span ng-if="$ctrl.orderBy.key === 'consequence'">
             <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
             <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
@@ -41,7 +41,7 @@
         <div class="cell indicators">
           <div title="Family filter" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'family'})">
-              <span>F</span>
+              <span class="clickable">F</span>
               <span ng-if="$ctrl.orderBy.key === 'family'">
                 <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                 <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
@@ -50,7 +50,7 @@
           </div>
           <div title="Homozygous" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'homozygous'})">
-              <span>O</span>
+              <span class="clickable">O</span>
               <span ng-if="$ctrl.orderBy.key === 'homozygous'">
                 <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                 <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
@@ -59,7 +59,7 @@
           </div>
           <div title="Quality issues" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'quality'})">
-              <span>Q</span>
+              <span class="clickable">Q</span>
               <div ng-if="$ctrl.orderBy.key === 'quality'">
                 <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                 <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
@@ -68,7 +68,7 @@
           </div>
           <div title="Reference(s) available" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'references'})">
-              <span>R</span>
+              <span class="clickable">R</span>
               <div ng-if="$ctrl.orderBy.key === 'references'">
                 <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                 <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
@@ -78,13 +78,14 @@
         </div>
         <div class="cell"></div>
         <div ng-if="!$ctrl.expanded" class="cell"></div> <!-- Header for selected colorbox when not expanded -->
-        <div ng-if="$ctrl.expanded" class="cell" style="min-width: 7rem;" title="Read depth">DP</div>
-        <div ng-if="$ctrl.expanded" class="cell" style="min-width: 7rem;" title="Allele ratio">RATIO</div>
-        <div ng-if="$ctrl.expanded" class="cell" style="min-width: 7rem;" title="Highest frequency">HI. FREQ</div>
-        <div ng-if="$ctrl.expanded" class="cell" style="min-width: 10rem;" title="Highest allele count">HI. COUNT</div>
-        <div ng-if="$ctrl.expanded" class="cell" style="min-width: 10rem;" title="External databases">EXTERNAL</div>
-        <div ng-if="$ctrl.expanded" class="cell" style="min-width: 20rem;" title="Evaluation">EVALUATION</div>
-        <div ng-if="$ctrl.expanded" class="cell" title="Classification">QUICK CLASSIFICATION</div>
+        <div ng-if="$ctrl.expanded" class="cell dp" title="Read depth">DP</div>
+        <div ng-if="$ctrl.expanded" class="cell ratio" title="Allele ratio">RATIO</div>
+        <div ng-if="$ctrl.expanded" class="cell hi-freq" title="Highest frequency">HI. FREQ</div>
+        <div ng-if="$ctrl.expanded" class="cell hi-count" title="Highest allele count">HI. COUNT</div>
+        <div ng-if="$ctrl.expanded" class="cell external" title="External databases">EXTERNAL</div>
+        <div ng-if="$ctrl.expanded" class="cell evaluation" title="Evaluation">EVALUATION</div>
+        <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification" title="Classification">QUICK CLASSIFICATION</div>
+        <div ng-if="$ctrl.expanded && !$ctrl.allowQuickClassification" class="cell"></div>
       </div>
       <div class="nav-row spacer"></div>
       <div class="nav-row allele" ng-repeat="allele in $ctrl.alleles track by allele.id" title="Allele ID {{ allele.id }}"
@@ -138,17 +139,60 @@
             <h5 ng-if="!$ctrl.isToggled[allele.id]">+</h5>
           </div>
         </div>
-        <div ng-if="$ctrl.expanded" class="cell">{{$ctrl.depth[allele.id]}}</div>
-        <div ng-if="$ctrl.expanded" class="cell">{{$ctrl.alleleRatio[allele.id]}}</div>
-        <div ng-if="$ctrl.expanded" class="cell">{{$ctrl.hiFreq[allele.id]}}</div>
-        <div ng-if="$ctrl.expanded" class="cell">{{$ctrl.hiCount[allele.id]}}</div>
-        <div ng-if="$ctrl.expanded" class="cell"><span ng-repeat="s in $ctrl.externalSummary[allele.id]">{{s}} </span></div>
-        <div ng-if="$ctrl.expanded" class="cell"><input type="text"></div>
-        <div ng-if="$ctrl.expanded" class="cell">
-          <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Unclassified</button>
-          <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
-          <button class="purple" ng-click="$ctrl.quickClassificationClicked({code: {code: 'BS1', source: 'user'}, classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">BS1 (Cl.2)</button>
-          <button class="purple" ng-click="$ctrl.quickClassificationClicked({code: {code: 'BS2', source: 'user'}, classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">BS2 (Cl.2)</button>
+        <div ng-if="$ctrl.expanded" class="cell dp"
+          popover-trigger="outsideClick"
+          uib-popover-template="'ngtmpl/alleleSidebarQualityPopover.ngtmpl.html'"
+          popover-append-to-body="true"
+          popover-title="Quality: {{allele.formatted.display}}"
+          popover-class="popover-title-no-uppercase"
+          popover-placement="bottom"><span class="clickable">{{$ctrl.depth[allele.id]  || '-'}}</span>
         </div>
+        <div ng-if="$ctrl.expanded" class="cell ratio"
+          popover-trigger="outsideClick"
+          uib-popover-template="'ngtmpl/alleleSidebarQualityPopover.ngtmpl.html'"
+          popover-append-to-body="true"
+          popover-title="Quality: {{allele.formatted.display}}"
+          popover-class="popover-title-no-uppercase"
+          popover-placement="bottom"><span class="clickable">{{$ctrl.alleleRatio[allele.id]  || '-'}}</span>
+        </div>
+        <div ng-if="$ctrl.expanded" class="cell hi-freq"
+          popover-trigger="outsideClick"
+          uib-popover-template="'ngtmpl/alleleSidebarFrequencyPopover.ngtmpl.html'"
+          popover-append-to-body="true"
+          popover-title="Frequency: {{allele.formatted.display}}"
+          popover-class="popover-title-no-uppercase"
+          popover-placement="bottom"><span class="clickable">{{$ctrl.hiFreq[allele.id] || '-'}}</span>
+        </div>
+        <div ng-if="$ctrl.expanded" class="cell hi-count"
+          popover-trigger="outsideClick"
+          uib-popover-template="'ngtmpl/alleleSidebarFrequencyPopover.ngtmpl.html'"
+          popover-append-to-body="true"
+          popover-title="Frequency: {{allele.formatted.display}}"
+          popover-class="popover-title-no-uppercase"
+          popover-placement="bottom"><span class="clickable">{{$ctrl.hiCount[allele.id] || '-'}}</span>
+        </div>
+        <div ng-if="$ctrl.expanded" class="cell external"
+          popover-trigger="outsideClick"
+          uib-popover-template="'ngtmpl/alleleSidebarExternalPopover.ngtmpl.html'"
+          popover-append-to-body="true"
+          popover-title="External: {{allele.formatted.display}}"
+          popover-class="popover-title-no-uppercase"
+          popover-placement="bottom"><span class="clickable">
+          <span ng-repeat="s in $ctrl.externalSummary[allele.id]">{{s}} </span></span>
+        </div>
+        <div ng-if="$ctrl.expanded" class="cell evaluation">
+            <wysiwyg-editor class="control-comment"
+            show-controls="false"
+            ng-disabled="$ctrl.readOnly"
+            ng-change="$ctrl.evaluationCommentChanged({alleleId: allele.id, name: 'classification', comment: $ctrl.alleleassessments[allele.id].evaluation.classification.comment})"
+            ng-model="$ctrl.alleleassessments[allele.id].evaluation.classification.comment"></wysiwyg-editor>
+        </div>
+        <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification">
+          <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
+          <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
+          <button class="purple" ng-click="$ctrl.quickClassificationClicked({code: {code: 'BS1', source: 'user'}, classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2 (BS1)</button>
+          <button class="purple" ng-click="$ctrl.quickClassificationClicked({code: {code: 'BS2', source: 'user'}, classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2 (BS2)</button>
+        </div>
+        <div ng-if="$ctrl.expanded && !$ctrl.allowQuickClassification" class="cell quick-classification"></div>
     </div>
   </section>
