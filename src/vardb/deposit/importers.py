@@ -380,33 +380,31 @@ class GenotypeImporter(object):
 
         genotypesampledata_items = list()
         for sample in samples:
+            allele_depth = dict()
             for record in records:
+                assert len(record['ALT']) == 1
                 secondallele = False
                 if a2:
                     allele = get_allele_from_record(record, alleles)
                     secondallele = allele == a2
 
                 record_sample = record['SAMPLES'][sample.identifier]
+                assert record_sample['GT'] in self.types, 'Not supported genotype {} for sample {}'.format(record_sample['GT'], sample_name)
 
-                # Update allele depth
-                allele_depth = {}
+                # Update allele depth for this record
                 if record_sample.get('AD'):
                     if len(record_sample['AD']) == 2:
                         # {'REF': 12, 'A': 134, 'G': 12}
-                        allele_depth.update({"REF": record_sample["AD"][0]})
-                        allele_depth.update({k: v for k, v in zip(record['ALT'], record_sample['AD'][1:])})
+                        allele_depth.update({
+                            "REF ({})".format(record['REF']): record_sample["AD"][0],
+                            record['ALT'][0]: record_sample["AD"][1],
+                        })
                     else:
-                        log.warning("AD not decomposed, allele depth value will be empty")
+                        log.warning("AD not decomposed! Allele depth value will be empty.")
 
-                # If site is multiallelic, we expect three values for allele depth.
-                # However, due to normalization, ALT could be the same for both sites, and the allele depth will only contain two values.
-                # Disregard allele depth for these sites
-                if a1 is not None and a2 is not None:
-                    if len(allele_depth) != 3:
-                        allele_depth = {}
-                        log.warning("Unable to extract allele depth. Different REF for the multiallelic site (REF1={}, REF2={})?".format(records[0]['REF'], records[1]['REF']))
-
-                assert record_sample['GT'] in self.types, 'Not supported genotype {} for sample {}'.format(record_sample['GT'], sample_name)
+                if len(set([r['POS'] for r in records])) != 1 or \
+                   len(set([r['REF'] for r in records])) != 1:
+                    allele_depth = {}
 
                 genotype_quality = record_sample.get('GQ')
                 if not isinstance(genotype_quality, int):

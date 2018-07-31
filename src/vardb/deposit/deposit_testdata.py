@@ -88,6 +88,12 @@ GENEPANELS = [
         'phenotypes': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.phenotypes.csv',
         'name': 'Ciliopati',
         'version': 'v05'
+    },
+    {
+        'transcripts': '../testdata/clinicalGenePanels/TrioPU_v04/TrioPU_v04.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/TrioPU_v04/TrioPU_v04.phenotypes.csv',
+        'name': 'TrioPU',
+        'version': 'v04'
     }
 ]
 

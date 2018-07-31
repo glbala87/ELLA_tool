@@ -118,10 +118,10 @@ class DepositAnalysis(DepositFromVCF):
             # First import whole batch as alleles
             for record in batch_records:
 
-                if not self.is_inside_transcripts(record, db_genepanel):
-                    error = "The following variant is not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
-                    error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
-                    raise RuntimeError(error)
+                # if not self.is_inside_transcripts(record, db_genepanel):
+                #     error = "The following variant is not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
+                #     error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
+                #     raise RuntimeError(error)
 
                 # If no data for proband, just skip the record
                 if record['SAMPLES'][proband_sample_name]['GT'] in ['0/0', './.', '0/.', './0']:

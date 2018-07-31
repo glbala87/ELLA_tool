@@ -96,7 +96,6 @@ class FamilyFilter(object):
 
         """
 
-
         def create_query(secondallele=False):
 
             samples = self.session.query(sample.Sample).filter(
@@ -182,7 +181,7 @@ class FamilyFilter(object):
         """
         Denovo mutations
 
-        Based on denovo filtering from FILTUS:
+        Based on denovo filtering from FILTUS (M. Vigeland et al):
         https://academic.oup.com/bioinformatics/article/32/10/1592/1743466
 
         Denovo patterns:

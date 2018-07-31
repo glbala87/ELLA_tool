@@ -71,7 +71,7 @@ $sb-titlebar-height: 3.8rem;
        flex-grow: 1;
        &:empty { padding: 0 }
     }
-    .sb-body { margin-left: 1.3rem; padding: 0.1rem 1rem 1rem 1rem; flex-grow: 1; flex-wrap: wrap;
+    .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; flex-wrap: wrap;
       &:empty { padding: 0 }
       transform: scale(1); animation: show 1.0s;
     }

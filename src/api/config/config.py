@@ -251,7 +251,7 @@ config = {
         "options": [  # Also defines sorting order
             # Adding a class needs ENUM update in DB, along with migration
             {
-                "name": "Unclassified",
+                "name": "Class U",
                 "value": "U",
             },
             {

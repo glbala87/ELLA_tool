@@ -293,8 +293,8 @@ class TestInheritanceFilter(object):
             'Mother'
         )
 
-        # Manual tests
         if manually_curated_result is not None:
+            # Manual tests
             matched_allele_ids = set([allele_ids[idx] for idx in manually_curated_result])
             assert result_allele_ids == matched_allele_ids
         else:
