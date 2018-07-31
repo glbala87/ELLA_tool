@@ -199,16 +199,19 @@ class FamilyFilter(object):
             - 0 + 0/1 = 1/1
 
         A variant is treated as X-linked in this context only if it is located outside of the pseudoautosomal regions
-        PAR1 and PAR2 on the X chromosome. Multiallelic generalizations of the above patterns are also caught.
+        PAR1 and PAR2 on the X chromosome.
 
-        However, combinations with any of the following properties are treated as benign and discarded from further
-        analyses:
-        - The de novo allele is 0 (= REF). Example: 1/1 + 1/1 = 0/1.
-        - Child genotype equals either of the parents. Example: 0/0 + 1/1 = 1/1.
-        - Missing genotype in any trio member.
-        - A male trio member is reported as heterozygous for an X-linked variant.
+        Note followig special conditions, which are _not included_ in the results:
+        - Missing genotype in father or mother (i.e. no coverage).
+        - A male member is given as heterozygous for an X-linked variant.
+
+        If configured, the denovo results are filtered on allele count to remove technical
+        artifacts or likely non-pathogenic variants.
 
         """
+
+        if not mother_sample or not father_sample:
+            return set()
 
         genotype_table = genotype_table.subquery('genotype_table')
         genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
@@ -261,16 +264,13 @@ class FamilyFilter(object):
                         and_(
                             # 0 + 0/0 = 1
                             getattr(genotype_with_allele_table.c, proband_sample + '_sex') == 'Male',
-                            or_(
-                                getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Homozygous',
-                            ),
+                            getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Homozygous',
                             getattr(genotype_with_allele_table.c, father_sample + '_type') == 'Reference',
                             getattr(genotype_with_allele_table.c, mother_sample + '_type') == 'Reference'
                         ),
                         # Female proband
                         and_(
                             getattr(genotype_with_allele_table.c, proband_sample + '_sex') == 'Female',
-                            getattr(genotype_with_allele_table.c, father_sample + '_type') == 'Reference',
                             or_(
                                 # 0 + 0/0 = 0/1
                                 # 0 + 0/0 = 1/1
@@ -279,11 +279,13 @@ class FamilyFilter(object):
                                         getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Homozygous',
                                         getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Heterozygous'
                                     ),
+                                    getattr(genotype_with_allele_table.c, father_sample + '_type') == 'Reference',
                                     getattr(genotype_with_allele_table.c, mother_sample + '_type') == 'Reference'
                                 ),
                                 # 0 + 0/1 = 1/1
                                 and_(
                                     getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Homozygous',
+                                    getattr(genotype_with_allele_table.c, father_sample + '_type') == 'Reference',
                                     getattr(genotype_with_allele_table.c, mother_sample + '_type') == 'Heterozygous'
                                 )
                             )
@@ -293,19 +295,46 @@ class FamilyFilter(object):
             )
         )
 
-        return set([a[0] for a in denovo_allele_ids.all()])
+        denovo_result = set([a[0] for a in denovo_allele_ids.all()])
 
+        # Filter further on allele count
+        if self.config.get('variant_criteria', {}).get('denovo_count_thresholds'):
+            count_filters = list()
+            for provider, groups in self.config['variant_criteria']['denovo_count_thresholds'].iteritems():
+                for name, threshold in groups.iteritems():
+                    count_filters.append(
+                        text("(annotation.annotations->'frequencies'->'{provider}'->'count'->>'{name}')::integer >= {threshold}".format(
+                                provider=provider,
+                                name=name,
+                                threshold=threshold
+                            )
+                        )
+                    )
+
+            count_filtered = self.session.query(
+                annotation.Annotation.allele_id
+            ).filter(
+                annotation.Annotation.allele_id.in_(denovo_result),
+                or_(
+                    *count_filters
+                )
+            )
+            count_filtered = [a[0] for a in count_filtered.all()]
+            denovo_result = denovo_result - set(count_filtered)
+
+        return denovo_result
 
     def autosomal_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample):
         """
-        X-linked recessive:
+        Autosomal recessive transmission
+
+        Autosomal recessive:
         A variant must be:
-        - Homozygous in proband (for girls this requires a denovo, but still valid case)
-        - Heterozygous in mother
-        - Not present in father
-        - Homozygous in affected siblings
+        - Homozygous in proband
+        - Heterozygous in both parents
         - Not homozygous in unaffected siblings
-        - In chromosome X, but not pseudoautosomal region (PAR1, PAR2)
+        - Homozygous in affected siblings
+        - In chromosome 1-22 or X pseudoautosomal region (PAR1, PAR2)
         """
         genotype_table = genotype_table.subquery('genotype_table')
 
@@ -326,15 +355,15 @@ class FamilyFilter(object):
 
     def xlinked_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample):
         """
-        Autosomal recessive transmission
+        X-linked recessive
 
-        Autosomal recessive:
         A variant must be:
-        - Homozygous in proband
-        - Heterozygous in both parents
-        - Not homozygous in unaffected siblings
+        - Homozygous in proband (for girls this requires a denovo, but still valid case)
+        - Heterozygous in mother
+        - Not present in father
         - Homozygous in affected siblings
-        - In chromosome 1-22 or X pseudoautosomal region (PAR1, PAR2)
+        - Not homozygous in unaffected siblings
+        - In chromosome X, but not pseudoautosomal region (PAR1, PAR2)
         """
 
         genotype_table = genotype_table.subquery('genotype_table')
@@ -354,7 +383,7 @@ class FamilyFilter(object):
 
         return set([a[0] for a in xlinked_allele_ids])
 
-    def recessive_compound_heterozygous(self, genotype_table, proband_sample, father_sample, mother_sample):
+    def recessive_compound_heterozygous(self, genotype_table, proband_sample, father_sample=None, mother_sample=None, affected_sibling_samples=None, unaffected_sibling_samples=None):
         """
         Autosomal recessive transmission: Compound heterozygous
 
@@ -392,6 +421,29 @@ class FamilyFilter(object):
         :note: Alleles with 'No coverage' in either parent are not included.
         """
 
+        assert proband_sample
+
+        sample_names = [proband_sample]
+        affected_sample_names = [proband_sample]
+        unaffected_sample_names = []
+        if father_sample:
+            assert mother_sample
+            sample_names.append(father_sample)
+            unaffected_sample_names.append(father_sample)
+        if mother_sample:
+            assert father_sample
+            sample_names.append(mother_sample)
+            unaffected_sample_names.append(mother_sample)
+        if affected_sibling_samples:
+            sample_names += affected_sibling_samples
+            affected_sample_names += affected_sibling_samples
+        if unaffected_sibling_samples:
+            sample_names += unaffected_sibling_samples
+            unaffected_sample_names += unaffected_sibling_samples
+
+        if len(sample_names) == 1:
+            return set()
+
         genotype_table = genotype_table.subquery('genotype_table')
 
         # Get candidates for compound heterozygosity. Covers the following rules:
@@ -399,31 +451,38 @@ class FamilyFilter(object):
         # 2. A variant must not occur in a homozygous state in any of the unaffected individuals.
         # 3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
 
-        compound_candidates = self.session.query(
-            genotype_table.c.allele_id,
-            getattr(genotype_table.c, proband_sample + '_type'),
-            getattr(genotype_table.c, father_sample + '_type'),
-            getattr(genotype_table.c, mother_sample + '_type'),
-        ).filter(
-            getattr(genotype_table.c, proband_sample + '_type') == 'Heterozygous',  # Heterozygous in affected
-            # TODO: Unaffected
-            getattr(genotype_table.c, father_sample + '_type') != 'Homozygous',  # Not homozygous in father
-            getattr(genotype_table.c, mother_sample + '_type') != 'Homozygous',  # Not homozygous in mother
+        compound_candidates_columns = [getattr(genotype_table.c, s + '_type') for s in sample_names]
+        compound_candidates_filters = []
+        # Heterozygous in affected
+        compound_candidates_filters += [
+            getattr(genotype_table.c, s + '_type') == 'Heterozygous' for s in affected_sample_names
+        ]
+        # Not homozygous in unaffected
+        compound_candidates_filters += [
+            getattr(genotype_table.c, s + '_type') != 'Homozygous' for s in unaffected_sample_names
+        ]
+        if father_sample and mother_sample:
             # Heterozygous in _exactly one_ parent.
             # Note: This will also exclude any alleles with 'No coverage' in either parent.
-            or_(
-                and_(
-                    getattr(genotype_table.c, father_sample + '_type') == 'Heterozygous',
-                    getattr(genotype_table.c, mother_sample + '_type') == 'Reference',
-                ),
-                and_(
-                    getattr(genotype_table.c, father_sample + '_type') == 'Reference',
-                    getattr(genotype_table.c, mother_sample + '_type') == 'Heterozygous',
+            compound_candidates_filters.append(
+                or_(
+                    and_(
+                        getattr(genotype_table.c, father_sample + '_type') == 'Heterozygous',
+                        getattr(genotype_table.c, mother_sample + '_type') == 'Reference',
+                    ),
+                    and_(
+                        getattr(genotype_table.c, father_sample + '_type') == 'Reference',
+                        getattr(genotype_table.c, mother_sample + '_type') == 'Heterozygous',
+                    )
                 )
             )
+        compound_candidates = self.session.query(
+            genotype_table.c.allele_id,
+            *compound_candidates_columns
+        ).filter(
+            *compound_candidates_filters
         )
         compound_candidates = compound_candidates.subquery('compound_candidates')
-
 
         # Group per gene and get the gene symbols with >= 2 candidates.
         #
@@ -464,17 +523,23 @@ class FamilyFilter(object):
 
         candidates_with_genes = candidates_with_genes.subquery('candidates_with_genes')
 
+        compound_heterozygous_symbols_having = [
+            # 2 or more alleles in this gene
+            func.count(candidates_with_genes.c.allele_id) > 1,
+        ]
+        if father_sample and mother_sample:
+            compound_heterozygous_symbols_having += [
+                # bool_or: at least one allele in this gene is 'Heterozygous'
+                func.bool_or(getattr(candidates_with_genes.c, father_sample + '_type') == 'Heterozygous'),
+                func.bool_or(getattr(candidates_with_genes.c, mother_sample + '_type') == 'Heterozygous')
+            ]
         compound_heterozygous_symbols = self.session.query(
             candidates_with_genes.c.symbol
         ).group_by(
             candidates_with_genes.c.symbol
         ).having(
             and_(
-                # 2 or more alleles in this gene
-                func.count(candidates_with_genes.c.allele_id) > 1,
-                # bool_or: at least one allele in this gene is 'Heterozygous'
-                func.bool_or(getattr(candidates_with_genes.c, mother_sample + '_type') == 'Heterozygous'),
-                func.bool_or(getattr(candidates_with_genes.c, father_sample + '_type') == 'Heterozygous')
+                *compound_heterozygous_symbols_having
             )
         )
 
@@ -485,6 +550,23 @@ class FamilyFilter(object):
         ).distinct()
 
         return set([a[0] for a in compound_heterozygous_allele_ids.all()])
+
+    def no_coverage_father_mother(self, genotype_table, father_sample, mother_sample):
+
+        if not father_sample or not mother_sample:
+            return set()
+
+        genotype_table = genotype_table.subquery('genotype_table')
+        no_coverage_allele_ids = self.session.query(
+            genotype_table.c.allele_id
+        ).filter(
+            or_(
+                getattr(genotype_table.c, father_sample + '_type') == 'No coverage',
+                getattr(genotype_table.c, mother_sample + '_type') == 'No coverage'
+            )
+        )
+
+        return set([a[0] for a in no_coverage_allele_ids])
 
     def check_filter_conditions(self, analysis_id):
         """
@@ -500,7 +582,6 @@ class FamilyFilter(object):
         father_sample = None
         mother_sample = None
 
-        # TODO: Handle multiple probands
         proband_sample = self.session.query(sample.Sample).filter(
             sample.Sample.proband.is_(True),
             sample.Sample.affected.is_(True),
@@ -581,17 +662,6 @@ class FamilyFilter(object):
                 mother_identifier
             )
 
-            # denovo_frequency_filtered = self.session.query(
-            #     annotation.Annotation.allele_id
-            # ).filter(
-            #     or_(
-            #         text("(annotation.annotations->'frequencies'->'GNOMAD_EXOMES'->'count'->>'G')::integer >= 20"),
-            #         text("(annotation.annotations->'frequencies'->'GNOMAD_GENOMES'->'count'->>'G')::integer >= 20")
-            #     )
-            # )
-            # denovo_frequency_filtered = [a[0] for a in denovo_frequency_filtered.all()]
-            # denovo_results = denovo_results - set(denovo_frequency_filtered)
-
             recessive_compound_results = self.recessive_compound_heterozygous(
                 genotype_query,
                 proband_identifier,
@@ -613,7 +683,15 @@ class FamilyFilter(object):
                 mother_identifier
             )
 
-            result[analysis_id] = allele_ids - (denovo_results | autosomal_recessive_results | xlinked_recessive_results | recessive_compound_results)
+            # Don't filter alleles that are lacking coverage in either parent
+            no_coverage_results = self.no_coverage_father_mother(
+                genotype_query,
+                father_identifier,
+                mother_identifier
+            )
+
+            combined_results = denovo_results | autosomal_recessive_results | xlinked_recessive_results | recessive_compound_results
+            result[analysis_id] = allele_ids - (combined_results | no_coverage_results)
 
         return result
 

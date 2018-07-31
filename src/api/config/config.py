@@ -184,6 +184,19 @@ config = {
             }
 
         },
+        # Filters out denovo variants with high allele count,
+        # as these are likely technical noise and not disease causing
+        "denovo_count_thresholds": {
+            "GNOMAD_GENOMES": {
+                "G": 20
+            },
+            "GNOMAD_EXOMES": {
+                "G": 20
+            },
+            "ExAC": {
+                "G": 20
+            }
+        },
         "genepanel_config": {  # Default config for genepanels
             "freq_cutoff_groups": {  # 'external'/'internal' references the groups under 'frequencies->groups' key below
                 "AD": {
