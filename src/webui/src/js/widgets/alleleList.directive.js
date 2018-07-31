@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { Compute } from 'cerebral'
 import { state, props, signal } from 'cerebral/tags'
 import sortedAlleles from '../store/modules/views/overview/computed/sortedAlleles'
+import template from './alleleList.ngtmpl.html'
 
 // Uses prop to dynamically turn on/off sorting
 const sortSwitch = (alleles, shouldSort) => {
@@ -17,7 +18,7 @@ const sortSwitch = (alleles, shouldSort) => {
 }
 
 app.component('alleleList', {
-    templateUrl: 'ngtmpl/alleleList.ngtmpl.html',
+    template,
     bindings: {
         storePath: '<', // Path to alleles in store
         newTarget: '<', // Whether links should open in new target

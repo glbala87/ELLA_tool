@@ -5,9 +5,10 @@ import { Directive, Inject } from '../../ng-decorators'
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, string, signal } from 'cerebral/tags'
+import template from './alleleInfoPredictionOther.ngtmpl.html'
 
 app.component('alleleInfoPredictionOther', {
-    templateUrl: 'ngtmpl/alleleInfoPredictionOther.ngtmpl.html',
+    template,
     controller: connect(
         {
             config: state`app.config`,
@@ -33,26 +34,3 @@ app.component('alleleInfoPredictionOther', {
         ]
     )
 })
-
-@Directive({
-    selector: 'allele-info-prediction-other-old',
-    scope: {
-        allele: '='
-    },
-    templateUrl: 'ngtmpl/alleleInfoPredictionOther.ngtmpl.html'
-})
-@Inject('Config')
-export class AlleleInfoPredictionOther {
-    constructor(Config) {
-        this.config = Config.getConfig()
-    }
-
-    hasContent() {
-        return this.config.custom_annotation.prediction.some((group) => {
-            return (
-                'prediction' in this.allele.annotation &&
-                group.key in this.allele.annotation.prediction
-            )
-        })
-    }
-}

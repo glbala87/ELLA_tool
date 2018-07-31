@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../../ng-decorators'
+import template from './alleleInfoSplicePopoverContent.ngtmpl.html'
 
 @Directive({
     selector: 'allele-info-splice-popover',
@@ -8,7 +9,7 @@ import { Directive, Inject } from '../../ng-decorators'
         allele: '=',
         t: '='
     },
-    templateUrl: 'ngtmpl/alleleInfoSplicePopoverContent.ngtmpl.html'
+    template
 })
 @Inject()
 export class alleleInfoSplicePopover {

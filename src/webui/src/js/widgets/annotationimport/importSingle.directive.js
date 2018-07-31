@@ -2,10 +2,11 @@
 
 import { Directive, Inject } from '../../ng-decorators'
 import { printedFileSize } from '../../util'
+import template from './importSingle.ngtmpl.html'
 
 @Directive({
     selector: 'importsingle',
-    templateUrl: 'ngtmpl/importSingle.ngtmpl.html',
+    template,
     scope: {
         importData: '=',
         index: '='

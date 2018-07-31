@@ -2,6 +2,7 @@
 
 import { Directive, Inject } from '../ng-decorators'
 import { EventListeners, UUID } from '../util'
+import template from './wysiwygEditor.ngtmpl.html'
 
 @Directive({
     selector: 'wysiwyg-editor',
@@ -11,7 +12,7 @@ import { EventListeners, UUID } from '../util'
         ngDisabled: '=?'
     },
     require: '?ngModel', // get a hold of NgModelController
-    templateUrl: 'ngtmpl/wysiwygEditor.ngtmpl.html'
+    template
 })
 @Inject('$scope', '$element', 'AttachmentResource')
 export class WysiwygEditorController {
@@ -263,7 +264,7 @@ export class WysiwygEditorController {
         let img = e.target
         let imgId = img.id
 
-        let currentScale = 1.0 * img.width / img.naturalWidth
+        let currentScale = (1.0 * img.width) / img.naturalWidth
         let minScale = 0.1
         let maxScale = 1.5
 

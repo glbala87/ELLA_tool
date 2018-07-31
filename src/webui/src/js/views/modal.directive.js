@@ -1,13 +1,14 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
+import template from './modal.ngtmpl.html'
 
 app.component('modal', {
     bindings: {
         name: '@',
         dismissSignal: '=?' // If given, run signal when clicking outside
     },
-    templateUrl: 'ngtmpl/modal.ngtmpl.html',
+    template,
     transclude: true,
     controller: connect({}, 'Modal', [
         '$scope',

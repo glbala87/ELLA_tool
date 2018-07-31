@@ -5,13 +5,15 @@ import { Compute } from 'cerebral'
 
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import { getAcmgCandidates } from '../store/common/helpers/acmg'
+import template from './workflowbar.ngtmpl.html'
+import acmgSelectiontemplate from './acmgSelectionPopover.ngtmpl.html'
 
 let acmgCandidates = Compute(state`app.config`, (config) => {
     return getAcmgCandidates(config)
 })
 
 app.component('workflowbar', {
-    templateUrl: 'ngtmpl/workflowbar.ngtmpl.html',
+    template,
     controller: connect(
         {
             analysis: state`views.workflows.data.analysis`,
@@ -81,7 +83,7 @@ app.component('workflowbar', {
                     // Add ACMG popover
                     //
                     popover: {
-                        templateUrl: 'ngtmpl/acmgSelectionPopover.ngtmpl.html',
+                        template: acmgSelectiontemplate,
                         categories: ['Pathogenic', 'Benign'],
                         selectedCategory: 'Pathogenic',
                         getAcmgClass(code) {

@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive } from '../../ng-decorators'
+import template from './genepanelvalue.ngtmpl.html'
 
 /**
  * Display a value from the genepanel. Only the the values that can be overriden in the config part of the genepanel
@@ -23,7 +24,7 @@ import { Directive } from '../../ng-decorators'
         // _=always display (without override indication),
         // ?=display only when override (default)
     },
-    templateUrl: 'ngtmpl/genepanelvalue.ngtmpl.html'
+    template
 })
 export class GenepanelValueController {
     constructor() {

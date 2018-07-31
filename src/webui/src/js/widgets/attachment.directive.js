@@ -5,12 +5,13 @@ import { state, signal, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import isAlleleAssessmentReused from '../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
+import template from './attachment.ngtmpl.html'
 
 app.component('attachment', {
     bindings: {
         attachmentPath: '<'
     },
-    templateUrl: 'ngtmpl/attachment.ngtmpl.html',
+    template,
     controller: connect(
         {
             readOnly: isReadOnly,

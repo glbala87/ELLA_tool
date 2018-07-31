@@ -7,6 +7,7 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
 import getClassification from '../../store/modules/views/workflows/interpretation/computed/getClassification'
+import template from './reportcard.ngtmpl.html'
 
 function formatHGVS(allele, classification, config) {
     let hgvs = ''
@@ -69,7 +70,7 @@ const getReportAlleleData = Compute(
 )
 
 app.component('reportCard', {
-    templateUrl: 'ngtmpl/reportcard.ngtmpl.html',
+    template,
     controller: connect(
         {
             reportComment: state`views.workflows.interpretation.selected.state.report.comment`,

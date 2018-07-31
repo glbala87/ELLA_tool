@@ -6,7 +6,7 @@
             ng-style="(vm.isDowngradable() && vm.editable) && {'visibility':'visible'} || {'visibility':'hidden'}"
               class="clickable" ng-click="vm.downgradeCode()">-</h4>
         <div class="acmg-title-wrapper">
-          <h4 class="acmg-title clickable" uib-popover-template="vm.popover.templateUrl"
+          <h4 class="acmg-title clickable" uib-popover-template="vm.popover.template"
             popover-append-to-body=true
             popover-title="{{vm.getCodeForDisplay().code | noUnderscores}}"
             popover-trigger="outsideClick"

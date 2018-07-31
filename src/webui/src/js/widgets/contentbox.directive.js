@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../ng-decorators'
+import template from './contentbox.ngtmpl.html'
 
 /**
  <contentbox>
@@ -15,7 +16,7 @@ import { Directive, Inject } from '../ng-decorators'
         disabled: '=?'
     },
     transclude: { cbbody: 'cbbody' },
-    templateUrl: 'ngtmpl/contentbox.ngtmpl.html'
+    template
 })
 @Inject('$scope')
 export class ContentboxController {

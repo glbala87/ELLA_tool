@@ -1,9 +1,10 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import template from './alleleInfoQuality.ngtmpl.html'
 
 app.component('alleleInfoQuality', {
-    templateUrl: 'ngtmpl/alleleInfoQuality.ngtmpl.html',
+    template,
     controller: connect(
         {
             allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`

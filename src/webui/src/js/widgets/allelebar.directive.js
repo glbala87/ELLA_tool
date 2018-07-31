@@ -3,9 +3,10 @@ import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import { compute } from 'cerebral'
 import getGenepanelValuesForAllele from '../store/common/computes/getGenepanelValuesForAllele'
+import template from './allelebar.ngtmpl.html'
 
 app.component('allelebar', {
-    templateUrl: 'ngtmpl/allelebar.ngtmpl.html',
+    template,
     bindings: {
         allelePath: '<',
         genepanelPath: '<'

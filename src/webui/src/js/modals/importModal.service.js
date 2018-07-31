@@ -3,6 +3,7 @@ import toastr from 'toastr'
 import { Service, Inject } from '../ng-decorators'
 import { UUID } from '../util'
 import { ImportData } from '../model/importdata'
+import template from './importModal.ngtmpl.html'
 
 export class ImportController {
     constructor(modalInstance, User, AnnotationjobResource, $interval, $filter, $scope) {
@@ -203,7 +204,7 @@ export class ImportModal {
 
     show() {
         let modal = this.modalService.open({
-            templateUrl: 'ngtmpl/importModal.ngtmpl.html',
+            template,
             controller: [
                 '$uibModalInstance',
                 'User',

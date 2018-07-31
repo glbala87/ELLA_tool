@@ -2,6 +2,7 @@ import app from '../../ng-decorators'
 import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import template from './import.ngtmpl.html'
 
 const addedCount = Compute(state`views.overview.import.added.addedGenepanel`, (addedGenepanel) => {
     const counts = {
@@ -60,7 +61,7 @@ const canImport = Compute(
 )
 
 app.component('import', {
-    templateUrl: 'ngtmpl/import.ngtmpl.html',
+    template,
     controller: connect(
         {
             canImport,

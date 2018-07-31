@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../ng-decorators'
+import template from './checkablebutton.ngtmpl.html'
 
 /**
  <checkable-button>
@@ -23,7 +24,7 @@ import { Directive, Inject } from '../ng-decorators'
         ngDisabled: '=',
         oneWay: '=?' // Don't update model upon clicking.
     },
-    templateUrl: 'ngtmpl/checkablebutton.ngtmpl.html',
+    template,
     link: (scope, elem, attrs) => {
         if ('listModel' in attrs) {
             if (!('listValue' in attrs)) {

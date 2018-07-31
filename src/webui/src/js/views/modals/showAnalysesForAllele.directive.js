@@ -3,9 +3,10 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import template from './showAnalysesForAllele.ngtmpl.html'
 
 app.component('showAnalysesForAllele', {
-    templateUrl: 'ngtmpl/showAnalysesForAllele.ngtmpl.html',
+    template,
     controller: connect(
         {
             analyses: state`modals.showAnalysesForAllele.data.analyses`,

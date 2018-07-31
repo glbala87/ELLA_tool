@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 import { Service, Inject } from '../ng-decorators'
 import { deepCopy, deepEquals } from '../util'
+import template from './referenceEvalModal.ngtmpl.html'
 
 export class ReferenceEvalModalController {
     /**
@@ -750,7 +751,7 @@ export class ReferenceEvalModal {
      */
     show(analysis, allele, reference, referenceAssessment, readOnly) {
         let modal = this.modalService.open({
-            templateUrl: 'ngtmpl/referenceEvalModal.ngtmpl.html',
+            template,
             controller: [
                 '$uibModalInstance',
                 'Config',

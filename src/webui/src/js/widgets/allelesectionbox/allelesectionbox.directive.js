@@ -17,6 +17,7 @@ import {
     isIgnored
 } from '../../store/common/helpers/reference'
 import { deepCopy } from '../../util'
+import template from './allelesectionbox.ngtmpl.html'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -79,7 +80,7 @@ app.component('alleleSectionbox', {
     bindings: {
         sectionKey: '<'
     },
-    templateUrl: 'ngtmpl/allelesectionbox.ngtmpl.html',
+    template,
     controller: connect(
         {
             classificationOptions,

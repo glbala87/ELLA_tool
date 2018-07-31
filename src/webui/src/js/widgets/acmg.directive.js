@@ -2,6 +2,8 @@
 
 import { Directive, Inject } from '../ng-decorators'
 import { ACMGHelper } from '../model/acmghelper'
+import acmgTemplate from './acmg.ngtmpl.html'
+import acmgPopover from './acmgPopover.ngtmpl.html'
 
 @Directive({
     selector: 'acmg',
@@ -18,14 +20,14 @@ import { ACMGHelper } from '../model/acmghelper'
         popoverPlacement: '=?',
         addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
     },
-    templateUrl: 'ngtmpl/acmg.ngtmpl.html'
+    template: acmgTemplate
 })
 @Inject('Config', '$scope')
 export class AcmgController {
     constructor(Config, $scope) {
         this.config = Config.getConfig()
         this.popover = {
-            templateUrl: 'ngtmpl/acmgPopover.ngtmpl.html'
+            template: acmgPopover
         }
         this.popoverPlacement = this.popoverPlacement || 'auto'
 

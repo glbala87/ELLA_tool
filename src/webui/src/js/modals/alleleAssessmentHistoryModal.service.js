@@ -1,5 +1,6 @@
 /* jshint esnext: true */
 import { Service, Inject } from '../ng-decorators'
+import template from './alleleAssessmentHistoryModal.ngtmpl.html'
 
 export class AlleleAssessmentHistoryController {
     constructor(
@@ -55,7 +56,7 @@ export class AlleleAssessmentHistoryModal {
      */
     show(allele_id) {
         let modal = this.modalService.open({
-            templateUrl: 'ngtmpl/alleleAssessmentHistoryModal.ngtmpl.html',
+            template,
             controller: [
                 '$uibModalInstance',
                 'AlleleResource',

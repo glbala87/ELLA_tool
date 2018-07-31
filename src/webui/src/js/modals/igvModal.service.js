@@ -1,5 +1,6 @@
 /* jshint esnext: true */
 import { Service, Inject } from '../ng-decorators'
+import template from './igvModal.ngtmpl.html'
 
 export class IgvModalController {
     /**
@@ -59,7 +60,7 @@ export class IgvModal {
      */
     show(analysis, allele) {
         let modal = this.modalService.open({
-            templateUrl: 'ngtmpl/igvModal.ngtmpl.html',
+            template,
             controller: ['$uibModalInstance', 'Config', 'allele', IgvModalController],
             controllerAs: 'vm',
             resolve: {

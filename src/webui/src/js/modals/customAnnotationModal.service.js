@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 import { deepEquals, deepCopy } from '../util'
 import { Service, Inject } from '../ng-decorators'
+import template from './customAnnotationModal.ngtmpl.html'
 
 /**
  * Supports two "modes", normal annotation and adding
@@ -297,7 +298,7 @@ export class CustomAnnotationModal {
         }
 
         let modal = this.modalService.open({
-            templateUrl: 'ngtmpl/customAnnotationModal.ngtmpl.html',
+            template,
             controller: [
                 '$scope',
                 '$uibModalInstance',

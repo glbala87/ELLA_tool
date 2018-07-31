@@ -6,9 +6,10 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getSuggestedAcmgCodes from '../../store/modules/views/workflows/interpretation/computed/getSuggestedAcmgCodes'
 import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 import getReqCodes from '../../store/modules/views/workflows/interpretation/computed/getReqCodes'
+import template from './alleleInfoAcmgSelection.ngtmpl.html'
 
 app.component('alleleInfoAcmgSelection', {
-    templateUrl: 'ngtmpl/alleleInfoAcmgSelection.ngtmpl.html',
+    template,
     controller: connect(
         {
             allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,

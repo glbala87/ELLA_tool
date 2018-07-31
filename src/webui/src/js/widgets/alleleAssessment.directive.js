@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../ng-decorators'
+import template from './alleleAssessment.ngtmpl.html'
 
 @Directive({
     selector: 'allele-assessment',
@@ -11,7 +12,7 @@ import { Directive, Inject } from '../ng-decorators'
         attachments: '=',
         summaryOnly: '=?'
     },
-    templateUrl: 'ngtmpl/alleleAssessment.ngtmpl.html'
+    template
 })
 @Inject('Config')
 export class AlleleInfoVardb {

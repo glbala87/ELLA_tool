@@ -3,9 +3,10 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import template from './reassignWorkflow.ngtmpl.html'
 
 app.component('reassignWorkflow', {
-    templateUrl: 'ngtmpl/reassignWorkflow.ngtmpl.html',
+    template,
     controller: connect(
         {
             reassignWorkflowClicked: signal`views.workflows.reassignWorkflowClicked`,

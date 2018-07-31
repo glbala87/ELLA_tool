@@ -1,9 +1,10 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import template from './login.ngtmpl.html'
 
 app.component('login', {
-    templateUrl: 'ngtmpl/login.ngtmpl.html',
+    template,
     controller: connect(
         {
             usernameChanged: signal`views.login.usernameChanged`,

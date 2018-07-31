@@ -1,3 +1,7 @@
+/* jshint esnext: true */
+import '../css/base.css'
+import '../sass/main.scss'
+
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
 

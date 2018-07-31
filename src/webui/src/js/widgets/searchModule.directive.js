@@ -1,6 +1,7 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import template from './searchModule.ngtmpl.html'
 
 const TYPES = [
     {
@@ -14,7 +15,7 @@ const TYPES = [
 ]
 
 app.component('search', {
-    templateUrl: 'ngtmpl/searchModule.ngtmpl.html',
+    template,
     controller: connect(
         {
             query: state`search.query`,

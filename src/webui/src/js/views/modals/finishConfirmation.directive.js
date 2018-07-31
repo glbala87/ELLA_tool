@@ -2,9 +2,10 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import canFinalize from '../../store/modules/views/workflows/computed/canFinalize'
+import template from './finishConfirmation.ngtmpl.html'
 
 app.component('finishConfirmation', {
-    templateUrl: 'ngtmpl/finishConfirmation.ngtmpl.html',
+    template,
     controller: connect(
         {
             workflowStatus: state`views.workflows.interpretation.selected.workflow_status`,
