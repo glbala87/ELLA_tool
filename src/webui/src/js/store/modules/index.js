@@ -89,8 +89,7 @@ function RootModule(withRouter = true) {
             'ReferenceEvalModal',
             'ImportModal',
             'Config',
-            'User',
-            '$uibModal'
+            'User'
         ]
     })
 }
