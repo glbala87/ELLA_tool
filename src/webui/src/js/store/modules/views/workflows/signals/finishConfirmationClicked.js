@@ -3,7 +3,7 @@ import { props, string } from 'cerebral/tags'
 import { goTo } from '@cerebral/router/operators'
 import saveInterpretation from '../sequences/saveInterpretation'
 import finishWorkflow from '../factories/finishWorkflow'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import closeModal from '../../../../common/actions/closeModal'
 import finishAllowed from '../factories/finishAllowed'
 
@@ -17,12 +17,12 @@ const finishWorkflowWithStatus = (status) => {
                     {
                         success: [goTo('/overview')],
                         error: [
-                            toastr('error', `Something went wrong while marking workflow ${status}`)
+                            toast('error', `Something went wrong while marking workflow ${status}`)
                         ]
                     }
                 ])
             ],
-            false: [toastr('error', string`${props`errorMessage`}`)]
+            false: [toast('error', string`${props`errorMessage`}`)]
         }
     ]
 }

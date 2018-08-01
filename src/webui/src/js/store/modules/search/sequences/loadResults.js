@@ -2,7 +2,7 @@ import { sequence } from 'cerebral'
 import { set, when } from 'cerebral/operators'
 import { module, props } from 'cerebral/tags'
 import { UUID } from '../../../../util'
-import toastr from '../../../common/factories/toastr'
+import toast from '../../../common/factories/toast'
 import getResults from '../actions/getResults'
 import checkQuery from '../actions/checkQuery'
 import checkSearchId from '../actions/checkSearchId'
@@ -27,7 +27,7 @@ export default sequence('loadResults', [
                         false: [] // Ignore result
                     }
                 ],
-                error: [toastr('error', 'An error occured while searching.')]
+                error: [toast('error', 'An error occured while searching.')]
             }
         ],
         false: [set(module`results`, null)]

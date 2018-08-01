@@ -1,14 +1,14 @@
 'use strict'
+import toastr from 'toastr'
 import { Service, Inject } from '../ng-decorators'
 import { UUID } from '../util'
 import { ImportData } from '../model/importdata'
 
 export class ImportController {
-    constructor(modalInstance, User, AnnotationjobResource, toastr, $interval, $filter, $scope) {
+    constructor(modalInstance, User, AnnotationjobResource, $interval, $filter, $scope) {
         this.modal = modalInstance
         this.user = User.getCurrentUser()
         this.annotationjobResource = AnnotationjobResource
-        this.toastr = toastr
         this.filter = $filter
         this.user = User.getCurrentUser()
 
@@ -28,7 +28,7 @@ export class ImportController {
 
         this.annotationjobResource.annotationServiceRunning().then((isAlive) => {
             if (!isAlive) {
-                this.toastr.error(
+                toastr.error(
                     'Unable to connect to annotation service. Contact support to restart the annotation service.'
                 )
             }

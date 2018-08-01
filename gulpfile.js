@@ -51,19 +51,14 @@ var onError = function(err) {
  */
 gulp.task('tp-js', function() {
     var sourcePaths = [
-        './node_modules/js-polyfills/polyfill.min.js',
         'src/webui/src/thirdparty/angular/1.6.7/angular.js',
         'src/webui/src/thirdparty/angular/1.6.7/angular-resource.js',
         'src/webui/src/thirdparty/angular/1.6.7/angular-animate.js',
         'src/webui/src/thirdparty/angular/1.6.7/angular-sanitize.js',
         'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
-        'src/webui/src/thirdparty/angular-toastr/angular-toastr.tpls.min.js',
         'src/webui/src/thirdparty/checklist-model/checklist-model.js',
         'src/webui/src/thirdparty/autosize-textarea/autosize.js',
         'src/webui/src/thirdparty/thenby/thenBy.min.js',
-        'src/webui/src/thirdparty/igv/jquery.min.js', // <-- Beware, we're using jquery here (in case of conflicts)
-        'src/webui/src/thirdparty/igv/jquery-ui.min.js',
-        'src/webui/src/thirdparty/igv/igv-1.0.5.min.js',
         'src/webui/src/thirdparty/angular-selector/angular-selector.min.js',
         'src/webui/src/thirdparty/wysiwygjs/wysiwyg.js',
         'src/webui/src/thirdparty/markdown-it/markdown-it.js',

@@ -1,7 +1,7 @@
 import { set, get } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getAllUsers from '../../../../../store/common/actions/getAllUsers'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 
 // Populate state with users belonging to the same group
 
@@ -24,6 +24,6 @@ export default [
     getAllUsers,
     {
         success: [userByGroup, set(state`views.dashboard.data.usersInGroup`, props`usersInGroup`)],
-        error: [toastr('error', 'Cannot find other users')]
+        error: [toast('error', 'Cannot find other users')]
     }
 ]

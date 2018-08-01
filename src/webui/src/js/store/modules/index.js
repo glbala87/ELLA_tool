@@ -12,6 +12,7 @@ import { IntervalProvider, ProgressProvider, ClipboardProvider } from '../common
 import onBeforeUnload from '../common/providers/onBeforeUnload'
 import closeModal from '../common/actions/closeModal'
 import showModal from '../common/actions/showModal'
+import toastProvider from '../common/providers/toastProvider'
 
 let http = HttpProvider({
     baseUrl: '/api/v1/',
@@ -80,10 +81,10 @@ function RootModule(withRouter = true) {
             onBeforeUnload,
             interval: IntervalProvider,
             clipboard: ClipboardProvider,
+            toast: toastProvider,
             http
         },
         services: [
-            'toastr',
             'AlleleAssessmentHistoryModal',
             'CustomAnnotationModal',
             'ReferenceEvalModal',

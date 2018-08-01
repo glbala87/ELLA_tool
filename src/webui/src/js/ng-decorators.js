@@ -11,7 +11,6 @@ export let app = angular.module('workbench', [
     'ngResource',
     'ngAnimate',
     'checklist-model',
-    'toastr',
     'selector',
     'ngSanitize',
     'cerebral'

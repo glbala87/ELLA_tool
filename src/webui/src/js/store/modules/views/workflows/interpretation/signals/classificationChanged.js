@@ -1,7 +1,7 @@
 import { when, set, debounce } from 'cerebral/operators'
 import { state, module, props } from 'cerebral/tags'
 import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import checkAddRemoveAlleleToReport from '../actions/checkAddRemoveAllelesToReport'
 import allelesChanged from '../../alleleSidebar/sequences/allelesChanged'
 import setDirty from '../actions/setDirty'
@@ -24,6 +24,6 @@ export default [
             checkAddRemoveAlleleToReport,
             allelesChanged
         ],
-        false: [toastr('error', 'Cannot change classification when interpretation is not Ongoing')]
+        false: [toast('error', 'Cannot change classification when interpretation is not Ongoing')]
     }
 ]

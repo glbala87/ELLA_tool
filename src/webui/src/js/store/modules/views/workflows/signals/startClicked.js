@@ -3,7 +3,7 @@ import { state, props, string } from 'cerebral/tags'
 import saveInterpretation from '../sequences/saveInterpretation'
 import startWorkflow from '../factories/startWorkflow'
 import loadInterpretations from '../sequences/loadInterpretations'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import showModal from '../../../../common/actions/showModal'
 
 // After starting the workflow, we need to reload
@@ -14,7 +14,7 @@ const startWorkflowSequence = [
     startWorkflow('start'),
     {
         success: [loadInterpretations],
-        error: [toastr('error', 'Something went wrong when starting workflow.')]
+        error: [toast('error', 'Something went wrong when starting workflow.')]
     }
 ]
 
@@ -34,14 +34,14 @@ export default [
                             {
                                 success: [loadInterpretations],
                                 error: [
-                                    toastr('error', 'Something went wrong when starting workflow.')
+                                    toast('error', 'Something went wrong when starting workflow.')
                                 ]
                             }
                         ],
                         false: [loadInterpretations]
                     }
                 ],
-                error: [toastr('error', 'Something went wrong when reopening workflow.')]
+                error: [toast('error', 'Something went wrong when reopening workflow.')]
             }
         ],
         'Not ready': startWorkflowSequence,

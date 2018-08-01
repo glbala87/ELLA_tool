@@ -6,7 +6,7 @@ import getOverviewAnalysesByFindings from '../actions/getOverviewAnalysesByFindi
 import getOverviewAlleles from '../actions/getOverviewAlleles'
 import loadFinalized from '../sequences/loadFinalized'
 import progress from '../../../../common/factories/progress'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import loadImport from '../import/sequences/loadImport'
 
 export default sequence('loadOverview', [
@@ -19,7 +19,7 @@ export default sequence('loadOverview', [
             getOverviewAlleles,
             {
                 success: [set(module`data.alleles`, props`result`)],
-                error: [toastr('error', 'Failed to load variants')]
+                error: [toast('error', 'Failed to load variants')]
             },
             [set(props`page`, 1), loadFinalized]
         ]),
@@ -27,7 +27,7 @@ export default sequence('loadOverview', [
             getOverviewAnalyses,
             {
                 success: [set(module`data.analyses`, props`result`)],
-                error: [toastr('error', 'Failed to load analyses')]
+                error: [toast('error', 'Failed to load analyses')]
             },
             [set(props`page`, 1), loadFinalized]
         ]),
@@ -36,11 +36,11 @@ export default sequence('loadOverview', [
             getOverviewAnalysesByFindings,
             {
                 success: [set(module`data.analyses`, props`result`)],
-                error: [toastr('error', 'Failed to load analyses')]
+                error: [toast('error', 'Failed to load analyses')]
             },
             [set(props`page`, 1), loadFinalized]
         ]),
-        otherwise: [toastr('error', 'Invalid section')]
+        otherwise: [toast('error', 'Invalid section')]
     },
     progress('done')
 ])

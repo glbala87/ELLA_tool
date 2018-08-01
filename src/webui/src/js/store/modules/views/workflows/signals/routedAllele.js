@@ -5,7 +5,7 @@ import getAlleleByIdentifier from '../actions/getAlleleByIdentifier'
 import getGenepanels from '../actions/getGenepanels'
 import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import loadGenepanel from '../sequences/loadGenepanel'
 import loadCollisions from '../sequences/loadCollisions'
 import showExitWarning from '../showExitWarning'
@@ -20,7 +20,7 @@ export default [
     set(state`views.workflows.type`, string`allele`),
     getAlleleByIdentifier,
     {
-        error: [toastr('error', 'Invalid URL: Variant not found')],
+        error: [toast('error', 'Invalid URL: Variant not found')],
         success: [
             set(state`views.workflows.allele`, props`result`),
             set(state`views.workflows.id`, props`result.id`),
@@ -46,7 +46,7 @@ export default [
                                 state`views.workflows.data.genepanels.0`
                             )
                         ],
-                        error: [toastr('error', 'Failed to load genepanels')]
+                        error: [toast('error', 'Failed to load genepanels')]
                     }
                 ]
             },

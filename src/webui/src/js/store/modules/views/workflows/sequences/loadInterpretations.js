@@ -6,13 +6,13 @@ import prepareSelectedInterpretation from '../actions/prepareSelectedInterpretat
 import prepareStartMode from '../actions/prepareStartMode'
 import loadInterpretationData from '../signals/loadInterpretationData'
 
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 
 export default sequence('loadInterpretations', [
     set(state`views.workflows.loaded`, false),
     getInterpretations,
     {
-        error: [toastr('error', 'Failed to load interpretations', 30000)],
+        error: [toast('error', 'Failed to load interpretations', 30000)],
         success: [
             set(state`views.workflows.data.interpretations`, props`result`),
             prepareSelectedInterpretation,

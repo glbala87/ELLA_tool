@@ -1,8 +1,7 @@
 import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import { loadConfig } from '../signals'
 import { getConfig } from '../actions'
-import toastr from './toastr'
+import toast from './toast'
 
 function initApp(continueSequence) {
     return [
@@ -23,7 +22,7 @@ function initApp(continueSequence) {
                     ],
                     error: [
                         set(state`app.config`, null),
-                        toastr(
+                        toast(
                             'error',
                             'ella cannot start. Please contact support: "Failed to load configuration"',
                             10000000

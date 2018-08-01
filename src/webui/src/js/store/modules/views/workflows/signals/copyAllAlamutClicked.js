@@ -1,4 +1,4 @@
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import copyAllAlamut from '../actions/copyAllAlamut'
 
-export default [copyAllAlamut, toastr('info', `Copied all variants to clipboard`)]
+export default [copyAllAlamut, toast('info', `Copied all variants to clipboard`)]
