@@ -16,7 +16,7 @@ import { Directive } from '../../ng-decorators'
 @Directive({
     selector: 'gpv',
     scope: {
-        source: '&',
+        source: '=',
         display: '@',
         prefix: '@', // the character to display in front of the value
         mode: '@' // !=always display value (with override indication),
@@ -28,22 +28,21 @@ import { Directive } from '../../ng-decorators'
 export class GenepanelValueController {
     constructor() {
         this.mode = typeof this.mode == 'undefined' ? '?' : this.mode // make '?' the default
-        this.gp_values = this.source() // get the values
     }
 
     getValue() {
         if (this.display === 'last_exon') {
-            return this.gp_values[this.display] ? 'LEI' : 'LENI'
+            return this.source[this.display] ? 'LEI' : 'LENI'
         } else if (this.display === 'freq_cutoffs_external') {
-            return `${this.gp_values['freq_cutoffs'].external.lo_freq_cutoff}/${
-                this.gp_values['freq_cutoffs'].external.hi_freq_cutoff
+            return `${this.source['freq_cutoffs'].external.lo_freq_cutoff}/${
+                this.source['freq_cutoffs'].external.hi_freq_cutoff
             }`
         } else if (this.display === 'freq_cutoffs_internal') {
-            return `${this.gp_values['freq_cutoffs'].internal.lo_freq_cutoff}/${
-                this.gp_values['freq_cutoffs'].internal.hi_freq_cutoff
+            return `${this.source['freq_cutoffs'].internal.lo_freq_cutoff}/${
+                this.source['freq_cutoffs'].internal.hi_freq_cutoff
             }`
         }
-        return this.gp_values[this.display]
+        return this.source[this.display]
     }
 
     shouldDisplay() {
@@ -59,6 +58,6 @@ export class GenepanelValueController {
         if (this.mode === '_') {
             return false
         }
-        return this.gp_values['_overridden'].includes(this.display)
+        return this.source['_overridden'].includes(this.display)
     }
 }
