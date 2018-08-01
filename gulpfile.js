@@ -55,7 +55,6 @@ gulp.task('tp-js', function() {
         'src/webui/src/thirdparty/angular/1.6.7/angular.js',
         'src/webui/src/thirdparty/angular/1.6.7/angular-resource.js',
         'src/webui/src/thirdparty/angular/1.6.7/angular-animate.js',
-        'src/webui/src/thirdparty/angular/1.6.7/angular-cookies.js',
         'src/webui/src/thirdparty/angular/1.6.7/angular-sanitize.js',
         'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
         'src/webui/src/thirdparty/angular-toastr/angular-toastr.tpls.min.js',

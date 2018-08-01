@@ -10,7 +10,6 @@ export let app = angular.module('workbench', [
     'templates',
     'ngResource',
     'ngAnimate',
-    'ngCookies',
     'checklist-model',
     'toastr',
     'selector',
