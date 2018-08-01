@@ -51,15 +51,8 @@ var onError = function(err) {
  */
 gulp.task('tp-js', function() {
     var sourcePaths = [
-        'src/webui/src/thirdparty/angular/1.6.7/angular.js',
-        'src/webui/src/thirdparty/angular/1.6.7/angular-resource.js',
-        'src/webui/src/thirdparty/angular/1.6.7/angular-animate.js',
-        'src/webui/src/thirdparty/angular/1.6.7/angular-sanitize.js',
-        'src/webui/src/thirdparty/angularui-bootstrap/ui-bootstrap-tpls-1.1.1.min.js',
-        'src/webui/src/thirdparty/checklist-model/checklist-model.js',
         'src/webui/src/thirdparty/autosize-textarea/autosize.js',
         'src/webui/src/thirdparty/thenby/thenBy.min.js',
-        'src/webui/src/thirdparty/angular-selector/angular-selector.min.js',
         'src/webui/src/thirdparty/wysiwygjs/wysiwyg.js',
         'src/webui/src/thirdparty/markdown-it/markdown-it.js',
         'src/webui/src/thirdparty/vanilla-color-picker/vanilla-color-picker.min.js'
