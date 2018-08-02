@@ -1,3 +1,4 @@
+import thenBy from 'thenby'
 import { formatInheritance } from './genepanel'
 
 export default function processAlleles(alleles, genepanel = null) {
@@ -9,7 +10,7 @@ export default function processAlleles(alleles, genepanel = null) {
                 )
             )
         } else {
-            allele.annotation.filtered = allele.annotation.transcripts.sort(firstBy('transcript'))
+            allele.annotation.filtered = allele.annotation.transcripts.sort(thenBy('transcript'))
         }
 
         allele.urls = getUrls(allele)

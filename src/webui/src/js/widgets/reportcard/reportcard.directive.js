@@ -1,3 +1,5 @@
+import thenBy from 'thenby'
+
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
@@ -49,7 +51,7 @@ const getReportAlleleData = Compute(
         })
 
         includedAlleles.sort(
-            firstBy((a) => {
+            thenBy((a) => {
                 const classification = get(getClassification(a.id, true))
                 return config.classification.options.findIndex((o) => o.value === classification)
             }, -1)

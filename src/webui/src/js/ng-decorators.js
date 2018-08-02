@@ -7,9 +7,6 @@ import 'angular-resource'
 import 'angular-sanitize'
 import angularChecklistModel from 'checklist-model'
 import angularSelector from 'angular-selector'
-//import angularTemplates from '../../build/templates'
-//console.log(angularTemplates)
-
 import { addModule, connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 

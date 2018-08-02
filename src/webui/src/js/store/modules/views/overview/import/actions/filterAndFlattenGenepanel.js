@@ -1,3 +1,5 @@
+import thenBy from 'thenby'
+
 export default function filterAndFlattenGenepanel(source, flattenedDest, query) {
     return function filterAndFlattenGenepanel({ state }) {
         const genepanel = state.get(source)
@@ -44,7 +46,7 @@ export default function filterAndFlattenGenepanel(source, flattenedDest, query) 
                 })
             }
         }
-        flattened.sort(firstBy('hgnc_symbol').thenBy('transcript_name'))
+        flattened.sort(thenBy('hgnc_symbol').thenBy('transcript_name'))
         state.set(flattenedDest, flattened)
     }
 }

@@ -1,3 +1,4 @@
+import thenBy from 'thenby'
 import { Compute } from 'cerebral'
 import { state, props, string } from 'cerebral/tags'
 
@@ -6,7 +7,7 @@ export default function sortedAlleles(alleles) {
         if (alleles) {
             alleles = alleles.slice()
             alleles.sort(
-                firstBy((a) => a.highest_analysis_priority, -1)
+                thenBy((a) => a.highest_analysis_priority, -1)
                     .thenBy((a) => {
                         // Ignore seconds/milliseconds when sorting
                         let d = new Date(a.oldest_analysis)

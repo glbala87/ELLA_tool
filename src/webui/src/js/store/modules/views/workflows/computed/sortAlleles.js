@@ -1,3 +1,4 @@
+import thenBy from 'thenby'
 import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isHomozygous from '../alleleSidebar/computed/isHomozygous'
@@ -90,7 +91,7 @@ export default function sortAlleles(alleles, key, reverse) {
 
             if (key === 'classification') {
                 sortedAlleles.sort(
-                    firstBy(sortFunctions.technical)
+                    thenBy(sortFunctions.technical)
                         .thenBy(sortFunctions.classification, -1)
                         .thenBy(sortFunctions.inheritance)
                         .thenBy(sortFunctions.gene)
@@ -98,14 +99,14 @@ export default function sortAlleles(alleles, key, reverse) {
                 )
             } else if (key) {
                 sortedAlleles.sort(
-                    firstBy(sortFunctions[key], reverse ? -1 : 1)
+                    thenBy(sortFunctions[key], reverse ? -1 : 1)
                         .thenBy(sortFunctions.inheritance)
                         .thenBy(sortFunctions.gene)
                         .thenBy(sortFunctions.hgvsc)
                 )
             } else {
                 sortedAlleles.sort(
-                    firstBy(sortFunctions.inheritance)
+                    thenBy(sortFunctions.inheritance)
                         .thenBy(sortFunctions.gene)
                         .thenBy(sortFunctions.hgvsc)
                 )
