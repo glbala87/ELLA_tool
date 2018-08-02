@@ -308,7 +308,7 @@ test-js: test-build
 	  $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
-	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
+	docker exec $(PIPELINE_ID)-js npm run test
 	@docker rm -f $(PIPELINE_ID)-js
 
 test-js-auto: test-build
@@ -322,7 +322,7 @@ test-js-auto: test-build
 
 	@echo ""
 	@echo "Runs gulp forever. Ctrl-C to exit. The container ${PIPELINE_ID}-js must be manuallry stopped/removed."
-	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit-auto
+	docker exec $(PIPELINE_ID)-js npm run test-watch
 
 test-common: test-build
 	docker run -d \
