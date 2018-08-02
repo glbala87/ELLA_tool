@@ -72,7 +72,7 @@ const getReportAlleleData = Compute(
 )
 
 app.component('reportCard', {
-    template,
+    templateUrl: 'reportcard.ngtmpl.html',
     controller: connect(
         {
             reportComment: state`views.workflows.interpretation.selected.state.report.comment`,

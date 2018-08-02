@@ -4,7 +4,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './collisionWarning.ngtmpl.html'
 
 app.component('collisionWarning', {
-    template,
+    templateUrl: 'collisionWarning.ngtmpl.html',
     controller: connect(
         {
             type: state`views.workflows.type`,

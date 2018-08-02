@@ -9,7 +9,7 @@ import sortAlleles from '../store/modules/views/workflows/computed/sortAlleles'
 import template from './analysisInfo.ngtmpl.html'
 
 app.component('analysisInfo', {
-    template,
+    templateUrl: 'analysisInfo.ngtmpl.html',
     controller: connect(
         {
             analysis: state`views.workflows.data.analysis`,

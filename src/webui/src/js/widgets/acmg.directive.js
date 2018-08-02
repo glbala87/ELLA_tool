@@ -27,7 +27,7 @@ export class AcmgController {
     constructor(Config, $scope) {
         this.config = Config.getConfig()
         this.popover = {
-            template: acmgPopover
+            templateUrl: 'acmgPopover.ngtmpl.html'
         }
         this.popoverPlacement = this.popoverPlacement || 'auto'
 

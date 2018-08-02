@@ -9,7 +9,7 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import template from './workflow.ngtmpl.html'
 
 app.component('workflow', {
-    template,
+    templateUrl: 'workflow.ngtmpl.html',
     controller: connect(
         {
             selectedComponent: state`views.workflows.selectedComponent`,

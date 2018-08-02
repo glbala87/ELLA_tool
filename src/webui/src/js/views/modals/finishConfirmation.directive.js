@@ -5,7 +5,7 @@ import canFinalize from '../../store/modules/views/workflows/computed/canFinaliz
 import template from './finishConfirmation.ngtmpl.html'
 
 app.component('finishConfirmation', {
-    template,
+    templateUrl: 'finishConfirmation.ngtmpl.html',
     controller: connect(
         {
             workflowStatus: state`views.workflows.interpretation.selected.workflow_status`,

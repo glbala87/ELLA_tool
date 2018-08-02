@@ -6,12 +6,13 @@ import { Compute } from 'cerebral'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import isAlleleAssessmentReused from '../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 import template from './attachment.ngtmpl.html'
+import popover from './attachmentPopover.ngtmpl.html'
 
 app.component('attachment', {
     bindings: {
         attachmentPath: '<'
     },
-    template,
+    templateUrl: 'attachment.ngtmpl.html',
     controller: connect(
         {
             readOnly: isReadOnly,
@@ -36,7 +37,7 @@ app.component('attachment', {
                         }
                     },
                     getPopoverTemplate() {
-                        return 'ngtmpl/attachmentPopover.ngtmpl.html'
+                        return 'attachmentPopover.ngtmpl.html'
                     },
                     getPrintedFileSize() {
                         return printedFileSize($ctrl.attachment.size)

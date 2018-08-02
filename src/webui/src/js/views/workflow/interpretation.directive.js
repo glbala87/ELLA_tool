@@ -8,7 +8,7 @@ import shouldShowSidebar from '../../store/modules/views/workflows/alleleSidebar
 import template from './interpretation.ngtmpl.html'
 
 app.component('interpretation', {
-    template,
+    templateUrl: 'interpretation.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

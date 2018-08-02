@@ -8,7 +8,7 @@ app.component('modal', {
         name: '@',
         dismissSignal: '=?' // If given, run signal when clicking outside
     },
-    template,
+    templateUrl: 'modal.ngtmpl.html',
     transclude: true,
     controller: connect({}, 'Modal', [
         '$scope',

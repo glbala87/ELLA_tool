@@ -3,12 +3,13 @@ import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import getWorseConsequenceTranscripts from '../../store/common/computes/getWorseConsequenceTranscripts'
 import template from './alleleInfoConsequence.ngtmpl.html'
+import popover from './alleleInfoConsequencePopover.ngtmpl.html'
 
 app.component('alleleInfoConsequence', {
     bindings: {
         allelePath: '<'
     },
-    template,
+    templateUrl: 'alleleInfoConsequence.ngtmpl.html',
     controller: connect(
         {
             allele: state`${props`allelePath`}`,

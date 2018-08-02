@@ -87,7 +87,7 @@ const addedTotalItems = Compute(state`views.overview.import.added.addedGenepanel
 })
 
 app.component('customGenepanelEditor', {
-    template,
+    templateUrl: 'customGenepanelEditor.ngtmpl.html',
     controller: connect(
         {
             candidateTranscripts,

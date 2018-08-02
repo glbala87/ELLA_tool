@@ -8,7 +8,7 @@ app.component('referenceassessment', {
     bindings: {
         referenceId: '='
     },
-    template,
+    templateUrl: 'referenceAssessment.ngtmpl.html',
     controller: connect(
         {
             referenceAssessment: getReferenceAssessment(

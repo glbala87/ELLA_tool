@@ -4,7 +4,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './login.ngtmpl.html'
 
 app.component('login', {
-    template,
+    templateUrl: 'login.ngtmpl.html',
     controller: connect(
         {
             usernameChanged: signal`views.login.usernameChanged`,

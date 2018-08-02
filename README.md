@@ -47,7 +47,7 @@ Mount points of interest:
 Internally, the `supervisord` will spin up:
   - nginx - acting as reverse proxy and serving static files
   - gunicorn - launching several API workers
-  - gulp - transpiles the frontend upon startup
+  - webpack - transpiles the frontend upon startup
   - analyses-watcher - handles watching for and importing new data
 
 Transpiling the frontend files may take up to a minute, so it might take some time before the application is available.

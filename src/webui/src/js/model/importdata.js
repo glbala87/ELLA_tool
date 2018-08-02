@@ -179,7 +179,7 @@ export class ImportData {
     getFileNameBase() {
         let fileNameBase = ''
         if (this.filename) {
-            if (this.filename.contains('.')) {
+            if (this.filename.includes('.')) {
                 fileNameBase = this.filename.substring(0, this.filename.lastIndexOf('.'))
             } else {
                 fileNameBase = this.filename

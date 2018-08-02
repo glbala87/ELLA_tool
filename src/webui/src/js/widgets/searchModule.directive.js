@@ -15,7 +15,7 @@ const TYPES = [
 ]
 
 app.component('search', {
-    template,
+    templateUrl: 'searchModule.ngtmpl.html',
     controller: connect(
         {
             query: state`search.query`,

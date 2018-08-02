@@ -9,7 +9,7 @@ app.component('frequencyDetails', {
         allelePath: '<',
         group: '=' // e.g. name of data set, like ExAC or GNOMAD_EXOMES
     },
-    template,
+    templateUrl: 'frequencyDetailsWidget.ngtmpl.html',
     controller: connect(
         {
             frequencies: getFrequencyAnnotation(state`${props`allelePath`}`, props`group`)

@@ -5,7 +5,7 @@ import selectedSection from '../../store/modules/views/overview/computed/selecte
 import template from './alleleSelection.ngtmpl.html'
 
 app.component('alleleSelection', {
-    template,
+    templateUrl: 'alleleSelection.ngtmpl.html',
     controller: connect(
         {
             alleles: state`views.overview.data.alleles`,

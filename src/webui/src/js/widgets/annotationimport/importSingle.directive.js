@@ -6,7 +6,7 @@ import template from './importSingle.ngtmpl.html'
 
 @Directive({
     selector: 'importsingle',
-    template,
+    templateUrl: 'importSingle.ngtmpl.html',
     scope: {
         importData: '=',
         index: '='

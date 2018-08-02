@@ -43,7 +43,7 @@ const getMetrics = Compute(
 )
 
 app.component('addExcludedAlleles', {
-    template,
+    templateUrl: 'addExcludedAlleles.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

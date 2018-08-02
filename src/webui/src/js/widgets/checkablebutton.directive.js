@@ -24,7 +24,7 @@ import template from './checkablebutton.ngtmpl.html'
         ngDisabled: '=',
         oneWay: '=?' // Don't update model upon clicking.
     },
-    template,
+    templateUrl: 'checkablebutton.ngtmpl.html',
     link: (scope, elem, attrs) => {
         if ('listModel' in attrs) {
             if (!('listValue' in attrs)) {

@@ -26,7 +26,7 @@ import template from './sectionbox.ngtmpl.html'
         top: '?top',
         controls: '?controls'
     },
-    template,
+    templateUrl: 'sectionbox.ngtmpl.html',
     link: (scope, elem, attrs) => {
         setTimeout(() => {
             let p = elem[0].querySelector('.sb-controls')

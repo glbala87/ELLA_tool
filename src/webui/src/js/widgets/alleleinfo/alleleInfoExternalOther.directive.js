@@ -4,7 +4,7 @@ import { state, string, signal } from 'cerebral/tags'
 import template from './alleleInfoExternalOther.ngtmpl.html'
 
 app.component('alleleInfoExternalOther', {
-    template,
+    templateUrl: 'alleleInfoExternalOther.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

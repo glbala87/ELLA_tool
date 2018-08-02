@@ -4,7 +4,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './alleleInfoHgmd.ngtmpl.html'
 
 app.component('alleleInfoHgmd', {
-    template,
+    templateUrl: 'alleleInfoHgmd.ngtmpl.html',
     controller: connect(
         {
             allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`

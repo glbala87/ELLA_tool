@@ -298,7 +298,7 @@ export class CustomAnnotationModal {
         }
 
         let modal = this.modalService.open({
-            template,
+            templateUrl: 'customAnnotationModal.ngtmpl.html',
             controller: [
                 '$scope',
                 '$uibModalInstance',

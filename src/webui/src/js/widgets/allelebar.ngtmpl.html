@@ -9,13 +9,12 @@
     <td ng-if="$ctrl.genepanel">
       <h3 class="full-title">
         <div class="allele_popup" isolate-click>
-          <span  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
-                           popover-trigger="outsideClick"
-                           class="clickable"
-                           popover-append-to-body="true"
-                           uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
-                           popover-title="{{t.symbol}}"
-                           popover-placement="bottom-left">
+          <span popover-trigger="outsideClick"
+                class="clickable"
+                popover-append-to-body="true"
+                uib-popover-template="'phenotypes_popover.ngtmpl.html'"
+                popover-title="{{t.symbol}}"
+                popover-placement="bottom-left">
             {{t.symbol}} ({{t.exon}})
           </span>
         </div>
@@ -23,7 +22,7 @@
     </td>
     <td  ng-if="!$ctrl.genepanel">
       <h3 class="full-title">
-        <span  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html">
+        <span>
           {{t.symbol}} ({{t.exon}})
         </span>
       </h3>
@@ -34,7 +33,7 @@
         <div class="allele_popup" isolate-click>
           <span class="clickable" item="t"
                            popover-trigger="outsideClick"
-                           uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
+                           uib-popover-template="'cdnaPopover.ngtmpl.html'"
                            popover-append-to-body="true"
                            popover-title="HGVS cDNA"
                            popover-class="popover-title-no-uppercase"
@@ -52,12 +51,12 @@
     <td>
       <h3 class="full-title">
         <div class="allele_popup" isolate-click>
-          <span class="clickable" item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
-                           popover-trigger="outsideClick"
-                           popover-append-to-body="true"
-                           uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
-                           popover-title="HGVS protein"
-                           popover-placement="bottom">
+          <span class="clickable"
+                popover-trigger="outsideClick"
+                popover-append-to-body="true"
+                uib-popover-template="'proteinPopover.ngtmpl.html'"
+                popover-title="HGVS protein"
+                popover-placement="bottom">
             <i ng-if="t.HGVSp">{{t.protein}}:</i><b>{{t.HGVSp}}</b> ({{$ctrl.formatCodons(t.codons)}})
           </span>
         </div>
@@ -67,7 +66,7 @@
     <td>
       <h3 class="full-title">
         <div popover-trigger="outsideClick"
-             uib-popover-template="'ngtmpl/alleleInfoConsequencePopover.ngtmpl.html'"
+             uib-popover-template="'alleleInfoConsequencePopover.ngtmpl.html'"
              popover-append-to-body="true"
              popover-title="Consequences"
              popover-placement="auto top">

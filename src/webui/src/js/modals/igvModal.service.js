@@ -60,7 +60,7 @@ export class IgvModal {
      */
     show(analysis, allele) {
         let modal = this.modalService.open({
-            template,
+            templateUrl: 'igvModal.ngtmpl.html',
             controller: ['$uibModalInstance', 'Config', 'allele', IgvModalController],
             controllerAs: 'vm',
             resolve: {

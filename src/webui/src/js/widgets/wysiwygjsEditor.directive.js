@@ -1,5 +1,9 @@
 /* jshint esnext: true */
 
+// Extracts the IIFE into an export
+import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysiwygjs/wysiwyg'
+import vanillaColorPicker from 'exports-loader?window.vanillaColorPicker!../../thirdparty/vanilla-color-picker/vanilla-color-picker.min'
+
 import { Directive, Inject } from '../ng-decorators'
 import { EventListeners, UUID } from '../util'
 import template from './wysiwygEditor.ngtmpl.html'
@@ -504,7 +508,7 @@ export class WysiwygEditorController {
         // To circumvent this, we pass in this as thisObj in those cases
         if (!thisObj) thisObj = this
 
-        if (!force && thisObj.linkform.contains(document.activeElement)) {
+        if (!force && thisObj.linkform.includes(document.activeElement)) {
             // Link form is still active
             return
         }
@@ -526,7 +530,7 @@ export class WysiwygEditorController {
 
         if (
             src.nodeName !== 'INPUT' &&
-            (src === this.buttons['link'] || this.buttons['link'].contains(src))
+            (src === this.buttons['link'] || this.buttons['link'].includes(src))
         ) {
             // Open or close link form
             if (this.linkform.hidden) {

@@ -18,7 +18,7 @@ const sortSwitch = (alleles, shouldSort) => {
 }
 
 app.component('alleleList', {
-    template,
+    templateUrl: 'alleleList.ngtmpl.html',
     bindings: {
         storePath: '<', // Path to alleles in store
         newTarget: '<', // Whether links should open in new target

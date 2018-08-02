@@ -56,7 +56,7 @@ export class AlleleAssessmentHistoryModal {
      */
     show(allele_id) {
         let modal = this.modalService.open({
-            template,
+            templateUrl: 'alleleAssessmentHistoryModal.ngtmpl.html',
             controller: [
                 '$uibModalInstance',
                 'AlleleResource',

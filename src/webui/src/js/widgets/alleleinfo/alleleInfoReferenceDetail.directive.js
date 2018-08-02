@@ -10,7 +10,7 @@ app.component('alleleInfoReferenceDetail', {
     bindings: {
         referenceId: '='
     },
-    template,
+    templateUrl: 'alleleInfoReferenceDetail.ngtmpl.html',
     controller: connect(
         {
             selectedAllele: state`views.workflows.selectedAllele`,

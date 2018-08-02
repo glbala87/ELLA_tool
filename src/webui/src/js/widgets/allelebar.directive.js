@@ -4,9 +4,12 @@ import { state, props, signal } from 'cerebral/tags'
 import { compute } from 'cerebral'
 import getGenepanelValuesForAllele from '../store/common/computes/getGenepanelValuesForAllele'
 import template from './allelebar.ngtmpl.html'
+import phenotypesPopover from './allelebar/phenotypes_popover.ngtmpl.html'
+import cdnaPopover from './allelebar/cdnaPopover.ngtmpl.html'
+import proteinPopover from './allelebar/proteinPopover.ngtmpl.html'
 
 app.component('allelebar', {
-    template,
+    templateUrl: 'allelebar.ngtmpl.html',
     bindings: {
         allelePath: '<',
         genepanelPath: '<'

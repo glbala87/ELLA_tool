@@ -18,7 +18,7 @@ const sortSwitch = (analyses, shouldSort) => {
 }
 
 app.component('analysisList', {
-    template,
+    templateUrl: 'analysisList.ngtmpl.html',
     bindings: {
         storePath: '<', // Path to analyses in store
         newTarget: '<', // Whether links should open in new target

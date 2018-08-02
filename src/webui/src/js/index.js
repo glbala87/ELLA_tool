@@ -1,6 +1,8 @@
-/* jshint esnext: true */
 import '../css/base.css'
 import '../sass/main.scss'
+
+// Import here for template handling to be injected correctly
+import angular from 'angular'
 
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.

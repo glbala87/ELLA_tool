@@ -13,7 +13,7 @@ let acmgCandidates = Compute(state`app.config`, (config) => {
 })
 
 app.component('workflowbar', {
-    template,
+    templateUrl: 'workflowbar.ngtmpl.html',
     controller: connect(
         {
             analysis: state`views.workflows.data.analysis`,
@@ -83,7 +83,7 @@ app.component('workflowbar', {
                     // Add ACMG popover
                     //
                     popover: {
-                        template: acmgSelectiontemplate,
+                        templateUrl: 'acmgSelectionPopover.ngtmpl.html',
                         categories: ['Pathogenic', 'Benign'],
                         selectedCategory: 'Pathogenic',
                         getAcmgClass(code) {

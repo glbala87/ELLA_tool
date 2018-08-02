@@ -30,11 +30,10 @@ if [ "${SPEC}" = "" ]
 fi
 
 yellow "Building the application to test"
-rm -f /ella/node_modules
-ln -s /dist/node_modules/ /ella/node_modules
-/ella/node_modules/gulp/bin/gulp.js build
+/ella/ops/common/symlink_node_modules
+yarn production
 
-yellow "Finished building web assets with gulp"
+yellow "Finished building web assets"
 
 while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 

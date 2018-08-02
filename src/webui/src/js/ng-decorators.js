@@ -19,7 +19,7 @@ export let app = angular.module('workbench', [
     'ngSanitize',
     angularChecklistModel,
     'selector',
-    //'templates',
+    'templates',
     'cerebral'
 ])
 

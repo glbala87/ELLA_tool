@@ -61,7 +61,7 @@ const canImport = Compute(
 )
 
 app.component('import', {
-    template,
+    templateUrl: 'import.ngtmpl.html',
     controller: connect(
         {
             canImport,

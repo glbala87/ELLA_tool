@@ -4,6 +4,7 @@ import { Service, Inject } from '../ng-decorators'
 import { UUID } from '../util'
 import { ImportData } from '../model/importdata'
 import template from './importModal.ngtmpl.html'
+import popover from '../widgets/annotationjobPopover.ngtmpl.html'
 
 export class ImportController {
     constructor(modalInstance, User, AnnotationjobResource, $interval, $filter, $scope) {
@@ -204,7 +205,7 @@ export class ImportModal {
 
     show() {
         let modal = this.modalService.open({
-            template,
+            templateUrl: 'importModal.ngtmpl.html',
             controller: [
                 '$uibModalInstance',
                 'User',

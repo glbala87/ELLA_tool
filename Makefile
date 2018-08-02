@@ -243,7 +243,6 @@ dev:
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
-	  -e COLUMNS=250 \
 	  -p $(API_PORT):5000 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
@@ -308,7 +307,7 @@ test-js: test-build
 	  $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/common/supervisor.cfg
 
-	docker exec $(PIPELINE_ID)-js npm run test
+	docker exec $(PIPELINE_ID)-js yarn test
 	@docker rm -f $(PIPELINE_ID)-js
 
 test-js-auto: test-build
@@ -322,7 +321,7 @@ test-js-auto: test-build
 
 	@echo ""
 	@echo "Runs gulp forever. Ctrl-C to exit. The container ${PIPELINE_ID}-js must be manuallry stopped/removed."
-	docker exec $(PIPELINE_ID)-js npm run test-watch
+	docker exec $(PIPELINE_ID)-js yarn test-watch
 
 test-common: test-build
 	docker run -d \

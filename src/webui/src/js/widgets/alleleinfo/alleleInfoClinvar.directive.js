@@ -5,7 +5,7 @@ import getClinvarAnnotation from '../../store/common/computes/getClinvarAnnotati
 import template from './alleleInfoClinvar.ngtmpl.html'
 
 app.component('alleleInfoClinvar', {
-    template,
+    templateUrl: 'alleleInfoClinvar.ngtmpl.html',
     controller: connect(
         {
             allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,

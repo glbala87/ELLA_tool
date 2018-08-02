@@ -10,7 +10,7 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import template from './alleleInfoClassification.ngtmpl.html'
 
 app.component('alleleInfoClassification', {
-    template,
+    templateUrl: 'alleleInfoClassification.ngtmpl.html',
     controller: connect(
         {
             allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,

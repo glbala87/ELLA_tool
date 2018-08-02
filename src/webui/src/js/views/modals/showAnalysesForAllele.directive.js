@@ -6,7 +6,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './showAnalysesForAllele.ngtmpl.html'
 
 app.component('showAnalysesForAllele', {
-    template,
+    templateUrl: 'showAnalysesForAllele.ngtmpl.html',
     controller: connect(
         {
             analyses: state`modals.showAnalysesForAllele.data.analyses`,

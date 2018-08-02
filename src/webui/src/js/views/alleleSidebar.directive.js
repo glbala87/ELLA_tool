@@ -80,7 +80,7 @@ const isToggled = Compute(
 )
 
 app.component('alleleSidebar', {
-    template,
+    templateUrl: 'alleleSidebar.ngtmpl.html',
     controller: connect(
         {
             selectedComponent: state`views.workflows.selectedComponent`,

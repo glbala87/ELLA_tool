@@ -5,7 +5,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './overview.ngtmpl.html'
 
 app.component('overview', {
-    template,
+    templateUrl: 'overview.ngtmpl.html',
     controller: connect(
         {
             importJobsStatus: state`views.overview.importJobsStatus`,

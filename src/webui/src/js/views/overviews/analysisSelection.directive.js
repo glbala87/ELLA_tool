@@ -5,7 +5,7 @@ import selectedSection from '../../store/modules/views/overview/computed/selecte
 import template from './analysisSelection.ngtmpl.html'
 
 app.component('analysisSelection', {
-    template,
+    templateUrl: 'analysisSelection.ngtmpl.html',
     controller: connect(
         {
             analyses: state`views.overview.data.analyses`,

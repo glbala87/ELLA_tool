@@ -10,7 +10,7 @@ app.component('upload', {
         mode: '<',
         buttontext: '<'
     },
-    template,
+    templateUrl: 'upload.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

@@ -9,7 +9,7 @@ app.component('alleleInfoReferences', {
         title: '@',
         type: '@'
     },
-    template,
+    templateUrl: 'alleleInfoReferences.ngtmpl.html',
     controller: connect(
         {
             references: getReferenceAnnotation(

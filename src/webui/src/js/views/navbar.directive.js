@@ -5,7 +5,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './navbar.ngtmpl.html'
 
 app.component('navbar', {
-    template,
+    templateUrl: 'navbar.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

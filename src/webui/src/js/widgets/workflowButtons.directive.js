@@ -19,7 +19,7 @@ app.component('workflowButtons', {
     bindings: {
         startWhenReopen: '=?'
     },
-    template,
+    templateUrl: 'workflowButtons.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

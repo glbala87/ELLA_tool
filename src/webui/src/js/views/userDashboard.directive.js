@@ -7,7 +7,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './userDashboard.ngtmpl.html'
 
 app.component('userDashboard', {
-    template,
+    templateUrl: 'userDashboard.ngtmpl.html',
     controller: connect(
         {
             logoutClicked: signal`views.dashboard.logoutClicked`,

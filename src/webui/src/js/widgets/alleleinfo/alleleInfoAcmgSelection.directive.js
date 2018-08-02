@@ -9,7 +9,7 @@ import getReqCodes from '../../store/modules/views/workflows/interpretation/comp
 import template from './alleleInfoAcmgSelection.ngtmpl.html'
 
 app.component('alleleInfoAcmgSelection', {
-    template,
+    templateUrl: 'alleleInfoAcmgSelection.ngtmpl.html',
     controller: connect(
         {
             allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,

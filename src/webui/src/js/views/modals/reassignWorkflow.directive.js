@@ -6,7 +6,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './reassignWorkflow.ngtmpl.html'
 
 app.component('reassignWorkflow', {
-    template,
+    templateUrl: 'reassignWorkflow.ngtmpl.html',
     controller: connect(
         {
             reassignWorkflowClicked: signal`views.workflows.reassignWorkflowClicked`,

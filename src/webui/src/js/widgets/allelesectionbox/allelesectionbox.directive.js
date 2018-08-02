@@ -80,7 +80,7 @@ app.component('alleleSectionbox', {
     bindings: {
         sectionKey: '<'
     },
-    template,
+    templateUrl: 'allelesectionbox.ngtmpl.html',
     controller: connect(
         {
             classificationOptions,

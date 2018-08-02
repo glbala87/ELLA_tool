@@ -7,7 +7,7 @@ app.component('alleleInfoFrequencyIndb', {
     bindings: {
         allelePath: '<'
     },
-    template,
+    templateUrl: 'alleleInfoFrequencyIndb.ngtmpl.html',
     controller: connect(
         {
             allele: state`${props`allelePath`}`
