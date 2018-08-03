@@ -27,6 +27,14 @@ KEY_ALLELE = 'allele'
 KEY_ANNOTATIONS = 'annotations'
 
 
+SEGREGATION_TAGS = [
+    'denovo',
+    'compound_heterozygous',
+    'autosomal_recessive_homozygous',
+    'xlinked_recessive_homozygous'
+]
+
+
 class AlleleDataLoader(object):
 
     def __init__(self, session):
@@ -34,67 +42,13 @@ class AlleleDataLoader(object):
         self.inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
         self.family_filter = FamilyFilter(session, config)
 
-    def _get_family_tags(self, allele_ids, analysis_id):
-        allele_ids_tags = defaultdict(set)
+    def _get_segregation_results(self, allele_ids, analysis_id):
+        segregation_results = self.family_filter.get_segregation_results({analysis_id: allele_ids})
+        return segregation_results[analysis_id]
 
-        if not self.family_filter.check_filter_conditions(analysis_id):
-            return allele_ids_tags
-
-        # Family filter tags
-        genotype_query = self.family_filter.get_genotype_query(allele_ids, analysis_id)
-
-        proband_identifier = self.family_filter.get_proband_sample_identifier(analysis_id)
-        father_identifier = self.family_filter.get_father_sample_identifier(analysis_id)
-        mother_identifier = self.family_filter.get_mother_sample_identifier(analysis_id)
-
-        if proband_identifier and father_identifier and mother_identifier:
-            recessive_compound_heterozygous = self.family_filter.recessive_compound_heterozygous(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
-
-            for allele_id in list(recessive_compound_heterozygous):
-                allele_ids_tags[allele_id].add('recessive_compound_heterozygous')
-
-            autosomal_recessive_homozygous = self.family_filter.autosomal_recessive_homozygous(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
-
-            for allele_id in list(autosomal_recessive_homozygous):
-                allele_ids_tags[allele_id].add('autosomal_recessive_homozygous')
-
-            denovo = self.family_filter.denovo(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
-
-            for allele_id in list(denovo):
-                allele_ids_tags[allele_id].add('denovo')
-
-            xlinked_recessive_homozygous = self.family_filter.xlinked_recessive_homozygous(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
-
-            for allele_id in list(xlinked_recessive_homozygous):
-                allele_ids_tags[allele_id].add('xlinked_recessive_homozygous')
-
-        return allele_ids_tags
-
-    def get_tags(self, allele_data, analysis_id=None):
+    def get_tags(self, allele_data, analysis_id=None, segregation_results=None):
 
         allele_ids_tags = defaultdict(set)
-
-        allele_ids = [a['id'] for a in allele_data]
 
         for al in allele_data:
             # Has references
@@ -104,19 +58,21 @@ class AlleleDataLoader(object):
         if analysis_id:
 
             for al in allele_data:
+                allele_id = al['id']
                 # Homozygous
                 proband_samples = [s for s in al['samples'] if s['proband']]
                 if any(s['genotype']['type'] == 'Homozygous' for s in proband_samples):
-                    allele_ids_tags[al['id']].add('homozygous')
+                    allele_ids_tags[allele_id].add('homozygous')
 
                 # Low quality
                 keys = ['qual', 'pass', 'dp', 'allele_ratio']
                 if any(not v for s in al['samples'] for k, v in s['genotype']['needs_verification_checks'].iteritems() if k in keys):
-                    allele_ids_tags[al['id']].add('low_quality')
+                    allele_ids_tags[allele_id].add('low_quality')
 
-            family_tags = self._get_family_tags(allele_ids, analysis_id)
-            for allele_id, tags in family_tags.iteritems():
-                allele_ids_tags[allele_id].update(tags)
+                if segregation_results:
+                    for tag in SEGREGATION_TAGS:
+                        if allele_id in segregation_results[tag]:
+                            allele_ids_tags[allele_id].add(tag)
 
         return allele_ids_tags
 
@@ -265,36 +221,30 @@ class AlleleDataLoader(object):
 
         return genotype_id_formatted
 
-    def get_p_denovo(self, alleles, analysis_id):
+    def get_p_denovo(self, allele_ids, analysis_id):
 
-        if not self.family_filter.check_filter_conditions(analysis_id):
+        print allele_ids
+
+        family_ids = self.family_filter.get_family_ids(analysis_id)
+
+        if len(family_ids) != 1:
             return dict()
 
-        allele_ids = [al['id'] for al in alleles]
-        genotype_query = self.family_filter.get_genotype_query(allele_ids, analysis_id)
+        sample_ids = self.family_filter.get_family_sample_ids(analysis_id, family_ids[0])
+        proband_sample = self.family_filter.get_proband_sample(analysis_id, family_ids[0])
+        father_sample = self.family_filter.get_father_sample(proband_sample)
+        mother_sample = self.family_filter.get_mother_sample(proband_sample)
 
-        proband_identifier = self.family_filter.get_proband_sample_identifier(analysis_id)
-        father_identifier = self.family_filter.get_father_sample_identifier(analysis_id)
-        mother_identifier = self.family_filter.get_mother_sample_identifier(analysis_id)
-
-        # Run filter again to just get denovo allele ids
-        # Could be combined with tags above for performance
-        denovo = self.family_filter.denovo(
-            genotype_query,
-            proband_identifier,
-            father_identifier,
-            mother_identifier
-        )
-
+        genotype_query = self.family_filter.get_genotype_query(allele_ids, sample_ids)
         return self.family_filter.denovo_p_value(
-            denovo,
+            allele_ids,
             genotype_query,
-            proband_identifier,
-            mother_identifier,
-            father_identifier
+            proband_sample.identifier,
+            father_sample.identifier,
+            mother_sample.identifier
         )
 
-    def _load_sample_data(self, alleles, analysis_id):
+    def _load_sample_data(self, alleles, analysis_id, segregation_results):
 
         allele_ids = [al['id'] for al in alleles]
         genotype_schema = GenotypeSchema()
@@ -375,7 +325,9 @@ class AlleleDataLoader(object):
             genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
         ).all()
 
-        allele_ids_p_denovo = self.get_p_denovo(alleles, analysis_id)
+        if segregation_results:
+            denovo_allele_ids = segregation_results.get('denovo', set())
+            allele_ids_p_denovo = self.get_p_denovo(denovo_allele_ids, analysis_id)
 
         # Create sample data with genotype for each allele
         for allele_data in alleles:
@@ -422,7 +374,6 @@ class AlleleDataLoader(object):
                 allele_id_sample_data.append(proband_sample_data)
 
             allele_ids_sample_data[allele_data['id']] = allele_id_sample_data
-
 
         return allele_ids_sample_data
 
@@ -489,10 +440,13 @@ class AlleleDataLoader(object):
             accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
             allele_ids.append(al.id)
 
+        segregation_results = None
         if analysis_id and allele_ids:
+            segregation_results = self._get_segregation_results(allele_ids, analysis_id)
             allele_id_sample_data = self._load_sample_data(
                 [a['allele'] for a in accumulated_allele_data.values()],
-                analysis_id
+                analysis_id,
+                segregation_results
             )
             for allele_id, sample_data in allele_id_sample_data.iteritems():
                 accumulated_allele_data[allele_id][KEY_SAMPLES] = sample_data
@@ -604,7 +558,12 @@ class AlleleDataLoader(object):
 
             final_alleles.append(final_allele)
 
-        allele_ids_tags = self.get_tags(final_alleles, analysis_id=analysis_id)
+        allele_ids_tags = self.get_tags(
+            final_alleles,
+            analysis_id=analysis_id,
+            segregation_results=segregation_results
+        )
+
         for allele_id in allele_ids:
             accumulated_allele_data[allele_id][KEY_ALLELE]['tags'] = sorted(list(allele_ids_tags.get(allele_id, [])))
 

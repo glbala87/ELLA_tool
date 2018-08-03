@@ -1,3 +1,4 @@
+from collections import defaultdict
 from math import log10
 from sqlalchemy import or_, and_, text, func, literal
 from sqlalchemy.orm import aliased
@@ -76,7 +77,7 @@ class FamilyFilter(object):
         )
         return genotype_with_allele
 
-    def get_genotype_query(self, allele_ids, analysis_id):
+    def get_genotype_query(self, allele_ids, sample_ids):
         """
         Creates a combined genotype table (query)
         which looks like the following:
@@ -99,7 +100,7 @@ class FamilyFilter(object):
         def create_query(secondallele=False):
 
             samples = self.session.query(sample.Sample).filter(
-                sample.Sample.analysis_id == analysis_id
+                sample.Sample.id.in_(sample_ids)
             ).all()
 
             # We'll join several times on same table, so create aliases for each sample
@@ -181,7 +182,7 @@ class FamilyFilter(object):
         """
         Denovo mutations
 
-        Based on denovo filtering from FILTUS (M. Vigeland et al):
+        Based on denovo classification from FILTUS (M. Vigeland et al):
         https://academic.oup.com/bioinformatics/article/32/10/1592/1743466
 
         Denovo patterns:
@@ -323,7 +324,7 @@ class FamilyFilter(object):
 
         return denovo_result
 
-    def autosomal_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample):
+    def autosomal_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample, affected_sibling_samples=None, unaffected_sibling_samples=None):
         """
         Autosomal recessive transmission
 
@@ -335,24 +336,37 @@ class FamilyFilter(object):
         - Homozygous in affected siblings
         - In chromosome 1-22 or X pseudoautosomal region (PAR1, PAR2)
         """
+
+        if not father_sample or not mother_sample:
+            return set()
+
         genotype_table = genotype_table.subquery('genotype_table')
 
         genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
         genotype_with_allele_table = genotype_with_allele_table.subquery('genotype_with_allele_table')
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
 
-        autosomal_allele_ids = self.session.query(
-            genotype_with_allele_table.c.allele_id
-        ).filter(
+        filters = [
             getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Homozygous',
             getattr(genotype_with_allele_table.c, father_sample + '_type') == 'Heterozygous',
             getattr(genotype_with_allele_table.c, mother_sample + '_type') == 'Heterozygous',
             ~x_minus_par_filter  # In chromosome 1-22 or in X PAR
+        ]
+        if unaffected_sibling_samples:
+            filters += [getattr(genotype_with_allele_table.c, s + '_type') != 'Homozygous' for s in unaffected_sibling_samples]
+
+        if affected_sibling_samples:
+            filters += [getattr(genotype_with_allele_table.c, s + '_type') == 'Homozygous' for s in affected_sibling_samples]
+
+        autosomal_allele_ids = self.session.query(
+            genotype_with_allele_table.c.allele_id
+        ).filter(
+            *filters
         )
 
         return set([a[0] for a in autosomal_allele_ids])
 
-    def xlinked_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample):
+    def xlinked_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample, affected_sibling_samples=None, unaffected_sibling_samples=None):
         """
         X-linked recessive
 
@@ -360,10 +374,13 @@ class FamilyFilter(object):
         - Homozygous in proband (for girls this requires a denovo, but still valid case)
         - Heterozygous in mother
         - Not present in father
-        - Homozygous in affected siblings
         - Not homozygous in unaffected siblings
+        - Homozygous in affected siblings
         - In chromosome X, but not pseudoautosomal region (PAR1, PAR2)
         """
+
+        if not father_sample or not mother_sample:
+            return set()
 
         genotype_table = genotype_table.subquery('genotype_table')
 
@@ -371,18 +388,27 @@ class FamilyFilter(object):
         genotype_with_allele_table = genotype_with_allele_table.subquery('genotype_with_allele_table')
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
 
-        xlinked_allele_ids = self.session.query(
-            genotype_with_allele_table.c.allele_id
-        ).filter(
+        filters = [
             getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Homozygous',
             getattr(genotype_with_allele_table.c, father_sample + '_type') == 'Reference',
             getattr(genotype_with_allele_table.c, mother_sample + '_type') == 'Heterozygous',
             x_minus_par_filter  # In X chromosome (minus PAR)
+        ]
+        if unaffected_sibling_samples:
+            filters += [getattr(genotype_with_allele_table.c, s + '_type') != 'Homozygous' for s in unaffected_sibling_samples]
+
+        if affected_sibling_samples:
+            filters += [getattr(genotype_with_allele_table.c, s + '_type') == 'Homozygous' for s in affected_sibling_samples]
+
+        xlinked_allele_ids = self.session.query(
+            genotype_with_allele_table.c.allele_id
+        ).filter(
+            *filters
         )
 
         return set([a[0] for a in xlinked_allele_ids])
 
-    def recessive_compound_heterozygous(self, genotype_table, proband_sample, father_sample=None, mother_sample=None, affected_sibling_samples=None, unaffected_sibling_samples=None):
+    def compound_heterozygous(self, genotype_table, proband_sample, father_sample=None, mother_sample=None, affected_sibling_samples=None, unaffected_sibling_samples=None):
         """
         Autosomal recessive transmission: Compound heterozygous
 
@@ -426,11 +452,9 @@ class FamilyFilter(object):
         affected_sample_names = [proband_sample]
         unaffected_sample_names = []
         if father_sample:
-            assert mother_sample
             sample_names.append(father_sample)
             unaffected_sample_names.append(father_sample)
         if mother_sample:
-            assert father_sample
             sample_names.append(mother_sample)
             unaffected_sample_names.append(mother_sample)
         if affected_sibling_samples:
@@ -567,130 +591,178 @@ class FamilyFilter(object):
 
         return set([a[0] for a in no_coverage_allele_ids])
 
-    def check_filter_conditions(self, analysis_id):
+    def homozygous_unaffected_siblings(self, genotype_table, proband_sample, unaffected_sibling_samples):
         """
-        The inheritance filter currently expects a normal family
-        analysis, with two unaffected parents, one affected proband
-        and any number of affected or unaffected siblings.
+        Checks whether a homozygous variant in proband is also homozgyous in unaffected sibling.
 
-        If these conditions are not met, the filter will produce wrong
-        results and should therefore not be used.
+        Returns all variants that are also homozygous in unaffected siblings.
         """
 
-        proband_sample = None
-        father_sample = None
-        mother_sample = None
+        # If no unaffected, we'll have no alleles in the result
+        if not unaffected_sibling_samples:
+            return set()
 
+        genotype_table = genotype_table.subquery()
+        filters = list()
+        for s in [proband_sample] + unaffected_sibling_samples:
+            filters.append(
+                getattr(genotype_table.c, s + '_type') == 'Homozygous'
+            )
+
+        homozygous_unaffected_result = self.session.query(genotype_table.c.allele_id).filter(
+            *filters
+        )
+
+        return set([a[0] for a in homozygous_unaffected_result.all()])
+
+    def get_family_ids(self, analysis_id):
+        family_ids = self.session.query(sample.Sample.family_id).filter(
+            sample.Sample.analysis_id == analysis_id,
+            sample.Sample.proband.is_(True),
+            ~sample.Sample.family_id.is_(None)
+        ).all()
+
+        return [a[0] for a in family_ids]
+
+    def get_family_sample_ids(self, analysis_id, family_id):
+        sample_ids = self.session.query(sample.Sample.id).filter(
+            sample.Sample.analysis_id == analysis_id,
+            sample.Sample.family_id == family_id
+        ).all()
+
+        return [a[0] for a in sample_ids]
+
+    def get_proband_sample(self, analysis_id, sample_family_id):
         proband_sample = self.session.query(sample.Sample).filter(
             sample.Sample.proband.is_(True),
             sample.Sample.affected.is_(True),
-            ~sample.Sample.father_id.is_(None),
-            ~sample.Sample.mother_id.is_(None),
-            sample.Sample.analysis_id == analysis_id
-        ).one_or_none()
-
-        if proband_sample is not None:
-            father_sample = self.session.query(sample.Sample).filter(
-                sample.Sample.id == proband_sample.father_id,
-                sample.Sample.affected.is_(False)
-            ).one_or_none()
-
-            mother_sample = self.session.query(sample.Sample).filter(
-                sample.Sample.id == proband_sample.mother_id,
-                sample.Sample.affected.is_(False)
-            ).one_or_none()
-
-        return all([proband_sample, father_sample, mother_sample])
-
-    def get_proband_sample_identifier(self, analysis_id):
-        proband_sample = self.session.query(sample.Sample).filter(
-            sample.Sample.proband.is_(True),
-            sample.Sample.analysis_id == analysis_id
+            sample.Sample.analysis_id == analysis_id,
+            sample.Sample.family_id == sample_family_id
         ).one()
 
-        return proband_sample.identifier
+        return proband_sample
 
-    def get_father_sample_identifier(self, analysis_id):
-        proband_sample = self.session.query(sample.Sample).filter(
-            sample.Sample.proband.is_(True),
-            sample.Sample.analysis_id == analysis_id
-        ).one()
+    def get_father_sample(self, proband_sample):
 
         father_sample = self.session.query(sample.Sample).filter(
             sample.Sample.id == proband_sample.father_id
-        ).one()
+        ).one_or_none()
 
-        return father_sample.identifier
+        return father_sample
 
-    def get_mother_sample_identifier(self, analysis_id):
-        proband_sample = self.session.query(sample.Sample).filter(
-            sample.Sample.proband.is_(True),
-            sample.Sample.analysis_id == analysis_id
-        ).one()
+    def get_mother_sample(self, proband_sample):
 
         mother_sample = self.session.query(sample.Sample).filter(
             sample.Sample.id == proband_sample.mother_id
-        ).one()
+        ).one_or_none()
 
-        return mother_sample.identifier
+        return mother_sample
 
-    def filter_alleles(self, analysis_allele_ids):
+    def get_siblings_samples(self, proband_sample, affected=False):
+
+        # Mother and father id can be null, but that's fine
+        siblings_samples = self.session.query(sample.Sample).filter(
+            sample.Sample.family_id == proband_sample.family_id,
+            sample.Sample.father_id == proband_sample.father_id,
+            sample.Sample.mother_id == proband_sample.mother_id,
+            sample.Sample.id != proband_sample.id,
+            sample.Sample.affected.is_(affected)
+        ).all()
+
+        return siblings_samples
+
+    def get_segregation_results(self, analysis_allele_ids):
         """
         """
 
-        # TODO: Combine variants from all probands!
-        # TODO: Perform more advanced family/sibling check, supporting several proband samples
-
-        result = dict()
+        result = defaultdict(dict)
         for analysis_id, allele_ids in analysis_allele_ids.iteritems():
 
-            if not self.check_filter_conditions(analysis_id):
-                result[analysis_id] = set()
+            family_ids = self.get_family_ids(analysis_id)
+
+            # All filters below need a family data set to work on
+            if not family_ids:
                 continue
 
-            genotype_query = self.get_genotype_query(allele_ids, analysis_id)
+            # Only one family id (i.e. data set) is supported at the moment
+            assert len(family_ids) == 1
 
-            proband_identifier = self.get_proband_sample_identifier(analysis_id)
-            father_identifier = self.get_father_sample_identifier(analysis_id)
-            mother_identifier = self.get_mother_sample_identifier(analysis_id)
+            proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
+            father_sample = self.get_father_sample(proband_sample)
+            mother_sample = self.get_mother_sample(proband_sample)
+            affected_sibling_samples = self.get_siblings_samples(proband_sample, affected=True)
+            unaffected_sibling_samples = self.get_siblings_samples(proband_sample, affected=False)
 
-            denovo_results = self.denovo(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
+            family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
-            recessive_compound_results = self.recessive_compound_heterozygous(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
-
-            autosomal_recessive_results = self.autosomal_recessive_homozygous(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
-
-            xlinked_recessive_results = self.xlinked_recessive_homozygous(
-                genotype_query,
-                proband_identifier,
-                father_identifier,
-                mother_identifier
-            )
+            genotype_query = self.get_genotype_query(allele_ids, family_sample_ids)
 
             # Don't filter alleles that are lacking coverage in either parent
             no_coverage_results = self.no_coverage_father_mother(
                 genotype_query,
-                father_identifier,
-                mother_identifier
+                father_sample.identifier,
+                mother_sample.identifier
             )
 
-            combined_results = denovo_results | autosomal_recessive_results | xlinked_recessive_results | recessive_compound_results
-            result[analysis_id] = allele_ids - (combined_results | no_coverage_results)
+            result[analysis_id]['denovo'] = self.denovo(
+                genotype_query,
+                proband_sample.identifier,
+                father_sample.identifier,
+                mother_sample.identifier
+            ) - no_coverage_results
+
+            result[analysis_id]['compound_heterozygous'] = self.compound_heterozygous(
+                genotype_query,
+                proband_sample.identifier,
+                father_sample.identifier,
+                mother_sample.identifier,
+                affected_sibling_samples=affected_sibling_samples,
+                unaffected_sibling_samples=unaffected_sibling_samples,
+            ) - no_coverage_results
+
+            result[analysis_id]['autosomal_recessive_homozygous'] = self.autosomal_recessive_homozygous(
+                genotype_query,
+                proband_sample.identifier,
+                father_sample.identifier,
+                mother_sample.identifier,
+                affected_sibling_samples=affected_sibling_samples,
+                unaffected_sibling_samples=unaffected_sibling_samples
+            ) - no_coverage_results
+
+            result[analysis_id]['xlinked_recessive_homozygous'] = self.xlinked_recessive_homozygous(
+                genotype_query,
+                proband_sample.identifier,
+                father_sample.identifier,
+                mother_sample.identifier,
+                affected_sibling_samples=affected_sibling_samples,
+                unaffected_sibling_samples=unaffected_sibling_samples
+            ) - no_coverage_results
+
+            result[analysis_id]['homozygous_unaffected_siblings'] = self.homozygous_unaffected_siblings(
+                genotype_query,
+                proband_sample.identifier,
+                unaffected_sibling_samples
+            )
+
+        return result
+
+    def filter_alleles(self, analysis_allele_ids):
+        """
+        Returns allele_ids that can be filtered _out_ from an analysis.
+        """
+
+        segregation_results = self.get_segregation_results(analysis_allele_ids)
+
+        result = dict()
+        for analysis_id, allele_ids in analysis_allele_ids.iteritems():
+            candidates = segregation_results[analysis_id]['denovo'] | \
+                         segregation_results[analysis_id]['compound_heterozygous'] | \
+                         segregation_results[analysis_id]['autosomal_recessive_homozygous'] | \
+                         segregation_results[analysis_id]['xlinked_recessive_homozygous']
+
+            non_candidates = segregation_results[analysis_id]['homozygous_unaffected_siblings']
+
+            result[analysis_id] = allele_ids - (candidates - non_candidates)
 
         return result
 
@@ -752,8 +824,6 @@ class FamilyFilter(object):
 
         genotype_with_denovo_allele_table = self.session.query(
             *genotype_with_allele_table.c
-        ).filter(
-            genotype_with_allele_table.c.allele_id.in_(allele_ids)
         )
 
         # Compute denovo probabilities for autosomal and x-linked regions separately

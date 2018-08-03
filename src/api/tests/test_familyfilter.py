@@ -48,7 +48,7 @@ gene_strategy = st.sampled_from(['GENE1', 'GENE2'])
 
 
 @st.composite
-def compound_recessive_strategy(draw):
+def compound_heterozygous_strategy(draw):
     entries = []
     for allele_count in xrange(draw(st.integers(min_value=1, max_value=5))):
         entries.append({
@@ -260,9 +260,9 @@ class TestInheritanceFilter(object):
         {'gene': 'GENE1', 'genotypes': ('Heterozygous', 'Heterozygous', 'Reference')},
         {'gene': 'GENE2', 'genotypes': ('Homozygous', 'Heterozygous', 'Heterozygous')},
     ], [])
-    @given(compound_recessive_strategy(), st.just(None))
+    @given(compound_heterozygous_strategy(), st.just(None))
     @settings(deadline=None)
-    def test_compund_recessive(self, session, entries, manually_curated_result):
+    def test_compund_heterozygous(self, session, entries, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
 
@@ -286,7 +286,7 @@ class TestInheritanceFilter(object):
         replace_annotationshadowtranscript_table(session, annotationshadow_entries)
         genotype_table = create_genotype_table(session, samples, genotype_entries)
 
-        result_allele_ids = FamilyFilter(session, GLOBAL_CONFIG).recessive_compound_heterozygous(
+        result_allele_ids = FamilyFilter(session, GLOBAL_CONFIG).compound_heterozygous(
             genotype_table,
             'Proband',
             'Father',
@@ -298,7 +298,7 @@ class TestInheritanceFilter(object):
             matched_allele_ids = set([allele_ids[idx] for idx in manually_curated_result])
             assert result_allele_ids == matched_allele_ids
         else:
-            # The rules from recessive_compound_heterozygous() can be destilled down to
+            # The rules from compound_heterozygous() can be destilled down to
             # having two or more alleles in a gene with _both_ these combinations:
             # ('Heterozygous', 'Heterozygous', 'Reference'),
             # ('Heterozygous', 'Reference', 'Heterozygous')
