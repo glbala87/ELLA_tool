@@ -3,6 +3,7 @@ from math import log10
 MUTATION_PRIOR = 1e-8
 DEFAULT_FREQ = 0.1
 
+
 def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mode):
     """
     Compute a posteriori denovo probability given phred scaled genotype likelihoods for genotypes [0/0, 1/0, 1/1]

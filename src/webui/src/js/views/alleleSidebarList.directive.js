@@ -122,11 +122,11 @@ app.component('alleleSidebarList', {
         [
             '$scope',
             function($scope) {
-                const FAMILY_TAGS = {
+                const SEGREGATION_TAGS = {
                     denovo: 'De novo',
-                    recessive_compound_heterozygous: 'Compound recessive heterozygous',
+                    compound_heterozygous: 'Compound heterozygous',
                     autosomal_recessive_homozygous: 'Autosomal recessive homozygous',
-                    xlinked_recessive_homozygous: 'X-linked recessive homozygous'
+                    xlinked_recessive_homozygous: 'X-linked recessive'
                 }
 
                 const $ctrl = $scope.$ctrl
@@ -209,7 +209,7 @@ app.component('alleleSidebarList', {
                     hasReferences(allele) {
                         return allele.tags.includes('has_references')
                     },
-                    getFamilyTag(allele) {
+                    getSegregationTag(allele) {
                         // Denovo takes precedence if tags include both types
                         if (allele.tags.includes('denovo')) {
                             return 'D'
@@ -217,16 +217,16 @@ app.component('alleleSidebarList', {
                             return 'A'
                         } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
                             return 'X'
-                        } else if (allele.tags.includes('recessive_compound_heterozygous')) {
+                        } else if (allele.tags.includes('compound_heterozygous')) {
                             return 'C'
                         }
                     },
-                    getFamilyLabel(allele) {
+                    getSegregationLabel(allele) {
                         return allele.tags
                             .filter((t) => {
-                                return Object.keys(FAMILY_TAGS).includes(t)
+                                return Object.keys(SEGREGATION_TAGS).includes(t)
                             })
-                            .map((t) => FAMILY_TAGS[t])
+                            .map((t) => SEGREGATION_TAGS[t])
                             .join(', ')
                     }
                 })

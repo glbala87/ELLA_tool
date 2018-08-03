@@ -1,5 +1,4 @@
 from collections import defaultdict
-from math import log10
 from sqlalchemy import or_, and_, text, func, literal
 from sqlalchemy.orm import aliased
 
@@ -13,52 +12,7 @@ PAR2_START = 154931044
 PAR2_END = 155260560
 
 
-def debug_print_allele_ids(session, allele_ids):
-
-    transcript_info = session.query(
-        annotationshadow.AnnotationShadowTranscript.allele_id,
-        func.string_agg(
-            annotationshadow.AnnotationShadowTranscript.transcript,
-            ','
-        ).label('transcript'),
-        func.string_agg(
-            annotationshadow.AnnotationShadowTranscript.hgvsc,
-            ','
-        ).label('hgvsc')
-    ).filter(
-        annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
-        annotationshadow.AnnotationShadowTranscript.transcript.like('NM_%')
-    ).group_by(
-        annotationshadow.AnnotationShadowTranscript.allele_id
-    )
-
-    transcript_info = transcript_info.subquery()
-
-    allele_info = self.session.query(
-        allele.Allele.id,
-        allele.Allele.chromosome,
-        allele.Allele.vcf_pos,
-        #allele.Allele.vcf_ref,
-        #allele.Allele.vcf_alt,
-        #transcript_info.c.transcript,
-        transcript_info.c.hgvsc
-    ).join(
-        transcript_info,
-        transcript_info.c.allele_id == allele.Allele.id
-    ).filter(
-        allele.Allele.id.in_(allele_ids)
-    ).order_by(
-        allele.Allele.chromosome,
-        allele.Allele.vcf_pos,
-        allele.Allele.vcf_ref,
-        allele.Allele.vcf_alt
-    )
-
-    for item in allele_info.all():
-        print '{}\t{}\t{}\t{}'.format(*item)
-
-
-class FamilyFilter(object):
+class SegregationFilter(object):
 
     def __init__(self, session, config):
         self.session = session

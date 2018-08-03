@@ -39,10 +39,10 @@
           </span>
         </div>
         <div class="cell indicators">
-          <div title="Family filter" class="top">
-            <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'family'})">
-              <span class="clickable">F</span>
-              <span ng-if="$ctrl.orderBy.key === 'family'">
+          <div title="Segregation type" class="top">
+            <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'segregation'})">
+              <span class="clickable">S</span>
+              <span ng-if="$ctrl.orderBy.key === 'segregation'">
                 <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                 <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
               </span>
@@ -108,9 +108,9 @@
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div ng-click="$ctrl.rowClicked(allele.id)" class="cell indicators id-indicators">
-            <div title="{{$ctrl.getFamilyLabel(allele)}}" class="family">
-              <div class="hit" ng-if="$ctrl.getFamilyTag(allele)">
-                  <span>{{$ctrl.getFamilyTag(allele)}}</span>
+            <div title="{{$ctrl.getSegregationLabel(allele)}}" class="segregation">
+              <div class="hit" ng-if="$ctrl.getSegregationTag(allele)">
+                  <span>{{$ctrl.getSegregationTag(allele)}}</span>
               </div>
             </div>
             <div title="Homozygous" class="hom">

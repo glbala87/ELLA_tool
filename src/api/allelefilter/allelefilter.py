@@ -5,7 +5,7 @@ from api.config import config as global_config
 from vardb.datamodel import assessment, sample, allele, genotype
 
 from api.allelefilter.frequencyfilter import FrequencyFilter
-from api.allelefilter.familyfilter import FamilyFilter
+from api.allelefilter.segregationfilter import SegregationFilter
 from api.allelefilter.regionfilter import RegionFilter
 
 
@@ -65,7 +65,7 @@ class AlleleFilter(object):
             <analysis_id>: {
                 'allele_ids': [1, 2, 3],
                 'excluded_allele_ids': {
-                    'family': [4, 5],
+                    'segregation': [4, 5],
                 }
             },
             ...
@@ -110,7 +110,7 @@ class AlleleFilter(object):
 
         # Run the analysis based allele filters
         filters = [
-            ('family', FamilyFilter(self.session, self.config).filter_alleles)
+            ('segregation', SegregationFilter(self.session, self.config).filter_alleles)
         ]
 
         for filter_name, filter_func in filters:
