@@ -40,9 +40,8 @@ while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 yellow "Starting e2e tests locally..."
 
 yellow "Will run tests $SPEC"
-   DEBUG=${DEBUG}  /dist/node_modules/webdriverio/bin/wdio \
+   DEBUG=${DEBUG}  yarn wdio \
    --baseUrl "${APP_URL}" \
    --spec ${SPEC} \
    --host "${CHROME_HOST}" \
-   --port 4444 --path "/" \
-   /ella/src/webui/tests/e2e/wdio.conf.js
+   --port 4444 --path "/"

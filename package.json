@@ -71,7 +71,8 @@
         "test": "jest",
         "test-watch": "jest --watch",
         "build": "webpack --mode development",
-        "production": "webpack --mode production"
+        "production": "webpack --mode production",
+        "wdio": "wdio"
     },
     "author": "",
     "license": "All rights reserved",

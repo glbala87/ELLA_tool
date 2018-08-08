@@ -66,15 +66,6 @@ test_cli:
     - make test-cli
 
 
-e2e-container-startup:
-  stage: e2e-setup
-  script:
-    - make e2e-app-container-setup
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-
-
 test_e2e:
   stage: e2e
   script:
@@ -91,29 +82,7 @@ test_e2e:
       - errorShots/*.png
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
-      expire_in: 1 week
-
-
-
-test_reports:
-  stage: reports
-  script:
-    - make test-report-sanger
-    - make test-report-classifications
-    - make test-report-classifications-with-analysis
-  before_script:
-    - rm -rf errorShots
-  after_script:
-    - docker exec ${PIPELINE_ID}-e2e tar c -C /ella/errorShots/ -f - . > errorShots.tar && mkdir errorShots && tar x -C errorShots -f errorShots.tar
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-  artifacts:
-      paths:
-      - errorShots/*.png
-      name: ella-report-errors-${CI_BUILD_REF_SLUG}
-      when: on_failure
-      expire_in: 1 week
+      expire_in: 2 weeks
 
 
 cleanup:

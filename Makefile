@@ -21,7 +21,7 @@ DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
-WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
+WDIO_OPTIONS ?=  # command line options when running yarn wdio (see 'make wdio')
 CHROMEBOX_IMAGE = ousamg/chromebox:1.3
 CHROMEBOX_CONTAINER = $(PIPELINE_ID)-chromebox
 E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
@@ -402,12 +402,9 @@ e2e-shell:
 e2e-ps:
 	docker exec -it $(E2E_APP_CONTAINER) ps -ejfH
 
-e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
-	-docker stop $(E2E_APP_CONTAINER)
-	-docker rm $(E2E_APP_CONTAINER)
-
-	docker run -d \
-	   --hostname e2e \
+test-e2e: e2e-network-check e2e-start-chromebox test-build
+	-docker rm -f $(E2E_APP_CONTAINER)
+	-docker run -t --hostname e2e \
 	   --name $(E2E_APP_CONTAINER) \
 	   --label io.ousamg.gitversion=$(BRANCH) \
 	   -e PRODUCTION=false \
@@ -415,29 +412,15 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \
-	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
-
-	docker exec $(E2E_APP_CONTAINER) mkdir /ella/errorShots
-
-e2e-app-container-shutdown:
-	@echo "Stopping container $(E2E_APP_CONTAINER)"
-	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop web
-	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop postgres
-	docker stop $(E2E_APP_CONTAINER)
-	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
-
-
-test-e2e: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
-
-
-e2e-stop-chromebox:
-	-docker stop $(CHROMEBOX_CONTAINER)
+	   ops/test/run_e2e_tests.sh
+	-docker rm -f $(E2E_APP_CONTAINER)
+	-docker rm -f $(CHROMEBOX_CONTAINER)
 
 e2e-remove-chromebox:
-	-docker rm $(CHROMEBOX_CONTAINER)
+	-docker rm -f $(CHROMEBOX_CONTAINER)
 
-e2e-start-chromebox:
+e2e-start-chromebox: e2e-remove-chromebox
+	-docker rm -f $(CHROMEBOX_CONTAINER)
 	@echo "Starting Chromebox container $(CHROMEBOX_CONTAINER) using $(CHROMEBOX_IMAGE)"
 	docker run -d --name $(CHROMEBOX_CONTAINER) --label io.ousamg.gitversion=$(BRANCH) --network=local_only $(CHROMEBOX_IMAGE)
 	@echo "Chromebox info: (chromedriver, chrome, linux, debian)"
@@ -445,38 +428,6 @@ e2e-start-chromebox:
 
 e2e-network-check:
 	docker network ls | grep -q local_only || docker network create --subnet 172.25.0.0/16 local_only
-
-#---------------------------------------------
-# TESTING of reports (trigged outside container)
-#---------------------------------------------
-.PHONY: test-report-classifications test-reportsanger
-
-test-report-classifications: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
-	# Create report and run verifications:
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-classifications/run_tests.sh
-
-test-report-classifications-with-analysis: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
-	# Create report and run verifications:
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-classifications/run_tests.sh
-
-
-test-report-sanger: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-has-variants.sh
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-sanger/run-test-report-has-variants.sh
-
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-is-empty.sh
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-sanger/run-test-report-is-empty.sh
-
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser

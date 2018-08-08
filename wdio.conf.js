@@ -1,5 +1,5 @@
 var http = require('http')
-var addCommands = require('./commands')
+var addCommands = require('./src/webui/tests/e2e/commands')
 
 // when debugging it's useful to alter some config values
 var debug = process.env.DEBUG
@@ -36,7 +36,6 @@ var defaultTimeoutInterval = 120000 // ms
 var defaultMaxInstances = 1
 let specHome = 'src/webui/tests/e2e/tests/**'
 var defaultSpecs = [`${specHome}/*.js`]
-// var defaultSpecs = [`${specHome}/workflow_variant_acmg.js`];
 var BUNDLED_APP = 'app.js' // see gulp file
 
 exports.config = {
