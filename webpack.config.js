@@ -1,6 +1,7 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = (env, argv) => {
     const production = argv.mode === 'production'
@@ -56,7 +57,10 @@ module.exports = (env, argv) => {
                 filename: '[name].css'
             }),
             // Creates index.html with automatic <script> tags
-            new HtmlWebpackPlugin({ template: './src/webui/src/index.html' })
+            new HtmlWebpackPlugin({ template: './src/webui/src/index.html' }),
+            new CleanWebpackPlugin([path.resolve(__dirname, 'src/webui/build/*')], {
+                verbose: true
+            })
         ]
     }
 }
