@@ -36,7 +36,7 @@ var defaultTimeoutInterval = 120000 // ms
 var defaultMaxInstances = 1
 let specHome = 'src/webui/tests/e2e/tests/**'
 var defaultSpecs = [`${specHome}/*.js`]
-var BUNDLED_APP = 'app.js' // see gulp file
+var BUNDLED_APP = 'app.js' // see webpack config
 
 exports.config = {
     // debug: true causes a [DEP0062] DeprecationWarning
@@ -236,7 +236,7 @@ exports.config = {
                 })
             },
             timeout,
-            appUrl + " wasn't available within " + timeout + " ms. What's up gulp?",
+            appUrl + " wasn't available within " + timeout + " ms. What's up webpack?",
             1000
         )
     },

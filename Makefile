@@ -68,13 +68,7 @@ help :
 	@echo "                   		Some tests allow you to override the test command by defining TEST_COMMAND=..."
 	@echo " 			  	Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "-- END 2 END tests--"
-	@echo "Note! below tests requires 'make e2e-app-container-setup' to be run first"
 	@echo "make test-e2e		- Run e2e tests"
-	@echo "make test-report-sanger"
-	@echo "			- Test report 'ella-cli export sanger'"
-	@echo "make test-report-classifications"
-	@echo "			- Test report 'ella-cli export classifications'"
-	@echo ""
 	@echo "make e2e-test-local	- For running e2e tests locally."
 	@echo "                          Set these vars: APP_URL, CHROME_HOST, SPEC and DEBUG."
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
@@ -137,7 +131,7 @@ start-bundle-container:
 		sleep infinity
 
 tar-web-build:
-	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp build
+	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn build
 	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
 	@echo "Bundled static web files in $(WEB_BUNDLE)"
 
