@@ -51,15 +51,6 @@ test_python:
     - /^ops-.*$/
 
 
-test_rule_engine:
-  stage: test
-  script:
-    - make test-rule-engine
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-
-
 test_cli:
   stage: test
   script:

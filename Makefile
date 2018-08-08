@@ -311,17 +311,13 @@ test-js: test-build
 	@docker rm -f $(PIPELINE_ID)-js
 
 test-js-auto: test-build
-	docker run -d \
+	docker run \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  --name $(PIPELINE_ID)-js \
 	  -v $(shell pwd):/ella \
 	  -e PRODUCTION=false \
 	  $(NAME_OF_GENERATED_IMAGE) \
-	  sleep infinity
-
-	@echo ""
-	@echo "Runs gulp forever. Ctrl-C to exit. The container ${PIPELINE_ID}-js must be manuallry stopped/removed."
-	docker exec $(PIPELINE_ID)-js yarn test-watch
+	  yarn test-watch
 
 test-common: test-build
 	docker run -d \
@@ -335,18 +331,6 @@ test-common: test-build
 	docker exec $(PIPELINE_ID)-common ops/test/run_python_tests.sh
 	@docker rm -f $(PIPELINE_ID)-common
 
-test-rule-engine: test-build
-	docker run -d \
-	   --name $(PIPELINE_ID)-rules \
-	   --label io.ousamg.gitversion=$(BRANCH) \
-	   -e PRODUCTION=false \
-	   $(NAME_OF_GENERATED_IMAGE) \
-	   supervisord -c /ella/ops/common/supervisor.cfg
-
-	docker exec $(PIPELINE_ID)-rules py.test --color=yes "/ella/src/rule_engine/tests"
-	@docker rm -f $(PIPELINE_ID)-rules
-
-
 test-api: test-build
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
@@ -359,7 +343,6 @@ test-api: test-build
 
 	docker exec $(PIPELINE_ID)-api ops/test/run_api_tests.sh
 	@docker rm -f $(PIPELINE_ID)-api
-
 
 test-api-migration: test-build
 	docker run -d \
