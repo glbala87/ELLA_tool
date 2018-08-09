@@ -63,6 +63,14 @@ test_cli:
     - docker rm  -f -v ${PIPELINE_ID}-cli
 
 
+test_report:
+  stage: e2e
+  script:
+    - make test-report
+  after_script:
+    - docker rm  -f -v ${PIPELINE_ID}-report
+
+
 test_e2e:
   stage: e2e
   script:

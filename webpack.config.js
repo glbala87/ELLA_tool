@@ -23,9 +23,7 @@ module.exports = (env, argv) => {
                     loader: 'babel-loader',
                     exclude: /node_modules/,
                     query: {
-                        cacheDirectory: true,
-                        plugins: ['transform-decorators-legacy'],
-                        presets: ['env']
+                        cacheDirectory: true
                     }
                 },
                 {

@@ -7,9 +7,6 @@ source ./scripts/bash-util.sh
 
 mkdir /ella/errorShots
 
-yellow "Starting API"
-supervisord -c /ella/ops/test/supervisor-e2e.cfg
-
 yellow "Building web assets"
 /ella/ops/common/symlink_node_modules
 yarn production

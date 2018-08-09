@@ -291,18 +291,16 @@ test-build:
 	docker build ${BUILD_OPTIONS} -t $(NAME_OF_GENERATED_IMAGE) .
 
 test: test-all
-test-all: test-js test-common test-api test-cli
+test-all: test-js test-common test-api test-cli test-report
 
 test-js: test-build
-	docker run -d \
+	docker run \
+	  --rm \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  --name $(PIPELINE_ID)-js \
 	  -e PRODUCTION=false \
 	  $(NAME_OF_GENERATED_IMAGE) \
-	  supervisord -c /ella/ops/common/supervisor.cfg
-
-	docker exec $(PIPELINE_ID)-js yarn test
-	@docker rm -f $(PIPELINE_ID)-js
+	  yarn test
 
 test-js-auto: test-build
 	docker run \
@@ -351,7 +349,6 @@ test-api-migration: test-build
 	docker exec $(PIPELINE_ID)-api-migration ops/test/run_api_migration_tests.sh
 	@docker rm -f $(PIPELINE_ID)-api-migration
 
-
 test-cli: test-build # container $(PIPELINE_ID)-cli
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
@@ -364,24 +361,22 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	docker exec $(PIPELINE_ID)-cli ops/test/run_cli_tests.sh
 	@docker rm -f $(PIPELINE_ID)-cli
 
-#---------------------------------------------
-# END-2-END TESTING (trigged outside container)
-#---------------------------------------------
-.PHONY: e2e-log e2e-shell e2e-ps test-e2e \
-        e2e-stop-chromebox e2e-start-chromebox e2e-network-check
+test-report: test-build
+	docker run -d \
+	  --label io.ousamg.gitversion=$(BRANCH) \
+	  -e DB_URL=postgres:///postgres \
+	  -e PRODUCTION=false \
+	  --name $(PIPELINE_ID)-report $(NAME_OF_GENERATED_IMAGE) \
+	  supervisord -c /ella/ops/test/supervisor.cfg
 
-e2e-log:
-	docker logs -f $(E2E_APP_CONTAINER)
+	docker exec -t $(PIPELINE_ID)-report ops/test/run_report_tests.sh
+	@docker rm -f $(PIPELINE_ID)-report
 
-e2e-shell:
-	docker exec -it $(E2E_APP_CONTAINER) bash
-
-e2e-ps:
-	docker exec -it $(E2E_APP_CONTAINER) ps -ejfH
+.PHONY: test-e2e e2e-remove-chromebox e2e-start-chromebox e2e-network-check
 
 test-e2e: e2e-network-check e2e-start-chromebox test-build
 	-docker rm -f $(E2E_APP_CONTAINER)
-	-docker run -t --hostname e2e \
+	-docker run -t -d --hostname e2e \
 	   --name $(E2E_APP_CONTAINER) \
 	   --label io.ousamg.gitversion=$(BRANCH) \
 	   -e PRODUCTION=false \
@@ -389,11 +384,10 @@ test-e2e: e2e-network-check e2e-start-chromebox test-build
 	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
 	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
 	   $(NAME_OF_GENERATED_IMAGE) \
-	   ops/test/run_e2e_tests.sh
-	-docker rm -f $(E2E_APP_CONTAINER)
-	-docker rm -f $(CHROMEBOX_CONTAINER)
+	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
-e2e-remove-chromebox:
+	docker exec -t $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
+	-docker rm -f $(E2E_APP_CONTAINER)
 	-docker rm -f $(CHROMEBOX_CONTAINER)
 
 e2e-start-chromebox: e2e-remove-chromebox
@@ -402,6 +396,9 @@ e2e-start-chromebox: e2e-remove-chromebox
 	docker run -d --name $(CHROMEBOX_CONTAINER) --label io.ousamg.gitversion=$(BRANCH) --network=local_only $(CHROMEBOX_IMAGE)
 	@echo "Chromebox info: (chromedriver, chrome, linux, debian)"
 	docker exec $(CHROMEBOX_CONTAINER) /bin/sh -c "ps aux | grep -E 'chromedriver|Xvfb' | grep -v 'grep' ; chromedriver --version ; google-chrome --version ; cat /proc/version ; cat /etc/debian_version"
+
+e2e-remove-chromebox:
+	-docker rm -f $(CHROMEBOX_CONTAINER)
 
 e2e-network-check:
 	docker network ls | grep -q local_only || docker network create --subnet 172.25.0.0/16 local_only
