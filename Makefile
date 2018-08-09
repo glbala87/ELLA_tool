@@ -377,7 +377,7 @@ test-report: test-build
 
 test-e2e: e2e-network-check e2e-start-chromebox test-build
 	-docker rm -f $(E2E_APP_CONTAINER)
-	-docker run -t -d --hostname e2e \
+	-docker run -d --hostname e2e \
 	   --name $(E2E_APP_CONTAINER) \
 	   --label io.ousamg.gitversion=$(BRANCH) \
 	   -e PRODUCTION=false \

@@ -19,9 +19,3 @@ yellow "Starting e2e tests..."
 
 # Run browser e2e
 yarn wdio --baseUrl "${E2E_APP_CONTAINER}:5000" --host "cb" --port 4444 --path "/"
-
-
-yellow "Starting report tests..."
-make dbreset TESTSET=sanger > /dev/null
-/ella/ops/test/report/test-report-classifications.sh
-/ella/ops/test/report/test-report-sanger.sh

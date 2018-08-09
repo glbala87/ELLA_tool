@@ -20,7 +20,7 @@ LivereloadWebpackPlugin.prototype.done = function done(stats) {
         return !(file in this.fileHashes) || this.fileHashes[file] !== fileHashes[file]
     })
 
-    if (this.isRunning) {
+    if (this.isRunning && toInclude.length) {
         this.fileHashes = fileHashes
         console.log('Live Reload: Reloading ' + toInclude.join(', '))
         setTimeout(
