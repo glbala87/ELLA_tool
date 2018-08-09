@@ -2,6 +2,34 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const LivereloadWebpackPlugin = require('webpack-livereload-plugin')
+const md5File = require('md5-file')
+
+LivereloadWebpackPlugin.prototype.done = function done(stats) {
+    this.fileHashes = this.fileHashes || {}
+
+    const fileHashes = {}
+    for (let file of Object.keys(stats.compilation.assets)) {
+        fileHashes[file] = md5File.sync(stats.compilation.assets[file].existsAt)
+    }
+
+    const toInclude = Object.keys(fileHashes).filter((file) => {
+        if (this.ignore && file.match(this.ignore)) {
+            return false
+        }
+        return !(file in this.fileHashes) || this.fileHashes[file] !== fileHashes[file]
+    })
+
+    if (this.isRunning) {
+        this.fileHashes = fileHashes
+        console.log('Live Reload: Reloading ' + toInclude.join(', '))
+        setTimeout(
+            function onTimeout() {
+                this.server.notifyClients(toInclude)
+            }.bind(this)
+        )
+    }
+}
 
 module.exports = (env, argv) => {
     const production = argv.mode === 'production'
@@ -58,7 +86,8 @@ module.exports = (env, argv) => {
             new HtmlWebpackPlugin({ template: './src/webui/src/index.html' }),
             new CleanWebpackPlugin([path.resolve(__dirname, 'src/webui/build/*')], {
                 verbose: true
-            })
+            }),
+            new LivereloadWebpackPlugin()
         ]
     }
 }

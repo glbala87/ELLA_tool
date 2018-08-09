@@ -39,7 +39,7 @@
         "html-webpack-plugin": "^3.2.0",
         "jasmine-fail-fast": "^2.0.0",
         "jest": "^23.4.2",
-        "livereload": "^0.7.0",
+        "md5-file": "^4.0.0",
         "mini-css-extract-plugin": "^0.4.1",
         "ng-cache-loader": "^0.0.26",
         "node-sass": "^4.9.2",
@@ -67,8 +67,7 @@
         }
     },
     "scripts": {
-        "livereload": "livereload src/webui/build --port 35729",
-        "dev": "yarn livereload & webpack --mode development --watch --hide-modules",
+        "dev": "webpack --mode development --watch --hide-modules",
         "test": "jest",
         "test-watch": "jest --watch",
         "build": "webpack --mode development",

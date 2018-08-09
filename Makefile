@@ -238,6 +238,7 @@ dev:
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  -p $(API_PORT):5000 \
+	  -p 35729:35729 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
 	  $(NAME_OF_GENERATED_IMAGE) \
