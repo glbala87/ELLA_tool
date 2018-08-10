@@ -1,5 +1,6 @@
 /* jshint esnext: true */
-
+import toastr from 'toastr'
+import copy from 'copy-to-clipboard'
 import { Directive, Inject } from '../ng-decorators'
 
 /**
@@ -17,17 +18,15 @@ import { Directive, Inject } from '../ng-decorators'
     transclude: true,
     template: `<span><a title="{{title}}" ng-if="::!vm.shouldCopy()" ng-href="{{vm.href}}" target="{{vm.href}}" ng-transclude></a><a style="cursor: pointer;" ng-if="::vm.shouldCopy()" title="{{title}}" ng-click="vm.copyToClipboard()" ng-transclude></a></span>`
 })
-@Inject('clipboard', 'Config', 'toastr')
+@Inject('Config')
 export class HrefController {
-    constructor(clipboard, Config, toastr) {
-        this.clipboard = clipboard
+    constructor(Config, toastr) {
         this.config = Config.getConfig()
-        this.toastr = toastr
     }
 
     copyToClipboard() {
-        this.clipboard.copyText(this.href)
-        this.toastr.info('Copied link to clipboard.', null, 1000)
+        copy(this.href)
+        toastr.info('Copied link to clipboard.', null, 1000)
         console.log(`Copied ${this.href} to clipboard.`)
     }
 

@@ -6,9 +6,10 @@ import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import hasAlleles from '../store/modules/views/workflows/computed/hasAlleles'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import sortAlleles from '../store/modules/views/workflows/computed/sortAlleles'
+import template from './analysisInfo.ngtmpl.html'
 
 app.component('analysisInfo', {
-    templateUrl: 'ngtmpl/analysisInfo.ngtmpl.html',
+    templateUrl: 'analysisInfo.ngtmpl.html',
     controller: connect(
         {
             analysis: state`views.workflows.data.analysis`,

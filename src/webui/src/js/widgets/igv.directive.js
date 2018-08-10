@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../ng-decorators'
+//import igv from 'igv'
 
 /**
  * Directive for displaying igv.js

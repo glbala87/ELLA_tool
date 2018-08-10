@@ -5,7 +5,7 @@ import getAlleleIdsCategory from '../computed/getAlleleIdsCategory'
 import getAlleleIdsForGene from '../computed/getAlleleIdsForGene'
 import getAlleleIdsSlice from '../computed/getAlleleIdsSlice'
 import getAlleles from '../actions/getAlleles'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 
 export default sequence('loadAlleles', [
     set(state`modals.addExcludedAlleles.categoryAlleleIds`, getAlleleIdsCategory),
@@ -15,6 +15,6 @@ export default sequence('loadAlleles', [
     getAlleles,
     {
         success: [set(state`modals.addExcludedAlleles.data.alleles`, props`result`)],
-        error: [toastr('error', 'Failed to load variants')]
+        error: [toast('error', 'Failed to load variants')]
     }
 ])

@@ -1,22 +1,25 @@
 /* jshint esnext: true */
 
+import angular from 'angular'
+import uiBootstrap from 'angular-ui-bootstrap'
+import 'angular-animate'
+import 'angular-resource'
+import 'angular-sanitize'
+import angularChecklistModel from 'checklist-model'
+import angularSelector from 'angular-selector'
 import { addModule, connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 
 addModule(angular)
 
 export let app = angular.module('workbench', [
-    'ui.bootstrap',
-    'templates',
+    uiBootstrap,
     'ngResource',
     'ngAnimate',
-    'ngRoute',
-    'ngCookies',
-    'checklist-model',
-    'angular-clipboard',
-    'toastr',
-    'selector',
     'ngSanitize',
+    angularChecklistModel,
+    'selector',
+    'templates',
     'cerebral'
 ])
 

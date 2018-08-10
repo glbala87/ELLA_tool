@@ -21,7 +21,7 @@ DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 # e2e test:
 APP_BASE_URL ?= 'localhost:5000'
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
-WDIO_OPTIONS ?=  # command line options when running /dist/node_modules/webdriverio/bin/wdio (see 'make wdio')
+WDIO_OPTIONS ?=  # command line options when running yarn wdio (see 'make wdio')
 CHROMEBOX_IMAGE = ousamg/chromebox:1.3
 CHROMEBOX_CONTAINER = $(PIPELINE_ID)-chromebox
 E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
@@ -68,13 +68,7 @@ help :
 	@echo "                   		Some tests allow you to override the test command by defining TEST_COMMAND=..."
 	@echo " 			  	Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
 	@echo "-- END 2 END tests--"
-	@echo "Note! below tests requires 'make e2e-app-container-setup' to be run first"
 	@echo "make test-e2e		- Run e2e tests"
-	@echo "make test-report-sanger"
-	@echo "			- Test report 'ella-cli export sanger'"
-	@echo "make test-report-classifications"
-	@echo "			- Test report 'ella-cli export classifications'"
-	@echo ""
 	@echo "make e2e-test-local	- For running e2e tests locally."
 	@echo "                          Set these vars: APP_URL, CHROME_HOST, SPEC and DEBUG."
 	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
@@ -137,7 +131,7 @@ start-bundle-container:
 		sleep infinity
 
 tar-web-build:
-	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  /ella/ops/common/gulp build
+	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn build
 	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
 	@echo "Bundled static web files in $(WEB_BUNDLE)"
 
@@ -243,8 +237,8 @@ dev:
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
-	  -e COLUMNS=250 \
 	  -p $(API_PORT):5000 \
+	  -p 35729:35729 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
 	  $(NAME_OF_GENERATED_IMAGE) \
@@ -298,31 +292,25 @@ test-build:
 	docker build ${BUILD_OPTIONS} -t $(NAME_OF_GENERATED_IMAGE) .
 
 test: test-all
-test-all: test-js test-common test-api test-cli
+test-all: test-js test-common test-api test-cli test-report
 
 test-js: test-build
-	docker run -d \
+	docker run \
+	  --rm \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  --name $(PIPELINE_ID)-js \
 	  -e PRODUCTION=false \
 	  $(NAME_OF_GENERATED_IMAGE) \
-	  supervisord -c /ella/ops/common/supervisor.cfg
-
-	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit
-	@docker rm -f $(PIPELINE_ID)-js
+	  yarn test
 
 test-js-auto: test-build
-	docker run -d \
+	docker run \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  --name $(PIPELINE_ID)-js \
 	  -v $(shell pwd):/ella \
 	  -e PRODUCTION=false \
 	  $(NAME_OF_GENERATED_IMAGE) \
-	  sleep infinity
-
-	@echo ""
-	@echo "Runs gulp forever. Ctrl-C to exit. The container ${PIPELINE_ID}-js must be manuallry stopped/removed."
-	docker exec $(PIPELINE_ID)-js /ella/ops/common/gulp unit-auto
+	  yarn test-watch
 
 test-common: test-build
 	docker run -d \
@@ -335,18 +323,6 @@ test-common: test-build
 
 	docker exec $(PIPELINE_ID)-common ops/test/run_python_tests.sh
 	@docker rm -f $(PIPELINE_ID)-common
-
-test-rule-engine: test-build
-	docker run -d \
-	   --name $(PIPELINE_ID)-rules \
-	   --label io.ousamg.gitversion=$(BRANCH) \
-	   -e PRODUCTION=false \
-	   $(NAME_OF_GENERATED_IMAGE) \
-	   supervisord -c /ella/ops/common/supervisor.cfg
-
-	docker exec $(PIPELINE_ID)-rules py.test --color=yes "/ella/src/rule_engine/tests"
-	@docker rm -f $(PIPELINE_ID)-rules
-
 
 test-api: test-build
 	docker run -d \
@@ -361,7 +337,6 @@ test-api: test-build
 	docker exec $(PIPELINE_ID)-api ops/test/run_api_tests.sh
 	@docker rm -f $(PIPELINE_ID)-api
 
-
 test-api-migration: test-build
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
@@ -375,7 +350,6 @@ test-api-migration: test-build
 	docker exec $(PIPELINE_ID)-api-migration ops/test/run_api_migration_tests.sh
 	@docker rm -f $(PIPELINE_ID)-api-migration
 
-
 test-cli: test-build # container $(PIPELINE_ID)-cli
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
@@ -388,27 +362,22 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	docker exec $(PIPELINE_ID)-cli ops/test/run_cli_tests.sh
 	@docker rm -f $(PIPELINE_ID)-cli
 
-#---------------------------------------------
-# END-2-END TESTING (trigged outside container)
-#---------------------------------------------
-.PHONY: e2e-log e2e-shell e2e-ps test-e2e \
-        e2e-stop-chromebox e2e-start-chromebox e2e-network-check
-
-e2e-log:
-	docker logs -f $(E2E_APP_CONTAINER)
-
-e2e-shell:
-	docker exec -it $(E2E_APP_CONTAINER) bash
-
-e2e-ps:
-	docker exec -it $(E2E_APP_CONTAINER) ps -ejfH
-
-e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
-	-docker stop $(E2E_APP_CONTAINER)
-	-docker rm $(E2E_APP_CONTAINER)
-
+test-report: test-build
 	docker run -d \
-	   --hostname e2e \
+	  --label io.ousamg.gitversion=$(BRANCH) \
+	  -e DB_URL=postgres:///postgres \
+	  -e PRODUCTION=false \
+	  --name $(PIPELINE_ID)-report $(NAME_OF_GENERATED_IMAGE) \
+	  supervisord -c /ella/ops/test/supervisor.cfg
+
+	docker exec -t $(PIPELINE_ID)-report ops/test/run_report_tests.sh
+	@docker rm -f $(PIPELINE_ID)-report
+
+.PHONY: test-e2e e2e-remove-chromebox e2e-start-chromebox e2e-network-check
+
+test-e2e: e2e-network-check e2e-start-chromebox test-build
+	-docker rm -f $(E2E_APP_CONTAINER)
+	-docker run -d --hostname e2e \
 	   --name $(E2E_APP_CONTAINER) \
 	   --label io.ousamg.gitversion=$(BRANCH) \
 	   -e PRODUCTION=false \
@@ -418,66 +387,22 @@ e2e-app-container-setup: e2e-network-check e2e-start-chromebox test-build
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
-	docker exec $(E2E_APP_CONTAINER) mkdir /ella/errorShots
-
-e2e-app-container-shutdown:
-	@echo "Stopping container $(E2E_APP_CONTAINER)"
-	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop web
-	docker exec $(E2E_APP_CONTAINER) supervisorctl -c /ella/ops/test/supervisor-e2e.cfg stop postgres
-	docker stop $(E2E_APP_CONTAINER)
-	docker inspect  --format='{{.Name}}: {{.State.Status}} (exit code: {{.State.ExitCode}})' $(E2E_APP_CONTAINER)
-
-
-test-e2e: #e2e-app-container-setup # CI run conditional target in separate stage
 	docker exec -t $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
+	-docker rm -f $(E2E_APP_CONTAINER)
+	-docker rm -f $(CHROMEBOX_CONTAINER)
 
-
-e2e-stop-chromebox:
-	-docker stop $(CHROMEBOX_CONTAINER)
-
-e2e-remove-chromebox:
-	-docker rm $(CHROMEBOX_CONTAINER)
-
-e2e-start-chromebox:
+e2e-start-chromebox: e2e-remove-chromebox
+	-docker rm -f $(CHROMEBOX_CONTAINER)
 	@echo "Starting Chromebox container $(CHROMEBOX_CONTAINER) using $(CHROMEBOX_IMAGE)"
 	docker run -d --name $(CHROMEBOX_CONTAINER) --label io.ousamg.gitversion=$(BRANCH) --network=local_only $(CHROMEBOX_IMAGE)
 	@echo "Chromebox info: (chromedriver, chrome, linux, debian)"
 	docker exec $(CHROMEBOX_CONTAINER) /bin/sh -c "ps aux | grep -E 'chromedriver|Xvfb' | grep -v 'grep' ; chromedriver --version ; google-chrome --version ; cat /proc/version ; cat /etc/debian_version"
 
+e2e-remove-chromebox:
+	-docker rm -f $(CHROMEBOX_CONTAINER)
+
 e2e-network-check:
 	docker network ls | grep -q local_only || docker network create --subnet 172.25.0.0/16 local_only
-
-#---------------------------------------------
-# TESTING of reports (trigged outside container)
-#---------------------------------------------
-.PHONY: test-report-classifications test-reportsanger
-
-test-report-classifications: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
-	# Create report and run verifications:
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-classifications/run_tests.sh
-
-test-report-classifications-with-analysis: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-classifications/testfixture.sh
-	# Create report and run verifications:
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-classifications/run_tests.sh
-
-
-test-report-sanger: #e2e-app-container-setup # CI run conditional target in separate stage
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/e2e_tests-pre.sh
-
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-has-variants.sh
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-sanger/run-test-report-has-variants.sh
-
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/report-sanger/testfixture-report-is-empty.sh
-	docker exec -t -e DB_URL=postgresql:///postgres $(E2E_APP_CONTAINER) \
-	   ops/test/report-sanger/run-test-report-is-empty.sh
-
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser
@@ -497,14 +422,7 @@ e2e-test-local: test-build
 	   -p 5000:5000 -p 5859:5859 \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	docker exec $(E2E_APP_CONTAINER) make dbreset
 	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
-
-.PHONY: run-e2e-locally
-run-e2e-locally:
-	@echo "running e2e tests locally ..."
-	ops/test/run_e2e_tests_locally.sh
-
 
 

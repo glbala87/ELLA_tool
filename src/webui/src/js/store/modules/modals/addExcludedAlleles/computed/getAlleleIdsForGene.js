@@ -1,3 +1,4 @@
+import thenBy from 'thenby'
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 
@@ -23,7 +24,7 @@ export default Compute(
         // Remove any already included ids
 
         return alleleIds.filter((a) => !includedAlleleIds.includes(a)).sort(
-            firstBy((alleleId) => {
+            thenBy((alleleId) => {
                 const entry = alleleIdsByGeneCandidates.find((a) => a.allele_ids.includes(alleleId))
                 return entry ? entry.symbol : ''
             })

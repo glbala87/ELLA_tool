@@ -2,6 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
+import template from './addExcludedAlleles.ngtmpl.html'
 
 const getGeneOptions = Compute(
     state`modals.addExcludedAlleles.data.alleleIdsByGene`,
@@ -42,7 +43,7 @@ const getMetrics = Compute(
 )
 
 app.component('addExcludedAlleles', {
-    templateUrl: 'ngtmpl/addExcludedAlleles.ngtmpl.html',
+    templateUrl: 'addExcludedAlleles.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

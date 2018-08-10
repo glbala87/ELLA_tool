@@ -1,3 +1,5 @@
+import thenBy from 'thenby'
+
 import { state, props, string } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
@@ -52,7 +54,7 @@ export default function(allele) {
 
             clinvar.items.push(formatted)
         }
-        clinvar.items.sort(firstBy(sort))
+        clinvar.items.sort(thenBy(sort))
         return clinvar
     })
 }

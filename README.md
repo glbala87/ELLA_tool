@@ -47,7 +47,7 @@ Mount points of interest:
 Internally, the `supervisord` will spin up:
   - nginx - acting as reverse proxy and serving static files
   - gunicorn - launching several API workers
-  - gulp - transpiles the frontend upon startup
+  - webpack - transpiles the frontend upon startup
   - analyses-watcher - handles watching for and importing new data
 
 Transpiling the frontend files may take up to a minute, so it might take some time before the application is available.
@@ -280,11 +280,6 @@ The relevant options to the make command:
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
 Note! Make sure the versions of Chrome and Chromedriver are compatible
-
-
-Note! You can also run webdriverio directly on hour host (not in a docker container).
-- Start ELLA (typically `make dev`)
-- Start tests: DEBUG=true node node_modules/.bin/wdio src/webui/tests/e2e/wdio.conf.js --path / --baseUrl <host:port like localhost:8001>
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 Of course you need to have instellad the webdriverio Node module.

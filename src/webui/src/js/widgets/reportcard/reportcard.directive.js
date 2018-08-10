@@ -1,3 +1,5 @@
+import thenBy from 'thenby'
+
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
@@ -7,6 +9,7 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
 import getClassification from '../../store/modules/views/workflows/interpretation/computed/getClassification'
+import template from './reportcard.ngtmpl.html'
 
 function formatHGVS(allele, classification, config) {
     let hgvs = ''
@@ -48,7 +51,7 @@ const getReportAlleleData = Compute(
         })
 
         includedAlleles.sort(
-            firstBy((a) => {
+            thenBy((a) => {
                 const classification = get(getClassification(a.id, true))
                 return config.classification.options.findIndex((o) => o.value === classification)
             }, -1)
@@ -69,7 +72,7 @@ const getReportAlleleData = Compute(
 )
 
 app.component('reportCard', {
-    templateUrl: 'ngtmpl/reportcard.ngtmpl.html',
+    templateUrl: 'reportcard.ngtmpl.html',
     controller: connect(
         {
             reportComment: state`views.workflows.interpretation.selected.state.report.comment`,

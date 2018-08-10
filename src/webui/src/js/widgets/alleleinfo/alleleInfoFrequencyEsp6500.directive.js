@@ -1,13 +1,14 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../../ng-decorators'
+import template from './alleleInfoFrequencyEsp6500.ngtmpl.html'
 
 @Directive({
     selector: 'allele-info-frequency-esp6500',
     scope: {
         allele: '='
     },
-    templateUrl: 'ngtmpl/alleleInfoFrequencyEsp6500.ngtmpl.html'
+    template
 })
 @Inject()
 export class AlleleInfoFrequencyEsp6500 {

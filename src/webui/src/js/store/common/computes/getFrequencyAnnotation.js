@@ -1,3 +1,5 @@
+import thenBy from 'thenby'
+
 import { state, props, string } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
@@ -117,7 +119,7 @@ export default function(allele, group) {
                     return f
                 })
             }
-            data.frequencies = data.frequencies.sort(firstBy((a) => a.name))
+            data.frequencies = data.frequencies.sort(thenBy((a) => a.name))
 
             //
             // Filter
@@ -141,7 +143,7 @@ export default function(allele, group) {
                     .map((e) => {
                         return { name: e[0], value: e[1] }
                     })
-                    .sort(firstBy((x) => x.name))
+                    .sort(thenBy((x) => x.name))
                 if (shouldShowIndications(allele, group, freqType, config)) {
                     data.indications.push({
                         name: freqType,

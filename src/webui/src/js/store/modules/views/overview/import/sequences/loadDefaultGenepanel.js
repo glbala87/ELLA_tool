@@ -1,7 +1,7 @@
 import { set, equals } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getGenepanel from '../actions/getGenepanel'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 
 export default [
     set(props`genepanelName`, state`app.user.group.default_import_genepanel.name`),
@@ -9,6 +9,6 @@ export default [
     getGenepanel,
     {
         success: [set(state`views.overview.import.data.defaultGenepanel`, props`result`)],
-        error: [toastr('error', 'Failed to load default genepanel')]
+        error: [toast('error', 'Failed to load default genepanel')]
     }
 ]

@@ -13,6 +13,7 @@ import getConsequence from '../store/modules/views/workflows/alleleSidebar/compu
 import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
+import template from './alleleSidebar.ngtmpl.html'
 
 const unclassifiedAlleles = Compute(
     state`views.workflows.alleleSidebar.unclassified`,
@@ -79,7 +80,7 @@ const isToggled = Compute(
 )
 
 app.component('alleleSidebar', {
-    templateUrl: 'ngtmpl/alleleSidebar.ngtmpl.html',
+    templateUrl: 'alleleSidebar.ngtmpl.html',
     controller: connect(
         {
             selectedComponent: state`views.workflows.selectedComponent`,

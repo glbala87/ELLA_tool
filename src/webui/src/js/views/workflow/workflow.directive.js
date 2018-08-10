@@ -6,9 +6,10 @@ import { state, signal } from 'cerebral/tags'
 import { compute } from 'cerebral'
 
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
+import template from './workflow.ngtmpl.html'
 
 app.component('workflow', {
-    templateUrl: 'ngtmpl/workflow.ngtmpl.html',
+    templateUrl: 'workflow.ngtmpl.html',
     controller: connect(
         {
             selectedComponent: state`views.workflows.selectedComponent`,

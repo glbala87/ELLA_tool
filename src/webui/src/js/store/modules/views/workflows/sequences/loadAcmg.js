@@ -4,7 +4,7 @@ import { set, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAcmgCodes from '../actions/getAcmgCodes'
 import prepareSuggestedAcmg from '../actions/prepareSuggestedAcmg'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 
 export default sequence('loadAcmg', [
     getAcmgCodes,
@@ -19,6 +19,6 @@ export default sequence('loadAcmg', [
             },
             prepareSuggestedAcmg
         ],
-        error: [toastr('error', 'Failed to load ACMG codes', 30000)]
+        error: [toast('error', 'Failed to load ACMG codes', 30000)]
     }
 ])

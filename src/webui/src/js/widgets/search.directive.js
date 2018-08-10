@@ -1,10 +1,11 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../ng-decorators'
+import template from './search.ngtmpl.html'
 
 @Directive({
     selector: 'search',
-    templateUrl: 'ngtmpl/search.ngtmpl.html'
+    template
 })
 @Inject('Search', '$timeout')
 export class SearchController {

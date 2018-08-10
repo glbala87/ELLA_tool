@@ -5,7 +5,7 @@ import getAnalysis from '../actions/getAnalysis'
 import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
 import loadGenepanel from '../sequences/loadGenepanel'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
 import showExitWarning from '../showExitWarning'
 import loadCollisions from '../sequences/loadCollisions'
@@ -23,7 +23,7 @@ export default [
         sequence('loadAnalysis', [
             getAnalysis,
             {
-                error: [toastr('error', 'Failed to load analysis', 30000)],
+                error: [toast('error', 'Failed to load analysis', 30000)],
                 success: [
                     set(state`views.workflows.data.analysis`, props`result`),
                     setNavbarTitle(state`views.workflows.data.analysis.name`),

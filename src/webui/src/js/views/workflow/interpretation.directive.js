@@ -5,9 +5,10 @@ import { Compute } from 'cerebral'
 
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import shouldShowSidebar from '../../store/modules/views/workflows/alleleSidebar/computed/shouldShowSidebar'
+import template from './interpretation.ngtmpl.html'
 
 app.component('interpretation', {
-    templateUrl: 'ngtmpl/interpretation.ngtmpl.html',
+    templateUrl: 'interpretation.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

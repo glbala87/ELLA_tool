@@ -3,13 +3,14 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
+import template from './upload.ngtmpl.html'
 
 app.component('upload', {
     bindings: {
         mode: '<',
         buttontext: '<'
     },
-    templateUrl: 'ngtmpl/upload.ngtmpl.html',
+    templateUrl: 'upload.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

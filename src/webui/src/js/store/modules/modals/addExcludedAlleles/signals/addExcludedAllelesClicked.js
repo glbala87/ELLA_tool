@@ -2,7 +2,7 @@ import { parallel } from 'cerebral'
 import { set, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAlleleIdsByGene from '../actions/getAlleleIdsByGene'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import getAlleleIdsCategory from '../computed/getAlleleIdsCategory'
 import loadAlleles from '../sequences/loadAlleles'
 import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
@@ -30,6 +30,6 @@ export default [
             set(state`modals.addExcludedAlleles.data.alleleIdsByGene`, props`result`),
             parallel([loadAlleles, loadIncludedAlleles])
         ],
-        error: [toastr('error', 'Failed to load variants')]
+        error: [toast('error', 'Failed to load variants')]
     }
 ]

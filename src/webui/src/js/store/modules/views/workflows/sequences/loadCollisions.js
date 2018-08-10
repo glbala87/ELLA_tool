@@ -3,12 +3,12 @@ import { set, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getCollisions from '../actions/getCollisions'
 
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 
 export default sequence('loadCollisions', [
     getCollisions,
     {
-        error: [toastr('error', 'Failed to load collisions', 5000)],
+        error: [toast('error', 'Failed to load collisions', 5000)],
         success: [set(state`views.workflows.data.collisions`, props`result`)]
     }
 ])

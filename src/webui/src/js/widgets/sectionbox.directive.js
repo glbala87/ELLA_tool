@@ -1,6 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../ng-decorators'
+import template from './sectionbox.ngtmpl.html'
 
 /**
  <sectionbox>
@@ -25,7 +26,7 @@ import { Directive, Inject } from '../ng-decorators'
         top: '?top',
         controls: '?controls'
     },
-    templateUrl: 'ngtmpl/sectionbox.ngtmpl.html',
+    templateUrl: 'sectionbox.ngtmpl.html',
     link: (scope, elem, attrs) => {
         setTimeout(() => {
             let p = elem[0].querySelector('.sb-controls')

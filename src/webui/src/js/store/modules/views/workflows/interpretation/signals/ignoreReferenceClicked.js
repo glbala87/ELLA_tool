@@ -1,4 +1,4 @@
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import canUpdateReferenceAssessment from '../operators/canUpdateReferenceAssessment'
 import getReferenceAssessment from '../computed/getReferenceAssessment'
 import setReferenceAssessment from '../actions/setReferenceAssessment'
@@ -25,7 +25,7 @@ export default [
             setDirty
         ],
         false: [
-            toastr('error', 'Cannot update reference evaluation when interpretation is not Ongoing')
+            toast('error', 'Cannot update reference evaluation when interpretation is not Ongoing')
         ]
     }
 ]

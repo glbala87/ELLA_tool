@@ -1,10 +1,8 @@
-/* jshint esnext: true */
+import '../css/base.css'
+import '../sass/main.scss'
 
-// Support for Object.entries. See https://www.npmjs.com/package/core-js
-require('core-js/fn/object/entries')
-require('core-js/fn/object/keys')
-require('core-js/fn/object/values')
-require('core-js/fn/array/includes')
+// Import here for template handling to be injected correctly
+import angular from 'angular'
 
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
