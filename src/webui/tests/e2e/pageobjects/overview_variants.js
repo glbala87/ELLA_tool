@@ -17,6 +17,7 @@ class VariantSelection extends Page {
         super.open('overview/')
         browser.waitForExist(SELECTOR_OVERVIEW_VARIANTS)
         browser.click(SELECTOR_OVERVIEW_VARIANTS)
+        browser.waitForExist('#nprogress', 10000, true) // Make sure loading is done before proceeding
     }
 
     get variantList() {

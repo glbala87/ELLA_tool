@@ -22,11 +22,13 @@ if [ "${CHROME_HOST}" = "" ]
         yellow "using CHROME_HOST=$CHROME_HOST as Ip address to chrome browser"
 fi
 
+
 if [ "${SPEC}" = "" ]
     then
-       yellow "SPEC not set, will run all"
-       # all specs expect the ones used to create test fixtures:
-       SPEC=`find  src/webui/tests/e2e/tests -name "*.js" | grep -v "testfixture" | sort | tr "\n" "," | sed 's/,$//g'`
+        yellow "SPEC not set, will run all"
+        SPEC_PARAM=""
+    else
+        SPEC_PARAM="--spec ${SPEC}"
 fi
 
 yellow "Building the application to test"
@@ -40,8 +42,7 @@ while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 yellow "Starting e2e tests locally..."
 
 yellow "Will run tests $SPEC"
-   DEBUG=${DEBUG}  yarn wdio \
+   DEBUG=true yarn wdio \
    --baseUrl "${APP_URL}" \
-   --spec ${SPEC} \
    --host "${CHROME_HOST}" \
-   --port 4444 --path "/"
+   --port 4444 --path "/" ${SPEC_PARAM}

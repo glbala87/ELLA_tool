@@ -281,11 +281,6 @@ Maximize the Chrome window to reduce the number of 'element-not-clickable' error
 
 Note! Make sure the versions of Chrome and Chromedriver are compatible
 
-
-Note! You can also run webdriverio directly on hour host (not in a docker container).
-- Start ELLA (typically `make dev`)
-- Start tests: DEBUG=true node node_modules/.bin/wdio src/webui/tests/e2e/wdio.conf.js --path / --baseUrl <host:port like localhost:8001>
-
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 Of course you need to have instellad the webdriverio Node module.
 

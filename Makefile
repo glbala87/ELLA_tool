@@ -422,14 +422,7 @@ e2e-test-local: test-build
 	   -p 5000:5000 -p 5859:5859 \
 	   $(NAME_OF_GENERATED_IMAGE) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	docker exec $(E2E_APP_CONTAINER) make dbreset
 	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
-
-.PHONY: run-e2e-locally
-run-e2e-locally:
-	@echo "running e2e tests locally ..."
-	ops/test/run_e2e_tests_locally.sh
-
 
 
