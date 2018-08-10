@@ -487,7 +487,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 .sidebar .ng-enter { opacity: 0; transition: all 0.8s ease-in-out; }
 .sidebar .ng-enter-active { opacity: 1; }
 .sidebar .nav-row.ng-leave, .allele-sidebar .nav-row .ng-leave { transition: none; }
-.sidebar { display: flex; flex-direction: column; overflow-y: auto; justify-content: flex-start; min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem);
+.sidebar { overflow-y: auto; min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem);
   max-height: calc(100vh - (#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem)); overflow-y: auto;
   overflow-y: auto;
   margin-top: 4.5rem;

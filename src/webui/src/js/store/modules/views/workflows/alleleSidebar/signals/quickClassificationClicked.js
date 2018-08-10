@@ -4,7 +4,7 @@ import canUpdateAlleleAssessment from '../../interpretation/operators/canUpdateA
 import updateSuggestedClassification from '../../interpretation/sequences/updateSuggestedClassification'
 import setDirty from '../../interpretation/actions/setDirty'
 import changeClassification from '../../interpretation/sequences/changeClassification'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import addAcmgCode from '../../interpretation/actions/addAcmgCode'
 
 export default [
@@ -19,7 +19,7 @@ export default [
             canUpdateAlleleAssessment,
             {
                 true: [addAcmgCode, updateSuggestedClassification, setDirty],
-                false: [toastr('error', 'Could not add ACMG code')]
+                false: [toast('error', 'Could not add ACMG code')]
             }
         ],
 

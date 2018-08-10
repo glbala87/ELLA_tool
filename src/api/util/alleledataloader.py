@@ -325,6 +325,7 @@ class AlleleDataLoader(object):
             genotype.GenotypeSampleData.genotype_id.in_([g.id for g in genotypes])
         ).all()
 
+        allele_ids_p_denovo = dict()
         if segregation_results:
             denovo_allele_ids = segregation_results.get('denovo', set())
             allele_ids_p_denovo = self.get_p_denovo(denovo_allele_ids, analysis_id)

@@ -708,7 +708,12 @@ class SegregationFilter(object):
         segregation_results = self.get_segregation_results(analysis_allele_ids)
 
         result = dict()
+
         for analysis_id, allele_ids in analysis_allele_ids.iteritems():
+            if analysis_id not in segregation_results:
+                result[analysis_id] = set()
+                continue
+
             candidates = segregation_results[analysis_id]['denovo'] | \
                          segregation_results[analysis_id]['compound_heterozygous'] | \
                          segregation_results[analysis_id]['autosomal_recessive_homozygous'] | \

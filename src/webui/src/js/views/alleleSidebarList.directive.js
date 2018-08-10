@@ -15,6 +15,9 @@ import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import template from './alleleSidebarList.ngtmpl.html'
+import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
+import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
+import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
 
 const sectionAlleles = Compute(
     props`section`,

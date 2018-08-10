@@ -1,5 +1,5 @@
 import { sequence } from 'cerebral'
-import { set } from 'cerebral/operators'
+import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getAlleles from '../actions/getAlleles'
 import toast from '../../../../common/factories/toast'
