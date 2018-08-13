@@ -5,7 +5,7 @@ from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
 from sqlalchemy import or_, and_, text
 
-from api.allelefilter.familyfilter import FamilyFilter
+from api.allelefilter.segregationfilter import SegregationFilter
 from api.util.util import query_print_table
 from api.util import queries
 from api.schemas import AlleleSchema, GenotypeSchema, GenotypeSampleDataSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
@@ -40,10 +40,10 @@ class AlleleDataLoader(object):
     def __init__(self, session):
         self.session = session
         self.inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
-        self.family_filter = FamilyFilter(session, config)
+        self.segregation_filter = SegregationFilter(session, config)
 
     def _get_segregation_results(self, allele_ids, analysis_id):
-        segregation_results = self.family_filter.get_segregation_results({analysis_id: allele_ids})
+        segregation_results = self.segregation_filter.get_segregation_results({analysis_id: allele_ids})
         return segregation_results[analysis_id]
 
     def get_tags(self, allele_data, analysis_id=None, segregation_results=None):
@@ -225,18 +225,18 @@ class AlleleDataLoader(object):
 
         print allele_ids
 
-        family_ids = self.family_filter.get_family_ids(analysis_id)
+        family_ids = self.segregation_filter.get_family_ids(analysis_id)
 
         if len(family_ids) != 1:
             return dict()
 
-        sample_ids = self.family_filter.get_family_sample_ids(analysis_id, family_ids[0])
-        proband_sample = self.family_filter.get_proband_sample(analysis_id, family_ids[0])
-        father_sample = self.family_filter.get_father_sample(proband_sample)
-        mother_sample = self.family_filter.get_mother_sample(proband_sample)
+        sample_ids = self.segregation_filter.get_family_sample_ids(analysis_id, family_ids[0])
+        proband_sample = self.segregation_filter.get_proband_sample(analysis_id, family_ids[0])
+        father_sample = self.segregation_filter.get_father_sample(proband_sample)
+        mother_sample = self.segregation_filter.get_mother_sample(proband_sample)
 
-        genotype_query = self.family_filter.get_genotype_query(allele_ids, sample_ids)
-        return self.family_filter.denovo_p_value(
+        genotype_query = self.segregation_filter.get_genotype_query(allele_ids, sample_ids)
+        return self.segregation_filter.denovo_p_value(
             allele_ids,
             genotype_query,
             proband_sample.identifier,
