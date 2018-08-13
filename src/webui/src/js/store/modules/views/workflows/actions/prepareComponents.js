@@ -7,7 +7,7 @@ const BASE_SECTIONS = {
             hideControlsOnCollapse: false,
             showIncludedAcmgCodes: true
         },
-        controls: ['collapse_all', 'upload', 'add_acmg', 'classification', 'reuse_classification'],
+        controls: ['classification', 'reuse_classification'],
         alleleassessmentComment: {
             placeholder: 'EVALUATION',
             name: 'classification'
@@ -22,7 +22,7 @@ const BASE_SECTIONS = {
         options: {
             hideControlsOnCollapse: true
         },
-        controls: ['copy_alamut', 'toggle_class1', 'toggle_class2', 'add_acmg'],
+        controls: ['toggle_class2', 'validation'],
         alleleassessmentComment: {
             placeholder: 'FREQUENCY-COMMENTS',
             name: 'frequency'
@@ -40,7 +40,7 @@ const BASE_SECTIONS = {
         options: {
             hideControlsOnCollapse: true
         },
-        controls: ['custom_external', 'add_acmg'],
+        controls: ['custom_external'],
         alleleassessmentComment: {
             placeholder: 'EXTERNAL DB-COMMENTS',
             name: 'external'
@@ -56,7 +56,7 @@ const BASE_SECTIONS = {
         options: {
             hideControlsOnCollapse: true
         },
-        controls: ['custom_prediction', 'add_acmg'],
+        controls: ['custom_prediction'],
         alleleassessmentComment: {
             placeholder: 'PREDICTION-COMMENTS',
             name: 'prediction'
@@ -68,7 +68,7 @@ const BASE_SECTIONS = {
         options: {
             hideControlsOnCollapse: true
         },
-        controls: ['references', 'add_acmg'],
+        controls: ['references'],
         alleleassessmentComment: {
             placeholder: 'STUDIES-COMMENTS',
             name: 'reference'

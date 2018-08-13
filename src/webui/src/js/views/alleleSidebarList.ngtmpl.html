@@ -188,6 +188,7 @@
             ng-model="$ctrl.alleleassessments[allele.id].evaluation.classification.comment"></wysiwyg-editor>
         </div>
         <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification">
+          <button class="purple" ng-click="$ctrl.verificationStatusChanged({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
           <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
           <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
           <button class="purple" ng-click="$ctrl.quickClassificationClicked({code: {code: 'BS1', source: 'user'}, classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2 (BS1)</button>

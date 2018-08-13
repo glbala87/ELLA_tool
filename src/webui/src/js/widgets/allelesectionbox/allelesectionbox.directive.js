@@ -8,7 +8,7 @@ import hasExistingAlleleAssessment from '../../store/common/computes/hasExisting
 import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 import getAlleleAssessment from '../../store/modules/views/workflows/interpretation/computed/getAlleleAssessment'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
-import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import getVerificationStatus from '../../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
 import {
@@ -100,6 +100,8 @@ app.component('alleleSectionbox', {
                 state`views.workflows.selectedAllele`
             ),
             showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
+            verificationStatus: getVerificationStatus,
+            verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
             collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,

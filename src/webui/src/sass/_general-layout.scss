@@ -547,7 +547,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
       &.hi-count { min-width: 8rem; text-align: center;}
       &.external { min-width: 10.5rem; text-align: center;}
       &.evaluation { min-width: 15rem; max-width: 15rem; }
-      &.quick-classification {  width: 48rem; max-width: 48rem; padding-left: 1rem;}
+      &.quick-classification {  width: 60rem; max-width: 60rem; padding-left: 1rem;}
 
       @mixin indicator {
         width: 2rem;

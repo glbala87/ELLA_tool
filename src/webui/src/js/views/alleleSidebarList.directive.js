@@ -14,6 +14,7 @@ import getClassification from '../store/modules/views/workflows/alleleSidebar/co
 import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessments'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
+import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import template from './alleleSidebarList.ngtmpl.html'
 import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
@@ -108,6 +109,7 @@ app.component('alleleSidebarList', {
             hiFreq: getHiFrequency('freq'),
             hiCount: getHiFrequency('count'),
             externalSummary: getExternalSummary,
+            readOnly: isReadOnly,
             isNonsense,
             isTogglable,
             isToggled,
@@ -119,7 +121,8 @@ app.component('alleleSidebarList', {
             includeReportToggled: signal`views.workflows.alleleSidebar.includeReportToggled`,
             orderByChanged: signal`views.workflows.alleleSidebar.orderByChanged`,
             quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`,
-            evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`
+            evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
+            verificationStatusChanged: signal`views.workflows.verificationStatusChanged`
         },
         'AlleleSidebarList',
         [
