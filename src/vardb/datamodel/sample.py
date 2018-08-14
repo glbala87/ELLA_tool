@@ -30,7 +30,7 @@ class Sample(Base):
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
-    proband = Column(Boolean)
+    proband = Column(Boolean, nullable=False)
     family_id = Column(String())
     father_id = Column(Integer, ForeignKey("sample.id"))
     mother_id = Column(Integer, ForeignKey("sample.id"))
