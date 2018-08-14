@@ -307,7 +307,7 @@ class SegregationFilter(object):
             ~x_minus_par_filter  # In chromosome 1-22 or in X PAR
         ]
         if unaffected_sibling_samples:
-            filters += [getattr(genotype_with_allele_table.c, s + '_type') != 'Homozygous' for s in unaffected_sibling_samples]
+            filters += [func.coalesce(getattr(genotype_with_allele_table.c, s + '_type'), 'Reference') != 'Homozygous' for s in unaffected_sibling_samples]
 
         if affected_sibling_samples:
             filters += [getattr(genotype_with_allele_table.c, s + '_type') == 'Homozygous' for s in affected_sibling_samples]
@@ -349,7 +349,7 @@ class SegregationFilter(object):
             x_minus_par_filter  # In X chromosome (minus PAR)
         ]
         if unaffected_sibling_samples:
-            filters += [getattr(genotype_with_allele_table.c, s + '_type') != 'Homozygous' for s in unaffected_sibling_samples]
+            filters += [func.coalesce(getattr(genotype_with_allele_table.c, s + '_type'), 'Reference') != 'Homozygous' for s in unaffected_sibling_samples]
 
         if affected_sibling_samples:
             filters += [getattr(genotype_with_allele_table.c, s + '_type') == 'Homozygous' for s in affected_sibling_samples]
@@ -436,7 +436,9 @@ class SegregationFilter(object):
         ]
         # Not homozygous in unaffected
         compound_candidates_filters += [
-            getattr(genotype_table.c, s + '_type') != 'Homozygous' for s in unaffected_sample_names
+            # Normally null would be included in below filter,
+            # set as Reference to make comparison work
+            func.coalesce(getattr(genotype_table.c, s + '_type'), 'Reference') != 'Homozygous' for s in unaffected_sample_names
         ]
         if father_sample and mother_sample:
             # Heterozygous in _exactly one_ parent.
@@ -485,12 +487,17 @@ class SegregationFilter(object):
         # In the above example, 6004, 6005 and 6006 satisfy the rules.
 
         inclusion_regex = self.config['transcripts']['inclusion_regex']
-        candidates_with_genes = self.session.query(
+        candidates_with_genes_columns = [
             compound_candidates.c.allele_id,
-            getattr(compound_candidates.c, proband_sample + '_type'),
-            getattr(compound_candidates.c, father_sample + '_type'),
-            getattr(compound_candidates.c, mother_sample + '_type'),
             annotationshadow.AnnotationShadowTranscript.symbol
+        ]
+        if father_sample and mother_sample:
+            candidates_with_genes_columns += [
+                getattr(compound_candidates.c, father_sample + '_type'),
+                getattr(compound_candidates.c, mother_sample + '_type')
+            ]
+        candidates_with_genes = self.session.query(
+            *candidates_with_genes_columns
         ).join(
             annotationshadow.AnnotationShadowTranscript,
             compound_candidates.c.allele_id == annotationshadow.AnnotationShadowTranscript.allele_id
@@ -500,10 +507,13 @@ class SegregationFilter(object):
 
         candidates_with_genes = candidates_with_genes.subquery('candidates_with_genes')
 
+        # General criteria, 2 or more alleles in this gene
+        # (rule 1 above covered that they are heterozygous in affected)
         compound_heterozygous_symbols_having = [
-            # 2 or more alleles in this gene
             func.count(candidates_with_genes.c.allele_id) > 1,
         ]
+
+        # If parents, heterozygous in both
         if father_sample and mother_sample:
             compound_heterozygous_symbols_having += [
                 # bool_or: at least one allele in this gene is 'Heterozygous'
@@ -721,7 +731,9 @@ class SegregationFilter(object):
 
             non_candidates = segregation_results[analysis_id]['homozygous_unaffected_siblings']
 
-            result[analysis_id] = allele_ids - (candidates - non_candidates)
+            # non_candidates are alleles that should be filtered out
+            # (non-candidates for disease)
+            result[analysis_id] = (allele_ids - candidates) | non_candidates
 
         return result
 
