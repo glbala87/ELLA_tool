@@ -90,7 +90,7 @@ const isToggled = Compute(
 
 app.component('alleleSidebarList', {
     bindings: {
-        title: '@',
+        sectionTitle: '@',
         section: '=',
         expanded: '=',
         allowQuickClassification: '=?'
@@ -158,6 +158,16 @@ app.component('alleleSidebarList', {
                             .map((s) => s.sample_type)
                             .join(', ')
                             .toUpperCase()
+                    },
+                    getGene(allele) {
+                        return allele.annotation.filtered
+                            .map((t) => (t.symbol ? t.symbol : '-'))
+                            .join(' | ')
+                    },
+                    getHGVSc(allele) {
+                        return allele.annotation.filtered
+                            .map((t) => (t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg))
+                            .join(' | ')
                     },
                     isTechnical(allele_id) {
                         return $ctrl.verificationStatus[allele_id] === 'technical'

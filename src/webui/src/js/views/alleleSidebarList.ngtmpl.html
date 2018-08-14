@@ -1,4 +1,4 @@
-<h4 class="section-title">{{$ctrl.title}}</h4>
+<h4 class="section-title">{{$ctrl.sectionTitle}}</h4>
   <section class="allele-sidebar-list">
     <div class="nav-table" ng-class="{'expanded': $ctrl.expanded}">
       <div class="nav-row top" ng-if="$ctrl.alleles.length">
@@ -87,24 +87,24 @@
         <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification" title="Classification">QUICK CLASSIFICATION</div>
         <div ng-if="$ctrl.expanded && !$ctrl.allowQuickClassification" class="cell"></div>
       </div>
-      <div class="nav-row spacer"></div>
-      <div class="nav-row allele" ng-repeat="allele in $ctrl.alleles track by allele.id" title="Allele ID {{ allele.id }}"
+      <div class="nav-row spacer" title="Allele ID {{ allele.id }}"></div>
+      <div class="nav-row allele" ng-repeat="allele in $ctrl.alleles track by allele.id"
             ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled[allele.id], 'toggled': $ctrl.isToggled[allele.id], 'togglable': $ctrl.isTogglable[allele.id], 'multiple': $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}">
         <div ng-if="$ctrl.expanded" class="cell tab"
           title="{{$ctrl.isTogglable[allele.id] && $ctrl.readOnly ? 'Not allowed (read-only)' : ''}}"></div>
         <div title="{{$ctrl.getSampleTypesFull(allele)}}" ng-if="$ctrl.isMultipleSampleType" class="cell sample-type id-sample-type">
           {{$ctrl.getSampleType(allele)}}
         </div>
-        <div ng-click="$ctrl.rowClicked(allele.id)" title="Inheritance" class="cell inheritance id-inheritance">
+        <div ng-click="$ctrl.rowClicked(allele.id)" class="cell inheritance id-inheritance" title="{{allele.formatted.inheritance}}">
             {{allele.formatted.inheritance}}
         </div>
-        <div ng-click="$ctrl.rowClicked(allele.id)" class="cell gene id-gene">
-            {{allele.annotation.filtered[0].symbol}}
+        <div ng-click="$ctrl.rowClicked(allele.id)" class="cell gene id-gene" title="{{$ctrl.getGene(allele)}}">
+            {{$ctrl.getGene(allele)}}
         </div>
-        <div ng-click="$ctrl.rowClicked(allele.id)" class="cell hgvsc id-hgvsc">
-            {{allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg}}
+        <div ng-click="$ctrl.rowClicked(allele.id)" class="cell hgvsc id-hgvsc" title="{{$ctrl.getHGVSc(allele)}}">
+            {{$ctrl.getHGVSc(allele)}}
         </div>
-        <div ng-click="$ctrl.rowClicked(allele.id)" class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}">
+        <div ng-click="$ctrl.rowClicked(allele.id)" class="cell consequence id-consequence" ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}" title="{{$ctrl.consequence[allele.id]}}">
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div ng-click="$ctrl.rowClicked(allele.id)" class="cell indicators id-indicators">
