@@ -15,7 +15,7 @@ function formatHGVS(allele, classification, config) {
     let hgvs = ''
     for (let t of allele.annotation.filtered) {
         hgvs += `${t.transcript}(${t.symbol}):`
-        let hgvs_short = t.HGVSc_short || allele.getHGVSgShort()
+        let hgvs_short = t.HGVSc_short || allele.formatted.hgvsg
 
         let [type, part] = hgvs_short.split('.')
         if (allele.samples[0].genotype.homozygous) {
