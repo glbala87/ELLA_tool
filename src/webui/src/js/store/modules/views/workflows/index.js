@@ -19,6 +19,7 @@ import alleleSidebar from './alleleSidebar'
 import interpretation from './interpretation'
 import worklog from './worklog'
 import verificationStatusChanged from './signals/verificationStatusChanged'
+import igvTrackViewChanged from './signals/igvTrackViewChanged'
 
 export default Module({
     state: {}, // State set in changeView (via parent module: ../workflows)
@@ -40,6 +41,7 @@ export default Module({
         finishClicked,
         finishConfirmationClicked,
         loadInterpretationData,
-        verificationStatusChanged
+        verificationStatusChanged,
+        igvTrackViewChanged
     }
 })

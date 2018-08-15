@@ -17,6 +17,8 @@
               ng-repeat="sectionKey in $ctrl.sectionKeys">
             </allele-sectionbox>
           </div>
+          <visualization ng-switch-when="Visualization" ng-if="$ctrl.hasAlleles">
+          </visualization>
 
         <report-card
           ng-if="$ctrl.hasAlleles"
