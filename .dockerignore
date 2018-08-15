@@ -2,6 +2,9 @@ attachments
 .git/
 docs/
 node_modules/
+IGV_DATA/
+**/*.pyc
+src/webui/build
 # made by e2e tests:
 src/webui/tests/node_modules/
 src/webui/dev
