@@ -8,4 +8,4 @@
            ng-repeat="item in $ctrl.tracks track by $index"
     >{{item.config.name}}</label>
 </div>
-<igv locus='$ctrl.igvLocus' tracks='$ctrl.tracks' reference='$ctrl.igvReference'></igv>
+<igv ng-if="$ctrl.tracks" locus='$ctrl.igvLocus' tracks='$ctrl.tracks' reference='$ctrl.igvReference'></igv>

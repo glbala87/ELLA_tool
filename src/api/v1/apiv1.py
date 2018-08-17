@@ -306,17 +306,17 @@ class ApiV1(object):
         # IGV
         # ---------------------------------------------------------------------------------------------------------
 
-        self._add_resource(r.igv.GencodeResource,
-                           '/api/v1/genepanel/<gp_name>/<gp_version>/gencode/')
-
-        self._add_resource(r.igv.BamResource,
-                           '/api/v1/samples/<int:sample_id>/bams/')
-
-        self._add_resource(r.igv.VcfResource,
-                           '/api/v1/analyses/<int:analysis_id>/vcf/')
+        self._add_resource(r.igv.GencodeGenepanelResource,
+                           '/api/v1/igv/genepanel/<gp_name>/<gp_version>/')
 
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
 
-        self._add_resource(r.igv.VcfFromAllelesResource,
-                           '/api/v1/analyses/<int:analysis_id>/<int:sample_id>/vcf/')
+        self._add_resource(r.igv.AnalysisVariantTrack,
+                           '/api/v1/igv/variants/<int:analysis_id>/<int:sample_id>/')
+
+        self._add_resource(r.igv.AvailableTracks,
+                           '/api/v1/igv/tracks/<int:analysis_id>/')
+
+        self._add_resource(r.igv.AnalysisTrack,
+                           '/api/v1/igv/tracks/<int:analysis_id>/<filename>')

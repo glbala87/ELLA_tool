@@ -1,5 +1,6 @@
 import os
 import mimetypes
+import json
 from cStringIO import StringIO
 from collections import OrderedDict
 
@@ -15,6 +16,25 @@ from api.v1.resource import LogRequestResource
 from api.util.util import authenticate, rest_filter
 from api.util.alleledataloader import AlleleDataLoader
 
+IGV_DEFAULT_TRACK_CONFIGS = {
+    "vcf": {
+        "format": "vcf",
+        "visibilityWindow": 1e9, # Whole chromosome
+        "order": 200
+    },
+    "bam": {
+        "format": "bam",
+        "colorBy": 'strand',
+        'alignmentRowHeight': 10,
+        "visibilityWindow": 20000,
+        "order": 300
+    },
+    "bed": {
+        "format": "bed",
+        "displayMode": "EXPANDED",
+        "order": 100
+    }
+}
 
 def get_range(request):
 
@@ -89,80 +109,6 @@ class IgvResource(LogRequestResource):
             return get_partial_response(final_path, start, end)
 
 
-class BamResource(LogRequestResource):
-    """
-    We serve the file through python to have control
-    over the access of the bam files.
-
-    TODO: Add access control and logging when in place.
-    """
-
-    @authenticate()
-    def get(self, session, sample_id, user=None):
-
-        serve_bai = False
-        if request.args.get('index'):
-            serve_bai = True
-
-        if 'ANALYSES_PATH' not in os.environ:
-            raise ApiError("Missing env ANALYSES_PATH. Cannot serve BAM files.")
-
-        # Get analysis and sample names
-        analysis_name, sample_name = session.query(sample.Analysis.name, sample.Sample.identifier).join(
-            sample.Sample
-        ).filter(
-            sample.Sample.id == sample_id
-        ).one()
-
-        if serve_bai:
-            path = os.path.join(os.environ['ANALYSES_PATH'], analysis_name, sample_name + '.bai')
-        else:
-            path = os.path.join(os.environ['ANALYSES_PATH'], analysis_name, sample_name + '.bam')
-
-        start, end = get_range(request)
-
-        if start is None:
-            return send_file(path)
-        else:
-            return get_partial_response(path, start, end)
-
-
-class VcfResource(LogRequestResource):
-    """
-    We serve the file through python to have control
-    over the access of the vcf files.
-
-    TODO: Add access control and logging when in place.
-    """
-
-    @authenticate()
-    def get(self, session, analysis_id, user=None):
-
-        if 'ANALYSES_PATH' not in os.environ:
-            raise ApiError("Missing env ANALYSES_PATH. Cannot serve BAM files.")
-
-        serve_idx = False
-        if request.args.get('index'):
-            serve_idx = True
-
-        # Get analysis and sample names
-        analysis_name = session.query(sample.Analysis.name).filter(
-            sample.Analysis.id == analysis_id
-        ).scalar()
-
-        if serve_idx:
-            path = os.path.join(os.environ['ANALYSES_PATH'], analysis_name, analysis_name + '.vcf.idx')
-        else:
-            path = os.path.join(os.environ['ANALYSES_PATH'], analysis_name, analysis_name + '.vcf')
-
-        start, end = get_range(request)
-
-        if start is None:
-            return send_file(path)
-        else:
-            return get_partial_response(path, start, end)
-
-
 def transcripts_to_gencode(transcripts):
     """Write transcripts out in the format expected by igv"""
     template = '{chr}\t{tx_start}\t{tx_end}\t{name}\t1000.0\t{strand}\t{cds_start}\t{cds_end}\t.\t{num_exons}\t{exon_lengths}\t{exon_starts}\tfoo\n'
@@ -190,7 +136,7 @@ def transcripts_to_gencode(transcripts):
     return data
 
 
-class GencodeResource(LogRequestResource):
+class GencodeGenepanelResource(LogRequestResource):
     @authenticate()
     def get(self, session, gp_name, gp_version, user=None):
         gp = session.query(
@@ -205,7 +151,7 @@ class GencodeResource(LogRequestResource):
         return send_file(gencode)
 
 
-class VcfFromAllelesResource(LogRequestResource):
+class AnalysisVariantTrack(LogRequestResource):
     @authenticate()
     @rest_filter
     def get(self, session, analysis_id, sample_id, rest_filter=None, user=None):
@@ -311,3 +257,86 @@ class VcfFromAllelesResource(LogRequestResource):
         data.seek(0)
 
         return send_file(data)
+
+
+
+def get_analysis_tracks(analysis_id, analysis_name):
+    if 'ANALYSES_PATH' in os.environ:
+        return []
+    analyses_path = os.environ["ANALYSES_PATH"]
+    tracks_folder = os.path.join(analyses_path, analysis_name, "tracks")
+    if not os.path.isdir(tracks_folder):
+        return []
+
+    index_extensions = ['.fai', '.idx', '.index', '.bai', '.tbi']
+    config_extensions = ['.json', '.config']
+
+    track_files = [f for f in os.listdir(tracks_folder) if not any(f.endswith(ext) for ext in index_extensions+config_extensions)]
+    print os.listdir(tracks_folder)
+    tracks = []
+    for t in track_files:
+        config_file = next((t+ext for ext in config_extensions if os.path.isfile(os.path.join(tracks_folder, t+ext))), None)
+        if config_file:
+            try:
+                config = json.load(open(os.path.join(tracks_folder, config_file)))
+            except ValueError:
+                config = {}
+                pass
+
+        extension = os.path.splitext(t)
+        filetype = os.path.splitext(t)[1][1:] if os.path.splitext(t)[1] != '.gz' else os.path.splitext(os.path.splitext(t)[0])[1][1:]
+
+        track_config = json.loads(json.dumps(IGV_DEFAULT_TRACK_CONFIGS[filetype]))
+        track_config.update(config)
+        track_config["url"] = "/api/v1/igv/tracks/{}/{}".format(analysis_id, t)
+        track_config.setdefault('name', t)
+
+        def possible_index_files(f):
+            for ext in index_extensions:
+                yield f+ext
+                if os.path.splitext(f)[1] in ['.gz', '.bam']:
+                    yield os.path.splitext(f)[0]+ext
+
+        index_file = next((f for f in possible_index_files(t) if os.path.isfile(os.path.join(tracks_folder, f))), None)
+        if index_file:
+            track_config["indexed"] = True
+            track_config["indexURL"] = "/api/v1/igv/tracks/{}/{}".format(analysis_id, index_file)
+        else:
+            track_config["indexed"] = False
+
+        tracks.append(track_config)
+    return tracks
+
+
+class AvailableTracks(LogRequestResource):
+    @authenticate()
+    def get(self, session, analysis_id, user=None):
+        analysis_name = session.query(
+            sample.Analysis.name
+        ).filter(
+            sample.Analysis.id == analysis_id
+        ).scalar()
+
+        analysis_tracks = get_analysis_tracks(analysis_id, analysis_name)
+        print json.dumps(analysis_tracks, indent=4)
+        return analysis_tracks
+
+
+class AnalysisTrack(LogRequestResource):
+    @authenticate()
+    def get(self, session, analysis_id, filename, user=None):
+        analysis_name = session.query(
+            sample.Analysis.name
+        ).filter(
+            sample.Analysis.id == analysis_id
+        ).scalar()
+
+        path = os.path.join(os.environ['ANALYSES_PATH'], analysis_name, "tracks", filename)
+
+        start, end = get_range(request)
+
+        if start is None:
+            return send_file(path)
+        else:
+            return get_partial_response(path, start, end)
+
