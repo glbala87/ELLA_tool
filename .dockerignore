@@ -4,6 +4,7 @@ docs/
 node_modules/
 IGV_DATA/
 **/*.pyc
+**/*.bam
 src/webui/build
 # made by e2e tests:
 src/webui/tests/node_modules/
