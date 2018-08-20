@@ -320,7 +320,7 @@ class GenotypeImporter(object):
         gt1, gt2 = record['GT'].split('/', 1)
         return gt1 == gt2 == "1"
 
-    def add(self, records, alleles, proband_sample_name, samples, samples_missing_coverage):
+    def add(self, records, alleles, proband_sample_name, samples, samples_missing_coverage, block_records):
         """
         Add genotypes for provided record. We only create genotypes for the proband_sample_name,
         while we add genotypesampledata records for all samples (connected to the proband sample's genotype).
@@ -332,10 +332,6 @@ class GenotypeImporter(object):
         assert (len(records) == 1 and len(alleles) == 1) or \
                (len(records) == 2 and len(alleles) == 2)
 
-        proband_sample_id = next(s.id for s in samples if s.identifier == proband_sample_name)
-        a1 = alleles[0]
-        a2 = None
-
         def get_allele_from_record(record, alleles):
             for allele in alleles:
                 if allele['chromosome'] == record['CHROM'] and \
@@ -344,6 +340,11 @@ class GenotypeImporter(object):
                    allele['vcf_alt'] == record['ALT'][0]:
                     return allele
             return None
+
+        proband_sample_id = next(s.id for s in samples if s.identifier == proband_sample_name)
+
+        a1 = alleles[0]
+        a2 = None
 
         # For biallelic -> set correct first and second allele
         if len(alleles) == 2:
@@ -361,7 +362,7 @@ class GenotypeImporter(object):
         assert a1 != a2
 
         # FILTER and QUAL should be same for all decomposed records
-        filter = records[0]["FILTER"]
+        filter_status = records[0]["FILTER"]
         try:
             qual = int(records[0]['QUAL'])
         except ValueError:
@@ -372,18 +373,35 @@ class GenotypeImporter(object):
             'allele_id': a1['id'],
             'secondallele_id': a2['id'] if a2 is not None else None,
             'sample_id': proband_sample_id,
-            'filter_status': filter,
+            'filter_status': filter_status,
             'variant_quality': qual
         }
 
-        # Create genotypesampledata items
+        # Calculate AD
+        # This is unexpectedly complex due the decomposition and the fact
+        # that we want to keep AD for variants that are not the proband's.
+        # We go through all the records for the block for each sample
+        sample_allele_depth = defaultdict(dict)  # {sample_name: {'REF': 12, 'A': 134, 'G': 12}}
+        for sample in samples:
+            for block_record in block_records:
+                block_record_sample = block_record['SAMPLES'][sample.identifier]
+                if block_record_sample.get('AD'):
+                    if len(block_record_sample['AD']) == 2:
+                        sample_allele_depth[sample.identifier].update({
+                            "REF ({})".format(block_record['REF']): block_record_sample["AD"][0],
+                            block_record['ALT'][0]: block_record_sample["AD"][1],
+                        })
+                    else:
+                        log.warning("AD not decomposed! Allele depth value will be empty.")
 
+        # Create genotypesampledata items
         genotypesampledata_items = list()
         for sample in samples:
-            allele_depth = dict()
             for record in records:
                 assert len(record['ALT']) == 1
                 secondallele = False
+
+                # If a secondallele exists, check if this record is the secondallele
                 if a2:
                     allele = get_allele_from_record(record, alleles)
                     secondallele = allele == a2
@@ -391,20 +409,12 @@ class GenotypeImporter(object):
                 record_sample = record['SAMPLES'][sample.identifier]
                 assert record_sample['GT'] in self.types, 'Not supported genotype {} for sample {}'.format(record_sample['GT'], sample_name)
 
-                # Update allele depth for this record
-                if record_sample.get('AD'):
-                    if len(record_sample['AD']) == 2:
-                        # {'REF': 12, 'A': 134, 'G': 12}
-                        allele_depth.update({
-                            "REF ({})".format(record['REF']): record_sample["AD"][0],
-                            record['ALT'][0]: record_sample["AD"][1],
-                        })
-                    else:
-                        log.warning("AD not decomposed! Allele depth value will be empty.")
-
+                # If REF or POS is shifted, we can't trust the AD data.
                 if len(set([r['POS'] for r in records])) != 1 or \
                    len(set([r['REF'] for r in records])) != 1:
                     allele_depth = {}
+                else:
+                    allele_depth = sample_allele_depth[sample.identifier]
 
                 genotype_quality = record_sample.get('GQ')
                 if not isinstance(genotype_quality, int):
@@ -414,11 +424,12 @@ class GenotypeImporter(object):
                 if not isinstance(sequencing_depth, int):
                     sequencing_depth = None
 
-                genotype_likelihood = record_sample.get('PL')
-                if not isinstance(genotype_likelihood, list):
-                    genotype_likelihood = None
-
                 multiallelic = record_sample['GT'] in ['1/.', './1', '0/.', './0']  # sample is multiallelic for this site
+
+                genotype_likelihood = record_sample.get('PL')
+                # PL is misleading for all samples on multiallelic sites due to decomposition
+                if not isinstance(genotype_likelihood, list) or multiallelic:
+                    genotype_likelihood = None
 
                 if record_sample['GT'] == './.' and sample.identifier in samples_missing_coverage:
                     genotype_type = 'No coverage'
@@ -430,7 +441,7 @@ class GenotypeImporter(object):
                     'secondallele': secondallele,
                     'sample_id': sample.id,
                     'genotype_quality': genotype_quality,
-                    'genotype_likelihood': genotype_likelihood if not a2 and not multiallelic else None,  # PL is misleading for all samples on multiallelic sites due to decomposition
+                    'genotype_likelihood': genotype_likelihood,
                     'sequencing_depth': sequencing_depth,
                     'allele_depth': allele_depth,
                     'multiallelic': multiallelic
