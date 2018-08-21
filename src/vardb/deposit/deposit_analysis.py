@@ -125,17 +125,6 @@ class DepositAnalysis(DepositFromVCF):
             # Process batch again to import annotation and genotypes (which both needs allele ids)
             for record in batch_records:
 
-                for sample_name in vcf_sample_names:
-                    # Track samples that have no coverage within a multiallelic block
-                    # './.' often occurs for single records when the sample has genotype in other records,
-                    # but if it is './.' in _all_ records within a block, it has no coverage at this site
-                    sample_gt = record['SAMPLES'][sample_name]['GT']
-                    if sample_gt != './.':
-                        sample_has_coverage[sample_name] = True
-
-                    if sample_gt in ['1/.', './1']:
-                        needs_secondallele[sample_name] = not needs_secondallele[sample_name]
-
                 if record['SAMPLES'][proband_sample_name]['GT'] in VARIANT_GENOTYPES:
                     allele = self.get_allele_from_record(record, alleles)
                     # We might have skipped importing the record as allele due to import filtering
@@ -149,6 +138,17 @@ class DepositAnalysis(DepositFromVCF):
                     block_records.append(record)
                 elif any(needs_secondallele.values()):
                     block_records.append(record)
+
+                for sample_name in vcf_sample_names:
+                    # Track samples that have no coverage within a multiallelic block
+                    # './.' often occurs for single records when the sample has genotype in other records,
+                    # but if it is './.' in _all_ records within a block, it has no coverage at this site
+                    sample_gt = record['SAMPLES'][sample_name]['GT']
+                    if sample_gt != './.':
+                        sample_has_coverage[sample_name] = True
+
+                    if sample_gt in ['1/.', './1']:
+                        needs_secondallele[sample_name] = not needs_secondallele[sample_name]
 
                 # Genotype
                 # Run this always, since a "block" can be finished on records with no proband data

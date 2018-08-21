@@ -7,6 +7,7 @@ from vardb.datamodel import assessment, sample, allele, genotype
 from api.allelefilter.frequencyfilter import FrequencyFilter
 from api.allelefilter.segregationfilter import SegregationFilter
 from api.allelefilter.regionfilter import RegionFilter
+from api.allelefilter.qualityfilter import QualityFilter
 
 
 class AlleleFilter(object):
@@ -110,6 +111,7 @@ class AlleleFilter(object):
 
         # Run the analysis based allele filters
         filters = [
+            ('quality', QualityFilter(self.session, self.config).filter_alleles),
             ('segregation', SegregationFilter(self.session, self.config).filter_alleles)
         ]
 

@@ -6,6 +6,7 @@ from vardb.datamodel import sample, genotype, allele, annotationshadow, annotati
 
 from api.allelefilter.denovo_probability import denovo_probability
 
+# X chromosome PAR regions for GRCh37
 PAR1_START = 60001
 PAR1_END = 2699520
 PAR2_START = 154931044
@@ -250,32 +251,6 @@ class SegregationFilter(object):
         )
 
         denovo_result = set([a[0] for a in denovo_allele_ids.all()])
-
-        # Filter further on allele count
-        if self.config.get('variant_criteria', {}).get('denovo_count_thresholds'):
-            count_filters = list()
-            for provider, groups in self.config['variant_criteria']['denovo_count_thresholds'].iteritems():
-                for name, threshold in groups.iteritems():
-                    count_filters.append(
-                        text("(annotation.annotations->'frequencies'->'{provider}'->'count'->>'{name}')::integer >= {threshold}".format(
-                                provider=provider,
-                                name=name,
-                                threshold=threshold
-                            )
-                        )
-                    )
-
-            count_filtered = self.session.query(
-                annotation.Annotation.allele_id
-            ).filter(
-                annotation.Annotation.allele_id.in_(denovo_result),
-                or_(
-                    *count_filters
-                )
-            )
-            count_filtered = [a[0] for a in count_filtered.all()]
-            denovo_result = denovo_result - set(count_filtered)
-
         return denovo_result
 
     def autosomal_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample, affected_sibling_samples=None, unaffected_sibling_samples=None):
@@ -627,17 +602,13 @@ class SegregationFilter(object):
         # Mother and father id can be null, but that's fine
         siblings_samples = self.session.query(sample.Sample).filter(
             sample.Sample.family_id == proband_sample.family_id,
-            sample.Sample.father_id == proband_sample.father_id,
-            sample.Sample.mother_id == proband_sample.mother_id,
-            sample.Sample.id != proband_sample.id,
+            sample.Sample.sibling_id == proband_sample.id,
             sample.Sample.affected.is_(affected)
         ).all()
 
         return siblings_samples
 
     def get_segregation_results(self, analysis_allele_ids):
-        """
-        """
 
         result = defaultdict(dict)
         for analysis_id, allele_ids in analysis_allele_ids.iteritems():
@@ -718,22 +689,30 @@ class SegregationFilter(object):
         segregation_results = self.get_segregation_results(analysis_allele_ids)
 
         result = dict()
-
         for analysis_id, allele_ids in analysis_allele_ids.iteritems():
             if analysis_id not in segregation_results:
                 result[analysis_id] = set()
                 continue
 
-            candidates = segregation_results[analysis_id]['denovo'] | \
-                         segregation_results[analysis_id]['compound_heterozygous'] | \
-                         segregation_results[analysis_id]['autosomal_recessive_homozygous'] | \
-                         segregation_results[analysis_id]['xlinked_recessive_homozygous']
+            family_ids = self.get_family_ids(analysis_id)
+            assert len(family_ids) == 1, 'Multiple family ids are not supported yet'
 
-            non_candidates = segregation_results[analysis_id]['homozygous_unaffected_siblings']
+            proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
+            is_trio = proband_sample.father_id and proband_sample.mother_id
+            # Most filtering needs a trio
+            filtered = set()
+            if is_trio:
+                non_filtered = segregation_results[analysis_id]['denovo'] | \
+                           segregation_results[analysis_id]['compound_heterozygous'] | \
+                           segregation_results[analysis_id]['autosomal_recessive_homozygous'] | \
+                           segregation_results[analysis_id]['xlinked_recessive_homozygous']
 
-            # non_candidates are alleles that should be filtered out
-            # (non-candidates for disease)
-            result[analysis_id] = (allele_ids - candidates) | non_candidates
+                filtered = allele_ids - non_filtered
+
+            # Can always be added to filtered (is empty when no siblings)
+            filtered = filtered | segregation_results[analysis_id]['homozygous_unaffected_siblings']
+
+            result[analysis_id] = filtered
 
         return result
 

@@ -1,5 +1,8 @@
+import logging
+from hypothesis import assume
 from hypothesis import strategies as st
 
+log = logging.getLogger(__name__)
 
 VCF_TEMPLATE = '''##fileformat=VCFv4.1
 ##FILTER=<ID=FSFilter,Description="FS > 200.0">
@@ -460,7 +463,6 @@ def block_strategy(draw, samples):
     sample_genotype = dict()  # {sample_name1: '1/.', sample_name2: './1'}
 
     block_size = draw(st.integers(min_value=1, max_value=len(samples) * 2))
-    print "Block size: {}".format(block_size)
     for idx in xrange(block_size):
         block_samples = list()
         for sample in samples:
@@ -483,7 +485,13 @@ def block_strategy(draw, samples):
                     # Block has been started, not last round ->
                     # random pick of finishing it or null data
                     elif sample_gt == '1/.' and idx != block_size - 1:
-                        gt = draw(st.sampled_from(['./1', './.']))
+                        # We cannot risk ending all samples with './1'
+                        # when we're not on the record in the block
+                        # since one sample needs to end the block
+                        if len([a for a in sample_genotype.values() if a == '1/.']) > 1:
+                            gt = draw(st.sampled_from(['./1', './.']))
+                        else:
+                            gt = './.'
                     # Already ended, cannot have more variants
                     elif sample_gt == './1':
                         gt = './.'
@@ -526,8 +534,15 @@ def block_strategy(draw, samples):
                     )
                 )
             )
+        # If we have a block, at least one sample must start with '1/.',
+        # or it makes no sense
+        if idx == 1 and block_size > 1:
+            assume(any(a == '1/.' for a in sample_genotype.values()))
+        if block_size > 1 and idx == block_size-1:
+            assume(any(a == './1' for a in sample_genotype.values()))
 
         block.append(block_samples)
+    log.debug("Created block of size {} with {} samples".format(block_size, len(samples)))
 
     # Debug: Print GTs the block
     #for b in block:

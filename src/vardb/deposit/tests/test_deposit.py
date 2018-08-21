@@ -1,5 +1,6 @@
 import os
 import tempfile
+from collections import defaultdict
 from contextlib import contextmanager
 
 import hypothesis as ht
@@ -8,6 +9,11 @@ from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample, allele
 from .vcftestgenerator import vcf_strategy
+
+import logging
+log = logging.getLogger()
+# Supress importer input, comment out when debugging
+log.setLevel(logging.WARNING)
 
 
 @contextmanager
@@ -24,6 +30,7 @@ def tempinput(data):
 ANALYSIS_NUM = 0
 
 @ht.given(vcf_strategy(6))
+@ht.settings(deadline=None, max_examples=300)
 def test_analysis_multiple(test_database, session, vcf_data):
     global ANALYSIS_NUM
     ANALYSIS_NUM += 1
@@ -69,22 +76,36 @@ def test_analysis_multiple(test_database, session, vcf_data):
             no_coverage_samples.append(sample_name)
 
     # Start checking data
+    # Samples
+    proband_sample = None
     for sample_name, ped in meta['ped_info'].iteritems():
         sa = next(sa for sa in samples if sa.identifier == sample_name)
         if ped['sex'] is not None:
             assert sa.sex == ('Female' if ped['sex'] == '2' else 'Male')
         else:
             assert sa.sex is None
-        assert sa.affected is (True if ped['affected'] == '2' else False)
-        assert sa.proband is (True if ped['proband'] == '1' else False)
+        assert sa.affected is (ped['affected'] == '2')
+        is_proband = ped['proband'] == '1'
+        assert sa.proband is is_proband
+        if is_proband:
+            assert proband_sample is None
+            proband_sample = sa
         assert sa.family_id == ped.get('fam')
-        if 'father' in ped and ped['father'] != '0':
-            fsa = next(sa for sa in samples if sa.identifier == ped['father'])
+
+        father_name = ped['father'] if 'father' in ped and ped['father'] != '0' else None
+        mother_name = ped['mother'] if 'mother' in ped and ped['mother'] != '0' else None
+        if father_name:
+            fsa = next(sa for sa in samples if sa.identifier == father_name)
             assert sa.father_id == fsa.id
-        if 'mother' in ped and ped['mother'] != '0':
-            msa = next(sa for sa in samples if sa.identifier == ped['mother'])
+        if mother_name:
+            msa = next(sa for sa in samples if sa.identifier == mother_name)
             assert sa.mother_id == msa.id
 
+        # Samples are ordered, so we know proband is already processed..
+        if not is_proband and father_name and mother_name:
+            assert sa.sibling_id == proband_sample.id
+
+    # Variants
     if not proband_variants:
         assert not alleles
         assert not genotypes
@@ -98,7 +119,8 @@ def test_analysis_multiple(test_database, session, vcf_data):
         for variant in proband_variants:
             sample_data = {k: v for k, v in zip(meta['sample_names'], variant['samples'])}
             al = next(
-                a for a in alleles if a.vcf_pos == variant['pos'] and \
+                a for a in alleles if \
+                a.vcf_pos == variant['pos'] and \
                 a.vcf_ref == variant['ref'] and \
                 a.vcf_alt == variant['alt'] and \
                 a.chromosome == variant['chromosome']
@@ -125,6 +147,18 @@ def test_analysis_multiple(test_database, session, vcf_data):
         assert gt.variant_quality == 5000
         assert gt.filter_status == 'PASS'
 
+        # Allele depth
+        sample_allele_depth = defaultdict(dict)
+        for variant in meta['variants']:
+            for sample_name, sample_data in zip(meta['sample_names'], variant['samples']):
+                sample_allele_depth[sample_name].update(
+                    {k: v for k, v in zip(
+                        ['REF ({})'.format(variant['ref']), variant['alt']],
+                        [int(a) for a in sample_data['AD'].split(',')]
+                    )}
+                )
+
+
         # Check that genotypesampledata is set correctly
         for key in ['allele', 'secondallele']:
             if key == 'secondallele' and not fixtures[key]:
@@ -143,6 +177,8 @@ def test_analysis_multiple(test_database, session, vcf_data):
                     if sample_name in no_coverage_samples:
                         gsd_type = 'No coverage'
                     else:
+                        # 'Reference' doesn't mean vcf ref,
+                        # but with regards to proband's variant
                         gsd_type = 'Reference'
                 gsd_multiallelic = data['GT'] in ['./1', '1/.', '0/.', './0']
                 assert gsd.type == gsd_type
@@ -152,3 +188,4 @@ def test_analysis_multiple(test_database, session, vcf_data):
                     assert gsd.genotype_likelihood == [int(p) for p in data['PL'].split(',')]
                 else:
                     assert gsd.genotype_likelihood is None
+                assert gsd.allele_depth == sample_allele_depth[sample_name]

@@ -38,7 +38,8 @@ class InterpretationDataLoader(object):
             excluded_allele_ids = {
                 'frequency': [],
                 'region': [],
-                'family': []
+                'quality': [],
+                'segregation': []
             }
             return [interpretation.allele.id], excluded_allele_ids
 
@@ -66,22 +67,23 @@ class InterpretationDataLoader(object):
             raise RuntimeError("Missing snapshot for interpretation.")
 
         allele_ids = []
+
         # Don't remove category below as long as it's part of snapshot tables' enums
-        excluded_allele_ids = {
-            'frequency': [],
-            'region': [],
-            'gene': [],
-            'family': []
+        # even if it's not a filter being used anymore. Otherwise, viewing historic analyses will break
+        categories = {
+            'FREQUENCY': 'frequency',
+            'REGION': 'region',
+            'GENE': 'gene',
+            'QUALITY': 'quality',
+            'SEGREGATION': 'segregation'
         }
+
+        excluded_allele_ids = {k: [] for k in categories.values()}
 
         for snapshot in interpretation.snapshots:
             if hasattr(snapshot, 'filtered'):
-                if snapshot.filtered == allele.Allele.FREQUENCY:
-                    excluded_allele_ids['frequency'].append(snapshot.allele_id)
-                elif snapshot.filtered == allele.Allele.REGION:
-                    excluded_allele_ids['region'].append(snapshot.allele_id)
-                elif snapshot.filtered == allele.Allele.GENE:
-                    excluded_allele_ids['gene'].append(snapshot.allele_id)
+                if snapshot.filtered in categories:
+                    excluded_allele_ids[categories[snapshot.filtered]].append(snapshot.allele_id)
                 else:
                     allele_ids.append(snapshot.allele_id)
             else:

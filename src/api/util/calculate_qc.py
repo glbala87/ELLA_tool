@@ -25,10 +25,6 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
        len(ad_data) > 1 and \
        vcf_alt in ad_data:
 
-        if genotype_data['multiallelic']:
-            assert len(ad_data) == 3
-        else:
-            assert len(ad_data) == 2
         allele_ratio = float(ad_data[vcf_alt]) / sum(ad_data.values())
         qc['allele_ratio'] = allele_ratio
 

@@ -51,17 +51,22 @@ def upgrade():
 
     # Update sample table
     conn = op.get_bind()
+    conn.execute("ALTER TYPE interpretationsnapshot_filtered ADD VALUE 'QUALITY'")
+    conn.execute("ALTER TYPE interpretationsnapshot_filtered ADD VALUE 'SEGREGATION'")
+
     sample_sex = sa.Enum('Male', 'Female', name='sample_sex')
     sample_sex.create(conn, checkfirst=True)
 
-    op.add_column(u'sample', sa.Column('affected', sa.Boolean(), nullable=True))
+    op.add_column(u'sample', sa.Column('affected', sa.Boolean(), nullable=False))
     op.add_column(u'sample', sa.Column('family_id', sa.String(), nullable=True))
     op.add_column(u'sample', sa.Column('father_id', sa.Integer(), nullable=True))
     op.add_column(u'sample', sa.Column('mother_id', sa.Integer(), nullable=True))
-    op.add_column(u'sample', sa.Column('proband', sa.Boolean()))
+    op.add_column(u'sample', sa.Column('sibling_id', sa.Integer(), nullable=True))
+    op.add_column(u'sample', sa.Column('proband', sa.Boolean(), nullable=False))
     op.add_column(u'sample', sa.Column('sex', sample_sex, nullable=True))
     op.create_foreign_key(op.f('fk_sample_father_id_sample'), 'sample', 'sample', ['father_id'], ['id'])
     op.create_foreign_key(op.f('fk_sample_mother_id_sample'), 'sample', 'sample', ['mother_id'], ['id'])
+    op.create_foreign_key(op.f('fk_sample_sibling_id_sample'), 'sample', 'sample', ['sibling_id'], ['id'])
 
     # Since we haven't supported family analyses yet, make all existing samples probands and affected
     conn = op.get_bind()

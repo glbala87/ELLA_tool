@@ -234,8 +234,8 @@ class SampleImporter(object):
         elif len(sample_names) > 1:
             raise RuntimeError('.ped file required when importing multiple samples')
 
-        # Connect samples to mother and father  {(family_id, sample_id): {'father_id': ..., 'mother_id': ...}}
-        to_connect = defaultdict(dict)
+        # Connect samples to mother and/or father  {(family_id, sample_id): {'father_id': ..., 'mother_id': ...}}
+        parents_to_connect = defaultdict(dict)
         for sample_idx, sample_name in enumerate(sample_names):
 
             sample_ped_data = {}
@@ -261,25 +261,46 @@ class SampleImporter(object):
             db_samples.append(db_sample)
 
             if sample_ped_data.get('mother_id') and sample_ped_data.get('mother_id') != '0':
-                to_connect[(sample_ped_data.get('family_id'), sample_name)]['mother_id'] = sample_ped_data['mother_id']
+                parents_to_connect[(sample_ped_data.get('family_id'), sample_name)]['mother_id'] = sample_ped_data['mother_id']
 
             if sample_ped_data.get('father_id') and sample_ped_data.get('father_id') != '0':
-                to_connect[(sample_ped_data.get('family_id'), sample_name)]['father_id'] = sample_ped_data['father_id']
+                parents_to_connect[(sample_ped_data.get('family_id'), sample_name)]['father_id'] = sample_ped_data['father_id']
 
             self.session.add(db_sample)
             self.counter['nSamplesAdded'] += 1
 
         # We need to flush to create ids before we connect them
         self.session.flush()
-        for fam_sample_id, values in to_connect.iteritems():
-            family_id, sample_id = fam_sample_id
-            db_sample = next(s for s in db_samples if s.identifier == sample_id)
-            if values.get('father_id'):
-                db_father = next(s for s in db_samples if s.identifier == values['father_id'])
-                db_sample.father_id = db_father.id
-            if values.get('mother_id'):
-                db_mother = next(s for s in db_samples if s.identifier == values['mother_id'])
-                db_sample.mother_id = db_mother.id
+
+        # Siblings
+        # There are two possible cases:
+        # - Proband has parents, if so all samples sharing parents will be siblings
+        # - Proband doesn't have parents (ids are '0'), if so all other samples are considered siblings
+
+        proband_sample = next(s for s in db_samples if s.proband)
+        # Proband has no parents
+        if not parents_to_connect:
+            sibling_samples = [s for s in db_samples if s.proband is False]
+            assert len(sibling_samples) + 1 == len(db_samples)
+            for sibling_sample in sibling_samples:
+                sibling_sample.sibling_id = proband_sample.id
+        else:
+            # Proband has parents
+            # Connect all parents
+            for fam_sample_id, values in parents_to_connect.iteritems():
+                family_id, sample_id = fam_sample_id
+                db_sample = next(s for s in db_samples if s.identifier == sample_id)
+                if values.get('father_id'):
+                    db_father = next(s for s in db_samples if s.identifier == values['father_id'])
+                    db_sample.father_id = db_father.id
+                if values.get('mother_id'):
+                    db_mother = next(s for s in db_samples if s.identifier == values['mother_id'])
+                    db_sample.mother_id = db_mother.id
+            # Connect siblings to proband
+            sibling_samples = [s for s in db_samples if s.father_id == proband_sample.father_id and
+                               s.mother_id == proband_sample.mother_id and s.proband is False]
+            for sibling_sample in sibling_samples:
+                sibling_sample.sibling_id = proband_sample.id
 
         family_ids = [s.family_id for s in db_samples]
 
