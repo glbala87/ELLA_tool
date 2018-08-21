@@ -27,7 +27,7 @@ function getSortFunctions(config, classification, verificationStatus) {
             let consequence_indices = consequences.map((c) => consequence_priority.indexOf(c))
             return Math.min(...consequence_indices)
         },
-        family: (allele) => {
+        segregation: (allele) => {
             if (allele.tags.includes('denovo')) {
                 return 0
             } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
@@ -102,7 +102,7 @@ export default function sortAlleles(alleles, key, reverse) {
                 )
             } else {
                 sortedAlleles.sort(
-                    thenBy(sortFunctions.family)
+                    thenBy(sortFunctions.segregation)
                         .thenBy(sortFunctions.inheritance)
                         .thenBy(sortFunctions.gene)
                         .thenBy(sortFunctions.hgvsc)

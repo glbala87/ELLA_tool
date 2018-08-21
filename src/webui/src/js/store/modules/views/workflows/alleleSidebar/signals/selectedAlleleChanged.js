@@ -4,5 +4,8 @@ import updateSuggestedClassification from '../../interpretation/sequences/update
 
 export default [
     set(state`views.workflows.selectedAllele`, props`alleleId`),
-    updateSuggestedClassification
+    updateSuggestedClassification,
+    ({ props }) => {
+        console.log(`Selected allele id: ${props.alleleId}`)
+    }
 ]
