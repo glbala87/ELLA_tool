@@ -380,6 +380,12 @@ workflow-buttons { margin-left: 1.4rem;}
   }
 }
 
+.allele-warning { margin-bottom: 1.5rem; padding: 1.5rem; padding-left: 2rem; padding-right: 2rem; background-color: $red;
+  word-wrap: break-word; font-size: 1.6rem; font-family: $slim; font-weight: 600; color: white;
+  h3:not(:first-child) {
+    margin-top: 0.5rem;
+  }
+}
 
 .add-excluded-button { margin-left: 12px }
 
@@ -571,6 +577,16 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
         height: 2.5rem;
         align-items: center;
         justify-content: center;
+
+        .warning {
+          @include indicator;
+          font-weight: 700;
+          .hit {
+            @include indicator-hit;
+            border-color: lighten($red, 15%);
+            color: lighten($red, 15%);
+          }
+        }
 
         .segregation {
           @include indicator;

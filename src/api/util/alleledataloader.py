@@ -3,7 +3,8 @@ import json
 from vardb.datamodel import allele, sample, genotype, annotationshadow
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
-from sqlalchemy import or_, and_, text
+from sqlalchemy import or_, and_, text, func
+from sqlalchemy.orm import aliased
 
 from api.allelefilter.segregationfilter import SegregationFilter
 from api.util.util import query_print_table
@@ -75,6 +76,47 @@ class AlleleDataLoader(object):
                             allele_ids_tags[allele_id].add(tag)
 
         return allele_ids_tags
+
+    def get_warnings(self, alleles):
+
+        allele_id_warnings = defaultdict(dict)
+        allele_ids = [al['id'] for al in alleles]
+
+        # Alleles within 3bp nearby
+        allele1 = aliased(allele.Allele)
+        allele2 = aliased(allele.Allele)
+        nearby_alleles = self.session.query(
+            allele1.id,
+            allele2.id,
+        ).filter(
+            or_(
+                func.abs(allele1.start_position - allele2.start_position) < 4,
+                func.abs(allele1.start_position - allele2.open_end_position) < 4,
+                func.abs(allele1.open_end_position - allele2.open_end_position) < 4
+            ),
+            allele1.id != allele2.id,
+            allele1.id.in_(allele_ids),
+            allele2.id.in_(allele_ids)
+        ).distinct()
+
+        for allele_id, _ in nearby_alleles.all():
+            allele_id_warnings[allele_id]['nearby_allele'] = 'Another variant is within 3 bp of this variant'
+
+        for al in alleles:
+
+            # Worse consequence
+            worst_consequence = al['annotation']['worst_consequence']
+            filtered_transcripts = al['annotation']['filtered_transcripts']
+            if not set(worst_consequence) & set(filtered_transcripts):
+                consequences = dict()
+                for w in worst_consequence:
+                    transcript_data = next(t for t in al['annotation']['transcripts'] if t['transcript'] == w)
+                    consequences[w] = ','.join(transcript_data['consequences'])
+                allele_id_warnings[al['id']]['worse_consequence'] = 'Worse consequences found in: {}'.format(
+                    ', '.join(['{} ({})'.format(k, v) for k, v in consequences.iteritems()])
+                )
+
+        return allele_id_warnings
 
     def get_formatted_genotypes(self, allele_ids, sample_id, is_proband=False):
         """
@@ -553,9 +595,13 @@ class AlleleDataLoader(object):
             analysis_id=analysis_id,
             segregation_results=segregation_results
         )
+        allele_ids_warnings = self.get_warnings(final_alleles)
 
         for allele_id in allele_ids:
             accumulated_allele_data[allele_id][KEY_ALLELE]['tags'] = sorted(list(allele_ids_tags.get(allele_id, [])))
+
+        for allele_id, warnings in allele_ids_warnings.iteritems():
+            accumulated_allele_data[allele_id][KEY_ALLELE]['warnings'] = warnings
 
         return final_alleles
 

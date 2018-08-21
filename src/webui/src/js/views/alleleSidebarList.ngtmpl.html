@@ -39,6 +39,15 @@
           </span>
         </div>
         <div class="cell indicators">
+          <div title="Warnings" class="top">
+              <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'warning'})">
+                <span class="clickable">!</span>
+                <span ng-if="$ctrl.orderBy.key === 'warning'">
+                  <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                  <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                </span>
+              </div>
+            </div>
           <div title="Segregation type" class="top">
             <div class="hit" ng-click="$ctrl.orderByChanged({section: $ctrl.section, key: 'segregation'})">
               <span class="clickable">S</span>
@@ -108,6 +117,11 @@
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div ng-click="$ctrl.rowClicked(allele.id)" class="cell indicators id-indicators">
+          <div title="{{$ctrl.getWarningsLabel(allele)}}" class="warning">
+            <div class="hit" ng-if="$ctrl.hasWarning(allele)">
+                <span>!</span>
+            </div>
+          </div>
             <div title="{{$ctrl.getSegregationLabel(allele)}}" class="segregation">
               <div class="hit" ng-if="$ctrl.getSegregationTag(allele)">
                   <span>{{$ctrl.getSegregationTag(allele)}}</span>

@@ -11,6 +11,7 @@
             <analysis-info></analysis-info>
           </div>
           <div ng-switch-when="Classification" ng-if="$ctrl.hasAlleles && !$ctrl.sidebarExpanded">
+            <allele-warning></allele-warning>
             <allele-sectionbox
               section-key="sectionKey"
               ng-repeat="sectionKey in $ctrl.sectionKeys">

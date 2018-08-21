@@ -64,6 +64,9 @@ function getSortFunctions(config, classification, verificationStatus) {
             return config.classification.options.findIndex(
                 (o) => o.value === classification[allele.id]
             )
+        },
+        warning: (allele) => {
+            return allele.warnings ? -1 : 1
         }
     }
 }

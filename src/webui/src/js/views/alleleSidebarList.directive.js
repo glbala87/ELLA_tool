@@ -237,13 +237,13 @@ app.component('alleleSidebarList', {
                             return 'C'
                         }
                     },
-                    getSegregationLabel(allele) {
-                        return allele.tags
-                            .filter((t) => {
-                                return Object.keys(SEGREGATION_TAGS).includes(t)
-                            })
-                            .map((t) => SEGREGATION_TAGS[t])
-                            .join(', ')
+                    hasWarning(allele) {
+                        return Boolean(allele.warnings)
+                    },
+                    getWarningsLabel(allele) {
+                        if (allele.warnings) {
+                            return Object.values(allele.warnings).join('\n')
+                        }
                     }
                 })
             }
