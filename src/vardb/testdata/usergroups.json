@@ -1,34 +1,21 @@
 [
     {
         "name": "testgroup01",
-        "genepanels": [
-            ["HBOC", "v01"],
-            ["HBOCUTV", "v01"]
-        ],
+        "genepanels": [["HBOC", "v01"], ["HBOCUTV", "v01"]],
         "default_import_genepanel": ["HBOC", "v01"],
         "config": {
             "overview": {
-                "views": [
-                    "variants",
-                    "analyses-by-findings",
-                    "import"
-                ]
+                "views": ["variants", "analyses-by-findings", "import"]
             }
         }
     },
     {
         "name": "testgroup02",
-        "genepanels": [
-            ["Ciliopati", "v05"],
-            ["OMIM", "v01"]
-        ],
-        "default_import_genepanel": ["Ciliopati", "v05"],
+        "genepanels": [["Ciliopati", "v05"], ["Mendeliome", "v01"]],
+        "default_import_genepanel": ["Mendeliome", "v01"],
         "config": {
             "overview": {
-                "views": [
-                    "analyses",
-                    "import"
-                ]
+                "views": ["analyses", "import"]
             }
         }
     }

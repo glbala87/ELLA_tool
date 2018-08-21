@@ -12,7 +12,7 @@ BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
-TESTSET ?= 'small'
+TESTSET ?= 'default'
 #RELEASE_TAG =
 WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
@@ -48,7 +48,7 @@ help :
 	@echo ""
 	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE). use BUILD_OPTIONS variable to set options for 'docker build'"
 	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db			- populates the db with fixture data. Use TESTSET variable to choose testset (default: small)"
+	@echo "make db			- populates the db with fixture data. Use TESTSET variable to choose testset"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"

@@ -65,9 +65,9 @@ chr2:g.48010497N>N chr2:g.48010531N>N
 
 GENEPANELS = [
     {
-        'transcripts': '../testdata/clinicalGenePanels/OMIM_v01/OMIM_v01.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/OMIM_v01/OMIM_v01.phenotypes.csv',
-        'name': 'OMIM',
+        'transcripts': '../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.phenotypes.csv',
+        'name': 'Mendeliome',
         'version': 'v01'
     },
     {
@@ -88,20 +88,14 @@ GENEPANELS = [
         'phenotypes': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.phenotypes.csv',
         'name': 'Ciliopati',
         'version': 'v05'
-    },
-    {
-        'transcripts': '../testdata/clinicalGenePanels/TrioPU_v04/TrioPU_v04.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/TrioPU_v04/TrioPU_v04.phenotypes.csv',
-        'name': 'TrioPU',
-        'version': 'v04'
     }
 ]
 
 
 ANALYSES = [
     {
-        'path': '../testdata/analyses/small',
-        'name': 'small',
+        'path': '../testdata/analyses/default',
+        'name': 'default',
         'default': True,
     },
     {
@@ -124,7 +118,7 @@ ANALYSES = [
 
 ALLELES = [
     {
-        'path': '../testdata/analyses/small/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf',
+        'path': '../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf',
         'genepanel': ('HBOC', 'v01')
     }
 ]
@@ -268,7 +262,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="small")
+    parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="default")
 
     args = parser.parse_args()
 
