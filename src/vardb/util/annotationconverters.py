@@ -341,9 +341,9 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
         # Be careful if rearranging!
         elif key == 'AC':
             count['G'] = extract_int_list(value)
-        elif key == 'AC_Hom':
+        elif key in ['AC_Hom', 'Hom']:
             hom['G'] = extract_int_list(value)
-        elif key == 'AC_Hemi':
+        elif key in ['AC_Hemi', 'Hemi']:
             hemi['G'] = extract_int_list(value)
         elif key == 'AN':
             num['G'] = value
