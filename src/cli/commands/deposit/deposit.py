@@ -60,10 +60,11 @@ def cmd_deposit_analysis(vcf, ped=None, report=None, warnings=None, priority=Non
         matches.group('genepanel_name'),
         matches.group('genepanel_version'),
         priority,
+        ped_path=ped,
         report=report_data,
         warnings=warnings_data
     )
-    da.import_vcf(analysis_config_data, ped_file=ped)
+    da.import_vcf(analysis_config_data)
     db.session.commit()
 
 

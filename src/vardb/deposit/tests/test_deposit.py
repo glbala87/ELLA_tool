@@ -42,9 +42,15 @@ def test_analysis_multiple(test_database, session, vcf_data):
     # Import generated analysis
     with tempinput(vcf_string) as vcf_file:
         with tempinput(ped_string or '') as ped_file:
-            acd = AnalysisConfigData(vcf_file, analysis_name, 'HBOCUTV', 'v01', 1)
+            acd = AnalysisConfigData(
+                vcf_file,
+                analysis_name,
+                'HBOCUTV',
+                'v01',
+                ped_path=ped_file if ped_string else None
+            )
             da = DepositAnalysis(session)
-            da.import_vcf(acd, ped_file=ped_file if ped_string else None)
+            da.import_vcf(acd)
 
     # Preload all data
     analysis = session.query(sample.Analysis).filter(

@@ -186,11 +186,12 @@ class DepositTestdata(object):
                     gp_name,
                     gp_version,
                     "1",
+                    ped_path=analysis_ped_path,
                     warnings=WARNINGS_EXAMPLE if gp_name == 'HBOC' else None,
                     report=REPORT_EXAMPLE
                 )
 
-                da.import_vcf(acd, ped_file=analysis_ped_path)
+                da.import_vcf(acd)
 
                 log.info("Deposited {} as analysis".format(analysis_name))
                 self.session.commit()

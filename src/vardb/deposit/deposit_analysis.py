@@ -42,7 +42,7 @@ class DepositAnalysis(DepositFromVCF):
                         from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
                         analysis_not_ready_findings(self.session, db_analysis, db_analysis_interpretation)
 
-    def import_vcf(self, analysis_config_data, batch_size=1000, sample_type="HTS", ped_file=None, append=False):
+    def import_vcf(self, analysis_config_data, batch_size=1000, sample_type="HTS", append=False):
 
         vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
@@ -71,7 +71,12 @@ class DepositAnalysis(DepositFromVCF):
 
         log.info("Importing {}".format(db_analysis.name))
         db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis, reopen_if_exists=append)
-        db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type=sample_type, ped_file=ped_file)
+        db_samples = self.sample_importer.process(
+            vcf_sample_names,
+            db_analysis,
+            sample_type=sample_type,
+            ped_file=analysis_config_data.ped_path
+        )
 
         # Due to the nature of decomposed + normalized variants, we need to be careful how we
         # process the data. Variants belonging to the same sample's genotype can be on different positions
@@ -187,63 +192,3 @@ class DepositAnalysis(DepositFromVCF):
 
         log.info('All done, committing')
         self.session.commit()
-
-
-
-def main(argv=None):
-    """Example: ./deposit.py --vcf=./myvcf.vcf"""
-    argv = argv or sys.argv[1:]
-    parser = argparse.ArgumentParser(description="""Deposit variants and genotypes from a VCF file into varDB.""")
-    parser.add_argument("--vcf", action="store", dest="vcfPath", required=True, help="Path to VCF file to deposit")
-    parser.add_argument("--samplecfgs", action="store", nargs="+", dest="sample_config_files", required=True,
-                        help="Configuration file(s) (JSON) for sample(s) from pipeline")
-    parser.add_argument("--analysiscfg", action="store", dest="analysis_config_file", required=True,
-                        help="Configuration file (JSON) for analysis from pipeline")
-    parser.add_argument("--skip", action="store", dest="skipInfoFields", required=False, nargs='*',
-                        default=["NS", "DP", "AN", "CIGAR"],
-                        help="The VCF INFO fields that should NOT be added as annotation to varDB.")
-    parser.add_argument("--refgenome", action="store", dest="refGenome", required=False,
-                        default="GRCh37", help="Reference genome name")
-    parser.add_argument("-f", action="store_true", dest="nonInteractive", required=False,
-                        default=False, help="Do not ask for confirmation before deposit")
-
-    args = parser.parse_args(argv)
-
-    sample_configs = list()
-    for sample_config_file in args.sample_config_files:
-        with open(sample_config_file) as f:
-            sample_configs.append(json.load(f))
-
-    with open(args.analysis_config_file) as f:
-        analysis_config = json.load(f)
-
-    db = DB()
-    db.connect()
-    session = db.session
-
-    da = DepositAnalysis(session)
-    try:
-        da.import_vcf(
-            args.vcfPath,
-            sample_configs=sample_configs,
-            analysis_config=analysis_config
-        )
-    except UserWarning as e:
-        log.error(str(e))
-        sys.exit()
-
-    if not args.nonInteractive:
-        print "You are about to commit the following changes to the database:"
-        da.printStats()
-        print "Proceed? (Y/n)"
-        if not raw_input() == "Y":
-            log.warning("Aborting deposit! Rolling back changes.")
-            session.rollback()
-            return -1
-
-    session.commit()
-    print "Deposit complete."
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
