@@ -46,7 +46,8 @@ class AlleleFilter(object):
         source: {key: set([..]), ...}
         filtered: {key: set([...]), ...}
 
-        Allele ids that have classifications are not removed.
+        :note: Allele ids that have classifications which should
+            be exempt from filtering are not removed
         """
 
         all_filtered_allele_ids = set(itertools.chain.from_iterable(filtered.values()))
@@ -111,7 +112,8 @@ class AlleleFilter(object):
 
         # Run the analysis based allele filters
         filters = [
-            ('quality', QualityFilter(self.session, self.config).filter_alleles),
+            # TDDO: Disabled for now
+            # ('quality', QualityFilter(self.session, self.config).filter_alleles),
             ('segregation', SegregationFilter(self.session, self.config).filter_alleles)
         ]
 
