@@ -162,29 +162,28 @@ class AnnotationJobsInterface:
         if mode == "Analysis":
             type = job.properties["create_or_append"]
             sample_type = job.properties["sample_type"]
-            if type == "Create":
-                analysis_name = job.properties["analysis_name"]
-                deposit = DepositAnalysis(self.session)
-
-                deposit.import_vcf(analysis_config_data=AnalysisConfigData(
-                    vcf_path=fd,
-                    analysis_name="{}.{}_{}".format(
-                        analysis_name, gp_name, gp_version),
-                    gp_name=gp_name,
-                    gp_version=gp_version,
-                    priority=1
-                ),
-                    sample_type=sample_type
+            analysis_name = job.properties["analysis_name"]
+            if type == 'Create':
+                analysis_name = "{}.{}_{}".format(
+                    analysis_name,
+                    gp_name,
+                    gp_version
                 )
-            else:
-                analysis_name = job.properties["analysis_name"]
-                deposit = DepositAnalysisAppend(self.session)
-                deposit.import_vcf(fd,
-                                   analysis_name,
-                                   gp_name,
-                                   gp_version,
-                                   sample_type=sample_type
-                                   )
+
+            acd = AnalysisConfigData(
+                vcf_path=fd,
+                analysis_name=analysis_name,
+                gp_name=gp_name,
+                gp_version=gp_version,
+                priority=1
+            )
+            append = type != 'Create'
+            da = DepositAnalysis(self.session)
+            da.import_vcf(
+                acd,
+                sample_type=sample_type,
+                append=append
+            )
 
         elif mode in ["Variants", "Single variant"]:
             deposit = DepositAlleles(self.session)

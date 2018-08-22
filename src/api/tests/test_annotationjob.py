@@ -3,6 +3,7 @@ import os
 import pytest
 import subprocess
 
+from sqlalchemy import tuple_
 import vardb
 from api.polling import AnnotationJobsInterface
 from vardb.datamodel import sample, annotationjob, allele, genotype
@@ -189,7 +190,8 @@ def get_alleles(vcf, session):
     allele_importer = AlleleImporter(session)
     alleles = []
     for a in vcfiterator.iter():
-        alleles += allele_importer.process(a)
+        allele_importer.add(a)
+    alleles = allele_importer.process()
     session.rollback()
     fd.close()
     return alleles
@@ -198,8 +200,6 @@ def get_alleles(vcf, session):
 def test_deposit_independent_variants(test_database, session, client, annotated_vcf):
     test_database.refresh()
     alleles = get_alleles(annotated_vcf, session)
-    existing = session.query(allele.Allele).all()
-    alleles_to_be_added = list(set(alleles)-set(existing))
 
     data = {
         "mode": "Variants",
@@ -224,15 +224,29 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
     session.commit()
 
     # Check that annotation job is deposited
-    new_alleles = session.query(allele.Allele).filter(
-        ~allele.Allele.id.in_([a.id for a in existing])
-    ).all()
+    deposited_allele_values = list()
+    for al in alleles:
+        deposited_allele_values.append((
+            al['chromosome'],
+            al['start_position'],
+            al['open_end_position'],
+            al['change_from'],
+            al['change_to'],
+            al['change_type']
+        ))
 
-    new_alleles = [(a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for a in new_alleles]
-    alleles_to_be_added = [(a.chromosome, a.start_position, a.open_end_position, a.change_from, a.change_to, a.change_type) for a in alleles_to_be_added]
+    deposited_alleles_count = session.query(allele.Allele).filter(
+        tuple_(
+            allele.Allele.chromosome,
+            allele.Allele.start_position,
+            allele.Allele.open_end_position,
+            allele.Allele.change_from,
+            allele.Allele.change_to,
+            allele.Allele.change_type
+        ).in_(deposited_allele_values)
+    ).count()
 
-    assert len(new_alleles) == len(alleles_to_be_added)
-    assert set(new_alleles) == set(alleles_to_be_added)
+    assert len(alleles) == deposited_alleles_count
 
 
 def test_append_to_analysis(test_database, session, client, annotated_vcf):
@@ -273,8 +287,10 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
 
     assert len(analyses) == 1
     analysis_id = analyses[0].id
-    genotypes = session.query(genotype.Genotype).filter(
-        genotype.Genotype.analysis_id == analysis_id,
+    genotypes = session.query(genotype.Genotype).join(
+        sample.Sample
+    ).filter(
+        sample.Sample.analysis_id == analysis_id,
     ).all()
     assert len(genotypes) == N1
 
@@ -302,8 +318,10 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
     session.commit()
 
     # Check that the new alleles were added to analysis
-    genotypes = session.query(genotype.Genotype).filter(
-        genotype.Genotype.analysis_id == analysis_id,
+    genotypes = session.query(genotype.Genotype).join(
+        sample.Sample
+    ).filter(
+        sample.Sample.analysis_id == analysis_id,
     ).all()
 
     assert len(genotypes) == N1 + N2
