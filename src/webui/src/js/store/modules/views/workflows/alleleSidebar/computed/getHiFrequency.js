@@ -1,6 +1,5 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
-import { formatValue } from '../../../../../common/computes/getFrequencyAnnotation'
 
 export default (key) =>
     Compute(state`views.workflows.data.alleles`, state`app.config`, key, (alleles, config) => {
@@ -11,8 +10,8 @@ export default (key) =>
         const frequencyGroups = config.variant_criteria.frequencies.groups
         const frequencyNumThresholds = config.variant_criteria.freq_num_thresholds || {}
         for (let [alleleId, allele] of Object.entries(alleles)) {
-            let maxVal = null
-            let maxFormatted = null
+            let maxMeetsThresholdValue = null
+            let maxValue = null
             const annotationFrequencies = allele.annotation.frequencies
             for (const providers of Object.values(frequencyGroups)) {
                 for (const [provider, populations] of Object.entries(providers)) {
@@ -36,24 +35,25 @@ export default (key) =>
                                     annotationFrequencies[provider]['num'][population] >
                                     frequencyNumThresholds[provider][population]
                             }
-
-                            const isHigher =
-                                annotationFrequencies[provider][key][population] > maxVal
-
-                            if (meetsNumThreshold && isHigher) {
-                                maxVal = annotationFrequencies[provider][key][population]
-                                maxFormatted = formatValue(
-                                    annotationFrequencies[provider],
-                                    key,
-                                    population,
-                                    config
-                                )
+                            const newValue = annotationFrequencies[provider][key][population]
+                            if (newValue > maxValue || maxValue === null) {
+                                maxValue = newValue
+                            }
+                            if (
+                                meetsNumThreshold &&
+                                (newValue > maxMeetsThresholdValue ||
+                                    maxMeetsThresholdValue === null)
+                            ) {
+                                maxMeetsThresholdValue = newValue
                             }
                         }
                     }
                 }
             }
-            result[alleleId] = maxFormatted
+            result[alleleId] = {
+                maxMeetsThresholdValue,
+                maxValue
+            }
         }
         return result
     })

@@ -98,12 +98,6 @@ const STATE = {
     },
     app: {
         config: {
-            frequencies: {
-                view: {
-                    precision: 2,
-                    scientific_threshold: 1000
-                }
-            },
             variant_criteria: {
                 freq_num_thresholds: {
                     FREQ_GROUP_W_CONSTRAINT: { G: 2000 }
@@ -125,13 +119,39 @@ it('should give highest count regardless of num', () => {
     const result = runCompute(getHiFrequency('count'), {
         state: STATE
     })
-    console.log(result)
-    expect(result).toEqual({ 1: 999, 2: 999, 3: 1000, 4: 2000, 5: null })
+    expect(result).toEqual({
+        1: { maxMeetsThresholdValue: 999, maxValue: 999 },
+        2: { maxMeetsThresholdValue: 999, maxValue: 999 },
+        3: { maxMeetsThresholdValue: 1000, maxValue: 1000 },
+        4: { maxMeetsThresholdValue: 2000, maxValue: 2000 },
+        5: { maxMeetsThresholdValue: null, maxValue: null }
+    })
 })
 
 it('should give highest freq depending on num', () => {
     const result = runCompute(getHiFrequency('freq'), {
         state: STATE
     })
-    expect(result).toEqual({ 1: '0.10', 2: null, 3: '0.20', 4: '0.30', 5: null })
+    expect(result).toEqual({
+        '1': {
+            maxMeetsThresholdValue: 0.1,
+            maxValue: 0.1
+        },
+        '2': {
+            maxMeetsThresholdValue: null,
+            maxValue: 0.1
+        },
+        '3': {
+            maxMeetsThresholdValue: 0.2,
+            maxValue: 0.2
+        },
+        '4': {
+            maxMeetsThresholdValue: 0.3,
+            maxValue: 0.3
+        },
+        '5': {
+            maxMeetsThresholdValue: null,
+            maxValue: null
+        }
+    })
 })

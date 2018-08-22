@@ -15,6 +15,7 @@ import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
+import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation'
 import template from './alleleSidebarList.ngtmpl.html'
 import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
@@ -102,6 +103,7 @@ app.component('alleleSidebarList', {
             alleles: sectionAlleles,
             classification: getClassification,
             consequence: getConsequence,
+            config: state`app.config`,
             isMultipleInGene,
             depth: getDepth,
             alleleassessments: getAlleleAssessments,
@@ -244,6 +246,19 @@ app.component('alleleSidebarList', {
                         if (allele.warnings) {
                             return Object.values(allele.warnings).join('\n')
                         }
+                    },
+                    formatFreqValue(hiFreqData) {
+                        const value =
+                            hiFreqData.maxMeetsThresholdValue !== null
+                                ? hiFreqData.maxMeetsThresholdValue
+                                : hiFreqData.maxValue
+                        if (value) {
+                            const formatted = formatFreqValue(value, $ctrl.config)
+                            return hiFreqData.maxMeetsThresholdValue !== null
+                                ? formatted
+                                : `(${formatted})`
+                        }
+                        return '-'
                     }
                 })
             }

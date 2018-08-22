@@ -175,7 +175,7 @@
           popover-append-to-body="true"
           popover-title="Frequency: {{allele.formatted.display}}"
           popover-class="popover-title-no-uppercase"
-          popover-placement="bottom"><span class="clickable">{{$ctrl.hiFreq[allele.id] || '-'}}</span>
+          popover-placement="bottom"><span class="clickable">{{$ctrl.formatFreqValue($ctrl.hiFreq[allele.id])}}</span></span>
         </div>
         <div ng-if="$ctrl.expanded" class="cell hi-count"
           popover-trigger="outsideClick"
@@ -183,7 +183,7 @@
           popover-append-to-body="true"
           popover-title="Frequency: {{allele.formatted.display}}"
           popover-class="popover-title-no-uppercase"
-          popover-placement="bottom"><span class="clickable">{{$ctrl.hiCount[allele.id] || '-'}}</span>
+          popover-placement="bottom"><span class="clickable">{{$ctrl.hiCount[allele.id].maxValue || '-'}}</span>
         </div>
         <div ng-if="$ctrl.expanded" class="cell external"
           popover-trigger="outsideClick"
