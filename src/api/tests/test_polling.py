@@ -112,4 +112,4 @@ def test_polling(session, client, test_database):
     assert len(updates_annotated) == 1
 
     id, update = updates_annotated[0]
-    assert update["message"] == "RuntimeError: Couldn't import samples to database. (db_samples: [], vcf_sample_names: [])"
+    assert update["message"] == "RuntimeError: Couldn't import samples to database. (db_samples: [], sample_names: [])"

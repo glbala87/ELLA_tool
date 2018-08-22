@@ -29,6 +29,7 @@ def tempinput(data):
 
 ANALYSIS_NUM = 0
 
+
 @ht.given(vcf_strategy(6))
 @ht.settings(deadline=None, max_examples=300)
 def test_analysis_multiple(test_database, session, vcf_data):
@@ -157,7 +158,6 @@ def test_analysis_multiple(test_database, session, vcf_data):
                         [int(a) for a in sample_data['AD'].split(',')]
                     )}
                 )
-
 
         # Check that genotypesampledata is set correctly
         for key in ['allele', 'secondallele']:

@@ -272,6 +272,10 @@ class SampleImporter(object):
         # We need to flush to create ids before we connect them
         self.session.flush()
 
+        if not db_samples or len(db_samples) != len(sample_names):
+            self.session.rollback()
+            raise RuntimeError("Couldn't import samples to database. (db_samples: {}, sample_names: {})".format(db_samples, sample_names))
+
         # Siblings
         # There are two possible cases:
         # - Proband has parents, if so all samples sharing parents will be siblings
@@ -306,10 +310,6 @@ class SampleImporter(object):
 
         if ped_file is None:
             assert family_ids == [None] and len(db_samples) == 1, 'Cannot import multiple samples without pedigree file'
-
-        if len(db_samples) != len(sample_names):
-            self.session.rollback()
-            raise RuntimeError("Couldn't import samples to database. (db_samples: %s, vcf_sample_names: %s)" %(str(db_samples), str(vcf_sample_names)))
 
         proband_count = len([True for s in db_samples if s.proband])
         assert proband_count == 1, 'Exactly one sample as proband is required. Got {}.'.format(proband_count)
