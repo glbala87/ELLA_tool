@@ -45,7 +45,7 @@ class AlleleDataLoader(object):
 
     def _get_segregation_results(self, allele_ids, analysis_id):
         segregation_results = self.segregation_filter.get_segregation_results({analysis_id: allele_ids})
-        return segregation_results[analysis_id]
+        return segregation_results.get(analysis_id)
 
     def get_tags(self, allele_data, analysis_id=None, segregation_results=None):
 
@@ -53,7 +53,7 @@ class AlleleDataLoader(object):
 
         for al in allele_data:
             # Has references
-            if al['annotation']['references']:
+            if al.get('annotation', {}).get('references'):
                 allele_ids_tags[al['id']].add('has_references')
 
         if analysis_id:
@@ -597,11 +597,13 @@ class AlleleDataLoader(object):
         )
         allele_ids_warnings = self.get_warnings(final_alleles)
 
-        for allele_id in allele_ids:
-            accumulated_allele_data[allele_id][KEY_ALLELE]['tags'] = sorted(list(allele_ids_tags.get(allele_id, [])))
+        for allele_id in allele_ids_tags:
+            final_allele = next(f for f in final_alleles if f['id'] == allele_id)
+            final_allele['tags'] = sorted(list(allele_ids_tags.get(allele_id, [])))
 
         for allele_id, warnings in allele_ids_warnings.iteritems():
-            accumulated_allele_data[allele_id][KEY_ALLELE]['warnings'] = warnings
+            final_allele = next(f for f in final_alleles if f['id'] == allele_id)
+            final_allele['warnings'] = warnings
 
         return final_alleles
 

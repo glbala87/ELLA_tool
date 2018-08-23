@@ -109,10 +109,6 @@ GENEPANEL_CONFIG = {
 }
 
 
-def global_with_overridden_threshold(initial, override):
-    return copy.deepcopy(initial).update(override)
-
-
 allele_start = 1300
 
 
@@ -132,7 +128,7 @@ def create_allele(data=None):
         }
     if data:
         for k in data:
-             default_allele_data[k] = data[k]
+            default_allele_data[k] = data[k]
     data = default_allele_data
 
     return allele.Allele(
@@ -147,15 +143,6 @@ def create_annotation(annotations, allele=None):
         allele=allele
     )
 
-def create_assessment(session, classification, allele=None):
-    assmt = assessment.AlleleAssessment(
-        classification=classification,
-        allele=allele,
-        genepanel_name="testpanel",
-        genepanel_version="v01"
-    )
-    session.add(assmt)
-    return assmt
 
 def create_allele_with_annotation(session, annotations=None, allele_data=None):
     al = create_allele(data=allele_data)
@@ -175,9 +162,6 @@ def create_genepanel(genepanel_config):
     g1_ad = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1AD")
     g1_ar = gene.Gene(hgnc_id=int(2e6), hgnc_symbol="GENE1AR")
     g2 = gene.Gene(hgnc_id=int(3e6), hgnc_symbol="GENE2")
-    g3 = gene.Gene(hgnc_id=int(4e6), hgnc_symbol="GENE3")
-    g4 = gene.Gene(hgnc_id=int(5e6), hgnc_symbol="GENE4")
-    g5 = gene.Gene(hgnc_id=int(6e6), hgnc_symbol="GENE5")
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
@@ -224,51 +208,6 @@ def create_genepanel(genepanel_config):
         exon_ends=[2160, 2260, 2360, 2460]
     )
 
-    t3 = gene.Transcript(
-        gene=g3,
-        transcript_name='NM_3.1',
-        type='RefSeq',
-        genome_reference='',
-        chromosome='3',
-        tx_start=3000,
-        tx_end=3500,
-        strand='+',
-        cds_start=3230,
-        cds_end=3430,
-        exon_starts=[3100, 3200, 3300, 3400],
-        exon_ends=[3160, 3260, 3360, 3460]
-    )
-
-    t4 = gene.Transcript(
-        gene=g4,
-        transcript_name='NM_4.1',
-        type='RefSeq',
-        genome_reference='',
-        chromosome='4',
-        tx_start=4000,
-        tx_end=4500,
-        strand='+',
-        cds_start=4230,
-        cds_end=4430,
-        exon_starts=[4100, 4200, 4300, 4400],
-        exon_ends=[4160, 4260, 4360, 4460]
-    )
-
-    t5_reverse = gene.Transcript(
-        gene=g5,
-        transcript_name='NM_5.1',
-        type='RefSeq',
-        genome_reference='',
-        chromosome='5',
-        tx_start=5000,
-        tx_end=5500,
-        strand='-',
-        cds_start=5230,
-        cds_end=5430,
-        exon_starts=[5100, 5200, 5300, 5400],
-        exon_ends=[5160, 5260, 5360, 5460]
-    )
-
     p1 = gene.Phenotype(
         gene=g1_ad,
         inheritance='AD',
@@ -288,7 +227,7 @@ def create_genepanel(genepanel_config):
         config=genepanel_config
     )
 
-    genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]
+    genepanel.transcripts = [t1_ad, t1_ar, t2]
     genepanel.phenotypes = [p1, p2]
     return genepanel
 

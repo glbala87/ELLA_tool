@@ -6,7 +6,7 @@ from vardb.datamodel import sample, genotype, allele, annotationshadow, annotati
 
 from api.allelefilter.denovo_probability import denovo_probability
 
-# X chromosome PAR regions for GRCh37
+# X chromosome PAR regions for GRCh37 (1-based)
 PAR1_START = 60001
 PAR1_END = 2699520
 PAR2_START = 154931044
@@ -393,6 +393,7 @@ class SegregationFilter(object):
             sample_names += unaffected_sibling_samples
             unaffected_sample_names += unaffected_sibling_samples
 
+        # If only proband, we are not able to compute compound heterozygous candidate alleles.
         if len(sample_names) == 1:
             return set()
 
@@ -403,7 +404,6 @@ class SegregationFilter(object):
         # 2. A variant must not occur in a homozygous state in any of the unaffected individuals.
         # 3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
 
-        compound_candidates_columns = [getattr(genotype_table.c, s + '_type') for s in sample_names]
         compound_candidates_filters = []
         # Heterozygous in affected
         compound_candidates_filters += [
@@ -430,13 +430,13 @@ class SegregationFilter(object):
                     )
                 )
             )
+
         compound_candidates = self.session.query(
             genotype_table.c.allele_id,
-            *compound_candidates_columns
+            *[getattr(genotype_table.c, s + '_type') for s in sample_names]
         ).filter(
             *compound_candidates_filters
-        )
-        compound_candidates = compound_candidates.subquery('compound_candidates')
+        ).subquery('compound_candidates')
 
         # Group per gene and get the gene symbols with >= 2 candidates.
         #
@@ -461,7 +461,11 @@ class SegregationFilter(object):
         #
         # In the above example, 6004, 6005 and 6006 satisfy the rules.
 
-        inclusion_regex = self.config['transcripts']['inclusion_regex']
+        filters = []
+        if 'inclusion_regex' in self.config['transcripts']:
+            filters.append(
+                text("annotationshadowtranscript.transcript ~ :reg").params(reg=self.config['transcripts']['inclusion_regex'])
+            )
         candidates_with_genes_columns = [
             compound_candidates.c.allele_id,
             annotationshadow.AnnotationShadowTranscript.symbol
@@ -477,7 +481,7 @@ class SegregationFilter(object):
             annotationshadow.AnnotationShadowTranscript,
             compound_candidates.c.allele_id == annotationshadow.AnnotationShadowTranscript.allele_id
         ).filter(
-            text("annotationshadowtranscript.transcript ~ :reg").params(reg=inclusion_regex),
+            *filters
         ).distinct()
 
         candidates_with_genes = candidates_with_genes.subquery('candidates_with_genes')
@@ -561,7 +565,7 @@ class SegregationFilter(object):
             ~sample.Sample.family_id.is_(None)
         ).all()
 
-        return [a[0] for a in family_ids]
+        return [fid[0] for fid in family_ids]
 
     def get_family_sample_ids(self, analysis_id, family_id):
         sample_ids = self.session.query(sample.Sample.id).filter(
@@ -569,7 +573,7 @@ class SegregationFilter(object):
             sample.Sample.family_id == family_id
         ).all()
 
-        return [a[0] for a in sample_ids]
+        return [sid[0] for sid in sample_ids]
 
     def get_proband_sample(self, analysis_id, sample_family_id):
         proband_sample = self.session.query(sample.Sample).filter(
@@ -610,7 +614,7 @@ class SegregationFilter(object):
 
     def get_segregation_results(self, analysis_allele_ids):
 
-        result = defaultdict(dict)
+        result = dict()
         for analysis_id, allele_ids in analysis_allele_ids.iteritems():
 
             family_ids = self.get_family_ids(analysis_id)
@@ -621,6 +625,8 @@ class SegregationFilter(object):
 
             # Only one family id (i.e. data set) is supported at the moment
             assert len(family_ids) == 1
+
+            result[analysis_id] = dict()
 
             proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
             father_sample = self.get_father_sample(proband_sample)
@@ -698,10 +704,10 @@ class SegregationFilter(object):
             assert len(family_ids) == 1, 'Multiple family ids are not supported yet'
 
             proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
-            is_trio = proband_sample.father_id and proband_sample.mother_id
+            has_parents = proband_sample.father_id and proband_sample.mother_id
             # Most filtering needs a trio
             filtered = set()
-            if is_trio:
+            if has_parents:
                 non_filtered = segregation_results[analysis_id]['denovo'] | \
                            segregation_results[analysis_id]['compound_heterozygous'] | \
                            segregation_results[analysis_id]['autosomal_recessive_homozygous'] | \

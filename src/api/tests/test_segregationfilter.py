@@ -473,6 +473,10 @@ class TestInheritanceFilter(object):
         {'gene': 'GENE1', 'genotypes': (ps('Heterozygous'), fs('Heterozygous'), ms('Reference'), ass('Heterozygous'))},
     ], [])
     @example([
+        {'gene': 'GENE1', 'genotypes': (ps('Heterozygous'), fs('Reference'), ms('Heterozygous'), ass('Heterozygous'))},
+        {'gene': 'GENE1', 'genotypes': (ps('Heterozygous'), fs('Heterozygous'), ms('Reference'), ass('Heterozygous'))},
+    ], [0, 1])
+    @example([
         {'gene': 'GENE1', 'genotypes': (ps('Heterozygous'),  uss('Homozygous'))},
         {'gene': 'GENE1', 'genotypes': (ps('Heterozygous'), uss('Homozygous'))},
     ], [])

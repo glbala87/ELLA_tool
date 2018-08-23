@@ -195,10 +195,6 @@ def allele_positions(draw, chromosome, start, end):
     return (chromosome, start_position, end_position)
 
 
-def global_with_overridden_threshold(initial, override):
-    return copy.deepcopy(initial).update(override)
-
-
 allele_start = 1300
 
 

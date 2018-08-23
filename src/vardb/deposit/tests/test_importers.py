@@ -1,8 +1,5 @@
 import pytest
-import mock
-
 import vardb.deposit.importers as deposit
-from vardb.datamodel import sample, allele
 
 
 @pytest.fixture
@@ -13,16 +10,6 @@ def ref_genome():
 @pytest.fixture
 def allele_importer(session, ref_genome):
     return deposit.AlleleImporter(session, ref_genome=ref_genome)
-
-
-def test_anno_diff():
-    assert not deposit.AnnotationImporter.diff_annotation({'b': 2, 'a': 1}, {'a': 1, 'b': 2})
-    assert not deposit.AnnotationImporter.diff_annotation({'a': 1, 'b': [1,2,3]}, {'a': 1, 'b': [1,2,3]})
-    # element order in list does matter:
-    assert deposit.AnnotationImporter.diff_annotation({'a': 1, 'b': [1,2,3]}, {'a': 1, 'b': [3,2,1]})
-
-    # element order in list does *not* matter when looking at the CSQ element:
-    assert not deposit.AnnotationImporter.diff_annotation({'a': 1, 'CSQ': [1,2,3]}, {'a': 1, 'CSQ': [3,2,1]})
 
 
 # Genotype import is tested as part of test_deposit

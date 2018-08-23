@@ -56,6 +56,16 @@ def has_diff_ignoring_order(ignore_order_for_key, obj1, obj2):
         return not obj1 == obj2
 
 
+def get_allele_from_record(record, alleles):
+    for allele in alleles:
+        if allele['chromosome'] == record['CHROM'] and \
+           allele['vcf_pos'] == record['POS'] and \
+           allele['vcf_ref'] == record['REF'] and \
+           allele['vcf_alt'] == record['ALT'][0]:
+            return allele
+    return None
+
+
 def deepmerge(source, destination):
     """
     Deepmerge dicts.
@@ -194,6 +204,12 @@ class SampleImporter(object):
 
     @staticmethod
     def parse_ped(ped_file):
+        """
+        Expected format is an extended .ped file with added proband ('0', '1') column
+
+        Columns:
+        family_id   sample_id   father_id   mother_id   sex affected    proband
+        """
 
         def ped_to_sex(value):
             value = value.strip()
@@ -332,8 +348,8 @@ class GenotypeImporter(object):
             '1/.': 'Heterozygous',
             './1': 'Heterozygous',
             '1/1': 'Homozygous',
-            '0/.': 'Reference',  # Only applicable to non-proband samples
-            '0/0': 'Reference',
+            '0/.': 'Reference',  # Not applicable to proband samples
+            '0/0': 'Reference',  # Not applicable to proband samples
             './.': 'Reference'  # Note exception in add()
         }
 
@@ -352,15 +368,6 @@ class GenotypeImporter(object):
 
         assert (len(records) == 1 and len(alleles) == 1) or \
                (len(records) == 2 and len(alleles) == 2)
-
-        def get_allele_from_record(record, alleles):
-            for allele in alleles:
-                if allele['chromosome'] == record['CHROM'] and \
-                   allele['vcf_pos'] == record['POS'] and \
-                   allele['vcf_ref'] == record['REF'] and \
-                   allele['vcf_alt'] == record['ALT'][0]:
-                    return allele
-            return None
 
         proband_sample_id = next(s.id for s in samples if s.identifier == proband_sample_name)
 
@@ -774,21 +781,6 @@ class AnnotationImporter(object):
     def __init__(self, session):
         self.session = session
         self.batch_items = list()
-
-    @staticmethod
-    def diff_annotation(annos1, annos2):
-        """
-        True if the dictionaries are not identical wrt keys and values.
-
-        Warning: the elements of the list for 'CSQ' might change order
-        """
-
-        has_diff = not annos1 == annos2
-
-        if has_diff and 'CSQ' in annos1 and 'CSQ' in annos2:  # sort and compare again:
-            return has_diff_ignoring_order('CSQ', annos1, annos2)
-
-        return has_diff
 
     @staticmethod
     def _compare_transcript(t1, t2):

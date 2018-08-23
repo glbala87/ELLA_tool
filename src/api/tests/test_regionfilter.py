@@ -86,10 +86,6 @@ def allele_positions(draw, chromosome, start, end):
     return (chromosome, start_position, end_position)
 
 
-def global_with_overridden_threshold(initial, override):
-    return copy.deepcopy(initial).update(override)
-
-
 allele_start = 1300
 
 
@@ -124,15 +120,6 @@ def create_annotation(annotations, allele=None):
         allele=allele
     )
 
-def create_assessment(session, classification, allele=None):
-    assmt = assessment.AlleleAssessment(
-        classification=classification,
-        allele=allele,
-        genepanel_name="testpanel",
-        genepanel_version="v01"
-    )
-    session.add(assmt)
-    return assmt
 
 def create_allele_with_annotation(session, annotations=None, allele_data=None):
     al = create_allele(data=allele_data)
@@ -268,16 +255,6 @@ def create_genepanel(genepanel_config):
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]
     genepanel.phenotypes = [p1, p2]
     return genepanel
-
-
-def create_error_message(allele_ids, allele_info):
-    uniq_ids = list(set(allele_ids))
-    msg = ""
-    for a_id in uniq_ids:
-        a, anno = allele_info[a_id]
-        msg += "\nAllele {} has annotation\n".format(a_id)
-        msg += str(anno)
-    return msg
 
 
 class TestRegionFilter(object):

@@ -3,7 +3,7 @@ import itertools
 import pytz
 from collections import defaultdict
 
-from sqlalchemy import tuple_, or_, literal
+from sqlalchemy import tuple_, or_
 from sqlalchemy.orm import joinedload
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene

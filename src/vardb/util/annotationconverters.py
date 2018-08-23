@@ -189,7 +189,7 @@ def convert_csq(annotation):
 
         exon_distance = get_distance(match_data["pm1"], match_data['ed1'], match_data["pm2"], match_data['ed2'])
 
-        if exon_distance==0:
+        if exon_distance == 0:
             if (match_data['p1'] and not match_data['utr1']) or (match_data['p2'] and not match_data['utr2']):
                 # Since utr1/utr2 is always shown as either * or - for UTR regions, we know that we are in a coding region
                 # if either of those are empty
@@ -248,7 +248,15 @@ def convert_csq(annotation):
             transcript_data['protein'], transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)
 
         transcript_data['in_last_exon'] = 'yes' if _get_is_last_exon(transcript_data) else 'no'
+
+        # All lists must be deterministic
+        if 'consequences' in transcript_data:
+            transcript_data['consequences'] = sorted(transcript_data['consequences'])
         transcripts.append(transcript_data)
+
+    # VEP output is not deterministic, but we need it to be so
+    # we can compare correctly in database
+    transcripts = sorted(transcripts, key=lambda x: x['transcript'])
 
     # Hack: Since hgnc_id is not provided by VEP for Refseq,
     # we steal it from matching Ensembl transcript (by gene symbol)
