@@ -220,22 +220,6 @@ class AlleleSectionBox {
         }
     }
 
-    markAsClass1() {
-        browser.click('.id-mark-class1')
-    }
-
-    markAsClass2() {
-        browser.click('.id-mark-class2')
-    }
-
-    unmarkClass1() {
-        browser.click('.id-marked-class1')
-    }
-
-    unmarkClass2() {
-        browser.click('.id-marked-class2')
-    }
-
     getNumberOfAttachments() {
         let elements = browser.elements('.attachment-wrapper attachment')
         return elements.value.length

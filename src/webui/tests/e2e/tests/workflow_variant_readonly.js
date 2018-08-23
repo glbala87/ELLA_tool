@@ -29,7 +29,7 @@ describe('Read-only version of variant workflow ', function() {
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
 
-        alleleSectionBox.markAsClass1()
+        alleleSectionBox.classifyAs1()
 
         analysisPage.saveButton.click()
     })
@@ -57,7 +57,7 @@ describe('Read-only version of variant workflow ', function() {
         variantSelectionPage.expandOwnSection()
         variantSelectionPage.selectOwn(1)
 
-        alleleSectionBox.markAsClass2()
+        alleleSectionBox.classifyAs2()
         analysisPage.finishButton.click()
         analysisPage.markReviewButton.click()
         analysisPage.modalFinishButton.click()

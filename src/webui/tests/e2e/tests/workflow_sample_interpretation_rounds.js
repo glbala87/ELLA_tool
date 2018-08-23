@@ -46,7 +46,7 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfUnclassified; i++) {
             alleleSidebar.selectFirstUnclassified()
             let selected_allele = alleleSidebar.getSelectedAllele()
-            alleleSectionBox.markAsClass1()
+            alleleSectionBox.classifyAs1()
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         }
 

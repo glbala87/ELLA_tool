@@ -84,14 +84,14 @@ describe('Sample workflow', function() {
         alleleSidebar.selectFirstUnclassified()
         alleleSidebar.selectUnclassifiedAllele('c.1233dupA')
         let selected_allele = alleleSidebar.getSelectedAllele()
-        alleleSectionBox.markAsClass1()
+        alleleSectionBox.classifyAs1()
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         expected_analysis_1_round_1[selected_allele] = { classification: '1' }
 
         // alleleSidebar.selectFirstUnclassified();
         alleleSidebar.selectUnclassifiedAllele('c.925dupT')
         selected_allele = alleleSidebar.getSelectedAllele()
-        alleleSectionBox.markAsClass2()
+        alleleSectionBox.classifyAs2()
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         expected_analysis_1_round_1[selected_allele] = { classification: '2' }
 
