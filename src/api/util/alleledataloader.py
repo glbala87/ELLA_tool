@@ -105,8 +105,8 @@ class AlleleDataLoader(object):
         for al in alleles:
 
             # Worse consequence
-            worst_consequence = al['annotation']['worst_consequence']
-            filtered_transcripts = al['annotation']['filtered_transcripts']
+            worst_consequence = al.get('annotation', {}).get('worst_consequence', [])
+            filtered_transcripts = al.get('annotation', {}).get('filtered_transcripts', [])
             if not set(worst_consequence) & set(filtered_transcripts):
                 consequences = dict()
                 for w in worst_consequence:
@@ -597,7 +597,7 @@ class AlleleDataLoader(object):
         )
         allele_ids_warnings = self.get_warnings(final_alleles)
 
-        for allele_id in allele_ids_tags:
+        for allele_id in allele_ids:
             final_allele = next(f for f in final_alleles if f['id'] == allele_id)
             final_allele['tags'] = sorted(list(allele_ids_tags.get(allele_id, [])))
 

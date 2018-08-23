@@ -8,6 +8,8 @@ class SampleSchema(Schema):
         fields = ('id',
                   'identifier',
                   'sample_type',
+                  'deposit_date',
+                  'affected',
                   'proband',
                   'sex',
                   'family_id'

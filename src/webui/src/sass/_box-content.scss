@@ -92,6 +92,13 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 }
 
 .analysis-info {
+  .samples-container {
+    display: flex;
+    flex-wrap: wrap;
+    .samples {
+      max-width: 30rem;
+    }
+  }
   h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; padding-top: 1.5rem; padding-bottom: 0.4rem;}
   .report { margin: 0.5rem; padding: 1rem; }
   .warning { background-color: $red; margin: 0.5rem; padding: 1rem; color: $white;

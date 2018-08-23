@@ -55,16 +55,6 @@ app.component('analysisList', {
                                 return last_interpretation.review_comment
                             }
                         }
-                    },
-                    getEndAction: (interpretation) => {
-                        let end_action = `${interpretation.workflow_status} ${
-                            interpretation.finalized ? ' (Finalized) ' : ' '
-                        }`
-                        if (interpretation.user) {
-                            return end_action + ' • '
-                        } else {
-                            return end_action
-                        }
                     }
                 })
             }
