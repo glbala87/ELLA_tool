@@ -13,44 +13,40 @@
         Analysis info
       </maintitle>
       <contentwrapper>
-        <div class="cb-table">
-          <div class="tabular-row">
-            <div class="cell"><h5>Imported:</h5></div>
-            <div class="cell"><p>{{$ctrl.analysis.deposit_date | date:"yyyy-MM-dd HH:mm"}}</p></div>
-          </div>
-        </div>
+        <h5>Imported:</h5>
+        <p>{{$ctrl.analysis.deposit_date | date:"yyyy-MM-dd HH:mm"}}</p>
         <h4 class="section-header">Rounds</h4>
         <div ng-repeat="interpretation in $ctrl.analysis.interpretations track by interpretation.id">
           <interpretation-round-info index="{{$index+1}}" interpretation="interpretation"></interpretation-round-info>
         </div>
         <h4 class="section-header">Samples</h4>
         <div class="samples-container">
-          <contentbox class="samples" title="{{sample.identifier}}" ng-repeat="sample in $ctrl.analysis.samples">
+          <contentbox class="samples" title="{{s.type.toUpperCase()}}" ng-repeat="s in $ctrl.samples">
             <cbbody>
               <div class="cb-table">
                 <div class="tabular-row">
+                  <div class="cell"><h5>Sample name:</h5></div>
+                  <div class="cell"><p>{{s.sample.identifier}}</p></div>
+                </div>
+                <div class="tabular-row">
                   <div class="cell"><h5>Imported:</h5></div>
-                  <div class="cell"><p>{{sample.deposit_date | date:'yyyy-MM-dd HH:mm'}}</p></div>
+                  <div class="cell"><p>{{s.sample.deposit_date | date:'yyyy-MM-dd HH:mm'}}</p></div>
                 </div>
-                <div class="tabular-row">
-                  <div class="cell"><h5>Proband:</h5></div>
-                  <div class="cell"><p>{{sample.proband ? 'Yes': 'No'}}</p></div>
-                </div>
-                <div class="tabular-row">
+                <div class="tabular-row" ng-if="s.type == 'sibling'">
                   <div class="cell"><h5>Affected:</h5></div>
-                  <div class="cell"><p>{{sample.affected ? 'Yes' : 'No'}}</p></div>
+                  <div class="cell"><p>{{s.sample.affected ? 'Yes' : 'No'}}</p></div>
                 </div>
                 <div class="tabular-row">
                   <div class="cell"><h5>Family:</h5></div>
-                  <div class="cell"><p>{{sample.family_id || 'Not available'}}</p></div>
+                  <div class="cell"><p>{{s.sample.family_id || 'Not available'}}</p></div>
                 </div>
                 <div class="tabular-row">
                   <div class="cell"><h5>Sex:</h5></div>
-                  <div class="cell"><p>{{sample.sex || 'Not available'}}</p></div>
+                  <div class="cell"><p>{{s.sample.sex || 'Not available'}}</p></div>
                 </div>
                 <div class="tabular-row">
                   <div class="cell"><h5>Technology:</h5></div>
-                  <div class="cell"><p>{{sample.sample_type || 'Not available'}}</p></div>
+                  <div class="cell"><p>{{s.sample.sample_type || 'Not available'}}</p></div>
                 </div>
               </div>
 
