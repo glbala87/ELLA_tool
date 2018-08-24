@@ -633,7 +633,8 @@ class SegregationFilter(object):
             mother_sample = self.get_mother_sample(proband_sample)
             affected_sibling_samples = self.get_siblings_samples(proband_sample, affected=True)
             unaffected_sibling_samples = self.get_siblings_samples(proband_sample, affected=False)
-
+            affected_sibling_sample_names = [s.identifier for s in affected_sibling_samples]
+            unaffected_sibling_sample_names = [s.identifier for s in unaffected_sibling_samples]
             family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
             genotype_query = self.get_genotype_query(allele_ids, family_sample_ids)
@@ -657,8 +658,8 @@ class SegregationFilter(object):
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,
-                affected_sibling_samples=affected_sibling_samples,
-                unaffected_sibling_samples=unaffected_sibling_samples,
+                affected_sibling_samples=affected_sibling_sample_names,
+                unaffected_sibling_samples=unaffected_sibling_sample_names,
             ) - no_coverage_results
 
             result[analysis_id]['autosomal_recessive_homozygous'] = self.autosomal_recessive_homozygous(
@@ -666,8 +667,8 @@ class SegregationFilter(object):
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,
-                affected_sibling_samples=affected_sibling_samples,
-                unaffected_sibling_samples=unaffected_sibling_samples
+                affected_sibling_samples=affected_sibling_sample_names,
+                unaffected_sibling_samples=unaffected_sibling_sample_names
             ) - no_coverage_results
 
             result[analysis_id]['xlinked_recessive_homozygous'] = self.xlinked_recessive_homozygous(
@@ -675,14 +676,14 @@ class SegregationFilter(object):
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,
-                affected_sibling_samples=affected_sibling_samples,
-                unaffected_sibling_samples=unaffected_sibling_samples
+                affected_sibling_samples=affected_sibling_sample_names,
+                unaffected_sibling_samples=unaffected_sibling_sample_names
             ) - no_coverage_results
 
             result[analysis_id]['homozygous_unaffected_siblings'] = self.homozygous_unaffected_siblings(
                 genotype_query,
                 proband_sample.identifier,
-                unaffected_sibling_samples
+                unaffected_sibling_sample_names
             )
 
         return result

@@ -54,8 +54,12 @@ const displaySamples = Compute(state`${props`allelePath`}`, (allele) => {
             }
             if (sample.siblings) {
                 for (const sibling of sample.siblings) {
+                    const affectedText = sibling.affected ? 'Affected' : 'Unaffected'
                     displaySamples.push(
-                        extractGenotypeDataSample(`Sibling (${siblings.sex})`, sibling)
+                        extractGenotypeDataSample(
+                            `Sibling (${affectedText}, ${sibling.sex})`,
+                            sibling
+                        )
                     )
                 }
             }
