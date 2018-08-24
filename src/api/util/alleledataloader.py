@@ -118,13 +118,13 @@ class AlleleDataLoader(object):
 
         return allele_id_warnings
 
-    def get_formatted_genotypes(self, allele_ids, sample_id, is_proband=False):
+    def get_formatted_genotypes(self, allele_ids, sample_id):
         """
         Returns a dict of genotype id and formatted genotypes.
 
         Examples: 'A/G', 'A/ATT' (ins), 'AAT/-' (del), 'A/?' (missing allele info)
 
-        This is redicoulously more complicated that one would first imagine...
+        This is ridiculously more complicated that one would first imagine...
 
         :note: Since we do not store alleles for non-proband samples on multiallelic
                sites (unless they match the proband's), they're given as '?'
@@ -171,7 +171,10 @@ class AlleleDataLoader(object):
             allele.Allele,
             allele.Allele.id == genotype.Genotype.secondallele_id
         ).filter(
-            genotype.Genotype.secondallele_id.in_(allele_ids)
+            or_(
+                genotype.Genotype.allele_id.in_(allele_ids),
+                genotype.Genotype.secondallele_id.in_(allele_ids)
+            )
         )
         secondallele_query = secondallele_query.subquery()
 
@@ -194,7 +197,7 @@ class AlleleDataLoader(object):
 
         genotype_id_formatted = dict()
         for g in genotype_candidates:
-            gt1 = gt2 = '-'
+            gt1 = gt2 = None
 
             if g.type == 'No coverage':
                 gt1 = gt2 = '.'
@@ -211,54 +214,57 @@ class AlleleDataLoader(object):
                 genotype_id_formatted[g.id] = '/'.join([gt1, gt2])
                 continue
 
-            if not g.second_type:
+            # Many of these cases concern when the sample is not the proband,
+            # and we're lacking some data.
+            # If proband has secondallele, it must be heterozygous on both,
+            # anything else doesn't make sense.
+            # Note: multiallelic is True if there was a '.' in the genotype in vcf
+
+            # If not multiallelic we can take the type at face value
+            if not g.multiallelic:
                 if g.type == 'Heterozygous':
-                    if g.multiallelic:
-                        # If we're multiallelic, but have no secondallele, there's no data for one allele
-                        # This will happen for multiallelic variants in non-proband
-                        # samples, where the non-proband sample has a variant not present in proband.
+                    gt1 = g.change_from or '-'
+                    gt2 = g.change_to or '-'
+                elif g.type == 'Reference':
+                    gt1 = gt2 = g.change_from or '-'
+
+            elif (g.second_multiallelic is not None and not g.second_multiallelic):
+                if g.second_type == 'Heterozygous':
+                    gt1 = g.second_change_from or '-'
+                    gt2 = g.second_change_to or '-'
+                elif g.second_type == 'Reference':
+                    gt1 = gt2 = g.second_change_from or '-'
+
+            # If one or two are multiallelic, things gets a bit murkier
+            else:
+                if not g.second_type:
+                    if g.type == 'Heterozygous':
+                        # Multiallelic, but no secondallele -> no data for one allele
                         gt1 = g.change_to or '-'
                         gt2 = '?'
-                    else:
-                        gt1 = g.change_from or '-'
-                        gt2 = g.change_to or '-'
-                elif g.type == 'Reference':
-                    if g.multiallelic:
+                    elif g.type == 'Reference':
                         # We cannot know whether we have one or no reference, so both are unknown.
                         # This should very rarely happen
                         gt1 = gt2 = '?'
-                    else:
-                        gt1 = gt2 = g.change_from or '-'
-
-            else:
-                if g.second_type == 'Heterozygous':
-                    if g.second_multiallelic:
+                else:
+                    # Most of these are non-proband cases
+                    if g.second_type == 'Heterozygous':
                         # Check whether we have the other allele stored in db
                         if g.type == 'Heterozygous':
                             gt1 = g.change_to or '-'
                             gt2 = g.second_change_to or '-'
-                        else:
+                        elif g.type == 'Reference':
                             gt1 = g.second_change_to or '-'
                             gt2 = '?'
-                    else:
-                        gt1 = g.change_to or '-'
-                        gt2 = g.second_change_to or '-'
-                elif g.second_type == 'Reference':
-                    if g.second_multiallelic:
+                    elif g.second_type == 'Reference':
                         if g.type == 'Heterozygous':
                             gt1 = g.change_to or '-'
                             gt2 = '?'
-                        else:
-                            gt1 = g.change_from or '-'
-                            gt2 = g.second_change_from or '-'
-                    else:
-                        if g.type == 'Heterozygous':
-                            gt1 = g.second_change_from or '-'
-                            gt2 = g.change_to or '-'
-                        else:
-                            gt1 = g.change_from or '-'
-                            gt2 = g.second_change_from or '-'
+                        elif g.type == 'Reference':
+                            gt1 = '?'
+                            gt2 = '?'
 
+            assert gt1 is not None and gt2 is not None
             genotype_id_formatted[g.id] = '/'.join([gt1, gt2])
 
         return genotype_id_formatted
