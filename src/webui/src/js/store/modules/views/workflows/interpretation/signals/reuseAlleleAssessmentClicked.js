@@ -5,19 +5,26 @@ import toast from '../../../../../common/factories/toast'
 import toggleReuseAlleleAssessment from '../actions/toggleReuseAlleleAssessment'
 import copyExistingAlleleAssessments from '../../actions/copyExistingAlleleAssessments'
 import autoReuseExistingReferenceAssessments from '../actions/autoReuseExistingReferenceAssessments'
+import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
 
 export default [
-    isAlleleAssessmentOutdated,
+    canUpdateAlleleAssessment,
     {
-        true: [toast('error', 'Cannot toggle reuse of outdated classification')],
-        false: [
-            toggleReuseAlleleAssessment,
-            copyExistingAlleleAssessments,
-            set(
-                state`views.workflows.interpretation.selected.state.allele.${props`alleleId`}.referenceassessments`,
-                []
-            ),
-            autoReuseExistingReferenceAssessments
-        ]
+        true: [
+            isAlleleAssessmentOutdated,
+            {
+                true: [toast('error', 'Cannot toggle reuse of outdated classification')],
+                false: [
+                    toggleReuseAlleleAssessment,
+                    copyExistingAlleleAssessments,
+                    set(
+                        state`views.workflows.interpretation.selected.state.allele.${props`alleleId`}.referenceassessments`,
+                        []
+                    ),
+                    autoReuseExistingReferenceAssessments
+                ]
+            }
+        ],
+        false: []
     }
 ]
