@@ -1,7 +1,7 @@
 import mock from 'xhr-mock'
 import Devtools from 'cerebral/devtools'
 import { CerebralTest } from 'cerebral/test'
-import RootModule from '../../'
+import RootModule from '../..'
 import { Module } from 'cerebral'
 import prepareInterpretationState from './sequences/prepareInterpretationState'
 import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAssessmentClicked'
@@ -33,7 +33,7 @@ describe('Handling of allele state', () => {
         mock.setup()
         cerebral = CerebralTest(RootModule(false), {
             devtools: Devtools({
-                host: '193.157.216.94:9595'
+                host: '172.17.0.1:9595'
             })
         })
         cerebral.controller.addModule(
@@ -52,7 +52,7 @@ describe('Handling of allele state', () => {
 
     afterEach(() => mock.teardown())
 
-    it('handles assessments/reports: no existing, new, new outdated and new with old', () => {
+    it('handles assessments/reports: no existing, new, new outdated and new with old', async () => {
         cerebral.setState('app.config', {
             classification: {
                 options: [
@@ -64,6 +64,9 @@ describe('Handling of allele state', () => {
                 ]
             },
             user: { user_config: {} }
+        })
+        cerebral.setState('app.user', {
+            id: 1
         })
         // AlleleAssessments
         // allele 1: no existing - Should be initialized for editing
@@ -178,8 +181,12 @@ describe('Handling of allele state', () => {
                 references: [{ id: 1 }, { id: 2 }, { id: 3 }]
             },
             interpretation: {
+                isOngoing: true,
                 selected: {
                     id: 1,
+                    user: {
+                        id: 1
+                    },
                     status: 'Ongoing',
                     allele_ids: [1, 2, 3, 4],
                     state: {
@@ -243,275 +250,255 @@ describe('Handling of allele state', () => {
             }
         })
 
-        return (
-            cerebral
-                .runSignal('test.prepareInterpretationState', {})
-                .then(({ state }) => {
-                    const interpretationState = state.views.workflows.interpretation.selected.state
-                    // Allele 1:
-                    const alleleState1 = interpretationState.allele['1']
+        let result = await cerebral.runSignal('test.prepareInterpretationState', {})
+        let state = result.state
 
-                    // AlleleAssessment: Initalized for editing
-                    expect(alleleState1.alleleassessment.reuse).toBeUndefined()
-                    expect(alleleState1.alleleassessment.evaluation).toEqual(
-                        jasmine.objectContaining(EMPTY_EVALUATION)
-                    )
-                    // ReferenceAssessment
-                    expect(alleleState1.referenceassessments).toEqual(
-                        jasmine.arrayContaining([
-                            {
-                                reference_id: 1,
-                                allele_id: 1,
-                                reuse: true,
-                                id: 1,
-                                reuseCheckedId: 1
-                            },
-                            {
-                                reference_id: 2,
-                                allele_id: 1,
-                                reuse: true,
-                                id: 2,
-                                reuseCheckedId: 2
-                            },
-                            {
-                                reference_id: 3,
-                                allele_id: 1,
-                                reuse: true,
-                                id: 3,
-                                reuseCheckedId: 3
-                            }
-                        ])
-                    )
-                    // AlleleReport
-                    expect(alleleState1.allelereport).toEqual({ evaluation: { comment: '' } })
+        let interpretationState = state.views.workflows.interpretation.selected.state
+        // Allele 1:
+        let alleleState1 = interpretationState.allele['1']
 
-                    // Allele 2
-                    const alleleState2 = interpretationState.allele['2']
-
-                    // AlleleAssessment: Should be reused
-                    expect(alleleState2.alleleassessment).toEqual({
-                        allele_id: 2,
-                        reuse: true,
-                        reuseCheckedId: 2
-                    })
-                    // ReferenceAssessment: Should be reused
-                    expect(alleleState2.referenceassessments).toEqual([
-                        {
-                            reference_id: 1,
-                            allele_id: 2,
-                            reuse: true,
-                            id: 4,
-                            reuseCheckedId: 4
-                        }
-                    ])
-
-                    // AlleleReport: New, should be copied
-                    expect(alleleState2.allelereport).toEqual({
-                        copiedFromId: 2,
-                        evaluation: { case: 'NEW' }
-                    })
-
-                    // Allele 3
-                    const alleleState3 = interpretationState.allele['3']
-
-                    // AlleleAssessment: Should not be reused, existing copied in
-                    expect(alleleState3.alleleassessment.reuse).toBe(false)
-                    expect(alleleState3.alleleassessment.reuseCheckedId).toBe(3)
-                    expect(alleleState3.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
-                    expect(alleleState3.alleleassessment.evaluation).toEqual(
-                        jasmine.objectContaining(EMPTY_EVALUATION)
-                    )
-                    expect(alleleState3.alleleassessment.classification).toBe('3')
-
-                    // ReferenceAssessment:
-                    expect(alleleState3.referenceassessments).toEqual([])
-
-                    // AlleleReport: Same id, should be kept
-                    expect(alleleState3.allelereport).toEqual({
-                        evaluation: { key: 'SHOULD BE KEPT' },
-                        copiedFromId: 3
-                    })
-
-                    // Allele 4
-                    const alleleState4 = interpretationState.allele['4']
-
-                    // AlleleAssessment: Should be reused, existing content cleaned out
-                    expect(alleleState4.alleleassessment).toEqual({
-                        allele_id: 4,
-                        reuse: true,
-                        reuseCheckedId: 4
-                    })
-
-                    // ReferenceAssessment
-                    expect(alleleState4.referenceassessments).toEqual([])
-
-                    // AlleleReport: New, already copied before
-                    expect(alleleState4.allelereport).toEqual({
-                        evaluation: { case: 'NEW WITH OLD' },
-                        copiedFromId: 4
-                    })
-                })
-                // Reevaluate then reuse again
-                .then(() => {
-                    return cerebral
-                        .runSignal('test.reuseAlleleAssessmentClicked', { alleleId: 2 })
-                        .then(({ state }) => {
-                            const interpretationState =
-                                state.views.workflows.interpretation.selected.state
-                            // Allele 2 should now be not reused, existing assessment copied in
-                            const alleleState2 = interpretationState.allele['2']
-                            expect(alleleState2.alleleassessment.reuse).toBe(false)
-                            expect(alleleState2.alleleassessment.evaluation.case).toBe('NEW')
-                            expect(alleleState2.alleleassessment.classification).toBe('3')
-                        })
-                })
-                .then(() => {
-                    return cerebral
-                        .runSignal('test.reuseAlleleAssessmentClicked', { alleleId: 2 })
-                        .then(({ state }) => {
-                            const interpretationState =
-                                state.views.workflows.interpretation.selected.state
-                            // Allele 2 should now be reused
-                            const alleleState2 = interpretationState.allele['2']
-                            expect(alleleState2.alleleassessment).toEqual({
-                                allele_id: 2,
-                                reuse: true,
-                                reuseCheckedId: 2
-                            })
-                        })
-                })
-                .then(() => {
-                    const evaluation = { key: 'USER CONTENT' }
-                    return cerebral
-                        .runSignal('test.setReferenceAssessment', {
-                            alleleId: 1,
-                            referenceId: 3,
-                            evaluation
-                        })
-                        .then(({ state }) => {
-                            const alleleState =
-                                state.views.workflows.interpretation.selected.state.allele['1']
-                            expect(alleleState.referenceassessments).toEqual(
-                                jasmine.arrayContaining([
-                                    {
-                                        reference_id: 3,
-                                        allele_id: 1,
-                                        reuse: false,
-                                        reuseCheckedId: 3,
-                                        evaluation
-                                    }
-                                ])
-                            )
-                        })
-                })
-                .then(() => {
-                    // We now want to finalize and check the data sent to API.
-
-                    // We need to classify all variants first
-                    cerebral.setState(
-                        'views.workflows.interpretation.selected.state.allele.1.alleleassessment.classification',
-                        '1'
-                    )
-
-                    // Modify one AlleleReport to simluate user change
-                    cerebral.setState(
-                        'views.workflows.interpretation.selected.state.allele.2.allelereport.evaluation.case',
-                        'CHANGED'
-                    )
-
-                    mock.patch('/api/v1/workflows/alleles/1/interpretations/1/', (req, res) => {
-                        return res.status(200)
-                    })
-
-                    mock.post('/api/v1/workflows/alleles/1/actions/finalize/', (req, res) => {
-                        const body = JSON.parse(req.body())
-                        expect(body.alleleassessments.length).toBe(4)
-                        for (const alleleAssessment of body.alleleassessments) {
-                            if (alleleAssessment.allele_id === 1) {
-                                expect(alleleAssessment.classification).toBe('1')
-                                expect(alleleAssessment.reuse).toBe(false)
-                            }
-                            if (alleleAssessment.allele_id === 2) {
-                                expect(alleleAssessment.classification).toBeUndefined()
-                                expect(alleleAssessment.evaluation).toBeUndefined()
-                                expect(alleleAssessment.reuse).toBe(true)
-                            }
-                            if (alleleAssessment.allele_id === 3) {
-                                expect(alleleAssessment.classification).toBe('3')
-                                expect(alleleAssessment.evaluation.case).toBe('NEW OUTDATED')
-                                expect(alleleAssessment.reuse).toBe(false)
-                            }
-                            if (alleleAssessment.allele_id === 4) {
-                                expect(alleleAssessment.classification).toBeUndefined()
-                                expect(alleleAssessment.evaluation).toBeUndefined()
-                                expect(alleleAssessment.reuse).toBe(true)
-                            }
-                        }
-
-                        expect(body.referenceassessments).toEqual(
-                            jasmine.arrayContaining([
-                                {
-                                    reference_id: 1,
-                                    allele_id: 1,
-                                    id: 1
-                                },
-                                {
-                                    reference_id: 2,
-                                    allele_id: 1,
-                                    id: 2
-                                },
-                                {
-                                    reference_id: 3,
-                                    allele_id: 1,
-                                    evaluation: { key: 'USER CONTENT' }
-                                }
-                            ])
-                        )
-
-                        expect(body.allelereports.length).toBe(4)
-                        expect(body.allelereports).toEqual(
-                            jasmine.arrayContaining([
-                                {
-                                    allele_id: 1,
-                                    reuse: false,
-                                    evaluation: { comment: '' }
-                                },
-                                {
-                                    allele_id: 2,
-                                    presented_allelereport_id: 2,
-                                    reuse: false,
-                                    alleleassessment_id: 2,
-                                    evaluation: { case: 'CHANGED' }
-                                },
-                                {
-                                    allele_id: 3,
-                                    presented_allelereport_id: 3,
-                                    reuse: false, // State differs from existing
-                                    alleleassessment_id: 3,
-                                    evaluation: { key: 'SHOULD BE KEPT' }
-                                },
-                                {
-                                    allele_id: 4,
-                                    presented_allelereport_id: 4,
-                                    reuse: true,
-                                    alleleassessment_id: 4
-                                }
-                            ])
-                        )
-
-                        return res.status(200)
-                    })
-
-                    // Everything is checked in API mock
-                    return cerebral.runSignal('test.finishConfirmationClicked', {
-                        workflowStatus: 'Finalized'
-                    })
-                })
-                .catch((err) => {
-                    console.error(err.message, err.stack)
-                    expect(1).toBe(0)
-                })
+        // AlleleAssessment: Initalized for editing
+        expect(alleleState1.alleleassessment.reuse).toBeUndefined()
+        expect(alleleState1.alleleassessment.evaluation).toEqual(
+            jasmine.objectContaining(EMPTY_EVALUATION)
         )
+        // ReferenceAssessment
+        expect(alleleState1.referenceassessments).toEqual(
+            jasmine.arrayContaining([
+                {
+                    reference_id: 1,
+                    allele_id: 1,
+                    reuse: true,
+                    id: 1,
+                    reuseCheckedId: 1
+                },
+                {
+                    reference_id: 2,
+                    allele_id: 1,
+                    reuse: true,
+                    id: 2,
+                    reuseCheckedId: 2
+                },
+                {
+                    reference_id: 3,
+                    allele_id: 1,
+                    reuse: true,
+                    id: 3,
+                    reuseCheckedId: 3
+                }
+            ])
+        )
+        // AlleleReport
+        expect(alleleState1.allelereport).toEqual({ evaluation: { comment: '' } })
+
+        // Allele 2
+        let alleleState2 = interpretationState.allele['2']
+
+        // AlleleAssessment: Should be reused
+        expect(alleleState2.alleleassessment).toEqual({
+            allele_id: 2,
+            reuse: true,
+            reuseCheckedId: 2
+        })
+        // ReferenceAssessment: Should be reused
+        expect(alleleState2.referenceassessments).toEqual([
+            {
+                reference_id: 1,
+                allele_id: 2,
+                reuse: true,
+                id: 4,
+                reuseCheckedId: 4
+            }
+        ])
+
+        // AlleleReport: New, should be copied
+        expect(alleleState2.allelereport).toEqual({
+            copiedFromId: 2,
+            evaluation: { case: 'NEW' }
+        })
+
+        // Allele 3
+        const alleleState3 = interpretationState.allele['3']
+
+        // AlleleAssessment: Should not be reused, existing copied in
+        expect(alleleState3.alleleassessment.reuse).toBe(false)
+        expect(alleleState3.alleleassessment.reuseCheckedId).toBe(3)
+        expect(alleleState3.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
+        expect(alleleState3.alleleassessment.evaluation).toEqual(
+            jasmine.objectContaining(EMPTY_EVALUATION)
+        )
+        expect(alleleState3.alleleassessment.classification).toBe('3')
+
+        // ReferenceAssessment:
+        expect(alleleState3.referenceassessments).toEqual([])
+
+        // AlleleReport: Same id, should be kept
+        expect(alleleState3.allelereport).toEqual({
+            evaluation: { key: 'SHOULD BE KEPT' },
+            copiedFromId: 3
+        })
+
+        // Allele 4
+        const alleleState4 = interpretationState.allele['4']
+
+        // AlleleAssessment: Should be reused, existing content cleaned out
+        expect(alleleState4.alleleassessment).toEqual({
+            allele_id: 4,
+            reuse: true,
+            reuseCheckedId: 4
+        })
+
+        // ReferenceAssessment
+        expect(alleleState4.referenceassessments).toEqual([])
+
+        // AlleleReport: New, already copied before
+        expect(alleleState4.allelereport).toEqual({
+            evaluation: { case: 'NEW WITH OLD' },
+            copiedFromId: 4
+        })
+
+        // Reevaluate then reuse again
+        result = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', {
+            alleleId: 2
+        })
+        state = result.state
+        interpretationState = state.views.workflows.interpretation.selected.state
+        // Allele 2 should now be not reused, existing assessment copied in
+        alleleState2 = interpretationState.allele['2']
+        expect(alleleState2.alleleassessment.reuse).toBe(false)
+        expect(alleleState2.alleleassessment.evaluation.case).toBe('NEW')
+        expect(alleleState2.alleleassessment.classification).toBe('3')
+
+        result = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', { alleleId: 2 })
+        state = result.state
+        interpretationState = state.views.workflows.interpretation.selected.state
+        // Allele 2 should now be reused
+        alleleState2 = interpretationState.allele['2']
+        expect(alleleState2.alleleassessment).toEqual({
+            allele_id: 2,
+            reuse: true,
+            reuseCheckedId: 2
+        })
+
+        const evaluation = { key: 'USER CONTENT' }
+        result = await cerebral.runSignal('test.setReferenceAssessment', {
+            alleleId: 1,
+            referenceId: 3,
+            evaluation
+        })
+        state = result.state
+        const alleleState = state.views.workflows.interpretation.selected.state.allele['1']
+        expect(alleleState.referenceassessments).toEqual(
+            jasmine.arrayContaining([
+                {
+                    reference_id: 3,
+                    allele_id: 1,
+                    reuse: false,
+                    reuseCheckedId: 3,
+                    evaluation
+                }
+            ])
+        )
+        // We now want to finalize and check the data sent to API.
+
+        // We need to classify all variants first
+        cerebral.setState(
+            'views.workflows.interpretation.selected.state.allele.1.alleleassessment.classification',
+            '1'
+        )
+
+        // Modify one AlleleReport to simluate user change
+        cerebral.setState(
+            'views.workflows.interpretation.selected.state.allele.2.allelereport.evaluation.case',
+            'CHANGED'
+        )
+
+        mock.patch('/api/v1/workflows/alleles/1/interpretations/1/', (req, res) => {
+            return res.status(200)
+        })
+
+        mock.post('/api/v1/workflows/alleles/1/actions/finalize/', (req, res) => {
+            const body = JSON.parse(req.body())
+            expect(body.alleleassessments.length).toBe(4)
+            for (const alleleAssessment of body.alleleassessments) {
+                if (alleleAssessment.allele_id === 1) {
+                    expect(alleleAssessment.classification).toBe('1')
+                    expect(alleleAssessment.reuse).toBe(false)
+                }
+                if (alleleAssessment.allele_id === 2) {
+                    expect(alleleAssessment.classification).toBeUndefined()
+                    expect(alleleAssessment.evaluation).toBeUndefined()
+                    expect(alleleAssessment.reuse).toBe(true)
+                }
+                if (alleleAssessment.allele_id === 3) {
+                    expect(alleleAssessment.classification).toBe('3')
+                    expect(alleleAssessment.evaluation.case).toBe('NEW OUTDATED')
+                    expect(alleleAssessment.reuse).toBe(false)
+                }
+                if (alleleAssessment.allele_id === 4) {
+                    expect(alleleAssessment.classification).toBeUndefined()
+                    expect(alleleAssessment.evaluation).toBeUndefined()
+                    expect(alleleAssessment.reuse).toBe(true)
+                }
+            }
+
+            expect(body.referenceassessments).toEqual(
+                jasmine.arrayContaining([
+                    {
+                        reference_id: 1,
+                        allele_id: 1,
+                        id: 1
+                    },
+                    {
+                        reference_id: 2,
+                        allele_id: 1,
+                        id: 2
+                    },
+                    {
+                        reference_id: 3,
+                        allele_id: 1,
+                        evaluation: { key: 'USER CONTENT' }
+                    }
+                ])
+            )
+
+            expect(body.allelereports.length).toBe(4)
+            expect(body.allelereports).toEqual(
+                jasmine.arrayContaining([
+                    {
+                        allele_id: 1,
+                        reuse: false,
+                        evaluation: { comment: '' }
+                    },
+                    {
+                        allele_id: 2,
+                        presented_allelereport_id: 2,
+                        reuse: false,
+                        alleleassessment_id: 2,
+                        evaluation: { case: 'CHANGED' }
+                    },
+                    {
+                        allele_id: 3,
+                        presented_allelereport_id: 3,
+                        reuse: false, // State differs from existing
+                        alleleassessment_id: 3,
+                        evaluation: { key: 'SHOULD BE KEPT' }
+                    },
+                    {
+                        allele_id: 4,
+                        presented_allelereport_id: 4,
+                        reuse: true,
+                        alleleassessment_id: 4
+                    }
+                ])
+            )
+            return res.status(200)
+        })
+
+        // Everything is checked in API mock
+        await cerebral.runSignal('test.finishConfirmationClicked', {
+            workflowStatus: 'Finalized'
+        })
     })
 
     it('migrates old state correctly', () => {

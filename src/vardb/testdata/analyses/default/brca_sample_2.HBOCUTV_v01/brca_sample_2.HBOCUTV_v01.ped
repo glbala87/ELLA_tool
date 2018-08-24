@@ -1,0 +1,5 @@
+TestFam	Test02_proband	Test02_father	Test02_mother	1	2	1
+TestFam	Test02_father	0	0	1	1	0
+TestFam	Test02_mother	0	0	2	1	0
+TestFam	Test02_sibling1	Test02_father	Test02_mother	1	1	0
+TestFam	Test02_sibling2	Test02_father	Test02_mother	2	2	0

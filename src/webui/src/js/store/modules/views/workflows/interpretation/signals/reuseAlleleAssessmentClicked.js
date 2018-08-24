@@ -5,12 +5,12 @@ import toast from '../../../../../common/factories/toast'
 import toggleReuseAlleleAssessment from '../actions/toggleReuseAlleleAssessment'
 import copyExistingAlleleAssessments from '../../actions/copyExistingAlleleAssessments'
 import autoReuseExistingReferenceAssessments from '../actions/autoReuseExistingReferenceAssessments'
-import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
+import isReadOnly from '../operators/isReadOnly'
 
 export default [
-    canUpdateAlleleAssessment,
+    isReadOnly,
     {
-        true: [
+        false: [
             isAlleleAssessmentOutdated,
             {
                 true: [toast('error', 'Cannot toggle reuse of outdated classification')],
@@ -25,6 +25,6 @@ export default [
                 ]
             }
         ],
-        false: []
+        true: []
     }
 ]
