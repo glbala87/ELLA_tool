@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './alleleSidebar.ngtmpl.html'
+import isExpanded from '../store/modules/views/workflows/alleleSidebar/computed/isExpanded'
 
 const showQuickClassificationBtn = Compute(
     state`views.workflows.selectedComponent`,
@@ -16,7 +17,7 @@ app.component('alleleSidebar', {
     controller: connect(
         {
             showQuickClassificationBtn,
-            expanded: state`views.workflows.alleleSidebar.expanded`,
+            expanded: isExpanded,
             toggleExpanded: signal`views.workflows.alleleSidebar.toggleExpanded`
         },
         'AlleleSidebar'

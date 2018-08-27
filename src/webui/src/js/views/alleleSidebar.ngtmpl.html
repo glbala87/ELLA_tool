@@ -1,4 +1,4 @@
-<div class="sidebar">
+<div class="sidebar" ng-class="{'expanded': $ctrl.expanded}">
   <button ng-if="$ctrl.showQuickClassificationBtn" ng-click="$ctrl.toggleExpanded()" class="blue quick-classification-button">{{$ctrl.expanded ? 'Full classification' : 'Quick classification'}}</button>
   <allele-sidebar-list class="id-unclassified" section="'unclassified'" section-title="Unclassified variants" expanded="$ctrl.expanded" allow-quick-classification="true"></allele-sidebar-list>
   <allele-sidebar-list class="id-classified" section="'classified'" section-title="Classified variants" expanded="$ctrl.expanded"></allele-sidebar-list>
