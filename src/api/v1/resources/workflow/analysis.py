@@ -761,8 +761,11 @@ class AnalysisCollisionResource(LogRequestResource):
     def get(self, session, analysis_id, user=None):
 
         allele_ids = request.args.get('allele_ids')
-        if not allele_ids:
+        if allele_ids is None:
             raise ApiError("Missing required arg allele_ids")
+
+        if not allele_ids:
+            return []
 
         allele_ids = [int(i) for i in allele_ids.split(',')]
 
