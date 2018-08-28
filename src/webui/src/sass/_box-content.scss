@@ -1,7 +1,7 @@
 .top-align { vertical-align: top; }
 .table, .cb-table { display: table; }
 .tabular-row { display: table-row; }
-.cell { display: table-cell; }
+.cell { display: table-cell; white-space: nowrap; }
 
 .star { width: 1rem; height: 1rem; stroke-width: 3%; stroke: $black-75; }
 .star.filled { fill: $black-75; }
