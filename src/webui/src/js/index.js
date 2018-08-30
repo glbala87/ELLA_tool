@@ -92,6 +92,8 @@ import './widgets/wysiwygjsEditor.directive'
 import './widgets/referenceAssessment.directive'
 import './widgets/analysisInfo.directive'
 import './widgets/workflowbar.directive'
+import './widgets/interpretationLog.directive'
+import './widgets/interpretationLogItem.directive'
 
 import Devtools from 'cerebral/devtools'
 import RootModule from './store/modules'

@@ -45,6 +45,14 @@
           ng-model-watch="$ctrl.selectedInterpretation">
       </select>
     </div>
+    <button ng-if="$ctrl.workflowType == 'analysis'" class="id-worklog" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
+          popover-class="interpretationlog-popover"
+          popover-append-to-body="true"
+          popover-title="Work log"
+          popover-trigger="outsideClick"
+          popover-placement="right"
+      >Work log
+      </button>
     <workflow-buttons readOnly="$ctrl.readOnly" start-when-reopen="false"></workflow-buttons>
   </section>
 </nav>
@@ -66,7 +74,7 @@
 
       <section>
         <button class="id-copy-alamut" ng-click="$ctrl.copySelectedAlamutClicked()">Copy variant to alamut</button>
-        <button class="id-add-acmg" uib-popover-template="$ctrl.popover.templateUrl"
+        <button class="id-add-acmg" uib-popover-template="$ctrl.acmgPopover.templateUrl"
                 popover-class="acmg-popover"
                 popover-append-to-body="true"
                 popover-title="Add ACMG code"
@@ -95,6 +103,14 @@
                 >
             </select>
           </div>
+        <button ng-if="$ctrl.workflowType == 'allele'" class="id-worklog" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
+          popover-class="interpretationlog-popover"
+          popover-append-to-body="true"
+          popover-title="Work log"
+          popover-trigger="outsideClick"
+          popover-placement="right"
+        >Work log
+        </button>
         <workflow-buttons ng-if="$ctrl.workflowType == 'allele'" start-when-reopen="true" readOnly="$ctrl.readOnly"></workflow-buttons>
 
       </section>

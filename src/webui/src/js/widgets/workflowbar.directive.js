@@ -7,6 +7,7 @@ import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import { getAcmgCandidates } from '../store/common/helpers/acmg'
 import template from './workflowbar.ngtmpl.html'
 import acmgSelectiontemplate from './acmgSelectionPopover.ngtmpl.html'
+import interpretationLogPopover from './interpretationLogPopover.ngtmpl.html'
 
 let acmgCandidates = Compute(state`app.config`, (config) => {
     return getAcmgCandidates(config)
@@ -82,7 +83,7 @@ app.component('workflowbar', {
                     //
                     // Add ACMG popover
                     //
-                    popover: {
+                    acmgPopover: {
                         templateUrl: 'acmgSelectionPopover.ngtmpl.html',
                         categories: ['Pathogenic', 'Benign'],
                         selectedCategory: 'Pathogenic',
@@ -114,6 +115,9 @@ app.component('workflowbar', {
                             }
                             $ctrl.stagedAcmgCode = null
                         }
+                    },
+                    interpretationLogPopover: {
+                        templateUrl: 'interpretationLogPopover.ngtmpl.html'
                     }
                 })
             }

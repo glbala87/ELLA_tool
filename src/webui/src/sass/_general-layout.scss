@@ -362,9 +362,6 @@ workflow-buttons { margin-left: 1.4rem;}
       &.active { background-color: $white; color: $black-75; }
     }
   }
-  .review-comment {
-    input { width: 25rem; }
-  }
 }
 
 .collision-warning { margin: 1.5rem; margin-bottom: 0; padding: 1.5rem; padding-left: 2rem; padding-right: 2rem; background-color: $red-95;  max-height: 10rem; overflow-y: auto; overflow-x: hidden;
@@ -871,6 +868,55 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   width: 28vh;
 }
 
+.interpretation-log {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-family: $full;
+  font-size: 1.4rem;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  height: 88vh;
+  .review-comment {
+    padding-top: 1rem;
+    input { width: 30rem; }
+  }
+  .controls {
+    display: flex;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    button {
+      margin-right: 1rem;
+    }
+  }
+  .messages {
+    flex-grow: 1;
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: $blue-05;
+    overflow-y: scroll;
+    overflow-x: auto;
+    .message-item {
+      margin: 0.25rem 1rem 0.25rem 1rem;
+      padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+      .name { font-family: $full; color: $blue-75; font-weight: 600; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem; }
+      .time { font-size: 1.2rem; color: $black-75; }
+      .message {
+        padding-top: 0.5rem;
+        .wysiwygeditor { border: 0; }
+        .wysiwygplaceholder { border: 0; }
+      }
+      .event { @extend .slim; text-transform: uppercase; color: $red-75; }
+      .event-time { color: $black-75; }
+    }
+  }
+  .compose {
+    padding-top: 1rem;
+    button {
+      margin-top: 1rem;
+    }
+  }
+}
 
 
 .new-fade {

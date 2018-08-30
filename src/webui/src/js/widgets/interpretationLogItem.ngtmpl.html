@@ -1,0 +1,19 @@
+<div class="message-item" ng-class="{'has-message': $ctrl.log.message}">
+    <div class="heading">
+        <span class="name">{{$ctrl.formatUser()}}</span> <span class="time" title="{{$ctrl.log.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.log.date_created | date:'HH:mm'}}</span>
+    </div>
+    <div class="message" ng-if="$ctrl.log.message">
+        <wysiwyg-editor class="control-comment"
+        ng-disabled="true"
+        ng-model="$ctrl.log.message"></wysiwyg-editor>
+    </div>
+    <div ng-if="$ctrl.log.warning_cleared === true">
+        <span class="event">Warning cleared</span>
+    </div>
+    <div ng-if="$ctrl.log.warning_cleared === false">
+        <span class="event">Warning reinstated</span>
+    </div>
+    <div ng-if="$ctrl.log.priority">
+        <span class="event" ng-if="$ctrl.log.priority">Priority set to {{$ctrl.formatPriority()}}</span>
+    </div>
+</div>

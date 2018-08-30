@@ -1,0 +1,32 @@
+<div class="interpretation-log">
+    <div class="review-comment">
+    <input type="text"
+            class="id-review-comment"
+            placeholder="REVIEW COMMENT"
+            ng-model="$ctrl.modelReviewComment"
+            ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
+            ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
+            ng-disabled="$ctrl.readOnly">
+    </div>
+    <div class="controls">
+        <button class="blue" ng-click="$ctrl.clearWarningClicked({warningCleared: !$ctrl.warningCleared})">{{$ctrl.getClearWarningText()}}</button>
+        <div class="dropdown blue">
+            <select
+                ng-options="i[0] as i[1] for i in $ctrl.priorityOptions"
+                ng-model="$ctrl.modelSelectedPriority"
+                ng-model-watch="$ctrl.priority"
+                ng-change="$ctrl.priorityChanged({priority: $ctrl.modelSelectedPriority})">
+        </select>
+        </div>
+    </div>
+    <div class="messages">
+        <interpretation-log-item ng-repeat="logId in $ctrl.interpretationLogIds track by logId" log-id="logId"></interpretation-log-item>
+    </div>
+    <div class="compose">
+        <wysiwyg-editor class="control-comment"
+            ng-model="$ctrl.message"
+            placeholder="New message"
+            ng-change="$ctrl.messageChanged({message: $ctrl.message})"></wysiwyg-editor>
+        <button class="blue" ng-click="$ctrl.addMessageClicked({message: $ctrl.message})">Add message</button>
+    </div>
+</div>
