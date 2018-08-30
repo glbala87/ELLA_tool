@@ -590,3 +590,66 @@ class AlleleCollisionResource(LogRequestResource):
         allele_ids = [int(i) for i in allele_ids.split(',')]
 
         return helpers.get_workflow_allele_collisions(session, [allele_id], allele_id=allele_id)
+
+
+class AlleleInterpretationLogListResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, allele_id, data=None, user=None):
+        """
+        Get all interpreation log entries for an allele workflow.
+
+        ---
+        summary: Get interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        logs = helpers.get_interpretationlog(session, allele_id=allele_id)
+
+        return logs, 200
+
+    @authenticate()
+    @request_json(
+        [],
+        allowed=[
+            'warning_cleared',
+            'priority',
+            'message'
+        ]
+    )
+    def post(self, session, allele_id, data=None, user=None):
+        """
+        Create a new interpretation log entry for an allele workflow.
+
+        ---
+        summary: Create interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        print allele_id
+        helpers.create_interpretationlog(session, user.id, data, allele_id=allele_id)
+        session.commit()
+
+        return None, 200

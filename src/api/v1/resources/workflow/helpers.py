@@ -696,3 +696,58 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             })
 
     return collisions
+
+
+def get_interpretationlog(session, allele_id=None, analysis_id=None):
+
+    assert (allele_id or analysis_id) and not (allele_id and analysis_id)
+
+    if allele_id:
+        workflow_id = allele_id
+    if analysis_id:
+        workflow_id = analysis_id
+
+    assert workflow_id
+
+    logs = session.query(workflow.InterpretationLog).join(
+        _get_interpretation_model(allele_id, analysis_id)
+    ).filter(
+        _get_interpretation_model_field(allele_id, analysis_id) == workflow_id
+    )
+
+    loaded_logs = schemas.InterpretationLogSchema().dump(logs, many=True).data
+    return loaded_logs
+
+
+def create_interpretationlog(session, user_id, data, allele_id=None, analysis_id=None):
+
+    assert (allele_id or analysis_id) and not (allele_id and analysis_id)
+    if allele_id:
+        assert data.get('warning_cleared') is None
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    if not latest_interpretation:
+        # Shouldn't be possible for an analysis
+        assert not analysis_id
+        assert allele_id
+
+        latest_interpretation = workflow.AlleleInterpretation(
+            allele_id=allele_id,
+            workflow_status='Interpretation',
+            status='Not started'
+        )
+        session.add(latest_interpretation)
+        session.flush()
+
+    if analysis_id:
+        data['analysisinterpretation_id'] = latest_interpretation.id
+    if allele_id:
+        data['alleleinterpretation_id'] = latest_interpretation.id
+
+    data['user_id'] = user_id
+
+    il = workflow.InterpretationLog(**data)
+
+    session.add(il)
+    return il

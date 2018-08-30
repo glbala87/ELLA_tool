@@ -74,16 +74,22 @@ def load_genepanel_alleles(session, gp_allele_ids):
         {k: v for k, v in allele_ids_analysis_deposit_date})
 
     # Preload highest priority analysis for each allele
+    analyses_priority = queries.workflow_analyses_priority(session).subquery()
+
     allele_ids_priority = session.query(
         allele.Allele.id,
-        func.max(sample.Analysis.priority)
+        func.max(func.coalesce(analyses_priority.c.priority, 1))
     ).join(
         genotype.Genotype.alleles,
         sample.Sample,
-        sample.Analysis
+        sample.Analysis,
+    ).outerjoin(
+        analyses_priority,
+        analyses_priority.c.analysis_id == sample.Analysis.id
     ).filter(
         allele.Allele.id.in_(all_allele_ids)
     ).group_by(allele.Allele.id).all()
+
     allele_ids_priority = {k: v for k, v in allele_ids_priority}
 
     # Preload interpretations for each allele
@@ -540,6 +546,22 @@ def get_categorized_analyses(session, user=None):
             sample.Analysis.id.in_(subquery),
         ).all()
         final_analyses[key] = aschema.dump(analyses, many=True).data
+
+        # Load in priority, warning_cleared and review_comment
+        analysis_ids = [a.id for a in analyses]
+        priorities = queries.workflow_analyses_priority(session, analysis_ids)
+        review_comments = queries.workflow_analyses_review_comment(session, analysis_ids)
+        warnings_cleared = queries.workflow_analyses_warning_cleared(session, analysis_ids)
+
+        for analysis in final_analyses[key]:
+            priority = next((p.priority for p in priorities if p.analysis_id == analysis['id']), 1)
+            analysis['priority'] = priority
+            review_comment = next((rc.review_comment for rc in review_comments if rc.analysis_id == analysis['id']), None)
+            if review_comment:
+                analysis['review_comment'] = review_comment
+            warning_cleared = next((wc.warning_cleared for wc in warnings_cleared if wc.analysis_id == analysis['id']), None)
+            if warning_cleared:
+                analysis['warning_cleared'] = warning_cleared
 
     return final_analyses
 

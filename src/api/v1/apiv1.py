@@ -222,6 +222,9 @@ class ApiV1(object):
         self._add_resource(r.workflow.allele.AlleleCollisionResource,
                            '/api/v1/workflows/alleles/<int:allele_id>/collisions/')
 
+        self._add_resource(r.workflow.allele.AlleleInterpretationLogListResource,
+                           '/api/v1/workflows/alleles/<int:allele_id>/logs/')
+
         # ---------------------------------------------------------------------------------------------------------
         # Workflow analysis
         # ---------------------------------------------------------------------------------------------------------
@@ -268,6 +271,9 @@ class ApiV1(object):
 
         self._add_resource(r.workflow.analysis.AnalysisCollisionResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/collisions/')
+
+        self._add_resource(r.workflow.analysis.AnalysisInterpretationLogListResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/logs/')
 
         # ---------------------------------------------------------------------------------------------------------
         # Security

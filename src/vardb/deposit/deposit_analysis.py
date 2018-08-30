@@ -56,7 +56,6 @@ class DepositAnalysis(DepositFromVCF):
         if not append:
             db_analysis = self.analysis_importer.process(
                 analysis_config_data.analysis_name,
-                analysis_config_data.priority,
                 db_genepanel,
                 analysis_config_data.report,
                 analysis_config_data.warnings
@@ -70,7 +69,11 @@ class DepositAnalysis(DepositFromVCF):
                 raise RuntimeError("Appending to a family analysis is not supported.")
 
         log.info("Importing {}".format(db_analysis.name))
-        db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis, reopen_if_exists=append)
+        db_analysis_interpretation = self.analysis_interpretation_importer.process(
+            db_analysis,
+            analysis_config_data.priority,
+            reopen_if_exists=append
+        )
         db_samples = self.sample_importer.process(
             vcf_sample_names,
             db_analysis,

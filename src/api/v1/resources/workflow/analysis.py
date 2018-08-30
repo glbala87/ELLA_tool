@@ -789,3 +789,65 @@ class AnalysisInterpretationFinishAllowedResource(LogRequestResource):
             raise ConflictError("Can not finish interpretation. Additional data have been added to this analysis. Please refresh.")
         else:
             return None, 200
+
+
+class AnalysisInterpretationLogListResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, analysis_id, data=None, user=None):
+        """
+        Get all interpreation log entries for an analysis workflow.
+
+        ---
+        summary: Get interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        logs = helpers.get_interpretationlog(session, analysis_id=analysis_id)
+
+        return logs, 200
+
+    @authenticate()
+    @request_json(
+        [],
+        allowed=[
+            'warning_cleared',
+            'priority',
+            'message'
+        ]
+    )
+    def post(self, session, analysis_id, data=None, user=None):
+        """
+        Create a new interpretation log entry for an analysis workflow.
+
+        ---
+        summary: Create interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.create_interpretationlog(session, user.id, data, analysis_id=analysis_id)
+        session.commit()
+
+        return None, 200
