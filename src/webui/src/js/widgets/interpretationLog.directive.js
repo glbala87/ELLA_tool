@@ -3,9 +3,10 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import getInterpretationLogIds from '../store/modules/views/workflows/worklog/computed/getInterpretationLogIds'
 import getWarningCleared from '../store/modules/views/workflows/worklog/computed/getWarningCleared'
 import getPriority from '../store/modules/views/workflows/worklog/computed/getPriority'
+import getReviewComment from '../store/modules/views/workflows/worklog/computed/getReviewComment'
+import canClearWarning from '../store/modules/views/workflows/worklog/computed/canClearWarning'
 import template from './interpretationLog.ngtmpl.html'
 
 const getPriorityOptions = Compute(state`app.config`, (config) => {
@@ -20,15 +21,18 @@ app.component('interpretationLog', {
     controller: connect(
         {
             config: state`app.config`,
-            interpretationLogIds: getInterpretationLogIds,
             warningCleared: getWarningCleared,
+            reviewComment: getReviewComment,
+            canClearWarning,
             priority: getPriority,
             priorityOptions: getPriorityOptions,
+            messageIds: state`views.workflows.worklog.messageIds`,
             message: state`views.workflows.worklog.message`,
             clearWarningClicked: signal`views.workflows.worklog.clearWarningClicked`,
             priorityChanged: signal`views.workflows.worklog.priorityChanged`,
             addMessageClicked: signal`views.workflows.worklog.addMessageClicked`,
-            messageChanged: signal`views.workflows.worklog.messageChanged`
+            messageChanged: signal`views.workflows.worklog.messageChanged`,
+            updateReviewCommentClicked: signal`views.workflows.worklog.updateReviewCommentClicked`
         },
         'InterpretationLog',
         [
@@ -41,6 +45,9 @@ app.component('interpretationLog', {
                             return 'Reinstate warning'
                         }
                         return 'Clear warning'
+                    },
+                    reviewCommentEdited() {
+                        return $ctrl.modelReviewComment !== $ctrl.reviewComment
                     }
                 })
             }

@@ -7,12 +7,12 @@ import template from './interpretationLogItem.ngtmpl.html'
 app.component('interpretationLogItem', {
     templateUrl: 'interpretationLogItem.ngtmpl.html',
     bindings: {
-        logId: '<'
+        messageId: '<'
     },
     controller: connect(
         {
             config: state`app.config`,
-            log: state`views.workflows.data.interpretationlogs.${props`logId`}`
+            message: state`views.workflows.worklog.messages.${props`messageId`}`
         },
         'InterpretationLogItem',
         [
@@ -21,16 +21,22 @@ app.component('interpretationLogItem', {
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
                     formatPriority() {
-                        if (!$ctrl.log.priority) {
+                        if (!$ctrl.message.priority) {
                             return 'N/A'
                         }
-                        return $ctrl.config.analysis.priority.display[$ctrl.log.priority]
+                        return $ctrl.config.analysis.priority.display[$ctrl.message.priority]
                     },
                     formatUser() {
-                        if (!$ctrl.log.user) {
+                        if (!$ctrl.message.user) {
                             return 'System'
                         }
-                        return $ctrl.log.user.full_name
+                        return $ctrl.message.user.full_name
+                    },
+                    fromToday() {
+                        return (
+                            new Date($ctrl.message.date_created).toDateString() ===
+                            new Date().toDateString()
+                        )
                     }
                 })
             }

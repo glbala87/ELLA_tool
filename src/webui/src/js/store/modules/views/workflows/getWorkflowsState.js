@@ -13,7 +13,8 @@ export default function getWorkflowsState() {
             references: null,
             attachments: null,
             collisions: null,
-            interpretations: null
+            interpretations: null,
+            interpretationlogs: null
         },
         historyInterpretations: null, // Holds data for choosing what interpretation to view
         id: null, // analysis id or allele id

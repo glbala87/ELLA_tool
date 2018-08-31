@@ -1,31 +1,37 @@
 <div class="interpretation-log">
+    <h4 class="section-title">Overview options</h4>
     <div class="review-comment">
-    <input type="text"
-            class="id-review-comment"
-            placeholder="REVIEW COMMENT"
-            ng-model="$ctrl.modelReviewComment"
-            ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
-            ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
-            ng-disabled="$ctrl.readOnly">
-    </div>
+        <input type="text"
+                class="id-review-comment"
+                placeholder="OVERVIEW COMMENT"
+                ng-model="$ctrl.modelReviewComment"
+                ng-model-watch="$ctrl.reviewComment"
+                ng-disabled="$ctrl.readOnly">
+                <button ng-if="$ctrl.reviewCommentEdited()" class="blue" ng-click="$ctrl.updateReviewCommentClicked({reviewComment: $ctrl.modelReviewComment})">UPDATE</button>
+        </div>
     <div class="controls">
-        <button class="blue" ng-click="$ctrl.clearWarningClicked({warningCleared: !$ctrl.warningCleared})">{{$ctrl.getClearWarningText()}}</button>
-        <div class="dropdown blue">
+        <button ng-if="$ctrl.canClearWarning" class="blue" ng-click="$ctrl.clearWarningClicked({warningCleared: !$ctrl.warningCleared})">{{$ctrl.getClearWarningText()}}</button>
+        <h4 class="slim title">Priority:</h4>
+        <div class="dropdown">
             <select
                 ng-options="i[0] as i[1] for i in $ctrl.priorityOptions"
                 ng-model="$ctrl.modelSelectedPriority"
                 ng-model-watch="$ctrl.priority"
                 ng-change="$ctrl.priorityChanged({priority: $ctrl.modelSelectedPriority})">
-        </select>
+            </select>
         </div>
     </div>
+    <h4 class="section-title">Messages</h4>
     <div class="messages">
-        <interpretation-log-item ng-repeat="logId in $ctrl.interpretationLogIds track by logId" log-id="logId"></interpretation-log-item>
+        <div ng-repeat="messageId in $ctrl.messageIds track by messageId">
+            <interpretation-log-item  message-id="messageId"></interpretation-log-item>
+            <div ng-if="$last" scroll-into-view></div>
+        </div>
     </div>
     <div class="compose">
         <wysiwyg-editor class="control-comment"
             ng-model="$ctrl.message"
-            placeholder="New message"
+            placeholder="NEW MESSAGE"
             ng-change="$ctrl.messageChanged({message: $ctrl.message})"></wysiwyg-editor>
         <button class="blue" ng-click="$ctrl.addMessageClicked({message: $ctrl.message})">Add message</button>
     </div>

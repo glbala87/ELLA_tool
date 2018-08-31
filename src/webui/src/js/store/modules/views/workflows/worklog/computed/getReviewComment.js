@@ -6,12 +6,13 @@ export default Compute(state`views.workflows.data.interpretationlogs`, (logs) =>
     if (!logs) {
         return null
     }
-    const sortedPriorities = Object.values(logs)
+    const sortedReviewComment = Object.values(logs)
         .sort(thenBy('date_created', -1))
-        .filter((l) => l.priority !== null)
-        .map((l) => l.priority)
-    if (sortedPriorities.length) {
-        return sortedPriorities[0]
+        .filter((l) => l.review_comment !== null)
+        .map((l) => l.review_comment)
+
+    if (sortedReviewComment.length) {
+        return sortedReviewComment[0]
     }
     return null
 })

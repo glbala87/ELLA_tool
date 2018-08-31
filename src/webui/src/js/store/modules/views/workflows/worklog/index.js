@@ -3,6 +3,7 @@ import messageChanged from './signals/messageChanged'
 import addMessageClicked from './signals/addMessageClicked'
 import clearWarningClicked from './signals/clearWarningClicked'
 import priorityChanged from './signals/priorityChanged'
+import updateReviewCommentClicked from './signals/updateReviewCommentClicked'
 
 export default Module({
     state: {
@@ -12,6 +13,7 @@ export default Module({
         messageChanged,
         addMessageClicked,
         clearWarningClicked,
-        priorityChanged
+        priorityChanged,
+        updateReviewCommentClicked
     }
 })

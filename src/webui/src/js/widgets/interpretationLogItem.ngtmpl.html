@@ -1,19 +1,31 @@
-<div class="message-item" ng-class="{'has-message': $ctrl.log.message}">
-    <div class="heading">
-        <span class="name">{{$ctrl.formatUser()}}</span> <span class="time" title="{{$ctrl.log.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.log.date_created | date:'HH:mm'}}</span>
+<div class="message-item" ng-class="{'has-message': $ctrl.message.message}">
+    <div class="heading" ng-if="$ctrl.message.id.startsWith('log')">
+        <span class="name">{{$ctrl.formatUser()}}</span>
+        <span ng-if="$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'HH:mm'}}</span>
+        <span ng-if="!$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}</span>
     </div>
-    <div class="message" ng-if="$ctrl.log.message">
+    <div class="message" ng-if="$ctrl.message.message">
         <wysiwyg-editor class="control-comment"
         ng-disabled="true"
-        ng-model="$ctrl.log.message"></wysiwyg-editor>
+        ng-model="$ctrl.message.message"></wysiwyg-editor>
     </div>
-    <div ng-if="$ctrl.log.warning_cleared === true">
+    <div ng-if="$ctrl.message.warning_cleared === true">
         <span class="event">Warning cleared</span>
     </div>
-    <div ng-if="$ctrl.log.warning_cleared === false">
+    <div ng-if="$ctrl.message.warning_cleared === false">
         <span class="event">Warning reinstated</span>
     </div>
-    <div ng-if="$ctrl.log.priority">
-        <span class="event" ng-if="$ctrl.log.priority">Priority set to {{$ctrl.formatPriority()}}</span>
+    <div ng-if="$ctrl.message.priority">
+        <span class="event">Priority set to {{$ctrl.formatPriority()}}</span>
+    </div>
+    <div ng-if="$ctrl.message.review_comment != null && $ctrl.message.review_comment != ''">
+        <span class="event">Overview comment changed to: </span>
+        <p>{{$ctrl.message.review_comment}}</p>
+    </div>
+    <div ng-if="$ctrl.message.review_comment == ''">
+        <span class="event">Overview comment cleared</span>
+    </div>
+    <div ng-if="$ctrl.message.finalized">
+        <hr class="hr-text" data-content="FINALISED ({{$ctrl.message.date_last_update | date:'yyyy-MM-dd HH:mm'}})">
     </div>
 </div>

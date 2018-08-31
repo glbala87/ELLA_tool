@@ -10,7 +10,6 @@ export default function postInterpretationLog({ state, props, http, path }) {
     const postType = TYPES[type]
     const id = state.get('views.workflows.id')
 
-    console.log(interpretationLog)
     return http
         .post(`workflows/${postType}/${id}/logs/`, interpretationLog)
         .then((response) => {

@@ -1,4 +1,3 @@
-
 <nav class="secondary" ng-if="$ctrl.workflowType === 'analysis'">
   <div class="workflow-options">
     <div class="bttn-set">
@@ -12,15 +11,7 @@
                ng-repeat="c in $ctrl.componentKeys"
         >{{c}}</label>
     </div>
-    <div class="review-comment">
-      <input type="text"
-             class="id-review-comment"
-             placeholder="REVIEW COMMENT"
-             ng-model="$ctrl.modelReviewComment"
-             ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
-             ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
-             ng-disabled="$ctrl.readOnly">
-    </div>
+
   </div>
   <section>
     <button class="id-add-excluded" ng-click="$ctrl.addExcludedAllelesClicked({
@@ -51,7 +42,7 @@
           popover-title="Work log"
           popover-trigger="outsideClick"
           popover-placement="right"
-      >Work log
+      >Work log ({{$ctrl.messageCount}})
       </button>
     <workflow-buttons readOnly="$ctrl.readOnly" start-when-reopen="false"></workflow-buttons>
   </section>
@@ -59,17 +50,6 @@
 <nav class="bottom" ng-class="{'has-secondary': $ctrl.workflowType == 'analysis'}" ng-if="$ctrl.selectedAlleleId">
   <allelebar allele-path="'views.workflows.data.alleles.' + $ctrl.selectedAlleleId" genepanel-path="'views.workflows.data.genepanel'"></allelebar>
   <section>
-    <div class="workflow-options" ng-if="$ctrl.workflowType == 'allele'">
-      <div class="review-comment">
-        <input type="text"
-             class="id-review-comment"
-             placeholder="REVIEW COMMENT"
-             ng-model="$ctrl.modelReviewComment"
-             ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
-             ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
-             ng-disabled="$ctrl.readOnly">
-      </div>
-    </div>
     <section class="line-wrapper">
 
       <section>
@@ -109,7 +89,7 @@
           popover-title="Work log"
           popover-trigger="outsideClick"
           popover-placement="right"
-        >Work log
+        >Work log ({{$ctrl.messageCount}})
         </button>
         <workflow-buttons ng-if="$ctrl.workflowType == 'allele'" start-when-reopen="true" readOnly="$ctrl.readOnly"></workflow-buttons>
 
@@ -118,3 +98,4 @@
   </section>
 </nav>
 
+<div ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>
