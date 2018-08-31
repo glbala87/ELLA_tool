@@ -8,6 +8,7 @@ import getPriority from '../store/modules/views/workflows/worklog/computed/getPr
 import getReviewComment from '../store/modules/views/workflows/worklog/computed/getReviewComment'
 import canClearWarning from '../store/modules/views/workflows/worklog/computed/canClearWarning'
 import template from './interpretationLog.ngtmpl.html'
+import canCreateInterpretationLog from '../store/modules/views/workflows/worklog/computed/canCreateInterpretationLog'
 
 const getPriorityOptions = Compute(state`app.config`, (config) => {
     const options = Object.entries(config.analysis.priority.display)
@@ -23,6 +24,7 @@ app.component('interpretationLog', {
             config: state`app.config`,
             warningCleared: getWarningCleared,
             reviewComment: getReviewComment,
+            canCreateInterpretationLog,
             canClearWarning,
             priority: getPriority,
             priorityOptions: getPriorityOptions,

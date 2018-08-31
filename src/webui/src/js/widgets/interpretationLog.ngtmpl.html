@@ -1,4 +1,13 @@
-<div class="interpretation-log">
+<div ng-if="!$ctrl.canCreateInterpretationLog" style="padding: 2rem;">
+    <h4 class="sb-notification">
+        There are no interpretations for this variant in the system.
+    </h4>
+    <div class="spacer2"></div>
+    <h4 class="sb-notification">
+        You need to start an interpretation first for the work log to become available.
+    </h4>
+</div>
+<div class="interpretation-log" ng-if="$ctrl.canCreateInterpretationLog">
     <h4 class="section-title">Overview options</h4>
     <div class="review-comment">
         <input type="text"

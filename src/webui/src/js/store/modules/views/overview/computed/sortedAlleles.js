@@ -21,6 +21,8 @@ export default function sortedAlleles(alleles) {
                         }
                         return -a.allele.start_position
                     })
+                    // It happens that alleles have same position, but different variations
+                    .thenBy((a) => a.allele.annotation.filtered[0].HGVSc || 0)
             )
             return alleles
         }

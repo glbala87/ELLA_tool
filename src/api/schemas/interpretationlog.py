@@ -8,8 +8,6 @@ class InterpretationLogSchema(Schema):
         fields = ('id',
                   'date_created',
                   'message',
-                  'resolved',
-                  'message',
                   'warning_cleared',
                   'review_comment',
                   'user',

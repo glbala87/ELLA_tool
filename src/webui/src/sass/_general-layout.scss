@@ -891,7 +891,7 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   }
   .controls {
     display: flex;
-    padding-top: 2rem;
+    padding-top: 3rem;
     padding-bottom: 2rem;
     margin-bottom: 1rem;
     font-size: 1.4rem;
@@ -926,11 +926,12 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
         }
         margin-left: -15px;
         padding: 0.5rem;
-        padding-left: 5px;
+        padding-left: 6px;
         .wysiwygeditor { border: 0; }
         .wysiwygplaceholder { border: 0; }
       }
       .event { @extend .slim; text-transform: uppercase; color: $red-75; }
+      .event-text { @extend .slim; text-transform: uppercase; color: $black-75; }
       .event-time { color: $black-75; }
       .hr-text {
         line-height: 1em;

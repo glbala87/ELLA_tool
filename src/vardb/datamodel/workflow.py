@@ -191,7 +191,6 @@ class InterpretationLog(Base):
     user_id = Column(Integer, ForeignKey("user.id"))  # Can be null if created by system
     user = relationship('User')
     date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
-    resolved = Column(Boolean)
     message = Column(String)
     priority = Column(Integer)
     review_comment = Column(String)

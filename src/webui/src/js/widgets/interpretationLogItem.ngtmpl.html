@@ -19,8 +19,8 @@
         <span class="event">Priority set to {{$ctrl.formatPriority()}}</span>
     </div>
     <div ng-if="$ctrl.message.review_comment != null && $ctrl.message.review_comment != ''">
-        <span class="event">Overview comment changed to: </span>
-        <p>{{$ctrl.message.review_comment}}</p>
+        <span class="event">Overview comment changed to: </span><span class="event-text">{{$ctrl.message.review_comment}}</span>
+
     </div>
     <div ng-if="$ctrl.message.review_comment == ''">
         <span class="event">Overview comment cleared</span>
