@@ -11,6 +11,7 @@ class InterpretationLogSchema(Schema):
                   'resolved',
                   'message',
                   'warning_cleared',
+                  'review_comment',
                   'user',
                   'priority')
 

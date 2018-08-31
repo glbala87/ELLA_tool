@@ -625,7 +625,8 @@ class AlleleInterpretationLogListResource(LogRequestResource):
         allowed=[
             'warning_cleared',
             'priority',
-            'message'
+            'message',
+            'review_comment'
         ]
     )
     def post(self, session, allele_id, data=None, user=None):

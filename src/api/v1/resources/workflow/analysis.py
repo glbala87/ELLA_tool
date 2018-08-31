@@ -824,7 +824,8 @@ class AnalysisInterpretationLogListResource(LogRequestResource):
         allowed=[
             'warning_cleared',
             'priority',
-            'message'
+            'message',
+            'review_comment'
         ]
     )
     def post(self, session, analysis_id, data=None, user=None):
