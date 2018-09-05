@@ -595,7 +595,7 @@ class AlleleCollisionResource(LogRequestResource):
 class AlleleInterpretationLogListResource(LogRequestResource):
 
     @authenticate()
-    def get(self, session, allele_id, data=None, user=None):
+    def get(self, session, allele_id, user=None):
         """
         Get all interpreation log entries for an allele workflow.
 
@@ -615,7 +615,7 @@ class AlleleInterpretationLogListResource(LogRequestResource):
           500:
             description: Error
         """
-        logs = helpers.get_interpretationlog(session, allele_id=allele_id)
+        logs = helpers.get_interpretationlog(session, user.id, allele_id=allele_id)
 
         return logs, 200
 
@@ -651,6 +651,79 @@ class AlleleInterpretationLogListResource(LogRequestResource):
         """
         print allele_id
         helpers.create_interpretationlog(session, user.id, data, allele_id=allele_id)
+        session.commit()
+
+        return None, 200
+
+
+class AlleleInterpretationLogResource(LogRequestResource):
+
+    @authenticate()
+    @request_json(
+        ['message']
+    )
+    def patch(self, session, allele_id, log_id, data=None, user=None):
+        """
+        Patch an interpretation log entry.
+
+        ---
+        summary: Patch interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.patch_interpretationlog(
+          session,
+          user.id,
+          log_id,
+          data['message'],
+          allele_id=allele_id
+        )
+        session.commit()
+
+        return None, 200
+
+    @authenticate()
+    def delete(self, session, allele_id, log_id, user=None):
+        """
+        Delete an interpretation log entry.
+
+        ---
+        summary: Create interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+          - name: interpretationlog_id
+            in: path
+            type: integer
+            description: Interpretation log id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.delete_interpretationlog(
+          session,
+          user.id,
+          log_id,
+          allele_id=allele_id
+        )
         session.commit()
 
         return None, 200
