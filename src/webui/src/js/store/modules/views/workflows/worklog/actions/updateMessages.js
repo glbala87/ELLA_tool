@@ -10,6 +10,7 @@ export default function updateMessages({ state }) {
         // to work correctly
         for (const l of Object.values(logs)) {
             let new_l = Object.assign({}, l)
+            new_l.originalId = l.id
             new_l.id = 'log_' + l.id
             new_l.type = 'interpretationlog'
             messages.push(new_l)
@@ -25,6 +26,7 @@ export default function updateMessages({ state }) {
                     date_last_update: i.date_last_update,
                     finalized: i.finalized
                 }
+                new_i.originalId = i.id
                 new_i.id = 'interpretation_' + i.id
                 messages.push(new_i)
             }

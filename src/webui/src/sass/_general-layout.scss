@@ -917,16 +917,44 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
     .message-item {
       margin: 0.25rem 1rem 0.25rem 1rem;
       padding: 0.5rem 1.5rem 0.5rem 1.5rem;
-      .name { font-family: $full; color: $blue-75; font-weight: 600; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem; }
-      .time { font-size: 1.2rem; color: $black-75; }
-      .message {
+      &.editable {
         border-left: 5px solid $black-05;
-        &:hover {
+        .heading {
+          height: 2rem;
+        }
+        &.normal-mode:hover {
           border-left: 5px solid $blue-50;
         }
-        margin-left: -15px;
-        padding: 0.5rem;
-        padding-left: 6px;
+        &.edit-mode {
+          border-left: 5px solid $blue-50;
+        }
+        &.delete-mode {
+          border-left: 5px solid $red-75;
+        }
+        &:hover {
+          .heading {
+            .heading-controls {
+              display: block;
+            }
+          }
+        }
+      }
+      &.normal-mode {
+        .heading-controls {
+          display: none;
+        }
+      }
+      .heading {
+        display: flex;
+        flex-direction: row;
+        .heading-info {
+          flex-grow: 1;
+          .name { font-family: $full; color: $blue-75; font-weight: 600; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem; }
+          .time { font-size: 1.2rem; color: $black-75; }
+        }
+
+      }
+      .message {
         .wysiwygeditor { border: 0; }
         .wysiwygplaceholder { border: 0; }
       }

@@ -1,13 +1,23 @@
-<div class="message-item" ng-class="{'has-message': $ctrl.message.message}">
+<div class="message-item" ng-class="$ctrl.getClasses()">
     <div class="heading" ng-if="$ctrl.message.id.startsWith('log')">
-        <span class="name">{{$ctrl.formatUser()}}</span>
-        <span ng-if="$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'HH:mm'}}</span>
-        <span ng-if="!$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}</span>
+        <div class="heading-info">
+            <span class="name">{{$ctrl.formatUser()}}</span>
+            <span ng-if="$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'HH:mm'}}</span>
+            <span ng-if="!$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}</span>
+        </div>
+        <div class="heading-controls" ng-if="$ctrl.message.editable">
+            <button class="blue" ng-click="$ctrl.deleteClicked(); $event.stopPropagation()" ng-if="$ctrl.mode == 'normal'">Delete</button>
+            <button ng-click="$ctrl.deleteAborted(); $event.stopPropagation()" ng-if="$ctrl.mode == 'delete'">Cancel</button>
+            <button class="red" ng-click="$ctrl.deleteConfirmed(); $event.stopPropagation()" ng-if="$ctrl.mode == 'delete'">Confirm</button>
+            <button class="blue" ng-click="$ctrl.editClicked(); $event.stopPropagation()" ng-if="$ctrl.mode == 'normal'">Edit</button>
+            <button ng-click="$ctrl.editAborted(); $event.stopPropagation()" ng-if="$ctrl.mode == 'edit'">Cancel</button>
+            <button class="blue" ng-click="$ctrl.editConfirmed(); $event.stopPropagation()" ng-if="$ctrl.mode == 'edit'">Confirm</button>
+        </div>
     </div>
     <div class="message" ng-if="$ctrl.message.message">
         <wysiwyg-editor class="control-comment"
-        ng-disabled="true"
-        ng-model="$ctrl.message.message"></wysiwyg-editor>
+        ng-disabled="$ctrl.mode != 'edit'"
+        ng-model="$ctrl.getMessageModel().message"></wysiwyg-editor>
     </div>
     <div ng-if="$ctrl.message.warning_cleared === true">
         <span class="event">Warning cleared</span>
