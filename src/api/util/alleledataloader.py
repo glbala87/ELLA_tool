@@ -372,7 +372,11 @@ class AlleleDataLoader(object):
         for allele_data in alleles:
             allele_id_sample_data = list()
             for proband_sample in proband_samples:
-                gt = next(g for g in genotypes if (g.allele_id == allele_data['id'] or g.secondallele_id == allele_data['id']) and g.sample_id == proband_sample.id)
+                gt = next((g for g in genotypes if (g.allele_id == allele_data['id'] or g.secondallele_id == allele_data['id']) and g.sample_id == proband_sample.id), None)
+                # Not all samples will share all alleles.
+                # If there's not genotype, this sample doesn't have this allele
+                if gt is None:
+                    continue
                 proband_sample_data = load_sample_data(
                     allele_data,
                     proband_sample,
