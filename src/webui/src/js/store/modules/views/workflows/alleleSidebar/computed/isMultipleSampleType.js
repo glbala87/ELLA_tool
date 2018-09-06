@@ -11,6 +11,5 @@ export default Compute(state`views.workflows.data.alleles`, (alleles) => {
             types.add(t)
         }
     }
-
-    return types.length > 1
+    return types.size > 1
 })
