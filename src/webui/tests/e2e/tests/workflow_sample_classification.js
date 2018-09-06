@@ -38,6 +38,8 @@ jasmine.getEnv().addReporter(failFast.init())
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE'
 const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01'
 const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v01'
+const TITLE_INTERPRETATION = ' • INTERPRETATION'
+const TITLE_REVIEW = ' • REVIEW'
 
 // let timeOutForThisSpec = 3 * 60 * 1000;
 // let originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
@@ -64,7 +66,7 @@ describe('Sample workflow', function() {
         browser.localStorage('DELETE') // Needs a proper URL, hence after login
         sampleSelectionPage.selectTopPending()
 
-        expect(analysisPage.title).toBe(SAMPLE_ONE)
+        expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
         analysisPage.startButton.click()
 
         // Add excluded allele
@@ -253,7 +255,7 @@ describe('Sample workflow', function() {
         loginPage.selectSecondUser()
         sampleSelectionPage.expandReviewSection()
         sampleSelectionPage.selectTopReview()
-        expect(analysisPage.title).toBe(SAMPLE_ONE)
+        expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_REVIEW)
         analysisPage.startButton.click()
         checkAlleleClassification(expected_analysis_1_round_1)
         analysisPage.finishButton.click()
@@ -265,7 +267,7 @@ describe('Sample workflow', function() {
         loginPage.selectFirstUser()
         sampleSelectionPage.selectTopPending()
 
-        expect(analysisPage.title).toBe(SAMPLE_TWO)
+        expect(analysisPage.title).toBe(SAMPLE_TWO + TITLE_INTERPRETATION)
 
         analysisPage.startButton.click()
 
