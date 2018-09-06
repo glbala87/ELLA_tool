@@ -14,9 +14,15 @@ app.component('interpretationRoundInfo', {
 
             Object.assign($ctrl, {
                 getEndAction: () => {
-                    let end_action = `${$ctrl.interpretation.workflow_status} ${
-                        $ctrl.interpretation.finalized ? ' (Finalized) ' : ' '
-                    }`
+                    let end_action = $ctrl.interpretation.workflow_status
+                    if ($ctrl.interpretation.finalized) {
+                        end_action += ' (Finalized) '
+                    } else if ($ctrl.interpretation.status === 'Ongoing') {
+                        end_action += ' (Ongoing) '
+                    } else {
+                        end_action += ' '
+                    }
+
                     if ($ctrl.interpretation.user) {
                         return end_action + ' • '
                     } else {

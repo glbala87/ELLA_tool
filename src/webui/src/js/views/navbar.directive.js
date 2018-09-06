@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 
 import template from './navbar.ngtmpl.html'
+import workflowInterpretationRoundsTemplate from '../widgets/allelebar/interpretationRoundsPopover.ngtmpl.html'
 
 app.component('navbar', {
     templateUrl: 'navbar.ngtmpl.html',
@@ -11,7 +12,8 @@ app.component('navbar', {
             config: state`app.config`,
             user: state`app.user`,
             currentView: state`views.current`,
-            title: state`app.navbar.title`
+            title: state`app.navbar.title`,
+            currentView: state`views.current`
         },
         'Navbar'
     )

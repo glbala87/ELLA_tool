@@ -15,10 +15,6 @@
       <contentwrapper>
         <h5>Imported:</h5>
         <p>{{$ctrl.analysis.deposit_date | date:"yyyy-MM-dd HH:mm"}}</p>
-        <h4 class="section-header">Rounds</h4>
-        <div ng-repeat="interpretation in $ctrl.analysis.interpretations track by interpretation.id">
-          <interpretation-round-info index="{{$index+1}}" interpretation="interpretation"></interpretation-round-info>
-        </div>
         <h4 class="section-header">Samples</h4>
         <div class="samples-container">
           <contentbox class="samples" title="{{s.type.toUpperCase()}}" ng-repeat="s in $ctrl.samples">

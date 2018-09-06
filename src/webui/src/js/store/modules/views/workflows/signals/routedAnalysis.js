@@ -10,6 +10,7 @@ import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnloa
 import showExitWarning from '../showExitWarning'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
 import progress from '../../../../common/factories/progress'
+import getWorkflowTitle from '../computed/getWorkflowTitle'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -26,7 +27,6 @@ export default [
             error: [toast('error', 'Failed to load analysis', 30000)],
             success: [
                 set(state`views.workflows.data.analysis`, props`result`),
-                setNavbarTitle(state`views.workflows.data.analysis.name`),
                 prepareComponents,
                 ({ state }) => {
                     const analysis = state.get('views.workflows.data.analysis')
@@ -36,7 +36,8 @@ export default [
                     })
                 },
                 loadGenepanel,
-                loadInterpretations
+                loadInterpretations,
+                setNavbarTitle(getWorkflowTitle)
             ]
         }
     ]),
