@@ -57,12 +57,12 @@ def upgrade():
     sample_sex = sa.Enum('Male', 'Female', name='sample_sex')
     sample_sex.create(conn, checkfirst=True)
 
-    op.add_column(u'sample', sa.Column('affected', sa.Boolean(), nullable=False))
+    op.add_column(u'sample', sa.Column('affected', sa.Boolean(), nullable=True))  # Will be set as not null later
     op.add_column(u'sample', sa.Column('family_id', sa.String(), nullable=True))
     op.add_column(u'sample', sa.Column('father_id', sa.Integer(), nullable=True))
     op.add_column(u'sample', sa.Column('mother_id', sa.Integer(), nullable=True))
     op.add_column(u'sample', sa.Column('sibling_id', sa.Integer(), nullable=True))
-    op.add_column(u'sample', sa.Column('proband', sa.Boolean(), nullable=False))
+    op.add_column(u'sample', sa.Column('proband', sa.Boolean(), nullable=True))  # Will be set as not null later
     op.add_column(u'sample', sa.Column('sex', sample_sex, nullable=True))
     op.create_foreign_key(op.f('fk_sample_father_id_sample'), 'sample', 'sample', ['father_id'], ['id'])
     op.create_foreign_key(op.f('fk_sample_mother_id_sample'), 'sample', 'sample', ['mother_id'], ['id'])
@@ -73,14 +73,17 @@ def upgrade():
     conn.execute('UPDATE sample SET proband = true;')
     conn.execute('UPDATE sample SET affected = true;')
 
+    op.alter_column('sample', 'affected', nullable=False)
+    op.alter_column('sample', 'proband', nullable=False)
+
     # Create genotypesampledata
     op.create_table(
         'genotypesampledata',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('genotype_id', sa.Integer(), nullable=True),
-        sa.Column('secondallele', sa.Boolean(), nullable=True),
-        sa.Column('multiallelic', sa.Boolean(), nullable=True),
-        sa.Column('type', genotypesampledata_type, nullable=True),
+        sa.Column('genotype_id', sa.Integer(), nullable=False),
+        sa.Column('secondallele', sa.Boolean(), nullable=False),
+        sa.Column('multiallelic', sa.Boolean(), nullable=False),
+        sa.Column('type', genotypesampledata_type, nullable=False),
         sa.Column('sample_id', sa.Integer(), nullable=False),
         sa.Column('genotype_quality', sa.SmallInteger(), nullable=True),
         sa.Column('sequencing_depth', sa.SmallInteger(), nullable=True),

@@ -79,11 +79,11 @@ class GenotypeSampleData(Base):
 
     id = Column(Integer, primary_key=True)
     # Family samples will connect to proband's genotype_ids
-    genotype_id = Column(Integer, ForeignKey("genotype.id"))
+    genotype_id = Column(Integer, ForeignKey("genotype.id"), nullable=False)
     genotype = relationship(Genotype, backref='genotypesampledata')
-    secondallele = Column(Boolean)  # Whether this entry applies to the secondallele_id in genotype
-    multiallelic = Column(Boolean)  # Whether the site is multiallelic for _this sample_. I.e the sample has another variant than the proband's one.
-    type = Column(Enum("Homozygous", "Heterozygous", "Reference", "No coverage", name="genotypesampledata_type"))  # The sample's genotype in relation to the proband's variant.
+    secondallele = Column(Boolean, nullable=False)  # Whether this entry applies to the secondallele_id in genotype
+    multiallelic = Column(Boolean, nullable=False)  # Whether the site is multiallelic for _this sample_. I.e the sample has another variant than the proband's one.
+    type = Column(Enum("Homozygous", "Heterozygous", "Reference", "No coverage", name="genotypesampledata_type"), nullable=False)  # The sample's genotype in relation to the proband's variant.
     sample_id = Column(Integer, ForeignKey("sample.id"), index=True, nullable=False)
     genotype_quality = Column(SmallInteger)  # GQ
     sequencing_depth = Column(SmallInteger)  # DP
