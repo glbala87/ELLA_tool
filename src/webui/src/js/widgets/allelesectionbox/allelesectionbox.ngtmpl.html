@@ -2,6 +2,7 @@
   <maintitle>
   {{$ctrl.section.title}}
   </maintitle>
+  <subtitle ng-if="$ctrl.section.subtitle">{{$ctrl.section.subtitle}}</subtitle>
 
   <controls>
 
@@ -103,6 +104,13 @@
                        ng-change="$ctrl.evaluationCommentChanged({alleleId: $ctrl.selectedAllele, name: $ctrl.section.alleleassessmentComment.name, comment: $ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment})"
                        ng-model="$ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment"
                        ng-if="$ctrl.section.alleleassessmentComment"></wysiwyg-editor>
+
+    <wysiwyg-editor class="control-comment id-comment-quality"
+        ng-disabled="$ctrl.readOnly"
+        placeholder="{{$ctrl.section.qualityComment.placeholder}}"
+        ng-change="$ctrl.qualityCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.alleleState.quality.comment})"
+        ng-model="$ctrl.alleleState.quality.comment"
+        ng-if="$ctrl.section.qualityComment"></wysiwyg-editor>
 
     <wysiwyg-editor class="control-comment id-comment-report"
                        ng-disabled="$ctrl.readOnly"

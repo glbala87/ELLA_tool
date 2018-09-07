@@ -1,8 +1,18 @@
-const BASE_SECTION_KEYS = ['classification', 'frequency', 'external', 'prediction', 'references']
+const ALLELE_SECTION_KEYS = ['classification', 'frequency', 'external', 'prediction', 'references']
+const ANALYSIS_SECTION_KEYS = [
+    'classification',
+    'quality',
+    'frequency',
+    'external',
+    'prediction',
+    'references'
+]
 
 const BASE_SECTIONS = {
     classification: {
         title: 'Classification',
+        color: 'purple',
+        alleleAssessmentReusedColor: 'green',
         options: {
             hideControlsOnCollapse: false,
             showIncludedAcmgCodes: true
@@ -17,12 +27,27 @@ const BASE_SECTIONS = {
         },
         content: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }]
     },
-    frequency: {
-        title: 'Frequency & QC',
+    quality: {
+        title: 'Quality',
+        subtitle: 'Analysis only',
+        color: 'purple',
         options: {
             hideControlsOnCollapse: true
         },
-        controls: ['toggle_class2', 'validation'],
+        qualityComment: {
+            placeholder: 'QUALITY-COMMENTS'
+        },
+        controls: ['validation'],
+        content: [{ tag: 'allele-info-quality' }]
+    },
+    frequency: {
+        title: 'Frequency',
+        color: 'purple',
+        alleleAssessmentReusedColor: 'green',
+        options: {
+            hideControlsOnCollapse: true
+        },
+        controls: ['toggle_class2'],
         alleleassessmentComment: {
             placeholder: 'FREQUENCY-COMMENTS',
             name: 'frequency'
@@ -37,6 +62,8 @@ const BASE_SECTIONS = {
     },
     external: {
         title: 'External',
+        color: 'purple',
+        alleleAssessmentReusedColor: 'green',
         options: {
             hideControlsOnCollapse: true
         },
@@ -53,6 +80,8 @@ const BASE_SECTIONS = {
     },
     prediction: {
         title: 'Prediction',
+        color: 'purple',
+        alleleAssessmentReusedColor: 'green',
         options: {
             hideControlsOnCollapse: true
         },
@@ -65,6 +94,8 @@ const BASE_SECTIONS = {
     },
     references: {
         title: 'Studies & References',
+        color: 'purple',
+        alleleAssessmentReusedColor: 'green',
         options: {
             hideControlsOnCollapse: true
         },
@@ -109,7 +140,7 @@ const COMPONENTS = {
             Classification: {
                 title: 'Classification',
                 sections: JSON.parse(JSON.stringify(BASE_SECTIONS)),
-                sectionKeys: BASE_SECTION_KEYS.slice()
+                sectionKeys: ANALYSIS_SECTION_KEYS.slice()
             },
             Report: {
                 title: 'Report',
@@ -124,7 +155,7 @@ const COMPONENTS = {
                 name: 'classification',
                 title: 'Classification',
                 sections: JSON.parse(JSON.stringify(BASE_SECTIONS)),
-                sectionKeys: BASE_SECTION_KEYS.slice()
+                sectionKeys: ALLELE_SECTION_KEYS.slice()
             }
         }
     }
