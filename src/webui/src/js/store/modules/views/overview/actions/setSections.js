@@ -8,5 +8,8 @@ export default function setSections({ state }) {
     for (let userSection of userSections) {
         sections[userSection] = deepCopy(AVAILABLE_SECTIONS[userSection])
     }
-    state.set('views.overview.sections', sections)
+    const existingSections = state.get('views.overview.sections')
+    if (!existingSections || !Object.values(existingSections).length) {
+        state.set('views.overview.sections', sections)
+    }
 }
