@@ -719,6 +719,7 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
 
     field = 'alleleinterpretation_id' if allele_id else 'analysisinterpretation_id'
     editable = {l.id: getattr(l, field) == latest_interpretation.id and
+                (not latest_interpretation.finalized or latest_interpretation.status != 'Done') and
                 l.user_id == user_id and
                 l.message is not None for l in logs}
     loaded_logs = schemas.InterpretationLogSchema().dump(logs, many=True).data

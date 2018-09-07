@@ -36,7 +36,7 @@
           ng-model-watch="$ctrl.selectedInterpretation">
       </select>
     </div>
-    <button ng-if="$ctrl.workflowType == 'analysis'" class="id-worklog" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
+    <button ng-if="$ctrl.workflowType == 'analysis'" class="id-worklog" ng-class="{'purple': $ctrl.messageCount > 0}" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
           popover-class="interpretationlog-popover"
           popover-append-to-body="true"
           popover-title="Work log"
@@ -83,7 +83,7 @@
                 >
             </select>
           </div>
-        <button ng-if="$ctrl.workflowType == 'allele'" class="id-worklog" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
+        <button ng-if="$ctrl.workflowType == 'allele'" class="id-worklog" ng-class="{'purple': $ctrl.messageCount > 0}" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
           popover-class="interpretationlog-popover"
           popover-append-to-body="true"
           popover-title="Work log"
