@@ -12,6 +12,7 @@ import showExitWarning from '../showExitWarning'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
 import progress from '../../../../common/factories/progress'
 import getWorkflowTitle from '../computed/getWorkflowTitle'
+import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -28,7 +29,6 @@ export default [
             error: [toast('error', 'Failed to load analysis', 30000)],
             success: [
                 set(state`views.workflows.data.analysis`, props`result`),
-                prepareComponents,
                 ({ state }) => {
                     const analysis = state.get('views.workflows.data.analysis')
                     state.set('views.workflows.selectedGenepanel', {
@@ -38,11 +38,13 @@ export default [
                 },
                 loadGenepanel,
                 loadInterpretations,
-                setNavbarTitle(getWorkflowTitle)
+                setNavbarTitle(getWorkflowTitle),
+                loadInterpretationLogs,
+                // Interpretation logs are needed in prepareComponents for analysis
+                prepareComponents,
+                prepareSelectedAllele
             ]
         }
     ]),
-    progress('done'),
-    // The work log has low priority, load last
-    loadInterpretationLogs
+    progress('done')
 ]

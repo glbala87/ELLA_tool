@@ -19,6 +19,7 @@ let SampleSelectionPage = require('../pageobjects/overview_samples')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
+let WorkLog = require('../pageobjects/workLog')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
 let checkAlleleClassification = require('../helpers/checkAlleleClassification')
@@ -30,6 +31,7 @@ let sampleSelectionPage = new SampleSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
+let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
 
@@ -230,9 +232,12 @@ describe('Sample workflow', function() {
         console.log('Changing to the report page')
         analysisPage.selectSectionReport()
 
-        console.log('Setting a review comment')
-        alleleSectionBox.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1')
-        browser.click('body') // a trick to unfocus the above report comment
+        console.log('Setting a review comment and add a message')
+        workLog.open()
+        workLog.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1')
+        workLog.reviewCommentUpdateBtn.click()
+        workLog.addMessage('MESSAGE_ROUND_1')
+        workLog.close()
 
         expect(alleleSidebar.getClassifiedAlleles().length).toEqual(
             6,
@@ -258,6 +263,11 @@ describe('Sample workflow', function() {
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_REVIEW)
         analysisPage.startButton.click()
         checkAlleleClassification(expected_analysis_1_round_1)
+
+        workLog.open()
+        expect(workLog.getLastMessage()).toBe('MESSAGE_ROUND_1')
+        workLog.close()
+
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()

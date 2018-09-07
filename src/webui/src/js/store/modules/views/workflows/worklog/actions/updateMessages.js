@@ -16,7 +16,7 @@ export default function updateMessages({ state }) {
             messages.push(new_l)
         }
         for (const i of interpretations) {
-            if (i.status === 'Done') {
+            if (i.status === 'Done' && i.finalized) {
                 let new_i = {
                     id: i.id,
                     type: 'interpretation',

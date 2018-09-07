@@ -57,6 +57,6 @@ export default [
             setNavbarTitle(getWorkflowTitle)
         ]
     },
-    // The work log has low priority, load last
+    // For allele we can postpone loading interpretation logs until end
     loadInterpretationLogs
 ]

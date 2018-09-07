@@ -231,9 +231,11 @@ export class WysiwygEditorController {
 
         // No need to add custom image scaling on firefox (it's already available)
         var isFirefox = typeof InstallTrigger !== 'undefined'
-        if (!isFirefox && !this.editor.readOnly) {
+        if (!isFirefox) {
             eventListeners.add(this.editorelement, 'click', (e) => {
-                this.handleImageScaling(e)
+                if (!this.editor.readOnly()) {
+                    this.handleImageScaling(e)
+                }
             })
         }
 
@@ -304,6 +306,11 @@ export class WysiwygEditorController {
         this.blurBlocked = true
         slider.focus()
 
+        // Prevent clicking slider from affecting popovers
+        slider.onclick = (e) => {
+            e.stopPropagation()
+        }
+
         slider.oninput = (e) => {
             // We have to fetch img again (for some reason)
             let imgElement = document.getElementById(imgId)
@@ -313,7 +320,7 @@ export class WysiwygEditorController {
             imgElement.height = slider.value * imgElement.naturalHeight
         }
 
-        slider.onblur = () => {
+        slider.onblur = (e) => {
             // Allow editor to blur (will refocus if click is within editor)
             this.blurBlocked = false
             this.blur()
