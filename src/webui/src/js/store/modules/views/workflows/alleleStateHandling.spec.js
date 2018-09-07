@@ -807,6 +807,9 @@ describe('Handling of allele state', () => {
                             comment: 'TEST'
                         }
                     },
+                    quality: {
+                        comment: ''
+                    },
                     verification: null,
                     alleleassessment: {
                         reuse: true,
@@ -834,6 +837,9 @@ describe('Handling of allele state', () => {
                         evaluation: {
                             comment: ''
                         }
+                    },
+                    quality: {
+                        comment: ''
                     },
                     verification: null,
                     alleleassessment: {
@@ -896,6 +902,9 @@ describe('Handling of allele state', () => {
                             comment: ''
                         }
                     },
+                    quality: {
+                        comment: ''
+                    },
                     verification: null,
                     alleleassessment: {
                         reuse: false,
@@ -937,6 +946,9 @@ describe('Handling of allele state', () => {
                         evaluation: {
                             comment: 'TEST2'
                         }
+                    },
+                    quality: {
+                        comment: ''
                     },
                     verification: null,
                     alleleassessment: {
