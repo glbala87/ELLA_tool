@@ -16,6 +16,16 @@ from alembic import op
 import sqlalchemy as sa
 
 
+interpretation_log_table = sa.table(
+    'interpretationlog',
+    sa.column('alleleinterpretation_id', sa.Integer()),
+    sa.column('analysisinterpretation_id', sa.Integer()),
+    sa.column('date_created', sa.DateTime(timezone=True)),
+    sa.column('review_comment', sa.String()),
+    sa.column('user_id', sa.Integer()),
+)
+
+
 def upgrade():
     op.create_table(
         'interpretationlog',
@@ -41,12 +51,22 @@ def upgrade():
         state->'review_comment' IS NOT null AND status = 'Done' ORDER BY date_last_update;
     """
     al_review_comments = conn.execute(TEMPLATE.format(table='alleleinterpretation'))
-    for al_review_comment in al_review_comments:
-        conn.execute("INSERT INTO interpretationlog (alleleinterpretation_id, user_id, review_comment, date_created) VALUES ({}, {}, '{}', '{}')".format(*al_review_comment))
+    for ai_id, user_id, review_comment, date_last_update in al_review_comments:
+        conn.execute(interpretation_log_table.insert().values(
+            alleleinterpretation_id=ai_id,
+            user_id=user_id,
+            review_comment=review_comment,
+            date_created=date_last_update
+        ))
 
     an_review_comments = conn.execute(TEMPLATE.format(table='analysisinterpretation'))
-    for an_review_comment in an_review_comments:
-        conn.execute("INSERT INTO interpretationlog (analysisinterpretation_id, user_id, review_comment, date_created) VALUES ({}, {}, '{}', '{}')".format(*an_review_comment))
+    for ai_id, user_id, review_comment, date_last_update in an_review_comments:
+        conn.execute(interpretation_log_table.insert().values(
+            analysisinterpretation_id=ai_id,
+            user_id=user_id,
+            review_comment=review_comment,
+            date_created=date_last_update
+        ))
 
     conn.execute("UPDATE alleleinterpretation SET state = state - 'review_comment'")
     conn.execute("UPDATE analysisinterpretation SET state = state - 'review_comment'")
