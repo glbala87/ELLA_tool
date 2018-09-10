@@ -210,7 +210,6 @@ export class ImportModal {
                 '$uibModalInstance',
                 'User',
                 'AnnotationjobResource',
-                'toastr',
                 '$interval',
                 '$filter',
                 '$scope',
