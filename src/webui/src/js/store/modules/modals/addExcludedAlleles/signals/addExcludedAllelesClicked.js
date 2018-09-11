@@ -18,10 +18,11 @@ export default [
     set(state`modals.addExcludedAlleles.includedAlleleIds`, props`includedAlleleIds`),
     set(state`modals.addExcludedAlleles.readOnly`, props`readOnly`),
     set(state`modals.addExcludedAlleles.category`, 'all'),
-    set(state`modals.addExcludedAlleles.itemsPerPage`, 1),
+    set(state`modals.addExcludedAlleles.itemsPerPage`, 15),
     set(state`modals.addExcludedAlleles.selectedPage`, 1),
     set(state`modals.addExcludedAlleles.show`, true),
-    set(props`alleleIds`, getAlleleIdsCategory), // Defaults to 'all', so we get all possible allele ids
+    set(state`modals.addExcludedAlleles.categoryAlleleIds`, getAlleleIdsCategory),
+    set(props`alleleIds`, state`modals.addExcludedAlleles.categoryAlleleIds`), // Defaults to 'all', so we get all possible allele ids
     getAlleleIdsByGene,
     {
         success: [

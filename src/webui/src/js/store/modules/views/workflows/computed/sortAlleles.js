@@ -13,12 +13,18 @@ function getSortFunctions(config, classification, verificationStatus) {
             return allele.formatted.inheritance
         },
         gene: (allele) => {
-            return allele.annotation.filtered[0].symbol
+            if (allele.annotation.filtered && allele.annotation.filtered.length) {
+                return allele.annotation.filtered[0].symbol
+            }
+            return -1
         },
         hgvsc: (allele) => {
-            const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
-            const pos = s.match(/[cg]\.(\d+)/)
-            return pos ? parseInt(pos[1]) : 0
+            if (allele.annotation.filtered && allele.annotation.filtered.length) {
+                const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
+                const pos = s.match(/[cg]\.(\d+)/)
+                return pos ? parseInt(pos[1]) : 0
+            }
+            return -1
         },
         consequence: (allele) => {
             let consequence_priority = config.transcripts.consequences
@@ -85,7 +91,7 @@ export default function sortAlleles(alleles, key, reverse) {
             const sortFunctions = getSortFunctions(
                 config,
                 get(getClassification),
-                get(getVerificationStatus)
+                get(getVerificationStatus(alleles))
             )
 
             if (key === 'classification') {
