@@ -541,6 +541,7 @@ class AlleleDataLoader(object):
                 self.session,
                 [(genepanel.name, genepanel.version)]
             ).subquery()
+
             annotation_transcripts = self.session.query(
                 annotation_transcripts_genepanel.c.allele_id,
                 annotation_transcripts_genepanel.c.annotation_transcript,
@@ -572,18 +573,24 @@ class AlleleDataLoader(object):
                 # json -> much faster than copy.deepcopy
                 annotation_data = json.loads(json.dumps(data[KEY_ANNOTATION][KEY_ANNOTATIONS]))
 
-                # 'filtered_transcripts' -> transcripts in our genepanel
-                filtered_transcripts = []
-                if annotation_transcripts:
-                    filtered_transcripts = list(set([a.annotation_transcript for a in annotation_transcripts if a.allele_id == allele_id]))
+                # Clean up transcripts in annotation data
+                # - Make sure to include all transcripts we have in our genepanel
+                # - If a regex filter is given, filter out the ones not matching
+                # - If we end up with an empty inclusion list, keep the original data (better with any data than nothing)
+                if 'transcripts' in annotation_data:
+                    # 'filtered_transcripts' -> transcripts in our genepanel
+                    transcripts_in_genepanel = set()
+                    if annotation_transcripts:
+                        transcripts_in_genepanel = set([a.annotation_transcript for a in annotation_transcripts if a.allele_id == allele_id])
 
-                # Filter main transcript list on inclusion regex
-                # (if in filtered_transcripts, don't exclude it)
-                if inclusion_regex_filtered and 'transcripts' in annotation_data:
-                    allele_regex_filtered = [t[1] for t in inclusion_regex_filtered if t[0] == allele_id]
-                    annotation_data['transcripts'] = \
-                        [t for t in annotation_data['transcripts'] \
-                         if (t['transcript'] in allele_regex_filtered or t['transcript'] in filtered_transcripts)]
+                    # Filter main transcript list on inclusion regex
+                    inclusion_transcripts = set()
+                    if inclusion_regex_filtered:
+                        inclusion_transcripts = set([t[1] for t in inclusion_regex_filtered if t[0] == allele_id])
+
+                    to_include_transcripts = transcripts_in_genepanel | inclusion_transcripts
+                    if to_include_transcripts:
+                        annotation_data['transcripts'] = [t for t in annotation_data['transcripts'] if t['transcript'] in to_include_transcripts]
 
                 # Convert annotation using annotationprocessor
                 processed_annotation = AnnotationProcessor.process(
@@ -593,7 +600,7 @@ class AlleleDataLoader(object):
                 )
                 final_allele[KEY_ANNOTATION] = processed_annotation
 
-                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = sorted(filtered_transcripts)
+                final_allele[KEY_ANNOTATION]['filtered_transcripts'] = sorted(list(transcripts_in_genepanel))
                 final_allele[KEY_ANNOTATION]['annotation_id'] = data[KEY_ANNOTATION]['id']
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]['custom_annotation_id'] = data[KEY_CUSTOM_ANNOTATION]['id']
