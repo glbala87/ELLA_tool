@@ -19,6 +19,73 @@ class SegregationFilter(object):
         self.session = session
         self.config = config
 
+    def denovo_p_value(self, allele_ids, genotype_table, proband_sample, father_sample, mother_sample):
+        genotype_table = genotype_table.subquery('genotype_table')
+        genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
+        genotype_with_allele_table = genotype_with_allele_table.subquery()
+        x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
+
+        denovo_mode_map = {
+            "Xmale": {
+                'Reference': 0,
+                'Homozygous': 1
+                },
+            "default": {
+                'Reference': 0,
+                'Heterozygous': 1,
+                'Homozygous': 2
+            }
+        }
+
+        def _compute_denovo_probabilities(genotype_with_allele_table, x_minus_par=False):
+            dp = dict()
+            for row in genotype_with_allele_table:
+                if not all([
+                    getattr(row, proband_sample + '_gl'),
+                    getattr(row, father_sample + '_gl'),
+                    getattr(row, mother_sample + '_gl'),
+                ]):
+                    dp[row.allele_id] = '-'
+                    continue
+
+                if x_minus_par and getattr(row, proband_sample + '_sex') == 'Male':
+                    denovo_mode = [
+                        denovo_mode_map['Xmale'][getattr(row, father_sample + '_type')],
+                        denovo_mode_map['Xmale'][getattr(row, mother_sample + '_type')],
+                        denovo_mode_map['Xmale'][getattr(row, proband_sample + '_type')],
+                    ]
+                else:
+                    denovo_mode = [
+                        denovo_mode_map['default'][getattr(row, father_sample + '_type')],
+                        denovo_mode_map['default'][getattr(row, mother_sample + '_type')],
+                        denovo_mode_map['default'][getattr(row, proband_sample + '_type')],
+                    ]
+
+                # It should not come up as a denovo candidate if either mother or father has the same called genotype
+                assert denovo_mode.count(denovo_mode[2]) == 1
+
+                p = denovo_probability(
+                    getattr(row, proband_sample + '_gl'),
+                    getattr(row, father_sample + '_gl'),
+                    getattr(row, mother_sample + '_gl'),
+                    x_minus_par,
+                    getattr(row, proband_sample + '_sex') == 'Male',
+                    denovo_mode
+                )
+                dp[row.allele_id] = p
+            return dp
+
+        genotype_with_denovo_allele_table = self.session.query(
+            *genotype_with_allele_table.c
+        )
+
+        # Compute denovo probabilities for autosomal and x-linked regions separately
+        denovo_probabilities = dict()
+        denovo_probabilities.update(_compute_denovo_probabilities(genotype_with_denovo_allele_table.filter(~x_minus_par_filter), False))
+        denovo_probabilities.update(_compute_denovo_probabilities(genotype_with_denovo_allele_table.filter(x_minus_par_filter), True))
+
+        return denovo_probabilities
+
     def get_genotype_with_allele(self, genotype_table):
         genotype_with_allele = self.session.query(
             allele.Allele.chromosome.label('chromosome'),
@@ -603,7 +670,6 @@ class SegregationFilter(object):
 
     def get_siblings_samples(self, proband_sample, affected=False):
 
-        # Mother and father id can be null, but that's fine
         siblings_samples = self.session.query(sample.Sample).filter(
             sample.Sample.family_id == proband_sample.family_id,
             sample.Sample.sibling_id == proband_sample.id,
@@ -639,8 +705,7 @@ class SegregationFilter(object):
 
             genotype_query = self.get_genotype_query(allele_ids, family_sample_ids)
 
-            # Don't filter alleles that are lacking coverage in either parent
-            no_coverage_results = self.no_coverage_father_mother(
+            result[analysis_id]['no_coverage_parents'] = self.no_coverage_father_mother(
                 genotype_query,
                 father_sample.identifier,
                 mother_sample.identifier
@@ -651,7 +716,7 @@ class SegregationFilter(object):
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier
-            ) - no_coverage_results
+            )
 
             result[analysis_id]['compound_heterozygous'] = self.compound_heterozygous(
                 genotype_query,
@@ -660,7 +725,7 @@ class SegregationFilter(object):
                 mother_sample.identifier,
                 affected_sibling_samples=affected_sibling_sample_names,
                 unaffected_sibling_samples=unaffected_sibling_sample_names,
-            ) - no_coverage_results
+            )
 
             result[analysis_id]['autosomal_recessive_homozygous'] = self.autosomal_recessive_homozygous(
                 genotype_query,
@@ -669,7 +734,7 @@ class SegregationFilter(object):
                 mother_sample.identifier,
                 affected_sibling_samples=affected_sibling_sample_names,
                 unaffected_sibling_samples=unaffected_sibling_sample_names
-            ) - no_coverage_results
+            )
 
             result[analysis_id]['xlinked_recessive_homozygous'] = self.xlinked_recessive_homozygous(
                 genotype_query,
@@ -678,7 +743,7 @@ class SegregationFilter(object):
                 mother_sample.identifier,
                 affected_sibling_samples=affected_sibling_sample_names,
                 unaffected_sibling_samples=unaffected_sibling_sample_names
-            ) - no_coverage_results
+            )
 
             result[analysis_id]['homozygous_unaffected_siblings'] = self.homozygous_unaffected_siblings(
                 genotype_query,
@@ -712,80 +777,16 @@ class SegregationFilter(object):
                 non_filtered = segregation_results[analysis_id]['denovo'] | \
                            segregation_results[analysis_id]['compound_heterozygous'] | \
                            segregation_results[analysis_id]['autosomal_recessive_homozygous'] | \
-                           segregation_results[analysis_id]['xlinked_recessive_homozygous']
+                           segregation_results[analysis_id]['xlinked_recessive_homozygous'] | \
+                           segregation_results[analysis_id]['no_coverage_parents']
 
                 filtered = allele_ids - non_filtered
 
-            # Can always be added to filtered (is empty when no siblings)
+            # Following can always be added to filtered (is empty when no siblings)
             filtered = filtered | segregation_results[analysis_id]['homozygous_unaffected_siblings']
 
             result[analysis_id] = filtered
 
         return result
 
-    def denovo_p_value(self, allele_ids, genotype_table, proband_sample, father_sample, mother_sample):
-        genotype_table = genotype_table.subquery('genotype_table')
-        genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
-        genotype_with_allele_table = genotype_with_allele_table.subquery()
-        x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
 
-        denovo_mode_map = {
-            "Xmale": {
-                'Reference': 0,
-                'Homozygous': 1
-                },
-            "default": {
-                'Reference': 0,
-                'Heterozygous': 1,
-                'Homozygous': 2
-            }
-        }
-
-        def _compute_denovo_probabilities(genotype_with_allele_table, x_minus_par=False):
-            dp = dict()
-            for row in genotype_with_allele_table:
-                if not all([
-                    getattr(row, proband_sample + '_gl'),
-                    getattr(row, father_sample + '_gl'),
-                    getattr(row, mother_sample + '_gl'),
-                ]):
-                    dp[row.allele_id] = '-'
-                    continue
-
-                if x_minus_par and getattr(row, proband_sample + '_sex') == 'Male':
-                    denovo_mode = [
-                        denovo_mode_map['Xmale'][getattr(row, father_sample + '_type')],
-                        denovo_mode_map['Xmale'][getattr(row, mother_sample + '_type')],
-                        denovo_mode_map['Xmale'][getattr(row, proband_sample + '_type')],
-                    ]
-                else:
-                    denovo_mode = [
-                        denovo_mode_map['default'][getattr(row, father_sample + '_type')],
-                        denovo_mode_map['default'][getattr(row, mother_sample + '_type')],
-                        denovo_mode_map['default'][getattr(row, proband_sample + '_type')],
-                    ]
-
-                # It should not come up as a denovo candidate if either mother or father has the same called genotype
-                assert denovo_mode.count(denovo_mode[2]) == 1
-
-                p = denovo_probability(
-                    getattr(row, proband_sample + '_gl'),
-                    getattr(row, father_sample + '_gl'),
-                    getattr(row, mother_sample + '_gl'),
-                    x_minus_par,
-                    getattr(row, proband_sample + '_sex') == 'Male',
-                    denovo_mode
-                )
-                dp[row.allele_id] = p
-            return dp
-
-        genotype_with_denovo_allele_table = self.session.query(
-            *genotype_with_allele_table.c
-        )
-
-        # Compute denovo probabilities for autosomal and x-linked regions separately
-        denovo_probabilities = dict()
-        denovo_probabilities.update(_compute_denovo_probabilities(genotype_with_denovo_allele_table.filter(~x_minus_par_filter), False))
-        denovo_probabilities.update(_compute_denovo_probabilities(genotype_with_denovo_allele_table.filter(x_minus_par_filter), True))
-
-        return denovo_probabilities
