@@ -1,0 +1,47 @@
+<div ng-if="!$ctrl.canCreateInterpretationLog" style="padding: 2rem;">
+    <h4 class="sb-notification">
+        There are no interpretations for this variant in the system.
+    </h4>
+    <div class="spacer2"></div>
+    <h4 class="sb-notification">
+        You need to start an interpretation first for the work log to become available.
+    </h4>
+</div>
+<div class="interpretation-log" ng-if="$ctrl.canCreateInterpretationLog">
+    <h4 class="section-title">Overview options</h4>
+    <div class="review-comment">
+        <input type="text"
+                class="id-review-comment"
+                placeholder="OVERVIEW COMMENT"
+                ng-model="$ctrl.modelReviewComment"
+                ng-model-watch="$ctrl.reviewComment"
+                ng-disabled="$ctrl.readOnly">
+                <button class="id-review-comment-update" ng-if="$ctrl.reviewCommentEdited()" class="blue" ng-click="$ctrl.updateReviewCommentClicked({reviewComment: $ctrl.modelReviewComment})">UPDATE</button>
+        </div>
+    <div class="controls">
+        <button ng-if="$ctrl.canClearWarning" class="blue" ng-click="$ctrl.clearWarningClicked({warningCleared: !$ctrl.warningCleared})">{{$ctrl.getClearWarningText()}}</button>
+        <h4 class="slim title">Priority:</h4>
+        <div class="dropdown">
+            <select
+                ng-options="i[0] as i[1] for i in $ctrl.priorityOptions"
+                ng-model="$ctrl.modelSelectedPriority"
+                ng-model-watch="$ctrl.priority"
+                ng-change="$ctrl.priorityChanged({priority: $ctrl.modelSelectedPriority})">
+            </select>
+        </div>
+    </div>
+    <h4 class="section-title">Messages</h4>
+    <div class="messages">
+        <div ng-repeat="messageId in $ctrl.messageIds track by messageId">
+            <interpretation-log-item  message-id="messageId"></interpretation-log-item>
+            <div ng-if="$last" scroll-into-view></div>
+        </div>
+    </div>
+    <div class="compose">
+        <wysiwyg-editor class="control-comment"
+            ng-model="$ctrl.message"
+            placeholder="NEW MESSAGE"
+            ng-change="$ctrl.messageChanged({message: $ctrl.message})"></wysiwyg-editor>
+        <button class="id-add-message-btn" class="blue" ng-click="$ctrl.addMessageClicked({message: $ctrl.message})">Add message</button>
+    </div>
+</div>

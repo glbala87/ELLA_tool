@@ -241,6 +241,78 @@ def workflow_alleles_for_genepanels(session, genepanels):
     )
 
 
+def latest_interpretationlog_field(session, model, model_id_attr, field, model_ids=None):
+
+    filters = [
+        ~getattr(workflow.InterpretationLog, field).is_(None)
+    ]
+    if model_ids:
+        filters.append(
+            getattr(model, model_id_attr).in_(model_ids),
+        )
+    return session.query(
+        getattr(model, model_id_attr),
+        getattr(workflow.InterpretationLog, field)
+    ).join(
+        workflow.InterpretationLog
+    ).filter(*filters).order_by(
+        getattr(model, model_id_attr),
+        workflow.InterpretationLog.date_created.desc(),
+    ).distinct(
+        getattr(model, model_id_attr)
+    )
+
+
+def workflow_analyses_priority(session, analysis_ids=None):
+    return latest_interpretationlog_field(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        'priority',
+        model_ids=analysis_ids,
+    )
+
+
+def workflow_analyses_review_comment(session, analysis_ids=None):
+    return latest_interpretationlog_field(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        'review_comment',
+        model_ids=analysis_ids
+    )
+
+
+def workflow_analyses_warning_cleared(session, analysis_ids=None):
+    return latest_interpretationlog_field(
+        session,
+        workflow.AnalysisInterpretation,
+        'analysis_id',
+        'warning_cleared',
+        model_ids=analysis_ids
+    )
+
+
+def workflow_allele_priority(session, allele_ids=None):
+    return latest_interpretationlog_field(
+        session,
+        workflow.AlleleInterpretation,
+        'allele_id',
+        'priority',
+        model_ids=allele_ids
+    )
+
+
+def workflow_allele_review_comment(session, allele_ids=None):
+    return latest_interpretationlog_field(
+        session,
+        workflow.AlleleInterpretation,
+        'allele_id',
+        'review_comment',
+        model_ids=allele_ids
+    )
+
+
 def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_version):
     """
     Fetches all genes with _only_ {inheritance} phenotypes.

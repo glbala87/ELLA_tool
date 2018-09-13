@@ -4,6 +4,7 @@
 -- To see what's been done, load into db and check the UI.
 --
 
+DELETE FROM public.interpretationlog;
 DELETE FROM public.analysisinterpretationsnapshot;
 DELETE FROM public.allelereport;
 DELETE FROM public.alleleassessment;

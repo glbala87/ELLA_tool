@@ -6,6 +6,7 @@ from api.schemas import users
 
 ma = Marshmallow(app)
 
+
 class AnalysisInterpretationSnapshotSchema(Schema):
     class Meta:
         title = "AnalysisInterpretationSnapshot"
@@ -53,7 +54,6 @@ class AnalysisInterpretationOverviewSchema(Schema):
                   'finalized',
                   'workflow_status',
                   'date_last_update',
-                  'state',
                   'genepanel_name',
                   'genepanel_version',
                   'user_id',
@@ -61,12 +61,3 @@ class AnalysisInterpretationOverviewSchema(Schema):
 
     user = fields.Nested(users.UserSchema)
 
-    @post_dump()
-    def clean_state(self, data):
-        """
-        We only want to include the review_comment from state
-        when included as part of analysis.
-        """
-        if 'review_comment' in data['state']:
-            data['review_comment'] = data['state']['review_comment']
-        del data['state']

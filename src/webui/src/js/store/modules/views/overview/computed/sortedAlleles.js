@@ -7,7 +7,7 @@ export default function sortedAlleles(alleles) {
         if (alleles) {
             alleles = alleles.slice()
             alleles.sort(
-                thenBy((a) => a.highest_analysis_priority, -1)
+                thenBy((a) => a.priority, -1)
                     .thenBy((a) => {
                         // Ignore seconds/milliseconds when sorting
                         let d = new Date(a.oldest_analysis)
@@ -21,6 +21,8 @@ export default function sortedAlleles(alleles) {
                         }
                         return -a.allele.start_position
                     })
+                    // It happens that alleles have same position, but different variations
+                    .thenBy((a) => a.allele.annotation.filtered[0].HGVSc || 0)
             )
             return alleles
         }

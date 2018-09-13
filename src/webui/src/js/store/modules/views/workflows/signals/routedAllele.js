@@ -1,4 +1,3 @@
-import { parallel } from 'cerebral'
 import { set, when } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAlleleByIdentifier from '../actions/getAlleleByIdentifier'
@@ -7,7 +6,7 @@ import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
 import toast from '../../../../common/factories/toast'
 import loadGenepanel from '../sequences/loadGenepanel'
-import loadCollisions from '../sequences/loadCollisions'
+import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
 import showExitWarning from '../showExitWarning'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
@@ -57,5 +56,7 @@ export default [
             // We need the formatted allele, so postpone setting title until here.
             setNavbarTitle(getWorkflowTitle)
         ]
-    }
+    },
+    // For allele we can postpone loading interpretation logs until end
+    loadInterpretationLogs
 ]

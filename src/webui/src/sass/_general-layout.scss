@@ -362,9 +362,6 @@ workflow-buttons { margin-left: 1.4rem;}
       &.active { background-color: $white; color: $black-75; }
     }
   }
-  .review-comment {
-    input { width: 25rem; }
-  }
 }
 
 .collision-warning { margin: 1.5rem; margin-bottom: 0; padding: 1.5rem; padding-left: 2rem; padding-right: 2rem; background-color: $red-95;  max-height: 10rem; overflow-y: auto; overflow-x: hidden;
@@ -871,6 +868,141 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   width: 28vh;
 }
 
+.interpretation-log {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-family: $full;
+  font-size: 1.4rem;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  height: 88vh;
+  h4 {
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    margin-right: 1rem;
+  }
+  .review-comment {
+    display: flex;
+    padding-top: 1rem;
+    input { width: 30rem; }
+    button { margin-left: 1rem; }
+  }
+  .controls {
+    display: flex;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    .dropdown {
+      background-color: $blue-50;
+      &:after { border-color: $white-75 transparent transparent transparent }
+      select { color: white;
+        option { background-color: $blue-50;}
+        &[disabled] { background-color: $blue-25; opacity: 1}
+      }
+    }
+    button {
+      margin-right: 1rem;
+    }
+  }
+  .messages {
+    flex-grow: 1;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: $blue-05;
+    overflow-y: scroll;
+    overflow-x: auto;
+    .message-item {
+      margin: 0.25rem 1rem 0.25rem 1rem;
+      padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+      &.editable {
+        border-left: 5px solid $black-05;
+        .heading {
+          height: 2rem;
+        }
+        &.normal-mode:hover {
+          border-left: 5px solid $blue-50;
+        }
+        &.edit-mode {
+          border-left: 5px solid $blue-50;
+        }
+        &.delete-mode {
+          border-left: 5px solid $red-75;
+        }
+        &:hover {
+          .heading {
+            .heading-controls {
+              display: block;
+            }
+          }
+        }
+      }
+      &.normal-mode {
+        .heading-controls {
+          display: none;
+        }
+      }
+      .heading {
+        display: flex;
+        flex-direction: row;
+        .heading-info {
+          flex-grow: 1;
+          .name { font-family: $full; color: $blue-75; font-weight: 600; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem; }
+          .time { font-size: 1.2rem; color: $black-75; }
+        }
+
+      }
+      .message {
+        .wysiwygeditor { border: 0; }
+        .wysiwygplaceholder { border: 0; }
+      }
+      .event { @extend .slim; text-transform: uppercase; color: $red-75; }
+      .event-text { @extend .slim; text-transform: uppercase; color: $black-75; }
+      .event-time { color: $black-75; }
+      .hr-text {
+        line-height: 1em;
+        position: relative;
+        outline: 0;
+        border: 0;
+        color: black;
+        text-align: center;
+        height: 1.5em;
+        opacity: .5;
+        &:before {
+          content: '';
+          // use the linear-gradient for the fading effect
+          // use a solid background color for a solid bar
+          background: linear-gradient(to right, $black-50, $black-75, $black-50);
+          position: absolute;
+          left: 0;
+          top: 50%;
+          width: 100%;
+          height: 1px;
+        }
+        &:after {
+          content: attr(data-content);
+          position: relative;
+          display: inline-block;
+          color: black;
+
+          padding: 0 .5em;
+          line-height: 1.5em;
+          // this is really the only tricky part, you need to specify the background color of the container element...
+          color: #818078;
+          background-color: #fcfcfa;
+        }
+      }
+    }
+  }
+  .compose {
+    padding-top: 1rem;
+    button {
+      margin-top: 1rem;
+    }
+  }
+}
 
 
 .new-fade {

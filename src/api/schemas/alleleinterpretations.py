@@ -58,7 +58,6 @@ class AlleleInterpretationOverviewSchema(Schema):
                   'finalized',
                   'workflow_status',
                   'allele_id',
-                  'state',
                   'genepanel_name',
                   'genepanel_version',
                   'date_last_update',
@@ -66,13 +65,3 @@ class AlleleInterpretationOverviewSchema(Schema):
                   'user')
 
     user = fields.Nested(users.UserSchema)
-
-    @post_dump()
-    def clean_state(self, data):
-        """
-        We only want to include the review_comment from state
-        when included as part of analysis.
-        """
-        if 'review_comment' in data['state']:
-            data['review_comment'] = data['state']['review_comment']
-        del data['state']

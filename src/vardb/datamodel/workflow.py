@@ -179,3 +179,19 @@ class InterpretationStateHistory(Base):
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     state = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
+
+
+class InterpretationLog(Base):
+
+    __tablename__ = "interpretationlog"
+
+    id = Column(Integer, primary_key=True)
+    alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"))
+    analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))  # Can be null if created by system
+    user = relationship('User')
+    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    message = Column(String)
+    priority = Column(Integer)
+    review_comment = Column(String)
+    warning_cleared = Column(Boolean)

@@ -17,13 +17,15 @@ import finishConfirmationClicked from './signals/finishConfirmationClicked'
 import loadInterpretationData from './signals/loadInterpretationData'
 import alleleSidebar from './alleleSidebar'
 import interpretation from './interpretation'
+import worklog from './worklog'
 import verificationStatusChanged from './signals/verificationStatusChanged'
 
 export default Module({
     state: {}, // State set in changeView (via parent module: ../workflows)
     modules: {
         alleleSidebar,
-        interpretation
+        interpretation,
+        worklog
     },
     signals: {
         routedAllele: initApp(authenticate([changeView('workflows'), routedAllele])),

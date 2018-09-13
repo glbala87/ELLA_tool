@@ -43,20 +43,12 @@ app.component('alleleList', {
                         return 'NEW'
                     },
                     getPriorityText: (item) => {
-                        if (item.highest_analysis_priority > 1) {
-                            return $ctrl.config.analysis.priority.display[
-                                item.highest_analysis_priority
-                            ]
+                        if (item.priority > 1) {
+                            return $ctrl.config.analysis.priority.display[item.priority]
                         }
                     },
                     getReviewComment: (item) => {
-                        if (item.interpretations.length) {
-                            let last_interpretation =
-                                item.interpretations[item.interpretations.length - 1]
-                            if ('review_comment' in last_interpretation) {
-                                return last_interpretation.review_comment
-                            }
-                        }
+                        return item.review_comment
                     }
                 })
             }

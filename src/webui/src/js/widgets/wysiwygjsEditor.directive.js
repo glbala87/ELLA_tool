@@ -233,7 +233,9 @@ export class WysiwygEditorController {
         var isFirefox = typeof InstallTrigger !== 'undefined'
         if (!isFirefox) {
             eventListeners.add(this.editorelement, 'click', (e) => {
-                this.handleImageScaling(e)
+                if (!this.editor.readOnly()) {
+                    this.handleImageScaling(e)
+                }
             })
         }
 
@@ -287,39 +289,15 @@ export class WysiwygEditorController {
 
         // Position slider
         sliderContainer.style.position = 'absolute'
-
-        var cumulativeOffset = function(element, parent) {
-            var top = 0,
-                left = 0
-            do {
-                top += element.offsetTop || 0
-                left += element.offsetLeft || 0
-                top += element.clientTop || 0
-                left += element.clientLeft || 0
-                if (parent && element.id === parent.id) {
-                    break
-                }
-                element = element.offsetParent
-            } while (element)
-
-            return {
-                top: top,
-                left: left
-            }
-        }
-
-        // If a modal is open, position the image relative to the modal element. Otherwise, use document body.
-        parent = document.body
-        let modals = document.getElementsByClassName('modal-dialog')
-        if (modals.length) {
-            parent = modals[0]
-        }
-        let offset = cumulativeOffset(img, parent)
-
-        sliderContainer.style.left = offset.left + 'px'
-        sliderContainer.style.top = offset.top + 'px'
+        sliderContainer.style.zIndex = '10000000000'
+        const rect = img.getBoundingClientRect()
+        const left = rect.left + window.scrollX
+        const top = rect.top + window.scrollY
+        sliderContainer.style.left = left + 'px'
+        sliderContainer.style.top = top + 'px'
 
         // Append slider to parent element
+        const parent = document.body
         parent.appendChild(sliderContainer)
 
         slider.value = currentScale
@@ -327,6 +305,11 @@ export class WysiwygEditorController {
         // Focus slider without hiding editors toolbar
         this.blurBlocked = true
         slider.focus()
+
+        // Prevent clicking slider from affecting popovers
+        slider.onclick = (e) => {
+            e.stopPropagation()
+        }
 
         slider.oninput = (e) => {
             // We have to fetch img again (for some reason)
@@ -337,7 +320,7 @@ export class WysiwygEditorController {
             imgElement.height = slider.value * imgElement.naturalHeight
         }
 
-        slider.onblur = () => {
+        slider.onblur = (e) => {
             // Allow editor to blur (will refocus if click is within editor)
             this.blurBlocked = false
             this.blur()

@@ -3,6 +3,7 @@
 -- then selecting relevant parts from a pg_dump
 --
 
+DELETE FROM public.interpretationlog;
 DELETE FROM public.analysisinterpretationsnapshot;
 DELETE FROM public.allelereport;
 DELETE FROM public.alleleassessment;

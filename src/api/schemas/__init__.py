@@ -15,3 +15,4 @@ from customannotations import CustomAnnotationSchema
 from genotypes import GenotypeSchema, GenotypeSampleDataSchema
 from annotationjobs import AnnotationJobSchema
 from attachments import AttachmentSchema
+from interpretationlog import InterpretationLogSchema

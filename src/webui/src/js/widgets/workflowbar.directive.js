@@ -7,6 +7,7 @@ import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import { getAcmgCandidates } from '../store/common/helpers/acmg'
 import template from './workflowbar.ngtmpl.html'
 import acmgSelectiontemplate from './acmgSelectionPopover.ngtmpl.html'
+import interpretationLogPopover from './interpretationLogPopover.ngtmpl.html'
 
 let acmgCandidates = Compute(state`app.config`, (config) => {
     return getAcmgCandidates(config)
@@ -18,7 +19,7 @@ app.component('workflowbar', {
         {
             analysis: state`views.workflows.data.analysis`,
             config: state`app.config`,
-            reviewComment: state`views.workflows.interpretation.selected.state.review_comment`,
+            messageCount: state`views.workflows.worklog.messageCount`,
             workflowType: state`views.workflows.type`,
             selectedComponent: state`views.workflows.selectedComponent`,
             componentKeys: state`views.workflows.componentKeys`,
@@ -34,7 +35,6 @@ app.component('workflowbar', {
             componentChanged: signal`views.workflows.componentChanged`,
             collapseAllAlleleSectionboxClicked: signal`views.workflows.interpretation.collapseAllAlleleSectionboxClicked`,
             selectedInterpretationChanged: signal`views.workflows.selectedInterpretationChanged`,
-            reviewCommentChanged: signal`views.workflows.interpretation.reviewCommentChanged`,
             copyAllAlamutClicked: signal`views.workflows.copyAllAlamutClicked`,
             copySelectedAlamutClicked: signal`views.workflows.copySelectedAlamutClicked`,
             addExcludedAllelesClicked: signal`modals.addExcludedAlleles.addExcludedAllelesClicked`,
@@ -82,7 +82,7 @@ app.component('workflowbar', {
                     //
                     // Add ACMG popover
                     //
-                    popover: {
+                    acmgPopover: {
                         templateUrl: 'acmgSelectionPopover.ngtmpl.html',
                         categories: ['Pathogenic', 'Benign'],
                         selectedCategory: 'Pathogenic',
@@ -114,6 +114,9 @@ app.component('workflowbar', {
                             }
                             $ctrl.stagedAcmgCode = null
                         }
+                    },
+                    interpretationLogPopover: {
+                        templateUrl: 'interpretationLogPopover.ngtmpl.html'
                     }
                 })
             }

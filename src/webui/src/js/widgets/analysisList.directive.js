@@ -48,13 +48,7 @@ app.component('analysisList', {
                         }
                     },
                     getReviewComment: (analysis) => {
-                        if (analysis.interpretations.length) {
-                            let last_interpretation =
-                                analysis.interpretations[analysis.interpretations.length - 1]
-                            if ('review_comment' in last_interpretation) {
-                                return last_interpretation.review_comment
-                            }
-                        }
+                        return analysis.review_comment
                     }
                 })
             }

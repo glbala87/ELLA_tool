@@ -696,3 +696,116 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             })
 
     return collisions
+
+
+def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
+
+    assert (allele_id or analysis_id) and not (allele_id and analysis_id)
+
+    if allele_id:
+        workflow_id = allele_id
+    if analysis_id:
+        workflow_id = analysis_id
+
+    assert workflow_id
+
+    logs = session.query(workflow.InterpretationLog).join(
+        _get_interpretation_model(allele_id, analysis_id)
+    ).filter(
+        _get_interpretation_model_field(allele_id, analysis_id) == workflow_id
+    )
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    field = 'alleleinterpretation_id' if allele_id else 'analysisinterpretation_id'
+    editable = {l.id: getattr(l, field) == latest_interpretation.id and
+                (not latest_interpretation.finalized or latest_interpretation.status != 'Done') and
+                l.user_id == user_id and
+                l.message is not None for l in logs}
+    loaded_logs = schemas.InterpretationLogSchema().dump(logs, many=True).data
+
+    for loaded_log in loaded_logs:
+        loaded_log['editable'] = editable[loaded_log['id']]
+
+    return loaded_logs
+
+
+def create_interpretationlog(session, user_id, data, allele_id=None, analysis_id=None):
+
+    assert (allele_id or analysis_id) and not (allele_id and analysis_id)
+    if allele_id:
+        if not data.get('warning_cleared') is None:
+            raise ApiError("warning_cleared is not supported for alleles as they have no warnings")
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    if not latest_interpretation:
+        # Shouldn't be possible for an analysis
+        assert not analysis_id
+        assert allele_id
+
+        latest_interpretation = workflow.AlleleInterpretation(
+            allele_id=allele_id,
+            workflow_status='Interpretation',
+            status='Not started'
+        )
+        session.add(latest_interpretation)
+        session.flush()
+
+    if analysis_id:
+        data['analysisinterpretation_id'] = latest_interpretation.id
+    if allele_id:
+        data['alleleinterpretation_id'] = latest_interpretation.id
+
+    data['user_id'] = user_id
+
+    il = workflow.InterpretationLog(**data)
+
+    session.add(il)
+    return il
+
+
+def patch_interpretationlog(session, user_id, interpretationlog_id, message, allele_id=None, analysis_id=None):
+
+    il = session.query(workflow.InterpretationLog).filter(
+        workflow.InterpretationLog.id == interpretationlog_id
+    ).one()
+
+    if il.user_id != user_id:
+        raise ApiError("Cannot edit interpretation log, item doesn't match user's id.")
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    match = False
+    if allele_id:
+        match = il.alleleinterpretation_id == latest_interpretation.id
+    elif analysis_id:
+        match = il.analysisinterpretation_id == latest_interpretation.id
+
+    if not match:
+        raise ApiError("Can only edit entries created for latest interpretation id.")
+
+    il.message = message
+
+
+def delete_interpretationlog(session, user_id, interpretationlog_id, allele_id=None, analysis_id=None):
+
+    il = session.query(workflow.InterpretationLog).filter(
+        workflow.InterpretationLog.id == interpretationlog_id
+    ).one()
+
+    if il.user_id != user_id:
+        raise ApiError("Cannot delete interpretation log, item doesn't match user's id.")
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    match = False
+    if allele_id:
+        match = il.alleleinterpretation_id == latest_interpretation.id
+    elif analysis_id:
+        match = il.analysisinterpretation_id == latest_interpretation.id
+
+    if not match:
+        raise ApiError("Can only delete entries created for latest interpretation id.")
+
+    session.delete(il)

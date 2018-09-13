@@ -1,3 +1,4 @@
+import getWarningCleared from '../worklog/computed/getWarningCleared'
 const ALLELE_SECTION_KEYS = ['classification', 'frequency', 'external', 'prediction', 'references']
 const ANALYSIS_SECTION_KEYS = [
     'classification',
@@ -161,14 +162,15 @@ const COMPONENTS = {
     }
 }
 
-function prepareComponents({ state }) {
+function prepareComponents({ state, resolve }) {
     let components = COMPONENTS[state.get('views.workflows.type')]
     // TODO: Add IGV button to analysis frequency section
     state.set('views.workflows.components', components.components)
     state.set('views.workflows.componentKeys', components.componentKeys)
     if (state.get('views.workflows.type') === 'analysis') {
+        const warningCleared = resolve.value(getWarningCleared)
         const analysis = state.get('views.workflows.data.analysis')
-        if (analysis.warnings && analysis.warnings.length) {
+        if (analysis.warnings && analysis.warnings.length && !warningCleared) {
             state.set('views.workflows.selectedComponent', 'Info')
         } else {
             state.set('views.workflows.selectedComponent', 'Classification')

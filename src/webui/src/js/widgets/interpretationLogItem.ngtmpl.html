@@ -1,0 +1,41 @@
+<div class="message-item" ng-class="$ctrl.getClasses()">
+    <div class="heading" ng-if="$ctrl.message.id.startsWith('log')">
+        <div class="heading-info">
+            <span class="name">{{$ctrl.formatUser()}}</span>
+            <span ng-if="$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'HH:mm'}}</span>
+            <span ng-if="!$ctrl.fromToday()" class="time" title="{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}">{{$ctrl.message.date_created | date:'yyyy-MM-dd HH:mm'}}</span>
+        </div>
+        <div class="heading-controls" ng-if="$ctrl.message.editable">
+            <button class="blue" ng-click="$ctrl.deleteClicked(); $event.stopPropagation()" ng-if="$ctrl.mode == 'normal'">Delete</button>
+            <button ng-click="$ctrl.deleteAborted(); $event.stopPropagation()" ng-if="$ctrl.mode == 'delete'">Cancel</button>
+            <button class="red" ng-click="$ctrl.deleteConfirmed(); $event.stopPropagation()" ng-if="$ctrl.mode == 'delete'">Confirm</button>
+            <button class="blue" ng-click="$ctrl.editClicked(); $event.stopPropagation()" ng-if="$ctrl.mode == 'normal'">Edit</button>
+            <button ng-click="$ctrl.editAborted(); $event.stopPropagation()" ng-if="$ctrl.mode == 'edit'">Cancel</button>
+            <button class="blue" ng-click="$ctrl.editConfirmed(); $event.stopPropagation()" ng-if="$ctrl.mode == 'edit'">Confirm</button>
+        </div>
+    </div>
+    <div class="message" ng-if="$ctrl.message.message">
+        <wysiwyg-editor class="control-comment"
+        ng-disabled="$ctrl.mode != 'edit'"
+        ng-model="$ctrl.getMessageModel().message"></wysiwyg-editor>
+    </div>
+    <div ng-if="$ctrl.message.warning_cleared === true">
+        <span class="event">Warning cleared</span>
+    </div>
+    <div ng-if="$ctrl.message.warning_cleared === false">
+        <span class="event">Warning reinstated</span>
+    </div>
+    <div ng-if="$ctrl.message.priority">
+        <span class="event">Priority set to {{$ctrl.formatPriority()}}</span>
+    </div>
+    <div ng-if="$ctrl.message.review_comment != null && $ctrl.message.review_comment != ''">
+        <span class="event">Overview comment changed to: </span><span class="event-text">{{$ctrl.message.review_comment}}</span>
+
+    </div>
+    <div ng-if="$ctrl.message.review_comment == ''">
+        <span class="event">Overview comment cleared</span>
+    </div>
+    <div ng-if="$ctrl.message.finalized">
+        <hr class="hr-text" data-content="FINALISED ({{$ctrl.message.date_last_update | date:'yyyy-MM-dd HH:mm'}})">
+    </div>
+</div>

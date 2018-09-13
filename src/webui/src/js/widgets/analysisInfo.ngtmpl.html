@@ -1,8 +1,11 @@
 <div class="analysis-info">
-  <sectionbox color="red" ng-if="$ctrl.analysis.warnings.length">
+  <sectionbox color="red" ng-if="$ctrl.analysis.warnings.length" collapsed="$ctrl.getWarningOptions().collapsed">
       <maintitle>
         Pipeline warnings
       </maintitle>
+      <subtitle ng-if="$ctrl.warningCleared">
+        CLEARED
+      </subtitle>
       <contentwrapper class="analysis-info">
         <markdown-it markdown="$ctrl.analysis.warnings"></markdown-it>
       </contentwrapper>

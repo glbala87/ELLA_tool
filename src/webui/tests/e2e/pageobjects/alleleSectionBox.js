@@ -34,10 +34,6 @@ class AlleleSectionBox {
         return browser.element(SELECTOR_FREQ_GNOMAD_GENOMES)
     }
 
-    get reviewCommentElement() {
-        return util.elementIntoView('.workflow-options input.id-review-comment')
-    }
-
     get classificationCommentElement() {
         return util.elementIntoView(SELECTOR_COMMENT_CLASSIFICATION)
     }

@@ -978,7 +978,7 @@ class AnalysisImporter(object):
     def __init__(self, session):
         self.session = session
 
-    def process(self, analysis_name, priority, genepanel, report, warnings):
+    def process(self, analysis_name, genepanel, report, warnings):
         """Create analysis with a default gene panel for a sample"""
 
         if self.session.query(sm.Analysis).filter(
@@ -990,7 +990,6 @@ class AnalysisImporter(object):
         analysis = sm.Analysis(
             name=analysis_name,
             genepanel=genepanel,
-            priority=priority,
             report=report,
             warnings=warnings
         )
@@ -1010,7 +1009,7 @@ class AnalysisInterpretationImporter(object):
     def __init__(self, session):
         self.session = session
 
-    def process(self, db_analysis, reopen_if_exists=False):
+    def process(self, db_analysis, priority, reopen_if_exists=False):
         # Get latest interpretation (largest ID), if exists
         existing = self.session.query(wf.AnalysisInterpretation).filter(
             wf.AnalysisInterpretation.analysis_id == db_analysis.id,
@@ -1023,6 +1022,15 @@ class AnalysisInterpretationImporter(object):
                 genepanel=db_analysis.genepanel,
                 status="Not started"
                 )
+            self.session.flush()
+
+            # If special priority is given, insert log entry
+            if priority:
+                interpretation_log = wf.InterpretationLog(
+                    analysisinterpretation_id=db_interpretation.id,
+                    priority=priority
+                )
+                self.session.add(interpretation_log)
         else:
             # If the existing is Done, we reopen the analysis since we have added new
             if reopen_if_exists and existing.status == 'Done':
