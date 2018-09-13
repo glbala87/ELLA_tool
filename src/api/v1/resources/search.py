@@ -469,7 +469,7 @@ class SearchResource(LogRequestResource):
         allele_data = AlleleDataLoader(session).from_objs(
             alleles,
             include_allele_assessment=True,
-            include_genotype_samples=False,
+            analysis_id=None,
             include_allele_report=False,
             include_annotation=True,
             include_reference_assessments=False,

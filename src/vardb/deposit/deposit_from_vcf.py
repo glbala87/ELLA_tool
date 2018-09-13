@@ -23,7 +23,7 @@ from vardb.util import vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
                                     SpliceInfoProcessor, HGMDInfoProcessor, \
-                                    SplitToDictInfoProcessor, AlleleInterpretationImporter
+                                    SplitToDictInfoProcessor, AlleleInterpretationImporter, get_allele_from_record
 
 
 log = logging.getLogger(__name__)
@@ -67,6 +67,9 @@ class DepositFromVCF(object):
             if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
                 return True
         return False
+
+    def get_allele_from_record(self, record, alleles):
+        return get_allele_from_record(record, alleles)
 
     def getCounter(self):
         counter = dict(self.counter)

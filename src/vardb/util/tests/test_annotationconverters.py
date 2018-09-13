@@ -309,8 +309,8 @@ class TestTranscriptAnnotation():
 
         # Only NM_ or ENST transcripts are included.
         assert len(transcripts) == 3
-        assert transcripts[0]['transcript'] == 'NM_000090.3'
-        assert transcripts[1]['transcript'] == 'ENST123456'
+        assert transcripts[0]['transcript'] == 'ENST123456'
+        assert transcripts[1]['transcript'] == 'NM_000090.3'
         assert transcripts[2]['transcript'] == 'NM_000091.2'
 
 

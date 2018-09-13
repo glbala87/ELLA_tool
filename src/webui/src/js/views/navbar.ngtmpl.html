@@ -13,7 +13,15 @@
 
   <section ng-if="$ctrl.title">
     <div class="active">
-      <h3 class="full-title id-workflow-instance"><b>{{$ctrl.title}}</b></h3>
+      <h3 ng-if="$ctrl.currentView != 'workflows'" class="full-title"><b>{{$ctrl.title}}</b></h3>
+      <h3 ng-if="$ctrl.currentView == 'workflows'" class="full-title clickable white id-workflow-instance"
+            uib-popover-template="'interpretationRoundsPopover.ngtmpl.html'"
+            popover-append-to-body=true
+            popover-title="Rounds"
+            popover-trigger="outsideClick"
+            popover-placement="bottom">
+        <b>{{$ctrl.title}}</b>
+      </h3>
     </div>
   </section>
 

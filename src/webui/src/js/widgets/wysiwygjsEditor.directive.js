@@ -13,7 +13,8 @@ import template from './wysiwygEditor.ngtmpl.html'
     scope: {
         placeholder: '@?',
         ngModel: '=',
-        ngDisabled: '=?'
+        ngDisabled: '=?',
+        showControls: '<?'
     },
     require: '?ngModel', // get a hold of NgModelController
     template
@@ -27,6 +28,7 @@ export class WysiwygEditorController {
         this.placeholderelement = $element.children()[1]
         this.buttonselement = $element.children()[2]
         this.buttons = {}
+        this.showControls = 'showControls' in this ? this.showControls : true
         for (let i = 0; i < this.buttonselement.children.length - 1; i++) {
             let button = this.buttonselement.children[i]
             let name = button.id.split('-')[1]

@@ -1,7 +1,7 @@
 .top-align { vertical-align: top; }
 .table, .cb-table { display: table; }
 .tabular-row { display: table-row; }
-.cell { display: table-cell; }
+.cell { display: table-cell; white-space: nowrap; }
 
 .star { width: 1rem; height: 1rem; stroke-width: 3%; stroke: $black-75; }
 .star.filled { fill: $black-75; }
@@ -92,6 +92,10 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 }
 
 .analysis-info {
+  .samples-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
   h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; padding-top: 1.5rem; padding-bottom: 0.4rem;}
   .report { margin: 0.5rem; padding: 1rem; }
   .warning { background-color: $red; margin: 0.5rem; padding: 1rem; color: $white;
@@ -271,3 +275,21 @@ analysis-selection {
 //upload > label > div {
 //  display: flex;
 //}
+
+
+.allele-info-quality {
+  display: flex;
+  padding: 0.5rem;
+  .sample-display {
+    &:not(:first-child) {
+      padding-left: 1.5rem;
+    }
+    &:not(:last-child) {
+      padding-right: 1rem;
+      border-right: $black-10 1px dashed;
+    }
+    .sample-title {
+      font-size: 1.5rem;
+    }
+  }
+}

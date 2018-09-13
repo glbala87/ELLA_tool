@@ -42,16 +42,6 @@ app.component('alleleList', {
                         }
                         return 'NEW'
                     },
-                    getEndAction: (interpretation) => {
-                        let end_action = `${interpretation.workflow_status} ${
-                            interpretation.finalized ? ' (Finalized) ' : ' '
-                        }`
-                        if (interpretation.user) {
-                            return end_action + ' • '
-                        } else {
-                            return end_action
-                        }
-                    },
                     getPriorityText: (item) => {
                         if (item.highest_analysis_priority > 1) {
                             return $ctrl.config.analysis.priority.display[

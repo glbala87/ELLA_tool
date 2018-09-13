@@ -13,7 +13,7 @@ export default [
             postLogin,
             {
                 // Unset config here; this is reloaded (with user config) on redirect
-                success: [reset, unset(state`app.config`), redirect('overview/variants')],
+                success: [reset, unset(state`app.config`), redirect('overview/')],
                 error: [
                     set(state`views.login.password`, ''),
                     toast('error', string`${props`errorMessage`}`)

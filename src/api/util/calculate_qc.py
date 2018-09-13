@@ -8,8 +8,6 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     Currently adds two extra QC fields:
     - needs_verification
     - allele_ratio
-
-    :warning: Might need adjustments for trios, due to variants that can be REF only.
     """
     qc = dict()
 
@@ -20,18 +18,13 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     vcf_alt = allele_data['vcf_alt']
 
     ad_data = genotype_data['allele_depth']
+
     # allele_depth data is JSON in database, so assume nothing...
     if ad_data and \
        all(isinstance(v, int) for v in ad_data.values()) and \
        any(v > 0 for v in ad_data.values()) and \
        len(ad_data) > 1 and \
        vcf_alt in ad_data:
-
-        if genotype_data['multiallelic']:
-            assert len(ad_data) == 3
-        else:
-            # TODO: Trios?
-            assert len(ad_data) == 2
 
         allele_ratio = float(ad_data[vcf_alt]) / sum(ad_data.values())
         qc['allele_ratio'] = allele_ratio
@@ -55,12 +48,20 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     }
 
     if allele_ratio:
-        if genotype_data['homozygous']:
+        if genotype_data['type'] == 'Homozygous':
             needs_verification_checks['allele_ratio'] = allele_ratio > 0.9
-        else:
+        elif genotype_data['type'] == 'Heterozygous':
             needs_verification_checks['allele_ratio'] = allele_ratio > 0.3 and allele_ratio < 0.6
+        # If reference allele, failing quality on ratio makes no sense
+        elif genotype_data['type'] == 'Reference':
+            needs_verification_checks['allele_ratio'] = True
+        else:
+            needs_verification_checks['allele_ratio'] = False
     else:
-        needs_verification_checks['allele_ratio'] = False
+        if genotype_data['type'] == 'Reference':
+            needs_verification_checks['allele_ratio'] = True
+        else:
+            needs_verification_checks['allele_ratio'] = False
 
     qc['needs_verification'] = not all(needs_verification_checks.values()) and sample_type == 'HTS'
     needs_verification_checks['hts'] = sample_type == 'HTS'

@@ -759,17 +759,19 @@ class AnalysisActionFinalizeResource(LogRequestResource):
 class AnalysisCollisionResource(LogRequestResource):
     @authenticate()
     def get(self, session, analysis_id, user=None):
-        analysis_allele_ids = session.query(allele.Allele.id).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis
-        ).filter(
-            sample.Analysis.id == analysis_id
-        ).all()
+
+        allele_ids = request.args.get('allele_ids')
+        if allele_ids is None:
+            raise ApiError("Missing required arg allele_ids")
+
+        if not allele_ids:
+            return []
+
+        allele_ids = [int(i) for i in allele_ids.split(',')]
 
         return helpers.get_workflow_allele_collisions(
             session,
-            analysis_allele_ids,
+            allele_ids,
             analysis_id=analysis_id
         )
 

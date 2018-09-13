@@ -66,6 +66,12 @@ export function prepareAlleleStateModel(alleleState) {
         alleleState.verification = null
     }
 
+    if (!('quality' in alleleState)) {
+        alleleState.quality = {
+            comment: ''
+        }
+    }
+
     //
     // Migrations
     //

@@ -12,36 +12,37 @@ import re
 import argparse
 import json
 import logging
-from collections import OrderedDict
+import itertools
+from collections import OrderedDict, defaultdict
 
 from vardb.util import DB, vcfiterator
-from vardb.deposit.importers import SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
-from vardb.datamodel import sample, allele, workflow
+from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
+                                    GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
+                                    SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    SplitToDictInfoProcessor, AlleleInterpretationImporter, \
+                                    batch_generator
+
+from vardb.datamodel import sample, workflow
 
 from deposit_from_vcf import DepositFromVCF
 
 log = logging.getLogger(__name__)
 
 
+VARIANT_GENOTYPES = ['0/1', '1/.', './1', '1/1']
+
 class DepositAnalysis(DepositFromVCF):
 
-    def process_records(self, records, db_analysis, vcf_sample_names, db_samples):
-        for k, v in records.iteritems():
-            # Import alleles
-            db_alleles = []
-            for record in v:
-                new_db_alleles = self.allele_importer.process(record)
+    def postprocess(self, db_analysis, db_analysis_interpretation):
+        candidate_processors = self.get_postprocessors('analysis')
+        for c in candidate_processors:
+            if re.search(c['name'], db_analysis.name):
+                for method in c['methods']:
+                    if method == 'analysis_not_ready_findings':
+                        from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
+                        analysis_not_ready_findings(self.session, db_analysis, db_analysis_interpretation)
 
-                # Import annotation
-                self.annotation_importer.process(record, new_db_alleles)
-
-                db_alleles += new_db_alleles
-
-            # Compute and import genotypes
-            for sample_name, db_sample in zip(vcf_sample_names, db_samples):
-                self.genotype_importer.process(v, sample_name, db_analysis, db_sample, db_alleles)
-
-    def import_vcf(self, analysis_config_data, cache_size=1000, sample_type="HTS"):
+    def import_vcf(self, analysis_config_data, batch_size=1000, sample_type="HTS", append=False):
 
         vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
@@ -52,112 +53,142 @@ class DepositAnalysis(DepositFromVCF):
 
         db_genepanel = self.get_genepanel(analysis_config_data.gp_name, analysis_config_data.gp_version)
 
-        db_analysis = self.analysis_importer.process(
-            analysis_config_data.analysis_name,
-            analysis_config_data.priority,
-            db_genepanel,
-            analysis_config_data.report,
-            analysis_config_data.warnings
+        if not append:
+            db_analysis = self.analysis_importer.process(
+                analysis_config_data.analysis_name,
+                analysis_config_data.priority,
+                db_genepanel,
+                analysis_config_data.report,
+                analysis_config_data.warnings
+            )
+        else:
+            db_analysis = self.session.query(sample.Analysis).filter(
+                sample.Analysis.name == analysis_config_data.analysis_name
+            ).one()
+
+            if any(s for s in db_analysis.samples if s.father_id is not None or s.mother_id is not None):
+                raise RuntimeError("Appending to a family analysis is not supported.")
+
+        log.info("Importing {}".format(db_analysis.name))
+        db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis, reopen_if_exists=append)
+        db_samples = self.sample_importer.process(
+            vcf_sample_names,
+            db_analysis,
+            sample_type=sample_type,
+            ped_file=analysis_config_data.ped_path
         )
 
-        db_samples = self.sample_importer.process(vcf_sample_names, db_analysis, sample_type)
+        # Due to the nature of decomposed + normalized variants, we need to be careful how we
+        # process the data. Variants belonging to the same sample's genotype can be on different positions
+        # after decomposition. Example:
+        # Normal:
+        # 10    ATT A,AG,ATC    0/1 1/2 2/3
+        # After decompose/normalize:
+        # 10    ATT A   0/1 1/. ./.
+        # 11    TT   G   ./. ./1 1/.
+        # 12    T   C   ./. ./. ./1
 
-        if not db_samples or len(db_samples) != len(vcf_sample_names):
-            self.session.rollback()
-            raise RuntimeError("Couldn't import samples to database. (db_samples: %s, vcf_sample_names: %s)" %(str(db_samples), str(vcf_sample_names)))
+        # For a Genotype, we want to keep connection to both Alleles (using Genotype.secondallele_id).
+        # For each sample, if the variant genotype is:
+        # - '0/0' we don't have any variant, ignore it.
+        # - '0/1' or '1/1' we can import Genotype directly using a single Allele.
+        # - '1/.' we need to wait for next './1' entry in order to connect the second Allele.
 
-        db_analysis_interpretation = self.analysis_interpretation_importer.process(db_analysis)
-        records_cache = OrderedDict()
-        N = 0
-        for record in vi.iter():
-            self.counter['nVariantsInFile'] += 1
-            N += 1
-            key = (record["CHROM"], record["POS"])
-            if key not in records_cache:
-                records_cache[key] = []
+        proband_sample_name = next(s.identifier for s in db_samples if s.proband is True)
 
-            assert len(record["ALT"]) == 1, "We only support decomposed variants. That is, only one ALT per line/record."
+        needs_secondallele = {s: False for s in vcf_sample_names}
+        sample_has_coverage = {s: False for s in vcf_sample_names}
+        proband_alleles = []  # One or two alleles belonging to proband, for creating one genotype
+        proband_records = []  # One or two records belonging to proband, for creating one genotype
+        block_records = []  # Stores all records for the whole "block". GenotypeImporter needs some metadata from here.
+        records_count = 0
+        imported_records_count = 0
+        for batch_records in batch_generator(vi.iter, batch_size):
 
-            if N < cache_size:
-                records_cache[key].append(record)
-                continue
-            elif key in records_cache:
-                # Make sure all variants at same position is in same cache
-                records_cache[key].append(record)
-                continue
-            else:
-                self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
+            # First import batch as alleles
+            for record in batch_records:
 
-                records_cache.clear()
-                records_cache[key].append(record)
-                N = 1
+                # if not self.is_inside_transcripts(record, db_genepanel):
+                #     error = "The following variant is not inside the genepanel %s\n" % (db_genepanel.name + "_" + db_genepanel.version)
+                #     error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
+                #     raise RuntimeError(error)
 
-        self.process_records(records_cache, db_analysis, vcf_sample_names, db_samples)
+                # If a non-multialleleic site for proband, check against import filter.
+                # FIXME: Check number > 5000 for filtering
+                # if record['SAMPLES'][proband_sample_name]['GT'] in ['0/1', '1/1']:
+                #    if 'GNOMAD_GENOMES' in record['INFO']['ALL'] and record['INFO']['ALL']['GNOMAD_GENOMES']['AF'][0] > 0.2:
+                #        continue
 
-        # Postprocess
-        candidate_processors = self.get_postprocessors('analysis')
-        for c in candidate_processors:
-            if re.search(c['name'], db_analysis.name):
-                for method in c['methods']:
-                    if method == 'analysis_not_ready_findings':
-                        from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
-                        analysis_not_ready_findings(self.session, db_analysis, db_analysis_interpretation)
+                # We only import variants found in proband
+                if record['SAMPLES'][proband_sample_name]['GT'] in VARIANT_GENOTYPES:
+                    self.allele_importer.add(record)
+                else:
+                    continue
 
+            alleles = self.allele_importer.process()
 
-def main(argv=None):
-    """Example: ./deposit.py --vcf=./myvcf.vcf"""
-    argv = argv or sys.argv[1:]
-    parser = argparse.ArgumentParser(description="""Deposit variants and genotypes from a VCF file into varDB.""")
-    parser.add_argument("--vcf", action="store", dest="vcfPath", required=True, help="Path to VCF file to deposit")
-    parser.add_argument("--samplecfgs", action="store", nargs="+", dest="sample_config_files", required=True,
-                        help="Configuration file(s) (JSON) for sample(s) from pipeline")
-    parser.add_argument("--analysiscfg", action="store", dest="analysis_config_file", required=True,
-                        help="Configuration file (JSON) for analysis from pipeline")
-    parser.add_argument("--skip", action="store", dest="skipInfoFields", required=False, nargs='*',
-                        default=["NS", "DP", "AN", "CIGAR"],
-                        help="The VCF INFO fields that should NOT be added as annotation to varDB.")
-    parser.add_argument("--refgenome", action="store", dest="refGenome", required=False,
-                        default="GRCh37", help="Reference genome name")
-    parser.add_argument("-f", action="store_true", dest="nonInteractive", required=False,
-                        default=False, help="Do not ask for confirmation before deposit")
+            # Process batch again to import annotation and genotypes (which both needs allele ids)
+            for record in batch_records:
 
-    args = parser.parse_args(argv)
+                if record['SAMPLES'][proband_sample_name]['GT'] in VARIANT_GENOTYPES:
+                    allele = self.get_allele_from_record(record, alleles)
+                    # We might have skipped importing the record as allele due to import filtering
+                    if not allele:
+                        continue
 
-    sample_configs = list()
-    for sample_config_file in args.sample_config_files:
-        with open(sample_config_file) as f:
-            sample_configs.append(json.load(f))
+                    # Annotation
+                    self.annotation_importer.add(record, allele['id'])
+                    proband_alleles.append(allele)
+                    proband_records.append(record)
+                    block_records.append(record)
+                elif any(needs_secondallele.values()):
+                    block_records.append(record)
 
-    with open(args.analysis_config_file) as f:
-        analysis_config = json.load(f)
+                for sample_name in vcf_sample_names:
+                    # Track samples that have no coverage within a multiallelic block
+                    # './.' often occurs for single records when the sample has genotype in other records,
+                    # but if it is './.' in _all_ records within a block, it has no coverage at this site
+                    sample_gt = record['SAMPLES'][sample_name]['GT']
+                    if sample_gt != './.':
+                        sample_has_coverage[sample_name] = True
 
-    db = DB()
-    db.connect()
-    session = db.session
+                    if sample_gt in ['1/.', './1']:
+                        needs_secondallele[sample_name] = not needs_secondallele[sample_name]
 
-    da = DepositAnalysis(session)
-    try:
-        da.import_vcf(
-            args.vcfPath,
-            sample_configs=sample_configs,
-            analysis_config=analysis_config
-        )
-    except UserWarning as e:
-        log.error(str(e))
-        sys.exit()
+                # Genotype
+                # Run this always, since a "block" can be finished on records with no proband data
+                if not any(needs_secondallele.values()):
+                    if proband_records:
+                        assert len(proband_alleles) == len(proband_records)
+                        samples_missing_coverage = [k for k, v in sample_has_coverage.iteritems() if not v]
+                        self.genotype_importer.add(
+                            proband_records,
+                            proband_alleles,
+                            proband_sample_name,
+                            db_samples,
+                            samples_missing_coverage,
+                            block_records
+                        )
+                        sample_has_coverage = {s: False for s in vcf_sample_names}
+                        imported_records_count += len(proband_records)
+                        proband_alleles = []
+                        proband_records = []
 
-    if not args.nonInteractive:
-        print "You are about to commit the following changes to the database:"
-        da.printStats()
-        print "Proceed? (Y/n)"
-        if not raw_input() == "Y":
-            log.warning("Aborting deposit! Rolling back changes.")
-            session.rollback()
-            return -1
+                    # Block is finished
+                    block_records = []
 
-    session.commit()
-    print "Deposit complete."
-    return 0
+            annotations = self.annotation_importer.process()
+            assert len(alleles) == len(annotations), 'Got {} alleles and {} annotations'.format(len(alleles), len(annotations))
 
-if __name__ == "__main__":
-    sys.exit(main())
+            genotypes, genotypesamplesdata = self.genotype_importer.process()
+            records_count += len(batch_records)
+            log.info("Progress: {} records processed, {} variants imported".format(records_count, imported_records_count))
+
+        assert len(proband_alleles) == 0
+        assert len(proband_records) == 0
+
+        if not append:
+            self.postprocess(db_analysis, db_analysis_interpretation)
+
+        log.info('All done, committing')
+        self.session.commit()

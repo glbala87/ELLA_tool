@@ -10,10 +10,6 @@ class Allele(Base):
     """Represents an allele (a variant type in a genomic position)"""
     __tablename__ = "allele"
 
-    FREQUENCY = 'FREQUENCY'
-    REGION = 'REGION'
-    GENE = 'GENE'
-
     id = Column(Integer, primary_key=True)
     genome_reference = Column(String, nullable=False)
     genotypes = relationship("Genotype", primaryjoin="or_(Allele.id==Genotype.allele_id, "

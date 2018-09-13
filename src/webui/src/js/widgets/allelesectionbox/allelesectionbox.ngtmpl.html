@@ -2,6 +2,7 @@
   <maintitle>
   {{$ctrl.section.title}}
   </maintitle>
+  <subtitle ng-if="$ctrl.section.subtitle">{{$ctrl.section.subtitle}}</subtitle>
 
   <controls>
 
@@ -28,13 +29,6 @@
               <checked>Reevaluate</checked>
           </checkable-button>
 
-          <button class="id-mark-class1"
-                  ng-if="control == 'toggle_class1'"
-                  ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                  ng-click="$ctrl.classificationChanged({alleleId: $ctrl.selectedAllele, classification: '1'})">
-              Mark class 1
-          </button>
-
           <button class="id-mark-class2"
                   ng-if="control == 'toggle_class2'"
                   ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
@@ -42,14 +36,12 @@
               Mark class 2
           </button>
 
-          <!-- FIXME -->
           <button class="id-add-references"
                   ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
                   ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
                   ng-if="control == 'references'">Add studies
           </button>
 
-          <!-- FIXME -->
           <button class="id-show-ignored-references"
                   ng-click="$ctrl.showExcludedReferencesClicked({alleleId: $ctrl.selectedAllele})"
                   ng-if="control == 'references'">{{$ctrl.getExcludedReferencesBtnText()}}
@@ -82,7 +74,20 @@
                       ng-options="o.value as o.name for o in $ctrl.classificationOptions"
                       ng-change="$ctrl.classificationChanged({alleleId: $ctrl.selectedAllele, classification: $ctrl.modelClassification})"></select>
           </div>
+
         </section>
+        <div class="bttn-set" ng-if="control == 'validation'" title="Externally verified (e.g. with Sanger)">
+              <label tabindex=0
+                    ng-disabled="$ctrl.readOnly"
+                    class="bttn"
+                    ng-model="$ctrl.modelVerificationStatus[$ctrl.selectedAllele]"
+                    ng-model-watch="$ctrl.verificationStatus[$ctrl.selectedAllele]"
+                    ng-change="$ctrl.verificationStatusChanged({alleleId: $ctrl.selectedAllele, verificationStatus: $ctrl.modelVerificationStatus[$ctrl.selectedAllele]})"
+                    uib-btn-radio="s"
+                    uncheckable="true"
+                    ng-repeat="s in ['verified', 'technical']"
+              >{{s | uppercase }}</label>
+        </div>
       </div>
     </section>
 
@@ -100,6 +105,13 @@
                        ng-model="$ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment"
                        ng-if="$ctrl.section.alleleassessmentComment"></wysiwyg-editor>
 
+    <wysiwyg-editor class="control-comment id-comment-quality"
+        ng-disabled="$ctrl.readOnly"
+        placeholder="{{$ctrl.section.qualityComment.placeholder}}"
+        ng-change="$ctrl.qualityCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.alleleState.quality.comment})"
+        ng-model="$ctrl.alleleState.quality.comment"
+        ng-if="$ctrl.section.qualityComment"></wysiwyg-editor>
+
     <wysiwyg-editor class="control-comment id-comment-report"
                        ng-disabled="$ctrl.readOnly"
                        placeholder="{{$ctrl.section.reportComment.placeholder}}"
@@ -107,7 +119,7 @@
                        ng-model="$ctrl.allelereport.evaluation.comment"
                        ng-if="$ctrl.section.reportComment"></wysiwyg-editor>
 
-      <div class="id-attachments" ng-if="$ctrl.section.options.showIncludedAcmgCodes">
+      <div class="id-attachments" ng-if="$ctrl.section.options.showIncludedAcmgCodes && $ctrl.alleleassessment.attachment_ids.length">
         <h4 class="section-title acmg-body">Attachments</h4>
         <section class="attachment-wrapper">
           <attachment

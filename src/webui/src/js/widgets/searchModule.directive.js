@@ -42,16 +42,6 @@ app.component('search', {
                     getSearchTypes: () => {
                         return TYPES
                     },
-                    getEndAction: (interpretation) => {
-                        let end_action = `${interpretation.workflow_status} ${
-                            interpretation.finalized ? ' (Finalized) ' : ' '
-                        }`
-                        if (interpretation.user) {
-                            return end_action + ' • '
-                        } else {
-                            return end_action
-                        }
-                    },
                     optionSelected: (key, newValue) => {
                         // A bit hackish due to angular-selector not
                         // updating model before calling function.

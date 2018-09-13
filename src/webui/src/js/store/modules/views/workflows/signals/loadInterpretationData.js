@@ -1,6 +1,4 @@
 import { sequence, parallel } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
 import progress from '../../../../common/factories/progress'
 import loadAlleles from '../sequences/loadAlleles'
 import loadReferences from '../sequences/loadReferences'

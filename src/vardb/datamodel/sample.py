@@ -4,7 +4,7 @@
 import datetime
 import pytz
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum
+from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -30,6 +30,13 @@ class Sample(Base):
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship('Analysis', backref='samples')
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
+    proband = Column(Boolean, nullable=False)
+    family_id = Column(String())
+    father_id = Column(Integer, ForeignKey("sample.id"))  # Set on proband
+    mother_id = Column(Integer, ForeignKey("sample.id"))  # Set on proband
+    sibling_id = Column(Integer, ForeignKey("sample.id"))  # Set for siblings pointing to proband (i.e. _not_ on proband)
+    sex = Column(Enum("Male", "Female", name="sample_sex"))  # Can be unknown
+    affected = Column(Boolean, nullable=False)  # Can be unknown
     deposit_date = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )

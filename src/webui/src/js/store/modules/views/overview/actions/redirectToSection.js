@@ -20,7 +20,8 @@ export default function redirectToSection({ props, state, router }) {
     // Fallbacks
     if (sectionKeys) {
         router.redirect(`/overview/${sectionKeys[0]}`)
+        return
+    } else {
+        console.error('No available sections', sectionKeys)
     }
-
-    router.redirect(`/overview/variants`)
 }

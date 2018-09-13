@@ -15,10 +15,9 @@ function getFields(allele) {
     })
 }
 
-function getFreqValue(freqData, freqType, config) {
+export function formatFreqValue(value, config) {
     const precision = config.frequencies.view.precision
     const scientificThreshold = config.frequencies.view.scientific_threshold
-    let value = parseFloat(freqData.freq[freqType])
     if (isNaN(value)) {
         return 'N/A'
     } else if (value === 0) {
@@ -30,9 +29,9 @@ function getFreqValue(freqData, freqType, config) {
     }
 }
 
-function formatValue(freqData, name, freqType, config) {
+export function formatValue(freqData, name, freqType, config) {
     if (name === 'freq') {
-        return getFreqValue(freqData, freqType, config)
+        return formatFreqValue(freqData.freq[freqType], config)
     } else {
         return freqData[name][freqType]
     }

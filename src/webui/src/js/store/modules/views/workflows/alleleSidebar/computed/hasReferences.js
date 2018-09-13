@@ -7,7 +7,7 @@ export default Compute(state`views.workflows.data.alleles`, (alleles) => {
         return
     }
     for (let [alleleId, allele] of Object.entries(alleles)) {
-        result[alleleId] = allele.annotation.references.length > 0
+        result[alleleId] = allele.tags.includes('has_references')
     }
     return result
 })

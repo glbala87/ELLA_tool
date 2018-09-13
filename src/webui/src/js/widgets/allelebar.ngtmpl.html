@@ -40,9 +40,12 @@
                            popover-placement="bottom">
             <i>{{t.transcript}}:</i><b>{{t.HGVSc_short || $ctrl.allele.formatted.hgvsg}}</b> {{$ctrl.allele.formatted.genotype}}
           </span>
-          <span ng-if="$ctrl.allele.samples">
-            <span title="Homozygous" class="tag red" ng-if="$ctrl.allele.samples[0].genotype.homozygous">HOM</span>
-            <span title="Heterozygous" class="tag" ng-if="!$ctrl.allele.samples[0].genotype.homozygous">HET</span>
+          <span ng-if="$ctrl.genotypeDisplay.length">
+            <span class="genotype-display" ng-repeat="gt in $ctrl.genotypeDisplay" title="{{gt.title}}">
+              <span ng-if="$ctrl.genotypeDisplay.length > 1">{{gt.sample_label}}: </span>{{gt.display}}
+              <span title="Homozygous" class="tag red" ng-if="gt.sample_label == 'P' && gt.type == 'Homozygous'">HOM</span>
+              <span title="Multiallelic" class="tag" ng-if="gt.multiallelic">MUL</span>
+            </span>
           </span>
         </div>
       </h3>

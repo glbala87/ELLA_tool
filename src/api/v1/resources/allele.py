@@ -67,7 +67,7 @@ class AlleleListResource(LogRequestResource):
         alleles, count = self.list_query(session, allele.Allele, rest_filter=rest_filter, order_by=order_by)
 
         # Optional extras
-        sample_id = request.args.get('sample_id')
+        analysis_id = request.args.get('analysis_id')
         gp_name = request.args.get('gp_name')
         gp_version = request.args.get('gp_version')
         annotation = request.args.get('annotation', 'true') == 'true'
@@ -85,8 +85,8 @@ class AlleleListResource(LogRequestResource):
         }
         if link_filter:
             kwargs['link_filter'] = link_filter
-        if sample_id is not None:
-            kwargs['include_genotype_samples'] = [sample_id]
+        if analysis_id is not None:
+            kwargs['analysis_id'] = analysis_id
         if genepanel:  # TODO: make genepanel required?
             kwargs['genepanel'] = genepanel
         if annotation:

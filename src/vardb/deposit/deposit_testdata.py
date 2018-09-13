@@ -65,9 +65,9 @@ chr2:g.48010497N>N chr2:g.48010531N>N
 
 GENEPANELS = [
     {
-        'transcripts': '../testdata/clinicalGenePanels/OMIM_v01/OMIM_v01.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/OMIM_v01/OMIM_v01.phenotypes.csv',
-        'name': 'OMIM',
+        'transcripts': '../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.transcripts.csv',
+        'phenotypes': '../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.phenotypes.csv',
+        'name': 'Mendeliome',
         'version': 'v01'
     },
     {
@@ -94,8 +94,8 @@ GENEPANELS = [
 
 ANALYSES = [
     {
-        'path': '../testdata/analyses/small',
-        'name': 'small',
+        'path': '../testdata/analyses/default',
+        'name': 'default',
         'default': True,
     },
     {
@@ -118,7 +118,7 @@ ANALYSES = [
 
 ALLELES = [
     {
-        'path': '../testdata/analyses/small/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf',
+        'path': '../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf',
         'genepanel': ('HBOC', 'v01')
     }
 ]
@@ -168,6 +168,10 @@ class DepositTestdata(object):
                 continue
             try:
                 analysis_vcf_path = glob.glob(os.path.join(analysis_path, '*.vcf'))[0]
+                analysis_ped_path = None
+                ped_glob = glob.glob(os.path.join(analysis_path, '*.ped'))
+                if ped_glob:
+                    analysis_ped_path = ped_glob[0]
                 filename = os.path.basename(analysis_vcf_path)
                 matches = re.match(DepositTestdata.ANALYSIS_FILE_RE, filename)
 
@@ -182,6 +186,7 @@ class DepositTestdata(object):
                     gp_name,
                     gp_version,
                     "1",
+                    ped_path=analysis_ped_path,
                     warnings=WARNINGS_EXAMPLE if gp_name == 'HBOC' else None,
                     report=REPORT_EXAMPLE
                 )
@@ -218,7 +223,7 @@ class DepositTestdata(object):
                 gpdata['name'],
                 gpdata['version'],
                 configPath=os.path.join(SCRIPT_DIR,  gpdata['config']) if 'config' in gpdata else None,
-                replace=True
+                replace=False
             )
 
     def deposit_references(self):
@@ -258,7 +263,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="small")
+    parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="default")
 
     args = parser.parse_args()
 

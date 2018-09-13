@@ -11,6 +11,7 @@ import loadCollisions from '../sequences/loadCollisions'
 import showExitWarning from '../showExitWarning'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
+import getWorkflowTitle from '../computed/getWorkflowTitle'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -52,16 +53,9 @@ export default [
             },
             loadGenepanel,
             prepareComponents,
-            parallel([
-                [
-                    loadInterpretations,
-                    // We need the formatted allele, so postpone setting title until here.
-                    setNavbarTitle(
-                        string`${state`views.workflows.data.alleles.${state`views.workflows.id`}.formatted.display`} (${state`views.workflows.selectedGenepanel.name`}_${state`views.workflows.selectedGenepanel.version`})`
-                    )
-                ],
-                loadCollisions
-            ])
+            loadInterpretations,
+            // We need the formatted allele, so postpone setting title until here.
+            setNavbarTitle(getWorkflowTitle)
         ]
     }
 ]

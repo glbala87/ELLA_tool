@@ -1,6 +1,7 @@
 from flask import request
 from sqlalchemy import tuple_
 
+from api import ApiError
 from api.util.util import request_json, authenticate
 from api.v1.resource import LogRequestResource
 
@@ -578,4 +579,14 @@ class AlleleCollisionResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, allele_id, user=None):
+
+        allele_ids = request.args.get('allele_ids')
+        if allele_ids is None:
+            raise ApiError("Missing required arg allele_ids")
+
+        if not allele_ids:
+            return []
+
+        allele_ids = [int(i) for i in allele_ids.split(',')]
+
         return helpers.get_workflow_allele_collisions(session, [allele_id], allele_id=allele_id)
