@@ -3,6 +3,7 @@
 Code for adding or modifying gene panels in varDB.
 """
 
+import io
 import os
 import sys
 import argparse
@@ -20,7 +21,7 @@ log = logging.getLogger(__name__)
 def load_phenotypes(phenotypes_path):
     if not phenotypes_path:
         return None
-    with open(os.path.abspath(os.path.normpath(phenotypes_path))) as f:
+    with io.open(os.path.abspath(os.path.normpath(phenotypes_path)), encoding="utf-8") as f:
         phenotypes = []
         header = None
         for line in f:
@@ -47,14 +48,14 @@ def load_phenotypes(phenotypes_path):
 def load_config(config_path):
     if not config_path:
         return None
-    with open(os.path.abspath(os.path.normpath(config_path))) as f:
+    with io.open(os.path.abspath(os.path.normpath(config_path)), encoding="utf-8") as f:
         config = json.load(f)
         config_valid(config['config'])
         return config['config']
 
 
 def load_transcripts(transcripts_path):
-    with open(os.path.abspath(os.path.normpath(transcripts_path))) as f:
+    with io.open(os.path.abspath(os.path.normpath(transcripts_path)), encoding="utf-8") as f:
         transcripts = []
         header = None
         for line in f:
@@ -151,11 +152,11 @@ class DepositGenepanel(object):
             ))
 
         for existing, created in bulk_insert_nonexisting(self.session,
-                                                              gm.Transcript,
-                                                              transcript_rows,
-                                                              include_pk='id',
-                                                              compare_keys=['transcript_name'],
-                                                              replace=replace):
+                                                         gm.Transcript,
+                                                         transcript_rows,
+                                                         include_pk='id',
+                                                         compare_keys=['transcript_name'],
+                                                         replace=replace):
             transcript_inserted_count += len(created)
             transcript_reused_count += len(existing)
 
@@ -209,14 +210,13 @@ class DepositGenepanel(object):
             ))
 
         for existing, created in bulk_insert_nonexisting(self.session,
-                                                              gm.Phenotype,
-                                                              phenotype_rows,
-                                                              include_pk='id',
-                                                              compare_keys=['gene_id', 'description', 'inheritance'],
-                                                              replace=replace):
+                                                         gm.Phenotype,
+                                                         phenotype_rows,
+                                                         include_pk='id',
+                                                         compare_keys=['gene_id', 'description', 'inheritance'],
+                                                         replace=replace):
             phenotype_inserted_count += len(created)
             phenotype_reused_count += len(existing)
-
             # Connect to genepanel by inserting into the junction table
             junction_values = list()
             pks = [i['id'] for i in existing + created]

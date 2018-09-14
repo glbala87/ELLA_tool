@@ -176,6 +176,7 @@ def bulk_insert_nonexisting(session, model, rows, all_new=False, include_pk=None
             session.bulk_update_mappings(model, input_existing)
 
         session.bulk_insert_mappings(model, created)
+        session.flush()
         if include_pk:
             # We need to retrieve all data back in order to match input correct with primary key
             # This is quite heavy, but much better than alternative which is sending INSERTs one
@@ -186,8 +187,6 @@ def bulk_insert_nonexisting(session, model, rows, all_new=False, include_pk=None
             for c in created:
                 pk_item = next(n for n in data_with_pk if all(getattr(n, k) == v for k, v in c.iteritems()))
                 c[include_pk] = getattr(pk_item, include_pk)
-
-        session.flush()
         yield input_existing, created
 
 
