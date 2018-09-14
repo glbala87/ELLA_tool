@@ -525,9 +525,11 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
   .nav-table { display: table; width: 45rem; border-collapse: collapse; }
   .nav-row { display: table-row; align-items: center; color: $black-60; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
+    cursor: pointer;
     transition: all 0.3s ease-in;
     &.ng-leave {transition: none;}
     &.top {border-bottom: 1px solid $black-10;
+      cursor: auto;
       &:hover {font-weight: 600; color: $black-50; }
       .cell {font-weight: 600; margin: 0.2rem;
         &:hover {color: $black-75; }
