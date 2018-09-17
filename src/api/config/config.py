@@ -334,16 +334,11 @@ config = {
     },
     "igv": {
         "reference": {
-            "fastaURL": "api/v1/igv/human_g1k_v37_decoy.fasta" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
-            "cytobandURL": "api/v1/igv/cytoBand.txt" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt"
-        },
-        "tracks": {
-            "gencode": "api/v1/igv/gencode.v18.collapsed.bed" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed",
+            "fastaURL": "api/v1/igv/human_g1k_v37_decoy.fasta" if str2bool(os.environ.get('OFFLINE_MODE', '')) else "//igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
+            "cytobandURL": "api/v1/igv/cytoBand.txt" if str2bool(os.environ.get('OFFLINE_MODE', '')) else "//igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt"
         },
         # Files permitted accessible on /igv/<file> resource, relative to $IGV_DATA env
         "valid_resource_files": [
-            'gencode.v18.collapsed.bed',
-            'gencode.v18.collapsed.bed.idx',
             'cytoBand.txt',
             'human_g1k_v37_decoy.fasta',
             'human_g1k_v37_decoy.fasta.fai'

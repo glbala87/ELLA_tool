@@ -1,0 +1,41 @@
+<h4 class="section-title">Global tracks</h4>
+<div class="bttn-set">
+    <label tabindex=0
+           class="bttn"
+           ng-model="$ctrl.modelGlobalTracks[$index]"
+           ng-model-watch="$ctrl.tracks.global[$index].selected"
+           ng-change="$ctrl.shownTracksChanged({type: 'global', id: item.id, show: !item.selected})"
+           uib-btn-checkbox="item"
+           ng-repeat="item in $ctrl.tracks.global track by item.id"
+    >{{item.config.name}}</label>
+</div>
+
+<h4 class="section-title">Your tracks</h4>
+<div class="bttn-set">
+    <label tabindex=0
+           class="bttn"
+           ng-model="$ctrl.modelUserTracks[$index]"
+           ng-model-watch="$ctrl.tracks.user[$index].selected"
+           ng-change="$ctrl.shownTracksChanged({type: 'user', id: item.id, show: !item.selected})"
+           uib-btn-checkbox="item"
+           ng-repeat="item in $ctrl.tracks.user track by item.id"
+    >{{item.config.name}}</label>
+</div>
+
+<h4 class="section-title">Analysis tracks</h4>
+<div class="bttn-set">
+    <label tabindex=0
+           class="bttn"
+           ng-model="$ctrl.modelAnalysisTracks[$index]"
+           ng-model-watch="$ctrl.tracks.analysis[$index].selected"
+           ng-change="$ctrl.shownTracksChanged({type: 'analysis', id: item.id, show: !item.selected})"
+           uib-btn-checkbox="item"
+           ng-repeat="item in $ctrl.tracks.analysis track by item.id"
+    >{{item.config.name}}</label>
+</div>
+
+<igv ng-if="$ctrl.igvTracks.length"
+    locus="$ctrl.igvLocus"
+    tracks="$ctrl.igvTracks"
+    reference="$ctrl.igvReference">
+</igv>

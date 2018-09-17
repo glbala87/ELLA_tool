@@ -10,10 +10,10 @@ from sqlalchemy import tuple_
 from api import ApiError
 from api.config import config
 
-from vardb.datamodel import sample, gene, allele
+from vardb.datamodel import sample, gene, allele, user as user_model
 
 from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, rest_filter
+from api.util.util import authenticate, request_json
 from api.util.alleledataloader import AlleleDataLoader
 
 IGV_DEFAULT_TRACK_CONFIGS = {
@@ -92,6 +92,7 @@ def get_partial_response(path, start, end):
 
 
 class IgvResource(LogRequestResource):
+
     @authenticate()
     def get(self, session, filename, user=None):
         if 'IGV_DATA' not in os.environ:
@@ -162,10 +163,13 @@ class GencodeGenepanelResource(LogRequestResource):
 
 
 class AnalysisVariantTrack(LogRequestResource):
+
     @authenticate()
-    @rest_filter
-    def get(self, session, analysis_id, sample_id, rest_filter=None, user=None):
-        allele_ids = [int(aid) for aid in rest_filter['allele_ids']]
+    def get(self, session, analysis_id, user=None):
+        allele_ids = [int(aid) for aid in request.args.get('allele_ids', '').split(',')]
+
+        if not allele_ids:
+            return None
 
         alleles = session.query(allele.Allele).filter(
             allele.Allele.id.in_(allele_ids)
@@ -175,18 +179,16 @@ class AnalysisVariantTrack(LogRequestResource):
             sample.Analysis.id == analysis_id
         ).one()
 
-        sample_name = session.query(sample.Sample.identifier).filter(
-            sample.Sample.id == sample_id
-        ).scalar()
-
         adl = AlleleDataLoader(session)
-        allele_objs = adl.from_objs(alleles,
-                                    genepanel=analysis.genepanel,
-                                    include_allele_assessment=False,
-                                    include_genotype_samples=[sample_id],
-                                    include_allele_report=False,
-                                    include_custom_annotation=False,
-                                    include_reference_assessments=False)
+        allele_objs = adl.from_objs(
+            alleles,
+            analysis_id=analysis.id,
+            genepanel=analysis.genepanel,
+            include_allele_assessment=False,
+            include_allele_report=False,
+            include_custom_annotation=False,
+            include_reference_assessments=False
+        )
 
         VCF_HEADER_TEMPLATE = "\n".join([
             '##fileformat=VCFv4.1',
@@ -194,7 +196,8 @@ class AnalysisVariantTrack(LogRequestResource):
         ])+"\n"
         VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
 
-        header = VCF_HEADER_TEMPLATE.format(sample_name)
+        sample_names = sorted(list(set([s['identifier'] for a in allele_objs for s in a['samples']])))
+        header = VCF_HEADER_TEMPLATE.format('\t'.join(sample_names))
         data = StringIO()
         data.write(header)
 
@@ -203,114 +206,78 @@ class AnalysisVariantTrack(LogRequestResource):
             pos = a["vcf_pos"]
             ref = a["vcf_ref"]
             alt = a["vcf_alt"]
-            sample_data = next(s for s in a["samples"] if s["id"] == sample_id)
-            dbsnp = set(sum([t.get("dbsnp", []) for t in a["annotation"]["transcripts"]
-                             if t["transcript"] in a["annotation"]["filtered_transcripts"]], []))
 
-            genotype_data = sample_data["genotype"]
-            qual = genotype_data["variant_quality"]
+            genotype_data = {
+                'GT': []  # Per sample entry
+            }
+            for sample_name in sample_names:
+                sample_data = next((s for s in a['samples'] if s['identifier'] == sample_name), None)
+                if not sample_data:
+                    genotype_data['GT'] = './.'
 
-            gt = '1/1' if genotype_data["homozygous"] else '0/1'
+                sample_genotype = sample_data["genotype"]
 
+                # We can just overwrite these, will be same for all samples
+                qual = sample_genotype["variant_quality"]
+                filter_status = sample_genotype["filter_status"]
+                #
 
-            quality_data = OrderedDict()
-            quality_data["GT"] = '1/1' if genotype_data["homozygous"] else '0/1'
-
-            if len(genotype_data["allele_depth"]) == 2:
-                ad_copy = dict(genotype_data["allele_depth"])
-                quality_data["DP"] = str(sum(ad_copy.values()))
-                quality_data["AD"] = str(ad_copy.pop(
-                    "REF"))+","+str(ad_copy.values()[0])
-
-            else:
-                ad = None
-                dp = None
-
-            quality_data["GQ"] = str(genotype_data["genotype_quality"])
-            filter_status = genotype_data["filter_status"]
-
-            quality_format = ":".join(quality_data.keys())
-            quality_data = ":".join(quality_data.values())
+                genotype_data["GT"] = '1/1' if sample_genotype["type"] == 'Homozygous' else '0/1'
 
             # Annotation
-            def get_formatted_freq(label, freqs, subpop):
-                return "%s=%.5g(%d/%d)" % (label, freqs['freq'][subpop], freqs['count'][subpop], freqs['num'][subpop])
-
             info = []
-            gnomad_exomes = a["annotation"]["frequencies"].get("GNOMAD_EXOMES")
-            if gnomad_exomes:
-                info.append(get_formatted_freq(
-                    "GNOMAD_EXOMES", gnomad_exomes, 'G'))
-
-            gnomad_genomes = a["annotation"]["frequencies"].get(
-                "GNOMAD_GENOMES")
-            if gnomad_genomes:
-                info.append(get_formatted_freq(
-                    "GNOMAD_GENOMES", gnomad_genomes, 'G'))
-
-            # indb = a["annotation"]["frequencies"].get("inDB")
-            # if indb:
-            #     info.append(get_formatted_freq("OUSWES", indb, 'OUSWES'))
-
+            genotype_data_keys = sorted(genotype_data.keys())
             data.write(VCF_LINE_TEMPLATE.format(
                 chr=chr,
                 pos=pos,
-                id=",".join(dbsnp) if dbsnp else ".",
+                id=".",
                 ref=ref,
                 alt=alt,
                 qual=qual,
                 filter_status=filter_status,
                 info=";".join(info) if info else ".",
-                genotype_format=quality_format,
-                genotype_data=quality_data
+                genotype_format=':'.join(genotype_data_keys),
+                genotype_data=':'.join([genotype_data[k] for k in genotype_data_keys])
             ))
         data.seek(0)
 
         return send_file(data)
 
 
-
-def get_analysis_tracks(analysis_id, analysis_name):
-    if 'ANALYSES_PATH' in os.environ:
-        return []
-    analyses_path = os.environ["ANALYSES_PATH"]
-    tracks_folder = os.path.join(analyses_path, analysis_name, "tracks")
-    if not os.path.isdir(tracks_folder):
-        return []
+def _search_path_for_tracks(tracks_path, url_func):
 
     index_extensions = ['.fai', '.idx', '.index', '.bai', '.tbi']
-    config_extensions = ['.json', '.config']
 
-    track_files = [f for f in os.listdir(tracks_folder) if not any(f.endswith(ext) for ext in index_extensions+config_extensions)]
-    print os.listdir(tracks_folder)
+    track_files = [f for f in os.listdir(tracks_path) if not any(f.endswith(ext) for ext in index_extensions + ['.json'])]
     tracks = []
     for t in track_files:
-        config_file = next((t+ext for ext in config_extensions if os.path.isfile(os.path.join(tracks_folder, t+ext))), None)
-        if config_file:
+        config_file_path = os.path.join(tracks_path, t + '.json')
+        config = dict()
+        if os.path.isfile(config_file_path):
+            print config_file_path
             try:
-                config = json.load(open(os.path.join(tracks_folder, config_file)))
+                config = json.load(open(os.path.join(tracks_path, config_file_path)))
             except ValueError:
-                config = {}
                 pass
 
-        extension = os.path.splitext(t)
         filetype = os.path.splitext(t)[1][1:] if os.path.splitext(t)[1] != '.gz' else os.path.splitext(os.path.splitext(t)[0])[1][1:]
-
         track_config = json.loads(json.dumps(IGV_DEFAULT_TRACK_CONFIGS[filetype]))
         track_config.update(config)
-        track_config["url"] = "/api/v1/igv/tracks/{}/{}".format(analysis_id, t)
-        track_config.setdefault('name', t)
+        track_config['id'] = t
+        track_config["url"] = url_func(t)
+        if 'name' not in track_config:
+            track_config['name'] = t
 
         def possible_index_files(f):
             for ext in index_extensions:
-                yield f+ext
+                yield f + ext
                 if os.path.splitext(f)[1] in ['.gz', '.bam']:
-                    yield os.path.splitext(f)[0]+ext
+                    yield os.path.splitext(f)[0] + ext
 
-        index_file = next((f for f in possible_index_files(t) if os.path.isfile(os.path.join(tracks_folder, f))), None)
+        index_file = next((f for f in possible_index_files(t) if os.path.isfile(os.path.join(tracks_path, f))), None)
         if index_file:
             track_config["indexed"] = True
-            track_config["indexURL"] = "/api/v1/igv/tracks/{}/{}".format(analysis_id, index_file)
+            track_config["indexURL"] = url_func(index_file)
         else:
             track_config["indexed"] = False
 
@@ -318,7 +285,71 @@ def get_analysis_tracks(analysis_id, analysis_name):
     return tracks
 
 
-class AvailableTracks(LogRequestResource):
+def _get_global_tracks_path():
+    igv_data_path = os.environ.get('IGV_DATA')
+    if not igv_data_path:
+        return None
+    global_tracks_path = os.path.join(igv_data_path, 'tracks')
+    if os.path.isdir(global_tracks_path):
+        return global_tracks_path
+    return None
+
+
+def _get_usergroup_tracks_path(groupname):
+    igv_data_path = os.environ.get('IGV_DATA')
+    if not igv_data_path:
+        return None
+    user_tracks_path = os.path.join(igv_data_path, 'usergroups', groupname, 'tracks')
+    if os.path.isdir(user_tracks_path):
+        return user_tracks_path
+    return None
+
+
+def _get_analysis_tracks_path(analysis_name):
+    analyses_path = os.environ.get("ANALYSES_PATH")
+    if not analyses_path:
+        return None
+    analysis_tracks_path = os.path.join(analyses_path, analysis_name, 'tracks')
+    if os.path.isdir(analysis_tracks_path):
+        return analysis_tracks_path
+    return None
+
+
+def get_global_tracks():
+    global_tracks_path = _get_global_tracks_path()
+    if not global_tracks_path:
+        return []
+
+    def url_func(name):
+        return "/api/v1/igv/tracks/global/{}".format(name)
+
+    return _search_path_for_tracks(global_tracks_path, url_func)
+
+
+def get_user_tracks(user):
+    user_tracks_path = _get_usergroup_tracks_path(user.group.name)
+    if not user_tracks_path:
+        return []
+
+    def url_func(name):
+        return "/api/v1/igv/tracks/usergroups/{}/{}".format(user.group.id, name)
+
+    return _search_path_for_tracks(user_tracks_path, url_func)
+
+
+def get_analysis_tracks(analysis_id, analysis_name):
+    analysis_tracks_path = _get_analysis_tracks_path(analysis_name)
+    if not analysis_tracks_path:
+        return []
+
+    def url_func(name):
+        return "/api/v1/igv/tracks/analyses/{}/{}".format(analysis_id, name)
+
+    return _search_path_for_tracks(analysis_tracks_path, url_func)
+
+
+class AnalysisTrackList(LogRequestResource):
+
     @authenticate()
     def get(self, session, analysis_id, user=None):
         analysis_name = session.query(
@@ -327,12 +358,58 @@ class AvailableTracks(LogRequestResource):
             sample.Analysis.id == analysis_id
         ).scalar()
 
-        analysis_tracks = get_analysis_tracks(analysis_id, analysis_name)
-        print json.dumps(analysis_tracks, indent=4)
-        return analysis_tracks
+        result = {
+            'global': get_global_tracks(),
+            'user': get_user_tracks(user),
+            'analysis': get_analysis_tracks(analysis_id, analysis_name)
+        }
+        print json.dumps(result, indent=4)
+        return result
+
+
+class GlobalTrack(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, filename, user=None):
+
+        global_tracks_path = _get_global_tracks_path()
+        if not global_tracks_path:
+            raise ApiError("There are no global tracks.")
+
+        path = os.path.join(global_tracks_path, filename)
+        start, end = get_range(request)
+
+        if start is None:
+            return send_file(path)
+        else:
+            return get_partial_response(path, start, end)
+
+
+class UserGroupTrack(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, usergroup_id, filename, user=None):
+        usergroup_name = session.query(
+            user_model.UserGroup.name
+        ).filter(
+            user_model.UserGroup.id == usergroup_id
+        ).scalar()
+
+        user_tracks_path = _get_usergroup_tracks_path(usergroup_name)
+        if not user_tracks_path:
+            raise ApiError("Requested usergroup id doesn't contain any tracks.")
+
+        path = os.path.join(user_tracks_path, filename)
+        start, end = get_range(request)
+
+        if start is None:
+            return send_file(path)
+        else:
+            return get_partial_response(path, start, end)
 
 
 class AnalysisTrack(LogRequestResource):
+
     @authenticate()
     def get(self, session, analysis_id, filename, user=None):
         analysis_name = session.query(
@@ -341,12 +418,14 @@ class AnalysisTrack(LogRequestResource):
             sample.Analysis.id == analysis_id
         ).scalar()
 
-        path = os.path.join(os.environ['ANALYSES_PATH'], analysis_name, "tracks", filename)
+        analysis_tracks_path = _get_analysis_tracks_path(analysis_name)
+        if not analysis_tracks_path:
+            raise ApiError("Requested analysis id doesn't contain any tracks.")
 
+        path = os.path.join(analysis_tracks_path, filename)
         start, end = get_range(request)
 
         if start is None:
             return send_file(path)
         else:
             return get_partial_response(path, start, end)
-

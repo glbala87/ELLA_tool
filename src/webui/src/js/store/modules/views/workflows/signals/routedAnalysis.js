@@ -3,7 +3,6 @@ import { set } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAnalysis from '../actions/getAnalysis'
 import prepareComponents from '../actions/prepareComponents'
-import prepareIGV from '../actions/prepareIGV'
 import loadInterpretations from '../sequences/loadInterpretations'
 import loadGenepanel from '../sequences/loadGenepanel'
 import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
@@ -43,8 +42,7 @@ export default [
                 loadInterpretationLogs,
                 // Interpretation logs are needed in prepareComponents for analysis
                 prepareComponents,
-                prepareSelectedAllele,
-                prepareIGV
+                prepareSelectedAllele
             ]
         }
     ]),

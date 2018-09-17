@@ -1,24 +1,6 @@
 /* jshint esnext: true */
 
-import app from '../ng-decorators'
-import { connect } from '@cerebral/angularjs'
-import { state, signal } from 'cerebral/tags'
-import template from './igv.ngtmpl.html'
-import igv from 'igv';
-
-app.component('visualization', {
-    templateUrl: 'igv.ngtmpl.html',
-    controller: connect(
-        {
-            igvLocus: state`views.workflows.igv.locus`,
-            tracks: state`views.workflows.igv.tracks`,
-            igvReference: state`views.workflows.igv.reference`,
-            shownTracksChanged: signal`views.workflows.igvTrackViewChanged`
-        },
-        'IGV'
-    )
-})
-
+import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
 
 /**
@@ -34,15 +16,14 @@ import { Directive, Inject } from '../ng-decorators'
     },
     template: '<div class="igv-container"></div>',
     link: (scope, elem, attrs) => {
-
-        var defaults =  {
+        var defaults = {
             showNavigation: true,
             showRuler: true,
             showCenterGuide: true,
             showCursorTrackingGuide: true,
             doubleClickDelay: 300,
             minimumBases: 50,
-            promisified: true,
+            promisified: true
         }
 
         let trackConfigs = scope.tracks.filter((t) => t.show).map((x) => x.config)
@@ -50,13 +31,13 @@ import { Directive, Inject } from '../ng-decorators'
         let options = {
             tracks: trackConfigs,
             reference: scope.reference,
-            locus: scope.locus,
+            locus: scope.locus
         }
 
         Object.assign(defaults, options)
         let browserPromise = igv.createBrowser(elem.children()[0], defaults)
 
-        browserPromise.then( (browser) => {
+        browserPromise.then((browser) => {
             scope.$watch(
                 () => {
                     return scope.locus
@@ -69,29 +50,25 @@ import { Directive, Inject } from '../ng-decorators'
             )
 
             // Watch changes to shown tracks
-            scope.$watch(
-                () => {
-                    return scope.tracks
-                },
-                () => {
-                    let igvShownTracks = browser.trackViews.map((tv) => tv.track.name)
+            scope.$watchCollection('tracks', () => {
+                // IGV has two internal tracks with empty string as track names
+                // These should be left alone...
+                const currentTrackNames = browser.trackViews
+                    .map((tv) => tv.track.name)
+                    .filter((t) => t != '')
+                const removedNames = currentTrackNames.filter(
+                    (name) => !scope.tracks.find((t) => t.name === name)
+                )
+                const toAddTracks = scope.tracks.filter((t) => !currentTrackNames.includes(t.name))
 
-                    let tracksToShow = scope.tracks.map((t) => t.config.name).filter((t) => igvShownTracks.indexOf(t) === -1)
-                    let tracksToHide = scope.tracks.filter((t) => t.show === false).map((t) => t.config.name).filter((t) => igvShownTracks.indexOf(t) !== -1)
+                for (const name of removedNames) {
+                    browser.removeTrackByName(name)
+                }
 
-                    for (let trackName of tracksToHide) {
-                        browser.removeTrackByName(trackName)
-                    }
-
-                    for (let trackName of tracksToShow) {
-                        let trackConfig = scope.tracks.find((t) => t.config.name === trackName).config
-                        browser.loadTrack(trackConfig)
-                    }
-                },
-                true
-            )
-
-
+                for (const track of toAddTracks) {
+                    browser.loadTrack(track)
+                }
+            })
         })
     }
 })

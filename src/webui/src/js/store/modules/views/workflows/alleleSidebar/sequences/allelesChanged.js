@@ -1,6 +1,8 @@
+import { set, when } from 'cerebral/operators'
+import { state, props } from 'cerebral/tags'
 import sortSections from '../actions/sortSections'
 import prepareSelectedAllele from '../actions/prepareSelectedAllele'
-import updateIgvLocus from '../actions/updateIgvLocus'
+import updateIgvLocus from '../../visualization/actions/updateIgvLocus'
 
 export default [
     sortSections,

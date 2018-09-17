@@ -313,10 +313,17 @@ class ApiV1(object):
                            '/api/v1/igv/<filename>')
 
         self._add_resource(r.igv.AnalysisVariantTrack,
-                           '/api/v1/igv/variants/<int:analysis_id>/<int:sample_id>/')
+                           '/api/v1/igv/variants/<int:analysis_id>/')
 
-        self._add_resource(r.igv.AvailableTracks,
+        self._add_resource(r.igv.AnalysisTrackList,
                            '/api/v1/igv/tracks/<int:analysis_id>/')
 
+        self._add_resource(r.igv.GlobalTrack,
+                           '/api/v1/igv/tracks/global/<filename>')
+
+        self._add_resource(r.igv.UserGroupTrack,
+                           '/api/v1/igv/tracks/usergroups/<int:usergroup_id>/<filename>')
+
         self._add_resource(r.igv.AnalysisTrack,
-                           '/api/v1/igv/tracks/<int:analysis_id>/<filename>')
+                           '/api/v1/igv/tracks/analyses/<int:analysis_id>/<filename>')
+

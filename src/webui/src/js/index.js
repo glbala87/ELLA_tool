@@ -43,6 +43,7 @@ import './views/login.directive'
 import './views/alleleSidebar.directive'
 import './views/alleleSidebarList.directive'
 import './views/navbar.directive'
+import './views/visualization.directive'
 
 import './widgets/alleleinfo/alleleInfoAcmgSelection.directive'
 import './widgets/alleleinfo/alleleInfoQuality.directive'
