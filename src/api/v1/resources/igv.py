@@ -1,6 +1,7 @@
 import os
 import mimetypes
 import json
+import logging
 from cStringIO import StringIO
 from collections import OrderedDict
 
@@ -13,8 +14,10 @@ from api.config import config
 from vardb.datamodel import sample, gene, allele, user as user_model
 
 from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, request_json
+from api.util.util import authenticate, request_json, logger
 from api.util.alleledataloader import AlleleDataLoader
+
+log = logging.getLogger()
 
 IGV_DEFAULT_TRACK_CONFIGS = {
     "vcf": {
@@ -94,6 +97,7 @@ def get_partial_response(path, start, end):
 class IgvResource(LogRequestResource):
 
     @authenticate()
+    @logger(exclude=True)
     def get(self, session, filename, user=None):
         if 'IGV_DATA' not in os.environ:
             raise ApiError("Missing IGV data location (env: $IGV_DATA).")
@@ -110,8 +114,8 @@ class IgvResource(LogRequestResource):
             return get_partial_response(final_path, start, end)
 
 
-def transcripts_to_gencode(transcripts):
-    """Write transcripts out in the format expected by igv"""
+def transcripts_to_bed(transcripts):
+    """Write transcripts as a bed file specialized for display in IGV"""
     template = '{chr}\t{tx_start}\t{tx_end}\t{name}\t1000.0\t{strand}\t{cds_start}\t{cds_end}\t.\t{num_exons}\t{exon_lengths}\t{exon_starts}\tfoo\n'
 
     data = StringIO()
@@ -147,7 +151,8 @@ def transcripts_to_gencode(transcripts):
     return data
 
 
-class GencodeGenepanelResource(LogRequestResource):
+class GenepanelBedResource(LogRequestResource):
+
     @authenticate()
     def get(self, session, gp_name, gp_version, user=None):
         gp = session.query(
@@ -157,7 +162,7 @@ class GencodeGenepanelResource(LogRequestResource):
                 gp_name, gp_version)
         ).one()
 
-        gencode = transcripts_to_gencode(gp.transcripts)
+        gencode = transcripts_to_bed(gp.transcripts)
 
         return send_file(gencode)
 
@@ -165,6 +170,7 @@ class GencodeGenepanelResource(LogRequestResource):
 class AnalysisVariantTrack(LogRequestResource):
 
     @authenticate()
+    @logger(exclude=True)
     def get(self, session, analysis_id, user=None):
         allele_ids = [int(aid) for aid in request.args.get('allele_ids', '').split(',')]
 
@@ -251,37 +257,40 @@ def _search_path_for_tracks(tracks_path, url_func):
     track_files = [f for f in os.listdir(tracks_path) if not any(f.endswith(ext) for ext in index_extensions + ['.json'])]
     tracks = []
     for t in track_files:
-        config_file_path = os.path.join(tracks_path, t + '.json')
-        config = dict()
-        if os.path.isfile(config_file_path):
-            print config_file_path
-            try:
-                config = json.load(open(os.path.join(tracks_path, config_file_path)))
-            except ValueError:
-                pass
+        try:
+            config_file_path = os.path.join(tracks_path, t + '.json')
+            config = dict()
+            if os.path.isfile(config_file_path):
+                try:
+                    config = json.load(open(os.path.join(tracks_path, config_file_path)))
+                except ValueError:
+                    pass
 
-        filetype = os.path.splitext(t)[1][1:] if os.path.splitext(t)[1] != '.gz' else os.path.splitext(os.path.splitext(t)[0])[1][1:]
-        track_config = json.loads(json.dumps(IGV_DEFAULT_TRACK_CONFIGS[filetype]))
-        track_config.update(config)
-        track_config['id'] = t
-        track_config["url"] = url_func(t)
-        if 'name' not in track_config:
-            track_config['name'] = t
+            filetype = os.path.splitext(t)[1][1:] if os.path.splitext(t)[1] != '.gz' else os.path.splitext(os.path.splitext(t)[0])[1][1:]
+            track_config = json.loads(json.dumps(IGV_DEFAULT_TRACK_CONFIGS[filetype]))
+            track_config.update(config)
+            track_config['id'] = t
+            track_config["url"] = url_func(t)
+            if 'name' not in track_config:
+                track_config['name'] = t
 
-        def possible_index_files(f):
-            for ext in index_extensions:
-                yield f + ext
-                if os.path.splitext(f)[1] in ['.gz', '.bam']:
-                    yield os.path.splitext(f)[0] + ext
+            def possible_index_files(f):
+                for ext in index_extensions:
+                    yield f + ext
+                    if os.path.splitext(f)[1] in ['.gz', '.bam']:
+                        yield os.path.splitext(f)[0] + ext
 
-        index_file = next((f for f in possible_index_files(t) if os.path.isfile(os.path.join(tracks_path, f))), None)
-        if index_file:
-            track_config["indexed"] = True
-            track_config["indexURL"] = url_func(index_file)
-        else:
-            track_config["indexed"] = False
+            index_file = next((f for f in possible_index_files(t) if os.path.isfile(os.path.join(tracks_path, f))), None)
+            if index_file:
+                track_config["indexed"] = True
+                track_config["indexURL"] = url_func(index_file)
+            else:
+                track_config["indexed"] = False
 
-        tracks.append(track_config)
+            tracks.append(track_config)
+        except Exception:
+            log.exception("Something went wrong when loading track file {}".format(t))
+
     return tracks
 
 
@@ -363,13 +372,13 @@ class AnalysisTrackList(LogRequestResource):
             'user': get_user_tracks(user),
             'analysis': get_analysis_tracks(analysis_id, analysis_name)
         }
-        print json.dumps(result, indent=4)
         return result
 
 
 class GlobalTrack(LogRequestResource):
 
     @authenticate()
+    @logger(exclude=True)
     def get(self, session, filename, user=None):
 
         global_tracks_path = _get_global_tracks_path()
@@ -388,6 +397,7 @@ class GlobalTrack(LogRequestResource):
 class UserGroupTrack(LogRequestResource):
 
     @authenticate()
+    @logger(exclude=True)
     def get(self, session, usergroup_id, filename, user=None):
         usergroup_name = session.query(
             user_model.UserGroup.name
@@ -411,6 +421,7 @@ class UserGroupTrack(LogRequestResource):
 class AnalysisTrack(LogRequestResource):
 
     @authenticate()
+    @logger(exclude=True)
     def get(self, session, analysis_id, filename, user=None):
         analysis_name = session.query(
             sample.Analysis.name
