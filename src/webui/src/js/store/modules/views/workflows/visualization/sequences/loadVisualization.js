@@ -1,5 +1,5 @@
 import { sequence } from 'cerebral'
-import prepareIGV from '../actions/prepareIGV'
+import prepareIgv from '../actions/prepareIgv'
 import updateIgvTracks from '../actions/updateIgvTracks'
 
-export default sequence('loadVisualization', [prepareIGV, updateIgvTracks])
+export default sequence('loadVisualization', [prepareIgv, updateIgvTracks])

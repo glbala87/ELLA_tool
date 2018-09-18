@@ -26,10 +26,8 @@ import { Directive, Inject } from '../ng-decorators'
             promisified: true
         }
 
-        let trackConfigs = scope.tracks.filter((t) => t.show).map((x) => x.config)
-
         let options = {
-            tracks: trackConfigs,
+            tracks: [],
             reference: scope.reference,
             locus: scope.locus
         }

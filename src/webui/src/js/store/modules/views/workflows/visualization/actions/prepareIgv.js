@@ -30,7 +30,7 @@ const getAvailableTracks = (analysis, alleles) => {
     return tracks
 }
 
-export default async function prepareIGV({ state, http }) {
+export default async function prepareIgv({ state, http }) {
     const igvReferenceConfig = state.get('app.config.igv.reference')
     state.set('views.workflows.visualization.igv.reference', {
         id: 'hg19',

@@ -8,11 +8,6 @@ import loadVisualization from '../visualization/sequences/loadVisualization'
 export default [
     set(state`views.workflows.selectedComponent`, props`selectedComponent`),
     prepareSelectedAllele,
-    equals(props`selectedComponent`),
-    {
-        Visualization: [loadVisualization],
-        otherwise: []
-    },
     when(state`views.workflows.selectedAllele`),
     {
         true: [
