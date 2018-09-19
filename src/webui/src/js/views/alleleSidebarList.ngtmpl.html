@@ -117,12 +117,12 @@
             {{$ctrl.consequence[allele.id]}}
         </div>
         <div ng-click="$ctrl.rowClicked(allele.id)" class="cell indicators id-indicators">
-          <div title="{{$ctrl.getWarningsLabel(allele)}}" class="warning">
+          <div title="{{$ctrl.getWarningsTitle(allele)}}" class="warning">
             <div class="hit" ng-if="$ctrl.hasWarning(allele)">
                 <span>!</span>
             </div>
           </div>
-            <div title="{{$ctrl.getSegregationLabel(allele)}}" class="segregation">
+            <div title="{{$ctrl.getSegregationTitle(allele)}}" class="segregation">
               <div class="hit" ng-if="$ctrl.getSegregationTag(allele)">
                   <span>{{$ctrl.getSegregationTag(allele)}}</span>
               </div>
@@ -132,7 +132,7 @@
                   <span>O</span>
               </div>
             </div>
-            <div title="{{$ctrl.getQualityTextPopover(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
+            <div title="{{$ctrl.getQualityTitle(allele.id)}}" ng-class="$ctrl.getQualityClass(allele.id)">
               <div class="hit" ng-if="$ctrl.hasQualityInformation(allele)">
                 <span>{{$ctrl.getQualityTag(allele)}}</span>
               </div>

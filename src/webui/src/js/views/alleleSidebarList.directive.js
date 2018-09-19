@@ -130,12 +130,12 @@ app.component('alleleSidebarList', {
         [
             '$scope',
             function($scope) {
-                const SEGREGATION_TAGS = {
-                    denovo: 'De novo',
-                    compound_heterozygous: 'Compound heterozygous',
-                    autosomal_recessive_homozygous: 'Autosomal recessive homozygous',
-                    xlinked_recessive_homozygous: 'X-linked recessive'
-                }
+                const SEGREGATION_TAGS = [
+                    ['denovo', 'De novo'],
+                    ['compound_heterozygous', 'Compound heterozygous'],
+                    ['autosomal_recessive_homozygous', 'Autosomal recessive homozygous'],
+                    ['xlinked_recessive_homozygous', 'X-linked recessive']
+                ]
 
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
@@ -209,7 +209,7 @@ app.component('alleleSidebarList', {
                             return 'Q'
                         }
                     },
-                    getQualityTextPopover(allele) {
+                    getQualityTitle(allele) {
                         if ($ctrl.isTechnical(allele)) {
                             return 'Technical'
                         } else if ($ctrl.isVerified(allele)) {
@@ -239,10 +239,19 @@ app.component('alleleSidebarList', {
                             return 'C'
                         }
                     },
+                    getSegregationTitle(allele) {
+                        let title = []
+                        for (const tag of SEGREGATION_TAGS) {
+                            if (allele.tags.includes(tag[0])) {
+                                title.push(tag[1])
+                            }
+                        }
+                        return title.join('\n')
+                    },
                     hasWarning(allele) {
                         return Boolean(allele.warnings)
                     },
-                    getWarningsLabel(allele) {
+                    getWarningsTitle(allele) {
                         if (allele.warnings) {
                             return Object.values(allele.warnings).join('\n')
                         }
