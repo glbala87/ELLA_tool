@@ -1,6 +1,5 @@
 from functools import wraps
 import json
-import copy
 import datetime
 import pytz
 import time
@@ -12,7 +11,6 @@ from api.config import config, get_user_config
 from vardb.datamodel import user
 from vardb.datamodel.log import ResourceLog
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.scoping import scoped_session
 
 
 log = app.logger

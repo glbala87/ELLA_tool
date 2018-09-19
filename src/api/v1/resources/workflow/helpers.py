@@ -9,12 +9,14 @@ from sqlalchemy.orm import joinedload
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
 from api import schemas, ApiError, ConflictError
+from api.config import get_config
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
 from api.util import queries
+from api.util.util import get_nested
 
 
 def _check_interpretation_input(allele, analysis):
@@ -425,7 +427,7 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
     return interpretation, interpretation_next
 
 
-def finalize_interpretation(session, user_id, data, filter_config_id, allele_id=None, analysis_id=None):
+def finalize_interpretation(session, user_id, data, filter_config_id, user_config, allele_id=None, analysis_id=None):
     """
     Finalizes an interpretation.
 
@@ -470,6 +472,23 @@ def finalize_interpretation(session, user_id, data, filter_config_id, allele_id=
     created_alleleassessments = grouped_alleleassessments['alleleassessments']['created']
 
     session.add_all(created_alleleassessments)
+
+    # Check that we can finalize
+    workflow_type = 'allele' if allele_id else 'analysis'
+    finalize_requirements = get_nested(
+        user_config,
+        ['workflows', workflow_type, 'finalize_requirements']
+    )
+    if finalize_requirements.get('workflow_status'):
+        if interpretation.workflow_status not in finalize_requirements['workflow_status']:
+            raise ApiError("Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(', '.join(finalize_requirements['workflow_status'])))
+
+    if finalize_requirements.get('all_alleles_valid_classification'):
+        # The following check is not perfect, but is considered good enough for now.
+        # (resued are already checked for outdated in AssessmentCreator)
+        if len(reused_alleleassessments) + len(created_alleleassessments) < \
+           len(loaded_interpretation['allele_ids']):
+            raise ApiError("Cannot finalize: Config dictates that all alleles should have an alleleassessment.")
 
     # Create/reuse allelereports
     all_alleleassessments = reused_alleleassessments + created_alleleassessments

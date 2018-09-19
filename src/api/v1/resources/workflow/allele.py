@@ -373,7 +373,7 @@ class AlleleActionReopenResource(LogRequestResource):
 
 class AlleleActionFinalizeResource(LogRequestResource):
 
-    @authenticate()
+    @authenticate(user_config=True)
     @request_json(
         [
             'alleleassessments',
@@ -382,7 +382,7 @@ class AlleleActionFinalizeResource(LogRequestResource):
             'attachments'
         ]
     )
-    def post(self, session, allele_id, data=None, user=None):
+    def post(self, session, allele_id, user_config=None, data=None, user=None):
         """
         Finalizes an analysis.
 
@@ -581,6 +581,7 @@ class AlleleActionFinalizeResource(LogRequestResource):
             user.id,
             data,
             filter_config_id,
+            user_config,
             allele_id=allele_id
         )
         session.commit()

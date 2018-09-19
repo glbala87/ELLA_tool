@@ -1,7 +1,7 @@
 import copy
-from api import config
+from api.config import get_config
 from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, dict_merge
+from api.util.util import authenticate
 
 
 class ConfigResource(LogRequestResource):
