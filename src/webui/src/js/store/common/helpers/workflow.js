@@ -41,37 +41,46 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
         // Only include assessments/reports for alleles part of the supplied list.
         // This is to avoid submitting assessments for alleles that have been
         // removed from classification during interpretation process.
+
         if (allele_state.allele_id in alleles) {
             let allele = alleles[allele_state.allele_id]
-            alleleassessments.push(
-                _prepareAlleleAssessmentsPayload(
-                    allele,
-                    allele_state,
-                    type === 'analysis' ? id : null,
-                    interpretation.genepanel_name,
-                    interpretation.genepanel_version
+            // Only submit alleleassessment/allelereports/referenceassessments
+            // for alleles that are classified
+            if (
+                allele_state.alleleassessment &&
+                (allele_state.alleleassessment.classification ||
+                    allele_state.alleleassessment.reuse)
+            ) {
+                alleleassessments.push(
+                    _prepareAlleleAssessmentsPayload(
+                        allele,
+                        allele_state,
+                        type === 'analysis' ? id : null,
+                        interpretation.genepanel_name,
+                        interpretation.genepanel_version
+                    )
                 )
-            )
-            // Get reference ids from allele, we only submit referenceassessments
-            // for references that are added (custom annotation or annotation)
-            const alleleReferences = _getAlleleReferences(allele, references)
-            referenceassessments = referenceassessments.concat(
-                _prepareReferenceAssessmentsPayload(
-                    allele_state,
-                    alleleReferences,
-                    type === 'analysis' ? id : null,
-                    interpretation.genepanel_name,
-                    interpretation.genepanel_version
+                // Get reference ids from allele, we only submit referenceassessments
+                // for references that are added (custom annotation or annotation)
+                const alleleReferences = _getAlleleReferences(allele, references)
+                referenceassessments = referenceassessments.concat(
+                    _prepareReferenceAssessmentsPayload(
+                        allele_state,
+                        alleleReferences,
+                        type === 'analysis' ? id : null,
+                        interpretation.genepanel_name,
+                        interpretation.genepanel_version
+                    )
                 )
-            )
-            allelereports.push(
-                _prepareAlleleReportPayload(
-                    allele,
-                    allele_state,
-                    type === 'analysis' ? id : null,
-                    allele.allele_assessment ? allele.allele_assessment.id : null
+                allelereports.push(
+                    _prepareAlleleReportPayload(
+                        allele,
+                        allele_state,
+                        type === 'analysis' ? id : null,
+                        allele.allele_assessment ? allele.allele_assessment.id : null
+                    )
                 )
-            )
+            }
             if (!allele_state.alleleassessment.reuse) {
                 attachments.push({
                     allele_id: allele_state.allele_id,

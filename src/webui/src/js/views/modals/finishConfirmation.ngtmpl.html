@@ -4,7 +4,7 @@
   </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
-        <button class="id-finish purple" type="button" ng-click="$ctrl.finishClicked({workflowStatus: $ctrl.selectedStatus})">FINISH</button>
+        <button class="id-finish purple" type="button" ng-disabled="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize" ng-click="$ctrl.finishClicked({workflowStatus: $ctrl.selectedStatus})">FINISH</button>
     </section>
   </controls>
   <contentwrapper>
@@ -18,11 +18,12 @@
       <p class="step-indicator">⟶</p>
       <button ng-if="$ctrl.type == 'analysis'" class="id-mark-medicalreview" ng-class="$ctrl.getClass('Medical review')" type="button" ng-click="$ctrl.selectStatus('Medical review')">MEDICAL REVIEW</button>
       <p ng-if="$ctrl.type == 'analysis'" class="step-indicator">⟶</p>
-      <button ng-disabled="!$ctrl.canFinalize" class="id-finalize" ng-class="$ctrl.getClass('Finalized')" type="button" ng-click="$ctrl.selectStatus('Finalized')">FINALISE</button>
+      <button class="id-finalize" ng-class="$ctrl.getClass('Finalized')" type="button" ng-click="$ctrl.selectStatus('Finalized')">FINALISE</button>
 
     </div>
 
-    <h4 class="sb-notification" ng-if="!$ctrl.canFinalize"> </h4>
-    <h4 class="sb-notification" ng-if="!$ctrl.canFinalize">Finalise not possible: Make sure all variants are classified and that you are in a review round.</h4>
+    <h4 class="sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize"> </h4>
+    <h4 class="sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize">Finalise not possible:</h4>
+    <h4 class="sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized'" ng-repeat="m in $ctrl.canFinalize.messages">- {{m}}</h4>
   </contentwrapper>
 </sectionbox>

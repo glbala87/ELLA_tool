@@ -39,6 +39,7 @@ export default function(finishType) {
                     return path.error(response)
                 })
         } catch (error) {
+            console.error(error)
             return path.error({ error })
         }
     }

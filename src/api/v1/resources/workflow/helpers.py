@@ -9,7 +9,6 @@ from sqlalchemy.orm import joinedload
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
 from api import schemas, ApiError, ConflictError
-from api.config import get_config
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator

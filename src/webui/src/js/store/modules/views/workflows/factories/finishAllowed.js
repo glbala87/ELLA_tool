@@ -1,7 +1,7 @@
 import canFinalize from '../computed/canFinalize'
 
 export default function(finishType) {
-    return function finishWorkflow({ resolve, state, http, path }) {
+    return function finishAllowed({ resolve, state, http, path }) {
         const type = state.get('views.workflows.type')
         const id = state.get('views.workflows.id')
         const interpretation = state.get('views.workflows.interpretation.selected')
@@ -23,7 +23,7 @@ export default function(finishType) {
         }
 
         if (finishType === 'Finalized') {
-            const finalizeAllowed = resolve.value(canFinalize)
+            const finalizeAllowed = resolve.value(canFinalize).canFinalize
             if (!finalizeAllowed) {
                 console.error('Tried to finalize workflow when requirements not met')
                 return path.false({
