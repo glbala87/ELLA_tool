@@ -312,6 +312,9 @@ class ApiV1(object):
         self._add_resource(r.igv.IgvResource,
                            '/api/v1/igv/<filename>')
 
+        self._add_resource(r.igv.ClassificationResource,
+                           '/api/v1/igv/classifications/')
+
         self._add_resource(r.igv.AnalysisVariantTrack,
                            '/api/v1/igv/variants/<int:analysis_id>/')
 

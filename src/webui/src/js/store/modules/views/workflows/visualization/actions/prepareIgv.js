@@ -27,6 +27,17 @@ const getAvailableTracks = (analysis, alleles) => {
         visibilityWindow: Number.MAX_VALUE
     })
 
+    tracks.push({
+        id: 'classifications',
+        name: 'Classifications',
+        url: '/api/v1/igv/classifications/',
+        format: 'bed',
+        indexed: false,
+        order: 11,
+        show: true,
+        visibilityWindow: Number.MAX_VALUE
+    })
+
     return tracks
 }
 

@@ -11,7 +11,7 @@ from sqlalchemy import tuple_
 from api import ApiError
 from api.config import config
 
-from vardb.datamodel import sample, gene, allele, user as user_model
+from vardb.datamodel import sample, gene, allele, assessment, user as user_model
 
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate, request_json, logger
@@ -151,6 +151,43 @@ def transcripts_to_bed(transcripts):
     return data
 
 
+def get_classification_bed(session):
+
+    result = 'track name="Classifications" description="ella classifications" itemRgb="On"\n'
+
+    template = """{chrom}\t{start}\t{end}\t{name}\t0\t-\t{start}\t{end}\t{color}"""
+    all_aa = session.query(
+        allele.Allele.chromosome,
+        allele.Allele.start_position,
+        allele.Allele.open_end_position,
+        assessment.AlleleAssessment.classification
+    ).join(
+        assessment.AlleleAssessment
+    ).filter(
+        assessment.AlleleAssessment.date_superceeded.is_(None)
+    ).all()
+
+    COLORS = {
+        '1': '#76B100',
+        '2': '#6BA100',
+        '3': '#FFAA3C',
+        '4': '#FE5B5B',
+        '5': '#D00000'
+    }
+
+    lines = []
+    for chrom, start, end, classification in all_aa:
+        lines.append(template.format(
+            chrom=chrom,
+            start=start,
+            end=end,
+            name=classification,
+            color=COLORS.get(classification, '#007ED0')
+        ))
+    result += '\n'.join(lines)
+    return result
+
+
 class GenepanelBedResource(LogRequestResource):
 
     @authenticate()
@@ -165,6 +202,17 @@ class GenepanelBedResource(LogRequestResource):
         gencode = transcripts_to_bed(gp.transcripts)
 
         return send_file(gencode)
+
+
+class ClassificationResource(LogRequestResource):
+
+    @authenticate()
+    @logger(exclude=True)
+    def get(self, session, user=None):
+        data = StringIO()
+        data.write(get_classification_bed(session))
+        data.seek(0)
+        return send_file(data)
 
 
 class AnalysisVariantTrack(LogRequestResource):

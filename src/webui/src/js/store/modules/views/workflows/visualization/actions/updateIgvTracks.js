@@ -2,7 +2,6 @@ import thenBy from 'thenby'
 
 export default function updateIgvTracks({ state }) {
     const tracks = state.get('views.workflows.visualization.tracks')
-    console.log(tracks)
     if (!tracks) {
         return
     }
