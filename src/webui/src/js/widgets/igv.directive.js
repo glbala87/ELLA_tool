@@ -29,7 +29,11 @@ import { Directive, Inject } from '../ng-decorators'
         let options = {
             tracks: [],
             reference: scope.reference,
-            locus: scope.locus
+            locus: scope.locus,
+            search: {
+                url: '/api/v1/igv/search/?q=$FEATURE$',
+                coords: 0
+            }
         }
 
         Object.assign(defaults, options)

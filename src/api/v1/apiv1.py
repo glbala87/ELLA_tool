@@ -306,6 +306,9 @@ class ApiV1(object):
         # IGV
         # ---------------------------------------------------------------------------------------------------------
 
+        self._add_resource(r.igv.IgvSearchResource,
+                           '/api/v1/igv/search/')
+
         self._add_resource(r.igv.GenepanelBedResource,
                            '/api/v1/igv/genepanel/<gp_name>/<gp_version>/')
 

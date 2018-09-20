@@ -6,7 +6,7 @@ from cStringIO import StringIO
 from collections import OrderedDict
 
 from flask import request, Response, send_file
-from sqlalchemy import tuple_
+from sqlalchemy import tuple_, func
 
 from api import ApiError
 from api.config import config
@@ -186,6 +186,60 @@ def get_classification_bed(session):
         ))
     result += '\n'.join(lines)
     return result
+
+
+class IgvSearchResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, user=None):
+
+        term = request.args.get('q')
+        if not term:
+            return []
+
+        # Try gene first, then transcript name
+        # Make sure to use index for the symbol name
+        gene_matches = session.query(gene.Gene.hgnc_id).filter(
+            func.lower(gene.Gene.hgnc_symbol).like(term.lower() + '%')
+        ).limit(5).all()
+
+        # If we have a match, get the matching transcript locations
+        if gene_matches:
+            gene_results = session.query(
+                gene.Transcript.chromosome,
+                gene.Transcript.tx_start,
+                gene.Transcript.tx_end
+            ).join(
+                gene.Gene
+            ).filter(
+                gene.Gene.hgnc_id.in_(gene_matches)
+            ).limit(10).all()
+
+            results = list()
+            for r in gene_results:
+                results.append({
+                    'chromosome': r.chromosome,
+                    'start': r.tx_start,
+                    'end': r.tx_end
+                })
+            return results
+        else:
+            transcripts_results = session.query(
+                gene.Transcript.chromosome,
+                gene.Transcript.tx_start,
+                gene.Transcript.tx_end
+            ).filter(
+                gene.Transcript.transcript_name.like(term + '%')
+            ).limit(10).all()
+
+            results = list()
+            for r in transcripts_results:
+                results.append({
+                    'chromosome': r.chromosome,
+                    'start': r.tx_start,
+                    'end': r.tx_end
+                })
+            return results
 
 
 class GenepanelBedResource(LogRequestResource):
