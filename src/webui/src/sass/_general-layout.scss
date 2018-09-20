@@ -1040,5 +1040,15 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
     user-select: none;
   }
 
+  // Adjust down the extremely high z-indices
+  // so it doesn't scroll over our layout
+  .igv-track-label {
+    z-index: 50;
+  }
+
+  .igv-track-manipulation-handle {
+    z-index: 99;
+  }
+
 
 }
