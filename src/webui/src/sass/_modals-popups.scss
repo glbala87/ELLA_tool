@@ -86,12 +86,12 @@
 @keyframes slide-from-left { from { left: -34rem; } to { left: 0rem; } }
 @keyframes slide-to-left { from { left: 0rem; } to { left: -34rem; } }
 
-.acmg-popover { margin: 0; top: $nav-bar-top-height !important; bottom: 0 !important; left: 0 !important; position: fixed; overflow: scroll; width: 36rem; will-change: left; }
-.acmg-popover.in-add { animation: slide-from-left; animation-delay: 0s; animation-duration: 0.6s; animation-fill-mode: forwards; }
-.acmg-popover.in-remove { animation: slide-to-left; animation-delay: 0s; animation-duration: 0.3s; animation-fill-mode: forwards; }
-.acmg-popover.fade, .acmg-popover.fade-add, .acmg-popover.in-remove { opacity: 1; display: block; visibility: visible; }
-.acmg-popover .popover-title { background-color: transparent; color: inherit; }
-.acmg-popover .arrow { display: none; }
+.add-acmg-popover { margin: 0; top: $nav-bar-top-height !important; bottom: 0 !important; left: 0 !important; position: fixed; overflow: scroll; width: 36rem; will-change: left; }
+.add-acmg-popover.in-add { animation: slide-from-left; animation-delay: 0s; animation-duration: 0.6s; animation-fill-mode: forwards; }
+.add-acmg-popover.in-remove { animation: slide-to-left; animation-delay: 0s; animation-duration: 0.3s; animation-fill-mode: forwards; }
+.add-acmg-popover.fade, .acmg-popover.fade-add, .acmg-popover.in-remove { opacity: 1; display: block; visibility: visible; }
+.add-acmg-popover .popover-title { background-color: transparent; color: inherit; }
+.add-acmg-popover .arrow { display: none; }
 
 .interpretationlog-popover {
   h3 { font-weight: 700; font-size: 1.4rem; color: $black-75;  margin: 0.7rem 0; }
