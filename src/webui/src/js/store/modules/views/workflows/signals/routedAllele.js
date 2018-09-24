@@ -5,7 +5,6 @@ import getGenepanels from '../actions/getGenepanels'
 import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
 import toast from '../../../../common/factories/toast'
-import loadGenepanel from '../sequences/loadGenepanel'
 import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
 import showExitWarning from '../showExitWarning'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
@@ -50,7 +49,6 @@ export default [
                     }
                 ]
             },
-            loadGenepanel,
             prepareComponents,
             loadInterpretations,
             // We need the formatted allele, so postpone setting title until here.

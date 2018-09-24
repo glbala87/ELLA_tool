@@ -1,5 +1,13 @@
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
+export function getAlleleIdsFromInterpretation(interpretation) {
+    let alleleIds = interpretation.allele_ids.slice()
+    if ('manuallyAddedAlleles' in interpretation.state) {
+        alleleIds = alleleIds.concat(interpretation.state.manuallyAddedAlleles)
+    }
+    return alleleIds
+}
+
 export function prepareInterpretationPayload(type, id, interpretation, alleles, references) {
     // Collect info about this interpretation.
     let annotations = []

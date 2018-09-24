@@ -1,3 +1,4 @@
+import { getAlleleIdsFromInterpretation } from '../../../../common/helpers/workflow'
 import processAlleles from '../../../../common/helpers/processAlleles'
 
 const TYPES = {
@@ -15,19 +16,15 @@ function getAlleles({ http, path, state }) {
     // - Existing interpretations -> use workflow's allele resource (it can handle historical data)
 
     const hasInterpretations = Boolean(state.get('views.workflows.data.interpretations').length)
-    let alleleIds = state.get('views.workflows.interpretation.selected.allele_ids')
+    const selectedInterpretation = state.get('views.workflows.interpretation.selected')
+    const alleleIds = getAlleleIdsFromInterpretation(selectedInterpretation)
 
     let uri = null
     let params = null
     if (hasInterpretations) {
         const type = TYPES[state.get('views.workflows.type')]
         const id = state.get('views.workflows.id')
-        const selectedInterpretation = state.get('views.workflows.interpretation.selected')
         const getCurrentData = selectedInterpretation.current || false
-
-        if ('manuallyAddedAlleles' in selectedInterpretation.state) {
-            alleleIds = alleleIds.concat(selectedInterpretation.state.manuallyAddedAlleles)
-        }
 
         uri = `workflows/${type}/${id}/interpretations/${selectedInterpretation.id}/alleles/`
         params = {
@@ -35,6 +32,9 @@ function getAlleles({ http, path, state }) {
             current: getCurrentData // Only relevant when interpretation status is 'Done'
         }
     } else {
+        if (type !== 'allele') {
+            return path.error()
+        }
         uri = `alleles/`
         params = {
             q: JSON.stringify({ id: alleleIds }),

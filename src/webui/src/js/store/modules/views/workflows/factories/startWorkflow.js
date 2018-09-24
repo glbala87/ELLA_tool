@@ -1,5 +1,3 @@
-import { prepareInterpretationPayload } from '../../../../common/helpers/workflow'
-
 const TYPES = {
     analysis: 'analyses',
     allele: 'alleles'
@@ -9,7 +7,6 @@ export default function(startType) {
     return function startWorkflow({ state, http, path }) {
         const type = TYPES[state.get('views.workflows.type')]
         const id = state.get('views.workflows.id')
-        const interpretation = state.get('views.workflows.interpretation.selected')
         const genepanel = state.get('views.workflows.data.genepanel')
 
         if (!['start', 'reopen', 'override'].find((e) => e === startType)) {

@@ -4,7 +4,6 @@ export default function({ http, path, module }) {
     // TODO: Support partial loading of alleles to support large samples
     const analysis = module.get('data.analysis')
     const interpretation = module.get('interpretation.selected')
-    const genepanel = module.get('data.genepanel')
 
     const alleleIds = []
     for (let ids of Object.values(interpretation.excluded_allele_ids)) {
@@ -24,7 +23,7 @@ export default function({ http, path, module }) {
         })
         .then((response) => {
             let alleles = response.result
-            processAlleles(alleles, genepanel)
+            processAlleles(alleles, null)
 
             // Structure as {alleleId: allele}
             let allelesById = {}
