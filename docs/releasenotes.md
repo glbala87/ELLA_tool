@@ -1,4 +1,97 @@
-# Release notes
+<div style="background-color: #36617F; height: 2.5rem; width: 100%; line-height: 2.5rem; padding-left: 1rem; padding-right: 1rem; margin-bottom: 2rem; display: table;">
+    <div style="display: table-row">
+        <div style="display: table-cell; width: 70%;">
+            <img style="height: 1.7rem;" src="img/releasenotes/ella-logo.png">
+        </div>
+        <div style="display: table-cell; color: white; font-size: 1rem;">Release notes</div>
+    </div>
+</div>
+
+## 1.2
+
+### Highlights
+
+#### Family analysis
+
+ella now lets you interpret analyses with variants that have been joint called within a single familiy.
+
+The following segregation models are supported:
+
+- De novo
+- Autosomal recessive homozygous
+- X-linked recessive
+- Compound heterozygous
+
+The most powerful filtering requires two parents to be present in the analysis, but
+some segregation filters and tags also apply to analyses with only siblings (unaffected and/or affected).
+
+<div style="text-align: center">
+<img style="width: 7rem" src="img/releasenotes/1-2-family-tags.png">
+<br>
+<i style="font-size: 80%;">Segregation tags in sidebar</i>
+</div>
+
+Variants filtered out by these filters can be found in the `Segregation` category in the excluded variants.
+
+
+#### Work log
+
+The analysis and variant workflows now have their own `Work log`. The work log currently lets you:
+
+- Update the `Overview comment` (previously `Review comment`)
+- Clear any analysis warnings *(analysis only)*. Clearing a warning makes the warning tag disappear from the Overview.
+- Adjust the priority of the analysis or variant
+- Add messages that should be available to yourself or later interpreters about things that are relevant for the interpretation of the analysis or variant. Messages can contain formatting and images, and are editable until the next interpretation round is started.
+
+All options in the work log can be changed at any time, without having to start a new interpretation round.
+
+<div style="text-align: center;"><img style="width: 20rem" src="img/releasenotes/1-2-work-log.png"><br>
+<i style="font-size: 80%;">Work log example</i>
+</div>
+
+If there are any messages since last time the workflow was `Finalised`, the work log button will appear in purple, along with the current message count.
+
+<div style="text-align: center">
+<img style="width: 5rem" src="img/releasenotes/1-2-worklog-button.png">
+<br>
+<i style="font-size: 80%;">2 messages since beginning or last finalisation.</i>
+</div>
+
+#### Variant warnings
+
+Variants are now tagged with warnings whenever there is something special that considered for the variant in question. The list of warnings will be expanded later, but currently includes:
+
+- Worse consequences in other transcripts
+- Other variants are within 3 bp of the variant in the analysis
+
+Variant warnings are implemented for both the variant and analysis workflows, but some warnings are only available for analyses.
+
+
+<div style="text-align: center">
+<img style="width: 20rem" src="img/releasenotes/1-2-variant-warning-example.png">
+<br>
+<i style="font-size: 80%;">Example warning.</i>
+</div>
+
+<div style="text-align: center">
+<img style="width: 15rem" src="img/releasenotes/1-2-variant-warning-tags.png">
+<br>
+<i style="font-size: 80%;">Warning tags in sidebar.</i>
+</div>
+
+
+### New features
+
+- Support for family data
+- Segregation filter and tags
+- Work log
+- Variant warnings
+
+### Other additions and fixes
+- `Quality` is now it's own section in Classification view (*analysis only*)
+- Quality verification for variants in an analysis (`Verified` and `Technical`) is moved from the Info view to the Quality section in the Classification view.
+- Variants marked as `Technical` are moved to it's own list in the sidebar.
+- Improvements in display of variants with multiple selected transcripts.
 
 ## 1.1.2
 
