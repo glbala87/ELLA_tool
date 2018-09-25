@@ -39,3 +39,5 @@ COPY public.analysisinterpretationsnapshot (id, date_created, filtered, analysis
 5	2018-08-08 08:49:40.515851+00	\N	1	5	5	\N	5	\N	\N	5
 6	2018-08-08 08:49:40.516621+00	FREQUENCY	1	6	\N	\N	\N	\N	\N	\N
 \.
+
+UPDATE public.analysis SET warnings = E'chr2:g.48010497N>N chr2:g.48010531N>N CDK2NA NM_001231.2 exon4\nchr2:g.48010459N>N chr2:g.48010575N>N CDK2NA NM_001231.2 exon4' WHERE id = 2;

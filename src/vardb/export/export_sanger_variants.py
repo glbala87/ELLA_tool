@@ -31,7 +31,7 @@ ANALYSIS_NAME_RE = re.compile("(?P<project_name>Diag-.+)-(?P<prove>.+)-(?P<genep
 # chr7:g.6013138N>N chr7:g.6013175N>N
 # chr7:g.6013138N>N chr7:g.6013175N>N BRCA2 NM_000059.3 exon3
 # chr2:g.48010497N>N chr2:g.48010531N>N CDK2NA NM_001231.2 exon4
-WARNING_REGIONS_RE = re.compile("(?P<pos1>chr[0-9XYM]:g\..+N>N)\ (?P<pos2>chr[0-9XYM]:g\..+N>N)(\ (?P<gene>.*)\ (?P<transcript>NM_.*)\ (?P<exon>.*))?")
+WARNING_REGIONS_RE = re.compile("(?P<pos1>chr[0-9XYM]+:g\..+N>N)\ (?P<pos2>chr[0-9XYM]:g\..+N>N)(\ (?P<gene>.*)\ (?P<transcript>NM_.*)\ (?P<exon>.*))?")
 
 
 def extract_meta_from_name(analysis_name):
@@ -57,32 +57,6 @@ COLUMN_PROPERTIES = [
     (u'Dekning', 6),
     (u'Må verifiseres?', 13)
 ]
-
-
-def filter_result_of_alleles(session, allele_ids):
-
-    # Get a list of candidate genepanels per allele id
-    allele_ids_genepanels = session.query(
-        workflow.AnalysisInterpretation.genepanel_name,
-        workflow.AnalysisInterpretation.genepanel_version,
-        allele.Allele.id
-    ).join(
-        genotype.Genotype.alleles,
-        sample.Sample,
-        sample.Analysis
-    ).filter(
-        workflow.AnalysisInterpretation.analysis_id == sample.Analysis.id,
-        allele.Allele.id.in_(allele_ids)
-    ).all()
-
-    # Make a dict of (gp_name, gp_version): [allele_ids] for use with AlleleFilter
-    gp_allele_ids = defaultdict(list)
-    for entry in allele_ids_genepanels:
-        gp_allele_ids[(entry[0], entry[1])].append(entry[2])
-
-    # Filter out alleles
-    af = AlleleFilter(session)
-    return af.filter_alleles(gp_allele_ids)  # gp_key => {allele ids distributed by filter status}
 
 
 def get_analysis_info(analysis):
@@ -184,7 +158,7 @@ def get_variant_rows(session, ids_not_started):
             # Filter out from following criteria
             # - Class 1
             # - Class 2 and needs_verification is False
-            classification = loaded_allele.get('allele_assessment', {}).get('classification')
+            classification = get_nested(loaded_allele, ['allele_assessment', 'classification'])
             if classification:
                 if classification == 'U' or \
                    classification == '1' or \
