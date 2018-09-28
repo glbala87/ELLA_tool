@@ -100,6 +100,9 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
 
+        self._add_resource(r.broadcast.BroadcastResource,
+                           '/api/v1/broadcasts/')
+
         self._add_resource(r.customannotation.CustomAnnotationList,
                            '/api/v1/customannotations/')
 
