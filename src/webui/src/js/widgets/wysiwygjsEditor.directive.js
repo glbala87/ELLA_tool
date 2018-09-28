@@ -289,7 +289,6 @@ export class WysiwygEditorController {
 
         // Position slider
         sliderContainer.style.position = 'absolute'
-        sliderContainer.style.zIndex = '10000000000'
         const rect = img.getBoundingClientRect()
         const left = rect.left + window.scrollX
         const top = rect.top + window.scrollY
@@ -315,9 +314,8 @@ export class WysiwygEditorController {
             // We have to fetch img again (for some reason)
             let imgElement = document.getElementById(imgId)
 
-            // Scale image proportionally with slider value
+            // Scale image proportionally with slider value (height is set to auto)
             imgElement.width = slider.value * imgElement.naturalWidth
-            imgElement.height = slider.value * imgElement.naturalHeight
         }
 
         slider.onblur = (e) => {
