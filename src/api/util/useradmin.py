@@ -1,4 +1,3 @@
-from sqlalchemy import desc
 import bcrypt
 import datetime
 import binascii
@@ -7,6 +6,8 @@ import base64
 import os
 import re
 import pytz
+from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 from vardb.datamodel import user
 from api import AuthenticationError
 from api.config import config
@@ -86,7 +87,23 @@ def hash_password(password):
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
 
-# Utility functions
+def hash_token(token):
+    return hashlib.sha256(token).hexdigest()
+
+
+def get_usersession_by_token(session, token):
+    hashed_token = hash_token(token)
+    user_session = session.query(user.UserSession).options(joinedload("user")).filter(
+        user.UserSession.token == hashed_token
+    ).one_or_none()
+
+    if user_session is None or \
+       user_session.expires < datetime.datetime.now(pytz.utc) or \
+       user_session.logged_out is not None:
+        return None
+
+    return user_session
+
 
 def create_session(session, user_id):
     u = session.query(user.User).filter(
@@ -95,7 +112,7 @@ def create_session(session, user_id):
 
     # Store hashed token in database
     token = binascii.hexlify(os.urandom(32))
-    hashed_token = hashlib.sha256(token).hexdigest()
+    hashed_token = hash_token(token)
     userSession = user.UserSession(
         token=hashed_token,
         user_id=user_id,

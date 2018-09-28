@@ -1,12 +1,13 @@
 import logging
+from flask import Response, make_response, redirect, request
+
 from vardb.datamodel import user as user_model
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json, authenticate
-from api.util.useradmin import authenticate_user, create_session, change_password, logout
+from api.util.useradmin import authenticate_user, create_session, change_password, logout, get_usersession_by_token
 
 from api.v1.resource import Resource, LogRequestResource
-from flask import Response, make_response, redirect, request
 
 log = logging.getLogger(__name__)
 
@@ -119,9 +120,9 @@ class LogoutResource(LogRequestResource):
     def post(self, session, user=None):
 
         token = request.cookies.get("AuthenticationToken")  # We only logout specific token
-        user_session = session.query(user_model.UserSession).filter(
-            user_model.UserSession.token == token
-        ).one_or_none()
+
+        user_session = get_usersession_by_token(session, token)
+
         if user_session is None:
             log.warning("Trying to logout with non-existing token %s" % token)
             return

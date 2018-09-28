@@ -4,13 +4,12 @@ import datetime
 import pytz
 import time
 import collections
-import hashlib
 from flask import request, g, Response
 from api import app, db, ApiError
 from api.config import config, get_user_config
 from vardb.datamodel import user
 from vardb.datamodel.log import ResourceLog
-from sqlalchemy.orm import joinedload
+from api.util.useradmin import get_usersession_by_token
 
 
 log = app.logger
@@ -323,30 +322,18 @@ def request_json(required, only_required=False, allowed=None):
         return array_wrapper
 
 
-def _get_usersession_by_token(session, token):
-    hashed_token = hashlib.sha256(token).hexdigest()
-    user_session = session.query(user.UserSession).options(joinedload("user")).filter(
-        user.UserSession.token == hashed_token
-    ).one_or_none()
-
-    if user_session is None or \
-       user_session.expires < datetime.datetime.now(pytz.utc) or \
-       user_session.logged_out is not None:
-        return None
-
-    user_session.lastactivity = datetime.datetime.now(pytz.utc)
-    session.commit()
-    return user_session
-
-
 def populate_g_user():
     g.user = None
     g.usersession_id = None
     token = request.cookies.get("AuthenticationToken")
     if token is None:
         return
-    user_session = _get_usersession_by_token(db.session, token)
+
+    user_session = get_usersession_by_token(db.session, token)
+
     if user_session:
+        user_session.lastactivity = datetime.datetime.now(pytz.utc)
+        db.session.commit()
         g.usersession_id = user_session.id
         g.user = user_session.user
 
@@ -377,7 +364,6 @@ def authenticate(user_config=False, optional=False):
                     return func(*args, **kwargs)
                 else:
                     return Response("Authentication required", 403, {'WWWAuthenticate': 'Basic realm="Login Required"'})
-
 
         return inner
     return _authenticate
