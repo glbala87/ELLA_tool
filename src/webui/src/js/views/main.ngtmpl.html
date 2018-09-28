@@ -1,7 +1,11 @@
 <login ng-if="$ctrl.views.current == 'login'"></login>
 
 <div class="app" ng-if="$ctrl.views.current != 'login'">
-  <navbar></navbar>
+  <navbar>
+    <overview-navbar ng-if="$ctrl.views.current == 'overview'"></overview-navbar>
+    <workflowbar ng-if="$ctrl.views.current == 'workflows'"></workflowbar>
+  </navbar>
+
   <overview ng-if="$ctrl.views.current == 'overview'"></overview>
   <div ng-if="$ctrl.views.current == 'workflows'">
     <workflow></workflow>
@@ -22,8 +26,4 @@
   <modal ng-if="$ctrl.modals.addExcludedAlleles.show" name="addExcludedAlleles">
     <add-excluded-alleles></add-excluded-alleles>
   </modal>
-  <!-- <modal>
-
-  </modal> -->
-  <!--<div class="content" ui-view="content"></div>-->
 </div>

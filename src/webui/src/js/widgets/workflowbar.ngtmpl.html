@@ -1,4 +1,4 @@
-<nav class="secondary" ng-if="$ctrl.workflowType === 'analysis'">
+<div class="secondary" ng-if="$ctrl.workflowType === 'analysis'">
   <div class="workflow-options">
     <div class="bttn-set">
         <label tabindex=0
@@ -34,8 +34,8 @@
       </button>
     <workflow-buttons readOnly="$ctrl.readOnly" start-when-reopen="false"></workflow-buttons>
   </section>
-</nav>
-<nav class="bottom" ng-class="{'has-secondary': $ctrl.workflowType == 'analysis'}" ng-if="$ctrl.selectedAlleleId">
+</div>
+<div class="bottom" ng-class="{'has-secondary': $ctrl.workflowType == 'analysis'}" ng-if="$ctrl.selectedAlleleId">
   <allelebar allele-path="'views.workflows.data.alleles.' + $ctrl.selectedAlleleId" genepanel-path="'views.workflows.data.genepanel'"></allelebar>
   <section>
     <section class="line-wrapper">
@@ -84,6 +84,6 @@
       </section>
     </section>
   </section>
-</nav>
+</div>
 
 <div ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript" class="nav-bottom-allelebar-spacer"></div>
