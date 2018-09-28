@@ -521,10 +521,16 @@ class ConvertReferences(object):
 
         for er in annotation["HGMD"].get("extrarefs", []):
             if "pmid" in er:
+
                 pmid = er['pmid']
                 reftag = ConvertReferences.REFTAG.get(er.get("reftag"), "Reftag not specified")
-                comments = annotation['HGMD'].get("comments", "No comments.")
+                comments = er.get("comments", "No comments.")
                 comments = "No comments." if comments == "None" else comments
+
+                # The comment on APR is the disease/phenotype
+                if er.get("reftag") == "APR" and comments == "No comments.":
+                   comments = er.get("disease", comments)
+
                 total[pmid] = [reftag, comments]
 
         # Format reftag, comments to string
