@@ -122,7 +122,6 @@ rules = [
     { "code": "BS3", "rule": {"$$aggregate": {"$all": ["REQ_no_MSI", "REQ_MSI_HQ"]}}},
     { "code": "BS3", "rule": {"$$aggregate": {"$all": ["REQ_MMR_loss", "REQ_IHC_HQ"]}}},
     { "code": "BS4", "rule": {"$$aggregate": {"$all": ["REQ_no_segregation", "REQ_segregation_HQ"]}}},
-    { "code": "BSxBP7", "rule": {"$$aggregate": {"$all": ["REQ_no_aa_change", "REQ_no_splice_effect"]}}},
     ### BP*
     { "code": "BP1", "rule": {"$$aggregate": {"$all": ["REQ_missense", "REQ_GP_LOF_only"]}}},
     { "code": "BP2", "rule": {"refassessment.*.ref_phase": "in_cis_pathogenic"}},
@@ -136,11 +135,12 @@ rules = [
     { "code": "BP4", "rule": {"prediction.paralog_conservation": "non-conserved"}},
     # BP5 (no rule)
     { "code": "BP6", "rule": {"external.[Trusted source]": "Benign"}},
-    # BP7 (no rule)
+    { "code": "BP7", "rule": {"$$aggregate": {"$all": ["REQ_no_aa_change", "REQ_no_splice_effect"]}}},
     { "code": "BPxBS3", "rule": {"$$aggregate": {"$all": ["REQ_normal_protein", "REQ_protein_MQ"]}}},
     { "code": "BPxBS3", "rule": {"$$aggregate": {"$all": ["REQ_normal_RNA", "REQ_RNA_MQ"]}}},
     { "code": "BPxBS3", "rule": {"$$aggregate": {"$all": ["REQ_no_MSI", "REQ_MSI_MQ"]}}},
     { "code": "BPxBS4", "rule": {"$$aggregate": {"$all": ["REQ_no_segregation", "REQ_segregation_MQ"]}}}
+
 
 
 
