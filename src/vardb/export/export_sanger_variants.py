@@ -20,6 +20,8 @@ from api.util import queries
 Dump variants that need Sanger verification to file
 """
 
+SANGER_VERIFY_SKIP_CLASSIFICATIONS = ['1', '2', 'U']
+
 SCRIPT_DIR = path.abspath(path.dirname(__file__))
 log = logging.getLogger(__name__)
 
@@ -155,15 +157,10 @@ def get_variant_rows(session, ids_not_started):
             sanger_verify = loaded_allele['samples'][0]['genotype'].get('needs_verification', True)
             default_transcripts = get_nested(loaded_allele, ['annotation', 'filtered_transcripts'])
 
-            # Filter out from following criteria
-            # - Class 1
-            # - Class 2 and needs_verification is False
             classification = get_nested(loaded_allele, ['allele_assessment', 'classification'])
-            if classification:
-                if classification == 'U' or \
-                   classification == '1' or \
-                   classification == '2' and not sanger_verify:
-                    continue
+            if classification in SANGER_VERIFY_SKIP_CLASSIFICATIONS:
+                continue
+
             variant_rows.append(
                 create_variant_row(default_transcripts, analysis_info, loaded_allele, sanger_verify)
             )
