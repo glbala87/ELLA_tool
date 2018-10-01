@@ -24,6 +24,49 @@ export class ImportSingleController {
         this.editMode = false
 
         this.scope.$watch(
+            () => this.importData,
+            () => {
+                this.warnings = {
+                    noGenotype: {
+                        text:
+                            'No genotype found for some or all variants. Can only import as independent variants.',
+                        active: !this.importData.genotypeAvailable(),
+                        show: () => {
+                            return true
+                        }
+                    },
+                    multipleAnalyses: {
+                        text: 'Multiple analyses matching filename',
+                        active: false,
+                        show: () => {
+                            return this.importData.isAnalysisMode()
+                        }
+                    },
+                    analysisNameMatch: {
+                        text:
+                            'The analysis name matches one or more existing analysis names. Do you really want to create a new analysis? If not, please choose "Append" instead.`',
+                        active: false,
+                        show: () => {
+                            return this.importData.isCreateNewAnalysisType()
+                        }
+                    },
+                    analysisStarted: {
+                        text: null,
+                        active: false,
+                        show: () => {
+                            return this.importData.isAppendToAnalysisType()
+                        }
+                    }
+                }
+
+                this.setDefaultChoices()
+                if (!this.importData.isSelectionComplete()) {
+                    this.editMode = true
+                }
+            }
+        )
+
+        this.scope.$watch(
             () => this.importData.importSelection.analysisName,
             () => {
                 this.findExistingAnalysis()
@@ -34,44 +77,6 @@ export class ImportSingleController {
             () => this.importData.importSelection.analysis,
             () => this.checkAnalysisStatus()
         )
-
-        this.warnings = {
-            noGenotype: {
-                text:
-                    'No genotype found for some or all variants. Can only import as independent variants.',
-                active: !this.importData.genotypeAvailable(),
-                show: () => {
-                    return true
-                }
-            },
-            multipleAnalyses: {
-                text: 'Multiple analyses matching filename',
-                active: false,
-                show: () => {
-                    return this.importData.isAnalysisMode()
-                }
-            },
-            analysisNameMatch: {
-                text:
-                    'The analysis name matches one or more existing analysis names. Do you really want to create a new analysis? If not, please choose "Append" instead.`',
-                active: false,
-                show: () => {
-                    return this.importData.isCreateNewAnalysisType()
-                }
-            },
-            analysisStarted: {
-                text: null,
-                active: false,
-                show: () => {
-                    return this.importData.isAppendToAnalysisType()
-                }
-            }
-        }
-
-        this.setDefaultChoices()
-        if (!this.importData.isSelectionComplete()) {
-            this.editMode = true
-        }
     }
 
     toggleEditMode() {

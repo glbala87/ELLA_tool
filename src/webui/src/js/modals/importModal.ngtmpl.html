@@ -138,7 +138,7 @@
       </section>
     </div>
 
-    <div ng-repeat="(id, parsedInput) in vm.jobData" track by $index>
+    <div ng-repeat="(id, parsedInput) in vm.jobData track by id">
       <importsingle import-data="vm.jobData[id]"
                     index="$index+1"
       >
