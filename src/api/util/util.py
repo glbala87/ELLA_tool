@@ -139,7 +139,7 @@ def log_request(statuscode, response=None):
     if request.method in ['PUT', 'POST', 'PATCH', 'DELETE']:
         if not g.log_hide_payload:
             payload = request.get_data()
-            payload_size = request.headers.get('Content-Length'),
+            payload_size = request.headers.get('Content-Length', 0),
         if not app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
             log.warning("{usersession_id} - {method} - {endpoint} - {json} - {response_size} - {duration}ms".format(
                 usersession_id=usersession_id,

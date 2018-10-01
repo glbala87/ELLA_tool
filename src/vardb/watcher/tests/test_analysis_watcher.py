@@ -1,4 +1,5 @@
 import os
+import shutil
 import pytest
 from vardb.deposit.deposit_from_vcf import DepositFromVCF
 from vardb.datamodel.genotype import Genotype
@@ -9,11 +10,12 @@ from vardb.watcher.analysis_watcher import *
 
 non_existing_path = '123nonexistingpath'
 
-watch_path = '/ella/src/vardb/watcher/testdata/analyses'
-dest_path = '/ella/src/vardb/watcher/testdata/destination'
+watch_path = '/tmp/test-ella-watcher-analyses'
+dest_path = '/tmp/test-ella-watcher-destination'
 
-ready_data_path = '/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-001'
-empty_data_path = '/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-002'
+ready_data_source_path = '/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-001'
+ready_data_path = os.path.join(watch_path, 'TestAnalysis-001')
+empty_data_path = os.path.join(watch_path, 'TestAnalysis-002')
 
 analysis_sample = 'TestAnalysis-001'
 analysis_sample2 = 'TestAnalysis-002'
@@ -27,8 +29,13 @@ def init_dest():
     print 'cleaning up paths ..'
     os.system('rm -rf {}'.format(empty_data_path))
     os.system('rm -rf {}'.format(dest_path))
-    os.mkdir(empty_data_path)
+    os.system('rm -rf {}'.format(watch_path))
+    os.mkdir(watch_path)
     os.mkdir(dest_path)
+    os.mkdir(empty_data_path)
+
+    os.system('cp -r {} {}'.format(ready_data_source_path, ready_data_path))
+
     print 'paths are ready ..'
     os.system('touch {}/READY'.format(ready_data_path))
     yield 'dest_created'
@@ -47,7 +54,7 @@ def test_analysispath_throws_exception(session):
     assert WATCH_PATH_ERROR.format(non_existing_path) in str(excinfo)
 
 
-def test_destinationpath_throws_exception(session):
+def test_destinationpath_throws_exception(session, init_dest):
     with pytest.raises(RuntimeError) as excinfo:
         AnalysisWatcher(session, watch_path, non_existing_path)
     assert DEST_PATH_ERROR.format(non_existing_path) in str(excinfo)
@@ -55,15 +62,14 @@ def test_destinationpath_throws_exception(session):
 
 def test_ready_filepath(session, init_dest):
     aw = init(session)
-    assert aw.is_ready(ready_data_path) == True
-    assert aw.is_ready(empty_data_path) == False
+    assert aw.is_ready(ready_data_path) is True
+    assert aw.is_ready(empty_data_path) is False
 
 
 def test_path_to_analysis_config(session, init_dest):
     aw = init(session)
     analysis_config_path = aw.path_to_analysis_config(ready_data_path, analysis_sample)
     # Name of .analysis file should match dir name
-    #'/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-001/TestAnalysis-001.analysis'
     assert analysis_config_path == ready_data_path + '/' + analysis_sample + ANALYSIS_POSTFIX
 
     with pytest.raises(RuntimeError) as excinfo:
@@ -103,8 +109,9 @@ def test_loading_config_with_error(session, init_dest):
 
 def test_vcf_path(session, init_dest):
     aw = init(session)
-    analysis_vcf_path = aw.path_to_vcf_file(ready_data_path, analysis_sample)
-    assert analysis_vcf_path == ready_data_path + '/' + analysis_sample + VCF_POSTFIX
+    analysis_vcf_path, analysis_ped_path = aw.path_to_vcf_file(ready_data_path, analysis_sample)
+    assert analysis_vcf_path == os.path.join(ready_data_path, analysis_sample + VCF_POSTFIX)
+    assert analysis_ped_path == os.path.join(ready_data_path, analysis_sample + PED_POSTFIX)
 
     with pytest.raises(RuntimeError) as excinfo:
         aw.path_to_vcf_file(empty_data_path, analysis_sample)
@@ -181,8 +188,7 @@ def test_check_and_import(session, test_database, init_dest):
     assert len(files) == 1
     assert files == [analysis_sample2]
 
-    # We do this only once, at the end of the tests. It is a bit fragile to use network to reset files and folders
-    os.system('git checkout src/vardb/watcher/testdata/analyses/')
+    os.system('rm -r {}'.format(watch_path))
 
     assert "Report" in str(analysis_stored[0].report)
     assert "Warning" in str(analysis_stored[0].warnings)

@@ -1,6 +1,7 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import template from './searchModule.ngtmpl.html'
 
 const TYPES = [
     {
@@ -14,7 +15,7 @@ const TYPES = [
 ]
 
 app.component('search', {
-    templateUrl: 'ngtmpl/searchModule.ngtmpl.html',
+    templateUrl: 'searchModule.ngtmpl.html',
     controller: connect(
         {
             query: state`search.query`,
@@ -40,16 +41,6 @@ app.component('search', {
                     },
                     getSearchTypes: () => {
                         return TYPES
-                    },
-                    getEndAction: (interpretation) => {
-                        let end_action = `${interpretation.workflow_status} ${
-                            interpretation.finalized ? ' (Finalized) ' : ' '
-                        }`
-                        if (interpretation.user) {
-                            return end_action + ' • '
-                        } else {
-                            return end_action
-                        }
                     },
                     optionSelected: (key, newValue) => {
                         // A bit hackish due to angular-selector not

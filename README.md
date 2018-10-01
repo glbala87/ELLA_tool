@@ -47,7 +47,7 @@ Mount points of interest:
 Internally, the `supervisord` will spin up:
   - nginx - acting as reverse proxy and serving static files
   - gunicorn - launching several API workers
-  - gulp - transpiles the frontend upon startup
+  - webpack - transpiles the frontend upon startup
   - analyses-watcher - handles watching for and importing new data
 
 Transpiling the frontend files may take up to a minute, so it might take some time before the application is available.
@@ -138,7 +138,6 @@ database in production.
    In general we don't want to make more migration scripts than necessary, so make sure things are proper.
 1. Make and enter a dev instance: `make dev` and `make shell`
 1. Inside it do:
-    1. `export DB_URL=postgresql:///postgres`
     1. `/ella/ella-cli database ci-migration-head` (resets database to the migration base, then runs all the migrations)
     1. `cd /ella/src/vardb/datamodel/migration/`
     1. `PYTHONPATH=../../.. alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel
@@ -280,11 +279,6 @@ The relevant options to the make command:
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
 Note! Make sure the versions of Chrome and Chromedriver are compatible
-
-
-Note! You can also run webdriverio directly on hour host (not in a docker container).
-- Start ELLA (typically `make dev`)
-- Start tests: DEBUG=true node node_modules/.bin/wdio src/webui/tests/e2e/wdio.conf.js --path / --baseUrl <host:port like localhost:8001>
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 Of course you need to have instellad the webdriverio Node module.

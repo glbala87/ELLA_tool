@@ -9,7 +9,6 @@ from sqlalchemy.orm import joinedload
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
 from api import schemas, ApiError, ConflictError
-from api.util.allelefilter import AlleleFilter
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator
@@ -136,26 +135,18 @@ def get_alleles(session,
         link_filter['referenceassessment_id'] = [i[0] for i in ra_ids]
 
     # Only relevant for analysisinterpretation: Include the genotype for connected samples
-    sample_ids = list()
+    analysis_id = None
     if analysisinterpretation_id is not None:
-
-        sample_ids = session.query(sample.Sample.id).filter(
-            sample.Sample.analysis_id == sample.Analysis.id,
-            sample.Analysis.id == interpretation.analysis_id  # We know interpretation is analysisinterpretation
-        ).all()
-
-        sample_ids = [s[0] for s in sample_ids]
+        analysis_id = interpretation.analysis_id
 
     kwargs = {
         'include_annotation': True,
         'include_custom_annotation': True,
-        'genepanel': interpretation.genepanel
+        'genepanel': interpretation.genepanel,
+        'analysis_id': analysis_id,
+        'link_filter': link_filter
     }
 
-    if link_filter:
-        kwargs['link_filter'] = link_filter
-    if sample_ids:
-        kwargs['include_genotype_samples'] = sample_ids
     return AlleleDataLoader(session).from_objs(
         alleles,
         **kwargs
@@ -591,12 +582,15 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
 
     # Get all analysis workflows that are either Ongoing, or waiting for review
     # i.e having not only 'Not started' interpretations or not only 'Done' interpretations.
-    workflow_analysis_ids = session.query(sample.Analysis.id).filter(
+    workflow_analysis_ids = session.query(sample.Analysis.id).join(
+        workflow.AnalysisInterpretation
+    ).filter(
         or_(
             sample.Analysis.id.in_(queries.workflow_analyses_review_not_started(session)),
             sample.Analysis.id.in_(queries.workflow_analyses_medicalreview_not_started(session)),
             sample.Analysis.id.in_(queries.workflow_analyses_ongoing(session)),
-        )
+        ),
+        workflow.AnalysisInterpretation.status != 'Done'
     )
 
     # Exclude "ourself" if applicable
@@ -605,11 +599,11 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             sample.Analysis.id != analysis_id
         )
 
-    # Get all allele ids connected to analysis workflows that are ongoing
-    # Exclude alleles with valid alleleassessments
-    wf_analysis_gp_allele_ids = session.query(
-        workflow.AnalysisInterpretation.genepanel_name,
-        workflow.AnalysisInterpretation.genepanel_version,
+    # Get all ongoing analyses connected to provided allele ids
+    # For analyses we exclude alleles with valid alleleassessments
+    wf_analysis_allele_ids = session.query(
+        sample.Analysis.genepanel_name,
+        sample.Analysis.genepanel_version,
         workflow.AnalysisInterpretation.user_id,
         allele.Allele.id
     ).join(
@@ -624,8 +618,8 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         workflow.AnalysisInterpretation.status != 'Done'
     ).distinct()
 
-    # Get all allele ids connected to allele workflows that are ongoing
-    wf_allele_gp_allele_ids = session.query(
+    # Get all allele ids for ongoing allele workflows matching provided allele_ids
+    wf_allele_allele_ids = session.query(
         workflow.AlleleInterpretation.genepanel_name,
         workflow.AlleleInterpretation.genepanel_version,
         workflow.AlleleInterpretation.user_id,
@@ -641,45 +635,35 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
 
     # Exclude "ourself" if applicable
     if allele_id is not None:
-        wf_allele_gp_allele_ids = wf_allele_gp_allele_ids.filter(
+        wf_allele_allele_ids = wf_allele_allele_ids.filter(
             workflow.AlleleInterpretation.allele_id != allele_id
         )
 
-    # Next, we need to filter the alleles so we don't report collisions
-    # on alleles that would anyways be filtered out.
-    # Organize by genepanel for correct filtering.
-    # Also, keep track of which user had which variant, so we can
-    # report that as well.
-    total_gp_allele_ids = defaultdict(set)  # {('HBOC', 'v01'): [1, 2, 3, ...], ...}
+    wf_analysis_allele_ids = wf_analysis_allele_ids.all()
+    wf_allele_allele_ids = wf_allele_allele_ids.all()
+
+    collision_gp_allele_ids = defaultdict(set)
     user_ids = set()
-    wf_analysis_gp_allele_ids = wf_analysis_gp_allele_ids.all()
-    wf_allele_gp_allele_ids = wf_allele_gp_allele_ids.all()
-
-    for gp_name, gp_version, user_id, al_id in itertools.chain(wf_allele_gp_allele_ids, wf_analysis_gp_allele_ids):
-        gp_key = (gp_name, gp_version)
-        total_gp_allele_ids[gp_key].add(al_id)
+    for gp_name, gp_version, user_id, allele_id in wf_allele_allele_ids + wf_analysis_allele_ids:
+        collision_gp_allele_ids[(gp_name, gp_version)].add(allele_id)
         user_ids.add(user_id)
-
-    af = AlleleFilter(session)
-    nonfiltered_gp_allele_ids = af.filter_alleles(total_gp_allele_ids)
 
     # For performance we have to jump through some hoops...
     # First we load in all allele data in one query
-    nonfiltered_allele_ids = itertools.chain(*[v['allele_ids'] for v in nonfiltered_gp_allele_ids.values()])
     collision_alleles = session.query(allele.Allele).filter(
-        allele.Allele.id.in_(nonfiltered_allele_ids),
+        allele.Allele.id.in_(itertools.chain.from_iterable(collision_gp_allele_ids.values())),
     ).all()
 
     # Next load the alleles by their genepanel to load with AlleleDataLoader
     # using the correct genepanel for those alleles.
     genepanels = session.query(gene.Genepanel).filter(
-        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(total_gp_allele_ids.keys())
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(collision_gp_allele_ids.keys())
     )
     adl = AlleleDataLoader(session)
     gp_dumped_alleles = dict()
-    for gp_key, al_ids in nonfiltered_gp_allele_ids.iteritems():
+    for gp_key, al_ids in collision_gp_allele_ids.iteritems():
         genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
-        alleles = [a for a in collision_alleles if a.id in al_ids['allele_ids']]
+        alleles = [a for a in collision_alleles if a.id in al_ids]
         gp_dumped_alleles[gp_key] = adl.from_objs(
             alleles,
             genepanel=genepanel,
@@ -697,10 +681,10 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
 
     # Finally connect it all together (phew!)
     collisions = list()
-    for wf_type, wf_entries in [('allele', wf_allele_gp_allele_ids), ('analysis', wf_analysis_gp_allele_ids)]:
-        for gp_name, gp_version, user_id, al_id in wf_entries:
+    for wf_type, wf_entries in [('allele', wf_allele_allele_ids), ('analysis', wf_analysis_allele_ids)]:
+        for gp_name, gp_version, user_id, allele_id in wf_entries:
             gp_key = (gp_name, gp_version)
-            dumped_allele = next((a for a in gp_dumped_alleles[gp_key] if a['id'] == al_id), None)
+            dumped_allele = next((a for a in gp_dumped_alleles[gp_key] if a['id'] == allele_id), None)
             if not dumped_allele:  # Allele might have been filtered out..
                 continue
             # If an workflow is in review, it will have no user assigned...
@@ -712,3 +696,116 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             })
 
     return collisions
+
+
+def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
+
+    assert (allele_id or analysis_id) and not (allele_id and analysis_id)
+
+    if allele_id:
+        workflow_id = allele_id
+    if analysis_id:
+        workflow_id = analysis_id
+
+    assert workflow_id
+
+    logs = session.query(workflow.InterpretationLog).join(
+        _get_interpretation_model(allele_id, analysis_id)
+    ).filter(
+        _get_interpretation_model_field(allele_id, analysis_id) == workflow_id
+    )
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    field = 'alleleinterpretation_id' if allele_id else 'analysisinterpretation_id'
+    editable = {l.id: getattr(l, field) == latest_interpretation.id and
+                (not latest_interpretation.finalized or latest_interpretation.status != 'Done') and
+                l.user_id == user_id and
+                l.message is not None for l in logs}
+    loaded_logs = schemas.InterpretationLogSchema().dump(logs, many=True).data
+
+    for loaded_log in loaded_logs:
+        loaded_log['editable'] = editable[loaded_log['id']]
+
+    return loaded_logs
+
+
+def create_interpretationlog(session, user_id, data, allele_id=None, analysis_id=None):
+
+    assert (allele_id or analysis_id) and not (allele_id and analysis_id)
+    if allele_id:
+        if not data.get('warning_cleared') is None:
+            raise ApiError("warning_cleared is not supported for alleles as they have no warnings")
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    if not latest_interpretation:
+        # Shouldn't be possible for an analysis
+        assert not analysis_id
+        assert allele_id
+
+        latest_interpretation = workflow.AlleleInterpretation(
+            allele_id=allele_id,
+            workflow_status='Interpretation',
+            status='Not started'
+        )
+        session.add(latest_interpretation)
+        session.flush()
+
+    if analysis_id:
+        data['analysisinterpretation_id'] = latest_interpretation.id
+    if allele_id:
+        data['alleleinterpretation_id'] = latest_interpretation.id
+
+    data['user_id'] = user_id
+
+    il = workflow.InterpretationLog(**data)
+
+    session.add(il)
+    return il
+
+
+def patch_interpretationlog(session, user_id, interpretationlog_id, message, allele_id=None, analysis_id=None):
+
+    il = session.query(workflow.InterpretationLog).filter(
+        workflow.InterpretationLog.id == interpretationlog_id
+    ).one()
+
+    if il.user_id != user_id:
+        raise ApiError("Cannot edit interpretation log, item doesn't match user's id.")
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    match = False
+    if allele_id:
+        match = il.alleleinterpretation_id == latest_interpretation.id
+    elif analysis_id:
+        match = il.analysisinterpretation_id == latest_interpretation.id
+
+    if not match:
+        raise ApiError("Can only edit entries created for latest interpretation id.")
+
+    il.message = message
+
+
+def delete_interpretationlog(session, user_id, interpretationlog_id, allele_id=None, analysis_id=None):
+
+    il = session.query(workflow.InterpretationLog).filter(
+        workflow.InterpretationLog.id == interpretationlog_id
+    ).one()
+
+    if il.user_id != user_id:
+        raise ApiError("Cannot delete interpretation log, item doesn't match user's id.")
+
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+
+    match = False
+    if allele_id:
+        match = il.alleleinterpretation_id == latest_interpretation.id
+    elif analysis_id:
+        match = il.analysisinterpretation_id == latest_interpretation.id
+
+    if not match:
+        raise ApiError("Can only delete entries created for latest interpretation id.")
+
+    session.delete(il)

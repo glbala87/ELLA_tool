@@ -10,11 +10,13 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import logging
 
 from vardb.util import vcfiterator
-from vardb.deposit.importers import SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
+from vardb.deposit.importers import batch_generator, SpliceInfoProcessor, HGMDInfoProcessor, SplitToDictInfoProcessor
 
 from deposit_from_vcf import DepositFromVCF
 
 log = logging.getLogger(__name__)
+
+BATCH_SIZE = 1000
 
 
 class DepositAlleles(DepositFromVCF):
@@ -38,17 +40,26 @@ class DepositAlleles(DepositFromVCF):
                     error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
                 raise RuntimeError(error)
 
-        for record in vi.iter():
-            # Import alleles for this record (regardless if it's in our specified sample set or not)
-            db_alleles = self.allele_importer.process(record)
+        for batch_records in batch_generator(vi.iter, BATCH_SIZE):
+
+            for record in batch_records:
+                self.allele_importer.add(record)
+
+            alleles = self.allele_importer.process()
+
+            for record in batch_records:
+                allele = self.get_allele_from_record(record, alleles)
+                self.annotation_importer.add(record, allele['id'])
 
             # Import annotation for these alleles
-            self.annotation_importer.process(record, db_alleles)
+            annotations = self.annotation_importer.process()
+
+            assert len(alleles) == len(annotations)
 
             if not annotation_only:
                 # Create allele interpretations so variant shows up in variant workflow view
-                for allele in db_alleles:
-                    self.allele_interpretation_importer.process(db_genepanel, allele.id)
+                for allele in alleles:
+                    self.allele_interpretation_importer.process(db_genepanel, allele['id'])
 
             self.counter['nVariantsInFile'] += 1
             if self.counter['nVariantsInFile'] % 10000 == 0:

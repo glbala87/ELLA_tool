@@ -2,15 +2,13 @@ import { parallel } from 'cerebral'
 import { set, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAlleleIdsByGene from '../actions/getAlleleIdsByGene'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import getAlleleIdsCategory from '../computed/getAlleleIdsCategory'
 import loadAlleles from '../sequences/loadAlleles'
 import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
 
-// TODO: The coupling to views.workflows here is horrible, figure out how we should structure modals
-
 export default [
-    set(state`modals.addExcludedAlleles.sampleId`, props`sampleId`),
+    set(state`modals.addExcludedAlleles.analysisId`, props`analysisId`),
     set(state`modals.addExcludedAlleles.genepanelPath`, props`genepanelPath`),
     set(state`modals.addExcludedAlleles.excludedAlleleIds`, props`excludedAlleleIds`),
     ({ props }) => {
@@ -30,6 +28,6 @@ export default [
             set(state`modals.addExcludedAlleles.data.alleleIdsByGene`, props`result`),
             parallel([loadAlleles, loadIncludedAlleles])
         ],
-        error: [toastr('error', 'Failed to load variants')]
+        error: [toast('error', 'Failed to load variants')]
     }
 ]

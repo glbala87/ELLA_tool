@@ -13,7 +13,7 @@ from vardb.datamodel import assessment, workflow, allele, sample, genotype
 from api.tests.workflow_helper import WorkflowHelper
 from api.tests import interpretation_helper as ih
 
-from api.util.allelefilter import AlleleFilter
+from api.allelefilter import AlleleFilter
 from api.config import config
 
 
@@ -82,7 +82,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 1
         assert len(r.json['not_ready']) == 0
 
-
         assert r.json['ongoing'][0]['id'] == FIRST_ANALYSIS_ID
         assert len(r.json['ongoing'][0]['interpretations']) == 1
 
@@ -93,7 +92,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 1
         assert len(r.json['not_ready']) == 0
-
 
         ##
         # Interpretation -> Interpretation
@@ -112,7 +110,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
-
 
         i = next(i for i in r.json['not_started_missing_alleleassessments'] if i['id'] == FIRST_ANALYSIS_ID)
         assert len(i['interpretations']) == 2
@@ -178,7 +175,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
 
-
         i = r.json['marked_review_missing_alleleassessments'][0]
         assert i['id'] == FIRST_ANALYSIS_ID
         assert len(i['interpretations']) == 4
@@ -212,7 +208,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
 
-
         i = next(i for i in r.json['not_started_missing_alleleassessments'] if i['id'] == FIRST_ANALYSIS_ID)
         assert len(i['interpretations']) == 5
         # Check correct sorting on interpretations
@@ -225,7 +220,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
-
 
         ##
         # Interpretation -> Medical review
@@ -246,7 +240,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
 
-
         i = r.json['marked_medicalreview'][0]
         assert i['id'] == FIRST_ANALYSIS_ID
         assert len(i['interpretations']) == 6
@@ -260,7 +253,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_medicalreview']) == 1
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
-
 
         ##
         # Finalize
@@ -281,7 +273,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
 
-
         r = client.get('/api/v1/overviews/analyses/finalized/')
         assert isinstance(r.json, list) and len(r.json) == 1
         assert r.json[0]['id'] == FIRST_ANALYSIS_ID
@@ -295,7 +286,6 @@ class TestAnalysisOverview(object):
         assert len(r.json['marked_medicalreview']) == 0
         assert len(r.json['ongoing']) == 0
         assert len(r.json['not_ready']) == 0
-
 
         ##
         # Test with_findings, non-outdated

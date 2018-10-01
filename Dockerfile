@@ -80,6 +80,8 @@ RUN mkdir -p /logs /socket /repo/imported/ /repo/incoming/ /repo/genepanels
 COPY . /ella
 WORKDIR /ella
 
+RUN rm -rf /ella/node_modules && ln -s /dist/node_modules /ella/
+
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
 
 # Set production as default cmd

@@ -1,6 +1,6 @@
 import { UUID } from '../../../../../../util'
 
-export default function addAcmgCode({ state, props }) {
+export default function removeAcmgCode({ state, props }) {
     const { alleleId, code } = props
 
     const included = state.get(

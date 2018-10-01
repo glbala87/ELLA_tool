@@ -3,20 +3,20 @@ import datetime
 import pytz
 from collections import defaultdict
 from sqlalchemy import func, tuple_, or_, and_, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, defer, joinedload
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, user as model_user
 
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
+from api.allelefilter import AlleleFilter
 from api.util import queries
 from api.util.util import authenticate, paginate
-from api.util.allelefilter import AlleleFilter
 from api.util.alleledataloader import AlleleDataLoader
 
 from api.config import config
 
 
-def load_genepanel_alleles(session, gp_allele_ids):
+def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
     """
     Loads in allele data from AlleleDataLoader for all allele ids given by input structure:
 
@@ -25,11 +25,18 @@ def load_genepanel_alleles(session, gp_allele_ids):
         ('HBOCutv', 'v01'): [1, 2, 3, ...],
     }
 
+    analysis_ids is a list with ids from which to load connected data
+    like priority and oldest date, in order to show whether any waiting
+    analysis has high priority or is old.
+    If empty, only information from AlleleInterpretation and InterpretationLog
+    for the allele itself is used.
+
     Returns [
         {
             'genepanel': {...genepanel data...},
             'allele': {...allele data...},
             'oldest_analysis': '<dateisoformat>',
+            'priority': <int>,
             'interpretations': [{...interpretation_data...}, ...]
         },
         ...
@@ -60,34 +67,29 @@ def load_genepanel_alleles(session, gp_allele_ids):
     # Preload oldest analysis for each allele, to get the oldest datetime
     # for the analysis awaiting this allele's classification
     # If we have dates from both analysis and alleleinterpretation, we let oldest analysis take priority
-    allele_ids_analysis_deposit_date = session.query(
-        allele.Allele.id,
-        func.min(sample.Analysis.deposit_date)
-    ).join(
-        genotype.Genotype.alleles,
-        sample.Sample,
-        sample.Analysis
-    ).filter(
-        allele.Allele.id.in_(all_allele_ids)
-    ).group_by(allele.Allele.id).all()
-    allele_ids_deposit_date.update(
-        {k: v for k, v in allele_ids_analysis_deposit_date})
-
-    # Preload highest priority analysis for each allele
-    allele_ids_priority = session.query(
-        allele.Allele.id,
-        func.max(sample.Analysis.priority)
-    ).join(
-        genotype.Genotype.alleles,
-        sample.Sample,
-        sample.Analysis
-    ).filter(
-        allele.Allele.id.in_(all_allele_ids)
-    ).group_by(allele.Allele.id).all()
-    allele_ids_priority = {k: v for k, v in allele_ids_priority}
+    if analysis_ids:
+        allele_ids_analysis_deposit_date = session.query(
+            allele.Allele.id,
+            func.min(sample.Analysis.deposit_date)
+        ).join(
+            genotype.Genotype.alleles,
+            sample.Sample,
+            sample.Analysis
+        ).filter(
+            sample.Analysis.id.in_(analysis_ids),
+            allele.Allele.id.in_(all_allele_ids)
+        ).group_by(allele.Allele.id).all()
+        allele_ids_deposit_date.update(
+            {k: v for k, v in allele_ids_analysis_deposit_date}
+        )
 
     # Preload interpretations for each allele
-    allele_ids_interpretations = session.query(workflow.AlleleInterpretation).filter(
+    allele_ids_interpretations = session.query(
+        workflow.AlleleInterpretation
+    ).options(
+        defer('state'),
+        defer('user_state')
+    ).filter(
         workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
     ).order_by(
         workflow.AlleleInterpretation.date_last_update
@@ -98,6 +100,41 @@ def load_genepanel_alleles(session, gp_allele_ids):
         tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(
             gp_allele_ids.keys())
     ).all()
+
+    # Load highest priority for each allele.
+    # We get priority both from the highest priority of connected analyses,
+    # as well as on the allele itself. The highest among them all are shown in UI.
+    analysis_allele_ids_priority = {}
+
+    if analysis_ids:
+        analyses_priority = queries.workflow_analyses_priority(
+            session,
+            analysis_ids=analysis_ids
+        ).subquery()
+
+        analysis_allele_ids_priority = session.query(
+            allele.Allele.id,
+            func.max(func.coalesce(analyses_priority.c.priority, 1))
+        ).join(
+            genotype.Genotype.alleles,
+            sample.Sample,
+            sample.Analysis,
+        ).outerjoin(
+            analyses_priority,
+            analyses_priority.c.analysis_id == sample.Analysis.id
+        ).filter(
+            allele.Allele.id.in_(all_allele_ids)
+        ).group_by(allele.Allele.id).all()
+
+        analysis_allele_ids_priority = {k: v for k, v in analysis_allele_ids_priority}
+
+    allele_allele_ids_priority = queries.workflow_allele_priority(session).all()
+    allele_allele_ids_priority = {k: v for k, v in allele_allele_ids_priority}
+
+    # Load review comments
+
+    allele_ids_review_comment = queries.workflow_allele_review_comment(session).all()
+    allele_ids_review_comment = {k: v for k, v in allele_ids_review_comment}
 
     # Set structures/loaders
     final_alleles = list()
@@ -130,8 +167,11 @@ def load_genepanel_alleles(session, gp_allele_ids):
                 'genepanel': {'name': genepanel.name, 'version': genepanel.version},
                 'allele': a,
                 'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
-                # If there's no analysis connected, set to normal priority
-                'highest_analysis_priority': allele_ids_priority.get(a['id'], 1),
+                'priority': max([
+                    analysis_allele_ids_priority.get(a['id'], 1),
+                    allele_allele_ids_priority.get(a['id'], 1)
+                ]),
+                'review_comment': allele_ids_review_comment.get(a['id'], None),
                 'interpretations': alleleinterpretation_schema.dump(interpretations, many=True).data
             })
 
@@ -259,6 +299,19 @@ def get_alleles_existing_alleleinterpretation(session, allele_filter, user=None,
 
 class OverviewAlleleResource(LogRequestResource):
 
+    def _get_not_started_analysis_ids(self, session):
+        """
+        Returns analysis ids for relevant not started analysis workflows.
+        """
+        return session.query(sample.Analysis.id).filter(
+            or_(
+                sample.Analysis.id.in_(
+                    queries.workflow_analyses_interpretation_not_started(session)),
+                sample.Analysis.id.in_(
+                    queries.workflow_analyses_notready_not_started(session))
+            )
+        )
+
     def _get_alleles_no_alleleassessment_notstarted_analysis(self, session, user=None):
         """
         Returns a list of (allele_ids, analysis_ids) that are missing alleleassessments.
@@ -302,16 +355,7 @@ class OverviewAlleleResource(LogRequestResource):
 
         allele_ids = [a[0] for a in allele_ids]
 
-        analysis_ids = session.query(sample.Analysis.id).filter(
-            or_(
-                sample.Analysis.id.in_(
-                    queries.workflow_analyses_interpretation_not_started(session)),
-                sample.Analysis.id.in_(
-                    queries.workflow_analyses_notready_not_started(session))
-            )
-        )
-
-        return allele_ids, analysis_ids
+        return allele_ids
 
     def get_alleles_for_status(self, session, status, user=None):
         """
@@ -344,7 +388,8 @@ class OverviewAlleleResource(LogRequestResource):
             alleleinterpretation_allele_ids
         )
 
-        return load_genepanel_alleles(session, gp_allele_ids)
+        analysis_ids = self._get_not_started_analysis_ids(session)
+        return load_genepanel_alleles(session, gp_allele_ids, analysis_ids=analysis_ids)
 
     def get_alleles_not_started(self, session, user=None):
         """
@@ -361,8 +406,8 @@ class OverviewAlleleResource(LogRequestResource):
            - subtract alleles with ongoing/review alleleinterpretation
         Add all alleles from 'Not started' alleleinterpretation
         """
-        analysis_allele_ids, analysis_ids = self._get_alleles_no_alleleassessment_notstarted_analysis(
-            session, user)
+        analysis_allele_ids = self._get_alleles_no_alleleassessment_notstarted_analysis(session, user)
+        analysis_ids = self._get_not_started_analysis_ids(session)
 
         allele_filters = [allele.Allele.id.in_(
             queries.workflow_alleles_interpretation_not_started(session))]
@@ -400,7 +445,7 @@ class OverviewAlleleResource(LogRequestResource):
                 gp_allele_ids[gp_key] = set()
             gp_allele_ids[gp_key].update(allele_ids)
 
-        return load_genepanel_alleles(session, gp_allele_ids)
+        return load_genepanel_alleles(session, gp_allele_ids, analysis_ids=analysis_ids)
 
     @authenticate()
     def get(self, session, user=None):
@@ -535,11 +580,31 @@ def get_categorized_analyses(session, user=None):
     aschema = schemas.AnalysisSchema()
     final_analyses = dict()
     for key, subquery in categories:
-        analyses = session.query(sample.Analysis).filter(
+        analyses = session.query(
+            sample.Analysis
+        ).options(
+            joinedload(sample.Analysis.interpretations).defer('state').defer('user_state')
+        ).filter(
             sample.Analysis.id.in_(user_analysis_ids),
             sample.Analysis.id.in_(subquery),
         ).all()
         final_analyses[key] = aschema.dump(analyses, many=True).data
+
+        # Load in priority, warning_cleared and review_comment
+        analysis_ids = [a.id for a in analyses]
+        priorities = queries.workflow_analyses_priority(session, analysis_ids)
+        review_comments = queries.workflow_analyses_review_comment(session, analysis_ids)
+        warnings_cleared = queries.workflow_analyses_warning_cleared(session, analysis_ids)
+
+        for analysis in final_analyses[key]:
+            priority = next((p.priority for p in priorities if p.analysis_id == analysis['id']), 1)
+            analysis['priority'] = priority
+            review_comment = next((rc.review_comment for rc in review_comments if rc.analysis_id == analysis['id']), None)
+            if review_comment:
+                analysis['review_comment'] = review_comment
+            warning_cleared = next((wc.warning_cleared for wc in warnings_cleared if wc.analysis_id == analysis['id']), None)
+            if warning_cleared:
+                analysis['warning_cleared'] = warning_cleared
 
     return final_analyses
 

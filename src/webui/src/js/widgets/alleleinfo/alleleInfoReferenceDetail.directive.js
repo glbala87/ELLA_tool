@@ -4,12 +4,13 @@ import { state, props, signal } from 'cerebral/tags'
 import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
+import template from './alleleInfoReferenceDetail.ngtmpl.html'
 
 app.component('alleleInfoReferenceDetail', {
     bindings: {
         referenceId: '='
     },
-    templateUrl: 'ngtmpl/alleleInfoReferenceDetail.ngtmpl.html',
+    templateUrl: 'alleleInfoReferenceDetail.ngtmpl.html',
     controller: connect(
         {
             selectedAllele: state`views.workflows.selectedAllele`,

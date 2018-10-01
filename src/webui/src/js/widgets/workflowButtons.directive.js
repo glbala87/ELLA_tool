@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { compute } from 'cerebral'
 import { hasDataAtKey } from '../util'
+import template from './workflowButtons.ngtmpl.html'
 
 const START_BUTTON_OPTIONS = {
     save: 'Save',
@@ -18,7 +19,7 @@ app.component('workflowButtons', {
     bindings: {
         startWhenReopen: '=?'
     },
-    templateUrl: 'ngtmpl/workflowButtons.ngtmpl.html',
+    templateUrl: 'workflowButtons.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,

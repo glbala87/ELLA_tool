@@ -20,21 +20,12 @@ class ACMGClassifier2015:
     BP = re.compile("BP.*")
     
     """
-    Patterns only used in special AMG rule
-    """
-    BS1 = re.compile("BS1")
-    BS2 = re.compile("BS2")
-    BP7 = re.compile("BP7")
-    
-    """
     Call with a list of passed codes to get the correct ClassificationResult.
     """
     def classify(self, passed_codes):
         
         codes_by_precedence = self.normalize_codes(passed_codes)
         
-         # Special rule for AMG, not official ACMG guidelines
-        likely_benign_amg = self.likely_benign_amg(codes_by_precedence)
         # Rules according to the official ACMG guidelines
         pathogenic = self.pathogenic(codes_by_precedence)
         likely_pathogenic = self.likely_pathogenic(codes_by_precedence)
@@ -48,9 +39,6 @@ class ACMGClassifier2015:
         if benign:
             contributors = self.benign(passed_codes)
             return ClassificationResult(1, "Benign", contributors, "Benign")
-        if likely_benign_amg:
-            contributors = self.likely_benign_amg(passed_codes)
-            return ClassificationResult(2, "Likely benign", contributors, "Likely benign")
         if pathogenic:
             contributors = self.pathogenic(passed_codes)
             return ClassificationResult(5, "Pathogenic", contributors, "Pathogenic")
@@ -61,19 +49,6 @@ class ACMGClassifier2015:
             contributors = self.likely_benign(passed_codes)
             return ClassificationResult(2, "Likely benign", contributors, "Likely benign")
         return ClassificationResult(3, "Uncertain significance", [], "None")
-
-    """
-    If the codes given satisfy the speical AMG requirements for likely benign, return list of all codes
-    contributing otherwise empty list.
-    """
-    def likely_benign_amg(self, codes):
-        return(
-            self._OR(
-                self.contrib(self.BS1, codes, lambda n: n >= 1),
-                self.contrib(self.BS2, codes, lambda n: n >= 1),
-                self.contrib(self.BP7, codes, lambda n: n >= 1)
-            )
-        )
 
     """
     If the codes given satisfy the requirements for pathogenic, return list of all codes contributing, otherwise
@@ -126,7 +101,7 @@ class ACMGClassifier2015:
                 self._OR(
                     self.contrib(self.PM, codes, lambda n: n == 1),
                     # NB: PVS + PP = class 4 is not based on official ACMG guidelines, but added to fill logical gap
-                    self.contrib(self.PP, codes, lambda n: n >= 1)
+                    self.contrib(self.PP, codes, lambda n: n == 1)
                 )
             ),            
             self._AND(
@@ -334,10 +309,12 @@ class ACMGClassifier2015:
                       self.contrib(self.PVS, codes, lambda n: n >= 1),
                       self.contrib(self.PS, codes, lambda n: n >= 1),
                       self.contrib(self.PM, codes, lambda n: n >= 1),
+                      self.contrib(self.PP, codes, lambda n: n >= 1),
                      ),
             self._OR(
                       self.contrib(self.BA, codes, lambda n: n >= 1),
                       self.contrib(self.BS, codes, lambda n: n >= 1),
+                      self.contrib(self.BP, codes, lambda n: n >= 1),
                      )
                   )
         )

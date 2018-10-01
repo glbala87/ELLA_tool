@@ -1,7 +1,7 @@
 import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import postGenepanel from '../actions/postGenepanel'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import postImportJob from '../actions/postImportJob'
 import resetCustomImport from '../sequences/resetCustomImport'
 
@@ -18,12 +18,12 @@ export default [
                         success: [
                             resetCustomImport,
                             set(state`views.overview.import.selectedSample`, null),
-                            toastr('success', 'Import job created.', 5000)
+                            toast('success', 'Import job created.', 5000)
                         ],
-                        error: [toastr('error', 'Failed to import sample')]
+                        error: [toast('error', 'Failed to import sample')]
                     }
                 ],
-                error: [toastr('error', 'Failed to create genepanel. Maybe name exists already?')]
+                error: [toast('error', 'Failed to create genepanel. Maybe name exists already?')]
             }
         ],
         false: [
@@ -32,9 +32,9 @@ export default [
             {
                 success: [
                     set(state`views.overview.import.selectedSample`, null),
-                    toastr('success', 'Import job created.', 5000)
+                    toast('success', 'Import job created.', 5000)
                 ],
-                error: [toastr('error', 'Failed to import sample')]
+                error: [toast('error', 'Failed to import sample')]
             }
         ]
     }

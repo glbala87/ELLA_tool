@@ -160,7 +160,7 @@ config = {
         # Filters variants with -20 or +6 as intronic, e.g. c.123-21A>G and c.123+7T>C
         # Computed from genomic region, but uses computed HGVSc distance as fallback
         "splice_region": [-20, 6],
-        "utr_region": [-20, 20],
+        "utr_region": [0,0],
         "freq_num_thresholds": {  # Specifies (optional) requirements for >= 'num' count for each freq
             "GNOMAD_GENOMES": {
                 "G": 5000,
@@ -238,7 +238,7 @@ config = {
         "options": [  # Also defines sorting order
             # Adding a class needs ENUM update in DB, along with migration
             {
-                "name": "Unclassified",
+                "name": "Class U",
                 "value": "U",
             },
             {

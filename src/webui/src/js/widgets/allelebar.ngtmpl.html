@@ -9,13 +9,12 @@
     <td ng-if="$ctrl.genepanel">
       <h3 class="full-title">
         <div class="allele_popup" isolate-click>
-          <span  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
-                           popover-trigger="outsideClick"
-                           class="clickable"
-                           popover-append-to-body="true"
-                           uib-popover-template="'ngtmpl/phenotypes_popover.ngtmpl.html'"
-                           popover-title="{{t.symbol}}"
-                           popover-placement="bottom-left">
+          <span popover-trigger="outsideClick"
+                class="clickable"
+                popover-append-to-body="true"
+                uib-popover-template="'phenotypes_popover.ngtmpl.html'"
+                popover-title="{{t.symbol}}"
+                popover-placement="bottom-left">
             {{t.symbol}} ({{t.exon}})
           </span>
         </div>
@@ -23,7 +22,7 @@
     </td>
     <td  ng-if="!$ctrl.genepanel">
       <h3 class="full-title">
-        <span  item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html">
+        <span>
           {{t.symbol}} ({{t.exon}})
         </span>
       </h3>
@@ -34,16 +33,19 @@
         <div class="allele_popup" isolate-click>
           <span class="clickable" item="t"
                            popover-trigger="outsideClick"
-                           uib-popover-template="'ngtmpl/cdnaPopover.ngtmpl.html'"
+                           uib-popover-template="'cdnaPopover.ngtmpl.html'"
                            popover-append-to-body="true"
                            popover-title="HGVS cDNA"
                            popover-class="popover-title-no-uppercase"
                            popover-placement="bottom">
             <i>{{t.transcript}}:</i><b>{{t.HGVSc_short || $ctrl.allele.formatted.hgvsg}}</b> {{$ctrl.allele.formatted.genotype}}
           </span>
-          <span ng-if="$ctrl.allele.samples">
-            <span title="Homozygous" class="tag red" ng-if="$ctrl.allele.samples[0].genotype.homozygous">HOM</span>
-            <span title="Heterozygous" class="tag" ng-if="!$ctrl.allele.samples[0].genotype.homozygous">HET</span>
+          <span ng-if="$ctrl.genotypeDisplay.length">
+            <span class="genotype-display" ng-repeat="gt in $ctrl.genotypeDisplay" title="{{gt.title}}">
+              <span ng-if="$ctrl.genotypeDisplay.length > 1">{{gt.sample_label}}: </span>{{gt.display}}
+              <span title="Homozygous" class="tag red" ng-if="gt.sample_label == 'P' && gt.type == 'Homozygous'">HOM</span>
+              <span title="Multiallelic" class="tag" ng-if="gt.multiallelic">MUL</span>
+            </span>
           </span>
         </div>
       </h3>
@@ -52,12 +54,12 @@
     <td>
       <h3 class="full-title">
         <div class="allele_popup" isolate-click>
-          <span class="clickable" item="t" templateUrl="ngtmpl/transcriptWrapper.ngtmpl.html"
-                           popover-trigger="outsideClick"
-                           popover-append-to-body="true"
-                           uib-popover-template="'ngtmpl/proteinPopover.ngtmpl.html'"
-                           popover-title="HGVS protein"
-                           popover-placement="bottom">
+          <span class="clickable"
+                popover-trigger="outsideClick"
+                popover-append-to-body="true"
+                uib-popover-template="'proteinPopover.ngtmpl.html'"
+                popover-title="HGVS protein"
+                popover-placement="bottom">
             <i ng-if="t.HGVSp">{{t.protein}}:</i><b>{{t.HGVSp}}</b> ({{$ctrl.formatCodons(t.codons)}})
           </span>
         </div>
@@ -67,7 +69,7 @@
     <td>
       <h3 class="full-title">
         <div popover-trigger="outsideClick"
-             uib-popover-template="'ngtmpl/alleleInfoConsequencePopover.ngtmpl.html'"
+             uib-popover-template="'alleleInfoConsequencePopover.ngtmpl.html'"
              popover-append-to-body="true"
              popover-title="Consequences"
              popover-placement="auto top">

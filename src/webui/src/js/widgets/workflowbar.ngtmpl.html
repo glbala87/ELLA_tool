@@ -1,4 +1,3 @@
-
 <nav class="secondary" ng-if="$ctrl.workflowType === 'analysis'">
   <div class="workflow-options">
     <div class="bttn-set">
@@ -12,19 +11,11 @@
                ng-repeat="c in $ctrl.componentKeys"
         >{{c}}</label>
     </div>
-    <div class="review-comment">
-      <input type="text"
-             class="id-review-comment"
-             placeholder="REVIEW COMMENT"
-             ng-model="$ctrl.modelReviewComment"
-             ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
-             ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
-             ng-disabled="$ctrl.readOnly">
-    </div>
+
   </div>
   <section>
     <button class="id-add-excluded" ng-click="$ctrl.addExcludedAllelesClicked({
-      sampleId: $ctrl.analysis.samples[0].id,
+      analysisId: $ctrl.analysis.id,
       readOnly: $ctrl.readOnly,
       genepanelPath: 'views.workflows.data.genepanel',
       includedAlleleIds: $ctrl.selectedInterpretation.state.manuallyAddedAlleles,
@@ -45,29 +36,26 @@
           ng-model-watch="$ctrl.selectedInterpretation">
       </select>
     </div>
+    <button ng-if="$ctrl.workflowType == 'analysis'" class="id-worklog" ng-class="{'purple': $ctrl.messageCount > 0}" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
+          popover-class="interpretationlog-popover"
+          popover-append-to-body="true"
+          popover-title="Work log"
+          popover-trigger="outsideClick"
+          popover-placement="right"
+      >Work log ({{$ctrl.messageCount}})
+      </button>
     <workflow-buttons readOnly="$ctrl.readOnly" start-when-reopen="false"></workflow-buttons>
   </section>
 </nav>
 <nav class="bottom" ng-class="{'has-secondary': $ctrl.workflowType == 'analysis'}" ng-if="$ctrl.selectedAlleleId">
   <allelebar allele-path="'views.workflows.data.alleles.' + $ctrl.selectedAlleleId" genepanel-path="'views.workflows.data.genepanel'"></allelebar>
   <section>
-    <div class="workflow-options" ng-if="$ctrl.workflowType == 'allele'">
-      <div class="review-comment">
-        <input type="text"
-             class="id-review-comment"
-             placeholder="REVIEW COMMENT"
-             ng-model="$ctrl.modelReviewComment"
-             ng-model-watch="$ctrl.selectedInterpretation.state.review_comment"
-             ng-change="$ctrl.reviewCommentChanged({reviewComment: $ctrl.modelReviewComment})"
-             ng-disabled="$ctrl.readOnly">
-      </div>
-    </div>
     <section class="line-wrapper">
 
       <section>
         <button class="id-copy-alamut" ng-click="$ctrl.copySelectedAlamutClicked()">Copy variant to alamut</button>
-        <button class="id-add-acmg" uib-popover-template="$ctrl.popover.templateUrl"
-                popover-class="acmg-popover"
+        <button class="id-add-acmg" uib-popover-template="$ctrl.acmgPopover.templateUrl"
+                popover-class="add-acmg-popover"
                 popover-append-to-body="true"
                 popover-title="Add ACMG code"
                 popover-trigger="outsideClick"
@@ -95,6 +83,14 @@
                 >
             </select>
           </div>
+        <button ng-if="$ctrl.workflowType == 'allele'" class="id-worklog" ng-class="{'purple': $ctrl.messageCount > 0}" uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
+          popover-class="interpretationlog-popover"
+          popover-append-to-body="true"
+          popover-title="Work log"
+          popover-trigger="outsideClick"
+          popover-placement="right"
+        >Work log ({{$ctrl.messageCount}})
+        </button>
         <workflow-buttons ng-if="$ctrl.workflowType == 'allele'" start-when-reopen="true" readOnly="$ctrl.readOnly"></workflow-buttons>
 
       </section>

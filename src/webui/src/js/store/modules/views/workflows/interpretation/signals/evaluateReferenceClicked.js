@@ -1,7 +1,7 @@
 import { when, set, debounce } from 'cerebral/operators'
 import { state, string, props } from 'cerebral/tags'
 import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import showReferenceEvalModal from '../actions/showReferenceEvalModal'
 import setReferenceAssessment from '../actions/setReferenceAssessment'
 import postCustomAnnotation from '../actions/postCustomAnnotation'
@@ -16,7 +16,7 @@ export default [
             canUpdateAlleleAssessment,
             {
                 true: [setDirty, setReferenceAssessment, loadAcmg],
-                false: [toastr('error', string`Could not add ${props`category`} annotation`)]
+                false: [toast('error', string`Could not add ${props`category`} annotation`)]
             }
         ],
         dismissed: []

@@ -1,20 +1,16 @@
-import { parallel } from 'cerebral'
-import { set, when, equals } from 'cerebral/operators'
+import { set, when } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
-import { redirect } from '@cerebral/router/operators'
-import { HttpProviderError } from '@cerebral/http'
 import getAlleleByIdentifier from '../actions/getAlleleByIdentifier'
-import getGenepanel from '../actions/getGenepanel'
 import getGenepanels from '../actions/getGenepanels'
-import getCollisions from '../actions/getCollisions'
 import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import loadGenepanel from '../sequences/loadGenepanel'
-import loadCollisions from '../sequences/loadCollisions'
+import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
 import showExitWarning from '../showExitWarning'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
 import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
+import getWorkflowTitle from '../computed/getWorkflowTitle'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -24,7 +20,7 @@ export default [
     set(state`views.workflows.type`, string`allele`),
     getAlleleByIdentifier,
     {
-        error: [toastr('error', 'Invalid URL: Variant not found')],
+        error: [toast('error', 'Invalid URL: Variant not found')],
         success: [
             set(state`views.workflows.allele`, props`result`),
             set(state`views.workflows.id`, props`result.id`),
@@ -50,22 +46,17 @@ export default [
                                 state`views.workflows.data.genepanels.0`
                             )
                         ],
-                        error: [toastr('error', 'Failed to load genepanels')]
+                        error: [toast('error', 'Failed to load genepanels')]
                     }
                 ]
             },
             loadGenepanel,
             prepareComponents,
-            parallel([
-                [
-                    loadInterpretations,
-                    // We need the formatted allele, so postpone setting title until here.
-                    setNavbarTitle(
-                        string`${state`views.workflows.data.alleles.${state`views.workflows.id`}.formatted.display`} (${state`views.workflows.selectedGenepanel.name`}_${state`views.workflows.selectedGenepanel.version`})`
-                    )
-                ],
-                loadCollisions
-            ])
+            loadInterpretations,
+            // We need the formatted allele, so postpone setting title until here.
+            setNavbarTitle(getWorkflowTitle)
         ]
-    }
+    },
+    // For allele we can postpone loading interpretation logs until end
+    loadInterpretationLogs
 ]

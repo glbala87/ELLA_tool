@@ -1,6 +1,6 @@
 from vardb.datamodel import allele, sample, genotype, workflow
 
-from api.util.allelefilter import AlleleFilter
+from api.allelefilter import AlleleFilter
 from api.schemas import AnalysisInterpretationSchema, AlleleInterpretationSchema
 from api.config import config as global_config
 
@@ -15,22 +15,6 @@ class InterpretationDataLoader(object):
 
     def __init__(self, session):
         self.session = session
-
-
-    # @staticmethod
-    # def _get_classification_options(classification):
-    #     for option in global_config['classification']['options']:
-    #         if classification == option['value']:
-    #             return option
-    #
-    # @staticmethod
-    # def _get_interpretation_cls(interpretation):
-    #     if isinstance(interpretation, workflow.AnalysisInterpretation):
-    #         return workflow.AnalysisInterpretation
-    #     elif isinstance(interpretation, workflow.AlleleInterpretation):
-    #         return workflow.AlleleInterpretation
-    #     else:
-    #         raise RuntimeError("Unknown interpretation class type.")
 
     @staticmethod
     def _get_interpretation_schema(interpretation):
@@ -54,52 +38,52 @@ class InterpretationDataLoader(object):
             excluded_allele_ids = {
                 'frequency': [],
                 'region': [],
-                'gene': [],
+                'quality': [],
+                'segregation': []
             }
             return [interpretation.allele.id], excluded_allele_ids
 
         elif isinstance(interpretation, workflow.AnalysisInterpretation):
-            genepanel = interpretation.analysis.genepanel
-
-            allele_ids = self.session.query(allele.Allele.id).join(
+            analysis_id = interpretation.analysis_id
+            analysis_allele_ids = self.session.query(
+                allele.Allele.id
+            ).join(
                 genotype.Genotype.alleles,
                 sample.Sample,
-                sample.Analysis,
-                workflow.AnalysisInterpretation
+                sample.Analysis
             ).filter(
-                workflow.AnalysisInterpretation.id == interpretation.id,
-                genotype.Genotype.sample_id == sample.Sample.id
+                sample.Analysis.id == analysis_id
             ).all()
 
-            allele_ids = [a[0] for a in allele_ids]
             af = AlleleFilter(self.session)
-
-            gp_key = (genepanel.name, genepanel.version)
-            filtered_alleles = af.filter_alleles(
-                {gp_key: allele_ids}
+            filtered_alleles = af.filter_analyses(
+                {analysis_id: [a[0] for a in analysis_allele_ids]}
             )
 
-            return filtered_alleles[gp_key]['allele_ids'], filtered_alleles[gp_key]['excluded_allele_ids']
+            return filtered_alleles[analysis_id]['allele_ids'], filtered_alleles[analysis_id]['excluded_allele_ids']
 
     def group_alleles_by_finalization_filtering_status(self, interpretation):
         if not interpretation.snapshots:
             raise RuntimeError("Missing snapshot for interpretation.")
 
         allele_ids = []
-        excluded_allele_ids = {
-            'frequency': [],
-            'region': [],
-            'gene': [],
+
+        # Don't remove category below as long as it's part of snapshot tables' enums
+        # even if it's not a filter being used anymore. Otherwise, viewing historic analyses will break
+        categories = {
+            'FREQUENCY': 'frequency',
+            'REGION': 'region',
+            'GENE': 'gene',
+            'QUALITY': 'quality',
+            'SEGREGATION': 'segregation'
         }
+
+        excluded_allele_ids = {k: [] for k in categories.values()}
 
         for snapshot in interpretation.snapshots:
             if hasattr(snapshot, 'filtered'):
-                if snapshot.filtered == allele.Allele.FREQUENCY:
-                    excluded_allele_ids['frequency'].append(snapshot.allele_id)
-                elif snapshot.filtered == allele.Allele.REGION:
-                    excluded_allele_ids['region'].append(snapshot.allele_id)
-                elif snapshot.filtered == allele.Allele.GENE:
-                    excluded_allele_ids['gene'].append(snapshot.allele_id)
+                if snapshot.filtered in categories:
+                    excluded_allele_ids[categories[snapshot.filtered]].append(snapshot.allele_id)
                 else:
                     allele_ids.append(snapshot.allele_id)
             else:

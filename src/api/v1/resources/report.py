@@ -25,8 +25,8 @@ class NonStartedAnalysesVariants(LogRequestResource):
         """
 
         excel_file_obj = BytesIO()
-
-        export_sanger_variants.export_variants(session, excel_file_obj)
+        gp_keys = [(g.name, g.version) for g in user.group.genepanels]
+        export_sanger_variants.export_variants(session, gp_keys, excel_file_obj)
         excel_file_obj.seek(0)
         filename = 'non-started-analyses-variants-{}.xlsx'.format(
             datetime.datetime.now().strftime("%Y-%m-%d-%H_%M")

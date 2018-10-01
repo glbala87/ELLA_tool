@@ -8,7 +8,7 @@ import hasExistingAlleleAssessment from '../../store/common/computes/hasExisting
 import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 import getAlleleAssessment from '../../store/modules/views/workflows/interpretation/computed/getAlleleAssessment'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
-import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import getVerificationStatus from '../../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
 import {
@@ -17,6 +17,8 @@ import {
     isIgnored
 } from '../../store/common/helpers/reference'
 import { deepCopy } from '../../util'
+import template from './allelesectionbox.ngtmpl.html'
+import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -79,7 +81,7 @@ app.component('alleleSectionbox', {
     bindings: {
         sectionKey: '<'
     },
-    templateUrl: 'ngtmpl/allelesectionbox.ngtmpl.html',
+    templateUrl: 'allelesectionbox.ngtmpl.html',
     controller: connect(
         {
             classificationOptions,
@@ -87,6 +89,7 @@ app.component('alleleSectionbox', {
             readOnly: isReadOnly,
             section: getSection,
             selectedAllele: state`views.workflows.selectedAllele`,
+            alleleState: getAlleleState(state`views.workflows.selectedAllele`),
             alleleassessment: getAlleleAssessment(state`views.workflows.selectedAllele`),
             allelereport: getAlleleReport(state`views.workflows.selectedAllele`),
             isAlleleAssessmentOutdated: isAlleleAssessmentOutdated(
@@ -99,11 +102,14 @@ app.component('alleleSectionbox', {
                 state`views.workflows.selectedAllele`
             ),
             showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
+            verificationStatus: getVerificationStatus,
+            verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
             collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
             alleleReportCommentChanged: signal`views.workflows.interpretation.alleleReportCommentChanged`,
+            qualityCommentChanged: signal`views.workflows.interpretation.qualityCommentChanged`,
             reuseAlleleAssessmentClicked: signal`views.workflows.interpretation.reuseAlleleAssessmentClicked`,
             removeAcmgClicked: signal`views.workflows.interpretation.removeAcmgClicked`,
             acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`,
@@ -156,7 +162,12 @@ app.component('alleleSectionbox', {
                         return `views.workflows.data.alleles.${$ctrl.selectedAllele}`
                     },
                     getCardColor() {
-                        return $ctrl.isAlleleAssessmentReused ? 'green' : 'purple'
+                        if ($ctrl.section.alleleAssessmentReusedColor) {
+                            return $ctrl.isAlleleAssessmentReused
+                                ? $ctrl.section.alleleAssessmentReusedColor
+                                : $ctrl.section.color
+                        }
+                        return $ctrl.section.color
                     },
                     acmgCodeChangedWrapper(code) {
                         $ctrl.acmgCodeChanged({ alleleId: $ctrl.selectedAllele, code })

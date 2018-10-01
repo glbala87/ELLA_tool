@@ -21,7 +21,6 @@ class AnalysisSchema(Schema):
                   'name',
                   'deposit_date',
                   'interpretations',
-                  'priority',
                   'genepanel',
                   'samples',
                   'report',

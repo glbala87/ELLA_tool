@@ -759,17 +759,19 @@ class AnalysisActionFinalizeResource(LogRequestResource):
 class AnalysisCollisionResource(LogRequestResource):
     @authenticate()
     def get(self, session, analysis_id, user=None):
-        analysis_allele_ids = session.query(allele.Allele.id).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis
-        ).filter(
-            sample.Analysis.id == analysis_id
-        ).all()
+
+        allele_ids = request.args.get('allele_ids')
+        if allele_ids is None:
+            raise ApiError("Missing required arg allele_ids")
+
+        if not allele_ids:
+            return []
+
+        allele_ids = [int(i) for i in allele_ids.split(',')]
 
         return helpers.get_workflow_allele_collisions(
             session,
-            analysis_allele_ids,
+            allele_ids,
             analysis_id=analysis_id
         )
 
@@ -787,3 +789,139 @@ class AnalysisInterpretationFinishAllowedResource(LogRequestResource):
             raise ConflictError("Can not finish interpretation. Additional data have been added to this analysis. Please refresh.")
         else:
             return None, 200
+
+
+class AnalysisInterpretationLogListResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, analysis_id, user=None):
+        """
+        Get all interpreation log entries for an analysis workflow.
+
+        ---
+        summary: Get interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        logs = helpers.get_interpretationlog(session, user.id, analysis_id=analysis_id)
+
+        return logs, 200
+
+    @authenticate()
+    @request_json(
+        [],
+        allowed=[
+            'warning_cleared',
+            'priority',
+            'message',
+            'review_comment'
+        ]
+    )
+    def post(self, session, analysis_id, data=None, user=None):
+        """
+        Create a new interpretation log entry for an analysis workflow.
+
+        ---
+        summary: Create interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.create_interpretationlog(session, user.id, data, analysis_id=analysis_id)
+        session.commit()
+
+        return None, 200
+
+
+class AnalysisInterpretationLogResource(LogRequestResource):
+
+    @authenticate()
+    @request_json(
+        ['message']
+    )
+    def patch(self, session, analysis_id, log_id, data=None, user=None):
+        """
+        Patch an interpretation log entry.
+
+        ---
+        summary: Patch interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.patch_interpretationlog(
+          session,
+          user.id,
+          log_id,
+          data['message'],
+          analysis_id=analysis_id
+        )
+        session.commit()
+
+        return None, 200
+
+    @authenticate()
+    def delete(self, session, analysis_id, log_id, user=None):
+        """
+        Delete an interpretation log entry.
+
+        ---
+        summary: Create interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - name: interpretationlog_id
+            in: path
+            type: integer
+            description: Interpretation log id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.delete_interpretationlog(
+          session,
+          user.id,
+          log_id,
+          analysis_id=analysis_id
+        )
+        session.commit()
+
+        return None, 200

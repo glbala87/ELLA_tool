@@ -1,6 +1,7 @@
 from flask import request
 from sqlalchemy import tuple_
 
+from api import ApiError
 from api.util.util import request_json, authenticate
 from api.v1.resource import LogRequestResource
 
@@ -578,4 +579,151 @@ class AlleleCollisionResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, allele_id, user=None):
+
+        allele_ids = request.args.get('allele_ids')
+        if allele_ids is None:
+            raise ApiError("Missing required arg allele_ids")
+
+        if not allele_ids:
+            return []
+
+        allele_ids = [int(i) for i in allele_ids.split(',')]
+
         return helpers.get_workflow_allele_collisions(session, [allele_id], allele_id=allele_id)
+
+
+class AlleleInterpretationLogListResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, allele_id, user=None):
+        """
+        Get all interpreation log entries for an allele workflow.
+
+        ---
+        summary: Get interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        logs = helpers.get_interpretationlog(session, user.id, allele_id=allele_id)
+
+        return logs, 200
+
+    @authenticate()
+    @request_json(
+        [],
+        allowed=[
+            'warning_cleared',
+            'priority',
+            'message',
+            'review_comment'
+        ]
+    )
+    def post(self, session, allele_id, data=None, user=None):
+        """
+        Create a new interpretation log entry for an allele workflow.
+
+        ---
+        summary: Create interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        print allele_id
+        helpers.create_interpretationlog(session, user.id, data, allele_id=allele_id)
+        session.commit()
+
+        return None, 200
+
+
+class AlleleInterpretationLogResource(LogRequestResource):
+
+    @authenticate()
+    @request_json(
+        ['message']
+    )
+    def patch(self, session, allele_id, log_id, data=None, user=None):
+        """
+        Patch an interpretation log entry.
+
+        ---
+        summary: Patch interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.patch_interpretationlog(
+          session,
+          user.id,
+          log_id,
+          data['message'],
+          allele_id=allele_id
+        )
+        session.commit()
+
+        return None, 200
+
+    @authenticate()
+    def delete(self, session, allele_id, log_id, user=None):
+        """
+        Delete an interpretation log entry.
+
+        ---
+        summary: Create interpretation log
+        tags:
+            - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+          - name: interpretationlog_id
+            in: path
+            type: integer
+            description: Interpretation log id
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+        helpers.delete_interpretationlog(
+          session,
+          user.id,
+          log_id,
+          allele_id=allele_id
+        )
+        session.commit()
+
+        return None, 200

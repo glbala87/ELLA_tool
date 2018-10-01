@@ -1,14 +1,13 @@
-import { when, set, debounce } from 'cerebral/operators'
-import { state, module, props } from 'cerebral/tags'
 import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import removeAcmgCode from '../actions/removeAcmgCode'
 import setDirty from '../actions/setDirty'
+import updateSuggestedClassification from '../sequences/updateSuggestedClassification'
 
 export default [
     canUpdateAlleleAssessment,
     {
-        true: [setDirty, removeAcmgCode],
-        false: [toastr('error', 'Could not remove ACMG code')]
+        true: [setDirty, removeAcmgCode, updateSuggestedClassification],
+        false: [toast('error', 'Could not remove ACMG code')]
     }
 ]

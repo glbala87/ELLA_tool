@@ -18,7 +18,7 @@ DEFAULT_GENOTYPE = {
         'A': 100,
         'REF': 100
     },
-    'homozygous': False
+    'type': 'Heterozygous'
 }
 
 
@@ -55,29 +55,6 @@ def test_allele_ratio_wrong_data_types(allele, genotype):
         'REF': 100
     }
     assert 'allele_ratio' not in genotype_calculate_qc(allele, genotype, 'HTS')
-
-
-def test_allele_ratio_multiallelic_wrong_ad_count(allele, genotype):
-    genotype['multiallelic'] = True
-    # Multiallelic variants (i.e. both alleles differ from REF)
-    # should have more than two AD values
-    genotype['allele_depth'] = {
-        'A': 100,
-        'REF': 100
-    }
-
-    with pytest.raises(AssertionError):
-        genotype_calculate_qc(allele, genotype, 'HTS')
-
-    genotype['multiallelic'] = False
-    genotype['allele_depth'] = {
-        'REF': 100,
-        'A': 100,
-        'G': 100
-    }
-
-    with pytest.raises(AssertionError):
-        genotype_calculate_qc(allele, genotype, 'HTS')
 
 
 def test_allele_ratio_correct_calculations(allele, genotype):
@@ -124,7 +101,7 @@ def test_needs_verification_positive(allele, genotype):
 
     # Heterozygous case
     allele['change_type'] = 'SNP'
-    genotype['homozygous'] = False
+    genotype['type'] = 'Heterozygous'
     genotype['allele_depth'] = {
         'A': 70,
         'REF': 50
@@ -146,7 +123,7 @@ def test_needs_verification_positive(allele, genotype):
 
     # Homozygous case
     allele['change_type'] = 'SNP'
-    genotype['homozygous'] = True
+    genotype['type'] = 'Homozygous'
     genotype['allele_depth'] = {
         'A': 100,
         'REF': 10
@@ -190,7 +167,7 @@ def test_needs_verification_negative(allele, genotype):
 
     # Heterozygous case
     allele['change_type'] = 'indel'
-    genotype['homozygous'] = False
+    genotype['type'] = 'Heterozygous'
     genotype['allele_depth'] = {
         'A': 100,
         'REF': 1
@@ -212,7 +189,7 @@ def test_needs_verification_negative(allele, genotype):
 
     # Homozygous case
     allele['change_type'] = 'del'
-    genotype['homozygous'] = True
+    genotype['type'] = 'Homozygous'
     genotype['allele_depth'] = {
         'A': 50,
         'REF': 50
@@ -234,7 +211,7 @@ def test_needs_verification_negative(allele, genotype):
 
     # One criteria fails
     allele['change_type'] = 'SNP'
-    genotype['homozygous'] = True
+    genotype['type'] = 'Homozygous'
     genotype['allele_depth'] = {
         'A': 100,
         'REF': 10

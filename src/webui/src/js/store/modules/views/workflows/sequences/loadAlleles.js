@@ -1,18 +1,30 @@
-import { deepCopy } from '../../../../../util'
-import { parallel, sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
+import { sequence } from 'cerebral'
+import { set, when } from 'cerebral/operators'
+import { state, props } from 'cerebral/tags'
 import getAlleles from '../actions/getAlleles'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 import prepareInterpretationState from './prepareInterpretationState'
 import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
+import loadCollisions from './loadCollisions'
+import updateSuggestedClassification from '../interpretation/sequences/updateSuggestedClassification'
 
 export default sequence('loadAlleles', [
     getAlleles,
     {
-        success: [set(state`views.workflows.data.alleles`, props`result`)],
-        error: [toastr('error', 'Failed to load variant(s)', 30000)]
-    },
-    prepareInterpretationState,
-    allelesChanged // Update alleleSidebar
+        success: [
+            set(state`views.workflows.data.alleles`, props`result`),
+            prepareInterpretationState,
+            allelesChanged, // Update alleleSidebar
+            loadCollisions,
+            when(state`views.workflows.selectedAllele`),
+            {
+                true: [
+                    set(props`alleleId`, state`views.workflows.selectedAllele`),
+                    updateSuggestedClassification
+                ],
+                false: []
+            }
+        ],
+        error: [toast('error', 'Failed to load variant(s)', 30000)]
+    }
 ])

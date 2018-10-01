@@ -264,16 +264,6 @@ class ACMGClassifier2015Test(unittest.TestCase):
              "PP6",
              "BS2"]))
 
-    def test_likely_benign_amg(self):
-        classifier = ACMGClassifier2015()
-        lb_amg = classifier.likely_benign_amg([
-            "BS1", "BS2"
-        ])
-
-        self.assertListEqual(lb_amg,
-            ["BS1", "BS2"]
-        )
-
     def test_classify_benign(self):
         classifier = ACMGClassifier2015()
         lp_res = classifier.benign([
@@ -365,7 +355,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEquals(contributors, ["PVS1", "PM3", "BS2"])
         
         contributors = classifier.contradict(contradict2)
-        self.assertEquals(contributors, ["PVS1", "PS3", "BS2"])
+        self.assertEquals(contributors, ["PVS1", "PS3", "PP1", "BS2"])
 
     def test_classify(self):
         classifier = ACMGClassifier2015()
@@ -389,6 +379,7 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
             ["PVS1",
             "PS3",
+            "PP1",
             "BS2"], "Contradiction"))
         
         passed = ["BS2",
@@ -416,6 +407,8 @@ class ACMGClassifier2015Test(unittest.TestCase):
         result = classifier.classify(passed)
         expected = ClassificationResult(3, "Uncertain significance",
             ["PM1",
+             "PP4",
+             "PP6",
              "BA3",
              "BS1",
              "BS2"
@@ -426,10 +419,11 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "BP4",
                 "BP6",
                 "PM1"]
-        self.assertEquals(classifier.classify(passed), ClassificationResult(2, "Likely benign",
-            ["BP4",
+        self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
+            ["PM1",
+             "BP4",
              "BP6"
-             ], "Likely benign"))
+             ], "Contradiction"))
 
         passed = [
                 "PM1",
@@ -437,9 +431,13 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PP6",                
                 "BP7"]        
         self.assertEquals(classifier.classify(passed), 
-            ClassificationResult(2, "Likely benign",
-                ["BP7"], 
-                "Likely benign"
+            ClassificationResult(3, "Uncertain significance",
+                [
+                "PM1",
+                "PP6",
+                "BP6",
+                "BP7"], 
+                "Contradiction"
                 )
             )
             
@@ -449,16 +447,20 @@ class ACMGClassifier2015Test(unittest.TestCase):
                 "PP6",                
                 "BP7"]        
         self.assertEquals(classifier.classify(passed), 
-            ClassificationResult(2, "Likely benign",
-                ["BS1",
+            ClassificationResult(3, "Uncertain significance",
+                ["PP6",
+                 "BS1",
+                 "BP6",
                  "BP7"
-                ], "Likely benign"))
+                ], "Contradiction"))
 
         passed = [
                 "BP6",
                 "PM1"]
         self.assertEquals(classifier.classify(passed), ClassificationResult(3, "Uncertain significance",
-            [], "None"))
+            ["PM1",
+             "BP6"
+            ], "Contradiction"))
             
         
     def test_presedence(self):    

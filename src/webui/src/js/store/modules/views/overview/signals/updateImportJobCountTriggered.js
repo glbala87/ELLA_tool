@@ -2,7 +2,7 @@ import { parallel } from 'cerebral'
 import { set } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getImportJobs from '../actions/getImportJobs'
-import toastr from '../../../../common/factories/toastr'
+import toast from '../../../../common/factories/toast'
 
 export default parallel([
     [
@@ -17,7 +17,7 @@ export default parallel([
                     props`result.pagination.totalCount`
                 )
             ],
-            error: [toastr('error', 'Failed to get import jobs status', 1000)]
+            error: [toast('error', 'Failed to get import jobs status', 1000)]
         }
     ],
     [
@@ -32,7 +32,7 @@ export default parallel([
                     props`result.pagination.totalCount`
                 )
             ],
-            error: [toastr('error', 'Failed to get import jobs status', 1000)]
+            error: [toast('error', 'Failed to get import jobs status', 1000)]
         }
     ]
 ])

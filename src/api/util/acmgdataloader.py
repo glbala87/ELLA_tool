@@ -5,7 +5,7 @@ from api.config import config
 from rule_engine.grc import ACMGClassifier2015
 from rule_engine.gre import GRE
 from rule_engine.mapping_rules import rules
-from api.util.allelefilter import AlleleFilter
+from api.allelefilter.frequencyfilter import FrequencyFilter
 from api.util.genepanelconfig import GenepanelConfigResolver
 from .alleledataloader import AlleleDataLoader
 
@@ -86,9 +86,9 @@ class ACMGDataLoader(object):
         for ra in reference_assessments:
             ra_per_allele[ra['allele_id']].append(ra)
 
-        af = AlleleFilter(self.session)
+        frequency_filter = FrequencyFilter(self.session, config)
         gp_key = (genepanel.name, genepanel.version)
-        commonness_groups = af.get_commonness_groups({gp_key: allele_ids})[gp_key]
+        commonness_groups = frequency_filter.get_commonness_groups({gp_key: allele_ids})[gp_key]
 
         for a in alleles:
             # Add extra data/keys that the rule engine expects to be there

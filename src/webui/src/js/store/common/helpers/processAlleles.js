@@ -1,3 +1,4 @@
+import thenBy from 'thenby'
 import { formatInheritance } from './genepanel'
 
 export default function processAlleles(alleles, genepanel = null) {
@@ -9,7 +10,7 @@ export default function processAlleles(alleles, genepanel = null) {
                 )
             )
         } else {
-            allele.annotation.filtered = allele.annotation.transcripts.sort(firstBy('transcript'))
+            allele.annotation.filtered = allele.annotation.transcripts.sort(thenBy('transcript'))
         }
 
         allele.urls = getUrls(allele)
@@ -68,24 +69,6 @@ function getLinks(allele, genepanel) {
 
 function getFormatted(allele, genepanel) {
     let formatted = {}
-
-    //
-    // genotype
-    //
-    if ('samples' in allele) {
-        if (allele.samples.length > 1) {
-            // If multiple, return 'S: A/T, H: A/G'
-            formatted.genotype = allele.samples
-                .map((s) => {
-                    return s.sample_type.substring(0, 1).toUpperCase() + ': ' + s.genotype.genotype
-                })
-                .join(', ')
-        } else {
-            formatted.genotype = allele.samples[0].genotype.genotype
-        }
-    } else {
-        formatted.genotype = ''
-    }
 
     //
     // HGVSg / alamut

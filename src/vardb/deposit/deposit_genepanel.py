@@ -3,15 +3,17 @@
 Code for adding or modifying gene panels in varDB.
 """
 
+import io
 import os
 import sys
 import argparse
 import logging
 import json
-from sqlalchemy import tuple_, and_
+from sqlalchemy import and_
 from vardb.datamodel import DB
 from vardb.datamodel import gene as gm
 from vardb.deposit.genepanel_config_validation import config_valid
+from vardb.deposit.importers import bulk_insert_nonexisting
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ log = logging.getLogger(__name__)
 def load_phenotypes(phenotypes_path):
     if not phenotypes_path:
         return None
-    with open(os.path.abspath(os.path.normpath(phenotypes_path))) as f:
+    with io.open(os.path.abspath(os.path.normpath(phenotypes_path)), encoding="utf-8") as f:
         phenotypes = []
         header = None
         for line in f:
@@ -46,14 +48,14 @@ def load_phenotypes(phenotypes_path):
 def load_config(config_path):
     if not config_path:
         return None
-    with open(os.path.abspath(os.path.normpath(config_path))) as f:
+    with io.open(os.path.abspath(os.path.normpath(config_path)), encoding="utf-8") as f:
         config = json.load(f)
         config_valid(config['config'])
         return config['config']
 
 
 def load_transcripts(transcripts_path):
-    with open(os.path.abspath(os.path.normpath(transcripts_path))) as f:
+    with io.open(os.path.abspath(os.path.normpath(transcripts_path)), encoding="utf-8") as f:
         transcripts = []
         header = None
         for line in f:
@@ -77,85 +79,6 @@ def load_transcripts(transcripts_path):
             data['exonEnds'] = map(zero_based_int, data['exonEnds'].split(','))
             transcripts.append(data)
         return transcripts
-
-
-def batch(iterable, n):
-    l = len(iterable)
-    for ndx in range(0, l, n):
-        yield iterable[ndx:min(ndx + n, l)]
-
-
-def bulk_insert_nonexisting(session, model, rows, include_pk=None, compare_keys=None, replace=False, batch_size=1000):
-    """
-    Inserts data in bulk according to batch_size.
-
-    :param model: Model to insert data into
-    :type model: SQLAlchemy model
-    :param rows: List of dict with data. Keys must correspond to attributes on model
-    :param include_pk: Key for which to get primary key for created and existing objects.
-                       Slows down performance by a lot, since we must query for the keys.
-    :type include_pk: str
-    :param compare_keys: Keys to be used for comparing whether an object exists already.
-                         If none is provided, all keys from rows[0] will be used.
-    :type compare_keys: List
-    :param replace: Whether to replace (update) existing data. Requires include_pk and compare_keys.
-    :param batch_size: Size of each batch that should be inserted into database. Affects memory usage.
-    :yields: Type of (existing_objects, created_objects), each entry being a list of dictionaries.
-             If include_pk is set, a third list is returned containing all the primary keys for the input rows.
-    """
-
-    if replace and compare_keys is None:
-        raise RuntimeError("Using replace=True with no supplied compare_keys makes no sense, as there can be no data to replace.")
-    if replace and not include_pk:
-        raise RuntimeError("You must supply include_pk argument when replace=True.")
-
-    if compare_keys is None:
-        compare_keys = rows[0].keys()
-
-    def get_fields_filter(model, rows, compare_keys):
-        batch_values = [[b[k] for k in compare_keys] for b in rows]
-        q_fields = [getattr(model, k) for k in compare_keys]
-        q_filter = tuple_(*q_fields).in_(batch_values)
-        return q_fields, q_filter
-
-    for batch_rows in batch(rows, batch_size):
-
-        q_fields, q_filter = get_fields_filter(model, batch_rows, compare_keys)
-        if include_pk:
-            q_fields.append(getattr(model, include_pk))
-
-        db_existing = session.query(*q_fields).filter(q_filter).all()
-        db_existing = [r._asdict() for r in db_existing]
-        created = list()
-        input_existing = list()
-
-        if db_existing:
-            # Filter our batch_rows based on existing in db to see which objects we need to insert
-            for row in batch_rows:
-                should_create = True
-                for e in db_existing:
-                    if all(e[k] == row[k] for k in compare_keys):
-                        if include_pk:  # Copy over primary key if applicable
-                            row[include_pk] = e[include_pk]
-                        input_existing.append(row)
-                        should_create = False
-                if should_create:
-                    created.append(row)
-        else:
-            created = batch_rows
-        if replace and input_existing:
-            # Reinsert all existing data
-            log.debug("Replacing {} objects on {}".format(len(input_existing), str(model)))
-            session.bulk_update_mappings(model, input_existing)
-
-        session.bulk_insert_mappings(model, created)
-
-        if include_pk:
-            pks = session.query(getattr(model, include_pk)).filter(q_filter).all()
-            assert len(pks) == len(created) + len(input_existing)
-            yield input_existing, created, pks
-        else:
-            yield input_existing, created
 
 
 class DepositGenepanel(object):
@@ -228,17 +151,18 @@ class DepositGenepanel(object):
                 )
             ))
 
-        for existing, created, pks in bulk_insert_nonexisting(self.session,
-                                                              gm.Transcript,
-                                                              transcript_rows,
-                                                              include_pk='id',
-                                                              compare_keys=['transcript_name'],
-                                                              replace=replace):
+        for existing, created in bulk_insert_nonexisting(self.session,
+                                                         gm.Transcript,
+                                                         transcript_rows,
+                                                         include_pk='id',
+                                                         compare_keys=['transcript_name'],
+                                                         replace=replace):
             transcript_inserted_count += len(created)
             transcript_reused_count += len(existing)
 
             # Connect to genepanel by inserting into the junction table
             junction_values = list()
+            pks = [i['id'] for i in existing + created]
             for pk in pks:
                 junction_values.append({
                     'genepanel_name': genepanel_name,
@@ -285,17 +209,17 @@ class DepositGenepanel(object):
                 )
             ))
 
-        for existing, created, pks in bulk_insert_nonexisting(self.session,
-                                                              gm.Phenotype,
-                                                              phenotype_rows,
-                                                              include_pk='id',
-                                                              compare_keys=['gene_id', 'description', 'inheritance'],
-                                                              replace=replace):
+        for existing, created in bulk_insert_nonexisting(self.session,
+                                                         gm.Phenotype,
+                                                         phenotype_rows,
+                                                         include_pk='id',
+                                                         compare_keys=['gene_id', 'description', 'inheritance'],
+                                                         replace=replace):
             phenotype_inserted_count += len(created)
             phenotype_reused_count += len(existing)
-
             # Connect to genepanel by inserting into the junction table
             junction_values = list()
+            pks = [i['id'] for i in existing + created]
             for pk in pks:
                 junction_values.append({
                     'genepanel_name': genepanel_name,

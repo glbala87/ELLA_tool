@@ -13,7 +13,7 @@ echo "created 'vardb-test'"
 
 if [ "$1" = "" ]
 then
-  py.test src -k 'not test_ui' --color=yes --cov src --cov-report xml --ignore src/api
+  py.test src --color=yes --ignore src/api
 else
   $1
 fi

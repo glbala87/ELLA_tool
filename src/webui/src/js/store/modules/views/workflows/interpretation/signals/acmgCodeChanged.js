@@ -1,7 +1,7 @@
 import { when, set, debounce } from 'cerebral/operators'
 import { state, module, props } from 'cerebral/tags'
 import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import acmgCodeChanged from '../actions/acmgCodeChanged'
 import setDirty from '../actions/setDirty'
 import updateSuggestedClassification from '../sequences/updateSuggestedClassification'
@@ -21,7 +21,7 @@ export default [
                         false: []
                     }
                 ],
-                false: [toastr('error', 'Could not change ACMG code')]
+                false: [toast('error', 'Could not change ACMG code')]
             }
         ],
         discard: []

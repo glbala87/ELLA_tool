@@ -33,15 +33,14 @@
 
     <!-- START MODAL CONTROLS -->
     <hr ng-if="vm.included_alleles.length">
-    <div class="question small line-wrapper spaced bottom">
-      <h5 class="slim title upper"><b>{{$ctrl.metrics.current}} variants</b> <small>from current filter settings</small></h5>
-    </div>
-    <div class="question small line-wrapper spaced allele-control-bar">
+    <div class="question small line-wrapper spaced">
       <section class="line-wrapper">
         <div class="bttn-set multiple-question-element">
           <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'all'">All ({{$ctrl.metrics.all}})</label>
           <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'frequency'">Frequency ({{$ctrl.metrics.frequency}})</label>
           <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'region'">Region ({{$ctrl.metrics.region}})</label>
+          <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'quality'">Quality ({{$ctrl.metrics.quality}})</label>
+          <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'segregation'">Segregation ({{$ctrl.metrics.segregation}})</label>
         </div>
         <div class="dropdown multiple-question-element">
           <select ng-change="$ctrl.geneChanged({gene: $ctrl.modelGene})" ng-model="$ctrl.modelGene" ng-options="g for g in $ctrl.geneOptions">
@@ -49,6 +48,10 @@
           </select>
         </div>
       </section>
+
+    </div>
+    <div class="question small line-wrapper spaced allele-control-bar">
+      <h5 class="slim title upper"><b>{{$ctrl.metrics.current}} variants</b> <small>from current filter settings</small></h5>
       <div>
         <uib-pagination total-items="$ctrl.geneAlleleIds.length"
           ng-model="$ctrl.modelSelectedPage"

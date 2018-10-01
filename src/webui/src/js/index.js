@@ -1,10 +1,8 @@
-/* jshint esnext: true */
+import '../css/base.css'
+import '../sass/main.scss'
 
-// Support for Object.entries. See https://www.npmjs.com/package/core-js
-require('core-js/fn/object/entries')
-require('core-js/fn/object/keys')
-require('core-js/fn/object/values')
-require('core-js/fn/array/includes')
+// Import here for template handling to be injected correctly
+import angular from 'angular'
 
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
@@ -43,6 +41,7 @@ import './views/modal.directive'
 import './views/overview.directive'
 import './views/login.directive'
 import './views/alleleSidebar.directive'
+import './views/alleleSidebarList.directive'
 import './views/navbar.directive'
 
 import './widgets/alleleinfo/alleleInfoAcmgSelection.directive'
@@ -64,11 +63,15 @@ import './widgets/alleleinfo/alleleInfoVardb.directive'
 import './widgets/annotationimport/importSingle.directive'
 
 import './widgets/markdownIt.directive'
+import './widgets/scrollIntoView.directive'
 import './widgets/collisionWarning.directive'
+import './widgets/alleleWarning.directive'
 import './widgets/analysisList.directive'
 import './widgets/alleleAssessment.directive'
 import './widgets/alleleList.directive'
+import './widgets/interpretationRoundInfo.directive'
 import './widgets/allelebar.directive'
+import './widgets/allelebar/workflowInterpretationRounds.directive'
 import './widgets/attachment.directive'
 import './widgets/frequencyDetailsWidget.directive'
 import './widgets/aclip.directive.js'
@@ -90,6 +93,8 @@ import './widgets/wysiwygjsEditor.directive'
 import './widgets/referenceAssessment.directive'
 import './widgets/analysisInfo.directive'
 import './widgets/workflowbar.directive'
+import './widgets/interpretationLog.directive'
+import './widgets/interpretationLogItem.directive'
 
 import Devtools from 'cerebral/devtools'
 import RootModule from './store/modules'

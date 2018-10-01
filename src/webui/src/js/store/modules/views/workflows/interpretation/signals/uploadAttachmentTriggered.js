@@ -1,7 +1,7 @@
 import { when, push, debounce } from 'cerebral/operators'
 import { state, module, props } from 'cerebral/tags'
 import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import setDirty from '../actions/setDirty'
 import postAttachment from '../actions/postAttachment'
 import loadAttachments from '../../sequences/loadAttachments'
@@ -24,12 +24,12 @@ export default [
                             ),
                             loadAttachments
                         ],
-                        error: [toastr('error', 'Could not upload attachment.')]
+                        error: [toast('error', 'Could not upload attachment.')]
                     }
                 ],
-                invalid: [toastr('error', 'Attachment is too big.')]
+                invalid: [toast('error', 'Attachment is too big.')]
             }
         ],
-        false: [toastr('error', 'Could not add attachment.')]
+        false: [toast('error', 'Could not add attachment.')]
     }
 ]

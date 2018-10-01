@@ -1,7 +1,7 @@
 import { when, set, debounce } from 'cerebral/operators'
 import { state, module, props } from 'cerebral/tags'
 import canUpdateAlleleReport from '../operators/canUpdateAlleleReport'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import setDirty from '../actions/setDirty'
 
 export default [
@@ -18,7 +18,7 @@ export default [
                     )
                 ],
                 false: [
-                    toastr(
+                    toast(
                         'error',
                         'Cannot change report comment when interpretation is not Ongoing'
                     )

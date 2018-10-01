@@ -189,7 +189,7 @@ def convert_csq(annotation):
 
         exon_distance = get_distance(match_data["pm1"], match_data['ed1'], match_data["pm2"], match_data['ed2'])
 
-        if exon_distance==0:
+        if exon_distance == 0:
             if (match_data['p1'] and not match_data['utr1']) or (match_data['p2'] and not match_data['utr2']):
                 # Since utr1/utr2 is always shown as either * or - for UTR regions, we know that we are in a coding region
                 # if either of those are empty
@@ -248,7 +248,15 @@ def convert_csq(annotation):
             transcript_data['protein'], transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)
 
         transcript_data['in_last_exon'] = 'yes' if _get_is_last_exon(transcript_data) else 'no'
+
+        # All lists must be deterministic
+        if 'consequences' in transcript_data:
+            transcript_data['consequences'] = sorted(transcript_data['consequences'])
         transcripts.append(transcript_data)
+
+    # VEP output is not deterministic, but we need it to be so
+    # we can compare correctly in database
+    transcripts = sorted(transcripts, key=lambda x: x['transcript'])
 
     # Hack: Since hgnc_id is not provided by VEP for Refseq,
     # we steal it from matching Ensembl transcript (by gene symbol)
@@ -330,6 +338,8 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
     filter_status = {}
     indications = {}
     for key, value in annotation[annotation_key].iteritems():
+        if value == ['.'] or value == '.':
+            continue
         if key == 'AS_FilterStatus':  # gnomAD specific
             assert len(value) == 1
             filter_status = {
@@ -341,9 +351,9 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
         # Be careful if rearranging!
         elif key == 'AC':
             count['G'] = extract_int_list(value)
-        elif key == 'AC_Hom':
+        elif key in ['AC_Hom', 'Hom']:
             hom['G'] = extract_int_list(value)
-        elif key == 'AC_Hemi':
+        elif key in ['AC_Hemi', 'Hemi']:
             hemi['G'] = extract_int_list(value)
         elif key == 'AN':
             num['G'] = value
@@ -511,10 +521,16 @@ class ConvertReferences(object):
 
         for er in annotation["HGMD"].get("extrarefs", []):
             if "pmid" in er:
+
                 pmid = er['pmid']
                 reftag = ConvertReferences.REFTAG.get(er.get("reftag"), "Reftag not specified")
-                comments = annotation['HGMD'].get("comments", "No comments.")
+                comments = er.get("comments", "No comments.")
                 comments = "No comments." if comments == "None" else comments
+
+                # The comment on APR is the disease/phenotype
+                if er.get("reftag") == "APR" and comments == "No comments.":
+                   comments = er.get("disease", comments)
+
                 total[pmid] = [reftag, comments]
 
         # Format reftag, comments to string

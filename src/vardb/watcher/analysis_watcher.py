@@ -52,6 +52,7 @@ REPORT_FILES = ['report.md', 'report.txt']
 WARNINGS_FILES = ['warnings.md', 'warnings.txt']
 ANALYSIS_POSTFIX = '.analysis'
 VCF_POSTFIX = '.vcf'
+PED_POSTFIX = '.ped'
 
 
 class AnalysisWatcher(object):
@@ -135,16 +136,23 @@ class AnalysisWatcher(object):
             analysis_dir + VCF_POSTFIX
         )
 
-        # NB! Changing from sample_config_path in the old code, which seems to be a bug, to analysis_vcf_path
+        analysis_ped_path = os.path.join(
+            analysis_path,
+            analysis_dir + PED_POSTFIX
+        )
+
         if not os.path.exists(analysis_vcf_path):
             raise RuntimeError(VCF_FILE_MISSING.format(analysis_vcf_path))
 
-        return analysis_vcf_path
+        if not os.path.exists(analysis_ped_path):
+            analysis_ped_path = None
+
+        return analysis_vcf_path, analysis_ped_path
 
     def extract_from_config(self, analysis_path, analysis_dir):
         analysis_file = self.path_to_analysis_config(analysis_path, analysis_dir)
         analysis_config = self.load_analysis_config(analysis_file)
-        analysis_vcf_path = self.path_to_vcf_file(analysis_path, analysis_dir)
+        analysis_vcf_path, analysis_ped_path = self.path_to_vcf_file(analysis_path, analysis_dir)
 
         try:
             gp = analysis_config['params']['genepanel']
@@ -166,7 +174,16 @@ class AnalysisWatcher(object):
                     analysis_file, ' gp_name: ' + gp_name + ' , gp_version: ' + gp_version
                 ))
 
-            return AnalysisConfigData(analysis_vcf_path, analysis_name, gp_name, gp_version, priority, report, warnings)
+            return AnalysisConfigData(
+                analysis_vcf_path,
+                analysis_name,
+                gp_name,
+                gp_version,
+                priority=priority,
+                ped_path=analysis_ped_path,
+                report=report,
+                warnings=warnings
+            )
 
         except Exception:
             log.exception(ANALYSIS_FILE_MISCONFIGURED.format(analysis_path, ""))
@@ -179,7 +196,7 @@ class AnalysisWatcher(object):
         # The path to the root folder is the analysis folder, i.e. for our testdata
         # src/vardb/watcher/testdata/analyses, the target folder for analysis will be
         # the analysis folder
-        for analysis_dir in os.listdir(self.watch_path):
+        for analysis_dir in sorted(os.listdir(self.watch_path)):
             try:
 
                 if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):

@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { Compute } from 'cerebral'
 import { state, props, signal } from 'cerebral/tags'
 import sortedAnalyses from '../store/modules/views/overview/computed/sortedAnalyses'
+import template from './analysisList.ngtmpl.html'
 
 // Uses prop to dynamically turn on/off sorting
 const sortSwitch = (analyses, shouldSort) => {
@@ -17,7 +18,7 @@ const sortSwitch = (analyses, shouldSort) => {
 }
 
 app.component('analysisList', {
-    templateUrl: 'ngtmpl/analysisList.ngtmpl.html',
+    templateUrl: 'analysisList.ngtmpl.html',
     bindings: {
         storePath: '<', // Path to analyses in store
         newTarget: '<', // Whether links should open in new target
@@ -47,23 +48,7 @@ app.component('analysisList', {
                         }
                     },
                     getReviewComment: (analysis) => {
-                        if (analysis.interpretations.length) {
-                            let last_interpretation =
-                                analysis.interpretations[analysis.interpretations.length - 1]
-                            if ('review_comment' in last_interpretation) {
-                                return last_interpretation.review_comment
-                            }
-                        }
-                    },
-                    getEndAction: (interpretation) => {
-                        let end_action = `${interpretation.workflow_status} ${
-                            interpretation.finalized ? ' (Finalized) ' : ' '
-                        }`
-                        if (interpretation.user) {
-                            return end_action + ' • '
-                        } else {
-                            return end_action
-                        }
+                        return analysis.review_comment
                     }
                 })
             }

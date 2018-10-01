@@ -12,6 +12,7 @@ from classifications import ClassificationSchema, RuleSchema
 from genepanels import GenepanelSchema, GenepanelTranscriptsSchema, GenepanelFullSchema, TranscriptSchema, TranscriptFullSchema, PhenotypeSchema, PhenotypeFullSchema
 from annotations import AnnotationSchema
 from customannotations import CustomAnnotationSchema
-from genotypes import GenotypeSchema
+from genotypes import GenotypeSchema, GenotypeSampleDataSchema
 from annotationjobs import AnnotationJobSchema
 from attachments import AttachmentSchema
+from interpretationlog import InterpretationLogSchema

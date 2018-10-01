@@ -13,6 +13,7 @@ $bar-colors: (
    }
    .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
    .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown, .#{$name} .sb-controls .bttn { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
+   .#{$name} .sb-controls .bttn.active { background-color: hsla(hue($color),saturation($color),lightness($color), 0.75); color: white; }
    .#{$name} .sb-controls button:disabled, button.#{$name}:disabled, .#{$name} .sb-controls .bttn[disabled] { color: $color; border-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
    .#{$name} .sb-controls li.active, .#{$name} .sb-controls button:hover:not([disabled]), .#{$name} .sb-controls .bttn:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
 }
@@ -28,8 +29,15 @@ $bar-colors: (
     0%   {opacity: 0; transform: scale(1); }
     99%  {opacity: 1; transform: scale(1);}
 }
+
+h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
+h5 { font-weight: 400;  font-family: $slim; }
+
 $sb-titlebar-height: 3.8rem;
 .sectionbox { margin-bottom: 1.3rem; display: flex; flex-direction: column;
+  h5 { padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; }
+  h5, p { font-size: 1.4rem; color: #333; }
+  p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
 
   .titlebar { display: flex; height: $sb-titlebar-height; min-height: $sb-titlebar-height;
 
@@ -101,21 +109,17 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   .cb-body { padding: 1.3rem; width: 100%; }
   .cb.titlebar { height: auto;
     div { margin: 1.75rem 0; }
+    a { color: white; border-left: 1px dashed $white-50; border-bottom: none; }
+    a:hover { border-left: 1px solid $white-50; border-bottom: none; }
     .title { color: white; font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
-      a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
-      a:hover { border-left: 1px solid $white-50; border-bottom: none; }
     }
   }
-  h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
-  h5, p { font-size: 1.4rem; color: #333; }
   .exac p { padding-right: 2.6rem; }
-  h5 { font-weight: 400; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; font-family: $slim; }
   h4.faded-title { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; opacity: 0.5; font-family: $slim; }
   h4.faded-title.content-top { margin-top: 1.3rem; }
   h4.faded-title.section-top { margin-top: 1.3rem; margin-bottom: 0.7rem; }
   h5.wrap { white-space: normal; }
   h5.normaltext { padding-right: 0; }
-  p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
   ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
   .comment-title { width: 15rem; }
   .cell + .cell button { margin-left: 6.5rem; }

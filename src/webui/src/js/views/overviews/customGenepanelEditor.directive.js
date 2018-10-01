@@ -3,6 +3,7 @@ import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import selectedCandidatesPageChanged from '../../store/modules/views/overview/import/signals/selectedCandidatesPageChanged'
+import template from './customGenepanelEditor.ngtmpl.html'
 
 const candidatesFilteredTotalItems = Compute(
     state`views.overview.import.candidates.filteredFlattened`,
@@ -86,7 +87,7 @@ const addedTotalItems = Compute(state`views.overview.import.added.addedGenepanel
 })
 
 app.component('customGenepanelEditor', {
-    templateUrl: 'ngtmpl/customGenepanelEditor.ngtmpl.html',
+    templateUrl: 'customGenepanelEditor.ngtmpl.html',
     controller: connect(
         {
             candidateTranscripts,

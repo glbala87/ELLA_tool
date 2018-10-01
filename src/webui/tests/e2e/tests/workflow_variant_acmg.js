@@ -41,7 +41,7 @@ describe(`ACMG`, function() {
         loginPage.selectFirstUser()
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
-        alleleSectionBox.markAsClass1()
+        alleleSectionBox.classifyAs1()
         expectSuggestedFeatureIsShown()
 
         analysisPage.finishButton.click()

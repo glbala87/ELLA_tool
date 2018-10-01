@@ -1,17 +1,23 @@
 /* jshint esnext: true */
 
+// Extracts the IIFE into an export
+import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysiwygjs/wysiwyg'
+import vanillaColorPicker from 'exports-loader?window.vanillaColorPicker!../../thirdparty/vanilla-color-picker/vanilla-color-picker.min'
+
 import { Directive, Inject } from '../ng-decorators'
 import { EventListeners, UUID } from '../util'
+import template from './wysiwygEditor.ngtmpl.html'
 
 @Directive({
     selector: 'wysiwyg-editor',
     scope: {
         placeholder: '@?',
         ngModel: '=',
-        ngDisabled: '=?'
+        ngDisabled: '=?',
+        showControls: '<?'
     },
     require: '?ngModel', // get a hold of NgModelController
-    templateUrl: 'ngtmpl/wysiwygEditor.ngtmpl.html'
+    template
 })
 @Inject('$scope', '$element', 'AttachmentResource')
 export class WysiwygEditorController {
@@ -22,6 +28,7 @@ export class WysiwygEditorController {
         this.placeholderelement = $element.children()[1]
         this.buttonselement = $element.children()[2]
         this.buttons = {}
+        this.showControls = 'showControls' in this ? this.showControls : true
         for (let i = 0; i < this.buttonselement.children.length - 1; i++) {
             let button = this.buttonselement.children[i]
             let name = button.id.split('-')[1]
@@ -226,7 +233,9 @@ export class WysiwygEditorController {
         var isFirefox = typeof InstallTrigger !== 'undefined'
         if (!isFirefox) {
             eventListeners.add(this.editorelement, 'click', (e) => {
-                this.handleImageScaling(e)
+                if (!this.editor.readOnly()) {
+                    this.handleImageScaling(e)
+                }
             })
         }
 
@@ -263,7 +272,7 @@ export class WysiwygEditorController {
         let img = e.target
         let imgId = img.id
 
-        let currentScale = 1.0 * img.width / img.naturalWidth
+        let currentScale = (1.0 * img.width) / img.naturalWidth
         let minScale = 0.1
         let maxScale = 1.5
 
@@ -280,39 +289,14 @@ export class WysiwygEditorController {
 
         // Position slider
         sliderContainer.style.position = 'absolute'
-
-        var cumulativeOffset = function(element, parent) {
-            var top = 0,
-                left = 0
-            do {
-                top += element.offsetTop || 0
-                left += element.offsetLeft || 0
-                top += element.clientTop || 0
-                left += element.clientLeft || 0
-                if (parent && element.id === parent.id) {
-                    break
-                }
-                element = element.offsetParent
-            } while (element)
-
-            return {
-                top: top,
-                left: left
-            }
-        }
-
-        // If a modal is open, position the image relative to the modal element. Otherwise, use document body.
-        parent = document.body
-        let modals = document.getElementsByClassName('modal-dialog')
-        if (modals.length) {
-            parent = modals[0]
-        }
-        let offset = cumulativeOffset(img, parent)
-
-        sliderContainer.style.left = offset.left + 'px'
-        sliderContainer.style.top = offset.top + 'px'
+        const rect = img.getBoundingClientRect()
+        const left = rect.left + window.scrollX
+        const top = rect.top + window.scrollY
+        sliderContainer.style.left = left + 'px'
+        sliderContainer.style.top = top + 'px'
 
         // Append slider to parent element
+        const parent = document.body
         parent.appendChild(sliderContainer)
 
         slider.value = currentScale
@@ -321,16 +305,20 @@ export class WysiwygEditorController {
         this.blurBlocked = true
         slider.focus()
 
+        // Prevent clicking slider from affecting popovers
+        slider.onclick = (e) => {
+            e.stopPropagation()
+        }
+
         slider.oninput = (e) => {
             // We have to fetch img again (for some reason)
             let imgElement = document.getElementById(imgId)
 
-            // Scale image proportionally with slider value
+            // Scale image proportionally with slider value (height is set to auto)
             imgElement.width = slider.value * imgElement.naturalWidth
-            imgElement.height = slider.value * imgElement.naturalHeight
         }
 
-        slider.onblur = () => {
+        slider.onblur = (e) => {
             // Allow editor to blur (will refocus if click is within editor)
             this.blurBlocked = false
             this.blur()
@@ -503,7 +491,7 @@ export class WysiwygEditorController {
         // To circumvent this, we pass in this as thisObj in those cases
         if (!thisObj) thisObj = this
 
-        if (!force && thisObj.linkform.contains(document.activeElement)) {
+        if (!force && thisObj.linkform.includes(document.activeElement)) {
             // Link form is still active
             return
         }
@@ -525,7 +513,7 @@ export class WysiwygEditorController {
 
         if (
             src.nodeName !== 'INPUT' &&
-            (src === this.buttons['link'] || this.buttons['link'].contains(src))
+            (src === this.buttons['link'] || this.buttons['link'].includes(src))
         ) {
             // Open or close link form
             if (this.linkform.hidden) {

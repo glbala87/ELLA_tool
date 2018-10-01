@@ -10,10 +10,10 @@ import alleleReportCommentChanged from './signals/alleleReportCommentChanged'
 import reportCommentChanged from './signals/reportCommentChanged'
 import evaluationCommentChanged from './signals/evaluationCommentChanged'
 import classificationChanged from './signals/classificationChanged'
+import qualityCommentChanged from './signals/qualityCommentChanged'
 import ignoreReferenceClicked from './signals/ignoreReferenceClicked'
 import removeAcmgClicked from './signals/removeAcmgClicked'
 import removeAttachmentClicked from './signals/removeAttachmentClicked'
-import reviewCommentChanged from './signals/reviewCommentChanged'
 import showExcludedReferencesClicked from './signals/showExcludedReferencesClicked'
 import showAlleleAssessmentHistoryClicked from './signals/showAlleleAssessmentHistoryClicked'
 import interpretationUserStateChanged from './signals/interpretationUserStateChanged'
@@ -31,12 +31,12 @@ export default Module({
         acmgCodeChanged,
         classificationChanged,
         evaluationCommentChanged,
+        qualityCommentChanged,
         ignoreReferenceClicked,
         alleleReportCommentChanged,
         reportCommentChanged,
         removeAcmgClicked,
         removeAttachmentClicked,
-        reviewCommentChanged,
         reuseAlleleAssessmentClicked,
         interpretationUserStateChanged,
         showExcludedReferencesClicked,

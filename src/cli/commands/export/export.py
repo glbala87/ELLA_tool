@@ -3,7 +3,7 @@ import logging
 
 import datetime
 
-from vardb.datamodel import DB
+from vardb.datamodel import DB, user
 from vardb.export import export_sanger_variants, dump_classification
 
 FILENAME_REPORT_DEFAULT = "non-started-analyses-variants-{timestamp}"
@@ -36,9 +36,10 @@ def cmd_export_classifications(filename, with_analysis_names):
 
 
 @export.command('sanger', help="Export variants that needs to be Sanger verified")
+@click.argument('user_group', required=True)
 @click.option('--filename', help="The name of the file to create. Suffix .xlsx and .csv will be automatically added.\n"
                                  "Default: '" + FILENAME_REPORT_DEFAULT.format(timestamp="YYYY-MM-DD_hhmm") + ".xlsx/csv'")
-def cmd_export_sanger(filename):
+def cmd_export_sanger(user_group, filename):
     """
     Export alleles from non-started analysis to file
     """
@@ -51,6 +52,12 @@ def cmd_export_sanger(filename):
     db = DB()
     db.connect()
 
+    usergroup = db.session.query(user.UserGroup).filter(
+        user.UserGroup.name == user_group
+    ).one()
+
+    genepanels = [(g.name, g.version) for g in usergroup.genepanels]
+
     # Let exceptions propagate to user...
     excel_file_obj = open(output_name + '.xlsx', 'w')
     csv_file_obj = open(output_name + '.csv', 'w')
@@ -58,6 +65,7 @@ def cmd_export_sanger(filename):
     start = datetime.datetime.now()
     has_content = export_sanger_variants.export_variants(
         db.session,
+        genepanels,
         excel_file_obj,
         csv_file_obj=csv_file_obj
     )

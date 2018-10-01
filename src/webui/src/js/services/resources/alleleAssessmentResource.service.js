@@ -1,4 +1,5 @@
 /* jshint esnext: true */
+import thenBy from 'thenby'
 
 import { Service, Inject } from '../../ng-decorators'
 
@@ -32,7 +33,7 @@ class AlleleAssessmentResource {
             })
             let r = this.resource(`${this.base}/alleleassessments/?q=${encodeURIComponent(q)}`)
             let alleleassessments = r.query(() => {
-                resolve(alleleassessments.sort(firstBy((a) => a.date_created, -1)))
+                resolve(alleleassessments.sort(thenBy((a) => a.date_created, -1)))
             }, reject)
         })
     }

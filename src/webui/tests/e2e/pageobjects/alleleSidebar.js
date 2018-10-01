@@ -7,22 +7,22 @@ class AlleleSidebar extends Page {
 
     getUnclassifiedAlleles() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc')
+        return browser.getText('allele-sidebar .id-unclassified .nav-row .id-hgvsc')
     }
 
     getClassifiedAlleles() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .id-classified.enabled .nav-row .id-hgvsc')
+        return browser.getText('allele-sidebar .id-classified .nav-row .id-hgvsc')
     }
 
     getSelectedAllele() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .enabled .nav-row.active .id-hgvsc')
+        return browser.getText('allele-sidebar .nav-row.active .id-hgvsc')
     }
 
     getSelectedAlleleClassification() {
         // TODO: use method chaining to get classification from parent element
-        let e = browser.element('allele-sidebar .enabled .nav-row.active')
+        let e = browser.element('allele-sidebar .nav-row.active')
         return e.getText('.id-classification')
     }
 
@@ -124,22 +124,22 @@ class AlleleSidebar extends Page {
     }
 
     selectUnclassifiedAllele(allele) {
-        this._selectAllele(allele, '.id-unclassified.enabled')
+        this._selectAllele(allele, '.id-unclassified')
     }
 
     selectUnclassifiedAlleleByIdx(idx) {
         // 1-based
-        // return this._selectAlleleByIdx(idx, '.id-unclassified.enabled')
+        // return this._selectAlleleByIdx(idx, '.id-unclassified')
         return this._selectAlleleByIdx(idx, '.id-unclassified')
     }
 
     selectClassifiedAllele(allele) {
-        this._selectAllele(allele, '.id-classified.enabled')
+        this._selectAllele(allele, '.id-classified')
     }
 
     selectClassifiedAlleleByIdx(idx) {
         // 1-based
-        // return this._selectAlleleByIdx(idx, '.id-classified.enabled')
+        // return this._selectAlleleByIdx(idx, '.id-classified')
         return this._selectAlleleByIdx(idx, '.id-classified')
     }
 

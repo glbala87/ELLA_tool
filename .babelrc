@@ -1,0 +1,15 @@
+{
+    "presets": [
+        [
+            "env",
+            {
+                "targets": {
+                    "firefox": "58",
+                    "chrome": "60"
+                },
+                "useBuiltIns": true
+            }
+        ]
+    ],
+    "plugins": ["babel-plugin-transform-decorators-legacy"]
+}

@@ -3,7 +3,7 @@ import { set, equals } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getGenepanels from '../actions/getGenepanels'
 import getGenepanel from '../actions/getGenepanel'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import loadSelectedGenepanel from './loadSelectedGenepanel'
 import loadDefaultGenepanel from './loadDefaultGenepanel'
 import prepareAddedGenepanel from '../actions/prepareAddedGenepanel'
@@ -16,6 +16,6 @@ export default sequence('loadImport', [
             set(state`views.overview.import.data.genepanels`, props`result`),
             setDefaultSelectedGenepanel
         ],
-        error: [toastr('error', 'Failed to load genepanels')]
+        error: [toast('error', 'Failed to load genepanels')]
     }
 ])

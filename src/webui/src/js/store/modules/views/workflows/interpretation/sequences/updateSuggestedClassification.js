@@ -4,7 +4,7 @@ import { state, props } from 'cerebral/tags'
 import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
 import setDirty from '../actions/setDirty'
 import getSuggestedClassification from '../actions/getSuggestedClassification'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 
 export default sequence('updateSuggestedClassification', [
     canUpdateAlleleAssessment,
@@ -20,7 +20,7 @@ export default sequence('updateSuggestedClassification', [
                     setDirty
                 ],
                 aborted: [],
-                error: [toastr('error', 'Failed to load suggested classification')]
+                error: [toast('error', 'Failed to load suggested classification')]
             }
         ],
         false: [] // noop

@@ -1,7 +1,7 @@
 export default function redirectToSection({ props, state, router }) {
     const section = props.section
-    const sections = state.get('views.overview.sections', sections)
-    const sectionKeys = state.get('views.overview.sectionKeys', sections)
+    const sections = state.get('views.overview.sections')
+    const sectionKeys = state.get('views.overview.sectionKeys')
 
     // If section is valid, redirect directly
     if (sectionKeys && section in sectionKeys) {
@@ -20,7 +20,8 @@ export default function redirectToSection({ props, state, router }) {
     // Fallbacks
     if (sectionKeys) {
         router.redirect(`/overview/${sectionKeys[0]}`)
+        return
+    } else {
+        console.error('No available sections', sectionKeys)
     }
-
-    router.redirect(`/overview/variants`)
 }

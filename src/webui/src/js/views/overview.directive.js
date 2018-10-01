@@ -2,8 +2,10 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 
+import template from './overview.ngtmpl.html'
+
 app.component('overview', {
-    templateUrl: 'ngtmpl/overview.ngtmpl.html',
+    templateUrl: 'overview.ngtmpl.html',
     controller: connect(
         {
             importJobsStatus: state`views.overview.importJobsStatus`,

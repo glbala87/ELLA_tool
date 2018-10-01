@@ -8,9 +8,11 @@ from api.config import config
 class SnapshotCreator(object):
 
     EXCLUDED_FLAG = {
-        'frequency': allele.Allele.FREQUENCY,
-        'region': allele.Allele.REGION,
-        'gene': allele.Allele.GENE,
+        'frequency': 'FREQUENCY',
+        'region': 'REGION',
+        'gene': 'GENE',
+        'quality': 'QUALITY',
+        'segregation': 'SEGREGATION'
     }
 
     def __init__(self, session):
@@ -46,7 +48,7 @@ class SnapshotCreator(object):
 
         if interpretation_snapshot_model == 'analysis':
             kwargs['analysisinterpretation_id'] = interpretation_id
-            kwargs['filtered'] = SnapshotCreator.EXCLUDED_FLAG.get(excluded_category)
+            kwargs['filtered'] = SnapshotCreator.EXCLUDED_FLAG[excluded_category] if excluded_category is not None else None
             return workflow.AnalysisInterpretationSnapshot(**kwargs)
         elif interpretation_snapshot_model == 'allele':
             kwargs['alleleinterpretation_id'] = interpretation_id

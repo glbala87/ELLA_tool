@@ -8,6 +8,7 @@ let LoginPage = require('../pageobjects/loginPage')
 let VariantSelectionPage = require('../pageobjects/overview_variants')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
+let WorkLog = require('../pageobjects/workLog')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
 let checkAlleleClassification = require('../helpers/checkAlleleClassification')
@@ -17,6 +18,7 @@ let loginPage = new LoginPage()
 let variantSelectionPage = new VariantSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSectionBox = new AlleleSectionBox()
+let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
 
@@ -124,7 +126,12 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
             }
         }
 
-        alleleSectionBox.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1')
+        workLog.open()
+        workLog.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1')
+        workLog.reviewCommentUpdateBtn.click()
+        workLog.addMessage('MESSAGE_ROUND_1')
+        workLog.close()
+
         analysisPage.finishButton.click()
         analysisPage.markReviewButton.click()
         analysisPage.modalFinishButton.click()
@@ -142,6 +149,11 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         variantSelectionPage.selectTopReview()
         analysisPage.startButton.click()
         checkAlleleClassification(interpretation_expected_values)
+
+        workLog.open()
+        expect(workLog.getLastMessage()).toBe('MESSAGE_ROUND_1')
+        workLog.close()
+
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()

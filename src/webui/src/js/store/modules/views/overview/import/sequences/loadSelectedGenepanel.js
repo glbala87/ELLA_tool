@@ -1,7 +1,7 @@
 import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getGenepanel from '../actions/getGenepanel'
-import toastr from '../../../../../common/factories/toastr'
+import toast from '../../../../../common/factories/toast'
 import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 
 export default [
@@ -18,6 +18,6 @@ export default [
             ),
             set(state`views.overview.import.candidates.selectedPage`, 1)
         ],
-        error: [toastr('error', 'Failed to load genepanel')]
+        error: [toast('error', 'Failed to load genepanel')]
     }
 ]

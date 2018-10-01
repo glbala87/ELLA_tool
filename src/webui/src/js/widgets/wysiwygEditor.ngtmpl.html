@@ -1,6 +1,6 @@
 <div class="wysiwygeditor" tabindex="-1" spellcheck="false" ng-disabled="vm.ngDisabled" ng-model="comment.model.comment"></div>
 <div class="wysiwygplaceholder">{{vm.placeholder}}</div>
-<div class="wysiwygbuttons">
+<div class="wysiwygbuttons" ng-show="vm.showControls">
   <button class="wysiwygbutton"
           title="Toggle HTML source"
           id="wysiwyg-src">&lt;&gt;

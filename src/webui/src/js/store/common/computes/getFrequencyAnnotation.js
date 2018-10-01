@@ -1,3 +1,5 @@
+import thenBy from 'thenby'
+
 import { state, props, string } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
@@ -13,10 +15,9 @@ function getFields(allele) {
     })
 }
 
-function getFreqValue(freqData, freqType, config) {
+export function formatFreqValue(value, config) {
     const precision = config.frequencies.view.precision
     const scientificThreshold = config.frequencies.view.scientific_threshold
-    let value = parseFloat(freqData.freq[freqType])
     if (isNaN(value)) {
         return 'N/A'
     } else if (value === 0) {
@@ -28,9 +29,9 @@ function getFreqValue(freqData, freqType, config) {
     }
 }
 
-function formatValue(freqData, name, freqType, config) {
+export function formatValue(freqData, name, freqType, config) {
     if (name === 'freq') {
-        return getFreqValue(freqData, freqType, config)
+        return formatFreqValue(freqData.freq[freqType], config)
     } else {
         return freqData[name][freqType]
     }
@@ -117,7 +118,7 @@ export default function(allele, group) {
                     return f
                 })
             }
-            data.frequencies = data.frequencies.sort(firstBy((a) => a.name))
+            data.frequencies = data.frequencies.sort(thenBy((a) => a.name))
 
             //
             // Filter
@@ -141,7 +142,7 @@ export default function(allele, group) {
                     .map((e) => {
                         return { name: e[0], value: e[1] }
                     })
-                    .sort(firstBy((x) => x.name))
+                    .sort(thenBy((x) => x.name))
                 if (shouldShowIndications(allele, group, freqType, config)) {
                     data.indications.push({
                         name: freqType,
