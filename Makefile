@@ -235,10 +235,12 @@ dev:
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+	  -e PTVS_PORT=5678 \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  -p $(API_PORT):5000 \
 	  -p 35729:35729 \
+	  -p 5678:5678 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
 	  $(NAME_OF_GENERATED_IMAGE) \
