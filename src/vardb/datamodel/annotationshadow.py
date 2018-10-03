@@ -14,11 +14,11 @@ class AnnotationShadowTranscript(Base):
     symbol = Column(String, index=True)
     transcript = Column(String, index=True)
     hgvsc = Column(String)
-    protein = Column(String, index=True)
-    hgvsp = Column(String, index=True)
+    protein = Column(String)
+    hgvsp = Column(String)
     consequences = Column(ARRAY(String))
-    exon_distance = Column(Integer, index=True)
-    coding_region_distance = Column(Integer, index=True)
+    exon_distance = Column(Integer)
+    coding_region_distance = Column(Integer)
 
     __table_args__ = (Index('ix_annotationshadowtranscript_hgvsc', func.lower(hgvsc), postgresql_ops={
         'data': 'text_pattern_ops'
@@ -45,6 +45,7 @@ class AnnotationShadowFrequency(Base):
 # AnnotationShadowFrequency instance.
 # See create_shadow_tables().
 def update_annotation_shadow_columns(config):
+
     # Dynamically add frequency columns
     for freq_provider, freq_key in iter_freq_groups(config):
         freq_column_name = freq_provider + '.' + freq_key
@@ -52,11 +53,11 @@ def update_annotation_shadow_columns(config):
 
         # Add frequency
         if not hasattr(AnnotationShadowFrequency, freq_column_name):
-            setattr(AnnotationShadowFrequency, freq_column_name, Column(Float, index=True))
+            setattr(AnnotationShadowFrequency, freq_column_name, Column(Float))
 
         # Add frequency number, e.g. 'ExAC_num.SAS'
         if not hasattr(AnnotationShadowFrequency, freq_num_column_name):
-            setattr(AnnotationShadowFrequency, freq_num_column_name, Column(Integer, index=True))
+            setattr(AnnotationShadowFrequency, freq_num_column_name, Column(Integer))
 
 # By default, create using app global config
 # which is what we want in production
