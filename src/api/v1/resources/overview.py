@@ -430,7 +430,7 @@ class OverviewAlleleResource(LogRequestResource):
 
         # Filter analysis allele ids
         af = AlleleFilter(session)
-        gp_nonfiltered_alleles = af.filter_alleles(analysis_gp_allele_ids)
+        gp_nonfiltered_alleles, _ = af.filter_alleles(analysis_gp_allele_ids, None)
         gp_allele_ids = {k: set(v['allele_ids'])
                          for k, v in gp_nonfiltered_alleles.iteritems()}
 
@@ -687,7 +687,7 @@ def categorize_analyses_by_findings(session, not_started_analyses):
 
     # Filter out alleles
     af = AlleleFilter(session)
-    gp_nonfiltered_allele_ids = af.filter_alleles(gp_allele_ids)
+    gp_nonfiltered_allele_ids, _ = af.filter_alleles(gp_allele_ids, None)
     nonfiltered_allele_ids = set(itertools.chain.from_iterable(
         [v['allele_ids'] for v in gp_nonfiltered_allele_ids.values()]))
 

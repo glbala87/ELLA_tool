@@ -56,7 +56,7 @@ class InterpretationDataLoader(object):
             ).all()
 
             af = AlleleFilter(self.session)
-            filtered_alleles = af.filter_analyses(
+            _, filtered_alleles = af.filter_alleles(None,
                 {analysis_id: [a[0] for a in analysis_allele_ids]}
             )
 

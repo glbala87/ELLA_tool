@@ -70,7 +70,7 @@ def export_variants_per_panel(session, output):
         ).distinct().all()
         gp_allele_ids[gp_key] = [a[0] for a in allele_ids]
 
-    filtered_results = AlleleFilter(session).filter_alleles(gp_allele_ids)
+    filtered_results, _ = AlleleFilter(session).filter_alleles(gp_allele_ids, None)
     for gp_key, data in filtered_results.iteritems():
         row = []
         # Write filtered numbers

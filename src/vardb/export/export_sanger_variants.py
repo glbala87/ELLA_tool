@@ -123,7 +123,7 @@ def get_variant_rows(session, ids_not_started):
 
     # filter the alleles:
     af = AlleleFilter(session)
-    non_filtered_gp_allele_ids = af.filter_alleles(gp_allele_ids)
+    non_filtered_gp_allele_ids, _ = af.filter_alleles(gp_allele_ids, None)
     analysis_id_allele_ids = defaultdict(list)
     for analysis_id, gp_name, gp_version, allele_id in analyses_allele_ids:
         if allele_id in non_filtered_gp_allele_ids[(gp_name, gp_version)]['allele_ids']:
