@@ -437,11 +437,15 @@ class GenotypeImporter(object):
                 assert record_sample['GT'] in self.types, 'Not supported genotype {} for sample {}'.format(record_sample['GT'], sample_name)
 
                 # If REF or POS is shifted, we can't trust the AD data.
+                allele_ratio = 0
                 if len(set([r['POS'] for r in records])) != 1 or \
                    len(set([r['REF'] for r in records])) != 1:
                     allele_depth = {}
                 else:
                     allele_depth = sample_allele_depth[sample.identifier]
+                    allele_sum = sum(allele_depth.values())
+                    if allele_sum:
+                        allele_ratio = float(allele_depth[record['ALT'][0]]) / sum(allele_depth.values())
 
                 genotype_quality = record_sample.get('GQ')
                 if not isinstance(genotype_quality, int):
@@ -471,6 +475,7 @@ class GenotypeImporter(object):
                     'genotype_likelihood': genotype_likelihood,
                     'sequencing_depth': sequencing_depth,
                     'allele_depth': allele_depth,
+                    'allele_ratio': allele_ratio,
                     'multiallelic': multiallelic
                 }
 

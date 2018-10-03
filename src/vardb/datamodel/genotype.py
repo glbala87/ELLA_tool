@@ -1,5 +1,5 @@
 """vardb datamodel Genotype class"""
-from sqlalchemy import Column, Integer, Boolean, String, Enum, SmallInteger
+from sqlalchemy import Column, Integer, Float, Boolean, String, Enum, SmallInteger
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
@@ -87,5 +87,6 @@ class GenotypeSampleData(Base):
     sample_id = Column(Integer, ForeignKey("sample.id"), index=True, nullable=False)
     genotype_quality = Column(SmallInteger)  # GQ
     sequencing_depth = Column(SmallInteger)  # DP
+    allele_ratio = Column(Float)  # Read ratio for the allele
     genotype_likelihood = Column(ARRAY(Integer))  # PL Phred scale score for each type: [(0,0), (0,1), (1,1)]
     allele_depth = Column(JSONMutableDict.as_mutable(JSONB), default={})  # AD {'REF': 0, 'A': 23, 'G': 32}

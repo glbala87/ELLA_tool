@@ -220,8 +220,10 @@ app.component('alleleSidebarList', {
                         return allele.tags.includes('has_references')
                     },
                     getSegregationTag(allele) {
-                        // Denovo takes precedence if tags include both types
-                        if (allele.tags.includes('denovo')) {
+                        // Inherited mosaicism takes precedence if tags include both types
+                        if (allele.tags.includes('inherited_mosaicism')) {
+                            return 'M'
+                        } else if (allele.tags.includes('denovo')) {
                             return 'D'
                         } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
                             return 'A'

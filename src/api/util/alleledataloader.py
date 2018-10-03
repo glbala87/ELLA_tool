@@ -30,6 +30,7 @@ KEY_ANNOTATIONS = 'annotations'
 
 SEGREGATION_TAGS = [
     'denovo',
+    'inherited_mosaicism',
     'compound_heterozygous',
     'autosomal_recessive_homozygous',
     'xlinked_recessive_homozygous'
