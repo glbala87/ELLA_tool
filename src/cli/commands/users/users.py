@@ -347,8 +347,8 @@ def cmd_invalidate_user(username):
 
     click.echo("User {username} ({last_name}, {first_name}) has been deactivated".format(
         username=username,
-        first_name=u.first_name,
-        last_name=u.last_name,
+        first_name=u.first_name.encode('utf-8'),
+        last_name=u.last_name.encode('utf-8')
     ))
 
 
