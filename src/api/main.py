@@ -130,6 +130,13 @@ if __name__ == '__main__':
         opts['use_reloader'] = True
         os.environ['ANALYSES_PATH'] = '/ella/src/vardb/testdata/analyses/small/'
 
+        # Enable remote debugging
+        if os.environ.get('PTVS_PORT'):
+            import ptvsd
+            if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+                print "Enabled python remote debugging at port {}".format(os.environ['PTVS_PORT'])
+                ptvsd.enable_attach(address=('0.0.0.0', os.environ['PTVS_PORT']))
+
     if is_dev:
         print "!!!!!DEVELOPMENT MODE!!!!!"
 

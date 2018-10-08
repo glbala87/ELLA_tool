@@ -211,8 +211,8 @@ importsingle > contentwrapper {
   overflow-wrap: break-word;
 }
 
-.annotationjobinfo > p {
-  white-space: pre-line;
+.annotationjobinfo > pre {
+  white-space: pre-wrap;
 }
 
 .import-all-summary * {
