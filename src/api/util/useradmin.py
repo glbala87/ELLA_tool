@@ -3,6 +3,7 @@ import bcrypt
 import datetime
 import binascii
 import hashlib
+import base64
 import os
 import re
 import pytz
@@ -11,6 +12,12 @@ from api import AuthenticationError
 from api.config import config
 
 # Helper functions
+def generate_password():
+    password = base64.b64encode(os.urandom(10))[-10:-2]
+    if not check_password_strength(password):
+        return generate_password()
+    password_hash = hash_password(password)
+    return password, password_hash
 
 
 def get_user(session, user_or_username):
@@ -19,7 +26,7 @@ def get_user(session, user_or_username):
             user.User.username == user_or_username
         ).one_or_none()
         if u is None:
-            raise AuthenticationError("Invalid credentials")
+            raise AuthenticationError("Invalid username {}".format(user_or_username))
         return u
     else:
         return user_or_username

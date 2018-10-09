@@ -1,9 +1,7 @@
-import base64
 import click
 import datetime
 import pytz
 import sys
-import os
 import json
 from copy import deepcopy
 from functools import wraps
@@ -12,7 +10,7 @@ import bcrypt
 from sqlalchemy.orm.exc import NoResultFound
 
 from api.schemas.users import UserSchema
-from api.util.useradmin import hash_password, change_password, deactivate_user, modify_user, check_password_strength, get_user
+from api.util.useradmin import hash_password, change_password, deactivate_user, modify_user, check_password_strength, get_user, generate_password
 from vardb.datamodel import DB
 from vardb.datamodel import user
 from vardb.deposit.deposit_users import import_groups
@@ -28,22 +26,22 @@ class UserGroupNotFound(NoResultFound):
 def convert(join, *split_args):
     """
     Since click splits all options on whitespace, add this decorator before and after option decorators.
-    
-    Allows for whitespace in command line, e.g. 
-    
+
+    Allows for whitespace in command line, e.g.
+
         ./cli foo --some_parameter_with_whitespace foo bar
-    
+
     will pass argument some_parameter_with_whitespace as 'foo bar'
-    
-    Usage: 
+
+    Usage:
     @commandgroup.command("mycommand")
     @convert(True, "--some_parameter_with_whitespace")
     @options("--some_parameter_with_whitespace")
     @convert(False, "--some_parameter_with_whitespace")
-    
-    :param join: Boolean. Join or split arguments. Join and split arguments with '&'. 
+
+    :param join: Boolean. Join or split arguments. Join and split arguments with '&'.
     :param split_args: Arguments to join/split on whitespace/&, e.g. --first_name
-    :return: 
+    :return:
     """
     if join:
         d = dict()
@@ -87,14 +85,6 @@ def convert(join, *split_args):
 
 
 # Helper functions
-
-def generate_password():
-    password = base64.b64encode(os.urandom(10))[-10:-2]
-    if not check_password_strength(password):
-        return generate_password()
-    password_hash = hash_password(password)
-    return password, password_hash
-
 
 def encode(s):
     if isinstance(s, (str, unicode)):
@@ -335,7 +325,7 @@ def cmd_reset_password(username):
 def cmd_invalidate_user(username):
     """
     Invalidate a user and all sessions.
-    
+
     TODO: Add possibility to delete user, but only allow if user is not associated with any assessments or interpretations
     """
 
@@ -400,6 +390,7 @@ def cmd_modify_user(username, **kwargs):
 
     if n_changes == 0:
         click.echo("No modifications made!")
+
 
 
 
