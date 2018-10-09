@@ -8,6 +8,7 @@ from api.allelefilter.qualityfilter import QualityFilter
 from api.allelefilter.classificationfilter import ClassificationFilter
 from api.allelefilter.externalfilter import ExternalFilter
 from api.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
+from api.allelefilter.consequence_filter import ConsequenceFilter
 
 
 class AlleleFilter(object):

@@ -13,6 +13,7 @@ class SnapshotCreator(object):
         'ppy': 'POLYPYRIMIDINE',
         'gene': 'GENE',
         'quality': 'QUALITY',
+        'consequence': "CONSEQUENCE",
         'segregation': 'SEGREGATION'
     }
 
