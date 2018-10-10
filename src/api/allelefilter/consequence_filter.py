@@ -1,8 +1,7 @@
 from sqlalchemy import or_, and_, tuple_, text, func, case, Table, Column, MetaData, Integer
 from sqlalchemy.types import Text
 from sqlalchemy.dialects.postgresql import ARRAY
-from vardb.datamodel import annotationshadow
-from api.util.queries import annotation_transcripts_genepanel
+from vardb.datamodel import annotationshadow, gene
 
 
 class ConsequenceFilter(object):
@@ -26,11 +25,28 @@ class ConsequenceFilter(object):
                 result[gp_key] = set()
                 continue
 
+            gp_genes = self.session.query(
+                gene.Transcript.gene_id,
+                gene.Gene.hgnc_symbol
+            ).join(
+                gene.Genepanel.transcripts
+            ).join(
+                gene.Gene
+            ).filter(
+                tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key,
+            )
+
+            gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
+
             consequences_unnested = self.session.query(
                 annotationshadow.AnnotationShadowTranscript.allele_id,
                 func.unnest(annotationshadow.AnnotationShadowTranscript.consequences).label("unnested_consequences")
             ).filter(
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
+                or_(
+                    annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
+                    annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols)
+                )
             )
 
             inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
