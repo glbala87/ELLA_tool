@@ -21,7 +21,26 @@ GLOBAL_CONFIG = {
     'variant_criteria': {
         "splice_region": [-10, 5],
         "utr_region": [-12, 20],
-        "consequence_cutoff": "synonymous_variant",
+        "consequence_filter": {
+            "genepanel_only": True,
+            "include_consequences": ["synonymous_variant", "stop_retained_variant"],
+            "exclude_consequences": ["transcript_ablation",
+                                     "splice_donor_variant",
+                                     "splice_acceptor_variant",
+                                     "stop_gained",
+                                     "frameshift_variant",
+                                     "start_lost",
+                                     "initiator_codon_variant",
+                                     "stop_lost",
+                                     "inframe_insertion",
+                                     "inframe_deletion",
+                                     "missense_variant",
+                                     "protein_altering_variant",
+                                     "transcript_amplification",
+                                     "splice_region_variant",
+                                    "incomplete_terminal_codon_variant"
+                                    ],
+        },
         "frequencies": {
             "groups": {
                 "external": {
@@ -288,8 +307,40 @@ class TestConsequenceFilter(object):
             }
         )
 
-
         pa2, _ = create_allele_with_annotation(
+            session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_SOMETHING',
+                        'consequences': ['synonymous_variant']
+                    },
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_SOMETHING',
+                        'consequences': ['stop_retained_variant']
+                    }
+                ]
+            }
+        )
+
+
+        pa3, _ = create_allele_with_annotation(
+            session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_SOMETHING',
+                        'consequences': ['synonymous_variant', '5_prime_UTR_variant']
+                    }
+                ]
+            }
+        )
+
+
+        pa4, _ = create_allele_with_annotation(
             session,
             {
                 'transcripts': [
@@ -309,7 +360,7 @@ class TestConsequenceFilter(object):
         )
 
 
-        pa3, _ = create_allele_with_annotation(
+        pa5, _ = create_allele_with_annotation(
             session,
             {
                 'transcripts': [
@@ -329,7 +380,7 @@ class TestConsequenceFilter(object):
         )
 
 
-        pa4, _ = create_allele_with_annotation(
+        pa6, _ = create_allele_with_annotation(
             session,
             {
                 'transcripts': [
@@ -353,7 +404,7 @@ class TestConsequenceFilter(object):
 
         cf = ConsequenceFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id]
+        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id, pa5.id, pa6.id]
         result = cf.filter_alleles({gp_key: allele_ids})
 
         assert result[gp_key] == set(allele_ids)
@@ -381,6 +432,21 @@ class TestConsequenceFilter(object):
                     {
                         'symbol': 'GENE3',
                         'hgnc_id': int(4e6),
+                        'transcript': 'NM_SOMETHING2.1',
+                        'consequences': ['missense_variant', 'synonymous_variant']
+                    }
+                ],
+            },
+            None,
+        )
+
+        na3, _ = create_allele_with_annotation(
+            session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE3',
+                        'hgnc_id': int(4e6),
                         'transcript': 'NM_SOMETHING.1',
                         'consequences': ['synonymous_variant']
                     },
@@ -395,7 +461,7 @@ class TestConsequenceFilter(object):
             None,
         )
 
-        na3, _ = create_allele_with_annotation(
+        na4, _ = create_allele_with_annotation(
             session,
             {
                 'transcripts': [
@@ -416,7 +482,7 @@ class TestConsequenceFilter(object):
             None,
         )
 
-        na4, _ = create_allele_with_annotation(
+        na5, _ = create_allele_with_annotation(
             session,
             {
                 'transcripts': [
@@ -437,7 +503,7 @@ class TestConsequenceFilter(object):
             None,
         )
 
-        na5, _ = create_allele_with_annotation(
+        na6, _ = create_allele_with_annotation(
             session,
             {
                 'transcripts': [
@@ -459,7 +525,7 @@ class TestConsequenceFilter(object):
         )
 
         # Worst consequence in not equal to 'synonymous_variant' (in practical use, this case will likely be caught by region filter)
-        na6, _ = create_allele_with_annotation(
+        na7, _ = create_allele_with_annotation(
             session,
             {
                 'transcripts': [
@@ -484,7 +550,7 @@ class TestConsequenceFilter(object):
 
         cf = ConsequenceFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id, na6.id]
+        allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id, na6.id, na7.id]
         result = cf.filter_alleles({gp_key: allele_ids})
 
         assert not result[gp_key]
