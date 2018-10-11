@@ -6,7 +6,7 @@ from vardb.datamodel import Base
 
 
 class Broadcast(Base):
-    """Logs HTTP resource access"""
+    """Broadcast message"""
     __tablename__ = "broadcast"
 
     id = Column(Integer, primary_key=True)
