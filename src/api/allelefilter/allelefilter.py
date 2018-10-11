@@ -45,10 +45,8 @@ class AlleleFilter(object):
 
     def get_allele_ids_with_pathogenic_clinvar(self, allele_ids):
         """
-        Return the allele_ids that have Clinvar
-        'clinical_significance_descr' that is 'Likely pathogenic' or 'Pathogenic'
-
-        SELECT allele_id, clinsig FROM (SELECT allele_id, jsonb_array_elements(annotations->'external'->'CLINVAR'->'items')->>'clinical_significance_descr' AS clinsig from annotation) AS c WHERE c.clinsig ILIKE 'Pathogenic' or c.clinsig ILIKE 'Likely pathogenic'
+        Return the allele_ids that have >=2 Clinvar
+        'clinical_significance_descr' that are 'Pathogenic'
         """
 
         expanded_clinvar = self.session.query(
@@ -73,17 +71,21 @@ class AlleleFilter(object):
 
         return set([a[0] for a in pathogenic_allele_ids])
 
-    def get_exempt_filtered(self, filtered):
+    def get_filter_exceptions(self, excepted_config, allele_ids):
         """
-        Checks whether any of the 'filtered' allele ids should be exempted from filtering.
+        Checks whether any of allele_ids should be excepted from filtering,
+        given checks given by excepted_config
         """
 
-        # Exclude alleles with classifications from filtering
-        exempt_filtering = self.get_allele_ids_with_classification(filtered)
-        exempt_filtering |= self.get_allele_ids_with_pathogenic_clinvar(filtered)
-        return exempt_filtering
+        filter_exceptions = set()
+        for e in excepted_config:
+            if e['name'] == 'classification':
+                filter_exceptions |= self.get_allele_ids_with_classification(allele_ids)
+            elif e['name'] == 'clinvar_pathogenic':
+                filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
+        return filter_exceptions
 
-    def filter_alleles(self, gp_allele_ids, analysis_allele_ids):
+    def filter_alleles(self, gp_allele_ids, analysis_allele_ids, filter_config=None):
         """
 
         Main function for filtering alleles. There are two kinds of
@@ -134,97 +136,98 @@ class AlleleFilter(object):
             )
         """
 
-        CONFIG = {
-            "filters": [
-                {
-                    "name": "frequency",
-                    "config": {
-                        "groups": {
-                            "external": {
-                                "GNOMAD_GENOMES": [
-                                    "G",
-                                    "AFR",
-                                    "AMR",
-                                    "EAS",
-                                    "FIN",
-                                    "NFE",
-                                    "OTH",
-                                    "SAS"
-                                ],
-                                "GNOMAD_EXOMES": [
-                                    "G",
-                                    "AFR",
-                                    "AMR",
-                                    "EAS",
-                                    "FIN",
-                                    "NFE",
-                                    "OTH",
-                                    "SAS"
-                                ]
+        if filter_config is None:
+            filter_config = {
+                "filters": [
+                    {
+                        "name": "frequency",
+                        "config": {
+                            "groups": {
+                                "external": {
+                                    "GNOMAD_GENOMES": [
+                                        "G",
+                                        "AFR",
+                                        "AMR",
+                                        "EAS",
+                                        "FIN",
+                                        "NFE",
+                                        "OTH",
+                                        "SAS"
+                                    ],
+                                    "GNOMAD_EXOMES": [
+                                        "G",
+                                        "AFR",
+                                        "AMR",
+                                        "EAS",
+                                        "FIN",
+                                        "NFE",
+                                        "OTH",
+                                        "SAS"
+                                    ]
+                                },
+                                "internal": {
+                                    "inDB": [
+                                        "OUSWES"
+                                    ]
+                                }
                             },
-                            "internal": {
-                                "inDB": [
-                                    "OUSWES"
-                                ]
-                            }
-                        },
-                        "num_thresholds": {
-                            "GNOMAD_GENOMES": {
-                                "G": 5000,
-                                "AFR": 5000,
-                                "AMR": 5000,
-                                "EAS": 5000,
-                                "FIN": 5000,
-                                "NFE": 5000,
-                                "OTH": 5000,
-                                "SAS": 5000
+                            "num_thresholds": {
+                                "GNOMAD_GENOMES": {
+                                    "G": 5000,
+                                    "AFR": 5000,
+                                    "AMR": 5000,
+                                    "EAS": 5000,
+                                    "FIN": 5000,
+                                    "NFE": 5000,
+                                    "OTH": 5000,
+                                    "SAS": 5000
+                                },
+                                "GNOMAD_EXOMES": {
+                                    "G": 5000,
+                                    "AFR": 5000,
+                                    "AMR": 5000,
+                                    "EAS": 5000,
+                                    "FIN": 5000,
+                                    "NFE": 5000,
+                                    "OTH": 5000,
+                                    "SAS": 5000
+                                }
                             },
-                            "GNOMAD_EXOMES": {
-                                "G": 5000,
-                                "AFR": 5000,
-                                "AMR": 5000,
-                                "EAS": 5000,
-                                "FIN": 5000,
-                                "NFE": 5000,
-                                "OTH": 5000,
-                                "SAS": 5000
-                            }
-                        },
-                        "thresholds": {
-                            "AD": {
-                                "external": 0.005,
-                                "internal": 0.05
-                            },
-                            "default": {
-                                "external": 0.01,
-                                "internal": 0.05
+                            "thresholds": {
+                                "AD": {
+                                    "external": 0.005,
+                                    "internal": 0.05
+                                },
+                                "default": {
+                                    "external": 0.01,
+                                    "internal": 0.05
+                                }
                             }
                         }
-                    }
-                },
-                {
-                    "name": "region",
-                    "config": {
-                        "splice_region": [-20, 6],
-                        "utr_region": [0,0]
-                    }
-                },
-                {
-                    "name": "quality",
-                    "config": {
-                        "score": 100,
-                        "allele_ratio": {
-                            "heterozygous": [0.3, 0.7],
-                            "homozygous": [0.9, 1.0]
+                    },
+                    {
+                        "name": "region",
+                        "config": {
+                            "splice_region": [-20, 6],
+                            "utr_region": [0,0]
                         }
+                    },
+                    {
+                        "name": "quality",
+                        "config": {
+                            "score": 100,
+                            "allele_ratio": {
+                                "heterozygous": [0.3, 0.7],
+                                "homozygous": [0.9, 1.0]
+                            }
+                        }
+                    },
+                    {
+                        "name": "segregation",
+                        "config": {}
                     }
-                },
-                {
-                    "name": "segregation",
-                    "config": {}
-                }
-            ]
-        }
+                ]
+            }
 
         # Make copies to avoid modifying input data
         if analysis_allele_ids:
@@ -259,7 +262,7 @@ class AlleleFilter(object):
 
         # Run filter functions.
         # Already filtered alleles are tracked to avoid re-filtering same alleles (for performance reasons).
-        for f in CONFIG['filters']:
+        for f in filter_config['filters']:
             name = f['name']
             try:
                 if name not in self.filter_functions:
@@ -273,9 +276,10 @@ class AlleleFilter(object):
                         allele_ids = set(allele_ids)
                         if gp_key not in gp_alleles_filtered:
                             gp_alleles_filtered[gp_key] = dict()
-                        gp_alleles_filtered[gp_key][name] = allele_ids
+                        # Intersect on input to make sure "faulty" filter doesn't give us
+                        # ids not belonging to input.
+                        gp_alleles_filtered[gp_key][name] = gp_alleles_remaining[gp_key] & allele_ids
                         gp_alleles_remaining[gp_key] -= allele_ids
-
                         # Update analyses' remaining since they are mixed
                         # with the 'allele' ones
                         for a_id, analysis_gp_key in analysis_genepanels.iteritems():
@@ -288,7 +292,7 @@ class AlleleFilter(object):
                     for a_id, allele_ids in filtered.iteritems():
                         if a_id not in analysis_alleles_filtered:
                             analysis_alleles_filtered[a_id] = dict()
-                        analysis_alleles_filtered[a_id][name] = set(allele_ids)
+                        analysis_alleles_filtered[a_id][name] = analysis_alleles_remaining[a_id] & set(allele_ids)
                         analysis_alleles_remaining[a_id] -= set(allele_ids)
                 else:
                     raise RuntimeError("Unknown filter data type '{}'".format(filter_data_type))
@@ -305,7 +309,10 @@ class AlleleFilter(object):
         for category_result in analysis_alleles_filtered.values():
             for filtered_alleles in category_result.values():
                 all_filtered_allele_ids |= filtered_alleles
-        exempt_filtering = self.get_exempt_filtered(all_filtered_allele_ids)
+        filter_exceptions = self.get_filter_exceptions(
+            filter_config.get('filter_exceptions', []),
+            all_filtered_allele_ids
+        )
 
         # Prepare result for input gp_allele_ids
         gp_allele_result = dict()
@@ -318,9 +325,9 @@ class AlleleFilter(object):
             # We need to intersect on original input since gp_allele_filtered
             # have alleles mixed in from analyses
             for name, filtered_allele_ids in gp_alleles_filtered[gp_key].iteritems():
-                filtered_allele_ids -= exempt_filtering
+                filtered_allele_ids -= filter_exceptions
                 remaining_allele_ids -= filtered_allele_ids
-                gp_allele_result[gp_key]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
+                gp_allele_result[gp_key]['excluded_allele_ids'][name] = sorted(list(set(allele_ids) & filtered_allele_ids))
 
             gp_allele_result[gp_key]['allele_ids'] = sorted(list(remaining_allele_ids))
 
@@ -333,12 +340,12 @@ class AlleleFilter(object):
             }
             # Add filtered allele ids from 'analysis' based filters
             for name, filtered_allele_ids in analysis_alleles_filtered[a_id].iteritems():
-                filtered_allele_ids -= exempt_filtering
+                filtered_allele_ids -= filter_exceptions
                 remaining_allele_ids -= filtered_allele_ids
-                analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(filtered_allele_ids))
+                analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
             # Add filtered allele ids from 'allele' based filters
             for name, filtered_allele_ids in gp_alleles_filtered[analysis_genepanels[a_id]].iteritems():
-                filtered_allele_ids -= exempt_filtering
+                filtered_allele_ids -= filter_exceptions
                 remaining_allele_ids -= filtered_allele_ids
                 analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
 
