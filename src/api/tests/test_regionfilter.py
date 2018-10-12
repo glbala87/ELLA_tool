@@ -496,9 +496,9 @@ class TestRegionFilter(object):
             {
                 'transcripts': [
                     {
-                        'symbol': 'DOES_NOT_EXIST',
+                        'symbol': 'SOME_GENE_NOT_IN_GENEPANEL',
                         'transcript': 'NM_DOES_NOT_EXIST',
-                        'consequences': ['intron_variant']
+                        'consequences': ['splice_region_variant'] # Won't be considered, as gene is not in genepanel
                     }
                 ],
             },
@@ -545,11 +545,34 @@ class TestRegionFilter(object):
             }
         )
 
+
+        pa4, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'SOME_GENE_NOT_IN_GENEPANEL',
+                        'hgnc_id': 0,
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['frameshift_variant']
+                    },
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['downstream_gene_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
+
         session.commit()
 
         rf = RegionFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id, pa3.id]
+        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id]
         result = rf.filter_alleles({gp_key: allele_ids})
 
         assert result[gp_key] == set(allele_ids)
@@ -559,7 +582,7 @@ class TestRegionFilter(object):
             {
                 'transcripts': [
                     {
-                        'symbol': 'DOES_NOT_EXIST',
+                        'symbol': 'GENE1AD',
                         'transcript': 'NM_DOES_NOT_EXIST',
                         'consequences': ['splice_region_variant']
                     }
@@ -592,12 +615,13 @@ class TestRegionFilter(object):
             {
                 'transcripts': [
                     {
-                        'symbol': 'DOES_NOT_EXIST1',
+                        'symbol': 'GENE1AD',
                         'transcript': 'NM_DOES_NOT_EXIST.1',
                         'consequences': ['intron_variant']
                     },
                     {
-                        'symbol': 'DOES_NOT_EXIST2',
+                        'symbol': 'GENE2',
+                        'hgnc_id': 0, # Wrong hgnc id shouldn't matter
                         'transcript': 'NM_DOES_NOT_EXIST2.1',
                         'consequences': ['missense_variant']
                     }
@@ -608,16 +632,19 @@ class TestRegionFilter(object):
             }
         )
 
-        # Should be saved as annotated with coding_region_distance +20
         na4, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
                     {
-                        'symbol': 'GENE1',
-                        'hgnc_id': int(1e6),
-                        'transcript': 'NM_1AD.1',
-                        'exon_distance': 0,
-                        'coding_region_distance': 20,
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_DOES_NOT_EXIST.1',
+                        'consequences': ['intron_variant']
+                    },
+                    {
+                        'symbol': 'SOME_ALIAS_FOR_GENE2', # Wrong gene name shouldn't matter
+                        'hgnc_id': int(3e6),
+                        'transcript': 'NM_DOES_NOT_EXIST2.1',
+                        'consequences': ['missense_variant']
                     }
                 ],
             },
