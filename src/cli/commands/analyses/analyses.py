@@ -5,69 +5,13 @@ from vardb.datamodel import DB, sample
 from api.v1 import resources
 from api.util.delete_analysis import delete_analysis
 
-
 @click.group(help='Analyses actions')
 def analyses():
     pass
 
 
-@analyses.command('list')
-def cmd_analysis_list():
-    """
-    List latest imported analyses.
-    """
-    db = DB()
-    db.connect()
-
-    res = resources.analysis.AnalysisListResource()
-    analyses = res.get(db.session)
-    if analyses.status_code != 200:
-        click.echo("API request not OK: {}".format(analyses.status_code))
-        db.disconnect()
-        return
-
-    header = {'id': 'id', 'name': 'name', 'deposit_date': 'deposit_date',
-              'i_count': 'interp.', 'status': 'status'}
-    row_format = "{id:^10}| {name:<50} | {deposit_date:^33} | {i_count:^7} | {status:^12} |"
-    click.echo(row_format.format(**header))
-    click.echo(row_format.format(**{'id': '-' * 10, 'name': '-' * 50,
-                                    'deposit_date': '-' * 33, 'i_count': '-' * 7, 'status': '-' * 12}))
-    for a in analyses:
-        # Add status to dict
-        a['status'] = a['interpretations'][0]['status']
-        a['i_count'] = len(a['interpretations'])
-        click.echo(row_format.format(**{h: a[h] for h in header}))
-
-
-@analyses.command('priority')
-@click.argument('analysis_id')
-@click.argument('priority', type=int)
-def cmd_analysis_priority(analysis_id, priority):
-    """
-    Sets priority for an analysis.
-    """
-    logging.basicConfig(level=logging.INFO)
-
-    if priority < 1:
-        raise RuntimeError("Priority must be >0")
-
-    db = DB()
-    db.connect()
-
-    res = db.session.query(sample.Analysis).filter(
-        sample.Analysis.id == analysis_id
-    ).one()
-    old_priority = res.priority
-    res.priority = int(priority)
-
-    db.session.commit()
-
-    logging.info("Analysis {} ({}) priority changed to {} (was {})".format(
-        res.id, res.name, priority, old_priority))
-
-
 @analyses.command('delete')
-@click.argument('analysis_id')
+@click.argument('analysis_id', type=int)
 def cmd_analysis_delete(analysis_id):
     """
     Deletes an analysis, removing it's samples and genotypes
