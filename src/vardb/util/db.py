@@ -43,6 +43,3 @@ class DB(object):
             self.session.close()
         if self.engine:
             self.engine.dispose()
-
-    def __del__(self):
-        self.disconnect()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 from vardb.datamodel import user
 from api.util.useradmin import authenticate_user, generate_password, change_password, password_expired, get_user

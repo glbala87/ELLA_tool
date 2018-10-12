@@ -4,6 +4,9 @@ from vardb.util import DB
 from click.testing import CliRunner
 from cli.cli import cli
 
+# Sessions/connections are not closed after cli-call. Add this explicit disconnect here to remedy this.
+DB.__del__ = lambda *args, **kwargs: args[0].disconnect()
+
 @pytest.yield_fixture
 def session(request):
     db = DB()
