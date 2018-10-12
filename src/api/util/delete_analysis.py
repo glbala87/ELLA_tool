@@ -50,6 +50,7 @@ def delete_analysis(session, analysis_id):
             ).all()
             for sh in statehistories:
                 session.delete(sh)
+            session.flush()
 
             session.delete(i)
 
