@@ -12,7 +12,7 @@ def test_user_activity(session, run_command):
     assert result.exit_code == 0
 
 
-@pytest.mark.parametrize("username", ["testuser1", "testuser2", "testuser3", "testuser4", "testuser5", "testuser6"])
+@pytest.mark.parametrize("username", ["testuser1", "testuser2"])
 def test_user_reset_password(test_database, session, run_command, username):
     test_database.refresh()
     result = run_command(["users", "reset_password", username])
@@ -26,7 +26,7 @@ def test_user_reset_password(test_database, session, run_command, username):
     authenticate_user(session, username, new_password)
 
 
-@pytest.mark.parametrize("username", ["testuser1", "testuser2", "testuser3", "testuser4", "testuser5", "testuser6"])
+@pytest.mark.parametrize("username", ["testuser3", "testuser4", "testuser5", "testuser6"])
 def test_user_lock(session, username, run_command):
     result = run_command(["users", "lock", username])
     assert result.exit_code == 0
