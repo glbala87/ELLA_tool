@@ -498,7 +498,7 @@ class TestRegionFilter(object):
                     {
                         'symbol': 'SOME_GENE_NOT_IN_GENEPANEL',
                         'transcript': 'NM_DOES_NOT_EXIST',
-                        'consequences': ['splice_region_variant'] # Won't be considered, as gene is not in genepanel
+                        'consequences': ['stop_gained'] # Won't be considered, as gene is not in genepanel
                     }
                 ],
             },
@@ -577,14 +577,13 @@ class TestRegionFilter(object):
 
         assert result[gp_key] == set(allele_ids)
 
-        # Should be saved as annotated with exon_distance -10
         na1, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
                         'transcript': 'NM_DOES_NOT_EXIST',
-                        'consequences': ['splice_region_variant']
+                        'consequences': ['frameshift_variant']
                     }
                 ],
             },
@@ -593,7 +592,6 @@ class TestRegionFilter(object):
             }
         )
 
-        # Should be saved as annotated with exon_distance +5
         na2, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
@@ -601,7 +599,7 @@ class TestRegionFilter(object):
                         'symbol': 'GENE1',
                         'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
-                        'consequences': ['intron_variant','splice_region_variant']
+                        'consequences': ['intron_variant','stop_gained']
                     }
                 ],
             },
@@ -610,7 +608,6 @@ class TestRegionFilter(object):
             }
         )
 
-        # Should be saved as annotated with coding_region_distance -12
         na3, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
