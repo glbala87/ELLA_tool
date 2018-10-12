@@ -9,17 +9,15 @@ from vardb.datamodel import allele, annotation, annotationshadow
 
 
 GLOBAL_CONFIG = {
-    'variant_criteria': {
-        "frequencies": {
-            "groups": {
-                "external": {
-                    "ExAC": ["G", "FIN"],
-                    "1000g": ["G"],
-                    "esp6500": ["AA", "EA"]
-                },
-                "internal": {
-                    "inDB": ['AF']
-                }
+    'filter': {
+        "frequencies_groups": {
+            "external": {
+                "ExAC": ["G", "FIN"],
+                "1000g": ["G"],
+                "esp6500": ["AA", "EA"]
+            },
+            "internal": {
+                "inDB": ['AF']
             }
         }
     }

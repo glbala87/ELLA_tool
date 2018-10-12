@@ -753,7 +753,7 @@ class SegregationFilter(object):
 
         return result
 
-    def filter_alleles(self, analysis_allele_ids):
+    def filter_alleles(self, analysis_allele_ids, filter_config):
         """
         Returns allele_ids that can be filtered _out_ from an analysis.
         """

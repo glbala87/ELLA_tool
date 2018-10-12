@@ -21,6 +21,15 @@ class AlleleFilter(object):
             'segregation': ('analysis', SegregationFilter(self.session, self.config).filter_alleles)
         }
 
+    def get_merged_filter_config(self, filter_config, filter_name):
+        """
+        filter_config is shallow merged with the default
+        provided in application config.
+        """
+        base_config = dict(self.config['filter']['default_filter_config'].get('filter_name', {}))
+        base_config.update(filter_config)
+        return base_config
+
     def get_allele_ids_with_classification(self, allele_ids):
         """
         Return the allele ids, among the provided allele_ids,
@@ -85,7 +94,7 @@ class AlleleFilter(object):
                 filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
         return filter_exceptions
 
-    def filter_alleles(self, gp_allele_ids, analysis_allele_ids, filter_config=None):
+    def filter_alleles(self, gp_allele_ids, analysis_allele_ids, filters=None):
         """
 
         Main function for filtering alleles. There are two kinds of
@@ -136,8 +145,8 @@ class AlleleFilter(object):
             )
         """
 
-        if filter_config is None:
-            filter_config = {
+        if filters is None:
+            filters = {
                 "filters": [
                     {
                         "name": "frequency",
@@ -209,13 +218,13 @@ class AlleleFilter(object):
                         "name": "region",
                         "config": {
                             "splice_region": [-20, 6],
-                            "utr_region": [0,0]
+                            "utr_region": [0, 0]
                         }
                     },
                     {
                         "name": "quality",
                         "config": {
-                            "score": 100,
+                            "qual": 100,
                             "allele_ratio": {
                                 "heterozygous": [0.3, 0.7],
                                 "homozygous": [0.9, 1.0]
@@ -262,8 +271,9 @@ class AlleleFilter(object):
 
         # Run filter functions.
         # Already filtered alleles are tracked to avoid re-filtering same alleles (for performance reasons).
-        for f in filter_config['filters']:
+        for f in filters['filters']:
             name = f['name']
+            filter_config = self.get_merged_filter_config(f['config'], name)
             try:
                 if name not in self.filter_functions:
                     raise RuntimeError("Requested filter {} is not a valid filter name".format(name))
@@ -271,7 +281,7 @@ class AlleleFilter(object):
                 filter_data_type, filter_function = self.filter_functions[name]
 
                 if filter_data_type == 'allele':
-                    filtered = filter_function(gp_alleles_remaining)
+                    filtered = filter_function(gp_alleles_remaining, filter_config)
                     for gp_key, allele_ids in filtered.iteritems():
                         allele_ids = set(allele_ids)
                         if gp_key not in gp_alleles_filtered:
@@ -288,7 +298,7 @@ class AlleleFilter(object):
 
                 elif filter_data_type == 'analysis':
 
-                    filtered = filter_function(analysis_alleles_remaining)
+                    filtered = filter_function(analysis_alleles_remaining, filter_config)
                     for a_id, allele_ids in filtered.iteritems():
                         if a_id not in analysis_alleles_filtered:
                             analysis_alleles_filtered[a_id] = dict()
@@ -301,16 +311,13 @@ class AlleleFilter(object):
                 print "Error while running filter '{}'".format(name)
                 raise
 
-        # Create list of alleles are exempted from being filtered
+        # Create list of alleles that are excepted from being filtered
         all_filtered_allele_ids = set()
-        for category_result in gp_alleles_filtered.values():
-            for filtered_alleles in category_result.values():
-                all_filtered_allele_ids |= filtered_alleles
-        for category_result in analysis_alleles_filtered.values():
+        for category_result in gp_alleles_filtered.values() + analysis_alleles_filtered.values():
             for filtered_alleles in category_result.values():
                 all_filtered_allele_ids |= filtered_alleles
         filter_exceptions = self.get_filter_exceptions(
-            filter_config.get('filter_exceptions', []),
+            filters.get('filter_exceptions', []),
             all_filtered_allele_ids
         )
 

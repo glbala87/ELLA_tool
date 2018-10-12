@@ -77,7 +77,7 @@ class ACMGDataLoader(object):
         :returns: dict with converted data using schema data.
         """
 
-        resolver = GenepanelConfigResolver(self.session, genepanel)
+        #resolver = GenepanelConfigResolver(self.session, genepanel)
 
         allele_ids = [a['id'] for a in alleles]
         allele_classifications = dict()
@@ -88,7 +88,12 @@ class ACMGDataLoader(object):
 
         frequency_filter = FrequencyFilter(self.session, config)
         gp_key = (genepanel.name, genepanel.version)
-        commonness_groups = frequency_filter.get_commonness_groups({gp_key: allele_ids})[gp_key]
+
+        # FIXME: Load config override from users default analysisconfig
+        acmg_frequency_config = config['filter']['default_filter_config']['frequency']
+        acmg_frequency_config.update(config['acmg']['default_acmg_config']['frequency'])
+        print acmg_frequency_config
+        commonness_groups = frequency_filter.get_commonness_groups({gp_key: allele_ids}, acmg_frequency_config)[gp_key]
 
         for a in alleles:
             # Add extra data/keys that the rule engine expects to be there
@@ -104,11 +109,12 @@ class ACMGDataLoader(object):
             # FIXME: This should probably be made better
             transcript = ACMGDataLoader._find_single_transcript(annotation_data)
             annotation_data['transcript'] = transcript
-            if transcript:
-                annotation_data["genepanel"] = resolver.resolve(transcript['symbol'])
-            else:
-                annotation_data["genepanel"] = resolver.resolve(None)
-
+            #if transcript:
+            #    annotation_data["genepanel"] = resolver.resolve(transcript['symbol'])
+            #else:
+            #    annotation_data["genepanel"] = resolver.resolve(None)
+            annotation_data['genepanel'] = {}
+            print "FIXME: CHANGE ACMGLOADER GENEPANEL"
             passed_data = self.get_acmg_codes(annotation_data)
             allele_classifications[a['id']] = {
                 'codes': passed_data
