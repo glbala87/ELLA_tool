@@ -32,6 +32,9 @@ export class GenepanelValueController {
     }
 
     getValue() {
+        if (!this.source) {
+            return ''
+        }
         if (this.display === 'last_exon') {
             return this.source[this.display] ? 'LEI' : 'LENI'
         } else if (this.display === 'freq_cutoffs_external') {

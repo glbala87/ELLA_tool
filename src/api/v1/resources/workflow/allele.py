@@ -5,7 +5,7 @@ from api import ApiError
 from api.util.util import request_json, authenticate
 from api.v1.resource import LogRequestResource
 
-
+from api.util import queries
 from vardb.datamodel.workflow import AlleleInterpretationSnapshot, AlleleInterpretation
 from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
 
@@ -43,7 +43,13 @@ class AlleleInterpretationResource(LogRequestResource):
                 $ref: '#/definitions/AlleleInterpretation'
             description: AlleleInterpretation object
         """
-        return helpers.get_interpretation(session, user.group.genepanels, alleleinterpretation_id=interpretation_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        return helpers.get_interpretation(
+            session,
+            user.group.genepanels,
+            filter_config_id,
+            alleleinterpretation_id=interpretation_id
+        )
 
     @authenticate()
     @request_json(
@@ -143,8 +149,13 @@ class AlleleInterpretationListResource(LogRequestResource):
 
             description: AlleleInterpretation objects
         """
-
-        return helpers.get_interpretations(session, user.group.genepanels, allele_id=allele_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        return helpers.get_interpretations(
+            session,
+            user.group.genepanels,
+            filter_config_id,
+            allele_id=allele_id
+        )
 
 
 class AlleleActionOverrideResource(LogRequestResource):
@@ -267,7 +278,13 @@ class AlleleActionMarkInterpretationResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markinterpretation_interpretation(session, data, allele_id=allele_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        helpers.markinterpretation_interpretation(
+            session,
+            data,
+            filter_config_id,
+            allele_id=allele_id
+        )
         session.commit()
 
         return None, 200
@@ -309,7 +326,13 @@ class AlleleActionMarkReviewResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markreview_interpretation(session, data, allele_id=allele_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        helpers.markreview_interpretation(
+            session,
+            data,
+            filter_config_id,
+            allele_id=allele_id
+        )
         session.commit()
 
         return None, 200
@@ -552,7 +575,14 @@ class AlleleActionFinalizeResource(LogRequestResource):
             description: Error
         """
 
-        result = helpers.finalize_interpretation(session, user.id, data, allele_id=allele_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        result = helpers.finalize_interpretation(
+            session,
+            user.id,
+            data,
+            filter_config_id,
+            allele_id=allele_id
+        )
         session.commit()
 
         return result, 200

@@ -99,18 +99,20 @@ const STATE = {
     },
     app: {
         config: {
+            frequencies: {
+                groups: {
+                    external: {
+                        FREQ_GROUP_W_CONSTRAINT: ['G'],
+                        FREQ_GROUP_WO_CONSTRAINT: ['G']
+                    }
+                }
+            },
             filter: {
                 default_filter_config: {
                     frequency: {
                         num_thresholds: {
                             FREQ_GROUP_W_CONSTRAINT: { G: 2000 }
                         }
-                    }
-                },
-                frequency_groups: {
-                    external: {
-                        FREQ_GROUP_W_CONSTRAINT: ['G'],
-                        FREQ_GROUP_WO_CONSTRAINT: ['G']
                     }
                 }
             }

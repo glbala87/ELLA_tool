@@ -1,8 +1,9 @@
+import copy
+
 from flask import request
 from vardb.datamodel import allele, gene
-
 from api import ApiError
-
+from api.config import config
 from api.util.acmgdataloader import ACMGDataLoader
 from api.util.util import request_json, authenticate
 
@@ -43,7 +44,7 @@ class ACMGAlleleResource(LogRequestResource):
             gene.Genepanel.version == gp_version
         ).one()
 
-    @authenticate()
+    @authenticate(user_config=True)
     @request_json(
         None,
         allowed=[
@@ -54,7 +55,7 @@ class ACMGAlleleResource(LogRequestResource):
             'analysis_id'
         ]
     )
-    def post(self, session, data=None, user=None):
+    def post(self, session, data=None, user=None, user_config=None):
         """
         Returns calculated ACMG codes for provided alleles and related data.
 
@@ -197,7 +198,8 @@ class ACMGAlleleResource(LogRequestResource):
         return ACMGDataLoader(session).from_objs(
                 alleles,
                 data.get('referenceassessments'),
-                genepanel
+                genepanel,
+                user_config['acmg']
             )
 
 

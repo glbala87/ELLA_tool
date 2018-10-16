@@ -1,5 +1,8 @@
+import itertools
+import copy
+
 from sqlalchemy import literal_column, text, or_, func
-from api.config import config as global_config
+from api.config import config as global_config, get_filter_config
 from vardb.datamodel import assessment, sample, allele, genotype, annotation
 
 from api.allelefilter.frequencyfilter import FrequencyFilter
@@ -20,15 +23,6 @@ class AlleleFilter(object):
             'quality': ('analysis', QualityFilter(self.session, self.config).filter_alleles),
             'segregation': ('analysis', SegregationFilter(self.session, self.config).filter_alleles)
         }
-
-    def get_merged_filter_config(self, filter_config, filter_name):
-        """
-        filter_config is shallow merged with the default
-        provided in application config.
-        """
-        base_config = dict(self.config['filter']['default_filter_config'].get('filter_name', {}))
-        base_config.update(filter_config)
-        return base_config
 
     def get_allele_ids_with_classification(self, allele_ids):
         """
@@ -80,21 +74,21 @@ class AlleleFilter(object):
 
         return set([a[0] for a in pathogenic_allele_ids])
 
-    def get_filter_exceptions(self, excepted_config, allele_ids):
+    def get_filter_exceptions(self, exceptions_config, allele_ids):
         """
         Checks whether any of allele_ids should be excepted from filtering,
-        given checks given by excepted_config
+        given checks given by exceptions_config
         """
 
         filter_exceptions = set()
-        for e in excepted_config:
+        for e in exceptions_config:
             if e['name'] == 'classification':
                 filter_exceptions |= self.get_allele_ids_with_classification(allele_ids)
             elif e['name'] == 'clinvar_pathogenic':
                 filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
         return filter_exceptions
 
-    def filter_alleles(self, gp_allele_ids, analysis_allele_ids, filters=None):
+    def filter_alleles(self, filter_config_id, gp_allele_ids, analysis_allele_ids):
         """
 
         Main function for filtering alleles. There are two kinds of
@@ -145,99 +139,6 @@ class AlleleFilter(object):
             )
         """
 
-        if filters is None:
-            filters = {
-                "filters": [
-                    {
-                        "name": "frequency",
-                        "config": {
-                            "groups": {
-                                "external": {
-                                    "GNOMAD_GENOMES": [
-                                        "G",
-                                        "AFR",
-                                        "AMR",
-                                        "EAS",
-                                        "FIN",
-                                        "NFE",
-                                        "OTH",
-                                        "SAS"
-                                    ],
-                                    "GNOMAD_EXOMES": [
-                                        "G",
-                                        "AFR",
-                                        "AMR",
-                                        "EAS",
-                                        "FIN",
-                                        "NFE",
-                                        "OTH",
-                                        "SAS"
-                                    ]
-                                },
-                                "internal": {
-                                    "inDB": [
-                                        "OUSWES"
-                                    ]
-                                }
-                            },
-                            "num_thresholds": {
-                                "GNOMAD_GENOMES": {
-                                    "G": 5000,
-                                    "AFR": 5000,
-                                    "AMR": 5000,
-                                    "EAS": 5000,
-                                    "FIN": 5000,
-                                    "NFE": 5000,
-                                    "OTH": 5000,
-                                    "SAS": 5000
-                                },
-                                "GNOMAD_EXOMES": {
-                                    "G": 5000,
-                                    "AFR": 5000,
-                                    "AMR": 5000,
-                                    "EAS": 5000,
-                                    "FIN": 5000,
-                                    "NFE": 5000,
-                                    "OTH": 5000,
-                                    "SAS": 5000
-                                }
-                            },
-                            "thresholds": {
-                                "AD": {
-                                    "external": 0.005,
-                                    "internal": 0.05
-                                },
-                                "default": {
-                                    "external": 0.01,
-                                    "internal": 0.05
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "name": "region",
-                        "config": {
-                            "splice_region": [-20, 6],
-                            "utr_region": [0, 0]
-                        }
-                    },
-                    {
-                        "name": "quality",
-                        "config": {
-                            "qual": 100,
-                            "allele_ratio": {
-                                "heterozygous": [0.3, 0.7],
-                                "homozygous": [0.9, 1.0]
-                            }
-                        }
-                    },
-                    {
-                        "name": "segregation",
-                        "config": {}
-                    }
-                ]
-            }
-
         # Make copies to avoid modifying input data
         if analysis_allele_ids:
             analysis_allele_ids = {k: set(v) for k, v in analysis_allele_ids.iteritems()}
@@ -271,25 +172,44 @@ class AlleleFilter(object):
 
         # Run filter functions.
         # Already filtered alleles are tracked to avoid re-filtering same alleles (for performance reasons).
-        for f in filters['filters']:
+
+        filter_config = self.session.query(sample.FilterConfig.filterconfig).filter(
+            sample.FilterConfig.id == filter_config_id
+        ).scalar()
+
+        filters = get_filter_config(self.config, filter_config)
+        for f in filters:
             name = f['name']
-            filter_config = self.get_merged_filter_config(f['config'], name)
+            if name not in self.filter_functions:
+                raise RuntimeError("Requested filter {} is not a valid filter name".format(name))
+
             try:
-                if name not in self.filter_functions:
-                    raise RuntimeError("Requested filter {} is not a valid filter name".format(name))
+                filter_config = f['config']
+                exceptions_config = f['exceptions']
 
                 filter_data_type, filter_function = self.filter_functions[name]
 
                 if filter_data_type == 'allele':
                     filtered = filter_function(gp_alleles_remaining, filter_config)
+
+                    filter_exceptions = self.get_filter_exceptions(
+                        exceptions_config,
+                        set(itertools.chain.from_iterable(filtered.values()))
+                    )
+
                     for gp_key, allele_ids in filtered.iteritems():
                         allele_ids = set(allele_ids)
                         if gp_key not in gp_alleles_filtered:
                             gp_alleles_filtered[gp_key] = dict()
+
+                        # Subtract alleles that should be excepted from filtering
+                        allele_ids -= filter_exceptions
+
                         # Intersect on input to make sure "faulty" filter doesn't give us
                         # ids not belonging to input.
                         gp_alleles_filtered[gp_key][name] = gp_alleles_remaining[gp_key] & allele_ids
                         gp_alleles_remaining[gp_key] -= allele_ids
+
                         # Update analyses' remaining since they are mixed
                         # with the 'allele' ones
                         for a_id, analysis_gp_key in analysis_genepanels.iteritems():
@@ -299,11 +219,25 @@ class AlleleFilter(object):
                 elif filter_data_type == 'analysis':
 
                     filtered = filter_function(analysis_alleles_remaining, filter_config)
+
+                    filter_exceptions = self.get_filter_exceptions(
+                        exceptions_config,
+                        set(itertools.chain.from_iterable(filtered.values()))
+                    )
+
                     for a_id, allele_ids in filtered.iteritems():
+                        allele_ids = set(allele_ids)
+
                         if a_id not in analysis_alleles_filtered:
                             analysis_alleles_filtered[a_id] = dict()
-                        analysis_alleles_filtered[a_id][name] = analysis_alleles_remaining[a_id] & set(allele_ids)
-                        analysis_alleles_remaining[a_id] -= set(allele_ids)
+
+                        # Subtract alleles that should be excepted from filtering
+                        allele_ids -= filter_exceptions
+
+                        # Intersect on input to make sure "faulty" filter doesn't give us
+                        # ids not belonging to input.
+                        analysis_alleles_filtered[a_id][name] = analysis_alleles_remaining[a_id] & allele_ids
+                        analysis_alleles_remaining[a_id] -= allele_ids
                 else:
                     raise RuntimeError("Unknown filter data type '{}'".format(filter_data_type))
 
@@ -316,10 +250,6 @@ class AlleleFilter(object):
         for category_result in gp_alleles_filtered.values() + analysis_alleles_filtered.values():
             for filtered_alleles in category_result.values():
                 all_filtered_allele_ids |= filtered_alleles
-        filter_exceptions = self.get_filter_exceptions(
-            filters.get('filter_exceptions', []),
-            all_filtered_allele_ids
-        )
 
         # Prepare result for input gp_allele_ids
         gp_allele_result = dict()

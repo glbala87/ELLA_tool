@@ -15,8 +15,8 @@ from vardb.datamodel import allele, annotation, gene, annotationshadow, assessme
 
 
 GLOBAL_CONFIG = {
-    'filter': {
-        "frequency_groups": {
+    'frequencies': {
+        "groups": {
             "external": {
                 "ExAC": ["G", "FIN"],
                 "1000g": ["G"],
@@ -59,7 +59,7 @@ COMMONESS_FILTER_CONFIG = {
         }
     },
     'genes': {
-        1234: {
+        '300000': {
             'thresholds': {
                 "external": {
                     "hi_freq_cutoff": 0.5,
@@ -74,7 +74,7 @@ COMMONESS_FILTER_CONFIG = {
     }
 }
 
-FILTER_ALLLES_FILTER_CONFIG = {
+FILTER_ALLELES_FILTER_CONFIG = {
     'thresholds': {
         'AD': {
             "external": 0.005,
@@ -92,42 +92,10 @@ FILTER_ALLLES_FILTER_CONFIG = {
         }
     },
     'genes': {
-        1234: {
+        '300000': {
             'thresholds': {
                 "external":  0.5,
                 "internal":  0.7
-            }
-        }
-    }
-}
-
-
-GENEPANEL_CONFIG = {
-    'data': {
-        'genes': {
-            'GENE2': {
-                "freq_cutoffs": {
-                    "external": {
-                        "hi_freq_cutoff": 0.5,
-                        "lo_freq_cutoff": 0.1
-                    },
-                    "internal": {
-                        "hi_freq_cutoff": 0.7,
-                        "lo_freq_cutoff": 0.6
-                    }
-                }
-            },
-            'GENE4': {
-                "freq_cutoffs": {
-                    "external": {
-                        "hi_freq_cutoff": 1e-12,
-                        "lo_freq_cutoff": 1e-12
-                    },
-                    "internal": {
-                        "hi_freq_cutoff": 1e-12,
-                        "lo_freq_cutoff": 1e-12
-                    }
-                }
             }
         }
     }
@@ -181,12 +149,12 @@ def create_allele_with_annotation(session, annotations=None, allele_data=None):
     return al, an
 
 
-def create_genepanel(genepanel_config):
+def create_genepanel():
     # Create fake genepanel for testing purposes
 
-    g1_ad = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1AD")
-    g1_ar = gene.Gene(hgnc_id=int(2e6), hgnc_symbol="GENE1AR")
-    g2 = gene.Gene(hgnc_id=int(3e6), hgnc_symbol="GENE2")
+    g1_ad = gene.Gene(hgnc_id=int(100000), hgnc_symbol="GENE1AD")
+    g1_ar = gene.Gene(hgnc_id=int(200000), hgnc_symbol="GENE1AR")
+    g2 = gene.Gene(hgnc_id=int(300000), hgnc_symbol="GENE2")
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
@@ -248,8 +216,7 @@ def create_genepanel(genepanel_config):
     genepanel = gene.Genepanel(
         name='testpanel',
         version='v01',
-        genome_reference='GRCh37',
-        config=genepanel_config
+        genome_reference='GRCh37'
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2]
@@ -267,7 +234,7 @@ class TestFrequencyFilter(object):
         # since we want to use our test config
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
-        gp = create_genepanel(GENEPANEL_CONFIG)
+        gp = create_genepanel()
         session.add(gp)
         session.commit()
 
@@ -279,7 +246,6 @@ class TestFrequencyFilter(object):
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
         # GENE1AR: external: 0.30/0.01 , internal: 0.05/0.01
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-
 
 
         ##
@@ -304,7 +270,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -330,7 +296,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AR',
-                        'hgnc_id': 2,
+                        'hgnc_id': 200000,
                         'transcript': 'NM_1AR.1',
                         'exon_distance': 0
                     }
@@ -395,7 +361,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE2',
-                        'hgnc_id': 1234,
+                        'hgnc_id': 300000,
                         'transcript': 'NM_2.1',
                         'exon_distance': 0
                     }
@@ -420,13 +386,13 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE2',
-                        'hgnc_id': 1234,
+                        'hgnc_id': 300000,
                         'transcript': 'NM_2.1',
                         'exon_distance': 0
                     },
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -457,7 +423,7 @@ class TestFrequencyFilter(object):
         #         },
         #         {
         #             'symbol': 'GENE1AD',
-        #             'hgnc_id': 1,
+        #             'hgnc_id': 100000,
         #             'transcript': 'NM_1AD.1',
         #             'exon_distance': 0
         #         }
@@ -495,7 +461,7 @@ class TestFrequencyFilter(object):
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
-                    'hgnc_id': 1,
+                    'hgnc_id': 100000,
                     'transcript': 'NM_1AD.1',
                     'exon_distance': 0
                 }
@@ -524,7 +490,7 @@ class TestFrequencyFilter(object):
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
-                    'hgnc_id': 1,
+                    'hgnc_id': 100000,
                     'transcript': 'NM_1AD.1',
                     'exon_distance': 0
                 }
@@ -551,7 +517,7 @@ class TestFrequencyFilter(object):
             'transcripts': [
                 {
                     'symbol': 'GENE1AD',
-                    'hgnc_id': 1,
+                    'hgnc_id': 100000,
                     'transcript': 'NM_1AD.1',
                     'exon_distance': 0
                 }
@@ -571,7 +537,7 @@ class TestFrequencyFilter(object):
             },
             'transcripts': [
                 {
-                    'symbol': 'GENE2', # cutoff override for this gene defined in the config of the genepanel
+                    'symbol': 'GENE2',  # cutoff override for this gene defined in the config of the genepanel
                     'hgnc_id': 1234,
                     'transcript': 'NM_2.1',
                     'exon_distance': 0
@@ -622,7 +588,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -660,7 +626,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -694,7 +660,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -742,7 +708,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -766,6 +732,7 @@ class TestFrequencyFilter(object):
             'transcripts': [
                     {
                         'symbol': 'GENE1AR',
+                        'hgnc_id': 200000,
                         'transcript': 'NM_1AR.1',
                         'exon_distance': 0
                     }
@@ -792,6 +759,7 @@ class TestFrequencyFilter(object):
                     {
                         'symbol': 'DOESNT_EXIST',
                         'transcript': 'DOESNT_EXIST',
+                        'hgnc_id': 102923232,
                         'exon_distance': 0
                     }
                 ],
@@ -814,7 +782,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE2',
-                        'hgnc_id': 1234,
+                        'hgnc_id': 300000,
                         'transcript': 'NM_2.1',
                         'exon_distance': 0
                     }
@@ -844,7 +812,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -869,7 +837,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -889,7 +857,7 @@ class TestFrequencyFilter(object):
                        pa3.id: (pa3, pa3anno),
                        pa4.id: (pa4, pa4anno)}
 
-        result = ff.filter_alleles({gp_key: allele_info.keys()}, FILTER_ALLLES_FILTER_CONFIG)
+        result = ff.filter_alleles({gp_key: allele_info.keys()}, FILTER_ALLELES_FILTER_CONFIG)
 
         assert result[gp_key] == set(allele_info.keys())
 
@@ -914,7 +882,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -938,6 +906,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AR',
+                        'hgnc_id': 200000,
                         'transcript': 'NM_1AR.1',
                         'exon_distance': 0
                     }
@@ -959,7 +928,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE2',
-                        'hgnc_id': 1234,
+                        'hgnc_id': 300000,
                         'transcript': 'NM_2.1',
                         'exon_distance': 0
                     }
@@ -986,7 +955,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -1011,7 +980,7 @@ class TestFrequencyFilter(object):
                 'transcripts': [
                     {
                         'symbol': 'GENE1AD',
-                        'hgnc_id': 1,
+                        'hgnc_id': 100000,
                         'transcript': 'NM_1AD.1',
                         'exon_distance': 0
                     }
@@ -1024,6 +993,6 @@ class TestFrequencyFilter(object):
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [na1ad.id, na1ar.id, na2.id, na3.id, na4.id]
-        result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLLES_FILTER_CONFIG)
+        result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLELES_FILTER_CONFIG)
 
         assert not result[gp_key]

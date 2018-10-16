@@ -67,3 +67,21 @@ class Analysis(Base):
 
     def __repr__(self):
         return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanel_name, self.genepanel_version)
+
+
+class FilterConfig(Base):
+
+    """
+    Represents a configuration of an analysis,
+    e.g. ACMG configuration and filter configuration.
+
+    Note that one analysis can utilise several AnalysisConfigs as part of
+    a workflow/interpretation.
+    """
+    __tablename__ = "filterconfig"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(), nullable=False, unique=True)
+    filterconfig = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
+    usergroup_id = Column(Integer, ForeignKey('usergroup.id'), nullable=False)
+    default = Column(Boolean, nullable=False, default=False)

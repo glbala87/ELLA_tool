@@ -6,10 +6,27 @@ import copy
 import pytest
 
 from api.allelefilter import AlleleFilter
-from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment
+from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment, sample
 
 import hypothesis as ht
 import hypothesis.strategies as st
+
+
+FILTER_CONFIG_NUM = 0
+
+
+def insert_filter_config(session, filter_config):
+    global FILTER_CONFIG_NUM
+    FILTER_CONFIG_NUM += 1
+
+    fc = sample.FilterConfig(
+        name='Test {}'.format(FILTER_CONFIG_NUM),
+        usergroup_id=1,
+        filterconfig=filter_config
+    )
+    session.add(fc)
+    session.commit()
+    return fc.id
 
 
 def create_filter_mock(to_remove):
@@ -28,16 +45,16 @@ class TestAlleleFilter(object):
         af = AlleleFilter(session, config={})
 
         # Mock the built-in filters
-        def filter_one_two(key_allele_ids):
+        def filter_one_two(key_allele_ids, filter_config):
             return create_filter_mock([1, 2])(key_allele_ids)
 
-        def filter_three_four(key_allele_ids):
+        def filter_three_four(key_allele_ids, filter_config):
             return create_filter_mock([3, 4])(key_allele_ids)
 
-        def filter_five_six(key_allele_ids):
+        def filter_five_six(key_allele_ids, filter_config):
             return create_filter_mock([5, 6])(key_allele_ids)
 
-        def filter_none(key_allele_ids):
+        def filter_none(key_allele_ids, filter_config):
             return create_filter_mock([])(key_allele_ids)
 
         af.filter_functions = {
@@ -68,7 +85,14 @@ class TestAlleleFilter(object):
             'key2': [1, 4]
         }
 
-        result, _ = af.filter_alleles(testdata, None, filter_config=filter_config)
+        filter_config_id = insert_filter_config(session, filter_config)
+
+        result, _ = af.filter_alleles(
+            filter_config_id,
+            testdata,
+            None
+        )
+
         expected_result = {
             'key': {
                 'allele_ids': [],
@@ -103,14 +127,20 @@ class TestAlleleFilter(object):
                 {
                     'name': 'allele_none'
                 }
-            ],
-            'filter_exceptions': []
+            ]
         }
+
+        filter_config_id = insert_filter_config(session, filter_config)
 
         testdata = {
             'key': [1, 2, 3, 4, 5, 6, 7, 8, 9]
         }
-        result, _ = af.filter_alleles(testdata, None, filter_config=filter_config)
+        result, _ = af.filter_alleles(
+            filter_config_id,
+            testdata,
+            None
+        )
+
         expected_result = {
             'key': {
                 'allele_ids': [7, 8, 9],
@@ -131,16 +161,22 @@ class TestAlleleFilter(object):
                 {
                     'name': 'analysis_one_two',
                 }
-            ],
-            'filter_exceptions': []
+            ]
         }
+
+        filter_config_id = insert_filter_config(session, filter_config)
 
         testdata = {
             1: [1, 2, 3, 4],
             2: [1, 4]
         }
 
-        _, result = af.filter_alleles(None, testdata, filter_config=filter_config)
+        _, result = af.filter_alleles(
+            filter_config_id,
+            None,
+            testdata
+        )
+
         expected_result = {
             1: {
                 'allele_ids': [3, 4],
@@ -175,15 +211,16 @@ class TestAlleleFilter(object):
                 {
                     'name': 'analysis_none',
                 }
-            ],
-            'filter_exceptions': []
+            ]
         }
+
+        filter_config_id = insert_filter_config(session, filter_config)
 
         testdata = {
             1: [1, 2, 3, 4, 5, 6, 7, 8, 9]
         }
 
-        _, result = af.filter_alleles(None, testdata, filter_config=filter_config)
+        _, result = af.filter_alleles(filter_config_id, None, testdata)
 
         expected_result = {
             1: {
@@ -218,9 +255,10 @@ class TestAlleleFilter(object):
                 {
                     'name': 'analysis_none',
                 }
-            ],
-            'filter_exceptions': []
+            ]
         }
+
+        filter_config_id = insert_filter_config(session, filter_config)
 
         # Make sure that the analysis' allele ids
         # are not mixed into gp_allele_ids when it
@@ -235,9 +273,9 @@ class TestAlleleFilter(object):
         }
 
         allele_result, analysis_result = af.filter_alleles(
+            filter_config_id,
             allele_testdata,
             analysis_testdata,
-            filter_config=filter_config
         )
 
         expected_allele_result = {
@@ -272,7 +310,6 @@ class TestAlleleFilter(object):
         }
         assert analysis_result == expected_analysis_result
 
-
         # Test exceptions
 
         # Allele id 1 and 3 are clinvar pathogenic
@@ -291,26 +328,39 @@ class TestAlleleFilter(object):
             'filters': [
                 {
                     'name': 'allele_one_two',
+                    'exceptions': [
+                        {
+                            'name': 'classification'
+                        },
+                        {
+                            'name': 'clinvar_pathogenic'
+                        }
+                    ]
                 },
                 {
-                    'name': 'allele_three_four'
-                }
-            ],
-            'filter_exceptions': [
-                {
-                    'name': 'classification'
-                },
-                {
-                    'name': 'clinvar_pathogenic'
+                    'name': 'allele_three_four',
+                    'exceptions': [
+                        {
+                            'name': 'classification'
+                        },
+                        {
+                            'name': 'clinvar_pathogenic'
+                        }
+                    ]
                 }
             ]
         }
 
+        filter_config_id = insert_filter_config(session, filter_config)
         testdata = {
             'key': [1, 2, 3, 4, 5, 6],
         }
 
-        result, _ = af.filter_alleles(testdata, None, filter_config=filter_config)
+        result, _ = af.filter_alleles(
+            filter_config_id,
+            testdata,
+            None
+        )
 
         expected_result = {
             'key': {
@@ -328,26 +378,40 @@ class TestAlleleFilter(object):
             'filters': [
                 {
                     'name': 'analysis_one_two',
+                    'exceptions': [
+                        {
+                            'name': 'classification'
+                        },
+                        {
+                            'name': 'clinvar_pathogenic'
+                        }
+                    ]
                 },
                 {
-                    'name': 'allele_three_four'
-                }
-            ],
-            'filter_exceptions': [
-                {
-                    'name': 'classification'
-                },
-                {
-                    'name': 'clinvar_pathogenic'
+                    'name': 'allele_three_four',
+                    'exceptions': [
+                        {
+                            'name': 'classification'
+                        },
+                        {
+                            'name': 'clinvar_pathogenic'
+                        }
+                    ]
                 }
             ]
         }
+
+        filter_config_id = insert_filter_config(session, filter_config)
 
         testdata = {
             1: [1, 2, 3, 4, 5, 6],
         }
 
-        _, result = af.filter_alleles(None, testdata, filter_config=filter_config)
+        _, result = af.filter_alleles(
+            filter_config_id,
+            None,
+            testdata
+        )
 
         expected_result = {
             1: {

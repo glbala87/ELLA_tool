@@ -2,15 +2,14 @@
 Tests for annotationshadow tables, testing the trigger functionality,
 and that they are populated correctly.
 """
-import copy
 import pytest
 
 from vardb.datamodel import allele, annotation, annotationshadow
 
 
 GLOBAL_CONFIG = {
-    'filter': {
-        "frequencies_groups": {
+    'frequencies': {
+        "groups": {
             "external": {
                 "ExAC": ["G", "FIN"],
                 "1000g": ["G"],
@@ -36,6 +35,7 @@ def get_freq_num_column_names():
     for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG):
         names.append('{}_num.{}'.format(provider, key))
     return names
+
 
 allele_start = 0
 

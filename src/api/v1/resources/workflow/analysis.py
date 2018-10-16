@@ -7,6 +7,7 @@ from api.util.util import request_json, authenticate, rest_filter, paginate
 from api.v1.resource import LogRequestResource
 
 from . import helpers
+from api.util import queries
 from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
 from vardb.datamodel.sample import Analysis
 from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
@@ -102,7 +103,13 @@ class AnalysisInterpretationResource(LogRequestResource):
 
             description: Interpretation object
         """
-        return helpers.get_interpretation(session, user.group.genepanels, analysisinterpretation_id=interpretation_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        return helpers.get_interpretation(
+            session,
+            user.group.genepanels,
+            filter_config_id,
+            analysisinterpretation_id=interpretation_id
+        )
 
     @authenticate()
     @request_json(
@@ -175,7 +182,13 @@ class AnalysisInterpretationListResource(LogRequestResource):
             description: AnalysisInterpretation objects
         """
 
-        return helpers.get_interpretations(session, user.group.genepanels, analysis_id=analysis_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        return helpers.get_interpretations(
+            session,
+            user.group.genepanels,
+            filter_config_id,
+            analysis_id=analysis_id
+        )
 
 
 class AnalysisActionOverrideResource(LogRequestResource):
@@ -277,7 +290,13 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
             description: Error
         """
 
-        helpers.marknotready_interpretation(session, data, analysis_id=analysis_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        helpers.marknotready_interpretation(
+            session,
+            data,
+            filter_config_id,
+            analysis_id=analysis_id
+        )
         session.commit()
 
         return None, 200
@@ -319,7 +338,13 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markinterpretation_interpretation(session, data, analysis_id=analysis_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        helpers.markinterpretation_interpretation(
+            session,
+            data,
+            filter_config_id,
+            analysis_id=analysis_id
+        )
         session.commit()
 
         return None, 200
@@ -361,7 +386,13 @@ class AnalysisActionMarkReviewResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markreview_interpretation(session, data, analysis_id=analysis_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        helpers.markreview_interpretation(
+            session,
+            data,
+            filter_config_id,
+            analysis_id=analysis_id
+        )
         session.commit()
 
         return None, 200
@@ -403,7 +434,13 @@ class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markmedicalreview_interpretation(session, data, analysis_id=analysis_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        helpers.markmedicalreview_interpretation(
+            session,
+            data,
+            filter_config_id,
+            analysis_id=analysis_id
+        )
         session.commit()
 
         return None, 200
@@ -737,7 +774,14 @@ class AnalysisActionFinalizeResource(LogRequestResource):
 
         """
 
-        result = helpers.finalize_interpretation(session, user.id, data, analysis_id=analysis_id)
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        result = helpers.finalize_interpretation(
+            session,
+            user.id,
+            data,
+            filter_config_id,
+            analysis_id=analysis_id
+        )
         session.commit()
 
         return result, 200

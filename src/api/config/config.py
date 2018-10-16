@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import copy
 from .acmgconfig import acmgconfig
 from .customannotationconfig import customannotationconfig
 
@@ -41,6 +42,22 @@ config = {
                 "analysis": {
                     "finalize_required_workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review']
                 }
+            },
+            "acmg": {
+                "frequency": {
+                    "thresholds": {  # 'external'/'internal' references the groups under 'frequency->groups'
+                        "AD": {
+                            "external": {"hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001},
+                            "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
+                        },
+                        "default": {
+                            "external": {"hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0},
+                            "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
+                        }
+                    }
+                },
+                "disease_mode": "ANY",
+                "last_exon_important": "LEI"
             }
         }
     },
@@ -67,6 +84,35 @@ config = {
         }
     },
     "frequencies": {
+        "groups": {
+            "external": {
+                "GNOMAD_GENOMES": [
+                    "G",
+                    "AFR",
+                    "AMR",
+                    "EAS",
+                    "FIN",
+                    "NFE",
+                    "OTH",
+                    "SAS"
+                ],
+                "GNOMAD_EXOMES": [
+                    "G",
+                    "AFR",
+                    "AMR",
+                    "EAS",
+                    "FIN",
+                    "NFE",
+                    "OTH",
+                    "SAS"
+                ]
+            },
+            "internal": {
+                "inDB": [
+                    'OUSWES'
+                ]
+            }
+        },
         "view": {
             "groups": {
                 "GNOMAD_GENOMES": [
@@ -155,56 +201,9 @@ config = {
             }
         }
     },
-    "acmg": {
-        "default_acmg_config": {
-            "frequency": {
-                "thresholds": {  # 'external'/'internal' references the groups under 'filter->frequency_groups'
-                    "AD": {
-                        "external": {"hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001},
-                        "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
-                    },
-                    "default": {
-                        "external": {"hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0},
-                        "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
-                    }
-                }
-            },
-            "disease_mode": "ANY",
-            "last_exon_important": "LEI",
-        }
-    },
     "filter": {
-        "frequency_groups": {
-            "external": {
-                "GNOMAD_GENOMES": [
-                    "G",
-                    "AFR",
-                    "AMR",
-                    "EAS",
-                    "FIN",
-                    "NFE",
-                    "OTH",
-                    "SAS"
-                ],
-                "GNOMAD_EXOMES": [
-                    "G",
-                    "AFR",
-                    "AMR",
-                    "EAS",
-                    "FIN",
-                    "NFE",
-                    "OTH",
-                    "SAS"
-                ]
-            },
-            "internal": {
-                "inDB": [
-                    'OUSWES'
-                ]
-            }
-        },
-        # These defaults will be used as base when applying any AnalysisConfig's filter_config
-        # The filter_config is shallow merged on top of the following defaults
+        # These defaults will be used as base when applying any FilterConfig's filter configurations
+        # The configs are shallow merged on top of the following defaults
         "default_filter_config": {
             "region": {
                 "splice_region": [-20, 6],
@@ -382,5 +381,33 @@ config = {
     }
 }
 
-config['acmg'].update(acmgconfig)
+config['acmg'] = acmgconfig
 config['custom_annotation'] = customannotationconfig
+
+
+def get_user_config(app_config, usergroup_config, user_config):
+    # Use json instead of copy.deepcopy for performance
+    merged_config = copy.deepcopy(app_config['user']['user_config'])
+    merged_config.update(copy.deepcopy(usergroup_config))
+    merged_config.update(copy.deepcopy(user_config))
+    return merged_config
+
+
+def get_filter_config(app_config, filter_config):
+    """
+    filter_config is shallow merged with the default
+    provided in application config.
+    """
+
+    merged_filters = list()
+    assert 'filters' in filter_config
+    for filter_step in filter_config['filters']:
+        base_config = dict(app_config['filter']['default_filter_config'].get(filter_step['name'], {}))
+        base_config.update(filter_step.get('config', {}))
+        merged_filters.append({
+            'name': filter_step['name'],
+            'config': base_config,
+            'exceptions': filter_step.get('exceptions', [])
+        })
+    merged_filters = copy.deepcopy(merged_filters)
+    return merged_filters

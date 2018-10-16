@@ -27,14 +27,9 @@ export function getInheritanceCodes(geneSymbol, genepanel) {
     }
 }
 
-export function findGeneConfigOverride(geneSymbol, panelConfig) {
-    if (
-        panelConfig &&
-        panelConfig.data &&
-        panelConfig.data.genes &&
-        geneSymbol in panelConfig.data.genes
-    ) {
-        return panelConfig.data.genes[geneSymbol]
+export function findGeneConfigOverride(hgncId, acmgConfig) {
+    if (acmgConfig && acmgConfig.genes && hgncId in acmgConfig.genes) {
+        return acmgConfig.genes[hgncId]
     } else {
         return {}
     }

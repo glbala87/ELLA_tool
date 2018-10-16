@@ -29,7 +29,7 @@ class FrequencyFilter(object):
 
     def _get_freq_threshold_filter(self, thresholds, num_thresholds, threshold_func, combine_func):
         # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
-        frequency_groups = self.config['filter']['frequency_groups']
+        frequency_groups = self.config['frequencies']['groups']
 
         filters = list()
         for group, thresholds in thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
@@ -172,15 +172,15 @@ class FrequencyFilter(object):
                 )
 
             # 2. AD genes
-            ad_genes = queries.distinct_inheritance_genes_for_genepanel(
+            ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
                 self.session,
                 'AD',
                 gp_key[0],
                 gp_key[1]
             )
-            if ad_genes:
+            if ad_hgnc_ids:
                 ad_filters = [
-                    annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
+                    annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
                 ]
 
@@ -207,7 +207,7 @@ class FrequencyFilter(object):
             # Keep ad_genes as subquery, or else performance goes down the drain
             # (as opposed to loading the symbols into backend and merging with override_genes -> up to 30x slower)
             default_filters = [
-                ~annotationshadow.AnnotationShadowTranscript.symbol.in_(ad_genes),
+                ~annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
             ]
 
@@ -364,7 +364,7 @@ class FrequencyFilter(object):
         that should be included.
         """
 
-        # Internally the filters works with two thresholds,
+        # Internally get_commonness_groups works with two thresholds,
         # hi_freq_cutoff and lo_freq_cutoff. We need to convert our simpler
         # filter config to this format. Since we request
         # common_only, we only need to provide 'hi_freq_cutoff'

@@ -3,7 +3,7 @@ from api.util import queries
 from vardb.datamodel import gene, allele, annotation
 
 
-def test_distinct_inheritance_genes_for_genepanel(session):
+def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
 
     testpanels = [
         ('HBOCUTV', 'v01'),
@@ -11,8 +11,8 @@ def test_distinct_inheritance_genes_for_genepanel(session):
     ]
 
     for panel in testpanels:
-        ad_genes = queries.distinct_inheritance_genes_for_genepanel(session, 'AD', panel[0], panel[1]).all()
-        ad_genes = [a[0] for a in ad_genes]
+        ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(session, 'AD', panel[0], panel[1]).all()
+        ad_hgnc_ids = [a[0] for a in ad_hgnc_ids]
 
         # Make sure all genes are actually part of input genepanel
         assert session.query(gene.Transcript.gene_id).join(
@@ -21,8 +21,8 @@ def test_distinct_inheritance_genes_for_genepanel(session):
             gene.Gene
         ).filter(
             tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
-            gene.Gene.hgnc_symbol.in_(ad_genes)
-        ).distinct().count() == len(ad_genes)
+            gene.Gene.hgnc_symbol.in_(ad_hgnc_ids)
+        ).distinct().count() == len(ad_hgnc_ids)
 
         # Test that AD matches only has 'AD' phenotypes
         inheritances = session.query(
@@ -33,7 +33,7 @@ def test_distinct_inheritance_genes_for_genepanel(session):
             gene.genepanel_phenotype,
         ).filter(
             tuple_(gene.genepanel_phenotype.c.genepanel_name, gene.genepanel_phenotype.c.genepanel_version) == panel,
-            gene.Gene.hgnc_symbol.in_(ad_genes)
+            gene.Gene.hgnc_id.in_(ad_hgnc_ids)
         ).all()
         assert all(i[0] == 'AD' for i in inheritances)
 
@@ -47,7 +47,7 @@ def test_distinct_inheritance_genes_for_genepanel(session):
             gene.genepanel_phenotype,
         ).filter(
             tuple_(gene.genepanel_phenotype.c.genepanel_name, gene.genepanel_phenotype.c.genepanel_version) == panel,
-            ~gene.Gene.hgnc_symbol.in_(ad_genes)
+            ~gene.Gene.hgnc_id.in_(ad_hgnc_ids)
         ).all()
 
         gene_ids = set([i[0] for i in inheritances])

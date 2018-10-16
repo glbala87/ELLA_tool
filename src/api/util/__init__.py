@@ -1,1 +1,0 @@
-from genepanelconfig import GenepanelConfigResolver

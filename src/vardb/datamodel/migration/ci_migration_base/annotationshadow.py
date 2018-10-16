@@ -21,7 +21,7 @@ class AnnotationShadowTranscript(Base):
 
 
 def iter_freq_groups(config):
-    frequency_groups = config['filter']['frequency_groups']
+    frequency_groups = config['frequencies']['groups']
     for freq_group in frequency_groups:
         for freq_provider, freq_keys in frequency_groups[freq_group].iteritems():  # 'ExAC', ['G', 'SAS', ...]
             for freq_key in freq_keys:

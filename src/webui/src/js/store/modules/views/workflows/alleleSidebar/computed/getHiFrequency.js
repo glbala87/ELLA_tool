@@ -7,7 +7,7 @@ export default (alleles, key) => {
         if (!alleles) {
             return result
         }
-        const frequencyGroups = config.filter.frequency_groups
+        const frequencyGroups = config.frequencies.groups
         const frequencyNumThresholds =
             config.filter.default_filter_config.frequency.num_thresholds || {}
         for (let [alleleId, allele] of Object.entries(alleles)) {

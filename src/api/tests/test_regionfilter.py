@@ -18,8 +18,8 @@ import hypothesis.strategies as st
 
 
 GLOBAL_CONFIG = {
-    'filter': {
-        'frequency_groups': {
+    'frequencies': {
+        'groups': {
             'not_used': {
                 'NA': ['NONE']
             }
