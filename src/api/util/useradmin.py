@@ -14,6 +14,9 @@ from api.config import config
 # Helper functions
 def generate_password():
     password = base64.b64encode(os.urandom(10))[-10:-2]
+    # Avoid passwords that are difficult to decipher from handwritten text
+    if set(password) & set("0oOIli1/+"):
+        return generate_password()
     if not check_password_strength(password):
         return generate_password()
     password_hash = hash_password(password)
