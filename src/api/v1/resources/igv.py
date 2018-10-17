@@ -28,7 +28,7 @@ IGV_DEFAULT_TRACK_CONFIGS = {
     "bam": {
         "format": "bam",
         "colorBy": 'strand',
-        'alignmentRowHeight': 10,
+        'alignmentRowHeight': 12,
         "visibilityWindow": 20000,
         "order": 300
     },
@@ -120,16 +120,6 @@ def transcripts_to_bed(transcripts):
 
     data = StringIO()
     for t in transcripts:
-        def _modify_0_based(t):
-            t.exon_starts = [es+1 for es in t.exon_starts]
-            t.exon_ends = [ee+1 for ee in t.exon_ends]
-            t.tx_start += 1
-            t.tx_end += 1
-            t.cds_start += 1
-            t.cds_end += 1
-            return t
-        t = _modify_0_based(t)
-
         exon_lengths = [str(e-s) for s, e in zip(t.exon_starts, t.exon_ends)]
         relative_exon_starts = [str(s-t.tx_start) for s in t.exon_starts]
 
