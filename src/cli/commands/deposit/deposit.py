@@ -14,7 +14,7 @@ from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
 
-VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+-(?P<genepanel_name>.+)-(?P<genepanel_version>.+))\.vcf')
+VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))\.vcf')
 
 
 def validate_file_exists(path):
@@ -87,15 +87,14 @@ def cmd_deposit_alleles(vcf, genepanel_name, genepanel_version):
     """
     logging.basicConfig(level=logging.DEBUG)
 
-    if not genepanel_name:
-        matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
-        genepanel_name = matches.group('genepanel_name')
-        genepanel_version = matches.group('genepanel_version')
-
     db = DB()
     db.connect()
     da = DepositAlleles(db.session)
     for f in vcf:
+        if not genepanel_name:
+            matches = re.match(VCF_FIELDS_RE, os.path.basename(f))
+            genepanel_name = matches.group('genepanel_name')
+            genepanel_version = matches.group('genepanel_version')
         da.import_vcf(
             f,
             genepanel_name,

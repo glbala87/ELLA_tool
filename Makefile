@@ -356,7 +356,7 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
-	  -e PANEL_PATH=/ella/src/vardb/testdata/clinicalGenePanels \
+	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
 	  --name $(PIPELINE_ID)-cli $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/test/supervisor.cfg

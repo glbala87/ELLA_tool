@@ -13,7 +13,7 @@ echo "created 'vardb-test'"
 
 if [ "$1" = "" ]
 then
-  py.test src --color=yes --ignore src/api
+  py.test src --color=yes --ignore src/api --ignore src/cli
 else
   $1
 fi
