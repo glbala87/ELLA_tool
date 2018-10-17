@@ -34,7 +34,6 @@ export default (genepanel, allele) => {
                 }
                 const props = ['last_exon_important', 'disease_mode', 'frequency']
                 const geneConfigOverride = findGeneConfigOverride(hgncId, acmgConfig)
-                console.log(hgncId, symbol)
                 for (let p of props) {
                     if (p in geneConfigOverride) {
                         result[symbol][p] = geneConfigOverride[p]
@@ -63,7 +62,6 @@ export default (genepanel, allele) => {
                         result[symbol]['freq_cutoffs'] = acmgConfig.frequency.thresholds['default']
                     }
                 }
-                console.log(result)
 
                 if ('comment' in geneConfigOverride) {
                     result[symbol]['comment'] = geneConfigOverride['comment']

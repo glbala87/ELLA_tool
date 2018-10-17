@@ -245,7 +245,6 @@ def create_genepanel(genepanel_config):
         name='testpanel',
         version='v01',
         genome_reference='GRCh37',
-        config=genepanel_config
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]

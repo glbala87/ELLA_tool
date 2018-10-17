@@ -1,5 +1,3 @@
-import processAlleles from '../../../../common/helpers/processAlleles'
-
 /**
  * Parses identifer like 12-1231-4435-A-G and fetches
  * the corresponding allele from backend as {result}

@@ -40,6 +40,5 @@ class TestGenepanel(object):
         created_transcript_ids = [p.id for p in created.transcripts]
         assert set(original_transcript_ids) == set(created_transcript_ids)
 
-        assert original.config == created.config
         assert created.name == genepanel_to_copy['name']
         assert created.version == genepanel_to_copy['version']

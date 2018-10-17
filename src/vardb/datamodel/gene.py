@@ -106,10 +106,6 @@ class Genepanel(Base):
     transcripts = relationship("Transcript", secondary=genepanel_transcript)
     phenotypes = relationship("Phenotype", secondary=genepanel_phenotype)
 
-    # TODO: Is it possible to validate against schema as part of __init__?
-    # format defined by genepanel-config-schema_v2.json
-    config = Column(JSONMutableDict.as_mutable(JSONB), default={})
-
     def __repr__(self):
         return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genome_reference)
 

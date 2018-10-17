@@ -1,7 +1,6 @@
 /* jshint esnext: true */
 
 import { Service, Inject } from '../../ng-decorators'
-import Analysis from '../../model/analysis'
 
 @Service({
     serviceName: 'AnalysisResource'
@@ -32,7 +31,7 @@ class AnalysisResource {
                 var AnalysisRS = this.resource(`${this.base}/analyses/?${args.join('&')}`)
             }
             var analyses = AnalysisRS.query(() => {
-                resolve(analyses.map((a) => new Analysis(a)))
+                resolve(analyses)
             })
         })
     }
@@ -41,7 +40,7 @@ class AnalysisResource {
         return new Promise((resolve, reject) => {
             var AnalysisRS = this.resource(`${this.base}/analyses/${id}/`)
             var analysis = AnalysisRS.get(() => {
-                resolve(new Analysis(analysis))
+                resolve(analysis)
             })
         })
     }

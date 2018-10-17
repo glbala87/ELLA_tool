@@ -3,16 +3,9 @@ import { Service, Inject } from '../ng-decorators'
 import template from './alleleAssessmentHistoryModal.ngtmpl.html'
 
 export class AlleleAssessmentHistoryController {
-    constructor(
-        modalInstance,
-        alleleResource,
-        alleleAssessmentResource,
-        attachmentResource,
-        allele_id
-    ) {
+    constructor(modalInstance, alleleAssessmentResource, attachmentResource, allele_id) {
         this.modal = modalInstance
         this.allele_id = allele_id
-        this.alleleResource = alleleResource
         this.alleleAssessmentResource = alleleAssessmentResource
         this.attachmentResource = attachmentResource
 
@@ -33,9 +26,6 @@ export class AlleleAssessmentHistoryController {
                 }
                 this.attachments = attachments
             })
-        })
-        this.alleleResource.get([this.allele_id]).then((alleles) => {
-            this.allele = alleles[0]
         })
     }
 }
@@ -59,7 +49,6 @@ export class AlleleAssessmentHistoryModal {
             templateUrl: 'alleleAssessmentHistoryModal.ngtmpl.html',
             controller: [
                 '$uibModalInstance',
-                'AlleleResource',
                 'AlleleAssessmentResource',
                 'AttachmentResource',
                 'allele_id',

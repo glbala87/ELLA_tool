@@ -32,7 +32,6 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # Paths are relative to script dir.
-# See vardb/datamodel/genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 USERGROUPS = '../testdata/usergroups.json'
@@ -78,7 +77,6 @@ GENEPANELS = [
         'version': 'v01'
     },
     {
-        'config': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.config.json',
         'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
         'name': 'HBOC',
@@ -230,7 +228,6 @@ class DepositTestdata(object):
                 os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
-                configPath=os.path.join(SCRIPT_DIR,  gpdata['config']) if 'config' in gpdata else None,
                 replace=False
             )
 

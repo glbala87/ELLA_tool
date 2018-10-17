@@ -46,8 +46,8 @@ export function getOmimEntryId(geneSymbol, genepanel) {
     return transcripts && transcripts.length > 0 ? transcripts[0].gene.omim_entry_id : ''
 }
 
-export function formatInheritance(genepanel, geneSymbol) {
-    let config = findGeneConfigOverride(geneSymbol, genepanel.config)
+export function formatInheritance(genepanel, acmgConfig, geneSymbol, hgncId) {
+    let config = findGeneConfigOverride(hgncId, acmgConfig)
     if (config && 'inheritance' in config) {
         return config['inheritance']
     }

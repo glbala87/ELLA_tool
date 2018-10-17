@@ -6,6 +6,7 @@ const TYPES = {
 }
 
 function getCollisions({ http, path, props, state }) {
+    const config = state.get('app.config')
     let type = TYPES[state.get('views.workflows.type')]
     let id = state.get('views.workflows.id')
     let alleles = state.get('views.workflows.data.alleles')
@@ -18,7 +19,7 @@ function getCollisions({ http, path, props, state }) {
         .get(`workflows/${type}/${id}/collisions/`, { allele_ids: allele_ids.join(',') })
         .then((response) => {
             for (let d of response.result) {
-                processAlleles([d.allele])
+                processAlleles([d.allele], config)
             }
             return path.success({ result: response.result })
         })

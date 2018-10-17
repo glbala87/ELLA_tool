@@ -14,7 +14,6 @@ import './modals/referenceEvalModal.service'
 import './modals/igvModal.service'
 // Legacy: Some modals are not ported to Cerebral yet,
 // and these resource as therefore still in use
-import './services/resources/alleleResource.service'
 import './services/resources/alleleAssessmentResource.service'
 import './services/resources/customAnnotationResource.service'
 import './services/resources/analysisResource.service'
