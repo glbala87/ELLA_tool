@@ -1,7 +1,7 @@
 """Filter config
 
 Revision ID: d099628590c9
-Revises: bbe1686834a4
+Revises: 7fddcdb9e856
 Create Date: 2018-10-18 08:17:21.321913
 
 """
@@ -9,7 +9,7 @@ import logging
 
 # revision identifiers, used by Alembic.
 revision = 'd099628590c9'
-down_revision = 'bbe1686834a4'
+down_revision = '7fddcdb9e856'
 branch_labels = None
 depends_on = None
 
