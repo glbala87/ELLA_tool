@@ -327,7 +327,6 @@ config = {
             "feature_truncation",
             "intergenic_variant"
         ],
-        "severe_consequence_threshold": "mature_miRNA_variant",
         # None includes all transcripts available in annotation
         # Will also include transcripts defined in genepanel
         "inclusion_regex": "NM_.*",
