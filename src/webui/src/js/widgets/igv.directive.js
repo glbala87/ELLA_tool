@@ -11,7 +11,6 @@ import { Directive, Inject } from '../ng-decorators'
     scope: {
         locus: '=',
         tracks: '=',
-        shownTracks: '=',
         reference: '='
     },
     template: '<div class="igv-container"></div>',
