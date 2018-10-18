@@ -245,12 +245,6 @@ class AlleleFilter(object):
                 print "Error while running filter '{}'".format(name)
                 raise
 
-        # Create list of alleles that are excepted from being filtered
-        all_filtered_allele_ids = set()
-        for category_result in gp_alleles_filtered.values() + analysis_alleles_filtered.values():
-            for filtered_alleles in category_result.values():
-                all_filtered_allele_ids |= filtered_alleles
-
         # Prepare result for input gp_allele_ids
         gp_allele_result = dict()
         for gp_key, allele_ids in gp_allele_ids.iteritems():
@@ -262,7 +256,6 @@ class AlleleFilter(object):
             # We need to intersect on original input since gp_allele_filtered
             # have alleles mixed in from analyses
             for name, filtered_allele_ids in gp_alleles_filtered[gp_key].iteritems():
-                filtered_allele_ids -= filter_exceptions
                 remaining_allele_ids -= filtered_allele_ids
                 gp_allele_result[gp_key]['excluded_allele_ids'][name] = sorted(list(set(allele_ids) & filtered_allele_ids))
 
@@ -277,12 +270,10 @@ class AlleleFilter(object):
             }
             # Add filtered allele ids from 'analysis' based filters
             for name, filtered_allele_ids in analysis_alleles_filtered[a_id].iteritems():
-                filtered_allele_ids -= filter_exceptions
                 remaining_allele_ids -= filtered_allele_ids
                 analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
             # Add filtered allele ids from 'allele' based filters
             for name, filtered_allele_ids in gp_alleles_filtered[analysis_genepanels[a_id]].iteritems():
-                filtered_allele_ids -= filter_exceptions
                 remaining_allele_ids -= filtered_allele_ids
                 analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
 

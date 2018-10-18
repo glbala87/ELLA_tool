@@ -253,6 +253,37 @@ class FrequencyFilter(object):
         :param common_only: Whether to only check for 'common' group. Use when you only need the common group, as it's faster.
         :returns: Structure with results for the three categories.
 
+        Filter config example:
+        {
+            "num_thresholds": {
+                "GNOMAD_GENOMES": {
+                    "G": 5000,
+                    ...
+                },
+                "GNOMAD_EXOMES": {
+                    "G": 5000,
+                    ...
+                }
+            },
+            "thresholds": {
+                "frequency": {
+                    "thresholds": {
+                        "AD": {
+                            "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        },
+                        "default": {
+                            "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        }
+                    }
+                }
+            }
+        }
+
+        :note: The filter_config for this function is very similar to filter_alleles()'s
+               filter_config, but they're not the same.
+
         Example for returned data:
         {
             ('HBOC', 'v01'): {
