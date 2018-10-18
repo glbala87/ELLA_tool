@@ -72,6 +72,25 @@ GLOBAL_CONFIG = {
 FILTER_CONFIG = {
     "splice_region": [-10, 5],
     "utr_region": [-12, 20],
+    "exclude_consequences": [
+        "transcript_ablation",
+        "splice_donor_variant",
+        "splice_acceptor_variant",
+        "stop_gained",
+        "frameshift_variant",
+        "start_lost",
+        "initiator_codon_variant",
+        "stop_lost",
+        "inframe_insertion",
+        "inframe_deletion",
+        "missense_variant",
+        "protein_altering_variant",
+        "transcript_amplification",
+        "incomplete_terminal_codon_variant",
+        "synonymous_variant",
+        "stop_retained_variant",
+        "coding_sequence_variant",
+    ]
 }
 
 
@@ -591,7 +610,7 @@ class TestRegionFilter(object):
                         'symbol': 'GENE1',
                         'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
-                        'consequences': ['intron_variant','stop_gained']
+                        'consequences': ['intron_variant', 'stop_gained']
                     }
                 ],
             },

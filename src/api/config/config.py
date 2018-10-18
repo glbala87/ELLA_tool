@@ -207,7 +207,26 @@ config = {
         "default_filter_config": {
             "region": {
                 "splice_region": [-20, 6],
-                "utr_region": [0, 0]
+                "utr_region": [0, 0],
+                "exclude_consequences": [
+                    "transcript_ablation",
+                    "splice_donor_variant",
+                    "splice_acceptor_variant",
+                    "stop_gained",
+                    "frameshift_variant",
+                    "start_lost",
+                    "initiator_codon_variant",
+                    "stop_lost",
+                    "inframe_insertion",
+                    "inframe_deletion",
+                    "missense_variant",
+                    "protein_altering_variant",
+                    "transcript_amplification",
+                    "incomplete_terminal_codon_variant",
+                    "synonymous_variant",
+                    "stop_retained_variant",
+                    "coding_sequence_variant",
+                ]
             },
             "frequency": {
                 "num_thresholds": {

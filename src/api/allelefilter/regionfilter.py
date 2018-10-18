@@ -410,30 +410,7 @@ class RegionFilter(object):
             #
             # Whether a consequence is severe or not is determined by the config
 
-            # TODO: Add to config
-            #consequences_to_exclude = self.config.get...
-
-            consequences_to_exclude = [
-                "transcript_ablation",
-                "splice_donor_variant",
-                "splice_acceptor_variant",
-                "stop_gained",
-                "frameshift_variant",
-                "start_lost",
-                "initiator_codon_variant",
-                "stop_lost",
-                "inframe_insertion",
-                "inframe_deletion",
-                "missense_variant",
-                "protein_altering_variant",
-                "transcript_amplification",
-                # "splice_region_variant", # Do not save on this, as this is annotated by VEP on [-8,8]. The splice region used by ella is defined in this filter's config.
-                "incomplete_terminal_codon_variant",
-                "synonymous_variant",
-                "stop_retained_variant",
-                "coding_sequence_variant",
-            ]
-
+            exclude_consequences = filter_config['exclude_consequences']
 
             # Unnest consequences. Include only consequences for genes in genepanel.
             consequences_unnested = self.session.query(
@@ -470,7 +447,7 @@ class RegionFilter(object):
                 consequences_agg.c.allele_id
             ).filter(
                 # Operator '&&' checks if two arrays overlap
-                consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(consequences_to_exclude),
+                consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(exclude_consequences),
             )
 
             allele_ids_severe_consequences = set([a[0] for a in allele_ids_severe_consequences])
