@@ -26,6 +26,10 @@ class SampleSelection extends Page {
         super.open('overview/')
         browser.waitForExist(SELECTOR_ANALYSES_OVERVIEW)
         browser.click(SELECTOR_ANALYSES_OVERVIEW)
+        // We need to make sure that the page is loaded.
+        // waitForExist(#nprogress) doesn't work well here, since it sometimes is so quick that it's missed
+        // Pause instead and then make sure the loading is gone
+        browser.pause(100)
         browser.waitForExist('#nprogress', 10000, true) // Make sure loading is done before proceeding
     }
 
