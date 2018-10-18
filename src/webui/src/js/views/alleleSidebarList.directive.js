@@ -180,10 +180,10 @@ app.component('alleleSidebarList', {
                             return 'Q'
                         }
                     },
-                    getQualityTitle(allele) {
-                        if ($ctrl.isTechnical(allele)) {
+                    getQualityTitle(allele_id) {
+                        if ($ctrl.isTechnical(allele_id)) {
                             return 'Technical'
-                        } else if ($ctrl.isVerified(allele)) {
+                        } else if ($ctrl.isVerified(allele_id)) {
                             return 'Verified'
                         } else {
                             return 'Quality issues'
