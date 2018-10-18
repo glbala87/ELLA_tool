@@ -76,7 +76,6 @@ def get_partial_response(path, start, end):
         else:
             data = f.read()
 
-    print len(data)
     rv = Response(
         data,
         206,
@@ -92,26 +91,6 @@ def get_partial_response(path, start, end):
         rv.headers.add('Content-Length', '{0}'.format(size))
         rv.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(start, size - 1, size))
     return rv
-
-
-class IgvResource(LogRequestResource):
-
-    @authenticate()
-    @logger(exclude=True)
-    def get(self, session, filename, user=None):
-        if 'IGV_DATA' not in os.environ:
-            raise ApiError("Missing IGV data location (env: $IGV_DATA).")
-
-        if filename not in config['igv']['valid_resource_files']:
-            raise ApiError("File is not in list of permitted accessible files.")
-
-        final_path = os.path.join(os.environ['IGV_DATA'], filename)
-
-        start, end = get_range(request)
-        if start is None:
-            return send_file(final_path)
-        else:
-            return get_partial_response(final_path, start, end)
 
 
 def transcripts_to_bed(transcripts):
@@ -176,6 +155,81 @@ def get_classification_bed(session):
         ))
     result += '\n'.join(lines)
     return result
+
+
+def get_allele_vcf(session, analysis_id, allele_ids):
+        if not allele_ids:
+            return None
+
+        alleles = session.query(allele.Allele).filter(
+            allele.Allele.id.in_(allele_ids)
+        ).all()
+
+        analysis = session.query(sample.Analysis).filter(
+            sample.Analysis.id == analysis_id
+        ).one()
+
+        adl = AlleleDataLoader(session)
+        allele_objs = adl.from_objs(
+            alleles,
+            analysis_id=analysis.id,
+            genepanel=analysis.genepanel,
+            include_allele_assessment=False,
+            include_allele_report=False,
+            include_custom_annotation=False,
+            include_reference_assessments=False
+        )
+
+        VCF_HEADER_TEMPLATE = "\n".join([
+            '##fileformat=VCFv4.1',
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}"
+        ])+"\n"
+        VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
+
+        sample_names = sorted(list(set([s['identifier'] for a in allele_objs for s in a['samples']])))
+        data = VCF_HEADER_TEMPLATE.format('\t'.join(sample_names))
+
+        for a in allele_objs:
+            chr = a["chromosome"]
+            pos = a["vcf_pos"]
+            ref = a["vcf_ref"]
+            alt = a["vcf_alt"]
+            qual = "N/A"
+            filter_status = "N/A"
+
+            genotype_data = {
+                'GT': []  # Per sample entry
+            }
+            for sample_name in sample_names:
+                sample_data = next((s for s in a['samples'] if s['identifier'] == sample_name), None)
+                if not sample_data:
+                    genotype_data['GT'] = './.'
+                    continue
+
+                sample_genotype = sample_data["genotype"]
+
+                # We can just overwrite these, will be same for all samples
+                qual = sample_genotype["variant_quality"]
+                filter_status = sample_genotype["filter_status"]
+
+                genotype_data["GT"] = '1/1' if sample_genotype["type"] == 'Homozygous' else '0/1'
+
+            # Annotation
+            info = []
+            genotype_data_keys = sorted(genotype_data.keys())
+            data += VCF_LINE_TEMPLATE.format(
+                chr=chr,
+                pos=pos,
+                id=".",
+                ref=ref,
+                alt=alt,
+                qual=qual,
+                filter_status=filter_status,
+                info=";".join(info) if info else ".",
+                genotype_format=':'.join(genotype_data_keys),
+                genotype_data=':'.join([genotype_data[k] for k in genotype_data_keys])
+            )
+        return data
 
 
 class IgvSearchResource(LogRequestResource):
@@ -265,80 +319,9 @@ class AnalysisVariantTrack(LogRequestResource):
     @logger(exclude=True)
     def get(self, session, analysis_id, user=None):
         allele_ids = [int(aid) for aid in request.args.get('allele_ids', '').split(',')]
-
-        if not allele_ids:
-            return None
-
-        alleles = session.query(allele.Allele).filter(
-            allele.Allele.id.in_(allele_ids)
-        ).all()
-
-        analysis = session.query(sample.Analysis).filter(
-            sample.Analysis.id == analysis_id
-        ).one()
-
-        adl = AlleleDataLoader(session)
-        allele_objs = adl.from_objs(
-            alleles,
-            analysis_id=analysis.id,
-            genepanel=analysis.genepanel,
-            include_allele_assessment=False,
-            include_allele_report=False,
-            include_custom_annotation=False,
-            include_reference_assessments=False
-        )
-
-        VCF_HEADER_TEMPLATE = "\n".join([
-            '##fileformat=VCFv4.1',
-            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}"
-        ])+"\n"
-        VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
-
-        sample_names = sorted(list(set([s['identifier'] for a in allele_objs for s in a['samples']])))
-        header = VCF_HEADER_TEMPLATE.format('\t'.join(sample_names))
         data = StringIO()
-        data.write(header)
-
-        for a in sorted(allele_objs, key=lambda x: (int(x["chromosome"]) if x["chromosome"].isdigit() else x["chromosome"], int(x["vcf_pos"]))):
-            chr = a["chromosome"]
-            pos = a["vcf_pos"]
-            ref = a["vcf_ref"]
-            alt = a["vcf_alt"]
-
-            genotype_data = {
-                'GT': []  # Per sample entry
-            }
-            for sample_name in sample_names:
-                sample_data = next((s for s in a['samples'] if s['identifier'] == sample_name), None)
-                if not sample_data:
-                    genotype_data['GT'] = './.'
-
-                sample_genotype = sample_data["genotype"]
-
-                # We can just overwrite these, will be same for all samples
-                qual = sample_genotype["variant_quality"]
-                filter_status = sample_genotype["filter_status"]
-                #
-
-                genotype_data["GT"] = '1/1' if sample_genotype["type"] == 'Homozygous' else '0/1'
-
-            # Annotation
-            info = []
-            genotype_data_keys = sorted(genotype_data.keys())
-            data.write(VCF_LINE_TEMPLATE.format(
-                chr=chr,
-                pos=pos,
-                id=".",
-                ref=ref,
-                alt=alt,
-                qual=qual,
-                filter_status=filter_status,
-                info=";".join(info) if info else ".",
-                genotype_format=':'.join(genotype_data_keys),
-                genotype_data=':'.join([genotype_data[k] for k in genotype_data_keys])
-            ))
+        data.write(get_allele_vcf(session, analysis_id, allele_ids))
         data.seek(0)
-
         return send_file(data)
 
 

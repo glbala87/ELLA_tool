@@ -1032,12 +1032,19 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 
 
 .visualization {
+  .bttn-set > label {
+    margin-right: 0.2rem;
+  }
   .section-title {
     padding-top: 0.5rem;
   }
 
   .igv-viewport-container {
     user-select: none;
+  }
+
+  .igv-popover-table * a {
+    display: none;
   }
 
   // Adjust down the extremely high z-indices
