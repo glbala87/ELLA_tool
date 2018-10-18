@@ -21,8 +21,9 @@ function getAlleles({ http, path, state }) {
 
     let uri = null
     let params = null
+    const type = TYPES[state.get('views.workflows.type')]
+
     if (hasInterpretations) {
-        const type = TYPES[state.get('views.workflows.type')]
         const id = state.get('views.workflows.id')
         const getCurrentData = selectedInterpretation.current || false
 
@@ -32,7 +33,8 @@ function getAlleles({ http, path, state }) {
             current: getCurrentData // Only relevant when interpretation status is 'Done'
         }
     } else {
-        if (type !== 'allele') {
+        if (type !== 'alleles') {
+            console.error(`Invalid workflow type ${type}`)
             return path.error()
         }
         uri = `alleles/`
