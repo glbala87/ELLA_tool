@@ -1,11 +1,5 @@
-from sqlalchemy import or_, and_, tuple_, text, func, case, Table, Column, MetaData, Integer
-from sqlalchemy.types import Text
-from sqlalchemy.dialects.postgresql import ARRAY
-from api.util.util import query_print_table
-# query_print_table = lambda *args, **kwargs: None
-from vardb.datamodel import gene, annotationshadow, allele
-
-from api.util import queries
+from sqlalchemy import or_, and_, tuple_, func, case
+from vardb.datamodel import gene, allele
 
 
 class PolypyrimidineTractFilter(object):
@@ -14,7 +8,7 @@ class PolypyrimidineTractFilter(object):
         self.session = session
         self.config = config
 
-    def filter_alleles(self, gp_allele_ids):
+    def filter_alleles(self, gp_allele_ids, filter_config):
         """
         Filter alleles in the polypyrimidine tract (defined as 3 to 20 bases upstream of exon start,
         strandedness taken into account)
@@ -47,7 +41,7 @@ class PolypyrimidineTractFilter(object):
 
             gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
 
-            ppy_tract_region = [-20,-3]
+            ppy_tract_region = filter_config['ppy_tract_region']
             ppy_padding = abs(ppy_tract_region[0])
 
 
@@ -120,12 +114,12 @@ class PolypyrimidineTractFilter(object):
             # Note: ppy_tract_region[0]/ppy_tract_region[1] is a *negative* number
             ppytract_start = case(
                 [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_end-ppy_tract_region[1])],
-                else_=genepanel_transcript_exons.c.exon_start+ppy_tract_region[0],
+                else_=genepanel_transcript_exons.c.exon_start + ppy_tract_region[0],
             )
 
             ppytract_end = case(
                 [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_end-ppy_tract_region[0])],
-                else_=genepanel_transcript_exons.c.exon_start+ppy_tract_region[1],
+                else_=genepanel_transcript_exons.c.exon_start + ppy_tract_region[1],
             )
 
             ppytract = _create_region(genepanel_transcript_exons, ppytract_start, ppytract_end)
@@ -196,30 +190,3 @@ class PolypyrimidineTractFilter(object):
             ppy_filtered[gp_key] = set([a[0] for a in ppy_allele_ids])
 
         return ppy_filtered
-
-
-if __name__ == "__main__":
-    from vardb.util.db import DB
-    db = DB()
-    db.connect()
-    session = db.session
-
-    from api.config import config
-    gp = ("Mendeliome", "v01")
-    #allele_ids = session.query()
-    allele_ids = session.query(
-        allele.Allele.id
-    ).all()
-    allele_ids = [a[0] for a in allele_ids]
-    #allele_ids = range(1,600)
-    res = PolypyrimidineTractFilter(session, config).filter_alleles({gp: allele_ids})
-    allele_ids = res[gp]
-    #from api.allelefilter.frequencyfilter import FrequencyFilter
-    #res_ff = FrequencyFilter(session, config).filter_alleles({gp: allele_ids})
-
-    #print allele_ids
-    #print res_ff
-    #print allele_ids - res_ff[gp]
-    from api.util import queries
-    q = queries.annotation_transcripts_genepanel(session, [gp], allele_ids=res[gp])
-    query_print_table(q)

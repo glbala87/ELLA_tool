@@ -12,71 +12,8 @@ import hypothesis as ht
 import hypothesis.strategies as st
 
 
-# prevent screen getting filled with output (useful when testing manually)
-#import logging
-#logging.getLogger('vardb.deposit.deposit_genepanel').setLevel(logging.CRITICAL)
+GLOBAL_CONFIG = {}
 
-
-GLOBAL_CONFIG = {
-    'variant_criteria': {
-        "splice_region": [-10, 5],
-        "utr_region": [-12, 20],
-        "frequencies": {
-            "groups": {
-                "external": {
-                    "ExAC": ["G", "FIN"],
-                    "1000g": ["G"],
-                    "esp6500": ["AA", "EA"]
-                },
-                "internal": {
-                    "inDB": ['AF']
-                }
-            }
-        }
-    },
-    'transcripts': {
-        "consequences": [
-            "transcript_ablation",
-            "splice_donor_variant",
-            "splice_acceptor_variant",
-            "stop_gained",
-            "frameshift_variant",
-            "start_lost",
-            "initiator_codon_variant",
-            "stop_lost",
-            "inframe_insertion",
-            "inframe_deletion",
-            "missense_variant",
-            "protein_altering_variant",
-            "transcript_amplification",
-            "splice_region_variant",
-            "incomplete_terminal_codon_variant",
-            "synonymous_variant",
-            "stop_retained_variant",
-            "coding_sequence_variant",
-            "mature_miRNA_variant",
-            "5_prime_UTR_variant",
-            "3_prime_UTR_variant",
-            "non_coding_transcript_exon_variant",
-            "non_coding_transcript_variant",
-            "intron_variant",
-            "NMD_transcript_variant",
-            "upstream_gene_variant",
-            "downstream_gene_variant",
-            "TFBS_ablation",
-            "TFBS_amplification",
-            "TF_binding_site_variant",
-            "regulatory_region_variant",
-            "regulatory_region_ablation",
-            "regulatory_region_amplification",
-            "feature_elongation",
-            "feature_truncation",
-            "intergenic_variant"
-        ],
-        "severe_consequence_threshold": 'mature_miRNA_variant',
-        'inclusion_regex': "NM_.*"
-    }
-}
 
 def check_valid_allele(vcf_ref, vcf_alt):
     ht.assume(vcf_ref != vcf_alt)
@@ -296,8 +233,7 @@ def create_genepanel(genepanel_config):
     genepanel = gene.Genepanel(
         name='testpanel',
         version='v01',
-        genome_reference='GRCh37',
-        config=genepanel_config
+        genome_reference='GRCh37'
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]
@@ -311,14 +247,9 @@ class TestPolypyrimidineTractFilter(object):
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
 
-        # We need to recreate the annotation shadow tables,
-        # since we want to use our test config
-        annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
-
         gp = create_genepanel({})
         session.add(gp)
         session.commit()
-
 
     @pytest.mark.aa(order=1)
     @ht.example(('1', 1290, "C", "T"), True)
@@ -351,10 +282,15 @@ class TestPolypyrimidineTractFilter(object):
 
         session.flush()
 
+        ppy_tract_region = [-20, -3]
+        filter_config = {
+            'ppy_tract_region': ppy_tract_region
+        }
+
         allele_ids = [al.id]
         gp_key = ('testpanel', 'v01')
         ppyf = PolypyrimidineTractFilter(session, GLOBAL_CONFIG)
-        result = ppyf.filter_alleles({gp_key: allele_ids})
+        result = ppyf.filter_alleles({gp_key: allele_ids}, filter_config)
 
         # Manually curated test cases
         if manually_curated_result is not None:
@@ -373,22 +309,25 @@ class TestPolypyrimidineTractFilter(object):
             gene.Genepanel.version == 'v01'
         ).one()
 
-        ppy_tract_region = [-20,-3]
-
-        splice_region = GLOBAL_CONFIG['variant_criteria']['splice_region']
-        utr_region = GLOBAL_CONFIG['variant_criteria']['utr_region']
-
-        splice_include_regions = []
-        coding_include_regions = []
-        utr_include_regions = []
         ppy_regions = []
         for transcript in genepanel.transcripts:
             for es, ee in zip(transcript.exon_starts, transcript.exon_ends):
                 if transcript.strand == '+':
-                    ppy_regions.append((es+ppy_tract_region[0], es+ppy_tract_region[1], transcript.strand))
+                    ppy_regions.append(
+                        (
+                            es + ppy_tract_region[0],
+                            es + ppy_tract_region[1],
+                            transcript.strand
+                        )
+                    )
                 else:
-                    ppy_regions.append((ee-ppy_tract_region[1], ee-ppy_tract_region[0], transcript.strand))
-
+                    ppy_regions.append(
+                        (
+                            ee - ppy_tract_region[1],
+                            ee - ppy_tract_region[0],
+                            transcript.strand
+                        )
+                    )
 
         region = next((p for p in ppy_regions if (
             (al.start_position >= p[0] and al.start_position <= p[1]) or
@@ -400,9 +339,9 @@ class TestPolypyrimidineTractFilter(object):
             assert result[gp_key] == set()
         else:
             strand = region[2]
-            if strand == '+' and al.change_type == 'SNP' and set(al.change_from+al.change_to) == set('CT'):
+            if strand == '+' and al.change_type == 'SNP' and set(al.change_from + al.change_to) == set('CT'):
                 assert result[gp_key] == set([al.id])
-            elif strand == '-' and al.change_type == 'SNP' and set(al.change_from+al.change_to) == set('GA'):
+            elif strand == '-' and al.change_type == 'SNP' and set(al.change_from + al.change_to) == set('GA'):
                 assert result[gp_key] == set([al.id])
             elif strand == '+' and al.change_type == 'del' and set(al.change_from) - set('CT') == set() and al.vcf_alt != 'A' and len(al.change_from) <= 2:
                 assert result[gp_key] == set([al.id])
