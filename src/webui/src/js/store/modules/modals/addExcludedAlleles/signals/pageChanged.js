@@ -1,13 +1,13 @@
 import { set, debounce } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import loadAlleles from '../sequences/loadAlleles'
+import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
 
 export default [
     debounce(300),
     {
         continue: [
             set(state`modals.addExcludedAlleles.selectedPage`, props`selectedPage`),
-            loadAlleles
+            loadExcludedAlleles
         ],
         discard: []
     }

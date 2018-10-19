@@ -7,7 +7,7 @@ import getAlleles from '../actions/getAlleles'
 import toast from '../../../../common/factories/toast'
 import progress from '../../../../common/factories/progress'
 
-export default sequence('loadAlleles', [
+export default sequence('loadExcludedAlleles', [
     progress('start'),
     progress('set', 70),
     set(state`modals.addExcludedAlleles.geneAlleleIds`, getAlleleIdsForGene),

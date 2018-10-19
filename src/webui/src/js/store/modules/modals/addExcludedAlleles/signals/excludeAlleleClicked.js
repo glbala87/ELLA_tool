@@ -1,7 +1,7 @@
 import { parallel } from 'cerebral'
 import { push, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
-import loadAlleles from '../sequences/loadAlleles'
+import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
 import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
 
 export default [
@@ -14,6 +14,6 @@ export default [
             throw Error(`Allele id ${props.alleleId} is not included`)
         }
     },
-    loadAlleles,
+    loadExcludedAlleles,
     loadIncludedAlleles
 ]
