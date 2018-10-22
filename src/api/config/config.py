@@ -298,6 +298,7 @@ config = {
             "external": {},
             "classification": {},
             "ppy": {}
+            "consequence": {},
         }
     },
     "classification": {

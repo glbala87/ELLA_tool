@@ -18,39 +18,15 @@ import hypothesis.strategies as st
 
 
 GLOBAL_CONFIG = {
-    'variant_criteria': {
-        "splice_region": [-10, 5],
-        "utr_region": [-12, 20],
-        "consequence_filter": {
-            "genepanel_only": True,
-            "include_consequences": ["synonymous_variant", "stop_retained_variant"],
-            "exclude_consequences": ["transcript_ablation",
-                                     "splice_donor_variant",
-                                     "splice_acceptor_variant",
-                                     "stop_gained",
-                                     "frameshift_variant",
-                                     "start_lost",
-                                     "initiator_codon_variant",
-                                     "stop_lost",
-                                     "inframe_insertion",
-                                     "inframe_deletion",
-                                     "missense_variant",
-                                     "protein_altering_variant",
-                                     "transcript_amplification",
-                                     "splice_region_variant",
-                                    "incomplete_terminal_codon_variant"
-                                    ],
-        },
-        "frequencies": {
-            "groups": {
-                "external": {
-                    "ExAC": ["G", "FIN"],
-                    "1000g": ["G"],
-                    "esp6500": ["AA", "EA"]
-                },
-                "internal": {
-                    "inDB": ['AF']
-                }
+    'frequencies': {
+        "groups": {
+            "external": {
+                "ExAC": ["G", "FIN"],
+                "1000g": ["G"],
+                "esp6500": ["AA", "EA"]
+            },
+            "internal": {
+                "inDB": ['AF']
             }
         }
     },
@@ -93,9 +69,30 @@ GLOBAL_CONFIG = {
             "feature_truncation",
             "intergenic_variant"
         ],
-        "severe_consequence_threshold": 'mature_miRNA_variant',
         'inclusion_regex': "NM_.*"
     }
+}
+
+FILTER_CONFIG = {
+    "genepanel_only": True,
+    "include_consequences": ["synonymous_variant", "stop_retained_variant"],
+    "exclude_consequences": [
+        "transcript_ablation",
+        "splice_donor_variant",
+        "splice_acceptor_variant",
+        "stop_gained",
+        "frameshift_variant",
+        "start_lost",
+        "initiator_codon_variant",
+        "stop_lost",
+        "inframe_insertion",
+        "inframe_deletion",
+        "missense_variant",
+        "protein_altering_variant",
+        "transcript_amplification",
+        "splice_region_variant",
+        "incomplete_terminal_codon_variant"
+    ]
 }
 
 
@@ -153,7 +150,7 @@ def create_allele_with_annotation(session, annotations=None, allele_data=None):
     return al, an
 
 
-def create_genepanel(genepanel_config):
+def create_genepanel():
     # Create fake genepanel for testing purposes
 
     g1_ad = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1AD")
@@ -268,8 +265,7 @@ def create_genepanel(genepanel_config):
     genepanel = gene.Genepanel(
         name='testpanel',
         version='v01',
-        genome_reference='GRCh37',
-        config=genepanel_config
+        genome_reference='GRCh37'
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]
@@ -287,10 +283,9 @@ class TestConsequenceFilter(object):
         # since we want to use our test config
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
-        gp = create_genepanel({})
+        gp = create_genepanel()
         session.add(gp)
         session.commit()
-
 
     def test_consequence_filter(self, session):
 
@@ -325,7 +320,6 @@ class TestConsequenceFilter(object):
             }
         )
 
-
         pa3, _ = create_allele_with_annotation(
             session,
             {
@@ -338,7 +332,6 @@ class TestConsequenceFilter(object):
                 ]
             }
         )
-
 
         pa4, _ = create_allele_with_annotation(
             session,
@@ -359,7 +352,6 @@ class TestConsequenceFilter(object):
             }
         )
 
-
         pa5, _ = create_allele_with_annotation(
             session,
             {
@@ -378,7 +370,6 @@ class TestConsequenceFilter(object):
                 ]
             }
         )
-
 
         pa6, _ = create_allele_with_annotation(
             session,
@@ -399,16 +390,14 @@ class TestConsequenceFilter(object):
             }
         )
 
-
         session.commit()
 
         cf = ConsequenceFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id, pa5.id, pa6.id]
-        result = cf.filter_alleles({gp_key: allele_ids})
+        result = cf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         assert result[gp_key] == set(allele_ids)
-
 
         na1, _ = create_allele_with_annotation(
             session,
@@ -551,7 +540,7 @@ class TestConsequenceFilter(object):
         cf = ConsequenceFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [na1.id, na2.id, na3.id, na4.id, na5.id, na6.id, na7.id]
-        result = cf.filter_alleles({gp_key: allele_ids})
+        result = cf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         assert not result[gp_key]
 

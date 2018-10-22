@@ -10,11 +10,10 @@ class ConsequenceFilter(object):
         self.session = session
         self.config = config
 
-    def filter_alleles(self, gp_allele_ids):
+    def filter_alleles(self, gp_allele_ids, filter_config):
         """
         Returns allele_ids that can be filtered _out_.
         """
-        filter_config = self.config["variant_criteria"]["consequence_filter"]
         gp_csq_only = filter_config.get("genepanel_only", False)
 
         include_consequences = filter_config["include_consequences"]

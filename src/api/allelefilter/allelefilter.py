@@ -23,6 +23,7 @@ class AlleleFilter(object):
             'classification': ('allele', ClassificationFilter(self.session, self.config).filter_alleles),
             'external': ('allele', ExternalFilter(self.session, self.config).filter_alleles),
             'ppy': ('allele', PolypyrimidineTractFilter(self.session, self.config).filter_alleles),
+            'consequence': ('allele', ConsequenceFilter(self.session, self.config).filter_alleles),
             'quality': ('analysis', QualityFilter(self.session, self.config).filter_alleles),
             'segregation': ('analysis', SegregationFilter(self.session, self.config).filter_alleles),
         }
