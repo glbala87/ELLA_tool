@@ -84,8 +84,9 @@ class AlleleFilter(object):
         for e in exceptions_config:
             if e['name'] == 'classification':
                 filter_exceptions |= self.get_allele_ids_with_classification(allele_ids)
-            elif e['name'] == 'clinvar_pathogenic':
-                filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
+            # TODO: clinvar_pathogenic strategy needs refinement
+            #elif e['name'] == 'clinvar_pathogenic':
+            #    filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
         return filter_exceptions
 
     def filter_alleles(self, filter_config_id, gp_allele_ids, analysis_allele_ids):

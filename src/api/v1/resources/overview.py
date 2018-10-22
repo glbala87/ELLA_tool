@@ -430,12 +430,7 @@ class OverviewAlleleResource(LogRequestResource):
 
         # Filter analysis allele ids
 
-        filter_config_id = session.query(sample.FilterConfig.id).join(
-            model_user.UserGroup
-        ).filter(
-            model_user.UserGroup.id == user.group.id,
-            sample.FilterConfig.default.is_(True)
-        ).scalar()
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
 
         af = AlleleFilter(session)
         gp_nonfiltered_alleles, _ = af.filter_alleles(
@@ -770,12 +765,7 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     def get(self, session, user=None):
 
          # Filter out alleles
-        filter_config_id = session.query(sample.FilterConfig.id).join(
-            model_user.UserGroup
-        ).filter(
-            model_user.UserGroup.id == user.group.id,
-            sample.FilterConfig.default.is_(True)
-        ).scalar()
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
 
         categorized_analyses = get_categorized_analyses(session, user=user)
         not_started_analyses = categorized_analyses.pop('not_started')

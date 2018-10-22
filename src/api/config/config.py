@@ -421,7 +421,7 @@ def get_filter_config(app_config, filter_config):
     merged_filters = list()
     assert 'filters' in filter_config
     for filter_step in filter_config['filters']:
-        base_config = dict(app_config['filter']['default_filter_config'].get(filter_step['name'], {}))
+        base_config = dict(app_config['filter']['default_filter_config'][filter_step['name']])
         base_config.update(filter_step.get('config', {}))
         merged_filters.append({
             'name': filter_step['name'],

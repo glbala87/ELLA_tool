@@ -12,6 +12,60 @@ import hypothesis as ht
 import hypothesis.strategies as st
 
 
+APP_CONFIG = {
+    "classification": {
+        "options": [  # Also defines sorting order
+            # Adding a class needs ENUM update in DB, along with migration
+            {
+                "name": "Class U",
+                "value": "U",
+            },
+            {
+                "name": "Class 1",
+                "value": "1"
+            },
+            {
+                "name": "Class 2",
+                "value": "2",
+                "outdated_after_days": 180,  # Marked as outdated after N number of days
+                "exclude_filtering_existing_assessment": True
+            },
+            {
+                "name": "Class 3",
+                "value": "3",
+                "outdated_after_days": 180,
+                "exclude_filtering_existing_assessment": True
+            },
+            {
+                "name": "Class 4",
+                "value": "4",
+                "outdated_after_days": 180,
+                "exclude_filtering_existing_assessment": True
+            },
+            {
+                "name": "Class 5",
+                "value": "5",
+                "outdated_after_days": 365,
+                "exclude_filtering_existing_assessment": True
+            }
+        ]
+    },
+    "filter": {
+        "default_filter_config": {
+            "allele_none": {},
+            "allele_one_two": {},
+            "allele_duplicate_one_two": {},
+            "allele_three_four": {},
+            "allele_five_six": {},
+            "analysis_none": {},
+            "analysis_one_two": {},
+            "analysis_duplicate_one_two": {},
+            "analysis_three_four": {},
+            "analysis_five_six": {}
+        }
+    }
+}
+
 FILTER_CONFIG_NUM = 0
 
 
@@ -42,7 +96,7 @@ class TestAlleleFilter(object):
 
     @pytest.mark.aa(order=0)
     def test_configurable_filtering(self, test_database, session):
-        af = AlleleFilter(session, config={})
+        af = AlleleFilter(session, config=APP_CONFIG)
 
         # Mock the built-in filters
         def filter_one_two(key_allele_ids, filter_config):
@@ -263,6 +317,13 @@ class TestAlleleFilter(object):
         # Make sure that the analysis' allele ids
         # are not mixed into gp_allele_ids when it
         # shares the same genepanel (HBOC_v01)
+        an1 = session.query(sample.Analysis).filter(
+            sample.Analysis.id == 1
+        ).one()
+
+        assert an1.genepanel_name == 'HBOC'
+        assert an1.genepanel_version == 'v01'
+
         allele_testdata = {
             ('HBOC', 'v01'): [],
             ('Other', 'v01'): [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -312,7 +373,6 @@ class TestAlleleFilter(object):
 
         # Test exceptions
 
-        # Allele id 1 and 3 are clinvar pathogenic
         # Create assessment for id 2
         two_class_five = assessment.AlleleAssessment(
             allele_id=2,
@@ -331,9 +391,6 @@ class TestAlleleFilter(object):
                     'exceptions': [
                         {
                             'name': 'classification'
-                        },
-                        {
-                            'name': 'clinvar_pathogenic'
                         }
                     ]
                 },
@@ -342,9 +399,6 @@ class TestAlleleFilter(object):
                     'exceptions': [
                         {
                             'name': 'classification'
-                        },
-                        {
-                            'name': 'clinvar_pathogenic'
                         }
                     ]
                 }
@@ -364,10 +418,10 @@ class TestAlleleFilter(object):
 
         expected_result = {
             'key': {
-                'allele_ids': [1, 2, 3, 5, 6],
+                'allele_ids': [2, 5, 6],
                 'excluded_allele_ids': {
-                    'allele_one_two': [],
-                    'allele_three_four': [4]
+                    'allele_one_two': [1],
+                    'allele_three_four': [3, 4]
                 }
             }
         }
@@ -381,9 +435,6 @@ class TestAlleleFilter(object):
                     'exceptions': [
                         {
                             'name': 'classification'
-                        },
-                        {
-                            'name': 'clinvar_pathogenic'
                         }
                     ]
                 },
@@ -392,9 +443,6 @@ class TestAlleleFilter(object):
                     'exceptions': [
                         {
                             'name': 'classification'
-                        },
-                        {
-                            'name': 'clinvar_pathogenic'
                         }
                     ]
                 }
@@ -415,10 +463,10 @@ class TestAlleleFilter(object):
 
         expected_result = {
             1: {
-                'allele_ids': [1, 2, 3, 5, 6],
+                'allele_ids': [2, 5, 6],
                 'excluded_allele_ids': {
-                    'analysis_one_two': [],
-                    'allele_three_four': [4]
+                    'analysis_one_two': [1],
+                    'allele_three_four': [3, 4]
                 }
             }
         }
