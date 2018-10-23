@@ -63,25 +63,24 @@ class DepositAssessments(object):
 
         for record in vi.iter():
             # Import alleles for this record (regardless if it's in our specified sample set or not)
-            db_alleles = self.allele_importer.process(record)
+            self.allele_importer.add(record)
+            alleles = self.allele_importer.process()
+            assert len(alleles) == 1
+            allele = alleles[0]
 
             # Import annotation for these alleles
-            self.annotation_importer.process(record, db_alleles, update_annotations)
+            self.annotation_importer.add(record, allele['id'])
+            self.annotation_importer.process()
 
             # Import assessment for these alleles
-            db_assessments = self.assessment_importer.process(
-                record,
-                db_alleles,
-                genepanel=db_genepanel)
+            self.assessment_importer.add(record, allele['id'], genepanel_name, genepanel_version)
+            db_assessments = self.assessment_importer.process()
 
-            if db_assessments:
-                self.counter['assessments'].extend([{'allele': a.allele_id, 'assessment': a.id} for a in db_assessments])
             self.counter['nVariantsInFile'] += 1
 
     def getCounter(self):
         counter = dict(self.counter)
         counter.update(self.allele_importer.counter)
-        counter.update(self.annotation_importer.counter)
         counter.update(self.assessment_importer.counter)
         return counter
 
@@ -91,12 +90,9 @@ class DepositAssessments(object):
         print "Alternative alleles to add: {}".format(stats.get('nAltAlleles', '???'))
         print "Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", '???'))
         print
-        print "Novel annotations to add: {}".format(stats.get("nNovelAnnotation", '???'))
-        print "Updated annotations: {}".format(stats.get("nUpdatedAnnotation", '???'))
-        print "Annotations unchanged: {}".format(stats.get("nNoChangeAnnotation", '???'))
-        print
         print "Novel assessments to add: {}".format(stats.get('nNovelAssessments', '???'))
         print "Updated assessments to add: {}".format(stats.get('nAssessmentsUpdated', '???'))
+        print "Skipped assessments: {}".format(stats.get('nAssessmentsSkipped', '???'))
 
 
     def printIDs(self):
@@ -144,7 +140,7 @@ def main(argv=None):
             return -1
 
     db.session.commit()
-    da.printIDs()        
+    da.printIDs()
     print "Deposit complete."
     return 0
 
