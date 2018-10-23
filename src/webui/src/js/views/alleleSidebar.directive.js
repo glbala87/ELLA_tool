@@ -48,6 +48,7 @@ app.component('alleleSidebar', {
     controller: connect(
         {
             analysisId: state`views.workflows.data.analysis.id`,
+            selectedGenepanel: state`views.workflows.selectedGenepanel`,
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedInterpretation: state`views.workflows.interpretation.selected`,
             showQuickClassificationBtn,

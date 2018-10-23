@@ -9,7 +9,7 @@ import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
 
 export default [
     set(state`modals.addExcludedAlleles.analysisId`, props`analysisId`),
-    set(state`modals.addExcludedAlleles.genepanelPath`, props`genepanelPath`),
+    set(state`modals.addExcludedAlleles.genepanel`, props`genepanel`),
     set(state`modals.addExcludedAlleles.excludedAlleleIds`, props`excludedAlleleIds`),
     ({ props }) => {
         // Make copy to avoid changing input props
@@ -27,7 +27,9 @@ export default [
     {
         success: [
             set(state`modals.addExcludedAlleles.data.alleleIdsByGene`, props`result`),
-            parallel([loadExcludedAlleles, loadIncludedAlleles])
+            loadExcludedAlleles,
+            // Cannot be parallell since genepanel is loaded in loadExcludedAlleles
+            loadIncludedAlleles
         ],
         error: [toast('error', 'Failed to load variants')]
     }

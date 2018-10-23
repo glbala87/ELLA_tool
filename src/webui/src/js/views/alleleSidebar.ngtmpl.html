@@ -3,7 +3,7 @@
     <button class="blue id-add-excluded" ng-click="$ctrl.addExcludedAllelesClicked({
       analysisId: $ctrl.analysisId,
       readOnly: $ctrl.readOnly,
-      genepanelPath: 'views.workflows.data.genepanel',
+      genepanel: $ctrl.selectedGenepanel,
       includedAlleleIds: $ctrl.selectedInterpretation.state.manuallyAddedAlleles,
       excludedAlleleIds: $ctrl.selectedInterpretation.excluded_allele_ids,
     })">
