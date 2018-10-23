@@ -39,6 +39,12 @@ import { Directive, Inject } from '../ng-decorators'
         let browserPromise = igv.createBrowser(elem.children()[0], defaults)
 
         browserPromise.then((browser) => {
+            // Make sure to remove browser upon destroy,
+            // memory consumption can be 100's of MBs
+            elem.on('$destroy', () => {
+                igv.removeBrowser(browser)
+            })
+
             scope.$watch(
                 () => {
                     return scope.locus
