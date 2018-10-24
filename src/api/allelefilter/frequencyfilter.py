@@ -266,17 +266,22 @@ class FrequencyFilter(object):
                 }
             },
             "thresholds": {
-                "frequency": {
-                    "thresholds": {
-                        "AD": {
-                            "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
-                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
-                        },
-                        "default": {
-                            "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
-                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
-                        }
-                    }
+                "AD": {
+                    "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                    "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                },
+                "default": {
+                    "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
+                    "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                }
+            },
+            "genes": {  # Optional
+                "1101": {
+                    "thresholds": {  # Mandatory if gene override
+                        "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                        "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                    },
+                    "num_thresholds": {...}  # Optional, will use outer level if not provided
                 }
             }
         }

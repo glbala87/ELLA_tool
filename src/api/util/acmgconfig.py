@@ -42,6 +42,78 @@ class AcmgConfig(object):
         self._ad_hgnc_ids_cache = None  # Holds cache for inheritance per hgnc_id
         self._ar_hgnc_ids_cache = None  # Holds cache for inheritance per hgnc_id
 
+    def get_commoness_config(self):
+        """
+        Create config for use in the commoness filter in FrequencyFilter
+
+        Converts
+        {
+            "frequency": {
+                "thresholds": {
+                    "AD": {
+                        "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                        "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                    },
+                    "default": {
+                        "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
+                        "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                    }
+                }
+            },
+            ....
+            "genes": {
+                "1101": {
+                    "frequency": {
+                        "thresholds": {
+                            "external": { "hi_freq_cutoff": 0.008, "lo_freq_cutoff": 0.0005 },
+                            "internal": { "hi_freq_cutoff": 0.008, "lo_freq_cutoff": 0.0005 }
+                        }
+                    },
+                    ....
+                }
+            }
+        }
+
+        into
+
+        {
+            "frequency": {
+                "thresholds": {
+                    "AD": {
+                        "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                        "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                    },
+                    "default": {
+                        "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
+                        "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                    }
+                },
+                "genes": {
+                    "1101": {
+                        "frequency": {
+                            "thresholds": {
+                                "external": { "hi_freq_cutoff": 0.008, "lo_freq_cutoff": 0.0005 },
+                                "internal": { "hi_freq_cutoff": 0.008, "lo_freq_cutoff": 0.0005 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        """
+        frequency_config = copy.deepcopy(self.acmgconfig['frequency'])
+        per_gene_config = copy.deepcopy(self.acmgconfig.get('genes', {}))
+
+        for hgnc_id, override in per_gene_config.iteritems():
+            if 'frequency' in override:
+                if 'genes' not in frequency_config:
+                    frequency_config['genes'] = dict()
+                frequency_config['genes'][hgnc_id] = {
+                    'frequency': override['frequency']
+                }
+
+        return frequency_config
+
     def resolve(self, hgnc_id):
         """
         Find the config values using any overrides that might be defined on the acmgconfig.

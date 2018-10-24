@@ -54,6 +54,28 @@ config = {
                             "external": {"hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0},
                             "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
                         }
+                    },
+                    "num_thresholds": {
+                        "GNOMAD_GENOMES": {
+                            "G": 5000,
+                            "AFR": 5000,
+                            "AMR": 5000,
+                            "EAS": 5000,
+                            "FIN": 5000,
+                            "NFE": 5000,
+                            "OTH": 5000,
+                            "SAS": 5000
+                        },
+                        "GNOMAD_EXOMES": {
+                            "G": 5000,
+                            "AFR": 5000,
+                            "AMR": 5000,
+                            "EAS": 5000,
+                            "FIN": 5000,
+                            "NFE": 5000,
+                            "OTH": 5000,
+                            "SAS": 5000
+                        }
                     }
                 },
                 "disease_mode": "ANY",

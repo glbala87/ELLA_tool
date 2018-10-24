@@ -91,10 +91,7 @@ class ACMGDataLoader(object):
         frequency_filter = FrequencyFilter(self.session, config)
         gp_key = (genepanel.name, genepanel.version)
 
-        # Create special config as used by FrequencyFilter
-        acmg_frequency_config = copy.deepcopy(config['filter']['default_filter_config']['frequency'])
-        acmg_frequency_config.update(acmgconfig.get('frequency', {}))
-
+        acmg_frequency_config = resolver.get_commoness_config()
         commonness_groups = frequency_filter.get_commonness_groups({gp_key: allele_ids}, acmg_frequency_config)[gp_key]
 
         for a in alleles:
