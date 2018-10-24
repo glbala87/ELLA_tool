@@ -18,6 +18,7 @@ import loadInterpretationData from './signals/loadInterpretationData'
 import alleleSidebar from './alleleSidebar'
 import interpretation from './interpretation'
 import worklog from './worklog'
+import visualization from './visualization'
 import verificationStatusChanged from './signals/verificationStatusChanged'
 
 export default Module({
@@ -25,7 +26,8 @@ export default Module({
     modules: {
         alleleSidebar,
         interpretation,
-        worklog
+        worklog,
+        visualization
     },
     signals: {
         routedAllele: initApp(authenticate([changeView('workflows'), routedAllele])),

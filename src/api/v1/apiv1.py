@@ -100,12 +100,6 @@ class ApiV1(object):
         self._add_resource(r.analysis.AnalysisResource,
                            '/api/v1/analyses/<int:analysis_id>/')
 
-        self._add_resource(r.igv.BamResource,
-                           '/api/v1/samples/<int:sample_id>/bams/')
-
-        self._add_resource(r.igv.VcfResource,
-                           '/api/v1/analyses/<int:analysis_id>/vcf/')
-
         self._add_resource(r.customannotation.CustomAnnotationList,
                            '/api/v1/customannotations/')
 
@@ -117,9 +111,6 @@ class ApiV1(object):
 
         self._add_resource(r.genepanel.GenepanelResource,
                            '/api/v1/genepanels/<name>/<version>/')
-
-        self._add_resource(r.igv.IgvResource,
-                           '/api/v1/igv/<filename>')
 
         self._add_resource(r.reference.ReferenceListResource,
                            '/api/v1/references/')
@@ -310,3 +301,32 @@ class ApiV1(object):
 
         self._add_resource(r.report.NonStartedAnalysesVariants,
                            '/api/v1/reports/non-started-analyses-variants/')
+
+        # ---------------------------------------------------------------------------------------------------------
+        # IGV
+        # ---------------------------------------------------------------------------------------------------------
+
+        self._add_resource(r.igv.IgvSearchResource,
+                           '/api/v1/igv/search/')
+
+        self._add_resource(r.igv.GenepanelBedResource,
+                           '/api/v1/igv/genepanel/<gp_name>/<gp_version>/')
+
+        self._add_resource(r.igv.ClassificationResource,
+                           '/api/v1/igv/classifications/')
+
+        self._add_resource(r.igv.AnalysisVariantTrack,
+                           '/api/v1/igv/variants/<int:analysis_id>/')
+
+        self._add_resource(r.igv.AnalysisTrackList,
+                           '/api/v1/igv/tracks/<int:analysis_id>/')
+
+        self._add_resource(r.igv.GlobalTrack,
+                           '/api/v1/igv/tracks/global/<filename>')
+
+        self._add_resource(r.igv.UserGroupTrack,
+                           '/api/v1/igv/tracks/usergroups/<int:usergroup_id>/<filename>')
+
+        self._add_resource(r.igv.AnalysisTrack,
+                           '/api/v1/igv/tracks/analyses/<int:analysis_id>/<filename>')
+

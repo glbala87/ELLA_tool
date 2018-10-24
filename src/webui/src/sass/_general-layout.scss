@@ -1029,3 +1029,33 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+
+.visualization {
+  .bttn-set > label {
+    margin-right: 0.2rem;
+  }
+  .section-title {
+    padding-top: 0.5rem;
+  }
+
+  .igv-viewport-container {
+    user-select: none;
+  }
+
+  .igv-popover-table * a {
+    display: none;
+  }
+
+  // Adjust down the extremely high z-indices
+  // so it doesn't scroll over our layout
+  .igv-track-label {
+    z-index: 50;
+  }
+
+  .igv-track-manipulation-handle {
+    z-index: 99;
+  }
+
+
+}

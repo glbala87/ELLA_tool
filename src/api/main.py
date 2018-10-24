@@ -128,7 +128,6 @@ if __name__ == '__main__':
     is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, '').lower() == 'true'
     if is_dev:
         opts['use_reloader'] = True
-        os.environ['ANALYSES_PATH'] = '/ella/src/vardb/testdata/analyses/small/'
 
         # Enable remote debugging
         if os.environ.get('PTVS_PORT'):

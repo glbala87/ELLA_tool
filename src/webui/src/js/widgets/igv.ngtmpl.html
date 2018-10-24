@@ -1,0 +1,11 @@
+<div class="bttn-set">
+    <label tabindex=0
+           class="bttn"
+           ng-model="$ctrl.modelTracks[$index]"
+           ng-model-watch="$ctrl.tracks[$index].show"
+           ng-change="$ctrl.shownTracksChanged({index: $index})"
+           uib-btn-checkbox="item"
+           ng-repeat="item in $ctrl.tracks track by $index"
+    >{{item.config.name}}</label>
+</div>
+<igv ng-if="$ctrl.tracks" locus='$ctrl.igvLocus' tracks='$ctrl.tracks' reference='$ctrl.igvReference'></igv>

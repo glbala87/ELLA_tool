@@ -43,6 +43,7 @@ import './views/login.directive'
 import './views/alleleSidebar.directive'
 import './views/alleleSidebarList.directive'
 import './views/navbar.directive'
+import './views/visualization.directive'
 
 import './widgets/alleleinfo/alleleInfoAcmgSelection.directive'
 import './widgets/alleleinfo/alleleInfoQuality.directive'
@@ -125,6 +126,9 @@ class AppConfig {
                 reconnect: false // Can be annoying when devtools not open
             })
         }
+        // DEV: Comment out line below to activate devtools
+        // (impacts performance even without debugger running)
+        config.devtools = null
 
         cerebralProvider.configure(RootModule(), config)
 

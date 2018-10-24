@@ -5,7 +5,7 @@ export default function prepareSelectedAllele({ state }) {
     const classified = state.get('views.workflows.alleleSidebar.classified')
     let selectedAllele = state.get('views.workflows.selectedAllele')
 
-    if (selectedComponent !== 'Classification') {
+    if (selectedComponent !== 'Classification' && selectedComponent !== 'Visualization') {
         state.set('views.workflows.selectedAllele', null)
         return
     }

@@ -236,6 +236,8 @@ dev:
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e PTVS_PORT=5678 \
+	  -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+	  -e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  -p $(API_PORT):5000 \
