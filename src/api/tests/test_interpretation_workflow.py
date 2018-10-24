@@ -1,7 +1,7 @@
 import datetime
 import pytest
 
-from vardb.datamodel import assessment
+from vardb.datamodel import assessment, user as user_model
 
 from api import ApiError
 from api.tests import *
@@ -372,3 +372,347 @@ class TestOther(object):
                 'testuser1'
             )
         assert 'Found no matching alleleassessment' in str(excinfo.value)
+
+
+class TestFinalizationRequirements():
+
+    @pytest.mark.ai(order=1)
+    def test_required_workflow_status_allele(self, test_database, session):
+        """
+        Test finalizing when in and when not in the required workflow status.
+        """
+
+        test_database.refresh()
+
+        # Default user id is 1
+        user_config = {
+            "workflows": {
+                "allele": {
+                    "finalize_requirements": {
+                        "workflow_status": ['Review']
+                    }
+                }
+            }
+        }
+        user = session.query(user_model.User).filter(
+            user_model.User.id == 1
+        ).one()
+
+        user.config = user_config
+        session.commit()
+
+        interpretation = ih.start_interpretation(
+            'allele',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'allele',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': 1,
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            }
+        ]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'allele',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Cannot finalize: Interpretation\'s workflow status is in one of required ones' in str(excinfo.value)
+
+        # Send to review, and try again
+        ih.mark_review(
+            'allele',
+            1,
+            {
+                'annotations': annotations,
+                'custom_annotations': custom_annotations,
+                'alleleassessments': alleleassessments,
+                'allelereports': allelereports
+            },
+            'testuser1'
+        )
+
+        interpretation = ih.start_interpretation(
+            'allele',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        ih.finalize(
+            'allele',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1'
+        )
+
+    @pytest.mark.ai(order=2)
+    def test_required_workflow_status_analysis(self, test_database, session):
+        """
+        Test finalizing when in and when not in the required workflow status.
+        """
+
+        test_database.refresh()
+
+        # Default user id is 1
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "workflow_status": ['Medical review']
+                    }
+                }
+            }
+        }
+        user = session.query(user_model.User).filter(
+            user_model.User.id == 1
+        ).one()
+
+        user.config = user_config
+        session.commit()
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'analysis',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': a['id'],
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            } for a in alleles
+        ]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'analysis',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Cannot finalize: Interpretation\'s workflow status is in one of required ones' in str(excinfo.value)
+
+        # Send to review, and try again
+        ih.mark_medicalreview(
+            'analysis',
+            1,
+            {
+                'annotations': annotations,
+                'custom_annotations': custom_annotations,
+                'alleleassessments': alleleassessments,
+                'allelereports': allelereports
+            },
+            'testuser1'
+        )
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        ih.finalize(
+            'analysis',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1'
+        )
+
+    @pytest.mark.ai(order=2)
+    def test_all_alleles_valid_classification(self, test_database, session):
+        """
+        Test finalizing when in and when not in the required workflow status.
+        """
+
+        test_database.refresh()
+
+        # Default user id is 1
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "all_alleles_valid_classification": True
+                    }
+                }
+            }
+        }
+        user = session.query(user_model.User).filter(
+            user_model.User.id == 1
+        ).one()
+
+        user.config = user_config
+        session.commit()
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'analysis',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': a['id'],
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            } for a in alleles
+        ]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        # Try with one missing
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'analysis',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments[1:],
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Cannot finalize: Config dictates that all alleles should have an alleleassessment.' in str(excinfo.value)
+
+        # Try with all
+        ih.finalize(
+            'analysis',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1'
+        )
+
+        # Adjust requirement and try with one missing
+        ih.reopen_analysis(
+            'analysis',
+            1,
+            'testuser1'
+        )
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "all_alleles_valid_classification": False
+                    }
+                }
+            }
+        }
+
+        user.config = user_config
+        session.commit()
+
+        ih.finalize(
+            'analysis',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments[1:],
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1'
+        )
