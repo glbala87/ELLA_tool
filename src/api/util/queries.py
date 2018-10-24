@@ -40,7 +40,7 @@ def allele_ids_with_valid_alleleassessments(session):
     )
 
 
-def workflow_by_status(session, model, model_id_attr, workflow_status=None, status=None):
+def workflow_by_status(session, model, model_id_attr, workflow_status=None, status=None, finalized=False):
     """
     Fetches all allele_id/analysis_id where the last interpretation matches provided
     workflow status and/or status.
@@ -57,16 +57,17 @@ def workflow_by_status(session, model, model_id_attr, workflow_status=None, stat
     See https://www.postgresql.org/docs/10.0/static/sql-select.html#SQL-DISTINCT
     """
 
-    if workflow_status is None and status is None:
-        raise RuntimeError("You must provide either 'workflow_status' or 'status' argument")
+    if workflow_status is None and status is None and not finalized:
+        raise RuntimeError("You must provide either 'workflow_status' or 'status' argument, or specify finalized=True")
 
     latest_interpretation = session.query(
         getattr(model, model_id_attr),
         model.workflow_status,
         model.status,
+        model.finalized,
     ).order_by(
         getattr(model, model_id_attr),
-        model.date_last_update.desc(),
+        model.date_created.desc(),
     ).distinct(
         getattr(model, model_id_attr),  # DISTINCT ON
     ).subquery()
@@ -80,19 +81,21 @@ def workflow_by_status(session, model, model_id_attr, workflow_status=None, stat
         filters.append(
             latest_interpretation.c.status == status
         )
+    if finalized:
+        filters.append(
+            latest_interpretation.c.finalized.is_(True)
+        )
     return session.query(getattr(latest_interpretation.c, model_id_attr)).filter(*filters)
 
 
 def workflow_analyses_finalized(session):
-    """
-    Definition of Finalized: latest interpretation is 'Done'
-    """
     return workflow_by_status(
         session,
         workflow.AnalysisInterpretation,
         'analysis_id',
         workflow_status=None,
-        status='Done'
+        status=None,
+        finalized=True,
     )
 
 
@@ -177,7 +180,8 @@ def workflow_alleles_finalized(session):
         workflow.AlleleInterpretation,
         'allele_id',
         workflow_status=None,
-        status='Done'
+        status=None,
+        finalized=True,
     )
 
 
