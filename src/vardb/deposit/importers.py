@@ -529,46 +529,12 @@ class AssessmentImporter(object):
     def __init__(self, session):
         self.session = session
         self.counter = defaultdict(int)
-        self.counter.update({
-            'nNovelAssessments': 0,
-            'nAssessmentsUpdated': 0
-        })
+        self.batch_items = list()
 
-    def create_or_skip_assessment(self, allele, ass_info):
-        """
-        Create an assessment for allele if it doesn't exist already
-        """
+    def add(self, record, allele_id, gp_name, gp_version):
+        assert len(record["ALT"]) == 1, "Only decomposed variants are supported. That is, only one ALT per line/record."
+        allele = record['ALT'][0]
 
-        existing = self.session.query(asm.AlleleAssessment).filter(
-            asm.AlleleAssessment.allele == allele,
-            asm.AlleleAssessment.date_superceeded.is_(None)
-        ).first()
-
-        annotation = self.session.query(annm.Annotation).filter(
-            annm.Annotation.allele == allele,
-            annm.Annotation.date_superceeded.is_(None)
-        ).one()
-
-        if not existing:
-            assessment = asm.AlleleAssessment(**ass_info)
-            assessment.allele = allele
-            assessment.annotation = annotation
-            self.session.add(assessment)
-            self.counter["nNovelAssessments"] += 1
-            return assessment
-        else:
-            log.warning("Assessment for {} already exists, skipping!".format(str(allele)))
-            return None
-
-    def process(self, record, db_alleles, assess_class=None, genepanel=None):
-        """
-        Add assessment of allele if present.
-        """
-
-        if len(db_alleles) > 1:
-            raise RuntimeError("Importing assessments is not supported for multiallelic sites")
-
-        db_assessments = list()
         all_info = record['INFO']['ALL']
 
         class_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
@@ -578,6 +544,7 @@ class AssessmentImporter(object):
 
         # Get required fields
         ass_info = {
+            'allele_id': allele_id,
             'classification': class_raw,
             'evaluation': {'classification': {'comment': 'Comment missing.'}}
         }
@@ -588,16 +555,7 @@ class AssessmentImporter(object):
 
         user = None
         username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
-        if is_non_empty_text(username_raw):
-            try:
-                user = self.session.query(User).filter(
-                    User.username == username_raw
-                ).one()
-                ass_info['user_id'] = user.id
-            except NoResultFound, e:
-                raise NoResultFound("The user '{}' was not found".format(username_raw), e)
-
-        allele = db_alleles[0]
+        ass_info["username"] = username_raw
 
         date_created = datetime.datetime(1970,1,1, tzinfo=pytz.utc)  # Set to epoch if not proper
         date_raw = all_info.get(ASSESSMENT_DATE_FIELD)
@@ -607,34 +565,44 @@ class AssessmentImporter(object):
             except ValueError:
                 pass
         ass_info['date_created'] = date_created
-        ass_info['genepanel'] = genepanel
+        ass_info['genepanel_name'] = gp_name
+        ass_info['genepanel_version'] = gp_version
 
-        db_assessment = self.create_or_skip_assessment(allele, ass_info)
-        if db_assessment:
-            if self.session.query(assessment.AlleleReport).filter(
-                            assessment.AlleleReport.allele_id == allele.id
-            ).count():
-                raise RuntimeError("Found an existing allele report, won't create a new one")
+        self.batch_items.append(ass_info)
+        return ass_info
 
-            report_data = {'allele_id': allele.id,
-                           'user_id': user.id if user else None,
-                           'alleleassessment_id': db_assessment.id,
-                           'date_created': date_created
+    def process(self):
+        """
+        Add assessment of allele if present.
+        """
 
-                           }
+        if not self.batch_items:
+            return list()
 
-            report_raw = all_info.get(REPORT_FIELD)
-            if is_non_empty_text(report_raw):
-                report_data['evaluation'] = {'comment': base64.b64decode(report_raw).decode('utf-8')}
+        results = list()
 
-            report = assessment.AlleleReport(**report_data)
-            self.session.add(report)
+        for item in self.batch_items:
+            username = item.pop("username")
+            item['user_id'] = self.session.query(
+                User.id,
+            ).filter(
+                User.username == username
+            ).scalar()
 
-            self.counter['nAssessmentsUpdated'] += 1
-            db_assessments.append(db_assessment)
-        return db_assessments
+        for existing, created in bulk_insert_nonexisting(
+                                    self.session,
+                                    assessment.AlleleAssessment,
+                                    self.batch_items,
+                                    compare_keys=['allele_id'],
+                                    replace=False,
+                                    batch_size=len(self.batch_items)  # Insert whole batch
+                                ):
+            results.extend(created)
+            self.counter["nAssessmentsSkipped"] += len(existing)
+            self.counter["nNovelAssessments"] += len(created)
+        self.batch_items = list()
 
-
+        return results
 
 
 class SplitToDictInfoProcessor(vcfiterator.BaseInfoProcessor):
