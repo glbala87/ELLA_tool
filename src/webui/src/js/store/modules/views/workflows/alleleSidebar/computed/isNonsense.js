@@ -11,17 +11,19 @@ const nonsenseConsequences = [
     'frameshift_variant'
 ]
 
-export default Compute(state`views.workflows.data.alleles`, (alleles) => {
-    const result = {}
-    if (!alleles) {
-        return result
-    }
-    for (let [alleleId, allele] of Object.entries(alleles)) {
-        result[alleleId] = allele.annotation.filtered.some((t) => {
-            return nonsenseConsequences.some((c) => {
-                return t.consequences.includes(c)
+export default (alleles) => {
+    return Compute(alleles, (alleles) => {
+        const result = {}
+        if (!alleles) {
+            return result
+        }
+        for (let [alleleId, allele] of Object.entries(alleles)) {
+            result[alleleId] = allele.annotation.filtered.some((t) => {
+                return nonsenseConsequences.some((c) => {
+                    return t.consequences.includes(c)
+                })
             })
-        })
-    }
-    return result
-})
+        }
+        return result
+    })
+}

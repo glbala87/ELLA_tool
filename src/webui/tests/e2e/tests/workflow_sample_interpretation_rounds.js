@@ -68,18 +68,17 @@ describe('Sample workflow ', function() {
 
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01' + TITLE_REVIEW)
 
+        analysisPage.selectSectionClassification()
         const numberOfClassifiedBefore = alleleSidebar.countOfClassified()
         expect(numberOfClassifiedBefore).toBeGreaterThan(0)
         expect(alleleSidebar.countOfUnclassified()).toBe(0)
-
-        analysisPage.selectSectionClassification()
-
         // All have Class 1 from previous round, now set to Class 2:
         for (let i = 1; i <= numberOfClassifiedBefore; i++) {
             let allele_element = alleleSidebar.selectClassifiedAlleleByIdx(i)
             let selected_allele = alleleSidebar.getSelectedAllele()
             expect(alleleSidebar.getSelectedAlleleClassification()).toBe('1')
             alleleSectionBox.classifyAs2()
+            browser.pause(100)
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         }
 

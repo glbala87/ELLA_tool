@@ -1,10 +1,8 @@
 import { Compute } from 'cerebral'
 import { state, props, string } from 'cerebral/tags'
 
-export default Compute(
-    state`views.workflows.data.alleles`,
-    state`app.config`,
-    (alleles, config) => {
+export default (alleles) => {
+    return Compute(alleles, state`app.config`, (alleles, config) => {
         const result = {}
         if (!alleles) {
             return result
@@ -19,5 +17,5 @@ export default Compute(
                 .join(' | ')
         }
         return result
-    }
-)
+    })
+}

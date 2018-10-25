@@ -1,20 +1,14 @@
-import { set, when, equals } from 'cerebral/operators'
+import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
-import updateSuggestedClassification from '../interpretation/sequences/updateSuggestedClassification'
-import updateIgvLocus from '../visualization/actions/updateIgvLocus'
-import loadVisualization from '../visualization/sequences/loadVisualization'
+import selectedAlleleChanged from '../alleleSidebar/signals/selectedAlleleChanged'
 
 export default [
     set(state`views.workflows.selectedComponent`, props`selectedComponent`),
     prepareSelectedAllele,
     when(state`views.workflows.selectedAllele`),
     {
-        true: [
-            set(props`alleleId`, state`views.workflows.selectedAllele`),
-            updateSuggestedClassification,
-            updateIgvLocus
-        ],
+        true: [selectedAlleleChanged],
         false: []
     }
 ]

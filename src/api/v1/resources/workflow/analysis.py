@@ -19,15 +19,12 @@ class AnalysisGenepanelResource(LogRequestResource):
         """
         Returns genepanel for analysis, only including relevant transcripts and phenotypes.
         """
-        analysis_allele_ids = session.query(allele.Allele.id).join(
-            genotype.Genotype.alleles,
-            sample.Sample,
-            sample.Analysis
-        ).filter(
-            sample.Analysis.id == analysis_id
-        ).all()
+        allele_ids = request.args.get('allele_ids', '')
+        if not allele_ids:
+            raise ApiError("Missing values for required parameter 'allele_ids'")
 
-        return helpers.load_genepanel_for_allele_ids(session, analysis_allele_ids, gp_name, gp_version)
+        allele_ids = allele_ids.split(',')
+        return helpers.load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version)
 
 
 class AnalysisInterpretationAllelesListResource(LogRequestResource):

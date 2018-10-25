@@ -78,7 +78,7 @@ describe('Sample workflow', function() {
             `Wrong number of variants of sample ${SAMPLE_ONE}. Please check the filtering rules or the annotation data in the vcf`
         )
         analysisPage.addExcludedButton.click()
-        addExcludedAllelesModal.includeAlleleBtn.click()
+        addExcludedAllelesModal.includeAllele(1)
         addExcludedAllelesModal.closeBtn.click()
         expect(alleleSidebar.getUnclassifiedAlleles().length).toEqual(
             number_of_variants_before_filter_change + 1

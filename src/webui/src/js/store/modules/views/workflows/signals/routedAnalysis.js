@@ -4,7 +4,6 @@ import { state, props, string } from 'cerebral/tags'
 import getAnalysis from '../actions/getAnalysis'
 import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
-import loadGenepanel from '../sequences/loadGenepanel'
 import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
 import toast from '../../../../common/factories/toast'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
@@ -37,7 +36,6 @@ export default [
                         version: analysis.genepanel.version
                     })
                 },
-                loadGenepanel,
                 loadInterpretations,
                 setNavbarTitle(getWorkflowTitle),
                 parallel([

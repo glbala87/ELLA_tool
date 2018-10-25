@@ -10,9 +10,6 @@ export default Compute(
         if (!geneAlleleIds) {
             return result
         }
-        return geneAlleleIds.slice(
-            selectedPage * itemsPerPage - 1,
-            (selectedPage + 1) * itemsPerPage - 1
-        )
+        return geneAlleleIds.slice((selectedPage - 1) * itemsPerPage, selectedPage * itemsPerPage)
     }
 )

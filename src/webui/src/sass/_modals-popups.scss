@@ -1,5 +1,7 @@
 .modal {
   &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0;
+    max-height: calc(90vh - 12.4rem);
+    overflow: auto;
     sectionbox[modal="true"] > section {
       min-height: 20rem;
     }

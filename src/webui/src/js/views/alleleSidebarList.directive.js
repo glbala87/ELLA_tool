@@ -14,114 +14,60 @@ import getClassification from '../store/modules/views/workflows/alleleSidebar/co
 import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessments'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
-import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation'
 import template from './alleleSidebarList.ngtmpl.html'
 import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
 
-const sectionAlleles = Compute(
-    props`section`,
-    state`views.workflows.alleleSidebar`,
-    state`views.workflows.data.alleles`,
-    (section, alleleSidebar, alleles) => {
-        if (!section || !alleleSidebar || !alleles) {
+const getAlleles = (alleleIds, alleles) => {
+    return Compute(alleleIds, alleles, (alleleIds, alleles) => {
+        if (!alleleIds || !alleles) {
             return
         }
-        if (!(section in alleleSidebar)) {
-            throw Error(`Section ${section} not present`)
-        }
-        return alleleSidebar[section].map((aId) => alleles[aId])
-    }
-)
-
-const sectionOrderBy = Compute(
-    props`section`,
-    state`views.workflows.alleleSidebar.orderBy`,
-    (section, orderBy) => {
-        if (!section || !orderBy) {
-            return
-        }
-        return orderBy[section]
-    }
-)
-
-const isTogglable = Compute(
-    state`views.workflows.data.alleles`,
-    getClassification,
-    state`views.workflows.selectedComponent`,
-    (alleles, classifications, selectedComponent, get) => {
-        const result = {}
-        if (!alleles) {
-            return result
-        }
-        const verificationStatus = get(getVerificationStatus)
-        for (let [alleleId, allele] of Object.entries(alleles)) {
-            if (selectedComponent !== 'Report') {
-                result[alleleId] = false
-                continue
-            }
-            result[alleleId] =
-                Boolean(classifications[alleleId]) && verificationStatus[alleleId] != 'technical'
-        }
-        return result
-    }
-)
-
-const isToggled = Compute(
-    state`views.workflows.data.alleles`,
-    state`views.workflows.selectedComponent`,
-    (alleles, selectedComponent, get) => {
-        const result = {}
-        if (!alleles) {
-            return result
-        }
-        for (let [alleleId, allele] of Object.entries(alleles)) {
-            if (selectedComponent !== 'Report') {
-                result[alleleId] = false
-                continue
-            }
-            const alleleState = get(getAlleleState(alleleId))
-            result[alleleId] = alleleState.report.included
-        }
-        return result
-    }
-)
+        return alleleIds.map((aId) => alleles[aId]).filter((a) => a !== undefined)
+    })
+}
 
 app.component('alleleSidebarList', {
     bindings: {
-        sectionTitle: '@',
-        section: '=',
-        expanded: '=',
-        allowQuickClassification: '=?'
+        sectionTitle: '@?',
+        alleleIdsPath: '<', // path on Cerebral store
+        allelesPath: '<', // path on Cerebral store
+        rowClickedPath: '<',
+        toggleClickedPath: '<',
+        orderByPath: '<?', // path to orderBy object on Cerebral store
+        expanded: '=', // bool
+        readOnly: '=?', // bool
+        togglable: '=?', // optional, bool, default: false
+        toggled: '=?', // optional, {[id]: bool, ... }, default: false for all
+        allowQuickClassification: '=?', // bool, default false
+        shadeMultipleInGene: '=?' // bool, default true
     },
     templateUrl: 'alleleSidebarList.ngtmpl.html',
     controller: connect(
         {
             selectedComponent: state`views.workflows.selectedComponent`,
-            alleles: sectionAlleles,
+            alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
             classification: getClassification,
-            consequence: getConsequence,
+            consequence: getConsequence(state`${props`allelesPath`}`),
             config: state`app.config`,
-            isMultipleInGene,
-            depth: getDepth,
+            isMultipleInGene: isMultipleInGene(state`${props`allelesPath`}`),
+            depth: getDepth(state`${props`allelesPath`}`),
             alleleassessments: getAlleleAssessments,
-            alleleRatio: getAlleleRatio,
-            hiFreq: getHiFrequency('freq'),
-            hiCount: getHiFrequency('count'),
-            externalSummary: getExternalSummary,
-            readOnly: isReadOnly,
-            isNonsense,
-            isTogglable,
-            isToggled,
+            alleleRatio: getAlleleRatio(state`${props`allelesPath`}`),
+            hiFreq: getHiFrequency(state`${props`allelesPath`}`, 'freq'),
+            hiCount: getHiFrequency(state`${props`allelesPath`}`, 'count'),
+            externalSummary: getExternalSummary(state`${props`allelesPath`}`),
+            isNonsense: isNonsense(state`${props`allelesPath`}`),
             isMultipleSampleType,
-            verificationStatus: getVerificationStatus,
-            orderBy: sectionOrderBy,
+            orderBy: state`${props`orderByPath`}`,
+            verificationStatus: getVerificationStatus(state`${props`allelesPath`}`),
             selectedAllele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-            selectedAlleleChanged: signal`views.workflows.alleleSidebar.selectedAlleleChanged`,
-            includeReportToggled: signal`views.workflows.alleleSidebar.includeReportToggled`,
+            rowClicked: signal`${props`rowClickedPath`}`,
+            toggleClicked: signal`${props`toggleClickedPath`}`,
             orderByChanged: signal`views.workflows.alleleSidebar.orderByChanged`,
+            // TODO: Consider refactoring the ones below out of this component
             quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
             verificationStatusChanged: signal`views.workflows.verificationStatusChanged`
@@ -138,17 +84,11 @@ app.component('alleleSidebarList', {
                 ]
 
                 const $ctrl = $scope.$ctrl
+
+                $ctrl.shadeMultipleInGene =
+                    'shadeMultipleInGene' in $ctrl ? $ctrl.shadeMultipleInGene : false
+                $ctrl.readOnly = 'readOnly' in $ctrl ? $ctrl.readOnly : false
                 Object.assign($ctrl, {
-                    rowClicked(alleleId) {
-                        // Handle whether to change selected allele, or to include in report
-                        if ($ctrl.selectedComponent !== 'Report') {
-                            $ctrl.selectedAlleleChanged({ alleleId })
-                        } else {
-                            if ($ctrl.section == 'classified' && !$ctrl.isTechnical(alleleId)) {
-                                $ctrl.includeReportToggled({ alleleId })
-                            }
-                        }
-                    },
                     getSampleType(allele) {
                         return allele.samples
                             .map((s) => s.sample_type.substring(0, 1))
@@ -162,20 +102,51 @@ app.component('alleleSidebarList', {
                             .toUpperCase()
                     },
                     getGene(allele) {
-                        return allele.annotation.filtered
-                            .map((t) => (t.symbol ? t.symbol : '-'))
-                            .join(' | ')
+                        if (allele.annotation.filtered.length) {
+                            return allele.annotation.filtered
+                                .map((t) => (t.symbol ? t.symbol : '-'))
+                                .join(' | ')
+                        }
+                        return 'chr' + allele.chromosome
                     },
                     getHGVSc(allele) {
-                        return allele.annotation.filtered
-                            .map((t) => (t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg))
-                            .join(' | ')
+                        if (allele.annotation.filtered.length) {
+                            return allele.annotation.filtered
+                                .map(
+                                    (t) => (t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg)
+                                )
+                                .join(' | ')
+                        }
+                        return allele.formatted.hgvsg
+                    },
+                    getHGVScTitle(allele) {
+                        if (allele.annotation.filtered.length) {
+                            return allele.annotation.filtered
+                                .map((t) => {
+                                    const transcript = t.transcript
+                                    const hgvs = t.HGVSc_short
+                                        ? t.HGVSc_short
+                                        : allele.formatted.hgvsg
+                                    return `${transcript}:${hgvs}`
+                                })
+                                .join(' | ')
+                        }
+                        return allele.formatted.hgvsg
                     },
                     isTechnical(allele_id) {
                         return $ctrl.verificationStatus[allele_id] === 'technical'
                     },
                     isVerified(allele_id) {
                         return $ctrl.verificationStatus[allele_id] === 'verified'
+                    },
+                    isTogglable() {
+                        return Boolean($ctrl.togglable && !$ctrl.readOnly) || false
+                    },
+                    isToggled(allele_id) {
+                        if (!$ctrl.toggled || !(allele_id in $ctrl.toggled)) {
+                            return false
+                        }
+                        return $ctrl.toggled[allele_id]
                     },
                     getClassificationText(allele_id) {
                         if ($ctrl.isTechnical(allele_id)) {
@@ -209,10 +180,10 @@ app.component('alleleSidebarList', {
                             return 'Q'
                         }
                     },
-                    getQualityTitle(allele) {
-                        if ($ctrl.isTechnical(allele)) {
+                    getQualityTitle(allele_id) {
+                        if ($ctrl.isTechnical(allele_id)) {
                             return 'Technical'
-                        } else if ($ctrl.isVerified(allele)) {
+                        } else if ($ctrl.isVerified(allele_id)) {
                             return 'Verified'
                         } else {
                             return 'Quality issues'

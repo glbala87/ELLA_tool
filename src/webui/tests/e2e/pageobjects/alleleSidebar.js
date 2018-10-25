@@ -47,54 +47,15 @@ class AlleleSidebar extends Page {
         return this._countOf('.id-classified')
     }
 
-    // selectFirstUnclassifedForce() {
-    //     this._selectFirstInForced('.id-unclassified');
-    // }
-    //
-    // selectFirstClassifiedForce() {
-    //     this._selectFirstInForced('.id-classified');
-    // }
-
-    // _selectFirstInForced(identifier) { // selectFirstUnclassified throws an error if there is less than two!
-    //     this._ensureLoaded();
-    //     const groupSelector = `allele-sidebar ${identifier} .nav-row`;
-    //     let all = browser.getText(groupSelector);
-    //     if (Array.isArray(all)) {
-    //         let selector_of_first = `${groupSelector}:nth-child(1)`;
-    //         browser.click(selector_of_first);
-    //     } else {
-    //         browser.click(groupSelector);
-    //     }
-    //     return;
-    // }
-
     selectFirstUnclassified() {
-        // this._selectFirstIn('.id-unclassified.enabled');
-        this._selectFirstIn('.id-unclassified')
+        this._selectAlleleByIdx(1, '.id-unclassified')
     }
 
     selectFirstClassified() {
-        // this._selectFirstIn('.id-classified.enabled');
-        this._selectFirstIn('.id-classified')
-    }
-
-    _selectFirstIn(identifier) {
-        this._ensureLoaded()
-        const groupSelector = `allele-sidebar ${identifier} .nav-row`
-        let all = browser.getText(groupSelector)
-        if (Array.isArray(all)) {
-            let selector_of_first = `${groupSelector}:nth-child(3)`
-            // console.log(`selecting first in array using ${selector_of_first}`);
-            browser.click(selector_of_first)
-        } else {
-            // console.log(`selecting first in singleton using ${groupSelector}`);
-            browser.click(groupSelector)
-        }
+        this._selectAlleleByIdx(1, '.id-classified')
     }
 
     _selectAllele(allele, identifier) {
-        this._ensureLoaded()
-
         // example 'allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc'
         let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`)
         let allele_idx = -1 // assume no match
@@ -104,7 +65,7 @@ class AlleleSidebar extends Page {
             // not an array, there is only one
             if (all === allele) {
                 // match
-                allele_idx = 2
+                allele_idx = 0
             }
         }
 
@@ -115,7 +76,9 @@ class AlleleSidebar extends Page {
     }
 
     _selectAlleleByIdx(idx, identifier) {
-        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx + 2})`
+        // 1-based
+        this._ensureLoaded()
+        let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx + 1})`
         browser.click(allele_selector)
 
         // Check that we changed active allele
