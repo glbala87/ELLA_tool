@@ -73,7 +73,7 @@ def _get_latest_interpretation(session, allele_id, analysis_id):
         model_id = analysis_id
     return session.query(model).filter(
         field == model_id,
-    ).order_by(model.id.desc()).first()
+    ).order_by(model.date_created.desc()).first()
 
 
 def get_alleles(session,
