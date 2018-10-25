@@ -39,6 +39,7 @@ class UserFullSchema(Schema):
                   'first_name',
                   'last_name',
                   'full_name',
+                  'email',
                   'abbrev_name',
                   'active',
                   'password_expiry',

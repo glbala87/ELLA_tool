@@ -39,6 +39,7 @@ def test_user_modify(session, run_command):
     new_username = "werg3lla"
     first_name = "Jacobine Camilla"
     last_name = "Wergeland"
+    email = "camilla@romantikken.no"
 
     result = run_command(
         [
@@ -51,7 +52,10 @@ def test_user_modify(session, run_command):
             first_name,
             "--last_name",
             last_name,
-        ]
+            "--email",
+            email,
+        ],
+        input="y\n"
     )
     assert result.exit_code == 0
 
@@ -59,7 +63,7 @@ def test_user_modify(session, run_command):
     assert old_user is None
 
     session.query(user.User).filter(
-        user.User.username == new_username, user.User.first_name == first_name, user.User.last_name == last_name
+        user.User.username == new_username, user.User.first_name == first_name, user.User.last_name == last_name, user.User.email == email
     ).one()
 
 
@@ -68,6 +72,7 @@ def test_user_add(session, run_command):
     first_name = "Johan Sebastian"
     last_name = "Welhaven"
     usergroup = "testgroup01"
+    email = "johnny1807@romantikken.no"
 
     result = run_command(
         [
@@ -79,9 +84,12 @@ def test_user_add(session, run_command):
             first_name,
             "--last_name",
             last_name,
+            "--email",
+            email,
             "--usergroup",
             usergroup,
-        ]
+        ],
+        input="y\n"
     )
     assert result.exit_code == 0
 
@@ -89,3 +97,4 @@ def test_user_add(session, run_command):
     assert u.first_name == first_name
     assert u.last_name == last_name
     assert u.group.name == usergroup
+    assert u.email == email

@@ -31,6 +31,7 @@ class User(Base):
     username = Column(String(), nullable=False, unique=True)
     first_name = Column(String(), nullable=False)
     last_name = Column(String(), nullable=False)
+    email = Column(String(), nullable=True)
     group_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
     group = relationship("UserGroup", uselist=False, backref="users")
     password = Column(String(), nullable=False)
