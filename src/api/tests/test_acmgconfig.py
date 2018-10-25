@@ -3,7 +3,7 @@ from api.util.acmgconfig import AcmgConfig
 from vardb.datamodel import gene
 
 
-def test_resolver_uses_genepanel_defined_cutoffs(session):
+def test_resolver_uses_acmgconfig_defined_cutoffs(session):
 
     # HBOCUTV v01 contains BRCA2 and has no defined config
     acmgconfig = {

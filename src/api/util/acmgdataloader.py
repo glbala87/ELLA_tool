@@ -80,10 +80,8 @@ class ACMGDataLoader(object):
         """
 
         resolver = AcmgConfig(self.session, acmgconfig, genepanel)
-
         allele_ids = [a['id'] for a in alleles]
         allele_classifications = dict()
-
         ra_per_allele = defaultdict(list)
         for ra in reference_assessments:
             ra_per_allele[ra['allele_id']].append(ra)

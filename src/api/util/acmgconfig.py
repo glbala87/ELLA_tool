@@ -108,9 +108,7 @@ class AcmgConfig(object):
             if 'frequency' in override:
                 if 'genes' not in frequency_config:
                     frequency_config['genes'] = dict()
-                frequency_config['genes'][hgnc_id] = {
-                    'frequency': override['frequency']
-                }
+                frequency_config['genes'][hgnc_id] = override['frequency']
 
         return frequency_config
 
