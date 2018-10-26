@@ -195,8 +195,41 @@ def activate_user(session, user_or_username):
     session.commit()
 
 
+def add_user(session, username, first_name, last_name, email, group_id):
+    """
+    Add user with a generated password
+    """
+
+    existing_user = session.query(user.User).filter(
+        user.User.username == username,
+    ).one_or_none()
+
+    assert existing_user is None, "Username {} already exists".format(username)
+
+    existing_group = session.query(user.UserGroup).filter(
+        user.UserGroup.id == group_id,
+    ).one_or_none()
+
+    assert existing_group is not None, "Usergroup with id {} does not exist".format(group_id)
+
+
+    password, password_hash = generate_password()
+
+    u = user.User(
+        username=username,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        group_id=group_id,
+        password=password_hash,
+        password_expiry=datetime.datetime(1970,1,1,tzinfo=pytz.utc)
+    )
+
+    session.add(u)
+    return u, password
+
 def modify_user(session, user_or_username, **kwargs):
     user_object = get_user(session, user_or_username)
     for k, v in kwargs.items():
         setattr(user_object, k, v)
-    session.commit()
+    return user_object
