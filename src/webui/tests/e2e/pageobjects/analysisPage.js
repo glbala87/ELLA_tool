@@ -133,6 +133,16 @@ class AnalysisPage extends Page {
         // Add staged code
         util.element('.acmg-selection .id-staged-acmg-code .acmg-upper button').click()
     }
+
+    getFinalizePossible() {
+        browser.waitForExist('.id-finish-analysis')
+        this.finishButton.click()
+        this.finalizeButton.click()
+        const finalizePossible = util.elementOrNull('.id-finalize-not-possible') === null
+        // Close modal
+        browser.element('body').click()
+        return finalizePossible
+    }
 }
 
 module.exports = AnalysisPage

@@ -47,6 +47,18 @@ const TITLE_REVIEW = ' • REVIEW'
 // let originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 // jasmine.DEFAULT_TIMEOUT_INTERVAL = timeOutForThisSpec;
 
+function requireAllClassifiedFinalization(flag) {
+    const value = flag ? 'true' : 'false'
+    let result = browser.psql(`
+        UPDATE "user" SET config =
+        '{ "workflows": { "analysis": { "finalize_requirements": {
+            "all_alleles_valid_classification": ${value},
+            "workflow_status": ["Not ready", "Interpretation", "Review", "Medical review"]
+            } } } }' WHERE id = 1
+    `)
+    expect(result).toEqual('UPDATE 1\n')
+}
+
 describe('Sample workflow', function() {
     console.log(
         'Starting test suite ' +
@@ -58,12 +70,9 @@ describe('Sample workflow', function() {
         browser.resetDb()
     })
 
-    // Store entered data for interpretation round 1 {c.1234A>C: ...}
-    // Will be checked against in round two
-    let expected_analysis_1_round_1 = {}
-    let expected_analysis_2_round_1 = {}
+    it('allows and disallows finalize without classifying all variants if configured', function() {
+        // Modify user config to allow finalization with classifying all variants
 
-    it('allows interpretation, classification and reference evaluation to be set to review', function() {
         loginPage.selectFirstUser()
         browser.localStorage('DELETE') // Needs a proper URL, hence after login
         sampleSelectionPage.selectTopPending()
@@ -71,6 +80,21 @@ describe('Sample workflow', function() {
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
         analysisPage.startButton.click()
 
+        requireAllClassifiedFinalization(false)
+        browser.refresh()
+        expect(analysisPage.getFinalizePossible()).toBe(true)
+    })
+
+    // Store entered data for interpretation round 1 {c.1234A>C: ...}
+    // Will be checked against in round two
+    let expected_analysis_1_round_1 = {}
+    let expected_analysis_2_round_1 = {}
+
+    it('allows interpretation, classification and reference evaluation to be set to review', function() {
+        // For rest of the test, make sure all must be classified
+        requireAllClassifiedFinalization(true)
+        browser.refresh()
+        expect(analysisPage.getFinalizePossible()).toBe(false)
         // Add excluded allele
         let number_of_variants_before_filter_change = alleleSidebar.getUnclassifiedAlleles().length
         expect(number_of_variants_before_filter_change).toBe(
@@ -122,6 +146,12 @@ describe('Sample workflow', function() {
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
         for (let idx = 2; idx < 5; idx++) {
+            // If last round, test that finalization should not be possible
+            // since we haven't classified all yet.
+            if (idx === 4) {
+                expect(analysisPage.getFinalizePossible()).toBe(false)
+            }
+
             // Move to next unclassified
             alleleSidebar.selectFirstUnclassified()
             selected_allele = alleleSidebar.getSelectedAllele()
@@ -228,6 +258,9 @@ describe('Sample workflow', function() {
                 num_attachments: 1
             }
         }
+
+        // Make sure that we can finalize now
+        expect(analysisPage.getFinalizePossible()).toBe(true)
 
         console.log('Changing to the report page')
         analysisPage.selectSectionReport()
