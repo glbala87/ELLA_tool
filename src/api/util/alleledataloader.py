@@ -57,9 +57,9 @@ class Warnings(object):
             allele_id_warnings[aid]["worse_consequence"] = worse_consequence[aid]
 
         if self.gp_key:
-            inconsistency_warnings = self._check_refseq_ensembl_consistency()
-            for aid in inconsistency_warnings:
-                allele_id_warnings[aid]["consistency"] = inconsistency_warnings[aid]
+            hgvs_consistency_warnings = self._check_refseq_ensembl_consistency()
+            for aid in hgvs_consistency_warnings:
+                allele_id_warnings[aid]["hgvs_consistency"] = hgvs_consistency_warnings[aid]
 
         return allele_id_warnings
 

@@ -1,5 +1,7 @@
-from vardb.datamodel import sample, allele, genotype
-from api.util.alleledataloader import AlleleDataLoader
+from sqlalchemy import or_, tuple_
+from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
+from api.util.alleledataloader import AlleleDataLoader, Warnings
+from api.util import queries
 
 
 def test_get_formatted_genotypes(test_database, session):
@@ -150,3 +152,95 @@ def test_get_formatted_genotypes(test_database, session):
         target_gt = '/'.join(target)
         actual_gt = adl.get_formatted_genotypes([allele1.id], sample_id)[gt.id]
         assert actual_gt == target_gt, fixture
+
+
+def get_analysis_alleles(session, analysis_id):
+    return session.query(
+                allele.Allele
+            ).join(
+                genotype.Genotype,
+                or_(
+                    genotype.Genotype.allele_id == allele.Allele.id,
+                    genotype.Genotype.secondallele_id == allele.Allele.id
+                ),
+            ).join(
+                sample.Sample,
+                genotype.Genotype.sample_id == sample.Sample.id
+            ).join(
+                sample.Analysis,
+                sample.Sample.analysis_id == analysis_id,
+            ).distinct()
+
+def get_analysis_genepanel(session, analysis_id):
+    return session.query(
+                gene.Genepanel
+            ).join(
+                sample.Analysis
+            ).filter(
+                sample.Analysis.id == analysis_id
+            ).one()
+
+def test_nearby_warning(test_database, session):
+    test_database.refresh()
+    analysis_id = 1
+    allele1, allele2 = get_analysis_alleles(session, analysis_id).limit(2).all()
+    genepanel = get_analysis_genepanel(session, analysis_id)
+
+    adl = AlleleDataLoader(session)
+    loaded_alleles = adl.from_objs([allele1, allele2], analysis_id=analysis_id, genepanel=genepanel)
+
+    assert len(loaded_alleles) == 2
+    for a in loaded_alleles:
+        assert "nearby_allele" not in a.get('warnings', {})
+
+    # Move allele 2 near allele 1
+    allele2.chromosome = allele1.chromosome
+    allele2.start_position = allele1.start_position - 3
+    allele2.start_position = allele1.open_end_position - 3
+    session.flush()
+    loaded_alleles = adl.from_objs([allele1, allele2])
+    assert len(loaded_alleles) == 2
+    for a in loaded_alleles:
+        assert a['warnings']["nearby_allele"] == "Another variant is within 3 bp of this variant"
+
+
+def test_worse_consequence_warning(test_database, session):
+    # TODO: Rewrite consequence check to use annotationshadowtranscript
+    return
+
+
+def test_inconsistent_ensembl_transcript(test_database, session):
+    test_database.refresh()
+    analysis_id = 1
+
+    allele = get_analysis_alleles(session, analysis_id).limit(1).one()
+    genepanel = get_analysis_genepanel(session, analysis_id)
+    adl = AlleleDataLoader(session)
+    loaded_alleles = adl.from_objs([allele], analysis_id=analysis_id, genepanel=genepanel)
+
+    assert len(loaded_alleles) == 1
+    assert 'warnings' not in loaded_alleles[0]
+
+    # Modify corresponding ensembl transcript to not match genepanel transcript annotation
+    q = queries.annotation_transcripts_genepanel(session, [(genepanel.name, genepanel.version)], allele_ids=[allele.id]).one()
+
+    corr_ensembl = session.query(
+        gene.Transcript.corresponding_ensembl
+    ).filter(
+        gene.Transcript.transcript_name == q.genepanel_transcript
+    ).scalar()
+
+
+    ast = session.query(
+        annotationshadow.AnnotationShadowTranscript
+    ).filter(
+        annotationshadow.AnnotationShadowTranscript.transcript == corr_ensembl,
+        annotationshadow.AnnotationShadowTranscript.allele_id == allele.id
+    ).one()
+
+    ast.hgvsc = 'c.xxxxxx'
+    session.flush()
+
+    loaded_alleles = adl.from_objs([allele], analysis_id=analysis_id, genepanel=genepanel)
+    assert len(loaded_alleles) == 1
+    assert loaded_alleles[0]['warnings']['hgvs_consistency'] == 'Annotation for {} does not match corresponding transcript: {}:{} ({})'.format(q.annotation_transcript, ast.transcript, ast.hgvsc, ast.hgvsp)
