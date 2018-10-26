@@ -1,8 +1,9 @@
+import copy
+
 from flask import request
 from vardb.datamodel import allele, gene
-
 from api import ApiError
-
+from api.config import config
 from api.util.acmgdataloader import ACMGDataLoader
 from api.util.util import request_json, authenticate
 
@@ -43,18 +44,16 @@ class ACMGAlleleResource(LogRequestResource):
             gene.Genepanel.version == gp_version
         ).one()
 
-    @authenticate()
+    @authenticate(user_config=True)
     @request_json(
-        None,
-        allowed=[
+        [
             'allele_ids',
-            'referenceassessments',
             'gp_name',
             'gp_version',
-            'analysis_id'
-        ]
+        ],
+        allowed=['referenceassessments']
     )
-    def post(self, session, data=None, user=None):
+    def post(self, session, data=None, user=None, user_config=None):
         """
         Returns calculated ACMG codes for provided alleles and related data.
 
@@ -62,7 +61,7 @@ class ACMGAlleleResource(LogRequestResource):
 
         ```javascript
         {
-            "referenceassessments": [
+            "referenceassessments": [ // Optional
                 {
                     "allele_id": 2,
                     "reference_id": 4,
@@ -70,13 +69,11 @@ class ACMGAlleleResource(LogRequestResource):
                 },
                 ...
             ],
-            "allele_ids": [1, 2, 3, 4],  // Optional
-            "gp_name": "PanelName",  // Only required with allele_ids
-            "gp_version": "v01"  // Only required with allele_ids
+            "allele_ids": [1, 2, 3, 4],
+            "gp_name": "PanelName",
+            "gp_version": "v01"
         }
         ```
-
-        If `allele_ids` is provided, you must also include `gp_name` and `gp_version`.
 
         ---
         summary: Get ACMG codes
@@ -184,20 +181,14 @@ class ACMGAlleleResource(LogRequestResource):
 
         # This is POST by design, which is not strictly RESTful, but we
         # need a lot of dynamic user data and it works well.
-
-        alleles = None
-        genepanel = None
-        if 'allele_ids' in data:
-            alleles = self.get_alleles(session, data['allele_ids'])
-            if 'gp_name' in data and 'gp_version' in data:
-                genepanel = self.get_genepanel(session, data['gp_name'], data['gp_version'])
-            else:
-                raise ApiError("You need to provide both 'gp_name' and 'gp_version' when 'allele_ids' is given")
+        alleles = self.get_alleles(session, data['allele_ids'])
+        genepanel = self.get_genepanel(session, data['gp_name'], data['gp_version'])
 
         return ACMGDataLoader(session).from_objs(
                 alleles,
                 data.get('referenceassessments'),
-                genepanel
+                genepanel,
+                user_config['acmg']
             )
 
 

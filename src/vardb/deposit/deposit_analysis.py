@@ -22,7 +22,7 @@ from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, Sample
                                     SplitToDictInfoProcessor, AlleleInterpretationImporter, \
                                     batch_generator
 
-from vardb.datamodel import sample, workflow
+from vardb.datamodel import sample, workflow, user
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -30,6 +30,37 @@ log = logging.getLogger(__name__)
 
 
 VARIANT_GENOTYPES = ['0/1', '1/.', './1', '1/1']
+
+
+def import_filterconfigs(session, filterconfigs):
+    result = {
+        'updated': 0,
+        'created': 0
+    }
+    for filterconfig in filterconfigs:
+        filterconfig = dict(filterconfig)
+        usergroup_name = filterconfig.pop('usergroup')
+        usergroup_id = session.query(user.UserGroup.id).filter(
+            user.UserGroup.name == usergroup_name
+        ).scalar()
+
+        filterconfig['usergroup_id'] = usergroup_id
+
+        existing = session.query(sample.FilterConfig).filter(
+            sample.FilterConfig.usergroup_id == usergroup_id,
+            sample.FilterConfig.name == filterconfig['name']
+        ).one_or_none()
+
+        if existing:
+            for k, v in filterconfig.iteritems():
+                setattr(existing, k, v)
+            result['updated'] += 1
+        else:
+            fc = sample.FilterConfig(**filterconfig)
+            session.add(fc)
+            result['created'] += 1
+    return result
+
 
 class DepositAnalysis(DepositFromVCF):
 

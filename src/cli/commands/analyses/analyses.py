@@ -1,9 +1,11 @@
 import click
 import logging
+import json
 
 from vardb.datamodel import DB, sample
 from api.v1 import resources
 from api.util.delete_analysis import delete_analysis
+from vardb.deposit.deposit_analysis import import_filterconfigs
 
 @click.group(help='Analyses actions')
 def analyses():
@@ -36,8 +38,28 @@ def cmd_analysis_delete(analysis_id):
             db.session.commit()
             click.echo("Analysis {} ({}) deleted successfully".format(
                 analysis_id, aname))
-        except Exception, e:
+        except Exception:
             logging.exception(
                 "Something went wrong while deleting analysis {}".format(analysis_id))
     else:
         click.echo("Lacking confirmation, aborting...")
+
+
+
+@analyses.command('update_filterconfig')
+@click.argument('filterconfig', type=click.File('r'))
+def cmd_analysis_updatefilterconfig(filterconfig):
+    """
+    Updates filterconfigs from the input JSON file.
+    """
+
+    logging.basicConfig(level=logging.INFO)
+
+    db = DB()
+    db.connect()
+
+    filterconfigs = json.load(filterconfig)
+    result = import_filterconfigs(db.session, filterconfigs)
+
+    db.session.commit()
+    logging.info('Created {} and updated {} filter configurations'.format(result['created'], result['updated']))

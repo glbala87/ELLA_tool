@@ -8,7 +8,7 @@ class QualityFilter(object):
         self.session = session
         self.config = config
 
-    def filter_alleles(self, analysis_allele_ids):
+    def filter_alleles(self, analysis_allele_ids, filter_config):
         """
         Returns allele_ids that can be filtered _out_ from an analysis.
         """
@@ -29,7 +29,7 @@ class QualityFilter(object):
                     genotype.Genotype.allele_id.in_(allele_ids),
                     genotype.Genotype.secondallele_id.in_(allele_ids)
                 ),
-                genotype.Genotype.variant_quality < 100,
+                genotype.Genotype.variant_quality < filter_config['qual'],
                 sample.Sample.analysis_id == analysis_id
             ).all()
 

@@ -15,12 +15,12 @@ SPECIAL_TESTSET_SKIPPING_VCF = "empty"
 logging.basicConfig(level=logging.DEBUG)
 
 import vardb.datamodel
-from vardb.datamodel import DB
+from vardb.datamodel import DB, sample
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_users import import_users, import_groups
-from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.deposit.deposit_analysis import DepositAnalysis, import_filterconfigs
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.watcher.analysis_watcher import AnalysisConfigData
 
@@ -32,10 +32,10 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # Paths are relative to script dir.
-# See vardb/datamodel/genepanel-config-schema.json for format of genepanel config
 
 USERS = '../testdata/users.json'
 USERGROUPS = '../testdata/usergroups.json'
+FILTERCONFIGS = '../testdata/filterconfigs.json'
 
 REPORT_EXAMPLE = '''
 ### Gene list for genes having below 100% coverage:
@@ -77,7 +77,6 @@ GENEPANELS = [
         'version': 'v01'
     },
     {
-        'config': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.config.json',
         'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
         'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
         'name': 'HBOC',
@@ -148,6 +147,13 @@ class DepositTestdata(object):
 
         with open(os.path.join(SCRIPT_DIR, USERS)) as f:
             import_users(self.session, json.load(f))
+
+    def deposit_filter_configs(self):
+
+        with open(os.path.join(SCRIPT_DIR, FILTERCONFIGS)) as f:
+            filter_configs = json.load(f)
+            import_filterconfigs(self.session, filter_configs)
+            log.info("Added {} filter configs".format(len(filter_configs)))
 
     def deposit_analyses(self, test_set=None):
         """
@@ -222,7 +228,6 @@ class DepositTestdata(object):
                 os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
                 gpdata['name'],
                 gpdata['version'],
-                configPath=os.path.join(SCRIPT_DIR,  gpdata['config']) if 'config' in gpdata else None,
                 replace=False
             )
 
@@ -245,6 +250,7 @@ class DepositTestdata(object):
         log.info("--------------------")
         self.deposit_genepanels()
         self.deposit_users()
+        self.deposit_filter_configs()
         self.deposit_references()
         if test_set in [SPECIAL_TESTSET_SKIPPING_VCF.upper(), SPECIAL_TESTSET_SKIPPING_VCF.lower()]:
             log.info("Skipping deposit of vcf and custom annotations")

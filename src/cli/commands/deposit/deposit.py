@@ -162,14 +162,12 @@ def cmd_deposit_custom_annotations(custom_annotation_json):
 @click.option('--genepanel_version')
 @click.option('--transcripts_path')
 @click.option('--phenotypes_path')
-@click.option('--config_path')
 @click.option('--replace', is_flag=True)
 @click.option('--folder', help="Folder to look for files assuming standard filenames")
 def cmd_deposit_genepanel(genepanel_name,
                           genepanel_version,
                           transcripts_path,
                           phenotypes_path,
-                          config_path,
                           replace,
                           folder):
     """
@@ -183,9 +181,6 @@ def cmd_deposit_genepanel(genepanel_name,
         phenotypes_path = folder + "/" + prefix + ".phenotypes.csv"
         genepanel_name, genepanel_version = prefix.split('_',1)
         assert genepanel_version.startswith('v')
-        if config_path is None:
-            config_path = folder + "/" + prefix + ".config.json"
-            config_path = config_path if validate_file_exists(config_path) else None  # not a mandatory file
 
     db = DB()
     db.connect()
@@ -194,7 +189,6 @@ def cmd_deposit_genepanel(genepanel_name,
                      phenotypes_path,
                      genepanel_name,
                      genepanel_version,
-                     configPath=config_path,
                      replace=replace)
 
 

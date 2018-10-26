@@ -2,7 +2,6 @@ from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload
 from flask import request
 from vardb.datamodel import gene
-from vardb.deposit.genepanel_config_validation import config_valid
 
 from api.util.util import paginate, rest_filter, authenticate, request_json
 from api import schemas, ApiError
@@ -51,7 +50,7 @@ class GenepanelListResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(['name', 'version', 'genes', 'config'])
+    @request_json(['name', 'version', 'genes'])
     def post(self, session, data=None, user=None):
         """
         Creates a new genepanel.
@@ -94,9 +93,6 @@ class GenepanelListResource(LogRequestResource):
         if not data['version']:
             raise ApiError('No version given for genepanel')
 
-        if data['config'] and not config_valid(data['config']):
-            raise ApiError('Invalid config, does not conform to schema.')
-
         transcript_ids = list()
         phenotype_ids = list()
         for g in data['genes']:
@@ -118,7 +114,6 @@ class GenepanelListResource(LogRequestResource):
             name=data['name'],
             genome_reference='GRCh37',
             version=data['version'],
-            config=data['config']
         )
         genepanel.transcripts = transcripts
         genepanel.phenotypes = phenotypes
@@ -192,11 +187,6 @@ class GenepanelResource(LogRequestResource):
             gene.genepanel_phenotype.c.genepanel_version == version
         ).order_by(gene.Gene.hgnc_symbol).all()
 
-        genepanel_config = session.query(
-            gene.Genepanel.config
-        ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version)
-        ).scalar()
         genes = {}
         for t in transcripts:
             if t.hgnc_id in genes:
@@ -231,7 +221,6 @@ class GenepanelResource(LogRequestResource):
         result = {
             'name': name,
             'version': version,
-            'config': genepanel_config,
             'genes': genes
         }
         return result

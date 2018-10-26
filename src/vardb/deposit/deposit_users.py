@@ -5,7 +5,7 @@ from sqlalchemy import tuple_
 from sqlalchemy.orm.exc import NoResultFound
 
 import vardb.datamodel
-from vardb.datamodel import DB, user, gene
+from vardb.datamodel import DB, user, gene, sample
 
 log = logging.getLogger(__name__)
 

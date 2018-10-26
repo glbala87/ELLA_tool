@@ -27,14 +27,9 @@ export function getInheritanceCodes(geneSymbol, genepanel) {
     }
 }
 
-export function findGeneConfigOverride(geneSymbol, panelConfig) {
-    if (
-        panelConfig &&
-        panelConfig.data &&
-        panelConfig.data.genes &&
-        geneSymbol in panelConfig.data.genes
-    ) {
-        return panelConfig.data.genes[geneSymbol]
+export function findGeneConfigOverride(hgncId, acmgConfig) {
+    if (acmgConfig && acmgConfig.genes && hgncId in acmgConfig.genes) {
+        return acmgConfig.genes[hgncId]
     } else {
         return {}
     }
@@ -51,8 +46,8 @@ export function getOmimEntryId(geneSymbol, genepanel) {
     return transcripts && transcripts.length > 0 ? transcripts[0].gene.omim_entry_id : ''
 }
 
-export function formatInheritance(genepanel, geneSymbol) {
-    let config = findGeneConfigOverride(geneSymbol, genepanel.config)
+export function formatInheritance(genepanel, acmgConfig, geneSymbol, hgncId) {
+    let config = findGeneConfigOverride(hgncId, acmgConfig)
     if (config && 'inheritance' in config) {
         return config['inheritance']
     }

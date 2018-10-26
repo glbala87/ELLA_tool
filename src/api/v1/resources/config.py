@@ -5,8 +5,9 @@ from api.util.util import authenticate, dict_merge
 
 
 class ConfigResource(LogRequestResource):
-    @authenticate(optional=True)
-    def get(self, session, user=None):
+
+    @authenticate(user_config=True, optional=True)
+    def get(self, session, user=None, user_config=None):
         """
         Returns application configuration.
         ---
@@ -21,8 +22,7 @@ class ConfigResource(LogRequestResource):
         """
 
         c = copy.deepcopy(config.config)
-        if user is not None:
-            dict_merge(c["user"]["user_config"], user.group.config)
-            dict_merge(c["user"]["user_config"], user.config)
+        if user_config:
+            c["user"]["user_config"] = user_config
 
         return c

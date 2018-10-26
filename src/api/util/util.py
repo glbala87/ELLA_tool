@@ -1,5 +1,6 @@
 from functools import wraps
 import json
+import copy
 import datetime
 import pytz
 import time
@@ -7,6 +8,7 @@ import collections
 import hashlib
 from flask import request, g, Response
 from api import app, db, ApiError
+from api.config import config, get_user_config
 from vardb.datamodel import user
 from vardb.datamodel.log import ResourceLog
 from sqlalchemy.orm import joinedload
@@ -351,7 +353,7 @@ def populate_g_user():
         g.user = user_session.user
 
 
-def authenticate(user_role=None, user_group=None, optional=False):
+def authenticate(user_config=False, optional=False):
     """
     Decorator that works in conjunction with flask's 'g' object
     in a before_request trigger, in order to auth the user as
@@ -366,6 +368,10 @@ def authenticate(user_role=None, user_group=None, optional=False):
             if g.user:
                 # Logged in
                 kwargs["user"] = g.user
+                # Merge users config
+                if user_config:
+                    kwargs['user_config'] = get_user_config(config, g.user.group.config, g.user.config)
+
                 return func(*args, **kwargs)
             else:
                 # Not logged in

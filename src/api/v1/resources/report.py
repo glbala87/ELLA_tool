@@ -3,6 +3,7 @@ from flask import send_file
 from io import BytesIO
 
 from api.util.util import authenticate, logger
+from api.util import queries
 
 from api.v1.resource import LogRequestResource
 from vardb.export import export_sanger_variants
@@ -26,7 +27,13 @@ class NonStartedAnalysesVariants(LogRequestResource):
 
         excel_file_obj = BytesIO()
         gp_keys = [(g.name, g.version) for g in user.group.genepanels]
-        export_sanger_variants.export_variants(session, gp_keys, excel_file_obj)
+        filter_config_id = queries.get_default_filter_config_id(user.id).scalar()
+        export_sanger_variants.export_variants(
+            session,
+            gp_keys,
+            filter_config_id,
+            excel_file_obj
+        )
         excel_file_obj.seek(0)
         filename = 'non-started-analyses-variants-{}.xlsx'.format(
             datetime.datetime.now().strftime("%Y-%m-%d-%H_%M")

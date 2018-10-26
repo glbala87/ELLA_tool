@@ -6,6 +6,57 @@
         "config": {
             "overview": {
                 "views": ["variants", "analyses-by-findings", "import"]
+            },
+            "acmg": {
+                "frequency": {
+                    "thresholds": {
+                        "AD": {
+                            "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        },
+                        "default": {
+                            "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        }
+                    },
+                    "num_thresholds": {
+                        "GNOMAD_GENOMES": {
+                            "G": 5000,
+                            "AFR": 5000,
+                            "AMR": 5000,
+                            "EAS": 5000,
+                            "FIN": 5000,
+                            "NFE": 5000,
+                            "OTH": 5000,
+                            "SAS": 5000
+                        },
+                        "GNOMAD_EXOMES": {
+                            "G": 5000,
+                            "AFR": 5000,
+                            "AMR": 5000,
+                            "EAS": 5000,
+                            "FIN": 5000,
+                            "NFE": 5000,
+                            "OTH": 5000,
+                            "SAS": 5000
+                        }
+                    }
+                },
+                "disease_mode": "ANY",
+                "last_exon_important": "LEI",
+                "genes": {
+                    "1101": {
+                        "frequency": {
+                            "thresholds": {
+                                "external": { "hi_freq_cutoff": 0.008, "lo_freq_cutoff": 0.0005 },
+                                "internal": { "hi_freq_cutoff": 0.008, "lo_freq_cutoff": 0.0005 }
+                            }
+                        },
+                        "last_exon_important": "LENI",
+                        "disease_mode": "ANY",
+                        "comment": "a comment from the ACMG config"
+                    }
+                }
             }
         }
     },

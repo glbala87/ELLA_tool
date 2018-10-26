@@ -96,7 +96,7 @@ def create_variant_row(default_transcripts, analysis_info, allele_info, sanger_v
     ]
 
 
-def get_variant_rows(session, ids_not_started):
+def get_variant_rows(session, filter_config_id, ids_not_started):
     variant_rows = list()
 
     # find alleles of unstarted analysis
@@ -123,7 +123,7 @@ def get_variant_rows(session, ids_not_started):
 
     # filter the alleles:
     af = AlleleFilter(session)
-    non_filtered_gp_allele_ids = af.filter_alleles(gp_allele_ids)
+    non_filtered_gp_allele_ids, _ = af.filter_alleles(filter_config_id, gp_allele_ids, None)
     analysis_id_allele_ids = defaultdict(list)
     for analysis_id, gp_name, gp_version, allele_id in analyses_allele_ids:
         if allele_id in non_filtered_gp_allele_ids[(gp_name, gp_version)]['allele_ids']:
@@ -208,7 +208,7 @@ def get_warning_rows(session, ids_not_started):
     return warning_rows
 
 
-def export_variants(session, genepanels, excel_file_obj, csv_file_obj=None):
+def export_variants(session, genepanels, filter_config_id, excel_file_obj, csv_file_obj=None):
     """
     Put alleles belonging to unfinished analyses in file
 
@@ -255,7 +255,7 @@ def export_variants(session, genepanels, excel_file_obj, csv_file_obj=None):
 
     csv.append(csv_heading)
 
-    for variant_row in get_variant_rows(session, ids_not_started):
+    for variant_row in get_variant_rows(session, filter_config_id, ids_not_started):
         csv_rows.append(variant_row)
         worksheet_rows.append(variant_row)
 

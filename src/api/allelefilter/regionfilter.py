@@ -13,7 +13,7 @@ class RegionFilter(object):
         self.session = session
         self.config = config
 
-    def create_gene_padding_table(self, gene_ids):
+    def create_gene_padding_table(self, gene_ids, filter_config):
         """
         Create a temporary table for the gene specific padding of the form
         ------------------------------------------------------------------------------------------------
@@ -28,8 +28,8 @@ class RegionFilter(object):
 
 
         #TODO: Replace with genepanel/gene specific padding values when available
-        splice_region = self.config['variant_criteria']['splice_region']
-        utr_region = self.config['variant_criteria']['utr_region']
+        splice_region = filter_config['splice_region']
+        utr_region = filter_config['utr_region']
         values = []
         for gene_id in gene_ids:
             values.append(str((gene_id, splice_region[0], splice_region[1], utr_region[0], utr_region[1])))
@@ -55,7 +55,7 @@ class RegionFilter(object):
         )
         return t
 
-    def filter_alleles(self, gp_allele_ids):
+    def filter_alleles(self, gp_allele_ids, filter_config):
         """
          Filter alleles outside regions of interest. Regions of interest are based on these criteria:
           - Coding region
@@ -99,7 +99,7 @@ class RegionFilter(object):
             gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
 
             # Create temporary gene padding table for the genes in the genepanel
-            tmp_gene_padding = self.create_gene_padding_table(gp_gene_ids)
+            tmp_gene_padding = self.create_gene_padding_table(gp_gene_ids, filter_config)
 
             max_padding = self.session.query(
                 func.abs(func.max(tmp_gene_padding.c.exon_upstream)),
@@ -410,30 +410,7 @@ class RegionFilter(object):
             #
             # Whether a consequence is severe or not is determined by the config
 
-            # TODO: Add to config
-            #consequences_to_exclude = self.config.get...
-
-            consequences_to_exclude = [
-                "transcript_ablation",
-                "splice_donor_variant",
-                "splice_acceptor_variant",
-                "stop_gained",
-                "frameshift_variant",
-                "start_lost",
-                "initiator_codon_variant",
-                "stop_lost",
-                "inframe_insertion",
-                "inframe_deletion",
-                "missense_variant",
-                "protein_altering_variant",
-                "transcript_amplification",
-                # "splice_region_variant", # Do not save on this, as this is annotated by VEP on [-8,8]. The splice region used by ella is defined in this filter's config.
-                "incomplete_terminal_codon_variant",
-                "synonymous_variant",
-                "stop_retained_variant",
-                "coding_sequence_variant",
-            ]
-
+            exclude_consequences = filter_config['exclude_consequences']
 
             # Unnest consequences. Include only consequences for genes in genepanel.
             consequences_unnested = self.session.query(
@@ -470,7 +447,7 @@ class RegionFilter(object):
                 consequences_agg.c.allele_id
             ).filter(
                 # Operator '&&' checks if two arrays overlap
-                consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(consequences_to_exclude),
+                consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(exclude_consequences),
             )
 
             allele_ids_severe_consequences = set([a[0] for a in allele_ids_severe_consequences])

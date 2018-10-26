@@ -1,7 +1,7 @@
 import datetime
 import pytz
 from sqlalchemy import or_, and_, tuple_, func, text, literal_column
-from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
+from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation, user
 from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
 
 from api.config import config
@@ -317,16 +317,16 @@ def workflow_allele_review_comment(session, allele_ids=None):
     )
 
 
-def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_version):
+def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, gp_version):
     """
-    Fetches all genes with _only_ {inheritance} phenotypes.
+    Fetches all hgnc_ids with _only_ {inheritance} phenotypes.
 
     e.g. only 'AD' or only 'AR'
     """
     # Get phenotypes having only one kind of inheritance
     # e.g. only 'AD' or only 'AR' etc...
-    gene_ids = session.query(
-        gene.Phenotype.gene_id
+    hgnc_ids = session.query(
+        gene.Phenotype.gene_id.label('hgnc_id')
     ).filter(
         gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
         gene.genepanel_phenotype.c.genepanel_name == gp_name,
@@ -337,9 +337,7 @@ def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_v
         gene.Phenotype.gene_id
     ).having(func.every(gene.Phenotype.inheritance == inheritance))
 
-    return session.query(gene.Gene.hgnc_symbol).filter(
-        gene.Gene.hgnc_id.in_(gene_ids)
-    )
+    return hgnc_ids
 
 
 def allele_genepanels(session, genepanel_keys, allele_ids=None):
@@ -431,3 +429,14 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
     result = result.distinct()
 
     return result
+
+
+def get_default_filter_config_id(session, user_id):
+
+    return session.query(sample.FilterConfig.id).join(
+        user.UserGroup,
+        user.User
+    ).filter(
+        user.User.id == user_id,
+        sample.FilterConfig.default.is_(True)
+    )

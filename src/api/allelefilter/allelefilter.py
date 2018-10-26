@@ -1,8 +1,9 @@
 import itertools
-from collections import defaultdict
+import copy
 
-from api.config import config as global_config
-from vardb.datamodel import assessment, sample, allele, genotype
+from sqlalchemy import literal_column, text, or_, func
+from api.config import config as global_config, get_filter_config
+from vardb.datamodel import assessment, sample, allele, genotype, annotation
 
 from api.allelefilter.frequencyfilter import FrequencyFilter
 from api.allelefilter.segregationfilter import SegregationFilter
@@ -15,6 +16,13 @@ class AlleleFilter(object):
     def __init__(self, session, config=None):
         self.session = session
         self.config = global_config if not config else config
+
+        self.filter_functions = {
+            'frequency': ('allele', FrequencyFilter(self.session, self.config).filter_alleles),
+            'region': ('allele', RegionFilter(self.session, self.config).filter_alleles),
+            'quality': ('analysis', QualityFilter(self.session, self.config).filter_alleles),
+            'segregation': ('analysis', SegregationFilter(self.session, self.config).filter_alleles)
+        }
 
     def get_allele_ids_with_classification(self, allele_ids):
         """
@@ -38,136 +46,239 @@ class AlleleFilter(object):
 
         return with_classification
 
-    def remove_filtered_from_source(self, source, filtered):
+    def get_allele_ids_with_pathogenic_clinvar(self, allele_ids):
         """
-        Mutates arguments.
-
-        Removes filtered allele_ids from the source structures allele_ids
-        source: {key: set([..]), ...}
-        filtered: {key: set([...]), ...}
-
-        :note: Allele ids that have classifications which should
-            be exempt from filtering are not removed
+        Return the allele_ids that have >=2 Clinvar
+        'clinical_significance_descr' that are 'Pathogenic'
         """
 
-        all_filtered_allele_ids = set(itertools.chain.from_iterable(filtered.values()))
-        # Exclude alleles with classifications from filtering
-        exempt_filtering = self.get_allele_ids_with_classification(all_filtered_allele_ids)
-        for key in source:
-            filtered[key] = filtered[key] - exempt_filtering
-            source[key] = set(source[key]) - filtered[key]
+        expanded_clinvar = self.session.query(
+            annotation.Annotation.allele_id,
+            literal_column("jsonb_array_elements(annotations->'external'->'CLINVAR'->'items')").label('entry')
+        ).filter(
+            annotation.Annotation.allele_id.in_(allele_ids),
+            annotation.Annotation.date_superceeded.is_(None)
+        ).subquery()
 
-    def filter_analyses(self, analyses_allele_ids):
+        pathogenic_allele_ids = self.session.query(
+            expanded_clinvar.c.allele_id,
+            func.count(expanded_clinvar.c.allele_id),
+        ).filter(
+            text("entry->>'rcv' ILIKE 'SCV%'"),
+            text("entry->>'clinical_significance_descr' ILIKE 'pathogenic'")
+        ).group_by(
+            expanded_clinvar.c.allele_id
+        ).having(
+            func.count("entry->>'clinical_significance_descr' ILIKE 'pathogenic'") > 1
+        ).all()
+
+        return set([a[0] for a in pathogenic_allele_ids])
+
+    def get_filter_exceptions(self, exceptions_config, allele_ids):
+        """
+        Checks whether any of allele_ids should be excepted from filtering,
+        given checks given by exceptions_config
         """
 
-        Runs both pure allele filters and analysis based allele filters.
+        filter_exceptions = set()
+        for e in exceptions_config:
+            if e['name'] == 'classification':
+                filter_exceptions |= self.get_allele_ids_with_classification(allele_ids)
+            # TODO: clinvar_pathogenic strategy needs refinement
+            #elif e['name'] == 'clinvar_pathogenic':
+            #    filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
+        return filter_exceptions
 
-        Returns:
-        {
-            <analysis_id>: {
-                'allele_ids': [1, 2, 3],
-                'excluded_allele_ids': {
-                    'segregation': [4, 5],
+    def filter_alleles(self, filter_config_id, gp_allele_ids, analysis_allele_ids):
+        """
+
+        Main function for filtering alleles. There are two kinds of
+        input, standalone alleles and alleles connected to an analysis.
+
+        Some filters work on alleles alone, while others require an analysis.
+        If filtering analyses, you only need to provide the alleles as part of that
+        argument, not in both.
+
+        Input:
+
+        gp_allele_ids:
+            {
+                ('HBOC', 'v01'): [1, 2, 3, ...],
+                ...
+            }
+
+        analysis_allele_ids:
+            {
+                1: [1, 2, 3, ...],
+                ...
+            }
+
+        Returns result tuple (gp_allele_ids, analysis_allele_ids):
+            (
+                {
+                    ('HBOC', 'v01'): {
+                        'allele_ids': [1, 2, 3],
+                        'excluded_allele_ids': {
+                            'region': [6, 7],
+                            'frequency': [8, 9],
+                        }
+                    },
+                    ...
+                },
+
+                {
+                    <analysis_id>: {
+                        'allele_ids': [1, 2, 3],
+                        'excluded_allele_ids': {
+                            'frequency': [4, 5],
+                            'region': [12, 45],
+                            'segregation': [6, 8],
+                        }
+                    },
+                    ...
                 }
-            },
-            ...
-        }
+            )
         """
 
-        result = {a_id: {'allele_ids': list(), 'excluded_allele_ids': dict()} for a_id in analyses_allele_ids}
+        # Make copies to avoid modifying input data
+        if analysis_allele_ids:
+            analysis_allele_ids = {k: set(v) for k, v in analysis_allele_ids.iteritems()}
+        else:
+            analysis_allele_ids = dict()
+        if gp_allele_ids:
+            merged_gp_allele_ids = {k: set(v) for k, v in gp_allele_ids.iteritems()}
+        else:
+            gp_allele_ids = dict()
+            merged_gp_allele_ids = dict()
 
-        analyses_allele_ids_copy = {k: set(v) for k, v in analyses_allele_ids.iteritems()}
-
-        # Get all alleles for provided analyses
-        analyses_genepanels = self.session.query(
+        analysis_genepanels = self.session.query(
             sample.Analysis.id,
             sample.Analysis.genepanel_name,
             sample.Analysis.genepanel_version,
         ).filter(
-            sample.Analysis.id.in_(analyses_allele_ids_copy.keys())
+            sample.Analysis.id.in_(analysis_allele_ids.keys())
         ).all()
 
-        # Group data for later
-        analysis_genepanel = dict()
-        for analysis_id, gp_name, gp_version in analyses_genepanels:
-            analysis_genepanel[analysis_id] = (gp_name, gp_version)
+        analysis_genepanels = {a.id: (a.genepanel_name, a.genepanel_version) for a in analysis_genepanels}
 
-        gp_allele_ids = defaultdict(set)
-        for analysis_id, allele_ids in analyses_allele_ids_copy.iteritems():
-            gp_key = analysis_genepanel[analysis_id]
-            gp_allele_ids[gp_key].update(set(allele_ids))
+        for a_id, gp_key in analysis_genepanels.iteritems():
+            if gp_key not in merged_gp_allele_ids:
+                merged_gp_allele_ids[gp_key] = set()
+            merged_gp_allele_ids[gp_key].update(analysis_allele_ids[a_id])
 
-        # Run the pure allele filters first, since that is the order of the filters currently
-        filtered_alleles = self.filter_alleles(gp_allele_ids)
+        gp_alleles_filtered = {gp_key: dict() for gp_key in merged_gp_allele_ids}  # {gp_key: {filter_name: set()}}
+        analysis_alleles_filtered = {a_id: dict() for a_id in analysis_allele_ids}  # {analysis_id: {filter_name: set()}}
+        gp_alleles_remaining = {gp_key: set(allele_ids) for gp_key, allele_ids in merged_gp_allele_ids.iteritems()}
+        analysis_alleles_remaining = {analysis_id: set(allele_ids) for analysis_id, allele_ids in analysis_allele_ids.iteritems()}
 
-        # Insert into result and remove any already filtered alleles for performance
-        for analysis_id, allele_ids in analyses_allele_ids_copy.iteritems():
-            gp_key = analysis_genepanel[analysis_id]
-            gp_non_filtered_allele_ids = set(filtered_alleles[(gp_key)]['allele_ids'])
+        # Run filter functions.
+        # Already filtered alleles are tracked to avoid re-filtering same alleles (for performance reasons).
 
-            # Intersect with this analysis' allele_ids since there can be multiple analyses with same genepanel
-            analyses_allele_ids_copy[analysis_id] = allele_ids & gp_non_filtered_allele_ids
-            for filter_name, filtered_allele_ids in filtered_alleles[(gp_key)]['excluded_allele_ids'].iteritems():
-                result[analysis_id]['excluded_allele_ids'][filter_name] = sorted(list(allele_ids & set(filtered_allele_ids)))
+        filter_config = self.session.query(sample.FilterConfig.filterconfig).filter(
+            sample.FilterConfig.id == filter_config_id
+        ).scalar()
 
-        # Run the analysis based allele filters
-        filters = [
-            # TDDO: Disabled for now
-            # ('quality', QualityFilter(self.session, self.config).filter_alleles),
-            ('segregation', SegregationFilter(self.session, self.config).filter_alleles)
-        ]
+        filters = get_filter_config(self.config, filter_config)
+        for f in filters:
+            name = f['name']
+            if name not in self.filter_functions:
+                raise RuntimeError("Requested filter {} is not a valid filter name".format(name))
 
-        for filter_name, filter_func in filters:
-            filtered = filter_func(analyses_allele_ids_copy)
-            self.remove_filtered_from_source(analyses_allele_ids_copy, filtered)
-            for analysis_id, allele_ids in filtered.iteritems():
-                result[analysis_id]['excluded_allele_ids'][filter_name] = sorted(list(allele_ids))
+            try:
+                filter_config = f['config']
+                exceptions_config = f['exceptions']
 
-        # We have removed filtered allele_ids from analysis_allele_ids,
-        # so what's left are the non-filtered result
-        for analysis_id, allele_ids in analyses_allele_ids_copy.iteritems():
-            result[analysis_id]['allele_ids'] = sorted(list(allele_ids))
+                filter_data_type, filter_function = self.filter_functions[name]
 
-        return result
+                if filter_data_type == 'allele':
+                    filtered = filter_function(gp_alleles_remaining, filter_config)
 
-    def filter_alleles(self, gp_allele_ids):
-        """
-        Returns:
-        {
-            ('HBOC', 'v01'): {
-                'allele_ids': [1, 2, 3],
-                'excluded_allele_ids': {
-                    'region': [6, 7],
-                    'frequency': [8, 9],
-                }
-            },
-            ...
-        }
-        """
+                    filter_exceptions = self.get_filter_exceptions(
+                        exceptions_config,
+                        set(itertools.chain.from_iterable(filtered.values()))
+                    )
 
-        filters = [
-            # Order matters!
-            ('frequency', FrequencyFilter(self.session, self.config).filter_alleles),
-            ('region', RegionFilter(self.session, self.config).filter_alleles),
-        ]
+                    for gp_key, allele_ids in filtered.iteritems():
+                        allele_ids = set(allele_ids)
+                        if gp_key not in gp_alleles_filtered:
+                            gp_alleles_filtered[gp_key] = dict()
 
-        result = dict()
-        for gp_key in gp_allele_ids:
-            result[gp_key] = {
-                'excluded_allele_ids': {}
+                        # Subtract alleles that should be excepted from filtering
+                        allele_ids -= filter_exceptions
+
+                        # Intersect on input to make sure "faulty" filter doesn't give us
+                        # ids not belonging to input.
+                        gp_alleles_filtered[gp_key][name] = gp_alleles_remaining[gp_key] & allele_ids
+                        gp_alleles_remaining[gp_key] -= allele_ids
+
+                        # Update analyses' remaining since they are mixed
+                        # with the 'allele' ones
+                        for a_id, analysis_gp_key in analysis_genepanels.iteritems():
+                            if analysis_gp_key == gp_key:
+                                analysis_alleles_remaining[a_id] -= allele_ids
+
+                elif filter_data_type == 'analysis':
+
+                    filtered = filter_function(analysis_alleles_remaining, filter_config)
+
+                    filter_exceptions = self.get_filter_exceptions(
+                        exceptions_config,
+                        set(itertools.chain.from_iterable(filtered.values()))
+                    )
+
+                    for a_id, allele_ids in filtered.iteritems():
+                        allele_ids = set(allele_ids)
+
+                        if a_id not in analysis_alleles_filtered:
+                            analysis_alleles_filtered[a_id] = dict()
+
+                        # Subtract alleles that should be excepted from filtering
+                        allele_ids -= filter_exceptions
+
+                        # Intersect on input to make sure "faulty" filter doesn't give us
+                        # ids not belonging to input.
+                        analysis_alleles_filtered[a_id][name] = analysis_alleles_remaining[a_id] & allele_ids
+                        analysis_alleles_remaining[a_id] -= allele_ids
+                else:
+                    raise RuntimeError("Unknown filter data type '{}'".format(filter_data_type))
+
+            except Exception:
+                print "Error while running filter '{}'".format(name)
+                raise
+
+        # Prepare result for input gp_allele_ids
+        gp_allele_result = dict()
+        for gp_key, allele_ids in gp_allele_ids.iteritems():
+            remaining_allele_ids = set(allele_ids)
+            gp_allele_result[gp_key] = {
+                'excluded_allele_ids': dict()
             }
+            # Add filtered allele ids from 'allele' based filters
+            # We need to intersect on original input since gp_allele_filtered
+            # have alleles mixed in from analyses
+            for name, filtered_allele_ids in gp_alleles_filtered[gp_key].iteritems():
+                remaining_allele_ids -= filtered_allele_ids
+                gp_allele_result[gp_key]['excluded_allele_ids'][name] = sorted(list(set(allele_ids) & filtered_allele_ids))
 
-        # Exclude the filtered alleles from one filter from being sent to
-        # next filter, in order to improve performance. Matters a lot
-        # for large samples, since the frequency filter filters most of the variants
-        for filter_name, filter_func in filters:
-            filtered = filter_func(gp_allele_ids)
-            self.remove_filtered_from_source(gp_allele_ids, filtered)
-            for gp_key, allele_ids in filtered.iteritems():
-                result[gp_key]['excluded_allele_ids'][filter_name] = sorted(list(allele_ids))
+            gp_allele_result[gp_key]['allele_ids'] = sorted(list(remaining_allele_ids))
 
-        # Finally add the remaining allele_ids, these weren't filtered out
-        for gp_key in gp_allele_ids:
-            result[gp_key]['allele_ids'] = sorted(list(gp_allele_ids[gp_key]))
+        # Prepare result for input analysis_allele_ids
+        analysis_allele_result = dict()
+        for a_id, allele_ids in analysis_allele_ids.iteritems():
+            remaining_allele_ids = set(allele_ids)
+            analysis_allele_result[a_id] = {
+                'excluded_allele_ids': dict()
+            }
+            # Add filtered allele ids from 'analysis' based filters
+            for name, filtered_allele_ids in analysis_alleles_filtered[a_id].iteritems():
+                remaining_allele_ids -= filtered_allele_ids
+                analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
+            # Add filtered allele ids from 'allele' based filters
+            for name, filtered_allele_ids in gp_alleles_filtered[analysis_genepanels[a_id]].iteritems():
+                remaining_allele_ids -= filtered_allele_ids
+                analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
 
-        return result
+            analysis_allele_result[a_id]['allele_ids'] = sorted(list(remaining_allele_ids))
+
+        return gp_allele_result, analysis_allele_result
+

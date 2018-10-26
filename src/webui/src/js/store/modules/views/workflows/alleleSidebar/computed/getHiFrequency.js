@@ -7,8 +7,9 @@ export default (alleles, key) => {
         if (!alleles) {
             return result
         }
-        const frequencyGroups = config.variant_criteria.frequencies.groups
-        const frequencyNumThresholds = config.variant_criteria.freq_num_thresholds || {}
+        const frequencyGroups = config.frequencies.groups
+        const frequencyNumThresholds =
+            config.filter.default_filter_config.frequency.num_thresholds || {}
         for (let [alleleId, allele] of Object.entries(alleles)) {
             let maxMeetsThresholdValue = null
             let maxValue = null

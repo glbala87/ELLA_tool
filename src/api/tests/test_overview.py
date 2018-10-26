@@ -15,6 +15,7 @@ from api.tests import interpretation_helper as ih
 
 from api.allelefilter import AlleleFilter
 from api.config import config
+from api.util import queries
 
 
 @pytest.fixture
@@ -469,7 +470,12 @@ def get_non_filtered_alleles(session):
         gp_key = (gp_name, gp_key)
         gp_allele_ids[gp_key].add(allele_id)
 
-    result = AlleleFilter(session).filter_alleles(gp_allele_ids)
+    filter_config_id = queries.get_default_filter_config_id(session, 1).scalar()
+    result, _ = AlleleFilter(session).filter_alleles(
+        filter_config_id,
+        gp_allele_ids,
+        None
+    )
     for key in gp_allele_ids:
         gp_allele_ids[key] = set(result[key]['allele_ids'])
     return gp_allele_ids

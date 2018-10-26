@@ -18,49 +18,53 @@ export default (genepanel, allele) => {
     return Compute(
         genepanel,
         allele,
-        state`app.config.variant_criteria.genepanel_config`,
-        (genepanel, allele, globalConfig, get) => {
+        state`app.config.user.user_config.acmg`,
+        (genepanel, allele, acmgConfig, get) => {
             const result = {}
             if (!allele) {
                 return result
             }
-            const symbols = [...new Set(allele.annotation.filtered.map((t) => t.symbol))]
-            for (const symbol of symbols) {
+            const genes = allele.annotation.filtered.map((t) => [t.hgnc_id, t.symbol])
+            for (const [hgncId, symbol] of genes) {
+                if (symbol in result) {
+                    continue
+                }
                 result[symbol] = {
                     _overridden: [] // Holds keys that are overridden by genepanel config.
                 }
-                let props = ['last_exon_important', 'disease_mode', 'freq_cutoffs']
-                let config_override = findGeneConfigOverride(symbol, genepanel.config)
+                const props = ['last_exon_important', 'disease_mode', 'frequency']
+                const geneConfigOverride = findGeneConfigOverride(hgncId, acmgConfig)
                 for (let p of props) {
-                    if (p in config_override) {
-                        result[symbol][p] = config_override[p]
-                        if (p === 'freq_cutoffs') {
+                    if (p in geneConfigOverride) {
+                        result[symbol][p] = geneConfigOverride[p]
+                        if (p === 'frequency') {
                             result[symbol]['_overridden'].push('freq_cutoffs_external')
                             result[symbol]['_overridden'].push('freq_cutoffs_internal')
                         } else {
                             result[symbol]['_overridden'].push(p)
                         }
                     } else {
-                        result[symbol][p] = globalConfig[p]
+                        result[symbol][p] = acmgConfig[p]
                     }
                 }
 
                 const inheritance = getInheritanceCodes(symbol, genepanel)
                 result[symbol]['inheritance'] = inheritance
 
-                // If 'freq_cutoffs' is defined in genepanel config, use those. Otherwise, use the default
-                // given the inheritance key
-                if (!('freq_cutoffs' in config_override)) {
+                // If 'frequency' is defined for the gene, use that.
+                // Otherwise, use the default given the inheritance key
+                if ('frequency' in geneConfigOverride) {
+                    result[symbol]['freq_cutoffs'] = geneConfigOverride.frequency.thresholds
+                } else {
                     if (inheritance == 'AD') {
-                        result[symbol]['freq_cutoffs'] = globalConfig['freq_cutoff_groups']['AD']
+                        result[symbol]['freq_cutoffs'] = acmgConfig.frequency.thresholds['AD']
                     } else {
-                        result[symbol]['freq_cutoffs'] =
-                            globalConfig['freq_cutoff_groups']['default']
+                        result[symbol]['freq_cutoffs'] = acmgConfig.frequency.thresholds['default']
                     }
                 }
 
-                if ('comment' in config_override) {
-                    result[symbol]['comment'] = config_override['comment']
+                if ('comment' in geneConfigOverride) {
+                    result[symbol]['comment'] = geneConfigOverride['comment']
                 }
                 result[symbol]['omim_entry_id'] = getOmimEntryId(symbol, genepanel)
                 result[symbol]['phenotypes'] = phenotypesBy(symbol, genepanel)

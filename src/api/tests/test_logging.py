@@ -47,7 +47,7 @@ def test_resourcelog(client, test_database, session):
 
     # With payload
 
-    payload_data = {'allele_ids' : [1], 'gp_name': 'HBOCUTV', 'gp_version': 'v01', 'referenceassessments': []}
+    payload_data = {'allele_ids': [1], 'gp_name': 'HBOCUTV', 'gp_version': 'v01', 'referenceassessments': []}
     r = client.post('/api/v1/acmg/alleles/?dummy=data', payload_data)
     payload = json.dumps(payload_data)
     payload_size = len(payload)

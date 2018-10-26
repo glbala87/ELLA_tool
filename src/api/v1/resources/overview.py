@@ -429,8 +429,15 @@ class OverviewAlleleResource(LogRequestResource):
         )
 
         # Filter analysis allele ids
+
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+
         af = AlleleFilter(session)
-        gp_nonfiltered_alleles = af.filter_alleles(analysis_gp_allele_ids)
+        gp_nonfiltered_alleles, _ = af.filter_alleles(
+            filter_config_id,
+            analysis_gp_allele_ids,
+            None
+        )
         gp_allele_ids = {k: set(v['allele_ids'])
                          for k, v in gp_nonfiltered_alleles.iteritems()}
 
@@ -643,7 +650,7 @@ def get_finalized_analyses(session, user=None, page=None, per_page=None):
     return schemas.AnalysisSchema().dump(finalized_analyses.all(), many=True).data, count
 
 
-def categorize_analyses_by_findings(session, not_started_analyses):
+def categorize_analyses_by_findings(session, not_started_analyses, filter_config_id):
 
     # Get all (analysis_id, allele_id) combinations for input analyses.
     # We want to categorize these analyses into with_findings, without_findings and missing_alleleassessments
@@ -685,9 +692,12 @@ def categorize_analyses_by_findings(session, not_started_analyses):
     for entry in allele_ids_genepanels:
         gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
-    # Filter out alleles
     af = AlleleFilter(session)
-    gp_nonfiltered_allele_ids = af.filter_alleles(gp_allele_ids)
+    gp_nonfiltered_allele_ids, _ = af.filter_alleles(
+        filter_config_id,
+        gp_allele_ids,
+        None
+    )
     nonfiltered_allele_ids = set(itertools.chain.from_iterable(
         [v['allele_ids'] for v in gp_nonfiltered_allele_ids.values()]))
 
@@ -753,15 +763,25 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, user=None):
+
+         # Filter out alleles
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+
         categorized_analyses = get_categorized_analyses(session, user=user)
         not_started_analyses = categorized_analyses.pop('not_started')
         not_started_categories = categorize_analyses_by_findings(
-            session, not_started_analyses)
+            session,
+            not_started_analyses,
+            filter_config_id
+        )
         categorized_analyses.update(
             {'not_started_' + k: v for k, v in not_started_categories.iteritems()})
         marked_review_analyses = categorized_analyses.pop('marked_review')
         marked_review_categories = categorize_analyses_by_findings(
-            session, marked_review_analyses)
+            session,
+            marked_review_analyses,
+            filter_config_id
+        )
         categorized_analyses.update(
             {'marked_review_' + k: v for k, v in marked_review_categories.iteritems()})
         return categorized_analyses

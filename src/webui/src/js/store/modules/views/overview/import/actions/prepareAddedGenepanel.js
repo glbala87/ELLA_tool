@@ -7,8 +7,7 @@ export default function prepareAddedGenepanel({ state, props }) {
             .toISOString()
             .slice(2, 10)
             .replace(/-/g, ''), // Date on format YYMMDD
-        genes: {},
-        config: defaultGenepanel.config
+        genes: {}
     }
     state.set('views.overview.import.added.addedGenepanel', addedGenepanel)
 }

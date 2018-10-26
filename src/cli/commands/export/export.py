@@ -3,7 +3,7 @@ import logging
 
 import datetime
 
-from vardb.datamodel import DB, user
+from vardb.datamodel import DB, user, sample
 from vardb.export import export_sanger_variants, dump_classification
 
 FILENAME_REPORT_DEFAULT = "non-started-analyses-variants-{timestamp}"
@@ -63,9 +63,15 @@ def cmd_export_sanger(user_group, filename):
     csv_file_obj = open(output_name + '.csv', 'w')
 
     start = datetime.datetime.now()
+
+    filter_config_id = db.session.query(sample.FilterConfig.id).filter(
+        sample.FilterConfig.usergroup_id == usergroup.id
+    ).scalar()
+
     has_content = export_sanger_variants.export_variants(
         db.session,
         genepanels,
+        filter_config_id,
         excel_file_obj,
         csv_file_obj=csv_file_obj
     )
