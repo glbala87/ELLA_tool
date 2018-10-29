@@ -110,82 +110,75 @@ class Warnings(object):
     def _check_refseq_ensembl_consistency(self):
         consistency_warnings = dict()
 
+
+        # Fetch genepanel transcripts
+        #
+        # Select corresponding transcript based on transcript type
+        corresponding_transcript = case(
+            [(gene.Transcript.type == 'RefSeq', gene.Transcript.corresponding_ensembl),
+            (gene.Transcript.type == 'Ensembl', gene.Transcript.corresponding_refseq)]
+        )
+
         genepanel_transcripts = self.session.query(
             gene.Transcript.id,
-            gene.Transcript.type,
             gene.Transcript.transcript_name,
-            gene.Transcript.corresponding_ensembl,
-            gene.Transcript.corresponding_refseq,
+            corresponding_transcript.label("corresponding_transcript"),
             gene.Transcript.gene_id,
         ).join(gene.Genepanel.transcripts).filter(
             tuple_(gene.Genepanel.name, gene.Genepanel.version) == self.gp_key
         ).subquery()
 
-        gp_transcript_annotations = self.session.query(
-            annotationshadow.AnnotationShadowTranscript.allele_id.label('allele_id'),
-            genepanel_transcripts.c.id.label("transcript_id"),
-            genepanel_transcripts.c.transcript_name.label('transcript'),
-            annotationshadow.AnnotationShadowTranscript.transcript.label('annotation_transcript'),
-            annotationshadow.AnnotationShadowTranscript.hgvsc.label('annotation_hgvsc'),
-            annotationshadow.AnnotationShadowTranscript.hgvsp.label('annotation_hgvsp'),
-        ).filter(
-            # Matches NM_12345dabla.1 with NM_12345.2
-            text("transcript_name like split_part(transcript, '.', 1) || '%'"),
-            genepanel_transcripts.c.gene_id == annotationshadow.AnnotationShadowTranscript.hgnc_id,
-            annotationshadow.AnnotationShadowTranscript.allele_id.in_(self.allele_ids)
-        ).subquery()
+        # Split transcript on '.', and create a string for LIKE comparison
+        # E.g. NM_12345.2 -> NM_12345%
+        # Matches NM_12345dabla.3 LIKE NM_12345%
+        def split_tx(col):
+            return func.split_part(col, '.', 1).op('||')('%')
 
 
-        corresponding_transcript = case(
-            [(genepanel_transcripts.c.type == 'RefSeq', genepanel_transcripts.c.corresponding_ensembl),
-            (genepanel_transcripts.c.type == 'Ensembl', genepanel_transcripts.c.corresponding_refseq)]
-        )
-        gp_corresponding_annotations = self.session.query(
-            annotationshadow.AnnotationShadowTranscript.allele_id.label('allele_id'),
-            genepanel_transcripts.c.id.label("transcript_id"),
-            corresponding_transcript.label("transcript"),
-            annotationshadow.AnnotationShadowTranscript.transcript.label('annotation_transcript'),
-            annotationshadow.AnnotationShadowTranscript.hgvsc.label('annotation_hgvsc'),
-            annotationshadow.AnnotationShadowTranscript.hgvsp.label('annotation_hgvsp'),
-        ).filter(
-            or_(
-                # Matches NM_12345dabla.1 with NM_12345.2
-                text("corresponding_refseq like split_part(transcript, '.', 1) || '%'"),
-                genepanel_transcripts.c.corresponding_ensembl == annotationshadow.AnnotationShadowTranscript.transcript,
-            ),
-            genepanel_transcripts.c.gene_id == annotationshadow.AnnotationShadowTranscript.hgnc_id,
-            annotationshadow.AnnotationShadowTranscript.allele_id.in_(self.allele_ids)
-        ).subquery()
-
+        # Find allele ids in AnnotationShadowTranscript where hgvsc and/or hgvsp does not match
+        # between genepanel transcript and corresponding transcript
+        annotation_gp = aliased(annotationshadow.AnnotationShadowTranscript)
+        annotation_corresponding = aliased(annotationshadow.AnnotationShadowTranscript)
         result = self.session.query(
-            gp_corresponding_annotations.c.allele_id,
-            gp_transcript_annotations.c.annotation_transcript,
-            gp_corresponding_annotations.c.transcript.label('corresponding_transcript'),
-            # gp_transcript_annotations.c.annotation_hgvsc,
-            gp_corresponding_annotations.c.annotation_hgvsc.label('corresponding_annotation_hgvsc'),
-            gp_corresponding_annotations.c.annotation_hgvsp.label('corresponding_annotation_hgvsp'),
+            annotation_gp.allele_id,
+            annotation_gp.transcript.label('gp_transcript'),
+            annotation_gp.hgvsc,
+            annotation_gp.hgvsp,
+            annotation_corresponding.transcript.label('corr_tx'),
+            annotation_corresponding.hgvsc.label('corr_hgvsc'),
+            annotation_corresponding.hgvsp.label('corr_hgvsp')
+        ).join(
+            genepanel_transcripts,
+            genepanel_transcripts.c.gene_id == annotation_gp.hgnc_id,
+        ).join(
+            annotation_corresponding,
+            and_(
+                annotation_corresponding.allele_id == annotation_gp.allele_id,
+                annotation_corresponding.hgnc_id == annotation_gp.hgnc_id,
+                genepanel_transcripts.c.corresponding_transcript.op("LIKE")(split_tx(annotation_corresponding.transcript))
+            )
         ).filter(
-            gp_transcript_annotations.c.allele_id == gp_corresponding_annotations.c.allele_id,
-            gp_transcript_annotations.c.transcript_id == gp_corresponding_annotations.c.transcript_id,
-            # gp_transcript_annotations.c.allele_id.in_(allele_ids),
+            annotation_gp.allele_id.in_(self.allele_ids),
+            genepanel_transcripts.c.transcript_name.op("LIKE")(split_tx(annotation_gp.transcript)),
+            # Check if either hgvsc or hgvsp does not match
             or_(
-                gp_transcript_annotations.c.annotation_hgvsc != gp_corresponding_annotations.c.annotation_hgvsc,
+                annotation_gp.hgvsc != annotation_corresponding.hgvsc,
                 and_(
-                    gp_transcript_annotations.c.annotation_hgvsp.op('LIKE')('p.%'),
-                    gp_corresponding_annotations.c.annotation_hgvsp.op('LIKE')('p.%'),
-                    gp_transcript_annotations.c.annotation_hgvsp != gp_corresponding_annotations.c.annotation_hgvsp
+                    # Only check if both hgvsp-annotations are on the form p.xxxxxx
+                    # Otherwise, could give a false positive on annotations like p.= and c.xxx(p.=)
+                    annotation_corresponding.hgvsp.op('LIKE')('p.%'),
+                    annotation_gp.hgvsp.op('LIKE')('p.%'),
+                    annotation_gp.hgvsp != annotation_corresponding.hgvsp
                 )
             )
         )
 
-        for aid, gp_transcript, corr_tx, corr_hgvsc, corr_hgvsp in result:
-            corr_hgvsp = "({})".format(corr_hgvsp) if corr_hgvsp else "(No hgsvp)"
-            corr_hgvsc = corr_hgvsc if corr_hgvsc else "N/A"
-            consistency_warnings[aid] = "Annotation for {} does not match corresponding transcript: {}:{} {}".format(gp_transcript, corr_tx, corr_hgvsc, corr_hgvsp)
+        for r in result:
+            corr_hgvsp = "({})".format(r.corr_hgvsp) if r.corr_hgvsp else "(No hgsvp)"
+            corr_hgvsc = r.corr_hgvsc if r.corr_hgvsc else "N/A"
+            consistency_warnings[r.allele_id] = "Annotation for {} does not match corresponding transcript: {}:{} {}".format(r.gp_transcript, r.corr_tx, r.corr_hgvsc, corr_hgvsp)
 
         return consistency_warnings
-
-
 
 
 class AlleleDataLoader(object):
