@@ -1,14 +1,14 @@
 """add-e-mail-to-user
 
 Revision ID: 4629b478b291
-Revises: 7fddcdb9e856
+Revises: d099628590c9
 Create Date: 2018-10-25 10:52:14.229198
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '4629b478b291'
-down_revision = '7fddcdb9e856'
+down_revision = 'd099628590c9'
 branch_labels = None
 depends_on = None
 
