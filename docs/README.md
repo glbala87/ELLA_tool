@@ -1,42 +1,33 @@
-# Introduction
+---
+sidebar: false
+---
 
-**This documentation is work in progress**
+<div style="text-align: center;padding-top: 50px;padding-bottom: 50px">
+	<img width="250px;" src="./logo_blue.svg">
+	<div style="font-size: 280%;">documentation</div>
+	<div style="font-size: 80%;">v1.2.1 | 23.10.2018</div>
+</div>
 
-ella is a tool for clinical interpretation of genetic variants.
- 
-The users will either interpret a **single variant** or several variants belonging together in an analysis.
+- [User manual](/manual/) - For *ella* users
+- [Technical documentation](/technical/) - System setup/configuration and technical specification
+- [Release notes](/releasenotes/) - Versions and changes
+- [Support](#support-and-requests)- Send us an e-mail!
+- [Official website](http://allel.es)
 
-The result of the interpretation work are **assessments** that include the
-classification of the variant (1-5, T). The assessments are the product of e||a. When the same variant(s)
- is seen in other samples the previous interpretation work can be reused, saving valuable time.
+## About *ella* and availability
 
-The interpretation work must be approved by another person in multi-step **workflow**.
+*ella* is a variant interpretation tool intended for clinical use, developed at the Department of Medical Genetics (AMG), Oslo University Hospital (OUS). The name *ella* is a word play on “alleles”:
 
-In general e||a has an append-only data model, where no data is deleted or overwritten.
-Instead an updated copy is made and the versions are linked.
+<div style="text-indent: 4%;">
+	<img src="./manual/img/logo_explanation.png">
+</div>
 
-**High-level system diagram of e||a:**
-<div style="text-align:center"><img style="zoom: 90%;" src="img/system.png"></div>
+*ella* is open source and available under a MIT licence, see the [official website](http://allel.es).
 
-ella is built as a web application, divided between a frontend and a backend. The frontend runs fully in the user's browser, while the backend runs on a server. The frontend communicates with the backend via a JSON based REST API.
+## Support and requests
 
+For support and suggestions, send an e-mail to: <ella-support@medisin.uio.no>
 
-### Frontend
-
-The frontend is built using [AngularJS](https://angularjs.org/) (v1) as a SPA (single page application).
-It's written using Javascript (ES6/ES2015) with [Babel](http://babeljs.io/) transpiling it to into ES5. and SASS for creating CSS.
-The client side state is managed by [Cerebral](http://cerebraljs.com/)
-
-### Backend
-
-The backend written in Python, built using [Flask](http://flask.pocoo.org/).
-
-### Database
-
-e||a uses a relational database [PostgreSQL](https://www.postgresql.org/) with the data model  
-defined using [SQLAlchemy](https://www.sqlalchemy.org/)
-
-### Command line interface
-
-e||a has command line tool (using [Click](http://click.pocoo.org/)) to import gene panels, users and variants.
-
+::: warning NOTE
+If you notice that functionality has stopped working or other unusual behaviour in *ella*, first try a **force refresh** of the browser cache: Press `Shift + F5`. This will ensure you get the latest setup, especially after updates.
+:::

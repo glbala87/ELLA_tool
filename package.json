@@ -45,6 +45,7 @@
         "ng-cache-loader": "^0.0.26",
         "node-sass": "^4.9.2",
         "sass-loader": "^7.0.3",
+        "vuepress": "^0.14.4",
         "wdio-jasmine-framework": "^0.3.5",
         "wdio-spec-reporter": "0.1.2",
         "webdriverio": "^4.12.0",
@@ -73,7 +74,8 @@
         "test-watch": "jest --watch",
         "build": "webpack --mode development",
         "production": "webpack --mode production",
-        "wdio": "wdio"
+        "wdio": "wdio",
+        "docs": "cd docs && vuepress build -d ../src/webui/build/docs/"
     },
     "author": "",
     "license": "All rights reserved",

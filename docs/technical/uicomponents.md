@@ -1,15 +1,16 @@
-# UI
+# User interface
+
+[[toc]]
 
 ## Pages / views
 The views and corresponding routes are defined in index.js:
-- overview of analysis and samples
-- analysis interpretation
-- variant interpretation
-- login
+- Overview of analysis and samples
+- Analysis interpretation
+- Variant interpretation
+- Login
 
 ## Overview
-There are two overview pages, one for analysis and one for alleles/variants.
-The categorization is mostly done in backend.
+There are two overview pages, one for analysis and one for alleles/variants. The categorization is mostly done in backend.
 
 **Code**
 - api/v1/resources/overview.py
@@ -32,8 +33,7 @@ The route /analysis/:analysisId is rendered (mainly) by directives workflowAnaly
 - selects a round (usually the latest)
 - loads that round's alleles, ACMG codes and references.
 
-
-<div style="text-align:center"><img src="img/load_analysis.png"></div>
+![](./img/load_analysis.png)
 
 The directives chooses the last interpretion round as the 'selected' one.
 If this round is 'Done' we make a copy of it (to make sure  we don't accidently change it) and uses the copy as 'selected'.
@@ -59,17 +59,15 @@ This allows us to choose a static interpretation page using the entities found i
 Only a single allele is displayed. The various interpretation rounds are not accessible in the UI.
 
 Loading a single allele similar but simpler:
-- load allele data (variant, annotation): /alleles/?q=[genepanel, chr, position, ..]
-- load gene panel (phenotypes, transcript, config): /genepanels/NAME/VERSION/
-- find ACMG codes: /acmg/alleles/ (POST)
-- load interpretation rounds: /workflows/alleles/576/interpretations/
-- find references
+- Load allele data (variant, annotation): /alleles/?q=[genepanel, chr, position, ..]
+- Load gene panel (phenotypes, transcript, config): /genepanels/NAME/VERSION/
+- Find ACMG codes: /acmg/alleles/ (POST)
+- Load interpretation rounds: /workflows/alleles/576/interpretations/
+- Find references
 
 Note that interpreation rounds are not needed to load allele data.
 
-test
-
-**Code*
+**Code:**
 - api/schemas
 - webui/src/js/views/workflow/workflowAllele.directive.js
 - webui/src/js/views/workflow/interpretation.directive.j
