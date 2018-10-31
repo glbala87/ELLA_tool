@@ -1,5 +1,5 @@
 ---
-title: --- REPORT ---
+title: Generate a clinical report
 ---
 
 # REPORT: Generate a clinical report

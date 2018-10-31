@@ -1,5 +1,5 @@
 ---
-title: --- OVERVIEW ---
+title: Data and workflows
 ---
 
 # OVERVIEW: Data and workflows 

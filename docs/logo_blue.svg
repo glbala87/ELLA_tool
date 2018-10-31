@@ -5,11 +5,35 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg76"
    version="1.1"
    viewBox="0 0 61.132515 34.794697"
    height="34.794697mm"
-   width="61.132515mm">
+   width="61.132515mm"
+   sodipodi:docname="logo_blue.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     id="namedview11"
+     showgrid="false"
+     inkscape:zoom="1.2075203"
+     inkscape:cx="115.52601"
+     inkscape:cy="65.753758"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg76" />
   <defs
      id="defs70" />
   <metadata
@@ -20,28 +44,33 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      transform="translate(-12.523028,-88.346702)"
      id="layer1">
-    <text
-       id="text3798-9"
-       y="116.2406"
-       x="10.292528"
+    <g
+       aria-label="E||A"
        style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:9.52499962px;line-height:1.25;font-family:'Work Sans';-inkscape-font-specification:'Work Sans Semi-Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.238125"
-       xml:space="preserve"><tspan
+       id="text3798-9">
+      <path
+         d="m 17.404528,112.71635 v -5.334 h 8.92175 v -3.3655 h -8.92175 v -5.206999 h 11.33475 v -3.52425 H 13.023028 V 116.2406 h 16.16075 v -3.52425 z"
          style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:31.75px;font-family:'Work Sans';-inkscape-font-specification:'Work Sans Semi-Bold';letter-spacing:0px;fill:#316081;fill-opacity:1;stroke-width:0.238125"
-         y="116.2406"
-         x="10.292528"
-         id="tspan3796-9">E<tspan
-   id="tspan3800-7"
-   style="font-size:38.09999847px;letter-spacing:0px;fill:#316081;fill-opacity:1;stroke-width:0.238125">|<tspan
-   id="tspan3807-5"
-   style="letter-spacing:-0.47624999px;fill:#316081;fill-opacity:1;stroke-width:0.238125">|</tspan></tspan><tspan
-   id="tspan3809-5"
-   style="letter-spacing:-0.47624999px;fill:#316081;fill-opacity:1;stroke-width:0.238125">A</tspan></tspan></text>
+         id="path4521" />
+      <path
+         d="m 38.232925,88.846702 h -4.572 V 122.6414 h 4.572 z"
+         style="font-size:38.09999847px;letter-spacing:0px;fill:#316081;fill-opacity:1;stroke-width:0.238125"
+         id="path4523" />
+      <path
+         d="m 49.395034,88.846702 h -4.572 V 122.6414 h 4.572 z"
+         style="letter-spacing:-0.47624999px;fill:#316081;fill-opacity:1;stroke-width:0.238125"
+         id="path4525" />
+      <path
+         d="m 68.615294,116.2406 h 4.54025 l -7.65175,-20.954999 h -5.23875 l -7.65175,20.954999 h 4.47675 l 1.7145,-5.11175 h 8.09625 z m -8.6995,-8.35025 2.00025,-5.969 0.889,-3.111499 h 0.0635 l 0.9525,3.174999 2.00025,5.9055 z"
+         style="letter-spacing:-0.47624999px;fill:#316081;fill-opacity:1;stroke-width:0.238125"
+         id="path4527" />
+    </g>
   </g>
 </svg>

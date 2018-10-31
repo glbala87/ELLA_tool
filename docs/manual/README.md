@@ -4,7 +4,7 @@ The user interface in *ella* is organised in different pages. For in-depth descr
 
 <hr>
 
---- [OVERVIEW](/manual/overview-page.html) ---   
+[OVERVIEW page](/manual/overview-page.html)   
 *Data and workflows*
   
 <div style="text-indent: 4%;"><img src="./img/overview_btn.png"></div>
@@ -16,14 +16,14 @@ The user interface in *ella* is organised in different pages. For in-depth descr
 
 <hr>	  
 	  
---- [INFO](/manual/info-page.html) ---  
+[INFO page](/manual/info-page.html)  
 *Warnings, sample information and coverage*
 
 <div style="text-indent: 4%;"><img src="./img/nav_info_btn.png"></div>
 
 <hr>
 
---- [CLASSIFCATION](/manual/classification-page.html) ---  
+[CLASSIFCATION page](/manual/classification-page.html)  
 *Evaluate evidence and set a classification*
 
 <div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
@@ -35,7 +35,7 @@ The user interface in *ella* is organised in different pages. For in-depth descr
 	  
 <hr>
 
---- [REPORT](/manual/report-page.html) ---  
+[REPORT page](/manual/report-page.html)  
 *Generate a clinical report*
 
 <div style="text-indent: 4%;"><img src="./img/nav_report_btn.png"></div>

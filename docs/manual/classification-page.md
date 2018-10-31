@@ -1,8 +1,8 @@
 ---
-title: --- CLASSIFICATION ---
+title: Evidence and classification
 ---
 
-# CLASSIFICATION: Evaluate evidence and set a classification
+# CLASSIFICATION: Evidence and classification
 
 [[toc]]
 
@@ -21,7 +21,7 @@ Different information is placed in separate sections (shown here in collapsed mo
 
 <div style="text-indent: 4%;"><img src="./img/classification_sections.png"></div>
 
-The sections are described in more detail from in [Evidence sections](/manual/evidence-sections.html).
+The sections are described in more detail in [Evidence sections](/manual/evidence-sections.html) and [Classification section](/manual/classification-section.html).
 
 ## Example classification workflows
 

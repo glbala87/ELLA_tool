@@ -1,37 +1,64 @@
 module.exports = {
-    title: 'ella documentation',
-    base: '/docs/',
-    head: [['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `./favicon.png` }]],
-
-    themeConfig: {
-        lastUpdated: 'Last Updated', // string | boolean
-
-        nav: [
-            { text: 'Home', link: '/' },
-            { text: 'User manual', link: '/manual/' },
-            { text: 'Technical documentation', link: '/technical/' },
-            { text: 'Release notes', link: '/releasenotes/' },
-            { text: 'allel.es', link: 'http://allel.es' }
-        ],
-
-        sidebarDepth: 2,
-
-        sidebar: {
+	title: 'ella documentation',
+	
+	head: [
+		['link', { rel: 'shortcut icon', type: "image/x-icon", href: `./favicon.png` }]
+	],
+	
+	themeConfig: {
+		
+		lastUpdated: 'Last Updated', // string | boolean
+		
+		nav: [
+			{ text: 'Home', link: '/' },
+			{ text: 'User manual', link: '/manual/' },
+			{ text: 'Technical documentation', link: '/technical/' },
+			{ text: 'Release notes', link: '/releasenotes/' },
+			{ text: 'allel.es', link: 'http://allel.es' }
+		],
+		
+		sidebarDepth: 2,
+		
+		sidebar: {
             '/manual/': [
                 {
-                    title: 'User manual',
+                    title: 'Basics',
                     collapsable: false,
                     children: [
-                        '/manual/',
-                        '/manual/overview-page',
-                        '/manual/info-page',
+						'/manual/',
+						'/manual/save-and-finish'
+					]
+                },
+				{
+                    title: 'OVERVIEW page',
+                    collapsable: false,
+                    children: [
+						'/manual/overview-page' 
+					]
+                },
+				{
+                    title: 'INFO page',
+                    collapsable: false,
+                    children: [
+						'/manual/info-page' 
+					]
+                },
+                {
+                    title: 'CLASSIFICATION page',
+                    collapsable: false,
+                    children: [
                         '/manual/classification-page',
                         '/manual/top-bar',
                         '/manual/side-bar',
                         '/manual/evidence-sections',
-                        '/manual/classification-section',
-                        '/manual/report-page',
-                        '/manual/save-and-finish'
+                        '/manual/classification-section'
+                    ]
+                },
+				{
+                    title: 'REPORT page',
+                    collapsable: false,
+                    children: [
+                        '/manual/report-page'
                     ]
                 }
             ],
@@ -54,8 +81,8 @@ module.exports = {
                 }
             ]
         }
-
-        /* Alternative sidebar
+		
+		/* Alternative sidebar
 		sidebar: [
 			'/',
 			{ title: 'User manual',
@@ -88,5 +115,6 @@ module.exports = {
 			'/releasenotes/'
 		]
 		*/
-    }
+		
+	}
 }
