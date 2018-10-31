@@ -48,7 +48,9 @@ config = {
                 "analysis": {
                     "finalize_requirements": {
                         "workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review'],
-                        "all_alleles_valid_classification": True
+                        "allow_notrelevant": True,
+                        "allow_technical": True,
+                        "allow_unclassified": True
                     }
                 }
             },

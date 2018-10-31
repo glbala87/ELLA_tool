@@ -488,7 +488,14 @@ class AnalysisActionFinalizeResource(LogRequestResource):
         [
             'alleleassessments',
             'referenceassessments',
-            'allelereports'
+            'allelereports',
+            'technical_allele_ids',
+            'notrelevant_allele_ids',
+            'annotations'
+        ],
+        allowed=[
+            'custom_annotations',
+            'attachments'
         ]
     )
     def post(self, session, analysis_id, user_config=None, data=None, user=None):
@@ -574,7 +581,9 @@ class AnalysisActionFinalizeResource(LogRequestResource):
                     "reuse": true
 
                 }
-            ]
+            ],
+            "notrelevant_allele_ids": [1, 2, ...],
+            "technical_allele_ids": [3, 4, ...],
         }
         ```
 

@@ -62,14 +62,16 @@ export function prepareAlleleStateModel(alleleState) {
         }
     }
 
-    if (!('verification' in alleleState)) {
-        alleleState.verification = null
+    if (!('analysis' in alleleState)) {
+        alleleState.analysis = {}
     }
 
-    if (!('quality' in alleleState)) {
-        alleleState.quality = {
-            comment: ''
-        }
+    if (!('verification' in alleleState.analysis)) {
+        alleleState.analysis.verification = null
+    }
+
+    if (!('notrelevant' in alleleState.analysis)) {
+        alleleState.analysis.notrelevant = null
     }
 
     //

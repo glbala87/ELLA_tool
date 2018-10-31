@@ -19,6 +19,7 @@ import template from './alleleSidebarList.ngtmpl.html'
 import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
+import getAlleleStates from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStates'
 
 const getAlleles = (alleleIds, alleles) => {
     return Compute(alleleIds, alleles, (alleleIds, alleles) => {
@@ -32,6 +33,7 @@ const getAlleles = (alleleIds, alleles) => {
 app.component('alleleSidebarList', {
     bindings: {
         sectionTitle: '@?',
+        commentType: '@?', // none, 'analysis' or 'evaluation'
         alleleIdsPath: '<', // path on Cerebral store
         allelesPath: '<', // path on Cerebral store
         rowClickedPath: '<',
@@ -55,6 +57,7 @@ app.component('alleleSidebarList', {
             isMultipleInGene: isMultipleInGene(state`${props`allelesPath`}`),
             depth: getDepth(state`${props`allelesPath`}`),
             alleleassessments: getAlleleAssessments,
+            alleleStates: getAlleleStates,
             alleleRatio: getAlleleRatio(state`${props`allelesPath`}`),
             hiFreq: getHiFrequency(state`${props`allelesPath`}`, 'freq'),
             hiCount: getHiFrequency(state`${props`allelesPath`}`, 'count'),
@@ -70,7 +73,9 @@ app.component('alleleSidebarList', {
             // TODO: Consider refactoring the ones below out of this component
             quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
-            verificationStatusChanged: signal`views.workflows.verificationStatusChanged`
+            analysisCommentChanged: signal`views.workflows.interpretation.analysisCommentChanged`,
+            verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
+            notRelevantChanged: signal`views.workflows.notRelevantChanged`
         },
         'AlleleSidebarList',
         [
@@ -239,6 +244,41 @@ app.component('alleleSidebarList', {
                                 : `(${formatted})`
                         }
                         return '-'
+                    },
+                    getCommentTitle() {
+                        if ($ctrl.commentType === 'analysis') {
+                            return 'COMMENT'
+                        }
+                        if ($ctrl.commentType === 'evaluation') {
+                            return 'EVALUATION'
+                        }
+                        return ''
+                    },
+                    getCommentModel(allele_id) {
+                        if ($ctrl.commentType === 'analysis') {
+                            return $ctrl.alleleStates[allele_id].analysis
+                        }
+                        if ($ctrl.commentType === 'evaluation') {
+                            return $ctrl.alleleassessments[allele_id].evaluation.classification
+                        }
+                    },
+                    commentUpdated(allele_id, comment) {
+                        if ($ctrl.commentType === 'analysis') {
+                            $ctrl.analysisCommentChanged({
+                                alleleId: allele_id,
+                                comment
+                            })
+                        }
+                        if ($ctrl.commentType === 'evaluation') {
+                            $ctrl.evaluationCommentChanged({
+                                alleleId: allele_id,
+                                name: 'classification',
+                                comment
+                            })
+                        }
+                    },
+                    showComment() {
+                        return ['analysis', 'evaluation'].includes($ctrl.commentType)
                     }
                 })
             }

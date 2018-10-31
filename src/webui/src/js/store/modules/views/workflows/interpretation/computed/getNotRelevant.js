@@ -11,7 +11,7 @@ export default (alleles) => {
         for (let [alleleId, allele] of Object.entries(alleles)) {
             const alleleState = get(getAlleleState(alleleId))
 
-            result[alleleId] = alleleState ? alleleState.analysis.verification : null
+            result[alleleId] = alleleState ? alleleState.analysis.notrelevant : null
         }
         return result
     })

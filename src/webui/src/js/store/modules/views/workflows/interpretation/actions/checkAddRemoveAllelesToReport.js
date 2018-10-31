@@ -14,7 +14,8 @@ export default function checkAddRemoveAlleleToReport({ props, state, resolve }) 
         if (
             configOption &&
             configOption.include_report &&
-            alleleState.verification !== 'technical'
+            alleleState.analysis.verification !== 'technical' &&
+            !alleleState.analysis.notrelevant
         ) {
             state.set(
                 `views.workflows.interpretation.selected.state.allele.${alleleId}.report.included`,

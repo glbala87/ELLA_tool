@@ -3,6 +3,7 @@ import { state, props, string } from 'cerebral/tags'
 import getClassification from '../interpretation/computed/getClassification'
 import isAlleleAssessmentReused from '../interpretation/computed/isAlleleAssessmentReused'
 import isAlleleAssessmentOutdated from '../../../../common/computes/isAlleleAssessmentOutdated'
+import getAlleleAssessment from '../interpretation/computed/getAlleleAssessment'
 
 export default Compute(
     state`views.workflows.type`,
@@ -68,6 +69,7 @@ export default Compute(
                     allClassified = Object.entries(alleles).every((e) => {
                         let [alleleId, allele] = e
                         if (alleleId in interpretation.state.allele) {
+                            const alleleState = interpretation.state.allele[alleleId]
                             const isReused = get(isAlleleAssessmentReused(alleleId))
                             const isOutdated = get(isAlleleAssessmentOutdated(allele))
                             let notReusedOutdated = true
@@ -75,7 +77,8 @@ export default Compute(
                                 notReusedOutdated = !isOutdated
                             }
                             const hasClassification = Boolean(get(getClassification(alleleId)))
-                            return hasClassification && notReusedOutdated
+                            const isTechnical = alleleState.analysis.verification === 'technical'
+                            return (hasClassification && notReusedOutdated) || isTechnical
                         }
                     })
                 }

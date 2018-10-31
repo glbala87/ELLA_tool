@@ -19,6 +19,7 @@ import {
 import { deepCopy } from '../../util'
 import template from './allelesectionbox.ngtmpl.html'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import getNotRelevantStatus from '../../store/modules/views/workflows/interpretation/computed/getNotRelevantStatus'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -103,13 +104,15 @@ app.component('alleleSectionbox', {
             ),
             showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
             verificationStatus: getVerificationStatus(state`views.workflows.data.alleles`),
+            notRelevant: getNotRelevantStatus(state`views.workflows.data.alleles`),
             verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
+            notRelevantChanged: signal`views.workflows.notRelevantChanged`,
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
             collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
             alleleReportCommentChanged: signal`views.workflows.interpretation.alleleReportCommentChanged`,
-            qualityCommentChanged: signal`views.workflows.interpretation.qualityCommentChanged`,
+            analysisCommentChanged: signal`views.workflows.interpretation.analysisCommentChanged`,
             reuseAlleleAssessmentClicked: signal`views.workflows.interpretation.reuseAlleleAssessmentClicked`,
             removeAcmgClicked: signal`views.workflows.interpretation.removeAcmgClicked`,
             acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`,

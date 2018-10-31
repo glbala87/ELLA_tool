@@ -8,7 +8,7 @@ import selectedAlleleChanged from './selectedAlleleChanged'
 function canAddToReport({ state, props, path, resolve }) {
     const { alleleId } = props
     const verificationStatus = state.get(
-        `views.workflows.interpretation.selected.state.allele.${alleleId}.verification`
+        `views.workflows.interpretation.selected.state.allele.${alleleId}.analysis.verification`
     )
     const classification = resolve.value(getClassification(alleleId))
     if (verificationStatus !== 'technical' && classification) {

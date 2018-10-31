@@ -7,10 +7,10 @@ export default function(inverse = false, alleles) {
         state`views.workflows.interpretation.selected`,
         (alleles, interpretation) => {
             return alleles.filter((allele) => {
-                const technical = Boolean(
-                    interpretation.state.allele[allele.id].analysis.verification === 'technical'
+                const notRelevant = Boolean(
+                    interpretation.state.allele[allele.id].analysis.notrelevant
                 )
-                return inverse ? !technical : technical
+                return inverse ? !notRelevant : notRelevant
             })
         }
     )

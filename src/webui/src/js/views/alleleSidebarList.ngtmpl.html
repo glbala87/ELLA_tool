@@ -94,7 +94,7 @@
           <div ng-if="$ctrl.expanded" class="cell hi-freq" title="Highest frequency">HI. FREQ</div>
           <div ng-if="$ctrl.expanded" class="cell hi-count" title="Highest allele count">HI. COUNT</div>
           <div ng-if="$ctrl.expanded" class="cell external" title="External databases">EXTERNAL</div>
-          <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell evaluation" title="Evaluation">EVALUATION</div>
+          <div ng-if="$ctrl.expanded && $ctrl.showComment()" class="cell evaluation" title="{{$ctrl.getCommentTitle()}}">{{$ctrl.getCommentTitle()}}</div>
           <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification" title="Classification">QUICK CLASSIFICATION</div>
           <div ng-if="$ctrl.expanded && !$ctrl.allowQuickClassification" class="cell"></div>
           <div ng-if="$ctrl.isTogglable()" class="cell"></div>
@@ -189,15 +189,16 @@
             popover-placement="bottom"><span class="clickable">
             <span ng-repeat="s in $ctrl.externalSummary[allele.id]">{{s}} </span></span>
           </div>
-          <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell evaluation">
+          <div ng-if="$ctrl.expanded && $ctrl.showComment()" class="cell evaluation">
               <wysiwyg-editor class="control-comment"
               show-controls="false"
               ng-disabled="$ctrl.readOnly"
-              ng-change="$ctrl.evaluationCommentChanged({alleleId: allele.id, name: 'classification', comment: $ctrl.alleleassessments[allele.id].evaluation.classification.comment})"
-              ng-model="$ctrl.alleleassessments[allele.id].evaluation.classification.comment"></wysiwyg-editor>
+              ng-change="$ctrl.commentUpdated(allele.id, $ctrl.getCommentModel(allele.id).comment)"
+              ng-model="$ctrl.getCommentModel(allele.id).comment"></wysiwyg-editor>
           </div>
           <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification">
             <button class="purple" ng-click="$ctrl.verificationStatusChanged({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
+            <button class="purple" ng-click="$ctrl.notRelevantChanged({alleleId: allele.id, notRelevant: true})" ng-disabled="$ctrl.readOnly">Not relevant</button>
             <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
             <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
           </div>

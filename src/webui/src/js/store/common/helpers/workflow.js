@@ -16,6 +16,8 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
     let referenceassessments = []
     let allelereports = []
     let attachments = []
+    let technical_allele_ids = []
+    let notrelevant_allele_ids = []
 
     // collection annotation ids for the alleles:
     for (let allele_state of Object.values(interpretation.state.allele)) {
@@ -81,16 +83,18 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
                     )
                 )
             }
-            if (!allele_state.alleleassessment.reuse) {
-                attachments.push({
-                    allele_id: allele_state.allele_id,
-                    attachment_ids: allele_state.alleleassessment.attachment_ids
-                })
+
+            if (allele_state.analysis.verification === 'technical') {
+                technical_allele_ids.push(allele_state.allele_id)
+            }
+
+            if (allele_state.analysis.notrelevant) {
+                notrelevant_allele_ids.push(allele_state.allele_id)
             }
         }
     }
 
-    return {
+    const payload = {
         annotations,
         custom_annotations,
         alleleassessments,
@@ -98,6 +102,13 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
         allelereports,
         attachments
     }
+    if (type === 'analysis') {
+        Object.assign(payload, {
+            technical_allele_ids,
+            notrelevant_allele_ids
+        })
+    }
+    return payload
 }
 
 function _getAlleleReferences(allele, references) {
