@@ -1,5 +1,6 @@
 module.exports = {
 	title: 'ella documentation',
+	base: '/docs/',
 	
 	head: [
 		['link', { rel: 'shortcut icon', type: "image/x-icon", href: `./favicon.png` }]
@@ -75,46 +76,10 @@ module.exports = {
                         '/technical/uicomponents',
                         '/technical/testing',
                         '/technical/acmg-rule-engine',
-                        '/technical/preconfigured-gene-panels',
-                        '/technical/readme-gitlab'
+                        '/technical/preconfigured-gene-panels'
                     ]
                 }
             ]
         }
-		
-		/* Alternative sidebar
-		sidebar: [
-			'/',
-			{ title: 'User manual',
-				children: [
-					'/manual/',
-					'/manual/overview-page',
-					'/manual/info-page',
-					'/manual/classification-page',
-					'/manual/top-bar',
-					'/manual/side-bar',
-					'/manual/evidence-sections',
-					'/manual/classification-section',
-					'/manual/report-page',
-					'/manual/save-and-finish'
-				]
-			},
-			{ title: 'Technical documentation',
-				children: [
-					'/technical/',
-					'/technical/installation',
-					'/technical/workflow',
-					'/technical/datamodel',
-					'/technical/uicomponents',
-					'/technical/testing',
-					'/technical/acmg-rule-engine',
-					'/technical/preconfigured-gene-panels',
-					'/technical/readme-gitlab'
-				]
-			},
-			'/releasenotes/'
-		]
-		*/
-		
 	}
 }
