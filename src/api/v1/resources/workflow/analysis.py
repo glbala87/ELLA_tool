@@ -22,9 +22,9 @@ class AnalysisGenepanelResource(LogRequestResource):
         """
         allele_ids = request.args.get('allele_ids', '')
         if not allele_ids:
-            raise ApiError("Missing values for required parameter 'allele_ids'")
-
-        allele_ids = allele_ids.split(',')
+            allele_ids = []
+        else:
+            allele_ids = allele_ids.split(',')
         return helpers.load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version)
 
 
