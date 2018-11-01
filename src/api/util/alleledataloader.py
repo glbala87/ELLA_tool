@@ -65,10 +65,12 @@ class AlleleDataLoader(object):
                 if any(s['genotype']['type'] == 'Homozygous' for s in proband_samples):
                     allele_ids_tags[allele_id].add('homozygous')
 
-                # Low quality
                 keys = ['qual', 'pass', 'dp', 'allele_ratio']
-                if any(not v for s in al['samples'] for k, v in s['genotype']['needs_verification_checks'].iteritems() if k in keys):
-                    allele_ids_tags[allele_id].add('low_quality')
+                for s in al['samples']:
+                     verification_checks = s['genotype']['needs_verification_checks']
+                     if any(not v for k,v in verification_checks.iteritems() if k in keys) and verification_checks['hts']:
+                         allele_ids_tags[allele_id].add('low_quality')
+                         break
 
                 if segregation_results:
                     for tag in SEGREGATION_TAGS:
