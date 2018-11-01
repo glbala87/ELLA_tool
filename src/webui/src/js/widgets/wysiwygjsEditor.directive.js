@@ -278,6 +278,7 @@ export class WysiwygEditorController {
 
         // Create div with slider
         let sliderContainer = document.createElement('div')
+        sliderContainer.classList.add('image-slider')
         let slider = document.createElement('input')
         sliderContainer.appendChild(slider)
 
@@ -288,15 +289,26 @@ export class WysiwygEditorController {
         slider.step = 0.01
 
         // Position slider
-        sliderContainer.style.position = 'absolute'
         const rect = img.getBoundingClientRect()
-        const left = rect.left + window.scrollX
-        const top = rect.top + window.scrollY
+
+        // If we're in a modal, we should append slider to modal-content, to scroll with modal.
+        // Otherwise, we append the slider to document.body, to scroll with window
+        let left, top, parent
+        if (document.getElementsByClassName('modal-content').length) {
+            parent = document.getElementsByClassName('modal-content')[0]
+            let modalDialog = document.getElementsByClassName('modal-dialog')[0]
+            left = rect.left + parent.scrollLeft - modalDialog.offsetLeft
+            top = rect.top + parent.scrollTop - modalDialog.offsetTop
+        } else {
+            parent = document.body
+            left = rect.left + window.scrollX
+            top = rect.top + window.scrollY
+        }
+
         sliderContainer.style.left = left + 'px'
         sliderContainer.style.top = top + 'px'
 
         // Append slider to parent element
-        const parent = document.body
         parent.appendChild(sliderContainer)
 
         slider.value = currentScale
@@ -491,7 +503,7 @@ export class WysiwygEditorController {
         // To circumvent this, we pass in this as thisObj in those cases
         if (!thisObj) thisObj = this
 
-        if (!force && thisObj.linkform.includes(document.activeElement)) {
+        if (!force && thisObj.linkform.contains(document.activeElement)) {
             // Link form is still active
             return
         }
@@ -513,7 +525,7 @@ export class WysiwygEditorController {
 
         if (
             src.nodeName !== 'INPUT' &&
-            (src === this.buttons['link'] || this.buttons['link'].includes(src))
+            (src === this.buttons['link'] || this.buttons['link'].contains(src))
         ) {
             // Open or close link form
             if (this.linkform.hidden) {
