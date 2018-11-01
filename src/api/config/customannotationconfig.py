@@ -102,7 +102,7 @@ customannotationconfig = {
             "name": "BRCA Exchange",
             "only_for_genes": [1100],
             "url_for_genes": {
-                "1100": "http://www.brcaexchange.org/",
+                "1100": "https://brcaexchange.org/variants?search=BRCA1",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -216,7 +216,7 @@ customannotationconfig = {
             "name": "BRCA Exchange",
             "only_for_genes": [1101],
             "url_for_genes": {
-                "1101": "http://www.brcaexchange.org/",
+                "1101": "https://brcaexchange.org/variants?search=BRCA2",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -464,6 +464,25 @@ customannotationconfig = {
             "only_for_genes": [27310],
             "url_for_genes": {
                 "27310": "https://databases.lovd.nl/shared/view/FLCN",
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"]
+            ]
+        },
+        {
+            "key": "LOVD_shared-HOXB13",
+            "name": "LOVD shared",
+            "only_for_genes": [5112],
+            "url_for_genes": {
+                "5112": "https://databases.lovd.nl/shared/genes/HOXB13",
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
