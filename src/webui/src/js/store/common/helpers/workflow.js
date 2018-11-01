@@ -1,3 +1,4 @@
+import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
 export function getAlleleIdsFromInterpretation(interpretation) {

@@ -66,6 +66,10 @@ export function prepareAlleleStateModel(alleleState) {
         alleleState.analysis = {}
     }
 
+    if (!('comment' in alleleState.analysis)) {
+        alleleState.analysis.comment = ''
+    }
+
     if (!('verification' in alleleState.analysis)) {
         alleleState.analysis.verification = null
     }

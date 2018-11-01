@@ -4,6 +4,8 @@ import finishWorkflow from './finishWorkflow'
 
 describe('finishWorkflow', function() {
     it('prepares payload correctly', function() {
+        expect.assertions(5)
+
         const testState = {
             views: {
                 workflows: {
@@ -40,7 +42,12 @@ describe('finishWorkflow', function() {
                                                 reuse: false,
                                                 evaluation: { comment: 'New' }
                                             }
-                                        ]
+                                        ],
+                                        analysis: {
+                                            comment: '',
+                                            verification: null,
+                                            notrelevant: null
+                                        }
                                     },
                                     2: {
                                         allele_id: 2,
@@ -61,7 +68,12 @@ describe('finishWorkflow', function() {
                                                 reuse: false,
                                                 evaluation: { comment: 'New' }
                                             }
-                                        ]
+                                        ],
+                                        analysis: {
+                                            comment: '',
+                                            verification: null,
+                                            notrelevant: null
+                                        }
                                     },
                                     3: {
                                         allele_id: 3,
@@ -88,7 +100,12 @@ describe('finishWorkflow', function() {
                                                     comment: "Reference id doesn't exist"
                                                 }
                                             }
-                                        ]
+                                        ],
+                                        analysis: {
+                                            comment: '',
+                                            verification: null,
+                                            notrelevant: null
+                                        }
                                     }
                                 }
                             },

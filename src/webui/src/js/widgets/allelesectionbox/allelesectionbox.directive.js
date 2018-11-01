@@ -19,7 +19,7 @@ import {
 import { deepCopy } from '../../util'
 import template from './allelesectionbox.ngtmpl.html'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
-import getNotRelevantStatus from '../../store/modules/views/workflows/interpretation/computed/getNotRelevantStatus'
+import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -60,6 +60,7 @@ const isCollapsed = Compute(
     state`views.workflows.selectedAllele`,
     props`sectionKey`,
     (userState, selectedAllele, sectionKey) => {
+        const COLLAPSED_BY_DEFAULT = ['analysis']
         if (!userState || !userState.allele) {
             return
         }
@@ -70,7 +71,7 @@ const isCollapsed = Compute(
         ) {
             return userState.allele[selectedAllele].sections[sectionKey].collapsed
         }
-        return false
+        return COLLAPSED_BY_DEFAULT.includes(sectionKey)
     }
 )
 
@@ -104,7 +105,7 @@ app.component('alleleSectionbox', {
             ),
             showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
             verificationStatus: getVerificationStatus(state`views.workflows.data.alleles`),
-            notRelevant: getNotRelevantStatus(state`views.workflows.data.alleles`),
+            notRelevant: getNotRelevant(state`views.workflows.data.alleles`),
             verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
             notRelevantChanged: signal`views.workflows.notRelevantChanged`,
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,

@@ -5,9 +5,7 @@ import { Compute } from 'cerebral'
 import template from './alleleSidebar.ngtmpl.html'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import isExpanded from '../store/modules/views/workflows/alleleSidebar/computed/isExpanded'
-import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
-import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
 
 const showQuickClassificationBtn = Compute(
     state`views.workflows.selectedComponent`,

@@ -551,14 +551,23 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
           color: $red-75;
         }
       }
-      &.classification { min-width: 5rem; width: 5rem; text-align: center;}
+      &.classification { min-width: 5rem; width: 5rem; text-align: center;
+        .classification-container { display: flex;
+          .existing-classification { width: 1.3rem; color: $black-25; }
+          .current-classification { width: 1.3rem; }
+          .arrow-classification { width: 1.3rem;}
+
+        }
+      }
       &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }
       &.dp { min-width: 5rem; text-align: center;}
       &.ratio { min-width: 7rem; text-align: center;}
       &.hi-freq { min-width: 8rem; text-align: center;}
       &.hi-count { min-width: 8rem; text-align: center;}
       &.external { min-width: 10.5rem; text-align: center;}
-      &.evaluation { min-width: 30rem; max-width: 30rem; }
+      &.evaluation { min-width: 30rem; max-width: 30rem;
+        .wysiwygeditor { max-height: 4.7rem; overflow-y: auto; }
+      }
       &.quick-classification {  width: 60rem; max-width: 60rem; padding-left: 1rem;}
 
       @mixin indicator {
@@ -699,6 +708,9 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   }
   &:hover::-webkit-scrollbar-thumb {
     background-color: $blue-50;
+  }
+  .spacer {
+    height: 2rem;
   }
 }
 

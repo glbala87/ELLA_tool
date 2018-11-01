@@ -101,8 +101,7 @@
         </div>
         <div class="nav-row allele" ng-repeat="allele in $ctrl.alleles track by allele.id"
               ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled(allele.id), 'toggled': $ctrl.isToggled(allele.id), 'togglable': $ctrl.isTogglable(), 'multiple': $ctrl.shadeMultipleInGene && $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}">
-          <div ng-if="$ctrl.expanded && !$ctrl.isTogglable()" class="cell tab"
-            title="{{$ctrl.isTogglable() && $ctrl.readOnly ? 'Not allowed (read-only)' : ''}}"></div>
+          <div ng-if="$ctrl.expanded && !$ctrl.isTogglable()" class="cell tab"></div>
           <div title="{{$ctrl.getSampleTypesFull(allele)}}" ng-if="$ctrl.isMultipleSampleType" class="cell sample-type id-sample-type">
             {{$ctrl.getSampleType(allele)}}
           </div>
@@ -146,8 +145,13 @@
               </div>
           </div>
           <div ng-click="$ctrl.rowClicked({alleleId: allele.id})" class="cell classification id-classification">
-            {{$ctrl.getClassificationText(allele.id)}}
+            <div class="classification-container">
+              <div class="existing-classification">{{$ctrl.getExistingClassificationText(allele.id)}}</div>
+              <div class="arrow-classification">{{$ctrl.getArrowClassificationText(allele.id)}}</div>
+              <div class="current-classification">{{$ctrl.getCurrentClassificationText(allele.id)}}</div>
+            </div>
           </div>
+          <div ng-if="!$ctrl.expanded && !$ctrl.isTogglable()" class="cell tab"></div>
           <div ng-if="$ctrl.expanded" class="cell dp"
             popover-trigger="outsideClick"
             uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
@@ -192,13 +196,13 @@
           <div ng-if="$ctrl.expanded && $ctrl.showComment()" class="cell evaluation">
               <wysiwyg-editor class="control-comment"
               show-controls="false"
-              ng-disabled="$ctrl.readOnly"
+              ng-disabled="$ctrl.readOnly || !$ctrl.canUpdateComment(allele.id)"
               ng-change="$ctrl.commentUpdated(allele.id, $ctrl.getCommentModel(allele.id).comment)"
               ng-model="$ctrl.getCommentModel(allele.id).comment"></wysiwyg-editor>
           </div>
           <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification">
-            <button class="purple" ng-click="$ctrl.verificationStatusChanged({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
-            <button class="purple" ng-click="$ctrl.notRelevantChanged({alleleId: allele.id, notRelevant: true})" ng-disabled="$ctrl.readOnly">Not relevant</button>
+            <button class="purple" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
+            <button class="purple" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, notRelevant: true})" ng-disabled="$ctrl.readOnly">Not relevant</button>
             <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
             <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
           </div>

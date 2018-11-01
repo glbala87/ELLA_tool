@@ -12,7 +12,6 @@ import getAlleleRatio from '../store/modules/views/workflows/alleleSidebar/compu
 import getExternalSummary from '../store/modules/views/workflows/alleleSidebar/computed/getExternalSummary'
 import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
 import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessments'
-import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation'
 import template from './alleleSidebarList.ngtmpl.html'
@@ -73,9 +72,7 @@ app.component('alleleSidebarList', {
             // TODO: Consider refactoring the ones below out of this component
             quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
-            analysisCommentChanged: signal`views.workflows.interpretation.analysisCommentChanged`,
-            verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
-            notRelevantChanged: signal`views.workflows.notRelevantChanged`
+            analysisCommentChanged: signal`views.workflows.interpretation.analysisCommentChanged`
         },
         'AlleleSidebarList',
         [
@@ -153,12 +150,32 @@ app.component('alleleSidebarList', {
                         }
                         return $ctrl.toggled[allele_id]
                     },
-                    getClassificationText(allele_id) {
-                        if ($ctrl.isTechnical(allele_id)) {
-                            return `(${$ctrl.classification[allele_id]})`
-                        } else {
-                            return $ctrl.classification[allele_id]
+                    getExistingClassificationText(allele_id) {
+                        const c = $ctrl.classification[allele_id]
+                        if (!c.existing) {
+                            return ''
                         }
+                        return c.current ? `${c.existing}${c.outdated ? '*' : ''}` : ''
+                    },
+                    getArrowClassificationText(allele_id) {
+                        const c = $ctrl.classification[allele_id]
+                        return c.current ? '→' : ''
+                    },
+                    getCurrentClassificationText(allele_id) {
+                        const c = $ctrl.classification[allele_id]
+                        if (!c.hasClassification) {
+                            return ''
+                        }
+                        let text = ''
+                        if (c.current) {
+                            text = c.current
+                        } else if (c.reused) {
+                            text = c.existing
+                        }
+                        if ($ctrl.isTechnical(allele_id)) {
+                            return `(${text})`
+                        }
+                        return text
                     },
                     hasQualityInformation(allele) {
                         return (
@@ -247,7 +264,7 @@ app.component('alleleSidebarList', {
                     },
                     getCommentTitle() {
                         if ($ctrl.commentType === 'analysis') {
-                            return 'COMMENT'
+                            return 'ANALYSIS COMMENT'
                         }
                         if ($ctrl.commentType === 'evaluation') {
                             return 'EVALUATION'
@@ -276,6 +293,12 @@ app.component('alleleSidebarList', {
                                 comment
                             })
                         }
+                    },
+                    canUpdateComment(allele_id) {
+                        if ($ctrl.commentType == 'evaluation') {
+                            return !$ctrl.alleleStates[allele_id].alleleassessment.reuse
+                        }
+                        return true
                     },
                     showComment() {
                         return ['analysis', 'evaluation'].includes($ctrl.commentType)

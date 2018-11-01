@@ -76,7 +76,8 @@ export default Compute(
                             if (isReused) {
                                 notReusedOutdated = !isOutdated
                             }
-                            const hasClassification = Boolean(get(getClassification(alleleId)))
+                            const hasClassification = get(getClassification(alleleId))
+                                .hasClassification
                             const isTechnical = alleleState.analysis.verification === 'technical'
                             return (hasClassification && notReusedOutdated) || isTechnical
                         }
