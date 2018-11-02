@@ -1,5 +1,6 @@
 /* jshint esnext: true */
 import angular from 'angular'
+import sanitizeHtml from 'sanitize-html'
 
 // Export angular functions that we use so it's easier to replace later
 export let deepEquals = angular.equals
@@ -65,4 +66,64 @@ export class EventListeners {
             this.remove(el.element, el.type, el.function)
         }
     }
+}
+
+export function sanitize(dirtyHTML) {
+    return sanitizeHtml(dirtyHTML, {
+        allowedTags: [
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'blockquote',
+            'p',
+            'a',
+            'ul',
+            'ol',
+            'nl',
+            'li',
+            'b',
+            'i',
+            'strong',
+            'em',
+            'strike',
+            'code',
+            'hr',
+            'br',
+            'div',
+            'table',
+            'thead',
+            'caption',
+            'tbody',
+            'tr',
+            'th',
+            'td',
+            'pre',
+            'span'
+        ],
+        allowedAttributes: {
+            '*': ['style'],
+            a: ['href', 'name', 'target']
+        },
+        allowedStyles: {
+            // Allow basic style options
+            '*': {
+                // Match HEX and RGB
+                color: [
+                    /^\#(0x)?[0-9a-f]+$/i,
+                    /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/
+                ],
+                'background-color': [
+                    /^\#(0x)?[0-9a-f]+$/i,
+                    /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/
+                ],
+                'text-align': [/^left$/, /^right$/, /^center$/]
+            }
+        }
+        // We don't currently allow img itself by default, but this
+        // would make sense if we did
+        // img: ['src']
+    })
 }
