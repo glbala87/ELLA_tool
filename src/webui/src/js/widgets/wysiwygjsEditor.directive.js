@@ -5,7 +5,7 @@ import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysi
 import vanillaColorPicker from 'exports-loader?window.vanillaColorPicker!../../thirdparty/vanilla-color-picker/vanilla-color-picker.min'
 
 import { Directive, Inject } from '../ng-decorators'
-import { EventListeners, UUID } from '../util'
+import { EventListeners, UUID, sanitize } from '../util'
 import template from './wysiwygEditor.ngtmpl.html'
 
 @Directive({
@@ -243,20 +243,28 @@ export class WysiwygEditorController {
             // IMPORTANT: Use clipboardData.items rather than clipboardData.files, as this does not work for older versions of Chrome
             if (!e.clipboardData.items.length) return
             let hasAttachment = false
-            for (let item of e.clipboardData.items) {
-                if (item.kind !== 'file') continue
-                this.attachmentResource.post(item.getAsFile()).then((id) => {
-                    let uuid = UUID()
-                    let label = `Attachment ${id} ${uuid}`
-                    let src = `/api/v1/attachments/${id}`
-                    this.editor.insertHTML(
-                        `<img id="${uuid}" src="${src}" alt="${label}" title="${label}">`
-                    )
-                })
-                hasAttachment = true
-            }
-            if (hasAttachment) {
+            if (e.clipboardData.types.indexOf('text/html') > -1) {
+                let text = e.clipboardData.getData('text/html')
                 e.preventDefault()
+                document.execCommand('insertHTML', true, sanitize(text))
+            } else {
+                for (let item of e.clipboardData.items) {
+                    if (item.kind !== 'file') {
+                        continue
+                    }
+                    this.attachmentResource.post(item.getAsFile()).then((id) => {
+                        let uuid = UUID()
+                        let label = `Attachment ${id} ${uuid}`
+                        let src = `/api/v1/attachments/${id}`
+                        this.editor.insertHTML(
+                            `<img id="${uuid}" src="${src}" alt="${label}" title="${label}">`
+                        )
+                    })
+                    hasAttachment = true
+                }
+                if (hasAttachment) {
+                    e.preventDefault()
+                }
             }
         })
 
