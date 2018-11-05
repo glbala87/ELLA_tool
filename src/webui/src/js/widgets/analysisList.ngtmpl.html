@@ -13,7 +13,7 @@
   </div>
   <div class="analysis-extras">
     <span class="analysis-comment id-analysis-comment"
-          ng-if="!$ctrl.isAnalysisDone(analysis) && $ctrl.getReviewComment(analysis)">
+          ng-if="$ctrl.getReviewComment(analysis)">
       {{$ctrl.getReviewComment(analysis)}}
     </span>
   </div>

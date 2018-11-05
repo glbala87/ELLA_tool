@@ -641,13 +641,25 @@ def get_finalized_analyses(session, user=None, page=None, per_page=None):
     ).order_by(
         sorted_analysis_ids.c.max_date_last_update.desc()
     )
+
     count = finalized_analyses.count()
 
     if page and per_page:
         start = (page-1) * per_page
         end = page * per_page
         finalized_analyses = finalized_analyses.slice(start, end)
-    return schemas.AnalysisSchema().dump(finalized_analyses.all(), many=True).data, count
+
+
+    finalized_analyses_data = schemas.AnalysisSchema().dump(finalized_analyses.all(), many=True).data
+
+    # Insert review comment in analyses
+    analysis_ids = [a['id'] for a in finalized_analyses_data]
+    review_comments = dict(queries.workflow_analyses_review_comment(session, analysis_ids))
+    for a in finalized_analyses_data:
+        if a['id'] in review_comments:
+            a['review_comment'] = review_comments[a['id']]
+
+    return finalized_analyses_data, count
 
 
 def categorize_analyses_by_findings(session, not_started_analyses, filter_config_id):
