@@ -152,6 +152,35 @@
                     ]
                 },
                 {
+                    "name": "consequence",
+                    "config": {},
+                    "exceptions": [
+                        {
+                            "name": "classification",
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "ppy",
                     "config": {
                         "ppy_tract_region": [-20,-3]
